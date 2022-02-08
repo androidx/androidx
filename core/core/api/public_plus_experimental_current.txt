@@ -1730,12 +1730,12 @@ package androidx.core.os {
   public final class LocaleListCompat {
     method public static androidx.core.os.LocaleListCompat create(java.util.Locale!...);
     method public static androidx.core.os.LocaleListCompat forLanguageTags(String?);
-    method public java.util.Locale! get(int);
+    method public java.util.Locale? get(int);
     method @Size(min=1) public static androidx.core.os.LocaleListCompat getAdjustedDefault();
     method @Size(min=1) public static androidx.core.os.LocaleListCompat getDefault();
     method public static androidx.core.os.LocaleListCompat getEmptyLocaleList();
     method public java.util.Locale? getFirstMatch(String![]);
-    method @IntRange(from=0xffffffff) public int indexOf(java.util.Locale!);
+    method @IntRange(from=0xffffffff) public int indexOf(java.util.Locale?);
     method public boolean isEmpty();
     method @IntRange(from=0) public int size();
     method public String toLanguageTags();
