@@ -1,0 +1,58 @@
+/*
+ * Copyright 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import androidx.build.Publish
+import androidx.build.RunApiTasks
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("kotlin-android")
+}
+
+dependencies {
+    api(project(":camera:camera-core"))
+    api(project(":camera:camera-view"))
+    api("androidx.annotation:annotation:1.2.0")
+    api(libs.guavaListenableFuture)
+
+    testImplementation(libs.testRunner)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.kotlinStdlib)
+    testImplementation(libs.truth)
+    testImplementation(libs.testRules)
+    testImplementation(libs.testCore)
+    testImplementation(project(":camera:camera-core"))
+    testImplementation(project(":camera:camera-view"))
+}
+
+android {
+    defaultConfig {
+        multiDexEnabled = true
+    }
+
+    testOptions.unitTests.includeAndroidResources = true
+}
+
+androidx {
+    name = "Jetpack Camera MLKit Vision Library"
+    publish = Publish.NONE
+    mavenGroup = LibraryGroups.CAMERA
+    inceptionYear = "2022"
+    runApiTasks = new RunApiTasks.Yes()
+    description = "MLKit vision components for the Jetpack Camera Library, a library providing a " +
+            "seamless integration that enables camera driven computer vision features " +
+            "across all of Android."
+}
