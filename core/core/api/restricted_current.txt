@@ -2066,6 +2066,7 @@ package androidx.core.os {
     method public java.util.Locale? getFirstMatch(String![]);
     method @IntRange(from=0xffffffff) public int indexOf(java.util.Locale!);
     method public boolean isEmpty();
+    method @RequiresApi(21) public static boolean matchesLanguageAndScript(java.util.Locale, java.util.Locale);
     method @IntRange(from=0) public int size();
     method public String toLanguageTags();
     method public Object? unwrap();
