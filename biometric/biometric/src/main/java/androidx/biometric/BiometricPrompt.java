@@ -17,7 +17,6 @@
 package androidx.biometric;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
@@ -803,7 +802,7 @@ public class BiometricPrompt {
         }
 
         final FragmentManager fragmentManager = fragment.getChildFragmentManager();
-        final BiometricViewModel viewModel = getViewModel(getHostActivityOrContext(fragment));
+        final BiometricViewModel viewModel = getViewModel(fragment);
         addObservers(fragment, viewModel);
         init(fragmentManager, viewModel, null /* executor */, callback);
     }
@@ -884,7 +883,7 @@ public class BiometricPrompt {
         }
 
         final FragmentManager fragmentManager = fragment.getChildFragmentManager();
-        final BiometricViewModel viewModel = getViewModel(getHostActivityOrContext(fragment));
+        final BiometricViewModel viewModel = getViewModel(fragment);
         addObservers(fragment, viewModel);
         init(fragmentManager, viewModel, executor, callback);
     }
@@ -1018,33 +1017,14 @@ public class BiometricPrompt {
     }
 
     /**
-     * Gets the biometric view model instance for the given context, creating one if necessary.
+     * Gets the biometric view model instance for the given owner, creating one if necessary.
      *
-     * @param context The client context that will (directly or indirectly) host the prompt.
+     * @param owner The owner of the view model.
      * @return A biometric view model tied to the lifecycle of the given activity.
      */
     @Nullable
-    static BiometricViewModel getViewModel(@Nullable Context context) {
-        return context instanceof ViewModelStoreOwner
-                ? new ViewModelProvider((ViewModelStoreOwner) context).get(BiometricViewModel.class)
-                : null;
-    }
-
-    /**
-     * Gets the host Activity or Context the given Fragment.
-     *
-     * @param fragment The fragment.
-     * @return The Activity or Context that hosts the Fragment.
-     */
-    @Nullable
-    static Context getHostActivityOrContext(@NonNull Fragment fragment) {
-        final FragmentActivity activity = fragment.getActivity();
-        if (activity != null) {
-            return activity;
-        } else {
-            // If the host activity is null, return the host context instead
-            return fragment.getContext();
-        }
+    static BiometricViewModel getViewModel(@Nullable ViewModelStoreOwner owner) {
+        return owner != null ? new ViewModelProvider(owner).get(BiometricViewModel.class) : null;
     }
 
     /**

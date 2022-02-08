@@ -36,6 +36,7 @@ import android.os.Handler;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.lifecycle.ViewModelStoreOwner;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -261,7 +262,7 @@ public class BiometricFragmentTest {
 
         @Override
         @Nullable
-        public BiometricViewModel getViewModel(@Nullable Context hostContext) {
+        public BiometricViewModel getViewModel(@Nullable ViewModelStoreOwner owner) {
             return mViewModel;
         }
 
