@@ -44,11 +44,10 @@ private val PressedKey = booleanPreferencesKey("pressedKey")
 class ButtonAction : ActionCallback {
     override suspend fun onRun(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
         // Toggle the "pressed" state
-        val widget = SingleEntityWidget()
-        widget.updateAppWidgetState<Preferences>(context, glanceId) { prefs ->
-            prefs.toMutablePreferences().apply { this[PressedKey] = this[PressedKey] != true }
+        updateAppWidgetState(context, glanceId) { state ->
+            state[PressedKey] = state[PressedKey] != true
         }
-        widget.update(context, glanceId)
+        SingleEntityWidget().update(context, glanceId)
     }
 }
 

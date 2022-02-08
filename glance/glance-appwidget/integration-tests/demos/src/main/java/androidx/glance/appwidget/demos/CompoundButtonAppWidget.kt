@@ -36,8 +36,8 @@ import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.Switch
 import androidx.glance.appwidget.SwitchColors
 import androidx.glance.appwidget.action.ActionCallback
-import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.action.ToggleableStateKey
+import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.appWidgetBackground
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.state.updateAppWidgetState
@@ -50,8 +50,6 @@ import androidx.glance.layout.Row
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.padding
-import androidx.glance.state.GlanceStateDefinition
-import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
@@ -60,7 +58,6 @@ import androidx.glance.text.TextStyle
 class CompoundButtonAppWidget : GlanceAppWidget() {
 
     override val sizeMode: SizeMode = SizeMode.Exact
-    override var stateDefinition: GlanceStateDefinition<*> = PreferencesGlanceStateDefinition
 
     enum class Buttons {
         CHECK_1, CHECK_2, CHECK_3, SWITCH_1, SWITCH_2;
@@ -148,8 +145,7 @@ class CompoundButtonAppWidget : GlanceAppWidget() {
 
 @Composable
 fun CountClicks() {
-    val prefs = currentState<Preferences>()
-    val count = prefs[countClicksKey] ?: 0
+    val count = currentState(countClicksKey) ?: 0
     Row(modifier = GlanceModifier.fillMaxWidth()) {
         Button(
             text = "Count clicks",
@@ -161,10 +157,8 @@ fun CountClicks() {
 
 class ClickAction : ActionCallback {
     override suspend fun onRun(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
-        updateAppWidgetState(context, PreferencesGlanceStateDefinition, glanceId) { prefs ->
-            prefs.toMutablePreferences().apply {
-                this[countClicksKey] = (prefs[countClicksKey] ?: 0) + 1
-            }
+        updateAppWidgetState(context, glanceId) { state ->
+            state[countClicksKey] = (state[countClicksKey] ?: 0) + 1
         }
         CompoundButtonAppWidget().update(context, glanceId)
     }
@@ -185,8 +179,8 @@ class ToggleAction : ActionCallback {
             "This action should only be called in response to toggleable events"
         }
 
-        updateAppWidgetState(context, PreferencesGlanceStateDefinition, glanceId) { prefs ->
-            prefs.toMutablePreferences().apply { set(target.prefsKey, checked) }
+        updateAppWidgetState(context, glanceId) { state ->
+            state[target.prefsKey] = checked
         }
         CompoundButtonAppWidget().update(context, glanceId)
     }
