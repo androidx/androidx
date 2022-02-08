@@ -502,7 +502,7 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
                 Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH)).isTrue();
 
         assertThat(db2.getFeatures().isFeatureSupported(
-                Features.ROLE_AND_PERMISSION_WITH_GET_VISIBILITY)).isTrue();
+                Features.SET_SCHEMA_REQUEST_VISIBILITY_PERMISSIONS_AND_GET_VISIBILITY)).isTrue();
     }
 
     @Test

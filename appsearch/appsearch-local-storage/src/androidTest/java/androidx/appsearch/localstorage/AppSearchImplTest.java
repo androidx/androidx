@@ -1534,7 +1534,8 @@ public class AppSearchImplTest {
                 "package1$database1/type1",
                 "package1$database2/type2",
                 "package2$database1/type3",
-                "VS#Pkg$VS#Db/VisibilityType"); // plus the stored Visibility schema
+                "VS#Pkg$VS#Db/VisibilityType",  // plus the stored Visibility schema
+                "VS#Pkg$VS#Db/VisibilityPermissionType");
     }
 
     @FlakyTest(bugId = 204186664)
@@ -2085,7 +2086,7 @@ public class AppSearchImplTest {
                 .isEqualTo(2);
         assertThat(
                 storageInfo.getSchemaStoreStorageInfo().getNumSchemaTypes())
-                .isEqualTo(2); // +1 for VisibilitySchema
+                .isEqualTo(3); // +2 for VisibilitySchema
     }
 
     @Test

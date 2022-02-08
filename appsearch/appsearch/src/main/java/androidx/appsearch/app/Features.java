@@ -51,13 +51,14 @@ public interface Features {
 
     /**
      * Feature for {@link #isFeatureSupported(String)}. This feature covers
-     * {@link SetSchemaRequest.Builder#addAllowedRoleForSchemaTypeVisibility},
-     * {@link SetSchemaRequest.Builder#clearAllowedRolesForSchemaTypeVisibility},
      * {@link GetSchemaResponse#getSchemaTypesNotDisplayedBySystem()},
      * {@link GetSchemaResponse#getSchemaTypesVisibleToPackages()},
-     * {@link GetSchemaResponse#getAllowedRolesForSchemaTypeVisibility()}.
+     * {@link GetSchemaResponse#getRequiredPermissionsForSchemaTypeVisibility()},
+     * {@link SetSchemaRequest.Builder#addRequiredPermissionsForSchemaTypeVisibility} and
+     * {@link SetSchemaRequest.Builder#clearRequiredPermissionsForSchemaTypeVisibility}
      */
-    String ROLE_AND_PERMISSION_WITH_GET_VISIBILITY = "ROLE_AND_PERMISSION_WITH_GET_VISIBILITY";
+    String SET_SCHEMA_REQUEST_VISIBILITY_PERMISSIONS_AND_GET_VISIBILITY =
+            "SET_SCHEMA_REQUEST_VISIBILITY_PERMISSIONS_AND_GET_VISIBILITY";
 
     /**
      * Returns whether a feature is supported at run-time. Feature support depends on the

@@ -27,6 +27,7 @@ import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetSchemaResponse;
 import androidx.appsearch.app.VisibilityDocument;
+import androidx.appsearch.app.VisibilityPermissionDocument;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.AppSearchImpl;
 import androidx.appsearch.localstorage.util.PrefixUtil;
@@ -35,6 +36,7 @@ import androidx.core.util.Preconditions;
 
 import com.google.android.icing.proto.PersistType;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -85,8 +87,12 @@ public class VisibilityStore {
             case VisibilityDocument.SCHEMA_VERSION_DOC_PER_PACKAGE:
                 maybeMigrateToLatest(getSchemaResponse);
                 break;
+            case VisibilityDocument.SCHEMA_VERSION_DOC_PER_SCHEMA:
+                // TODO(b/202194495) add migrator to handle version bump.
             case VisibilityDocument.SCHEMA_VERSION_LATEST:
-                if (getSchemaResponse.getSchemas().contains(VisibilityDocument.SCHEMA)) {
+                Set<AppSearchSchema> existingVisibilitySchema = getSchemaResponse.getSchemas();
+                if (existingVisibilitySchema.contains(VisibilityDocument.SCHEMA)
+                        && existingVisibilitySchema.contains(VisibilityPermissionDocument.SCHEMA)) {
                     // The latest Visibility schema is in AppSearch, we must find our schema type.
                     // Extract all stored Visibility Document into mVisibilityDocumentMap.
                     loadVisibilityDocumentMap();
@@ -100,7 +106,8 @@ public class VisibilityStore {
                     mAppSearchImpl.setSchema(
                             VISIBILITY_PACKAGE_NAME,
                             VISIBILITY_DATABASE_NAME,
-                            Collections.singletonList(VisibilityDocument.SCHEMA),
+                            Arrays.asList(VisibilityDocument.SCHEMA,
+                                    VisibilityPermissionDocument.SCHEMA),
                             /*visibilityDocuments=*/ Collections.emptyList(),
                             /*forceOverride=*/ false,
                             /*version=*/ VisibilityDocument.SCHEMA_VERSION_LATEST,
@@ -243,7 +250,8 @@ public class VisibilityStore {
         mAppSearchImpl.setSchema(
                 VISIBILITY_PACKAGE_NAME,
                 VISIBILITY_DATABASE_NAME,
-                Collections.singletonList(VisibilityDocument.SCHEMA),
+                Arrays.asList(VisibilityDocument.SCHEMA,
+                        VisibilityPermissionDocument.SCHEMA),
                 /*visibilityDocuments=*/ Collections.emptyList(),
                 /*forceOverride=*/ true,
                 /*version=*/ VisibilityDocument.SCHEMA_VERSION_LATEST,
