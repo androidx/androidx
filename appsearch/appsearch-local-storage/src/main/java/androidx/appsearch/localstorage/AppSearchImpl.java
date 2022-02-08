@@ -592,9 +592,9 @@ public final class AppSearchImpl implements Closeable {
                 contentsChanged = false;
             }
 
-            @Nullable Set<String> oldVisibleListeners =
+            Set<String> oldVisibleListeners =
                     oldSchemaNameToVisibleListeningPackage.get(schemaName);
-            @Nullable Set<String> newVisibleListeners =
+            Set<String> newVisibleListeners =
                     newSchemaNameToVisibleListeningPackage.get(schemaName);
             Set<String> allListeningPackages = new ArraySet<>(oldVisibleListeners);
             if (newVisibleListeners != null) {
