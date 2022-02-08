@@ -235,6 +235,7 @@ internal object StackSamplingSimpleperf : Profiler() {
                     .setSampleFrequency(Arguments.profilerSampleFrequency)
                     .recordDwarfCallGraph() // enable Java/Kotlin callstacks
                     .traceOffCpu() // track time sleeping
+                    .setSampleCurrentThread() // sample stacks from this thread only
                     .setOutputFilename("simpleperf.data")
                     .apply {
                         // some emulators don't support cpu-cycles, the default event, so instead we

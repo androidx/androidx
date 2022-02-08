@@ -27,6 +27,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -98,6 +99,14 @@ public class RecordOptions {
     public RecordOptions setSampleThreads(@NonNull List<Integer> threads) {
         mThreads.addAll(threads);
         return this;
+    }
+
+    /**
+     * Record current thread in the app process. By default, record all threads in the process.
+     */
+    @NonNull
+    public RecordOptions setSampleCurrentThread() {
+        return setSampleThreads(Collections.singletonList(Os.gettid()));
     }
 
     /**
