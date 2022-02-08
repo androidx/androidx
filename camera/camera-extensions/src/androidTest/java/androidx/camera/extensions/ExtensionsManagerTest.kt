@@ -87,8 +87,11 @@ class ExtensionsManagerTest(
     }
 
     @After
-    fun teardown() {
+    fun teardown(): Unit = runBlocking {
         if (::cameraProvider.isInitialized) {
+            withContext(Dispatchers.Main) {
+                cameraProvider.unbindAll()
+            }
             cameraProvider.shutdown()[10000, TimeUnit.MILLISECONDS]
         }
 
