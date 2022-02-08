@@ -91,8 +91,8 @@ import java.util.ArrayList;
  * <p/>
  * The VectorDrawableCompat has the following elements:
  * <p/>
- * <dt><code>&lt;vector></code></dt>
  * <dl>
+ * <dt><code>&lt;vector></code></dt>
  * <dd>Used to define a vector drawable
  * <dl>
  * <dt><code>android:name</code></dt>
