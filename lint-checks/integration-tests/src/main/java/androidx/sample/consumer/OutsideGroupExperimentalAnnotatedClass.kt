@@ -20,6 +20,7 @@ package androidx.sample.consumer
 
 import sample.annotation.provider.ExperimentalSampleAnnotationJava
 import sample.annotation.provider.RequiresOptInSampleAnnotationJava
+import sample.annotation.provider.RequiresOptInSampleAnnotationJavaDuplicate
 
 class OutsideGroupExperimentalAnnotatedClass {
 
@@ -38,4 +39,24 @@ class OutsideGroupExperimentalAnnotatedClass {
     fun invalidRequiresOptInAnnotatedMethod() {
         // Nothing to see here.
     }
+
+    @OptIn(RequiresOptInSampleAnnotationJava::class)
+    fun invalidMethodWithSingleOptIn() {
+        // Nothing to see here.
+    }
+
+    @OptIn(
+        RequiresOptInSampleAnnotationJava::class,
+        RequiresOptInSampleAnnotationJavaDuplicate::class
+    )
+    fun invalidMethodWithMultipleOptInsWithLineBreaks() {
+        // Nothing to see here.
+    }
+
+    /* ktlint-disable max-line-length */
+    @OptIn(RequiresOptInSampleAnnotationJava::class, RequiresOptInSampleAnnotationJavaDuplicate::class)
+    fun invalidMethodWithMultipleOptInsWithoutLineBreaks() {
+        // Nothing to see here.
+    }
+    /* ktlint-enable max-line-length */
 }

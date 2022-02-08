@@ -31,8 +31,12 @@ import java.io.FileNotFoundException
 import org.jetbrains.uast.UAnnotated
 import org.jetbrains.uast.UAnnotation
 import org.jetbrains.uast.UClass
+import org.jetbrains.uast.UClassLiteralExpression
 import org.jetbrains.uast.UElement
+import org.jetbrains.uast.UExpression
+import org.jetbrains.uast.kotlin.KotlinUVarargExpression
 import org.jetbrains.uast.resolveToUElement
+import org.jetbrains.uast.toUElement
 
 /**
  * Prevents usage of experimental annotations outside the groups in which they were defined.
@@ -49,8 +53,10 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
         val atomicGroupList: List<String> by lazy { loadAtomicLibraryGroupList() }
 
         override fun visitAnnotation(node: UAnnotation) {
+            val signature = node.qualifiedName
+
             if (DEBUG) {
-                if (APPLICABLE_ANNOTATIONS.contains(node.qualifiedName) && node.sourcePsi != null) {
+                if (APPLICABLE_ANNOTATIONS.contains(signature) && node.sourcePsi != null) {
                     (node.uastParent as? UClass)?.let { annotation ->
                         println(
                             "${context.driver.mode}: declared ${annotation.qualifiedName} in " +
@@ -60,8 +66,65 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
                 }
             }
 
-            // If we find an usage of an experimentally-declared annotation, check it.
-            val annotation = node.resolveToUElement()
+            /**
+             * If the annotation under evaluation is [kotlin.OptIn], extract and evaluate the
+             * annotation(s) referenced by @OptIn - denoted by [kotlin.OptIn.markerClass].
+             */
+            if (signature != null && signature == KOTLIN_OPT_IN_ANNOTATION) {
+                if (DEBUG) {
+                    println("Processing $KOTLIN_OPT_IN_ANNOTATION annotation")
+                }
+
+                val markerClass: UExpression? = node.findAttributeValue("markerClass")
+                if (markerClass != null) {
+                    getUElementsFromOptInMarkerClass(markerClass).forEach { uElement ->
+                        inspectAnnotation(uElement, node)
+                    }
+                }
+
+                /**
+                 * [kotlin.OptIn] has no effect if [kotlin.OptIn.markerClass] isn't provided.
+                 * Similarly, if [getUElementsFromOptInMarkerClass] returns an empty list then
+                 * there isn't anything more to inspect.
+                 *
+                 * In both of these cases we can stop processing here.
+                 */
+                return
+            }
+
+            inspectAnnotation(node.resolveToUElement(), node)
+        }
+
+        private fun getUElementsFromOptInMarkerClass(markerClass: UExpression): List<UElement> {
+            val elements = ArrayList<UElement?>()
+
+            when (markerClass) {
+                is UClassLiteralExpression -> { // opting in to single annotation
+                    elements.add(markerClass.toUElement())
+                }
+                is KotlinUVarargExpression -> { // opting in to multiple annotations
+                    val expressions: List<UExpression> = markerClass.valueArguments
+                    for (expression in expressions) {
+                        val uElement = (expression as UClassLiteralExpression).toUElement()
+                        elements.add(uElement)
+                    }
+                }
+                else -> {
+                    // do nothing
+                }
+            }
+
+            return elements.filterNotNull()
+        }
+
+        private fun UClassLiteralExpression.toUElement(): UElement? {
+            val psiType = this.type
+            val psiClass = context.evaluator.getTypeClass(psiType)
+            return psiClass.toUElement()
+        }
+
+        // If we find an usage of an experimentally-declared annotation, check it.
+        private fun inspectAnnotation(annotation: UElement?, node: UAnnotation) {
             if (annotation is UAnnotated) {
                 val annotations = context.evaluator.getAllAnnotations(annotation, false)
                 if (annotations.any { APPLICABLE_ANNOTATIONS.contains(it.qualifiedName) }) {
@@ -140,6 +203,7 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
          */
         private const val KOTLIN_EXPERIMENTAL_ANNOTATION = "kotlin.Experimental"
 
+        private const val KOTLIN_OPT_IN_ANNOTATION = "kotlin.OptIn"
         private const val KOTLIN_REQUIRES_OPT_IN_ANNOTATION = "kotlin.RequiresOptIn"
         private const val JAVA_EXPERIMENTAL_ANNOTATION =
             "androidx.annotation.experimental.Experimental"
