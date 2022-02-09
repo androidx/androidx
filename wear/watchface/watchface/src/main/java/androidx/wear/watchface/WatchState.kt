@@ -56,7 +56,9 @@ import kotlinx.coroutines.flow.StateFlow
  * chin. A chin is a section at the bottom of a circular display that is visible due to hardware
  * limitations.
  * @param isHeadless Whether or not this is a headless watchface.
- * @param watchFaceInstanceId The system's watch face instance ID where available or `null`.
+ * @param watchFaceInstanceId The ID associated with the watch face instance. Note there may be
+ * more than one instance associated with a [WatchFaceService]. See
+ * [androidx.wear.watchface.client.WatchFaceId] for more details.
  */
 public class WatchState(
     public val interruptionFilter: StateFlow<Int?>,
@@ -71,7 +73,7 @@ public class WatchState(
     public val digitalPreviewReferenceTimeMillis: Long,
     @Px @get:Px public val chinHeight: Int,
     public val isHeadless: Boolean,
-    public val watchFaceInstanceId: StateFlow<String?>
+    public val watchFaceInstanceId: StateFlow<String>
 ) {
     @Deprecated("WatchState constructors without watchFaceInstanceId are deprecated")
     constructor(
@@ -96,7 +98,7 @@ public class WatchState(
         digitalPreviewReferenceTimeMillis,
         chinHeight,
         isHeadless,
-        watchFaceInstanceId = MutableStateFlow(null)
+        watchFaceInstanceId = MutableStateFlow(DEFAULT_INSTANCE_ID)
     )
 
     @UiThread
@@ -130,7 +132,7 @@ public class MutableWatchState {
     public var hasBurnInProtection: Boolean = false
     public var analogPreviewReferenceTimeMillis: Long = 0
     public var digitalPreviewReferenceTimeMillis: Long = 0
-    public val watchFaceInstanceId: MutableStateFlow<String?> = MutableStateFlow(null)
+    public val watchFaceInstanceId: MutableStateFlow<String> = MutableStateFlow(DEFAULT_INSTANCE_ID)
 
     @Px
     public var chinHeight: Int = 0

@@ -19,7 +19,6 @@ package androidx.wear.watchface.client
 import android.graphics.Bitmap
 import android.os.Build
 import android.support.wearable.watchface.SharedMemoryImage
-import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.toApiComplicationData
@@ -28,12 +27,16 @@ import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleData
 
 /**
- * The system is responsible for the management and generation of these ids and they have no
- * context outside of an instance of an EditorState and should not be stored or saved for later
- * use by the WatchFace provider.
+ * The system is responsible for the management and generation of these ids. Some systems support
+ * multiple instances of a watchface and hence there can be multiple ids, but only if
+ * androidx.wear.watchface.MULTIPLE_INSTANCES_ALLOWED meta-data is in the watch face's manifest.
+ *
+ * Some systems don't support multiple instances at all, for those there'll only be one id, however
+ * watch faces and editors should not need to do anything special because of this.
  *
  * @param id The system's id for a watch face being edited. This is passed in from
- * [androidx.wear.watchface.EditorRequest.watchFaceId].
+ * [androidx.wear.watchface.EditorRequest.watchFaceId] and matches the value passed to
+ * [androidx.wear.watchface.WatchState.watchFaceInstanceId].
  */
 public class WatchFaceId(public val id: String) {
     override fun equals(other: Any?): Boolean {
@@ -59,9 +62,7 @@ public class WatchFaceId(public val id: String) {
 /**
  * The state of the editing session. See [androidx.wear.watchface.editor.EditorSession].
  *
- * @param watchFaceId Unique ID for the instance of the watch face being edited (see
- * [androidx.wear.watchface.editor.EditorRequest.watchFaceId]), only defined for Android R and
- * beyond.
+ * @param watchFaceId The system's watch face instance ID. See [WatchFaceId] for details.
  * @param userStyle The current [UserStyle] encoded as a [UserStyleData].
  * @param previewComplicationsData Preview [ComplicationData] needed for taking screenshots without
  * live complication data.
@@ -76,7 +77,6 @@ public class WatchFaceId(public val id: String) {
  * will also be `null` (see implementation of [androidx.wear.watchface.editor.EditorSession.close]).
  */
 public class EditorState internal constructor(
-    @RequiresApi(Build.VERSION_CODES.R)
     public val watchFaceId: WatchFaceId,
     public val userStyle: UserStyleData,
     public val previewComplicationsData: Map<Int, ComplicationData>,
