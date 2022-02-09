@@ -37,8 +37,8 @@ public class CurvedScope internal constructor(
     val reverseLayout: Boolean = true
 ) {
     internal val nodes = mutableListOf<CurvedChild>()
-    internal fun add(node: CurvedChild) {
-        nodes.add(node)
+    internal fun add(node: CurvedChild, modifier: CurvedModifier) {
+        nodes.add(modifier.wrap(node))
     }
 }
 

@@ -116,6 +116,7 @@ internal class ArcPaddingValuesImpl(val outer: Dp, val inner: Dp, val start: Dp,
  * @sample androidx.wear.compose.foundation.samples.CurvedAndNormalText
  *
  * @param text The text to display
+ * @param modifier The [CurvedModifier] to apply to this curved text.
  * @param clockwise The direction the text follows (default is true). Usually text at the top of the
  * screen goes clockwise, and text at the bottom goes counterclockwise.
  * @param contentArcPadding Allows to specify additional space along each "edge" of the content in
@@ -125,10 +126,11 @@ internal class ArcPaddingValuesImpl(val outer: Dp, val inner: Dp, val start: Dp,
  */
 public fun CurvedScope.basicCurvedText(
     text: String,
+    modifier: CurvedModifier = CurvedModifier,
     clockwise: Boolean = true,
     contentArcPadding: ArcPaddingValues = ArcPaddingValues(0.dp),
     style: @Composable () -> CurvedTextStyle = { CurvedTextStyle() }
-) = add(CurvedTextChild(text, clockwise, contentArcPadding, style))
+) = add(CurvedTextChild(text, clockwise, contentArcPadding, style), modifier)
 
 /**
  * [basicCurvedText] is a component allowing developers to easily write curved text following
@@ -139,6 +141,7 @@ public fun CurvedScope.basicCurvedText(
  * @sample androidx.wear.compose.foundation.samples.CurvedAndNormalText
  *
  * @param text The text to display
+ * @param modifier The [CurvedModifier] to apply to this curved text.
  * @param style A style to use.
  * @param clockwise The direction the text follows (default is true). Usually text at the top of the
  * screen goes clockwise, and text at the bottom goes counterclockwise.
@@ -148,10 +151,11 @@ public fun CurvedScope.basicCurvedText(
 public fun CurvedScope.basicCurvedText(
     text: String,
     style: CurvedTextStyle,
+    modifier: CurvedModifier = CurvedModifier,
     clockwise: Boolean = true,
     // TODO: reimplement as modifiers
     contentArcPadding: ArcPaddingValues = ArcPaddingValues(0.dp)
-) = basicCurvedText(text, clockwise, contentArcPadding) { style }
+) = basicCurvedText(text, modifier, clockwise, contentArcPadding) { style }
 
 internal class CurvedTextChild(
     val text: String,

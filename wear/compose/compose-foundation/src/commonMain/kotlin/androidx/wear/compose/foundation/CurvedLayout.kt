@@ -102,7 +102,6 @@ public fun CurvedLayout(
     contentBuilder: CurvedScope.() -> Unit
 ) {
     // Note that all angles in the function are in radians, and the anchor parameter is in degrees
-
     val curvedRowChild by remember {
         derivedStateOf {
             CurvedRowChild(clockwise, radialAlignment, contentBuilder)
@@ -194,8 +193,8 @@ internal class PartialLayoutInfo(
  *
  * It has similarities with a LayoutNode in the compose-ui world, but needs several changes to work
  * on curved elements:
- * Still uses the basic compose phases: composition, measurement,  placement & draw, but
- * measurament is split into sub-phases:
+ * Still uses the basic compose phases: composition, measurement, placement & draw, but
+ * measurement is split into sub-phases:
  * <pre>
  * 1. During composition [CurvedChild#ComposeIfNeeded] is called.
  * 2. During measurement [CurvedChild#initializeMeasure], [CurvedChild#estimateThickness],

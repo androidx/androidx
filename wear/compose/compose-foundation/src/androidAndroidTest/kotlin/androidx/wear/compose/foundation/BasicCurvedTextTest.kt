@@ -16,18 +16,15 @@
 
 package androidx.wear.compose.foundation
 
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.unit.dp
-import org.junit.Assert.assertEquals
 import androidx.compose.ui.unit.sp
 import androidx.test.filters.FlakyTest
+import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 
@@ -38,93 +35,69 @@ class BasicCurvedTextTest {
     @Test
     @FlakyTest(bugId = 227338558)
     fun modifying_curved_text_forces_curved_row_remeasure() {
-        val counters = Counters()
+        val capturedInfo = CapturedInfo()
         val text = mutableStateOf("Initial")
         rule.setContent {
             CurvedLayout {
-                wrappedBasicCurvedText(
-                    counters = counters,
-                    text = text.value,
-                    style = CurvedTextStyle(fontSize = 14.sp)
-                )
+                curvedRow(modifier = CurvedModifier.spy(capturedInfo)) {
+                    basicCurvedText(
+                        text = text.value,
+                        style = CurvedTextStyle(fontSize = 14.sp)
+                    )
+                }
             }
         }
 
         rule.runOnIdle {
-            counters.reset()
+            capturedInfo.reset()
             text.value = "New Value"
         }
 
         rule.runOnIdle {
             // TODO(b/219885899): Investigate why we need the extra passes.
-            assertEquals(Counters(2, 2, 3), counters)
+            assertEquals(CapturedInfo(2, 3, 3), capturedInfo)
         }
     }
 }
 
-internal data class Counters(
+internal data class CapturedInfo(
     var measuresCount: Int = 0,
     var layoutsCount: Int = 0,
-    var drawCount: Int = 0,
+    var drawCount: Int = 0
 ) {
+    // Used in CurvedLayoutTest
+    var lastLayoutInfo: CurvedLayoutInfo? = null
     fun reset() {
         measuresCount = 0
         layoutsCount = 0
         drawCount = 0
+        lastLayoutInfo = null
     }
 }
 
-// TODO: Implement using a CurvedModifier
-internal fun CurvedScope.wrappedBasicCurvedText(
-    counters: Counters,
-    text: String,
-    style: CurvedTextStyle,
-    clockwise: Boolean = true,
-    contentArcPadding: ArcPaddingValues = ArcPaddingValues(0.dp)
-) = add(CurvedChildWrapper(CurvedTextChild(text, clockwise, contentArcPadding) { style }, counters))
+internal fun CurvedModifier.spy(capturedInfo: CapturedInfo) =
+    this.then { wrapped -> SpyCurvedChildWrapper(capturedInfo, wrapped) }
 
-internal class CurvedChildWrapper(
-    val wrapped: CurvedChild,
-    val counters: Counters
-) : CurvedChild() {
-    @Composable
-    override fun SubComposition() { wrapped.SubComposition() }
+internal class SpyCurvedChildWrapper(private val capturedInfo: CapturedInfo, wrapped: CurvedChild) :
+    BaseCurvedChildWrapper(wrapped) {
 
     override fun MeasureScope.initializeMeasure(
         measurables: List<Measurable>,
         index: Int
     ): Int = with(wrapped) {
-        counters.measuresCount++
+        capturedInfo.measuresCount++
         initializeMeasure(measurables, index)
     }
 
-    override fun doEstimateThickness(maxRadius: Float) = wrapped.estimateThickness(maxRadius)
-
-    override fun doRadialPosition(
-        parentOuterRadius: Float,
-        parentThickness: Float,
-    ) = wrapped.radialPosition(
-        parentOuterRadius,
-        parentThickness,
-    )
-
-    override fun doAngularPosition(
-        parentStartAngleRadians: Float,
-        parentSweepRadians: Float,
-        centerOffset: Offset
-    ) = wrapped.angularPosition(
-        parentStartAngleRadians,
-        parentSweepRadians,
-        centerOffset
-    )
-
     override fun (Placeable.PlacementScope).placeIfNeeded() = with(wrapped) {
-        counters.layoutsCount++
+        capturedInfo.lastLayoutInfo = layoutInfo
+        capturedInfo.layoutsCount++
         placeIfNeeded()
     }
 
     override fun DrawScope.draw() = with(wrapped) {
-        counters.drawCount++
+        capturedInfo.lastLayoutInfo = layoutInfo
+        capturedInfo.drawCount++
         draw()
     }
 }

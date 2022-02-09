@@ -31,6 +31,7 @@ import androidx.compose.ui.geometry.Offset
  * Example usage:
  * @sample androidx.wear.compose.foundation.samples.CurvedRowAndColumn
  *
+ * @param modifier The [CurvedModifier] to apply to this curved column.
  * @param outsideIn Order to lay out components. The default (true) is to start form the outside and
  * go in, false is inside-out
  * @param angularAlignment Angular alignment specifies where to lay down children that are thiner
@@ -38,17 +39,17 @@ import androidx.compose.ui.geometry.Offset
  * If unspecified or null, they can choose for themselves.
  */
 public fun CurvedScope.curvedColumn(
+    modifier: CurvedModifier = CurvedModifier,
     outsideIn: Boolean = true,
     angularAlignment: CurvedAlignment.Angular? = null,
     contentBuilder: CurvedScope.() -> Unit
-) = add(CurvedColumnChild(!outsideIn, angularAlignment, contentBuilder))
+) = add(CurvedColumnChild(outsideIn, angularAlignment, contentBuilder), modifier)
 
 internal class CurvedColumnChild(
-    reverseLayout: Boolean,
+    outsideIn: Boolean,
     private val angularAlignment: CurvedAlignment.Angular?,
     contentBuilder: CurvedScope.() -> Unit
-) : ContainerChild(reverseLayout, contentBuilder) {
-
+) : ContainerChild(!outsideIn, contentBuilder) {
     override fun doEstimateThickness(maxRadius: Float): Float =
         maxRadius - children.fold(maxRadius) { currentMaxRadius, node ->
             currentMaxRadius - node.estimateThickness(currentMaxRadius)
