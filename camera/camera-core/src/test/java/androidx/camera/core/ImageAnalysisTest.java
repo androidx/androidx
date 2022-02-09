@@ -26,10 +26,13 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.SystemClock;
 import android.util.Pair;
+import android.util.Size;
 import android.view.Surface;
 
+import androidx.annotation.NonNull;
 import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.core.impl.CameraInternal;
+import androidx.camera.core.impl.ImageAnalysisConfig;
 import androidx.camera.core.impl.TagBundle;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
@@ -38,6 +41,7 @@ import androidx.camera.testing.CameraXUtil;
 import androidx.camera.testing.fakes.FakeAppConfig;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraFactory;
+import androidx.camera.testing.fakes.FakeCameraInfoInternal;
 import androidx.camera.testing.fakes.FakeImageReaderProxy;
 import androidx.test.core.app.ApplicationProvider;
 
@@ -128,6 +132,38 @@ public class ImageAnalysisTest {
         if (mCallbackThread != null) {
             mCallbackThread.quitSafely();
         }
+    }
+
+    @Test
+    public void setAnalyzerWithResolution_overridesUseCaseResolution() {
+        // Arrange: set up ImageAnalysis with target resolution.
+        Size appResolution = new Size(100, 200);
+        ImageAnalysis.Builder builder =
+                new ImageAnalysis.Builder().setTargetResolution(appResolution).setImageQueueDepth(
+                        QUEUE_DEPTH);
+        mImageAnalysis = builder.build();
+        // Analyzer that overrides the resolution.
+        Size analyzerResolution = new Size(300, 400);
+        ImageAnalysis.Analyzer analyzer = new ImageAnalysis.Analyzer() {
+            @Override
+            public void analyze(@NonNull ImageProxy image) {
+                // no-op
+            }
+
+            @Override
+            public Size getTargetResolutionOverride() {
+                return analyzerResolution;
+            }
+        };
+
+        // Act: set the analyzer.
+        mImageAnalysis.setAnalyzer(mBackgroundExecutor, analyzer);
+
+        // Assert: only the target resolution is overridden.
+        ImageAnalysisConfig mergedConfig = (ImageAnalysisConfig) mImageAnalysis.mergeConfigs(
+                new FakeCameraInfoInternal(), null, null);
+        assertThat(mergedConfig.getTargetResolution()).isEqualTo(analyzerResolution);
+        assertThat(mergedConfig.getImageQueueDepth()).isEqualTo(QUEUE_DEPTH);
     }
 
     @Test
@@ -288,8 +324,8 @@ public class ImageAnalysisTest {
 
         mImageAnalysis.setAnalyzer(CameraXExecutors.directExecutor(), slowImageAnalyzer);
         triggerNextImage(); // +1 unclosed image (mCachedImage) if the image leakage happens.
-                                  // If unclosed image reaches 5 (MaxImages == 4), it will throw
-                                  // IllegalStateException(MaxImages) and no image can be received.
+        // If unclosed image reaches 5 (MaxImages == 4), it will throw
+        // IllegalStateException(MaxImages) and no image can be received.
 
         // Closed all posted ImageProxies to ensure the analyzer can receive ImageProxy normally.
         for (ImageProxy imagePendingProxy : postedImageProxies) {
@@ -336,7 +372,8 @@ public class ImageAnalysisTest {
                                     height, format, queueDepth, usage);
                             return mFakeImageReaderProxy;
                         })
-                .setSessionOptionUnpacker((config, builder) -> { })
+                .setSessionOptionUnpacker((config, builder) -> {
+                })
                 .setOnePixelShiftEnabled(false)
                 .build();
 
