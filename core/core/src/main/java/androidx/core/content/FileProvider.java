@@ -35,6 +35,7 @@ import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
@@ -46,6 +47,9 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.VisibleForTesting;
+import androidx.annotation.XmlRes;
+import androidx.core.content.res.ResourcesCompat;
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -80,34 +84,41 @@ import java.util.Map;
  * This overview of FileProvider includes the following topics:
  * </p>
  * <ol>
- *     <li><a href="#ProviderDefinition">Defining a FileProvider</a></li>
- *     <li><a href="#SpecifyFiles">Specifying Available Files</a></li>
- *     <li><a href="#GetUri">Generating the Content URI for a File</a></li>
- *     <li><a href="#Permissions">Granting Temporary Permissions to a URI</a></li>
- *     <li><a href="#ServeUri">Serving a Content URI to Another App</a></li>
+ *     <li>Defining a FileProvider</li>
+ *     <li>Specifying Available Files</li>
+ *     <li>Generating the Content URI for a File</li>
+ *     <li>Granting Temporary Permissions to a URI</li>
+ *     <li>Serving a Content URI to Another App</li>
  * </ol>
- * ### Defining a FileProvider
  * <p>
- * Since the default functionality of FileProvider includes content URI generation for files, you
- * don't need to define a subclass in code. Instead, you can include a FileProvider in your app
- * by specifying it entirely in XML. To specify the FileProvider component itself, add a
- * <code><a href="{@docRoot}guide/topics/manifest/provider-element.html">&lt;provider&gt;</a></code>
- * element to your app manifest. Set the <code>android:name</code> attribute to
- * <code>androidx.core.content.FileProvider</code>. Set the <code>android:authorities</code>
- * attribute to a URI authority based on a domain you control; for example, if you control the
- * domain <code>mydomain.com</code> you should use the authority
- * <code>com.mydomain.fileprovider</code>. Set the <code>android:exported</code> attribute to
- * <code>false</code>; the FileProvider does not need to be public. Set the
- * <a href="{@docRoot}guide/topics/manifest/provider-element.html#gprmsn"
- * >android:grantUriPermissions</a> attribute to <code>true</code>, to allow you
- * to grant temporary access to files. For example:
+ * <b>Defining a FileProvider</b>
+ * <p>
+ * Extend FileProvider with a default constructor, and call super with an XML resource file that
+ * specifies the available files (see below for the structure of the XML file):
  * <pre class="prettyprint">
- *&lt;manifest&gt;
+ * public class MyFileProvider extends FileProvider {
+ *    public MyFileProvider() {
+ *        super(R.xml.file_paths)
+ *    }
+ * }
+ * </pre>
+ * Add a
+ * <code><a href="{@docRoot}guide/topics/manifest/provider-element.html">&lt;provider&gt;</a></code>
+ * element to your app manifest. Set the <code>android:name</code> attribute to the FileProvider you
+ * created. Set the <code>android:authorities</code> attribute to a URI authority based on a
+ * domain you control; for example, if you control the domain <code>mydomain.com</code> you
+ * should use the authority <code>com.mydomain.fileprovider</code>. Set the
+ * <code>android:exported</code> attribute to <code>false</code>; the FileProvider does not need
+ * to be public. Set the <a href="{@docRoot}guide/topics/manifest/provider-element.html#gprmsn"
+ * >android:grantUriPermissions</a> attribute to <code>true</code>, to allow you to grant temporary
+ * access to files. For example:
+ * <pre class="prettyprint">
+ * &lt;manifest&gt;
  *    ...
  *    &lt;application&gt;
  *        ...
  *        &lt;provider
- *            android:name="androidx.core.content.FileProvider"
+ *            android:name="com.sample.MyFileProvider"
  *            android:authorities="com.mydomain.fileprovider"
  *            android:exported="false"
  *            android:grantUriPermissions="true"&gt;
@@ -115,143 +126,117 @@ import java.util.Map;
  *        &lt;/provider&gt;
  *        ...
  *    &lt;/application&gt;
- *&lt;/manifest&gt;</pre>
+ * &lt;/manifest&gt;</pre>
  * <p>
- * If you want to override any of the default behavior of FileProvider methods, extend
- * the FileProvider class and use the fully-qualified class name in the <code>android:name</code>
- * attribute of the <code>&lt;provider&gt;</code> element.
- * ### Specifying Available Files
+ * It is possible to use FileProvider directly instead of extending it. However, this is not
+ * reliable and will causes crashes on some devices.
+ * <p>
+ * <b>Specifying Available Files</b>
+ * <p>
  * A FileProvider can only generate a content URI for files in directories that you specify
  * beforehand. To specify a directory, specify its storage area and path in XML, using child
  * elements of the <code>&lt;paths&gt;</code> element.
  * For example, the following <code>paths</code> element tells FileProvider that you intend to
  * request content URIs for the <code>images/</code> subdirectory of your private file area.
  * <pre class="prettyprint">
- *&lt;paths xmlns:android="http://schemas.android.com/apk/res/android"&gt;
+ * &lt;paths xmlns:android="http://schemas.android.com/apk/res/android"&gt;
  *    &lt;files-path name="my_images" path="images/"/&gt;
  *    ...
- *&lt;/paths&gt;
- *</pre>
+ * &lt;/paths&gt;
+ * </pre>
  * <p>
  * The <code>&lt;paths&gt;</code> element must contain one or more of the following child elements:
- * </p>
- * <dl>
- *     <dt>
- * <pre class="prettyprint">
- *&lt;files-path name="<i>name</i>" path="<i>path</i>" /&gt;
- *</pre>
- *     </dt>
- *     <dd>
+ * <ul>
+ *     <li>
+ *     <pre class="prettyprint">&lt;files-path name="<i>name</i>" path="<i>path</i>" /&gt;</pre>
  *     Represents files in the <code>files/</code> subdirectory of your app's internal storage
  *     area. This subdirectory is the same as the value returned by {@link Context#getFilesDir()
  *     Context.getFilesDir()}.
- *     </dd>
- *     <dt>
- * <pre>
- *&lt;cache-path name="<i>name</i>" path="<i>path</i>" /&gt;
- *</pre>
- *     <dt>
- *     <dd>
+ *     </li>
+ *     <li><pre>&lt;cache-path name="<i>name</i>" path="<i>path</i>" /&gt;</pre>
  *     Represents files in the cache subdirectory of your app's internal storage area. The root path
  *     of this subdirectory is the same as the value returned by {@link Context#getCacheDir()
  *     getCacheDir()}.
- *     </dd>
- *     <dt>
- * <pre class="prettyprint">
- *&lt;external-path name="<i>name</i>" path="<i>path</i>" /&gt;
- *</pre>
- *     </dt>
- *     <dd>
+ *     <li>
+ *     <pre class="prettyprint">&lt;external-path name="<i>name</i>" path="<i>path</i>" /&gt;</pre>
  *     Represents files in the root of the external storage area. The root path of this subdirectory
  *     is the same as the value returned by
  *     {@link Environment#getExternalStorageDirectory() Environment.getExternalStorageDirectory()}.
- *     </dd>
- *     <dt>
- * <pre class="prettyprint">
- *&lt;external-files-path name="<i>name</i>" path="<i>path</i>" /&gt;
- *</pre>
- *     </dt>
- *     <dd>
+ *     <li>
+ *     <pre class="prettyprint">&lt;external-files-path name="<i>name</i>" path="<i>path</i>"
+ *     /&gt;</pre>
  *     Represents files in the root of your app's external storage area. The root path of this
  *     subdirectory is the same as the value returned by
  *     {@code Context#getExternalFilesDir(String) Context.getExternalFilesDir(null)}.
- *     </dd>
- *     <dt>
- * <pre class="prettyprint">
- *&lt;external-cache-path name="<i>name</i>" path="<i>path</i>" /&gt;
- *</pre>
- *     </dt>
- *     <dd>
+ *     </li>
+ *     <li>
+ *     <pre class="prettyprint">&lt;external-cache-path name="<i>name</i>" path="<i>path</i>"
+ *     /&gt;</pre>
  *     Represents files in the root of your app's external cache area. The root path of this
  *     subdirectory is the same as the value returned by
  *     {@link Context#getExternalCacheDir() Context.getExternalCacheDir()}.
- *     </dd>
- *     <dt>
- * <pre class="prettyprint">
- *&lt;external-media-path name="<i>name</i>" path="<i>path</i>" /&gt;
- *</pre>
- *     </dt>
- *     <dd>
+ *     <li>
+ *     <pre class="prettyprint">&lt;external-media-path name="<i>name</i>" path="<i>path</i>"
+ *     /&gt;</pre>
  *     Represents files in the root of your app's external media area. The root path of this
  *     subdirectory is the same as the value returned by the first result of
  *     {@link Context#getExternalMediaDirs() Context.getExternalMediaDirs()}.
  *     <p><strong>Note:</strong> this directory is only available on API 21+ devices.</p>
- *     </dd>
- * </dl>
+ *     </li>
+ * </ul>
  * <p>
- *     These child elements all use the same attributes:
- * </p>
- * <dl>
- *     <dt>
+ * These child elements all use the same attributes:
+ * <ul>
+ *     <li>
  *         <code>name="<i>name</i>"</code>
- *     </dt>
- *     <dd>
+ *         <p>
  *         A URI path segment. To enforce security, this value hides the name of the subdirectory
  *         you're sharing. The subdirectory name for this value is contained in the
  *         <code>path</code> attribute.
- *     </dd>
- *     <dt>
+ *     </li>
+ *     <li>
  *         <code>path="<i>path</i>"</code>
- *     </dt>
- *     <dd>
+ *         <p>
  *         The subdirectory you're sharing. While the <code>name</code> attribute is a URI path
  *         segment, the <code>path</code> value is an actual subdirectory name. Notice that the
  *         value refers to a <b>subdirectory</b>, not an individual file or files. You can't
  *         share a single file by its file name, nor can you specify a subset of files using
  *         wildcards.
- *     </dd>
- * </dl>
+ *     </li>
+ * </ul>
  * <p>
  * You must specify a child element of <code>&lt;paths&gt;</code> for each directory that contains
  * files for which you want content URIs. For example, these XML elements specify two directories:
  * <pre class="prettyprint">
- *&lt;paths xmlns:android="http://schemas.android.com/apk/res/android"&gt;
+ * &lt;paths xmlns:android="http://schemas.android.com/apk/res/android"&gt;
  *    &lt;files-path name="my_images" path="images/"/&gt;
  *    &lt;files-path name="my_docs" path="docs/"/&gt;
- *&lt;/paths&gt;
- *</pre>
+ * &lt;/paths&gt;
+ * </pre>
  * <p>
  * Put the <code>&lt;paths&gt;</code> element and its children in an XML file in your project.
  * For example, you can add them to a new file called <code>res/xml/file_paths.xml</code>.
- * To link this file to the FileProvider, add a
- * <a href="{@docRoot}guide/topics/manifest/meta-data-element.html">&lt;meta-data&gt;</a> element
- * as a child of the <code>&lt;provider&gt;</code> element that defines the FileProvider. Set the
- * <code>&lt;meta-data&gt;</code> element's "android:name" attribute to
- * <code>android.support.FILE_PROVIDER_PATHS</code>. Set the element's "android:resource" attribute
- * to <code>&#64;xml/file_paths</code> (notice that you don't specify the <code>.xml</code>
- * extension). For example:
+ * </pre>
+ * To link this file to the FileProvider, pass it to super() in the constructor for the
+ * FileProvider you defined above, add a <a href="{@docRoot}guide/topics/manifest/meta-data
+ * -element.html">&lt;meta-data&gt;</a> element as a child of the <code>&lt;provider&gt;</code>
+ * element that defines the FileProvider. Set the <code>&lt;meta-data&gt;</code> element's
+ * "android:name" attribute to <code>android.support.FILE_PROVIDER_PATHS</code>. Set the
+ * element's "android:resource" attribute to <code>&#64;xml/file_paths</code> (notice that you
+ * don't specify the <code>.xml</code> extension). For example:
  * <pre class="prettyprint">
- *&lt;provider
- *    android:name="androidx.core.content.FileProvider"
+ * &lt;provider
+ *    android:name="com.sample.MyFileProvider"
  *    android:authorities="com.mydomain.fileprovider"
  *    android:exported="false"
  *    android:grantUriPermissions="true"&gt;
  *    &lt;meta-data
  *        android:name="android.support.FILE_PROVIDER_PATHS"
  *        android:resource="&#64;xml/file_paths" /&gt;
- *&lt;/provider&gt;
- *</pre>
- * ### Generating the Content URI for a File
+ * &lt;/provider&gt;
+ * </pre>
+ * <p>
+ * <b>Generating the Content URI for a File</b>
  * <p>
  * To share a file with another app using a content URI, your app has to generate the content URI.
  * To generate the content URI, create a new {@link File} for the file, then pass the {@link File}
@@ -267,14 +252,16 @@ import java.util.Map;
  * <code>default_image.jpg</code> in the <code>images/</code> subdirectory of your internal storage
  * add the following code:
  * <pre class="prettyprint">
- *File imagePath = new File(Context.getFilesDir(), "my_images");
- *File newFile = new File(imagePath, "default_image.jpg");
- *Uri contentUri = getUriForFile(getContext(), "com.mydomain.fileprovider", newFile);
- *</pre>
+ * File imagePath = new File(Context.getFilesDir(), "my_images");
+ * File newFile = new File(imagePath, "default_image.jpg");
+ * Uri contentUri = getUriForFile(getContext(), "com.mydomain.fileprovider", newFile);
+ * </pre>
  * As a result of the previous snippet,
  * {@link #getUriForFile(Context, String, File) getUriForFile()} returns the content URI
  * <code>content://com.mydomain.fileprovider/my_images/default_image.jpg</code>.
- * ### Granting Temporary Permissions to a URI
+ * <p>
+ * <b>Granting Temporary Permissions to a URI</b>
+ * <p>
  * To grant an access permission to a content URI returned from
  * {@link #getUriForFile(Context, String, File) getUriForFile()}, you can either grant the
  * permission to a specific package or include the permission in an intent, as shown in the
@@ -313,10 +300,10 @@ import java.util.Map;
  *     URI, and set the access permissions on the <code>ClipData</code> object:
  * </p>
  * <pre class="prettyprint">
- *shareContentIntent.setClipData(ClipData.newRawUri("", contentUri));
- *shareContentIntent.addFlags(
+ * shareContentIntent.setClipData(ClipData.newRawUri("", contentUri));
+ * shareContentIntent.addFlags(
  *         Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
- *</pre>
+ * </pre>
  * </li>
  * <li>
  *     Send the {@link Intent} to
@@ -329,8 +316,8 @@ import java.util.Map;
  * {@link Activity} is active. When the stack finishes, the permissions are
  * automatically removed. Permissions granted to one {@link Activity} in a client
  * app are automatically extended to other components of that app.
- * </p>
- * ### Serving a Content URI to Another App
+ * <p>
+ * <b>Serving a Content URI to Another App</b>
  * <p>
  * There are a variety of ways to serve the content URI for a file to a client app. One common way
  * is for the client app to start your app by calling
@@ -357,10 +344,11 @@ import java.util.Map;
  *  {@link Intent}. Set the action to {@link Intent#ACTION_SEND} and put the URI in data by calling
  *  {@link Intent#setData setData()}.
  * </p>
- * ### More Information
+ * <b>More Information</b>
  * <p>
  *    To learn more about FileProvider, see the Android training class
- *    <a href="{@docRoot}training/secure-file-sharing/index.html">Sharing Files Securely with URIs</a>.
+ *    <a href="{@docRoot}training/secure-file-sharing/index.html">Sharing Files Securely with
+ *    URIs</a>.
  * </p>
  */
 public class FileProvider extends ContentProvider {
@@ -389,6 +377,15 @@ public class FileProvider extends ContentProvider {
     private static final HashMap<String, PathStrategy> sCache = new HashMap<>();
 
     private PathStrategy mStrategy;
+    private int mResourceId;
+
+    public FileProvider() {
+        mResourceId = ResourcesCompat.ID_NULL;
+    }
+
+    protected FileProvider(@XmlRes int resourceId) {
+        mResourceId = resourceId;
+    }
 
     /**
      * The default FileProvider implementation does not need to be initialized. If you want to
@@ -419,7 +416,7 @@ public class FileProvider extends ContentProvider {
             throw new SecurityException("Provider must grant uri permissions");
         }
 
-        mStrategy = getPathStrategy(context, info.authority.split(";")[0]);
+        mStrategy = getPathStrategy(context, info.authority.split(";")[0], mResourceId);
     }
 
     /**
@@ -444,7 +441,7 @@ public class FileProvider extends ContentProvider {
      */
     public static Uri getUriForFile(@NonNull Context context, @NonNull String authority,
             @NonNull File file) {
-        final PathStrategy strategy = getPathStrategy(context, authority);
+        final PathStrategy strategy = getPathStrategy(context, authority, ResourcesCompat.ID_NULL);
         return strategy.getUriForFile(file);
     }
 
@@ -634,13 +631,13 @@ public class FileProvider extends ContentProvider {
      * Return {@link PathStrategy} for given authority, either by parsing or
      * returning from cache.
      */
-    private static PathStrategy getPathStrategy(Context context, String authority) {
+    private static PathStrategy getPathStrategy(Context context, String authority, int resourceId) {
         PathStrategy strat;
         synchronized (sCache) {
             strat = sCache.get(authority);
             if (strat == null) {
                 try {
-                    strat = parsePathStrategy(context, authority);
+                    strat = parsePathStrategy(context, authority, resourceId);
                 } catch (IOException e) {
                     throw new IllegalArgumentException(
                             "Failed to parse " + META_DATA_FILE_PROVIDER_PATHS + " meta-data", e);
@@ -654,21 +651,18 @@ public class FileProvider extends ContentProvider {
         return strat;
     }
 
-    /**
-     * Parse and return {@link PathStrategy} for given authority as defined in
-     * {@link #META_DATA_FILE_PROVIDER_PATHS} {@code <meta-data>}.
-     *
-     * @see #getPathStrategy(Context, String)
-     */
-    private static PathStrategy parsePathStrategy(Context context, String authority)
-            throws IOException, XmlPullParserException {
-        final SimplePathStrategy strat = new SimplePathStrategy(authority);
-
-        final ProviderInfo info = context.getPackageManager()
-                .resolveContentProvider(authority, PackageManager.GET_META_DATA);
+    @VisibleForTesting
+    static XmlResourceParser getFileProviderPathsMetaData(Context context, String authority,
+            @Nullable ProviderInfo info,
+            int resourceId) {
         if (info == null) {
             throw new IllegalArgumentException(
                     "Couldn't find meta-data for provider with authority " + authority);
+        }
+
+        if (info.metaData == null && resourceId != ResourcesCompat.ID_NULL) {
+            info.metaData = new Bundle(1);
+            info.metaData.putInt(META_DATA_FILE_PROVIDER_PATHS, resourceId);
         }
 
         final XmlResourceParser in = info.loadXmlMetaData(
@@ -677,6 +671,24 @@ public class FileProvider extends ContentProvider {
             throw new IllegalArgumentException(
                     "Missing " + META_DATA_FILE_PROVIDER_PATHS + " meta-data");
         }
+
+        return in;
+    }
+
+    /**
+     * Parse and return {@link PathStrategy} for given authority as defined in
+     * {@link #META_DATA_FILE_PROVIDER_PATHS} {@code <meta-data>}.
+     *
+     * @see #getPathStrategy(Context, String, int)
+     */
+    private static PathStrategy parsePathStrategy(Context context, String authority, int resourceId)
+            throws IOException, XmlPullParserException {
+        final SimplePathStrategy strat = new SimplePathStrategy(authority);
+
+        final ProviderInfo info = context.getPackageManager()
+                .resolveContentProvider(authority, PackageManager.GET_META_DATA);
+        final XmlResourceParser in = getFileProviderPathsMetaData(context, authority, info,
+                resourceId);
 
         int type;
         while ((type = in.next()) != END_DOCUMENT) {

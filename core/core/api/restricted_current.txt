@@ -1126,6 +1126,7 @@ package androidx.core.content {
 
   public class FileProvider extends android.content.ContentProvider {
     ctor public FileProvider();
+    ctor protected FileProvider(@XmlRes int);
     method public int delete(android.net.Uri, String?, String![]?);
     method public String? getType(android.net.Uri);
     method public static android.net.Uri! getUriForFile(android.content.Context, String, java.io.File);
