@@ -106,6 +106,11 @@ public fun bundleOf(vararg pairs: Pair<String, Any?>): Bundle = Bundle(pairs.siz
     }
 }
 
+/**
+ * Returns a new empty [Bundle].
+ */
+public fun bundleOf(): Bundle = Bundle(0)
+
 @RequiresApi(18)
 private object BundleApi18ImplKt {
     @DoNotInline

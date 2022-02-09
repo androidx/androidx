@@ -144,4 +144,8 @@ class BundleTest {
             )
         }.hasMessageThat().isEqualTo("Illegal value array type android.view.View for key \"nopes\"")
     }
+
+    @Test fun bundleOfEmpty() {
+        assertEquals(0, bundleOf().size())
+    }
 }
