@@ -16,23 +16,24 @@
 
 package androidx.template.template
 
-import android.util.Log
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.glance.Button
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
-import androidx.glance.action.clickable
+import androidx.glance.LocalSize
 import androidx.glance.background
 import androidx.glance.currentState
 import androidx.glance.layout.Column
+import androidx.glance.layout.ContentScale
 import androidx.glance.layout.Row
+import androidx.glance.layout.Spacer
+import androidx.glance.layout.fillMaxHeight
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
+import androidx.glance.layout.height
 import androidx.glance.layout.padding
-import androidx.glance.text.Text
-import androidx.glance.text.TextStyle
+import androidx.glance.layout.width
 import androidx.glance.unit.ColorProvider
 
 /**
@@ -43,12 +44,15 @@ abstract class SingleEntityTemplate : GlanceTemplate<SingleEntityTemplate.Data>(
     @Composable
     override fun WidgetLayoutCollapsed() {
         getData(currentState()).let {
-            Column(
-                modifier = GlanceModifier.fillMaxSize().padding(8.dp).background(it.backgroundColor)
-            ) {
+            var modifier = GlanceModifier.fillMaxSize().padding(16.dp)
+            it.backgroundColor?.let { color -> modifier = modifier.background(color) }
+            it.image?.let { image ->
+                modifier = modifier.background(image.image, ContentScale.Crop)
+            }
+            Column(modifier = modifier) {
                 TemplateHeader(it.headerIcon, it.header)
-                TextBlock(it.title, it.subtitle, null)
-                Button(it)
+                Spacer(modifier = GlanceModifier.defaultWeight())
+                TextSection(textList(it.title, it.subtitle))
             }
         }
     }
@@ -56,15 +60,25 @@ abstract class SingleEntityTemplate : GlanceTemplate<SingleEntityTemplate.Data>(
     @Composable
     override fun WidgetLayoutVertical() {
         getData(currentState()).let {
-            Column(
-                modifier = GlanceModifier.fillMaxSize().padding(8.dp).background(it.backgroundColor)
-            ) {
+            var modifier = GlanceModifier.fillMaxSize().padding(16.dp)
+            it.backgroundColor?.let { color -> modifier = modifier.background(color) }
+            Column(modifier = modifier) {
                 TemplateHeader(it.headerIcon, it.header)
-                TextBlock(it.title, it.subtitle, it.bodyText)
-                it.mainImage?.let { image ->
-                    Image(provider = image.image, contentDescription = image.description)
+                Spacer(modifier = GlanceModifier.height(16.dp))
+                it.image?.let { image ->
+                    Image(
+                        provider = image.image,
+                        contentDescription = image.description,
+                        modifier = GlanceModifier.fillMaxWidth().defaultWeight(),
+                        contentScale = ContentScale.Crop
+                    )
+                    Spacer(modifier = GlanceModifier.height(16.dp))
                 }
-                Button(it)
+                Row(modifier = GlanceModifier.fillMaxWidth()) {
+                    TextSection(textList(it.title, it.subtitle))
+                    Spacer(modifier = GlanceModifier.defaultWeight())
+                    it.button?.let { button -> TemplateButton(button) }
+                }
             }
         }
     }
@@ -72,90 +86,96 @@ abstract class SingleEntityTemplate : GlanceTemplate<SingleEntityTemplate.Data>(
     @Composable
     override fun WidgetLayoutHorizontal() {
         getData(currentState()).let {
-            Column(
-                modifier = GlanceModifier.fillMaxSize().padding(8.dp).background(it.backgroundColor)
-            ) {
-                Row(modifier = GlanceModifier.fillMaxWidth()) {
+            var modifier = GlanceModifier.fillMaxSize().padding(16.dp)
+            it.backgroundColor?.let { color -> modifier = modifier.background(color) }
+            Row(modifier = modifier) {
+                Column(
+                    modifier =
+                    GlanceModifier.fillMaxHeight().background(Color.Transparent).defaultWeight()
+                ) {
                     TemplateHeader(it.headerIcon, it.header)
+                    Spacer(modifier = GlanceModifier.height(16.dp))
+                    Spacer(modifier = GlanceModifier.defaultWeight())
+
+                    // TODO: Extract small height as template constant
+                    val body =
+                        if (LocalSize.current.height > 240.dp) {
+                            it.body
+                        } else {
+                            null
+                        }
+                    TextSection(textList(it.title, it.subtitle, body))
+                    it.button?.let { button ->
+                        Spacer(modifier = GlanceModifier.height(16.dp))
+                        TemplateButton(button)
+                    }
                 }
-                Row(modifier = GlanceModifier.fillMaxWidth()) {
-                    Column(modifier = GlanceModifier.defaultWeight()) {
-                        TextBlock(it.title, it.subtitle, it.bodyText)
-                        Button(it)
-                    }
-                    it.mainImage?.let { image ->
-                        Image(
-                            provider = image.image,
-                            contentDescription = image.description,
-                            modifier = GlanceModifier.defaultWeight()
-                        )
-                    }
+                it.image?.let { image ->
+                    Spacer(modifier = GlanceModifier.width(16.dp))
+                    Image(
+                        provider = image.image,
+                        contentDescription = image.description,
+                        modifier = GlanceModifier.fillMaxHeight().defaultWeight(),
+                        contentScale = ContentScale.Crop
+                    )
                 }
             }
         }
     }
 
-    @Composable
-    private fun TextBlock(title: String?, subtitle: String?, body: String?) {
-        // TODO: Text color customization
-        val color = ColorProvider(R.color.text_default)
-        Column {
-            title?.let {
-                Text(title, style = TextStyle(fontSize = 36.sp, color = color), maxLines = 2)
-            }
-            subtitle?.let {
-                Text(it, style = TextStyle(fontSize = 20.sp, color = color), maxLines = 2)
-            }
-            body?.let { Text(it, style = TextStyle(fontSize = 18.sp, color = color), maxLines = 5) }
+    private fun textList(
+        title: TemplateText? = null,
+        subtitle: TemplateText? = null,
+        body: TemplateText? = null
+    ): List<TypedTemplateText> {
+        val result = mutableListOf<TypedTemplateText>()
+        title?.let {
+            result.add(TypedTemplateText(it, TemplateTextType.Title))
         }
-    }
+        subtitle?.let {
+            result.add(TypedTemplateText(it, TemplateTextType.Label))
+        }
+        body?.let {
+            result.add(TypedTemplateText(it, TemplateTextType.Body))
+        }
 
-    @Composable
-    private fun Button(data: Data) {
-        // If a button image is provided, use an image button
-        when (data.button) {
-            is TemplateImageButton -> {
-                // TODO: specify sizing for image button
-                val image = data.button.image
-                Image(
-                    provider = image.image,
-                    contentDescription = image.description,
-                    modifier = GlanceModifier.clickable(data.button.action)
-                )
-            }
-            is TemplateTextButton -> {
-                Button(text = data.button.text, onClick = data.button.action)
-            }
-            else -> {
-                Log.e(TAG, "Unrecognized button type: ${data.button}")
-            }
-        }
+        return result
     }
 
     /**
      * The semantic data required to build [SingleEntityTemplate] layouts.
      *
-     * @param backgroundColor Glanceable background color
      * @param headerIcon Logo icon, displayed in the glanceable header
-     * @param header Main header text
-     * @param title Text section main title
-     * @param subtitle Text section subtitle
-     * @param bodyText Text section body text
+     * @param header Main header text, text priority is ignored in default layouts
+     * @param title Text section main title, priority ordered
+     * @param subtitle Text section subtitle, priority ordered
+     * @param body Text section body text, priority ordered
      * @param button Action button
-     * @param mainImage Main image content
+     * @param image Main image content
+     * @param backgroundColor Glanceable background color
      */
-    // TODO: add optional ordering for text vs image sections, determine granularity level for
-    //  setting text colors
     class Data(
-        val backgroundColor: ColorProvider,
         val headerIcon: TemplateImageWithDescription,
-        val header: String? = null,
-        val title: String? = null,
-        val subtitle: String? = null,
-        val bodyText: String? = null,
+        val header: TemplateText? = null,
+        val title: TemplateText? = null,
+        val subtitle: TemplateText? = null,
+        val body: TemplateText? = null,
         val button: TemplateButton? = null,
-        val mainImage: TemplateImageWithDescription? = null,
+        val image: TemplateImageWithDescription? = null,
+        val backgroundColor: ColorProvider? = null
     ) {
+
+        override fun hashCode(): Int {
+            var result = headerIcon.hashCode()
+            result = 31 * result + (header?.hashCode() ?: 0)
+            result = 31 * result + (title?.hashCode() ?: 0)
+            result = 31 * result + (subtitle?.hashCode() ?: 0)
+            result = 31 * result + (body?.hashCode() ?: 0)
+            result = 31 * result + (button?.hashCode() ?: 0)
+            result = 31 * result + (image?.hashCode() ?: 0)
+            result = 31 * result + (backgroundColor?.hashCode() ?: 0)
+            return result
+        }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
@@ -163,32 +183,16 @@ abstract class SingleEntityTemplate : GlanceTemplate<SingleEntityTemplate.Data>(
 
             other as Data
 
-            if (backgroundColor != other.backgroundColor) return false
             if (headerIcon != other.headerIcon) return false
             if (header != other.header) return false
             if (title != other.title) return false
             if (subtitle != other.subtitle) return false
-            if (bodyText != other.bodyText) return false
+            if (body != other.body) return false
             if (button != other.button) return false
-            if (mainImage != other.mainImage) return false
+            if (image != other.image) return false
+            if (backgroundColor != other.backgroundColor) return false
 
             return true
         }
-
-        override fun hashCode(): Int {
-            var result = backgroundColor.hashCode()
-            result = 31 * result + headerIcon.hashCode()
-            result = 31 * result + (header?.hashCode() ?: 0)
-            result = 31 * result + (title?.hashCode() ?: 0)
-            result = 31 * result + (subtitle?.hashCode() ?: 0)
-            result = 31 * result + (bodyText?.hashCode() ?: 0)
-            result = 31 * result + (button?.hashCode() ?: 0)
-            result = 31 * result + (mainImage?.hashCode() ?: 0)
-            return result
-        }
-    }
-
-    private companion object {
-        private const val TAG = "SingleEntityTemplate"
     }
 }

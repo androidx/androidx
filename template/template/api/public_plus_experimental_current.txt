@@ -9,21 +9,21 @@ package androidx.template.template {
   }
 
   public static final class FreeformTemplate.Data {
-    ctor public FreeformTemplate.Data(androidx.glance.unit.ColorProvider backgroundColor, androidx.template.template.TemplateImageWithDescription headerIcon, androidx.template.template.TemplateImageButton? actionIcon, optional String? header, optional String? title, optional String? subtitle, optional androidx.glance.ImageProvider? backgroundImage);
+    ctor public FreeformTemplate.Data(androidx.glance.unit.ColorProvider backgroundColor, androidx.template.template.TemplateImageWithDescription headerIcon, androidx.template.template.TemplateImageButton? actionIcon, optional androidx.template.template.TemplateText? header, optional androidx.template.template.TemplateText? title, optional androidx.template.template.TemplateText? subtitle, optional androidx.glance.ImageProvider? backgroundImage);
     method public androidx.template.template.TemplateImageButton? getActionIcon();
     method public androidx.glance.unit.ColorProvider getBackgroundColor();
     method public androidx.glance.ImageProvider? getBackgroundImage();
-    method public String? getHeader();
+    method public androidx.template.template.TemplateText? getHeader();
     method public androidx.template.template.TemplateImageWithDescription getHeaderIcon();
-    method public String? getSubtitle();
-    method public String? getTitle();
+    method public androidx.template.template.TemplateText? getSubtitle();
+    method public androidx.template.template.TemplateText? getTitle();
     property public final androidx.template.template.TemplateImageButton? actionIcon;
     property public final androidx.glance.unit.ColorProvider backgroundColor;
     property public final androidx.glance.ImageProvider? backgroundImage;
-    property public final String? header;
+    property public final androidx.template.template.TemplateText? header;
     property public final androidx.template.template.TemplateImageWithDescription headerIcon;
-    property public final String? subtitle;
-    property public final String? title;
+    property public final androidx.template.template.TemplateText? subtitle;
+    property public final androidx.template.template.TemplateText? title;
   }
 
   public abstract class GlanceTemplate<T> {
@@ -45,23 +45,23 @@ package androidx.template.template {
   }
 
   public static final class SingleEntityTemplate.Data {
-    ctor public SingleEntityTemplate.Data(androidx.glance.unit.ColorProvider backgroundColor, androidx.template.template.TemplateImageWithDescription headerIcon, optional String? header, optional String? title, optional String? subtitle, optional String? bodyText, optional androidx.template.template.TemplateButton? button, optional androidx.template.template.TemplateImageWithDescription? mainImage);
-    method public androidx.glance.unit.ColorProvider getBackgroundColor();
-    method public String? getBodyText();
+    ctor public SingleEntityTemplate.Data(androidx.template.template.TemplateImageWithDescription headerIcon, optional androidx.template.template.TemplateText? header, optional androidx.template.template.TemplateText? title, optional androidx.template.template.TemplateText? subtitle, optional androidx.template.template.TemplateText? body, optional androidx.template.template.TemplateButton? button, optional androidx.template.template.TemplateImageWithDescription? image, optional androidx.glance.unit.ColorProvider? backgroundColor);
+    method public androidx.glance.unit.ColorProvider? getBackgroundColor();
+    method public androidx.template.template.TemplateText? getBody();
     method public androidx.template.template.TemplateButton? getButton();
-    method public String? getHeader();
+    method public androidx.template.template.TemplateText? getHeader();
     method public androidx.template.template.TemplateImageWithDescription getHeaderIcon();
-    method public androidx.template.template.TemplateImageWithDescription? getMainImage();
-    method public String? getSubtitle();
-    method public String? getTitle();
-    property public final androidx.glance.unit.ColorProvider backgroundColor;
-    property public final String? bodyText;
+    method public androidx.template.template.TemplateImageWithDescription? getImage();
+    method public androidx.template.template.TemplateText? getSubtitle();
+    method public androidx.template.template.TemplateText? getTitle();
+    property public final androidx.glance.unit.ColorProvider? backgroundColor;
+    property public final androidx.template.template.TemplateText? body;
     property public final androidx.template.template.TemplateButton? button;
-    property public final String? header;
+    property public final androidx.template.template.TemplateText? header;
     property public final androidx.template.template.TemplateImageWithDescription headerIcon;
-    property public final androidx.template.template.TemplateImageWithDescription? mainImage;
-    property public final String? subtitle;
-    property public final String? title;
+    property public final androidx.template.template.TemplateImageWithDescription? image;
+    property public final androidx.template.template.TemplateText? subtitle;
+    property public final androidx.template.template.TemplateText? title;
   }
 
   public abstract sealed class TemplateButton {
@@ -81,6 +81,16 @@ package androidx.template.template {
     method public androidx.glance.ImageProvider getImage();
     property public final String description;
     property public final androidx.glance.ImageProvider image;
+  }
+
+  public final class TemplateText {
+    ctor public TemplateText(String text, optional int priority, optional androidx.glance.unit.ColorProvider? color);
+    method public androidx.glance.unit.ColorProvider? getColor();
+    method public int getPriority();
+    method public String getText();
+    property public final androidx.glance.unit.ColorProvider? color;
+    property public final int priority;
+    property public final String text;
   }
 
   public final class TemplateTextButton extends androidx.template.template.TemplateButton {
