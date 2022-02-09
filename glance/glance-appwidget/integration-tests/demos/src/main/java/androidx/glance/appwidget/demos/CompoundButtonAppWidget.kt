@@ -91,14 +91,14 @@ class CompoundButtonAppWidget : GlanceAppWidget() {
             CheckBox(
                 checked = checkbox1Checked,
                 onCheckedChange = actionRunCallback<ToggleAction>(
-                    actionParametersOf(eventTargetKey to Buttons.CHECK_1.name)
+                    actionParametersOf(EventTargetKey to Buttons.CHECK_1.name)
                 ),
                 text = "Checkbox 1"
             )
             CheckBox(
                 checked = checkbox2Checked,
                 onCheckedChange = actionRunCallback<ToggleAction>(
-                    actionParametersOf(eventTargetKey to Buttons.CHECK_2.name)
+                    actionParametersOf(EventTargetKey to Buttons.CHECK_2.name)
                 ),
                 text = "Checkbox 2",
                 style = textStyle,
@@ -111,7 +111,7 @@ class CompoundButtonAppWidget : GlanceAppWidget() {
             CheckBox(
                 checked = checkbox3Checked,
                 onCheckedChange = actionRunCallback<ToggleAction>(
-                    actionParametersOf(eventTargetKey to Buttons.CHECK_3.name)
+                    actionParametersOf(EventTargetKey to Buttons.CHECK_3.name)
                 ),
                 text = "Checkbox 3",
                 colors = CheckBoxColors(R.color.my_checkbox_colors)
@@ -119,7 +119,7 @@ class CompoundButtonAppWidget : GlanceAppWidget() {
             Switch(
                 checked = switch1Checked,
                 onCheckedChange = actionRunCallback<ToggleAction>(
-                    actionParametersOf(eventTargetKey to Buttons.SWITCH_1.name)
+                    actionParametersOf(EventTargetKey to Buttons.SWITCH_1.name)
                 ),
                 text = "Switch 1",
                 colors = SwitchColors(
@@ -132,7 +132,7 @@ class CompoundButtonAppWidget : GlanceAppWidget() {
             Switch(
                 checked = switch2Checked,
                 onCheckedChange = actionRunCallback<ToggleAction>(
-                    actionParametersOf(eventTargetKey to Buttons.SWITCH_2.name)
+                    actionParametersOf(EventTargetKey to Buttons.SWITCH_2.name)
                 ),
                 text = "Switch 2",
                 style = textStyle,
@@ -145,7 +145,7 @@ class CompoundButtonAppWidget : GlanceAppWidget() {
 
 @Composable
 fun CountClicks() {
-    val count = currentState(countClicksKey) ?: 0
+    val count = currentState(CountClicksKey) ?: 0
     Row(modifier = GlanceModifier.fillMaxWidth()) {
         Button(
             text = "Count clicks",
@@ -158,13 +158,13 @@ fun CountClicks() {
 class ClickAction : ActionCallback {
     override suspend fun onRun(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
         updateAppWidgetState(context, glanceId) { state ->
-            state[countClicksKey] = (state[countClicksKey] ?: 0) + 1
+            state[CountClicksKey] = (state[CountClicksKey] ?: 0) + 1
         }
         CompoundButtonAppWidget().update(context, glanceId)
     }
 }
 
-private val countClicksKey = intPreferencesKey("CountClicks")
+private val CountClicksKey = intPreferencesKey("CountClicks")
 
 class ToggleAction : ActionCallback {
     override suspend fun onRun(
@@ -172,7 +172,7 @@ class ToggleAction : ActionCallback {
         glanceId: GlanceId,
         parameters: ActionParameters,
     ) {
-        val target = requireNotNull(parameters[eventTargetKey]) {
+        val target = requireNotNull(parameters[EventTargetKey]) {
             "Add event target to parameters in order to update the view state."
         }.let { CompoundButtonAppWidget.Buttons.valueOf(it) }
         val checked = requireNotNull(parameters[ToggleableStateKey]) {
@@ -186,7 +186,7 @@ class ToggleAction : ActionCallback {
     }
 }
 
-private val eventTargetKey = ActionParameters.Key<String>("EventTarget")
+private val EventTargetKey = ActionParameters.Key<String>("EventTarget")
 
 class CompoundButtonAppWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget = CompoundButtonAppWidget()
