@@ -49,6 +49,7 @@ import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StyleRes;
+import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.view.ActionMode;
 import androidx.appcompat.widget.Toolbar;
 import androidx.appcompat.widget.VectorEnabledTintResources;
@@ -761,6 +762,28 @@ public abstract class AppCompatDelegate {
     @Nullable
     static LocaleListCompat getStoredAppLocales() {
         return sStoredAppLocales;
+    }
+
+    /**
+     * Resets the static variables for requested and stored locales to null. This method is used
+     * for testing as it mimics activity restart which is difficult to do in a test.
+     */
+    @VisibleForTesting
+    static void resetStaticRequestedAndStoredLocales() {
+        sRequestedAppLocales = null;
+        sStoredAppLocales = null;
+    }
+
+    /**
+     * Sets {@link AppCompatDelegate#sIsAutoStoreLocalesOptedIn} to the provided value. This method
+     * is used for testing, setting sIsAutoStoreLocalesOptedIn to true mimics adding an opt-in
+     * "autoStoreLocales" meta-data entry.
+     *
+     * see {@link AppCompatDelegate#setApplicationLocales(LocaleListCompat)}.
+     */
+    @VisibleForTesting
+    static void setIsAutoStoreLocalesOptedIn(boolean isAutoStoreLocalesOptedIn) {
+        sIsAutoStoreLocalesOptedIn = isAutoStoreLocalesOptedIn;
     }
 
     /**
