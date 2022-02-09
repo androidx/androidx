@@ -193,6 +193,7 @@ public class DeviceProfileWriter {
             } catch (IOException e) {
                 mDiagnostics.onResultReceived(ProfileInstaller.RESULT_IO_EXCEPTION, e);
             } catch (IllegalStateException e) {
+                mProfile = null;
                 mDiagnostics.onResultReceived(ProfileInstaller.RESULT_PARSE_EXCEPTION, e);
             }
         }
