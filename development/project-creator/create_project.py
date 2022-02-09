@@ -25,7 +25,14 @@ from shutil import rmtree
 from shutil import copyfile
 from distutils.dir_util import copy_tree
 from distutils.dir_util import DistutilsFileError
-import toml
+
+try:
+    # non-default python3 module, be helpful if it is missing
+    import toml
+except ModuleNotFoundError as e:
+    print(e)
+    print("Consider running `pip install toml` to install this module")
+    exit(-1)
 
 # cd into directory of script
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
