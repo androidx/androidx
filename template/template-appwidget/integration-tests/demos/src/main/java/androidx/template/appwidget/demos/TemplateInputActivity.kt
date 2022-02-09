@@ -74,6 +74,7 @@ import androidx.template.template.SingleEntityTemplate
 import androidx.template.template.TemplateText
 import androidx.template.template.TemplateTextButton
 import androidx.template.template.TemplateImageButton
+import androidx.template.template.GalleryTemplate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
@@ -325,10 +326,25 @@ object FreeformInputWidgetTemplate : FreeformTemplate() {
     }
 }
 
+object GalleryInputWidgetTemplate : GalleryTemplate() {
+  override fun getData(state: Any?): Data {
+      require(state is Preferences)
+      val background = state[BackgroundKey]?.let { ColorProvider(Color(it)) }
+          ?: ColorProvider(R.color.default_widget_background)
+      return createGalleryData(background)
+  }
+}
+
 class SingleEntityTemplateWidget : GlanceTemplateAppWidget(template)
 
 class TemplateInputWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = SingleEntityTemplateWidget()
+}
+
+class GalleryTemplateWidget : GlanceTemplateAppWidget(GalleryInputWidgetTemplate)
+
+class GalleryInputWidgetReceiver : GlanceAppWidgetReceiver() {
+  override val glanceAppWidget: GlanceAppWidget = GalleryTemplateWidget()
 }
 
 class TemplateButtonAction : ActionCallback {
@@ -382,7 +398,8 @@ private var template: GlanceTemplate<*> = SingleEntityInputWidgetTemplate
 // TODO: Add templates
 private enum class Templates(val label: String) {
     SingleEntity("Single entity template"),
-    Freeform("Freeform template")
+    Freeform("Freeform template"),
+    Gallery("Gallery template"),
 }
 
 private fun createSingleEntityData(
@@ -419,10 +436,20 @@ private fun createFreeformData(
     backgroundColor = background
 )
 
+private fun createGalleryData(background: ColorProvider) = GalleryTemplate.Data(
+    header = "Gallery Template example",
+    title = "Gallery Template title",
+    headline = "Gallery Template headline",
+    image = TemplateImageWithDescription(ImageProvider(R.drawable.compose), "test image"),
+    logo = TemplateImageWithDescription(ImageProvider(R.drawable.compose), "test logo"),
+    backgroundColor = background
+)
+
 private fun getTemplate(type: Templates): GlanceTemplate<*> =
     when (type) {
         Templates.SingleEntity -> SingleEntityInputWidgetTemplate
         Templates.Freeform -> FreeformInputWidgetTemplate
+        Templates.Gallery -> GalleryInputWidgetTemplate
     }
 
 private fun appFileKey() = "appKey-" + TemplateInputActivity::class.java
