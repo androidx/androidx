@@ -18,7 +18,7 @@ import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
-    id("java-library")
+    id("kotlin")
 }
 
 dependencies {
