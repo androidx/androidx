@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-beta03" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-beta03)" variant="all" version="7.1.0-beta03">
+<issues format="6" by="lint 7.2.0-alpha06" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-alpha06)" variant="all" version="7.2.0-alpha06">
 
     <issue
         id="NewApi"
@@ -201,17 +201,6 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 19 (current min is 14): `java.util.Objects#equals`"
-        errorLine1="                    &amp;&amp; Objects.equals(nc1.getId(), nc2.getId())"
-        errorLine2="                               ~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
-            line="179"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="NewApi"
         message="Call requires API level 26 (current min is 14): `android.app.NotificationChannel#getId`"
         errorLine1="                    &amp;&amp; Objects.equals(nc1.getId(), nc2.getId())"
         errorLine2="                                          ~~~~~">
@@ -230,17 +219,6 @@
             file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
             line="179"
             column="56"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 19 (current min is 14): `java.util.Objects#equals`"
-        errorLine1="                    &amp;&amp; Objects.equals(nc1.getName(), nc2.getName())"
-        errorLine2="                               ~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
-            line="180"
-            column="32"/>
     </issue>
 
     <issue
@@ -267,17 +245,6 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 19 (current min is 14): `java.util.Objects#equals`"
-        errorLine1="                    &amp;&amp; Objects.equals(nc1.getDescription(), nc2.getDescription())"
-        errorLine2="                               ~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
-            line="181"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="NewApi"
         message="Call requires API level 26 (current min is 14): `android.app.NotificationChannel#getDescription`"
         errorLine1="                    &amp;&amp; Objects.equals(nc1.getDescription(), nc2.getDescription())"
         errorLine2="                                          ~~~~~~~~~~~~~~">
@@ -296,17 +263,6 @@
             file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
             line="181"
             column="65"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 19 (current min is 14): `java.util.Objects#equals`"
-        errorLine1="                    &amp;&amp; Objects.equals(nc1.getSound(), nc2.getSound())"
-        errorLine2="                               ~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
-            line="182"
-            column="32"/>
     </issue>
 
     <issue
@@ -355,17 +311,6 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 19 (current min is 14): `java.util.Objects#equals`"
-        errorLine1="                    &amp;&amp; Objects.equals(nc1.getGroup(), nc2.getGroup())"
-        errorLine2="                               ~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
-            line="184"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="NewApi"
         message="Call requires API level 26 (current min is 14): `android.app.NotificationChannel#getGroup`"
         errorLine1="                    &amp;&amp; Objects.equals(nc1.getGroup(), nc2.getGroup())"
         errorLine2="                                          ~~~~~~~~">
@@ -384,17 +329,6 @@
             file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
             line="184"
             column="59"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 19 (current min is 14): `java.util.Objects#equals`"
-        errorLine1="                    &amp;&amp; Objects.equals(nc1.getAudioAttributes(), nc2.getAudioAttributes());"
-        errorLine2="                               ~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
-            line="185"
-            column="32"/>
     </issue>
 
     <issue
@@ -635,7 +569,7 @@
         errorLine2="                                                  ~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/core/app/NotificationTester.kt"
-            line="33"
+            line="32"
             column="51"/>
     </issue>
 
@@ -646,7 +580,7 @@
         errorLine2="                                                             ~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/core/app/NotificationTester.kt"
-            line="33"
+            line="32"
             column="62"/>
     </issue>
 
@@ -1504,7 +1438,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="641"
+            line="643"
             column="27"/>
     </issue>
 
@@ -1515,7 +1449,7 @@
         errorLine2="                                                                             ~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="655"
+            line="657"
             column="78"/>
     </issue>
 
@@ -1526,7 +1460,7 @@
         errorLine2="                                                                             ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="669"
+            line="671"
             column="78"/>
     </issue>
 
@@ -1537,7 +1471,7 @@
         errorLine2="                                                                                     ~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="780"
+            line="782"
             column="86"/>
     </issue>
 
@@ -1548,7 +1482,7 @@
         errorLine2="                                                                                     ~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="783"
+            line="785"
             column="86"/>
     </issue>
 
@@ -1559,7 +1493,7 @@
         errorLine2="                                                                                     ~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="802"
+            line="804"
             column="86"/>
     </issue>
 
@@ -1570,7 +1504,7 @@
         errorLine2="                                                                      ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="820"
+            line="822"
             column="71"/>
     </issue>
 
@@ -1581,7 +1515,7 @@
         errorLine2="                                                                      ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="833"
+            line="835"
             column="71"/>
     </issue>
 
@@ -1592,7 +1526,7 @@
         errorLine2="                                                                      ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="846"
+            line="848"
             column="71"/>
     </issue>
 
@@ -1603,7 +1537,7 @@
         errorLine2="                                                                      ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="864"
+            line="866"
             column="71"/>
     </issue>
 
@@ -1614,7 +1548,7 @@
         errorLine2="                                                                                             ~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="901"
+            line="903"
             column="94"/>
     </issue>
 
@@ -1625,7 +1559,7 @@
         errorLine2="                                                                                             ~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="904"
+            line="906"
             column="94"/>
     </issue>
 
@@ -1636,7 +1570,7 @@
         errorLine2="                                                                                             ~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="926"
+            line="928"
             column="94"/>
     </issue>
 
@@ -1647,7 +1581,7 @@
         errorLine2="                                                                          ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="944"
+            line="946"
             column="75"/>
     </issue>
 
@@ -1658,7 +1592,7 @@
         errorLine2="                                                                          ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="957"
+            line="959"
             column="75"/>
     </issue>
 
@@ -1669,7 +1603,7 @@
         errorLine2="                                                                          ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="970"
+            line="972"
             column="75"/>
     </issue>
 
@@ -1680,7 +1614,7 @@
         errorLine2="                                                                          ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="983"
+            line="985"
             column="75"/>
     </issue>
 
@@ -1691,7 +1625,7 @@
         errorLine2="                                                                          ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="1000"
+            line="1002"
             column="75"/>
     </issue>
 
@@ -1702,7 +1636,7 @@
         errorLine2="                                                                          ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="1013"
+            line="1015"
             column="75"/>
     </issue>
 
@@ -1713,7 +1647,7 @@
         errorLine2="                                                        ~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="1043"
+            line="1045"
             column="57"/>
     </issue>
 
@@ -1724,7 +1658,7 @@
         errorLine2="                                                                 ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="1062"
+            line="1064"
             column="66"/>
     </issue>
 
@@ -1735,7 +1669,7 @@
         errorLine2="                                                                 ~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="1075"
+            line="1077"
             column="66"/>
     </issue>
 
@@ -1746,7 +1680,7 @@
         errorLine2="                                                                 ~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="1088"
+            line="1090"
             column="66"/>
     </issue>
 
@@ -1757,7 +1691,7 @@
         errorLine2="                                                                 ~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="1105"
+            line="1107"
             column="66"/>
     </issue>
 
@@ -1768,7 +1702,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="1125"
+            line="1127"
             column="25"/>
     </issue>
 
@@ -1779,7 +1713,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="1147"
+            line="1149"
             column="30"/>
     </issue>
 
@@ -1790,7 +1724,7 @@
         errorLine2="                             ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="1166"
+            line="1168"
             column="30"/>
     </issue>
 
@@ -1801,7 +1735,7 @@
         errorLine2="                                                   ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="1194"
+            line="1196"
             column="52"/>
     </issue>
 
@@ -1812,7 +1746,7 @@
         errorLine2="                                          ~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="1755"
+            line="1757"
             column="43"/>
     </issue>
 
@@ -1823,7 +1757,7 @@
         errorLine2="                  ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="1817"
+            line="1819"
             column="19"/>
     </issue>
 
@@ -1834,7 +1768,7 @@
         errorLine2="                                                                         ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="1834"
+            line="1836"
             column="74"/>
     </issue>
 
@@ -1845,7 +1779,7 @@
         errorLine2="                                                                         ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="1856"
+            line="1858"
             column="74"/>
     </issue>
 
@@ -1856,7 +1790,7 @@
         errorLine2="                  ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="1928"
+            line="1930"
             column="19"/>
     </issue>
 
@@ -1867,7 +1801,7 @@
         errorLine2="                         ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="1948"
+            line="1950"
             column="26"/>
     </issue>
 
@@ -1878,7 +1812,7 @@
         errorLine2="                         ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="1966"
+            line="1968"
             column="26"/>
     </issue>
 
@@ -1889,7 +1823,7 @@
         errorLine2="                                        ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2004"
+            line="2006"
             column="41"/>
     </issue>
 
@@ -1900,7 +1834,7 @@
         errorLine2="                  ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2008"
+            line="2010"
             column="19"/>
     </issue>
 
@@ -1911,7 +1845,7 @@
         errorLine2="                  ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2031"
+            line="2033"
             column="19"/>
     </issue>
 
@@ -1922,7 +1856,7 @@
         errorLine2="                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2056"
+            line="2058"
             column="26"/>
     </issue>
 
@@ -1933,7 +1867,7 @@
         errorLine2="                         ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2093"
+            line="2095"
             column="26"/>
     </issue>
 
@@ -1944,7 +1878,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2113"
+            line="2115"
             column="19"/>
     </issue>
 
@@ -1955,7 +1889,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2124"
+            line="2126"
             column="26"/>
     </issue>
 
@@ -1966,7 +1900,7 @@
         errorLine2="                  ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2210"
+            line="2212"
             column="19"/>
     </issue>
 
@@ -1977,7 +1911,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2380"
+            line="2382"
             column="26"/>
     </issue>
 
@@ -1988,7 +1922,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2400"
+            line="2402"
             column="19"/>
     </issue>
 
@@ -1999,7 +1933,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2411"
+            line="2413"
             column="26"/>
     </issue>
 
@@ -2010,7 +1944,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2431"
+            line="2433"
             column="19"/>
     </issue>
 
@@ -2021,7 +1955,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2589"
+            line="2591"
             column="26"/>
     </issue>
 
@@ -2032,7 +1966,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2608"
+            line="2610"
             column="19"/>
     </issue>
 
@@ -2043,7 +1977,7 @@
         errorLine2="                  ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2767"
+            line="2769"
             column="19"/>
     </issue>
 
@@ -2054,7 +1988,7 @@
         errorLine2="                  ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2768"
+            line="2770"
             column="19"/>
     </issue>
 
@@ -2065,7 +1999,7 @@
         errorLine2="                  ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2769"
+            line="2771"
             column="19"/>
     </issue>
 
@@ -2076,7 +2010,7 @@
         errorLine2="                  ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2770"
+            line="2772"
             column="19"/>
     </issue>
 
@@ -2087,7 +2021,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2813"
+            line="2815"
             column="26"/>
     </issue>
 
@@ -2098,7 +2032,7 @@
         errorLine2="                         ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2815"
+            line="2817"
             column="26"/>
     </issue>
 
@@ -2109,7 +2043,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2848"
+            line="2850"
             column="19"/>
     </issue>
 
@@ -2120,7 +2054,7 @@
         errorLine2="                  ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2850"
+            line="2852"
             column="19"/>
     </issue>
 
@@ -2131,7 +2065,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2878"
+            line="2880"
             column="19"/>
     </issue>
 
@@ -2142,7 +2076,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2896"
+            line="2898"
             column="26"/>
     </issue>
 
@@ -2153,7 +2087,7 @@
         errorLine2="                         ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2922"
+            line="2924"
             column="26"/>
     </issue>
 
@@ -2164,7 +2098,7 @@
         errorLine2="                  ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2942"
+            line="2944"
             column="19"/>
     </issue>
 
@@ -2175,7 +2109,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2959"
+            line="2961"
             column="26"/>
     </issue>
 
@@ -2186,7 +2120,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2978"
+            line="2980"
             column="19"/>
     </issue>
 
@@ -2197,7 +2131,7 @@
         errorLine2="                                                              ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2990"
+            line="2992"
             column="63"/>
     </issue>
 
@@ -2208,7 +2142,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3000"
+            line="3002"
             column="19"/>
     </issue>
 
@@ -2219,7 +2153,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3009"
+            line="3011"
             column="19"/>
     </issue>
 
@@ -2230,7 +2164,7 @@
         errorLine2="                                                                  ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3023"
+            line="3025"
             column="67"/>
     </issue>
 
@@ -2241,7 +2175,7 @@
         errorLine2="                                                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3038"
+            line="3040"
             column="58"/>
     </issue>
 
@@ -2252,7 +2186,7 @@
         errorLine2="                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3058"
+            line="3060"
             column="19"/>
     </issue>
 
@@ -2263,7 +2197,7 @@
         errorLine2="                                                     ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3076"
+            line="3078"
             column="54"/>
     </issue>
 
@@ -2274,7 +2208,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3104"
+            line="3106"
             column="19"/>
     </issue>
 
@@ -2285,7 +2219,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3116"
+            line="3118"
             column="26"/>
     </issue>
 
@@ -2296,7 +2230,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3129"
+            line="3131"
             column="26"/>
     </issue>
 
@@ -2307,7 +2241,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3148"
+            line="3150"
             column="19"/>
     </issue>
 
@@ -2318,7 +2252,7 @@
         errorLine2="                         ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3159"
+            line="3161"
             column="26"/>
     </issue>
 
@@ -2329,7 +2263,7 @@
         errorLine2="                         ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3161"
+            line="3163"
             column="26"/>
     </issue>
 
@@ -2340,7 +2274,7 @@
         errorLine2="                  ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3181"
+            line="3183"
             column="19"/>
     </issue>
 
@@ -2351,7 +2285,7 @@
         errorLine2="                  ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3183"
+            line="3185"
             column="19"/>
     </issue>
 
@@ -2362,7 +2296,7 @@
         errorLine2="                  ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3202"
+            line="3204"
             column="19"/>
     </issue>
 
@@ -2373,7 +2307,7 @@
         errorLine2="                         ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3213"
+            line="3215"
             column="26"/>
     </issue>
 
@@ -2384,7 +2318,7 @@
         errorLine2="                  ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3227"
+            line="3229"
             column="19"/>
     </issue>
 
@@ -2395,7 +2329,7 @@
         errorLine2="                  ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3247"
+            line="3249"
             column="19"/>
     </issue>
 
@@ -2406,7 +2340,7 @@
         errorLine2="                                                                         ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3264"
+            line="3266"
             column="74"/>
     </issue>
 
@@ -2417,7 +2351,7 @@
         errorLine2="                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3278"
+            line="3280"
             column="19"/>
     </issue>
 
@@ -2428,7 +2362,7 @@
         errorLine2="                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3303"
+            line="3305"
             column="19"/>
     </issue>
 
@@ -2439,7 +2373,7 @@
         errorLine2="                                                                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3320"
+            line="3322"
             column="74"/>
     </issue>
 
@@ -2450,7 +2384,7 @@
         errorLine2="                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3333"
+            line="3335"
             column="26"/>
     </issue>
 
@@ -2461,7 +2395,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3351"
+            line="3353"
             column="19"/>
     </issue>
 
@@ -2472,7 +2406,7 @@
         errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3380"
+            line="3382"
             column="55"/>
     </issue>
 
@@ -2483,7 +2417,7 @@
         errorLine2="                         ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3406"
+            line="3408"
             column="26"/>
     </issue>
 
@@ -2494,7 +2428,7 @@
         errorLine2="                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3419"
+            line="3421"
             column="26"/>
     </issue>
 
@@ -2505,7 +2439,29 @@
         errorLine2="                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3440"
+            line="3442"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.view.accessibility.AccessibilityNodeInfoCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return mInfo.getAvailableExtraData();"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            line="3460"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.view.accessibility.AccessibilityNodeInfoCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            mInfo.setAvailableExtraData(extraDataKeys);"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            line="3484"
             column="19"/>
     </issue>
 
@@ -2516,7 +2472,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3461"
+            line="3505"
             column="19"/>
     </issue>
 
@@ -2527,7 +2483,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3473"
+            line="3517"
             column="26"/>
     </issue>
 
@@ -2538,7 +2494,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3494"
+            line="3538"
             column="19"/>
     </issue>
 
@@ -2549,7 +2505,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3505"
+            line="3549"
             column="26"/>
     </issue>
 
@@ -2560,7 +2516,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3518"
+            line="3562"
             column="26"/>
     </issue>
 
@@ -2571,7 +2527,7 @@
         errorLine2="                                                                         ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3535"
+            line="3579"
             column="74"/>
     </issue>
 
@@ -2582,7 +2538,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3557"
+            line="3601"
             column="19"/>
     </issue>
 
@@ -2593,7 +2549,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3584"
+            line="3628"
             column="19"/>
     </issue>
 
@@ -2604,7 +2560,7 @@
         errorLine2="                                                                         ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3600"
+            line="3644"
             column="74"/>
     </issue>
 
@@ -2615,7 +2571,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3622"
+            line="3666"
             column="19"/>
     </issue>
 
@@ -2626,7 +2582,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3648"
+            line="3692"
             column="19"/>
     </issue>
 
@@ -2637,7 +2593,7 @@
         errorLine2="                                                                           ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3661"
+            line="3705"
             column="76"/>
     </issue>
 
@@ -2648,7 +2604,7 @@
         errorLine2="                         ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3674"
+            line="3718"
             column="26"/>
     </issue>
 
@@ -2659,7 +2615,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3692"
+            line="3736"
             column="19"/>
     </issue>
 
@@ -2670,7 +2626,7 @@
         errorLine2="                         ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3703"
+            line="3747"
             column="26"/>
     </issue>
 
@@ -2681,7 +2637,7 @@
         errorLine2="                  ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3723"
+            line="3767"
             column="19"/>
     </issue>
 
@@ -2692,7 +2648,7 @@
         errorLine2="                         ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3734"
+            line="3778"
             column="26"/>
     </issue>
 
@@ -2703,7 +2659,7 @@
         errorLine2="                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3752"
+            line="3796"
             column="19"/>
     </issue>
 
@@ -2714,7 +2670,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3764"
+            line="3808"
             column="26"/>
     </issue>
 
@@ -2725,7 +2681,7 @@
         errorLine2="                         ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3766"
+            line="3810"
             column="26"/>
     </issue>
 
@@ -2736,7 +2692,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3786"
+            line="3830"
             column="19"/>
     </issue>
 
@@ -2747,7 +2703,7 @@
         errorLine2="                  ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3788"
+            line="3832"
             column="19"/>
     </issue>
 
@@ -2758,7 +2714,7 @@
         errorLine2="                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3806"
+            line="3850"
             column="19"/>
     </issue>
 
@@ -2769,7 +2725,7 @@
         errorLine2="                  ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3808"
+            line="3852"
             column="19"/>
     </issue>
 
@@ -2780,7 +2736,7 @@
         errorLine2="                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3820"
+            line="3864"
             column="26"/>
     </issue>
 
@@ -2791,7 +2747,7 @@
         errorLine2="                         ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3822"
+            line="3866"
             column="26"/>
     </issue>
 
@@ -2802,7 +2758,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3839"
+            line="3883"
             column="26"/>
     </issue>
 
@@ -2813,7 +2769,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3858"
+            line="3902"
             column="19"/>
     </issue>
 
@@ -2824,7 +2780,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3873"
+            line="3917"
             column="26"/>
     </issue>
 
@@ -2835,7 +2791,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3893"
+            line="3937"
             column="19"/>
     </issue>
 
@@ -2846,7 +2802,7 @@
         errorLine2="                         ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3910"
+            line="3954"
             column="26"/>
     </issue>
 
@@ -2857,7 +2813,7 @@
         errorLine2="                  ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3930"
+            line="3974"
             column="19"/>
     </issue>
 
@@ -2868,7 +2824,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3943"
+            line="3987"
             column="26"/>
     </issue>
 
@@ -2879,7 +2835,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3961"
+            line="4005"
             column="19"/>
     </issue>
 
@@ -2890,7 +2846,7 @@
         errorLine2="                         ~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3978"
+            line="4022"
             column="26"/>
     </issue>
 
@@ -2901,7 +2857,7 @@
         errorLine2="                         ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3990"
+            line="4034"
             column="26"/>
     </issue>
 
@@ -2912,7 +2868,7 @@
         errorLine2="                  ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="4022"
+            line="4066"
             column="19"/>
     </issue>
 
@@ -2923,7 +2879,7 @@
         errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="4044"
+            line="4088"
             column="52"/>
     </issue>
 
@@ -2934,7 +2890,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="4071"
+            line="4115"
             column="19"/>
     </issue>
 
@@ -3486,6 +3442,171 @@
             file="src/main/java/androidx/core/os/CancellationSignal.java"
             line="145"
             column="78"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorUtils is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        if (!Objects.equals(foreground.getModel(), background.getModel())) {"
+        errorLine2="                                       ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/ColorUtils.java"
+            line="92"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorUtils is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        if (!Objects.equals(foreground.getModel(), background.getModel())) {"
+        errorLine2="                                                              ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/ColorUtils.java"
+            line="92"
+            column="63"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorUtils is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                    &quot;Color models must match (&quot; + foreground.getModel() + &quot; vs. &quot;"
+        errorLine2="                                                             ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/ColorUtils.java"
+            line="94"
+            column="62"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorUtils is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                            + background.getModel() + &quot;)&quot;);"
+        errorLine2="                                         ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/ColorUtils.java"
+            line="95"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorUtils is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        Color s = Objects.equals(background.getColorSpace(), foreground.getColorSpace())"
+        errorLine2="                                            ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/ColorUtils.java"
+            line="98"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorUtils is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        Color s = Objects.equals(background.getColorSpace(), foreground.getColorSpace())"
+        errorLine2="                                                                        ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/ColorUtils.java"
+            line="98"
+            column="73"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorUtils is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                : foreground.convert(background.getColorSpace());"
+        errorLine2="                             ~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/ColorUtils.java"
+            line="100"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorUtils is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                : foreground.convert(background.getColorSpace());"
+        errorLine2="                                                ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/ColorUtils.java"
+            line="100"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorUtils is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        float[] src = s.getComponents();"
+        errorLine2="                        ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/ColorUtils.java"
+            line="102"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorUtils is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        float[] dst = background.getComponents();"
+        errorLine2="                                 ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/ColorUtils.java"
+            line="103"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorUtils is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        float sa = s.alpha();"
+        errorLine2="                     ~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/ColorUtils.java"
+            line="105"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorUtils is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        float da = background.alpha() * (1.0f - sa);"
+        errorLine2="                              ~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/ColorUtils.java"
+            line="107"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorUtils is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        int ai = background.getComponentCount() - 1;"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/ColorUtils.java"
+            line="111"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorUtils is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        return Color.valueOf(dst, background.getColorSpace());"
+        errorLine2="                     ~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/ColorUtils.java"
+            line="127"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorUtils is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        return Color.valueOf(dst, background.getColorSpace());"
+        errorLine2="                                             ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/ColorUtils.java"
+            line="127"
+            column="46"/>
     </issue>
 
     <issue
@@ -9127,11 +9248,11 @@
         errorLine2="                                       ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2164"
+            line="2166"
             column="40"/>
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2179"
+            line="2181"
             column="17"
             message="Setter here"/>
     </issue>
@@ -9143,11 +9264,11 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2988"
+            line="2990"
             column="33"/>
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2998"
+            line="3000"
             column="17"
             message="Setter here"/>
     </issue>
@@ -9159,11 +9280,11 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3021"
+            line="3023"
             column="37"/>
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3007"
+            line="3009"
             column="17"
             message="Setter here"/>
     </issue>
@@ -9175,11 +9296,11 @@
         errorLine2="                                       ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3262"
+            line="3264"
             column="40"/>
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3225"
+            line="3227"
             column="17"
             message="Setter here"/>
     </issue>
@@ -9191,11 +9312,11 @@
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3318"
+            line="3320"
             column="40"/>
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3276"
+            line="3278"
             column="17"
             message="Setter here"/>
     </issue>
@@ -9207,7 +9328,7 @@
         errorLine2="                   ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3331"
+            line="3333"
             column="20"/>
     </issue>
 
@@ -9218,11 +9339,11 @@
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3533"
+            line="3577"
             column="40"/>
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3555"
+            line="3599"
             column="17"
             message="Setter here"/>
     </issue>
@@ -9234,11 +9355,11 @@
         errorLine2="                                       ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3598"
+            line="3642"
             column="40"/>
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3620"
+            line="3664"
             column="17"
             message="Setter here"/>
     </issue>
@@ -9305,7 +9426,7 @@
         errorLine2="                                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="608"
+            line="610"
             column="56"/>
     </issue>
 
@@ -9316,7 +9437,7 @@
         errorLine2="                                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="621"
+            line="623"
             column="56"/>
     </issue>
 
@@ -9327,7 +9448,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="622"
+            line="624"
             column="17"/>
     </issue>
 
@@ -9338,7 +9459,7 @@
         errorLine2="               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="667"
+            line="669"
             column="16"/>
     </issue>
 
@@ -9349,7 +9470,7 @@
         errorLine2="                               ~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="683"
+            line="685"
             column="32"/>
     </issue>
 
@@ -9360,7 +9481,7 @@
         errorLine2="                                          ~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="683"
+            line="685"
             column="43"/>
     </issue>
 
@@ -9371,7 +9492,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="707"
+            line="709"
             column="16"/>
     </issue>
 
@@ -9382,7 +9503,7 @@
         errorLine2="                                                                 ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="707"
+            line="709"
             column="66"/>
     </issue>
 
@@ -9393,7 +9514,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="708"
+            line="710"
             column="17"/>
     </issue>
 
@@ -9404,7 +9525,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="777"
+            line="779"
             column="23"/>
     </issue>
 
@@ -9415,7 +9536,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="799"
+            line="801"
             column="23"/>
     </issue>
 
@@ -9426,7 +9547,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="898"
+            line="900"
             column="23"/>
     </issue>
 
@@ -9437,7 +9558,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="923"
+            line="925"
             column="23"/>
     </issue>
 
@@ -9448,7 +9569,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="1040"
+            line="1042"
             column="23"/>
     </issue>
 
@@ -9459,7 +9580,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="1710"
+            line="1712"
             column="19"/>
     </issue>
 
@@ -9470,7 +9591,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="1717"
+            line="1719"
             column="12"/>
     </issue>
 
@@ -9481,7 +9602,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="1738"
+            line="1740"
             column="19"/>
     </issue>
 
@@ -9492,7 +9613,7 @@
         errorLine2="                                                     ~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="1738"
+            line="1740"
             column="54"/>
     </issue>
 
@@ -9503,7 +9624,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="1752"
+            line="1754"
             column="19"/>
     </issue>
 
@@ -9514,7 +9635,7 @@
         errorLine2="                                                     ~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="1752"
+            line="1754"
             column="54"/>
     </issue>
 
@@ -9525,7 +9646,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="1766"
+            line="1768"
             column="19"/>
     </issue>
 
@@ -9536,7 +9657,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="1777"
+            line="1779"
             column="19"/>
     </issue>
 
@@ -9547,7 +9668,7 @@
         errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="1777"
+            line="1779"
             column="54"/>
     </issue>
 
@@ -9558,7 +9679,7 @@
         errorLine2="                          ~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="1786"
+            line="1788"
             column="27"/>
     </issue>
 
@@ -9569,7 +9690,7 @@
         errorLine2="                          ~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="1812"
+            line="1814"
             column="27"/>
     </issue>
 
@@ -9580,7 +9701,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="1832"
+            line="1834"
             column="12"/>
     </issue>
 
@@ -9591,7 +9712,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="1854"
+            line="1856"
             column="12"/>
     </issue>
 
@@ -9602,7 +9723,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="1893"
+            line="1895"
             column="12"/>
     </issue>
 
@@ -9613,7 +9734,7 @@
         errorLine2="                         ~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="1908"
+            line="1910"
             column="26"/>
     </issue>
 
@@ -9624,7 +9745,7 @@
         errorLine2="                         ~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="1926"
+            line="1928"
             column="26"/>
     </issue>
 
@@ -9635,7 +9756,7 @@
         errorLine2="                               ~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="1946"
+            line="1948"
             column="32"/>
     </issue>
 
@@ -9646,7 +9767,7 @@
         errorLine2="                               ~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="1964"
+            line="1966"
             column="32"/>
     </issue>
 
@@ -9657,7 +9778,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2029"
+            line="2031"
             column="27"/>
     </issue>
 
@@ -9668,7 +9789,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2054"
+            line="2056"
             column="33"/>
     </issue>
 
@@ -9679,7 +9800,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2091"
+            line="2093"
             column="46"/>
     </issue>
 
@@ -9690,7 +9811,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2143"
+            line="2145"
             column="12"/>
     </issue>
 
@@ -9701,7 +9822,7 @@
         errorLine2="                                                                              ~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2143"
+            line="2145"
             column="79"/>
     </issue>
 
@@ -9712,7 +9833,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2164"
+            line="2166"
             column="12"/>
     </issue>
 
@@ -9723,7 +9844,7 @@
         errorLine2="                          ~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2179"
+            line="2181"
             column="27"/>
     </issue>
 
@@ -9734,7 +9855,7 @@
         errorLine2="                          ~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2205"
+            line="2207"
             column="27"/>
     </issue>
 
@@ -9745,7 +9866,7 @@
         errorLine2="                                  ~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2258"
+            line="2260"
             column="35"/>
     </issue>
 
@@ -9756,7 +9877,7 @@
         errorLine2="                                  ~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2273"
+            line="2275"
             column="35"/>
     </issue>
 
@@ -9767,7 +9888,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2617"
+            line="2619"
             column="12"/>
     </issue>
 
@@ -9778,7 +9899,7 @@
         errorLine2="                               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2632"
+            line="2634"
             column="32"/>
     </issue>
 
@@ -9789,7 +9910,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2641"
+            line="2643"
             column="12"/>
     </issue>
 
@@ -9800,7 +9921,7 @@
         errorLine2="                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2656"
+            line="2658"
             column="30"/>
     </issue>
 
@@ -9811,7 +9932,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2665"
+            line="2667"
             column="12"/>
     </issue>
 
@@ -9822,7 +9943,7 @@
         errorLine2="                        ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2695"
+            line="2697"
             column="25"/>
     </issue>
 
@@ -9833,7 +9954,7 @@
         errorLine2="                                 ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2703"
+            line="2705"
             column="34"/>
     </issue>
 
@@ -9844,7 +9965,7 @@
         errorLine2="                                                    ~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2703"
+            line="2705"
             column="53"/>
     </issue>
 
@@ -9855,7 +9976,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2740"
+            line="2742"
             column="19"/>
     </issue>
 
@@ -9866,7 +9987,7 @@
         errorLine2="                                                    ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2740"
+            line="2742"
             column="53"/>
     </issue>
 
@@ -9877,7 +9998,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2801"
+            line="2803"
             column="12"/>
     </issue>
 
@@ -9888,7 +10009,7 @@
         errorLine2="                                      ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2831"
+            line="2833"
             column="39"/>
     </issue>
 
@@ -9899,7 +10020,7 @@
         errorLine2="                                      ~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2876"
+            line="2878"
             column="39"/>
     </issue>
 
@@ -9910,7 +10031,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2894"
+            line="2896"
             column="12"/>
     </issue>
 
@@ -9921,7 +10042,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2988"
+            line="2990"
             column="12"/>
     </issue>
 
@@ -9932,7 +10053,7 @@
         errorLine2="                                  ~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2998"
+            line="3000"
             column="35"/>
     </issue>
 
@@ -9943,7 +10064,7 @@
         errorLine2="                                      ~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3007"
+            line="3009"
             column="39"/>
     </issue>
 
@@ -9954,7 +10075,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3021"
+            line="3023"
             column="12"/>
     </issue>
 
@@ -9965,7 +10086,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3036"
+            line="3038"
             column="12"/>
     </issue>
 
@@ -9976,7 +10097,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3056"
+            line="3058"
             column="30"/>
     </issue>
 
@@ -9987,7 +10108,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3073"
+            line="3075"
             column="12"/>
     </issue>
 
@@ -9998,7 +10119,7 @@
         errorLine2="                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3200"
+            line="3202"
             column="26"/>
     </issue>
 
@@ -10009,7 +10130,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3211"
+            line="3213"
             column="12"/>
     </issue>
 
@@ -10020,7 +10141,7 @@
         errorLine2="                            ~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3225"
+            line="3227"
             column="29"/>
     </issue>
 
@@ -10031,7 +10152,7 @@
         errorLine2="                            ~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3245"
+            line="3247"
             column="29"/>
     </issue>
 
@@ -10042,7 +10163,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3262"
+            line="3264"
             column="12"/>
     </issue>
 
@@ -10053,7 +10174,7 @@
         errorLine2="                             ~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3276"
+            line="3278"
             column="30"/>
     </issue>
 
@@ -10064,7 +10185,7 @@
         errorLine2="                             ~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3301"
+            line="3303"
             column="30"/>
     </issue>
 
@@ -10075,7 +10196,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3318"
+            line="3320"
             column="12"/>
     </issue>
 
@@ -10086,7 +10207,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3378"
+            line="3380"
             column="12"/>
     </issue>
 
@@ -10097,7 +10218,7 @@
         errorLine2="                                                                                ~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3378"
+            line="3380"
             column="81"/>
     </issue>
 
@@ -10108,7 +10229,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3404"
+            line="3406"
             column="12"/>
     </issue>
 
@@ -10119,7 +10240,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3533"
+            line="3577"
             column="12"/>
     </issue>
 
@@ -10130,7 +10251,7 @@
         errorLine2="                                   ~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3555"
+            line="3599"
             column="36"/>
     </issue>
 
@@ -10141,7 +10262,7 @@
         errorLine2="                                   ~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3582"
+            line="3626"
             column="36"/>
     </issue>
 
@@ -10152,7 +10273,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3598"
+            line="3642"
             column="12"/>
     </issue>
 
@@ -10163,7 +10284,7 @@
         errorLine2="                                  ~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3620"
+            line="3664"
             column="35"/>
     </issue>
 
@@ -10174,7 +10295,7 @@
         errorLine2="                                  ~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3646"
+            line="3690"
             column="35"/>
     </issue>
 
@@ -10185,7 +10306,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="3659"
+            line="3703"
             column="12"/>
     </issue>
 
