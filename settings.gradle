@@ -49,8 +49,6 @@ gradleEnterprise {
 
 rootProject.name = "androidx"
 
-enableFeaturePreview("VERSION_CATALOGS")
-
 dependencyResolutionManagement {
     versionCatalogs {
         libs {
@@ -106,12 +104,12 @@ enum BuildType {
 }
 
 private String getRequestedProjectSubsetName() {
-    def prop = providers.gradleProperty("androidx.projects").forUseAtConfigurationTime()
+    def prop = providers.gradleProperty("androidx.projects")
     if (prop.isPresent()) {
         return prop.get().toUpperCase()
     }
 
-    def envProp = providers.environmentVariable("ANDROIDX_PROJECTS").forUseAtConfigurationTime()
+    def envProp = providers.environmentVariable("ANDROIDX_PROJECTS")
     if (envProp.isPresent()) {
         return envProp.get().toUpperCase()
     }
