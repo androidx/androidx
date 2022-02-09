@@ -23,16 +23,19 @@ import javax.lang.model.element.Element
 internal class JavacEnumEntry(
     env: JavacProcessingEnv,
     entryElement: Element,
-    override val enumTypeElement: XEnumTypeElement,
+    override val enclosingElement: XEnumTypeElement
 ) : JavacElement(env, entryElement), XEnumEntry {
 
     override val name: String
         get() = element.simpleName.toString()
 
     override val equalityItems: Array<out Any?> by lazy {
-        arrayOf(name, enumTypeElement)
+        arrayOf(name, enclosingElement)
     }
 
     override val fallbackLocationText: String
-        get() = "$name enum entry in ${enumTypeElement.fallbackLocationText}"
+        get() = "$name enum entry in ${enclosingElement.fallbackLocationText}"
+
+    override val closestMemberContainer: XEnumTypeElement
+        get() = enclosingElement
 }

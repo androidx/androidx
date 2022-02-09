@@ -89,8 +89,8 @@ internal class CommonProcessorDelegate(
                     .withDefault { emptySet() }
             // Previous round step deferred elements, these don't need to be re-validated.
             val stepDeferredElementsByAnnotation =
-                getStepElementsByAnnotation(step, elementsDeferredBySteps[step] ?: emptySet())
-                    .withDefault { emptySet() }
+                getStepElementsByAnnotation(step, elementsDeferredBySteps[step]
+                    ?: emptySet()).withDefault { emptySet() }
             val deferredElements = mutableSetOf<XElement>()
             val elementsByAnnotation = step.annotations().mapNotNull { annotation ->
                 val annotatedElements = roundEnv.getElementsAnnotatedWith(annotation) +
@@ -115,12 +115,15 @@ internal class CommonProcessorDelegate(
             }.toMap()
             // Store all processor deferred elements.
             deferredElementNames.addAll(
-                deferredElements.mapNotNull { getClosestEnclosingTypeElement(it)?.qualifiedName }
+                deferredElements.mapNotNull {
+                    (it.closestMemberContainer as? XTypeElement)?.qualifiedName
+                }
             )
             // Only process the step if there are annotated elements found for this step.
             return@associateWith if (elementsByAnnotation.isNotEmpty()) {
                 step.process(env, elementsByAnnotation)
-                    .mapNotNull { getClosestEnclosingTypeElement(it)?.qualifiedName }.toSet()
+                    .mapNotNull { (it.closestMemberContainer as? XTypeElement)?.qualifiedName }
+                    .toSet()
             } else {
                 emptySet()
             }
@@ -202,28 +205,6 @@ internal class CommonProcessorDelegate(
                 putStepAnnotatedElements(typeElement)
             }
         return elementsByAnnotation.withDefault { mutableSetOf() }
-    }
-
-    // TODO(b/201308409): Does not work with top-level KSP functions or properties whose
-    //  container are synthetic.
-    private fun getClosestEnclosingTypeElement(element: XElement): XTypeElement? {
-        return when {
-            element.isTypeElement() -> element
-            element.isField() -> element.enclosingElement as? XTypeElement
-            element.isMethod() -> element.enclosingElement as? XTypeElement
-            element.isConstructor() -> element.enclosingElement
-            element.isMethodParameter() ->
-                element.enclosingMethodElement.enclosingElement as? XTypeElement
-            element.isEnumEntry() -> element.enumTypeElement
-            else -> {
-                env.messager.printMessage(
-                    kind = Diagnostic.Kind.WARNING,
-                    msg = "Unable to defer element '$element': Don't know how to find " +
-                        "closest enclosing type element."
-                )
-                null
-            }
-        }
     }
 
     fun reportMissingElements(missingElementNames: List<String>) {

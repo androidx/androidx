@@ -19,6 +19,7 @@ package androidx.room.compiler.processing.ksp.synthetic
 import androidx.room.compiler.processing.XAnnotated
 import androidx.room.compiler.processing.XEquality
 import androidx.room.compiler.processing.XExecutableParameterElement
+import androidx.room.compiler.processing.XMemberContainer
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.ksp.KspAnnotated
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE
@@ -37,7 +38,7 @@ import com.google.devtools.ksp.symbol.Variance
  */
 internal class KspSyntheticContinuationParameterElement(
     private val env: KspProcessingEnv,
-    override val enclosingMethodElement: KspMethodElement
+    override val enclosingElement: KspMethodElement
 ) : XExecutableParameterElement,
     XEquality,
     XAnnotated by KspAnnotated.create(
@@ -51,7 +52,7 @@ internal class KspSyntheticContinuationParameterElement(
         var candidate = "continuation"
         var suffix = 0
         while (
-            enclosingMethodElement.declaration.parameters.any { it.name?.asString() == candidate }
+            enclosingElement.declaration.parameters.any { it.name?.asString() == candidate }
         ) {
             candidate = "continuation_$suffix"
             suffix ++
@@ -60,7 +61,7 @@ internal class KspSyntheticContinuationParameterElement(
     }
 
     override val equalityItems: Array<out Any?> by lazy {
-        arrayOf("continuation", enclosingMethodElement)
+        arrayOf("continuation", enclosingElement)
     }
 
     override val hasDefaultValue: Boolean
@@ -68,18 +69,18 @@ internal class KspSyntheticContinuationParameterElement(
 
     private val jvmTypeResolutionScope by lazy {
         KspJvmTypeResolutionScope.MethodParameter(
-            kspExecutableElement = enclosingMethodElement,
-            parameterIndex = enclosingMethodElement.parameters.size - 1,
-            annotated = enclosingMethodElement.declaration
+            kspExecutableElement = enclosingElement,
+            parameterIndex = enclosingElement.parameters.size - 1,
+            annotated = enclosingElement.declaration
         )
     }
 
     override val type: XType by lazy {
         val continuation = env.resolver.requireContinuationClass()
-        val asMember = enclosingMethodElement.declaration.returnTypeAsMemberOf(
-            ksType = enclosingMethodElement.containing.type?.ksType
+        val asMember = enclosingElement.declaration.returnTypeAsMemberOf(
+            ksType = enclosingElement.containing.type?.ksType
         )
-        val returnTypeRef = checkNotNull(enclosingMethodElement.declaration.returnType) {
+        val returnTypeRef = checkNotNull(enclosingElement.declaration.returnType) {
             "cannot find return type reference for $this"
         }
         val returnTypeAsTypeArgument = env.resolver.getTypeArgument(
@@ -100,18 +101,22 @@ internal class KspSyntheticContinuationParameterElement(
     }
 
     override val fallbackLocationText: String
-        get() = "return type of ${enclosingMethodElement.fallbackLocationText}"
+        get() = "return type of ${enclosingElement.fallbackLocationText}"
 
     // Not applicable
     override val docComment: String? get() = null
 
+    override val closestMemberContainer: XMemberContainer by lazy {
+        enclosingElement.closestMemberContainer
+    }
+
     override fun asMemberOf(other: XType): KspType {
         check(other is KspType)
         val continuation = env.resolver.requireContinuationClass()
-        val asMember = enclosingMethodElement.declaration.returnTypeAsMemberOf(
+        val asMember = enclosingElement.declaration.returnTypeAsMemberOf(
             ksType = other.ksType
         )
-        val returnTypeRef = checkNotNull(enclosingMethodElement.declaration.returnType) {
+        val returnTypeRef = checkNotNull(enclosingElement.declaration.returnType) {
             "cannot find return type reference for $this"
         }
         val returnTypeAsTypeArgument = env.resolver.getTypeArgument(
