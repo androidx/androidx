@@ -60,6 +60,7 @@ class AndroidXIssueRegistry : IssueRegistry() {
                 PrivateConstructorForUtilityClassDetector.ISSUE,
                 ClassVerificationFailureDetector.ISSUE,
                 IdeaSuppressionDetector.ISSUE,
+                CameraXQuirksClassDetector.ISSUE
             )
         }
     }
