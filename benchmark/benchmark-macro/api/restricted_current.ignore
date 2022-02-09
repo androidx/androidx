@@ -1,7 +1,0 @@
-// Baseline format: 1.0
-RemovedClass: androidx.benchmark.macro.AudioUnderrunMetric:
-    Removed class androidx.benchmark.macro.AudioUnderrunMetric
-
-
-RemovedMethod: androidx.benchmark.macro.BaselineProfilesKt#collectBaselineProfile(String, String, kotlin.jvm.functions.Function1<? super androidx.benchmark.macro.MacrobenchmarkScope,kotlin.Unit>, kotlin.jvm.functions.Function1<? super androidx.benchmark.macro.MacrobenchmarkScope,kotlin.Unit>):
-    Removed method androidx.benchmark.macro.BaselineProfilesKt.collectBaselineProfile(String,String,kotlin.jvm.functions.Function1<? super androidx.benchmark.macro.MacrobenchmarkScope,kotlin.Unit>,kotlin.jvm.functions.Function1<? super androidx.benchmark.macro.MacrobenchmarkScope,kotlin.Unit>)
