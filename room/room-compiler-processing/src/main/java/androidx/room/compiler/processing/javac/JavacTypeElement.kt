@@ -21,6 +21,7 @@ import androidx.room.compiler.processing.XEnumTypeElement
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XHasModifiers
 import androidx.room.compiler.processing.XMethodElement
+import androidx.room.compiler.processing.XMemberContainer
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.collectAllMethods
 import androidx.room.compiler.processing.collectFieldsIncludingPrivateSupers
@@ -58,6 +59,14 @@ internal sealed class JavacTypeElement(
     override val className: ClassName by lazy {
         ClassName.get(element)
     }
+
+    override val enclosingElement: XMemberContainer? by lazy {
+        enclosingTypeElement
+    }
+
+    override val closestMemberContainer: JavacTypeElement
+        get() = this
+
     override val enclosingTypeElement: XTypeElement? by lazy {
         element.enclosingType(env)
     }

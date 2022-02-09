@@ -45,6 +45,10 @@ internal class KspFieldElement(
         declaration.requireEnclosingMemberContainer(env)
     }
 
+    override val closestMemberContainer: KspMemberContainer by lazy {
+        enclosingElement
+    }
+
     override val name: String by lazy {
         declaration.simpleName.asString()
     }
