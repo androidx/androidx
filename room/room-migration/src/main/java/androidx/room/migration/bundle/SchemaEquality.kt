@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.room.migration.bundle;
+package androidx.room.migration.bundle
 
-import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo
 
 /**
  * A loose equals check which checks schema equality instead of 100% equality (e.g. order of
@@ -25,6 +25,6 @@ import androidx.annotation.RestrictTo;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-interface SchemaEquality<T> {
-    boolean isSchemaEqual(T other);
+public interface SchemaEquality<T> {
+    public fun isSchemaEqual(other: T): Boolean
 }
