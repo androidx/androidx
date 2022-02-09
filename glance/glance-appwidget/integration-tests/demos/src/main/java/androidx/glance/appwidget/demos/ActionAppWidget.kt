@@ -81,7 +81,7 @@ class ActionAppWidget : GlanceAppWidget() {
                 SelectableActionItem(label = "Broadcasts", index = 2)
             }
 
-            when (currentState(selectedItemKey) ?: 0) {
+            when (currentState(SelectedItemKey) ?: 0) {
                 0 -> StartActivityActions()
                 1 -> StartServiceActions()
                 2 -> SendBroadcastActions()
@@ -91,12 +91,12 @@ class ActionAppWidget : GlanceAppWidget() {
     }
 }
 
-private val selectedItemKey = intPreferencesKey("selectedItemKey")
-private val startMessageKey = ActionParameters.Key<String>("launchMessageKey")
+private val SelectedItemKey = intPreferencesKey("selectedItemKey")
+private val StartMessageKey = ActionParameters.Key<String>("launchMessageKey")
 
 @Composable
 private fun SelectableActionItem(label: String, index: Int) {
-    val style = if (index == (currentState(selectedItemKey) ?: 0)) {
+    val style = if (index == (currentState(SelectedItemKey) ?: 0)) {
         TextStyle(
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
@@ -121,7 +121,7 @@ private fun SelectableActionItem(label: String, index: Int) {
             .clickable(
                 actionRunCallback<UpdateAction>(
                     actionParametersOf(
-                        selectedItemKey.toParametersKey() to index
+                        SelectedItemKey.toParametersKey() to index
                     )
                 )
             )
@@ -144,7 +144,7 @@ private fun StartActivityActions() {
         text = "Target class with params",
         onClick = actionStartActivity<ActionDemoActivity>(
             actionParametersOf(
-                startMessageKey to "Start activity by target class"
+                StartMessageKey to "Start activity by target class"
             )
         )
     )
@@ -159,7 +159,7 @@ private fun StartActivityActions() {
         onClick = actionStartActivity(
             ComponentName(LocalContext.current, ActionDemoActivity::class.java),
             actionParametersOf(
-                startMessageKey to "Start activity by component name"
+                StartMessageKey to "Start activity by component name"
             )
         )
     )
@@ -216,12 +216,12 @@ private fun SendBroadcastActions() {
 }
 
 /**
- * Action to update the [selectedItemKey] value whenever users clicks on text
+ * Action to update the [SelectedItemKey] value whenever users clicks on text
  */
 class UpdateAction : ActionCallback {
     override suspend fun onRun(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
         updateAppWidgetState(context, glanceId) { state ->
-            state[selectedItemKey] = parameters[selectedItemKey.toParametersKey()] ?: 0
+            state[SelectedItemKey] = parameters[SelectedItemKey.toParametersKey()] ?: 0
         }
         ActionAppWidget().update(context, glanceId)
     }
@@ -239,7 +239,7 @@ class ActionDemoActivity : ComponentActivity() {
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = androidx.compose.ui.Alignment.Center
             ) {
-                val message = intent.getStringExtra(startMessageKey.name) ?: "Not found"
+                val message = intent.getStringExtra(StartMessageKey.name) ?: "Not found"
                 androidx.compose.material.Text(message)
             }
         }

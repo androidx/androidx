@@ -49,12 +49,12 @@ class ImageAppWidget : GlanceAppWidget() {
     override val sizeMode: SizeMode = SizeMode.Exact
 
     companion object {
-        internal val imageTypeKey = stringPreferencesKey("imageType")
+        internal val ImageTypeKey = stringPreferencesKey("imageType")
     }
 
     @Composable
     override fun Content() {
-        val type = currentState(imageTypeKey) ?: "Fit"
+        val type = currentState(ImageTypeKey) ?: "Fit"
         Column(modifier = GlanceModifier.fillMaxSize().padding(8.dp)) {
             Button(
                 text = "Content Scale: $type",
@@ -81,12 +81,12 @@ class ImageAppWidget : GlanceAppWidget() {
 class ChangeImageAction : ActionCallback {
     override suspend fun onRun(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
         updateAppWidgetState(context, glanceId) { state ->
-            val value = when (state[ImageAppWidget.imageTypeKey]) {
+            val value = when (state[ImageAppWidget.ImageTypeKey]) {
                 "Crop" -> "Fill Bounds"
                 "Fill Bounds" -> "Fit"
                 else -> "Crop"
             }
-            state[ImageAppWidget.imageTypeKey] = value
+            state[ImageAppWidget.ImageTypeKey] = value
         }
         ImageAppWidget().update(context, glanceId)
     }
