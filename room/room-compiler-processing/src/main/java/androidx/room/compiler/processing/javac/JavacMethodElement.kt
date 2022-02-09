@@ -52,15 +52,11 @@ internal class JavacMethodElement(
     override val jvmName: String
         get() = element.simpleName.toString()
 
-    override val enclosingElement: XTypeElement by lazy {
-        element.requireEnclosingType(env)
-    }
-
     override val parameters: List<JavacMethodParameter> by lazy {
         element.parameters.mapIndexed { index, variable ->
             JavacMethodParameter(
                 env = env,
-                enclosingMethodElement = this,
+                enclosingElement = this,
                 containing = containing,
                 element = variable,
                 kotlinMetadataFactory = {

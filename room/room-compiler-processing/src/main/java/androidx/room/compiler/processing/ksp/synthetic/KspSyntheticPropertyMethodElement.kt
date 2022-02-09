@@ -86,6 +86,10 @@ internal sealed class KspSyntheticPropertyMethodElement(
     final override val enclosingElement: XMemberContainer
         get() = this.field.enclosingElement
 
+    final override val closestMemberContainer: XMemberContainer by lazy {
+        enclosingElement.closestMemberContainer
+    }
+
     final override fun isVarArgs() = false
 
     final override val executableType: XMethodType by lazy {
@@ -196,7 +200,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
             listOf(
                 SyntheticExecutableParameterElement(
                     env = env,
-                    enclosingMethodElement = this
+                    enclosingElement = this
                 )
             )
         }
@@ -207,37 +211,41 @@ internal sealed class KspSyntheticPropertyMethodElement(
 
         private class SyntheticExecutableParameterElement(
             private val env: KspProcessingEnv,
-            override val enclosingMethodElement: Setter
+            override val enclosingElement: Setter
         ) : XExecutableParameterElement,
             XAnnotated by KspAnnotated.create(
                 env = env,
-                delegate = enclosingMethodElement.field.declaration.setter?.parameter,
+                delegate = enclosingElement.field.declaration.setter?.parameter,
                 filter = NO_USE_SITE_OR_SET_PARAM
             ) {
 
             private val jvmTypeResolutionScope = KspJvmTypeResolutionScope.PropertySetterParameter(
-                declaration = enclosingMethodElement
+                declaration = enclosingElement
             )
 
             override val name: String by lazy {
-                val originalName = enclosingMethodElement.accessor.parameter.name?.asString()
+                val originalName = enclosingElement.accessor.parameter.name?.asString()
                 originalName.sanitizeAsJavaParameterName(0)
             }
 
             override val type: KspType by lazy {
-                enclosingMethodElement.field.type.withJvmTypeResolver(
+                enclosingElement.field.type.withJvmTypeResolver(
                     jvmTypeResolutionScope
                 )
             }
 
             override val fallbackLocationText: String
-                get() = "$name in ${enclosingMethodElement.fallbackLocationText}"
+                get() = "$name in ${enclosingElement.fallbackLocationText}"
 
             override val hasDefaultValue: Boolean
                 get() = false
 
+            override val closestMemberContainer: XMemberContainer by lazy {
+                enclosingElement.closestMemberContainer
+            }
+
             override fun asMemberOf(other: XType): KspType {
-                return enclosingMethodElement.field.asMemberOf(other)
+                return enclosingElement.field.asMemberOf(other)
                     .withJvmTypeResolver(jvmTypeResolutionScope)
             }
 
