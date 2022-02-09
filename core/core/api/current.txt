@@ -1939,7 +1939,7 @@ package androidx.core.text {
   }
 
   public final class ICUCompat {
-    method public static String? maximizeAndGetScript(java.util.Locale!);
+    method public static String? maximizeAndGetScript(java.util.Locale);
   }
 
   public class PrecomputedTextCompat implements android.text.Spannable {

@@ -11,7 +11,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License
+ * limitations under the License.
  */
 
 package androidx.core.text;
@@ -29,7 +29,7 @@ import java.util.Locale;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-public class IcuCompatTest {
+public class ICUCompatTest {
 
     @Test
     public void testMaximizeAndGetScript() {
