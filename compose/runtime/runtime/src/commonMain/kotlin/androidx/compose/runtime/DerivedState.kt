@@ -64,7 +64,9 @@ private class DerivedSnapshotState<T>(
     private var first: ResultRecord<T> = ResultRecord()
 
     private class ResultRecord<T> : StateRecord() {
-        private object Unset
+        companion object {
+            val Unset = Any()
+        }
 
         var dependencies: HashSet<StateObject>? = null
         var result: Any? = Unset
