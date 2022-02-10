@@ -317,6 +317,11 @@
 
         <activity
             android:name="androidx.appcompat.widget.TooltipCompatTestActivity" />
+        <activity android:name="androidx.appcompat.app.LocalesUpdateActivity"/>
+
+        <activity
+            android:name="androidx.appcompat.app.LocalesConfigChangesActivity"
+            android:configChanges="locale|layoutDirection"/>
 
     </application>
 
