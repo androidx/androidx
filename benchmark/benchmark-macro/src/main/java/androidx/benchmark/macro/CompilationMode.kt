@@ -23,6 +23,9 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.benchmark.DeviceInfo
 import androidx.benchmark.Shell
+import androidx.benchmark.macro.CompilationMode.Full
+import androidx.benchmark.macro.CompilationMode.None
+import androidx.benchmark.macro.CompilationMode.Partial
 import androidx.profileinstaller.ProfileInstallReceiver
 import androidx.profileinstaller.ProfileInstaller
 import org.junit.AssumptionViolatedException
@@ -65,7 +68,75 @@ sealed class CompilationMode {
         if (Build.VERSION.SDK_INT >= 24) {
             Log.d(TAG, "Clearing profiles for $packageName")
             Shell.executeCommand("cmd package compile --reset $packageName")
+            writeProfileInstallerSkipFile(packageName)
             compileImpl(packageName, warmupBlock)
+        }
+    }
+
+    /**
+     * Writes a skip file via a [ProfileInstallReceiver] broadcast, so profile installation
+     * does not interfere with benchmarks.
+     */
+    private fun writeProfileInstallerSkipFile(packageName: String) {
+        val result = profileInstallerSkipFileOperation(packageName, "WRITE_SKIP_FILE")
+        if (result != null) {
+            Log.w(
+                TAG,
+                """
+                    $packageName should use the latest version of `androidx.profileinstaller`
+                    for stable benchmarks. ($result)"
+                """.trimIndent()
+            )
+        }
+    }
+
+    /**
+     * Uses skip files for avoiding interference from ProfileInstaller when using
+     * [CompilationMode.None].
+     *
+     * Operation name is one of `WRITE_SKIP_FILE` or `DELETE_SKIP_FILE`.
+     *
+     * Returned error strings aren't thrown, to let the calling function decide strictness.
+     */
+    private fun profileInstallerSkipFileOperation(
+        packageName: String,
+        operation: String
+    ): String? {
+        // Redefining constants here, because these are only defined in the latest alpha for
+        // ProfileInstaller.
+
+        // Use an explicit broadcast given the app was force-stopped.
+        val name = ProfileInstallReceiver::class.java.name
+        val action = "androidx.profileinstaller.action.SKIP_FILE"
+        val operationKey = "EXTRA_SKIP_FILE_OPERATION"
+        val extras = "$operationKey $operation"
+        Log.d(TAG, "Profile Installation Skip File Operation: $operation")
+        val result = Shell.executeCommand("am broadcast -a $action -e $extras $packageName/$name")
+            .substringAfter("Broadcast completed: result=")
+            .trim()
+            .toIntOrNull()
+        return when {
+            result == null || result == 0 -> {
+                // 0 is returned by the platform by default, and also if no broadcast receiver
+                // receives the broadcast.
+
+                "The baseline profile skip file broadcast was not received. " +
+                    "This most likely means that the `androidx.profileinstaller` library " +
+                    "used by the target apk is old. Please use `1.2.0-alpha03` or newer. " +
+                    "For more information refer to the release notes at " +
+                    "https://developer.android.com/jetpack/androidx/releases/profileinstaller."
+            }
+            operation == "WRITE_SKIP_FILE" && result == 10 -> { // RESULT_INSTALL_SKIP_FILE_SUCCESS
+                null // success!
+            }
+            operation == "DELETE_SKIP_FILE" && result == 11 -> { // RESULT_DELETE_SKIP_FILE_SUCCESS
+                null // success!
+            }
+            else -> {
+                throw RuntimeException(
+                    "unrecognized ProfileInstaller result code: $result"
+                )
+            }
         }
     }
 
@@ -207,6 +278,7 @@ sealed class CompilationMode {
 
         override fun compileImpl(packageName: String, warmupBlock: () -> Unit) {
             if (baselineProfileMode != BaselineProfileMode.Disable) {
+                // Ignores the presence of a skip file.
                 val installErrorString = broadcastBaselineProfileInstall(packageName)
                 if (installErrorString == null) {
                     // baseline profile install success, kill process before compiling
