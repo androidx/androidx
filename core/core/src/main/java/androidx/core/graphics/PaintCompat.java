@@ -16,6 +16,7 @@
 
 package androidx.core.graphics;
 
+import static androidx.core.graphics.BlendModeUtils.obtainBlendModeFromCompat;
 import static androidx.core.graphics.BlendModeUtils.obtainPorterDuffFromCompat;
 
 import android.graphics.BlendMode;
@@ -126,9 +127,8 @@ public final class PaintCompat {
      */
     public static boolean setBlendMode(@NonNull Paint paint, @Nullable BlendModeCompat blendMode) {
         if (Build.VERSION.SDK_INT >= 29) {
-            Object blendModePlatform = blendMode != null
-                    ? BlendModeUtils.Api29Impl.obtainBlendModeFromCompat(blendMode) : null;
-            Api29Impl.setBlendMode(paint, blendModePlatform);
+            Api29Impl.setBlendMode(paint,
+                    blendMode != null ? obtainBlendModeFromCompat(blendMode) : null);
             // All blend modes supported in Q
             return true;
         } else if (blendMode != null) {
@@ -160,18 +160,6 @@ public final class PaintCompat {
     private PaintCompat() {
     }
 
-    @RequiresApi(29)
-    static class Api29Impl {
-        private Api29Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static void setBlendMode(Paint paint, Object blendmode) {
-            paint.setBlendMode((BlendMode) blendmode);
-        }
-    }
-
     @RequiresApi(23)
     static class Api23Impl {
         private Api23Impl() {
@@ -181,6 +169,18 @@ public final class PaintCompat {
         @DoNotInline
         static boolean hasGlyph(Paint paint, String string) {
             return paint.hasGlyph(string);
+        }
+    }
+
+    @RequiresApi(29)
+    static class Api29Impl {
+        private Api29Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void setBlendMode(Paint paint, BlendMode blendmode) {
+            paint.setBlendMode(blendmode);
         }
     }
 }

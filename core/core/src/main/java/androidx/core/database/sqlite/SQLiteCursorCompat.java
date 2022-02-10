@@ -16,21 +16,18 @@
 
 package androidx.core.database.sqlite;
 
-import android.database.AbstractWindowedCursor;
 import android.database.sqlite.SQLiteCursor;
 import android.os.Build;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
 /**
- * Helper for accessing features in {@link AbstractWindowedCursor}
+ * Helper for accessing features in {@link android.database.AbstractWindowedCursor}
  */
 public final class SQLiteCursorCompat {
 
     private SQLiteCursorCompat() {
-        // This class is not instantiable.
+        /* Hide constructor */
     }
 
     /**
@@ -46,18 +43,6 @@ public final class SQLiteCursorCompat {
     public static void setFillWindowForwardOnly(
             @NonNull SQLiteCursor cursor, boolean fillWindowForwardOnly) {
         if (Build.VERSION.SDK_INT >= 28) {
-            Api28Impl.setFillWindowForwardOnly(cursor, fillWindowForwardOnly);
-        }
-    }
-
-    @RequiresApi(28)
-    static class Api28Impl {
-        private Api28Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static void setFillWindowForwardOnly(SQLiteCursor cursor, boolean fillWindowForwardOnly) {
             cursor.setFillWindowForwardOnly(fillWindowForwardOnly);
         }
     }

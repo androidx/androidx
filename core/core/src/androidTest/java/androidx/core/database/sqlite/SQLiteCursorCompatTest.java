@@ -18,8 +18,11 @@ package androidx.core.database.sqlite;
 
 import static org.junit.Assert.assertTrue;
 
+import android.database.Cursor;
 import android.database.sqlite.SQLiteCursor;
+import android.database.sqlite.SQLiteCursorDriver;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteQuery;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -33,14 +36,18 @@ public class SQLiteCursorCompatTest {
     @Test
     public void setFillWindowForwardOnly() {
         final Boolean[] calledSetter = { false };
-        SQLiteDatabase db = SQLiteDatabase.create((db1, primaryQuery, editTable, query) -> {
-            SQLiteCursor cursor = new SQLiteCursor(primaryQuery, editTable, query);
-            SQLiteCursorCompat.setFillWindowForwardOnly(cursor, true);
+        SQLiteDatabase db = SQLiteDatabase.create(new SQLiteDatabase.CursorFactory() {
+            @Override
+            public Cursor newCursor(SQLiteDatabase db, SQLiteCursorDriver primaryQuery,
+                    String editTable, SQLiteQuery query) {
+                SQLiteCursor cursor = new SQLiteCursor(primaryQuery, editTable, query);
+                SQLiteCursorCompat.setFillWindowForwardOnly(cursor, true);
 
-            // no easy way to read whether setter worked, so
-            // we just validate it can be called successfully
-            calledSetter[0] = true;
-            return cursor;
+                // no easy way to read whether setter worked, so
+                // we just validate it can be called successfully
+                calledSetter[0] = true;
+                return cursor;
+            }
         });
         db.execSQL("CREATE TABLE foo (num INTEGER);");
         db.query("foo", new String[] {"*"}, null, null, null, null, null);
