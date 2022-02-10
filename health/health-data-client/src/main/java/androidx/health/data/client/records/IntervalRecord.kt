@@ -15,23 +15,28 @@
  */
 package androidx.health.data.client.records
 
-import androidx.annotation.RestrictTo
 import java.time.Instant
 import java.time.ZoneOffset
 
-/** Common interface that records with time interval inherits. */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-interface IntervalRecord : Record {
-    val startTime: Instant
-    val endTime: Instant
+/**
+ * A record that contains a measurement with a time interval.
+ *
+ * @see InstantaneousRecord for records with instantaneous measurement.
+ */
+@PublishedApi
+internal interface IntervalRecord : Record {
+    /** Start time of the record. */
+    public val startTime: Instant
+    /** End time of the record. */
+    public val endTime: Instant
     /**
-     * User experienced zoneoffset at [startTime], or null if unknown. Providing these will help
+     * User experienced zone offset at [startTime], or null if unknown. Providing these will help
      * history aggregations results stay consistent should user travel.
      */
-    val startZoneOffset: ZoneOffset?
+    public val startZoneOffset: ZoneOffset?
     /**
-     * User experienced zoneoffset at [endTime], or null if unknown. Providing these will help
+     * User experienced zone offset at [endTime], or null if unknown. Providing these will help
      * history aggregations results stay consistent should user travel.
      */
-    val endZoneOffset: ZoneOffset?
+    public val endZoneOffset: ZoneOffset?
 }
