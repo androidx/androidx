@@ -59,6 +59,7 @@ import androidx.car.app.utils.ThreadUtils;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModelProvider;
 
 import java.util.List;
@@ -142,6 +143,16 @@ public final class CarAppActivity extends FragmentActivity {
                 @Override
                 public WindowInsets onApplyWindowInsets(@NonNull View view,
                         @NonNull WindowInsets windowInsets) {
+                    // Do not report inset changes if the activity is not in resumed state.
+                    // Reporting the inset changes when the app is going away results in visible
+                    // rescaling of certain UI elements such as maps right before app goes to the
+                    // background. These inset changes then need to be corrected again once the
+                    // app comes to the foreground resulting with another rescaling of the
+                    // screen which is not desired.
+                    if (getLifecycle().getCurrentState() != Lifecycle.State.RESUMED) {
+                        return WindowInsetsCompat.CONSUMED.toWindowInsets();
+                    }
+
                     // IMPORTANT: The insets calculated here must match the windowing settings in
                     // SystemUiVisibility set in CarAppActivity#onCreate(). Failing to do so would
                     // cause a mismatch between the insets applied to the content on the hosts side
