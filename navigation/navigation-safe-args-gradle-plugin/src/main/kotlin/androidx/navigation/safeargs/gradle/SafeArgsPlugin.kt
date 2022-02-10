@@ -32,6 +32,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import java.io.File
 import java.util.Locale
 import javax.inject.Inject
+import org.jetbrains.kotlin.gradle.utils.property
 
 private const val PLUGIN_DIRNAME = "navigation-args"
 internal const val GENERATED_PATH = "generated/source/$PLUGIN_DIRNAME"
@@ -102,7 +103,18 @@ abstract class SafeArgsPlugin protected constructor(
                         providerFactory.provider { variant.applicationId }
                     }
                 )
-                task.rFilePackage.set(variant.rFilePackage())
+                val rPackage = variant.rFilePackage(project)
+                task.rFilePackage.set(
+                    // If a package name is available we use that by default to ensure we
+                    // continue to support different productFlavors
+                    if (rPackage.get().isNotEmpty()) {
+                        rPackage
+                    } else {
+                        // otherwise, we fall back to the applicationId set on the task to ensure
+                        // we support namespaces as well.
+                        task.applicationId
+                    }
+                )
                 task.navigationFiles.setFrom(navigationFiles(variant, project))
                 task.outputDir.set(File(project.buildDir, "$GENERATED_PATH/${variant.dirName}"))
                 task.incrementalFolder.set(File(project.buildDir, "$INCREMENTAL_PATH/${task.name}"))
@@ -124,12 +136,16 @@ abstract class SafeArgsPlugin protected constructor(
     }
 
     @Suppress("DEPRECATION") // For BaseVariant should be replaced in later studio versions
-    private fun com.android.build.gradle.api.BaseVariant.rFilePackage() = providerFactory.provider {
+    private fun com.android.build.gradle.api.BaseVariant.rFilePackage(
+        project: Project
+    ): Provider<String> = project.objects.property(String::class.java).apply {
         val mainSourceSet = sourceSets.find { it.name == "main" }
         val sourceSet = mainSourceSet ?: sourceSets[0]
         val manifest = sourceSet.manifestFile
         val parsed = XmlSlurper(false, false).parse(manifest)
-        parsed.getProperty("@package").toString()
+        set(parsed.getProperty("@package").toString())
+        disallowChanges()
+        finalizeValueOnRead()
     }
 
     @Suppress("DEPRECATION") // For BaseVariant should be replaced in later studio versions
