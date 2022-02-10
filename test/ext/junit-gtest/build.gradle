@@ -71,24 +71,18 @@ android {
     }
 }
 
-// the following modification to junit-gtest/module.json is required so that the consuming library
-// does not need to add the same flags to their CMakeLists.txt. If AGP adds explicit support for
-// configuring module.json in the future we should use remove this manual fix. b/214034366
-void fixModuleJson(Task task) {
-    def moduleJson = task.outputs.files.asFileTree.find { it.name == "module.json" }
-    def newText = moduleJson.text.replace(
-            "\"export_libraries\": []",
-            "\"export_libraries\": [\"-uJava_androidx_test_ext_junitgtest_GtestRunner_initialize\", \"-uJava_androidx_test_ext_junitgtest_GtestRunner_run\",  \"-uJava_androidx_test_ext_junitgtest_GtestRunner_addTest\"]",
-    )
-    moduleJson.write(newText)
-}
-
 afterEvaluate {
-    tasks.named("prefabDebugPackage").configure {task ->
-        task.doLast { fixModuleJson(task) }
-    }
-
-    tasks.named("prefabReleasePackage").configure {task ->
-        task.doLast { fixModuleJson(task) }
+    tasks.withType(com.android.build.gradle.tasks.PrefabPackageTask).configureEach { task ->
+        task.doLast {
+            // the following modification to junit-gtest/module.json is required so that the consuming library
+            // does not need to add the same flags to their CMakeLists.txt. If AGP adds explicit support for
+            // configuring module.json in the future we should use remove this manual fix. b/214034366
+            def moduleJson = task.outputs.files.asFileTree.find { it.name == "module.json" }
+            def newText = moduleJson.text.replace(
+                    "\"export_libraries\": []",
+                    "\"export_libraries\": [\"-uJava_androidx_test_ext_junitgtest_GtestRunner_initialize\", \"-uJava_androidx_test_ext_junitgtest_GtestRunner_run\",  \"-uJava_androidx_test_ext_junitgtest_GtestRunner_addTest\"]",
+            )
+            moduleJson.write(newText)
+        }
     }
 }
