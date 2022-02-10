@@ -44,6 +44,11 @@ gradleEnterprise {
             hostname { host -> "unset" }
             ipAddresses { addresses -> addresses.collect { address -> "0.0.0.0"} }
         }
+        def buildNumber = System.getenv("BUILD_NUMBER")
+        if (buildNumber != null) {
+            value("BUILD_NUMBER", buildNumber)
+            link("ci.android.com build", "https://ci.android.com/builds/branches/aosp-androidx-main/grid?head=$buildNumber&tail=$buildNumber")
+        }
     }
 }
 
