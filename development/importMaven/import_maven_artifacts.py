@@ -50,7 +50,8 @@ def main():
                         required=False, action='store_true')
     parse_result = parser.parse_args()
     artifact_name = parse_result.name
-    if ("kotlin-native-linux" in artifact_name): artifact_name = fix_kotlin_native(artifact_name)
+    if ("kotlin-native-linux" in artifact_name or "kotlin-native-prebuilt-linux" in artifact_name):
+        artifact_name = fix_kotlin_native(artifact_name)
 
     # Add -Dorg.gradle.debug=true to debug or --stacktrace to see the stack trace
     command = './gradlew --build-file build.gradle.kts --no-configuration-cache -PartifactNames=%s' % (
