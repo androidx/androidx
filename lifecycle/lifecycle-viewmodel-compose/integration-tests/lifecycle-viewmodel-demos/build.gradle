@@ -26,10 +26,6 @@ plugins {
 dependencies {
     kotlinPlugin projectOrArtifact(":compose:compiler:compiler")
     implementation(libs.kotlinStdlib)
-    implementation projectOrArtifact(":lifecycle:lifecycle-viewmodel-compose")
-    implementation projectOrArtifact(
-            ":lifecycle:lifecycle-viewmodel-compose:lifecycle-viewmodel-compose-samples"
-    )
 }
 
 androidx {

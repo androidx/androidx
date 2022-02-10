@@ -31,6 +31,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.ViewTreeLifecycleOwner
+import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.savedstate.ViewTreeSavedStateRegistryOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -106,6 +108,29 @@ public class ViewModelTest {
 
         assertThat(owner.factory.createCalled).isTrue()
         val createdManually = ViewModelProvider(owner).get("test", TestViewModel::class.java)
+        assertThat(createdInComposition).isEqualTo(createdManually)
+    }
+
+    @Test
+    public fun viewModelCreatedViaDefaultFactoryWithKeyAndCreationExtras() {
+        val owner = FakeViewModelStoreOwner()
+        var createdInComposition: Any? = null
+        val extrasKey = object : CreationExtras.Key<String> { }
+        val extras = MutableCreationExtras().apply {
+            set(extrasKey, "value")
+        }
+        rule.setContent {
+            CompositionLocalProvider(LocalViewModelStoreOwner provides owner) {
+                createdInComposition =
+                    viewModel<TestViewModel>(key = "test", extras = extras)
+            }
+        }
+
+        assertThat(owner.factory.createCalled).isTrue()
+        assertThat(owner.factory.passedInExtras.get(extrasKey))
+            .isEqualTo("value")
+        val createdManually =
+            ViewModelProvider(owner)["test", TestViewModel::class.java]
         assertThat(createdInComposition).isEqualTo(createdManually)
     }
 
@@ -202,11 +227,17 @@ private class TestViewModel : ViewModel()
 
 private class FakeViewModelProviderFactory : ViewModelProvider.Factory {
     var createCalled = false
+    var passedInExtras: CreationExtras = CreationExtras.Empty
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         require(modelClass == TestViewModel::class.java)
         createCalled = true
         @Suppress("UNCHECKED_CAST")
         return TestViewModel() as T
+    }
+
+    override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
+        passedInExtras = extras
+        return super.create(modelClass, extras)
     }
 }
 
