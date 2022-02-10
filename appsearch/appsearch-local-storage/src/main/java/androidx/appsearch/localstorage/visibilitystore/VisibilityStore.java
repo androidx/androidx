@@ -83,12 +83,28 @@ public class VisibilityStore {
                 VISIBILITY_PACKAGE_NAME,
                 VISIBILITY_DATABASE_NAME,
                 new CallerAccess(/*callingPackageName=*/VISIBILITY_PACKAGE_NAME));
+        List<VisibilityDocumentV1> visibilityDocumentsV1s = null;
         switch (getSchemaResponse.getVersion()) {
             case VisibilityDocument.SCHEMA_VERSION_DOC_PER_PACKAGE:
-                maybeMigrateToLatest(getSchemaResponse);
-                break;
+                // TODO (b/202194495) add VisibilityDocument in version 0 back instead of using
+                //  GenericDocument.
+                List<GenericDocument> visibilityDocumentsV0s =
+                        VisibilityStoreMigrationHelperFromV0.getVisibilityDocumentsInVersion0(
+                                getSchemaResponse, mAppSearchImpl);
+                visibilityDocumentsV1s = VisibilityStoreMigrationHelperFromV0
+                        .toVisibilityDocumentV1(visibilityDocumentsV0s);
+                // fall through
             case VisibilityDocument.SCHEMA_VERSION_DOC_PER_SCHEMA:
-                // TODO(b/202194495) add migrator to handle version bump.
+                if (visibilityDocumentsV1s == null) {
+                    // We need to read VisibilityDocument in Version 1 from AppSearch instead of
+                    // taking from the above step.
+                    visibilityDocumentsV1s =
+                            VisibilityStoreMigrationHelperFromV1.getVisibilityDocumentsInVersion1(
+                                    mAppSearchImpl);
+                }
+                setLatestSchemaAndDocuments(VisibilityStoreMigrationHelperFromV1
+                        .toVisibilityDocumentsV2(visibilityDocumentsV1s));
+                break;
             case VisibilityDocument.SCHEMA_VERSION_LATEST:
                 Set<AppSearchSchema> existingVisibilitySchema = getSchemaResponse.getSchemas();
                 if (existingVisibilitySchema.contains(VisibilityDocument.SCHEMA)
@@ -219,32 +235,10 @@ public class VisibilityStore {
     }
 
     /**
-     * Migrate the {@link VisibilityDocument} to the latest version.
-     *
-     * <p>If the current version number is 0, it is possible that the database is just empty and it
-     * return 0 as the default version number. So we need to check if the deprecated document
-     * presents to trigger the migration.
+     * Set the latest version of {@link VisibilityDocument} and its schema to AppSearch.
      */
-    private void maybeMigrateToLatest(@NonNull GetSchemaResponse getSchemaResponse)
+    private void setLatestSchemaAndDocuments(@NonNull List<VisibilityDocument> migratedDocuments)
             throws AppSearchException {
-        // The database maybe empty or has the oldest version of deprecated schema.
-        boolean hasDeprecatedType = false;
-        List<GenericDocument> deprecatedDocuments = null;
-        for (AppSearchSchema schema : getSchemaResponse.getSchemas()) {
-            if (VisibilityStoreMigrationHelperFromV0
-                    .isDeprecatedType(schema.getSchemaType())) {
-                hasDeprecatedType = true;
-                // Found deprecated type, we need to migrate visibility Document. And it's
-                // not possible for us to find the latest visibility schema.
-                break;
-            }
-        }
-        if (hasDeprecatedType) {
-            // Read deprecated Visibility Document, migrate them to the latest version and
-            // save in mVisibilityDocumentMap.
-            deprecatedDocuments = VisibilityStoreMigrationHelperFromV0
-                    .getVisibilityDocumentsInVersion0(mAppSearchImpl);
-        }
         // The latest schema type doesn't exist yet. Add it. Set forceOverride true to
         // delete old schema.
         mAppSearchImpl.setSchema(
@@ -256,19 +250,11 @@ public class VisibilityStore {
                 /*forceOverride=*/ true,
                 /*version=*/ VisibilityDocument.SCHEMA_VERSION_LATEST,
                 /*setSchemaStatsBuilder=*/ null);
-        if (hasDeprecatedType) {
-            Map<String, VisibilityDocument.Builder> documentBuilderMap =
-                    VisibilityStoreMigrationHelperFromV0.toVisibilityDocumentsV1(
-                            deprecatedDocuments);
-
-            // Build visibility document from builder and put to AppSearch
-            for (Map.Entry<String, VisibilityDocument.Builder> entry :
-                    documentBuilderMap.entrySet()) {
-                VisibilityDocument visibilityDocument = entry.getValue().build();
-                mVisibilityDocumentMap.put(entry.getKey(), visibilityDocument);
-                mAppSearchImpl.putDocument(VISIBILITY_PACKAGE_NAME, VISIBILITY_DATABASE_NAME,
-                        visibilityDocument, /*logger=*/ null);
-            }
+        for (int i = 0; i < migratedDocuments.size(); i++) {
+            VisibilityDocument migratedDocument = migratedDocuments.get(i);
+            mVisibilityDocumentMap.put(migratedDocument.getId(), migratedDocument);
+            mAppSearchImpl.putDocument(VISIBILITY_PACKAGE_NAME, VISIBILITY_DATABASE_NAME,
+                    migratedDocument, /*logger=*/ null);
         }
     }
 }
