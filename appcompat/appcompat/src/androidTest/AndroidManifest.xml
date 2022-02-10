@@ -323,6 +323,33 @@
             android:name="androidx.appcompat.app.LocalesConfigChangesActivity"
             android:configChanges="locale|layoutDirection"/>
 
+        <activity
+            android:name="androidx.appcompat.app.LocalesCustomApplyOverrideConfigurationActivity" />
+
+        <activity android:name="androidx.appcompat.app.LocalesDialogFragment"/>
+
+        <activity android:name="androidx.appcompat.app.LocalesCustomAttachBaseContextActivity"/>
+
+        <activity android:name="androidx.appcompat.app.LocalesRotateDoesNotRecreateActivity"/>
+
+        <activity android:name="androidx.appcompat.app.LocalesActivityA"/>
+
+        <activity android:name="androidx.appcompat.app.LocalesActivityB"/>
+
+        <activity
+            android:name="androidx.appcompat.app.LocalesConfigChangesActivityA"
+            android:configChanges="locale|layoutDirection"/>
+
+        <activity
+            android:name="androidx.appcompat.app.LocalesConfigChangesActivityB"
+            android:configChanges="locale|layoutDirection"/>
+
+        <activity
+            android:name="androidx.appcompat.app.LocalesConfigChangesActivityWithoutLayoutDirection"
+            android:configChanges="locale"/>
+
+        <activity android:name="androidx.appcompat.app.LocalesLateOnCreateActivity"/>
+
     </application>
 
 </manifest>
