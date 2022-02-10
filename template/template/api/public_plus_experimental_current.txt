@@ -17,22 +17,48 @@ package androidx.template.template {
   }
 
   public static class SingleEntityTemplate.Data {
-    ctor public SingleEntityTemplate.Data(String title, String buttonText, androidx.glance.action.Action buttonAction, androidx.glance.ImageProvider image, androidx.glance.unit.ColorProvider backgroundColor);
+    ctor public SingleEntityTemplate.Data(String header, String title, String bodyText, androidx.template.template.TemplateButton button, androidx.template.template.TemplateImageWithDescription mainImage, androidx.glance.unit.ColorProvider backgroundColor, optional androidx.template.template.TemplateImageWithDescription? headerIcon, optional String? subtitle);
     method public final androidx.glance.unit.ColorProvider getBackgroundColor();
-    method public final androidx.glance.action.Action getButtonAction();
-    method public final String getButtonText();
-    method public final androidx.glance.ImageProvider getImage();
+    method public final String getBodyText();
+    method public final androidx.template.template.TemplateButton getButton();
+    method public final String getHeader();
+    method public final androidx.template.template.TemplateImageWithDescription? getHeaderIcon();
+    method public final androidx.template.template.TemplateImageWithDescription getMainImage();
+    method public final String? getSubtitle();
     method public final String getTitle();
-    method public final void setBackgroundColor(androidx.glance.unit.ColorProvider backgroundColor);
-    method public final void setButtonAction(androidx.glance.action.Action buttonAction);
-    method public final void setButtonText(String buttonText);
-    method public final void setImage(androidx.glance.ImageProvider image);
-    method public final void setTitle(String title);
     property public final androidx.glance.unit.ColorProvider backgroundColor;
-    property public final androidx.glance.action.Action buttonAction;
-    property public final String buttonText;
-    property public final androidx.glance.ImageProvider image;
+    property public final String bodyText;
+    property public final androidx.template.template.TemplateButton button;
+    property public final String header;
+    property public final androidx.template.template.TemplateImageWithDescription? headerIcon;
+    property public final androidx.template.template.TemplateImageWithDescription mainImage;
+    property public final String? subtitle;
     property public final String title;
+  }
+
+  public abstract sealed class TemplateButton {
+    method public final androidx.glance.action.Action getAction();
+    property public final androidx.glance.action.Action action;
+  }
+
+  public final class TemplateImageButton extends androidx.template.template.TemplateButton {
+    ctor public TemplateImageButton(androidx.glance.action.Action action, androidx.template.template.TemplateImageWithDescription image);
+    method public androidx.template.template.TemplateImageWithDescription getImage();
+    property public final androidx.template.template.TemplateImageWithDescription image;
+  }
+
+  public final class TemplateImageWithDescription {
+    ctor public TemplateImageWithDescription(androidx.glance.ImageProvider image, String description);
+    method public String getDescription();
+    method public androidx.glance.ImageProvider getImage();
+    property public final String description;
+    property public final androidx.glance.ImageProvider image;
+  }
+
+  public final class TemplateTextButton extends androidx.template.template.TemplateButton {
+    ctor public TemplateTextButton(androidx.glance.action.Action action, String text);
+    method public String getText();
+    property public final String text;
   }
 
   public final class TemplateTranslator {
