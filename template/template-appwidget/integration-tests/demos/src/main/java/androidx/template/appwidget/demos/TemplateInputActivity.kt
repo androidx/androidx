@@ -22,9 +22,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -43,8 +45,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.datastore.preferences.core.Preferences
 import androidx.compose.ui.unit.dp
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -66,7 +68,6 @@ import androidx.template.template.TemplateImageWithDescription
 import androidx.template.template.SingleEntityTemplate
 import androidx.template.template.TemplateTextButton
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
@@ -83,7 +84,7 @@ class TemplateInputActivity : ComponentActivity() {
             val context: Context = this@TemplateInputActivity
             var expanded by remember { mutableStateOf(false) }
 
-            Column(modifier = Modifier.fillMaxSize()) {
+            Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
                 // Template selection
                 Row(modifier = Modifier.fillMaxWidth().wrapContentHeight()) {
                     Button(onClick = { expanded = true }) { Text("Select template to edit") }
@@ -152,58 +153,70 @@ class TemplateInputActivity : ComponentActivity() {
             Text("Enter an 8-digit hex color code from 0 to FFFFFFFF (default: FFCCCCCC)")
             Text("Using ARGB format, so the first two digits are the alpha value. From 00 " +
                 "(completely transparent) to FF (completely opaque)")
-            TextField(
-                value = colorText,
-                singleLine = true,
-                placeholder = { Text(DEFAULT_BACKGROUND) },
-                onValueChange = { colorText = it },
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                keyboardActions = KeyboardActions(onDone = {
-                    onButtonClick(context, titleText, subtitleText, bodyText, colorText)
-                    CoroutineScope(SupervisorJob()).launch {
-                        formInputJob?.join()
-                        val prefs = GlanceState.getValue(context, definition = state, appFileKey())
-                        titleText = TextFieldValue(prefs[TitleKey]!!)
-                        subtitleText = TextFieldValue(prefs[SubtitleKey] ?: "")
-                        bodyText = TextFieldValue(prefs[BodyKey] ?: "")
-                        colorText = TextFieldValue(
-                            prefs[BackgroundKey]?.toString(16) ?: DEFAULT_BACKGROUND
-                        )
-                    }
-                })
-            )
+            Row {
+                TextField(
+                    value = colorText,
+                    singleLine = true,
+                    placeholder = { Text(DEFAULT_BACKGROUND) },
+                    onValueChange = { colorText = it },
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(onDone = {
+                        colorText = TextFieldValue(correctBackground(context, colorText.text))
 
-            Button(
-                modifier = Modifier.padding(top = 8.dp),
-                onClick = {
-                    onButtonClick(context, titleText, subtitleText, bodyText, colorText)
-                    CoroutineScope(SupervisorJob()).launch {
-                        formInputJob?.join()
-                        val prefs = GlanceState.getValue(context, definition = state, appFileKey())
-                        titleText = TextFieldValue(prefs[TitleKey]!!)
-                        subtitleText = TextFieldValue(prefs[SubtitleKey] ?: "")
-                        bodyText = TextFieldValue(prefs[BodyKey] ?: "")
-                        colorText = TextFieldValue(
-                            prefs[BackgroundKey]?.toString(16) ?: DEFAULT_BACKGROUND
+                        submitForm(
+                            context,
+                            TitleKey to titleText.text,
+                            SubtitleKey to subtitleText.text,
+                            BodyKey to bodyText.text,
+                            BackgroundKey to colorText.text.toLong(16)
+                        )
+                    })
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Button(onClick = { colorText = TextFieldValue(DEFAULT_BACKGROUND) }) {
+                    Text("Use default")
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                Button(onClick = { colorText = TextFieldValue("") }) {
+                    Text("Clear")
+                }
+            }
+
+            Row(modifier = Modifier.padding(top = 8.dp)) {
+                Button(
+                    modifier = Modifier.width(100.dp),
+                    onClick = {
+                        titleText = TextFieldValue("")
+                        subtitleText = TextFieldValue("")
+                        bodyText = TextFieldValue("")
+                        colorText = TextFieldValue("")
+                    }
+                ) { Text("Clear all") }
+                Spacer(modifier = Modifier.width(8.dp))
+                Button(
+                    modifier = Modifier.width(100.dp),
+                    onClick = {
+                        colorText = TextFieldValue(correctBackground(context, colorText.text))
+
+                        submitForm(
+                            context,
+                            TitleKey to titleText.text,
+                            SubtitleKey to subtitleText.text,
+                            BodyKey to bodyText.text,
+                            BackgroundKey to colorText.text.toLong(16)
                         )
                     }
-                }
-            ) { Text("Submit") }
+                ) { Text("Submit") }
+            }
         }
     }
 
-    private fun onButtonClick(
-        context: Context,
-        title: TextFieldValue,
-        subtitle: TextFieldValue,
-        body: TextFieldValue,
-        color: TextFieldValue
-    ) {
-        // Validate background color
-        var colorString = color.text
-        if (colorString.isEmpty()) {
-            colorString = DEFAULT_BACKGROUND
+    private fun correctBackground(context: Context, color: String): String {
+        if (color.isEmpty()) {
+            return DEFAULT_BACKGROUND
         }
+
+        var colorString = color
         if (colorString.length > 8) {
             colorString = colorString.subSequence(0, 8).toString()
         }
@@ -211,43 +224,34 @@ class TemplateInputActivity : ComponentActivity() {
             colorString += "0"
         }
 
-        val longValue = colorString.toLong(radix = 16)
-        if (longValue > COLOR_LONG_MAX_HEX) {
-            colorString = COLOR_STRING_MAX
-            Toast.makeText(context, R.string.background_error_high, Toast.LENGTH_SHORT).show()
-        } else if (longValue < 0) {
-            colorString = COLOR_STRING_MIN
-            Toast.makeText(context, R.string.background_error_low, Toast.LENGTH_SHORT).show()
+        try {
+            val longValue = colorString.toLong(radix = 16)
+
+            if (longValue > COLOR_LONG_MAX_HEX) {
+                Toast.makeText(context, R.string.background_error_high, Toast.LENGTH_SHORT).show()
+                return COLOR_STRING_MAX
+            } else if (longValue < 0) {
+                Toast.makeText(context, R.string.background_error_low, Toast.LENGTH_SHORT).show()
+                return COLOR_STRING_MIN
+            }
+        } catch (e: NumberFormatException) {
+            return DEFAULT_BACKGROUND
         }
 
-        formInputJob = CoroutineScope(SupervisorJob()).launch {
-            // Save input to app datastore
+        return colorString
+    }
+
+    private fun submitForm(context: Context, vararg pairs: Preferences.Pair<*>) {
+        CoroutineScope(SupervisorJob()).launch {
             GlanceState.updateValue(context, state, appFileKey()) { prefs ->
                 prefs.toMutablePreferences().apply {
-                    this[TitleKey] = title.text.takeIf { it.isNotEmpty() } ?: DEFAULT_TITLE
-                    if (subtitle.text.isEmpty()) {
-                        minusAssign(SubtitleKey)
-                    } else {
-                        this[SubtitleKey] = subtitle.text
-                    }
-                    this[BodyKey] = body.text
-                    this[BackgroundKey] = colorString.toLong(radix = 16)
+                    this.putAll(*pairs)
                 }
             }
         }
         Toast.makeText(context, R.string.template_data_saved_message, Toast.LENGTH_SHORT).show()
     }
 }
-
-private const val DEFAULT_TITLE = "Title"
-private const val DEFAULT_BACKGROUND = "FFCCCCCC"
-private const val DEFAULT_BODY = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed " +
-    "do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-private const val COLOR_STRING_MIN = "FF000000"
-private const val COLOR_STRING_MAX = "FFFFFFFF"
-private val COLOR_LONG_MAX_HEX = COLOR_STRING_MAX.toLong(radix = 16)
-private val state: GlanceStateDefinition<Preferences> = PreferencesGlanceStateDefinition
-private var formInputJob: Job? = null
 
 class SingleEntityInputWidgetTemplate : SingleEntityTemplate() {
     override fun getData(state: Any?): Data {
@@ -301,6 +305,17 @@ class TemplateButtonAction : ActionCallback {
 private enum class Templates {
     SingleEntity
 }
+
+private const val DEFAULT_TITLE = "Title"
+private const val DEFAULT_BACKGROUND = "FFCCCCCC"
+private const val DEFAULT_BODY = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed " +
+    "do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+private const val COLOR_STRING_MIN = "FF000000"
+private const val COLOR_STRING_MAX = "FFFFFFFF"
+
+private val COLOR_LONG_MAX_HEX = COLOR_STRING_MAX.toLong(radix = 16)
+
+private val state: GlanceStateDefinition<Preferences> = PreferencesGlanceStateDefinition
 
 private val TemplateKey = intPreferencesKey("template_key")
 private val TitleKey = stringPreferencesKey("title_key")
