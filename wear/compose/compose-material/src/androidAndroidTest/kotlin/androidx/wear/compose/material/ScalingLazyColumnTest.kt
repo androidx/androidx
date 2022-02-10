@@ -97,12 +97,49 @@ public class ScalingLazyColumnTest {
         // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
         rule.waitUntil { state.initialized.value }
         rule.waitForIdle()
+
+        state.layoutInfo.assertVisibleItems(count = 4, startIndex = 0)
+
         rule.onNodeWithTag(TEST_TAG).performTouchInput {
             swipeUp(endY = bottom - (itemSizePx.toFloat() + defaultItemSpacingPx.toFloat()))
         }
 
         rule.waitForIdle()
         state.layoutInfo.assertVisibleItems(count = 4, startIndex = 1)
+    }
+
+    @Test
+    fun visibleItemsAreCorrectAfterAttemptedScrollWithUserScrollDisabled() {
+        lateinit var state: ScalingLazyListState
+        rule.setContent {
+            WithTouchSlop(0f) {
+                ScalingLazyColumn(
+                    state = rememberScalingLazyListState().also { state = it },
+                    modifier = Modifier.testTag(TEST_TAG).requiredSize(
+                        itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
+                    ),
+                    autoCentering = false,
+                    userScrollEnabled = false
+                ) {
+                    items(5) {
+                        Box(Modifier.requiredSize(itemSizeDp))
+                    }
+                }
+            }
+        }
+
+        // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
+        rule.waitUntil { state.initialized.value }
+        rule.waitForIdle()
+
+        state.layoutInfo.assertVisibleItems(count = 4, startIndex = 0)
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput {
+            swipeUp(endY = bottom - (itemSizePx.toFloat() + defaultItemSpacingPx.toFloat()))
+        }
+
+        rule.waitForIdle()
+        state.layoutInfo.assertVisibleItems(count = 4, startIndex = 0)
     }
 
     @Test

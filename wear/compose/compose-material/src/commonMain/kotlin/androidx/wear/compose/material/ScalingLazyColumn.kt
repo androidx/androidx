@@ -252,6 +252,8 @@ internal fun convertToCenterOffset(
  * @param horizontalAlignment the horizontal alignment applied to the items
  * @param flingBehavior Logic describing fling behavior. If snapping is required use
  * [ScalingLazyColumnDefaults.snapFlingBehavior].
+ * @param userScrollEnabled whether the scrolling via the user gestures or accessibility actions
+ * is allowed. You can still scroll programmatically using the state even when it is disabled.
  * @param scalingParams The parameters to configure the scaling and transparency effects for the
  * component
  * @param anchorType How to anchor list items to the center-line of the viewport
@@ -272,6 +274,7 @@ public fun ScalingLazyColumn(
         ),
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
+    userScrollEnabled: Boolean = true,
     scalingParams: ScalingParams = ScalingLazyColumnDefaults.scalingParams(),
     anchorType: ScalingLazyListAnchorType = ScalingLazyListAnchorType.ItemCenter,
     autoCentering: Boolean = true,
@@ -333,6 +336,7 @@ public fun ScalingLazyColumn(
                 verticalArrangement = verticalArrangement,
                 state = state.lazyListState,
                 flingBehavior = flingBehavior,
+                userScrollEnabled = userScrollEnabled,
             ) {
                 val scope = ScalingLazyListScopeImpl(
                     state = state,
