@@ -29,13 +29,15 @@ import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.unit.ColorProvider
 import androidx.template.appwidget.GlanceTemplateAppWidget
+import androidx.template.template.TemplateImageWithDescription
 import androidx.template.template.SingleEntityTemplate
+import androidx.template.template.TemplateTextButton
 
-/** A [SingleEntityTemplate] implementation that sets the title given widget state */
+/** A [SingleEntityTemplate] implementation that sets the header given widget state */
 class MyWidgetTemplate : SingleEntityTemplate() {
     override fun getData(state: Any?): Data {
         require(state is Preferences)
-        return createData(getTitle(state[PressedKey] == true))
+        return createData(getHeader(state[PressedKey] == true))
     }
 }
 
@@ -57,12 +59,16 @@ class SingleEntityWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = SingleEntityWidget()
 }
 
-private fun createData(title: String) = SingleEntityTemplate.Data(
-    title,
-    "button",
-    actionRunCallback<ButtonAction>(),
-    ImageProvider(R.drawable.compose),
-    ColorProvider(R.color.default_widget_background)
+private fun createData(header: String) = SingleEntityTemplate.Data(
+    header = header,
+    title = "",
+    bodyText = "",
+    button = TemplateTextButton(actionRunCallback<ButtonAction>(), "toggle"),
+    mainImage = TemplateImageWithDescription(
+        ImageProvider(R.drawable.compose),
+        "Compose image"
+    ),
+    backgroundColor = ColorProvider(R.color.default_widget_background)
 )
 
-private fun getTitle(pressed: Boolean) = if (pressed) "title2" else "title1"
+private fun getHeader(pressed: Boolean) = if (pressed) "header2" else "header1"

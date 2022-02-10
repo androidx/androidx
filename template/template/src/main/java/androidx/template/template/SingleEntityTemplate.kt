@@ -18,18 +18,23 @@ package androidx.template.template
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.glance.Button
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
-import androidx.glance.ImageProvider
-import androidx.glance.action.Action
+import androidx.glance.action.clickable
 import androidx.glance.background
 import androidx.glance.currentState
+import androidx.glance.layout.Alignment
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.fillMaxSize
+import androidx.glance.layout.fillMaxWidth
+import androidx.glance.layout.height
 import androidx.glance.layout.padding
+import androidx.glance.layout.width
 import androidx.glance.text.Text
+import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 
 /**
@@ -43,8 +48,9 @@ abstract class SingleEntityTemplate : GlanceTemplate<SingleEntityTemplate.Data>(
             Column(
                 modifier = GlanceModifier.fillMaxSize().padding(8.dp).background(it.backgroundColor)
             ) {
-                Text(it.title)
-                Button(text = it.buttonText, onClick = it.buttonAction)
+                HeaderBlock(it)
+                TextBlock(it.title, it.subtitle, null)
+                Button(it)
             }
         }
     }
@@ -55,9 +61,10 @@ abstract class SingleEntityTemplate : GlanceTemplate<SingleEntityTemplate.Data>(
             Column(
                 modifier = GlanceModifier.fillMaxSize().padding(8.dp).background(it.backgroundColor)
             ) {
-                Text(it.title)
-                Image(provider = it.image, contentDescription = "test")
-                Button(text = it.buttonText, onClick = it.buttonAction)
+                HeaderBlock(it)
+                TextBlock(it.title, it.subtitle, it.bodyText)
+                Image(provider = it.mainImage.image, contentDescription = it.mainImage.description)
+                Button(it)
             }
         }
     }
@@ -65,23 +72,102 @@ abstract class SingleEntityTemplate : GlanceTemplate<SingleEntityTemplate.Data>(
     @Composable
     override fun WidgetLayoutHorizontal() {
         getData(currentState()).let {
-            Row(
+            Column(
                 modifier = GlanceModifier.fillMaxSize().padding(8.dp).background(it.backgroundColor)
             ) {
-                Column(modifier = GlanceModifier.padding(8.dp)) {
-                    Text(it.title)
-                    Button(text = it.buttonText, onClick = it.buttonAction)
+                Row(modifier = GlanceModifier.fillMaxWidth()) {
+                    HeaderBlock(it)
                 }
-                Image(provider = it.image, contentDescription = "test")
+                Row(modifier = GlanceModifier.fillMaxWidth()) {
+                    Column(modifier = GlanceModifier.defaultWeight()) {
+                        TextBlock(it.title, it.subtitle, it.bodyText)
+                        Button(it)
+                    }
+                    Image(
+                        provider = it.mainImage.image,
+                        contentDescription = it.mainImage.description,
+                        modifier = GlanceModifier.defaultWeight()
+                    )
+                }
             }
         }
     }
 
+    @Composable
+    private fun HeaderBlock(data: Data) {
+        Row(modifier = GlanceModifier.fillMaxWidth()) {
+            Column(
+                horizontalAlignment = Alignment.Horizontal.Start,
+                modifier = GlanceModifier.defaultWeight()
+            ) {
+                // TODO: Text color customization
+                val color = ColorProvider(R.color.text_default)
+                Text(
+                    data.header,
+                    style = TextStyle(fontSize = 20.sp, color = color),
+                    maxLines = 2
+                )
+            }
+            data.headerIcon?.let {
+                Column(
+                    horizontalAlignment = Alignment.Horizontal.End,
+                    modifier = GlanceModifier.defaultWeight()
+                ) {
+                    Image(
+                        provider = it.image,
+                        contentDescription = it.description,
+                        modifier = GlanceModifier.height(25.dp).width(25.dp)
+                    )
+                }
+            }
+        }
+    }
+
+    @Composable
+    private fun TextBlock(title: String, subtitle: String?, body: String?) {
+        // TODO: Text color customization
+        val color = ColorProvider(R.color.text_default)
+        Column {
+            Text(title, style = TextStyle(fontSize = 36.sp, color = color), maxLines = 2)
+            subtitle?.let {
+                Text(it, style = TextStyle(fontSize = 20.sp, color = color), maxLines = 2)
+            }
+            body?.let { Text(it, style = TextStyle(fontSize = 18.sp, color = color), maxLines = 5) }
+        }
+    }
+
+    @Composable
+    private fun Button(data: Data) {
+        // If a button image is provided, use an image button
+        when (data.button) {
+            is TemplateImageButton -> {
+                // TODO: specify sizing for image button
+                val image = data.button.image
+                Image(
+                    provider = image.image,
+                    contentDescription = image.description,
+                    modifier = GlanceModifier.clickable(data.button.action)
+                )
+            }
+            is TemplateTextButton -> {
+                Button(text = data.button.text, onClick = data.button.action)
+            }
+        }
+    }
+
+    /**
+     * The semantic data required to build template layouts
+     */
+    // TODO: add optional ordering for text vs image sections, determine granularity level for
+    //  setting text colors
     open class Data(
-        var title: String,
-        var buttonText: String,
-        var buttonAction: Action,
-        var image: ImageProvider,
-        var backgroundColor: ColorProvider
+        val header: String,
+        val title: String,
+        val bodyText: String,
+        val button: TemplateButton,
+        val mainImage: TemplateImageWithDescription,
+        val backgroundColor: ColorProvider,
+        val headerIcon: TemplateImageWithDescription? = null,
+        val subtitle: String? = null,
     )
 }
