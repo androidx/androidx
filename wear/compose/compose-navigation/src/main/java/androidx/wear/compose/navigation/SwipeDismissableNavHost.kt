@@ -163,9 +163,12 @@ public fun SwipeDismissableNavHost(
     var initialContent by remember { mutableStateOf(true) }
 
     val previous = if (backStack.size <= 1) null else backStack[backStack.lastIndex - 1]
+    // Get the current navigation backstack entry. If the backstack is empty, it could be because
+    // no WearNavigator.Destinations were added to the navigation backstack (be sure to build
+    // the NavGraph using androidx.wear.compose.navigation.composable) or because the last entry
+    // was popped prior to navigating (instead, use navigate with popUpTo).
     val current = if (backStack.isNotEmpty()) backStack.last() else throw IllegalArgumentException(
-        "No WearNavigation.Destination has been added to the WearNavigator in this NavGraph. " +
-            "For convenience, build NavGraph using androidx.wear.compose.navigation.composable."
+        "The WearNavigator backstack is empty, there is no navigation destination to display."
     )
 
     val state = rememberSwipeToDismissBoxState()
