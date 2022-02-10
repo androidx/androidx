@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+InvalidNullConversion: androidx.lifecycle.viewmodel.compose.ViewModelKt#viewModel(Class<VM>, androidx.lifecycle.ViewModelStoreOwner, String, androidx.lifecycle.ViewModelProvider.Factory):
+    Attempted to remove @NonNull annotation from method androidx.lifecycle.viewmodel.compose.ViewModelKt.viewModel(Class<VM>,androidx.lifecycle.ViewModelStoreOwner,String,androidx.lifecycle.ViewModelProvider.Factory)
+InvalidNullConversion: androidx.lifecycle.viewmodel.compose.ViewModelKt#viewModel(Class<VM>, androidx.lifecycle.ViewModelStoreOwner, String, androidx.lifecycle.ViewModelProvider.Factory) parameter #2:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter key in androidx.lifecycle.viewmodel.compose.ViewModelKt.viewModel(Class<VM> modelClass, androidx.lifecycle.ViewModelStoreOwner viewModelStoreOwner, String key, androidx.lifecycle.ViewModelProvider.Factory factory)
