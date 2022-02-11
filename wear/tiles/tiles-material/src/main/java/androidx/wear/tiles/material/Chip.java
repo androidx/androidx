@@ -43,20 +43,18 @@ import androidx.wear.tiles.LayoutElementBuilders;
 import androidx.wear.tiles.LayoutElementBuilders.Box;
 import androidx.wear.tiles.LayoutElementBuilders.ColorFilter;
 import androidx.wear.tiles.LayoutElementBuilders.Column;
-import androidx.wear.tiles.LayoutElementBuilders.FontStyle;
-import androidx.wear.tiles.LayoutElementBuilders.FontStyles;
 import androidx.wear.tiles.LayoutElementBuilders.HorizontalAlignment;
 import androidx.wear.tiles.LayoutElementBuilders.Image;
 import androidx.wear.tiles.LayoutElementBuilders.LayoutElement;
 import androidx.wear.tiles.LayoutElementBuilders.Row;
 import androidx.wear.tiles.LayoutElementBuilders.Spacer;
-import androidx.wear.tiles.LayoutElementBuilders.Text;
 import androidx.wear.tiles.ModifiersBuilders;
 import androidx.wear.tiles.ModifiersBuilders.Background;
 import androidx.wear.tiles.ModifiersBuilders.Clickable;
 import androidx.wear.tiles.ModifiersBuilders.Corner;
 import androidx.wear.tiles.ModifiersBuilders.Modifiers;
 import androidx.wear.tiles.ModifiersBuilders.Padding;
+import androidx.wear.tiles.material.Typography.TypographyName;
 import androidx.wear.tiles.proto.LayoutElementProto;
 
 import java.lang.annotation.Retention;
@@ -68,10 +66,10 @@ import java.util.List;
  * optional icon or with custom content.
  *
  * <p>The Chip is Stadium shape and has a max height designed to take no more than two lines of text
- * of {@link FontStyles#button} style. The {@link Chip} can have an icon horizontally parallel to
- * the two lines of text. Width of chip can very, and the recommended size is screen dependent with
- * the recommended margin being defined in {@link ChipDefaults#DEFAULT_MARGIN_PERCENT} which is set
- * by default.
+ * of {@link Typography#TYPOGRAPHY_BUTTON} style. The {@link Chip} can have an icon horizontally
+ * parallel to the two lines of text. Width of chip can very, and the recommended size is screen
+ * dependent with the recommended margin being defined in
+ * {@link ChipDefaults#DEFAULT_MARGIN_PERCENT} which is set by default.
  *
  * <p>The recommended set of {@link ChipColors} styles can be obtained from {@link ChipDefaults}.,
  * e.g. {@link ChipDefaults#PRIMARY} to get a color scheme for a primary {@link Chip} which by
@@ -105,14 +103,13 @@ public class Chip implements LayoutElement {
         @Nullable private String mLabelText = null;
         @NonNull private final Action mAction;
         @NonNull private final String mClickableId;
-        @NonNull private final DeviceParameters mDeviceParameters;
         @NonNull private String mContentDescription = "";
         @NonNull private ContainerDimension mWidth;
         @NonNull private DpProp mHeight = DEFAULT_HEIGHT;
         @NonNull private ChipColors mChipColors = PRIMARY;
         private @ChipType int mType = NOT_SET;
         private @HorizontalAlignment int mHorizontalAlign = HORIZONTAL_ALIGN_START;
-        @NonNull private FontStyle mPrimaryTextFont;
+        @TypographyName private int mPrimaryTextTypography;
         @NonNull private DpProp mHorizontalPadding = HORIZONTAL_PADDING;
         @NonNull private DpProp mVerticalPadding = VERTICAL_PADDING;
 
@@ -123,7 +120,7 @@ public class Chip implements LayoutElement {
          * @param action Associated Actions for click events. When the Chip is clicked it will fire
          *     the associated action.
          * @param clickableId The ID associated with the given action's clickable.
-         * @param deviceParameters The device parameters used for styling text.
+         * @param deviceParameters The device parameters used to derive defaults for this Chip.
          */
         @SuppressWarnings("LambdaLast")
         public Builder(
@@ -132,13 +129,12 @@ public class Chip implements LayoutElement {
                 @NonNull DeviceParameters deviceParameters) {
             mAction = action;
             mClickableId = clickableId;
-            mDeviceParameters = deviceParameters;
             mWidth =
                     dp(
                             (100 - 2 * DEFAULT_MARGIN_PERCENT)
                                     * deviceParameters.getScreenWidthDp()
                                     / 100);
-            mPrimaryTextFont = FontStyles.button(deviceParameters).build();
+            mPrimaryTextTypography = Typography.TYPOGRAPHY_BUTTON;
         }
 
         /**
@@ -203,8 +199,8 @@ public class Chip implements LayoutElement {
          * <p>Sets the font for the primary text and should only be used internally.
          */
         @NonNull
-        Builder setPrimaryTextFontStyle(@NonNull FontStyle fontStyle) {
-            this.mPrimaryTextFont = fontStyle;
+        Builder setPrimaryTextTypography(@TypographyName int typography) {
+            this.mPrimaryTextTypography = typography;
             return this;
         }
 
@@ -276,7 +272,6 @@ public class Chip implements LayoutElement {
             return this;
         }
 
-        // TODO(b/207350548): In RTL mode, should icon still be on the left.
         /**
          * Sets the horizontal alignment in the chip. It is strongly recommended that the content of
          * the chip is start-aligned if there is more than primary text in it. If not set, {@link
@@ -372,7 +367,7 @@ public class Chip implements LayoutElement {
             if (mType == NOT_SET) {
                 throw new IllegalStateException(
                         "No content set. Use setPrimaryTextContent or similar method to add"
-                                + " content");
+                            + " content");
             }
             if (mType == CUSTOM_CONTENT) {
                 return checkNotNull(mCustomContent);
@@ -380,7 +375,8 @@ public class Chip implements LayoutElement {
             Text mainTextElement =
                     new Text.Builder()
                             .setText(mPrimaryText)
-                            .setFontStyle(customizeFontStyle())
+                            .setTypography(mPrimaryTextTypography)
+                            .setColor(mChipColors.getContentColor())
                             .setMaxLines(getCorrectMaxLines())
                             .setOverflow(LayoutElementBuilders.TEXT_OVERFLOW_TRUNCATE)
                             .setMultilineAlignment(LayoutElementBuilders.TEXT_ALIGN_START)
@@ -395,10 +391,8 @@ public class Chip implements LayoutElement {
                 Text labelTextElement =
                         new Text.Builder()
                                 .setText(mLabelText)
-                                .setFontStyle(
-                                        FontStyles.caption2(mDeviceParameters)
-                                                .setColor(mChipColors.getSecondaryContentColor())
-                                                .build())
+                                .setTypography(Typography.TYPOGRAPHY_CAPTION2)
+                                .setColor(mChipColors.getSecondaryContentColor())
                                 .setMaxLines(1)
                                 .setOverflow(LayoutElementBuilders.TEXT_OVERFLOW_TRUNCATE)
                                 .setMultilineAlignment(LayoutElementBuilders.TEXT_ALIGN_START)
@@ -429,13 +423,6 @@ public class Chip implements LayoutElement {
                         .setVerticalAlignment(LayoutElementBuilders.VERTICAL_ALIGN_CENTER)
                         .build();
             }
-        }
-
-        private FontStyle customizeFontStyle() {
-            return FontStyle.fromProto(
-                    mPrimaryTextFont.toProto().toBuilder()
-                            .setColor(mChipColors.getContentColor().toProto())
-                            .build());
         }
 
         private int getCorrectMaxLines() {
@@ -503,13 +490,17 @@ public class Chip implements LayoutElement {
             if (contents.size() == 1 || contents.size() == 2) {
                 // This is potentially our chip and this part contains 1 or 2 lines of text.
                 LayoutElement element = contents.get(0);
-                if (element instanceof Text) {
-                    contentColor = getTextColorFromContent((Text) element);
+                // To elementary Text class as Material Text when it goes to proto disappears.
+                if (element instanceof LayoutElementBuilders.Text) {
+                    contentColor = getTextColorFromContent((LayoutElementBuilders.Text) element);
 
                     if (contents.size() == 2) {
                         element = contents.get(1);
-                        if (element instanceof Text) {
-                            secondaryContentColor = getTextColorFromContent((Text) element);
+                        // To elementary Text class as Material Text when it goes to proto
+                        // disappears.
+                        if (element instanceof LayoutElementBuilders.Text) {
+                            secondaryContentColor =
+                                    getTextColorFromContent((LayoutElementBuilders.Text) element);
                         }
                     }
                 }
@@ -530,7 +521,7 @@ public class Chip implements LayoutElement {
         return new ChipColors(backgroundColor, iconTintColor, contentColor, secondaryContentColor);
     }
 
-    private ColorProp getTextColorFromContent(Text text) {
+    private ColorProp getTextColorFromContent(LayoutElementBuilders.Text text) {
         ColorProp color = new ColorProp.Builder().build();
         if (text.getFontStyle() != null && text.getFontStyle().getColor() != null) {
             color = checkNotNull(checkNotNull(text.getFontStyle()).getColor());

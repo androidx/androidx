@@ -28,7 +28,6 @@ import androidx.wear.tiles.ActionBuilders.Action;
 import androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters;
 import androidx.wear.tiles.DimensionBuilders.ContainerDimension;
 import androidx.wear.tiles.DimensionBuilders.WrappedDimensionProp;
-import androidx.wear.tiles.LayoutElementBuilders.FontStyles;
 import androidx.wear.tiles.LayoutElementBuilders.LayoutElement;
 import androidx.wear.tiles.proto.LayoutElementProto;
 
@@ -36,7 +35,8 @@ import androidx.wear.tiles.proto.LayoutElementProto;
  * Tiles component {@link CompactChip} that represents clickable object with the text.
  *
  * <p>The Chip is Stadium shape and has a max height designed to take no more than one line of text
- * of {@link FontStyles#caption1} style. Width of the chip is adjustable to the text size.
+ * of {@link Typography#TYPOGRAPHY_CAPTION1} style. Width of the chip is adjustable to the text
+ * size.
  *
  * <p>The recommended set of {@link ChipColors} styles can be obtained from {@link ChipDefaults}.,
  * e.g. {@link ChipDefaults#COMPACT_PRIMARY} to get a color scheme for a primary {@link CompactChip}
@@ -105,8 +105,7 @@ public class CompactChip implements LayoutElement {
                             .setHeight(COMPACT_HEIGHT)
                             .setHorizontalPadding(COMPACT_HORIZONTAL_PADDING)
                             .setPrimaryTextContent(mText)
-                            .setPrimaryTextFontStyle(
-                                    FontStyles.caption1(mDeviceParameters).build());
+                            .setPrimaryTextTypography(Typography.TYPOGRAPHY_CAPTION1);
 
             return new CompactChip(chipBuilder.build());
         }

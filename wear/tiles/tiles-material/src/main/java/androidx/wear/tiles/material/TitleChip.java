@@ -32,7 +32,6 @@ import androidx.wear.tiles.ActionBuilders.Action;
 import androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters;
 import androidx.wear.tiles.DimensionBuilders.ContainerDimension;
 import androidx.wear.tiles.DimensionBuilders.DpProp;
-import androidx.wear.tiles.LayoutElementBuilders.FontStyles;
 import androidx.wear.tiles.LayoutElementBuilders.HorizontalAlignment;
 import androidx.wear.tiles.LayoutElementBuilders.LayoutElement;
 import androidx.wear.tiles.proto.LayoutElementProto;
@@ -41,7 +40,7 @@ import androidx.wear.tiles.proto.LayoutElementProto;
  * Tiles component {@link TitleChip} that represents clickable object with the text.
  *
  * <p>The Title Chip is Stadium shaped object with a larger height then standard Chip and it will
- * take one line of text of {@link FontStyles#title2} style.
+ * take one line of text of {@link Typography#TYPOGRAPHY_TITLE2} style.
  *
  * <p>The recommended set of {@link ChipColors} styles can be obtained from {@link ChipDefaults},
  * e.g. {@link ChipDefaults#TITLE_PRIMARY} to get a color scheme for a primary {@link TitleChip}
@@ -143,7 +142,7 @@ public class TitleChip implements LayoutElement {
                             .setMaxLines(1)
                             .setHorizontalPadding(TITLE_HORIZONTAL_PADDING)
                             .setPrimaryTextContent(mText)
-                            .setPrimaryTextFontStyle(FontStyles.title2(mDeviceParameters).build());
+                            .setPrimaryTextTypography(Typography.TYPOGRAPHY_TITLE2);
 
             if (mWidth != null) {
                 chipBuilder.setWidth(mWidth);
