@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,31 +16,42 @@
 
 package androidx.appcompat.app
 
-import android.content.res.Configuration
-import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
-import androidx.appcompat.testutils.NightModeActivityTestRule
-import androidx.appcompat.testutils.NightModeUtils.NightSetMode
-import androidx.appcompat.testutils.NightModeUtils.assertConfigurationNightModeEquals
-import androidx.appcompat.testutils.NightModeUtils.setNightModeAndWaitForRecreate
+import androidx.appcompat.testutils.LocalesActivityTestRule
+import androidx.appcompat.testutils.LocalesUtils.CUSTOM_LOCALE_LIST
+import androidx.appcompat.testutils.LocalesUtils.assertConfigurationLocalesEquals
+import androidx.appcompat.testutils.LocalesUtils.setLocalesAndWaitForRecreate
+import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.testutils.LifecycleOwnerUtils.waitUntilState
 import junit.framework.TestCase.assertNotSame
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-class NightModeForegroundDialogTestCase {
+// TODO(b/218430372): Modify SdkSuppress annotation in tests for backward compatibility of
+// setApplicationLocales
+@SdkSuppress(maxSdkVersion = 31)
+class LocalesForegroundDialogTestCase {
     @get:Rule
-    val rule = NightModeActivityTestRule(NightModeActivity::class.java)
+    val rule = LocalesActivityTestRule(LocalesUpdateActivity::class.java)
+    private var baseLocales = LocaleListCompat.getEmptyLocaleList()
+
+    @Before
+    fun setUp() {
+        AppCompatDelegate.setApplicationLocales(LocaleListCompat.getEmptyLocaleList())
+        baseLocales = LocalesUpdateActivity.getConfigLocales(rule.activity.resources.configuration)
+    }
 
     @Test
-    fun testNightModeChangeWithForegroundDialog() {
+    fun testLocalesChangeWithForegroundDialog() {
         val firstActivity = rule.activity
-        assertConfigurationNightModeEquals(Configuration.UI_MODE_NIGHT_NO, firstActivity)
+        assertConfigurationLocalesEquals(baseLocales, firstActivity)
 
         // Open a dialog on top of the activity.
         rule.runOnUiThread {
@@ -48,11 +59,10 @@ class NightModeForegroundDialogTestCase {
             frag.show(firstActivity.supportFragmentManager, "dialog")
         }
 
-        // Now change the DayNight mode on the foreground activity.
-        setNightModeAndWaitForRecreate(
+        // Now change the locales for the foreground activity.
+        setLocalesAndWaitForRecreate(
             firstActivity,
-            MODE_NIGHT_YES,
-            NightSetMode.DEFAULT
+            CUSTOM_LOCALE_LIST
         )
 
         // Ensure that it was recreated.

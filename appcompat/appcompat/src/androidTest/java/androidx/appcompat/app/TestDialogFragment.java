@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,22 +23,26 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
-public class NightModeDialogFragment extends DialogFragment {
+/**
+ * Test class extending DialogFragment used for testing of configuration changes like nightMode and
+ * locales.
+ */
+public class TestDialogFragment extends DialogFragment {
 
-    public NightModeDialogFragment() {
+    public TestDialogFragment() {
         // Public empty constructor used to handle lifecycle events.
     }
 
-    public static NightModeDialogFragment newInstance() {
-        return new NightModeDialogFragment();
+    public static TestDialogFragment newInstance() {
+        return new TestDialogFragment();
     }
 
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder.setTitle("NightModeDialogFragment");
-        builder.setMessage("NightModeDialogFragment");
+        builder.setTitle("TestDialogFragment");
+        builder.setMessage("TestDialogFragment");
         return builder.create();
     }
 }
