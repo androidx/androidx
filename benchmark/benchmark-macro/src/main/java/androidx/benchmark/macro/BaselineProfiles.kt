@@ -20,6 +20,7 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import androidx.benchmark.InstrumentationResults
 import androidx.benchmark.Outputs
 import androidx.benchmark.Shell
@@ -110,10 +111,23 @@ private fun profile(apkPath: String, pathOptions: List<String>): String {
             "profman --dump-classes-and-methods --profile-file=$currentPath --apk=$apkPath"
         )
         if (profile.isNotBlank()) {
-            return profile
+            return filterProfileRulesToTargetP(profile)
         }
     }
     throw IllegalStateException("The profile is empty.")
+}
+
+@VisibleForTesting
+internal fun filterProfileRulesToTargetP(profile: String): String {
+    val rules = profile.lines()
+    val filteredRules = rules.filterNot { rule ->
+        // We want to filter out rules that are not supported on P. (b/216508418)
+        // These include rules that have array qualifiers and inline cache specifiers.
+        if (rule.startsWith("[")) { // Array qualifier
+            true
+        } else rule.contains("+") // Inline cache specifier
+    }
+    return filteredRules.joinToString(separator = "\n")
 }
 
 private fun summaryRecord(
