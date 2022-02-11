@@ -21,6 +21,8 @@ import static androidx.core.graphics.BlendModeColorFilterCompat.createBlendModeC
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import android.graphics.BlendMode;
+import android.graphics.BlendModeColorFilter;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
@@ -35,11 +37,22 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
-@SdkSuppress(maxSdkVersion = 28)
 @SmallTest
 public class BlendModeColorFilterCompatTest {
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    public void testNullBlendModeRemovesBlendModeColorFilter() {
+        ColorFilter filter = createBlendModeColorFilterCompat(Color.RED, BlendModeCompat.CLEAR);
+        assertTrue(filter instanceof BlendModeColorFilter);
+
+        BlendModeColorFilter blendModeFilter = (BlendModeColorFilter) filter;
+        assertEquals(Color.RED, blendModeFilter.getColor());
+        assertEquals(BlendMode.CLEAR, blendModeFilter.getMode());
+    }
+
+    @Test
+    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.P)
     public void testNullBlendModeRemovesPorterDuffColorFilter() {
         ColorFilter filter = createBlendModeColorFilterCompat(Color.RED, BlendModeCompat.CLEAR);
         assertTrue(filter instanceof PorterDuffColorFilter);
