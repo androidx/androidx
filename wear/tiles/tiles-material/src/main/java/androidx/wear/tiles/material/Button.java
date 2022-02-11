@@ -413,22 +413,20 @@ public class Button implements LayoutElement {
         }
     }
 
-    /** Returns the content of this Button. Intended for testing purposes only. */
+    /** Returns the content of this Button. */
     @NonNull
     public LayoutElement getContent() {
         return checkNotNull(mElement.getContents().get(0));
     }
 
-    /**
-     * Returns click event action associated with this Button. Intended for testing purposes only.
-     */
+    /** Returns click event action associated with this Button. */
     @NonNull
     public Action getAction() {
         return checkNotNull(
                 checkNotNull(checkNotNull(mElement.getModifiers()).getClickable()).getOnClick());
     }
 
-    /** Returns content description for this Button. Intended for testing purposes only. */
+    /** Returns content description for this Button. */
     @NonNull
     public String getContentDescription() {
         return checkNotNull(
@@ -436,7 +434,7 @@ public class Button implements LayoutElement {
                         .getContentDescription());
     }
 
-    /** Returns size for this Button. Intended for testing purposes only. */
+    /** Returns size for this Button. */
     @NonNull
     public ContainerDimension getSize() {
         return checkNotNull(mElement.getWidth());
@@ -447,7 +445,7 @@ public class Button implements LayoutElement {
                 checkNotNull(checkNotNull(mElement.getModifiers()).getBackground()).getColor());
     }
 
-    /** Returns button color of this Button. Intended for testing purposes only. */
+    /** Returns button color of this Button. */
     @NonNull
     public ButtonColors getButtonColors() {
         ColorProp backgroundColor = getBackgroundColor();

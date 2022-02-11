@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,15 +45,14 @@ import androidx.wear.tiles.proto.LayoutElementProto;
 
 /**
  * Tiles component {@link CircularProgressIndicator} that represents circular progress indicator
- * which supports a gap in the circular track between startAngle and endAngle.
- * [Progress Indicator doc]
- * (https://developer.android.com/training/wearables/components/progress-indicator)
+ * which supports a gap in the circular track between startAngle and endAngle. [Progress Indicator
+ * doc] (https://developer.android.com/training/wearables/components/progress-indicator)
  *
  * <p>The CircularProgressIndicator is a colored arc around the edge of the screen with the given
  * start and end angles, which can describe a full or partial circle. Behind it is an arc with
- * optional gap representing full progress. The recommended sizes are defined in
- * {@link ProgressIndicatorDefaults}. Unless specified, the CircularProgressIndicator will have
- * the full length.
+ * optional gap representing full progress. The recommended sizes are defined in {@link
+ * ProgressIndicatorDefaults}. Unless specified, the CircularProgressIndicator will have the full
+ * length.
  *
  * <p>The recommended set of {@link ProgressIndicatorColors} can be obtained from {@link
  * ProgressIndicatorDefaults}., e.g. {@link ProgressIndicatorDefaults#DEFAULT_COLOR} to get a color
@@ -192,8 +191,8 @@ public class CircularProgressIndicator implements LayoutElement {
                             .addContent(
                                     new ArcLine.Builder()
                                             .setColor(
-                                                    mCircularProgressIndicatorColors.getTrackColor()
-                                            )
+                                                    mCircularProgressIndicatorColors
+                                                            .getTrackColor())
                                             .setThickness(mStrokeWidth)
                                             .setLength(length)
                                             .build())
@@ -207,8 +206,7 @@ public class CircularProgressIndicator implements LayoutElement {
                                     new ArcLine.Builder()
                                             .setColor(
                                                     mCircularProgressIndicatorColors
-                                                            .getIndicatorColor()
-                                            )
+                                                            .getIndicatorColor())
                                             .setThickness(mStrokeWidth)
                                             .setLength(degrees(mProgress * length.getValue()))
                                             .build());
