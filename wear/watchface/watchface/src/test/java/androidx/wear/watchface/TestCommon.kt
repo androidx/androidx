@@ -52,7 +52,6 @@ internal class TestWatchFaceService(
     private val watchState: MutableWatchState,
     private val handler: Handler,
     private val tapListener: WatchFace.TapListener?,
-    private val pendingIntentTapListener: WatchFace.PendingIntentTapListener?,
     private val preAndroidR: Boolean,
     private val directBootParams: WallpaperInteractiveWatchFaceInstanceParams?,
     private val choreographer: ChoreographerWrapper,
@@ -124,9 +123,6 @@ internal class TestWatchFaceService(
             })
         tapListener?.let {
             watchFace.setTapListener(it)
-        }
-        pendingIntentTapListener?.let {
-            watchFace.setPendingIntentTapListener(it)
         }
         return watchFace
     }

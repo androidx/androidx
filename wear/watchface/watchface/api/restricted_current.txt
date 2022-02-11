@@ -294,7 +294,6 @@ package androidx.wear.watchface {
     method public androidx.wear.watchface.WatchFace setLegacyWatchFaceStyle(androidx.wear.watchface.WatchFace.LegacyWatchFaceOverlayStyle legacyWatchFaceStyle);
     method public androidx.wear.watchface.WatchFace setOverlayStyle(androidx.wear.watchface.WatchFace.OverlayStyle watchFaceOverlayStyle);
     method public androidx.wear.watchface.WatchFace setOverridePreviewReferenceInstant(java.time.Instant previewReferenceTimeMillis);
-    method public androidx.wear.watchface.WatchFace setPendingIntentTapListener(androidx.wear.watchface.WatchFace.PendingIntentTapListener? pendingIntentTapListener);
     method public androidx.wear.watchface.WatchFace setTapListener(androidx.wear.watchface.WatchFace.TapListener? tapListener);
     method public void setWatchFaceType(int watchFaceType);
     property public final androidx.wear.watchface.WatchFace.LegacyWatchFaceOverlayStyle legacyWatchFaceStyle;
@@ -329,10 +328,6 @@ package androidx.wear.watchface {
     method public android.graphics.Color? getForegroundColor();
     property public final android.graphics.Color? backgroundColor;
     property public final android.graphics.Color? foregroundColor;
-  }
-
-  public static interface WatchFace.PendingIntentTapListener {
-    method @UiThread public android.app.PendingIntent? onTapEvent(int tapType, androidx.wear.watchface.TapEvent tapEvent, androidx.wear.watchface.ComplicationSlot? complicationSlot);
   }
 
   public static interface WatchFace.TapListener {

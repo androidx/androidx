@@ -131,7 +131,6 @@ package androidx.wear.watchface.client {
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public java.util.List<androidx.wear.watchface.ContentDescriptionLabel> getContentDescriptionLabels();
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public String getInstanceId();
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public default androidx.wear.watchface.client.OverlayStyle getOverlayStyle();
-    method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public default android.app.PendingIntent? getPendingIntentForTouchEvent(@Px int xPosition, @Px int yPosition, @androidx.wear.watchface.TapType int tapType) throws android.os.RemoteException;
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public java.time.Instant getPreviewReferenceInstant();
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public androidx.wear.watchface.style.UserStyleSchema getUserStyleSchema();
     method @AnyThread public boolean isConnectionAlive();
@@ -141,7 +140,6 @@ package androidx.wear.watchface.client {
     method @RequiresApi(27) @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public android.graphics.Bitmap renderWatchFaceToBitmap(androidx.wear.watchface.RenderParameters renderParameters, java.time.Instant instant, androidx.wear.watchface.style.UserStyle? userStyle, java.util.Map<java.lang.Integer,? extends androidx.wear.watchface.complications.data.ComplicationData>? idAndComplicationData) throws android.os.RemoteException;
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public void sendTouchEvent(@Px int xPosition, @Px int yPosition, @androidx.wear.watchface.TapType int tapType) throws android.os.RemoteException;
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public void setWatchUiState(androidx.wear.watchface.client.WatchUiState watchUiState) throws android.os.RemoteException;
-    method public default boolean supportsPendingIntentForTouchEvent();
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public void updateComplicationData(java.util.Map<java.lang.Integer,? extends androidx.wear.watchface.complications.data.ComplicationData> slotIdToComplicationData) throws android.os.RemoteException;
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public void updateWatchFaceInstance(String newInstanceId, androidx.wear.watchface.style.UserStyle userStyle) throws android.os.RemoteException;
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public void updateWatchFaceInstance(String newInstanceId, androidx.wear.watchface.style.UserStyleData userStyle) throws android.os.RemoteException;
