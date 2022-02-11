@@ -18,6 +18,7 @@
     package="androidx.wear.watchface.client.test">
     <application android:requestLegacyExternalStorage="true">
         <service android:name="androidx.wear.watchface.client.test.WatchFaceControlTestService"/>
+        <service android:name="androidx.wear.watchface.client.test.TestNopCanvasWatchFaceService"/>
     </application>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>

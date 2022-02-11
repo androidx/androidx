@@ -44,15 +44,20 @@ public class WatchFaceMetadataServiceTest {
         "androidx.wear.watchface.client.test",
         "androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService"
     )
+    private val nopCanvasWatchFaceServiceComponentName = ComponentName(
+        "androidx.wear.watchface.client.test",
+        "androidx.wear.watchface.client.test.TestNopCanvasWatchFaceService"
+    )
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
-    private val service = runBlocking {
+
+    private fun createWatchFaceMetadataClient(componentName: ComponentName) = runBlocking {
         WatchFaceMetadataClient.createImpl(
             context,
             Intent(context, WatchFaceControlTestService::class.java).apply {
                 action = WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE
             },
-            exampleWatchFaceComponentName,
+            componentName,
             object : WatchFaceMetadataClient.Companion.ParserProvider() {
                 override fun getParser(
                     context: Context,
@@ -70,6 +75,7 @@ public class WatchFaceMetadataServiceTest {
     @Test
     @Suppress("Deprecation") // userStyleSettings
     public fun getSchema() {
+        val service = createWatchFaceMetadataClient(exampleWatchFaceComponentName)
         val schema = service.getUserStyleSchema()
 
         Truth.assertThat(schema.userStyleSettings.size).isEqualTo(5)
@@ -94,6 +100,7 @@ public class WatchFaceMetadataServiceTest {
     @Suppress("Deprecation") // userStyleSettings
     public fun getSchema_oldApi() {
         WatchFaceControlTestService.apiVersionOverride = 1
+        val service = createWatchFaceMetadataClient(exampleWatchFaceComponentName)
         val schema = service.getUserStyleSchema()
 
         Truth.assertThat(schema.userStyleSettings.size).isEqualTo(5)
@@ -116,6 +123,7 @@ public class WatchFaceMetadataServiceTest {
 
     @Test
     public fun getComplicationSlotMetadataMap() {
+        val service = createWatchFaceMetadataClient(exampleWatchFaceComponentName)
         val complicationSlotMetadataMap = service.getComplicationSlotMetadataMap()
         Truth.assertThat(complicationSlotMetadataMap.size).isEqualTo(2)
 
@@ -166,6 +174,12 @@ public class WatchFaceMetadataServiceTest {
             ComplicationType.MONOCHROMATIC_IMAGE,
             ComplicationType.SMALL_IMAGE
         )
+    }
+
+    @Test
+    public fun getComplicationSlotMetadataMap_watchFaceWithNoComplications() {
+        val service = createWatchFaceMetadataClient(nopCanvasWatchFaceServiceComponentName)
+        Truth.assertThat(service.getComplicationSlotMetadataMap()).isEmpty()
     }
 
     @Test
