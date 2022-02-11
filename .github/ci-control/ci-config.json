@@ -13,7 +13,7 @@
     },
     "main" : {
         "exclude" : [
-            "lifecycle",
+            "lifecycle"
         ],
         "default": true
     }
