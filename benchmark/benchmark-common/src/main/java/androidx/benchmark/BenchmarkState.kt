@@ -422,13 +422,7 @@ public class BenchmarkState {
         thermalThrottleSleepSeconds = 0
 
         if (!simplifiedTimingOnlyMode) {
-            if (!CpuInfo.locked &&
-                !IsolationActivity.sustainedPerformanceModeInUse &&
-                !Errors.isEmulator
-            ) {
-                ThrottleDetector.computeThrottleBaseline()
-            }
-
+            ThrottleDetector.computeThrottleBaselineIfNeeded()
             ThreadPriority.bumpCurrentThreadPriority()
         }
 
