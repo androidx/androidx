@@ -50,7 +50,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 /** Used for visually indicating a View's affordance as a drop target. */
-@RequiresApi(Build.VERSION_CODES.N)
 final class DropAffordanceHighlighter {
     static final float FILL_OPACITY_INACTIVE = .2f;
     static final float FILL_OPACITY_ACTIVE = .65f;
@@ -243,7 +242,6 @@ final class DropAffordanceHighlighter {
     }
 
     /** Builder for {@link DropAffordanceHighlighter}. */
-    @RequiresApi(Build.VERSION_CODES.N)
     static final class Builder {
         private final View mViewToHighlight;
         private final Predicate<ClipDescription> mEligibilityPredicate;

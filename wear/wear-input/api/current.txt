@@ -7,7 +7,7 @@ package androidx.wear.input {
     method public android.os.Bundle getButtonInfo(android.content.Context, int);
   }
 
-  @RequiresApi(android.os.Build.VERSION_CODES.N) public final class RemoteInputIntentHelper {
+  public final class RemoteInputIntentHelper {
     method public static android.content.Intent createActionRemoteInputIntent();
     method public static CharSequence? getCancelLabelExtra(android.content.Intent intent);
     method public static CharSequence? getConfirmLabelExtra(android.content.Intent intent);

@@ -28,7 +28,6 @@ import android.widget.EditText;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.AppCompatEditText;
 import androidx.core.view.ContentInfoCompat;
 import androidx.core.view.OnReceiveContentListener;
@@ -68,7 +67,6 @@ import java.util.List;
  * @see <a href="https://developer.android.com/guide/topics/large-screens/multi-window-support#dnd">
  *     Multi-window support</a>
  */
-@RequiresApi(Build.VERSION_CODES.N)
 public final class DropHelper {
 
     private static final String TAG = "DropHelper";
@@ -270,7 +268,6 @@ public final class DropHelper {
     /**
      * Options for configuring drop targets specified by {@link DropHelper}.
      */
-    @RequiresApi(Build.VERSION_CODES.N)
     public static final class Options {
         private final @ColorInt int mHighlightColor;
         private final boolean mHighlightColorHasBeenSupplied;
@@ -361,7 +358,6 @@ public final class DropHelper {
         /**
          * Builder for constructing a {@link DropHelper.Options} instance.
          */
-        @RequiresApi(Build.VERSION_CODES.N)
         public static final class Builder {
             private @ColorInt int mHighlightColor;
             private boolean mHighlightColorHasBeenSupplied = false;
