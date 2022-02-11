@@ -17,9 +17,7 @@
 package androidx.wear.watchface
 
 import android.annotation.SuppressLint
-import android.app.PendingIntent
 import android.app.PendingIntent.CanceledException
-import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -385,39 +383,6 @@ public class ComplicationSlotsManager(
         for (complicationListener in complicationListeners) {
             complicationListener.onComplicationSlotTapped(complicationSlotId)
         }
-    }
-
-    /**
-     * Called when the user single taps on a [ComplicationSlot], and returns a [PendingIntent] for
-     * the permission request helper if needed, otherwise returns the tap action PendingIntent.
-     *
-     * @param complicationSlotId The ID for the [ComplicationSlot] that was single tapped
-     */
-    @SuppressWarnings("SyntheticAccessor")
-    @UiThread
-    internal fun getPendingIntentForSingleTappedComplication(
-        complicationSlotId: Int
-    ): PendingIntent? {
-        // Check if the complication is missing permissions.
-        val data = complicationSlots[complicationSlotId]?.renderer?.getData() ?: return null
-        if (data.type == ComplicationType.NO_PERMISSION) {
-            return PendingIntent.getActivity(
-                watchFaceHostApi.getContext(),
-                0,
-                ComplicationHelperActivity.createPermissionRequestHelperIntent(
-                    watchFaceHostApi.getContext(),
-                    getComponentName(watchFaceHostApi.getContext()),
-                    watchFaceHostApi.getComplicationDeniedIntent(),
-                    watchFaceHostApi.getComplicationRationaleIntent()
-                ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-                FLAG_IMMUTABLE
-            )
-        }
-
-        for (complicationListener in complicationListeners) {
-            complicationListener.onComplicationSlotTapped(complicationSlotId)
-        }
-        return data.tapAction
     }
 
     @UiThread

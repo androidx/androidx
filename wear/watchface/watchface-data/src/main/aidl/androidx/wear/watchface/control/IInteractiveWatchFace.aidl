@@ -186,18 +186,8 @@ interface IInteractiveWatchFace {
      */
     oneway void addWatchfaceReadyListener(in IWatchfaceReadyListener listener) = 17;
 
-    /**
-     * Forwards a touch event for the WatchFace to process and returns the corresponding
-     * PendingIntent to be fired if any. The reason for using this is for 5 seconds after tapping
-     * the home button, background applications (such as the watch face) are not allowed by the
-     * framework to send intents which can look broken from the user's point of view.
-     *
-     * @param xPos X Coordinate of the touch event
-     * @param yPos Y Coordinate of the touch event
-     * @param tapType One of {@link #TAP_TYPE_DOWN}, {@link #TAP_TYPE_CANCEL}, {@link #TAP_TYPE_UP}
-     * @since API version 3.
-     */
-    PendingIntent getPendingIntentForTouchEvent(in int xPos, in int yPos, in int tapType) = 18;
+    /** Unused. */
+    void unused18() = 18;
 
     /**
      * Returns the watch face's {@link WatchFaceOverlayStyle}.

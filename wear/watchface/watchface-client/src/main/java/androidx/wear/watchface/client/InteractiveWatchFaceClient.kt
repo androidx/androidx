@@ -16,7 +16,6 @@
 
 package androidx.wear.watchface.client
 
-import android.app.PendingIntent
 import android.graphics.Bitmap
 import android.os.Handler
 import android.os.HandlerThread
@@ -183,33 +182,6 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
      */
     @Throws(RemoteException::class)
     public fun sendTouchEvent(@Px xPosition: Int, @Px yPosition: Int, @TapType tapType: Int)
-
-    /**
-     * Sends a tap event to the watch face for processing and returns a [PendingIntent] if the user
-     * tapped on complication, which should be sent on the watch face's behalf. The reason for using
-     * this is for 5 seconds after tapping the home button, background applications (such as the
-     * watch face) are not allowed by the framework to send intents which can look broken from the
-     * user's point of view.
-     *
-     * Note older watch faces don't support this method and will always return `null`. In this case
-     * the watch face will have attempted to send any intent and no further action is needed by the
-     * caller. You can use [supportsPendingIntentForTouchEvent] to determine if the watch face
-     * supports getPendingIntentForTouchEvent.
-     *
-     * @param xPosition The x-coordinate of the tap in pixels
-     * @param yPosition The y-coordinate of the tap in pixels
-     * @param tapType The [TapType] of the event
-     * @return A [PendingIntent] to be fired or `null`
-     */
-    @Throws(RemoteException::class)
-    public fun getPendingIntentForTouchEvent(
-        @Px xPosition: Int,
-        @Px yPosition: Int,
-        @TapType tapType: Int
-    ): PendingIntent? = null
-
-    /** Whether or not the watch face supports [getPendingIntentForTouchEvent]. */
-    public fun supportsPendingIntentForTouchEvent(): Boolean = false
 
     /**
      * Returns the [ContentDescriptionLabel]s describing the watch face, for the use by screen
@@ -415,22 +387,6 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
     ) = TraceEvent("InteractiveWatchFaceClientImpl.sendTouchEvent").use {
         iInteractiveWatchFace.sendTouchEvent(xPosition, yPosition, tapType)
     }
-
-    override fun getPendingIntentForTouchEvent(
-        @Px xPosition: Int,
-        @Px yPosition: Int,
-        @TapType tapType: Int
-    ) = TraceEvent("InteractiveWatchFaceClientImpl.sendTouchEvent").use {
-        if (iInteractiveWatchFace.apiVersion >= 3) {
-            iInteractiveWatchFace.getPendingIntentForTouchEvent(xPosition, yPosition, tapType)
-        } else {
-            iInteractiveWatchFace.sendTouchEvent(xPosition, yPosition, tapType)
-            null
-        }
-    }
-
-    override fun supportsPendingIntentForTouchEvent(): Boolean =
-        iInteractiveWatchFace.apiVersion >= 3
 
     override val contentDescriptionLabels: List<ContentDescriptionLabel>
         get() = iInteractiveWatchFace.contentDescriptionLabels.map {

@@ -19,7 +19,6 @@ package androidx.wear.watchface
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -111,7 +110,6 @@ public class WatchFace(
     public val renderer: Renderer
 ) {
     internal var tapListener: TapListener? = null
-    internal var pendingIntentTapListener: PendingIntentTapListener? = null
     internal var complicationDeniedDialogIntent: Intent? = null
     internal var complicationRationaleDialogIntent: Intent? = null
 
@@ -311,11 +309,6 @@ public class WatchFace(
          * If the watch face receives a [TapType.CANCEL] event, it should not trigger any action, as
          * the system is already processing the gesture.
          *
-         * Note there is a framework limitation preventing new activities from being launched by
-         * background process such as the watch face for 5 seconds after the home button has been
-         * pressed. If you need to send intents in response to taps it is recommended to use
-         * [PendingIntentTapListener] instead.
-         *
          * @param tapType The type of touch event sent to the watch face
          * @param tapEvent The received [TapEvent]
          * @param complicationSlot The [ComplicationSlot] tapped if any or `null` otherwise
@@ -326,53 +319,6 @@ public class WatchFace(
             tapEvent: TapEvent,
             complicationSlot: ComplicationSlot?
         )
-    }
-
-    /** Listens for taps on the watchface and optionally returns a [PendingIntent]. */
-    public interface PendingIntentTapListener {
-
-        /**
-         * Called whenever the user taps on the watchface.
-         *
-         * The watch face receives three different types of touch events:
-         * - [TapType.DOWN] when the user puts the finger down on the touchscreen
-         * - [TapType.UP] when the user lifts the finger from the touchscreen
-         * - [TapType.CANCEL] when the system detects that the user is performing a gesture other
-         *   than a tap
-         *
-         * Note that the watch face is only given tap events, i.e., events where the user puts
-         * the finger down on the screen and then lifts it at the position. If the user performs any
-         * other type of gesture while their finger in on the touchscreen, the watch face will be
-         * receive a cancel, as all other gestures are reserved by the system.
-         *
-         * Therefore, a [TapType.DOWN] event and the successive [TapType.UP] event are guaranteed
-         * to be close enough to be considered a tap according to the value returned by
-         * [android.view.ViewConfiguration.getScaledTouchSlop].
-         *
-         * If the watch face receives a [TapType.CANCEL] event, it should not trigger any action, as
-         * the system is already processing the gesture.
-         *
-         * If the watch face needs a [PendingIntent] to be launched as result of the tap, it should
-         * be returned here rather than being sent by the watch face. With a compatible system the
-         * PendingIntent will be able to launch even if the user has pressed the home button in
-         * the past 5 seconds (there is a framework limitation preventing new activities from being
-         * launched by background process such as the watch face for 5 seconds after the home button
-         * has been pressed).
-         *
-         * Note if a complication is tapped then any returned PendingIntent will not be sent.
-         *
-         * @param tapType The type of touch event sent to the watch face
-         * @param tapEvent The received [TapEvent]
-         * @param complicationSlot The [ComplicationSlot] tapped if any or `null` otherwise
-         * @return The [PendingIntent] that should be sent by the system as a result, if any, or
-         * `null` otherwise
-         */
-        @UiThread
-        public fun onTapEvent(
-            @TapType tapType: Int,
-            tapEvent: TapEvent,
-            complicationSlot: ComplicationSlot?
-        ): PendingIntent?
     }
 
     /**
@@ -533,28 +479,11 @@ public class WatchFace(
 
     /**
      * Sets an optional [TapListener] which if not `null` gets called on the ui thread whenever the
-     * user taps on the watchface.Mutually exclusive with [setPendingIntentTapListener].
+     * user taps on the watchface.
      */
     @SuppressWarnings("ExecutorRegistration")
     public fun setTapListener(tapListener: TapListener?): WatchFace = apply {
-        require(pendingIntentTapListener == null) {
-            "setTapListener is mutually exclusive with setPendingIntentTapListener"
-        }
         this.tapListener = tapListener
-    }
-
-    /**
-     * Sets an optional [TapListener] which if not `null` gets called on the ui thread whenever the
-     * user taps on the watchface. Mutually exclusive with [setTapListener].
-     */
-    @SuppressWarnings("ExecutorRegistration")
-    public fun setPendingIntentTapListener(
-        pendingIntentTapListener: PendingIntentTapListener?
-    ): WatchFace = apply {
-        require(tapListener == null) {
-            "setPendingIntentTapListener is mutually exclusive with setTapListener"
-        }
-        this.pendingIntentTapListener = pendingIntentTapListener
     }
 
     /** @hide */
@@ -694,7 +623,6 @@ public class WatchFaceImpl @UiThread constructor(
     private val legacyWatchFaceStyle = watchface.legacyWatchFaceStyle
     internal val renderer = watchface.renderer
     private val tapListener = watchface.tapListener
-    private val pendingIntentTapListener = watchface.pendingIntentTapListener
     internal var complicationDeniedDialogIntent =
         watchface.complicationDeniedDialogIntent
     internal var complicationRationaleDialogIntent =
@@ -1149,11 +1077,8 @@ public class WatchFaceImpl @UiThread constructor(
         val tappedComplication =
             complicationSlotsManager.getComplicationSlotAt(tapEvent.xPos, tapEvent.yPos)
         tapListener?.onTapEvent(tapType, tapEvent, tappedComplication)
-        val pendingIntent =
-            pendingIntentTapListener?.onTapEvent(tapType, tapEvent, tappedComplication)
         if (tappedComplication == null) {
             lastTappedComplicationId = null
-            pendingIntent?.send()
             return
         }
 
@@ -1176,50 +1101,6 @@ public class WatchFaceImpl @UiThread constructor(
                 lastTappedComplicationId = tappedComplication.id
             }
             else -> lastTappedComplicationId = null
-        }
-    }
-
-    @UiThread
-    internal fun getPendingIntentForTapCommand(
-        @TapType tapType: Int,
-        tapEvent: TapEvent
-    ): PendingIntent? {
-        val tappedComplication =
-            complicationSlotsManager.getComplicationSlotAt(tapEvent.xPos, tapEvent.yPos)
-        tapListener?.onTapEvent(tapType, tapEvent, tappedComplication)
-        val pendingIntent =
-            pendingIntentTapListener?.onTapEvent(tapType, tapEvent, tappedComplication)
-        if (tappedComplication == null) {
-            lastTappedComplicationId = null
-            return pendingIntent
-        }
-
-        return when (tapType) {
-            TapType.UP -> {
-                if (tappedComplication.id != lastTappedComplicationId &&
-                    lastTappedComplicationId != null
-                ) {
-                    // The UP event belongs to a different complication then the DOWN event,
-                    // do not consider this a tap on either of them.
-                    lastTappedComplicationId = null
-                    return null
-                }
-                lastTappedComplicationId = null
-                complicationSlotsManager.getPendingIntentForSingleTappedComplication(
-                    tappedComplication.id
-                )
-            }
-
-            TapType.DOWN -> {
-                complicationSlotsManager.onTapDown(tappedComplication.id, tapEvent)
-                lastTappedComplicationId = tappedComplication.id
-                null
-            }
-
-            else -> {
-                lastTappedComplicationId = null
-                null
-            }
         }
     }
 
