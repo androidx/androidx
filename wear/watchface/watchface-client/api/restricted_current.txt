@@ -229,7 +229,16 @@ package androidx.wear.watchface.client {
   }
 
   public static final class WatchFaceMetadataClient.WatchFaceException extends java.lang.Exception {
-    ctor public WatchFaceMetadataClient.WatchFaceException(Exception e);
+    ctor public WatchFaceMetadataClient.WatchFaceException(Exception e, int reason);
+    method public int getReason();
+    property public final int reason;
+    field public static final androidx.wear.watchface.client.WatchFaceMetadataClient.WatchFaceException.Companion Companion;
+    field public static final int TRANSACTION_TOO_LARGE = 2; // 0x2
+    field public static final int UNKNOWN = 3; // 0x3
+    field public static final int WATCHFACE_DIED = 1; // 0x1
+  }
+
+  public static final class WatchFaceMetadataClient.WatchFaceException.Companion {
   }
 
   public final class WatchUiState {
