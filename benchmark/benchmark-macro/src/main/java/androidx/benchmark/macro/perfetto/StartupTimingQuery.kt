@@ -16,6 +16,7 @@
 
 package androidx.benchmark.macro.perfetto
 
+import android.util.Log
 import androidx.benchmark.macro.StartupMode
 
 internal object StartupTimingQuery {
@@ -143,6 +144,11 @@ internal object StartupTimingQuery {
 
         val uiSlices = groupedData.getOrElse(StartupSliceType.FrameUiThread) { listOf() }
         val rtSlices = groupedData.getOrElse(StartupSliceType.FrameRenderThread) { listOf() }
+
+        if (uiSlices.isEmpty() || rtSlices.isEmpty()) {
+            Log.d("Benchmark", "No UI / RT slices seen, not reporting startup.")
+            return null
+        }
 
         val startTs: Long
         val initialDisplayTs: Long

@@ -31,7 +31,11 @@ import java.io.File
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(21)
 public class PerfettoCapture(
-    unbundled: Boolean = Build.VERSION.SDK_INT in 21..28
+    /**
+     * Bundled is available above API 28, but we default to using unbundled as well on API 29, as
+     * ProcessStatsConfig.scan_all_processes_on_start isn't supported on the bundled version.
+     */
+    unbundled: Boolean = Build.VERSION.SDK_INT in 21..29
 ) {
 
     private val helper: PerfettoHelper = PerfettoHelper(unbundled)

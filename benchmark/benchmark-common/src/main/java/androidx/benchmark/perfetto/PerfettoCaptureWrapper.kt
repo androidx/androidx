@@ -20,7 +20,6 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
-import androidx.benchmark.Arguments
 import androidx.benchmark.Outputs
 import androidx.benchmark.Outputs.dateToFileName
 import androidx.benchmark.PropOverride
@@ -72,8 +71,8 @@ class PerfettoCaptureWrapper {
         iteration: Int? = null,
         block: () -> Unit
     ): String? {
-        // skip if can't capture Perfetto, or Cuttlefish + dryRun (traces aren't needed anyway)
-        if (Build.VERSION.SDK_INT < 21 || (Arguments.dryRunMode && !isAbiSupported())) {
+        // skip if Perfetto not supported, or on Cuttlefish (where tracing doesn't work)
+        if (Build.VERSION.SDK_INT < 21 || !isAbiSupported()) {
             block()
             return null // tracing not supported
         }
