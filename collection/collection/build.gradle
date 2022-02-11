@@ -14,20 +14,45 @@
  * limitations under the License.
  */
 
+
 import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
-    id("java-library")
-    id("kotlin")
+    id("org.jetbrains.kotlin.multiplatform")
 }
 
-dependencies {
-    api("androidx.annotation:annotation:1.1.0")
-    annotationProcessor(libs.nullaway)
-    testImplementation(libs.kotlinStdlib)
-    testImplementation(libs.junit)
-    testImplementation(libs.truth)
+kotlin {
+    jvm {
+        withJava()
+    }
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                api(libs.kotlinStdlibCommon)
+            }
+        }
+        commonTest {
+            dependencies {
+                implementation(libs.kotlinTestCommon)
+                implementation(libs.kotlinTestAnnotationsCommon)
+            }
+        }
+
+        jvmMain {
+            dependencies {
+                api(libs.kotlinStdlib)
+                api("androidx.annotation:annotation:1.3.0")
+            }
+        }
+        jvmTest {
+            dependencies {
+                implementation(libs.kotlinTestJunit)
+                implementation(libs.truth)
+            }
+        }
+    }
 }
 
 androidx {
@@ -36,4 +61,5 @@ androidx {
     mavenGroup = LibraryGroups.COLLECTION
     inceptionYear = "2018"
     description = "Standalone efficient collections."
+    multiplatform = true
 }
