@@ -21,6 +21,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -67,13 +68,7 @@ public class Person {
     @NonNull
     @RequiresApi(22)
     public static Person fromPersistableBundle(@NonNull PersistableBundle bundle) {
-        return new Builder()
-                .setName(bundle.getString(NAME_KEY))
-                .setUri(bundle.getString(URI_KEY))
-                .setKey(bundle.getString(KEY_KEY))
-                .setBot(bundle.getBoolean(IS_BOT_KEY))
-                .setImportant(bundle.getBoolean(IS_IMPORTANT_KEY))
-                .build();
+        return Api22Impl.fromPersistableBundle(bundle);
     }
 
     /**
@@ -85,17 +80,7 @@ public class Person {
     @RequiresApi(28)
     @NonNull
     public static Person fromAndroidPerson(@NonNull android.app.Person person) {
-        return new Builder()
-                .setName(person.getName())
-                .setIcon(
-                        (person.getIcon() != null)
-                                ? IconCompat.createFromIcon(person.getIcon())
-                                : null)
-                .setUri(person.getUri())
-                .setKey(person.getKey())
-                .setBot(person.isBot())
-                .setImportant(person.isImportant())
-                .build();
+        return Api28Impl.fromAndroidPerson(person);
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -148,13 +133,7 @@ public class Person {
     @NonNull
     @RequiresApi(22)
     public PersistableBundle toPersistableBundle() {
-        PersistableBundle result = new PersistableBundle();
-        result.putString(NAME_KEY, mName != null ? mName.toString() : null);
-        result.putString(URI_KEY, mUri);
-        result.putString(KEY_KEY, mKey);
-        result.putBoolean(IS_BOT_KEY, mIsBot);
-        result.putBoolean(IS_IMPORTANT_KEY, mIsImportant);
-        return result;
+        return Api22Impl.toPersistableBundle(this);
     }
 
     /** Creates and returns a new {@link Builder} initialized with this Person's data. */
@@ -172,14 +151,7 @@ public class Person {
     @NonNull
     @RequiresApi(28)
     public android.app.Person toAndroidPerson() {
-        return new android.app.Person.Builder()
-                .setName(getName())
-                .setIcon((getIcon() != null) ? getIcon().toIcon() : null)
-                .setUri(getUri())
-                .setKey(getKey())
-                .setBot(isBot())
-                .setImportant(isImportant())
-                .build();
+        return Api28Impl.toAndroidPerson(this);
     }
 
     /**
@@ -354,6 +326,70 @@ public class Person {
         @NonNull
         public Person build() {
             return new Person(this);
+        }
+    }
+
+    @RequiresApi(22)
+    static class Api22Impl {
+        private Api22Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static Person fromPersistableBundle(PersistableBundle bundle) {
+            return new Builder()
+                    .setName(bundle.getString(NAME_KEY))
+                    .setUri(bundle.getString(URI_KEY))
+                    .setKey(bundle.getString(KEY_KEY))
+                    .setBot(bundle.getBoolean(IS_BOT_KEY))
+                    .setImportant(bundle.getBoolean(IS_IMPORTANT_KEY))
+                    .build();
+        }
+
+        @DoNotInline
+        static PersistableBundle toPersistableBundle(Person person) {
+            PersistableBundle result = new PersistableBundle();
+            result.putString(NAME_KEY, person.mName != null ? person.mName.toString() : null);
+            result.putString(URI_KEY, person.mUri);
+            result.putString(KEY_KEY, person.mKey);
+            result.putBoolean(IS_BOT_KEY, person.mIsBot);
+            result.putBoolean(IS_IMPORTANT_KEY, person.mIsImportant);
+            return result;
+        }
+    }
+
+    @RequiresApi(28)
+    static class Api28Impl {
+        private Api28Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static Person fromAndroidPerson(android.app.Person person) {
+            return new Builder()
+                    .setName(person.getName())
+                    .setIcon(
+                            (person.getIcon() != null)
+                                    ? IconCompat.createFromIcon(person.getIcon())
+                                    : null)
+                    .setUri(person.getUri())
+                    .setKey(person.getKey())
+                    .setBot(person.isBot())
+                    .setImportant(person.isImportant())
+                    .build();
+        }
+
+        @SuppressWarnings("deprecation")
+        @DoNotInline
+        static android.app.Person toAndroidPerson(Person person) {
+            return new android.app.Person.Builder()
+                    .setName(person.getName())
+                    .setIcon((person.getIcon() != null) ? person.getIcon().toIcon() : null)
+                    .setUri(person.getUri())
+                    .setKey(person.getKey())
+                    .setBot(person.isBot())
+                    .setImportant(person.isImportant())
+                    .build();
         }
     }
 }
