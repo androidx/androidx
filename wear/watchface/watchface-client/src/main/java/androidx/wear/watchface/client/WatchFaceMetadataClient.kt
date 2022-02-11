@@ -24,8 +24,11 @@ import android.content.pm.PackageManager
 import android.content.res.XmlResourceParser
 import android.graphics.RectF
 import android.os.Bundle
+import android.os.DeadObjectException
 import android.os.IBinder
 import android.os.RemoteException
+import android.os.TransactionTooLargeException
+import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.complications.ComplicationSlotBounds
 import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
@@ -162,10 +165,47 @@ public interface WatchFaceMetadataClient : AutoCloseable {
     public class ServiceStartFailureException(message: String = "") : Exception(message)
 
     /**
-     * The watch face threw an exception while trying to service the request. This is usually due to
-     * a bug in the watch face.
+     * Why the remote watch face query failed.
+     * @hide
+     **/
+    @Retention(AnnotationRetention.SOURCE)
+    @IntDef(
+        WatchFaceException.WATCHFACE_DIED,
+        WatchFaceException.TRANSACTION_TOO_LARGE,
+        WatchFaceException.UNKNOWN
+    )
+    annotation class WatchFaceExceptionReason
+
+    /**
+     * The watch face threw an exception while trying to service the request.
+     *
+     * @property reason The [WatchFaceExceptionReason] for the exception.
      */
-    public class WatchFaceException(e: Exception) : Exception(e)
+    public class WatchFaceException(
+        e: Exception,
+        @WatchFaceExceptionReason val reason: Int
+    ) : Exception(e) {
+
+        companion object {
+            /**
+             * The watchface process died. Connecting again might work, but this isn't guaranteed.
+             */
+            const val WATCHFACE_DIED = 1
+
+            /**
+             * The watchface tried to send us too much data. Currently the limit on binder
+             * transactions is 1mb. See [TransactionTooLargeException] for more details.
+             */
+            const val TRANSACTION_TOO_LARGE = 2
+
+            /**
+             * The watch face threw an exception, typically during initialization. Depending on the
+             * nature of the problem this might be a transient issue or it might occur every time
+             * for that particular watch face.
+             */
+            const val UNKNOWN = 3
+        }
+    }
 
     /**
      * Returns the watch face's [UserStyleSchema].
@@ -261,15 +301,28 @@ internal class WatchFaceMetadataClientImpl internal constructor(
             } else {
                 headlessClient.userStyleSchema
             }
+        } catch (e: DeadObjectException) {
+            throw WatchFaceMetadataClient.WatchFaceException(
+                e,
+                WatchFaceMetadataClient.WatchFaceException.WATCHFACE_DIED
+            )
+        } catch (e: TransactionTooLargeException) {
+            throw WatchFaceMetadataClient.WatchFaceException(
+                e,
+                WatchFaceMetadataClient.WatchFaceException.TRANSACTION_TOO_LARGE
+            )
         } catch (e: RemoteException) {
-            throw WatchFaceMetadataClient.WatchFaceException(e)
+            throw WatchFaceMetadataClient.WatchFaceException(
+                e,
+                WatchFaceMetadataClient.WatchFaceException.UNKNOWN
+            )
         }
     }
 
     override fun getComplicationSlotMetadataMap(): Map<Int, ComplicationSlotMetadata> {
         requireNotClosed()
         return try {
-             if (service.apiVersion >= 3) {
+            if (service.apiVersion >= 3) {
                 val wireFormat = service.getComplicationSlotMetadata(
                     GetComplicationSlotMetadataParams(watchFaceName)
                 )
@@ -316,8 +369,21 @@ internal class WatchFaceMetadataClientImpl internal constructor(
                     )
                 }
             }
+        } catch (e: DeadObjectException) {
+            throw WatchFaceMetadataClient.WatchFaceException(
+                e,
+                WatchFaceMetadataClient.WatchFaceException.WATCHFACE_DIED
+            )
+        } catch (e: TransactionTooLargeException) {
+            throw WatchFaceMetadataClient.WatchFaceException(
+                e,
+                WatchFaceMetadataClient.WatchFaceException.TRANSACTION_TOO_LARGE
+            )
         } catch (e: RemoteException) {
-            throw WatchFaceMetadataClient.WatchFaceException(e)
+            throw WatchFaceMetadataClient.WatchFaceException(
+                e,
+                WatchFaceMetadataClient.WatchFaceException.UNKNOWN
+            )
         }
     }
 
