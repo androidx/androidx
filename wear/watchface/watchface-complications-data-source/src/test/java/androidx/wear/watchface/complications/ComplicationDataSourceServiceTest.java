@@ -24,6 +24,8 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 
 import android.content.Intent;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.RemoteException;
 import android.support.wearable.complications.IComplicationManager;
 import android.support.wearable.complications.IComplicationProvider;
@@ -44,6 +46,7 @@ import androidx.wear.watchface.complications.datasource.TimeInterval;
 import androidx.wear.watchface.complications.datasource.TimelineEntry;
 
 import org.jetbrains.annotations.NotNull;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,6 +59,9 @@ import org.robolectric.shadows.ShadowLooper;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 /** Tests for {@link ComplicationDataSourceService}. */
 @RunWith(ComplicationsTestRunner.class)
@@ -64,14 +70,20 @@ public class ComplicationDataSourceServiceTest {
 
     private static final String TAG = "ComplicationDataSourceServiceTest";
 
+    HandlerThread mPretendMainThread = new HandlerThread("testThread");
+    Handler mPretendMainThreadHandler;
+
     @Mock
     private IComplicationManager mRemoteManager;
+
+    private final CountDownLatch mUpdateComplicationDataLatch = new CountDownLatch(1);
     private IComplicationManager.Stub mLocalManager = new IComplicationManager.Stub() {
         @Override
         public void updateComplicationData(int complicationSlotId,
                 android.support.wearable.complications.ComplicationData data)
                 throws RemoteException {
             mRemoteManager.updateComplicationData(complicationSlotId, data);
+            mUpdateComplicationDataLatch.countDown();
         }
     };
 
@@ -81,17 +93,24 @@ public class ComplicationDataSourceServiceTest {
     private IComplicationProvider.Stub mTimelineProvider;
 
     private ComplicationDataSourceService mTestService = new ComplicationDataSourceService() {
+        @NonNull
+        @Override
+        public Handler createMainThreadHandler() {
+            return mPretendMainThreadHandler;
+        }
 
         @Override
         public void onComplicationRequest(
                 @NotNull ComplicationRequest request,
                 @NonNull ComplicationRequestListener listener) {
             try {
+                String response = request.isImmediateResponseRequired()
+                        ? "hello synchronous " + request.getComplicationInstanceId() :
+                        "hello " + request.getComplicationInstanceId();
+
                 listener.onComplicationData(
                         new LongTextComplicationData.Builder(
-                                new PlainComplicationText.Builder(
-                                        "hello " + request.getComplicationInstanceId()
-                                ).build(),
+                                new PlainComplicationText.Builder(response).build(),
                                 ComplicationText.EMPTY
                         ).build()
                 );
@@ -115,7 +134,6 @@ public class ComplicationDataSourceServiceTest {
 
     private ComplicationDataSourceService mTestServiceNotValidTimeRange =
             new ComplicationDataSourceService() {
-
                 @Override
                 public void onComplicationRequest(
                         @NotNull ComplicationRequest request,
@@ -146,6 +164,11 @@ public class ComplicationDataSourceServiceTest {
 
     private ComplicationDataSourceService mNoUpdateTestService =
             new ComplicationDataSourceService() {
+                @NonNull
+                @Override
+                public Handler createMainThreadHandler() {
+                    return mPretendMainThreadHandler;
+                }
 
                 @Override
                 public void onComplicationRequest(
@@ -171,6 +194,11 @@ public class ComplicationDataSourceServiceTest {
 
     private ComplicationDataSourceService mTimelineTestService =
             new ComplicationDataSourceService() {
+                @NonNull
+                @Override
+                public Handler createMainThreadHandler() {
+                    return mPretendMainThreadHandler;
+                }
 
                 @Override
                 public void onComplicationRequest(
@@ -250,6 +278,14 @@ public class ComplicationDataSourceServiceTest {
                 (IComplicationProvider.Stub) mTimelineTestService.onBind(
                         new Intent(
                                 ComplicationDataSourceService.ACTION_COMPLICATION_UPDATE_REQUEST));
+
+        mPretendMainThread.start();
+        mPretendMainThreadHandler = new Handler(mPretendMainThread.getLooper());
+    }
+
+    @After
+    public void tareDown() {
+        mPretendMainThread.quitSafely();
     }
 
     @Test
@@ -257,7 +293,7 @@ public class ComplicationDataSourceServiceTest {
         int id = 123;
         mComplicationProvider.onUpdate(
                 id, ComplicationType.LONG_TEXT.toWireComplicationType(), mLocalManager);
-        ShadowLooper.runUiThreadTasks();
+        assertThat(mUpdateComplicationDataLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue();
 
         ArgumentCaptor<android.support.wearable.complications.ComplicationData> data =
                 ArgumentCaptor.forClass(
@@ -271,9 +307,19 @@ public class ComplicationDataSourceServiceTest {
     @Test
     public void testOnComplicationRequestWrongType() throws Exception {
         int id = 123;
+        AtomicReference<Throwable> exception = new AtomicReference<>();
+        CountDownLatch exceptionLatch = new CountDownLatch(1);
+
+        mPretendMainThread.setUncaughtExceptionHandler((thread, throwable) -> {
+            exception.set(throwable);
+            exceptionLatch.countDown();
+        });
+
         mComplicationProvider.onUpdate(
                 id, ComplicationType.SHORT_TEXT.toWireComplicationType(), mLocalManager);
-        assertThrows(IllegalArgumentException.class, ShadowLooper::runUiThreadTasks);
+
+        assertThat(exceptionLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue();
+        assertThat(exception.get()).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -289,7 +335,7 @@ public class ComplicationDataSourceServiceTest {
         int id = 123;
         mNoUpdateComplicationProvider.onUpdate(
                 id, ComplicationType.LONG_TEXT.toWireComplicationType(), mLocalManager);
-        ShadowLooper.runUiThreadTasks();
+        assertThat(mUpdateComplicationDataLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue();
 
         ArgumentCaptor<android.support.wearable.complications.ComplicationData> data =
                 ArgumentCaptor.forClass(
@@ -318,7 +364,7 @@ public class ComplicationDataSourceServiceTest {
         int id = 123;
         mTimelineProvider.onUpdate(
                 id, ComplicationType.LONG_TEXT.toWireComplicationType(), mLocalManager);
-        ShadowLooper.runUiThreadTasks();
+        assertThat(mUpdateComplicationDataLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue();
 
         ArgumentCaptor<android.support.wearable.complications.ComplicationData> data =
                 ArgumentCaptor.forClass(
@@ -342,6 +388,38 @@ public class ComplicationDataSourceServiceTest {
         assertThat(timeLineEntries.get(1).getLongText().getTextAt(null, 0)).isEqualTo(
                 "B"
         );
+    }
+
+    @Test
+    public void testImmediateRequest() throws Exception {
+        int id = 123;
+        HandlerThread thread = new HandlerThread("testThread");
+
+        try {
+            thread.start();
+            Handler threadHandler = new Handler(thread.getLooper());
+            AtomicReference<android.support.wearable.complications.ComplicationData> response =
+                    new AtomicReference<>();
+            CountDownLatch doneLatch = new CountDownLatch(1);
+
+            threadHandler.post(() -> {
+                        try {
+                            response.set(mComplicationProvider.onSynchronousComplicationRequest(123,
+                                    ComplicationType.LONG_TEXT.toWireComplicationType()));
+                            doneLatch.countDown();
+                        } catch (RemoteException e) {
+                            // Should not happen
+                        }
+                    }
+            );
+
+            assertThat(doneLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue();
+            assertThat(response.get().getLongText().getTextAt(null, 0)).isEqualTo(
+                    "hello synchronous " + id
+            );
+        } finally {
+            thread.quitSafely();
+        }
     }
 }
 

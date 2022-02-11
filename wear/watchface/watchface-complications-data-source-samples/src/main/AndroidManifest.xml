@@ -16,6 +16,8 @@
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="androidx.wear.watchface.complications.datasource.samples">
+    <uses-permission
+        android:name="com.google.android.wearable.permission.USE_IMMEDIATE_COMPLICATION_UPDATE" />
     <application
         android:label="@string/app_name"
         android:icon="@drawable/circle"
@@ -53,8 +55,8 @@
                 android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
                 android:value="120"/>
             <meta-data
-                android:name="androidx.wear.watchface.complications.data.source.SYNCHRONOUS_UPDATE_PERIOD_MILLISECONDS"
-                android:value="1"/>
+                android:name="androidx.wear.watchface.complications.data.source.IMMEDIATE_UPDATE_PERIOD_MILLISECONDS"
+                android:value="1000"/>
             <intent-filter>
                 <action android:name=
                     "android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST"/>
