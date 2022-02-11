@@ -49,17 +49,20 @@
         <service
             android:name="androidx.work.multiprocess.RemoteWorkerService"
             android:exported="false"
-            android:process=":worker1" />
+            android:process=":worker1"
+            tools:ignore="MissingServiceExportedEqualsTrue" />
 
         <service
             android:name=".RemoteWorkerService2"
             android:exported="false"
-            android:process=":worker2" />
+            android:process=":worker2"
+            tools:ignore="MissingServiceExportedEqualsTrue" />
 
         <service
             android:name=".RemoteService"
             android:exported="false"
-            android:process=":remote" />
+            android:process=":remote"
+            tools:ignore="MissingServiceExportedEqualsTrue" />
     </application>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 </manifest>

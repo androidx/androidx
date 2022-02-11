@@ -13,8 +13,10 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="androidx.glance.appwidget.demos">
+<manifest
+    package="androidx.glance.appwidget.demos"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <application
         android:allowBackup="false"
@@ -34,7 +36,9 @@
         </activity>
 
         <activity android:name=".ActionDemoActivity" />
-        <service android:name=".ActionDemoService" />
+        <service
+            android:name=".ActionDemoService"
+            tools:ignore="MissingServiceExportedEqualsTrue" />
 
         <activity android:name=".ListClickDestinationActivity" android:exported="false" />
 

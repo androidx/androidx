@@ -47,8 +47,11 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".VideoSessionService" android:exported="false"
-                 android:process=":VideoSessionService">
+        <service
+            android:name=".VideoSessionService"
+            android:exported="false"
+            android:process=":VideoSessionService"
+            tools:ignore="MissingServiceExportedEqualsTrue">
             <intent-filter>
                 <action android:name="androidx.media2.session.MediaSessionService" />
             </intent-filter>
