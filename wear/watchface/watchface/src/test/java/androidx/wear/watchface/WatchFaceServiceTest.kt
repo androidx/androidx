@@ -108,8 +108,6 @@ import org.mockito.Mockito.times
 import org.mockito.Mockito.validateMockitoUsage
 import org.mockito.Mockito.verify
 import org.robolectric.annotation.Config
-import org.robolectric.shadow.api.Shadow
-import org.robolectric.shadows.ShadowPendingIntent
 import java.io.StringWriter
 import java.time.Instant
 import java.time.ZoneId
@@ -426,7 +424,6 @@ public class WatchFaceServiceTest {
         hasLowBitAmbient: Boolean = false,
         hasBurnInProtection: Boolean = false,
         tapListener: WatchFace.TapListener? = null,
-        pendingIntentTapListener: WatchFace.PendingIntentTapListener? = null,
         setInitialComplicationData: Boolean = true
     ) {
         initEngineBeforeGetWatchFaceImpl(
@@ -437,7 +434,6 @@ public class WatchFaceServiceTest {
             hasLowBitAmbient,
             hasBurnInProtection,
             tapListener,
-            pendingIntentTapListener,
             setInitialComplicationData
         )
 
@@ -458,7 +454,6 @@ public class WatchFaceServiceTest {
         hasLowBitAmbient: Boolean = false,
         hasBurnInProtection: Boolean = false,
         tapListener: WatchFace.TapListener? = null,
-        pendingIntentTapListener: WatchFace.PendingIntentTapListener? = null,
         setInitialComplicationData: Boolean = true
     ) {
         testWatchFaceService = TestWatchFaceService(
@@ -477,7 +472,6 @@ public class WatchFaceServiceTest {
             watchState,
             handler,
             tapListener,
-            pendingIntentTapListener,
             true,
             null,
             choreographer
@@ -555,7 +549,6 @@ public class WatchFaceServiceTest {
             userStyleSchema,
             watchState,
             handler,
-            null,
             null,
             false,
             null,
@@ -898,45 +891,6 @@ public class WatchFaceServiceTest {
     }
 
     @Test
-    public fun getPendingIntentForTapCommand() {
-        initEngine(
-            WatchFaceType.ANALOG,
-            listOf(leftComplication, rightComplication),
-            UserStyleSchema(emptyList())
-        )
-
-        assertNull(
-            watchFaceImpl.getPendingIntentForTapCommand(
-                TapType.DOWN,
-                TapEvent(30, 50, Instant.ofEpochMilli(looperTimeMillis))
-            )
-        )
-        assertThat(
-            Shadow.extract<ShadowPendingIntent>(
-                watchFaceImpl.getPendingIntentForTapCommand(
-                    TapType.UP,
-                    TapEvent(30, 50, Instant.ofEpochMilli(looperTimeMillis))
-                )
-            ).savedIntent.action
-        ).isEqualTo("ShortText")
-
-        assertNull(
-            watchFaceImpl.getPendingIntentForTapCommand(
-                TapType.DOWN,
-                TapEvent(70, 50, Instant.ofEpochMilli(looperTimeMillis))
-            )
-        )
-        assertThat(
-            Shadow.extract<ShadowPendingIntent>(
-                watchFaceImpl.getPendingIntentForTapCommand(
-                    TapType.UP,
-                    TapEvent(70, 50, Instant.ofEpochMilli(looperTimeMillis))
-                )
-            ).savedIntent.action
-        ).isEqualTo("LongText")
-    }
-
-    @Test
     public fun singleTaps_onDifferentComplications() {
         initEngine(
             WatchFaceType.ANALOG,
@@ -1030,40 +984,6 @@ public class WatchFaceServiceTest {
     }
 
     @Test
-    public fun pendingIntentTapListener_tap() {
-        val tapTypes = ArrayList<Int>()
-        val tapEvents = ArrayList<TapEvent>()
-        val complicationSlots = ArrayList<ComplicationSlot?>()
-        initEngine(
-            WatchFaceType.ANALOG,
-            listOf(leftComplication, rightComplication),
-            UserStyleSchema(emptyList()),
-            pendingIntentTapListener = object : WatchFace.PendingIntentTapListener {
-                override fun onTapEvent(
-                    @TapType tapType: Int,
-                    tapEvent: TapEvent,
-                    complicationSlot: ComplicationSlot?
-                ): PendingIntent? {
-                    tapTypes.add(tapType)
-                    tapEvents.add(tapEvent)
-                    complicationSlots.add(complicationSlot)
-                    return null
-                }
-            }
-        )
-
-        // Tap on nothing.
-        tapAt(1, 1)
-
-        assertThat(tapTypes).containsExactly(TapType.DOWN, TapType.UP)
-        assertThat(tapEvents).containsExactly(
-            TapEvent(1, 1, Instant.ofEpochMilli(looperTimeMillis)),
-            TapEvent(1, 1, Instant.ofEpochMilli(looperTimeMillis))
-        )
-        assertThat(complicationSlots).containsExactly(null, null)
-    }
-
-    @Test
     public fun tapListener_tap_viaWallpaperCommand() {
         initEngine(
             WatchFaceType.ANALOG,
@@ -1135,40 +1055,6 @@ public class WatchFaceServiceTest {
             TapEvent(70, 50, Instant.ofEpochMilli(looperTimeMillis)),
             rightComplication
         )
-    }
-
-    @Test
-    public fun pendingIntentTapListener_tapComplication() {
-        val tapTypes = ArrayList<Int>()
-        val tapEvents = ArrayList<TapEvent>()
-        val complicationSlots = ArrayList<ComplicationSlot?>()
-        initEngine(
-            WatchFaceType.ANALOG,
-            listOf(leftComplication, rightComplication),
-            UserStyleSchema(emptyList()),
-            pendingIntentTapListener = object : WatchFace.PendingIntentTapListener {
-                override fun onTapEvent(
-                    @TapType tapType: Int,
-                    tapEvent: TapEvent,
-                    complicationSlot: ComplicationSlot?
-                ): PendingIntent? {
-                    tapTypes.add(tapType)
-                    tapEvents.add(tapEvent)
-                    complicationSlots.add(complicationSlot)
-                    return null
-                }
-            }
-        )
-
-        // Tap right complication.
-        tapAt(70, 50)
-
-        assertThat(tapTypes).containsExactly(TapType.DOWN, TapType.UP)
-        assertThat(tapEvents).containsExactly(
-            TapEvent(70, 50, Instant.ofEpochMilli(looperTimeMillis)),
-            TapEvent(70, 50, Instant.ofEpochMilli(looperTimeMillis))
-        )
-        assertThat(complicationSlots).containsExactly(rightComplication, rightComplication)
     }
 
     @Test
@@ -1428,7 +1314,6 @@ public class WatchFaceServiceTest {
             UserStyleSchema(listOf(colorStyleSetting, watchHandStyleSetting)),
             watchState,
             handler,
-            null,
             null,
             true,
             null,
@@ -1919,7 +1804,6 @@ public class WatchFaceServiceTest {
             watchState,
             handler,
             null,
-            null,
             true,
             null,
             choreographer
@@ -2147,7 +2031,6 @@ public class WatchFaceServiceTest {
             UserStyleSchema(emptyList()),
             watchState,
             handler,
-            null,
             null,
             true,
             null,
@@ -2536,7 +2419,6 @@ public class WatchFaceServiceTest {
             watchState,
             handler,
             null,
-            null,
             true,
             null,
             choreographer,
@@ -2653,7 +2535,6 @@ public class WatchFaceServiceTest {
             watchState,
             handler,
             null,
-            null,
             true,
             null,
             choreographer,
@@ -2753,7 +2634,6 @@ public class WatchFaceServiceTest {
             UserStyleSchema(emptyList()),
             watchState,
             handler,
-            null,
             null,
             false, // Allows DirectBoot
             WallpaperInteractiveWatchFaceInstanceParams(
@@ -3046,7 +2926,6 @@ public class WatchFaceServiceTest {
             watchState,
             handler,
             null,
-            null,
             true,
             null,
             choreographer
@@ -3259,7 +3138,6 @@ public class WatchFaceServiceTest {
             watchState,
             handler,
             null,
-            null,
             false, // Allows DirectBoot
             WallpaperInteractiveWatchFaceInstanceParams(
                 instanceId,
@@ -3311,7 +3189,6 @@ public class WatchFaceServiceTest {
             UserStyleSchema(emptyList()),
             watchState,
             handler,
-            null,
             null,
             false, // Allows DirectBoot
             WallpaperInteractiveWatchFaceInstanceParams(
@@ -3579,7 +3456,6 @@ public class WatchFaceServiceTest {
             UserStyleSchema(emptyList()),
             watchState,
             handler,
-            null,
             null,
             false,
             null,
@@ -3877,7 +3753,6 @@ public class WatchFaceServiceTest {
             watchState,
             handler,
             null,
-            null,
             false,
             null,
             choreographer
@@ -3975,7 +3850,6 @@ public class WatchFaceServiceTest {
             UserStyleSchema(emptyList()),
             watchState,
             handler,
-            null,
             null,
             false,
             null,
@@ -4092,7 +3966,6 @@ public class WatchFaceServiceTest {
             watchState,
             handler,
             null,
-            null,
             false,
             null,
             choreographer,
@@ -4171,7 +4044,6 @@ public class WatchFaceServiceTest {
             watchState,
             handler,
             null,
-            null,
             false, // Allows DirectBoot
             WallpaperInteractiveWatchFaceInstanceParams(
                 "Headless",
@@ -4244,7 +4116,6 @@ public class WatchFaceServiceTest {
             UserStyleSchema(emptyList()),
             watchState,
             handler,
-            null,
             null,
             false, // Allows DirectBoot
             WallpaperInteractiveWatchFaceInstanceParams(

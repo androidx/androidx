@@ -58,8 +58,6 @@ import androidx.wear.watchface.ContentDescriptionLabel
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.Renderer
-import androidx.wear.watchface.TapEvent
-import androidx.wear.watchface.TapType
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
@@ -67,7 +65,6 @@ import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.client.DeviceConfig
 import androidx.wear.watchface.client.HeadlessWatchFaceClient
 import androidx.wear.watchface.client.InteractiveWatchFaceClient
-import androidx.wear.watchface.client.InteractiveWatchFaceClientImpl
 import androidx.wear.watchface.client.WatchFaceControlClient
 import androidx.wear.watchface.client.WatchUiState
 import androidx.wear.watchface.complications.data.ComplicationData
@@ -101,7 +98,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
@@ -123,9 +119,6 @@ import java.util.concurrent.TimeoutException
 private const val CONNECT_TIMEOUT_MILLIS = 500L
 private const val DESTROY_TIMEOUT_MILLIS = 500L
 private const val UPDATE_TIMEOUT_MILLIS = 500L
-
-const val CONFIGURABLE_DATA_SOURCE_PKG = "androidx.wear.watchface.complications.datasource.samples"
-const val CONFIGURABLE_DATA_SOURCE = "$CONFIGURABLE_DATA_SOURCE_PKG.ConfigurableDataSourceService"
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
@@ -1451,78 +1444,6 @@ class WatchFaceControlClientTest {
         assertTrue(service.hasComplicationDataCache())
     }
 
-    @Test
-    fun getPendingIntentForTouchEvent() {
-        val deferredInteractiveInstance = handlerCoroutineScope.async {
-            service.getOrCreateInteractiveWatchFaceClient(
-                "testId",
-                deviceConfig,
-                systemState,
-                null,
-                complications
-            )
-        }
-
-        // Create the engine which triggers creation of InteractiveWatchFaceClient.
-        createEngine()
-
-        val interactiveInstance = awaitWithTimeout(deferredInteractiveInstance)
-
-        assertNull(interactiveInstance.getPendingIntentForTouchEvent(0, 0, TapType.DOWN))
-        assertNull(interactiveInstance.getPendingIntentForTouchEvent(0, 0, TapType.UP))
-
-        assertNull(interactiveInstance.getPendingIntentForTouchEvent(85, 165, TapType.DOWN))
-        // Due to PendingIntent's opaque nature we can't really assert much else.
-        assertNotNull(
-            interactiveInstance.getPendingIntentForTouchEvent(85, 165, TapType.UP)
-        )
-
-        assertNull(interactiveInstance.getPendingIntentForTouchEvent(255, 165, TapType.DOWN))
-        assertNotNull(
-            interactiveInstance.getPendingIntentForTouchEvent(255, 165, TapType.UP)
-        )
-        interactiveInstance.close()
-    }
-
-    @Test
-    fun getPendingIntentForTouchEvent_pendingIntentTapListener() {
-        val wallpaperService = TestPendingIntentTapListenerWatchFaceService(
-            context,
-            surfaceHolder
-        )
-        val deferredInteractiveInstance = handlerCoroutineScope.async {
-            service.getOrCreateInteractiveWatchFaceClient(
-                "testId",
-                deviceConfig,
-                systemState,
-                null,
-                complications
-            )
-        }
-
-        val bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap)
-        Mockito.`when`(surfaceHolder.lockHardwareCanvas()).thenReturn(canvas)
-
-        // Create the engine which triggers creation of the interactive instance.
-        handler.post {
-            engine = wallpaperService.onCreateEngine() as WatchFaceService.EngineWrapper
-        }
-
-        // Wait for the instance to be created.
-        val interactiveInstance = awaitWithTimeout(deferredInteractiveInstance)
-
-        assertThat(
-            interactiveInstance.getPendingIntentForTouchEvent(0, 0, TapType.DOWN)
-        ).isNull()
-
-        assertThat(
-            interactiveInstance.getPendingIntentForTouchEvent(20, 50, TapType.UP)
-        ).isNotNull()
-
-        interactiveInstance.close()
-    }
-
     @RequiresApi(Build.VERSION_CODES.O_MR1)
     @Test
     fun interactiveAndHeadlessOpenGlWatchFaceInstances() {
@@ -1588,22 +1509,6 @@ class WatchFaceControlClientTest {
 
         headlessInstance.close()
         interactiveInstance.close()
-    }
-
-    @Test
-    fun supportsPendingIntentForTouchEvent_oldApi() {
-        `when`(iInteractiveWatchFace.apiVersion).thenReturn(2)
-        `when`(iInteractiveWatchFace.asBinder()).thenReturn(mockBinder)
-        val client = InteractiveWatchFaceClientImpl(iInteractiveWatchFace)
-        assertFalse(client.supportsPendingIntentForTouchEvent())
-    }
-
-    @Test
-    fun supportsPendingIntentForTouchEvent_currentApi() {
-        `when`(iInteractiveWatchFace.apiVersion).thenReturn(IInteractiveWatchFace.API_VERSION)
-        `when`(iInteractiveWatchFace.asBinder()).thenReturn(mockBinder)
-        val client = InteractiveWatchFaceClientImpl(iInteractiveWatchFace)
-        assertTrue(client.supportsPendingIntentForTouchEvent())
     }
 
     @Test
@@ -1694,62 +1599,6 @@ internal class TestExampleOpenGLBackgroundInitWatchFaceService(
         )
         return watchFace
     }
-}
-
-internal class TestPendingIntentTapListenerWatchFaceService(
-    testContext: Context,
-    private var surfaceHolderOverride: SurfaceHolder
-) : ExampleCanvasAnalogWatchFaceService() {
-
-    init {
-        attachBaseContext(testContext)
-    }
-
-    override fun getWallpaperSurfaceHolderOverride() = surfaceHolderOverride
-
-    override suspend fun createWatchFace(
-        surfaceHolder: SurfaceHolder,
-        watchState: WatchState,
-        complicationSlotsManager: ComplicationSlotsManager,
-        currentUserStyleRepository: CurrentUserStyleRepository
-    ) = WatchFace(
-        WatchFaceType.DIGITAL,
-        object : Renderer.CanvasRenderer(
-            surfaceHolder,
-            currentUserStyleRepository,
-            watchState,
-            CanvasType.HARDWARE,
-            16
-        ) {
-            override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {}
-
-            override fun renderHighlightLayer(
-                canvas: Canvas,
-                bounds: Rect,
-                zonedDateTime: ZonedDateTime
-            ) {
-            }
-        }
-    ).setPendingIntentTapListener(
-        object : WatchFace.PendingIntentTapListener {
-            override fun onTapEvent(
-                tapType: Int,
-                tapEvent: TapEvent,
-                complicationSlot: ComplicationSlot?
-            ) = if (tapType == TapType.UP && tapEvent.xPos >= 20 && tapEvent.xPos < 40 &&
-                tapEvent.yPos >= 50 && tapEvent.yPos < 90
-            ) {
-                PendingIntent.getActivity(
-                    this@TestPendingIntentTapListenerWatchFaceService,
-                    0,
-                    Intent("Test"),
-                    FLAG_IMMUTABLE
-                )
-            } else {
-                null
-            }
-        }
-    )
 }
 
 internal open class TestCrashingWatchFaceService : WatchFaceService() {
