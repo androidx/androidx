@@ -26,28 +26,10 @@ import androidx.wear.watchface.complications.datasource.ComplicationRequest
 import java.time.ZonedDateTime
 
 /**
- * A minimal synchronous complication data source. Typically this would be used to surface sensor
+ * A minimal immediate complication data source. Typically this would be used to surface sensor
  * data rather than the time.
  */
 class SynchronousDataSourceService : ComplicationDataSourceService() {
-    override fun onImmediateComplicationRequest(request: ComplicationRequest): ComplicationData? {
-        val time = ZonedDateTime.now()
-        return when (request.complicationType) {
-            ComplicationType.SHORT_TEXT ->
-                ShortTextComplicationData.Builder(
-                    plainText("S ${time.second}"),
-                    ComplicationText.EMPTY
-                ).build()
-
-            ComplicationType.LONG_TEXT ->
-                LongTextComplicationData.Builder(
-                    plainText("Secs ${time.second}"),
-                    ComplicationText.EMPTY
-                ).build()
-
-            else -> null
-        }
-    }
 
     override fun onComplicationRequest(
         request: ComplicationRequest,
@@ -55,20 +37,39 @@ class SynchronousDataSourceService : ComplicationDataSourceService() {
     ) {
         val time = ZonedDateTime.now()
         listener.onComplicationData(
-            when (request.complicationType) {
-                ComplicationType.SHORT_TEXT ->
-                    ShortTextComplicationData.Builder(
-                        plainText("M ${time.minute}"),
-                        ComplicationText.EMPTY
-                    ).build()
+            if (request.immediateResponseRequired) {
+                // Return different data to illustrate responseNeededSoon is true.
+                when (request.complicationType) {
+                    ComplicationType.SHORT_TEXT ->
+                        ShortTextComplicationData.Builder(
+                            plainText("S ${time.second}"),
+                            ComplicationText.EMPTY
+                        ).build()
 
-                ComplicationType.LONG_TEXT ->
-                    LongTextComplicationData.Builder(
-                        plainText("Mins ${time.minute}"),
-                        ComplicationText.EMPTY
-                    ).build()
+                    ComplicationType.LONG_TEXT ->
+                        LongTextComplicationData.Builder(
+                            plainText("Secs ${time.second}"),
+                            ComplicationText.EMPTY
+                        ).build()
 
-                else -> null
+                    else -> null
+                }
+            } else {
+                when (request.complicationType) {
+                    ComplicationType.SHORT_TEXT ->
+                        ShortTextComplicationData.Builder(
+                            plainText("M ${time.minute}"),
+                            ComplicationText.EMPTY
+                        ).build()
+
+                    ComplicationType.LONG_TEXT ->
+                        LongTextComplicationData.Builder(
+                            plainText("Mins ${time.minute}"),
+                            ComplicationText.EMPTY
+                        ).build()
+
+                    else -> null
+                }
             }
         )
     }
