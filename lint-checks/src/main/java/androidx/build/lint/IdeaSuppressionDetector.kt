@@ -22,6 +22,7 @@ import com.android.tools.lint.client.api.UElementHandler
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
+import com.android.tools.lint.detector.api.Incident
 import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Scope
@@ -127,10 +128,13 @@ class IdeaSuppressionDetector : Detector(), SourceCodeScanner {
             val warnings = source.split(" ").drop(1).filter { JAVA_WARNINGS.contains(it) }
             if (warnings.isNotEmpty()) {
                 val args = warnings.joinToString(", ") { "\"$it\"" }
-                context.report(
-                    ISSUE, element, context.getNameLocation(element),
-                    "Uses IntelliJ-specific suppression, should use `@SuppressWarnings($args)`"
-                )
+                val incident = Incident(context)
+                    .issue(ISSUE)
+                    .location(context.getNameLocation(element))
+                    .message("Uses IntelliJ-specific suppression, should use" +
+                        " `@SuppressWarnings($args)`")
+                    .scope(element)
+                context.report(incident)
             }
         }
     }

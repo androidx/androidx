@@ -30,6 +30,7 @@ import com.android.tools.lint.detector.api.Context
 import com.android.tools.lint.detector.api.Desugaring
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
+import com.android.tools.lint.detector.api.Incident
 import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.LintFix
@@ -474,15 +475,17 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
 
             // call.getContainingUClass()!! refers to the direct parent class of this method
             val containingClassName = call.getContainingUClass()!!.qualifiedName.toString()
-            val fix = createLintFix(method, call, api)
-
-            context.report(
-                ISSUE, reference, location,
-                "This call references a method added in API level $api; however, the " +
+            val lintFix = createLintFix(method, call, api)
+            val incident = Incident(context)
+                .fix(lintFix)
+                .issue(ISSUE)
+                .location(location)
+                .message("This call references a method added in API level $api; however, the " +
                     "containing class $containingClassName is reachable from earlier API " +
-                    "levels and will fail run-time class verification.",
-                fix,
-            )
+                    "levels and will fail run-time class verification.")
+                .scope(reference)
+
+            context.report(incident)
         }
 
         /**
