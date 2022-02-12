@@ -18,15 +18,16 @@ package sample.annotation.provider;
 
 import static java.lang.annotation.RetentionPolicy.CLASS;
 
+import androidx.annotation.RequiresOptIn;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import kotlin.RequiresOptIn;
-
-// This is essentially a duplicate of RequiresOptInSampleAnnotationJava. Combined, these two are
-// used in @kotlin.OptIn with multiple @kotlin.RequiresOptIn declarations.
+// This is essentially a duplicate of RequiresAndroidXOptInSampleAnnotationJava. Combined, these two
+// are used in @androidx.annotation.OptIn with multiple @androidx.annotation.RequiresOptIn
+// declarations.
 @RequiresOptIn
 @Retention(CLASS)
 @Target({ElementType.TYPE, ElementType.METHOD})
-public @interface RequiresOptInSampleAnnotationJavaDuplicate {}
+public @interface RequiresAndroidXOptInSampleAnnotationJavaDuplicate {}
