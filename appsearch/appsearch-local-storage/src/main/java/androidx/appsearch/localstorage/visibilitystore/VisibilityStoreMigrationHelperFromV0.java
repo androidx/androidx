@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.appsearch.app.AppSearchResult;
+import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
+import androidx.appsearch.app.GetSchemaResponse;
 import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.VisibilityDocument;
 import androidx.appsearch.exceptions.AppSearchException;
@@ -132,7 +134,11 @@ public class VisibilityStoreMigrationHelperFromV0 {
 
     /**  Reads all stored deprecated Visibility Document in version 0 from icing. */
     static List<GenericDocument> getVisibilityDocumentsInVersion0(
+            @NonNull GetSchemaResponse getSchemaResponse,
             @NonNull AppSearchImpl appSearchImpl) throws AppSearchException {
+        if (!hasDeprecatedType(getSchemaResponse)) {
+            return new ArrayList<>();
+        }
         Map<String, Set<String>> packageToDatabases = appSearchImpl.getPackageToDatabases();
         List<GenericDocument> deprecatedDocuments = new ArrayList<>(packageToDatabases.size());
         for (Map.Entry<String, Set<String>> entry : packageToDatabases.entrySet()) {
@@ -168,38 +174,38 @@ public class VisibilityStoreMigrationHelperFromV0 {
      * Converts the given list of deprecated Visibility Documents into a Map of {@code
      * <PrefixedSchemaType, VisibilityDocument.Builder of the latest version>}.
      *
-     * @param deprecatedDocuments          The deprecated Visibility Document we found.
+     * @param visibilityDocumentV0s          The deprecated Visibility Document we found.
      */
     @NonNull
-    static Map<String, VisibilityDocument.Builder> toVisibilityDocumentsV1(
-            @NonNull List<GenericDocument> deprecatedDocuments) {
-        Map<String, VisibilityDocument.Builder> documentBuilderMap = new ArrayMap<>();
+    static List<VisibilityDocumentV1> toVisibilityDocumentV1(
+            @NonNull List<GenericDocument> visibilityDocumentV0s) {
+        Map<String, VisibilityDocumentV1.Builder> documentBuilderMap = new ArrayMap<>();
 
         // Set all visibility information into documentBuilderMap
-        for (int i = 0; i < deprecatedDocuments.size(); i++) {
-            GenericDocument deprecatedDocument = deprecatedDocuments.get(i);
+        for (int i = 0; i < visibilityDocumentV0s.size(); i++) {
+            GenericDocument visibilityDocumentV0 = visibilityDocumentV0s.get(i);
 
             // Read not displayed by system property field.
-            String[] notDisplayedBySystemSchemas = deprecatedDocument.getPropertyStringArray(
+            String[] notDisplayedBySystemSchemas = visibilityDocumentV0.getPropertyStringArray(
                     DEPRECATED_NOT_DISPLAYED_BY_SYSTEM_PROPERTY);
             if (notDisplayedBySystemSchemas != null) {
                 for (String notDisplayedBySystemSchema : notDisplayedBySystemSchemas) {
                     // SetSchemaRequest.Builder.build() make sure all schemas that has visibility
                     // setting must present in the requests.
-                    VisibilityDocument.Builder visibilityBuilder = getOrCreateBuilder(
+                    VisibilityDocumentV1.Builder visibilityBuilder = getOrCreateBuilder(
                             documentBuilderMap, notDisplayedBySystemSchema);
                     visibilityBuilder.setNotDisplayedBySystem(true);
                 }
             }
 
             // Read visible to packages field.
-            GenericDocument[] deprecatedPackageDocuments = deprecatedDocument
+            GenericDocument[] deprecatedPackageDocuments = visibilityDocumentV0
                     .getPropertyDocumentArray(DEPRECATED_VISIBLE_TO_PACKAGES_PROPERTY);
             if (deprecatedPackageDocuments != null) {
                 for (GenericDocument deprecatedPackageDocument : deprecatedPackageDocuments) {
                     String prefixedSchemaType = deprecatedPackageDocument
                             .getPropertyString(DEPRECATED_ACCESSIBLE_SCHEMA_PROPERTY);
-                    VisibilityDocument.Builder visibilityBuilder = getOrCreateBuilder(
+                    VisibilityDocumentV1.Builder visibilityBuilder = getOrCreateBuilder(
                             documentBuilderMap, prefixedSchemaType);
                     visibilityBuilder.addVisibleToPackage(new PackageIdentifier(
                             deprecatedPackageDocument.getPropertyString(
@@ -209,16 +215,41 @@ public class VisibilityStoreMigrationHelperFromV0 {
                 }
             }
         }
-        return documentBuilderMap;
+        List<VisibilityDocumentV1> visibilityDocumentsV1 =
+                new ArrayList<>(documentBuilderMap.size());
+        for (Map.Entry<String, VisibilityDocumentV1.Builder> entry :
+                documentBuilderMap.entrySet()) {
+            visibilityDocumentsV1.add(entry.getValue().build());
+        }
+        return visibilityDocumentsV1;
+    }
+
+    /**
+     * Return whether the database maybe has the oldest version of deprecated schema.
+     *
+     * <p> Since the current version number is 0, it is possible that the database is just empty
+     * and it return 0 as the default version number. So we need to check if the deprecated document
+     * presents to trigger the migration.
+     */
+    private static boolean hasDeprecatedType(@NonNull GetSchemaResponse getSchemaResponse) {
+        for (AppSearchSchema schema : getSchemaResponse.getSchemas()) {
+            if (VisibilityStoreMigrationHelperFromV0
+                    .isDeprecatedType(schema.getSchemaType())) {
+                // Found deprecated type, we need to migrate visibility Document. And it's
+                // not possible for us to find the latest visibility schema.
+                return true;
+            }
+        }
+        return false;
     }
 
     @NonNull
-    private static VisibilityDocument.Builder getOrCreateBuilder(
-            @NonNull Map<String, VisibilityDocument.Builder> documentBuilderMap,
+    private static VisibilityDocumentV1.Builder getOrCreateBuilder(
+            @NonNull Map<String, VisibilityDocumentV1.Builder> documentBuilderMap,
             @NonNull String schemaType) {
-        VisibilityDocument.Builder builder = documentBuilderMap.get(schemaType);
+        VisibilityDocumentV1.Builder builder = documentBuilderMap.get(schemaType);
         if (builder == null) {
-            builder = new VisibilityDocument.Builder(/*id=*/ schemaType);
+            builder = new VisibilityDocumentV1.Builder(/*id=*/ schemaType);
             documentBuilderMap.put(schemaType, builder);
         }
         return builder;

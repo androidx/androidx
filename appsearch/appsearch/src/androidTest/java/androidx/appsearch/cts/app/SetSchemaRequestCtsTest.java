@@ -220,35 +220,6 @@ public class SetSchemaRequestCtsTest {
     }
 
     @Test
-    public void testSetSchemaTypeVisibleForRole() {
-        AppSearchSchema schema = new AppSearchSchema.Builder("Schema").build();
-
-        // By default, the schema is displayed.
-        SetSchemaRequest request =
-                new SetSchemaRequest.Builder().addSchemas(schema).build();
-        assertThat(request.getAllowedRolesForSchemaTypeVisibility()).isEmpty();
-
-        SetSchemaRequest.Builder setSchemaRequestBuilder = new SetSchemaRequest.Builder()
-                .addSchemas(schema)
-                .addAllowedRoleForSchemaTypeVisibility("Schema", SetSchemaRequest.ROLE_HOME)
-                .addAllowedRoleForSchemaTypeVisibility("Schema", SetSchemaRequest.ROLE_ASSISTANT);
-        SetSchemaRequest original = setSchemaRequestBuilder.build();
-
-        assertThat(original.getAllowedRolesForSchemaTypeVisibility())
-                .containsExactly("Schema", ImmutableSet.of(SetSchemaRequest.ROLE_HOME,
-                        SetSchemaRequest.ROLE_ASSISTANT));
-
-        SetSchemaRequest rebuild =
-                setSchemaRequestBuilder.clearAllowedRolesForSchemaTypeVisibility("Schema")
-                .build();
-        assertThat(rebuild.getAllowedRolesForSchemaTypeVisibility()).isEmpty();
-        // The original request hasn't changed.
-        assertThat(original.getAllowedRolesForSchemaTypeVisibility())
-                .containsExactly("Schema", ImmutableSet.of(SetSchemaRequest.ROLE_HOME,
-                        SetSchemaRequest.ROLE_ASSISTANT));
-    }
-
-    @Test
     public void testSetSchemaTypeVisibleForPermissions() {
         AppSearchSchema schema = new AppSearchSchema.Builder("Schema").build();
 
@@ -259,14 +230,19 @@ public class SetSchemaRequestCtsTest {
 
         SetSchemaRequest.Builder setSchemaRequestBuilder = new SetSchemaRequest.Builder()
                 .addSchemas(schema)
-                .setRequiredPermissionsForSchemaTypeVisibility("Schema",
-                        ImmutableSet.of(SetSchemaRequest.READ_SMS, SetSchemaRequest.READ_CALENDAR));
+                .addRequiredPermissionsForSchemaTypeVisibility("Schema",
+                        ImmutableSet.of(SetSchemaRequest.READ_SMS, SetSchemaRequest.READ_CALENDAR))
+                .addRequiredPermissionsForSchemaTypeVisibility("Schema",
+                        ImmutableSet.of(SetSchemaRequest.READ_HOME_APP_SEARCH_DATA));
 
         request = setSchemaRequestBuilder.build();
 
-        assertThat(request.getRequiredPermissionsForSchemaTypeVisibility()).containsExactly(
-                "Schema",
-                ImmutableSet.of(SetSchemaRequest.READ_SMS, SetSchemaRequest.READ_CALENDAR));
+        assertThat(request.getRequiredPermissionsForSchemaTypeVisibility())
+                .containsExactly("Schema", ImmutableSet.of(
+                        ImmutableSet.of(SetSchemaRequest.READ_SMS,
+                                SetSchemaRequest.READ_CALENDAR),
+                        ImmutableSet.of(SetSchemaRequest
+                                .READ_HOME_APP_SEARCH_DATA)));
     }
 
     @Test
@@ -430,29 +406,6 @@ public class SetSchemaRequestCtsTest {
     }
 
     @Test
-    public void testSetDocumentClassVisibleForRole() throws Exception {
-        // By default, the schema is displayed.
-        SetSchemaRequest request =
-                new SetSchemaRequest.Builder().addDocumentClasses(Card.class).build();
-        assertThat(request.getAllowedRolesForSchemaTypeVisibility()).isEmpty();
-
-        SetSchemaRequest.Builder setSchemaRequestBuilder = new SetSchemaRequest.Builder()
-                .addDocumentClasses(Card.class)
-                .addAllowedRoleForDocumentClassVisibility(Card.class, SetSchemaRequest.ROLE_HOME)
-                .addAllowedRoleForDocumentClassVisibility(Card.class,
-                        SetSchemaRequest.ROLE_ASSISTANT);
-        request = setSchemaRequestBuilder.build();
-
-        assertThat(request.getAllowedRolesForSchemaTypeVisibility())
-                .containsExactly("Card", ImmutableSet.of(SetSchemaRequest.ROLE_HOME,
-                        SetSchemaRequest.ROLE_ASSISTANT));
-
-        request = setSchemaRequestBuilder.clearAllowedRolesForDocumentClassVisibility(Card.class)
-                .build();
-        assertThat(request.getAllowedRolesForSchemaTypeVisibility()).isEmpty();
-    }
-
-    @Test
     public void testSetDocumentClassVisibleForPermission() throws Exception {
         // By default, the schema is displayed.
         SetSchemaRequest request =
@@ -461,13 +414,18 @@ public class SetSchemaRequestCtsTest {
 
         SetSchemaRequest.Builder setSchemaRequestBuilder = new SetSchemaRequest.Builder()
                 .addDocumentClasses(Card.class)
-                .setRequiredPermissionsForDocumentClassVisibility(Card.class,
-                        ImmutableSet.of(SetSchemaRequest.READ_SMS, SetSchemaRequest.READ_CALENDAR));
+                .addRequiredPermissionsForDocumentClassVisibility(Card.class,
+                        ImmutableSet.of(SetSchemaRequest.READ_SMS, SetSchemaRequest.READ_CALENDAR))
+                .addRequiredPermissionsForDocumentClassVisibility(Card.class,
+                ImmutableSet.of(SetSchemaRequest.READ_HOME_APP_SEARCH_DATA));
         request = setSchemaRequestBuilder.build();
 
         assertThat(request.getRequiredPermissionsForSchemaTypeVisibility())
-                .containsExactly("Card", ImmutableSet.of(SetSchemaRequest.READ_SMS,
-                        SetSchemaRequest.READ_CALENDAR));
+                .containsExactly("Card", ImmutableSet.of(
+                        ImmutableSet.of(SetSchemaRequest.READ_SMS,
+                                SetSchemaRequest.READ_CALENDAR),
+                        ImmutableSet.of(SetSchemaRequest
+                                .READ_HOME_APP_SEARCH_DATA)));
     }
 
     @Test
@@ -621,9 +579,11 @@ public class SetSchemaRequestCtsTest {
                 .setSchemaTypeDisplayedBySystem("Email1", /*displayed=*/false)
                 .setSchemaTypeVisibilityForPackage(
                         "Email1", /*visible=*/true, packageIdentifier1)
-                .addAllowedRoleForSchemaTypeVisibility("Email1", SetSchemaRequest.ROLE_HOME)
-                .setRequiredPermissionsForSchemaTypeVisibility("Email1",
-                        ImmutableSet.of(SetSchemaRequest.READ_SMS));
+                .addRequiredPermissionsForSchemaTypeVisibility("Email1",
+                        ImmutableSet.of(SetSchemaRequest.READ_SMS,
+                                SetSchemaRequest.READ_CALENDAR))
+                .addRequiredPermissionsForSchemaTypeVisibility("Email1",
+                        ImmutableSet.of(SetSchemaRequest.READ_HOME_APP_SEARCH_DATA));
 
         SetSchemaRequest original = builder.build();
         SetSchemaRequest rebuild = builder.addSchemas(schema2)
@@ -631,9 +591,11 @@ public class SetSchemaRequestCtsTest {
                 .setSchemaTypeDisplayedBySystem("Email2", /*displayed=*/false)
                 .setSchemaTypeVisibilityForPackage(
                         "Email2", /*visible=*/true, packageIdentifier2)
-                .addAllowedRoleForSchemaTypeVisibility("Email2", SetSchemaRequest.ROLE_ASSISTANT)
-                .setRequiredPermissionsForSchemaTypeVisibility("Email2",
-                        ImmutableSet.of(SetSchemaRequest.READ_CALENDAR))
+                .addRequiredPermissionsForSchemaTypeVisibility("Email2",
+                        ImmutableSet.of(SetSchemaRequest.READ_CONTACTS,
+                                SetSchemaRequest.READ_EXTERNAL_STORAGE))
+                .addRequiredPermissionsForSchemaTypeVisibility("Email2",
+                        ImmutableSet.of(SetSchemaRequest.READ_ASSISTANT_APP_SEARCH_DATA))
                 .build();
 
         assertThat(original.getSchemas()).containsExactly(schema1);
@@ -641,10 +603,12 @@ public class SetSchemaRequestCtsTest {
         assertThat(original.getSchemasNotDisplayedBySystem()).containsExactly("Email1");
         assertThat(original.getSchemasVisibleToPackages()).containsExactly(
                 "Email1", ImmutableSet.of(packageIdentifier1));
-        assertThat(original.getAllowedRolesForSchemaTypeVisibility()).containsExactly(
-                "Email1", ImmutableSet.of(SetSchemaRequest.ROLE_HOME));
-        assertThat(original.getRequiredPermissionsForSchemaTypeVisibility())
-                .containsExactly("Email1", ImmutableSet.of(SetSchemaRequest.READ_SMS));
+        assertThat(original.getRequiredPermissionsForSchemaTypeVisibility()).containsExactly(
+                "Email1",
+                ImmutableSet.of(
+                        ImmutableSet.of(SetSchemaRequest.READ_SMS,
+                                SetSchemaRequest.READ_CALENDAR),
+                        ImmutableSet.of(SetSchemaRequest.READ_HOME_APP_SEARCH_DATA)));
 
         assertThat(rebuild.getSchemas()).containsExactly(schema1, schema2);
         assertThat(rebuild.getVersion()).isEqualTo(42);
@@ -652,12 +616,17 @@ public class SetSchemaRequestCtsTest {
         assertThat(rebuild.getSchemasVisibleToPackages()).containsExactly(
                 "Email1", ImmutableSet.of(packageIdentifier1),
                 "Email2", ImmutableSet.of(packageIdentifier2));
-        assertThat(rebuild.getAllowedRolesForSchemaTypeVisibility()).containsExactly(
-                "Email1", ImmutableSet.of(SetSchemaRequest.ROLE_HOME),
-                "Email2", ImmutableSet.of(SetSchemaRequest.ROLE_ASSISTANT));
         assertThat(rebuild.getRequiredPermissionsForSchemaTypeVisibility()).containsExactly(
-                "Email1", ImmutableSet.of(SetSchemaRequest.READ_SMS),
-                "Email2", ImmutableSet.of(SetSchemaRequest.READ_CALENDAR));
+                "Email1",
+                ImmutableSet.of(
+                        ImmutableSet.of(SetSchemaRequest.READ_SMS,
+                                SetSchemaRequest.READ_CALENDAR),
+                        ImmutableSet.of(SetSchemaRequest.READ_HOME_APP_SEARCH_DATA)),
+                "Email2",
+                ImmutableSet.of(
+                        ImmutableSet.of(SetSchemaRequest.READ_CONTACTS,
+                                SetSchemaRequest.READ_EXTERNAL_STORAGE),
+                        ImmutableSet.of(SetSchemaRequest.READ_ASSISTANT_APP_SEARCH_DATA)));
     }
 
     @Test
@@ -683,25 +652,25 @@ public class SetSchemaRequestCtsTest {
                 .setSchemaTypeDisplayedBySystem("Email1", /*displayed=*/false)
                 .setSchemaTypeVisibilityForPackage(
                         "Email1", /*visible=*/true, packageIdentifier1)
-                .addAllowedRoleForSchemaTypeVisibility("Email1", SetSchemaRequest.ROLE_HOME)
-                .setRequiredPermissionsForSchemaTypeVisibility("Email1",
-                        ImmutableSet.of(SetSchemaRequest.READ_SMS))
+                .addRequiredPermissionsForSchemaTypeVisibility("Email1",
+                        ImmutableSet.of(SetSchemaRequest.READ_SMS, SetSchemaRequest.READ_CALENDAR))
+                .addRequiredPermissionsForSchemaTypeVisibility("Email1",
+                        ImmutableSet.of(SetSchemaRequest.READ_HOME_APP_SEARCH_DATA))
                 .build();
 
         // get the visibility setting and modify the output object.
         // skip getSchemasNotDisplayedBySystem since it returns an unmodifiable object.
         request.getSchemasVisibleToPackages().put("Email2", ImmutableSet.of(packageIdentifier2));
-        request.getAllowedRolesForSchemaTypeVisibility().put("Email2",
-                ImmutableSet.of(SetSchemaRequest.ROLE_ASSISTANT));
         request.getRequiredPermissionsForSchemaTypeVisibility().put("Email2",
-                ImmutableSet.of(SetSchemaRequest.READ_CALENDAR));
+                ImmutableSet.of(ImmutableSet.of(SetSchemaRequest.READ_CALENDAR)));
 
         // verify we still get the original object.
         assertThat(request.getSchemasVisibleToPackages()).containsExactly("Email1",
                 ImmutableSet.of(packageIdentifier1));
-        assertThat(request.getAllowedRolesForSchemaTypeVisibility()).containsExactly("Email1",
-                ImmutableSet.of(SetSchemaRequest.ROLE_HOME));
-        request.getRequiredPermissionsForSchemaTypeVisibility().put("Email1",
-                ImmutableSet.of(SetSchemaRequest.READ_SMS));
+        assertThat(request.getRequiredPermissionsForSchemaTypeVisibility()).containsExactly(
+                "Email1",
+                ImmutableSet.of(
+                        ImmutableSet.of(SetSchemaRequest.READ_SMS, SetSchemaRequest.READ_CALENDAR),
+                        ImmutableSet.of(SetSchemaRequest.READ_HOME_APP_SEARCH_DATA)));
     }
 }

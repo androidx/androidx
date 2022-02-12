@@ -24,6 +24,7 @@ import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -52,9 +53,6 @@ public class VisibilityDocument extends GenericDocument {
     /** Property that holds the SHA 256 certificate of the app that can access a schema. */
     private static final String SHA_256_CERT_PROPERTY = "sha256Cert";
 
-    /** Property that holds the role can access a schema. */
-    private static final String ROLE_PROPERTY = "role";
-
     /** Property that holds the required permissions to access the schema. */
     private static final String PERMISSION_PROPERTY = "permission";
 
@@ -65,7 +63,10 @@ public class VisibilityDocument extends GenericDocument {
     // One VisibilityDocument contains visibility information for a single schema.
     public static final int SCHEMA_VERSION_DOC_PER_SCHEMA = 1;
 
-    public static final int SCHEMA_VERSION_LATEST = SCHEMA_VERSION_DOC_PER_SCHEMA;
+    // One VisibilityDocument contains visibility information for a single schema.
+    public static final int SCHEMA_VERSION_NESTED_PERMISSION_SCHEMA = 2;
+
+    public static final int SCHEMA_VERSION_LATEST = SCHEMA_VERSION_NESTED_PERMISSION_SCHEMA;
 
     /**
      * Schema for the VisibilityStore's documents.
@@ -84,10 +85,8 @@ public class VisibilityDocument extends GenericDocument {
             .addProperty(new AppSearchSchema.BytesPropertyConfig.Builder(SHA_256_CERT_PROPERTY)
                     .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
                     .build())
-            .addProperty(new AppSearchSchema.LongPropertyConfig.Builder(ROLE_PROPERTY)
-                    .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-                    .build())
-            .addProperty(new AppSearchSchema.LongPropertyConfig.Builder(PERMISSION_PROPERTY)
+            .addProperty(new AppSearchSchema.DocumentPropertyConfig.Builder(PERMISSION_PROPERTY,
+                    VisibilityPermissionDocument.SCHEMA_TYPE)
                     .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
                     .build())
             .build();
@@ -126,21 +125,22 @@ public class VisibilityDocument extends GenericDocument {
     }
 
     /**
-     * Returns an array of Android Roles that have access to the schema this
-     * {@link VisibilityDocument} represents.
-     */
-    @Nullable
-    public Set<Integer> getVisibleToRoles() {
-        return toInts(getPropertyLongArray(ROLE_PROPERTY));
-    }
-
-    /**
      * Returns an array of Android Permissions that caller mush hold to access the schema
      * this {@link VisibilityDocument} represents.
      */
     @Nullable
-    public Set<Integer> getVisibleToPermissions() {
-        return toInts(getPropertyLongArray(PERMISSION_PROPERTY));
+    public Set<Set<Integer>> getVisibleToPermissions() {
+        GenericDocument[] permissionDocuments = getPropertyDocumentArray(PERMISSION_PROPERTY);
+        if (permissionDocuments == null) {
+            return Collections.emptySet();
+        }
+        Set<Set<Integer>> visibleToPermissions = new ArraySet<>(permissionDocuments.length);
+        for (GenericDocument permissionDocument : permissionDocuments) {
+            visibleToPermissions.add(
+                    new VisibilityPermissionDocument(permissionDocument)
+                            .getAllRequiredPermissions());
+        }
+        return visibleToPermissions;
     }
 
     /** Builder for {@link VisibilityDocument}. */
@@ -182,21 +182,26 @@ public class VisibilityDocument extends GenericDocument {
             return this;
         }
 
-        /** Add a set of Android role that has access to the schema this
-         * {@link VisibilityDocument} represents. */
+        /**
+         * Set required permission sets for a package needs to hold to the schema this
+         * {@link VisibilityDocument} represents.
+         *
+         * <p> The querier could have access if they holds ALL required permissions of ANY of the
+         * individual value sets.
+         */
         @NonNull
-        public Builder setVisibleToRoles(@NonNull Set<Integer> visibleToRoles) {
-            Preconditions.checkNotNull(visibleToRoles);
-            setPropertyLong(ROLE_PROPERTY, toLongs(visibleToRoles));
-            return this;
-        }
-
-        /** Add a set of Android role that has access to the schema this
-         * {@link VisibilityDocument} represents. */
-        @NonNull
-        public Builder setVisibleToPermissions(@NonNull Set<Integer> visibleToPermissions) {
+        public Builder setVisibleToPermissions(@NonNull Set<Set<Integer>> visibleToPermissions) {
             Preconditions.checkNotNull(visibleToPermissions);
-            setPropertyLong(PERMISSION_PROPERTY, toLongs(visibleToPermissions));
+            VisibilityPermissionDocument[] permissionDocuments =
+                    new VisibilityPermissionDocument[visibleToPermissions.size()];
+            int i = 0;
+            for (Set<Integer> allRequiredPermissions : visibleToPermissions) {
+                permissionDocuments[i++] = new VisibilityPermissionDocument
+                        .Builder(NAMESPACE, /*id=*/String.valueOf(i))
+                        .setVisibleToAllRequiredPermissions(allRequiredPermissions)
+                        .build();
+            }
+            setPropertyDocument(PERMISSION_PROPERTY, permissionDocuments);
             return this;
         }
 
@@ -227,9 +232,7 @@ public class VisibilityDocument extends GenericDocument {
         Set<String> schemasNotDisplayedBySystem = setSchemaRequest.getSchemasNotDisplayedBySystem();
         Map<String, Set<PackageIdentifier>> schemasVisibleToPackages =
                 setSchemaRequest.getSchemasVisibleToPackages();
-        Map<String, Set<Integer>> schemasVisibleToRoles =
-                setSchemaRequest.getAllowedRolesForSchemaTypeVisibility();
-        Map<String, Set<Integer>> schemasVisibleToPermissions =
+        Map<String, Set<Set<Integer>>> schemasVisibleToPermissions =
                 setSchemaRequest.getRequiredPermissionsForSchemaTypeVisibility();
 
         List<VisibilityDocument> visibilityDocuments = new ArrayList<>(searchSchemas.size());
@@ -245,10 +248,6 @@ public class VisibilityDocument extends GenericDocument {
                 documentBuilder.addVisibleToPackages(schemasVisibleToPackages.get(schemaType));
             }
 
-            if (schemasVisibleToRoles.containsKey(schemaType)) {
-                documentBuilder.setVisibleToRoles(schemasVisibleToRoles.get(schemaType));
-            }
-
             if (schemasVisibleToPermissions.containsKey(schemaType)) {
                 documentBuilder.setVisibleToPermissions(
                         schemasVisibleToPermissions.get(schemaType));
@@ -256,27 +255,5 @@ public class VisibilityDocument extends GenericDocument {
             visibilityDocuments.add(documentBuilder.build());
         }
         return visibilityDocuments;
-    }
-
-    @NonNull
-    static long[] toLongs(@NonNull Set<Integer> properties) {
-        long[] outputs = new long[properties.size()];
-        int i = 0;
-        for (int property : properties) {
-            outputs[i++] = property;
-        }
-        return outputs;
-    }
-
-    @Nullable
-    private static Set<Integer> toInts(@Nullable long[] properties) {
-        if (properties == null) {
-            return null;
-        }
-        Set<Integer> outputs = new ArraySet<>(properties.length);
-        for (long property : properties) {
-            outputs.add((int) property);
-        }
-        return outputs;
     }
 }
