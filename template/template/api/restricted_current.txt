@@ -60,6 +60,41 @@ package androidx.template.template {
   public final class GlanceTemplateKt {
   }
 
+  public abstract class ListTemplate extends androidx.template.template.GlanceTemplate<androidx.template.template.ListTemplate.Data> {
+    ctor public ListTemplate();
+    method @androidx.compose.runtime.Composable public void WidgetLayoutCollapsed();
+    method @androidx.compose.runtime.Composable public void WidgetLayoutHorizontal();
+    method @androidx.compose.runtime.Composable public void WidgetLayoutVertical();
+  }
+
+  public static final class ListTemplate.Data {
+    ctor public ListTemplate.Data(androidx.template.template.TemplateImageWithDescription headerIcon, optional java.util.List<androidx.template.template.ListTemplate.ListItem> listContent, optional androidx.template.template.TemplateText? header, optional androidx.template.template.TemplateText? title, optional androidx.template.template.TemplateTextButton? button, optional androidx.glance.unit.ColorProvider? backgroundColor);
+    method public androidx.glance.unit.ColorProvider? getBackgroundColor();
+    method public androidx.template.template.TemplateTextButton? getButton();
+    method public androidx.template.template.TemplateText? getHeader();
+    method public androidx.template.template.TemplateImageWithDescription getHeaderIcon();
+    method public java.util.List<androidx.template.template.ListTemplate.ListItem> getListContent();
+    method public androidx.template.template.TemplateText? getTitle();
+    property public final androidx.glance.unit.ColorProvider? backgroundColor;
+    property public final androidx.template.template.TemplateTextButton? button;
+    property public final androidx.template.template.TemplateText? header;
+    property public final androidx.template.template.TemplateImageWithDescription headerIcon;
+    property public final java.util.List<androidx.template.template.ListTemplate.ListItem> listContent;
+    property public final androidx.template.template.TemplateText? title;
+  }
+
+  public static final class ListTemplate.ListItem {
+    ctor public ListTemplate.ListItem(androidx.template.template.TemplateText title, androidx.template.template.TemplateText? body, androidx.glance.action.Action? action, androidx.template.template.TemplateImageWithDescription? image);
+    method public androidx.glance.action.Action? getAction();
+    method public androidx.template.template.TemplateText? getBody();
+    method public androidx.template.template.TemplateImageWithDescription? getImage();
+    method public androidx.template.template.TemplateText getTitle();
+    property public final androidx.glance.action.Action? action;
+    property public final androidx.template.template.TemplateText? body;
+    property public final androidx.template.template.TemplateImageWithDescription? image;
+    property public final androidx.template.template.TemplateText title;
+  }
+
   public abstract class SingleEntityTemplate extends androidx.template.template.GlanceTemplate<androidx.template.template.SingleEntityTemplate.Data> {
     ctor public SingleEntityTemplate();
     method @androidx.compose.runtime.Composable public void WidgetLayoutCollapsed();
