@@ -61,6 +61,7 @@ abstract class AbstractLintDetectorTest(
         return lint()
             .projects(*projectsWithStubs)
             .testModes(testModes)
+            .allowDuplicates()
             .run()
     }
 

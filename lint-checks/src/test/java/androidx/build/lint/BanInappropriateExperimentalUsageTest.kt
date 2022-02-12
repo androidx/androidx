@@ -101,6 +101,7 @@ No warnings.
                 ktSample("sample.annotation.provider.ExperimentalSampleAnnotation"),
                 javaSample("sample.annotation.provider.ExperimentalSampleAnnotationJava"),
                 javaSample("sample.annotation.provider.RequiresOptInSampleAnnotationJava"),
+                javaSample("sample.annotation.provider.RequiresOptInSampleAnnotationJavaDuplicate"),
                 gradle(
                     """
                     apply plugin: 'com.android.library'
@@ -125,13 +126,22 @@ No warnings.
 
         /* ktlint-disable max-line-length */
         val expected = """
-../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:32: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
+../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:33: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
     @ExperimentalSampleAnnotationJava
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:37: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
+../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:38: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
     @RequiresOptInSampleAnnotationJava
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-2 errors, 0 warnings
+../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:43: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
+    @OptIn(RequiresOptInSampleAnnotationJava::class)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:48: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
+    @OptIn(
+    ^
+../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:57: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
+    @OptIn(RequiresOptInSampleAnnotationJava::class, RequiresOptInSampleAnnotationJavaDuplicate::class)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+5 errors, 0 warnings
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
