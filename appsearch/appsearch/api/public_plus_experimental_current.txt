@@ -202,6 +202,7 @@ package androidx.appsearch.app {
     method public boolean isFeatureSupported(String);
     field public static final String ADD_PERMISSIONS_AND_GET_VISIBILITY = "ADD_PERMISSIONS_AND_GET_VISIBILITY";
     field public static final String GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER = "GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER";
+    field public static final String GLOBAL_SEARCH_SESSION_GET_BY_ID = "GLOBAL_SEARCH_SESSION_GET_BY_ID";
     field public static final String GLOBAL_SEARCH_SESSION_GET_SCHEMA = "GLOBAL_SEARCH_SESSION_GET_SCHEMA";
     field public static final String SEARCH_RESULT_MATCH_INFO_SUBMATCH = "SEARCH_RESULT_MATCH_INFO_SUBMATCH";
   }
@@ -288,6 +289,7 @@ package androidx.appsearch.app {
   public interface GlobalSearchSession extends java.io.Closeable {
     method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER) public void addObserver(String, androidx.appsearch.observer.ObserverSpec, java.util.concurrent.Executor, androidx.appsearch.observer.AppSearchObserverCallback) throws androidx.appsearch.exceptions.AppSearchException;
     method public void close();
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.GLOBAL_SEARCH_SESSION_GET_BY_ID) public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchBatchResult<java.lang.String!,androidx.appsearch.app.GenericDocument!>!> getByDocumentIdAsync(String, String, androidx.appsearch.app.GetByDocumentIdRequest);
     method public androidx.appsearch.app.Features getFeatures();
     method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.GLOBAL_SEARCH_SESSION_GET_SCHEMA) public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.GetSchemaResponse!> getSchema(String, String);
     method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER) public void removeObserver(String, androidx.appsearch.observer.AppSearchObserverCallback);

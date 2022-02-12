@@ -39,6 +39,29 @@ import java.util.concurrent.Executor;
  */
 public interface GlobalSearchSession extends Closeable {
     /**
+     * Retrieves {@link GenericDocument} documents, belonging to the specified package name and
+     * database name and identified by the namespace and ids in the request, from the
+     * {@link GlobalSearchSession} database. When a call is successful, the result will be
+     * returned in the successes section of the {@link AppSearchBatchResult} object in the callback.
+     * If the package doesn't exist, database doesn't exist, or if the calling package doesn't have
+     * access, these failures will be reflected as {@link AppSearchResult} objects with a
+     * RESULT_NOT_FOUND status code in the failures section of the {@link AppSearchBatchResult}
+     * object.
+     *
+     * @param packageName the name of the package to get from
+     * @param databaseName the name of the database to get from
+     * @param request a request containing a namespace and IDs of the documents to retrieve.
+     */
+    @NonNull
+    @RequiresFeature(
+            enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+            name = Features.GLOBAL_SEARCH_SESSION_GET_BY_ID)
+    ListenableFuture<AppSearchBatchResult<String, GenericDocument>> getByDocumentIdAsync(
+            @NonNull String packageName,
+            @NonNull String databaseName,
+            @NonNull GetByDocumentIdRequest request);
+
+    /**
      * Retrieves documents from all AppSearch databases that the querying application has access to.
      *
      * <p>Applications can be granted access to documents by specifying

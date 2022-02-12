@@ -21,7 +21,10 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.Features;
+import androidx.appsearch.app.GenericDocument;
+import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.GetSchemaResponse;
 import androidx.appsearch.app.GlobalSearchSession;
 import androidx.appsearch.app.ReportSystemUsageRequest;
@@ -33,9 +36,11 @@ import androidx.appsearch.observer.DocumentChangeInfo;
 import androidx.appsearch.observer.ObserverSpec;
 import androidx.appsearch.observer.SchemaChangeInfo;
 import androidx.appsearch.platformstorage.converter.AppSearchResultToPlatformConverter;
+import androidx.appsearch.platformstorage.converter.GenericDocumentToPlatformConverter;
 import androidx.appsearch.platformstorage.converter.ObserverSpecToPlatformConverter;
 import androidx.appsearch.platformstorage.converter.RequestToPlatformConverter;
 import androidx.appsearch.platformstorage.converter.SearchSpecToPlatformConverter;
+import androidx.appsearch.platformstorage.util.BatchResultCallbackAdapter;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
@@ -64,6 +69,29 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
         mPlatformSession = Preconditions.checkNotNull(platformSession);
         mExecutor = Preconditions.checkNotNull(executor);
         mFeatures = Preconditions.checkNotNull(features);
+    }
+
+    @BuildCompat.PrereleaseSdkCheck
+    @NonNull
+    @Override
+    public ListenableFuture<AppSearchBatchResult<String, GenericDocument>> getByDocumentIdAsync(
+            @NonNull String packageName, @NonNull String databaseName,
+            @NonNull GetByDocumentIdRequest request) {
+        if (!BuildCompat.isAtLeastT()) {
+            throw new UnsupportedOperationException(Features.GLOBAL_SEARCH_SESSION_GET_BY_ID
+                    + " is not supported on this AppSearch implementation.");
+        }
+        Preconditions.checkNotNull(packageName);
+        Preconditions.checkNotNull(databaseName);
+        Preconditions.checkNotNull(request);
+        ResolvableFuture<AppSearchBatchResult<String, GenericDocument>> future =
+                ResolvableFuture.create();
+        mPlatformSession.getByDocumentId(packageName, databaseName,
+                RequestToPlatformConverter.toPlatformGetByDocumentIdRequest(request),
+                mExecutor,
+                new BatchResultCallbackAdapter<>(
+                        future, GenericDocumentToPlatformConverter::toJetpackGenericDocument));
+        return future;
     }
 
     @Override
