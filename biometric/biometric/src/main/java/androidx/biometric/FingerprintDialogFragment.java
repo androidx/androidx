@@ -249,12 +249,12 @@ public class FingerprintDialogFragment extends DialogFragment {
      * fragment.
      */
     private void connectViewModel() {
-        final BiometricViewModel viewModel = BiometricPrompt.getViewModel(this);
-        if (viewModel == null) {
+        final Context host = BiometricPrompt.getHostActivityOrContext(this);
+        if (host == null) {
             return;
         }
 
-        mViewModel = viewModel;
+        mViewModel = BiometricPrompt.getViewModel(host);
 
         mViewModel.getFingerprintDialogState().observe(this, new Observer<Integer>() {
             @Override
@@ -358,7 +358,8 @@ public class FingerprintDialogFragment extends DialogFragment {
      */
     private int getThemedColorFor(int attr) {
         final Context context = getContext();
-        if (context == null) {
+        final Context host = BiometricPrompt.getHostActivityOrContext(this);
+        if (context == null || host == null) {
             Log.w(TAG, "Unable to get themed color. Context or activity is null.");
             return 0;
         }
@@ -366,7 +367,7 @@ public class FingerprintDialogFragment extends DialogFragment {
         TypedValue tv = new TypedValue();
         Resources.Theme theme = context.getTheme();
         theme.resolveAttribute(attr, tv, true /* resolveRefs */);
-        TypedArray arr = context.obtainStyledAttributes(tv.data, new int[] {attr});
+        TypedArray arr = host.obtainStyledAttributes(tv.data, new int[] {attr});
 
         final int color = arr.getColor(0 /* index */, 0 /* defValue */);
         arr.recycle();
