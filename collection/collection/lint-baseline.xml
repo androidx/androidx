@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
+<issues format="6" by="lint 7.3.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha01)" variant="all" version="7.3.0-alpha01">
 
     <issue
         id="BanSynchronizedMethods"
@@ -7,7 +7,7 @@
         errorLine1="    /**"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/collection/LruCache.java"
+            file="src/jvmMain/java/androidx/collection/LruCache.java"
             line="284"
             column="5"/>
     </issue>
@@ -18,7 +18,7 @@
         errorLine1="    /**"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/collection/LruCache.java"
+            file="src/jvmMain/java/androidx/collection/LruCache.java"
             line="293"
             column="5"/>
     </issue>
@@ -29,7 +29,7 @@
         errorLine1="    /**"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/collection/LruCache.java"
+            file="src/jvmMain/java/androidx/collection/LruCache.java"
             line="302"
             column="5"/>
     </issue>
@@ -40,7 +40,7 @@
         errorLine1="    /**"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/collection/LruCache.java"
+            file="src/jvmMain/java/androidx/collection/LruCache.java"
             line="310"
             column="5"/>
     </issue>
@@ -51,7 +51,7 @@
         errorLine1="    /**"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/collection/LruCache.java"
+            file="src/jvmMain/java/androidx/collection/LruCache.java"
             line="318"
             column="5"/>
     </issue>
@@ -62,7 +62,7 @@
         errorLine1="    /**"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/collection/LruCache.java"
+            file="src/jvmMain/java/androidx/collection/LruCache.java"
             line="325"
             column="5"/>
     </issue>
@@ -73,7 +73,7 @@
         errorLine1="    /**"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/collection/LruCache.java"
+            file="src/jvmMain/java/androidx/collection/LruCache.java"
             line="332"
             column="5"/>
     </issue>
@@ -84,7 +84,7 @@
         errorLine1="    /**"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/collection/LruCache.java"
+            file="src/jvmMain/java/androidx/collection/LruCache.java"
             line="339"
             column="5"/>
     </issue>
@@ -95,150 +95,128 @@
         errorLine1="    @Override public synchronized final String toString() {"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/collection/LruCache.java"
+            file="src/jvmMain/java/androidx/collection/LruCache.java"
             line="347"
             column="5"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public ArrayMap(SimpleArrayMap map) {"
         errorLine2="                    ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/collection/ArrayMap.java"
+            file="src/jvmMain/java/androidx/collection/ArrayMap.java"
             line="77"
             column="21"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public LongSparseArray&lt;E> clone() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/collection/LongSparseArray.java"
-            line="85"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public boolean remove(long key, Object value) {"
         errorLine2="                                    ~~~~~~">
         <location
-            file="src/main/java/androidx/collection/LongSparseArray.java"
+            file="src/jvmMain/java/androidx/collection/LongSparseArray.java"
             line="155"
             column="37"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public synchronized final Map&lt;K, V> snapshot() {"
         errorLine2="                              ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/collection/LruCache.java"
+            file="src/jvmMain/java/androidx/collection/LruCache.java"
             line="343"
             column="31"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public SimpleArrayMap(SimpleArrayMap&lt;K, V> map) {"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/collection/SimpleArrayMap.java"
+            file="src/jvmMain/java/androidx/collection/SimpleArrayMap.java"
             line="259"
             column="27"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public boolean containsValue(Object value) {"
         errorLine2="                                 ~~~~~~">
         <location
-            file="src/main/java/androidx/collection/SimpleArrayMap.java"
+            file="src/jvmMain/java/androidx/collection/SimpleArrayMap.java"
             line="351"
             column="34"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public V get(Object key) {"
         errorLine2="                 ~~~~~~">
         <location
-            file="src/main/java/androidx/collection/SimpleArrayMap.java"
+            file="src/jvmMain/java/androidx/collection/SimpleArrayMap.java"
             line="363"
             column="18"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public V getOrDefault(Object key, V defaultValue) {"
         errorLine2="                          ~~~~~~">
         <location
-            file="src/main/java/androidx/collection/SimpleArrayMap.java"
+            file="src/jvmMain/java/androidx/collection/SimpleArrayMap.java"
             line="380"
             column="27"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public V remove(Object key) {"
         errorLine2="                    ~~~~~~">
         <location
-            file="src/main/java/androidx/collection/SimpleArrayMap.java"
+            file="src/jvmMain/java/androidx/collection/SimpleArrayMap.java"
             line="542"
             column="21"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public boolean remove(Object key, Object value) {"
         errorLine2="                          ~~~~~~">
         <location
-            file="src/main/java/androidx/collection/SimpleArrayMap.java"
+            file="src/jvmMain/java/androidx/collection/SimpleArrayMap.java"
             line="557"
             column="27"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public boolean remove(Object key, Object value) {"
         errorLine2="                                      ~~~~~~">
         <location
-            file="src/main/java/androidx/collection/SimpleArrayMap.java"
+            file="src/jvmMain/java/androidx/collection/SimpleArrayMap.java"
             line="557"
             column="39"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public SparseArrayCompat&lt;E> clone() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/collection/SparseArrayCompat.java"
-            line="85"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public boolean remove(int key, Object value) {"
         errorLine2="                                   ~~~~~~">
         <location
-            file="src/main/java/androidx/collection/SparseArrayCompat.java"
+            file="src/jvmMain/java/androidx/collection/SparseArrayCompat.java"
             line="155"
             column="36"/>
     </issue>
