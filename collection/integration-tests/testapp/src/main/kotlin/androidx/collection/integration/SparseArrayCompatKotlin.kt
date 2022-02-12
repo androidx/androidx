@@ -31,8 +31,8 @@ class SparseArrayCompatKotlin : SparseArrayCompat<Int>() {
         return super.get(key)
     }
 
-    override fun get(key: Int, valueIfKeyNotFound: Int?): Int {
-        return super.get(key, valueIfKeyNotFound)
+    override fun get(key: Int, defaultValue: Int): Int {
+        return super.get(key, defaultValue)
     }
 
     @Suppress("OverridingDeprecatedMember")
@@ -57,15 +57,15 @@ class SparseArrayCompatKotlin : SparseArrayCompat<Int>() {
         super.removeAtRange(index, size)
     }
 
-    override fun replace(key: Int, value: Int?): Int? {
+    override fun replace(key: Int, value: Int): Int? {
         return super.replace(key, value)
     }
 
-    override fun replace(key: Int, oldValue: Int?, newValue: Int?): Boolean {
+    override fun replace(key: Int, oldValue: Int, newValue: Int): Boolean {
         return super.replace(key, oldValue, newValue)
     }
 
-    override fun put(key: Int, value: Int?) {
+    override fun put(key: Int, value: Int) {
         super.put(key, value)
     }
 
@@ -73,7 +73,7 @@ class SparseArrayCompatKotlin : SparseArrayCompat<Int>() {
         super.putAll(other)
     }
 
-    override fun putIfAbsent(key: Int, value: Int?): Int? {
+    override fun putIfAbsent(key: Int, value: Int): Int? {
         return super.putIfAbsent(key, value)
     }
 
@@ -93,7 +93,7 @@ class SparseArrayCompatKotlin : SparseArrayCompat<Int>() {
         return super.valueAt(index)
     }
 
-    override fun setValueAt(index: Int, value: Int?) {
+    override fun setValueAt(index: Int, value: Int) {
         super.setValueAt(index, value)
     }
 
@@ -101,7 +101,7 @@ class SparseArrayCompatKotlin : SparseArrayCompat<Int>() {
         return super.indexOfKey(key)
     }
 
-    override fun indexOfValue(value: Int?): Int {
+    override fun indexOfValue(value: Int): Int {
         return super.indexOfValue(value)
     }
 
@@ -109,7 +109,7 @@ class SparseArrayCompatKotlin : SparseArrayCompat<Int>() {
         return super.containsKey(key)
     }
 
-    override fun containsValue(value: Int?): Boolean {
+    override fun containsValue(value: Int): Boolean {
         return super.containsValue(value)
     }
 
@@ -117,7 +117,7 @@ class SparseArrayCompatKotlin : SparseArrayCompat<Int>() {
         super.clear()
     }
 
-    override fun append(key: Int, value: Int?) {
+    override fun append(key: Int, value: Int) {
         super.append(key, value)
     }
 

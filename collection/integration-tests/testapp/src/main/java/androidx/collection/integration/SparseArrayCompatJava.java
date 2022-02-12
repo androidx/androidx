@@ -44,6 +44,7 @@ public class SparseArrayCompatJava<E> extends SparseArrayCompat<E> {
         super(initialCapacity);
     }
 
+    @NonNull
     @Override
     public SparseArrayCompat<E> clone() {
         return super.clone();
@@ -56,8 +57,8 @@ public class SparseArrayCompatJava<E> extends SparseArrayCompat<E> {
     }
 
     @Override
-    public E get(int key, E valueIfKeyNotFound) {
-        return super.get(key, valueIfKeyNotFound);
+    public E get(int key, E defaultValue) {
+        return super.get(key, defaultValue);
     }
 
     @SuppressWarnings("deprecation")
@@ -72,7 +73,7 @@ public class SparseArrayCompatJava<E> extends SparseArrayCompat<E> {
     }
 
     @Override
-    public boolean remove(int key, Object value) {
+    public boolean remove(int key, @Nullable Object value) {
         return super.remove(key, value);
     }
 
@@ -158,6 +159,7 @@ public class SparseArrayCompatJava<E> extends SparseArrayCompat<E> {
         super.append(key, value);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return super.toString();
