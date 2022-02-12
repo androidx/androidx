@@ -102,6 +102,7 @@ dependencies {
     docs(project(":core:core-animation-testing"))
     docs(project(":core:core-appdigest"))
     docs(project(":core:core-google-shortcuts"))
+    docs(project(":core:core-i18n"))
     docs(project(":core:core-ktx"))
     docs(project(":core:core-performance"))
     samples(project(":core:core-performance:core-performance-samples"))
