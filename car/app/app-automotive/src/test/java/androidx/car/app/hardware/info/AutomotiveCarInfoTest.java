@@ -284,7 +284,7 @@ public class AutomotiveCarInfoTest {
 
     @Config(maxSdk = 30)
     @Test
-    public void getTollCard_verifyResponseApi30() throws InterruptedException {
+    public void getTollCard_verifyResponseApi30() {
         AtomicReference<TollCard> loadedResult = new AtomicReference<>();
         OnCarDataAvailableListener<TollCard> listener = (data) -> {
             loadedResult.set(data);
