@@ -105,7 +105,7 @@ object LayoutCompat {
 
     internal const val DEFAULT_LINESPACING_EXTRA = 0.0f
 
-    internal const val DEFAULT_INCLUDE_PADDING = true
+    internal const val DEFAULT_INCLUDE_PADDING = false
 
     internal const val DEFAULT_MAX_LINES = Integer.MAX_VALUE
 

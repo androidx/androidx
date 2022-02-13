@@ -17,6 +17,7 @@ package androidx.compose.ui.text.android
 
 import android.graphics.Canvas
 import android.graphics.Path
+import android.os.Build
 import android.text.Layout
 import android.text.Spanned
 import android.text.TextDirectionHeuristic
@@ -95,7 +96,8 @@ class TextLayout constructor(
     @TextDirection textDirectionHeuristic: Int = DEFAULT_TEXT_DIRECTION,
     lineSpacingMultiplier: Float = DEFAULT_LINESPACING_MULTIPLIER,
     @Px lineSpacingExtra: Float = DEFAULT_LINESPACING_EXTRA,
-    includePadding: Boolean = DEFAULT_INCLUDE_PADDING,
+    val includePadding: Boolean = DEFAULT_INCLUDE_PADDING,
+    val fallbackLineSpacing: Boolean = true,
     maxLines: Int = Int.MAX_VALUE,
     @BreakStrategy breakStrategy: Int = DEFAULT_BREAK_STRATEGY,
     @HyphenationFrequency hyphenationFrequency: Int = DEFAULT_HYPHENATION_FREQUENCY,
@@ -124,6 +126,14 @@ class TextLayout constructor(
 
     val lineCount: Int
 
+    @VisibleForTesting
+    internal val topPadding: Int
+
+    @VisibleForTesting
+    internal val bottomPadding: Int
+
+    private val isBoringLayout: Boolean
+
     init {
         val end = charSequence.length
         val frameworkTextDir = getTextDirectionHeuristic(textDirectionHeuristic)
@@ -144,6 +154,7 @@ class TextLayout constructor(
         layout = if (boringMetrics != null && layoutIntrinsics.maxIntrinsicWidth <= width &&
             !hasBaselineShiftSpans
         ) {
+            isBoringLayout = true
             BoringLayoutFactory.create(
                 text = charSequence,
                 paint = textPaint,
@@ -155,6 +166,7 @@ class TextLayout constructor(
                 ellipsizedWidth = widthInt
             )
         } else {
+            isBoringLayout = false
             StaticLayoutFactory.create(
                 text = charSequence,
                 start = 0,
@@ -170,6 +182,7 @@ class TextLayout constructor(
                 lineSpacingExtra = lineSpacingExtra,
                 justificationMode = justificationMode,
                 includePadding = includePadding,
+                useFallbackLineSpacing = fallbackLineSpacing,
                 breakStrategy = breakStrategy,
                 hyphenationFrequency = hyphenationFrequency,
                 leftIndents = leftIndents,
@@ -213,6 +226,10 @@ class TextLayout constructor(
                 layout.getEllipsisCount(lineCount - 1) > 0 ||
                     layout.getLineEnd(lineCount - 1) != charSequence.length
             }
+
+        val verticalPaddings = getVerticalPaddings()
+        topPadding = verticalPaddings.first
+        bottomPadding = verticalPaddings.second
     }
 
     private val layoutHelper by lazy(LazyThreadSafetyMode.NONE) { LayoutHelper(layout) }
@@ -225,20 +242,23 @@ class TextLayout constructor(
             layout.getLineBottom(lineCount - 1)
         } else {
             layout.height
-        }
+        } + topPadding + bottomPadding
 
     fun getLineLeft(lineIndex: Int): Float = layout.getLineLeft(lineIndex)
 
     fun getLineRight(lineIndex: Int): Float = layout.getLineRight(lineIndex)
 
-    fun getLineTop(line: Int): Float = layout.getLineTop(line).toFloat()
+    fun getLineTop(line: Int): Float {
+        val top = layout.getLineTop(line).toFloat()
+        return top + if (line == 0) 0 else topPadding
+    }
 
-    fun getLineBottom(line: Int): Float = layout.getLineBottom(line).toFloat()
+    // TODO(b/171394808) shall we add bottom padding for last line?
+    fun getLineBottom(line: Int): Float = topPadding + layout.getLineBottom(line).toFloat()
 
-    fun getLineBaseline(line: Int): Float = layout.getLineBaseline(line).toFloat()
+    fun getLineBaseline(line: Int): Float = topPadding + layout.getLineBaseline(line).toFloat()
 
-    fun getLineHeight(lineIndex: Int): Float =
-        (layout.getLineBottom(lineIndex) - layout.getLineTop(lineIndex)).toFloat()
+    fun getLineHeight(lineIndex: Int): Float = getLineBottom(lineIndex) - getLineTop(lineIndex)
 
     fun getLineWidth(lineIndex: Int): Float = layout.getLineWidth(lineIndex)
 
@@ -267,7 +287,7 @@ class TextLayout constructor(
 
     fun getLineEllipsisCount(lineIndex: Int): Int = layout.getEllipsisCount(lineIndex)
 
-    fun getLineForVertical(vertical: Int): Int = layout.getLineForVertical(vertical)
+    fun getLineForVertical(vertical: Int): Int = layout.getLineForVertical(topPadding + vertical)
 
     fun getOffsetForHorizontal(line: Int, horizontal: Float): Int =
         layout.getOffsetForHorizontal(line, horizontal)
@@ -284,8 +304,11 @@ class TextLayout constructor(
 
     fun getParagraphDirection(line: Int): Int = layout.getParagraphDirection(line)
 
-    fun getSelectionPath(start: Int, end: Int, dest: Path) =
+    fun getSelectionPath(start: Int, end: Int, dest: Path) {
+        // TODO(b/171394808) update according to top padding. Requires to rewrite
+        //  Layout#getSelectionPath in text:text
         layout.getSelectionPath(start, end, dest)
+    }
 
     /**
      * @return true if the given line is ellipsized, else false.
@@ -388,7 +411,13 @@ class TextLayout constructor(
     }
 
     fun paint(canvas: Canvas) {
+        canvas.translate(0f, topPadding.toFloat())
         layout.draw(canvas)
+        canvas.translate(0f, -1 * topPadding.toFloat())
+    }
+
+    internal fun isFallbackLinespacingApplied(): Boolean {
+        return fallbackLineSpacing && !isBoringLayout && Build.VERSION.SDK_INT >= 28
     }
 }
 
@@ -531,4 +560,46 @@ internal object TextAlignmentAdapter {
             else -> Layout.Alignment.ALIGN_NORMAL
         }
     }
+}
+
+@OptIn(InternalPlatformTextApi::class)
+private fun TextLayout.getVerticalPaddings(): Pair<Int, Int> {
+    if (includePadding || isFallbackLinespacingApplied()) return Pair(0, 0)
+
+    val paint = layout.paint
+    val text = layout.text
+
+    val firstLineTextBounds = paint.getCharSequenceBounds(
+        text,
+        layout.getLineStart(0),
+        layout.getLineEnd(0)
+    )
+    val ascent = layout.getLineAscent(0)
+
+    // when textBounds.top is "higher" than ascent, we need to add the difference into account
+    // since includeFontPadding is false, ascent is at the top of Layout
+    val topPadding = if (firstLineTextBounds.top < ascent) {
+        ascent - firstLineTextBounds.top
+    } else {
+        layout.topPadding
+    }
+
+    val lastLineTextBounds = if (lineCount == 1) {
+        // reuse the existing rect since there is single line
+        firstLineTextBounds
+    } else {
+        val line = layout.lineCount - 1
+        paint.getCharSequenceBounds(text, layout.getLineStart(line), layout.getLineEnd(line))
+    }
+    val descent = layout.getLineDescent(layout.lineCount - 1)
+
+    // when textBounds.bottom is "lower" than descent, we need to add the difference into account
+    // since includeFontPadding is false, descent is at the bottom of Layout
+    val bottomPadding = if (lastLineTextBounds.bottom > descent) {
+        lastLineTextBounds.bottom - descent
+    } else {
+        layout.bottomPadding
+    }
+
+    return Pair(topPadding, bottomPadding)
 }
