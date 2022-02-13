@@ -21,13 +21,15 @@ import android.os.LocaleList;
 import androidx.annotation.RequiresApi;
 import androidx.core.os.LocaleListCompat;
 
+import java.util.LinkedHashSet;
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * Static utilities to overlay locales on top of another LocaleListCompat.
  *
  * <p>This is used to overlay application-specific locales on top of
- *  system locales.</p>
+ * system locales.</p>
  */
 @RequiresApi(24)
 final class LocaleOverlayHelper {
@@ -36,6 +38,7 @@ final class LocaleOverlayHelper {
 
     /**
      * Combines the overlay locales and base locales.
+     *
      * @return the combined {@link LocaleListCompat} if the overlay locales is not empty/null else
      * returns an empty LocaleListCompat.
      */
@@ -62,16 +65,20 @@ final class LocaleOverlayHelper {
      */
     private static LocaleListCompat combineLocales(LocaleListCompat overlayLocales,
             LocaleListCompat baseLocales) {
-        Locale[] combinedLocales =
-                new Locale[overlayLocales.size() + baseLocales.size()];
-        for (int i = 0; i < overlayLocales.size(); i++) {
-            combinedLocales[i] = overlayLocales.get(i);
+        // using LinkedHashSet to drop duplicates.
+        Set<Locale> combinedLocales = new LinkedHashSet<>();
+        for (int i = 0; i < overlayLocales.size() + baseLocales.size(); i++) {
+            Locale currLocale;
+            if (i < overlayLocales.size()) {
+                currLocale = overlayLocales.get(i);
+            } else {
+                currLocale = baseLocales.get(i - overlayLocales.size());
+            }
+            if (currLocale != null) {
+                combinedLocales.add(currLocale);
+            }
         }
-        for (int i = 0; i < baseLocales.size(); i++) {
-            combinedLocales[i + overlayLocales.size()] = baseLocales.get(i);
-        }
-        LocaleList combineLocaleList = new LocaleList(combinedLocales);
-        // Constructor of {@link LocaleListCompat} removes duplicates
-        return LocaleListCompat.wrap(combineLocaleList);
+        return LocaleListCompat.create(combinedLocales.toArray(
+                new Locale[combinedLocales.size()]));
     }
 }
