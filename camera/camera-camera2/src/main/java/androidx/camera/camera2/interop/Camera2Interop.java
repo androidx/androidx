@@ -190,15 +190,13 @@ public final class Camera2Interop {
          * <p>On API &lt;= 27, the physical camera ID will be ignored since logical camera is not
          * supported on these API levels.
          *
-         * <p>If use cases with different physical camera IDs are bound at the same time, an
+         * <p>Currently it doesn't support binding use cases with different physical camera IDs. If
+         * use cases with different physical camera IDs are bound at the same time, an
          * {@link IllegalArgumentException} will be thrown.
          *
          * @param cameraId The desired camera ID.
          * @return The current Extender.
-         *
-         * @hide
          */
-        @RestrictTo(Scope.LIBRARY)
         @RequiresApi(28)
         @NonNull
         public Extender<T> setPhysicalCameraId(@NonNull String cameraId) {
