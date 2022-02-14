@@ -18,10 +18,13 @@ package androidx.core.app;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.app.RemoteAction;
+import android.graphics.drawable.Icon;
 import android.os.Build;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
@@ -42,24 +45,32 @@ public final class RemoteActionCompat implements VersionedParcelable {
     /**
      * @hide
      */
+    @SuppressWarnings("NotNullFieldNotInitialized") // VersionedParceleble inits this field.
+    @NonNull
     @RestrictTo(LIBRARY_GROUP)
     @ParcelField(1)
     public IconCompat mIcon;
     /**
      * @hide
      */
+    @SuppressWarnings("NotNullFieldNotInitialized") // VersionedParceleble inits this field.
+    @NonNull
     @RestrictTo(LIBRARY_GROUP)
     @ParcelField(2)
     public CharSequence mTitle;
     /**
      * @hide
      */
+    @SuppressWarnings("NotNullFieldNotInitialized") // VersionedParceleble inits this field.
+    @NonNull
     @RestrictTo(LIBRARY_GROUP)
     @ParcelField(3)
     public CharSequence mContentDescription;
     /**
      * @hide
      */
+    @SuppressWarnings("NotNullFieldNotInitialized") // VersionedParceleble inits this field.
+    @NonNull
     @RestrictTo(LIBRARY_GROUP)
     @ParcelField(4)
     public PendingIntent mActionIntent;
@@ -113,12 +124,14 @@ public final class RemoteActionCompat implements VersionedParcelable {
     @NonNull
     public static RemoteActionCompat createFromRemoteAction(@NonNull RemoteAction remoteAction) {
         Preconditions.checkNotNull(remoteAction);
-        RemoteActionCompat action = new RemoteActionCompat(
-                IconCompat.createFromIcon(remoteAction.getIcon()), remoteAction.getTitle(),
-                remoteAction.getContentDescription(), remoteAction.getActionIntent());
-        action.setEnabled(remoteAction.isEnabled());
+        RemoteActionCompat action = new RemoteActionCompat(IconCompat.createFromIcon(
+                Api26Impl.getIcon(remoteAction)),
+                Api26Impl.getTitle(remoteAction),
+                Api26Impl.getContentDescription(remoteAction),
+                Api26Impl.getActionIntent(remoteAction));
+        action.setEnabled(Api26Impl.isEnabled(remoteAction));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            action.setShouldShowIcon(remoteAction.shouldShowIcon());
+            action.setShouldShowIcon(Api28Impl.shouldShowIcon(remoteAction));
         }
         return action;
     }
@@ -147,6 +160,7 @@ public final class RemoteActionCompat implements VersionedParcelable {
     /**
      * Return whether the icon should be shown.
      */
+    @SuppressLint("KotlinPropertyAccess")
     public boolean shouldShowIcon() {
         return mShouldShowIcon;
     }
@@ -184,15 +198,76 @@ public final class RemoteActionCompat implements VersionedParcelable {
      *
      * @return {@link RemoteAction} object
      */
+    @SuppressWarnings("deprecation")
     @RequiresApi(26)
     @NonNull
     public RemoteAction toRemoteAction() {
-        RemoteAction action = new RemoteAction(mIcon.toIcon(), mTitle, mContentDescription,
-                mActionIntent);
-        action.setEnabled(isEnabled());
+        RemoteAction action = Api26Impl.createRemoteAction(mIcon.toIcon(), mTitle,
+                mContentDescription, mActionIntent);
+        Api26Impl.setEnabled(action, isEnabled());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            action.setShouldShowIcon(shouldShowIcon());
+            Api28Impl.setShouldShowIcon(action, shouldShowIcon());
         }
         return action;
+    }
+
+    @RequiresApi(28)
+    static class Api28Impl {
+        private Api28Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static boolean shouldShowIcon(RemoteAction remoteAction) {
+            return remoteAction.shouldShowIcon();
+        }
+
+        @DoNotInline
+        static void setShouldShowIcon(RemoteAction remoteAction, boolean shouldShowIcon) {
+            remoteAction.setShouldShowIcon(shouldShowIcon);
+        }
+    }
+
+    @RequiresApi(26)
+    static class Api26Impl {
+        private Api26Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static CharSequence getContentDescription(RemoteAction remoteAction) {
+            return remoteAction.getContentDescription();
+        }
+
+        @DoNotInline
+        static PendingIntent getActionIntent(RemoteAction remoteAction) {
+            return remoteAction.getActionIntent();
+        }
+
+        @DoNotInline
+        static CharSequence getTitle(RemoteAction remoteAction) {
+            return remoteAction.getTitle();
+        }
+
+        @DoNotInline
+        static Icon getIcon(RemoteAction remoteAction) {
+            return remoteAction.getIcon();
+        }
+
+        @DoNotInline
+        static boolean isEnabled(RemoteAction remoteAction) {
+            return remoteAction.isEnabled();
+        }
+
+        @DoNotInline
+        static RemoteAction createRemoteAction(Icon icon, CharSequence title,
+                CharSequence contentDescription, PendingIntent intent) {
+            return new RemoteAction(icon, title, contentDescription, intent);
+        }
+
+        @DoNotInline
+        static void setEnabled(RemoteAction remoteAction, boolean enabled) {
+            remoteAction.setEnabled(enabled);
+        }
     }
 }
