@@ -63,7 +63,8 @@ public final class DeferrableSurfaces {
         List<ListenableFuture<Surface>> listenableFutureSurfaces = new ArrayList<>();
 
         for (DeferrableSurface deferrableSurface : deferrableSurfaces) {
-            listenableFutureSurfaces.add(deferrableSurface.getSurface());
+            listenableFutureSurfaces.add(
+                    Futures.nonCancellationPropagating(deferrableSurface.getSurface()));
         }
 
         return CallbackToFutureAdapter.getFuture(
