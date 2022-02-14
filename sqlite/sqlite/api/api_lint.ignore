@@ -41,6 +41,8 @@ BuilderSetStyle: androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builde
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder.name(String)
 BuilderSetStyle: androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder#noBackupDirectory(boolean):
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder.noBackupDirectory(boolean)
+BuilderSetStyle: androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder#allowDataLossOnRecovery(boolean):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder.allowDataLossOnRecovery(boolean)
 BuilderSetStyle: androidx.sqlite.db.SupportSQLiteQueryBuilder#builder(String):
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.sqlite.db.SupportSQLiteQueryBuilder.builder(String)
 BuilderSetStyle: androidx.sqlite.db.SupportSQLiteQueryBuilder#columns(String[]):
