@@ -34,13 +34,21 @@ public class SurfaceViewStretchedQuirk implements Quirk {
     private static final String SAMSUNG = "SAMSUNG";
     private static final String GALAXY_Z_FOLD_2 = "F2Q";
     private static final String GALAXY_Z_FOLD_3 = "Q2Q";
+    private static final String OPPO = "OPPO";
+    private static final String OPPO_FIND_N = "OP4E75L1";
 
     static boolean load() {
-        return SAMSUNG.equalsIgnoreCase(Build.MANUFACTURER) && isFold2OrFold3();
+        return isSamsungFold2OrFold3() || isOppoFoldable();
     }
 
-    static boolean isFold2OrFold3() {
-        return GALAXY_Z_FOLD_2.equalsIgnoreCase(Build.DEVICE)
-                || GALAXY_Z_FOLD_3.equalsIgnoreCase(Build.DEVICE);
+    private static boolean isSamsungFold2OrFold3() {
+        return SAMSUNG.equalsIgnoreCase(Build.MANUFACTURER)
+                && (GALAXY_Z_FOLD_2.equalsIgnoreCase(Build.DEVICE)
+                || GALAXY_Z_FOLD_3.equalsIgnoreCase(Build.DEVICE));
+    }
+
+    private static boolean isOppoFoldable() {
+        return OPPO.equalsIgnoreCase(Build.MANUFACTURER)
+                && OPPO_FIND_N.equalsIgnoreCase(Build.DEVICE);
     }
 }
