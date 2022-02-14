@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
  * A scrollable list of items to pick from. By default, items will be repeated
  * "infinitely" in both directions, unless [PickerState#repeatItems] is specified as false.
  *
+ * Example of a simple picker to select one of five options:
  * @sample androidx.wear.compose.material.samples.SimplePicker
  *
  * @param state The state of the component

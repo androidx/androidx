@@ -93,6 +93,23 @@ val WearMaterialDemos = DemoCategory(
     "Material",
     listOf(
         DemoCategory(
+            "Picker",
+            listOf(
+                ComposableDemo("Time HH:MM:SS") {
+                    TimePickerWithHoursMinutesSeconds()
+                },
+                ComposableDemo("Time 12 Hour") {
+                    TimePickerWith12HourClock()
+                },
+                ComposableDemo("Simple Picker") {
+                    SimplePicker()
+                },
+                ComposableDemo("Change Selected Option Picker") {
+                    OptionChangePicker()
+                },
+            )
+        ),
+        DemoCategory(
             "Slider",
             listOf(
                 DemoCategory(
@@ -375,19 +392,6 @@ val WearMaterialDemos = DemoCategory(
             )
         ),
         ComposableDemo("Curved Text") { CurvedTextDemo() },
-        DemoCategory(
-            "Picker",
-            listOf(
-                ComposableDemo("Simple Picker") {
-                    SimplePicker()
-                },
-                ComposableDemo("Change Selected Option Picker") {
-                    OptionChangePicker()
-                },
-                ComposableDemo("Time Picker") {
-                    PickerTimeDemo()
-                }
-            )
-        )
+
     ),
 )
