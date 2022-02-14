@@ -31,4 +31,5 @@
     <string name="image_widget_name">Image Widget</string>
     <string name="grid_widget_name">Vertical Grid Widget</string>
     <string name="default_state_widget_name">Default State Widget</string>
+    <string name="progress_indicator_widget_name">ProgressBar Widget</string>
 </resources>
