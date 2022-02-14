@@ -2473,8 +2473,12 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             // For API<24 the application does not have a localeList instead it has a single
             // locale, which we have set as the locale with the highest preference i.e. the first
             // one from the requested locales.
-            localesToBeApplied =
-                    LocaleListCompat.forLanguageTags(requestedLocales.get(0).toString());
+            if (requestedLocales.isEmpty()) {
+                localesToBeApplied = LocaleListCompat.getEmptyLocaleList();
+            } else {
+                localesToBeApplied =
+                        LocaleListCompat.forLanguageTags(requestedLocales.get(0).toString());
+            }
         }
 
         if (localesToBeApplied.isEmpty()) {
