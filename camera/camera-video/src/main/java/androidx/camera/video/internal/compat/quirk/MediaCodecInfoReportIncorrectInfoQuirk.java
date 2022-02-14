@@ -43,6 +43,7 @@ import androidx.camera.core.impl.Quirk;
  * See b/192431846#comment3.
  *
  * <p>Motc C, X650 and LG-X230 have the same problem as Nokia 1. See b/199582287</p>
+ * <p>Positivo Twist 2 Pro have the same problem as Nokia 1. See b/218841498</p>
  *
  * <p>On Huawei Mate9, {@link CamcorderProfile} indicates it can support resolutions 3840x2160 for
  *  video codec type {@link android.media.MediaRecorder.VideoEncoder#HEVC}, but the current video
@@ -57,7 +58,8 @@ import androidx.camera.core.impl.Quirk;
 public class MediaCodecInfoReportIncorrectInfoQuirk implements Quirk {
 
     static boolean load() {
-        return isNokia1() || isMotoC() || isX650() || isX230() || isHuaweiMate9();
+        return isNokia1() || isMotoC() || isX650() || isX230() || isHuaweiMate9()
+                || isPositivoTwist2Pro();
     }
 
     private static boolean isNokia1() {
@@ -81,9 +83,14 @@ public class MediaCodecInfoReportIncorrectInfoQuirk implements Quirk {
         return "Huawei".equalsIgnoreCase(Build.BRAND) && "mha-l29".equalsIgnoreCase(Build.MODEL);
     }
 
+    private static boolean isPositivoTwist2Pro() {
+        return "positivo".equalsIgnoreCase(Build.BRAND) && "twist 2 pro".equalsIgnoreCase(
+                Build.MODEL);
+    }
+
     /** Check if problematic MediaFormat info for these candidate devices. */
     public boolean isUnSupportMediaCodecInfo(@NonNull MediaFormat mediaFormat) {
-        if (isNokia1() || isMotoC() || isX650() || isX230()) {
+        if (isNokia1() || isMotoC() || isX650() || isX230() || isPositivoTwist2Pro()) {
             /** Checks if the given mime type is a problematic mime type. */
             String mimeType = mediaFormat.getString(MediaFormat.KEY_MIME);
             return MediaFormat.MIMETYPE_VIDEO_MPEG4.equals(mimeType);
