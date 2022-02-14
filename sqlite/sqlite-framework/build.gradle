@@ -19,11 +19,20 @@ import androidx.build.Publish
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
     api("androidx.annotation:annotation:1.2.0")
     api(project(":sqlite:sqlite"))
+    androidTestImplementation(libs.kotlinStdlib)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner) {
+        exclude module: "support-annotations"
+        exclude module: "hamcrest-core"
+    }
+    androidTestImplementation(libs.truth)
 }
 
 androidx {

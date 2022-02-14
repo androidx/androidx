@@ -19,24 +19,31 @@ package androidx.sqlite.db.framework;
 import android.content.Context;
 import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Build;
+import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.sqlite.db.SupportSQLiteCompat;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteOpenHelper;
 import androidx.sqlite.util.ProcessLock;
+import androidx.sqlite.util.SneakyThrow;
 
 import java.io.File;
 import java.util.UUID;
 
 class FrameworkSQLiteOpenHelper implements SupportSQLiteOpenHelper {
 
+    private static final String TAG = "SupportSQLite";
+
     private final Context mContext;
     private final String mName;
     private final Callback mCallback;
     private final boolean mUseNoBackupDirectory;
+    private final boolean mAllowDataLossOnRecovery;
     private final Object mLock;
 
     // Delegate is created lazily
@@ -55,10 +62,20 @@ class FrameworkSQLiteOpenHelper implements SupportSQLiteOpenHelper {
             String name,
             Callback callback,
             boolean useNoBackupDirectory) {
+        this(context, name, callback, useNoBackupDirectory, false);
+    }
+
+    FrameworkSQLiteOpenHelper(
+            Context context,
+            String name,
+            Callback callback,
+            boolean useNoBackupDirectory,
+            boolean allowDataLossOnRecovery) {
         mContext = context;
         mName = name;
         mCallback = callback;
         mUseNoBackupDirectory = useNoBackupDirectory;
+        mAllowDataLossOnRecovery = allowDataLossOnRecovery;
         mLock = new Object();
     }
 
@@ -80,9 +97,11 @@ class FrameworkSQLiteOpenHelper implements SupportSQLiteOpenHelper {
                             SupportSQLiteCompat.Api21Impl.getNoBackupFilesDir(mContext),
                             mName
                     );
-                    mDelegate = new OpenHelper(mContext, file.getAbsolutePath(), dbRef, mCallback);
+                    mDelegate = new OpenHelper(mContext, file.getAbsolutePath(), dbRef, mCallback,
+                            mAllowDataLossOnRecovery);
                 } else {
-                    mDelegate = new OpenHelper(mContext, mName, dbRef, mCallback);
+                    mDelegate = new OpenHelper(mContext, mName, dbRef, mCallback,
+                            mAllowDataLossOnRecovery);
                 }
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                     SupportSQLiteCompat.Api16Impl.setWriteAheadLoggingEnabled(mDelegate,
@@ -111,12 +130,12 @@ class FrameworkSQLiteOpenHelper implements SupportSQLiteOpenHelper {
 
     @Override
     public SupportSQLiteDatabase getWritableDatabase() {
-        return getDelegate().getWritableSupportDatabase();
+        return getDelegate().getSupportDatabase(true);
     }
 
     @Override
     public SupportSQLiteDatabase getReadableDatabase() {
-        return getDelegate().getReadableSupportDatabase();
+        return getDelegate().getSupportDatabase(false);
     }
 
     @Override
@@ -131,7 +150,9 @@ class FrameworkSQLiteOpenHelper implements SupportSQLiteOpenHelper {
          * constructor.
          */
         final FrameworkSQLiteDatabase[] mDbRef;
+        final Context mContext;
         final Callback mCallback;
+        final boolean mAllowDataLossOnRecovery;
         // see b/78359448
         private boolean mMigrated;
         // see b/193182592
@@ -139,7 +160,7 @@ class FrameworkSQLiteOpenHelper implements SupportSQLiteOpenHelper {
         private boolean mOpened;
 
         OpenHelper(Context context, String name, final FrameworkSQLiteDatabase[] dbRef,
-                final Callback callback) {
+                final Callback callback, boolean allowDataLossOnRecovery) {
             super(context, name, null, callback.version,
                     new DatabaseErrorHandler() {
                         @Override
@@ -147,21 +168,23 @@ class FrameworkSQLiteOpenHelper implements SupportSQLiteOpenHelper {
                             callback.onCorruption(getWrappedDb(dbRef, dbObj));
                         }
                     });
+            mContext = context;
             mCallback = callback;
             mDbRef = dbRef;
+            mAllowDataLossOnRecovery = allowDataLossOnRecovery;
             mLock = new ProcessLock(name == null ? UUID.randomUUID().toString() : name,
                     context.getCacheDir(), false);
         }
 
-        SupportSQLiteDatabase getWritableSupportDatabase() {
+        SupportSQLiteDatabase getSupportDatabase(boolean writable) {
             try {
                 mLock.lock(!mOpened && getDatabaseName() != null);
                 mMigrated = false;
-                SQLiteDatabase db = super.getWritableDatabase();
+                final SQLiteDatabase db = innerGetDatabase(writable);
                 if (mMigrated) {
                     // there might be a connection w/ stale structure, we should re-open.
                     close();
-                    return getWritableSupportDatabase();
+                    return getSupportDatabase(writable);
                 }
                 return getWrappedDb(db);
             } finally {
@@ -169,19 +192,87 @@ class FrameworkSQLiteOpenHelper implements SupportSQLiteOpenHelper {
             }
         }
 
-        SupportSQLiteDatabase getReadableSupportDatabase() {
-            try {
-                mLock.lock(!mOpened && getDatabaseName() != null);
-                mMigrated = false;
-                SQLiteDatabase db = super.getReadableDatabase();
-                if (mMigrated) {
-                    // there might be a connection w/ stale structure, we should re-open.
-                    close();
-                    return getReadableSupportDatabase();
+        private SQLiteDatabase innerGetDatabase(boolean writable) {
+            String name = getDatabaseName();
+            if (name != null) {
+                File databaseFile = mContext.getDatabasePath(name);
+                File parentFile = databaseFile.getParentFile();
+                if (parentFile != null) {
+                    parentFile.mkdirs();
+                    if (!parentFile.isDirectory()) {
+                        Log.w(TAG, "Invalid database parent file, not a directory: " + parentFile);
+                    }
                 }
-                return getWrappedDb(db);
-            } finally {
-                mLock.unlock();
+            }
+
+            try {
+                return getWritableOrReadableDatabase(writable);
+            } catch (Throwable t) {
+                // No good, just try again...
+                super.close();
+            }
+
+            try {
+                // Wait before trying to open the DB, ideally enough to account for some slow I/O.
+                // Similar to android_database_SQLiteConnection's BUSY_TIMEOUT_MS but not as much.
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                // Ignore, and continue
+            }
+
+            final Throwable openRetryError;
+            try {
+                return getWritableOrReadableDatabase(writable);
+            } catch (Throwable t) {
+                super.close();
+                openRetryError = t;
+            }
+            if (openRetryError instanceof CallbackException) {
+                // Callback error (onCreate, onUpgrade, onOpen, etc), possibly user error.
+                final CallbackException callbackException = (CallbackException) openRetryError;
+                final Throwable cause = callbackException.getCause();
+                switch (callbackException.getCallbackName()) {
+                    case ON_CONFIGURE:
+                    case ON_CREATE:
+                    case ON_UPGRADE:
+                    case ON_DOWNGRADE:
+                        SneakyThrow.reThrow(cause);
+                        break;
+                    case ON_OPEN:
+                    default:
+                        break;
+                }
+                // If callback exception is not an SQLiteException, then more certainly it is not
+                // recoverable.
+                if (!(cause instanceof SQLiteException)) {
+                    SneakyThrow.reThrow(cause);
+                }
+            } else if (openRetryError instanceof SQLiteException) {
+                // Ideally we are looking for SQLiteCantOpenDatabaseException and similar, but
+                // corruption can manifest in others forms.
+                if (name == null || !mAllowDataLossOnRecovery) {
+                    SneakyThrow.reThrow(openRetryError);
+                }
+            } else {
+                SneakyThrow.reThrow(openRetryError);
+            }
+
+            // Delete the database and try one last time. (mAllowDataLossOnRecovery == true)
+            mContext.deleteDatabase(name);
+            try {
+                return getWritableOrReadableDatabase(writable);
+            } catch (CallbackException ex) {
+                // Unwrap our exception to avoid disruption with other try-catch in the call stack.
+                SneakyThrow.reThrow(ex.getCause());
+                return null; // Unreachable code, but compiler doesn't know it.
+            }
+        }
+
+        private SQLiteDatabase getWritableOrReadableDatabase(boolean writable) {
+            if (writable) {
+                return super.getWritableDatabase();
+            } else {
+                return super.getReadableDatabase();
             }
         }
 
@@ -191,31 +282,51 @@ class FrameworkSQLiteOpenHelper implements SupportSQLiteOpenHelper {
 
         @Override
         public void onCreate(SQLiteDatabase sqLiteDatabase) {
-            mCallback.onCreate(getWrappedDb(sqLiteDatabase));
+            try {
+                mCallback.onCreate(getWrappedDb(sqLiteDatabase));
+            } catch (Throwable t) {
+                throw new CallbackException(CallbackName.ON_CREATE, t);
+            }
         }
 
         @Override
         public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
             mMigrated = true;
-            mCallback.onUpgrade(getWrappedDb(sqLiteDatabase), oldVersion, newVersion);
+            try {
+                mCallback.onUpgrade(getWrappedDb(sqLiteDatabase), oldVersion, newVersion);
+            } catch (Throwable t) {
+                throw new CallbackException(CallbackName.ON_UPGRADE, t);
+            }
         }
 
         @Override
         public void onConfigure(SQLiteDatabase db) {
-            mCallback.onConfigure(getWrappedDb(db));
+            try {
+                mCallback.onConfigure(getWrappedDb(db));
+            } catch (Throwable t) {
+                throw new CallbackException(CallbackName.ON_CONFIGURE, t);
+            }
         }
 
         @Override
         public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             mMigrated = true;
-            mCallback.onDowngrade(getWrappedDb(db), oldVersion, newVersion);
+            try {
+                mCallback.onDowngrade(getWrappedDb(db), oldVersion, newVersion);
+            } catch (Throwable t) {
+                throw new CallbackException(CallbackName.ON_DOWNGRADE, t);
+            }
         }
 
         @Override
         public void onOpen(SQLiteDatabase db) {
             if (!mMigrated) {
                 // if we've migrated, we'll re-open the db so we should not call the callback.
-                mCallback.onOpen(getWrappedDb(db));
+                try {
+                    mCallback.onOpen(getWrappedDb(db));
+                } catch (Throwable t) {
+                    throw new CallbackException(CallbackName.ON_OPEN, t);
+                }
             }
             mOpened = true;
         }
@@ -240,6 +351,37 @@ class FrameworkSQLiteOpenHelper implements SupportSQLiteOpenHelper {
                 refHolder[0] = new FrameworkSQLiteDatabase(sqLiteDatabase);
             }
             return refHolder[0];
+        }
+
+        private static final class CallbackException extends RuntimeException {
+
+            private final CallbackName mCallbackName;
+            private final Throwable mCause;
+
+            CallbackException(CallbackName callbackName, Throwable cause) {
+                super(cause);
+                mCallbackName = callbackName;
+                mCause = cause;
+            }
+
+            public CallbackName getCallbackName() {
+                return mCallbackName;
+            }
+
+            @NonNull
+            @Override
+            @SuppressWarnings("UnsynchronizedOverridesSynchronized") // Not needed, cause is final
+            public Throwable getCause() {
+                return mCause;
+            }
+        }
+
+        enum CallbackName {
+            ON_CONFIGURE,
+            ON_CREATE,
+            ON_UPGRADE,
+            ON_DOWNGRADE,
+            ON_OPEN
         }
     }
 }

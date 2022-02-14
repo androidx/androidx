@@ -74,6 +74,7 @@ package androidx.sqlite.db {
 
   public static class SupportSQLiteOpenHelper.Configuration {
     method public static androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder builder(android.content.Context);
+    field public final boolean allowDataLossOnRecovery;
     field public final androidx.sqlite.db.SupportSQLiteOpenHelper.Callback callback;
     field public final android.content.Context context;
     field public final String? name;
@@ -81,6 +82,7 @@ package androidx.sqlite.db {
   }
 
   public static class SupportSQLiteOpenHelper.Configuration.Builder {
+    method public androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder allowDataLossOnRecovery(boolean);
     method public androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration build();
     method public androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder callback(androidx.sqlite.db.SupportSQLiteOpenHelper.Callback);
     method public androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder name(String?);
