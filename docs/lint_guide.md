@@ -446,15 +446,19 @@ place the actions you want to take if a violation of the Lint check is found.
 
 ```kotlin
 override fun visitElement(context: XmlContext, element: Element) {
-    context.report(
-        ISSUE,
-        context.getNameLocation(element),
-        "My issue message",
-        fix().replace()
-            .text(ELEMENT)
-            .with(REPLACEMENT TEXT)
-            .build()
-    )
+    val lintFix = fix().replace()
+        .text(ELEMENT)
+        .with(REPLACEMENT TEXT)
+        .build()
+
+    val incident = Incident(context)
+        .fix(lintFix)
+        .issue(ISSUE)
+        .location(context.getLocation(node))
+        .message("My issue message")
+        .scope(context.getNameLocation(element))
+
+    context.report(incident)
 }
 ```
 
