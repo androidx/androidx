@@ -843,10 +843,10 @@ includeProject(":external:libyuv", "external/libyuv", [BuildType.MAIN])
 includeProject(":noto-emoji-compat-font", new File(externalRoot, "noto-fonts/emoji-compat"), [BuildType.MAIN])
 includeProject(":noto-emoji-compat-flatbuffers", new File(externalRoot, "noto-fonts/emoji-compat-flatbuffers"), [BuildType.MAIN])
 
-if (isAllProjects()) {
-    includeProject(":docs-tip-of-tree", "docs-tip-of-tree")
-    includeProject(":docs-public", "docs-public")
-}
+// if (isAllProjects()) {
+//     includeProject(":docs-tip-of-tree", "docs-tip-of-tree")
+//     includeProject(":docs-public", "docs-public")
+// }
 
 // placeholder test project that has a test for each size to ensure that at least one test is run
 // for each size and test runner is happy when there is nothing to test.
