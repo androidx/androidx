@@ -339,8 +339,7 @@ A few notes about version updates:
 
 ### How to update your version
 
-1.  Update the version listed in
-    `frameworks/support/buildSrc/public/src/main/kotlin/androidx/build/LibraryVersions.kt`
+1.  Update the version listed in `frameworks/support/libraryversions.toml`
 1.  If your library is a `beta` or `rc01` version, run `./gradlew
     <your-lib>:updateApi`. This will create an API txt file for the new version
     of your library. For other versions, this step is not reqired
