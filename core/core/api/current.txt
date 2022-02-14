@@ -840,17 +840,17 @@ package androidx.core.app {
   }
 
   public final class RemoteInput {
-    method public static void addDataResultToIntent(androidx.core.app.RemoteInput!, android.content.Intent!, java.util.Map<java.lang.String!,android.net.Uri!>!);
-    method public static void addResultsToIntent(androidx.core.app.RemoteInput![]!, android.content.Intent!, android.os.Bundle!);
+    method public static void addDataResultToIntent(androidx.core.app.RemoteInput, android.content.Intent, java.util.Map<java.lang.String!,android.net.Uri!>);
+    method public static void addResultsToIntent(androidx.core.app.RemoteInput![], android.content.Intent, android.os.Bundle);
     method public boolean getAllowFreeFormInput();
-    method public java.util.Set<java.lang.String!>! getAllowedDataTypes();
-    method public CharSequence![]! getChoices();
-    method public static java.util.Map<java.lang.String!,android.net.Uri!>! getDataResultsFromIntent(android.content.Intent!, String!);
+    method public java.util.Set<java.lang.String!>? getAllowedDataTypes();
+    method public CharSequence![]? getChoices();
+    method public static java.util.Map<java.lang.String!,android.net.Uri!>? getDataResultsFromIntent(android.content.Intent, String);
     method public int getEditChoicesBeforeSending();
-    method public android.os.Bundle! getExtras();
-    method public CharSequence! getLabel();
-    method public String! getResultKey();
-    method public static android.os.Bundle! getResultsFromIntent(android.content.Intent!);
+    method public android.os.Bundle getExtras();
+    method public CharSequence? getLabel();
+    method public String getResultKey();
+    method public static android.os.Bundle? getResultsFromIntent(android.content.Intent);
     method public static int getResultsSource(android.content.Intent);
     method public boolean isDataOnly();
     method public static void setResultsSource(android.content.Intent, int);
@@ -962,7 +962,7 @@ package androidx.core.app {
     method public androidx.core.app.TaskStackBuilder addNextIntentWithParentStack(android.content.Intent);
     method public androidx.core.app.TaskStackBuilder addParentStack(android.app.Activity);
     method public androidx.core.app.TaskStackBuilder addParentStack(Class<?>);
-    method public androidx.core.app.TaskStackBuilder! addParentStack(android.content.ComponentName!);
+    method public androidx.core.app.TaskStackBuilder addParentStack(android.content.ComponentName);
     method public static androidx.core.app.TaskStackBuilder create(android.content.Context);
     method public android.content.Intent? editIntentAt(int);
     method @Deprecated public static androidx.core.app.TaskStackBuilder! from(android.content.Context!);
@@ -971,7 +971,7 @@ package androidx.core.app {
     method public android.content.Intent![] getIntents();
     method public android.app.PendingIntent? getPendingIntent(int, int);
     method public android.app.PendingIntent? getPendingIntent(int, int, android.os.Bundle?);
-    method @Deprecated public java.util.Iterator<android.content.Intent!>! iterator();
+    method @Deprecated public java.util.Iterator<android.content.Intent!> iterator();
     method public void startActivities();
     method public void startActivities(android.os.Bundle?);
   }

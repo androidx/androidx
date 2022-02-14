@@ -22,8 +22,10 @@ import android.app.Notification;
 import android.app.Service;
 import android.os.Build;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 import java.lang.annotation.Retention;
@@ -97,9 +99,21 @@ public final class ServiceCompat {
     @SuppressWarnings("deprecation")
     public static void stopForeground(@NonNull Service service, @StopForegroundFlags int flags) {
         if (Build.VERSION.SDK_INT >= 24) {
-            service.stopForeground(flags);
+            Api24Impl.stopForeground(service, flags);
         } else {
             service.stopForeground((flags & ServiceCompat.STOP_FOREGROUND_REMOVE) != 0);
+        }
+    }
+
+    @RequiresApi(24)
+    static class Api24Impl {
+        private Api24Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void stopForeground(Service service, int flags) {
+            service.stopForeground(flags);
         }
     }
 }
