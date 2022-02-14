@@ -76,25 +76,46 @@ library modules. Differences for AndroidX repo:
 
 ### I'm lazy and want to start quickly
 
-Start by copying one of the following projects:
+Start by copying one of the following non-Compose projects:
 
 *   [navigation-benchmark](https://android.googlesource.com/platform/frameworks/support/+/refs/heads/androidx-main/navigation/benchmark/)
 *   [recyclerview-benchmark](https://android.googlesource.com/platform/frameworks/support/+/refs/heads/androidx-main/recyclerview/recyclerview-benchmark/)
 
-### Compose
+Many Compose libraries already have benchmark modules:
 
-Compose builds the benchmark from source, so usage matches the rest of the
-AndroidX project. See existing Compose benchmark projects:
-
-*   [Compose UI benchmarks](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/integration-tests/benchmark/)
-*   [Compose Runtime benchmarks](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/runtime/runtime/compose-runtime-benchmark/)
+*   [Compose UI Benchmarks](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/ui/ui/benchmark/)
+*   [Compose Runtime Benchmarks](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/runtime/runtime/compose-runtime-benchmark/)
+*   [Compose Material Benchmarks](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/material/material/benchmark/)
+*   [Wear Compose Material Benchmarks](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:wear/compose/compose-material/benchmark/)
 
 ## Profiling
 
-### Command Line
+See the
+[public profiling guide](https://developer.android.com/studio/profile/benchmark#profiling)
+for more details.
 
-The benchmark library supports capturing profiling information - stack sampling
-and method tracing - from the command line. Here's an example which runs the
+Jetpack benchmark supports capturing profiling information by setting
+instrumentation arguments. Stack sampling and method tracing can be performed
+either from CLI or Studio invocation.
+
+### Set Arguments in Gradle
+
+Args can be set in your benchmark's `build.gradle`, which will affect both
+Studio / command-line gradlew runs. Runs from Studio will link result traces
+that can be opened directly from the IDE.
+
+```
+android {
+    defaultConfig {
+        // must be one of: 'None', 'StackSampling', or 'MethodTracing'
+        testInstrumentationRunnerArgument 'androidx.benchmark.profiling.mode', 'StackSampling'
+    }
+}
+```
+
+### Set Arguments on Command Line
+
+Args can also be passed from CLI. Here's an example which runs the
 `androidx.compose.material.benchmark.CheckboxesInRowsBenchmark#draw` method with
 `StackSampling` profiling:
 
@@ -130,16 +151,15 @@ Java Method Tracing.
 
 ![Sample flame chart](benchmarking_images/profiling_flame_chart.png "Sample flame chart")
 
-NOTE Simpleperf captures stack traces from all threads, so click the test thread
-in the left profiler panel, and select flame chart on the right to see just
-samples from the test.
+### Advanced: Connected Studio Profiler
 
-### Advanced: Studio Profiling
+Profiling for allocations requires Studio to capture. This can also be used for
+Sampled profiling, though it is instead recommended to use instrumentation
+argument profiling for that, as it's simpler, and doesn't require
+`debuggable=true`
 
-Profiling for allocations and simpleperf profiling requires Studio to capture.
-
-Studio profiling tools require `debuggable=true`. First, temporarily override it
-in your benchmark's `androidTest/AndroidManifest.xml`.
+Studio profiling tools currently require `debuggable=true`. First, temporarily
+override it in your benchmark's `androidTest/AndroidManifest.xml`.
 
 Next choose which profiling you want to do: Allocation, or Sampled (SimplePerf)
 

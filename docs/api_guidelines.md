@@ -153,13 +153,13 @@ on libraries within the group. Such groups must increment the version of every
 library at the same time and release all libraries at the same time.
 
 Atomic groups are specified in
-[`LibraryGroups.kt`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:buildSrc/public/src/main/kotlin/androidx/build/LibraryGroups.kt):
+[libraryversions.toml](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:libraryversions.toml):
 
-```kotlin
+```
 // Non-atomic library group
-val APPCOMPAT = LibraryGroup("androidx.appcompat", null)
+APPCOMPAT = { group = "androidx.appcompat" }
 // Atomic library group
-val APPSEARCH = LibraryGroup("androidx.appsearch", LibraryVersions.APPSEARCH)
+APPSEARCH = { group = "androidx.appsearch", atomicGroupVersion = "versions.APPSEARCH" }
 ```
 
 Libraries within an atomic group should not specify a version in their
