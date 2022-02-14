@@ -27,7 +27,7 @@ dependencies {
     androidTestImplementation(project(":collection:collection"))
     androidTestImplementation(project(":collection:collection-ktx"))
     androidTestImplementation(libs.kotlinStdlib)
-    androidTestImplementation(project(":benchmark:benchmark-junit4"))
+    androidTestImplementation(projectOrArtifact(":benchmark:benchmark-junit4"))
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
