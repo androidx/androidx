@@ -25,6 +25,7 @@ import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.checks.VersionChecks.Companion.isWithinVersionCheckConditional
 import com.android.sdklib.SdkVersionInfo.HIGHEST_KNOWN_API
+import com.android.tools.lint.detector.api.Incident
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiMethod
@@ -53,10 +54,12 @@ class BanUncheckedReflection : Detector(), SourceCodeScanner {
         if (!isWithinVersionCheckConditional(context, node, HIGHEST_KNOWN_API, false) &&
             !isWithinVersionCheckConditional(context, node, 1, true)
         ) {
-            context.report(
-                ISSUE, node, context.getLocation(node),
-                "Calling `Method.invoke` without an SDK check"
-            )
+            val incident = Incident(context)
+                .issue(ISSUE)
+                .location(context.getLocation(node))
+                .message("Calling `Method.invoke` without an SDK check")
+                .scope(node)
+            context.report(incident)
         }
     }
 
