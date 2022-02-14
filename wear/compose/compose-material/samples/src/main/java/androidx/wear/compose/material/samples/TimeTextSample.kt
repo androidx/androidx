@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.ArcPaddingValues
+import androidx.wear.compose.foundation.CurvedTextStyle
 import androidx.wear.compose.material.CurvedText
 import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.Text
@@ -35,42 +36,45 @@ import java.util.Locale
 @Sampled
 @Composable
 fun TimeTextWithCustomSeparator() {
+    val leadingTextStyle = TimeTextDefaults.timeTextStyle(color = Color.Green)
+    val trailingTextStyle = TimeTextDefaults.timeTextStyle(color = Color.Yellow)
+    val separatorTextStyle = TimeTextDefaults.timeTextStyle(color = Color.Magenta)
     TimeText(
         leadingLinearContent = {
             Text(
                 text = "Leading content",
-                style = TimeTextDefaults.timeTextStyle(color = Color.Green)
+                style = leadingTextStyle
             )
         },
         leadingCurvedContent = {
             CurvedText(
                 text = "Leading content",
-                style = TimeTextDefaults.timeCurvedTextStyle(color = Color.Green)
+                style = CurvedTextStyle(leadingTextStyle)
             )
         },
         trailingLinearContent = {
             Text(
                 text = "Trailing content",
-                style = TimeTextDefaults.timeTextStyle(color = Color.Yellow)
+                style = trailingTextStyle
             )
         },
         trailingCurvedContent = {
             CurvedText(
                 text = "Trailing content",
-                style = TimeTextDefaults.timeCurvedTextStyle(color = Color.Yellow)
+                style = CurvedTextStyle(trailingTextStyle)
             )
         },
         textLinearSeparator = {
             Text(
                 modifier = Modifier.padding(horizontal = 8.dp),
                 text = "***",
-                style = TimeTextDefaults.timeTextStyle(color = Color.Magenta)
+                style = separatorTextStyle
             )
         },
         textCurvedSeparator = {
             CurvedText(
                 text = "***",
-                style = TimeTextDefaults.timeCurvedTextStyle(color = Color.Magenta),
+                style = CurvedTextStyle(separatorTextStyle),
                 contentArcPadding = ArcPaddingValues(angular = 8.dp)
             )
         }
