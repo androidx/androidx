@@ -31,6 +31,7 @@ import androidx.test.espresso.Espresso.onIdle
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.withActivity
@@ -404,6 +405,50 @@ public class WindowInsetsAnimationCompatActivityTest {
     }
 
     @Test
+    public fun check_view_on_apply_called() {
+        val container = scenario.withActivity { findViewById(R.id.container) }
+        val onApplyLatch = CountDownLatch(1)
+        val customView = object : View(scenario.withActivity { this }) {
+            override fun onApplyWindowInsets(insets: WindowInsets): WindowInsets {
+                onApplyLatch.countDown()
+                return insets
+            }
+        }
+        scenario.onActivity { (container as ViewGroup).addView(customView) }
+        val stopCallback = createCallback()
+        ViewCompat.setWindowInsetsAnimationCallback(customView, stopCallback)
+        triggerInsetAnimation(container)
+        assertTrue(
+            "The View.onApplyWindowInsets has not been called",
+            onApplyLatch.await(2, TimeUnit.SECONDS)
+        )
+    }
+
+    private fun createCallback(
+        dispatchMode: Int = DISPATCH_MODE_CONTINUE_ON_SUBTREE,
+        onPrepare: ((WindowInsetsAnimationCompat) -> Unit)? = null,
+        onEnd: ((WindowInsetsAnimationCompat) -> Unit)? = null
+    ): WindowInsetsAnimationCompat.Callback {
+        return object :
+            WindowInsetsAnimationCompat.Callback(dispatchMode) {
+
+            override fun onPrepare(animation: WindowInsetsAnimationCompat) {
+                onPrepare?.invoke(animation)
+            }
+
+            override fun onProgress(
+                insets: WindowInsetsCompat,
+                runningAnimations: MutableList<WindowInsetsAnimationCompat>
+            ): WindowInsetsCompat = insets
+
+            override fun onEnd(animation: WindowInsetsAnimationCompat) {
+                onEnd?.invoke(animation)
+            }
+        }
+    }
+
+    @Test
+    @FlakyTest(bugId = 196917541)
     public fun child_callback_not_called_when_dispatch_stop() {
         assumeNotCuttlefish()
 
@@ -471,49 +516,6 @@ public class WindowInsetsAnimationCompatActivityTest {
             1,
             childListenerCalledCount
         )
-    }
-
-    @Test
-    public fun check_view_on_apply_called() {
-        val container = scenario.withActivity { findViewById(R.id.container) }
-        val onApplyLatch = CountDownLatch(1)
-        val customView = object : View(scenario.withActivity { this }) {
-            override fun onApplyWindowInsets(insets: WindowInsets): WindowInsets {
-                onApplyLatch.countDown()
-                return insets
-            }
-        }
-        scenario.onActivity { (container as ViewGroup).addView(customView) }
-        val stopCallback = createCallback()
-        ViewCompat.setWindowInsetsAnimationCallback(customView, stopCallback)
-        triggerInsetAnimation(container)
-        assertTrue(
-            "The View.onApplyWindowInsets has not been called",
-            onApplyLatch.await(2, TimeUnit.SECONDS)
-        )
-    }
-
-    private fun createCallback(
-        dispatchMode: Int = DISPATCH_MODE_CONTINUE_ON_SUBTREE,
-        onPrepare: ((WindowInsetsAnimationCompat) -> Unit)? = null,
-        onEnd: ((WindowInsetsAnimationCompat) -> Unit)? = null
-    ): WindowInsetsAnimationCompat.Callback {
-        return object :
-            WindowInsetsAnimationCompat.Callback(dispatchMode) {
-
-            override fun onPrepare(animation: WindowInsetsAnimationCompat) {
-                onPrepare?.invoke(animation)
-            }
-
-            override fun onProgress(
-                insets: WindowInsetsCompat,
-                runningAnimations: MutableList<WindowInsetsAnimationCompat>
-            ): WindowInsetsCompat = insets
-
-            override fun onEnd(animation: WindowInsetsAnimationCompat) {
-                onEnd?.invoke(animation)
-            }
-        }
     }
 
     private fun assumeNotCuttlefish() {
