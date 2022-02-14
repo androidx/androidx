@@ -17,6 +17,7 @@
 package androidx.wear.compose.material
 
 import androidx.compose.foundation.MutatePriority
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.lazy.LazyListItemInfo
@@ -30,6 +31,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.unit.IntSize
 import kotlin.math.roundToInt
 
 /**
@@ -284,7 +286,16 @@ class ScalingLazyListState constructor(
                     viewportEndOffset = lazyListState.layoutInfo.viewportEndOffset -
                         extraPaddingPx.value!!,
                     centerItemIndex = if (initialized.value) newCenterItemIndex else 0,
-                    centerItemScrollOffset = if (initialized.value) newCenterItemScrollOffset else 0
+                    centerItemScrollOffset =
+                        if (initialized.value) newCenterItemScrollOffset else 0,
+                    reverseLayout = reverseLayout.value!!,
+                    orientation = lazyListState.layoutInfo.orientation,
+                    viewportSize =
+                        IntSize(
+                            width = lazyListState.layoutInfo.viewportSize.width,
+                            height = lazyListState.layoutInfo.viewportSize.height -
+                                extraPaddingPx.value!! * 2
+                        )
                 )
             } else {
                 EmptyScalingLazyListLayoutInfo
@@ -472,4 +483,7 @@ private object EmptyScalingLazyListLayoutInfo : ScalingLazyListLayoutInfo {
     override val viewportStartOffset = 0
     override val viewportEndOffset = 0
     override val totalItemsCount = 0
+    override val viewportSize = IntSize.Zero
+    override val orientation = Orientation.Vertical
+    override val reverseLayout = false
 }
