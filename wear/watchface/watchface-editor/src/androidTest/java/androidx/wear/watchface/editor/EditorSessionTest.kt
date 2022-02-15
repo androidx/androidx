@@ -79,6 +79,8 @@ import androidx.wear.watchface.client.asApiEditorState
 import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.ComplicationSlotBoundsType
+import androidx.wear.watchface.DEFAULT_INSTANCE_ID
+import androidx.wear.watchface.SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX
 import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.editor.EditorSession.Companion.EDITING_SESSION_TIMEOUT
 import androidx.wear.watchface.editor.data.EditorStateWireFormat
@@ -462,7 +464,7 @@ public class EditorSessionTest {
         TestHeadlessWatchFaceService::class.qualifiedName!!
     )
     private val testEditorPackageName = "test.package"
-    private val testInstanceId = WatchFaceId("TEST_INSTANCE_ID")
+    private val testInstanceId = WatchFaceId(SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "1")
     private lateinit var editorDelegate: WatchFace.EditorDelegate
     private val screenBounds = Rect(0, 0, 400, 400)
 
@@ -1684,7 +1686,7 @@ public class EditorSessionTest {
 
         scenario.onActivity { activity ->
             runBlocking {
-                assertThat(activity.editorSession.watchFaceId.id).isEmpty()
+                assertThat(activity.editorSession.watchFaceId.id).isEqualTo(DEFAULT_INSTANCE_ID)
                 activity.editorSession.close()
                 activity.finish()
             }
@@ -1694,7 +1696,36 @@ public class EditorSessionTest {
             TIMEOUT_MILLIS,
             TimeUnit.MILLISECONDS
         ).asApiEditorState()
-        assertThat(result.watchFaceId.id).isEmpty()
+        assertThat(result.watchFaceId.id).isEqualTo(DEFAULT_INSTANCE_ID)
+
+        EditorService.globalEditorService.unregisterObserver(observerId)
+    }
+
+    @SuppressLint("NewApi") // result.watchFaceId
+    @Test
+    public fun invalidOldStyleInstanceId() {
+        val scenario = createOnWatchFaceEditingTestActivity(
+            listOf(colorStyleSetting, watchHandStyleSetting),
+            emptyList(),
+            watchFaceId = WatchFaceId("instance-1")
+        )
+
+        val editorObserver = TestEditorObserver()
+        val observerId = EditorService.globalEditorService.registerObserver(editorObserver)
+
+        scenario.onActivity { activity ->
+            runBlocking {
+                assertThat(activity.editorSession.watchFaceId.id).isEqualTo(DEFAULT_INSTANCE_ID)
+                activity.editorSession.close()
+                activity.finish()
+            }
+        }
+
+        val result = editorObserver.awaitEditorStateChange(
+            TIMEOUT_MILLIS,
+            TimeUnit.MILLISECONDS
+        ).asApiEditorState()
+        assertThat(result.watchFaceId.id).isEqualTo(DEFAULT_INSTANCE_ID)
 
         EditorService.globalEditorService.unregisterObserver(observerId)
     }

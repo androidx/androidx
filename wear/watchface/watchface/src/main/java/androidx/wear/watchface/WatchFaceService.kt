@@ -1283,7 +1283,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 this.setComplicationDataList(it)
             }
 
-            mutableWatchState.watchFaceInstanceId.value = newInstanceId
+            mutableWatchState.watchFaceInstanceId.value = sanitizeWatchFaceId(newInstanceId)
         }
 
         override fun getContext(): Context = _context
@@ -1617,7 +1617,7 @@ public abstract class WatchFaceService : WallpaperService() {
 
             allowWatchfaceToAnimate = false
             require(mutableWatchState.isHeadless)
-            mutableWatchState.watchFaceInstanceId.value = params.instanceId
+            mutableWatchState.watchFaceInstanceId.value = sanitizeWatchFaceId(params.instanceId)
             val watchState = mutableWatchState.asWatchState()
 
             createWatchFaceInternal(
@@ -1650,7 +1650,7 @@ public abstract class WatchFaceService : WallpaperService() {
             setWatchUiState(params.watchUiState)
             initialUserStyle = params.userStyle
 
-            mutableWatchState.watchFaceInstanceId.value = params.instanceId
+            mutableWatchState.watchFaceInstanceId.value = sanitizeWatchFaceId(params.instanceId)
             val watchState = mutableWatchState.asWatchState()
 
             // Store the initial complications, this could be modified by new data before being
@@ -2012,14 +2012,12 @@ public abstract class WatchFaceService : WallpaperService() {
             getUiThreadHandler().postDelayed(
                 {
                     pendingComplicationDataCacheWrite = false
-                    mutableWatchState.watchFaceInstanceId.value?.let { watchFaceInstanceId ->
-                        getWatchFaceImplOrNull()?.let { watchFaceImpl ->
-                            writeComplicationDataCache(
-                                _context,
-                                watchFaceImpl.complicationSlotsManager,
-                                watchFaceInstanceId
-                            )
-                        }
+                    getWatchFaceImplOrNull()?.let { watchFaceImpl ->
+                        writeComplicationDataCache(
+                            _context,
+                            watchFaceImpl.complicationSlotsManager,
+                            mutableWatchState.watchFaceInstanceId.value
+                        )
                     }
                 },
                 1000
@@ -2342,3 +2340,35 @@ internal fun <R> CoroutineScope.runBlockingWithTracing(
     latch.await()
     return r!!
 }
+
+/**
+ * If the instance ID for [MutableWatchState.watchFaceInstanceId] begin with this prefix, then the
+ * system sends consistent IDs for interactive, headless and editor sessions.
+ *
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+const val SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX = "wfId-"
+
+/**
+ * Instance ID to use when either there's no system id or it doesn't start with
+ * [SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX].
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+const val DEFAULT_INSTANCE_ID = "defaultInstance"
+
+/**
+ * This is needed to make the instance id consistent between Interactive, Headless and
+ * EditorSession for old versions of the system.
+ *
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+fun sanitizeWatchFaceId(instanceId: String?) =
+    if (instanceId == null || !instanceId.startsWith(SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX)
+    ) {
+        DEFAULT_INSTANCE_ID
+    } else {
+        instanceId
+    }
