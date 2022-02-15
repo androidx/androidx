@@ -54,7 +54,6 @@ public class PerfettoRule : TestRule {
         override fun evaluate() {
             PerfettoCaptureWrapper().record(
                 benchmarkName = "${description.className}_${description.methodName}",
-                unbundledPerfettoAvailable = false,
                 packages = listOf(InstrumentationRegistry.getInstrumentation().context.packageName)
             ) {
                 base.evaluate()
