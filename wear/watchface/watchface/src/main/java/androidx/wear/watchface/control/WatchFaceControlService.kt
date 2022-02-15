@@ -23,6 +23,7 @@ import android.content.Intent
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
@@ -118,6 +119,10 @@ public open class IWatchFaceInstanceServiceStub(
 ) : IWatchFaceControlService.Stub() {
     override fun getApiVersion(): Int = IWatchFaceControlService.API_VERSION
 
+    internal companion object {
+        const val TAG = "IWatchFaceInstanceServiceStub"
+    }
+
     override fun getInteractiveWatchFaceInstance(instanceId: String): IInteractiveWatchFace? =
         TraceEvent("IWatchFaceInstanceServiceStub.getInteractiveWatchFaceInstance").use {
             // This call is thread safe so we don't need to trampoline via the UI thread.
@@ -201,9 +206,23 @@ public open class IWatchFaceInstanceServiceStub(
         "IWatchFaceInstanceServiceStub.getDefaultProviderPolicies"
     ).use {
         createHeadlessEngine(params.watchFaceName, context)?.let { engine ->
-            val result = engine.getDefaultProviderPolicies()
-            engine.onDestroy()
-            result
+            try {
+                engine.getDefaultProviderPolicies()
+            } catch (e: Exception) {
+                Log.e(TAG, "getDefaultProviderPolicies failed due to exception", e)
+                throw e
+            } finally {
+                try {
+                    engine.onDestroy()
+                } catch (e: Exception) {
+                    Log.e(
+                        TAG,
+                        "WatchfaceService.EngineWrapper.onDestroy failed due to exception",
+                        e
+                    )
+                    throw e
+                }
+            }
         }
     }
 
@@ -213,9 +232,23 @@ public open class IWatchFaceInstanceServiceStub(
         "IWatchFaceInstanceServiceStub.getUserStyleSchema"
     ).use {
         createHeadlessEngine(params.watchFaceName, context)?.let { engine ->
-            val result = engine.getUserStyleSchemaWireFormat()
-            engine.onDestroy()
-            result
+            try {
+                engine.getUserStyleSchemaWireFormat()
+            } catch (e: Exception) {
+                Log.e(TAG, "getUserStyleSchema failed due to exception", e)
+                throw e
+            } finally {
+                try {
+                    engine.onDestroy()
+                } catch (e: Exception) {
+                    Log.e(
+                        TAG,
+                        "WatchfaceService.EngineWrapper.onDestroy failed due to exception",
+                        e
+                    )
+                    throw e
+                }
+            }
         }
     }
 
@@ -225,7 +258,13 @@ public open class IWatchFaceInstanceServiceStub(
         "IWatchFaceInstanceServiceStub.getComplicationSlotMetadata"
     ).use {
         createHeadlessEngine(params.watchFaceName, context)?.let { engine ->
-            val result = engine.getComplicationSlotMetadataWireFormats()
+            val result: Array<ComplicationSlotMetadataWireFormat>?
+            try {
+                result = engine.getComplicationSlotMetadataWireFormats()
+            } catch (e: Exception) {
+                Log.e(TAG, "getComplicationSlotMetadata failed due to exception", e)
+                throw e
+            }
             engine.onDestroy()
             result
         }
