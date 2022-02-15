@@ -50,8 +50,8 @@ abstract class FreeformTemplate : GlanceTemplate<FreeformTemplate.Data>() {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // TODO: Text block ordering
-                it.title?.let { title -> Title(title) }
-                it.subtitle?.let { subtitle -> Subtitle(subtitle) }
+                it.title?.let { title -> Title(title.text) }
+                it.subtitle?.let { subtitle -> Subtitle(subtitle.text) }
             }
             Action(it.actionIcon)
         }
@@ -65,8 +65,8 @@ abstract class FreeformTemplate : GlanceTemplate<FreeformTemplate.Data>() {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 TemplateHeader(it.headerIcon, it.header)
-                it.title?.let { title -> Title(title) }
-                it.subtitle?.let { subtitle -> Subtitle(subtitle) }
+                it.title?.let { title -> Title(title.text) }
+                it.subtitle?.let { subtitle -> Subtitle(subtitle.text) }
             }
             Action(it.actionIcon)
         }
@@ -80,8 +80,8 @@ abstract class FreeformTemplate : GlanceTemplate<FreeformTemplate.Data>() {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 TemplateHeader(it.headerIcon, it.header)
-                it.title?.let { title -> Title(title) }
-                it.subtitle?.let { subtitle -> Subtitle(subtitle) }
+                it.title?.let { title -> Title(title.text) }
+                it.subtitle?.let { subtitle -> Subtitle(subtitle.text) }
             }
             Action(it.actionIcon)
         }
@@ -138,17 +138,17 @@ abstract class FreeformTemplate : GlanceTemplate<FreeformTemplate.Data>() {
      * @param headerIcon Logo icon, displayed in the glanceable header
      * @param actionIcon Action icon button
      * @param header Main header text
-     * @param title Text section main title
-     * @param subtitle Text section subtitle
+     * @param title Text section main title, priority ordered
+     * @param subtitle Text section subtitle, priority ordered
      * @param backgroundImage Background image, if set replaces the glanceable background
      */
     class Data(
         val backgroundColor: ColorProvider,
         val headerIcon: TemplateImageWithDescription,
         val actionIcon: TemplateImageButton?,
-        val header: String? = null,
-        val title: String? = null,
-        val subtitle: String? = null,
+        val header: TemplateText? = null,
+        val title: TemplateText? = null,
+        val subtitle: TemplateText? = null,
         val backgroundImage: ImageProvider? = null,
     ) {
 

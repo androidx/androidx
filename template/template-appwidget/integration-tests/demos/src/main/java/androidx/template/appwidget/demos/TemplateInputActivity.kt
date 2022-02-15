@@ -71,6 +71,7 @@ import androidx.template.template.FreeformTemplate
 import androidx.template.template.GlanceTemplate
 import androidx.template.template.TemplateImageWithDescription
 import androidx.template.template.SingleEntityTemplate
+import androidx.template.template.TemplateText
 import androidx.template.template.TemplateTextButton
 import androidx.template.template.TemplateImageButton
 import kotlinx.coroutines.CoroutineScope
@@ -390,16 +391,13 @@ private fun createSingleEntityData(
     body: String,
     background: ColorProvider
 ) = SingleEntityTemplate.Data(
-    header = "Single Entity Example",
-    headerIcon = TemplateImageWithDescription(
-        ImageProvider(R.drawable.compose),
-        "Header icon"
-    ),
-    title = title,
-    subtitle = subtitle,
-    bodyText = body,
+    header = TemplateText("Template demo"),
+    headerIcon = TemplateImageWithDescription(ImageProvider(R.drawable.compose), "Header icon"),
+    title = TemplateText(title, 1),
+    subtitle = TemplateText(subtitle, 2),
+    body = TemplateText(body, 3),
     button = TemplateTextButton(actionRunCallback<TemplateButtonAction>(), "Apply"),
-    mainImage = TemplateImageWithDescription(ImageProvider(R.drawable.compose), "Compose image"),
+    image = TemplateImageWithDescription(ImageProvider(R.drawable.compose), "Compose image"),
     backgroundColor = background
 )
 
@@ -409,13 +407,10 @@ private fun createFreeformData(
     background: ColorProvider,
     backgroundImage: ImageProvider?
 ) = FreeformTemplate.Data(
-    header = "Freeform Example",
-    headerIcon = TemplateImageWithDescription(
-        ImageProvider(R.drawable.compose),
-        "Header icon"
-    ),
-    title = title,
-    subtitle = subtitle,
+    header = TemplateText("Freeform Example"),
+    headerIcon = TemplateImageWithDescription(ImageProvider(R.drawable.compose), "Header icon"),
+    title = TemplateText(title),
+    subtitle = TemplateText(subtitle),
     actionIcon = TemplateImageButton(
         actionRunCallback<TemplateButtonAction>(),
         TemplateImageWithDescription(ImageProvider(R.drawable.ic_favorite), "Apply")

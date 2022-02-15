@@ -31,7 +31,7 @@ public class TemplateTranslator {
         // TODO: pass in host context and get layout for display params, including surface type etc.
         val height = LocalSize.current.height
         val width = LocalSize.current.width
-        if (height < Dp(240f) && width < Dp(240f)) {
+        if (height <= Dp(240f) && width <= Dp(240f)) {
             template.WidgetLayoutCollapsed()
         } else if ((width / height) < (3.0 / 2.0)) {
             template.WidgetLayoutVertical()
