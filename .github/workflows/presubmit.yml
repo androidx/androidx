@@ -115,12 +115,12 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         # if you would like to remove some projects temporarily, use .github/ci-control/ci-config.json instead.
-        project: ["activity", "biometric", "compose-runtime", "datastore", "fragment", "lifecycle", "navigation", "paging", "room", "work"]
+        project: ["activity", "biometric", "collection", "compose-runtime", "datastore", "fragment", "lifecycle", "navigation", "paging", "room", "work"]
         include:
           - project: "compose-runtime"
             project-root: "compose/runtime"
-          - project: "navigation"
-            custom-os: "macos-latest" # run one of them on a mac to ensure mac setup works
+          - project: "collection"
+            custom-os: "macos-latest"
     runs-on: ${{ matrix.custom-os || matrix.os }}
     needs: [setup, lint]
     env:
