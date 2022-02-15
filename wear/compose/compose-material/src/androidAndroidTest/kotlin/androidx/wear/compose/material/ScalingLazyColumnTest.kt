@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.material
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -73,6 +74,110 @@ public class ScalingLazyColumnTest {
         with(rule.density) {
             itemSizeDp = itemSizePx.toDp()
             defaultItemSpacingPx = defaultItemSpacingDp.roundToPx()
+        }
+    }
+
+    @Test
+    fun autoCenteringCorrectSizeWithCenterAnchor() {
+        lateinit var state: ScalingLazyListState
+        val listSize = itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
+        rule.setContent {
+            WithTouchSlop(0f) {
+                ScalingLazyColumn(
+                    state = rememberScalingLazyListState().also { state = it },
+                    modifier = Modifier.testTag(TEST_TAG).requiredSize(listSize),
+                    anchorType = ScalingLazyListAnchorType.ItemCenter,
+                    autoCentering = true,
+                    verticalArrangement = Arrangement.spacedBy(0.dp),
+                    scalingParams = ScalingLazyColumnDefaults.scalingParams(
+                        edgeScale = 0f,
+                        minTransitionArea = 0.5f,
+                        maxTransitionArea = 0.5f
+                    )
+                ) {
+                    items(5) {
+                        Box(Modifier.requiredSize(itemSizeDp))
+                    }
+                }
+            }
+        }
+        // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
+        rule.waitUntil { state.initialized.value }
+        rule.waitForIdle()
+
+        val listSizePx = with(rule.density) {
+            listSize.roundToPx()
+        }
+
+        rule.runOnIdle {
+            // Make sure that the edge items have been scaled
+            assertThat(state.layoutInfo.visibleItemsInfo.first().scale).isLessThan(1.0f)
+            // But that size of the Spacer is as expected
+            assertThat(state.lazyListState.layoutInfo.visibleItemsInfo.first().size)
+                .isEqualTo(((listSizePx / 2f) - (itemSizePx / 2f)).roundToInt())
+        }
+        rule.onNodeWithTag(TEST_TAG).performTouchInput {
+            swipeUp()
+        }
+        rule.runOnIdle {
+            // Check that the last item has been scrolled into view
+            assertThat(state.lazyListState.layoutInfo.visibleItemsInfo.last().index)
+                .isEqualTo(state.lazyListState.layoutInfo.totalItemsCount - 1)
+            // And that size of the Spacer is as expected
+            assertThat(state.lazyListState.layoutInfo.visibleItemsInfo.last().size)
+                .isEqualTo(((listSizePx / 2f) - (itemSizePx / 2f)).roundToInt())
+        }
+    }
+
+    @Test
+    fun autoCenteringCorrectSizeWithStartAnchor() {
+        lateinit var state: ScalingLazyListState
+        val listSize = itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
+        rule.setContent {
+            WithTouchSlop(0f) {
+                ScalingLazyColumn(
+                    state = rememberScalingLazyListState().also { state = it },
+                    modifier = Modifier.testTag(TEST_TAG).requiredSize(listSize),
+                    anchorType = ScalingLazyListAnchorType.ItemStart,
+                    autoCentering = true,
+                    verticalArrangement = Arrangement.spacedBy(0.dp),
+                    scalingParams = ScalingLazyColumnDefaults.scalingParams(
+                        edgeScale = 0f,
+                        minTransitionArea = 0.5f,
+                        maxTransitionArea = 0.5f
+                    )
+                ) {
+                    items(5) {
+                        Box(Modifier.requiredSize(itemSizeDp))
+                    }
+                }
+            }
+        }
+        // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
+        rule.waitUntil { state.initialized.value }
+        rule.waitForIdle()
+
+        val listSizePx = with(rule.density) {
+            listSize.roundToPx()
+        }
+
+        rule.runOnIdle {
+            // Make sure that the edge items have been scaled
+            assertThat(state.layoutInfo.visibleItemsInfo.first().scale).isLessThan(1.0f)
+            // But that size of the Spacer is as expected
+            assertThat(state.lazyListState.layoutInfo.visibleItemsInfo.first().size)
+                .isEqualTo((listSizePx / 2f).roundToInt())
+        }
+        rule.onNodeWithTag(TEST_TAG).performTouchInput {
+            swipeUp(endY = top)
+        }
+        rule.runOnIdle {
+            // Check that the last item has been scrolled into view
+            assertThat(state.lazyListState.layoutInfo.visibleItemsInfo.last().index)
+                .isEqualTo(state.lazyListState.layoutInfo.totalItemsCount - 1)
+            // And that size of the Spacer is as expected
+            assertThat(state.lazyListState.layoutInfo.visibleItemsInfo.last().size)
+                .isEqualTo(((listSizePx / 2f) - itemSizePx).roundToInt())
         }
     }
 
