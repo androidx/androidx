@@ -2,6 +2,7 @@
     <string name="app_name">Glance Wear Tiles Demo</string>
     <string name="hello_tile_name">Hello Tile</string>
     <string name="calendar_tile_name">Calendar Tile</string>
+    <string name="count_tile_name">Count Tile</string>
     <string name="tiles_preview_name">Tiles Preview</string>
     <string name="calendar_activity_name">Calendar Activity</string>
     <string name="hello_tile_greeting">Hello Tile</string>
