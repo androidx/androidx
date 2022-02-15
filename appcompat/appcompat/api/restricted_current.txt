@@ -331,11 +331,11 @@ package androidx.appcompat.app {
   @IntDef({androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO, androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES, androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_AUTO_TIME, androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM, androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_UNSPECIFIED, androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface AppCompatDelegate.NightMode {
   }
 
-  public class AppCompatDialog extends android.app.Dialog implements androidx.appcompat.app.AppCompatCallback {
-    ctor public AppCompatDialog(android.content.Context!);
-    ctor public AppCompatDialog(android.content.Context!, int);
-    ctor protected AppCompatDialog(android.content.Context!, boolean, android.content.DialogInterface.OnCancelListener!);
-    method public androidx.appcompat.app.AppCompatDelegate! getDelegate();
+  public class AppCompatDialog extends androidx.activity.ComponentDialog implements androidx.appcompat.app.AppCompatCallback {
+    ctor public AppCompatDialog(android.content.Context);
+    ctor public AppCompatDialog(android.content.Context, int);
+    ctor protected AppCompatDialog(android.content.Context, boolean, android.content.DialogInterface.OnCancelListener?);
+    method public androidx.appcompat.app.AppCompatDelegate getDelegate();
     method public androidx.appcompat.app.ActionBar! getSupportActionBar();
     method public void onSupportActionModeFinished(androidx.appcompat.view.ActionMode!);
     method public void onSupportActionModeStarted(androidx.appcompat.view.ActionMode!);
