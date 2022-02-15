@@ -73,6 +73,11 @@ val forceExternal = setOf(
 // add our requested dependency passed it through the gradle property -PartifactNames="foo:bar:1.0"
 plugins {
     java
+    alias(libs.plugins.kotlinMp)
+}
+
+kotlin {
+       linuxX64()
 }
 
 val metalavaBuildId: String? = findProperty("metalavaBuildId") as String?
@@ -151,6 +156,17 @@ val javaApiConfiguration: Configuration by configurations.creating {
         )
         attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.JAVA_API))
 
+    }
+    extendsFrom(configurations.runtimeClasspath.get())
+}
+
+/**
+ * Configuration used to fetch the requested dependency's Kotlin API dependencies.
+ * (klib, etc)
+ */
+val kotlinApiConfiguration: Configuration by configurations.creating {
+    attributes {
+        attribute(Usage.USAGE_ATTRIBUTE, objects.named("kotlin-api"))
     }
     extendsFrom(configurations.runtimeClasspath.get())
 }
@@ -497,6 +513,18 @@ tasks.register("fetchArtifacts") {
             copyArtifact(it, internal = isInternalArtifact(it))
             numArtifactsFound++
         }
+
+        // catch any artifacts that are needed to resolve this as a non-JVM
+        // Kotlin dependency
+        kotlinApiConfiguration.incoming.artifactView {
+            // We need to be lenient because we are requesting files that might not exist.
+            lenient(true)
+        }.artifacts.forEach {
+            if (copiedArtifacts.contains(it.file)) return@forEach
+            copyArtifact(it, internal = isInternalArtifact(it))
+            numArtifactsFound++
+        }
+
         if (numArtifactsFound < 1) {
             var message = "Artifact(s) ${artifactNames.joinToString { it }} not found!"
             if (metalavaBuildId != null) {
