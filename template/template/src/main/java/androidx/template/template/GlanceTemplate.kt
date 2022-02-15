@@ -19,6 +19,18 @@ package androidx.template.template
 import androidx.compose.runtime.Composable
 import androidx.glance.ImageProvider
 import androidx.glance.action.Action
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.glance.GlanceModifier
+import androidx.glance.Image
+import androidx.glance.layout.Alignment
+import androidx.glance.layout.Row
+import androidx.glance.layout.Spacer
+import androidx.glance.layout.fillMaxWidth
+import androidx.glance.layout.height
+import androidx.glance.layout.width
+import androidx.glance.text.Text
+import androidx.glance.text.TextStyle
 
 /** Transforms semantic data into a composable layout for any glanceable */
 abstract class GlanceTemplate<T> {
@@ -26,16 +38,19 @@ abstract class GlanceTemplate<T> {
     /** Defines the data associated with this template */
     abstract fun getData(state: Any?): T
 
+    /** Default layout implementation for AppWidget glanceable, at "collapsed" display size. */
     @Composable
     abstract fun WidgetLayoutCollapsed()
 
+    /** Default layout implementation for AppWidget glanceable, vertical orientation. */
     @Composable
     abstract fun WidgetLayoutVertical()
 
+    /** Default layout implementation for AppWidget glanceable, horizontal orientation. */
     @Composable
     abstract fun WidgetLayoutHorizontal()
 
-    // TODO: templates include layouts for every supported size and surface type
+    // TODO: include layouts for every supported size and surface type
 }
 
 /**
@@ -112,5 +127,38 @@ class TemplateImageButton(
         if (!super.equals(other)) return false
 
         return image == (other as TemplateImageButton).image
+    }
+}
+
+/**
+ * Default glanceable header layout implementation, usually displayed at the top of the
+ * glanceable in default layout implementations.
+ *
+ * @param headerIcon glanceable main logo icon
+ * @param header main header text
+ */
+@Composable
+internal fun TemplateHeader(
+    headerIcon: TemplateImageWithDescription,
+    header: String? = null
+) {
+    Row(
+        modifier = GlanceModifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Image(
+            provider = headerIcon.image,
+            contentDescription = headerIcon.description,
+            modifier = GlanceModifier.height(24.dp).width(24.dp)
+        )
+        header?.let {
+            Spacer(modifier = GlanceModifier.width(8.dp))
+            // TODO: Text color customization
+            Text(
+                text = header,
+                style = TextStyle(fontSize = 20.sp),
+                maxLines = 1
+            )
+        }
     }
 }
