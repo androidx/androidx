@@ -183,8 +183,8 @@ public final class CancellationSignal {
         }
 
         @DoNotInline
-        static CancellationSignal createCancellationSignal() {
-            return new CancellationSignal();
+        static android.os.CancellationSignal createCancellationSignal() {
+            return new android.os.CancellationSignal();
         }
     }
 }
