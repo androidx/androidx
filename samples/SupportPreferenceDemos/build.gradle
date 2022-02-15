@@ -9,6 +9,7 @@ dependencies {
     implementation("androidx.core:core-ktx:1.5.0")
     implementation(project(":appcompat:appcompat"))
     implementation(project(":preference:preference"))
+    implementation(project(":lifecycle:lifecycle-viewmodel-ktx"))
     implementation(project(":preference:preference-ktx"))
     implementation(project(":recyclerview:recyclerview"))
     implementation(project(":leanback:leanback"))

@@ -303,11 +303,11 @@ package androidx.appcompat.app {
     field public static final int MODE_NIGHT_YES = 2; // 0x2
   }
 
-  public class AppCompatDialog extends android.app.Dialog implements androidx.appcompat.app.AppCompatCallback {
-    ctor public AppCompatDialog(android.content.Context!);
-    ctor public AppCompatDialog(android.content.Context!, int);
-    ctor protected AppCompatDialog(android.content.Context!, boolean, android.content.DialogInterface.OnCancelListener!);
-    method public androidx.appcompat.app.AppCompatDelegate! getDelegate();
+  public class AppCompatDialog extends androidx.activity.ComponentDialog implements androidx.appcompat.app.AppCompatCallback {
+    ctor public AppCompatDialog(android.content.Context);
+    ctor public AppCompatDialog(android.content.Context, int);
+    ctor protected AppCompatDialog(android.content.Context, boolean, android.content.DialogInterface.OnCancelListener?);
+    method public androidx.appcompat.app.AppCompatDelegate getDelegate();
     method public androidx.appcompat.app.ActionBar! getSupportActionBar();
     method public void onSupportActionModeFinished(androidx.appcompat.view.ActionMode!);
     method public void onSupportActionModeStarted(androidx.appcompat.view.ActionMode!);
