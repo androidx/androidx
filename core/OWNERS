@@ -17,3 +17,6 @@ siyamed@google.com
 # For shortcut related files
 sunnygoyal@google.com
 pinyaoting@google.com
+
+# Per-file for platform ownership
+per-file src/main/java/androidx/core/content/FileProvider.java = corinac@google.com
