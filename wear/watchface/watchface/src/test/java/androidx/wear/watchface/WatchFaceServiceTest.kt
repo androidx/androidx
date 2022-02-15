@@ -126,6 +126,7 @@ private const val LEFT_COMPLICATION = "LEFT_COMPLICATION"
 private const val RIGHT_COMPLICATION = "RIGHT_COMPLICATION"
 private const val LEFT_AND_RIGHT_COMPLICATIONS = "LEFT_AND_RIGHT_COMPLICATIONS"
 private const val RIGHT_AND_LEFT_COMPLICATIONS = "RIGHT_AND_LEFT_COMPLICATIONS"
+private const val INTERACTIVE_INSTANCE_ID = SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive"
 
 internal enum class Priority {
     Unset,
@@ -1400,7 +1401,7 @@ public class WatchFaceServiceTest {
             emptyList(),
             UserStyleSchema(listOf(colorStyleSetting, watchHandStyleSetting)),
             WallpaperInteractiveWatchFaceInstanceParams(
-                "interactiveInstanceId",
+                INTERACTIVE_INSTANCE_ID,
                 DeviceConfig(
                     false,
                     false,
@@ -1436,7 +1437,7 @@ public class WatchFaceServiceTest {
             emptyList(),
             UserStyleSchema(listOf(colorStyleSetting, watchHandStyleSetting)),
             WallpaperInteractiveWatchFaceInstanceParams(
-                "interactiveInstanceId",
+                INTERACTIVE_INSTANCE_ID,
                 DeviceConfig(
                     false,
                     false,
@@ -1490,7 +1491,7 @@ public class WatchFaceServiceTest {
             emptyList(),
             UserStyleSchema(listOf(colorStyleSetting, watchHandStyleSetting)),
             WallpaperInteractiveWatchFaceInstanceParams(
-                "interactiveInstanceId",
+                INTERACTIVE_INSTANCE_ID,
                 DeviceConfig(
                     true,
                     false,
@@ -1505,7 +1506,25 @@ public class WatchFaceServiceTest {
 
         assertTrue(watchState.hasLowBitAmbient)
         assertFalse(watchState.hasBurnInProtection)
-        assertThat(watchState.watchFaceInstanceId.value).isEqualTo("interactiveInstanceId")
+        assertThat(watchState.watchFaceInstanceId.value).isEqualTo(INTERACTIVE_INSTANCE_ID)
+    }
+
+    @Test
+    public fun invalidOldStyleIdReplacedWithDefault() {
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            emptyList(),
+            UserStyleSchema(listOf(colorStyleSetting, watchHandStyleSetting)),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                "instance-1",
+                DeviceConfig(true, false, 0, 0),
+                WatchUiState(false, 0),
+                UserStyle(mapOf(watchHandStyleSetting to badStyleOption)).toWireFormat(),
+                null
+            )
+        )
+
+        assertThat(watchState.watchFaceInstanceId.value).isEqualTo(DEFAULT_INSTANCE_ID)
     }
 
     @Test
@@ -1900,7 +1919,7 @@ public class WatchFaceServiceTest {
     @Test
     public fun previewReferenceTimeMillisAnalog() {
         val instanceParams = WallpaperInteractiveWatchFaceInstanceParams(
-            "interactiveInstanceId",
+            INTERACTIVE_INSTANCE_ID,
             DeviceConfig(
                 false,
                 false,
@@ -1930,7 +1949,7 @@ public class WatchFaceServiceTest {
     @Test
     public fun previewReferenceTimeMillisDigital() {
         val instanceParams = WallpaperInteractiveWatchFaceInstanceParams(
-            "interactiveInstanceId",
+            INTERACTIVE_INSTANCE_ID,
             DeviceConfig(
                 false,
                 false,
@@ -2298,7 +2317,7 @@ public class WatchFaceServiceTest {
             listOf(leftComplication, rightComplication),
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
-                "interactiveInstanceId",
+                INTERACTIVE_INSTANCE_ID,
                 DeviceConfig(
                     false,
                     false,
@@ -2355,7 +2374,7 @@ public class WatchFaceServiceTest {
     public fun complicationCache() {
         val complicationCache = HashMap<String, ByteArray>()
         val instanceParams = WallpaperInteractiveWatchFaceInstanceParams(
-            "interactiveInstanceId",
+            INTERACTIVE_INSTANCE_ID,
             DeviceConfig(false, false, 0, 0),
             WatchUiState(false, 0),
             UserStyle(emptyMap()).toWireFormat(),
@@ -2400,7 +2419,7 @@ public class WatchFaceServiceTest {
         // Complication cache writes are deferred for 1s to try and batch up multiple updates.
         runPostedTasksFor(1000)
         assertThat(complicationCache.size).isEqualTo(1)
-        assertThat(complicationCache).containsKey("interactiveInstanceId")
+        assertThat(complicationCache).containsKey(INTERACTIVE_INSTANCE_ID)
 
         engineWrapper.onDestroy()
 
@@ -2480,7 +2499,7 @@ public class WatchFaceServiceTest {
     public fun complicationCache_timeline() {
         val complicationCache = HashMap<String, ByteArray>()
         val instanceParams = WallpaperInteractiveWatchFaceInstanceParams(
-            "interactiveInstanceId",
+            INTERACTIVE_INSTANCE_ID,
             DeviceConfig(false, false, 0, 0),
             WatchUiState(false, 0),
             UserStyle(emptyMap()).toWireFormat(),
@@ -2516,7 +2535,7 @@ public class WatchFaceServiceTest {
         // Complication cache writes are deferred for 1s to try and batch up multiple updates.
         runPostedTasksFor(1000)
         assertThat(complicationCache.size).isEqualTo(1)
-        assertThat(complicationCache).containsKey("interactiveInstanceId")
+        assertThat(complicationCache).containsKey(INTERACTIVE_INSTANCE_ID)
 
         engineWrapper.onDestroy()
 
@@ -2690,7 +2709,7 @@ public class WatchFaceServiceTest {
             listOf(leftComplication),
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
-                "interactiveInstanceId",
+                INTERACTIVE_INSTANCE_ID,
                 DeviceConfig(
                     false,
                     false,
@@ -2756,7 +2775,7 @@ public class WatchFaceServiceTest {
             listOf(leftComplication),
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
-                "interactiveInstanceId",
+                INTERACTIVE_INSTANCE_ID,
                 DeviceConfig(
                     false,
                     false,
@@ -2802,7 +2821,7 @@ public class WatchFaceServiceTest {
             emptyList(),
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
-                "interactiveInstanceId",
+                INTERACTIVE_INSTANCE_ID,
                 DeviceConfig(
                     false,
                     false,
@@ -2828,7 +2847,7 @@ public class WatchFaceServiceTest {
             emptyList(),
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
-                "interactiveInstanceId",
+                INTERACTIVE_INSTANCE_ID,
                 DeviceConfig(
                     false,
                     false,
@@ -2862,7 +2881,7 @@ public class WatchFaceServiceTest {
             emptyList(),
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
-                "interactiveInstanceId",
+                INTERACTIVE_INSTANCE_ID,
                 DeviceConfig(
                     false,
                     false,
@@ -2948,7 +2967,7 @@ public class WatchFaceServiceTest {
             emptyList(),
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
-                "interactiveInstanceId",
+                INTERACTIVE_INSTANCE_ID,
                 DeviceConfig(
                     false,
                     false,
@@ -2992,7 +3011,7 @@ public class WatchFaceServiceTest {
             emptyList(),
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
-                "interactiveInstanceId",
+                INTERACTIVE_INSTANCE_ID,
                 DeviceConfig(
                     false,
                     false,
@@ -3024,7 +3043,7 @@ public class WatchFaceServiceTest {
 
     @Test
     public fun onDestroy_clearsInstanceRecord() {
-        val instanceId = "interactiveInstanceId"
+        val instanceId = INTERACTIVE_INSTANCE_ID
         initWallpaperInteractiveWatchFaceInstance(
             WatchFaceType.ANALOG,
             emptyList(),
@@ -3075,7 +3094,7 @@ public class WatchFaceServiceTest {
 
     @Test
     public fun sendComplicationWallpaperCommandIgnoredPostRFlow() {
-        val instanceId = "interactiveInstanceId"
+        val instanceId = INTERACTIVE_INSTANCE_ID
         initWallpaperInteractiveWatchFaceInstance(
             WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
@@ -3221,7 +3240,7 @@ public class WatchFaceServiceTest {
 
     @Test
     public fun firstOnVisibilityChangedIgnoredPostRFlow() {
-        val instanceId = "interactiveInstanceId"
+        val instanceId = INTERACTIVE_INSTANCE_ID
         initWallpaperInteractiveWatchFaceInstance(
             WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
@@ -3306,7 +3325,7 @@ public class WatchFaceServiceTest {
             listOf(leftComplication, rightComplication),
             UserStyleSchema(listOf(complicationsStyleSetting)),
             WallpaperInteractiveWatchFaceInstanceParams(
-                "interactiveInstanceId",
+                INTERACTIVE_INSTANCE_ID,
                 DeviceConfig(
                     false,
                     false,
@@ -3599,7 +3618,7 @@ public class WatchFaceServiceTest {
                 emptyList(),
                 UserStyleSchema(listOf(settingWithTooLargeIcon, watchHandStyleSetting)),
                 WallpaperInteractiveWatchFaceInstanceParams(
-                    "interactiveInstanceId",
+                    INTERACTIVE_INSTANCE_ID,
                     DeviceConfig(
                         false,
                         false,
@@ -3649,7 +3668,7 @@ public class WatchFaceServiceTest {
                 emptyList(),
                 UserStyleSchema(listOf(tooLargeList, watchHandStyleSetting)),
                 WallpaperInteractiveWatchFaceInstanceParams(
-                    "interactiveInstanceId",
+                    INTERACTIVE_INSTANCE_ID,
                     DeviceConfig(
                         false,
                         false,
@@ -4259,7 +4278,7 @@ public class WatchFaceServiceTest {
             emptyList(),
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
-                "interactiveInstanceId",
+                INTERACTIVE_INSTANCE_ID,
                 DeviceConfig(
                     false,
                     false,

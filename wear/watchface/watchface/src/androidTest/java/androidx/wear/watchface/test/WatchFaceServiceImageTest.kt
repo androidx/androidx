@@ -50,6 +50,7 @@ import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.MutableWatchState
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.Renderer
+import androidx.wear.watchface.SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX
 import androidx.wear.watchface.TapEvent
 import androidx.wear.watchface.TapType
 import androidx.wear.watchface.WatchFace
@@ -96,7 +97,7 @@ private const val BITMAP_WIDTH = 400
 private const val BITMAP_HEIGHT = 400
 private const val TIMEOUT_MS = 800L
 
-private const val INTERACTIVE_INSTANCE_ID = "InteractiveTestInstance"
+private const val INTERACTIVE_INSTANCE_ID = SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive"
 
 // Activity for testing complication taps.
 public class ComplicationTapActivity : Activity() {
@@ -572,15 +573,17 @@ public class WatchFaceServiceImageTest {
         }
         assertThat(initLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
 
+        val newId = SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "newId"
+
         // Note this will clear complicationSlots.
         interactiveWatchFaceInstance.updateWatchfaceInstance(
-            "newId",
+            newId,
             UserStyleWireFormat(mapOf(COLOR_STYLE_SETTING to GREEN_STYLE.encodeToByteArray()))
         )
         sendComplications()
 
         handler.post {
-            assertThat(engineWrapper.mutableWatchState.watchFaceInstanceId.value).isEqualTo("newId")
+            assertThat(engineWrapper.mutableWatchState.watchFaceInstanceId.value).isEqualTo(newId)
             engineWrapper.draw()
         }
 

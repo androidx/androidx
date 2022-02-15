@@ -46,7 +46,7 @@ package androidx.wear.watchface.editor {
     method public kotlinx.coroutines.flow.MutableStateFlow<androidx.wear.watchface.style.UserStyle> getUserStyle();
     method public androidx.wear.watchface.style.UserStyleSchema getUserStyleSchema();
     method public android.content.ComponentName getWatchFaceComponentName();
-    method @RequiresApi(android.os.Build.VERSION_CODES.R) public androidx.wear.watchface.client.WatchFaceId getWatchFaceId();
+    method public androidx.wear.watchface.client.WatchFaceId getWatchFaceId();
     method @UiThread public boolean isCommitChangesOnClose();
     method @UiThread public suspend Object? openComplicationDataSourceChooser(int complicationSlotId, kotlin.coroutines.Continuation<? super androidx.wear.watchface.editor.ChosenComplicationDataSource> p);
     method @UiThread public android.graphics.Bitmap renderWatchFaceToBitmap(androidx.wear.watchface.RenderParameters renderParameters, java.time.Instant instant, java.util.Map<java.lang.Integer,? extends androidx.wear.watchface.complications.data.ComplicationData>? slotIdToComplicationData);
@@ -60,7 +60,7 @@ package androidx.wear.watchface.editor {
     property public abstract kotlinx.coroutines.flow.MutableStateFlow<androidx.wear.watchface.style.UserStyle> userStyle;
     property public abstract androidx.wear.watchface.style.UserStyleSchema userStyleSchema;
     property public abstract android.content.ComponentName watchFaceComponentName;
-    property @RequiresApi(android.os.Build.VERSION_CODES.R) public abstract androidx.wear.watchface.client.WatchFaceId watchFaceId;
+    property public abstract androidx.wear.watchface.client.WatchFaceId watchFaceId;
     field public static final androidx.wear.watchface.editor.EditorSession.Companion Companion;
     field public static final java.time.Instant DEFAULT_PREVIEW_INSTANT;
     field public static final java.time.Duration EDITING_SESSION_TIMEOUT;

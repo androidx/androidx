@@ -34,6 +34,7 @@ import androidx.wear.watchface.client.WatchFaceControlClient
 import androidx.wear.watchface.client.WatchFaceId
 import androidx.wear.watchface.client.asApiDeviceConfig
 import androidx.wear.watchface.data.RenderParametersWireFormat
+import androidx.wear.watchface.sanitizeWatchFaceId
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleData
 import kotlinx.coroutines.TimeoutCancellationException
@@ -155,7 +156,7 @@ public class EditorRequest @RequiresApi(Build.VERSION_CODES.R) constructor(
                     }
                 )
             },
-            watchFaceId = WatchFaceId(intent.getStringExtra(INSTANCE_ID_KEY) ?: ""),
+            watchFaceId = WatchFaceId(sanitizeWatchFaceId(intent.getStringExtra(INSTANCE_ID_KEY))),
             headlessDeviceConfig = intent.getParcelableExtra<WireDeviceConfig>(
                 HEADLESS_DEVICE_CONFIG_KEY
             )?.asApiDeviceConfig(),
