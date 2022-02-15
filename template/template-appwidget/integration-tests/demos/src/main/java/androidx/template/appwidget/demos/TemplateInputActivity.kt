@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
+import androidx.compose.material.Checkbox
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.MaterialTheme
@@ -41,12 +42,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -63,10 +67,12 @@ import androidx.glance.state.GlanceStateDefinition
 import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.glance.unit.ColorProvider
 import androidx.template.appwidget.GlanceTemplateAppWidget
+import androidx.template.template.FreeformTemplate
 import androidx.template.template.GlanceTemplate
 import androidx.template.template.TemplateImageWithDescription
 import androidx.template.template.SingleEntityTemplate
 import androidx.template.template.TemplateTextButton
+import androidx.template.template.TemplateImageButton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
@@ -83,11 +89,16 @@ class TemplateInputActivity : ComponentActivity() {
         setContent {
             val context: Context = this@TemplateInputActivity
             var expanded by remember { mutableStateOf(false) }
+            var template by remember { mutableStateOf(Templates.SingleEntity) }
 
             Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
                 // Template selection
-                Row(modifier = Modifier.fillMaxWidth().wrapContentHeight()) {
-                    Button(onClick = { expanded = true }) { Text("Select template to edit") }
+                Row(
+                    modifier = Modifier.fillMaxWidth().wrapContentHeight(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(template.label, fontSize = 20.sp, modifier = Modifier.width(250.dp))
+                    Button(onClick = { expanded = true }) { Text("Select template") }
                     DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                         DropdownMenuItem(onClick = {
                             CoroutineScope(SupervisorJob()).launch {
@@ -97,24 +108,38 @@ class TemplateInputActivity : ComponentActivity() {
                                         this[TemplateKey] = Templates.SingleEntity.ordinal
                                     }
                                 }
+                                template = Templates.SingleEntity
                                 expanded = false
                             }
-                        }) { Text("SingleEntityTemplate") }
+                        }) { Text(Templates.SingleEntity.label) }
+                        DropdownMenuItem(onClick = {
+                            CoroutineScope(SupervisorJob()).launch {
+                                // Save template selection to app datastore
+                                GlanceState.updateValue(context, state, appFileKey()) { prefs ->
+                                    prefs.toMutablePreferences().apply {
+                                        this[TemplateKey] = Templates.Freeform.ordinal
+                                    }
+                                }
+                                template = Templates.Freeform
+                                expanded = false
+                            }
+                        }) { Text(Templates.Freeform.label) }
                     }
                 }
                 // TODO: set activity content based on selected template
-                SingleEntityContent()
+                FormContent(template)
             }
         }
     }
 
     @Composable
-    fun SingleEntityContent() {
+    private fun FormContent(template: Templates) {
         val context: Context = this@TemplateInputActivity
         var titleText by remember { mutableStateOf(TextFieldValue(DEFAULT_TITLE)) }
         var subtitleText by remember { mutableStateOf(TextFieldValue()) }
         var bodyText by remember { mutableStateOf(TextFieldValue()) }
         var colorText by remember { mutableStateOf(TextFieldValue(DEFAULT_BACKGROUND)) }
+        var checked by remember { mutableStateOf(false) }
 
         Column(modifier = Modifier.wrapContentHeight().fillMaxWidth()) {
             // Data input
@@ -156,6 +181,7 @@ class TemplateInputActivity : ComponentActivity() {
             Row {
                 TextField(
                     value = colorText,
+                    enabled = !checked,
                     singleLine = true,
                     placeholder = { Text(DEFAULT_BACKGROUND) },
                     onValueChange = { colorText = it },
@@ -182,6 +208,22 @@ class TemplateInputActivity : ComponentActivity() {
                 }
             }
 
+            // TODO: Will need to split into separate forms when more templates are added
+            if (template == Templates.Freeform) {
+                Row {
+                    Text("Use sample image background")
+                    Checkbox(
+                        modifier = Modifier.padding(start = 16.dp),
+                        checked = checked,
+                        onCheckedChange = {
+                            checked = !checked
+                        }
+                    )
+                }
+            } else {
+                checked = false
+            }
+
             Row(modifier = Modifier.padding(top = 8.dp)) {
                 Button(
                     modifier = Modifier.width(100.dp),
@@ -203,7 +245,8 @@ class TemplateInputActivity : ComponentActivity() {
                             TitleKey to titleText.text,
                             SubtitleKey to subtitleText.text,
                             BodyKey to bodyText.text,
-                            BackgroundKey to colorText.text.toLong(16)
+                            BackgroundKey to colorText.text.toLong(16),
+                            BackgroundImageKey to checked
                         )
                     }
                 ) { Text("Submit") }
@@ -253,7 +296,7 @@ class TemplateInputActivity : ComponentActivity() {
     }
 }
 
-class SingleEntityInputWidgetTemplate : SingleEntityTemplate() {
+object SingleEntityInputWidgetTemplate : SingleEntityTemplate() {
     override fun getData(state: Any?): Data {
         require(state is Preferences)
         val title = state[TitleKey] ?: DEFAULT_TITLE
@@ -261,7 +304,23 @@ class SingleEntityInputWidgetTemplate : SingleEntityTemplate() {
         val body = state[BodyKey] ?: ""
         val background = state[BackgroundKey]?.let { ColorProvider(Color(it)) }
             ?: ColorProvider(R.color.default_widget_background)
-        return createData(title, subtitle, body, background)
+        return createSingleEntityData(title, subtitle, body, background)
+    }
+}
+
+object FreeformInputWidgetTemplate : FreeformTemplate() {
+    override fun getData(state: Any?): Data {
+        require(state is Preferences)
+        val backgroundImage = if (state[BackgroundImageKey] == true) {
+            ImageProvider(R.drawable.compose)
+        } else {
+            null
+        }
+        val title = state[TitleKey] ?: DEFAULT_TITLE
+        val subtitle = state[SubtitleKey] ?: ""
+        val background = state[BackgroundKey]?.let { ColorProvider(Color(it)) }
+            ?: ColorProvider(R.color.default_widget_background)
+        return createFreeformData(title, subtitle, background, backgroundImage)
     }
 }
 
@@ -274,36 +333,28 @@ class TemplateInputWidgetReceiver : GlanceAppWidgetReceiver() {
 class TemplateButtonAction : ActionCallback {
     override suspend fun onRun(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
         // Fetch the template and values from the app datastore and apply to the widget
-        val appPrefs = GlanceState.getValue(context, state, appFileKey())
-        val templateIndex = appPrefs[TemplateKey] ?: 0
+        val templateIndex = GlanceState.getValue(context, state, appFileKey())[TemplateKey] ?: 0
         template = getTemplate(Templates.values()[templateIndex])
 
-        updateAppWidgetState(context, glanceId) { widgetPrefs ->
-            widgetPrefs.putAll(
-                TitleKey to (appPrefs[TitleKey] ?: DEFAULT_TITLE),
-                BackgroundKey to
-                    (appPrefs[BackgroundKey] ?: DEFAULT_BACKGROUND.toLong(radix = 16))
+        val title = GlanceState.getValue(context, state, appFileKey())[TitleKey] ?: DEFAULT_TITLE
+        val subtitle = GlanceState.getValue(context, state, appFileKey())[SubtitleKey] ?: ""
+        val body = GlanceState.getValue(context, state, appFileKey())[BodyKey] ?: ""
+        val background = GlanceState.getValue(context, state, appFileKey())[BackgroundKey]
+            ?: DEFAULT_BACKGROUND.toLong(16)
+        val backgroundImage = GlanceState.getValue(context, state, appFileKey())[BackgroundImageKey]
+            ?: false
+
+        updateAppWidgetState(context, glanceId) { prefs ->
+            prefs.putAll(
+                TitleKey to title,
+                SubtitleKey to subtitle,
+                BodyKey to body,
+                BackgroundKey to background,
+                BackgroundImageKey to backgroundImage
             )
-            val subtitleText = appPrefs[SubtitleKey]
-            if (subtitleText == null) {
-                widgetPrefs.minusAssign(SubtitleKey)
-            } else {
-                widgetPrefs[SubtitleKey] = subtitleText
-            }
-            val bodyText = appPrefs[BodyKey]
-            if (bodyText == null) {
-                widgetPrefs.minusAssign(BodyKey)
-            } else {
-                widgetPrefs[BodyKey] = bodyText
-            }
         }
         SingleEntityTemplateWidget().update(context, glanceId)
     }
-}
-
-// TODO: Add templates
-private enum class Templates {
-    SingleEntity
 }
 
 private const val DEFAULT_TITLE = "Title"
@@ -322,17 +373,24 @@ private val TitleKey = stringPreferencesKey("title_key")
 private val SubtitleKey = stringPreferencesKey("subtitle_key")
 private val BodyKey = stringPreferencesKey("body_key")
 private val BackgroundKey = longPreferencesKey("background_key")
+private val BackgroundImageKey = booleanPreferencesKey("background_image_key")
 
 // Template used by the widget, update this to change the widget type
-private var template: GlanceTemplate<*> = SingleEntityInputWidgetTemplate()
+private var template: GlanceTemplate<*> = SingleEntityInputWidgetTemplate
 
-private fun createData(
+// TODO: Add templates
+private enum class Templates(val label: String) {
+    SingleEntity("Single entity template"),
+    Freeform("Freeform template")
+}
+
+private fun createSingleEntityData(
     title: String,
     subtitle: String,
     body: String,
     background: ColorProvider
 ) = SingleEntityTemplate.Data(
-    header = "Demo",
+    header = "Single Entity Example",
     headerIcon = TemplateImageWithDescription(
         ImageProvider(R.drawable.compose),
         "Header icon"
@@ -340,20 +398,36 @@ private fun createData(
     title = title,
     subtitle = subtitle,
     bodyText = body,
-    button = TemplateTextButton(
-        actionRunCallback<TemplateButtonAction>(),
-        "Apply"
-    ),
-    mainImage = TemplateImageWithDescription(
+    button = TemplateTextButton(actionRunCallback<TemplateButtonAction>(), "Apply"),
+    mainImage = TemplateImageWithDescription(ImageProvider(R.drawable.compose), "Compose image"),
+    backgroundColor = background
+)
+
+private fun createFreeformData(
+    title: String,
+    subtitle: String,
+    background: ColorProvider,
+    backgroundImage: ImageProvider?
+) = FreeformTemplate.Data(
+    header = "Freeform Example",
+    headerIcon = TemplateImageWithDescription(
         ImageProvider(R.drawable.compose),
-        "Compose image"
+        "Header icon"
     ),
+    title = title,
+    subtitle = subtitle,
+    actionIcon = TemplateImageButton(
+        actionRunCallback<TemplateButtonAction>(),
+        TemplateImageWithDescription(ImageProvider(R.drawable.ic_favorite), "Apply")
+    ),
+    backgroundImage = backgroundImage,
     backgroundColor = background
 )
 
 private fun getTemplate(type: Templates): GlanceTemplate<*> =
     when (type) {
-        Templates.SingleEntity -> SingleEntityInputWidgetTemplate()
+        Templates.SingleEntity -> SingleEntityInputWidgetTemplate
+        Templates.Freeform -> FreeformInputWidgetTemplate
     }
 
 private fun appFileKey() = "appKey-" + TemplateInputActivity::class.java

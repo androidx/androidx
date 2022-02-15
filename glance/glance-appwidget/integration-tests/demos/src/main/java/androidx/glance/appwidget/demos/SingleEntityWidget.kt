@@ -61,6 +61,10 @@ class SingleEntityWidgetReceiver : GlanceAppWidgetReceiver() {
 
 private fun createData(header: String) = SingleEntityTemplate.Data(
     header = header,
+    headerIcon = TemplateImageWithDescription(
+        ImageProvider(R.drawable.compose),
+        "Header icon"
+    ),
     title = "",
     bodyText = "",
     button = TemplateTextButton(actionRunCallback<ButtonAction>(), "toggle"),
