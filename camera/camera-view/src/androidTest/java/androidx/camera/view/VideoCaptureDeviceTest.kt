@@ -43,6 +43,7 @@ import androidx.camera.video.VideoRecordEvent
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_SOURCE_INACTIVE
 import androidx.camera.view.CameraController.IMAGE_ANALYSIS
 import androidx.camera.view.CameraController.VIDEO_CAPTURE
+import androidx.camera.view.video.AudioConfig
 import androidx.core.util.Consumer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.rules.ActivityScenarioRule
@@ -135,6 +136,8 @@ class VideoCaptureDeviceTest(
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val context: Context = ApplicationProvider.getApplicationContext()
+    private val audioEnabled = AudioConfig.create(true)
+    private val audioDisabled = AudioConfig.AUDIO_DISABLED
     private lateinit var previewView: PreviewView
     private lateinit var lifecycleOwner: FakeLifecycleOwner
     private lateinit var cameraController: LifecycleCameraController
@@ -202,7 +205,7 @@ class VideoCaptureDeviceTest(
         val outputOptions = createMediaStoreOutputOptions(resolver)
 
         // Act.
-        recordVideoCompletely(outputOptions)
+        recordVideoCompletely(outputOptions, audioEnabled)
 
         // Verify.
         val uri = finalize.outputResults.outputUri
@@ -222,7 +225,7 @@ class VideoCaptureDeviceTest(
         val outputOptions = FileDescriptorOutputOptions.Builder(fileDescriptor).build()
 
         // Act.
-        recordVideoCompletely(outputOptions)
+        recordVideoCompletely(outputOptions, audioEnabled)
 
         // Verify.
         val uri = Uri.fromFile(file)
@@ -240,11 +243,29 @@ class VideoCaptureDeviceTest(
         val outputOptions = FileOutputOptions.Builder(file).build()
 
         // Act.
-        recordVideoCompletely(outputOptions)
+        recordVideoCompletely(outputOptions, audioEnabled)
 
         // Verify.
         val uri = Uri.fromFile(file)
         checkFileHasAudioAndVideo(uri)
+        assertThat(finalize.outputResults.outputUri).isEqualTo(uri)
+
+        // Cleanup.
+        file.delete()
+    }
+
+    @Test
+    fun canRecordToFile_withoutAudio_whenAudioDisabled() {
+        // Arrange.
+        val file = createTempFile()
+        val outputOptions = FileOutputOptions.Builder(file).build()
+
+        // Act.
+        recordVideoCompletely(outputOptions, audioDisabled)
+
+        // Verify.
+        val uri = Uri.fromFile(file)
+        checkFileOnlyHasVideo(uri)
         assertThat(finalize.outputResults.outputUri).isEqualTo(uri)
 
         // Cleanup.
@@ -258,7 +279,7 @@ class VideoCaptureDeviceTest(
         val outputOptions = FileOutputOptions.Builder(file).build()
 
         // Act.
-        recordVideoWithInterruptAction(outputOptions) {
+        recordVideoWithInterruptAction(outputOptions, audioEnabled) {
             instrumentation.runOnMainSync {
                 lifecycleOwner.pauseAndStop()
             }
@@ -281,7 +302,7 @@ class VideoCaptureDeviceTest(
         val outputOptions = FileOutputOptions.Builder(file).build()
 
         // Act.
-        recordVideoWithInterruptAction(outputOptions) {
+        recordVideoWithInterruptAction(outputOptions, audioEnabled) {
             instrumentation.runOnMainSync {
                 cameraController.videoCaptureTargetQuality = nextQuality.get()
             }
@@ -304,7 +325,7 @@ class VideoCaptureDeviceTest(
         val outputOptions = FileOutputOptions.Builder(file).build()
 
         // Act.
-        recordVideoWithInterruptAction(outputOptions) {
+        recordVideoWithInterruptAction(outputOptions, audioEnabled) {
             instrumentation.runOnMainSync {
                 cameraController.setEnabledUseCases(IMAGE_ANALYSIS)
             }
@@ -330,7 +351,7 @@ class VideoCaptureDeviceTest(
 
         // Pre Act.
         latchForVideoSaved = CountDownLatch(VIDEO_SAVED_COUNT_DOWN)
-        recordVideo(outputOptions1)
+        recordVideo(outputOptions1, audioEnabled)
         instrumentation.runOnMainSync {
             activeRecording.stop()
             assertThat(cameraController.isRecording).isFalse()
@@ -338,7 +359,7 @@ class VideoCaptureDeviceTest(
 
         // Act.
         instrumentation.runOnMainSync {
-            startRecording(outputOptions2)
+            startRecording(outputOptions2, audioEnabled)
             assertThat(cameraController.isRecording).isTrue()
         }
 
@@ -381,7 +402,7 @@ class VideoCaptureDeviceTest(
         val outputOptions = FileOutputOptions.Builder(file).build()
 
         // Act.
-        recordVideoWithInterruptAction(outputOptions) {
+        recordVideoWithInterruptAction(outputOptions, audioEnabled) {
             instrumentation.runOnMainSync {
                 activeRecording.pause()
             }
@@ -413,7 +434,7 @@ class VideoCaptureDeviceTest(
         val outputOptions = FileOutputOptions.Builder(file).build()
 
         // Act.
-        recordVideoWithInterruptAction(outputOptions) {
+        recordVideoWithInterruptAction(outputOptions, audioEnabled) {
             instrumentation.runOnMainSync {
                 activeRecording.pause()
             }
@@ -447,11 +468,12 @@ class VideoCaptureDeviceTest(
         val outputOptions2 = FileOutputOptions.Builder(file2).build()
 
         // Act.
-        recordVideoWithInterruptAction(outputOptions1) {
+        recordVideoWithInterruptAction(outputOptions1, audioEnabled) {
             instrumentation.runOnMainSync {
                 assertThrows(java.lang.IllegalStateException::class.java) {
                     activeRecording = cameraController.startRecording(
                         outputOptions2,
+                        audioEnabled,
                         CameraXExecutors.directExecutor()
                     ) {}
                 }
@@ -511,9 +533,9 @@ class VideoCaptureDeviceTest(
             .build()
     }
 
-    private fun recordVideoCompletely(outputOptions: OutputOptions) {
+    private fun recordVideoCompletely(outputOptions: OutputOptions, audioConfig: AudioConfig) {
         // Act.
-        recordVideoWithInterruptAction(outputOptions) {
+        recordVideoWithInterruptAction(outputOptions, audioConfig) {
             instrumentation.runOnMainSync {
                 activeRecording.stop()
             }
@@ -525,13 +547,14 @@ class VideoCaptureDeviceTest(
 
     private fun recordVideoWithInterruptAction(
         outputOptions: OutputOptions,
+        audioConfig: AudioConfig,
         runInterruptAction: () -> Unit
     ) {
         // Arrange.
         latchForVideoSaved = CountDownLatch(VIDEO_SAVED_COUNT_DOWN)
 
         // Act.
-        recordVideo(outputOptions)
+        recordVideo(outputOptions, audioConfig)
         runInterruptAction()
 
         // Verify.
@@ -543,14 +566,14 @@ class VideoCaptureDeviceTest(
         }
     }
 
-    private fun recordVideo(outputOptions: OutputOptions) {
+    private fun recordVideo(outputOptions: OutputOptions, audioConfig: AudioConfig) {
         // Arrange.
         latchForVideoStarted = CountDownLatch(VIDEO_STARTED_COUNT_DOWN)
         latchForVideoRecording = CountDownLatch(VIDEO_RECORDING_COUNT_DOWN)
 
         // Act.
         instrumentation.runOnMainSync {
-            startRecording(outputOptions)
+            startRecording(outputOptions, audioConfig)
             assertThat(cameraController.isRecording).isTrue()
         }
 
@@ -562,10 +585,11 @@ class VideoCaptureDeviceTest(
     }
 
     @MainThread
-    private fun startRecording(outputOptions: OutputOptions) {
+    private fun startRecording(outputOptions: OutputOptions, audioConfig: AudioConfig) {
         if (outputOptions is FileOutputOptions) {
             activeRecording = cameraController.startRecording(
                 outputOptions,
+                audioConfig,
                 CameraXExecutors.directExecutor(),
                 videoRecordEventListener
             )
@@ -573,6 +597,7 @@ class VideoCaptureDeviceTest(
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 activeRecording = cameraController.startRecording(
                     outputOptions,
+                    audioConfig,
                     CameraXExecutors.directExecutor(),
                     videoRecordEventListener
                 )
@@ -584,6 +609,7 @@ class VideoCaptureDeviceTest(
         } else if (outputOptions is MediaStoreOutputOptions) {
             activeRecording = cameraController.startRecording(
                 outputOptions,
+                audioConfig,
                 CameraXExecutors.directExecutor(),
                 videoRecordEventListener
             )
@@ -592,9 +618,14 @@ class VideoCaptureDeviceTest(
         }
     }
 
+    private fun checkFileOnlyHasVideo(uri: Uri) {
+        checkFileHasVideo(uri)
+        checkFileHasAudio(uri, false)
+    }
+
     private fun checkFileHasAudioAndVideo(uri: Uri) {
         checkFileHasVideo(uri)
-        checkFileHasAudio(uri)
+        checkFileHasAudio(uri, true)
     }
 
     private fun checkFileHasVideo(uri: Uri) {
@@ -606,13 +637,13 @@ class VideoCaptureDeviceTest(
         }
     }
 
-    private fun checkFileHasAudio(uri: Uri) {
+    private fun checkFileHasAudio(uri: Uri, hasAudio: Boolean) {
         val mediaRetriever = MediaMetadataRetriever()
         mediaRetriever.apply {
             setDataSource(context, uri)
             val value = extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_AUDIO)
 
-            assertThat(value).isEqualTo("yes")
+            assertThat(value).isEqualTo(if (hasAudio) "yes" else null)
         }
     }
 

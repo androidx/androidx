@@ -85,7 +85,9 @@ import androidx.camera.video.Recording;
 import androidx.camera.video.VideoCapture;
 import androidx.camera.video.VideoRecordEvent;
 import androidx.camera.view.transform.OutputTransform;
+import androidx.camera.view.video.AudioConfig;
 import androidx.camera.view.video.ExperimentalVideo;
+import androidx.core.content.PermissionChecker;
 import androidx.core.util.Consumer;
 import androidx.core.util.Preconditions;
 import androidx.lifecycle.LiveData;
@@ -1158,26 +1160,28 @@ public abstract class CameraController {
      * will be the first event sent to the provided listener, and information about the error can
      * be found in that event's {@link VideoRecordEvent.Finalize#getError()} method.
      *
-     * <p> Recording requires the {@link android.Manifest.permission#RECORD_AUDIO} permission;
-     * without it, starting a recording will fail with a {@link SecurityException}.
+     * <p> Recording with audio requires the {@link android.Manifest.permission#RECORD_AUDIO}
+     * permission; without it, starting a recording will fail with a {@link SecurityException}.
      *
      * @param outputOptions the options to store the newly captured video.
+     * @param audioConfig the configuration of audio.
      * @param executor the executor that the event listener will be run on.
      * @param listener the event listener to handle video record events.
      * @return a {@link Recording} that provides controls for new active recordings.
      * @throws IllegalStateException if there is an unfinished active recording.
-     * @throws SecurityException if the {@link android.Manifest.permission#RECORD_AUDIO}
-     * permission is denied.
+     * @throws SecurityException if the audio config specifies audio should be enabled but the
+     * {@link android.Manifest.permission#RECORD_AUDIO} permission is denied.
      */
-    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
+    @SuppressLint("MissingPermission")
     @ExperimentalVideo
     @MainThread
     @NonNull
     public Recording startRecording(
             @NonNull FileOutputOptions outputOptions,
+            @NonNull AudioConfig audioConfig,
             @NonNull Executor executor,
             @NonNull Consumer<VideoRecordEvent> listener) {
-        return startRecordingInternal(outputOptions, executor, listener);
+        return startRecordingInternal(outputOptions, audioConfig, executor, listener);
     }
 
     /**
@@ -1196,27 +1200,29 @@ public abstract class CameraController {
      * will be the first event sent to the provided listener, and information about the error can
      * be found in that event's {@link VideoRecordEvent.Finalize#getError()} method.
      *
-     * <p> Recording requires the {@link android.Manifest.permission#RECORD_AUDIO} permission;
-     * without it, starting a recording will fail with a {@link SecurityException}.
+     * <p> Recording with audio requires the {@link android.Manifest.permission#RECORD_AUDIO}
+     * permission; without it, starting a recording will fail with a {@link SecurityException}.
      *
      * @param outputOptions the options to store the newly captured video.
+     * @param audioConfig the configuration of audio.
      * @param executor the executor that the event listener will be run on.
      * @param listener the event listener to handle video record events.
      * @return a {@link Recording} that provides controls for new active recordings.
      * @throws IllegalStateException if there is an unfinished active recording.
-     * @throws SecurityException if the {@link android.Manifest.permission#RECORD_AUDIO}
-     * permission is denied.
+     * @throws SecurityException if the audio config specifies audio should be enabled but the
+     * {@link android.Manifest.permission#RECORD_AUDIO} permission is denied.
      */
-    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
+    @SuppressLint("MissingPermission")
     @ExperimentalVideo
     @RequiresApi(26)
     @MainThread
     @NonNull
     public Recording startRecording(
             @NonNull FileDescriptorOutputOptions outputOptions,
+            @NonNull AudioConfig audioConfig,
             @NonNull Executor executor,
             @NonNull Consumer<VideoRecordEvent> listener) {
-        return startRecordingInternal(outputOptions, executor, listener);
+        return startRecordingInternal(outputOptions, audioConfig, executor, listener);
     }
 
     /**
@@ -1232,26 +1238,28 @@ public abstract class CameraController {
      * will be the first event sent to the provided listener, and information about the error can
      * be found in that event's {@link VideoRecordEvent.Finalize#getError()} method.
      *
-     * <p> Recording requires the {@link android.Manifest.permission#RECORD_AUDIO} permission;
-     * without it, starting a recording will fail with a {@link SecurityException}.
+     * <p> Recording with audio requires the {@link android.Manifest.permission#RECORD_AUDIO}
+     * permission; without it, starting a recording will fail with a {@link SecurityException}.
      *
      * @param outputOptions the options to store the newly captured video.
+     * @param audioConfig the configuration of audio.
      * @param executor the executor that the event listener will be run on.
      * @param listener the event listener to handle video record events.
      * @return a {@link Recording} that provides controls for new active recordings.
      * @throws IllegalStateException if there is an unfinished active recording.
-     * @throws SecurityException if the {@link android.Manifest.permission#RECORD_AUDIO}
-     * permission is denied.
+     * @throws SecurityException if the audio config specifies audio should be enabled but the
+     * {@link android.Manifest.permission#RECORD_AUDIO} permission is denied.
      */
-    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
+    @SuppressLint("MissingPermission")
     @ExperimentalVideo
     @MainThread
     @NonNull
     public Recording startRecording(
             @NonNull MediaStoreOutputOptions outputOptions,
+            @NonNull AudioConfig audioConfig,
             @NonNull Executor executor,
             @NonNull Consumer<VideoRecordEvent> listener) {
-        return startRecordingInternal(outputOptions, executor, listener);
+        return startRecordingInternal(outputOptions, audioConfig, executor, listener);
     }
 
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
@@ -1259,6 +1267,7 @@ public abstract class CameraController {
     @MainThread
     private Recording startRecordingInternal(
             @NonNull OutputOptions outputOptions,
+            @NonNull AudioConfig audioConfig,
             @NonNull Executor executor,
             @NonNull Consumer<VideoRecordEvent> listener) {
         checkMainThread();
@@ -1268,19 +1277,33 @@ public abstract class CameraController {
 
         Consumer<VideoRecordEvent> wrappedListener =
                 wrapListenerToDeactivateRecordingOnFinalized(listener);
-        PendingRecording pendingRecording = prepareRecording(outputOptions).withAudioEnabled();
+        PendingRecording pendingRecording = prepareRecording(outputOptions);
+        boolean isAudioEnabled = audioConfig.getAudioEnabled();
+        if (isAudioEnabled) {
+            checkAudioPermissionGranted();
+            pendingRecording.withAudioEnabled();
+        }
         Recording recording = pendingRecording.start(executor, wrappedListener);
         setActiveRecording(recording, wrappedListener);
 
         return recording;
     }
 
+    private void checkAudioPermissionGranted() {
+        int permissionState = PermissionChecker.checkSelfPermission(mAppContext,
+                Manifest.permission.RECORD_AUDIO);
+        if (permissionState == PermissionChecker.PERMISSION_DENIED) {
+            throw new SecurityException("Attempted to start recording with audio, but "
+                    + "application does not have RECORD_AUDIO permission granted.");
+        }
+    }
+
     /**
      * Generates a {@link PendingRecording} instance for starting a recording.
      *
      * <p> This method handles {@code prepareRecording()} methods for different output formats,
-     * and makes {@link #startRecordingInternal(OutputOptions, Executor, Consumer)} only handle
-     * the general flow.
+     * and makes {@link #startRecordingInternal(OutputOptions, AudioConfig, Executor, Consumer)}
+     * only handle the general flow.
      *
      * <p> This method uses the parent class {@link OutputOptions} as the parameter. On the other
      * hand, the public {@code startRecording()} is overloaded with subclasses. The reason is to

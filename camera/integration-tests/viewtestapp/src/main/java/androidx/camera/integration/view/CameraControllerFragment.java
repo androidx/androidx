@@ -77,6 +77,7 @@ import androidx.camera.view.CameraController;
 import androidx.camera.view.LifecycleCameraController;
 import androidx.camera.view.PreviewView;
 import androidx.camera.view.RotationProvider;
+import androidx.camera.view.video.AudioConfig;
 import androidx.camera.view.video.ExperimentalVideo;
 import androidx.core.util.Consumer;
 import androidx.fragment.app.Fragment;
@@ -656,8 +657,9 @@ public class CameraControllerFragment extends Fragment {
     @OptIn(markerClass = ExperimentalVideo.class)
     void startRecording(Consumer<VideoRecordEvent> listener) {
         MediaStoreOutputOptions outputOptions = getNewVideoOutputMediaStoreOptions();
-        mActiveRecording = mCameraController.startRecording(outputOptions, mExecutorService,
-                listener);
+        AudioConfig audioConfig = AudioConfig.create(true);
+        mActiveRecording = mCameraController.startRecording(outputOptions, audioConfig,
+                mExecutorService, listener);
     }
 
     @VisibleForTesting
