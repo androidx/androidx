@@ -1,7 +1,3 @@
 // Baseline format: 1.0
-ChangedType: androidx.room.paging.LimitOffsetDataSource#convertRows(android.database.Cursor):
-    Method androidx.room.paging.LimitOffsetDataSource.convertRows has changed return type from java.util.List<T!> to java.util.List<T>
-
-
 RemovedClass: androidx.room.util.CopyLock:
     Removed class androidx.room.util.CopyLock

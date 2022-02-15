@@ -13,88 +13,104 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("DEPRECATION")
 
-package androidx.room.paging
+package androidx.room.paging;
 
-import android.database.Cursor
-import androidx.annotation.RestrictTo
-import androidx.paging.PositionalDataSource
-import androidx.room.InvalidationTracker
-import androidx.room.RoomDatabase
-import androidx.room.RoomSQLiteQuery
-import androidx.sqlite.db.SupportSQLiteQuery
-import java.util.concurrent.atomic.AtomicBoolean
+import android.database.Cursor;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+import androidx.room.InvalidationTracker;
+import androidx.room.RoomDatabase;
+import androidx.room.RoomSQLiteQuery;
+import androidx.sqlite.db.SupportSQLiteQuery;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A simple data source implementation that uses Limit & Offset to page the query.
- *
+ * <p>
  * This is NOT the most efficient way to do paging on SQLite. It is
- * [recommended](http://www.sqlite.org/cvstrac/wiki?p=ScrollingCursor) to use an indexed
+ * <a href="http://www.sqlite.org/cvstrac/wiki?p=ScrollingCursor">recommended</a> to use an indexed
  * ORDER BY statement but that requires a more complex API. This solution is technically equal to
- * receiving a [Cursor] from a large query but avoids the need to manually manage it, and
+ * receiving a {@link Cursor} from a large query but avoids the need to manually manage it, and
  * never returns inconsistent data if it is invalidated.
  *
- * This class is used for both Paging2 and Paging3 (via its compat API). When used with Paging3,
+ * This class is used for both Paging2 and Pagin3 (via its compat API). When used with Paging3,
  * it does lazy registration for observers to be suitable for initialization on the main thread
  * whereas in Paging2, it will register observer eagerly to obey Paging2's strict Data Source
  * rules. (Paging2 does not let data source to possibly return invalidated data).
  *
- * @property <T> Data type returned by the data source.
+ * @param <T> Data type returned by the data source.
  *
  * @hide
  */
+@SuppressWarnings("deprecation")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-abstract class LimitOffsetDataSource<T : Any> protected constructor(
-    private val db: RoomDatabase,
-    private val sourceQuery: RoomSQLiteQuery,
-    private val inTransaction: Boolean,
-    registerObserverImmediately: Boolean,
-    vararg tables: String
-) : PositionalDataSource<T>() {
-    private val countQuery = "SELECT COUNT(*) FROM ( " + sourceQuery.sql + " )"
-    private val limitOffsetQuery = "SELECT * FROM ( " + sourceQuery.sql + " ) LIMIT ? OFFSET ?"
-    private val observer: InvalidationTracker.Observer
-    private val registeredObserver = AtomicBoolean(false)
+public abstract class LimitOffsetDataSource<T> extends androidx.paging.PositionalDataSource<T> {
+    private final RoomSQLiteQuery mSourceQuery;
+    private final String mCountQuery;
+    private final String mLimitOffsetQuery;
+    private final RoomDatabase mDb;
+    @SuppressWarnings("FieldCanBeLocal")
+    private final InvalidationTracker.Observer mObserver;
+    private final boolean mInTransaction;
+    private final AtomicBoolean mRegisteredObserver = new AtomicBoolean(false);
 
-    protected constructor(
-        db: RoomDatabase,
-        query: SupportSQLiteQuery,
-        inTransaction: Boolean,
-        vararg tables: String
-    ) : this(db, RoomSQLiteQuery.copyFrom(query), inTransaction, *tables)
+    protected LimitOffsetDataSource(@NonNull RoomDatabase db,
+            @NonNull SupportSQLiteQuery query,
+            boolean inTransaction,
+            @NonNull
+                    String... tables) {
+        this(db, RoomSQLiteQuery.copyFrom(query), inTransaction, tables);
+    }
 
-    protected constructor(
-        db: RoomDatabase,
-        query: SupportSQLiteQuery,
-        inTransaction: Boolean,
-        registerObserverImmediately: Boolean,
-        vararg tables: String
-    ) : this(
-        db, RoomSQLiteQuery.copyFrom(query), inTransaction, registerObserverImmediately, *tables
-    )
+    protected LimitOffsetDataSource(
+            @NonNull RoomDatabase db,
+            @NonNull SupportSQLiteQuery query,
+            boolean inTransaction,
+            boolean registerObserverImmediately,
+            @NonNull String... tables) {
+        this(db, RoomSQLiteQuery.copyFrom(query), inTransaction, registerObserverImmediately,
+                tables);
+    }
 
-    protected constructor(
-        db: RoomDatabase,
-        query: RoomSQLiteQuery,
-        inTransaction: Boolean,
-        vararg tables: String
-    ) : this(db, query, inTransaction, true, *tables)
+    protected LimitOffsetDataSource(
+            @NonNull RoomDatabase db,
+            @NonNull RoomSQLiteQuery query,
+            boolean inTransaction,
+            @NonNull String... tables) {
+        this(db, query, inTransaction, true /*register registerObserverImmediately*/, tables);
+    }
 
-    init {
-        observer = object : InvalidationTracker.Observer(tables) {
-            override fun onInvalidated(tables: Set<String>) {
-                invalidate()
+    protected LimitOffsetDataSource(
+            @NonNull RoomDatabase db,
+            @NonNull RoomSQLiteQuery query,
+            boolean inTransaction,
+            boolean registerObserverImmediately,
+            @NonNull String... tables) {
+        mDb = db;
+        mSourceQuery = query;
+        mInTransaction = inTransaction;
+        mCountQuery = "SELECT COUNT(*) FROM ( " + mSourceQuery.getSql() + " )";
+        mLimitOffsetQuery = "SELECT * FROM ( " + mSourceQuery.getSql() + " ) LIMIT ? OFFSET ?";
+        mObserver = new InvalidationTracker.Observer(tables) {
+            @Override
+            public void onInvalidated(@NonNull Set<String> tables) {
+                invalidate();
             }
-        }
+        };
         if (registerObserverImmediately) {
-            registerObserverIfNecessary()
+            registerObserverIfNecessary();
         }
     }
 
-    private fun registerObserverIfNecessary() {
-        if (registeredObserver.compareAndSet(false, true)) {
-            db.invalidationTracker.addWeakObserver(observer)
+    private void registerObserverIfNecessary() {
+        if (mRegisteredObserver.compareAndSet(false, true)) {
+            mDb.getInvalidationTracker().addWeakObserver(mObserver);
         }
     }
 
@@ -103,63 +119,76 @@ abstract class LimitOffsetDataSource<T : Any> protected constructor(
      *
      * @hide
      */
-    fun countItems(): Int {
-        registerObserverIfNecessary()
-        val sqLiteQuery = RoomSQLiteQuery.acquire(
-            countQuery,
-            sourceQuery.argCount
-        )
-        sqLiteQuery.copyArgumentsFrom(sourceQuery)
-        val cursor = db.query(sqLiteQuery)
-        return try {
+    @SuppressWarnings("WeakerAccess")
+    public int countItems() {
+        registerObserverIfNecessary();
+        final RoomSQLiteQuery sqLiteQuery = RoomSQLiteQuery.acquire(mCountQuery,
+                mSourceQuery.getArgCount());
+        sqLiteQuery.copyArgumentsFrom(mSourceQuery);
+        Cursor cursor = mDb.query(sqLiteQuery);
+        try {
             if (cursor.moveToFirst()) {
-                cursor.getInt(0)
-            } else 0
+                return cursor.getInt(0);
+            }
+            return 0;
         } finally {
-            cursor.close()
-            sqLiteQuery.release()
+            cursor.close();
+            sqLiteQuery.release();
         }
     }
 
-    override val isInvalid: Boolean
-        get() {
-        registerObserverIfNecessary()
-        db.invalidationTracker.refreshVersionsSync()
-        return super.isInvalid
+    @Override
+    public boolean isInvalid() {
+        registerObserverIfNecessary();
+        mDb.getInvalidationTracker().refreshVersionsSync();
+        return super.isInvalid();
     }
 
-    protected abstract fun convertRows(cursor: Cursor): List<T>
+    @NonNull
+    @SuppressWarnings("WeakerAccess")
+    protected abstract List<T> convertRows(@NonNull Cursor cursor);
 
-    @Suppress("deprecation")
-    override fun loadInitial(params: LoadInitialParams, callback: LoadInitialCallback<T>) {
-        registerObserverIfNecessary()
-        val onResultCaller: () -> Unit
-        db.beginTransaction()
+    @SuppressWarnings("deprecation")
+    @Override
+    public void loadInitial(@NonNull LoadInitialParams params,
+            @NonNull LoadInitialCallback<T> callback) {
+        registerObserverIfNecessary();
+        List<T> list = Collections.emptyList();
+        int totalCount;
+        int firstLoadPosition = 0;
+        RoomSQLiteQuery sqLiteQuery = null;
+        Cursor cursor = null;
+        mDb.beginTransaction();
         try {
-            val totalCount = countItems()
+            totalCount = countItems();
             if (totalCount != 0) {
                 // bound the size requested, based on known count
-                val firstLoadPosition = computeInitialLoadPosition(params, totalCount)
-                val firstLoadSize = computeInitialLoadSize(params, firstLoadPosition, totalCount)
-                db.query(getSQLiteQuery(firstLoadPosition, firstLoadSize)).use { cursor ->
-                    val rows = convertRows(cursor)
-                    db.setTransactionSuccessful()
-                    onResultCaller = { callback.onResult(rows, firstLoadPosition, totalCount) }
-                }
-            } else {
-                onResultCaller = { callback.onResult(emptyList(), 0, totalCount) }
+                firstLoadPosition = computeInitialLoadPosition(params, totalCount);
+                int firstLoadSize = computeInitialLoadSize(params, firstLoadPosition, totalCount);
+
+                sqLiteQuery = getSQLiteQuery(firstLoadPosition, firstLoadSize);
+                cursor = mDb.query(sqLiteQuery);
+                List<T> rows = convertRows(cursor);
+                mDb.setTransactionSuccessful();
+                list = rows;
             }
         } finally {
-            db.endTransaction()
+            if (cursor != null) {
+                cursor.close();
+            }
+            mDb.endTransaction();
+            if (sqLiteQuery != null) {
+                sqLiteQuery.release();
+            }
         }
-        onResultCaller.invoke()
+
+        callback.onResult(list, firstLoadPosition, totalCount);
     }
 
-    override fun loadRange(
-        params: LoadRangeParams,
-        callback: LoadRangeCallback<T>
-    ) {
-        callback.onResult(loadRange(params.startPosition, params.loadSize))
+    @Override
+    public void loadRange(@NonNull LoadRangeParams params,
+            @NonNull LoadRangeCallback<T> callback) {
+        callback.onResult(loadRange(params.startPosition, params.loadSize));
     }
 
     /**
@@ -167,39 +196,44 @@ abstract class LimitOffsetDataSource<T : Any> protected constructor(
      *
      * @hide
      */
-    @Suppress("deprecation")
-    fun loadRange(startPosition: Int, loadCount: Int): List<T> {
-        val sqLiteQuery = getSQLiteQuery(startPosition, loadCount)
-        try {
-            if (inTransaction) {
-                db.beginTransaction()
-                try {
-                    db.query(sqLiteQuery).use { cursor ->
-                        val rows = convertRows(cursor)
-                        db.setTransactionSuccessful()
-                        return rows
-                    }
-                } finally {
-                    db.endTransaction()
+    @SuppressWarnings("deprecation")
+    @NonNull
+    public List<T> loadRange(int startPosition, int loadCount) {
+        final RoomSQLiteQuery sqLiteQuery = getSQLiteQuery(startPosition, loadCount);
+        if (mInTransaction) {
+            mDb.beginTransaction();
+            Cursor cursor = null;
+            //noinspection TryFinallyCanBeTryWithResources
+            try {
+                cursor = mDb.query(sqLiteQuery);
+                List<T> rows = convertRows(cursor);
+                mDb.setTransactionSuccessful();
+                return rows;
+            } finally {
+                if (cursor != null) {
+                    cursor.close();
                 }
-            } else {
-                db.query(sqLiteQuery).use { cursor ->
-                    return convertRows(cursor)
-                }
+                mDb.endTransaction();
+                sqLiteQuery.release();
             }
-        } finally {
-            sqLiteQuery.release()
+        } else {
+            Cursor cursor = mDb.query(sqLiteQuery);
+            //noinspection TryFinallyCanBeTryWithResources
+            try {
+                return convertRows(cursor);
+            } finally {
+                cursor.close();
+                sqLiteQuery.release();
+            }
         }
     }
 
-    private fun getSQLiteQuery(startPosition: Int, loadCount: Int): RoomSQLiteQuery {
-        val sqLiteQuery = RoomSQLiteQuery.acquire(
-            limitOffsetQuery,
-            sourceQuery.argCount + 2
-        )
-        sqLiteQuery.copyArgumentsFrom(sourceQuery)
-        sqLiteQuery.bindLong(sqLiteQuery.argCount - 1, loadCount.toLong())
-        sqLiteQuery.bindLong(sqLiteQuery.argCount, startPosition.toLong())
-        return sqLiteQuery
+    private RoomSQLiteQuery getSQLiteQuery(int startPosition, int loadCount) {
+        final RoomSQLiteQuery sqLiteQuery = RoomSQLiteQuery.acquire(mLimitOffsetQuery,
+                mSourceQuery.getArgCount() + 2);
+        sqLiteQuery.copyArgumentsFrom(mSourceQuery);
+        sqLiteQuery.bindLong(sqLiteQuery.getArgCount() - 1, loadCount);
+        sqLiteQuery.bindLong(sqLiteQuery.getArgCount(), startPosition);
+        return sqLiteQuery;
     }
 }
