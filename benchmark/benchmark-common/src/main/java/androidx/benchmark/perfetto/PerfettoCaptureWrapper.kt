@@ -20,9 +20,11 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.benchmark.Arguments
 import androidx.benchmark.Outputs
 import androidx.benchmark.Outputs.dateToFileName
 import androidx.benchmark.PropOverride
+import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
 
 /**
  * Wrapper for [PerfettoCapture] which does nothing below L.
@@ -68,12 +70,10 @@ class PerfettoCaptureWrapper {
         benchmarkName: String,
         packages: List<String>,
         iteration: Int? = null,
-        unbundledPerfettoAvailable: Boolean = true,
         block: () -> Unit
     ): String? {
-        // This is an awkward way to write this check, but it makes NewApi lint happy below
-        if (Build.VERSION.SDK_INT < 21 || (!unbundledPerfettoAvailable &&
-                Build.VERSION.SDK_INT < PerfettoHelper.LOWEST_BUNDLED_VERSION_SUPPORTED)) {
+        // skip if can't capture Perfetto, or Cuttlefish + dryRun (traces aren't needed anyway)
+        if (Build.VERSION.SDK_INT < 21 || (Arguments.dryRunMode && !isAbiSupported())) {
             block()
             return null // tracing not supported
         }

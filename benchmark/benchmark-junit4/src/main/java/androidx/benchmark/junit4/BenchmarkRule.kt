@@ -207,7 +207,6 @@ public class BenchmarkRule internal constructor(
             val tracePath = PerfettoCaptureWrapper().record(
                 benchmarkName = uniqueName,
                 packages = emptyList(), // NOTE: intentionally don't pass app package!
-                unbundledPerfettoAvailable = false // unbundled not included in microbench
             ) {
                 UserspaceTracing.commitToTrace() // clear buffer
 
