@@ -110,7 +110,8 @@ class ScalingLazyListState constructor(
                 if (anchorType.value == ScalingLazyListAnchorType.ItemStart) {
                     viewportHeightPx.value!! / 2f
                 } else {
-                    viewportHeightPx.value!! / 2f - layoutInfo.visibleItemsInfo.first().size / 2f
+                    viewportHeightPx.value!! / 2f -
+                        layoutInfo.visibleItemsInfo.first().unadjustedSize() / 2f
                 }.roundToInt() - gapBetweenItemsPx.value!!
             } else {
                 0
@@ -132,7 +133,8 @@ class ScalingLazyListState constructor(
                 if (anchorType.value == ScalingLazyListAnchorType.ItemStart) {
                     viewportHeightPx.value!! / 2f - layoutInfo.visibleItemsInfo.last().size
                 } else {
-                    viewportHeightPx.value!! / 2f - layoutInfo.visibleItemsInfo.last().size / 2f
+                    viewportHeightPx.value!! / 2f -
+                        layoutInfo.visibleItemsInfo.last().unadjustedSize() / 2f
                 }.roundToInt() - gapBetweenItemsPx.value!!
             } else {
                 0
