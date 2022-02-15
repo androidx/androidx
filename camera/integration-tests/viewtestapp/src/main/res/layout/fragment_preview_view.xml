@@ -37,11 +37,11 @@
             android:scaleType="centerCrop" />
     </FrameLayout>
     <HorizontalScrollView
-        android:id="@+id/controller"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
         <LinearLayout
+            android:id="@+id/controller"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
