@@ -185,6 +185,7 @@ public class EditorRequest @RequiresApi(Build.VERSION_CODES.R) constructor(
          */
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @Suppress("DEPRECATION")
         @Throws(PackageManager.NameNotFoundException::class)
         public fun supportsWatchFaceHeadlessEditing(
             packageManager: PackageManager,

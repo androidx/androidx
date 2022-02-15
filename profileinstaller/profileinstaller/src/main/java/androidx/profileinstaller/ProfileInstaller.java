@@ -468,6 +468,7 @@ public class ProfileInstaller {
      *
      */
     @WorkerThread
+    @SuppressWarnings("deprecation")
     static void writeProfile(
             @NonNull Context context,
             @NonNull Executor executor,

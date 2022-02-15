@@ -294,6 +294,7 @@ public class MediaButtonReceiver extends BroadcastReceiver {
         return null;
     }
 
+    @SuppressWarnings("deprecation")
     private static ComponentName getServiceComponentByAction(Context context, String action) {
         PackageManager pm = context.getPackageManager();
         Intent queryIntent = new Intent(action);

@@ -148,7 +148,7 @@ public class AdvertisingIdProviderManager {
      * <p>This is achieved by looking up which activities can handle {@link #OPEN_SETTINGS_ACTION}
      * intent action.
      */
-    @SuppressWarnings("MixedMutabilityReturnType")
+    @SuppressWarnings({"MixedMutabilityReturnType", "deprecation"})
     private static Map<String, String> getOpenSettingsActivities(PackageManager packageManager) {
         Intent settingsIntent = new Intent(OPEN_SETTINGS_ACTION);
         List<ResolveInfo> settingsResolveInfos = packageManager.queryIntentActivities(

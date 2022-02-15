@@ -41,6 +41,7 @@ class MacrobenchmarkScopeTest {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
 
     @Before
+    @Suppress("DEPRECATION")
     fun setup() {
         // validate target is installed with clear error message,
         // since error messages from e.g. startActivityAndWait may be less clear

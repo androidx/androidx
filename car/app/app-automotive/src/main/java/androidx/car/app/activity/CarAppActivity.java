@@ -424,6 +424,7 @@ public final class CarAppActivity extends FragmentActivity {
     }
 
     @Nullable
+    @SuppressWarnings("deprecation")
     private ComponentName retrieveServiceComponentName() {
         Intent intent = new Intent(SERVICE_INTERFACE);
         intent.setPackage(getPackageName());

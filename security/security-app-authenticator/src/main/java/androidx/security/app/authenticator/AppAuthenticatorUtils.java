@@ -70,6 +70,7 @@ class AppAuthenticatorUtils {
      *
      * @see ApplicationInfo#uid
      */
+    @SuppressWarnings("deprecation")
     int getUidForPackage(String packageName) throws PackageManager.NameNotFoundException {
         ApplicationInfo appInfo = mContext.getPackageManager().getApplicationInfo(packageName, 0);
         return appInfo.uid;

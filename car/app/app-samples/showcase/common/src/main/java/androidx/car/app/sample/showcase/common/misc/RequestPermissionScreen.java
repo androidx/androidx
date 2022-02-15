@@ -79,6 +79,7 @@ public class RequestPermissionScreen extends Screen {
 
     @NonNull
     @Override
+    @SuppressWarnings("deprecation")
     public Template onGetTemplate() {
         final Action headerAction = mPreSeedMode ? Action.APP_ICON : Action.BACK;
         List<String> permissions = new ArrayList<>();

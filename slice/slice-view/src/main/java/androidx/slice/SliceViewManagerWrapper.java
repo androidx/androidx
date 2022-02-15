@@ -134,6 +134,7 @@ class SliceViewManagerWrapper extends SliceViewManagerBase {
         return isPackageSuspended(pkg);
     }
 
+    @SuppressWarnings("deprecation")
     private boolean isPackageSuspended(String pkg) {
         Boolean isSuspended = mCachedSuspendFlags.get(pkg);
         if (isSuspended == null) {

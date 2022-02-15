@@ -92,6 +92,7 @@ public interface WatchFaceMetadataClient : AutoCloseable {
 
         /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @Suppress("DEPRECATION")
         open class ParserProvider {
             // Open to allow testing without having to install the sample app.
             open fun getParser(context: Context, watchFaceName: ComponentName): XmlResourceParser? {

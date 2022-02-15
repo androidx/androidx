@@ -195,6 +195,7 @@ public final class AppInitializer {
         }
     }
 
+    @SuppressWarnings("deprecation")
     void discoverAndInitialize() {
         try {
             Trace.beginSection(SECTION_NAME);
