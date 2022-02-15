@@ -3,6 +3,50 @@
 
     <issue
         id="NewApi"
+        message="Call requires API level 30 (current min is 14): `android.util.SparseArray#contains`"
+        errorLine1="        assertFalse(1 in array)"
+        errorLine2="                      ~~">
+        <location
+            file="src/androidTest/java/androidx/core/util/SparseArrayTest.kt"
+            line="42"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `android.util.SparseArray#contains`"
+        errorLine1="        assertTrue(1 in array)"
+        errorLine2="                     ~~">
+        <location
+            file="src/androidTest/java/androidx/core/util/SparseArrayTest.kt"
+            line="44"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `android.util.SparseArray#contains`"
+        errorLine1="        assertFalse(2 in array)"
+        errorLine2="                      ~~">
+        <location
+            file="src/androidTest/java/androidx/core/util/SparseArrayTest.kt"
+            line="52"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `android.util.SparseArray#contains`"
+        errorLine1="        assertTrue(2 in array)"
+        errorLine2="                     ~~">
+        <location
+            file="src/androidTest/java/androidx/core/util/SparseArrayTest.kt"
+            line="55"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
         message="Call requires API level 17 (current min is 14): `updatePaddingRelative`"
         errorLine1="        view.updatePaddingRelative(start = 10, end = 20)"
         errorLine2="             ~~~~~~~~~~~~~~~~~~~~~">
