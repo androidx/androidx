@@ -50,6 +50,9 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.Executor
+import java.util.concurrent.TimeUnit
+import kotlin.math.abs
 import org.junit.After
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
@@ -68,9 +71,6 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.timeout
 import org.mockito.Mockito.verify
 import org.mockito.invocation.InvocationOnMock
-import java.util.concurrent.Executor
-import java.util.concurrent.TimeUnit
-import kotlin.math.abs
 
 private const val MIME_TYPE = MediaFormat.MIMETYPE_VIDEO_AVC
 private const val BIT_RATE = 10 * 1024 * 1024 // 10M
@@ -316,6 +316,21 @@ class VideoEncoderTest {
         val isCloseToUptime = abs(bufferTimeUs - uptimeUs) <= abs(bufferTimeUs - realtimeUs)
 
         assertThat(isCloseToUptime).isTrue()
+    }
+
+    @Test
+    fun stopVideoEncoder_reachStopTime() {
+        videoEncoder.start()
+        verify(videoEncoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
+
+        val stopTimeUs = TimeUnit.MILLISECONDS.toMicros(SystemClock.uptimeMillis())
+
+        videoEncoder.stopSafely()
+        verify(videoEncoderCallback, timeout(5000L)).onEncodeStop()
+
+        // If the last data timestamp is null, it means the encoding is probably stopped because of timeout.
+        assertThat(videoEncoder.mLastDataStopTimestamp).isNotNull()
+        assertThat(videoEncoder.mLastDataStopTimestamp).isAtLeast(stopTimeUs)
     }
 
     private fun initVideoEncoder() {
