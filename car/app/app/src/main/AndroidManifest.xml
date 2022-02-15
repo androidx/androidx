@@ -16,6 +16,7 @@
   limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="androidx.car.app">
     <application>
         <activity
@@ -25,6 +26,9 @@
         <receiver android:name=".notification.CarAppNotificationBroadcastReceiver" />
     </application>
     <queries>
-        <provider android:authorities="androidx.car.app.connection" />
+        <provider
+            android:name="androidx.car.app.connection.provider"
+            android:authorities="androidx.car.app.connection"
+            tools:ignore="MissingClass" />
     </queries>
 </manifest>
