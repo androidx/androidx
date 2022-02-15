@@ -17,7 +17,6 @@
 package androidx.template.template
 
 import androidx.compose.runtime.Composable
-import androidx.glance.ImageProvider
 import androidx.glance.action.Action
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -26,16 +25,25 @@ import androidx.glance.Image
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
-import androidx.glance.layout.fillMaxWidth
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.TextUnit
+import androidx.glance.Button
+import androidx.glance.ImageProvider
+import androidx.glance.LocalSize
+import androidx.glance.action.clickable
+import androidx.glance.background
+import androidx.glance.layout.Column
 import androidx.glance.layout.height
 import androidx.glance.layout.width
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
+import androidx.glance.unit.ColorProvider
 
 /** Transforms semantic data into a composable layout for any glanceable */
 abstract class GlanceTemplate<T> {
 
-    /** Defines the data associated with this template */
+    /** Defines the data associated with this template. */
     abstract fun getData(state: Any?): T
 
     /** Default layout implementation for AppWidget glanceable, at "collapsed" display size. */
@@ -54,12 +62,46 @@ abstract class GlanceTemplate<T> {
 }
 
 /**
+ * Contains the information required to display a string on a template.
+ *
+ * @param text string to be displayed
+ * @param priority the priority order for this string, in orderable blocks
+ * @param color text color
+ */
+public class TemplateText(
+    val text: String,
+    val priority: Int = 0,
+    val color: ColorProvider? = null
+) {
+
+    override fun hashCode(): Int {
+        var result = text.hashCode()
+        result = 31 * result + priority
+        result = 31 * result + (color?.hashCode() ?: 0)
+        return result
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as TemplateText
+
+        if (text != other.text) return false
+        if (priority != other.priority) return false
+        if (color != other.color) return false
+
+        return true
+    }
+}
+
+/**
  * Contains the information required to display an image on a template.
  *
  * @param image The image to display
  * @param description The image description, usually used as alt text
  */
-class TemplateImageWithDescription(val image: ImageProvider, val description: String) {
+public class TemplateImageWithDescription(val image: ImageProvider, val description: String) {
 
     override fun hashCode(): Int = 31 * image.hashCode() + description.hashCode()
 
@@ -77,7 +119,7 @@ class TemplateImageWithDescription(val image: ImageProvider, val description: St
  *
  * @param action The onClick action
  */
-sealed class TemplateButton(val action: Action) {
+public sealed class TemplateButton(val action: Action) {
 
     override fun hashCode(): Int = action.hashCode()
 
@@ -95,7 +137,7 @@ sealed class TemplateButton(val action: Action) {
  * @param action The onClick action
  * @param text The button display text
  */
-class TemplateTextButton(action: Action, val text: String) : TemplateButton(action) {
+public class TemplateTextButton(action: Action, val text: String) : TemplateButton(action) {
 
     override fun hashCode(): Int = 31 * super.hashCode() + text.hashCode()
 
@@ -114,7 +156,7 @@ class TemplateTextButton(action: Action, val text: String) : TemplateButton(acti
  * @param action The onClick action
  * @param image The button image
  */
-class TemplateImageButton(
+public class TemplateImageButton(
     action: Action,
     val image: TemplateImageWithDescription
 ) : TemplateButton(action) {
@@ -140,10 +182,10 @@ class TemplateImageButton(
 @Composable
 internal fun TemplateHeader(
     headerIcon: TemplateImageWithDescription,
-    header: String? = null
+    header: TemplateText?
 ) {
     Row(
-        modifier = GlanceModifier.fillMaxWidth(),
+        modifier = GlanceModifier.background(Color.Transparent),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
@@ -153,12 +195,132 @@ internal fun TemplateHeader(
         )
         header?.let {
             Spacer(modifier = GlanceModifier.width(8.dp))
-            // TODO: Text color customization
+            val size =
+                textSize(TemplateTextType.Title, DisplaySize.fromDpSize(LocalSize.current))
+
             Text(
-                text = header,
-                style = TextStyle(fontSize = 20.sp),
+                modifier = GlanceModifier.defaultWeight(),
+                text = header.text,
+                style = TextStyle(fontSize = size, color = it.color),
                 maxLines = 1
             )
         }
     }
 }
+
+/**
+ * Default glanceable text section layout. Displays a list of reorderable text fields, ordered by
+ * priority and styled according to the [TemplateTextType] of each field.
+ *
+ * @param textList the list of text fields to display in the block
+ */
+@Composable
+internal fun TextSection(textList: List<TypedTemplateText>) {
+    if (textList.isEmpty()) return
+
+    val sorted = textList.sortedBy { it.text.priority }
+    Column(modifier = GlanceModifier.background(Color.Transparent)) {
+        sorted.forEach {
+            // TODO: Spacing
+            val size = textSize(it.textType, DisplaySize.fromDpSize(LocalSize.current))
+            Text(
+                it.text.text,
+                style = TextStyle(fontSize = size, color = it.text.color),
+                maxLines = maxLines(it.textType),
+                modifier = GlanceModifier.background(Color.Transparent)
+            )
+        }
+    }
+}
+
+/**
+ * Displays a [TemplateButton]
+ */
+@Composable
+internal fun TemplateButton(button: TemplateButton) {
+    when (button) {
+        is TemplateImageButton -> {
+            // TODO: Specify sizing for image button
+            val image = button.image
+            Image(
+                provider = image.image,
+                contentDescription = image.description,
+                modifier = GlanceModifier.clickable(button.action)
+            )
+        }
+        is TemplateTextButton -> {
+            Button(text = button.text, onClick = button.action)
+        }
+    }
+}
+
+/**
+ * A [TemplateText] tagged with the [TemplateTextType] of the field. Templates can use the
+ * text type to assign appropriate styling.
+ *
+ * @param text base text field
+ * @param textType text field type type
+ */
+internal data class TypedTemplateText(val text: TemplateText, val textType: TemplateTextType)
+
+/**
+ * The text types that can be used with templates
+ */
+internal enum class TemplateTextType {
+    Display,
+    Title,
+    Label,
+    Body
+}
+
+private enum class DisplaySize {
+    Small,
+    Medium,
+    Large;
+
+    companion object {
+        fun fromDpSize(dpSize: DpSize): DisplaySize =
+            if (dpSize.width < 180.dp && dpSize.height < 120.dp) {
+                Small
+            } else if (dpSize.width < 280.dp && dpSize.height < 180.dp) {
+                Medium
+            } else {
+                Large
+            }
+    }
+}
+
+private fun textSize(textClass: TemplateTextType, displaySize: DisplaySize): TextUnit =
+    when (textClass) {
+        // TODO: Does display scale?
+        TemplateTextType.Display -> 45.sp
+        TemplateTextType.Title -> {
+            when (displaySize) {
+                DisplaySize.Small -> 14.sp
+                DisplaySize.Medium -> 16.sp
+                DisplaySize.Large -> 22.sp
+            }
+        }
+        TemplateTextType.Body -> {
+            when (displaySize) {
+                DisplaySize.Small -> 12.sp
+                DisplaySize.Medium -> 14.sp
+                DisplaySize.Large -> 14.sp
+            }
+        }
+        TemplateTextType.Label -> {
+            when (displaySize) {
+                DisplaySize.Small -> 11.sp
+                DisplaySize.Medium -> 12.sp
+                DisplaySize.Large -> 14.sp
+            }
+        }
+    }
+
+private fun maxLines(textClass: TemplateTextType): Int =
+    when (textClass) {
+        TemplateTextType.Display -> 1
+        TemplateTextType.Title -> 3
+        TemplateTextType.Body -> 3
+        TemplateTextType.Label -> 1
+    }

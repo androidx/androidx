@@ -31,9 +31,10 @@ import androidx.glance.unit.ColorProvider
 import androidx.template.appwidget.GlanceTemplateAppWidget
 import androidx.template.template.TemplateImageWithDescription
 import androidx.template.template.SingleEntityTemplate
+import androidx.template.template.TemplateText
 import androidx.template.template.TemplateTextButton
 
-/** A [SingleEntityTemplate] implementation that sets the header given widget state */
+/** A [SingleEntityTemplate] implementation that sets the title given widget state */
 class MyWidgetTemplate : SingleEntityTemplate() {
     override fun getData(state: Any?): Data {
         require(state is Preferences)
@@ -59,16 +60,16 @@ class SingleEntityWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = SingleEntityWidget()
 }
 
-private fun createData(header: String) = SingleEntityTemplate.Data(
-    header = header,
+private fun createData(title: String) = SingleEntityTemplate.Data(
+    header = TemplateText("Single Entity demo"),
     headerIcon = TemplateImageWithDescription(
         ImageProvider(R.drawable.compose),
         "Header icon"
     ),
-    title = "",
-    bodyText = "",
+    title = TemplateText(title, 1),
+    subtitle = TemplateText("Subtitle test", 2),
     button = TemplateTextButton(actionRunCallback<ButtonAction>(), "toggle"),
-    mainImage = TemplateImageWithDescription(
+    image = TemplateImageWithDescription(
         ImageProvider(R.drawable.compose),
         "Compose image"
     ),
