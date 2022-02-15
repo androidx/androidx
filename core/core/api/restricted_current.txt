@@ -1118,10 +1118,15 @@ package androidx.core.content {
     method public static <T> T? getSystemService(android.content.Context, Class<T!>);
     method public static String? getSystemServiceName(android.content.Context, Class<?>);
     method public static boolean isDeviceProtectedStorage(android.content.Context);
+    method public static android.content.Intent? registerReceiver(android.content.Context, android.content.BroadcastReceiver?, android.content.IntentFilter, int);
+    method public static android.content.Intent? registerReceiver(android.content.Context, android.content.BroadcastReceiver?, android.content.IntentFilter, String?, android.os.Handler?, int);
     method public static boolean startActivities(android.content.Context, android.content.Intent![]);
     method public static boolean startActivities(android.content.Context, android.content.Intent![], android.os.Bundle?);
     method public static void startActivity(android.content.Context, android.content.Intent, android.os.Bundle?);
     method public static void startForegroundService(android.content.Context, android.content.Intent);
+    field public static final int RECEIVER_EXPORTED = 2; // 0x2
+    field public static final int RECEIVER_NOT_EXPORTED = 4; // 0x4
+    field public static final int RECEIVER_VISIBLE_TO_INSTANT_APPS = 1; // 0x1
   }
 
   public class FileProvider extends android.content.ContentProvider {
