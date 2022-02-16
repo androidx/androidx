@@ -209,13 +209,17 @@ public class ExtensionsTestUtil {
     /**
      * Returns whether extensions is disabled by quirk.
      */
-    public static boolean extensionsDisabledByQuirk() {
+    public static boolean extensionsDisabledByQuirk(@CameraSelector.LensFacing int lensFacing,
+            @ExtensionMode.Mode int extensionMode) {
+
         boolean isAdvancedExtenderSupported = false;
 
         if (ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_2) >= 0) {
             isAdvancedExtenderSupported = ExtensionVersion.isAdvancedExtenderSupported();
         }
 
-        return new ExtensionDisabledValidator().shouldDisableExtension(isAdvancedExtenderSupported);
+        return new ExtensionDisabledValidator().shouldDisableExtension(
+                CameraUtil.getCameraIdWithLensFacing(lensFacing), extensionMode,
+                isAdvancedExtenderSupported);
     }
 }
