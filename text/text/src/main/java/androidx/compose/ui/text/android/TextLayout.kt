@@ -24,7 +24,6 @@ import android.text.TextDirectionHeuristics
 import android.text.TextPaint
 import android.text.TextUtils
 import androidx.annotation.Px
-import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.compose.ui.text.android.LayoutCompat.ALIGN_CENTER
 import androidx.compose.ui.text.android.LayoutCompat.ALIGN_LEFT
@@ -483,7 +482,6 @@ private class HorizontalPositionCache(val layout: TextLayout) {
     }
 }
 
-@RequiresApi(api = 18)
 @OptIn(InternalPlatformTextApi::class)
 internal fun getTextDirectionHeuristic(@TextDirection textDirectionHeuristic: Int):
     TextDirectionHeuristic {

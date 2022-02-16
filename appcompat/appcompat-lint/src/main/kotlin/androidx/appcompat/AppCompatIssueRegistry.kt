@@ -32,7 +32,7 @@ import com.android.tools.lint.client.api.Vendor
 @Suppress("UnstableApiUsage")
 class AppCompatIssueRegistry : IssueRegistry() {
     override val minApi = 10 // Only compatible with the latest lint
-    override val api = 11
+    override val api = 13
     override val issues get() = listOf(
         SetActionBarDetector.USING_CORE_ACTION_BAR,
         ColorStateListAlphaDetector.NOT_USING_ANDROID_ALPHA,

@@ -91,7 +91,7 @@ package androidx.leanback.preference {
     method public void setTitle(CharSequence!);
   }
 
-  @RequiresApi(21) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class LeanbackPreferenceFragmentTransitionHelperApi21 {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class LeanbackPreferenceFragmentTransitionHelperApi21 {
     method public static void addTransitions(android.app.Fragment!);
   }
 
@@ -131,7 +131,7 @@ package androidx.leanback.preference {
 
 package androidx.leanback.preference.internal {
 
-  @RequiresApi(21) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class OutlineOnlyWithChildrenFrameLayout extends android.widget.FrameLayout {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class OutlineOnlyWithChildrenFrameLayout extends android.widget.FrameLayout {
     ctor public OutlineOnlyWithChildrenFrameLayout(android.content.Context!);
     ctor public OutlineOnlyWithChildrenFrameLayout(android.content.Context!, android.util.AttributeSet!);
     ctor public OutlineOnlyWithChildrenFrameLayout(android.content.Context!, android.util.AttributeSet!, int);

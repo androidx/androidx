@@ -21,14 +21,12 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.wearable.complications.ComplicationData;
 import android.support.wearable.complications.ComplicationProviderInfo;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentActivity;
@@ -58,7 +56,6 @@ import java.util.Objects;
  *
  * @hide
  */
-@RequiresApi(Build.VERSION_CODES.N)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class ComplicationHelperActivity extends FragmentActivity
         implements ActivityCompat.OnRequestPermissionsResultCallback {

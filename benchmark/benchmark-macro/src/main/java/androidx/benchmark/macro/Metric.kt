@@ -76,7 +76,6 @@ private fun Long.nsToDoubleMs(): Double = this / 1_000_000.0
  */
 @ExperimentalMetricApi
 @Suppress("CanSealedSubClassBeObject")
-@RequiresApi(23)
 public class AudioUnderrunMetric : Metric() {
     internal override fun configure(packageName: String) {
     }
