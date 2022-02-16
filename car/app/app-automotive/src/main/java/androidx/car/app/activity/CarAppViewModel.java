@@ -132,6 +132,7 @@ public class CarAppViewModel extends AndroidViewModel implements
     void unbind() {
         mServiceConnectionManager.unbind();
         mIInsetsListener = null;
+        mIRendererCallback = null;
     }
 
     @Override
