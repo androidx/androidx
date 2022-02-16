@@ -181,7 +181,9 @@ public class NavDeepLink internal constructor(
                 val inputParams = deepLink.getQueryParameter(paramName)
                 if (inputParams != null) {
                     // Match the input arguments with the saved regex
-                    argMatcher = Pattern.compile(storedParam!!.paramRegex).matcher(inputParams)
+                    argMatcher = Pattern.compile(
+                        storedParam!!.paramRegex, Pattern.DOTALL
+                    ).matcher(inputParams)
                     if (!argMatcher.matches()) {
                         return null
                     }
