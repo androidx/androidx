@@ -89,6 +89,9 @@ abstract class BasePluginTest {
                 }
             """.trimIndent(),
             suffix = """
+                android {
+                    namespace 'androidx.navigation.testapp'
+                }
                 dependencies {
                     implementation "${projectSetup.props.navigationRuntime}"
                 }
@@ -134,6 +137,9 @@ abstract class BasePluginTest {
                 }
             """.trimIndent(),
             suffix = """
+                android {
+                    namespace 'androidx.navigation.testapp'
+                }
                 dependencies {
                     implementation "${projectSetup.props.kotlinStblib}"
                     implementation "${projectSetup.props.navigationRuntime}"
