@@ -94,6 +94,9 @@ private val PROCESS_STATS_DATASOURCE = TraceConfig.DataSource(
         target_buffer = 1,
         process_stats_config = ProcessStatsConfig(
             proc_stats_poll_ms = 10000,
+            // This flag appears to be unreliable on API 29 unbundled perfetto, so to avoid very
+            // frequent proc stats polling to name processes correctly, we currently use unbundled
+            // perfetto on API 29, even though the bundled version exists. (b/218668335)
             scan_all_processes_on_start = true
         )
     )
