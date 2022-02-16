@@ -27,6 +27,15 @@ interface XExecutableParameterElement : XVariableElement {
     override val enclosingElement: XExecutableElement
 
     /**
+     * The enclosing [XExecutableElement] this parameter belongs to.
+     */
+    @Deprecated(message = "use XExecutableParameterElement#enclosingElement() instead.",
+        replaceWith = ReplaceWith("enclosingElement")
+    )
+    val enclosingMethodElement: XExecutableElement
+        get() = enclosingElement
+
+    /**
      * `true` if the parameter has a default value, `false` otherwise.
      *
      * Note that when @JvmOverloads is used in a kotlin function with KAPT, only the original
