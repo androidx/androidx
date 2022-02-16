@@ -24,7 +24,7 @@ dependencies {
     api("androidx.startup:startup-runtime:1.0.0")
     implementation("androidx.collection:collection:1.1.0")
     implementation("androidx.annotation:annotation:1.2.0")
-    implementation("androidx.lifecycle:lifecycle-process:2.4.0-rc01")
+    implementation("androidx.lifecycle:lifecycle-process:2.4.1")
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
