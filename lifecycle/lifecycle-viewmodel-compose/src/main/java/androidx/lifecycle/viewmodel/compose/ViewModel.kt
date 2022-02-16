@@ -22,6 +22,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 
 /**
  * Returns an existing [ViewModel] or creates a new one in the given owner (usually, a fragment or
@@ -152,6 +154,43 @@ public fun <VM : ViewModel> viewModel(
         CreationExtras.Empty
     }
 ): VM = viewModelStoreOwner.get(modelClass, key, factory, extras)
+
+/**
+ * Returns an existing [ViewModel] or creates a new one in the scope (usually, a fragment or
+ * an activity)
+ *
+ * The created [ViewModel] is associated with the given [viewModelStoreOwner] and will be retained
+ * as long as the scope is alive (e.g. if it is an activity, until it is
+ * finished or process is killed).
+ *
+ * If the [viewModelStoreOwner] implements [HasDefaultViewModelProviderFactory] its default
+ * [CreationExtras] are the ones that will be provided to the receiver scope from the [initializer]
+ *
+ * @param viewModelStoreOwner The scope that the created [ViewModel] should be associated with.
+ * @param key The key to use to identify the [ViewModel].
+ * @param initializer lambda used to create an instance of the ViewModel class
+ * @return A [ViewModel] that is an instance of the given [VM] type.
+ *
+ * @sample androidx.lifecycle.viewmodel.compose.samples.CreationExtrasViewModelInitializer
+ */
+@Composable
+public inline fun <reified VM : ViewModel> viewModel(
+    viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
+        "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
+    },
+    key: String? = null,
+    noinline initializer: CreationExtras.() -> VM
+): VM = viewModel(
+    VM::class.java,
+    viewModelStoreOwner,
+    key,
+    viewModelFactory { initializer(initializer) },
+    if (viewModelStoreOwner is HasDefaultViewModelProviderFactory) {
+        viewModelStoreOwner.defaultViewModelCreationExtras
+    } else {
+        CreationExtras.Empty
+    }
+)
 
 private fun <VM : ViewModel> ViewModelStoreOwner.get(
     javaClass: Class<VM>,

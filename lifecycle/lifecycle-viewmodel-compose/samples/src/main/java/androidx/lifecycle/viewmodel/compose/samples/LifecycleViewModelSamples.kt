@@ -22,11 +22,14 @@ import androidx.compose.runtime.remember
 import androidx.core.os.bundleOf
 import androidx.lifecycle.DEFAULT_ARGS_KEY
 import androidx.lifecycle.HasDefaultViewModelProviderFactory
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Sampled
 @Composable
@@ -55,4 +58,23 @@ fun CreationExtrasViewModel() {
     viewModel.args
 }
 
+@Sampled
+@Composable
+fun CreationExtrasViewModelInitializer() {
+    // Just like any call to viewModel(), the default owner is the LocalViewModelStoreOwner.current.
+    // The lambda is only called the first time the ViewModel needs to be created.
+    val viewModel = viewModel {
+        // Within the lambda, you have direct access to the CreationExtras which allows you to call
+        // extension methods on CreationExtras such as createSavedStateHandle()
+        val handle = createSavedStateHandle()
+        // You can send any custom parameter, repository, etc. to your ViewModel.
+        SavedStateViewModel(handle, "custom_value")
+    }
+    // The handle and parameter are now available from the ViewModel
+    viewModel.handle
+    viewModel.value
+}
+
 class TestViewModel(val args: String?) : ViewModel()
+
+class SavedStateViewModel(val handle: SavedStateHandle, val value: String) : ViewModel()
