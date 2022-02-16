@@ -1,1 +1,31 @@
 // Signature format: 4.0
+package androidx.health.data.client.metadata {
+
+  public final class Device {
+    ctor public Device(optional String? identifier, optional String? manufacturer, optional String? model, optional String? type);
+    method public String? getIdentifier();
+    method public String? getManufacturer();
+    method public String? getModel();
+    method public String? getType();
+    property public final String? identifier;
+    property public final String? manufacturer;
+    property public final String? model;
+    property public final String? type;
+  }
+
+  public final class Metadata {
+    ctor public Metadata(optional String? uid, optional java.time.Instant lastModifiedTime, optional String? clientId, optional long clientVersion, optional androidx.health.data.client.metadata.Device? device);
+    method public String? getClientId();
+    method public long getClientVersion();
+    method public androidx.health.data.client.metadata.Device? getDevice();
+    method public java.time.Instant getLastModifiedTime();
+    method public String? getUid();
+    property public final String? clientId;
+    property public final long clientVersion;
+    property public final androidx.health.data.client.metadata.Device? device;
+    property public final java.time.Instant lastModifiedTime;
+    property public final String? uid;
+  }
+
+}
+
