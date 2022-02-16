@@ -51,10 +51,13 @@ import androidx.wear.watchface.complications.ComplicationSlotBounds
 import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
 import androidx.wear.watchface.complications.SystemDataSources
 import androidx.wear.watchface.complications.data.ComplicationType
+import androidx.wear.watchface.complications.data.CountUpTimeReference
 import androidx.wear.watchface.complications.data.EmptyComplicationData
 import androidx.wear.watchface.complications.data.NoDataComplicationData
 import androidx.wear.watchface.complications.data.PlainComplicationText
 import androidx.wear.watchface.complications.data.ShortTextComplicationData
+import androidx.wear.watchface.complications.data.TimeDifferenceComplicationText
+import androidx.wear.watchface.complications.data.TimeDifferenceStyle
 import androidx.wear.watchface.complications.data.toApiComplicationData
 import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
@@ -114,6 +117,7 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.ArrayDeque
 import java.util.PriorityQueue
+import java.util.concurrent.TimeUnit
 import kotlin.test.assertFailsWith
 
 private const val INTERACTIVE_UPDATE_RATE_MS = 16L
@@ -1066,7 +1070,7 @@ public class WatchFaceServiceTest {
             UserStyleSchema(emptyList())
         )
 
-        assertThat(watchFaceImpl.computeDelayTillNextFrame(0, 0)).isEqualTo(
+        assertThat(watchFaceImpl.computeDelayTillNextFrame(0, 0, Instant.EPOCH)).isEqualTo(
             INTERACTIVE_UPDATE_RATE_MS
         )
 
@@ -1075,7 +1079,7 @@ public class WatchFaceServiceTest {
             context,
             Intent(Intent.ACTION_BATTERY_LOW)
         )
-        assertThat(watchFaceImpl.computeDelayTillNextFrame(0, 0)).isEqualTo(
+        assertThat(watchFaceImpl.computeDelayTillNextFrame(0, 0, Instant.EPOCH)).isEqualTo(
             WatchFaceImpl.MAX_LOW_POWER_INTERACTIVE_UPDATE_RATE_MS
         )
 
@@ -1084,7 +1088,7 @@ public class WatchFaceServiceTest {
             context,
             Intent(Intent.ACTION_BATTERY_OKAY)
         )
-        assertThat(watchFaceImpl.computeDelayTillNextFrame(0, 0)).isEqualTo(
+        assertThat(watchFaceImpl.computeDelayTillNextFrame(0, 0, Instant.EPOCH)).isEqualTo(
             INTERACTIVE_UPDATE_RATE_MS
         )
     }
@@ -1097,7 +1101,7 @@ public class WatchFaceServiceTest {
             UserStyleSchema(emptyList())
         )
 
-        assertThat(watchFaceImpl.computeDelayTillNextFrame(0, 0)).isEqualTo(
+        assertThat(watchFaceImpl.computeDelayTillNextFrame(0, 0, Instant.EPOCH)).isEqualTo(
             INTERACTIVE_UPDATE_RATE_MS
         )
 
@@ -1106,7 +1110,7 @@ public class WatchFaceServiceTest {
             context,
             Intent(Intent.ACTION_BATTERY_LOW)
         )
-        assertThat(watchFaceImpl.computeDelayTillNextFrame(0, 0)).isEqualTo(
+        assertThat(watchFaceImpl.computeDelayTillNextFrame(0, 0, Instant.EPOCH)).isEqualTo(
             WatchFaceImpl.MAX_LOW_POWER_INTERACTIVE_UPDATE_RATE_MS
         )
 
@@ -1115,7 +1119,7 @@ public class WatchFaceServiceTest {
             context,
             Intent(Intent.ACTION_POWER_CONNECTED)
         )
-        assertThat(watchFaceImpl.computeDelayTillNextFrame(0, 0)).isEqualTo(
+        assertThat(watchFaceImpl.computeDelayTillNextFrame(0, 0, Instant.EPOCH)).isEqualTo(
             INTERACTIVE_UPDATE_RATE_MS
         )
     }
@@ -1131,7 +1135,8 @@ public class WatchFaceServiceTest {
         assertThat(
             watchFaceImpl.computeDelayTillNextFrame(
                 startTimeMillis = 0,
-                currentTimeMillis = 2
+                currentTimeMillis = 2,
+                Instant.EPOCH
             )
         )
             .isEqualTo(INTERACTIVE_UPDATE_RATE_MS - 2)
@@ -1149,7 +1154,8 @@ public class WatchFaceServiceTest {
         assertThat(
             watchFaceImpl.computeDelayTillNextFrame(
                 startTimeMillis = 2,
-                currentTimeMillis = INTERACTIVE_UPDATE_RATE_MS + 3
+                currentTimeMillis = INTERACTIVE_UPDATE_RATE_MS + 3,
+                Instant.EPOCH
             )
         ).isEqualTo(- 1)
     }
@@ -1168,7 +1174,8 @@ public class WatchFaceServiceTest {
         assertThat(
             watchFaceImpl.computeDelayTillNextFrame(
                 startTimeMillis = 20,
-                currentTimeMillis = 24
+                currentTimeMillis = 24,
+                Instant.EPOCH
             )
         ).isEqualTo(INTERACTIVE_UPDATE_RATE_MS - 4)
     }
@@ -1188,7 +1195,8 @@ public class WatchFaceServiceTest {
         assertThat(
             watchFaceImpl.computeDelayTillNextFrame(
                 startTimeMillis = 100740,
-                currentTimeMillis = 100750
+                currentTimeMillis = 100750,
+                Instant.EPOCH
             )
         ).isEqualTo(250)
     }
@@ -1208,7 +1216,8 @@ public class WatchFaceServiceTest {
         assertThat(
             watchFaceImpl.computeDelayTillNextFrame(
                 startTimeMillis = 10000,
-                currentTimeMillis = 10001
+                currentTimeMillis = 10001,
+                Instant.EPOCH
             )
         ).isEqualTo(999)
     }
@@ -1224,13 +1233,93 @@ public class WatchFaceServiceTest {
         renderer.interactiveDrawModeUpdateDelayMillis = 60000
 
         // Simulate rendering 2s into a minute, after which we should delay till the next minute.
-        watchFaceImpl.nextDrawTimeMillis = 60000 + (120)
+        watchFaceImpl.nextDrawTimeMillis = 60000 + 2000
         assertThat(
             watchFaceImpl.computeDelayTillNextFrame(
                 startTimeMillis = watchFaceImpl.nextDrawTimeMillis,
-                currentTimeMillis = watchFaceImpl.nextDrawTimeMillis
+                currentTimeMillis = watchFaceImpl.nextDrawTimeMillis,
+                Instant.EPOCH
             )
-        ).isEqualTo(59880) // NB 59880 + 120 == 60000
+        ).isEqualTo(58000) // NB 58000 + 2000 == 60000
+    }
+
+    @Test
+    public fun computeDelayTillNextFrame_60000ms_update_with_stopwatchComplication() {
+        initEngine(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication, rightComplication),
+            UserStyleSchema(emptyList())
+        )
+
+        watchFaceImpl.onComplicationSlotDataUpdate(
+            LEFT_COMPLICATION_ID,
+            ShortTextComplicationData.Builder(
+                TimeDifferenceComplicationText.Builder(
+                    TimeDifferenceStyle.STOPWATCH,
+                    CountUpTimeReference(Instant.parse("2022-10-30T10:15:30.001Z"))
+                ).setMinimumTimeUnit(TimeUnit.MINUTES).build(),
+                androidx.wear.watchface.complications.data.ComplicationText.EMPTY
+            ).build()
+        )
+
+        renderer.interactiveDrawModeUpdateDelayMillis = 60000
+
+        // Simulate rendering 2s into a minute of system time, normally we'd need to wait 58 seconds
+        // but the complication needs an update in 50s so our delay is shorter.
+        watchFaceImpl.nextDrawTimeMillis = 60000 + 2000
+        assertThat(
+            watchFaceImpl.computeDelayTillNextFrame(
+                startTimeMillis = watchFaceImpl.nextDrawTimeMillis,
+                currentTimeMillis = watchFaceImpl.nextDrawTimeMillis,
+                Instant.EPOCH.plusSeconds(10)
+            )
+        ).isEqualTo(50001)
+    }
+
+    @Test
+    public fun complicationSlotsManager_getNextChangeInstant() {
+        initEngine(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication, rightComplication),
+            UserStyleSchema(emptyList())
+        )
+
+        // Initially neither complication has a scheduled change.
+        assertThat(complicationSlotsManager.getNextChangeInstant(Instant.EPOCH))
+            .isEqualTo(Instant.MAX)
+
+        // Sending a complication with a scheduled update alters the result of getNextChangeInstant.
+        val referenceInstant = Instant.parse("2022-10-30T10:15:30.001Z")
+        watchFaceImpl.onComplicationSlotDataUpdate(
+            LEFT_COMPLICATION_ID,
+            ShortTextComplicationData.Builder(
+                TimeDifferenceComplicationText.Builder(
+                    TimeDifferenceStyle.STOPWATCH,
+                    CountUpTimeReference(referenceInstant)
+                ).setMinimumTimeUnit(TimeUnit.HOURS).build(),
+                androidx.wear.watchface.complications.data.ComplicationText.EMPTY
+            ).build()
+        )
+
+        val nowInstant = Instant.EPOCH.plusSeconds(10)
+        assertThat(complicationSlotsManager.getNextChangeInstant(nowInstant))
+            .isEqualTo(Instant.EPOCH.plusSeconds(60 * 60).plusMillis(1))
+
+        // Sending another complication with an earlier scheduled update alters the result of
+        // getNextChangeInstant again.
+        watchFaceImpl.onComplicationSlotDataUpdate(
+            RIGHT_COMPLICATION_ID,
+            ShortTextComplicationData.Builder(
+                TimeDifferenceComplicationText.Builder(
+                    TimeDifferenceStyle.STOPWATCH,
+                    CountUpTimeReference(referenceInstant)
+                ).setMinimumTimeUnit(TimeUnit.SECONDS).build(),
+                androidx.wear.watchface.complications.data.ComplicationText.EMPTY
+            ).build()
+        )
+
+        assertThat(complicationSlotsManager.getNextChangeInstant(nowInstant))
+            .isEqualTo(Instant.EPOCH.plusSeconds(10).plusMillis(1))
     }
 
     @Test
