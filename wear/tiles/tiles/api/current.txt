@@ -151,6 +151,7 @@ package androidx.wear.tiles {
     method public static androidx.wear.tiles.DimensionBuilders.DegreesProp degrees(float);
     method public static androidx.wear.tiles.DimensionBuilders.DpProp dp(@Dimension(unit=androidx.annotation.Dimension.DP) float);
     method public static androidx.wear.tiles.DimensionBuilders.EmProp em(int);
+    method public static androidx.wear.tiles.DimensionBuilders.EmProp em(float);
     method public static androidx.wear.tiles.DimensionBuilders.ExpandedDimensionProp expand();
     method public static androidx.wear.tiles.DimensionBuilders.SpProp sp(@Dimension(unit=androidx.annotation.Dimension.SP) float);
     method public static androidx.wear.tiles.DimensionBuilders.WrappedDimensionProp wrap();

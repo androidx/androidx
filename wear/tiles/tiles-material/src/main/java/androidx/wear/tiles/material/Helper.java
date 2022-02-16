@@ -37,7 +37,10 @@ public class Helper {
 
     /**
      * Returns given value if not null or throws {@code NullPointerException} otherwise.
+     *
+     * @hide
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public static <T> T checkNotNull(@Nullable T value) {
         if (value == null) {
@@ -53,7 +56,10 @@ public class Helper {
 
     /**
      * Returns true if the given DeviceParameters belong to the round screen device.
+     *
+     * @hide
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     public static boolean isRoundDevice(@NonNull DeviceParameters deviceParameters) {
         return deviceParameters.getScreenShape() == DeviceParametersBuilders.SCREEN_SHAPE_ROUND;
     }

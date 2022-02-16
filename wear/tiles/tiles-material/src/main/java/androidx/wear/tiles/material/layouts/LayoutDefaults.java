@@ -25,26 +25,24 @@ public class LayoutDefaults {
     private LayoutDefaults() {}
 
     /**
-     * The default percentage for the bottom margin for primary chip in the {@link
-     * PrimaryLayout}.
+     * The default percentage for the bottom margin for primary chip in the {@link PrimaryLayout}.
      */
     static final float PRIMARY_LAYOUT_MARGIN_BOTTOM_ROUND_PERCENT = 6.3f / 100;
 
     /**
-     * The default percentage for the bottom margin for primary chip in the {@link
-     * PrimaryLayout}.
+     * The default percentage for the bottom margin for primary chip in the {@link PrimaryLayout}.
      */
     static final float PRIMARY_LAYOUT_MARGIN_BOTTOM_SQUARE_PERCENT = 2.2f / 100;
 
     /**
-     * The default percentage for the top margin for primary chip in the {@link PrimaryLayout}
-     * on round devices.
+     * The default percentage for the top margin for primary chip in the {@link PrimaryLayout} on
+     * round devices.
      */
     static final float PRIMARY_LAYOUT_MARGIN_TOP_ROUND_PERCENT = 16.7f / 100;
 
     /**
-     * The default percentage for the top margin for primary chip in the {@link PrimaryLayout}
-     * on square devices.
+     * The default percentage for the top margin for primary chip in the {@link PrimaryLayout} on
+     * square devices.
      */
     static final float PRIMARY_LAYOUT_MARGIN_TOP_SQUARE_PERCENT = 15.6f / 100;
 
@@ -81,9 +79,9 @@ public class LayoutDefaults {
      */
     public static final float PROGRESS_INDICATOR_LAYOUT_PADDING_BELOW_MAIN_CONTENT_DP = 8;
 
-    /** The default spacer width for slots in the {@link MultiSlotLayout}. */
+    /** The default spacer width for slots in a {@link MultiSlotLayout}. */
     public static final DpProp MULTI_SLOT_LAYOUT_HORIZONTAL_SPACER_WIDTH = dp(8);
 
-    /** The recommended space between slots in the {@link MultiSlotLayout} and additional labels. */
+    /** The recommended space between slots in a {@link MultiSlotLayout} and additional labels. */
     public static final DpProp MULTI_SLOT_LAYOUT_VERTICAL_SPACER_HEIGHT = dp(8);
 }

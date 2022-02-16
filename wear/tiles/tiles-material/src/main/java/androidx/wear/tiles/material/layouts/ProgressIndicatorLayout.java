@@ -191,7 +191,7 @@ public class ProgressIndicatorLayout implements LayoutElement {
     /** Get the inner content from this layout. */
     @NonNull
     public LayoutElement getContent() {
-        return checkNotNull(((Box) ((Box) mElement).getContents().get(0))).getContents().get(0);
+        return checkNotNull(((Box) ((Box) mElement).getContents().get(0)).getContents().get(0));
     }
 
     /** @hide */
