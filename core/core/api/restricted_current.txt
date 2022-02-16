@@ -41,13 +41,13 @@ package androidx.core.app {
     ctor protected ActivityCompat();
     method public static void finishAffinity(android.app.Activity);
     method public static void finishAfterTransition(android.app.Activity);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.app.ActivityCompat.PermissionCompatDelegate! getPermissionCompatDelegate();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.app.ActivityCompat.PermissionCompatDelegate? getPermissionCompatDelegate();
     method public static android.net.Uri? getReferrer(android.app.Activity);
     method @Deprecated public static boolean invalidateOptionsMenu(android.app.Activity!);
     method public static boolean isLaunchedFromBubble(android.app.Activity);
     method public static void postponeEnterTransition(android.app.Activity);
     method public static void recreate(android.app.Activity);
-    method public static androidx.core.view.DragAndDropPermissionsCompat? requestDragAndDropPermissions(android.app.Activity!, android.view.DragEvent!);
+    method public static androidx.core.view.DragAndDropPermissionsCompat? requestDragAndDropPermissions(android.app.Activity, android.view.DragEvent);
     method public static void requestPermissions(android.app.Activity, String![], @IntRange(from=0) int);
     method public static <T extends android.view.View> T requireViewById(android.app.Activity, @IdRes int);
     method public static void setEnterSharedElementCallback(android.app.Activity, androidx.core.app.SharedElementCallback?);
