@@ -25,6 +25,12 @@ import androidx.testutils.DirectDispatcher
 import androidx.testutils.MainDispatcherRule
 import androidx.testutils.TestDispatcher
 import com.google.common.truth.Truth.assertThat
+import kotlin.coroutines.ContinuationInterceptor
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -45,17 +51,17 @@ import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
-import kotlin.coroutines.ContinuationInterceptor
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import kotlin.test.assertFalse
-import kotlin.test.assertNull
-import kotlin.test.assertTrue
+import org.junit.runners.Parameterized
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalPagingApi::class)
-@RunWith(JUnit4::class)
-class PagingDataDifferTest {
+@RunWith(Parameterized::class)
+class PagingDataDifferTest(
+    /**
+     * run some tests with cached-in to ensure caching does not change behavior in the single
+     * consumer cases.
+     */
+    private val collectWithCachedIn: Boolean
+) {
     private val testScope = TestCoroutineScope()
 
     @get:Rule
@@ -1023,8 +1029,7 @@ class PagingDataDifferTest {
     }
 
     @Test
-    fun refresh_loadStates() = runTest(initialKey = 50) { differ, loadDispatcher,
-        pagingSources ->
+    fun refresh_loadStates() = runTest(initialKey = 50) { differ, loadDispatcher, pagingSources ->
         val collectLoadStates = differ.collectLoadStates()
 
         // execute queued initial REFRESH
@@ -1049,6 +1054,54 @@ class PagingDataDifferTest {
             localLoadStatesOf()
         )
 
+        collectLoadStates.cancel()
+    }
+
+    @Test
+    fun refresh_loadStates_afterEndOfPagination() = runTest {
+            differ, loadDispatcher, _ ->
+        val loadStateCallbacks = mutableListOf<CombinedLoadStates>()
+        differ.addLoadStateListener {
+            loadStateCallbacks.add(it)
+        }
+        val collectLoadStates = differ.collectLoadStates()
+        // execute initial refresh
+        loadDispatcher.queue.poll()?.run()
+        assertThat(differ.snapshot()).containsExactlyElementsIn(0 until 9)
+        assertThat(differ.newCombinedLoadStates()).containsExactly(
+            localLoadStatesOf(
+                refreshLocal = Loading
+            ),
+            localLoadStatesOf(
+                refreshLocal = NotLoading(endOfPaginationReached = false),
+                prependLocal = NotLoading(endOfPaginationReached = true)
+            )
+        )
+        loadStateCallbacks.clear()
+        differ.refresh()
+        // after a refresh, make sure the loading event comes in 1 piece w/ the end of pagination
+        // reset
+        loadDispatcher.queue.poll()?.run()
+        assertThat(differ.newCombinedLoadStates()).containsExactly(
+            localLoadStatesOf(
+                refreshLocal = Loading,
+                prependLocal = NotLoading(endOfPaginationReached = false)
+            ),
+            localLoadStatesOf(
+                refreshLocal = NotLoading(endOfPaginationReached = false),
+                prependLocal = NotLoading(endOfPaginationReached = true)
+            ),
+        )
+        assertThat(loadStateCallbacks).containsExactly(
+            localLoadStatesOf(
+                refreshLocal = Loading,
+                prependLocal = NotLoading(endOfPaginationReached = false)
+            ),
+            localLoadStatesOf(
+                refreshLocal = NotLoading(endOfPaginationReached = false),
+                prependLocal = NotLoading(endOfPaginationReached = true)
+            ),
+        )
         collectLoadStates.cancel()
     }
 
@@ -1524,7 +1577,13 @@ class PagingDataDifferTest {
         block: (SimpleDiffer, TestDispatcher, MutableList<TestPagingSource>) -> Unit
     ) {
         val collection = scope.launch {
-            pager.flow.collect {
+            pager.flow.let {
+                if (collectWithCachedIn) {
+                    it.cachedIn(this)
+                } else {
+                    it
+                }
+            }.collect {
                 differ.collectFrom(it)
             }
         }
@@ -1535,6 +1594,12 @@ class PagingDataDifferTest {
                 collection.cancel()
             }
         }
+    }
+
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "useCachedIn_{0}")
+        fun params() = arrayOf(true, false)
     }
 }
 
