@@ -1696,7 +1696,9 @@ public class EditorSessionTest {
             TIMEOUT_MILLIS,
             TimeUnit.MILLISECONDS
         ).asApiEditorState()
-        assertThat(result.watchFaceId.id).isEqualTo(DEFAULT_INSTANCE_ID)
+
+        // We need to return the same ID we were sent (or lack there of).
+        assertThat(result.watchFaceId.id).isEmpty()
 
         EditorService.globalEditorService.unregisterObserver(observerId)
     }
@@ -1725,7 +1727,9 @@ public class EditorSessionTest {
             TIMEOUT_MILLIS,
             TimeUnit.MILLISECONDS
         ).asApiEditorState()
-        assertThat(result.watchFaceId.id).isEqualTo(DEFAULT_INSTANCE_ID)
+
+        // We need to return the same ID we were sent.
+        assertThat(result.watchFaceId.id).isEqualTo("instance-1")
 
         EditorService.globalEditorService.unregisterObserver(observerId)
     }
