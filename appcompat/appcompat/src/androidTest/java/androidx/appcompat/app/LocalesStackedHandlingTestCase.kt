@@ -106,6 +106,10 @@ class LocalesStackedHandlingTestCase {
             }
         )
 
+        var systemLocales = LocalesUpdateActivity.getConfigLocales(
+            activityA.resources.configuration
+        )
+
         // Activity A is hidden, wait for it to stop.
         waitUntilState(activityA, Lifecycle.State.CREATED)
 
@@ -137,9 +141,6 @@ class LocalesStackedHandlingTestCase {
         val activityA2 = expectRecreate(monitorA, activityA) as LocalesUpdateActivity
         val activityB2 = expectRecreate(monitorB, activityB) as LocalesUpdateActivity
 
-        var systemLocales = LocalesUpdateActivity.getConfigLocales(
-            activityA.resources.configuration
-        )
         var expectedLocales = LocalesUpdateActivity.overlayCustomAndSystemLocales(
             CUSTOM_LOCALE_LIST, systemLocales
         )
@@ -223,6 +224,10 @@ class LocalesStackedHandlingTestCase {
             }
         )
 
+        var systemLocales = LocalesUpdateActivity.getConfigLocales(
+            activityA.resources.configuration
+        )
+
         // Activity A is hidden, wait for it to stop.
         waitUntilState(activityA, Lifecycle.State.CREATED)
 
@@ -254,9 +259,6 @@ class LocalesStackedHandlingTestCase {
             activity.expectOnConfigurationChange(/* timeout= */ 3000)
         }
 
-        var systemLocales = LocalesUpdateActivity.getConfigLocales(
-            activityA.resources.configuration
-        )
         var expectedLocales = LocalesUpdateActivity.overlayCustomAndSystemLocales(
             CUSTOM_LOCALE_LIST, systemLocales
         )
