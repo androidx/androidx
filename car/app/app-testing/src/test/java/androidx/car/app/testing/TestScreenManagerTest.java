@@ -22,10 +22,10 @@ import androidx.annotation.NonNull;
 import androidx.car.app.Screen;
 import androidx.car.app.ScreenManager;
 import androidx.car.app.model.Template;
+import androidx.lifecycle.Lifecycle;
 import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -40,6 +40,10 @@ public class TestScreenManagerTest {
     @Before
     public void setup() {
         mCarContext = TestCarContext.createCarContext(ApplicationProvider.getApplicationContext());
+        // Set the app's lifecycle to STARTED so that screens would be set to the STARTED state when
+        // pushed. Otherwise we may run into issues in tests when popping screens, where they go
+        // from the INITIALIZED state to the DESTROYED state.
+        mCarContext.getLifecycleOwner().getRegistry().setCurrentState(Lifecycle.State.STARTED);
     }
 
     @Test
@@ -65,7 +69,6 @@ public class TestScreenManagerTest {
                 .containsExactly(screen1, screen2);
     }
 
-    @Ignore("b/218342974")
     @Test
     public void pop_getScreensRemoved() {
         Screen screen1 = new TestScreen();
@@ -83,7 +86,6 @@ public class TestScreenManagerTest {
                 .containsExactly(screen4);
     }
 
-    @Ignore("b/218342974")
     @Test
     public void remove_getScreensRemoved() {
         Screen screen1 = new TestScreen();
@@ -101,7 +103,6 @@ public class TestScreenManagerTest {
                 .containsExactly(screen2);
     }
 
-    @Ignore("b/218342974")
     @Test
     public void popTo_getScreensRemoved() {
         Screen screen1 = new TestScreen();
@@ -122,7 +123,6 @@ public class TestScreenManagerTest {
                 .containsExactly(screen4, screen3);
     }
 
-    @Ignore("b/218342974")
     @Test
     public void popToRoot_getScreensRemoved() {
         Screen screen1 = new TestScreen();
