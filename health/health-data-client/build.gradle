@@ -27,6 +27,12 @@ dependencies {
     // Add dependencies here
 }
 
+android {
+    defaultConfig {
+	minSdkVersion 26
+    }
+}
+
 androidx {
     name = "AndroidX Health Data Client Library"
     type = LibraryType.PUBLISHED_LIBRARY
