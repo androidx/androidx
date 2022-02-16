@@ -40,6 +40,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
@@ -54,6 +55,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
+import kotlinx.coroutines.flow.first
 
 /**
  * Receiver scope which is used by [ScalingLazyColumn].
@@ -363,6 +365,12 @@ public fun ScalingLazyColumn(
             }
             if (initialized) {
                 LaunchedEffect(state) {
+                    snapshotFlow {
+                        (state.layoutInfo as DefaultScalingLazyListLayoutInfo)
+                            .readyForInitialization
+                    }.first {
+                        it
+                    }
                     state.scrollToInitialItem()
                 }
             }
