@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.material
 
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
@@ -34,6 +35,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.FlakyTest
@@ -91,6 +93,85 @@ public class ScalingLazyListLayoutInfoTest {
             assertThat(state.centerItemIndex).isEqualTo(1)
             assertThat(state.centerItemScrollOffset).isEqualTo(0)
             state.layoutInfo.assertVisibleItems(count = 4)
+        }
+    }
+
+    @Test
+    fun orientationIsCorrect() {
+        lateinit var state: ScalingLazyListState
+        rule.setContent {
+            ScalingLazyColumn(
+                state = rememberScalingLazyListState().also { state = it },
+                modifier = Modifier.requiredSize(
+                    itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
+                ),
+                autoCentering = true,
+                contentPadding = PaddingValues(all = 0.dp)
+            ) {
+                items(5) {
+                    Box(Modifier.requiredSize(itemSizeDp))
+                }
+            }
+        }
+
+        // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
+        rule.waitUntil { state.initialized.value }
+
+        rule.runOnIdle {
+            assertThat(state.layoutInfo.orientation).isEqualTo(Orientation.Vertical)
+        }
+    }
+
+    @Test
+    fun reverseLayoutIsCorrectWhenNotReversed() {
+        lateinit var state: ScalingLazyListState
+        rule.setContent {
+            ScalingLazyColumn(
+                state = rememberScalingLazyListState().also { state = it },
+                modifier = Modifier.requiredSize(
+                    itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
+                ),
+                autoCentering = true,
+                contentPadding = PaddingValues(all = 0.dp)
+            ) {
+                items(5) {
+                    Box(Modifier.requiredSize(itemSizeDp))
+                }
+            }
+        }
+
+        // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
+        rule.waitUntil { state.initialized.value }
+
+        rule.runOnIdle {
+            assertThat(state.layoutInfo.reverseLayout).isEqualTo(false)
+        }
+    }
+
+    @Test
+    fun reverseLayoutIsCorrectWhenReversed() {
+        lateinit var state: ScalingLazyListState
+        rule.setContent {
+            ScalingLazyColumn(
+                state = rememberScalingLazyListState().also { state = it },
+                modifier = Modifier.requiredSize(
+                    itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
+                ),
+                autoCentering = true,
+                contentPadding = PaddingValues(all = 0.dp),
+                reverseLayout = true
+            ) {
+                items(5) {
+                    Box(Modifier.requiredSize(itemSizeDp))
+                }
+            }
+        }
+
+        // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
+        rule.waitUntil { state.initialized.value }
+
+        rule.runOnIdle {
+            assertThat(state.layoutInfo.reverseLayout).isEqualTo(true)
         }
     }
 
@@ -876,7 +957,7 @@ public class ScalingLazyListLayoutInfoTest {
     }
 
     @Test
-    fun viewportOffsetsAreCorrect() {
+    fun viewportOffsetsAndSizeAreCorrect() {
         val sizePx = 45
         val sizeDp = with(rule.density) { sizePx.toDp() }
         lateinit var state: ScalingLazyListState
@@ -896,11 +977,12 @@ public class ScalingLazyListLayoutInfoTest {
         rule.runOnIdle {
             assertThat(state.layoutInfo.viewportStartOffset).isEqualTo(0)
             assertThat(state.layoutInfo.viewportEndOffset).isEqualTo(sizePx)
+            assertThat(state.layoutInfo.viewportSize).isEqualTo(IntSize(sizePx, sizePx))
         }
     }
 
     @Test
-    fun viewportOffsetsAreCorrectWithContentPadding() {
+    fun viewportOffsetsAndSizeAreCorrectWithContentPadding() {
         val sizePx = 45
         val startPaddingPx = 10
         val endPaddingPx = 15
@@ -925,6 +1007,7 @@ public class ScalingLazyListLayoutInfoTest {
         rule.runOnIdle {
             assertThat(state.layoutInfo.viewportStartOffset).isEqualTo(-startPaddingPx)
             assertThat(state.layoutInfo.viewportEndOffset).isEqualTo(sizePx - startPaddingPx)
+            assertThat(state.layoutInfo.viewportSize).isEqualTo(IntSize(sizePx, sizePx))
         }
     }
 

@@ -300,12 +300,18 @@ package androidx.wear.compose.material {
   }
 
   public interface ScalingLazyListLayoutInfo {
+    method public androidx.compose.foundation.gestures.Orientation getOrientation();
+    method public boolean getReverseLayout();
     method public int getTotalItemsCount();
     method public int getViewportEndOffset();
+    method public long getViewportSize();
     method public int getViewportStartOffset();
     method public java.util.List<androidx.wear.compose.material.ScalingLazyListItemInfo> getVisibleItemsInfo();
+    property public abstract androidx.compose.foundation.gestures.Orientation orientation;
+    property public abstract boolean reverseLayout;
     property public abstract int totalItemsCount;
     property public abstract int viewportEndOffset;
+    property public abstract long viewportSize;
     property public abstract int viewportStartOffset;
     property public abstract java.util.List<androidx.wear.compose.material.ScalingLazyListItemInfo> visibleItemsInfo;
   }

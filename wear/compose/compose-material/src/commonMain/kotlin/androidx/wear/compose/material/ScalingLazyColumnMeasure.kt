@@ -17,10 +17,12 @@
 package androidx.wear.compose.material
 
 import androidx.compose.animation.core.Easing
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.lazy.LazyListItemInfo
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.lerp
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -395,7 +397,10 @@ internal class DefaultScalingLazyListLayoutInfo(
     override val viewportEndOffset: Int,
     override val totalItemsCount: Int,
     val centerItemIndex: Int,
-    val centerItemScrollOffset: Int
+    val centerItemScrollOffset: Int,
+    override val reverseLayout: Boolean,
+    override val orientation: Orientation,
+    override val viewportSize: IntSize
 ) : ScalingLazyListLayoutInfo
 
 internal class DefaultScalingLazyListItemInfo(
@@ -405,7 +410,7 @@ internal class DefaultScalingLazyListItemInfo(
     override val offset: Int,
     override val size: Int,
     override val scale: Float,
-    override val alpha: Float,
+    override val alpha: Float
 ) : ScalingLazyListItemInfo {
     override fun toString(): String {
         return "DefaultScalingLazyListItemInfo(index=$index, key=$key, " +

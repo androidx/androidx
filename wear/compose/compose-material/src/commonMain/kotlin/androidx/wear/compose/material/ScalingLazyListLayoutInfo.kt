@@ -15,6 +15,9 @@
  */
 package androidx.wear.compose.material
 
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.ui.unit.IntSize
+
 /**
  * Contains useful information about the currently displayed layout state of [ScalingLazyColumn].
  * For example you can get the list of currently displayed item.
@@ -48,4 +51,19 @@ interface ScalingLazyListLayoutInfo {
      * The total count of items passed to [ScalingLazyColumn].
      */
     val totalItemsCount: Int
+
+    /**
+     * The size of the viewport. It is the lazy list layout size including all the content paddings.
+     */
+    val viewportSize: IntSize
+
+    /**
+     * The orientation of the lazy list.
+     */
+    val orientation: Orientation
+
+    /**
+     * True if the direction of scrolling and layout is reversed.
+     */
+    val reverseLayout: Boolean
 }
