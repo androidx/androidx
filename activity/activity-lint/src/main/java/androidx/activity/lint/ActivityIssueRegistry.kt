@@ -26,7 +26,7 @@ import com.android.tools.lint.detector.api.CURRENT_API
 @Suppress("UnstableApiUsage")
 class ActivityIssueRegistry : IssueRegistry() {
     // tests are run with this version. We ensure that with ApiLintVersionsTest
-    override val api = 11
+    override val api = 13
     override val minApi = CURRENT_API
     override val issues get() = listOf(
         ActivityResultFragmentVersionDetector.ISSUE

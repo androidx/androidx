@@ -1,268 +1,356 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="cli" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
+<issues format="6" by="lint 7.3.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha02)" variant="all" version="7.3.0-alpha02">
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 25): `captureToImage`"
-        errorLine1="            .captureToImage()"
-        errorLine2="             ~~~~~~~~~~~~~~">
+        message="Call requires API level 26 (current min is 25): `isCircular`"
+        errorLine1="        rule.isCircular(LayoutDirection.Ltr) {"
+        errorLine2="             ~~~~~~~~~~">
         <location
             file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ButtonTest.kt"
-            line="588"
+            line="390"
             column="14"/>
     </issue>
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 25): `captureToImage`"
-        errorLine1="            .captureToImage()"
-        errorLine2="             ~~~~~~~~~~~~~~">
+        message="Call requires API level 26 (current min is 25): `isCircular`"
+        errorLine1="        rule.isCircular(LayoutDirection.Rtl) {"
+        errorLine2="             ~~~~~~~~~~">
         <location
             file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ButtonTest.kt"
-            line="608"
+            line="401"
             column="14"/>
     </issue>
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 25): `captureToImage`"
-        errorLine1="            .captureToImage()"
-        errorLine2="             ~~~~~~~~~~~~~~">
+        message="Call requires API level 26 (current min is 25): `verifyColors`"
+        errorLine1="        verifyColors("
+        errorLine2="        ~~~~~~~~~~~~">
         <location
             file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ButtonTest.kt"
-            line="628"
-            column="14"/>
+            line="736"
+            column="9"/>
     </issue>
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 25): `captureToImage`"
-        errorLine1="            .captureToImage()"
-        errorLine2="             ~~~~~~~~~~~~~~">
+        message="Call requires API level 26 (current min is 25): `verifyColors`"
+        errorLine1="        verifyColors("
+        errorLine2="        ~~~~~~~~~~~~">
         <location
             file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ButtonTest.kt"
-            line="648"
-            column="14"/>
+            line="760"
+            column="9"/>
     </issue>
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 25): `captureToImage`"
-        errorLine1="            .captureToImage()"
-        errorLine2="             ~~~~~~~~~~~~~~">
-        <location
-            file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ButtonTest.kt"
-            line="807"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 26 (current min is 25): `captureToImage`"
-        errorLine1="        .captureToImage()"
-        errorLine2="         ~~~~~~~~~~~~~~">
-        <location
-            file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ButtonTest.kt"
-            line="887"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 26 (current min is 25): `captureToImage`"
-        errorLine1="            .captureToImage()"
+        message="Call requires API level 26 (current min is 25): `isStadiumShape`"
+        errorLine1="        rule.isStadiumShape(LayoutDirection.Ltr) {"
         errorLine2="             ~~~~~~~~~~~~~~">
         <location
             file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ChipTest.kt"
-            line="564"
+            line="218"
             column="14"/>
     </issue>
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 25): `captureToImage`"
-        errorLine1="            .captureToImage()"
+        message="Call requires API level 26 (current min is 25): `isStadiumShape`"
+        errorLine1="        rule.isStadiumShape(LayoutDirection.Rtl) {"
         errorLine2="             ~~~~~~~~~~~~~~">
         <location
             file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ChipTest.kt"
-            line="585"
+            line="228"
             column="14"/>
     </issue>
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 25): `captureToImage`"
-        errorLine1="            .captureToImage()"
-        errorLine2="             ~~~~~~~~~~~~~~">
+        message="Call requires API level 26 (current min is 25): `verifyColors`"
+        errorLine1="        verifyColors("
+        errorLine2="        ~~~~~~~~~~~~">
         <location
             file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ChipTest.kt"
-            line="757"
-            column="14"/>
+            line="388"
+            column="9"/>
     </issue>
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 25): `captureToImage`"
-        errorLine1="            .captureToImage()"
-        errorLine2="             ~~~~~~~~~~~~~~">
+        message="Call requires API level 26 (current min is 25): `verifySlotColors`"
+        errorLine1="        verifySlotColors("
+        errorLine2="        ~~~~~~~~~~~~~~~~">
         <location
             file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ChipTest.kt"
-            line="832"
-            column="14"/>
+            line="404"
+            column="9"/>
     </issue>
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 25): `captureToImage`"
-        errorLine1="        .captureToImage()"
-        errorLine2="         ~~~~~~~~~~~~~~">
+        message="Call requires API level 26 (current min is 25): `verifySlotColors`"
+        errorLine1="        verifySlotColors("
+        errorLine2="        ~~~~~~~~~~~~~~~~">
         <location
             file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ChipTest.kt"
-            line="983"
-            column="10"/>
+            line="415"
+            column="9"/>
     </issue>
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 25): `captureToImage`"
-        errorLine1="            .captureToImage()"
-        errorLine2="             ~~~~~~~~~~~~~~">
+        message="Call requires API level 26 (current min is 25): `verifyColors`"
+        errorLine1="        verifyColors("
+        errorLine2="        ~~~~~~~~~~~~">
+        <location
+            file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ChipTest.kt"
+            line="437"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `verifySlotColors`"
+        errorLine1="        verifySlotColors("
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ChipTest.kt"
+            line="446"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `verifyColors`"
+        errorLine1="        verifyColors("
+        errorLine2="        ~~~~~~~~~~~~">
+        <location
+            file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ChipTest.kt"
+            line="467"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `verifyColors`"
+        errorLine1="        verifyColors("
+        errorLine2="        ~~~~~~~~~~~~">
+        <location
+            file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ChipTest.kt"
+            line="476"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `verifySlotColors`"
+        errorLine1="        verifySlotColors("
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ChipTest.kt"
+            line="492"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `verifyColors`"
+        errorLine1="        verifyColors("
+        errorLine2="        ~~~~~~~~~~~~">
+        <location
+            file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ChipTest.kt"
+            line="503"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `verifyColors`"
+        errorLine1="        verifyColors("
+        errorLine2="        ~~~~~~~~~~~~">
+        <location
+            file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ChipTest.kt"
+            line="512"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `verifySlotColors`"
+        errorLine1="        verifySlotColors("
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ChipTest.kt"
+            line="528"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `verifySlotColors`"
+        errorLine1="        verifySlotColors("
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ChipTest.kt"
+            line="539"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `verifyBackgroundColor`"
+        errorLine1="        verifyBackgroundColor(expected = { MaterialTheme.colors.background }) {"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/dialog/DialogTest.kt"
+            line="1066"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `verifyBackgroundColor`"
+        errorLine1="        verifyBackgroundColor(expected = { MaterialTheme.colors.background }) {"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/dialog/DialogTest.kt"
+            line="1079"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `verifyBackgroundColor`"
+        errorLine1="        verifyBackgroundColor(expected = { MaterialTheme.colors.background }) {"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/dialog/DialogTest.kt"
+            line="1091"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `verifyBackgroundColorIsDynamic`"
+        errorLine1="        verifyBackgroundColorIsDynamic("
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/MaterialThemeTest.kt"
-            line="56"
-            column="14"/>
+            line="139"
+            column="9"/>
     </issue>
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 25): `captureToImage`"
-        errorLine1="            .captureToImage()"
-        errorLine2="             ~~~~~~~~~~~~~~">
+        message="Call requires API level 26 (current min is 25): `verifyBackgroundColorIsDynamic`"
+        errorLine1="        verifyBackgroundColorIsDynamic("
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/MaterialThemeTest.kt"
-            line="75"
-            column="14"/>
+            line="147"
+            column="9"/>
     </issue>
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 25): `captureToImage`"
-        errorLine1="            .captureToImage()"
-        errorLine2="             ~~~~~~~~~~~~~~">
+        message="Call requires API level 26 (current min is 25): `verifyBackgroundColorIsDynamic`"
+        errorLine1="        verifyBackgroundColorIsDynamic("
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/MaterialThemeTest.kt"
-            line="90"
-            column="14"/>
+            line="159"
+            column="9"/>
     </issue>
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 25): `captureToImage`"
-        errorLine1="            .captureToImage()"
-        errorLine2="             ~~~~~~~~~~~~~~">
+        message="Call requires API level 26 (current min is 25): `verifyBackgroundColorIsDynamic`"
+        errorLine1="        verifyBackgroundColorIsDynamic("
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/MaterialThemeTest.kt"
-            line="214"
-            column="14"/>
+            line="170"
+            column="9"/>
     </issue>
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 25): `captureToImage`"
-        errorLine1="            .captureToImage()"
-        errorLine2="             ~~~~~~~~~~~~~~">
+        message="Call requires API level 26 (current min is 25): `verifyBackgroundColorIsDynamic`"
+        errorLine1="        verifyBackgroundColorIsDynamic("
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/MaterialThemeTest.kt"
-            line="219"
-            column="14"/>
+            line="182"
+            column="9"/>
     </issue>
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 25): `captureToImage`"
-        errorLine1="            .captureToImage()"
-        errorLine2="             ~~~~~~~~~~~~~~">
-        <location
-            file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/MaterialThemeTest.kt"
-            line="372"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 26 (current min is 25): `captureToImage`"
-        errorLine1="            .captureToImage()"
-        errorLine2="             ~~~~~~~~~~~~~~">
-        <location
-            file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/MaterialThemeTest.kt"
-            line="377"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 26 (current min is 25): `captureToImage`"
-        errorLine1="            .captureToImage()"
-        errorLine2="             ~~~~~~~~~~~~~~">
+        message="Call requires API level 26 (current min is 25): `isCircular`"
+        errorLine1="        rule.isCircular(LayoutDirection.Ltr) {"
+        errorLine2="             ~~~~~~~~~~">
         <location
             file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ToggleButtonTest.kt"
-            line="387"
+            line="262"
             column="14"/>
     </issue>
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 25): `captureToImage`"
-        errorLine1="            .captureToImage()"
-        errorLine2="             ~~~~~~~~~~~~~~">
+        message="Call requires API level 26 (current min is 25): `isCircular`"
+        errorLine1="        rule.isCircular(LayoutDirection.Rtl) {"
+        errorLine2="             ~~~~~~~~~~">
         <location
             file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ToggleButtonTest.kt"
-            line="436"
+            line="274"
             column="14"/>
     </issue>
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 25): `captureToImage`"
-        errorLine1="            .captureToImage()"
-        errorLine2="             ~~~~~~~~~~~~~~">
+        message="Call requires API level 26 (current min is 25): `verifyColors`"
+        errorLine1="        verifyColors("
+        errorLine2="        ~~~~~~~~~~~~">
         <location
             file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ToggleButtonTest.kt"
-            line="483"
-            column="14"/>
+            line="334"
+            column="9"/>
     </issue>
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 25): `captureToImage`"
-        errorLine1="            .captureToImage()"
-        errorLine2="             ~~~~~~~~~~~~~~">
+        message="Call requires API level 26 (current min is 25): `verifyColors`"
+        errorLine1="        verifyColors("
+        errorLine2="        ~~~~~~~~~~~~">
         <location
             file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ToggleButtonTest.kt"
-            line="532"
-            column="14"/>
+            line="343"
+            column="9"/>
     </issue>
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 25): `captureToImage`"
-        errorLine1="                .captureToImage()"
-        errorLine2="                 ~~~~~~~~~~~~~~">
+        message="Call requires API level 26 (current min is 25): `verifyColors`"
+        errorLine1="        verifyColors("
+        errorLine2="        ~~~~~~~~~~~~">
         <location
             file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ToggleButtonTest.kt"
-            line="597"
-            column="18"/>
+            line="352"
+            column="9"/>
     </issue>
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 25): `captureToImage`"
-        errorLine1="        .captureToImage()"
-        errorLine2="         ~~~~~~~~~~~~~~">
+        message="Call requires API level 26 (current min is 25): `verifyColors`"
+        errorLine1="        verifyColors("
+        errorLine2="        ~~~~~~~~~~~~">
         <location
             file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ToggleButtonTest.kt"
-            line="636"
-            column="10"/>
+            line="361"
+            column="9"/>
     </issue>
 
 </issues>

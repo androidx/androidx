@@ -1,0 +1,730 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 7.3.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha02)" variant="all" version="7.3.0-alpha02">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 26): `connectMediaBrowserService`"
+        errorLine1="        connectMediaBrowserService();"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="385"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 26): `reset`"
+        errorLine1="            mSubscriptionCallback.reset(1);"
+        errorLine2="                                  ~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="392"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 26): `mSubscriptionCallback`"
+        errorLine1="            mSubscriptionCallback.reset(1);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="392"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 26): `mMediaBrowser`"
+        errorLine1="            mMediaBrowser.subscribe(MEDIA_ID_ROOT, options, mSubscriptionCallback);"
+        errorLine2="            ~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="394"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 26): `mSubscriptionCallback`"
+        errorLine1="            mMediaBrowser.subscribe(MEDIA_ID_ROOT, options, mSubscriptionCallback);"
+        errorLine2="                                                            ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="394"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 26): `await`"
+        errorLine1="            assertTrue(mSubscriptionCallback.await(TIME_OUT_MS));"
+        errorLine2="                                             ~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="395"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 26): `mSubscriptionCallback`"
+        errorLine1="            assertTrue(mSubscriptionCallback.await(TIME_OUT_MS));"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="395"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 26): `mChildrenLoadedWithOptionCount`"
+        errorLine1="            assertEquals(1, mSubscriptionCallback.mChildrenLoadedWithOptionCount);"
+        errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="396"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 26): `mSubscriptionCallback`"
+        errorLine1="            assertEquals(1, mSubscriptionCallback.mChildrenLoadedWithOptionCount);"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="396"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 26): `mLastParentId`"
+        errorLine1="            assertEquals(MEDIA_ID_ROOT, mSubscriptionCallback.mLastParentId);"
+        errorLine2="                                                              ~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="397"
+            column="63"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 26): `mSubscriptionCallback`"
+        errorLine1="            assertEquals(MEDIA_ID_ROOT, mSubscriptionCallback.mLastParentId);"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="397"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 26): `mLastChildMediaItems`"
+        errorLine1="                assertEquals(pageSize, mSubscriptionCallback.mLastChildMediaItems.size());"
+        errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="399"
+            column="62"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 26): `mSubscriptionCallback`"
+        errorLine1="                assertEquals(pageSize, mSubscriptionCallback.mLastChildMediaItems.size());"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="399"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 26): `mLastChildMediaItems`"
+        errorLine1="                        mSubscriptionCallback.mLastChildMediaItems.size());"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="402"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 26): `mSubscriptionCallback`"
+        errorLine1="                        mSubscriptionCallback.mLastChildMediaItems.size());"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="402"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 26): `mLastChildMediaItems`"
+        errorLine1="            for (int i = 0; i &lt; mSubscriptionCallback.mLastChildMediaItems.size(); ++i) {"
+        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="405"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 26): `mSubscriptionCallback`"
+        errorLine1="            for (int i = 0; i &lt; mSubscriptionCallback.mLastChildMediaItems.size(); ++i) {"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="405"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 26): `mLastChildMediaItems`"
+        errorLine1="                        mSubscriptionCallback.mLastChildMediaItems.get(i).getMediaId());"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="407"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 26): `mSubscriptionCallback`"
+        errorLine1="                        mSubscriptionCallback.mLastChildMediaItems.get(i).getMediaId());"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="407"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 26): `reset`"
+        errorLine1="            mSubscriptionCallback.reset(page + 1);"
+        errorLine2="                                  ~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="411"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 26): `mSubscriptionCallback`"
+        errorLine1="            mSubscriptionCallback.reset(page + 1);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="411"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 26): `await`"
+        errorLine1="            assertTrue(mSubscriptionCallback.await(TIME_OUT_MS * (page + 1)));"
+        errorLine2="                                             ~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="414"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 26): `mSubscriptionCallback`"
+        errorLine1="            assertTrue(mSubscriptionCallback.await(TIME_OUT_MS * (page + 1)));"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="414"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 26): `mChildrenLoadedWithOptionCount`"
+        errorLine1="            assertEquals(page + 1, mSubscriptionCallback.mChildrenLoadedWithOptionCount);"
+        errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="415"
+            column="58"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 26): `mSubscriptionCallback`"
+        errorLine1="            assertEquals(page + 1, mSubscriptionCallback.mChildrenLoadedWithOptionCount);"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="415"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 26): `reset`"
+        errorLine1="        mSubscriptionCallback.reset(1);"
+        errorLine2="                              ~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="419"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 26): `mSubscriptionCallback`"
+        errorLine1="        mSubscriptionCallback.reset(1);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="419"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 26): `mMediaBrowser`"
+        errorLine1="        mMediaBrowser.unsubscribe(MEDIA_ID_ROOT, mSubscriptionCallback);"
+        errorLine2="        ~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="420"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 26): `mSubscriptionCallback`"
+        errorLine1="        mMediaBrowser.unsubscribe(MEDIA_ID_ROOT, mSubscriptionCallback);"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="420"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 26): `mChildrenLoadedCount`"
+        errorLine1="        assertEquals(0, mSubscriptionCallback.mChildrenLoadedCount);"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="432"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 26): `mSubscriptionCallback`"
+        errorLine1="        assertEquals(0, mSubscriptionCallback.mChildrenLoadedCount);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="432"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 24): `connectMediaBrowserService`"
+        errorLine1="        connectMediaBrowserService();"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="467"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 24): `reset`"
+        errorLine1="        mSubscriptionCallback.reset(1);"
+        errorLine2="                              ~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="475"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 24): `mSubscriptionCallback`"
+        errorLine1="        mSubscriptionCallback.reset(1);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="475"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 24): `mMediaBrowser`"
+        errorLine1="        mMediaBrowser.subscribe(MEDIA_ID_INVALID, options, mSubscriptionCallback);"
+        errorLine2="        ~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="476"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 24): `mSubscriptionCallback`"
+        errorLine1="        mMediaBrowser.subscribe(MEDIA_ID_INVALID, options, mSubscriptionCallback);"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="476"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 24): `await`"
+        errorLine1="        mSubscriptionCallback.await(TIME_OUT_MS);"
+        errorLine2="                              ~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="477"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 24): `mSubscriptionCallback`"
+        errorLine1="        mSubscriptionCallback.await(TIME_OUT_MS);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="477"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 24): `mLastErrorId`"
+        errorLine1="        assertEquals(MEDIA_ID_INVALID, mSubscriptionCallback.mLastErrorId);"
+        errorLine2="                                                             ~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="478"
+            column="62"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 24): `mSubscriptionCallback`"
+        errorLine1="        assertEquals(MEDIA_ID_INVALID, mSubscriptionCallback.mLastErrorId);"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="478"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 24): `mLastOptions`"
+        errorLine1="        assertNotNull(mSubscriptionCallback.mLastOptions);"
+        errorLine2="                                            ~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="479"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 24): `mSubscriptionCallback`"
+        errorLine1="        assertNotNull(mSubscriptionCallback.mLastOptions);"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="479"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 24): `mLastOptions`"
+        errorLine1="                mSubscriptionCallback.mLastOptions.getInt(MediaBrowser.EXTRA_PAGE));"
+        errorLine2="                                      ~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="481"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 24): `mSubscriptionCallback`"
+        errorLine1="                mSubscriptionCallback.mLastOptions.getInt(MediaBrowser.EXTRA_PAGE));"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="481"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 24): `mLastOptions`"
+        errorLine1="                mSubscriptionCallback.mLastOptions.getInt(MediaBrowser.EXTRA_PAGE_SIZE));"
+        errorLine2="                                      ~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="483"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 24): `mSubscriptionCallback`"
+        errorLine1="                mSubscriptionCallback.mLastOptions.getInt(MediaBrowser.EXTRA_PAGE_SIZE));"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="483"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 24): `connectMediaBrowserService`"
+        errorLine1="        connectMediaBrowserService();"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="490"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 24): `StubSubscriptionCallback`"
+        errorLine1="            final StubSubscriptionCallback callback = new StubSubscriptionCallback();"
+        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="496"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 24): `reset`"
+        errorLine1="            callback.reset(1);"
+        errorLine2="                     ~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="502"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 24): `mMediaBrowser`"
+        errorLine1="            mMediaBrowser.subscribe(MEDIA_ID_ROOT, options, callback);"
+        errorLine2="            ~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="503"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 24): `await`"
+        errorLine1="            callback.await(TIME_OUT_MS);"
+        errorLine2="                     ~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="504"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 24): `mChildrenLoadedWithOptionCount`"
+        errorLine1="            assertEquals(1, callback.mChildrenLoadedWithOptionCount);"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="507"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 24): `reset`"
+        errorLine1="            callback.reset(1);"
+        errorLine2="                     ~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="512"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 24): `mMediaBrowser`"
+        errorLine1="        mMediaBrowser.unsubscribe(MEDIA_ID_ROOT);"
+        errorLine2="        ~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="514"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 24): `mChildrenLoadedWithOptionCount`"
+        errorLine1="            assertEquals(0, callback.mChildrenLoadedWithOptionCount);"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="528"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 26): `connectMediaBrowserService`"
+        errorLine1="        connectMediaBrowserService();"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="536"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 26): `StubSubscriptionCallback`"
+        errorLine1="            final StubSubscriptionCallback callback = new StubSubscriptionCallback();"
+        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="542"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 26): `reset`"
+        errorLine1="            callback.reset(1);"
+        errorLine2="                     ~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="548"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 26): `mMediaBrowser`"
+        errorLine1="            mMediaBrowser.subscribe(MEDIA_ID_ROOT, options, callback);"
+        errorLine2="            ~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="549"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 26): `await`"
+        errorLine1="            callback.await(TIME_OUT_MS);"
+        errorLine2="                     ~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="550"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 26): `mChildrenLoadedWithOptionCount`"
+        errorLine1="            assertEquals(1, callback.mChildrenLoadedWithOptionCount);"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="553"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 26): `reset`"
+        errorLine1="                callback.reset(1);"
+        errorLine2="                         ~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="561"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 26): `mMediaBrowser`"
+        errorLine1="            mMediaBrowser.unsubscribe(MEDIA_ID_ROOT,"
+        errorLine2="            ~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="565"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 26): `await`"
+        errorLine1="                assertTrue(callback.await(TIME_OUT_MS * remaining));"
+        errorLine2="                                    ~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="577"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 26): `mChildrenLoadedWithOptionCount`"
+        errorLine1="                assertEquals(1, callback.mChildrenLoadedWithOptionCount);"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="578"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 26): `mChildrenLoadedWithOptionCount`"
+        errorLine1="                assertEquals(0, callback.mChildrenLoadedWithOptionCount);"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/android/support/mediacompat/client/MediaBrowserTest.java"
+            line="591"
+            column="42"/>
+    </issue>
+
+</issues>

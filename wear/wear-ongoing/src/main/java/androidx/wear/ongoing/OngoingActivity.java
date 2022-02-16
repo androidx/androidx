@@ -67,7 +67,6 @@ import java.util.function.Predicate;
  * It's worth mentioning that the information provided may be used/redered differently on different
  * SysUIs, so we can only provide a general expectation.
  */
-@RequiresApi(24)
 public final class OngoingActivity {
     @Nullable
     private final String mTag;

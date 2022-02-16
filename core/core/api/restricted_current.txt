@@ -6,7 +6,7 @@ package android.support.v4.os {
     method public int describeContents();
     method protected void onReceiveResult(int, android.os.Bundle!);
     method public void send(int, android.os.Bundle!);
-    method public void writeToParcel(android.os.Parcel!, int);
+    method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator<android.support.v4.os.ResultReceiver!>! CREATOR;
   }
 

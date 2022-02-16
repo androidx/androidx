@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.wear.ongoing {
 
-  @RequiresApi(24) public final class OngoingActivity {
+  public final class OngoingActivity {
     method public void apply(android.content.Context);
     method public android.graphics.drawable.Icon? getAnimatedIcon();
     method public String? getCategory();

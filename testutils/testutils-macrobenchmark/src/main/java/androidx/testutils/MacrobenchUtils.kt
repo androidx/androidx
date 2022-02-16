@@ -18,7 +18,6 @@ package androidx.testutils
 
 import android.content.Intent
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.benchmark.macro.BaselineProfileMode
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.StartupMode
@@ -64,14 +63,12 @@ val COMPILATION_MODES = if (Build.VERSION.SDK_INT >= 24 && Build.VERSION.SDK_INT
 /**
  * Temporary, while transitioning to new metrics
  */
-@RequiresApi(23)
 fun getStartupMetrics() = if (Build.VERSION.SDK_INT >= 29) {
     listOf(StartupTimingMetric(), StartupTimingLegacyMetric())
 } else {
     listOf(StartupTimingMetric())
 }
 
-@RequiresApi(23)
 fun MacrobenchmarkRule.measureStartup(
     compilationMode: CompilationMode,
     startupMode: StartupMode,
@@ -92,7 +89,6 @@ fun MacrobenchmarkRule.measureStartup(
     startActivityAndWait(intent)
 }
 
-@RequiresApi(21)
 fun createStartupCompilationParams(
     startupModes: List<StartupMode> = listOf(
         StartupMode.HOT,
@@ -116,7 +112,6 @@ fun createStartupCompilationParams(
     }
 }
 
-@RequiresApi(21)
 fun createCompilationParams(
     compilationModes: List<CompilationMode> = COMPILATION_MODES
 ): List<Array<Any>> = mutableListOf<Array<Any>>().apply {
