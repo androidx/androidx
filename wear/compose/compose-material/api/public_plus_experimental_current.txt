@@ -520,7 +520,6 @@ package androidx.wear.compose.material {
     method @androidx.compose.runtime.Composable public void CurvedTextSeparator(androidx.wear.compose.foundation.CurvedRowScope, optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.foundation.CurvedTextStyle curvedTextStyle, optional androidx.wear.compose.foundation.ArcPaddingValues contentArcPadding);
     method @androidx.compose.runtime.Composable public void TextSeparator(optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.text.TextStyle textStyle, optional androidx.compose.foundation.layout.PaddingValues contentPadding);
     method public androidx.compose.foundation.layout.PaddingValues getContentPadding();
-    method @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.CurvedTextStyle timeCurvedTextStyle(optional long color, optional long background, optional long fontSize);
     method @androidx.compose.runtime.Composable public String timeFormat();
     method public androidx.wear.compose.material.TimeSource timeSource(String timeFormat);
     method @androidx.compose.runtime.Composable public androidx.compose.ui.text.TextStyle timeTextStyle(optional long color, optional long background, optional long fontSize);

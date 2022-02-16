@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.BasicCurvedText
+import androidx.wear.compose.foundation.CurvedTextStyle
 import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.TimeText
@@ -37,17 +38,18 @@ fun TimeTextClockOnly() {
 @OptIn(ExperimentalWearMaterialApi::class)
 @Composable
 fun TimeTextWithLeadingText() {
+    val textStyle = TimeTextDefaults.timeTextStyle(color = Color.Green)
     TimeText(
         leadingLinearContent = {
             Text(
                 text = "Leading content",
-                style = TimeTextDefaults.timeTextStyle(color = Color.Green)
+                style = textStyle
             )
         },
         leadingCurvedContent = {
             BasicCurvedText(
                 text = "Leading content",
-                style = TimeTextDefaults.timeCurvedTextStyle(color = Color.Green)
+                style = CurvedTextStyle(textStyle)
             )
         }
     )
@@ -56,17 +58,18 @@ fun TimeTextWithLeadingText() {
 @OptIn(ExperimentalWearMaterialApi::class)
 @Composable
 fun TimeTextWithTrailingText() {
+    val textStyle = TimeTextDefaults.timeTextStyle(color = Color.Yellow)
     TimeText(
         trailingLinearContent = {
             Text(
                 text = "Trailing content",
-                style = TimeTextDefaults.timeTextStyle(color = Color.Yellow)
+                style = textStyle
             )
         },
         trailingCurvedContent = {
             BasicCurvedText(
                 text = "Trailing content",
-                style = TimeTextDefaults.timeCurvedTextStyle(color = Color.Yellow)
+                style = CurvedTextStyle(textStyle)
             )
         }
     )
@@ -75,29 +78,31 @@ fun TimeTextWithTrailingText() {
 @OptIn(ExperimentalWearMaterialApi::class)
 @Composable
 fun TimeTextWithLeadingAndTrailingText() {
+    val leadingTextStyle = TimeTextDefaults.timeTextStyle(color = Color.Green)
+    val trailingTextStyle = TimeTextDefaults.timeTextStyle(color = Color.Yellow)
     TimeText(
         leadingLinearContent = {
             Text(
                 text = "Leading content",
-                style = TimeTextDefaults.timeTextStyle(color = Color.Green)
+                style = leadingTextStyle
             )
         },
         leadingCurvedContent = {
             BasicCurvedText(
                 text = "Leading content",
-                style = TimeTextDefaults.timeCurvedTextStyle(color = Color.Green)
+                style = CurvedTextStyle(leadingTextStyle)
             )
         },
         trailingLinearContent = {
             Text(
                 text = "Trailing content",
-                style = TimeTextDefaults.timeTextStyle(color = Color.Yellow)
+                style = trailingTextStyle
             )
         },
         trailingCurvedContent = {
             BasicCurvedText(
                 text = "Trailing content",
-                style = TimeTextDefaults.timeCurvedTextStyle(color = Color.Yellow)
+                style = CurvedTextStyle(trailingTextStyle)
             )
         }
     )
@@ -106,29 +111,31 @@ fun TimeTextWithLeadingAndTrailingText() {
 @OptIn(ExperimentalWearMaterialApi::class)
 @Composable
 fun TimeTextWithPadding() {
+    val leadingTextStyle = TimeTextDefaults.timeTextStyle(color = Color.Green)
+    val trailingTextStyle = TimeTextDefaults.timeTextStyle(color = Color.Yellow)
     TimeText(
         leadingLinearContent = {
             Text(
                 text = "Leading content",
-                style = TimeTextDefaults.timeTextStyle(color = Color.Green)
+                style = leadingTextStyle
             )
         },
         leadingCurvedContent = {
             BasicCurvedText(
                 text = "Leading content",
-                style = TimeTextDefaults.timeCurvedTextStyle(color = Color.Green)
+                style = CurvedTextStyle(leadingTextStyle)
             )
         },
         trailingLinearContent = {
             Text(
                 text = "Trailing content",
-                style = TimeTextDefaults.timeTextStyle(color = Color.Yellow)
+                style = trailingTextStyle
             )
         },
         trailingCurvedContent = {
             BasicCurvedText(
                 text = "Trailing content",
-                style = TimeTextDefaults.timeCurvedTextStyle(color = Color.Yellow)
+                style = CurvedTextStyle(trailingTextStyle)
             )
         },
         contentPadding = PaddingValues(8.dp)
