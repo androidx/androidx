@@ -502,8 +502,14 @@ private class DelegatingComplicationText(
     override fun returnsSameText(firstInstant: Instant, secondInstant: Instant) =
         delegate.returnsSameText(firstInstant.toEpochMilli(), secondInstant.toEpochMilli())
 
-    override fun getNextChangeTime(afterInstant: Instant) =
-        Instant.ofEpochMilli(delegate.getNextChangeTime(afterInstant.toEpochMilli()))
+    override fun getNextChangeTime(afterInstant: Instant): Instant {
+        val nextChangeTime = delegate.getNextChangeTime(afterInstant.toEpochMilli())
+        return if (nextChangeTime == Long.MAX_VALUE) {
+             Instant.MAX
+        } else {
+            Instant.ofEpochMilli(nextChangeTime)
+        }
+    }
 
     override fun isAlwaysEmpty() = delegate.isAlwaysEmpty
     override fun getTimeDependentText(): TimeDependentText = delegate.timeDependentText
@@ -550,8 +556,14 @@ private class DelegatingTimeDependentText(
     override fun returnsSameText(firstInstant: Instant, secondInstant: Instant) =
         delegate.returnsSameText(firstInstant.toEpochMilli(), secondInstant.toEpochMilli())
 
-    override fun getNextChangeTime(afterInstant: Instant) =
-        Instant.ofEpochMilli(delegate.getNextChangeTime(afterInstant.toEpochMilli()))
+    override fun getNextChangeTime(afterInstant: Instant): Instant {
+        val nextChangeTime = delegate.getNextChangeTime(afterInstant.toEpochMilli())
+        return if (nextChangeTime == Long.MAX_VALUE) {
+            Instant.MAX
+        } else {
+            Instant.ofEpochMilli(nextChangeTime)
+        }
+    }
 
     override fun isAlwaysEmpty() = false
 

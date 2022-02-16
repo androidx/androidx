@@ -438,4 +438,22 @@ public class ComplicationSlotsManager(
                     .systemDataSourceFallbackDefaultType.toWireComplicationType()
             )
         }.toTypedArray()
+
+    /**
+     * Returns the earliest [Instant] after [afterInstant] at which any complication field in any
+     * enabled complication may change.
+     */
+    internal fun getNextChangeInstant(afterInstant: Instant): Instant {
+        var minInstant = Instant.MAX
+        for ((_, complication) in complicationSlots) {
+            if (!complication.enabled) {
+                continue
+            }
+            val instant = complication.complicationData.value.getNextChangeInstant(afterInstant)
+            if (instant.isBefore(minInstant)) {
+                minInstant = instant
+            }
+        }
+        return minInstant
+    }
 }

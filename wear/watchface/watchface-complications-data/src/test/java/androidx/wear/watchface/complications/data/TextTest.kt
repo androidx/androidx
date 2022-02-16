@@ -134,10 +134,8 @@ public class FromWireComplicationTextTest {
         val wireText = WireComplicationText.plainText("abc")
         val text = wireText.toApiComplicationText()
 
-        assertThat(text.getTextAt(getResource(), Instant.EPOCH))
-            .isEqualTo("abc")
-        assertThat(text.getNextChangeTime(Instant.EPOCH))
-            .isEqualTo(Instant.ofEpochMilli(Long.MAX_VALUE))
+        assertThat(text.getTextAt(getResource(), Instant.EPOCH)).isEqualTo("abc")
+        assertThat(text.getNextChangeTime(Instant.EPOCH)).isEqualTo(Instant.MAX)
         assertThat(text.isAlwaysEmpty()).isFalse()
         assertThat(
             text.returnsSameText(
