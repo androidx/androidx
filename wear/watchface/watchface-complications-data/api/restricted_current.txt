@@ -2,6 +2,7 @@
 package androidx.wear.watchface.complications.data {
 
   public abstract sealed class ComplicationData {
+    method public java.time.Instant getNextChangeInstant(java.time.Instant afterInstant);
     method public final android.app.PendingIntent? getTapAction();
     method public final androidx.wear.watchface.complications.data.ComplicationType getType();
     method public final androidx.wear.watchface.complications.data.TimeRange getValidTimeRange();

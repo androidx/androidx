@@ -75,6 +75,16 @@ public sealed class ComplicationData constructor(
         cachedWireComplicationData?.let {
             WireComplicationDataBuilder(it)
         } ?: WireComplicationDataBuilder(type.toWireComplicationType())
+
+    /**
+     * Returns the next [Instant] after [afterInstant] at which any field of the complication may
+     * change. If there's no scheduled changes then [Instant.MAX] will be returned.
+     *
+     * See [ComplicationText.getNextChangeTime]
+     *
+     * @param afterInstant The earliest [Instant] for which we're interested in changes
+     */
+    public open fun getNextChangeInstant(afterInstant: Instant): Instant = Instant.MAX
 }
 
 /**
@@ -308,6 +318,20 @@ public class ShortTextComplicationData internal constructor(
             "tapAction=$tapAction, validTimeRange=$validTimeRange)"
     }
 
+    override fun getNextChangeInstant(afterInstant: Instant): Instant {
+        if (title != null) {
+            val titleChangeInstant = title.getNextChangeTime(afterInstant)
+            val textChangeInstant = text.getNextChangeTime(afterInstant)
+            return if (textChangeInstant.isBefore(titleChangeInstant)) {
+                textChangeInstant
+            } else {
+                titleChangeInstant
+            }
+        } else {
+            return text.getNextChangeTime(afterInstant)
+        }
+    }
+
     /** @hide */
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
@@ -467,6 +491,20 @@ public class LongTextComplicationData internal constructor(
             "contentDescription=$contentDescription), " +
             "tapActionLostDueToSerialization=$tapActionLostDueToSerialization, " +
             "tapAction=$tapAction, validTimeRange=$validTimeRange)"
+    }
+
+    override fun getNextChangeInstant(afterInstant: Instant): Instant {
+        if (title != null) {
+            val titleChangeInstant = title.getNextChangeTime(afterInstant)
+            val textChangeInstant = text.getNextChangeTime(afterInstant)
+            return if (textChangeInstant.isBefore(titleChangeInstant)) {
+                textChangeInstant
+            } else {
+                titleChangeInstant
+            }
+        } else {
+            return text.getNextChangeTime(afterInstant)
+        }
     }
 
     /** @hide */
@@ -638,6 +676,16 @@ public class RangedValueComplicationData internal constructor(
             "contentDescription=$contentDescription), " +
             "tapActionLostDueToSerialization=$tapActionLostDueToSerialization, " +
             "tapAction=$tapAction, validTimeRange=$validTimeRange)"
+    }
+
+    override fun getNextChangeInstant(afterInstant: Instant): Instant {
+        val titleChangeInstant = title?.getNextChangeTime(afterInstant) ?: Instant.MAX
+        val textChangeInstant = text?.getNextChangeTime(afterInstant) ?: Instant.MAX
+        return if (textChangeInstant.isBefore(titleChangeInstant)) {
+            textChangeInstant
+        } else {
+            titleChangeInstant
+        }
     }
 
     /** @hide */
@@ -1135,6 +1183,16 @@ public class NoPermissionComplicationData internal constructor(
             "monochromaticImage=$monochromaticImage, tapActionLostDueToSerialization=" +
             "$tapActionLostDueToSerialization, tapAction=$tapAction, " +
             "validTimeRange=$validTimeRange)"
+    }
+
+    override fun getNextChangeInstant(afterInstant: Instant): Instant {
+        val titleChangeInstant = title?.getNextChangeTime(afterInstant) ?: Instant.MAX
+        val textChangeInstant = text?.getNextChangeTime(afterInstant) ?: Instant.MAX
+        return if (textChangeInstant.isBefore(titleChangeInstant)) {
+            textChangeInstant
+        } else {
+            titleChangeInstant
+        }
     }
 
     /** @hide */

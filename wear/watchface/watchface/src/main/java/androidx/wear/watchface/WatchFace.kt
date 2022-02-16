@@ -56,6 +56,7 @@ import androidx.wear.watchface.style.UserStyleData
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.WatchFaceLayer
 import androidx.wear.watchface.utility.TraceEvent
+import java.lang.Long.min
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -801,7 +802,8 @@ public class WatchFaceImpl @UiThread constructor(
         // an image. However if we're animating there's no need to trigger an extra invalidation.
         if (!renderer.shouldAnimate() || computeDelayTillNextFrame(
                 nextDrawTimeMillis,
-                systemTimeProvider.getSystemTimeMillis()
+                systemTimeProvider.getSystemTimeMillis(),
+                Instant.now()
             ) > MIN_PERCEPTIBLE_DELAY_MILLIS
         ) {
             watchFaceHostApi.invalidate()
@@ -976,7 +978,7 @@ public class WatchFaceImpl @UiThread constructor(
     internal fun onDraw() {
         val startTime = getZonedDateTime()
         val startInstant = startTime.toInstant()
-        val startTimeMillis = startInstant.toEpochMilli()
+        val startTimeMillis = systemTimeProvider.getSystemTimeMillis()
         maybeUpdateDrawMode()
         complicationSlotsManager.selectComplicationDataForInstant(startInstant)
         renderer.renderInternal(startTime)
@@ -984,7 +986,7 @@ public class WatchFaceImpl @UiThread constructor(
 
         if (renderer.shouldAnimate()) {
             val currentTimeMillis = systemTimeProvider.getSystemTimeMillis()
-            var delay = computeDelayTillNextFrame(startTimeMillis, currentTimeMillis)
+            var delay = computeDelayTillNextFrame(startTimeMillis, currentTimeMillis, Instant.now())
             nextDrawTimeMillis = currentTimeMillis + delay
 
             // We want to post our delayed task to post the choreographer frame a bit earlier than
@@ -1005,11 +1007,18 @@ public class WatchFaceImpl @UiThread constructor(
         renderer.renderInternal(getZonedDateTime())
     }
 
-    /** @hide */
+    /**
+     * @param startTimeMillis The SystemTime in milliseconds at which we started rendering
+     * @param currentTimeMillis The current SystemTime in milliseconds
+     * @param nowInstant The current [Instant].
+     *
+     * @hide
+     */
     @UiThread
     internal fun computeDelayTillNextFrame(
         startTimeMillis: Long,
-        currentTimeMillis: Long
+        currentTimeMillis: Long,
+        nowInstant: Instant
     ): Long {
         // Limit update rate to conserve power when the battery is low and not charging.
         val updateRateMillis =
@@ -1049,7 +1058,18 @@ public class WatchFaceImpl @UiThread constructor(
             nextFrameTimeMillis += (60000 - (nextFrameTimeMillis % 60000)) % 60000
         }
 
-        return nextFrameTimeMillis - currentTimeMillis
+        var delayMillis = nextFrameTimeMillis - currentTimeMillis
+
+        // Check if we need to render a frame sooner to support scheduled complication updates, e.g.
+        // the stop watch complication.
+        val nextComplicationChange = complicationSlotsManager.getNextChangeInstant(nowInstant)
+        if (nextComplicationChange != Instant.MAX) {
+            val nextComplicationChangeDelayMillis =
+                max(0, nextComplicationChange.toEpochMilli() - nowInstant.toEpochMilli())
+            delayMillis = min(delayMillis, nextComplicationChangeDelayMillis)
+        }
+
+        return delayMillis
     }
 
     /**
