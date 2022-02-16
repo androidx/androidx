@@ -35,6 +35,9 @@
             <intent-filter>
                 <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+            </intent-filter>
         </receiver>
     </application>
 </manifest>
