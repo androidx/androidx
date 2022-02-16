@@ -49,6 +49,7 @@ import androidx.camera.extensions.impl.NightImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.NightPreviewExtenderImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
 import androidx.camera.extensions.impl.ProcessorImpl;
+import androidx.camera.extensions.internal.compat.workaround.ExtensionDisabledValidator;
 import androidx.core.util.Preconditions;
 
 import java.util.Arrays;
@@ -61,6 +62,8 @@ import java.util.Map;
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class BasicVendorExtender implements VendorExtender {
     private static final String TAG = "BasicVendorExtender";
+    private final ExtensionDisabledValidator mExtensionDisabledValidator =
+            new ExtensionDisabledValidator();
     private final @ExtensionMode.Mode int mMode;
     private PreviewExtenderImpl mPreviewExtenderImpl;
     private ImageCaptureExtenderImpl mImageCaptureExtenderImpl;
@@ -122,6 +125,11 @@ public class BasicVendorExtender implements VendorExtender {
     @Override
     public boolean isExtensionAvailable(@NonNull String cameraId,
             @NonNull Map<String, CameraCharacteristics> characteristicsMap) {
+
+        if (mExtensionDisabledValidator.shouldDisableExtension(cameraId, mMode, false)) {
+            return false;
+        }
+
         CameraCharacteristics cameraCharacteristics = characteristicsMap.get(cameraId);
         return mPreviewExtenderImpl.isExtensionAvailable(cameraId, cameraCharacteristics)
                 && mImageCaptureExtenderImpl.isExtensionAvailable(cameraId, cameraCharacteristics);
