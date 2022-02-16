@@ -29,13 +29,14 @@ import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.sp
-import androidx.wear.compose.foundation.BasicCurvedText
 import androidx.wear.compose.material.TimeTextDefaults.CurvedTextSeparator
+import java.util.Calendar
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
-import java.util.Calendar
 
 @ExperimentalWearMaterialApi
 class TimeTextTest {
@@ -105,10 +106,9 @@ class TimeTextTest {
                         )
                     },
                     leadingCurvedContent = {
-                        BasicCurvedText(
+                        CurvedText(
                             modifier = Modifier.testTag(CURVED_ITEM_TAG),
-                            text = "Leading content",
-                            style = TimeTextDefaults.timeCurvedTextStyle()
+                            text = "Leading content"
                         )
                     }
                 )
@@ -131,10 +131,9 @@ class TimeTextTest {
                         )
                     },
                     leadingCurvedContent = {
-                        BasicCurvedText(
+                        CurvedText(
                             modifier = Modifier.testTag(CURVED_ITEM_TAG),
-                            text = "Leading content",
-                            style = TimeTextDefaults.timeCurvedTextStyle()
+                            text = "Leading content"
                         )
                     }
                 )
@@ -156,10 +155,9 @@ class TimeTextTest {
                         )
                     },
                     trailingCurvedContent = {
-                        BasicCurvedText(
+                        CurvedText(
                             modifier = Modifier.testTag(CURVED_ITEM_TAG),
-                            text = "Trailing content",
-                            style = TimeTextDefaults.timeCurvedTextStyle()
+                            text = "Trailing content"
                         )
                     }
                 )
@@ -181,10 +179,9 @@ class TimeTextTest {
                         )
                     },
                     trailingCurvedContent = {
-                        BasicCurvedText(
+                        CurvedText(
                             modifier = Modifier.testTag(CURVED_ITEM_TAG),
-                            text = "Leading content",
-                            style = TimeTextDefaults.timeCurvedTextStyle()
+                            text = "Leading content"
                         )
                     }
                 )
@@ -330,9 +327,8 @@ class TimeTextTest {
             ConfiguredShapeScreen(true) {
                 TimeText(
                     trailingCurvedContent = {
-                        BasicCurvedText(
-                            text = "Trailing content",
-                            style = TimeTextDefaults.timeCurvedTextStyle()
+                        CurvedText(
+                            text = "Trailing content"
                         )
                     },
                     textLinearSeparator = {
@@ -391,15 +387,13 @@ class TimeTextTest {
             ConfiguredShapeScreen(true) {
                 TimeText(
                     leadingCurvedContent = {
-                        BasicCurvedText(
-                            text = "Leading content",
-                            style = TimeTextDefaults.timeCurvedTextStyle()
+                        CurvedText(
+                            text = "Leading content"
                         )
                     },
                     trailingCurvedContent = {
-                        BasicCurvedText(
-                            text = "Trailing content",
-                            style = TimeTextDefaults.timeCurvedTextStyle()
+                        CurvedText(
+                            text = "Trailing content"
                         )
                     },
                     textLinearSeparator = {
@@ -423,7 +417,7 @@ class TimeTextTest {
     // for CurvedText
     @Test
     fun changes_timeTextStyle_on_square_device() {
-        val timeState = mutableStateOf("testState")
+        val timeText = "testTime"
 
         val testTextStyle = TextStyle(
             color = Color.Green,
@@ -436,16 +430,51 @@ class TimeTextTest {
                     timeSource = object : TimeSource {
                         override val currentTime: String
                             @Composable
-                            get() = timeState.value
+                            get() = timeText
                     },
                     timeTextStyle = testTextStyle
                 )
             }
         }
-        val actualStyle = rule.textStyleOf(timeState.value)
+        val actualStyle = rule.textStyleOf(timeText)
         assertEquals(testTextStyle.color, actualStyle.color)
         assertEquals(testTextStyle.background, actualStyle.background)
         assertEquals(testTextStyle.fontSize, actualStyle.fontSize)
+    }
+
+    @Test
+    fun changes_material_theme_on_square_device() {
+        val timeText = "testTime"
+
+        val testTextStyle = TextStyle(
+            color = Color.Green,
+            background = Color.Black,
+            fontStyle = FontStyle.Italic,
+            fontSize = 25.sp,
+            fontFamily = FontFamily.SansSerif
+        )
+        rule.setContent {
+            MaterialTheme(
+                typography = MaterialTheme.typography.copy(
+                    caption1 = testTextStyle)
+            ) {
+                ConfiguredShapeScreen(false) {
+                    TimeText(
+                        timeSource = object : TimeSource {
+                            override val currentTime: String
+                                @Composable
+                                get() = timeText
+                        }
+                    )
+                }
+            }
+        }
+        val actualStyle = rule.textStyleOf(timeText)
+        assertEquals(testTextStyle.color, actualStyle.color)
+        assertEquals(testTextStyle.background, actualStyle.background)
+        assertEquals(testTextStyle.fontSize, actualStyle.fontSize)
+        assertEquals(testTextStyle.fontStyle, actualStyle.fontStyle)
+        assertEquals(testTextStyle.fontFamily, actualStyle.fontFamily)
     }
 }
 

@@ -73,7 +73,7 @@ import androidx.wear.compose.material.TimeTextDefaults.timeFormat
  */
 @ExperimentalWearMaterialApi
 @Composable
-fun TimeText(
+public fun TimeText(
     modifier: Modifier = Modifier,
     timeSource: TimeSource = TimeTextDefaults.timeSource(timeFormat()),
     timeTextStyle: TextStyle = TimeTextDefaults.timeTextStyle(),
@@ -162,7 +162,7 @@ public object TimeTextDefaults {
 
     /**
      * Creates a [TextStyle] with default parameters used for showing time
-     * on square screens
+     * on square screens. By default a copy of MaterialTheme.typography.caption1 style is created
      *
      * @param color The main color
      * @param background The background color
@@ -170,33 +170,11 @@ public object TimeTextDefaults {
      */
     @Composable
     public fun timeTextStyle(
-        color: Color = Color.White,
-        background: Color = Color.Transparent,
-        fontSize: TextUnit = MaterialTheme.typography.button.fontSize,
-    ) = TextStyle(
-        color = color,
-        background = background,
-        fontSize = fontSize
-    )
-
-    /**
-     * Creates a [CurvedTextStyle] with default parameters used for showing time
-     * on round screens
-     *
-     * @param color The main color
-     * @param background The background color
-     * @param fontSize The font size
-     */
-    @Composable
-    public fun timeCurvedTextStyle(
-        color: Color = Color.White,
-        background: Color = Color.Transparent,
-        fontSize: TextUnit = MaterialTheme.typography.button.fontSize,
-    ) = CurvedTextStyle(
-        color = color,
-        background = background,
-        fontSize = fontSize
-    )
+        color: Color = Color.Unspecified,
+        background: Color = Color.Unspecified,
+        fontSize: TextUnit = TextUnit.Unspecified,
+    ) = MaterialTheme.typography.caption1 +
+        TextStyle(color = color, background = background, fontSize = fontSize)
 
     /**
      * A default implementation of Separator shown between trailing/leading content and the time
@@ -228,7 +206,7 @@ public object TimeTextDefaults {
     @Composable
     public fun CurvedRowScope.CurvedTextSeparator(
         modifier: Modifier = Modifier,
-        curvedTextStyle: CurvedTextStyle = timeCurvedTextStyle(),
+        curvedTextStyle: CurvedTextStyle = CurvedTextStyle(timeTextStyle()),
         contentArcPadding: ArcPaddingValues = ArcPaddingValues(angular = 4.dp)
     ) {
         CurvedText(
@@ -260,9 +238,6 @@ public object TimeTextDefaults {
     fun timeSource(timeFormat: String): TimeSource = DefaultTimeSource(timeFormat)
 }
 
-@ExperimentalWearMaterialApi
-internal expect class DefaultTimeSource(timeFormat: String) : TimeSource
-
 /**
  *  An interface which is responsible for retrieving a formatted time.
  */
@@ -276,3 +251,6 @@ public interface TimeSource {
     val currentTime: String
         @Composable get
 }
+
+@ExperimentalWearMaterialApi
+internal expect class DefaultTimeSource(timeFormat: String) : TimeSource
