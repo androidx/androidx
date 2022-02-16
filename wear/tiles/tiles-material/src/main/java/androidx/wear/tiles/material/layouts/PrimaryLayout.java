@@ -50,7 +50,7 @@ import androidx.wear.tiles.proto.LayoutElementProto;
 
 /**
  * Tiles layout that represents a suggested layout style for Material Tiles with the primary
- * (compact) chip at the bottom with the given content in a center and the recommended margin and
+ * (compact) chip at the bottom with the given content in the center and the recommended margin and
  * padding applied.
  */
 // TODO(b/215323986): Link visuals.
@@ -69,8 +69,8 @@ public class PrimaryLayout implements LayoutElement {
         @NonNull private LayoutElement mContent = new Box.Builder().build();
 
         /**
-         * Creates a builder for the {@link PrimaryLayout} from the given content. Custom
-         * content inside of it can later be set with ({@link #setContent}.
+         * Creates a builder for the {@link PrimaryLayout} from the given content. Custom content
+         * inside of it can later be set with ({@link #setContent}.
          */
         public Builder(@NonNull DeviceParameters deviceParameters) {
             this.mDeviceParameters = deviceParameters;
@@ -118,8 +118,7 @@ public class PrimaryLayout implements LayoutElement {
 
             float primaryChipHeight =
                     mPrimaryChip != null
-                            ? (COMPACT_HEIGHT.getValue()
-                                    + PRIMARY_LAYOUT_SPACER_HEIGHT.getValue())
+                            ? (COMPACT_HEIGHT.getValue() + PRIMARY_LAYOUT_SPACER_HEIGHT.getValue())
                             : 0;
 
             DpProp mainContentHeight =

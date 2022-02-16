@@ -75,10 +75,9 @@ public class MultiSlotLayout implements LayoutElement {
         @NonNull private DpProp mVerticalSpacerHeight = MULTI_SLOT_LAYOUT_VERTICAL_SPACER_HEIGHT;
 
         /**
-         * Creates a builder for the {@link MultiSlotLayout} from the given content. Custom content
-         * inside of it can later be set with {@link #addSlotContent}, {@link
-         * #setPrimaryChipContent}, {@link #setPrimaryLabelTextContent}, {@link
-         * #setSecondaryLabelTextContent}.
+         * Creates a builder for the {@link MultiSlotLayout}. Content inside of it can later be set
+         * with {@link #addSlotContent}, {@link #setPrimaryChipContent}, {@link
+         * #setPrimaryLabelTextContent} and {@link #setSecondaryLabelTextContent}.
          */
         public Builder(@NonNull DeviceParameters deviceParameters) {
             this.mDeviceParameters = deviceParameters;
@@ -123,14 +122,14 @@ public class MultiSlotLayout implements LayoutElement {
         // There is no direct matching getter for this setter as the serialized format of the
         // ProtoLayouts do not allow for a direct reconstruction of the arguments. Instead there are
         // methods to get the contents a whole for rendering.
-        public Builder addSlotContent(@NonNull LayoutElement slotsContent) {
-            mSlotsContent.add(slotsContent);
+        public Builder addSlotContent(@NonNull LayoutElement slotContent) {
+            mSlotsContent.add(slotContent);
             return this;
         }
 
         /**
-         * Sets the horizontal spacer width which is used as a space between slots if there is
-         * more than one slot. If not set, {@link
+         * Sets the horizontal spacer width which is used as a space between slots if there is more
+         * than one slot. If not set, {@link
          * LayoutDefaults#MULTI_SLOT_LAYOUT_HORIZONTAL_SPACER_WIDTH} will be used.
          */
         @NonNull
@@ -144,8 +143,8 @@ public class MultiSlotLayout implements LayoutElement {
         }
 
         /**
-         * Sets the vertical spacer height which is used as a space between all slots and primary
-         * or secondary label if there is any. If not set, {@link
+         * Sets the vertical spacer height which is used as a space between all slots and primary or
+         * secondary label if there is any. If not set, {@link
          * LayoutDefaults#MULTI_SLOT_LAYOUT_VERTICAL_SPACER_HEIGHT} will be used.
          */
         @NonNull
@@ -161,8 +160,7 @@ public class MultiSlotLayout implements LayoutElement {
         @NonNull
         @Override
         public MultiSlotLayout build() {
-            PrimaryLayout.Builder layoutBuilder =
-                    new PrimaryLayout.Builder(mDeviceParameters);
+            PrimaryLayout.Builder layoutBuilder = new PrimaryLayout.Builder(mDeviceParameters);
 
             if (mPrimaryChip != null) {
                 layoutBuilder.setCompactChipContent(mPrimaryChip);

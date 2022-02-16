@@ -34,21 +34,20 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.tiles.ActionBuilders.Action;
 import androidx.wear.tiles.ColorBuilders.ColorProp;
-import androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters;
 import androidx.wear.tiles.DimensionBuilders.ContainerDimension;
 import androidx.wear.tiles.DimensionBuilders.DpProp;
+import androidx.wear.tiles.LayoutElementBuilders;
 import androidx.wear.tiles.LayoutElementBuilders.Box;
 import androidx.wear.tiles.LayoutElementBuilders.ColorFilter;
 import androidx.wear.tiles.LayoutElementBuilders.FontStyle;
-import androidx.wear.tiles.LayoutElementBuilders.FontStyles;
 import androidx.wear.tiles.LayoutElementBuilders.Image;
 import androidx.wear.tiles.LayoutElementBuilders.LayoutElement;
-import androidx.wear.tiles.LayoutElementBuilders.Text;
 import androidx.wear.tiles.ModifiersBuilders;
 import androidx.wear.tiles.ModifiersBuilders.Background;
 import androidx.wear.tiles.ModifiersBuilders.Clickable;
 import androidx.wear.tiles.ModifiersBuilders.Corner;
 import androidx.wear.tiles.ModifiersBuilders.Modifiers;
+import androidx.wear.tiles.material.Typography.TypographyName;
 import androidx.wear.tiles.proto.LayoutElementProto;
 
 import java.lang.annotation.Retention;
@@ -92,14 +91,15 @@ public class Button implements LayoutElement {
         @NonNull private String mContentDescription = "";
         @NonNull private DpProp mSize = DEFAULT_BUTTON_SIZE;
         @Nullable private String mText = null;
-        @Nullable private FontStyle mFontStyle = null;
+        private @TypographyName int mTypographyName =
+                getDefaultTypographyForSize(DEFAULT_BUTTON_SIZE);
+        private boolean mIsTypographyNameSet = false;
         @Nullable private String mIcon = null;
         @Nullable private DpProp mIconSize = null;
         @Nullable private String mImage = null;
         @NonNull private ButtonColors mButtonColors = PRIMARY_BUTTON_COLORS;
         private @ButtonType int mType = NOT_SET;
         private boolean mDefaultSize = false;
-        @Nullable private DeviceParameters mDeviceParameters = null;
 
         /**
          * Creates a builder for the {@link Button} from the given content. Custom content should be
@@ -216,39 +216,38 @@ public class Button implements LayoutElement {
          * Sets the content of this Button to be the given text with the default font for the set
          * size (for the {@link ButtonDefaults#DEFAULT_BUTTON_SIZE}, {@link
          * ButtonDefaults#LARGE_BUTTON_SIZE} and {@link ButtonDefaults#EXTRA_LARGE_BUTTON_SIZE} is
-         * {@link FontStyles#title2}, {@link FontStyles#title1} and {@link FontStyles#display3}
-         * respectively). Any previously added content will be overridden. Text should contain no
-         * more than 3 characters, otherwise it will overflow from the edges.
+         * {@link Typography#TYPOGRAPHY_TITLE2}, {@link Typography#TYPOGRAPHY_TITLE1} and {@link
+         * Typography#TYPOGRAPHY_DISPLAY3} respectively). Any previously added content will be
+         * overridden. Text should contain no more than 3 characters, otherwise it will overflow
+         * from the edges.
          */
         // There are multiple methods to set different type of content, but there is general getter
         // getContent that will return LayoutElement set by any of them. b/217197259
         @NonNull
         @SuppressWarnings("MissingGetterMatchingBuilder")
-        public Builder setTextContent(
-                @NonNull String text, @NonNull DeviceParameters deviceParameters) {
+        public Builder setTextContent(@NonNull String text) {
             resetContent();
             this.mText = text;
-            this.mDeviceParameters = deviceParameters;
             this.mType = TEXT;
             this.mDefaultSize = true;
             return this;
         }
 
         /**
-         * Sets the content of this Button to be the given text with the given font. You shouldn't
-         * add color to your font as it will be overridden by the {@link
-         * ButtonColors#getContentColor}. Only {@link #setButtonColors} should be used for
-         * customizing the colors of the button. Any previously added content will be overridden.
-         * Text should contain no more than 3 characters, otherwise it will overflow from the edges.
+         * Sets the content of this Button to be the given text with the given font. If you need
+         * more font related customization, consider using {@link #setContent} with {@link Text}
+         * component. Any previously added content will be overridden. Text should contain no more
+         * than 3 characters, otherwise it will overflow from the edges.
          */
         // There are multiple methods to set different type of content, but there is general getter
         // getContent that will return LayoutElement set by any of them. b/217197259
         @NonNull
         @SuppressWarnings("MissingGetterMatchingBuilder")
-        public Builder setTextContent(@NonNull String text, @NonNull FontStyle font) {
+        public Builder setTextContent(@NonNull String text, @TypographyName int typographyName) {
             resetContent();
             this.mText = text;
-            this.mFontStyle = font;
+            this.mTypographyName = typographyName;
+            this.mIsTypographyNameSet = true;
             this.mType = TEXT;
             this.mDefaultSize = false;
             return this;
@@ -274,7 +273,7 @@ public class Button implements LayoutElement {
 
         private void resetContent() {
             this.mText = null;
-            this.mFontStyle = null;
+            this.mIsTypographyNameSet = false;
             this.mIcon = null;
             this.mImage = null;
             this.mCustomContent = null;
@@ -345,28 +344,16 @@ public class Button implements LayoutElement {
                 }
                 case TEXT:
                 {
-                    FontStyle fontStyle;
-                    if (mFontStyle != null) {
-                        fontStyle =
-                                FontStyle.fromProto(
-                                        mFontStyle.toProto().toBuilder()
-                                                .setColor(
-                                                        mButtonColors
-                                                                .getContentColor()
-                                                                .toProto())
-                                                .build());
-                    } else {
-                        fontStyle =
-                                getDefaultFontForSize(mSize, checkNotNull(mDeviceParameters))
-                                        .setColor(mButtonColors.getContentColor())
-                                        .build();
-                    }
-
+                    @TypographyName
+                    int typographyName =
+                            mIsTypographyNameSet
+                                    ? mTypographyName : getDefaultTypographyForSize(mSize);
                     mContent =
                             new Text.Builder()
-                                .setText(checkNotNull(mText))
-                                .setMaxLines(1)
-                                .setFontStyle(fontStyle);
+                                    .setText(checkNotNull(mText))
+                                    .setMaxLines(1)
+                                    .setTypography(typographyName)
+                                    .setColor(mButtonColors.getContentColor());
 
                     return mContent.build();
                 }
@@ -413,37 +400,33 @@ public class Button implements LayoutElement {
             }
         }
 
-        @NonNull
-        private FontStyle.Builder getDefaultFontForSize(
-                @NonNull DpProp size, @NonNull DeviceParameters deviceParameters) {
+        private @TypographyName int getDefaultTypographyForSize(@NonNull DpProp size) {
             if (size.getValue() == LARGE_BUTTON_SIZE.getValue()) {
-                return FontStyles.title1(deviceParameters);
+                return Typography.TYPOGRAPHY_TITLE1;
             } else {
                 if (size.getValue() == EXTRA_LARGE_BUTTON_SIZE.getValue()) {
-                    return FontStyles.display3(deviceParameters);
+                    return Typography.TYPOGRAPHY_DISPLAY3;
                 } else {
-                    return FontStyles.title2(deviceParameters);
+                    return Typography.TYPOGRAPHY_TITLE2;
                 }
             }
         }
     }
 
-    /** Returns the content of this Button. Intended for testing purposes only. */
+    /** Returns the content of this Button. */
     @NonNull
     public LayoutElement getContent() {
         return checkNotNull(mElement.getContents().get(0));
     }
 
-    /**
-     * Returns click event action associated with this Button. Intended for testing purposes only.
-     */
+    /** Returns click event action associated with this Button. */
     @NonNull
     public Action getAction() {
         return checkNotNull(
                 checkNotNull(checkNotNull(mElement.getModifiers()).getClickable()).getOnClick());
     }
 
-    /** Returns content description for this Button. Intended for testing purposes only. */
+    /** Returns content description for this Button. */
     @NonNull
     public String getContentDescription() {
         return checkNotNull(
@@ -451,7 +434,7 @@ public class Button implements LayoutElement {
                         .getContentDescription());
     }
 
-    /** Returns size for this Button. Intended for testing purposes only. */
+    /** Returns size for this Button. */
     @NonNull
     public ContainerDimension getSize() {
         return checkNotNull(mElement.getWidth());
@@ -462,7 +445,7 @@ public class Button implements LayoutElement {
                 checkNotNull(checkNotNull(mElement.getModifiers()).getBackground()).getColor());
     }
 
-    /** Returns button color of this Button. Intended for testing purposes only. */
+    /** Returns button color of this Button. */
     @NonNull
     public ButtonColors getButtonColors() {
         ColorProp backgroundColor = getBackgroundColor();
@@ -477,7 +460,11 @@ public class Button implements LayoutElement {
                 break;
             case Builder.TEXT:
                 contentColor =
-                        checkNotNull(checkNotNull(((Text) mainElement).getFontStyle()).getColor());
+                        checkNotNull(
+                                checkNotNull(
+                                                ((LayoutElementBuilders.Text) mainElement)
+                                                        .getFontStyle())
+                                        .getColor());
                 break;
             case Builder.IMAGE:
             case Builder.CUSTOM_CONTENT:
@@ -502,8 +489,9 @@ public class Button implements LayoutElement {
      * have color.
      */
     private @Builder.ButtonType int getType(LayoutElement element) {
-        if (element instanceof Text) {
-            FontStyle fontStyle = ((Text) element).getFontStyle();
+        // To elementary Text class as Material Text when it goes to proto disappears.
+        if (element instanceof LayoutElementBuilders.Text) {
+            FontStyle fontStyle = ((LayoutElementBuilders.Text) element).getFontStyle();
             if (fontStyle != null && fontStyle.getColor() != null) {
                 return Builder.TEXT;
             }
