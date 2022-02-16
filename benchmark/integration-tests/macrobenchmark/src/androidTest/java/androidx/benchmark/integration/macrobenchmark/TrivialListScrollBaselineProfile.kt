@@ -25,6 +25,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.Until
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -52,11 +53,14 @@ class TrivialListScrollBaselineProfile {
                 val intent = Intent()
                 intent.action = ACTION
                 startActivityAndWait(intent)
-                val recycler = device.findObject(
-                    By.res(
-                        PACKAGE_NAME,
-                        RESOURCE_ID
-                    )
+                val recycler = device.wait(
+                    Until.findObject(
+                        By.res(
+                            PACKAGE_NAME,
+                            RESOURCE_ID
+                        )
+                    ),
+                    TIMEOUT
                 )
                 // Setting a gesture margin is important otherwise gesture nav is triggered.
                 recycler.setGestureMargin(device.displayWidth / 5)
@@ -74,5 +78,7 @@ class TrivialListScrollBaselineProfile {
         private const val ACTION =
             "androidx.benchmark.integration.macrobenchmark.target.RECYCLER_VIEW"
         private const val RESOURCE_ID = "recycler"
+        // The timeout
+        private const val TIMEOUT = 2000L
     }
 }
