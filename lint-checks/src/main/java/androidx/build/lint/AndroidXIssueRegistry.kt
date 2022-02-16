@@ -38,6 +38,7 @@ class AndroidXIssueRegistry : IssueRegistry() {
     companion object {
         val Issues get(): List<Issue> {
             return listOf(
+                AndroidManifestServiceExportedDetector.ISSUE,
                 BanParcelableUsage.ISSUE,
                 BanConcurrentHashMap.ISSUE,
                 BanInappropriateExperimentalUsage.ISSUE,

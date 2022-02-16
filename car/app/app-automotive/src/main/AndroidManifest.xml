@@ -32,7 +32,7 @@
             android:exported="false"
             android:enabled="false"
             android:process=""
-            tools:ignore="Instantiatable"
+            tools:ignore="Instantiatable,MissingServiceExportedEqualsTrue"
             tools:node="merge">
             <meta-data
                 android:name=
