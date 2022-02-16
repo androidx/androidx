@@ -434,6 +434,7 @@ includeProject(":compose:ui:ui-test-junit4", "compose/ui/ui-test-junit4", [Build
 includeProject(":compose:ui:ui-test-manifest", "compose/ui/ui-test-manifest", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-test-manifest:integration-tests:testapp", "compose/ui/ui-test-manifest/integration-tests/testapp", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-text", "compose/ui/ui-text", [BuildType.COMPOSE])
+includeProject(":compose:ui:ui-text-google-fonts", "compose/ui/ui-text-google-fonts", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-text:ui-text-benchmark", "compose/ui/ui-text/benchmark", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-text:ui-text-samples", "compose/ui/ui-text/samples", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-tooling", "compose/ui/ui-tooling", [BuildType.COMPOSE])
