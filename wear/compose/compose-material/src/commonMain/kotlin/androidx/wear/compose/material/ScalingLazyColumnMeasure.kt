@@ -400,7 +400,13 @@ internal class DefaultScalingLazyListLayoutInfo(
     val centerItemScrollOffset: Int,
     override val reverseLayout: Boolean,
     override val orientation: Orientation,
-    override val viewportSize: IntSize
+    override val viewportSize: IntSize,
+    // Flag to indicate that we are ready for the second stage of initialization. Note that this
+    // flag will be false once initialization is complete and initialized == true.
+    internal val readyForInitialization: Boolean,
+    // Flag to indicate that initialization is complete and initial scroll index and offset have
+    // been set.
+    internal val initialized: Boolean
 ) : ScalingLazyListLayoutInfo
 
 internal class DefaultScalingLazyListItemInfo(
