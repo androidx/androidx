@@ -14,9 +14,16 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<manifest package="androidx.core.remoteviews" xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest
+    package="androidx.core.remoteviews"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
     <application>
-      <service android:name="androidx.core.widget.RemoteViewsCompatService"
-            android:permission="android.permission.BIND_REMOTEVIEWS"/>
+      <service
+          android:name="androidx.core.widget.RemoteViewsCompatService"
+          android:permission="android.permission.BIND_REMOTEVIEWS"
+          tools:ignore="MissingServiceExportedEqualsTrue" />
     </application>
+
 </manifest>

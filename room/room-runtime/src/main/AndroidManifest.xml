@@ -14,14 +14,17 @@
   ~ limitations under the License.
   -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="androidx.room">
+<manifest
+    package="androidx.room"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <application>
         <service
-                android:name=".MultiInstanceInvalidationService"
-                android:directBootAware="true"
-                android:exported="false"/>
+            android:name=".MultiInstanceInvalidationService"
+            android:directBootAware="true"
+            android:exported="false"
+            tools:ignore="MissingServiceExportedEqualsTrue" />
     </application>
 
 </manifest>

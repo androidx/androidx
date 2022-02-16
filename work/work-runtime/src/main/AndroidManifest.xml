@@ -37,7 +37,8 @@
             android:exported="false"
             android:enabled="@bool/enable_system_alarm_service_default"
             android:directBootAware="false"
-            tools:targetApi="n"/>
+            tools:targetApi="n"
+            tools:ignore="MissingServiceExportedEqualsTrue" />
         <service
             android:name="androidx.work.impl.background.systemjob.SystemJobService"
             android:permission="android.permission.BIND_JOB_SERVICE"
@@ -50,7 +51,8 @@
             android:exported="false"
             android:directBootAware="false"
             android:enabled="@bool/enable_system_foreground_service_default"
-            tools:targetApi="n"/>
+            tools:targetApi="n"
+            tools:ignore="MissingServiceExportedEqualsTrue" />
         <receiver
             android:name="androidx.work.impl.utils.ForceStopRunnable$BroadcastReceiver"
             android:enabled="true"

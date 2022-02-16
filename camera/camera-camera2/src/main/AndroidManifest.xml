@@ -22,7 +22,7 @@ limitations under the License.
             android:name="androidx.camera.core.impl.MetadataHolderService"
             android:exported="false"
             android:enabled="false"
-            tools:ignore="Instantiatable"
+            tools:ignore="Instantiatable,MissingServiceExportedEqualsTrue"
             tools:node="merge">
             <meta-data
                 android:name=
