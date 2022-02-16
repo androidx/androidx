@@ -13,6 +13,8 @@ package androidx.lifecycle {
 
   public abstract class ViewModel {
     ctor public ViewModel();
+    ctor public ViewModel(java.io.Closeable!...);
+    method public void addCloseable(java.io.Closeable);
     method protected void onCleared();
   }
 
