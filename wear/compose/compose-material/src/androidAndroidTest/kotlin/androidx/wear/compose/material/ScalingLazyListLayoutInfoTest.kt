@@ -573,7 +573,6 @@ public class ScalingLazyListLayoutInfoTest {
                     itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
                 ),
                 scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f),
-                contentPadding = PaddingValues(vertical = 100.dp),
             ) {
                 items(5) {
                     Box(
@@ -666,7 +665,6 @@ public class ScalingLazyListLayoutInfoTest {
                     itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
                 ),
                 scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f),
-                contentPadding = PaddingValues(vertical = 100.dp)
             ) {
                 items(5) {
                     Box(Modifier.requiredSize(itemSizeDp))
