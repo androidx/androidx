@@ -72,6 +72,7 @@ public class CallbackHandlerRegistry {
         }
     }
 
+    @SuppressWarnings("deprecation")
     private String determineAuthority(Context context, String authority, Class<?> aClass) {
         if (authority != null) {
             return authority;

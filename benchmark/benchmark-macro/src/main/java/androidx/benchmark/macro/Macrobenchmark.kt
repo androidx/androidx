@@ -38,6 +38,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.tracing.trace
 import java.io.File
 
+@Suppress("DEPRECATION")
 internal fun checkErrors(packageName: String): ConfigurationError.SuppressionState? {
     val pm = InstrumentationRegistry.getInstrumentation().context.packageManager
 

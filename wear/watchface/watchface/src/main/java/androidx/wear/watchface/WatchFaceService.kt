@@ -312,6 +312,7 @@ public abstract class WatchFaceService : WallpaperService() {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Suppress("DEPRECATION")
     public open fun getXmlWatchFaceResourceId(): Int {
         return try {
             packageManager.getServiceInfo(

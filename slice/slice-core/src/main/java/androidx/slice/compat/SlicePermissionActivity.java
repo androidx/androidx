@@ -56,6 +56,7 @@ public class SlicePermissionActivity extends AppCompatActivity implements OnClic
     private AlertDialog mDialog;
 
     @Override
+    @SuppressWarnings("deprecation")
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 

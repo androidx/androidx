@@ -348,6 +348,7 @@ public class BrowserActionsIntent {
     /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @VisibleForTesting
+    @SuppressWarnings("deprecation")
     static void launchIntent(Context context, Intent intent, List<ResolveInfo> handlers) {
         if (handlers == null || handlers.size() == 0) {
             openFallbackBrowserActionsMenu(context, intent);

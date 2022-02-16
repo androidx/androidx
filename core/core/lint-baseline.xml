@@ -1048,6 +1048,17 @@
 
     <issue
         id="WrongConstant"
+        message="Must be one or more of: AccessibilityEventCompat.CONTENT_CHANGE_TYPE_CONTENT_DESCRIPTION, AccessibilityEventCompat.CONTENT_CHANGE_TYPE_STATE_DESCRIPTION, AccessibilityEventCompat.CONTENT_CHANGE_TYPE_SUBTREE, AccessibilityEventCompat.CONTENT_CHANGE_TYPE_TEXT, AccessibilityEventCompat.CONTENT_CHANGE_TYPE_UNDEFINED"
+        errorLine1="            return event.getContentChangeTypes();"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityEventCompat.java"
+            line="344"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
         message="Must be one of: Action.SEMANTIC_ACTION_NONE, Action.SEMANTIC_ACTION_REPLY, Action.SEMANTIC_ACTION_MARK_AS_READ, Action.SEMANTIC_ACTION_MARK_AS_UNREAD, Action.SEMANTIC_ACTION_DELETE, Action.SEMANTIC_ACTION_ARCHIVE, Action.SEMANTIC_ACTION_MUTE, Action.SEMANTIC_ACTION_UNMUTE, Action.SEMANTIC_ACTION_THUMBS_UP, Action.SEMANTIC_ACTION_THUMBS_DOWN, Action.SEMANTIC_ACTION_CALL"
         errorLine1="                    builder.setSemanticAction(action.getSemanticAction());"
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~">
