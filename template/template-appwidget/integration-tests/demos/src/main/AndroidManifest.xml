@@ -46,5 +46,18 @@
                 android:resource="@xml/default_app_widget_info" />
         </receiver>
 
+        <receiver
+            android:name="androidx.template.appwidget.demos.GalleryInputWidgetReceiver"
+            android:enabled="@bool/glance_appwidget_available"
+            android:exported="false"
+            android:label="@string/gallery_template_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/default_app_widget_info" />
+        </receiver>
     </application>
 </manifest>
