@@ -33,7 +33,7 @@ package androidx.core.app {
     method public static boolean isLaunchedFromBubble(android.app.Activity);
     method public static void postponeEnterTransition(android.app.Activity);
     method public static void recreate(android.app.Activity);
-    method public static androidx.core.view.DragAndDropPermissionsCompat? requestDragAndDropPermissions(android.app.Activity!, android.view.DragEvent!);
+    method public static androidx.core.view.DragAndDropPermissionsCompat? requestDragAndDropPermissions(android.app.Activity, android.view.DragEvent);
     method public static void requestPermissions(android.app.Activity, String![], @IntRange(from=0) int);
     method public static <T extends android.view.View> T requireViewById(android.app.Activity, @IdRes int);
     method public static void setEnterSharedElementCallback(android.app.Activity, androidx.core.app.SharedElementCallback?);
