@@ -392,6 +392,16 @@ val WearMaterialDemos = DemoCategory(
             )
         ),
         ComposableDemo("Curved Text") { CurvedTextDemo() },
-
+        DemoCategory(
+            "Theme",
+            listOf(
+                ComposableDemo("Fonts") {
+                    ThemeFonts()
+                },
+                ComposableDemo("Colors") {
+                    ThemeColors()
+                },
+            )
+        ),
     ),
 )
