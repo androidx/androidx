@@ -53,6 +53,8 @@ public class ProfileInstaller {
     // cannot construct
     private ProfileInstaller() {}
 
+    private static final String TAG = "ProfileInstaller";
+
     private static final String PROFILE_BASE_DIR = "/data/misc/profiles/cur/0";
     private static final String PROFILE_FILE = "primary.prof";
     private static final String PROFILE_SOURCE_LOCATION = "dexopt/baseline.prof";
@@ -519,8 +521,11 @@ public class ProfileInstaller {
         File filesDir = context.getFilesDir();
         if (forceWriteProfile
                 || !hasAlreadyWrittenProfileForThisInstall(packageInfo, filesDir, diagnostics)) {
+            Log.d(TAG, "Installing profile for " + context.getPackageName());
             transcodeAndWrite(assetManager, packageName, packageInfo, filesDir, apkName, executor,
                     diagnostics);
+        } else {
+            Log.d(TAG, "Skipping profile installation for " + context.getPackageName());
         }
     }
 
