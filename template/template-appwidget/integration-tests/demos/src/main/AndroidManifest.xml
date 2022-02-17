@@ -21,19 +21,8 @@
         android:label="@string/demo_label"
         android:supportsRtl="true">
 
-        <activity
-            android:name=".TemplateInputActivity"
-            android:exported="true"
-            android:label="@string/demo_label"
-            android:windowSoftInputMode="adjustResize">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
         <receiver
-            android:name="androidx.template.appwidget.demos.TemplateInputWidgetReceiver"
+            android:name="androidx.template.appwidget.demos.SingleEntityWidgetReceiver"
             android:enabled="@bool/glance_appwidget_available"
             android:exported="false"
             android:label="@string/template_input_widget_name">
