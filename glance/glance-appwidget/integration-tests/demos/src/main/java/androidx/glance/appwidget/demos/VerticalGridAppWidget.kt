@@ -16,8 +16,10 @@
 
 package androidx.glance.appwidget.demos
 
+import android.os.Build
 import android.content.Intent
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.dp
 import androidx.glance.Button
 import androidx.glance.GlanceModifier
 import androidx.glance.LocalContext
@@ -41,8 +43,13 @@ class VerticalGridAppWidget : GlanceAppWidget() {
 
     @Composable
     override fun Content() {
+        var gridCells = if (Build.VERSION.SDK_INT >= 31) {
+            GridCells.Adaptive(100.dp)
+        } else {
+            GridCells.Fixed(3)
+        }
         SampleGrid(
-            cells = GridCells.Adaptive,
+            cells = gridCells,
             modifier = GlanceModifier.padding(R.dimen.external_padding)
                 .fillMaxSize()
                 .appWidgetBackground()
