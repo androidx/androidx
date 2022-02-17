@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+ChangedType: androidx.collection.SparseArrayCompat#clone():
+    Method androidx.collection.SparseArrayCompat.clone has changed return type from androidx.collection.SparseArrayCompat<E!> to androidx.collection.SparseArrayCompat<E>

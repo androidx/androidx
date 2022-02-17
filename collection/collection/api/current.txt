@@ -152,32 +152,34 @@ package androidx.collection {
   }
 
   public class SparseArrayCompat<E> implements java.lang.Cloneable {
+    ctor public SparseArrayCompat(int initialCapacity);
     ctor public SparseArrayCompat();
-    ctor public SparseArrayCompat(int);
-    method public void append(int, E!);
+    method public void append(int key, E? value);
     method public void clear();
-    method public androidx.collection.SparseArrayCompat<E!>! clone();
-    method public boolean containsKey(int);
-    method public boolean containsValue(E!);
-    method @Deprecated public void delete(int);
-    method public E? get(int);
-    method public E! get(int, E!);
-    method public int indexOfKey(int);
-    method public int indexOfValue(E!);
+    method public androidx.collection.SparseArrayCompat<E> clone();
+    method public boolean containsKey(int key);
+    method public boolean containsValue(E? value);
+    method @Deprecated public void delete(int key);
+    method public operator E? get(int key);
+    method public operator E! get(int key, E? defaultValue);
+    method public final boolean getIsEmpty();
+    method public int indexOfKey(int key);
+    method public int indexOfValue(E? value);
     method public boolean isEmpty();
-    method public int keyAt(int);
-    method public void put(int, E!);
-    method public void putAll(androidx.collection.SparseArrayCompat<? extends E>);
-    method public E? putIfAbsent(int, E!);
-    method public void remove(int);
-    method public boolean remove(int, Object!);
-    method public void removeAt(int);
-    method public void removeAtRange(int, int);
-    method public E? replace(int, E!);
-    method public boolean replace(int, E!, E!);
-    method public void setValueAt(int, E!);
+    method public int keyAt(int index);
+    method public void put(int key, E? value);
+    method public void putAll(androidx.collection.SparseArrayCompat<? extends E> other);
+    method public E? putIfAbsent(int key, E? value);
+    method public void remove(int key);
+    method public boolean remove(int key, Object? value);
+    method public void removeAt(int index);
+    method public void removeAtRange(int index, int size);
+    method public E? replace(int key, E? value);
+    method public boolean replace(int key, E? oldValue, E? newValue);
+    method public void setValueAt(int index, E? value);
     method public int size();
-    method public E! valueAt(int);
+    method public E! valueAt(int index);
+    property public final boolean isEmpty;
   }
 
 }

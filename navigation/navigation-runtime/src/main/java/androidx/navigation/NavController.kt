@@ -1089,6 +1089,9 @@ public open class NavController(
                 val newDestination = graph.nodes.valueAt(i)
                 _graph!!.nodes.replace(i, newDestination)
                 backQueue.filter { currentEntry ->
+                    // Necessary since CI builds against ToT, can be removed once
+                    // androidx.collection is updated to >= 1.3.*
+                    @Suppress("UNNECESSARY_SAFE_CALL")
                     currentEntry.destination.id == newDestination?.id
                 }.forEach { entry ->
                     entry.destination = newDestination
