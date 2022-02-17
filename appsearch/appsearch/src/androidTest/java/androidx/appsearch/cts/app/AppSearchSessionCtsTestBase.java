@@ -358,7 +358,7 @@ public abstract class AppSearchSessionCtsTestBase {
     @Test
     public void testGetSchema_visibilitySetting() throws Exception {
         assumeTrue(mDb1.getFeatures().isFeatureSupported(
-                Features.SET_SCHEMA_REQUEST_VISIBILITY_PERMISSIONS_AND_GET_VISIBILITY));
+                Features.ADD_PERMISSIONS_AND_GET_VISIBILITY));
         AppSearchSchema emailSchema = new AppSearchSchema.Builder("Email1")
                 .addProperty(new StringPropertyConfig.Builder("subject")
                         .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
@@ -414,7 +414,7 @@ public abstract class AppSearchSessionCtsTestBase {
     @Test
     public void testGetSchema_visibilitySetting_notSupported() throws Exception {
         assumeFalse(mDb1.getFeatures().isFeatureSupported(
-                Features.SET_SCHEMA_REQUEST_VISIBILITY_PERMISSIONS_AND_GET_VISIBILITY));
+                Features.ADD_PERMISSIONS_AND_GET_VISIBILITY));
         AppSearchSchema emailSchema = new AppSearchSchema.Builder("Email1")
                 .addProperty(new StringPropertyConfig.Builder("subject")
                         .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
@@ -465,7 +465,7 @@ public abstract class AppSearchSessionCtsTestBase {
     @Test
     public void testSetSchema_visibilitySettingPermission_notSupported() {
         assumeFalse(mDb1.getFeatures().isFeatureSupported(
-                Features.SET_SCHEMA_REQUEST_VISIBILITY_PERMISSIONS_AND_GET_VISIBILITY));
+                Features.ADD_PERMISSIONS_AND_GET_VISIBILITY));
         AppSearchSchema emailSchema = new AppSearchSchema.Builder("Email1").build();
 
         SetSchemaRequest request = new SetSchemaRequest.Builder()

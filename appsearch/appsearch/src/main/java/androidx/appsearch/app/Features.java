@@ -57,8 +57,7 @@ public interface Features {
      * {@link SetSchemaRequest.Builder#addRequiredPermissionsForSchemaTypeVisibility} and
      * {@link SetSchemaRequest.Builder#clearRequiredPermissionsForSchemaTypeVisibility}
      */
-    String SET_SCHEMA_REQUEST_VISIBILITY_PERMISSIONS_AND_GET_VISIBILITY =
-            "SET_SCHEMA_REQUEST_VISIBILITY_PERMISSIONS_AND_GET_VISIBILITY";
+    String ADD_PERMISSIONS_AND_GET_VISIBILITY = "ADD_PERMISSIONS_AND_GET_VISIBILITY";
 
     /**
      * Returns whether a feature is supported at run-time. Feature support depends on the

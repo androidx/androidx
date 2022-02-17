@@ -200,10 +200,10 @@ package androidx.appsearch.app {
 
   public interface Features {
     method public boolean isFeatureSupported(String);
+    field public static final String ADD_PERMISSIONS_AND_GET_VISIBILITY = "ADD_PERMISSIONS_AND_GET_VISIBILITY";
     field public static final String GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER = "GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER";
     field public static final String GLOBAL_SEARCH_SESSION_GET_SCHEMA = "GLOBAL_SEARCH_SESSION_GET_SCHEMA";
     field public static final String SEARCH_RESULT_MATCH_INFO_SUBMATCH = "SEARCH_RESULT_MATCH_INFO_SUBMATCH";
-    field public static final String SET_SCHEMA_REQUEST_VISIBILITY_PERMISSIONS_AND_GET_VISIBILITY = "SET_SCHEMA_REQUEST_VISIBILITY_PERMISSIONS_AND_GET_VISIBILITY";
   }
 
   public class GenericDocument {
@@ -268,9 +268,9 @@ package androidx.appsearch.app {
   }
 
   public final class GetSchemaResponse {
-    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SET_SCHEMA_REQUEST_VISIBILITY_PERMISSIONS_AND_GET_VISIBILITY) public java.util.Map<java.lang.String!,java.util.Set<java.util.Set<java.lang.Integer!>!>!> getRequiredPermissionsForSchemaTypeVisibility();
-    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SET_SCHEMA_REQUEST_VISIBILITY_PERMISSIONS_AND_GET_VISIBILITY) public java.util.Set<java.lang.String!> getSchemaTypesNotDisplayedBySystem();
-    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SET_SCHEMA_REQUEST_VISIBILITY_PERMISSIONS_AND_GET_VISIBILITY) public java.util.Map<java.lang.String!,java.util.Set<androidx.appsearch.app.PackageIdentifier!>!> getSchemaTypesVisibleToPackages();
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.ADD_PERMISSIONS_AND_GET_VISIBILITY) public java.util.Map<java.lang.String!,java.util.Set<java.util.Set<java.lang.Integer!>!>!> getRequiredPermissionsForSchemaTypeVisibility();
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.ADD_PERMISSIONS_AND_GET_VISIBILITY) public java.util.Set<java.lang.String!> getSchemaTypesNotDisplayedBySystem();
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.ADD_PERMISSIONS_AND_GET_VISIBILITY) public java.util.Map<java.lang.String!,java.util.Set<androidx.appsearch.app.PackageIdentifier!>!> getSchemaTypesVisibleToPackages();
     method public java.util.Set<androidx.appsearch.app.AppSearchSchema!> getSchemas();
     method @IntRange(from=0) public int getVersion();
   }
@@ -468,25 +468,25 @@ package androidx.appsearch.app {
     method public java.util.Map<java.lang.String!,java.util.Set<androidx.appsearch.app.PackageIdentifier!>!> getSchemasVisibleToPackages();
     method @IntRange(from=1) public int getVersion();
     method public boolean isForceOverride();
-    field @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SET_SCHEMA_REQUEST_VISIBILITY_PERMISSIONS_AND_GET_VISIBILITY) public static final int READ_ASSISTANT_APP_SEARCH_DATA = 6; // 0x6
-    field @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SET_SCHEMA_REQUEST_VISIBILITY_PERMISSIONS_AND_GET_VISIBILITY) public static final int READ_CALENDAR = 2; // 0x2
-    field @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SET_SCHEMA_REQUEST_VISIBILITY_PERMISSIONS_AND_GET_VISIBILITY) public static final int READ_CONTACTS = 3; // 0x3
-    field @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SET_SCHEMA_REQUEST_VISIBILITY_PERMISSIONS_AND_GET_VISIBILITY) public static final int READ_EXTERNAL_STORAGE = 4; // 0x4
-    field @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SET_SCHEMA_REQUEST_VISIBILITY_PERMISSIONS_AND_GET_VISIBILITY) public static final int READ_HOME_APP_SEARCH_DATA = 5; // 0x5
-    field @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SET_SCHEMA_REQUEST_VISIBILITY_PERMISSIONS_AND_GET_VISIBILITY) public static final int READ_SMS = 1; // 0x1
+    field @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.ADD_PERMISSIONS_AND_GET_VISIBILITY) public static final int READ_ASSISTANT_APP_SEARCH_DATA = 6; // 0x6
+    field @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.ADD_PERMISSIONS_AND_GET_VISIBILITY) public static final int READ_CALENDAR = 2; // 0x2
+    field @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.ADD_PERMISSIONS_AND_GET_VISIBILITY) public static final int READ_CONTACTS = 3; // 0x3
+    field @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.ADD_PERMISSIONS_AND_GET_VISIBILITY) public static final int READ_EXTERNAL_STORAGE = 4; // 0x4
+    field @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.ADD_PERMISSIONS_AND_GET_VISIBILITY) public static final int READ_HOME_APP_SEARCH_DATA = 5; // 0x5
+    field @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.ADD_PERMISSIONS_AND_GET_VISIBILITY) public static final int READ_SMS = 1; // 0x1
   }
 
   public static final class SetSchemaRequest.Builder {
     ctor public SetSchemaRequest.Builder();
     method public androidx.appsearch.app.SetSchemaRequest.Builder addDocumentClasses(Class<?>!...) throws androidx.appsearch.exceptions.AppSearchException;
     method public androidx.appsearch.app.SetSchemaRequest.Builder addDocumentClasses(java.util.Collection<? extends java.lang.Class<?>>) throws androidx.appsearch.exceptions.AppSearchException;
-    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SET_SCHEMA_REQUEST_VISIBILITY_PERMISSIONS_AND_GET_VISIBILITY) public androidx.appsearch.app.SetSchemaRequest.Builder addRequiredPermissionsForDocumentClassVisibility(Class<?>, java.util.Set<java.lang.Integer!>) throws androidx.appsearch.exceptions.AppSearchException;
-    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SET_SCHEMA_REQUEST_VISIBILITY_PERMISSIONS_AND_GET_VISIBILITY) public androidx.appsearch.app.SetSchemaRequest.Builder addRequiredPermissionsForSchemaTypeVisibility(String, java.util.Set<java.lang.Integer!>);
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.ADD_PERMISSIONS_AND_GET_VISIBILITY) public androidx.appsearch.app.SetSchemaRequest.Builder addRequiredPermissionsForDocumentClassVisibility(Class<?>, java.util.Set<java.lang.Integer!>) throws androidx.appsearch.exceptions.AppSearchException;
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.ADD_PERMISSIONS_AND_GET_VISIBILITY) public androidx.appsearch.app.SetSchemaRequest.Builder addRequiredPermissionsForSchemaTypeVisibility(String, java.util.Set<java.lang.Integer!>);
     method public androidx.appsearch.app.SetSchemaRequest.Builder addSchemas(androidx.appsearch.app.AppSearchSchema!...);
     method public androidx.appsearch.app.SetSchemaRequest.Builder addSchemas(java.util.Collection<androidx.appsearch.app.AppSearchSchema!>);
     method public androidx.appsearch.app.SetSchemaRequest build();
-    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SET_SCHEMA_REQUEST_VISIBILITY_PERMISSIONS_AND_GET_VISIBILITY) public androidx.appsearch.app.SetSchemaRequest.Builder clearRequiredPermissionsForDocumentClassVisibility(Class<?>) throws androidx.appsearch.exceptions.AppSearchException;
-    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SET_SCHEMA_REQUEST_VISIBILITY_PERMISSIONS_AND_GET_VISIBILITY) public androidx.appsearch.app.SetSchemaRequest.Builder clearRequiredPermissionsForSchemaTypeVisibility(String);
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.ADD_PERMISSIONS_AND_GET_VISIBILITY) public androidx.appsearch.app.SetSchemaRequest.Builder clearRequiredPermissionsForDocumentClassVisibility(Class<?>) throws androidx.appsearch.exceptions.AppSearchException;
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.ADD_PERMISSIONS_AND_GET_VISIBILITY) public androidx.appsearch.app.SetSchemaRequest.Builder clearRequiredPermissionsForSchemaTypeVisibility(String);
     method public androidx.appsearch.app.SetSchemaRequest.Builder setDocumentClassDisplayedBySystem(Class<?>, boolean) throws androidx.appsearch.exceptions.AppSearchException;
     method public androidx.appsearch.app.SetSchemaRequest.Builder setDocumentClassVisibilityForPackage(Class<?>, boolean, androidx.appsearch.app.PackageIdentifier) throws androidx.appsearch.exceptions.AppSearchException;
     method public androidx.appsearch.app.SetSchemaRequest.Builder setForceOverride(boolean);

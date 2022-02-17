@@ -42,7 +42,7 @@ final class FeaturesImpl implements Features {
             // synced over into service-appsearch.
             return false;
         }
-        if (Features.SET_SCHEMA_REQUEST_VISIBILITY_PERMISSIONS_AND_GET_VISIBILITY.equals(feature)) {
+        if (Features.ADD_PERMISSIONS_AND_GET_VISIBILITY.equals(feature)) {
             // TODO(b/205749173) : Update to reflect support in Android T+ once this feature is
             // synced over into service-appsearch.
             return false;
