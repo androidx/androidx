@@ -236,14 +236,13 @@ package androidx.room.migration {
 package androidx.room.paging {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class LimitOffsetDataSource<T> extends androidx.paging.PositionalDataSource<T> {
-    ctor protected LimitOffsetDataSource(androidx.room.RoomDatabase db, androidx.room.RoomSQLiteQuery sourceQuery, boolean inTransaction, boolean registerObserverImmediately, java.lang.String... tables);
-    ctor protected LimitOffsetDataSource(androidx.room.RoomDatabase db, androidx.sqlite.db.SupportSQLiteQuery query, boolean inTransaction, java.lang.String... tables);
-    ctor protected LimitOffsetDataSource(androidx.room.RoomDatabase db, androidx.sqlite.db.SupportSQLiteQuery query, boolean inTransaction, boolean registerObserverImmediately, java.lang.String... tables);
-    ctor protected LimitOffsetDataSource(androidx.room.RoomDatabase db, androidx.room.RoomSQLiteQuery query, boolean inTransaction, java.lang.String... tables);
-    method protected abstract java.util.List<T> convertRows(android.database.Cursor cursor);
-    method public void loadInitial(androidx.paging.PositionalDataSource.LoadInitialParams params, androidx.paging.PositionalDataSource.LoadInitialCallback<T> callback);
-    method public void loadRange(androidx.paging.PositionalDataSource.LoadRangeParams params, androidx.paging.PositionalDataSource.LoadRangeCallback<T> callback);
-    property public boolean isInvalid;
+    ctor protected LimitOffsetDataSource(androidx.room.RoomDatabase, androidx.sqlite.db.SupportSQLiteQuery, boolean, java.lang.String!...);
+    ctor protected LimitOffsetDataSource(androidx.room.RoomDatabase, androidx.sqlite.db.SupportSQLiteQuery, boolean, boolean, java.lang.String!...);
+    ctor protected LimitOffsetDataSource(androidx.room.RoomDatabase, androidx.room.RoomSQLiteQuery, boolean, java.lang.String!...);
+    ctor protected LimitOffsetDataSource(androidx.room.RoomDatabase, androidx.room.RoomSQLiteQuery, boolean, boolean, java.lang.String!...);
+    method protected abstract java.util.List<T!> convertRows(android.database.Cursor);
+    method public void loadInitial(androidx.paging.PositionalDataSource.LoadInitialParams, androidx.paging.PositionalDataSource.LoadInitialCallback<T!>);
+    method public void loadRange(androidx.paging.PositionalDataSource.LoadRangeParams, androidx.paging.PositionalDataSource.LoadRangeCallback<T!>);
   }
 
 }
