@@ -58,6 +58,7 @@ import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.ComplicationSlotBoundsType
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.editor.data.EditorStateWireFormat
+import androidx.wear.watchface.sanitizeWatchFaceId
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleData
 import androidx.wear.watchface.style.UserStyleSchema
@@ -405,7 +406,8 @@ public abstract class BaseEditorSession internal constructor(
     private var complicationDataSourceInfoRetrieverProvider:
         ComplicationDataSourceInfoRetrieverProvider?,
     public val coroutineScope: CoroutineScope,
-    private val previewScreenshotParams: PreviewScreenshotParams?
+    private val previewScreenshotParams: PreviewScreenshotParams?,
+    internal val watchFaceIdInternal: WatchFaceId
 ) : EditorSession {
     protected var closed: Boolean = false
     protected var forceClosed: Boolean = false
@@ -420,6 +422,8 @@ public abstract class BaseEditorSession internal constructor(
             }
         }
     }
+
+    override val watchFaceId = WatchFaceId(sanitizeWatchFaceId(watchFaceIdInternal.id))
 
     private companion object {
         /** Timeout for fetching ComplicationsPreviewData in [BaseEditorSession.close]. */
@@ -507,7 +511,7 @@ public abstract class BaseEditorSession internal constructor(
                 ComplicationDataSourceChooserRequest(
                     this,
                     complicationSlotId,
-                    watchFaceId.id,
+                    watchFaceIdInternal.id,
                     showComplicationDeniedDialogIntent,
                     showComplicationRationaleDialogIntent
                 )
@@ -690,7 +694,7 @@ public abstract class BaseEditorSession internal constructor(
                         }
                     EditorService.globalEditorService.broadcastEditorState(
                         EditorStateWireFormat(
-                            watchFaceId.id,
+                            watchFaceIdInternal.id,
                             userStyle.value.toWireFormat(),
                             complicationsPreviewData.value.mapNotNull {
                                 if (complicationSlotsState.value[it.key]!!.isEnabled) {
@@ -748,10 +752,19 @@ public abstract class BaseEditorSession internal constructor(
     protected open val showComplicationRationaleDialogIntent: Intent? = null
 }
 
+/**
+ * @param activity The editor's [ComponentActivity].
+ * @param watchFaceIdInternal The original ID sent to us in the [WatchFaceEditorContract]. We need
+ * this because the system expects [EditorState.watchFaceId] to match.
+ * @param complicationDataSourceInfoRetrieverProvider Used to obtain
+ * [ComplicationDataSourceInfoRetriever]
+ * @param coroutineScope The main thread [CoroutineScope]
+ * @param previewScreenshotParams Optional [PreviewScreenshotParams]
+ */
 internal class OnWatchFaceEditorSessionImpl(
     activity: ComponentActivity,
     override val watchFaceComponentName: ComponentName,
-    override val watchFaceId: WatchFaceId,
+    watchFaceIdInternal: WatchFaceId,
     private val initialEditorUserStyle: UserStyleData?,
     complicationDataSourceInfoRetrieverProvider: ComplicationDataSourceInfoRetrieverProvider,
     coroutineScope: CoroutineScope,
@@ -760,7 +773,8 @@ internal class OnWatchFaceEditorSessionImpl(
     activity,
     complicationDataSourceInfoRetrieverProvider,
     coroutineScope,
-    previewScreenshotParams
+    previewScreenshotParams,
+    watchFaceIdInternal
 ) {
     private lateinit var editorDelegate: WatchFace.EditorDelegate
 
@@ -772,6 +786,8 @@ internal class OnWatchFaceEditorSessionImpl(
     override val previewReferenceInstant: Instant by lazy {
         editorDelegate.previewReferenceInstant
     }
+
+    override val watchFaceId = WatchFaceId(sanitizeWatchFaceId(watchFaceIdInternal.id))
 
     override fun fetchComplicationSlotsState(): Map<Int, ComplicationSlotState> {
         return editorDelegate.complicationSlotsManager.complicationSlots.mapValues {
@@ -934,7 +950,7 @@ internal class HeadlessEditorSession(
     activity: ComponentActivity,
     private val headlessWatchFaceClient: HeadlessWatchFaceClient,
     override val watchFaceComponentName: ComponentName,
-    override val watchFaceId: WatchFaceId,
+    watchFaceIdInternal: WatchFaceId,
     initialUserStyle: UserStyleData,
     complicationDataSourceInfoRetrieverProvider: ComplicationDataSourceInfoRetrieverProvider,
     coroutineScope: CoroutineScope,
@@ -943,7 +959,8 @@ internal class HeadlessEditorSession(
     activity,
     complicationDataSourceInfoRetrieverProvider,
     coroutineScope,
-    previewScreenshotParams
+    previewScreenshotParams,
+    watchFaceIdInternal
 ) {
     override val userStyleSchema = headlessWatchFaceClient.userStyleSchema
 
