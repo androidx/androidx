@@ -94,6 +94,7 @@ public final class PropertyUtils {
             append(VehiclePropertyIds.CURRENT_GEAR, Car.PERMISSION_POWERTRAIN);
             append(VehiclePropertyIds.PARKING_BRAKE_ON, Car.PERMISSION_POWERTRAIN);
             append(VehiclePropertyIds.PARKING_BRAKE_AUTO_APPLY, Car.PERMISSION_POWERTRAIN);
+            append(VehiclePropertyIds.FUEL_VOLUME_DISPLAY_UNITS, Car.PERMISSION_READ_DISPLAY_UNITS);
         }
     };
 
