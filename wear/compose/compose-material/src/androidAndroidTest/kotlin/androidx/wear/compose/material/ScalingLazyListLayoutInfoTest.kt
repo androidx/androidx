@@ -38,7 +38,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
@@ -69,7 +68,6 @@ public class ScalingLazyListLayoutInfoTest {
         }
     }
 
-    @FlakyTest(bugId = 217762753)
     @Test
     fun visibleItemsAreCorrect() {
         lateinit var state: ScalingLazyListState
@@ -175,7 +173,6 @@ public class ScalingLazyListLayoutInfoTest {
         }
     }
 
-    @FlakyTest(bugId = 217762274)
     @Test
     fun visibleItemsAreCorrectSetExplicitInitialItemIndex() {
         lateinit var state: ScalingLazyListState
@@ -253,7 +250,6 @@ public class ScalingLazyListLayoutInfoTest {
         }
     }
 
-    @FlakyTest(bugId = 216138159)
     @Test
     fun visibleItemsAreCorrectForReverseLayoutWithAutoCentering() {
         lateinit var state: ScalingLazyListState
