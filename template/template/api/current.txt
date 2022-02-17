@@ -26,6 +26,29 @@ package androidx.template.template {
     property public final androidx.template.template.TemplateText? title;
   }
 
+  public abstract class GalleryTemplate extends androidx.template.template.GlanceTemplate<androidx.template.template.GalleryTemplate.Data> {
+    ctor public GalleryTemplate();
+    method @androidx.compose.runtime.Composable public void WidgetLayoutCollapsed();
+    method @androidx.compose.runtime.Composable public void WidgetLayoutHorizontal();
+    method @androidx.compose.runtime.Composable public void WidgetLayoutVertical();
+  }
+
+  public static final class GalleryTemplate.Data {
+    ctor public GalleryTemplate.Data(String header, String title, String headline, androidx.template.template.TemplateImageWithDescription image, androidx.template.template.TemplateImageWithDescription logo, androidx.glance.unit.ColorProvider backgroundColor);
+    method public androidx.glance.unit.ColorProvider getBackgroundColor();
+    method public String getHeader();
+    method public String getHeadline();
+    method public androidx.template.template.TemplateImageWithDescription getImage();
+    method public androidx.template.template.TemplateImageWithDescription getLogo();
+    method public String getTitle();
+    property public final androidx.glance.unit.ColorProvider backgroundColor;
+    property public final String header;
+    property public final String headline;
+    property public final androidx.template.template.TemplateImageWithDescription image;
+    property public final androidx.template.template.TemplateImageWithDescription logo;
+    property public final String title;
+  }
+
   public abstract class GlanceTemplate<T> {
     ctor public GlanceTemplate();
     method @androidx.compose.runtime.Composable public abstract void WidgetLayoutCollapsed();
