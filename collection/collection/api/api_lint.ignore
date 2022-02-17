@@ -21,10 +21,6 @@ KotlinOperator: androidx.collection.LruCache#get(K):
     Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
 KotlinOperator: androidx.collection.SimpleArrayMap#get(Object):
     Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
-KotlinOperator: androidx.collection.SparseArrayCompat#get(int):
-    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
-KotlinOperator: androidx.collection.SparseArrayCompat#get(int, E):
-    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
 
 
 MissingNullability: androidx.collection.ArrayMap#ArrayMap(androidx.collection.SimpleArrayMap) parameter #0:
@@ -48,10 +44,6 @@ MissingNullability: androidx.collection.SimpleArrayMap#remove(Object) parameter 
 MissingNullability: androidx.collection.SimpleArrayMap#remove(Object, Object) parameter #0:
     Missing nullability on parameter `key` in method `remove`
 MissingNullability: androidx.collection.SimpleArrayMap#remove(Object, Object) parameter #1:
-    Missing nullability on parameter `value` in method `remove`
-MissingNullability: androidx.collection.SparseArrayCompat#clone():
-    Missing nullability on method `clone` return
-MissingNullability: androidx.collection.SparseArrayCompat#remove(int, Object) parameter #1:
     Missing nullability on parameter `value` in method `remove`
 
 
