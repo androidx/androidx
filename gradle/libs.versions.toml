@@ -51,6 +51,7 @@ androidLintApi = { module = "com.android.tools.lint:lint-api", version.ref = "an
 androidLintMinApi = { module = "com.android.tools.lint:lint-api", version.ref = "androidLintMin" }
 androidLintMinComposeApi = { module = "com.android.tools.lint:lint-api", version.ref = "androidLintMinCompose" }
 androidLintChecks = { module = "com.android.tools.lint:lint-checks", version.ref = "androidLint" }
+androidLintChecksMin = { module = "com.android.tools.lint:lint-checks", version.ref = "androidLintMin" }
 androidLintTests = { module = "com.android.tools.lint:lint-tests", version.ref = "androidLint" }
 autoCommon = { module = "com.google.auto:auto-common", version = "0.11" }
 atomicFu = { module = "org.jetbrains.kotlinx:atomicfu", version.ref = "atomicFu" }
