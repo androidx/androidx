@@ -244,9 +244,10 @@ public final class PlaceListMapTemplate implements Template {
          *
          * <p>The map template will show the user's current location on the map.
          *
-         * <p>This functionality requires the app to have the {@code ACCESS_FINE_LOCATION}
-         * permission. When {@code isEnabled} is {@code true}, the host may receive location
-         * updates from the app in order to show the user's current location.
+         * <p>This functionality requires the app to have either the {@code ACCESS_FINE_LOCATION} or
+         * {@code ACCESS_COARSE_LOCATION} permission. When {@code isEnabled} is {@code true}, the
+         * host may receive location updates from the app in order to show the user's current
+         * location.
          */
         @NonNull
         public Builder setCurrentLocationEnabled(boolean isEnabled) {
