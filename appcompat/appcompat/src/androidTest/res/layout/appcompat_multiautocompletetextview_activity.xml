@@ -26,7 +26,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+        <androidx.appcompat.widget.AppCompatMultiAutoCompleteTextView
             android:id="@+id/view_tinted_no_background"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -35,7 +35,7 @@
             app:backgroundTint="@color/color_state_list_lilac"
             app:backgroundTintMode="src_in"/>
 
-        <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+        <androidx.appcompat.widget.AppCompatMultiAutoCompleteTextView
             android:id="@+id/view_tinted_background"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -44,91 +44,91 @@
             app:backgroundTint="@color/color_state_list_lilac"
             app:backgroundTintMode="src_in"/>
 
-        <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+        <androidx.appcompat.widget.AppCompatMultiAutoCompleteTextView
             android:id="@+id/view_untinted_no_background"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@null"
             android:text="@string/sample_text2"/>
 
-        <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+        <androidx.appcompat.widget.AppCompatMultiAutoCompleteTextView
             android:id="@+id/view_untinted_background"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/sample_text2"
             android:background="@drawable/test_background_green"/>
 
-        <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+        <androidx.appcompat.widget.AppCompatMultiAutoCompleteTextView
             android:id="@+id/view_untinted_deferred"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/sample_text2"
             android:background="@drawable/black_rect"/>
 
-        <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+        <androidx.appcompat.widget.AppCompatMultiAutoCompleteTextView
             android:id="@+id/view_text_color_hex"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/sample_text2"
             android:textColor="#FF0000"/>
 
-        <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+        <androidx.appcompat.widget.AppCompatMultiAutoCompleteTextView
             android:id="@+id/view_text_color_csl"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/sample_text2"
             android:textColor="@color/color_state_list_ocean"/>
 
-        <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+        <androidx.appcompat.widget.AppCompatMultiAutoCompleteTextView
             android:id="@+id/view_text_color_primary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/sample_text1"
             android:textColor="?android:attr/textColorPrimary"/>
 
-        <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+        <androidx.appcompat.widget.AppCompatMultiAutoCompleteTextView
             android:id="@+id/view_text_color_secondary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/sample_text2"
             android:textColor="?android:attr/textColorSecondary"/>
 
-        <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+        <androidx.appcompat.widget.AppCompatMultiAutoCompleteTextView
             android:id="@+id/view_text_link_enabled"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/text_link_enabled"
             android:textColor="?android:attr/textColorSecondary"/>
 
-        <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+        <androidx.appcompat.widget.AppCompatMultiAutoCompleteTextView
             android:id="@+id/view_text_link_disabled"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:enabled="false"
             android:text="@string/text_link_disabled"/>
 
-        <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+        <androidx.appcompat.widget.AppCompatMultiAutoCompleteTextView
             android:id="@+id/text_view_compound_drawable_tint"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:drawableLeftCompat="@drawable/white_square"
             app:drawableTint="#f0f"/>
 
-        <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+        <androidx.appcompat.widget.AppCompatMultiAutoCompleteTextView
             android:id="@+id/text_view_compound_drawable_relative_tint"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:drawableStartCompat="@drawable/white_square"
             app:drawableTint="#f0f"/>
 
-        <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+        <androidx.appcompat.widget.AppCompatMultiAutoCompleteTextView
             android:id="@+id/text_view_compound_drawable_tint_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:drawableLeftCompat="@drawable/white_square"
             app:drawableTint="@color/color_state_list_lilac"/>
 
-        <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+        <androidx.appcompat.widget.AppCompatMultiAutoCompleteTextView
             android:id="@+id/text_view_compound_drawable_tint_mode"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
