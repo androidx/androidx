@@ -20,6 +20,7 @@
     <!-- Name of the app widgets -->
     <string name="template_input_widget_name"><u>Template demo</u></string>
     <string name="gallery_template_name"><u>Gallery demo</u></string>
+    <string name="list_template_widget_name"><u>List Template demo</u></string>
 
     <string name="template_data_saved_message">Saved</string>
     <string name="background_error_high">Value out of range, using max</string>
