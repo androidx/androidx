@@ -45,7 +45,7 @@ class LruCacheKotlin<K : Any, V : Any>(maxSize: Int) : LruCache<K, V>(maxSize) {
 }
 
 @Suppress("unused")
-fun sourceCompatibility(): Int {
+fun lruCacheSourceCompatibility(): Int {
     val lruCache = LruCache<Int, Int>(10)
     return lruCache[1]!! + lruCache.size()
 }

@@ -138,7 +138,7 @@ class SparseArrayCompatKotlin : SparseArrayCompat<Int>() {
  * Sample usage of SparseArrayCompat for ensuring source compatibility.
  */
 @Suppress("unused")
-fun sourceCompatibility() {
+fun sparseArraySourceCompatibility() {
     val sparseArray = SparseArrayCompat<Int>()
 
     // Property / function syntax.
