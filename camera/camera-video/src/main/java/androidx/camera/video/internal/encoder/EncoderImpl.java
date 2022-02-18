@@ -365,6 +365,22 @@ public class EncoderImpl implements Encoder {
      */
     @Override
     public void stop() {
+        stop(generatePresentationTimeUs());
+    }
+
+    /**
+     * Stops the encoder with an expected stop time.
+     *
+     * <p>It will trigger {@link EncoderCallback#onEncodeStop} after the last encoded data. It can
+     * call {@link #start} to start again.
+     *
+     * <p>The encoder will try to provide the last {@link EncodedData} with a timestamp as close
+     * as to the given stop timestamp.
+     *
+     * @param expectedStopTimeUs The desired stop time.
+     */
+    @Override
+    public void stop(long expectedStopTimeUs) {
         mEncoderExecutor.execute(() -> {
             switch (mState) {
                 case CONFIGURED:
@@ -379,11 +395,12 @@ public class EncoderImpl implements Encoder {
                     final long startTimeUs = mStartStopTimeRangeUs.getLower();
                     Preconditions.checkState(startTimeUs != NO_LIMIT_LONG,
                             "There should be a \"start\" before \"stop\"");
-                    final long stopTimeUs = generatePresentationTimeUs();
+                    Preconditions.checkArgument(expectedStopTimeUs >= startTimeUs, "The expected "
+                            + "stop time should be greater than the start time.");
                     // Store the stop time. The codec will be stopped after receiving the data
                     // that has a timestamp equal or greater than the stop time.
-                    mStartStopTimeRangeUs = Range.create(startTimeUs, stopTimeUs);
-                    Logger.d(mTag, "Stop on " + DebugUtils.readableUs(stopTimeUs));
+                    mStartStopTimeRangeUs = Range.create(startTimeUs, expectedStopTimeUs);
+                    Logger.d(mTag, "Stop on " + DebugUtils.readableUs(expectedStopTimeUs));
                     // If the Encoder is paused and has received enough data, directly signal
                     // the codec to stop.
                     if (currentState == PAUSED && mLastDataStopTimestamp != null) {
