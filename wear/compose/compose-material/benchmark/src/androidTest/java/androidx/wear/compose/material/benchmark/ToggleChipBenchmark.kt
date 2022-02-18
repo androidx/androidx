@@ -87,7 +87,7 @@ internal class ToggleChipTestCase : LayeredComposeTestCase() {
             onCheckedChange = {},
             enabled = false,
             label = { Text("Label") },
-            toggleIcon = { ToggleChipDefaults.CheckboxIcon(checked = true) },
+            toggleControl = { ToggleChipDefaults.CheckboxIcon(checked = true) },
             onClick = {},
         )
     }

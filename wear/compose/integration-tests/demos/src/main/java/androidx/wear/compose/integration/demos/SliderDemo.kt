@@ -80,7 +80,7 @@ fun InlineSliderDemo() {
                 checked = enabled,
                 onCheckedChange = { enabled = it },
                 label = { Text("Sliders enabled") },
-                toggleIcon = { ToggleChipDefaults.SwitchIcon(checked = enabled) }
+                toggleControl = { ToggleChipDefaults.SwitchIcon(checked = enabled) }
             )
         }
     }

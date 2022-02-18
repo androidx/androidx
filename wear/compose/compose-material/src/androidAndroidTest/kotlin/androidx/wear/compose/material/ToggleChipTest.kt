@@ -57,7 +57,7 @@ class ToggleChipBehaviourTest {
                 checked = true,
                 onCheckedChange = {},
                 label = { Text("Label") },
-                toggleIcon = { TestImage() },
+                toggleControl = { TestImage() },
                 modifier = Modifier.testTag(TEST_TAG)
             )
         }
@@ -72,7 +72,7 @@ class ToggleChipBehaviourTest {
                 checked = true,
                 onCheckedChange = {},
                 label = { Text("Label") },
-                toggleIcon = { TestImage() },
+                toggleControl = { TestImage() },
                 onClick = {},
                 modifier = Modifier.testTag(TEST_TAG)
             )
@@ -89,7 +89,7 @@ class ToggleChipBehaviourTest {
                 onCheckedChange = {},
                 enabled = true,
                 label = { Text("Label") },
-                toggleIcon = { TestImage() },
+                toggleControl = { TestImage() },
                 modifier = Modifier.testTag(TEST_TAG)
             )
         }
@@ -105,7 +105,7 @@ class ToggleChipBehaviourTest {
                 onCheckedChange = {},
                 enabled = true,
                 label = { Text("Label") },
-                toggleIcon = { TestImage() },
+                toggleControl = { TestImage() },
                 onClick = {},
                 modifier = Modifier.testTag(TEST_TAG)
             )
@@ -122,7 +122,7 @@ class ToggleChipBehaviourTest {
                 onCheckedChange = {},
                 enabled = false,
                 label = { Text("Label") },
-                toggleIcon = { TestImage() },
+                toggleControl = { TestImage() },
                 modifier = Modifier.testTag(TEST_TAG)
             )
         }
@@ -138,7 +138,7 @@ class ToggleChipBehaviourTest {
                 onCheckedChange = {},
                 enabled = false,
                 label = { Text("Label") },
-                toggleIcon = { TestImage() },
+                toggleControl = { TestImage() },
                 onClick = {},
                 modifier = Modifier.testTag(TEST_TAG)
             )
@@ -154,7 +154,7 @@ class ToggleChipBehaviourTest {
                 checked = true,
                 onCheckedChange = {},
                 label = { Text("Label") },
-                toggleIcon = { TestImage() },
+                toggleControl = { TestImage() },
                 modifier = Modifier.testTag(TEST_TAG)
             )
         }
@@ -169,7 +169,7 @@ class ToggleChipBehaviourTest {
                 checked = true,
                 onCheckedChange = {},
                 label = { Text("Label") },
-                toggleIcon = { TestImage() },
+                toggleControl = { TestImage() },
                 onClick = {},
                 modifier = Modifier.testTag(TEST_TAG)
             )
@@ -185,7 +185,7 @@ class ToggleChipBehaviourTest {
                 checked = true,
                 onCheckedChange = {},
                 label = { Text("Label") },
-                toggleIcon = { TestImage() },
+                toggleControl = { TestImage() },
                 onClick = {},
                 modifier = Modifier.testTag(TEST_TAG)
             )
@@ -200,7 +200,7 @@ class ToggleChipBehaviourTest {
                 checked = true,
                 onCheckedChange = {},
                 label = { Text("Label") },
-                toggleIcon = { TestImage() },
+                toggleControl = { TestImage() },
                 enabled = true,
                 modifier = Modifier.testTag(TEST_TAG)
             )
@@ -216,7 +216,7 @@ class ToggleChipBehaviourTest {
                 checked = true,
                 onCheckedChange = {},
                 label = { Text("Label") },
-                toggleIcon = { TestImage() },
+                toggleControl = { TestImage() },
                 enabled = true,
                 onClick = {},
                 modifier = Modifier.testTag(TEST_TAG)
@@ -233,7 +233,7 @@ class ToggleChipBehaviourTest {
                 checked = true,
                 onCheckedChange = {},
                 label = { Text("Label") },
-                toggleIcon = { TestImage() },
+                toggleControl = { TestImage() },
                 enabled = false,
                 modifier = Modifier.testTag(TEST_TAG)
             )
@@ -249,7 +249,7 @@ class ToggleChipBehaviourTest {
                 checked = true,
                 onCheckedChange = {},
                 label = { Text("Label") },
-                toggleIcon = { TestImage() },
+                toggleControl = { TestImage() },
                 enabled = false,
                 onClick = {},
                 modifier = Modifier.testTag(TEST_TAG)
@@ -266,7 +266,7 @@ class ToggleChipBehaviourTest {
                 checked = true,
                 onCheckedChange = {},
                 label = { Text("Label") },
-                toggleIcon = { TestImage() },
+                toggleControl = { TestImage() },
                 modifier = Modifier.testTag(TEST_TAG)
             )
         }
@@ -281,7 +281,7 @@ class ToggleChipBehaviourTest {
                 checked = true,
                 onCheckedChange = {},
                 label = { Text("Label") },
-                toggleIcon = { TestImage() },
+                toggleControl = { TestImage() },
                 onClick = {},
                 modifier = Modifier.testTag(TEST_TAG)
             )
@@ -297,7 +297,7 @@ class ToggleChipBehaviourTest {
                 checked = false,
                 onCheckedChange = {},
                 label = { Text("Label") },
-                toggleIcon = { TestImage() },
+                toggleControl = { TestImage() },
                 modifier = Modifier.testTag(TEST_TAG)
             )
         }
@@ -312,7 +312,7 @@ class ToggleChipBehaviourTest {
                 checked = false,
                 onCheckedChange = {},
                 label = { Text("Label") },
-                toggleIcon = { TestImage() },
+                toggleControl = { TestImage() },
                 onClick = {},
                 modifier = Modifier.testTag(TEST_TAG)
             )
@@ -329,7 +329,7 @@ class ToggleChipBehaviourTest {
                 checked = checked,
                 onCheckedChange = onCheckedChange,
                 label = { Text("Label") },
-                toggleIcon = { TestImage() },
+                toggleControl = { TestImage() },
                 enabled = true,
                 modifier = Modifier.testTag(TEST_TAG)
             )
@@ -351,7 +351,7 @@ class ToggleChipBehaviourTest {
                 checked = checked,
                 onCheckedChange = onCheckedChange,
                 label = { Text("Label") },
-                toggleIcon = { TestImage() },
+                toggleControl = { TestImage() },
                 enabled = true,
                 onClick = {},
                 modifier = Modifier.testTag(TEST_TAG)
@@ -374,7 +374,7 @@ class ToggleChipBehaviourTest {
                 checked = checked,
                 onCheckedChange = onCheckedChange,
                 label = { Text("Label") },
-                toggleIcon = { TestImage() },
+                toggleControl = { TestImage() },
                 enabled = true,
                 modifier = Modifier.testTag(TEST_TAG)
             )
@@ -396,7 +396,7 @@ class ToggleChipBehaviourTest {
                 checked = checked,
                 onCheckedChange = onCheckedChange,
                 label = { Text("Label") },
-                toggleIcon = { TestImage() },
+                toggleControl = { TestImage() },
                 enabled = true,
                 onClick = {},
                 modifier = Modifier.testTag(TEST_TAG)
@@ -419,7 +419,7 @@ class ToggleChipBehaviourTest {
                 checked = checked,
                 onCheckedChange = onCheckedChange,
                 label = { Text("Label") },
-                toggleIcon = { TestImage() },
+                toggleControl = { TestImage() },
                 enabled = false,
                 modifier = Modifier.testTag(TEST_TAG)
             )
@@ -441,7 +441,7 @@ class ToggleChipBehaviourTest {
                 checked = checked,
                 onCheckedChange = onCheckedChange,
                 label = { Text("Label") },
-                toggleIcon = { TestImage() },
+                toggleControl = { TestImage() },
                 enabled = false,
                 onClick = {},
                 modifier = Modifier.testTag(TEST_TAG)
@@ -463,7 +463,7 @@ class ToggleChipBehaviourTest {
                 checked = false,
                 onCheckedChange = {},
                 label = { Text("Label") },
-                toggleIcon = { TestImage() },
+                toggleControl = { TestImage() },
                 modifier = Modifier.testTag(TEST_TAG)
             )
         }
@@ -484,7 +484,7 @@ class ToggleChipBehaviourTest {
                 checked = false,
                 onCheckedChange = {},
                 label = { Text("Label") },
-                toggleIcon = { TestImage() },
+                toggleControl = { TestImage() },
                 onClick = {},
                 modifier = Modifier.testTag(TEST_TAG)
             )
@@ -508,7 +508,7 @@ class ToggleChipBehaviourTest {
                 checked = true,
                 onCheckedChange = {},
                 label = { Text(textContent) },
-                toggleIcon = { TestImage() },
+                toggleControl = { TestImage() },
             )
         }
 
@@ -525,7 +525,7 @@ class ToggleChipBehaviourTest {
                 onCheckedChange = {},
                 label = { Text(textContent) },
                 onClick = {},
-                toggleIcon = { TestImage() },
+                toggleControl = { TestImage() },
             )
         }
 
@@ -547,7 +547,7 @@ class ToggleChipSizeTest {
                 checked = true,
                 onCheckedChange = {},
                 label = { Text("Label") },
-                toggleIcon = { TestImage() },
+                toggleControl = { TestImage() },
             )
         }
     }
@@ -568,7 +568,7 @@ class SplitToggleChipSizeTest {
                 onCheckedChange = {},
                 label = { Text("Label") },
                 onClick = {},
-                toggleIcon = { TestImage() },
+                toggleControl = { TestImage() },
             )
         }
     }
@@ -667,7 +667,7 @@ class ToggleChipColorTest {
                     enabled = true,
                     colors = ToggleChipDefaults.toggleChipColors(checkedContentColor = override),
                     label = { actualContentColor = LocalContentColor.current },
-                    toggleIcon = {},
+                    toggleControl = {},
                     modifier = Modifier.testTag(TEST_TAG)
                 )
             }
@@ -689,7 +689,7 @@ class ToggleChipColorTest {
                     enabled = true,
                     colors = ToggleChipDefaults.toggleChipColors(checkedContentColor = override),
                     label = { actualContentColor = LocalContentColor.current },
-                    toggleIcon = {},
+                    toggleControl = {},
                     onClick = {},
                     modifier = Modifier.testTag(TEST_TAG)
                 )
@@ -703,7 +703,7 @@ class ToggleChipColorTest {
         status: ChipStatus,
         checked: Boolean,
         labelColor: @Composable () -> Color,
-        toggleIconColor: @Composable () -> Color,
+        toggleControlColor: @Composable () -> Color,
         splitToggleChip: Boolean = false,
     ) {
         var expectedLabel = Color.Transparent
@@ -715,7 +715,7 @@ class ToggleChipColorTest {
 
         rule.setContentWithTheme {
             expectedLabel = labelColor()
-            expectedIcon = toggleIconColor()
+            expectedIcon = toggleControlColor()
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -726,7 +726,7 @@ class ToggleChipColorTest {
                         checked = checked,
                         onCheckedChange = {},
                         enabled = status.enabled(),
-                        toggleIcon = {
+                        toggleControl = {
                             actualIcon = LocalContentColor.current
                             actualIconDisabledAlpha = ContentAlpha.disabled
                         },
@@ -742,7 +742,7 @@ class ToggleChipColorTest {
                         checked = checked,
                         onCheckedChange = {},
                         enabled = status.enabled(),
-                        toggleIcon = {
+                        toggleControl = {
                             actualIcon = LocalContentColor.current
                             actualIconDisabledAlpha = ContentAlpha.disabled
                         },

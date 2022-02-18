@@ -92,10 +92,10 @@ import androidx.compose.ui.unit.dp
  * @param label A slot for providing the chip's main label. The contents are expected to be text
  * which is "start" aligned.
  * @param modifier Modifier to be applied to the chip
- * @param toggleIcon A slot for providing the chip's toggle icon(s). The contents are expected to be
- * a horizontally and vertically centre aligned icon of size [ToggleChipDefaults.IconSize]. Three
- * built-in types of toggle icon are supported and can be obtained from
- * [ToggleChipDefaults.SwitchIcon], [ToggleChipDefaults.RadioIcon] and
+ * @param toggleControl A slot for providing the chip's toggle controls(s). The contents are
+ * expected to be a horizontally and vertically centre aligned icon of size
+ * [ToggleChipDefaults.IconSize]. Three built-in types of toggle icon are supported and can be
+ * obtained from [ToggleChipDefaults.SwitchIcon], [ToggleChipDefaults.RadioIcon] and
  * [ToggleChipDefaults.CheckboxIcon]. In order to correctly render when the Chip is not enabled the
  * icon must set its alpha value to [LocalContentAlpha].
  * @param appIcon An optional slot for providing an icon to indicate the purpose of the chip. The
@@ -125,7 +125,7 @@ public fun ToggleChip(
     onCheckedChange: (Boolean) -> Unit,
     label: @Composable () -> Unit,
     modifier: Modifier = Modifier,
-    toggleIcon: @Composable () -> Unit = { ToggleChipDefaults.CheckboxIcon(checked = checked) },
+    toggleControl: @Composable () -> Unit = { ToggleChipDefaults.CheckboxIcon(checked = checked) },
     appIcon: @Composable (() -> Unit)? = null,
     secondaryLabel: @Composable (() -> Unit)? = null,
     colors: ToggleChipColors = ToggleChipDefaults.toggleChipColors(),
@@ -206,21 +206,21 @@ public fun ToggleChip(
                 ) {
                     Spacer(
                         modifier = Modifier.size(
-                            ToggleChipDefaults.ToggleIconSpacing
+                            ToggleChipDefaults.ToggleControlSpacing
                         )
                     )
                     CompositionLocalProvider(
                         LocalContentColor provides
-                            colors.toggleIconTintColor(
+                            colors.toggleControlTintColor(
                                 enabled = enabled,
                                 checked = checked
                             ).value,
                         LocalContentAlpha provides
-                            colors.toggleIconTintColor(
+                            colors.toggleControlTintColor(
                                 enabled = enabled,
                                 checked = checked
                             ).value.alpha,
-                        content = toggleIcon
+                        content = toggleControl
                     )
                 }
             }
@@ -268,10 +268,10 @@ public fun ToggleChip(
  * @param onClick Click listener called when the user clicks the main body of the chip, the area
  * behind the labels.
  * @param modifier Modifier to be applied to the chip
- * @param toggleIcon A slot for providing the chip's toggle icon(s). The contents are expected to be
- * a horizontally and vertically centre aligned icon of size [ToggleChipDefaults.IconSize]. Three
- * built-in types of toggle icon are supported and can be obtained from
- * [ToggleChipDefaults.SwitchIcon], [ToggleChipDefaults.RadioIcon] and
+ * @param toggleControl A slot for providing the chip's toggle controls(s). The contents are
+ * expected to be a horizontally and vertically centre aligned icon of size
+ * [ToggleChipDefaults.IconSize]. Three built-in types of toggle icon are supported and can be
+ * obtained from [ToggleChipDefaults.SwitchIcon], [ToggleChipDefaults.RadioIcon] and
  * [ToggleChipDefaults.CheckboxIcon]. In order to correctly render when the Chip is not enabled the
  * icon must set its alpha value to [LocalContentAlpha].
  * @param secondaryLabel A slot for providing the chip's secondary label. The contents are expected
@@ -302,7 +302,7 @@ public fun SplitToggleChip(
     label: @Composable () -> Unit,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    toggleIcon: @Composable () -> Unit = { ToggleChipDefaults.CheckboxIcon(checked = checked) },
+    toggleControl: @Composable () -> Unit = { ToggleChipDefaults.CheckboxIcon(checked = checked) },
     secondaryLabel: @Composable (() -> Unit)? = null,
     colors: ToggleChipColors = ToggleChipDefaults.toggleChipColors(),
     enabled: Boolean = true,
@@ -366,7 +366,7 @@ public fun SplitToggleChip(
                     )
                     Spacer(
                         modifier = Modifier
-                            .size(ToggleChipDefaults.ToggleIconSpacing)
+                            .size(ToggleChipDefaults.ToggleControlSpacing)
                     )
                 }
                 var splitBoxModifier = Modifier.toggleable(
@@ -407,16 +407,16 @@ public fun SplitToggleChip(
                 ) {
                     CompositionLocalProvider(
                         LocalContentColor provides
-                            colors.toggleIconTintColor(
+                            colors.toggleControlTintColor(
                                 enabled = enabled,
                                 checked = checked
                             ).value,
                         LocalContentAlpha provides
-                            colors.toggleIconTintColor(
+                            colors.toggleControlTintColor(
                                 enabled = enabled,
                                 checked = checked
                             ).value.alpha,
-                        content = toggleIcon
+                        content = toggleControl
                     )
                 }
             }
@@ -505,7 +505,7 @@ public interface ToggleChipColors {
      * @param checked Whether the chip is currently checked/selected or unchecked/not selected
      */
     @Composable
-    public fun toggleIconTintColor(enabled: Boolean, checked: Boolean): State<Color>
+    public fun toggleControlTintColor(enabled: Boolean, checked: Boolean): State<Color>
 
     /**
      * Represents the overlay to apply to a split background SplitToggleChip to distinguish
@@ -540,9 +540,9 @@ public object ToggleChipDefaults {
      * @param checkedSecondaryContentColor The secondary content color of this
      * [ToggleChip] or [SplitToggleChip] when enabled and checked/selected, used for
      * secondaryLabel content
-     * @param checkedToggleIconTintColor The icon tint color of this
+     * @param checkedToggleControlTintColor The icon tint color of this
      * [ToggleChip] or [SplitToggleChip] when enabled and checked/selected, used for
-     * ToggleIcon content
+     * ToggleControl content
      * @param uncheckedStartBackgroundColor The background color used at the start of the gradient
      * of a [ToggleChip] or [SplitToggleChip] when enabled and unchecked/not selected.
      * @param uncheckedEndBackgroundColor The background color used at the end of the gradient of a
@@ -552,11 +552,11 @@ public object ToggleChipDefaults {
      * @param uncheckedSecondaryContentColor The secondary content color of this
      * [ToggleChip] or [SplitToggleChip] when enabled and unchecked/not selected, used for
      * secondaryLabel content
-     * @param uncheckedToggleIconTintColor The icon tint color of this
+     * @param uncheckedToggleControlTintColor The icon tint color of this
      * [ToggleChip] or [SplitToggleChip] when enabled and unchecked/not selected, used for
-     * ToggleIcon content
+     * ToggleControl content
      * @param splitBackgroundOverlayColor The color to use to lighten/distinguish the background
-     * behind the ToggleIcon for a split background chip. A split background chip has two
+     * behind the ToggleControl for a split background chip. A split background chip has two
      * tappable areas, one for the main body of the chip and one for area around the toggle
      * control icon.
      * @param gradientDirection Whether the chips gradient should be start to end (indicated by
@@ -568,12 +568,12 @@ public object ToggleChipDefaults {
         checkedEndBackgroundColor: Color = MaterialTheme.colors.primary.copy(alpha = 0.325f),
         checkedContentColor: Color = MaterialTheme.colors.onSurface,
         checkedSecondaryContentColor: Color = MaterialTheme.colors.onSurfaceVariant,
-        checkedToggleIconTintColor: Color = MaterialTheme.colors.secondary,
+        checkedToggleControlTintColor: Color = MaterialTheme.colors.secondary,
         uncheckedStartBackgroundColor: Color = MaterialTheme.colors.surface,
         uncheckedEndBackgroundColor: Color = MaterialTheme.colors.surface,
         uncheckedContentColor: Color = contentColorFor(checkedEndBackgroundColor),
         uncheckedSecondaryContentColor: Color = uncheckedContentColor,
-        uncheckedToggleIconTintColor: Color = uncheckedContentColor,
+        uncheckedToggleControlTintColor: Color = uncheckedContentColor,
         splitBackgroundOverlayColor: Color = Color.White.copy(alpha = 0.05f),
         gradientDirection: LayoutDirection = LocalLayoutDirection.current
     ): ToggleChipColors {
@@ -624,14 +624,14 @@ public object ToggleChipDefaults {
             checkedBackgroundPainter = BrushPainter(Brush.linearGradient(checkedBackgroundColors)),
             checkedContentColor = checkedContentColor,
             checkedSecondaryContentColor = checkedSecondaryContentColor,
-            checkedIconTintColor = checkedToggleIconTintColor,
+            checkedIconTintColor = checkedToggleControlTintColor,
             checkedSplitBackgroundOverlay = splitBackgroundOverlayColor,
             uncheckedBackgroundPainter = BrushPainter(
                 Brush.linearGradient(uncheckedBackgroundColors)
             ),
             uncheckedContentColor = uncheckedContentColor,
             uncheckedSecondaryContentColor = uncheckedSecondaryContentColor,
-            uncheckedIconTintColor = uncheckedToggleIconTintColor,
+            uncheckedIconTintColor = uncheckedToggleControlTintColor,
             uncheckedSplitBackgroundOverlay = splitBackgroundOverlayColor,
             disabledCheckedBackgroundPainter = BrushPainter(
                 Brush.linearGradient(disabledCheckedBackgroundColors)
@@ -640,7 +640,7 @@ public object ToggleChipDefaults {
             disabledCheckedSecondaryContentColor = checkedSecondaryContentColor.copy(
                 alpha = ContentAlpha.disabled
             ),
-            disabledCheckedIconTintColor = checkedToggleIconTintColor.copy(
+            disabledCheckedIconTintColor = checkedToggleControlTintColor.copy(
                 alpha = ContentAlpha.disabled
             ),
             disabledCheckedSplitBackgroundOverlay = splitBackgroundOverlayColor,
@@ -653,7 +653,7 @@ public object ToggleChipDefaults {
             disabledUncheckedSecondaryContentColor = uncheckedSecondaryContentColor.copy(
                 alpha = ContentAlpha.disabled
             ),
-            disabledUncheckedIconTintColor = uncheckedToggleIconTintColor.copy(
+            disabledUncheckedIconTintColor = uncheckedToggleControlTintColor.copy(
                 alpha = ContentAlpha.disabled
             ),
             disabledUncheckedSplitBackgroundOverlay = splitBackgroundOverlayColor,
@@ -674,7 +674,7 @@ public object ToggleChipDefaults {
     )
 
     /**
-     * Creates switch style toggle [Icon]s for use in the toggleIcon slot of a [ToggleChip].
+     * Creates switch style toggle [Icon]s for use in the toggleControl slot of a [ToggleChip].
      * Depending on [checked] will return either an 'on' (checked) or 'off' (unchecked) switch icon.
      *
      * @param checked whether the [ToggleChip] or [SplitToggleChip] is currently 'on' (checked/true)
@@ -701,7 +701,7 @@ public object ToggleChipDefaults {
     }
 
     /**
-     * Creates a radio button style toggle [Icon]s for use in the toggleIcon slot of a [ToggleChip].
+     * Creates a radio button style toggle [Icon]s for use in the toggleControl slot of a [ToggleChip].
      * Depending on [checked] will return either an 'on' (checked) or 'off' (unchecked) radio button
      * icon.
      *
@@ -718,7 +718,7 @@ public object ToggleChipDefaults {
     }
 
     /**
-     * Creates a checkbox style toggle [Icon]s for use in the toggleIcon slot of a [ToggleChip].
+     * Creates a checkbox style toggle [Icon]s for use in the toggleControl slot of a [ToggleChip].
      * Depending on [checked] will return either an 'on' (ticked/checked) or 'off'
      * (unticked/unchecked) checkbox icon.
      *
@@ -755,7 +755,7 @@ public object ToggleChipDefaults {
      * The default size of the spacing between a toggle icon and text when they are used
      * inside a [ToggleChip].
      */
-    internal val ToggleIconSpacing = 4.dp
+    internal val ToggleControlSpacing = 4.dp
 
     private val SwitchOn: ImageVector
         get() {
@@ -1012,7 +1012,7 @@ private class DefaultToggleChipColors(
     }
 
     @Composable
-    override fun toggleIconTintColor(enabled: Boolean, checked: Boolean): State<Color> {
+    override fun toggleControlTintColor(enabled: Boolean, checked: Boolean): State<Color> {
         return rememberUpdatedState(
             if (enabled) {
                 if (checked) checkedIconTintColor else uncheckedIconTintColor
