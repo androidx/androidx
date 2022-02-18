@@ -111,8 +111,8 @@ private fun Emittable.makeInvisible(context: Context): Emittable {
             this
         }
         is EmittableCurvedText -> {
-            val oldStyle = textStyle
-            textStyle = oldStyle?.updateColor(Color.Transparent)
+            val oldStyle = style
+            style = oldStyle?.updateColor(Color.Transparent)
                 ?: CurvedTextStyle(color = ColorProvider(Color.Transparent))
             this
         }

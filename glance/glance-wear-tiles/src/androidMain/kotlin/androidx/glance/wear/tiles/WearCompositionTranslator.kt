@@ -59,9 +59,15 @@ import androidx.glance.unit.ColorProvider
 import androidx.glance.unit.Dimension
 import androidx.glance.wear.tiles.curved.AnchorType
 import androidx.glance.wear.tiles.curved.CurvedTextStyle
+import androidx.glance.wear.tiles.curved.EmittableCurvedChild
+import androidx.glance.wear.tiles.curved.EmittableCurvedLine
 import androidx.glance.wear.tiles.curved.EmittableCurvedRow
+import androidx.glance.wear.tiles.curved.EmittableCurvedSpacer
 import androidx.glance.wear.tiles.curved.EmittableCurvedText
 import androidx.glance.wear.tiles.curved.RadialAlignment
+import androidx.glance.wear.tiles.curved.SweepAngleModifier
+import androidx.glance.wear.tiles.curved.ThicknessModifier
+import androidx.glance.wear.tiles.curved.findModifier
 import androidx.wear.tiles.ActionBuilders
 import androidx.wear.tiles.ColorBuilders.argb
 import androidx.wear.tiles.DimensionBuilders
@@ -553,8 +559,20 @@ private fun translateEmittableCurvedRow(
         .setVerticalAlign(element.radialAlignment.toProto())
 
     // Add all the children first...
-    element.children.forEach {
-        arcBuilder.addContent(translateCompositionInArc(context, resourceBuilder, it))
+    element.children.forEach { curvedChild ->
+        if (curvedChild is EmittableCurvedChild) {
+            curvedChild.children.forEach {
+                arcBuilder.addContent(
+                    translateEmittableElementInArc(
+                        context,
+                        resourceBuilder,
+                        it,
+                        curvedChild.rotateContent)
+                )
+            }
+        } else {
+            arcBuilder.addContent(translateCurvedCompositionInArc(context, curvedChild))
+        }
     }
 
     return if (width is Dimension.Dp || height is Dimension.Dp) {
@@ -580,19 +598,49 @@ private fun translateEmittableCurvedText(
     val arcTextBuilder = LayoutElementBuilders.ArcText.Builder()
         .setText(element.text)
 
-    element.textStyle?.let {
+    element.style?.let {
         arcTextBuilder.setFontStyle(translateTextStyle(context, it))
     }
 
     return arcTextBuilder.build()
 }
 
+private fun translateEmittableCurvedLine(
+    context: Context,
+    element: EmittableCurvedLine
+): LayoutElementBuilders.ArcLayoutElement {
+    var sweepAngleDegrees =
+        element.curvedModifier.findModifier<SweepAngleModifier>() ?. degrees ?: 0f
+    var thickness = element.curvedModifier.findModifier<ThicknessModifier>() ?. thickness ?: 0.dp
+
+    return LayoutElementBuilders.ArcLine.Builder()
+        .setLength(degrees(sweepAngleDegrees))
+        .setThickness(dp(thickness.value))
+        .setColor(argb(element.color.getColor(context)))
+        .build()
+}
+
+private fun translateEmittableCurvedSpacer(
+    element: EmittableCurvedSpacer
+): LayoutElementBuilders.ArcLayoutElement {
+    var sweepAngleDegrees =
+        element.curvedModifier.findModifier<SweepAngleModifier>() ?. degrees ?: 0f
+    var thickness = element.curvedModifier.findModifier<ThicknessModifier>() ?. thickness ?: 0.dp
+
+    return LayoutElementBuilders.ArcSpacer.Builder()
+        .setLength(degrees(sweepAngleDegrees))
+        .setThickness(dp(thickness.value))
+        .build()
+}
+
 private fun translateEmittableElementInArc(
     context: Context,
     resourceBuilder: ResourceBuilders.Resources.Builder,
-    element: Emittable
+    element: Emittable,
+    rotateContent: Boolean
 ): LayoutElementBuilders.ArcLayoutElement = LayoutElementBuilders.ArcAdapter.Builder()
     .setContent(translateComposition(context, resourceBuilder, element))
+    .setRotateContents(rotateContent)
     .build()
 
 private fun translateModifiers(
@@ -632,14 +680,17 @@ private fun translateModifiers(
         }
         .build()
 
-private fun translateCompositionInArc(
+private fun translateCurvedCompositionInArc(
     context: Context,
-    resourceBuilder: ResourceBuilders.Resources.Builder,
     element: Emittable
 ): LayoutElementBuilders.ArcLayoutElement {
     return when (element) {
         is EmittableCurvedText -> translateEmittableCurvedText(context, element)
-        else -> translateEmittableElementInArc(context, resourceBuilder, element)
+        is EmittableCurvedLine -> translateEmittableCurvedLine(context, element)
+        is EmittableCurvedSpacer -> translateEmittableCurvedSpacer(element)
+        else -> throw IllegalArgumentException(
+            "Unknown curved Element: $element"
+        )
     }
 }
 
