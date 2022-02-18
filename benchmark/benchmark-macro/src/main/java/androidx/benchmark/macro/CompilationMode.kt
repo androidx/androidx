@@ -66,9 +66,10 @@ import org.junit.AssumptionViolatedException
 sealed class CompilationMode {
     internal fun resetAndCompile(packageName: String, warmupBlock: () -> Unit) {
         if (Build.VERSION.SDK_INT >= 24) {
+            // Write skip file before we clear profiles
+            writeProfileInstallerSkipFile(packageName)
             Log.d(TAG, "Clearing profiles for $packageName")
             Shell.executeCommand("cmd package compile --reset $packageName")
-            writeProfileInstallerSkipFile(packageName)
             compileImpl(packageName, warmupBlock)
         }
     }
@@ -88,6 +89,8 @@ sealed class CompilationMode {
                 """.trimIndent()
             )
         }
+        Log.d(TAG, "Killing process $packageName")
+        Shell.executeCommand("am force-stop $packageName")
     }
 
     /**
