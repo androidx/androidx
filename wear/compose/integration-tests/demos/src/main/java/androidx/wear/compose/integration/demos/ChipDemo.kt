@@ -346,7 +346,7 @@ fun AvatarChips() {
                 label = {
                     Text("Chips enabled")
                 },
-                toggleIcon = {
+                toggleControl = {
                     ToggleChipDefaults.SwitchIcon(checked = enabled)
                 }
             )
@@ -563,7 +563,7 @@ fun CustomChips() {
                 label = {
                     Text("Chips enabled")
                 },
-                toggleIcon = {
+                toggleControl = {
                     ToggleChipDefaults.SwitchIcon(checked = enabled)
                 }
             )
@@ -611,7 +611,7 @@ fun ImageBackgroundChips() {
                 label = {
                     Text("Chips enabled")
                 },
-                toggleIcon = {
+                toggleControl = {
                     ToggleChipDefaults.SwitchIcon(checked = enabled)
                 }
             )
@@ -660,7 +660,7 @@ private fun ChipCustomizer(
             label = {
                 Text("Chips enabled")
             },
-            toggleIcon = {
+            toggleControl = {
                 ToggleChipDefaults.SwitchIcon(checked = enabled)
             }
         )

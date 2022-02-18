@@ -47,7 +47,7 @@ fun ToggleChipWithIcon() {
             Text("With secondary label", maxLines = 1, overflow = TextOverflow.Ellipsis)
         },
         checked = checked,
-        toggleIcon = {
+        toggleControl = {
             ToggleChipDefaults.SwitchIcon(checked = checked)
         },
         onCheckedChange = { checked = it },
@@ -69,7 +69,7 @@ fun SplitToggleChipWithCheckbox() {
     SplitToggleChip(
         label = { Text("Split with CheckboxIcon") },
         checked = checked,
-        toggleIcon = {
+        toggleControl = {
             ToggleChipDefaults.CheckboxIcon(checked = checked)
         },
         onCheckedChange = { checked = it },
