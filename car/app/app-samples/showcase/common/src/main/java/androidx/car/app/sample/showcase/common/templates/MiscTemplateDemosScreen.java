@@ -64,7 +64,7 @@ public final class MiscTemplateDemosScreen extends Screen {
         // If the screenArray size is under the limit, we will show all of them on the first page.
         // Otherwise we will show them in multiple pages.
         if (screenArray.length <= mItemLimit) {
-            for (int i = 0; i < mItemLimit; i++) {
+            for (int i = 0; i < screenArray.length; i++) {
                 listBuilder.addItem(screenArray[i]);
             }
         } else {
