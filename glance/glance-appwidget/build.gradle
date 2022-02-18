@@ -15,6 +15,7 @@
  */
 
 import androidx.build.AndroidXComposePlugin
+import androidx.build.BundleInsideHelper
 import androidx.build.LibraryType
 import androidx.glance.appwidget.layoutgenerator.gradle.LayoutGeneratorTask
 
@@ -25,10 +26,20 @@ plugins {
     id("com.google.protobuf")
 }
 
+BundleInsideHelper.forInsideAar(
+        project,
+        /* from = */ "com.google.protobuf",
+        /* to =   */ "androidx.glance.appwidget.protobuf"
+)
+
 // Disable multi-platform; this will only be used on Android.
 AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project, /* isMultiplatformEnabled= */ false)
 
 dependencies {
+    bundleInside(project(
+            path: ":glance:glance-appwidget-proto",
+            configuration: "export"
+    ))
     kotlinPlugin(project(":compose:compiler:compiler"))
 
     api(project(":glance:glance"))
@@ -43,7 +54,6 @@ dependencies {
     implementation("androidx.datastore:datastore-preferences-core:1.0.0")
     implementation("androidx.datastore:datastore-preferences:1.0.0")
     implementation(project(':core:core-remoteviews'))
-    implementation(project(":glance:glance-appwidget-proto"))
     implementation(libs.kotlinStdlib)
 
     testImplementation(libs.junit)
