@@ -122,7 +122,7 @@ public final class GetSchemaResponse {
     // @exportToFramework:startStrip()
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
-            name = Features.SET_SCHEMA_REQUEST_VISIBILITY_PERMISSIONS_AND_GET_VISIBILITY)
+            name = Features.ADD_PERMISSIONS_AND_GET_VISIBILITY)
     // @exportToFramework:endStrip()
     @NonNull
     public Set<String> getSchemaTypesNotDisplayedBySystem() {
@@ -143,7 +143,7 @@ public final class GetSchemaResponse {
     // @exportToFramework:startStrip()
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
-            name = Features.SET_SCHEMA_REQUEST_VISIBILITY_PERMISSIONS_AND_GET_VISIBILITY)
+            name = Features.ADD_PERMISSIONS_AND_GET_VISIBILITY)
     // @exportToFramework:endStrip()
     @NonNull
     public Map<String, Set<PackageIdentifier>> getSchemaTypesVisibleToPackages() {
@@ -195,7 +195,7 @@ public final class GetSchemaResponse {
     // @exportToFramework:startStrip()
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
-            name = Features.SET_SCHEMA_REQUEST_VISIBILITY_PERMISSIONS_AND_GET_VISIBILITY)
+            name = Features.ADD_PERMISSIONS_AND_GET_VISIBILITY)
     // @exportToFramework:endStrip()
     @NonNull
     public Map<String, Set<Set<Integer>>> getRequiredPermissionsForSchemaTypeVisibility() {
@@ -254,7 +254,7 @@ public final class GetSchemaResponse {
          * <p>This constructor should only be used in Android API below than T.
          *
          * @param getVisibilitySettingSupported whether supported
-         * {@link Features#SET_SCHEMA_REQUEST_VISIBILITY_PERMISSIONS_AND_GET_VISIBILITY} by this
+         * {@link Features#ADD_PERMISSIONS_AND_GET_VISIBILITY} by this
          *                                      backend/Android API level.
          * @hide
          */

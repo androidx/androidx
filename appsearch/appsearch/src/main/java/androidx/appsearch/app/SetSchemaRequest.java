@@ -104,7 +104,7 @@ public final class SetSchemaRequest {
     // @exportToFramework:startStrip()
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
-            name = Features.SET_SCHEMA_REQUEST_VISIBILITY_PERMISSIONS_AND_GET_VISIBILITY)
+            name = Features.ADD_PERMISSIONS_AND_GET_VISIBILITY)
     // @exportToFramework:endStrip()
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @interface AppSearchSupportedPermission {}
@@ -116,7 +116,7 @@ public final class SetSchemaRequest {
     // @exportToFramework:startStrip()
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
-            name = Features.SET_SCHEMA_REQUEST_VISIBILITY_PERMISSIONS_AND_GET_VISIBILITY)
+            name = Features.ADD_PERMISSIONS_AND_GET_VISIBILITY)
     // @exportToFramework:endStrip()
     public static final int READ_SMS = 1;
 
@@ -127,7 +127,7 @@ public final class SetSchemaRequest {
     // @exportToFramework:startStrip()
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
-            name = Features.SET_SCHEMA_REQUEST_VISIBILITY_PERMISSIONS_AND_GET_VISIBILITY)
+            name = Features.ADD_PERMISSIONS_AND_GET_VISIBILITY)
     // @exportToFramework:endStrip()
     public static final int READ_CALENDAR = 2;
 
@@ -138,7 +138,7 @@ public final class SetSchemaRequest {
     // @exportToFramework:startStrip()
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
-            name = Features.SET_SCHEMA_REQUEST_VISIBILITY_PERMISSIONS_AND_GET_VISIBILITY)
+            name = Features.ADD_PERMISSIONS_AND_GET_VISIBILITY)
     // @exportToFramework:endStrip()
     public static final int READ_CONTACTS = 3;
 
@@ -149,7 +149,7 @@ public final class SetSchemaRequest {
     // @exportToFramework:startStrip()
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
-            name = Features.SET_SCHEMA_REQUEST_VISIBILITY_PERMISSIONS_AND_GET_VISIBILITY)
+            name = Features.ADD_PERMISSIONS_AND_GET_VISIBILITY)
     // @exportToFramework:endStrip()
     public static final int READ_EXTERNAL_STORAGE = 4;
 
@@ -160,7 +160,7 @@ public final class SetSchemaRequest {
     // @exportToFramework:startStrip()
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
-            name = Features.SET_SCHEMA_REQUEST_VISIBILITY_PERMISSIONS_AND_GET_VISIBILITY)
+            name = Features.ADD_PERMISSIONS_AND_GET_VISIBILITY)
     // @exportToFramework:endStrip()
     public static final int READ_HOME_APP_SEARCH_DATA = 5;
 
@@ -171,7 +171,7 @@ public final class SetSchemaRequest {
     // @exportToFramework:startStrip()
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
-            name = Features.SET_SCHEMA_REQUEST_VISIBILITY_PERMISSIONS_AND_GET_VISIBILITY)
+            name = Features.ADD_PERMISSIONS_AND_GET_VISIBILITY)
     // @exportToFramework:endStrip()
     public static final int READ_ASSISTANT_APP_SEARCH_DATA = 6;
 
@@ -442,7 +442,7 @@ public final class SetSchemaRequest {
         // @exportToFramework:startStrip()
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
-                name = Features.SET_SCHEMA_REQUEST_VISIBILITY_PERMISSIONS_AND_GET_VISIBILITY)
+                name = Features.ADD_PERMISSIONS_AND_GET_VISIBILITY)
         // @exportToFramework:endStrip()
         @NonNull
         public Builder addRequiredPermissionsForSchemaTypeVisibility(@NonNull String schemaType,
@@ -467,7 +467,7 @@ public final class SetSchemaRequest {
         // @exportToFramework:startStrip()
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
-                name = Features.SET_SCHEMA_REQUEST_VISIBILITY_PERMISSIONS_AND_GET_VISIBILITY)
+                name = Features.ADD_PERMISSIONS_AND_GET_VISIBILITY)
         // @exportToFramework:endStrip()
         @NonNull
         public Builder clearRequiredPermissionsForSchemaTypeVisibility(@NonNull String schemaType) {
@@ -699,7 +699,7 @@ public final class SetSchemaRequest {
         @SuppressLint("MissingGetterMatchingBuilder")
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
-                name = Features.SET_SCHEMA_REQUEST_VISIBILITY_PERMISSIONS_AND_GET_VISIBILITY)
+                name = Features.ADD_PERMISSIONS_AND_GET_VISIBILITY)
         @NonNull
         public Builder addRequiredPermissionsForDocumentClassVisibility(
                 @NonNull Class<?> documentClass,
@@ -716,7 +716,7 @@ public final class SetSchemaRequest {
         /**  Clears all required permissions combinations for the given schema type.  */
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
-                name = Features.SET_SCHEMA_REQUEST_VISIBILITY_PERMISSIONS_AND_GET_VISIBILITY)
+                name = Features.ADD_PERMISSIONS_AND_GET_VISIBILITY)
         @NonNull
         public Builder clearRequiredPermissionsForDocumentClassVisibility(
                 @NonNull Class<?> documentClass)
