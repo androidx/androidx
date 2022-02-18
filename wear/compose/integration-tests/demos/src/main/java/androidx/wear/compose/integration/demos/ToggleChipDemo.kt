@@ -85,7 +85,7 @@ fun ToggleChips() {
         ToggleChip(
             label = { Text("CheckboxIcon") },
             checked = checkBoxIconChecked,
-            toggleIcon = {
+            toggleControl = {
                 ToggleChipDefaults.CheckboxIcon(checked = checkBoxIconChecked)
             },
             onCheckedChange = { checkBoxIconChecked = it },
@@ -94,7 +94,7 @@ fun ToggleChips() {
         ToggleChip(
             label = { Text("SwitchIcon") },
             checked = switchIconChecked,
-            toggleIcon = {
+            toggleControl = {
                 ToggleChipDefaults.SwitchIcon(checked = switchIconChecked)
             },
             onCheckedChange = { switchIconChecked = it },
@@ -105,7 +105,7 @@ fun ToggleChips() {
                 Text("RadioIcon", maxLines = 2, overflow = TextOverflow.Ellipsis)
             },
             checked = radioIconChecked,
-            toggleIcon = {
+            toggleControl = {
                 ToggleChipDefaults.RadioIcon(checked = radioIconChecked)
             },
             onCheckedChange = { radioIconChecked = it },
@@ -122,9 +122,10 @@ fun ToggleChips() {
             secondaryLabel = {
                 Text("With secondary label", maxLines = 1, overflow = TextOverflow.Ellipsis)
             },
-
             checked = radioIconWithSecondaryChecked,
-            toggleIcon = { ToggleChipDefaults.RadioIcon(checked = radioIconWithSecondaryChecked) },
+            toggleControl = {
+                ToggleChipDefaults.RadioIcon(checked = radioIconWithSecondaryChecked)
+            },
             onCheckedChange = { radioIconWithSecondaryChecked = it },
             enabled = enabled,
         )
@@ -136,7 +137,7 @@ fun ToggleChips() {
                 Text("With secondary label", maxLines = 1, overflow = TextOverflow.Ellipsis)
             },
             checked = switchIconWithSecondaryChecked,
-            toggleIcon = {
+            toggleControl = {
                 ToggleChipDefaults.SwitchIcon(checked = switchIconWithSecondaryChecked)
             },
             onCheckedChange = { switchIconWithSecondaryChecked = it },
@@ -149,7 +150,7 @@ fun ToggleChips() {
                 Text("With switchable icon", maxLines = 1, overflow = TextOverflow.Ellipsis)
             },
             checked = switchIconWithIconChecked,
-            toggleIcon = { ToggleChipDefaults.SwitchIcon(checked = switchIconWithIconChecked) },
+            toggleControl = { ToggleChipDefaults.SwitchIcon(checked = switchIconWithIconChecked) },
             onCheckedChange = { switchIconWithIconChecked = it },
             appIcon = {
                 if (switchIconWithIconChecked) DemoIcon(R.drawable.ic_volume_up_24px) else
@@ -167,7 +168,7 @@ fun ToggleChips() {
         SplitToggleChip(
             label = { Text("Split with CheckboxIcon") },
             checked = splitWithCheckboxIconChecked,
-            toggleIcon = {
+            toggleControl = {
                 ToggleChipDefaults.CheckboxIcon(checked = splitWithCheckboxIconChecked)
             },
             onCheckedChange = { splitWithCheckboxIconChecked = it },
@@ -182,7 +183,7 @@ fun ToggleChips() {
         SplitToggleChip(
             label = { Text("Split with SwitchIcon") },
             checked = splitWithSwitchIconChecked,
-            toggleIcon = {
+            toggleControl = {
                 ToggleChipDefaults.SwitchIcon(checked = splitWithSwitchIconChecked)
             },
             onCheckedChange = { splitWithSwitchIconChecked = it },
@@ -197,7 +198,7 @@ fun ToggleChips() {
         SplitToggleChip(
             label = { Text("Split with RadioIcon") },
             checked = splitWithRadioIconChecked,
-            toggleIcon = {
+            toggleControl = {
                 ToggleChipDefaults.RadioIcon(checked = splitWithRadioIconChecked)
             },
             onCheckedChange = { splitWithRadioIconChecked = it },
@@ -223,7 +224,9 @@ fun ToggleChips() {
                 )
             },
             checked = splitWithCustomColorChecked,
-            toggleIcon = { ToggleChipDefaults.CheckboxIcon(checked = splitWithCustomColorChecked) },
+            toggleControl = {
+                ToggleChipDefaults.CheckboxIcon(checked = splitWithCustomColorChecked)
+            },
             onCheckedChange = { splitWithCustomColorChecked = it },
             onClick = {
                 Toast.makeText(
@@ -242,7 +245,7 @@ fun ToggleChips() {
             label = {
                 Text("Chips enabled")
             },
-            toggleIcon = {
+            toggleControl = {
                 ToggleChipDefaults.SwitchIcon(checked = enabled)
             },
         )
@@ -286,7 +289,7 @@ fun RtlToggleChips() {
             ToggleChip(
                 label = { Text("SwitchIcon") },
                 checked = switchIconChecked,
-                toggleIcon = {
+                toggleControl = {
                     ToggleChipDefaults.SwitchIcon(checked = switchIconChecked)
                 },
                 onCheckedChange = {
@@ -302,7 +305,7 @@ fun RtlToggleChips() {
                     )
                 },
                 checked = radioIconChecked,
-                toggleIcon = {
+                toggleControl = {
                     ToggleChipDefaults.RadioIcon(checked = radioIconChecked)
                 },
                 onCheckedChange = {
@@ -315,7 +318,7 @@ fun RtlToggleChips() {
                     Text("With switchable icon", maxLines = 1, overflow = TextOverflow.Ellipsis)
                 },
                 checked = switchIconWithIconChecked,
-                toggleIcon = {
+                toggleControl = {
                     ToggleChipDefaults.SwitchIcon(checked = switchIconWithIconChecked)
                 },
                 onCheckedChange = {
@@ -339,7 +342,7 @@ fun RtlToggleChips() {
             SplitToggleChip(
                 label = { Text("Split with CheckboxIcon") },
                 checked = splitWithCheckboxIconChecked,
-                toggleIcon = {
+                toggleControl = {
                     ToggleChipDefaults.CheckboxIcon(checked = splitWithCheckboxIconChecked)
                 },
                 onCheckedChange = { splitWithCheckboxIconChecked = it },
@@ -351,7 +354,7 @@ fun RtlToggleChips() {
             SplitToggleChip(
                 label = { Text("Split with SwitchIcon") },
                 checked = splitWithSwitchIconChecked,
-                toggleIcon = {
+                toggleControl = {
                     ToggleChipDefaults.SwitchIcon(checked = splitWithSwitchIconChecked)
                 },
                 onCheckedChange = { splitWithSwitchIconChecked = it },
@@ -365,7 +368,7 @@ fun RtlToggleChips() {
             SplitToggleChip(
                 label = { Text("Split with RadioIcon") },
                 checked = splitWithRadioIconChecked,
-                toggleIcon = {
+                toggleControl = {
                     ToggleChipDefaults.RadioIcon(checked = splitWithRadioIconChecked)
                 },
                 onCheckedChange = { splitWithRadioIconChecked = it },
@@ -390,7 +393,7 @@ fun RtlToggleChips() {
                     )
                 },
                 checked = splitWithCustomColorChecked,
-                toggleIcon = {
+                toggleControl = {
                     ToggleChipDefaults.CheckboxIcon(checked = splitWithCustomColorChecked)
                 },
                 onCheckedChange = { splitWithCustomColorChecked = it },
