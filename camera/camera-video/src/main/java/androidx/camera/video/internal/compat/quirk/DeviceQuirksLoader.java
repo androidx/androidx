@@ -59,9 +59,6 @@ public class DeviceQuirksLoader {
         if (EncoderNotUsePersistentInputSurfaceQuirk.load()) {
             quirks.add(new EncoderNotUsePersistentInputSurfaceQuirk());
         }
-        if (CamcorderProfileResolutionNotSupportedByEncoderQuirk.load()) {
-            quirks.add(new CamcorderProfileResolutionNotSupportedByEncoderQuirk());
-        }
 
         return quirks;
     }
