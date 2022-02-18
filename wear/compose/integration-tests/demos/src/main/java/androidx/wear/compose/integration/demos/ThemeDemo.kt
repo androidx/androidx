@@ -69,6 +69,9 @@ fun ThemeFonts() {
         item {
             ThemeFontRow(style = MaterialTheme.typography.caption2, description = "caption2")
         }
+        item {
+            ThemeFontRow(style = MaterialTheme.typography.caption3, description = "caption3")
+        }
     }
 }
 

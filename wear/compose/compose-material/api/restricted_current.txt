@@ -459,13 +459,14 @@ package androidx.wear.compose.material {
   }
 
   @androidx.compose.runtime.Immutable public final class Typography {
-    ctor public Typography(optional androidx.compose.ui.text.font.FontFamily defaultFontFamily, optional androidx.compose.ui.text.TextStyle display1, optional androidx.compose.ui.text.TextStyle display2, optional androidx.compose.ui.text.TextStyle display3, optional androidx.compose.ui.text.TextStyle title1, optional androidx.compose.ui.text.TextStyle title2, optional androidx.compose.ui.text.TextStyle title3, optional androidx.compose.ui.text.TextStyle body1, optional androidx.compose.ui.text.TextStyle body2, optional androidx.compose.ui.text.TextStyle button, optional androidx.compose.ui.text.TextStyle caption1, optional androidx.compose.ui.text.TextStyle caption2);
-    method public androidx.wear.compose.material.Typography copy(optional androidx.compose.ui.text.TextStyle display1, optional androidx.compose.ui.text.TextStyle display2, optional androidx.compose.ui.text.TextStyle display3, optional androidx.compose.ui.text.TextStyle title1, optional androidx.compose.ui.text.TextStyle title2, optional androidx.compose.ui.text.TextStyle title3, optional androidx.compose.ui.text.TextStyle body1, optional androidx.compose.ui.text.TextStyle body2, optional androidx.compose.ui.text.TextStyle button, optional androidx.compose.ui.text.TextStyle caption1, optional androidx.compose.ui.text.TextStyle caption2);
+    ctor public Typography(optional androidx.compose.ui.text.font.FontFamily defaultFontFamily, optional androidx.compose.ui.text.TextStyle display1, optional androidx.compose.ui.text.TextStyle display2, optional androidx.compose.ui.text.TextStyle display3, optional androidx.compose.ui.text.TextStyle title1, optional androidx.compose.ui.text.TextStyle title2, optional androidx.compose.ui.text.TextStyle title3, optional androidx.compose.ui.text.TextStyle body1, optional androidx.compose.ui.text.TextStyle body2, optional androidx.compose.ui.text.TextStyle button, optional androidx.compose.ui.text.TextStyle caption1, optional androidx.compose.ui.text.TextStyle caption2, optional androidx.compose.ui.text.TextStyle caption3);
+    method public androidx.wear.compose.material.Typography copy(optional androidx.compose.ui.text.TextStyle display1, optional androidx.compose.ui.text.TextStyle display2, optional androidx.compose.ui.text.TextStyle display3, optional androidx.compose.ui.text.TextStyle title1, optional androidx.compose.ui.text.TextStyle title2, optional androidx.compose.ui.text.TextStyle title3, optional androidx.compose.ui.text.TextStyle body1, optional androidx.compose.ui.text.TextStyle body2, optional androidx.compose.ui.text.TextStyle button, optional androidx.compose.ui.text.TextStyle caption1, optional androidx.compose.ui.text.TextStyle caption2, optional androidx.compose.ui.text.TextStyle caption3);
     method public androidx.compose.ui.text.TextStyle getBody1();
     method public androidx.compose.ui.text.TextStyle getBody2();
     method public androidx.compose.ui.text.TextStyle getButton();
     method public androidx.compose.ui.text.TextStyle getCaption1();
     method public androidx.compose.ui.text.TextStyle getCaption2();
+    method public androidx.compose.ui.text.TextStyle getCaption3();
     method public androidx.compose.ui.text.TextStyle getDisplay1();
     method public androidx.compose.ui.text.TextStyle getDisplay2();
     method public androidx.compose.ui.text.TextStyle getDisplay3();
@@ -477,6 +478,7 @@ package androidx.wear.compose.material {
     property public final androidx.compose.ui.text.TextStyle button;
     property public final androidx.compose.ui.text.TextStyle caption1;
     property public final androidx.compose.ui.text.TextStyle caption2;
+    property public final androidx.compose.ui.text.TextStyle caption3;
     property public final androidx.compose.ui.text.TextStyle display1;
     property public final androidx.compose.ui.text.TextStyle display2;
     property public final androidx.compose.ui.text.TextStyle display3;

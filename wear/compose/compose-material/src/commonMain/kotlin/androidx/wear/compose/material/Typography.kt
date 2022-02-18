@@ -25,47 +25,44 @@ import androidx.compose.ui.unit.sp
 /**
  * Class holding typography definitions as defined by the Wear Material typography specification.
  *
- * @property display1 display1 is the largest headline, reserved for short, important text or
- * numerals. For headlines, you can choose an expressive font, such as a display, handwritten, or
- * script style. These unconventional font designs have details and intricacy that help attract the
- * eye.Ø
+ * @property display1 Display1 is the largest headline. Displays are the largest text on the screen,
+ * reserved for short, important text or numerals.
  *
- * @property display2 display2 is the second largest headline, reserved for short, important text or
- * numerals. For headlines, you can choose an expressive font, such as a display, handwritten, or
- * script style. These unconventional font designs have details and intricacy that help attract the
- * eye.
+ * @property display2 Display2 is the second largest headline. Displays are the largest text on the
+ * screen, reserved for short, important text or numerals.
  *
- * @property display3 display3 is the third largest headline, reserved for short, important text or
- * numerals. For headlines, you can choose an expressive font, such as a display, handwritten, or
- * script style. These unconventional font designs have details and intricacy that help attract the
- * eye.
+ * @property display3 Display3 is the third largest headline. Displays are the largest text on the
+ * screen, reserved for short, important text or numerals.
  *
- * @property title1 title1 is the largest title, and is typically reserved for medium-emphasis text
- * that is shorter in length. Serif or sans serif typefaces work well for subtitles.
+ * @property title1 Title1 is the largest title. Titles are smaller than Displays. They are
+ * typically reserved for medium-emphasis text that is shorter in length.
  *
- * @property title2 title2 is the medium title, and is typically reserved for medium-emphasis text
- * that is shorter in length. Serif or sans serif typefaces work well for subtitles.
+ * @property title2 Title2 is the medium title. Titles are smaller than Displays. They are
+ * typically reserved for medium-emphasis text that is shorter in length.
  *
- * @property title3 title3 is the smallest title, and is typically reserved for medium-emphasis text
- * that is shorter in length. Serif or sans serif typefaces work well for subtitles.
+ * @property title3 Title3 is the smallest title. Titles are smaller than Displays. They are
+ * typically reserved for medium-emphasis text that is shorter in length.
  *
- * @property body1 body1 is the largest body, and is typically used for long-form writing as it
- * works well for small text sizes. For longer sections of text, a serif or sans serif typeface is
- * recommended.
+ * @property body1 Body1 is the largest body. Body texts are typically used for long-form writing as
+ * it works well for small text sizes. For longer sections of text, a serif or sans serif typeface
+ * is recommended.
  *
- * @property body2 body2 is the smallest body, and is typically used for long-form writing as it
- * works well for small text sizes. For longer sections of text, a serif or sans serif typeface is
- * recommended.
+ * @property body2 Body2 is the smallest body. Body texts are typically used for long-form writing
+ * as it works well for small text sizes. For longer sections of text, a serif or sans serif
+ * typeface is recommended.
  *
- * @property button button text is a call to action used in different types of buttons (such as
+ * @property button Button text is a call to action used in different types of buttons (such as
  * text, outlined and contained buttons) and in tabs, dialogs, and cards. Button text is typically
  * sans serif, using all caps text.
  *
- * @property caption1 caption1 is one of the smallest font sizes. It is used sparingly to annotate
- * imagery or to introduce a headline.
+ * @property caption1 Caption1 is the largest caption. Caption texts are the smallest font sizes.
+ * They are used on secondary content.
  *
- * @property caption2 caption2 is one of the smallest font sizes. It is used sparingly to annotate
- * imagery or to introduce a headline.
+ * @property caption2 Caption2 is the second largest caption. Caption texts are the smallest font
+ * sizes. They are used on secondary content.
+ *
+ * @property caption3 Caption3 is an exceptional small font size which is used for the extra
+ * long-form writing like legal texts.
  */
 @Immutable
 public class Typography internal constructor(
@@ -80,6 +77,7 @@ public class Typography internal constructor(
     public val button: TextStyle,
     public val caption1: TextStyle,
     public val caption2: TextStyle,
+    public val caption3: TextStyle,
 ) {
     public constructor (
         defaultFontFamily: FontFamily = FontFamily.Default,
@@ -137,7 +135,13 @@ public class Typography internal constructor(
             fontWeight = FontWeight.Medium,
             fontSize = 12.sp,
             letterSpacing = 0.sp
+        ),
+        caption3: TextStyle = TextStyle(
+            fontWeight = FontWeight.Medium,
+            fontSize = 10.sp,
+            letterSpacing = 0.1.sp
         )
+
     ) : this(
         display1 = display1.withDefaultFontFamily(defaultFontFamily),
         display2 = display2.withDefaultFontFamily(defaultFontFamily),
@@ -150,6 +154,7 @@ public class Typography internal constructor(
         button = button.withDefaultFontFamily(defaultFontFamily),
         caption1 = caption1.withDefaultFontFamily(defaultFontFamily),
         caption2 = caption2.withDefaultFontFamily(defaultFontFamily),
+        caption3 = caption3.withDefaultFontFamily(defaultFontFamily),
     )
 
     /**
@@ -167,6 +172,7 @@ public class Typography internal constructor(
         button: TextStyle = this.button,
         caption1: TextStyle = this.caption1,
         caption2: TextStyle = this.caption2,
+        caption3: TextStyle = this.caption3,
     ): Typography = Typography(
         display1,
         display2,
@@ -178,7 +184,8 @@ public class Typography internal constructor(
         body2,
         button,
         caption1,
-        caption2
+        caption2,
+        caption3,
     )
 
     override fun equals(other: Any?): Boolean {
@@ -196,6 +203,7 @@ public class Typography internal constructor(
         if (button != other.button) return false
         if (caption1 != other.caption1) return false
         if (caption2 != other.caption2) return false
+        if (caption3 != other.caption3) return false
 
         return true
     }
@@ -212,13 +220,14 @@ public class Typography internal constructor(
         result = 31 * result + button.hashCode()
         result = 31 * result + caption1.hashCode()
         result = 31 * result + caption2.hashCode()
+        result = 31 * result + caption3.hashCode()
         return result
     }
 
     override fun toString(): String {
         return "Typography(display1=$display1, display2=$display2, display3=$display3, " +
             "title1=$title1, title2=$title2, title3=$title3, body1=$body1, body2=$body2, " +
-            "button=$button, caption1=$caption1, caption2=$caption2)"
+            "button=$button, caption1=$caption1, caption2=$caption2, caption3=$caption3)"
     }
 }
 
