@@ -20,28 +20,34 @@ import androidx.compose.runtime.Composable
 import androidx.glance.Emittable
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceNode
+import androidx.glance.unit.ColorProvider
 
 /**
  * Adds a circular progress indicator view to the glance view.
  *
  * @param modifier the modifier to apply to the progress bar
+ * @param color The color of the progress indicator.
  */
 @Composable
 public fun CircularProgressIndicator(
     modifier: GlanceModifier = GlanceModifier,
+    color: ColorProvider = ProgressIndicatorDefaults.IndicatorColorProvider,
 ) {
     GlanceNode(
         factory = ::EmittableCircularProgressIndicator,
         update = {
             this.set(modifier) { this.modifier = it }
+            this.set(color) { this.color = it }
         }
     )
 }
 
 internal class EmittableCircularProgressIndicator : Emittable {
     override var modifier: GlanceModifier = GlanceModifier
+    var color: ColorProvider = ProgressIndicatorDefaults.IndicatorColorProvider
 
     override fun toString(): String = "EmittableCircularProgressIndicator(" +
         "modifier=$modifier, " +
+        "color=$color" +
         ")"
 }
