@@ -59,8 +59,10 @@ readonly javaLibraryDirs=(
   "drawerlayout"
   "fragment"
   "lifecycle"
+  "metrics"
   "navigation"
   "paging"
+  "vectordrawable"
   "wear"
   "window"
 )
@@ -74,8 +76,10 @@ readonly kotlinLibraryDirs=(
   "drawerlayout"
   "fragment"
   "lifecycle"
+  "metrics"
   "navigation"
   "paging"
+  "vectordrawable"
   "wear"
   "window"
 )
