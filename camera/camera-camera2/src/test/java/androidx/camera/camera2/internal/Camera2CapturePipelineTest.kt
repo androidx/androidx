@@ -52,6 +52,11 @@ import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.ExecutionException
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledFuture
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.runBlocking
@@ -69,11 +74,6 @@ import org.robolectric.annotation.internal.DoNotInstrument
 import org.robolectric.shadow.api.Shadow
 import org.robolectric.shadows.ShadowCameraCharacteristics
 import org.robolectric.shadows.ShadowCameraManager
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.ExecutionException
-import java.util.concurrent.Executors
-import java.util.concurrent.ScheduledFuture
-import java.util.concurrent.TimeUnit
 
 private const val CAMERA_ID_0 = "0"
 
@@ -455,7 +455,7 @@ class Camera2CapturePipelineTest {
         ).await()
 
         // Assert, there is only 1 single capture request.
-        assertThat(immediateCompleteCapture.allResults.size).isEqualTo(1)
+        assertThat(immediateCompleteCapture.getAllResults().size).isEqualTo(1)
     }
 
     @Test
@@ -644,7 +644,7 @@ class Camera2CapturePipelineTest {
 
         // Assert.
         // AE mode should not be overridden
-        immediateCompleteCapture.allResults.toList().flatten().filter {
+        immediateCompleteCapture.getAllResults().flatten().filter {
             it.surfaces.contains(fakeStillCaptureSurface)
         }.let { stillCaptureRequests ->
             assertThat(stillCaptureRequests).isNotEmpty()
@@ -721,19 +721,20 @@ class Camera2CapturePipelineTest {
             resultParameters = resultConverged
         )
         firstCapture.await()
-        immediateCompleteCapture.allResults.clear() // Clear the result of the firstCapture
+        immediateCompleteCapture.clearAllResults() // Clear the result of the firstCapture
 
         // Act.
         // Set flash OFF to disable aePreCapture for testing
         cameraControl.flashMode = FLASH_MODE_OFF
-        cameraControl.submitStillCaptureRequests(
+        val result = cameraControl.submitStillCaptureRequests(
             listOf(singleRequest),
             ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
             ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH,
         ).await()
 
         // Assert. The second capturing should not override the AE mode.
-        immediateCompleteCapture.allResults.toList().flatten().filter {
+        assertThat(result.size).isEqualTo(1)
+        immediateCompleteCapture.getAllResults().flatten().filter {
             it.surfaces.contains(fakeStillCaptureSurface)
         }.let { stillCaptureRequests ->
             assertThat(stillCaptureRequests).isNotEmpty()
@@ -774,7 +775,7 @@ class Camera2CapturePipelineTest {
 
         // Assert.
         // AE mode should not be overridden
-        immediateCompleteCapture.allResults.toList().flatten().filter {
+        immediateCompleteCapture.getAllResults().flatten().filter {
             it.surfaces.contains(fakeStillCaptureSurface)
         }.let { stillCaptureRequests ->
             assertThat(stillCaptureRequests).isNotEmpty()
@@ -945,7 +946,7 @@ class Camera2CapturePipelineTest {
     private val immediateCompleteCapture =
         object : CameraControlInternal.ControlUpdateCallback {
             private val lock = Any()
-            val allResults: MutableList<List<CaptureConfig>> = mutableListOf()
+            private val allResults: MutableList<List<CaptureConfig>> = mutableListOf()
             val waitingList = mutableListOf<Pair<CountDownLatch,
                     (captureRequests: List<CaptureConfig>) -> Boolean>>()
             var updateSessionCountDown: CountDownLatch? = null
@@ -997,6 +998,14 @@ class Camera2CapturePipelineTest {
                         it.onCaptureCompleted(CameraCaptureResult.EmptyCameraCaptureResult())
                     }
                 }
+            }
+
+            fun clearAllResults() = synchronized(lock) {
+                allResults.clear()
+            }
+
+            fun getAllResults() = synchronized(lock) {
+                allResults.toList()
             }
         }
 
