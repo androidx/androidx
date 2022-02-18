@@ -14,64 +14,19 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryType
 import androidx.build.Publish
 import androidx.build.RunApiTasks
-import com.github.jengelman.gradle.plugins.shadow.transformers.DontIncludeResourceTransformer
 
 plugins {
     id("AndroidXPlugin")
     id("kotlin")
     id("com.google.protobuf")
-    id("com.github.johnrengelman.shadow")
-}
-
-configurations {
-    shadowed
-
-    compileOnly.extendsFrom(shadowed)
-    testCompile.extendsFrom(shadowed)
 }
 
 dependencies {
     api(libs.kotlinStdlib)
-
+    implementation(libs.protobufLite)
     implementation("androidx.datastore:datastore-core:1.0.0")
-
-    shadowed(libs.protobufLite)
-}
-
-// Move standard JAR to have another suffix and build a shadowJar with no classifier so it's
-// picked up as the primary artifact.
-jar {
-    archiveClassifier = 'before-shadow'
-}
-
-shadowJar {
-    archiveClassifier = ''
-    configurations = [project.configurations.shadowed]
-    relocate "com.google.protobuf", "androidx.glance.appwidget.proto"
-
-    // libs.protobufLite ships with a standard set of proto files in the JAR, which clash if this
-    // library is included from two different downstream libraries. exclude("*.proto") (or
-    // **/*.proto etc etc) doesn't exclude the ones from libs.protobufLite, so take a more heavy handed
-    // approach and use a transformer to strip those files.
-    transform(DontIncludeResourceTransformer.class) {
-        resource = ".proto"
-    }
-}
-
-assemble.dependsOn(shadowJar)
-
-configurations {
-    apiElements.outgoing.artifacts.clear()
-    apiElements.outgoing.artifact(shadowJar) {
-        builtBy shadowJar
-    }
-    runtimeElements.outgoing.artifacts.clear()
-    runtimeElements.outgoing.artifact(shadowJar) {
-        builtBy shadowJar
-    }
 }
 
 protobuf {
@@ -86,27 +41,41 @@ protobuf {
         all().each { task ->
             task.builtins {
                 java {
-                    option 'lite'
+                    option "lite"
                 }
             }
         }
     }
 }
 
+// Create export artifact for for JarJaring
+def preferencesProtoJarJarTask = tasks.register("exportJar", Jar) {
+    archiveBaseName.set("export")
+    dependsOn(protobuf.generateProtoTasks.all())
+    dependsOn(compileKotlin)
+    from(files(compileKotlin.outputs.files))
+
+    dependsOn(compileJava)
+    from(files(compileJava.destinationDirectory))
+
+    // The proto-lite dependency includes .proto files, which are not used by datastore. When apps
+    // depend on datastore as well as proto-lite directly, these files conflict since jarjar only
+    // renames the java classes. Remove them here since they are unused.
+    from(zipTree(configurations.detachedConfiguration(
+            dependencies.create(libs.protobufLite.get())).getSingleFile())) {
+        exclude("**/*.proto")
+    }
+}
+
+def jarjarConf = configurations.register("export")
+artifacts.add(jarjarConf.name, preferencesProtoJarJarTask.flatMap { it.archiveFile })
+
 androidx {
     name = "Glance AppWidget Protos"
-    type = LibraryType.PUBLISHED_LIBRARY
+    publish = Publish.NONE
     mavenGroup = LibraryGroups.GLANCE
     inceptionYear = "2021"
     runApiTasks = new RunApiTasks.No("No public API required for internal use with app widgets.")
     description = "Protos for use with glance app widgets."
 }
 
-// Kotlin 1.5.31 would provide a different set of attributes on some of the variants, which,
-// possibly due to a coincidence, could sometimes nudge Gradle variant-aware dependency resolution
-// to choosing one of the variants as the best match, while also making it silently choose not the
-// variant that we wanted it to match in other cases.
-// It isn't clear to me if the old (1.5.31) is more correct, or if the new behavior (1.6.0)
-// highlighting a potential ambiguity is more correct.  Presumably the later (so no tracking bug?),
-// but I made Jetbrains aware and I think they might take a look to investigate further.
-configurations.getByName("shadowRuntimeElements").canBeConsumed = false
