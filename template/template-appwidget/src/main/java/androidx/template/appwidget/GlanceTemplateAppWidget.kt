@@ -17,19 +17,20 @@
 package androidx.template.appwidget
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.unit.Dp
+import androidx.glance.LocalSize
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.SizeMode
 import androidx.glance.state.GlanceStateDefinition
 import androidx.glance.state.PreferencesGlanceStateDefinition
-import androidx.template.template.GlanceTemplate
-import androidx.template.template.TemplateTranslator
+import androidx.template.template.LocalTemplateMode
+import androidx.template.template.TemplateMode
 
 /**
- * A [GlanceAppWidget] that uses a [GlanceTemplate] to define its layout.
+ * A [GlanceAppWidget] that provides template local values.
  */
-public abstract class GlanceTemplateAppWidget(
-    private val template: GlanceTemplate<*>
-) : GlanceAppWidget() {
+public abstract class GlanceTemplateAppWidget : GlanceAppWidget() {
 
     /** Default widget size mode is [SizeMode.Exact] */
     override val sizeMode = SizeMode.Exact
@@ -37,10 +38,27 @@ public abstract class GlanceTemplateAppWidget(
     /** Default widget state definition is [PreferencesGlanceStateDefinition] */
     override val stateDefinition: GlanceStateDefinition<*>? = PreferencesGlanceStateDefinition
 
-    private val translator = TemplateTranslator()
-
     @Composable
     final override fun Content() {
-        translator.TemplateContent(template)
+        // TODO: Add other local values
+        val mode = mode()
+        CompositionLocalProvider(LocalTemplateMode provides mode) { TemplateContent() }
+    }
+
+    @Composable
+    abstract fun TemplateContent()
+
+    /** Resolves the current display mode */
+    @Composable
+    private fun mode(): TemplateMode {
+        val height = LocalSize.current.height
+        val width = LocalSize.current.width
+        return if (height <= Dp(240f) && width <= Dp(240f)) {
+            TemplateMode.Collapsed
+        } else if ((width / height) < (3.0 / 2.0)) {
+            TemplateMode.Vertical
+        } else {
+            TemplateMode.Horizontal
+        }
     }
 }

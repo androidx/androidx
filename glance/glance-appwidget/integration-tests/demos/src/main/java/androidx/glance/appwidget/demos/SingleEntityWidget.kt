@@ -17,6 +17,7 @@
 package androidx.glance.appwidget.demos
 
 import android.content.Context
+import androidx.compose.runtime.Composable
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.glance.GlanceId
@@ -24,23 +25,17 @@ import androidx.glance.ImageProvider
 import androidx.glance.action.ActionParameters
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
+import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.state.updateAppWidgetState
-import androidx.template.appwidget.GlanceTemplateAppWidget
+import androidx.glance.currentState
+import androidx.template.appwidget.SingleEntityTemplate
+import androidx.template.template.SingleEntityTemplateData
 import androidx.template.template.TemplateImageWithDescription
-import androidx.template.template.SingleEntityTemplate
 import androidx.template.template.TemplateText
 import androidx.template.template.TemplateTextButton
 import androidx.template.template.TemplateText.Type
-
-/** A [SingleEntityTemplate] implementation that sets the title given widget state */
-class MyWidgetTemplate : SingleEntityTemplate() {
-    override fun getData(state: Any?): Data {
-        require(state is Preferences)
-        return createData(getHeader(state[PressedKey] == true))
-    }
-}
 
 private val PressedKey = booleanPreferencesKey("pressedKey")
 
@@ -54,13 +49,22 @@ class ButtonAction : ActionCallback {
     }
 }
 
-class SingleEntityWidget : GlanceTemplateAppWidget(MyWidgetTemplate())
+class SingleEntityWidget : GlanceAppWidget() {
+    override val sizeMode = SizeMode.Exact
+
+    @Composable
+    override fun Content() {
+        SingleEntityTemplate(
+            createData(getHeader(currentState<Preferences>()[PressedKey] == true))
+        )
+    }
+}
 
 class SingleEntityWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = SingleEntityWidget()
 }
 
-private fun createData(title: String) = SingleEntityTemplate.Data(
+private fun createData(title: String) = SingleEntityTemplateData(
     header = TemplateText("Single Entity demo", Type.Title),
     headerIcon = TemplateImageWithDescription(
         ImageProvider(R.drawable.compose),

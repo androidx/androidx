@@ -25,7 +25,7 @@
             android:name="androidx.template.appwidget.demos.SingleEntityWidgetReceiver"
             android:enabled="@bool/glance_appwidget_available"
             android:exported="false"
-            android:label="@string/template_input_widget_name">
+            android:label="@string/single_entity_template_widget_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="android.intent.action.LOCALE_CHANGED" />
@@ -36,7 +36,7 @@
         </receiver>
 
         <receiver
-            android:name="androidx.template.appwidget.demos.GalleryInputWidgetReceiver"
+            android:name="androidx.template.appwidget.demos.GalleryDemoWidgetReceiver"
             android:enabled="@bool/glance_appwidget_available"
             android:exported="false"
             android:label="@string/gallery_template_name">
@@ -54,6 +54,20 @@
             android:enabled="@bool/glance_appwidget_available"
             android:exported="false"
             android:label="@string/list_template_widget_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/default_app_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name="androidx.template.appwidget.demos.DemoOverrideWidgetReceiver"
+            android:enabled="@bool/glance_appwidget_available"
+            android:exported="false"
+            android:label="@string/override_widget_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="android.intent.action.LOCALE_CHANGED" />

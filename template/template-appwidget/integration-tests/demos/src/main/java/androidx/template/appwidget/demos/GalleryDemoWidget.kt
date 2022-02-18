@@ -16,28 +16,41 @@
 
 package androidx.template.appwidget.demos
 
+import androidx.compose.runtime.Composable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.ImageProvider
+import androidx.glance.appwidget.SizeMode
 import androidx.glance.unit.ColorProvider
-import androidx.template.appwidget.GlanceTemplateAppWidget
-import androidx.template.template.GalleryTemplate
+import androidx.template.appwidget.GalleryTemplate
+import androidx.template.template.GalleryTemplateData
 import androidx.template.template.TemplateImageWithDescription
 
-object GalleryInputWidgetTemplate : GalleryTemplate() {
-    override fun getData(state: Any?): Data =
-        Data(
-            header = "Gallery Template example",
-            title = "Gallery Template title",
-            headline = "Gallery Template headline",
-            image = TemplateImageWithDescription(ImageProvider(R.drawable.compose), "test image"),
-            logo = TemplateImageWithDescription(ImageProvider(R.drawable.compose), "test logo"),
-            backgroundColor = ColorProvider(R.color.default_widget_background)
+/**
+ * A widget that uses [GalleryTemplate]. Template locals are not used, so the widget is a regular
+ * [GlanceAppWidget].
+ */
+class GalleryTemplateWidget : GlanceAppWidget() {
+    override val sizeMode = SizeMode.Exact
+
+    @Composable
+    override fun Content() {
+        GalleryTemplate(
+            GalleryTemplateData(
+                header = "Gallery Template example",
+                title = "Gallery Template title",
+                headline = "Gallery Template headline",
+                image = TemplateImageWithDescription(
+                    ImageProvider(R.drawable.compose),
+                    "test image"
+                ),
+                logo = TemplateImageWithDescription(ImageProvider(R.drawable.compose), "test logo"),
+                backgroundColor = ColorProvider(R.color.default_widget_background)
+            )
         )
+    }
 }
 
-class GalleryTemplateWidget : GlanceTemplateAppWidget(GalleryInputWidgetTemplate)
-
-class GalleryInputWidgetReceiver : GlanceAppWidgetReceiver() {
+class GalleryDemoWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = GalleryTemplateWidget()
 }
