@@ -162,7 +162,14 @@ internal class FlattenedPageEventStorage<T : Any> {
      */
     private val sourceStates = MutableLoadStateCollection()
     private var mediatorStates: LoadStates? = null
+
+    /**
+     * Tracks if we ever received an event from upstream to prevent sending the initial IDLE state
+     * to new downstream subscribers.
+     */
+    private var receivedFirstEvent: Boolean = false
     fun add(event: PageEvent<T>) {
+        receivedFirstEvent = true
         when (event) {
             is PageEvent.Insert<T> -> handleInsert(event)
             is PageEvent.Drop<T> -> handlePageDrop(event)
@@ -235,6 +242,9 @@ internal class FlattenedPageEventStorage<T : Any> {
     }
 
     fun getAsEvents(): List<PageEvent<T>> {
+        if (!receivedFirstEvent) {
+            return emptyList()
+        }
         val events = mutableListOf<PageEvent<T>>()
         val source = sourceStates.snapshot()
         if (pages.isNotEmpty()) {

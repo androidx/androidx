@@ -28,6 +28,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.MainDispatcherRule
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -495,6 +496,45 @@ class AsyncPagingDataDifferTest {
 
         job1.cancelAndJoin()
         job2.cancelAndJoin()
+    }
+
+    /**
+     * This test makes sure we don't inject unnecessary IDLE events when pages are cached. Caching
+     * tests already validate that but it is still good to have an integration test to clarify end
+     * to end expected behavior.
+     * Repro for b/1987328.
+     */
+    @SdkSuppress(minSdkVersion = 21) // b/189492631
+    @Test
+    fun refreshEventsAreImmediate_cached() = testScope.runBlockingTest {
+        val loadStates = mutableListOf<CombinedLoadStates>()
+        differ.addLoadStateListener { loadStates.add(it) }
+        val pager = Pager(
+            config = PagingConfig(
+                pageSize = 10,
+                enablePlaceholders = false,
+                initialLoadSize = 30
+            )
+        ) { TestPagingSource() }
+        val job = launch {
+            pager.flow.cachedIn(this).collectLatest { differ.submitData(it) }
+        }
+        advanceUntilIdle()
+        assertThat(loadStates.lastOrNull()?.prepend?.endOfPaginationReached).isTrue()
+        loadStates.clear()
+        differ.refresh()
+        advanceUntilIdle()
+        assertThat(loadStates).containsExactly(
+            localLoadStatesOf(
+                prependLocal = NotLoading(endOfPaginationReached = false),
+                refreshLocal = Loading
+            ),
+            localLoadStatesOf(
+                prependLocal = NotLoading(endOfPaginationReached = true),
+                refreshLocal = NotLoading(endOfPaginationReached = false)
+            )
+        )
+        job.cancelAndJoin()
     }
 
     @SdkSuppress(minSdkVersion = 21) // b/189492631
