@@ -483,11 +483,10 @@ public class ContextCompatTest extends BaseInstrumentationTestCase<ThemedYellowA
     @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     public void testCheckSelfPermissionNotificationPermission() {
         if (BuildCompat.isAtLeastT()) {
-            // The notification permissions is expected to be denied since it's not declared in our
-            // manifest and wasn't requested
-            assertEquals("Post notification permission denied",
-                    PackageManager.PERMISSION_DENIED,
-                    ContextCompat.checkSelfPermission(mContext,
+            assertEquals(
+                    mContext.checkCallingPermission(Manifest.permission.POST_NOTIFICATIONS),
+                    ContextCompat.checkSelfPermission(
+                            mContext,
                             Manifest.permission.POST_NOTIFICATIONS));
         } else {
             assertEquals("Notification permission allowed by default on devices <= SDK 32",
