@@ -16,14 +16,12 @@
 
 package androidx.camera.integration.camera2.pipe
 
-import android.app.Activity
 import android.hardware.camera2.CameraCharacteristics
-import android.os.Build
 import android.os.Bundle
 import android.os.Trace
+import android.Manifest
 import android.util.Log
 import android.view.View
-import android.view.WindowManager
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
 import kotlinx.coroutines.runBlocking
@@ -31,7 +29,7 @@ import kotlinx.coroutines.runBlocking
 /**
  * This is the main activity for the CameraPipe test application.
  */
-class CameraPipeActivity : Activity() {
+class CameraPipeActivity : CameraPermissionActivity() {
     private lateinit var cameraPipe: CameraPipe
     private lateinit var dataVisualizations: DataVisualizations
     private lateinit var ui: CameraPipeUi
@@ -45,7 +43,7 @@ class CameraPipeActivity : Activity() {
         cameraPipe = (applicationContext as CameraPipeApplication).cameraPipe
 
         // This adjusts the UI to make the activity run a a full screen application.
-        configureFullScreenCameraWindow()
+        configureFullScreenCameraWindow(this)
 
         // Inflate the main ui for the camera activity.
         Trace.beginSection("CXCP-App#inflate")
@@ -67,11 +65,16 @@ class CameraPipeActivity : Activity() {
         super.onStart()
         Log.i("CXCP-App", "Activity onStart")
 
-        val camera = currentCamera
-        if (camera == null) {
-            startNextCamera()
-        } else {
-            camera.start()
+        checkPermissionsAndRun(setOf(
+            Manifest.permission.CAMERA,
+            Manifest.permission.RECORD_AUDIO
+            )) {
+            val camera = currentCamera
+            if (camera == null) {
+                startNextCamera()
+            } else {
+                camera.start()
+            }
         }
     }
 
@@ -145,43 +148,5 @@ class CameraPipeActivity : Activity() {
 
         // When we reach the end of the list of cameras, loop.
         return cameras[(lastCameraIndex + 1) % cameras.size]
-    }
-
-    @Suppress("DEPRECATION")
-    private fun configureFullScreenCameraWindow() {
-        Trace.beginSection("CXCP-App#windowFlags")
-        // Make the navigation bar semi-transparent.
-        window.setFlags(
-            WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION,
-            WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION
-        )
-
-        // Hide navigation to make the app full screen
-        // TODO: Alter this to use window insets class when running on Android R
-        val uiOptions = (
-            View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                or View.SYSTEM_UI_FLAG_FULLSCREEN
-                or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                or View.SYSTEM_UI_FLAG_LOW_PROFILE
-                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-            )
-        window.decorView.systemUiVisibility = uiOptions
-
-        // Make portrait / landscape rotation seamless
-        val windowParams: WindowManager.LayoutParams = window.attributes
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            windowParams.rotationAnimation = WindowManager.LayoutParams.ROTATION_ANIMATION_SEAMLESS
-        } else {
-            windowParams.rotationAnimation = WindowManager.LayoutParams.ROTATION_ANIMATION_JUMPCUT
-        }
-
-        // Allow the app to draw over screen cutouts (notches, camera bumps, etc)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            windowParams.layoutInDisplayCutoutMode =
-                WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
-        }
-        window.attributes = windowParams
-
-        Trace.endSection()
     }
 }
