@@ -40,11 +40,11 @@ import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.delay
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.asin
 import kotlin.math.max
+import kotlinx.coroutines.delay
 
 /**
  * An object representing the relative position of a scrollbar or rolling side button or rotating
@@ -252,8 +252,11 @@ public fun PositionIndicator(
     } else {
         state.positionFraction
     }
+
     if (autoHide) {
-        LaunchedEffect(indicatorPosition) {
+        // Note that neither the exact value passed to sizeFraction nor it's return matter, we just
+        // need to detect if the size is changing (i.e. we are scrolling/changing volume/etc).
+        LaunchedEffect(indicatorPosition, state.sizeFraction(1000f)) {
             actuallyVisible.value = true
             delay(2000)
             actuallyVisible.value = false
