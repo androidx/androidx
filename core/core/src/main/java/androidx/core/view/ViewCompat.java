@@ -16,6 +16,8 @@
 
 package androidx.core.view;
 
+import static android.view.View.VISIBLE;
+
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.animation.ValueAnimator;
@@ -3630,7 +3632,7 @@ public class ViewCompat {
 
     private static void compatOffsetTopAndBottom(View view, int offset) {
         view.offsetTopAndBottom(offset);
-        if (view.getVisibility() == View.VISIBLE) {
+        if (view.getVisibility() == VISIBLE) {
             tickleInvalidationFlag(view);
 
             ViewParent parent = view.getParent();
@@ -3678,7 +3680,7 @@ public class ViewCompat {
 
     private static void compatOffsetLeftAndRight(View view, int offset) {
         view.offsetLeftAndRight(offset);
-        if (view.getVisibility() == View.VISIBLE) {
+        if (view.getVisibility() == VISIBLE) {
             tickleInvalidationFlag(view);
 
             ViewParent parent = view.getParent();
@@ -4469,7 +4471,7 @@ public class ViewCompat {
             return;
         }
         boolean isVisibleAccessibilityPane = getAccessibilityPaneTitle(view) != null
-                && view.getVisibility() == View.VISIBLE;
+                && (view.isShown() && view.getWindowVisibility() == VISIBLE);
         // If this is a live region or accessibilityPane, we should send a subtree change event
         // from this view immediately. Otherwise, we can let it propagate up.
         if ((getAccessibilityLiveRegion(view) != ACCESSIBILITY_LIVE_REGION_NONE)
@@ -4554,7 +4556,7 @@ public class ViewCompat {
 
         @RequiresApi(19)
         void addAccessibilityPane(View pane) {
-            mPanesToVisible.put(pane, pane.getVisibility() == View.VISIBLE);
+            mPanesToVisible.put(pane, pane.isShown() && pane.getWindowVisibility() == VISIBLE);
             pane.addOnAttachStateChangeListener(this);
             if (Api19Impl.isAttachedToWindow(pane)) {
                 registerForLayoutCallback(pane);
@@ -4570,7 +4572,7 @@ public class ViewCompat {
 
         @RequiresApi(19)
         private void checkPaneVisibility(View pane, boolean oldVisibility) {
-            boolean newVisibility = pane.getVisibility() == View.VISIBLE;
+            boolean newVisibility = pane.isShown() && pane.getWindowVisibility() == VISIBLE;
             if (oldVisibility != newVisibility) {
                 int contentChangeType = newVisibility
                         ? AccessibilityEvent.CONTENT_CHANGE_TYPE_PANE_APPEARED

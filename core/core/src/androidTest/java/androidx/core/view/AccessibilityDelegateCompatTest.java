@@ -18,7 +18,6 @@ package androidx.core.view;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -49,7 +48,6 @@ import android.view.accessibility.AccessibilityNodeProvider;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.view.accessibility.AccessibilityEventCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat;
 import androidx.core.view.accessibility.AccessibilityNodeProviderCompat;
@@ -79,6 +77,7 @@ public class AccessibilityDelegateCompatTest extends
     private static UiAutomation sUiAutomation;
 
     private ViewGroup mView;
+    private View mChildView;
 
     public AccessibilityDelegateCompatTest() {
         super(ViewCompatActivity.class);
@@ -197,38 +196,156 @@ public class AccessibilityDelegateCompatTest extends
     @Test
     @SdkSuppress(minSdkVersion = 19)
     public void testAccessibilityPaneTitle_isSentOnAppearance() throws Throwable {
+        final Activity activity = mActivityTestRule.getActivity();
         final CharSequence title = "Sample title";
         ViewCompat.setAccessibilityPaneTitle(mView, title);
         mActivityTestRule.runOnUiThread(() -> {
             // Update the AccessibilityPaneVisibilityManager
             mView.setVisibility(View.INVISIBLE);
             mView.getViewTreeObserver().dispatchOnGlobalLayout();
-            mView.setVisibility(View.VISIBLE);
         });
 
-        final AccessibilityDelegateCompat mockDelegate = mock(
-                AccessibilityDelegateCompat.class);
-        ViewCompat.setAccessibilityDelegate(mView, new BridgingDelegateCompat(mockDelegate));
+        sUiAutomation.executeAndWaitForEvent(
+                () -> {
+                    try {
+                        mActivityTestRule.runOnUiThread(() -> {
+                            mView.setVisibility(View.VISIBLE);
+                            if (Build.VERSION.SDK_INT < 28) {
+                                mView.getViewTreeObserver().dispatchOnGlobalLayout();
+                            }
+                        });
+                    } catch (Throwable throwable) {
+                        throwable.printStackTrace();
+                    }
+                },
+                event -> {
+                    boolean isWindowStateChanged = event.getEventType()
+                            == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED;
+                    int isPaneTitle = (event.getContentChangeTypes()
+                            & AccessibilityEvent.CONTENT_CHANGE_TYPE_PANE_APPEARED);
+                    // onInitializeA11yEvent was not called in 28, so package name was not set
+                    boolean isFromThisPackage = Build.VERSION.SDK_INT == 28
+                            || TextUtils.equals(event.getPackageName(), activity.getPackageName());
+                    boolean hasTitleText = false;
+                    if (event.getText().size() > 0) {
+                        hasTitleText = event.getText().get(0).equals(title);
+                    }
+                    return isWindowStateChanged
+                            && (isPaneTitle != 0)
+                            && isFromThisPackage
+                            && hasTitleText;
+                },
+                TIMEOUT_ASYNC_PROCESSING);
+    }
 
-        mView.getViewTreeObserver().dispatchOnGlobalLayout();
+    @Test
+    @SdkSuppress(minSdkVersion = 19)
+    public void testAccessibilityPaneTitle_parentVisible_isSentOnAppearance() throws Throwable {
+        final Activity activity = mActivityTestRule.getActivity();
+        mActivityTestRule.runOnUiThread(() -> {
+            mChildView = activity.findViewById(androidx.core.test.R.id.view);
+            // On KitKat, some delegate methods aren't called for non-important views
+            ViewCompat.setImportantForAccessibility(mChildView,
+                    View.IMPORTANT_FOR_ACCESSIBILITY_YES);
+        });
+        final CharSequence title = "Sample title";
+        ViewCompat.setAccessibilityPaneTitle(mChildView, title);
+        assertEquals(mChildView.getVisibility(), View.VISIBLE);
+        assertEquals(mChildView.getWindowVisibility(), View.VISIBLE);
 
-        ArgumentCaptor<AccessibilityEvent> argumentCaptor =
-                ArgumentCaptor.forClass(AccessibilityEvent.class);
-        if (Build.VERSION.SDK_INT < 28) {
-            // Validity check
-            assertEquals(ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES,
-                    ViewCompat.getImportantForAccessibility(mView));
 
-            verify(mockDelegate).sendAccessibilityEventUnchecked(
-                    eq(mView), argumentCaptor.capture());
-            AccessibilityEvent event = argumentCaptor.getValue();
-            assertEquals(title, event.getText().get(0));
-            assertNotEquals(0, event.getContentChangeTypes()
-                    & AccessibilityEventCompat.CONTENT_CHANGE_TYPE_PANE_APPEARED);
-        } else {
-            verify(mockDelegate, never()).sendAccessibilityEventUnchecked(
-                    eq(mView), argumentCaptor.capture());
-        }
+        mActivityTestRule.runOnUiThread(() -> {
+            // Update the AccessibilityPaneVisibilityManager
+            mView.setVisibility(View.INVISIBLE);
+            assertEquals(mChildView.isShown(), false);
+        });
+
+
+        sUiAutomation.executeAndWaitForEvent(
+                () -> {
+                    try {
+                        mActivityTestRule.runOnUiThread(() -> {
+                            if (Build.VERSION.SDK_INT < 28) {
+                                mView.getViewTreeObserver().dispatchOnGlobalLayout();
+                                mView.setVisibility(View.VISIBLE);
+                                mView.getViewTreeObserver().dispatchOnGlobalLayout();
+                            } else {
+                                mView.setVisibility(View.VISIBLE);
+                            }
+                        });
+                    } catch (Throwable throwable) {
+                        throwable.printStackTrace();
+                    }
+                },
+                event -> {
+                    boolean isWindowStateChanged = event.getEventType()
+                            == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED;
+                    int isPaneTitle = (event.getContentChangeTypes()
+                            & AccessibilityEvent.CONTENT_CHANGE_TYPE_PANE_APPEARED);
+                    // onInitializeA11yEvent was not called in 28, so package name was not set
+                    boolean isFromThisPackage = Build.VERSION.SDK_INT == 28
+                            || TextUtils.equals(event.getPackageName(), activity.getPackageName());
+                    boolean hasTitleText = false;
+                    if (event.getText().size() > 0) {
+                        hasTitleText = event.getText().get(0).equals(title);
+                    }
+                    return isWindowStateChanged
+                            && (isPaneTitle != 0)
+                            && isFromThisPackage
+                            && hasTitleText;
+                },
+                TIMEOUT_ASYNC_PROCESSING);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 19)
+    public void testAccessibilityPaneTitle_parentGone_isSentOnDisappearance() throws Throwable {
+        final Activity activity = mActivityTestRule.getActivity();
+        mActivityTestRule.runOnUiThread(() -> {
+            mChildView = activity.findViewById(androidx.core.test.R.id.view);
+            // On KitKat, some delegate methods aren't called for non-important views
+            ViewCompat.setImportantForAccessibility(mChildView,
+                    View.IMPORTANT_FOR_ACCESSIBILITY_YES);
+        });
+        final CharSequence title = "Sample title";
+        ViewCompat.setAccessibilityPaneTitle(mChildView, title);
+
+        // Validity check
+        assertEquals(ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES,
+                ViewCompat.getImportantForAccessibility(mChildView));
+        assertEquals(mChildView.getVisibility(), View.VISIBLE);
+
+        sUiAutomation.executeAndWaitForEvent(
+                () -> {
+                    try {
+                        mActivityTestRule.runOnUiThread(() -> {
+                            mView.setVisibility(View.INVISIBLE);
+                            if (Build.VERSION.SDK_INT < 28) {
+                                mView.getViewTreeObserver().dispatchOnGlobalLayout();
+                            }
+                        });
+                    } catch (Throwable throwable) {
+                        throwable.printStackTrace();
+                    }
+                },
+                event -> {
+                    boolean isWindowStateChanged = event.getEventType()
+                            == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED;
+                    int isPaneTitle = (event.getContentChangeTypes()
+                            & AccessibilityEvent.CONTENT_CHANGE_TYPE_PANE_DISAPPEARED);
+                    // onInitializeA11yEvent was not called in 28, so package name was not set
+                    boolean isFromThisPackage = Build.VERSION.SDK_INT == 28
+                            || TextUtils.equals(event.getPackageName(), activity.getPackageName());
+                    boolean hasTitleText = false;
+                    if (event.getText().size() > 0) {
+                        hasTitleText = event.getText().get(0).equals(title);
+                    }
+                    return isWindowStateChanged
+                            && (isPaneTitle != 0)
+                            && isFromThisPackage
+                            && hasTitleText;
+                },
+                TIMEOUT_ASYNC_PROCESSING);
     }
 
     @Test
@@ -246,9 +363,10 @@ public class AccessibilityDelegateCompatTest extends
                 () -> {
                     try {
                         mActivityTestRule.runOnUiThread(() -> {
-                            // Update the AccessibilityPaneVisibilityManager
                             mView.setVisibility(View.INVISIBLE);
-                            mView.getViewTreeObserver().dispatchOnGlobalLayout();
+                            if (Build.VERSION.SDK_INT < 28) {
+                                mView.getViewTreeObserver().dispatchOnGlobalLayout();
+                            }
                         });
                     } catch (Throwable throwable) {
                         throwable.printStackTrace();
@@ -461,7 +579,7 @@ public class AccessibilityDelegateCompatTest extends
     }
 
     @Test
-    public void testAccessiblityDelegateStillWorksAfterCompatImplicitlyAdded() {
+    public void testAccessibilityDelegateStillWorksAfterCompatImplicitlyAdded() {
         View.AccessibilityDelegate mockDelegate = mock(View.AccessibilityDelegate.class);
         mView.setAccessibilityDelegate(mockDelegate);
 
@@ -487,10 +605,14 @@ public class AccessibilityDelegateCompatTest extends
                     boolean isFromThisPackage = Build.VERSION.SDK_INT == 28
                             || TextUtils.equals(event.getPackageName(),
                             activity.getPackageName());
-                    boolean isFromThisSource =
-                            event.getSource().equals(mView.createAccessibilityNodeInfo());
-                    return isWindowStateChanged && (isPaneTitle != 0) && isFromThisPackage
-                            && isFromThisSource;
+
+                    boolean isSourceNull = event.getSource() == null;
+                    boolean isFromThisSource = !isSourceNull
+                            && event.getSource().equals(mView.createAccessibilityNodeInfo());
+                    // Don't check source if source is null.
+                    return
+                            isWindowStateChanged && (isPaneTitle != 0) && isFromThisPackage
+                            && (isSourceNull || isFromThisSource);
                 },
                 TIMEOUT_ASYNC_PROCESSING);
     }
