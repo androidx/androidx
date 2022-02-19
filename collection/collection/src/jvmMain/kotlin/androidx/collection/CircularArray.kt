@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,252 +13,257 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.collection;
+
+package androidx.collection
 
 /**
  * CircularArray is a generic circular array data structure that provides O(1) random read, O(1)
  * prepend and O(1) append. The CircularArray automatically grows its capacity when number of added
  * items is over its capacity.
  */
-public final class CircularArray<E> {
-    private E[] mElements;
-    private int mHead;
-    private int mTail;
-    private int mCapacityBitmask;
+public class CircularArray<E>
 
-    @SuppressWarnings("unchecked")
-    private void doubleCapacity() {
-        int n = mElements.length;
-        int r = n - mHead;
-        int newCapacity = n << 1;
-        if (newCapacity < 0) {
-            throw new RuntimeException("Max array capacity exceeded");
-        }
-        Object[] a = new Object[newCapacity];
-        System.arraycopy(mElements, mHead, a, 0, r);
-        System.arraycopy(mElements, 0, a, r, mHead);
-        mElements = (E[]) a;
-        mHead = 0;
-        mTail = n;
-        mCapacityBitmask = newCapacity - 1;
-    }
+/**
+ * Creates a circular array with capacity for at least [minCapacity] elements.
+ *
+ * @param minCapacity the minimum capacity, between 1 and 2^30 inclusive
+ */
+@JvmOverloads public constructor(minCapacity: Int = 8) {
+    private var elements: Array<E?>
+    private var head = 0
+    private var tail = 0
+    private var capacityBitmask: Int
 
-    /**
-     * Creates a circular array with default capacity.
-     */
-    public CircularArray() {
-        this(8);
-    }
-
-    /**
-     * Creates a circular array with capacity for at least {@code minCapacity}
-     * elements.
-     *
-     * @param minCapacity the minimum capacity, between 1 and 2^30 inclusive
-     */
-    @SuppressWarnings("unchecked")
-    public CircularArray(int minCapacity) {
-        if (minCapacity < 1) {
-            throw new IllegalArgumentException("capacity must be >= 1");
-        }
-        if (minCapacity > (2 << 29)) {
-            throw new IllegalArgumentException("capacity must be <= 2^30");
-        }
+    init {
+        require(minCapacity >= 1) { "capacity must be >= 1" }
+        require(minCapacity <= 2 shl 29) { "capacity must be <= 2^30" }
 
         // If minCapacity isn't a power of 2, round up to the next highest
         // power of 2.
-        final int arrayCapacity;
-        if (Integer.bitCount(minCapacity) != 1) {
-            arrayCapacity = Integer.highestOneBit(minCapacity - 1) << 1;
+        val arrayCapacity: Int = if (Integer.bitCount(minCapacity) != 1) {
+            Integer.highestOneBit(minCapacity - 1) shl 1
         } else {
-            arrayCapacity = minCapacity;
+            minCapacity
         }
+        capacityBitmask = arrayCapacity - 1
+        @Suppress("UNCHECKED_CAST")
+        elements = arrayOfNulls<Any?>(arrayCapacity) as Array<E?>
+    }
 
-        mCapacityBitmask = arrayCapacity - 1;
-        mElements = (E[]) new Object[arrayCapacity];
+    private fun doubleCapacity() {
+        val n = elements.size
+        val r = n - head
+        val newCapacity = n shl 1
+        if (newCapacity < 0) {
+            throw RuntimeException("Max array capacity exceeded")
+        }
+        @Suppress("UNCHECKED_CAST")
+        val a = arrayOfNulls<Any?>(newCapacity) as Array<E?>
+        elements.copyInto(destination = a, destinationOffset = 0, startIndex = head, endIndex = n)
+        elements.copyInto(destination = a, destinationOffset = r, startIndex = 0, endIndex = head)
+        elements = a
+        head = 0
+        tail = n
+        capacityBitmask = newCapacity - 1
     }
 
     /**
-     * Add an element in front of the CircularArray.
-     * @param e  Element to add.
+     * Add an element in front of the [CircularArray].
+     *
+     * @param element Element to add.
      */
-    public void addFirst(E e) {
-        mHead = (mHead - 1) & mCapacityBitmask;
-        mElements[mHead] = e;
-        if (mHead == mTail) {
-            doubleCapacity();
+    public fun addFirst(element: E) {
+        head = (head - 1) and capacityBitmask
+        elements[head] = element
+        if (head == tail) {
+            doubleCapacity()
         }
     }
 
     /**
      * Add an element at end of the CircularArray.
-     * @param e  Element to add.
+     *
+     * @param element Element to add.
      */
-    public void addLast(E e) {
-        mElements[mTail] = e;
-        mTail = (mTail + 1) & mCapacityBitmask;
-        if (mTail == mHead) {
-            doubleCapacity();
+    public fun addLast(element: E) {
+        elements[tail] = element
+        tail = tail + 1 and capacityBitmask
+        if (tail == head) {
+            doubleCapacity()
         }
     }
 
     /**
-     * Remove first element from front of the CircularArray and return it.
-     * @return  The element removed.
-     * @throws ArrayIndexOutOfBoundsException if CircularArray is empty.
+     * Remove first element from front of the [CircularArray] and return it.
+     *
+     * @return The element removed.
+     * @throws ArrayIndexOutOfBoundsException if [CircularArray] is empty.
      */
-    public E popFirst() {
-        if (mHead == mTail) {
-            throw new ArrayIndexOutOfBoundsException();
+    public fun popFirst(): E {
+        if (head == tail) {
+            throw ArrayIndexOutOfBoundsException()
         }
-        E result = mElements[mHead];
-        mElements[mHead] = null;
-        mHead = (mHead + 1) & mCapacityBitmask;
-        return result;
+        val result = elements[head]
+        elements[head] = null
+        head = (head + 1) and capacityBitmask
+
+        @Suppress("UNCHECKED_CAST")
+        return result as E
     }
 
     /**
-     * Remove last element from end of the CircularArray and return it.
-     * @return  The element removed.
-     * @throws ArrayIndexOutOfBoundsException if CircularArray is empty.
+     * Remove last element from end of the [CircularArray] and return it.
+     *
+     * @return The element removed.
+     * @throws ArrayIndexOutOfBoundsException if [CircularArray] is empty.
      */
-    public E popLast() {
-        if (mHead == mTail) {
-            throw new ArrayIndexOutOfBoundsException();
+    public fun popLast(): E {
+        if (head == tail) {
+            throw ArrayIndexOutOfBoundsException()
         }
-        int t = (mTail - 1) & mCapacityBitmask;
-        E result = mElements[t];
-        mElements[t] = null;
-        mTail = t;
-        return result;
+        val t = (tail - 1) and capacityBitmask
+        val result = elements[t]
+        elements[t] = null
+        tail = t
+
+        @Suppress("UNCHECKED_CAST")
+        return result as E
     }
 
     /**
-     * Remove all elements from the CircularArray.
+     * Remove all elements from the [CircularArray].
      */
-    public void clear() {
-        removeFromStart(size());
+    public fun clear() {
+        removeFromStart(size())
     }
 
     /**
-     * Remove multiple elements from front of the CircularArray, ignore when numOfElements
-     * is less than or equals to 0.
-     * @param numOfElements  Number of elements to remove.
-     * @throws ArrayIndexOutOfBoundsException if numOfElements is larger than
-     *         {@link #size()}
+     * Remove multiple elements from front of the [CircularArray], ignore when [count]
+     * is less than or equal to 0.
+     *
+     * @param count Number of elements to remove.
+     * @throws ArrayIndexOutOfBoundsException if [count] is larger than [size]
      */
-    public void removeFromStart(int numOfElements) {
-        if (numOfElements <= 0) {
-            return;
+    public fun removeFromStart(count: Int) {
+        if (count <= 0) {
+            return
         }
-        if (numOfElements > size()) {
-            throw new ArrayIndexOutOfBoundsException();
+        if (count > size()) {
+            throw ArrayIndexOutOfBoundsException()
         }
-        int end = mElements.length;
-        if (numOfElements < end - mHead) {
-            end = mHead + numOfElements;
+
+        var numOfElements = count
+        var end = elements.size
+        if (numOfElements < end - head) {
+            end = head + numOfElements
         }
-        for (int i = mHead; i < end; i++) {
-            mElements[i] = null;
+        for (i in head until end) {
+            elements[i] = null
         }
-        int removed = (end - mHead);
-        numOfElements -= removed;
-        mHead = (mHead + removed) & mCapacityBitmask;
+        val removed = end - head
+        numOfElements -= removed
+        head = head + removed and capacityBitmask
         if (numOfElements > 0) {
-            // mHead wrapped to 0
-            for (int i = 0; i < numOfElements; i++) {
-                mElements[i] = null;
+            // head wrapped to 0
+            for (i in 0 until numOfElements) {
+                elements[i] = null
             }
-            mHead = numOfElements;
+            head = numOfElements
         }
     }
 
     /**
-     * Remove multiple elements from end of the CircularArray, ignore when numOfElements
+     * Remove multiple elements from end of the [CircularArray], ignore when [count]
      * is less than or equals to 0.
-     * @param numOfElements  Number of elements to remove.
-     * @throws ArrayIndexOutOfBoundsException if numOfElements is larger than
-     *         {@link #size()}
+     *
+     * @param count Number of elements to remove.
+     * @throws ArrayIndexOutOfBoundsException if [count] is larger than [size]
      */
-    public void removeFromEnd(int numOfElements) {
-        if (numOfElements <= 0) {
-            return;
+    public fun removeFromEnd(count: Int) {
+        if (count <= 0) {
+            return
         }
-        if (numOfElements > size()) {
-            throw new ArrayIndexOutOfBoundsException();
+        if (count > size()) {
+            throw ArrayIndexOutOfBoundsException()
         }
-        int start = 0;
-        if (numOfElements < mTail) {
-            start = mTail - numOfElements;
+
+        var numOfElements = count
+        var start = 0
+        if (numOfElements < tail) {
+            start = tail - numOfElements
         }
-        for (int i = start; i < mTail; i++) {
-            mElements[i] = null;
+        for (i in start until tail) {
+            elements[i] = null
         }
-        int removed = (mTail - start);
-        numOfElements -= removed;
-        mTail = mTail - removed;
+        val removed = tail - start
+        numOfElements -= removed
+        tail -= removed
         if (numOfElements > 0) {
-            // mTail wrapped to mElements.length
-            mTail = mElements.length;
-            int newTail = mTail - numOfElements;
-            for (int i = newTail; i < mTail; i++) {
-                mElements[i] = null;
+            // tail wrapped to elements.length
+            tail = elements.size
+            val newTail = tail - numOfElements
+            for (i in newTail until tail) {
+                elements[i] = null
             }
-            mTail = newTail;
+            tail = newTail
         }
     }
 
     /**
-     * Get first element of the CircularArray.
+     * Get first element of the [CircularArray].
+     *
      * @return The first element.
-     * @throws {@link ArrayIndexOutOfBoundsException} if CircularArray is empty.
+     * @throws [ArrayIndexOutOfBoundsException] if [CircularArray] is empty.
      */
-    public E getFirst() {
-        if (mHead == mTail) {
-            throw new ArrayIndexOutOfBoundsException();
+    public val first: E
+        get() {
+            if (head == tail) {
+                throw ArrayIndexOutOfBoundsException()
+            }
+            return elements[head]!!
         }
-        return mElements[mHead];
-    }
 
     /**
-     * Get last element of the CircularArray.
+     * Get last element of the [CircularArray].
+     *
      * @return The last element.
-     * @throws {@link ArrayIndexOutOfBoundsException} if CircularArray is empty.
+     * @throws [ArrayIndexOutOfBoundsException] if [CircularArray] is empty.
      */
-    public E getLast() {
-        if (mHead == mTail) {
-            throw new ArrayIndexOutOfBoundsException();
+    public val last: E
+        get() {
+            if (head == tail) {
+                throw ArrayIndexOutOfBoundsException()
+            }
+            return elements[tail - 1 and capacityBitmask]!!
         }
-        return mElements[(mTail - 1) & mCapacityBitmask];
-    }
 
     /**
-     * Get nth (0 <= n <= size()-1) element of the CircularArray.
-     * @param n  The zero based element index in the CircularArray.
+     * Get nth (0 <= n <= size()-1) element of the [CircularArray].
+     *
+     * @param index The zero based element index in the [CircularArray].
      * @return The nth element.
-     * @throws {@link ArrayIndexOutOfBoundsException} if n < 0 or n >= size().
+     * @throws [ArrayIndexOutOfBoundsException] if n < 0 or n >= size().
      */
-    public E get(int n) {
-        if (n < 0 || n >= size()) {
-            throw new ArrayIndexOutOfBoundsException();
+    public operator fun get(index: Int): E {
+        if (index < 0 || index >= size()) {
+            throw ArrayIndexOutOfBoundsException()
         }
-        return mElements[(mHead + n) & mCapacityBitmask];
+        return elements[(head + index) and capacityBitmask]!!
     }
 
     /**
-     * Get number of elements in the CircularArray.
-     * @return Number of elements in the CircularArray.
+     * Get number of elements in the [CircularArray].
+     *
+     * @return Number of elements in the [CircularArray].
      */
-    public int size() {
-        return (mTail - mHead) & mCapacityBitmask;
+    public fun size(): Int {
+        return (tail - head) and capacityBitmask
     }
 
     /**
-     * Return true if size() is 0.
-     * @return true if size() is 0.
+     * Return `true` if [size] is 0.
+     *
+     * @return `true` if [size] is 0.
      */
-    public boolean isEmpty() {
-        return mHead == mTail;
-    }
-
+    public fun isEmpty(): Boolean = head == tail
 }

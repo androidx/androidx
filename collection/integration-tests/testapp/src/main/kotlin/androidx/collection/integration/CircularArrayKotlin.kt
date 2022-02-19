@@ -23,12 +23,10 @@ import androidx.collection.CircularArray
 fun circularArraySourceCompatibility(): Boolean {
     val circularArray = CircularArray<Int>()
 
-    @Suppress("UsePropertyAccessSyntax", "ReplaceCallWithBinaryOperator", "ReplaceGetOrSet")
+    @Suppress("ReplaceCallWithBinaryOperator", "ReplaceGetOrSet")
     return circularArray.first.equals(null) &&
-        circularArray.getFirst().equals(null) &&
         circularArray.last.equals(null) &&
-        circularArray.getLast().equals(null) &&
         circularArray[0].equals(circularArray.get(1)) &&
-        circularArray.isEmpty && circularArray.isEmpty() &&
+        circularArray.isEmpty() &&
         circularArray.size().equals(0)
 }

@@ -42,20 +42,22 @@ package androidx.collection {
   }
 
   public final class CircularArray<E> {
+    ctor public CircularArray(optional int minCapacity);
     ctor public CircularArray();
-    ctor public CircularArray(int);
-    method public void addFirst(E!);
-    method public void addLast(E!);
+    method public void addFirst(E? element);
+    method public void addLast(E? element);
     method public void clear();
-    method public E! get(int);
+    method public operator E! get(int index);
     method public E! getFirst();
     method public E! getLast();
     method public boolean isEmpty();
     method public E! popFirst();
     method public E! popLast();
-    method public void removeFromEnd(int);
-    method public void removeFromStart(int);
+    method public void removeFromEnd(int count);
+    method public void removeFromStart(int count);
     method public int size();
+    property public final E! first;
+    property public final E! last;
   }
 
   public final class CircularIntArray {
