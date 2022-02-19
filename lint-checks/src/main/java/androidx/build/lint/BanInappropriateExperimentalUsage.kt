@@ -67,12 +67,12 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
             }
 
             /**
-             * If the annotation under evaluation is [kotlin.OptIn], extract and evaluate the
-             * annotation(s) referenced by @OptIn - denoted by [kotlin.OptIn.markerClass].
+             * If the annotation under evaluation is a form of @OptIn, extract and evaluate the
+             * annotation(s) referenced by @OptIn - denoted by its markerClass.
              */
-            if (signature != null && signature == KOTLIN_OPT_IN_ANNOTATION) {
+            if (signature != null && APPLICATION_OPT_IN_ANNOTATIONS.contains(signature)) {
                 if (DEBUG) {
-                    println("Processing $KOTLIN_OPT_IN_ANNOTATION annotation")
+                    println("Processing $signature annotation")
                 }
 
                 val markerClass: UExpression? = node.findAttributeValue("markerClass")
@@ -83,7 +83,7 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
                 }
 
                 /**
-                 * [kotlin.OptIn] has no effect if [kotlin.OptIn.markerClass] isn't provided.
+                 * @OptIn has no effect if its markerClass isn't provided.
                  * Similarly, if [getUElementsFromOptInMarkerClass] returns an empty list then
                  * there isn't anything more to inspect.
                  *
@@ -203,7 +203,6 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
          */
         private const val KOTLIN_EXPERIMENTAL_ANNOTATION = "kotlin.Experimental"
 
-        private const val KOTLIN_OPT_IN_ANNOTATION = "kotlin.OptIn"
         private const val KOTLIN_REQUIRES_OPT_IN_ANNOTATION = "kotlin.RequiresOptIn"
         private const val JAVA_EXPERIMENTAL_ANNOTATION =
             "androidx.annotation.experimental.Experimental"
@@ -215,6 +214,11 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
             KOTLIN_EXPERIMENTAL_ANNOTATION,
             JAVA_REQUIRES_OPT_IN_ANNOTATION,
             KOTLIN_REQUIRES_OPT_IN_ANNOTATION,
+        )
+
+        private val APPLICATION_OPT_IN_ANNOTATIONS = listOf(
+            "androidx.annotation.OptIn",
+            "kotlin.OptIn",
         )
 
         // This must match the definition in ExportAtomicLibraryGroupsToTextTask
