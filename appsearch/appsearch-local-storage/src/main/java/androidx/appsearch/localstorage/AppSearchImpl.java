@@ -2132,12 +2132,13 @@ public final class AppSearchImpl implements Closeable {
                     }
                     for (String databaseName : databaseNames) {
                         String removedPrefix = createPrefix(packageName, databaseName);
-                        mSchemaMapLocked.remove(removedPrefix);
+                        Map<String, SchemaTypeConfigProto> removedSchemas =
+                                mSchemaMapLocked.remove(removedPrefix);
+                        mVisibilityStoreLocked.removeVisibility(removedSchemas.keySet());
                         mNamespaceMapLocked.remove(removedPrefix);
                     }
                 }
             }
-            //TODO(b/145759910) clear visibility setting for package.
         } finally {
             mReadWriteLock.writeLock().unlock();
         }
