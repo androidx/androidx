@@ -41,7 +41,7 @@ import org.junit.Test
 @LargeTest
 // TODO(b/218430372): Modify SdkSuppress annotation in tests for backward compatibility of
 // setApplicationLocales
-@SdkSuppress(maxSdkVersion = 31)
+@SdkSuppress(minSdkVersion = 18, maxSdkVersion = 31)
 class LocalesRotateRecreatesActivityWithConfigTestCase() {
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()

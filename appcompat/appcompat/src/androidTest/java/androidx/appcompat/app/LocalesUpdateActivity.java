@@ -112,7 +112,7 @@ public class LocalesUpdateActivity extends BaseTestActivity {
             return LocaleListCompat.forLanguageTags(AppCompatDelegateImpl.Api21Impl
                     .toLanguageTag(conf.locale));
         } else {
-            return LocaleListCompat.forLanguageTags(conf.locale.getLanguage());
+            return LocaleListCompat.create(conf.locale);
         }
     }
 
