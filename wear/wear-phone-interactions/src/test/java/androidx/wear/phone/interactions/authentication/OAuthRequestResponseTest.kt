@@ -23,7 +23,6 @@ import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.phone.interactions.WearPhoneInteractionsTestRunner
 import com.google.common.truth.Truth.assertThat
-import org.junit.Assert
 import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
@@ -495,11 +494,10 @@ public class OAuthRequestResponseTest {
     }
 
     @Test
-    public fun testGetRedirectUrl_builtWithConstructor_failure() {
+    public fun testGetRedirectUrl_builtWithConstructor_empty() {
         val requestUrl = Uri.parse(authProviderUrl)
+        val request = OAuthRequest(appPackageName, requestUrl)
 
-        Assert.assertThrows(
-            NullPointerException::class.java
-        ) { OAuthRequest(appPackageName, requestUrl) }
+        assertThat(request.redirectUrl).isEmpty()
     }
 }
