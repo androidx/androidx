@@ -29,3 +29,116 @@ package androidx.health.data.client.metadata {
 
 }
 
+package androidx.health.data.client.records {
+
+  public final class ActivityTypes {
+    field public static final String BACK_EXTENSION = "back_extension";
+    field public static final String BADMINTON = "badminton";
+    field public static final String BARBELL_SHOULDER_PRESS = "barbell_shoulder_press";
+    field public static final String BASEBALL = "baseball";
+    field public static final String BASKETBALL = "basketball";
+    field public static final String BENCH_PRESS = "bench_press";
+    field public static final String BENCH_SIT_UP = "bench_sit_up";
+    field public static final String BIKING = "biking";
+    field public static final String BIKING_STATIONARY = "biking_stationary";
+    field public static final String BOOT_CAMP = "boot_camp";
+    field public static final String BOXING = "boxing";
+    field public static final String BURPEE = "burpee";
+    field public static final String CALISTHENICS = "calisthenics";
+    field public static final String CRICKET = "cricket";
+    field public static final String CRUNCH = "crunch";
+    field public static final String DANCING = "dancing";
+    field public static final String DEADLIFT = "deadlift";
+    field public static final String DUMBBELL_CURL_LEFT_ARM = "dumbbell_curl_left_arm";
+    field public static final String DUMBBELL_CURL_RIGHT_ARM = "dumbbell_curl_right_arm";
+    field public static final String DUMBBELL_FRONT_RAISE = "dumbbell_front_raise";
+    field public static final String DUMBBELL_LATERAL_RAISE = "dumbbell_lateral_raise";
+    field public static final String DUMBBELL_TRICEPS_EXTENSION_LEFT_ARM = "dumbbell_triceps_extension_left_arm";
+    field public static final String DUMBBELL_TRICEPS_EXTENSION_RIGHT_ARM = "dumbbell_triceps_extension_right_arm";
+    field public static final String DUMBBELL_TRICEPS_EXTENSION_TWO_ARM = "dumbbell_triceps_extension_two_arm";
+    field public static final String ELLIPTICAL = "elliptical";
+    field public static final String EXERCISE_CLASS = "exercise_class";
+    field public static final String FENCING = "fencing";
+    field public static final String FOOTBALL_AMERICAN = "football_american";
+    field public static final String FOOTBALL_AUSTRALIAN = "football_australian";
+    field public static final String FORWARD_TWIST = "forward_twist";
+    field public static final String FRISBEE_DISC = "frisbee_disc";
+    field public static final String GOLF = "golf";
+    field public static final String GUIDED_BREATHING = "guided_breathing";
+    field public static final String GYMNASTICS = "gymnastics";
+    field public static final String HANDBALL = "handball";
+    field public static final String HIGH_INTENSITY_INTERVAL_TRAINING = "high_intensity_interval_training";
+    field public static final String HIKING = "hiking";
+    field public static final String ICE_HOCKEY = "ice_hockey";
+    field public static final String ICE_SKATING = "ice_skating";
+    field public static final androidx.health.data.client.records.ActivityTypes INSTANCE;
+    field public static final String JUMPING_JACK = "jumping_jack";
+    field public static final String JUMP_ROPE = "jump_rope";
+    field public static final String LAT_PULL_DOWN = "lat_pull_down";
+    field public static final String LUNGE = "lunge";
+    field public static final String MARTIAL_ARTS = "martial_arts";
+    field public static final String MEDITATION = "meditation";
+    field public static final String PADDLING = "paddling";
+    field public static final String PARA_GLIDING = "para_gliding";
+    field public static final String PILATES = "pilates";
+    field public static final String PLANK = "plank";
+    field public static final String RACQUETBALL = "racquetball";
+    field public static final String ROCK_CLIMBING = "rock_climbing";
+    field public static final String ROLLER_HOCKEY = "roller_hockey";
+    field public static final String ROWING = "rowing";
+    field public static final String ROWING_MACHINE = "rowing_machine";
+    field public static final String RUGBY = "rugby";
+    field public static final String RUNNING = "running";
+    field public static final String RUNNING_TREADMILL = "running_treadmill";
+    field public static final String SAILING = "sailing";
+    field public static final String SCUBA_DIVING = "scuba_diving";
+    field public static final String SKATING = "skating";
+    field public static final String SKIING = "skiing";
+    field public static final String SNOWBOARDING = "snowboarding";
+    field public static final String SNOWSHOEING = "snowshoeing";
+    field public static final String SOCCER = "soccer";
+    field public static final String SOFTBALL = "softball";
+    field public static final String SQUASH = "squash";
+    field public static final String SQUAT = "squat";
+    field public static final String STAIR_CLIMBING = "stair_climbing";
+    field public static final String STAIR_CLIMBING_MACHINE = "stair_climbing_machine";
+    field public static final String STRENGTH_TRAINING = "strength_training";
+    field public static final String STRETCHING = "stretching";
+    field public static final String SURFING = "surfing";
+    field public static final String SWIMMING_OPEN_WATER = "swimming_open_water";
+    field public static final String SWIMMING_POOL = "swimming_pool";
+    field public static final String TABLE_TENNIS = "table_tennis";
+    field public static final String TENNIS = "tennis";
+    field public static final String UPPER_TWIST = "upper_twist";
+    field public static final String VOLLEYBALL = "volleyball";
+    field public static final String WALKING = "walking";
+    field public static final String WATER_POLO = "water_polo";
+    field public static final String WEIGHTLIFTING = "weightlifting";
+    field public static final String WORKOUT = "workout";
+    field public static final String YOGA = "yoga";
+  }
+
+  public final class BloodPressureMeasurementLocations {
+    field public static final androidx.health.data.client.records.BloodPressureMeasurementLocations INSTANCE;
+    field public static final String LEFT_UPPER_ARM = "left_upper_arm";
+    field public static final String LEFT_WRIST = "left_wrist";
+    field public static final String RIGHT_UPPER_ARM = "right_upper_arm";
+    field public static final String RIGHT_WRIST = "right_wrist";
+  }
+
+  public final class BodyPositions {
+    field public static final androidx.health.data.client.records.BodyPositions INSTANCE;
+    field public static final String LYING_DOWN = "lying_down";
+    field public static final String RECLINING = "reclining";
+    field public static final String SITTING_DOWN = "sitting_down";
+    field public static final String STANDING_UP = "standing_up";
+  }
+
+  public final class OvulationTestResults {
+    field public static final androidx.health.data.client.records.OvulationTestResults INSTANCE;
+    field public static final String NEGATIVE = "negative";
+    field public static final String POSITIVE = "positive";
+  }
+
+}
+
