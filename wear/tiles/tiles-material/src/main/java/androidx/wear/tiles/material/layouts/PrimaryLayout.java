@@ -46,6 +46,7 @@ import androidx.wear.tiles.ModifiersBuilders.Modifiers;
 import androidx.wear.tiles.ModifiersBuilders.Padding;
 import androidx.wear.tiles.TimelineBuilders.Timeline;
 import androidx.wear.tiles.TimelineBuilders.TimelineEntry;
+import androidx.wear.tiles.material.CompactChip;
 import androidx.wear.tiles.proto.LayoutElementProto;
 
 /**
@@ -76,7 +77,11 @@ public class PrimaryLayout implements LayoutElement {
             this.mDeviceParameters = deviceParameters;
         }
 
-        /** Sets the primary compact chip which will be at the bottom. */
+        /**
+         * Sets the element which is in the slot at the bottom of the layout. Note that it is
+         * accepted to pass in any {@link LayoutElement}, but it is strongly recommended to add a
+         * {@link CompactChip} as the layout is optimized for it.
+         */
         @NonNull
         @SuppressWarnings("MissingGetterMatchingBuilder")
         // There is no direct matching getter for this setter as the serialized format of the
