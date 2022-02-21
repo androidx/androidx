@@ -27,8 +27,10 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
@@ -38,6 +40,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlin.math.PI
@@ -45,6 +48,30 @@ import kotlin.math.abs
 import kotlin.math.asin
 import kotlin.math.max
 import kotlinx.coroutines.delay
+
+/**
+ * Enum used by adapters to specify if the Position Indicator needs to be shown, hidden,
+ * or hidden after a small delay.
+ */
+@Suppress("INLINE_CLASS_DEPRECATED")
+public inline class ShowResult internal constructor(internal val value: Int) {
+    companion object {
+        /**
+         * Show the Position Indicator.
+         */
+        val Show = ShowResult(1)
+
+        /**
+         * Hide the Position Indicator.
+         */
+        val Hide = ShowResult(2)
+
+        /**
+         * Hide the Position Indicator after 2 seconds.
+         */
+        val AutoHide = ShowResult(3)
+    }
+}
 
 /**
  * An object representing the relative position of a scrollbar or rolling side button or rotating
@@ -81,6 +108,15 @@ interface PositionIndicatorState {
 //        fromInclusive = true, from = 0.0, toInclusive = true, to = 1.0
 //    )
     fun sizeFraction(scrollableContainerSizePx: Float): Float
+
+    /**
+     * Should we show the Position Indicator
+     *
+     * @param scrollableContainerSizePx the height or width of the container
+     * in pixels depending on orientation of the indicator, (height for vertical, width for
+     * horizontal)
+     */
+    fun shouldShow(scrollableContainerSizePx: Float): ShowResult
 }
 
 /**
@@ -198,7 +234,6 @@ public fun PositionIndicator(
     paddingRight = 5.dp,
     color = color,
     modifier = modifier,
-    autoHide = false,
     reverseDirection = reverseDirection
 )
 
@@ -229,7 +264,6 @@ public fun PositionIndicator(
  * @param modifier The modifier to be applied to the component
  * @param color the color to draw the active part of the indicator in
  * @param background the color to draw the non-active part of the position indicator.
- * @param autoHide whether the indicator should be automatically hidden after showing the change in
  * @param reverseDirection Reverses direction of PositionIndicator if true
  */
 @Composable
@@ -241,25 +275,28 @@ public fun PositionIndicator(
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colors.onBackground,
     background: Color = MaterialTheme.colors.onBackground.copy(alpha = 0.3f),
-    autoHide: Boolean = true,
     reverseDirection: Boolean = false
 ) {
     val isScreenRound = isRoundDevice()
 
-    val actuallyVisible = remember { mutableStateOf(true) }
+    val actuallyVisible = remember { mutableStateOf(false) }
     val indicatorPosition = if (reverseDirection) {
         1 - state.positionFraction
     } else {
         state.positionFraction
     }
 
-    if (autoHide) {
-        // Note that neither the exact value passed to sizeFraction nor it's return matter, we just
-        // need to detect if the size is changing (i.e. we are scrolling/changing volume/etc).
-        LaunchedEffect(indicatorPosition, state.sizeFraction(1000f)) {
-            actuallyVisible.value = true
-            delay(2000)
-            actuallyVisible.value = false
+    var containerHeight by remember { mutableStateOf(1f) }
+    val indicatorSize = state.sizeFraction(containerHeight)
+
+    when (state.shouldShow(containerHeight)) {
+        ShowResult.Show -> actuallyVisible.value = true
+        ShowResult.Hide -> actuallyVisible.value = false
+        ShowResult.AutoHide -> if (actuallyVisible.value) {
+            LaunchedEffect(true) {
+                delay(2000)
+                actuallyVisible.value = false
+            }
         }
     }
 
@@ -271,11 +308,11 @@ public fun PositionIndicator(
         Box(
             modifier = modifier
                 .fillMaxSize()
+                .onGloballyPositioned {
+                    containerHeight = it.size.height.toFloat()
+                }
                 .drawWithContent {
                     val indicatorWidthPx = indicatorWidth.toPx()
-
-                    val actualHeight = size.height
-                    val indicatorSize = state.sizeFraction(actualHeight)
 
                     // We want position = 0 be the indicator aligned at the top of its area and
                     // position = 1 be aligned at the bottom of the area.
@@ -336,6 +373,8 @@ internal class FractionPositionIndicatorState(
         (other as? FractionPositionIndicatorState)?.fraction?.invoke() == fraction()
 
     override fun hashCode(): Int = fraction().hashCode()
+
+    override fun shouldShow(scrollableContainerSizePx: Float) = ShowResult.Show
 }
 
 /**
@@ -362,6 +401,14 @@ internal class ScrollStateAdapter(private val scrollState: ScrollState) : Positi
         } else {
             scrollableContainerSizePx / (scrollableContainerSizePx + scrollState.maxValue)
         }
+
+    override fun shouldShow(scrollableContainerSizePx: Float) = if (scrollState.maxValue == 0) {
+        ShowResult.Hide
+    } else if (scrollState.isScrollInProgress) {
+        ShowResult.Show
+    } else {
+        ShowResult.AutoHide
+    }
 
     override fun equals(other: Any?): Boolean {
         return (other as? ScrollStateAdapter)?.scrollState == scrollState
@@ -415,6 +462,23 @@ internal class ScalingLazyColumnStateAdapter(
             (decimalLastItemIndex - decimalFirstItemIndex) /
                 state.layoutInfo.totalItemsCount.toFloat()
         }
+
+    override fun shouldShow(scrollableContainerSizePx: Float): ShowResult {
+        val canScroll = state.layoutInfo.visibleItemsInfo.isNotEmpty() && run {
+            val firstItem = state.layoutInfo.visibleItemsInfo.first()
+            val lastItem = state.layoutInfo.visibleItemsInfo.last()
+            val firstItemStartOffset = firstItem.startOffset(state.anchorType.value!!)
+            val lastItemEndOffset = lastItem.startOffset(state.anchorType.value!!) + lastItem.size
+            firstItem.index > 0 || firstItemStartOffset < 0f ||
+                lastItem.index < state.layoutInfo.totalItemsCount - 1 ||
+                lastItemEndOffset > scrollableContainerSizePx
+        }
+        return if (canScroll) {
+            if (state.isScrollInProgress) ShowResult.Show else ShowResult.AutoHide
+        } else {
+            ShowResult.Hide
+        }
+    }
 
     override fun hashCode(): Int {
         return state.hashCode()
@@ -515,6 +579,14 @@ internal class LazyColumnStateAdapter(
             (decimalLastItemIndex - decimalFirstItemIndex) /
                 state.layoutInfo.totalItemsCount.toFloat()
         }
+
+    override fun shouldShow(scrollableContainerSizePx: Float): ShowResult {
+        return if (sizeFraction(scrollableContainerSizePx) < 0.999f) {
+            if (state.isScrollInProgress) ShowResult.Show else ShowResult.AutoHide
+        } else {
+            ShowResult.Hide
+        }
+    }
 
     override fun hashCode(): Int {
         return state.hashCode()
