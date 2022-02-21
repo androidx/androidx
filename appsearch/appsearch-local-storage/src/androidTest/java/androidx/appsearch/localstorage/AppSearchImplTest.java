@@ -1409,6 +1409,13 @@ public class AppSearchImplTest {
             existingPackages.add(PrefixUtil.getPackageName(existingSchemas.get(i).getSchemaType()));
         }
 
+        // Create VisibilityDocument
+        VisibilityDocument visibilityDocument = new VisibilityDocument.Builder("schema")
+                .setNotDisplayedBySystem(true)
+                .addVisibleToPackage(new PackageIdentifier("pkgBar", new byte[32]))
+                .setCreationTimestampMillis(12345L)
+                .build();
+
         // Insert schema for package A and B.
         List<AppSearchSchema> schema =
                 ImmutableList.of(new AppSearchSchema.Builder("schema").build());
@@ -1416,7 +1423,7 @@ public class AppSearchImplTest {
                 "packageA",
                 "database",
                 schema,
-                /*visibilityDocuments=*/ Collections.emptyList(),
+                /*visibilityDocuments=*/ ImmutableList.of(visibilityDocument),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
@@ -1424,12 +1431,12 @@ public class AppSearchImplTest {
                 "packageB",
                 "database",
                 schema,
-                /*visibilityDocuments=*/ Collections.emptyList(),
+                /*visibilityDocuments=*/ ImmutableList.of(visibilityDocument),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
 
-        // Verify these two packages is stored in AppSearch
+        // Verify these two packages are stored in AppSearch.
         SchemaProto expectedProto = SchemaProto.newBuilder()
                 .addTypes(
                         SchemaTypeConfigProto.newBuilder()
@@ -1444,6 +1451,26 @@ public class AppSearchImplTest {
         assertThat(mAppSearchImpl.getSchemaProtoLocked().getTypesList())
                 .containsExactlyElementsIn(expectedTypes);
 
+        // Verify these two visibility documents are stored in AppSearch.
+        VisibilityDocument expectedVisibilityDocumentA =
+                new VisibilityDocument.Builder("packageA$database/schema")
+                        .setNotDisplayedBySystem(true)
+                        .addVisibleToPackage(new PackageIdentifier("pkgBar", new byte[32]))
+                        .setCreationTimestampMillis(12345L)
+                        .build();
+        VisibilityDocument expectedVisibilityDocumentB =
+                new VisibilityDocument.Builder("packageB$database/schema")
+                        .setNotDisplayedBySystem(true)
+                        .addVisibleToPackage(new PackageIdentifier("pkgBar", new byte[32]))
+                        .setCreationTimestampMillis(12345L)
+                        .build();
+        assertThat(mAppSearchImpl.mVisibilityStoreLocked
+                .getVisibility("packageA$database/schema"))
+                .isEqualTo(expectedVisibilityDocumentA);
+        assertThat(mAppSearchImpl.mVisibilityStoreLocked
+                .getVisibility("packageB$database/schema"))
+                .isEqualTo(expectedVisibilityDocumentB);
+
         // Prune packages
         mAppSearchImpl.prunePackageData(existingPackages);
 
@@ -1452,6 +1479,12 @@ public class AppSearchImplTest {
                 .containsExactlyElementsIn(existingSchemas);
         assertThat(mAppSearchImpl.getPackageToDatabases())
                 .containsExactlyEntriesIn(existingDatabases);
+
+        // Verify the VisibilitySetting is removed.
+        assertThat(mAppSearchImpl.mVisibilityStoreLocked
+                .getVisibility("packageA$database/schema")).isNull();
+        assertThat(mAppSearchImpl.mVisibilityStoreLocked
+                .getVisibility("packageB$database/schema")).isNull();
     }
 
     @Test
