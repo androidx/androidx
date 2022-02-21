@@ -41,8 +41,8 @@ import androidx.wear.tiles.proto.LayoutElementProto;
 /**
  * Tiles component {@link Text} that represents text object holding any information.
  *
- * <p>There are pre-built typography styles that can be obtained from constants in
- * {@link Typography}.
+ * <p>There are pre-built typography styles that can be obtained from constants in {@link
+ * FontStyle}.
  */
 public class Text implements LayoutElement {
     @NonNull private final LayoutElementBuilders.Text mText;
@@ -71,8 +71,8 @@ public class Text implements LayoutElement {
         }
 
         /**
-         * Sets the typography for the {@link Text}. If not set,
-         * {@link Typography#TYPOGRAPHY_TITLE1} will be used.
+         * Sets the typography for the {@link Text}. If not set, {@link
+         * Typography#TYPOGRAPHY_TITLE1} will be used.
          */
         @NonNull
         @SuppressWarnings("MissingGetterMatchingBuilder")
@@ -85,8 +85,7 @@ public class Text implements LayoutElement {
         }
 
         /**
-         * Sets the color for the {@link Text}. If not set, {@link Colors#ON_PRIMARY} will be
-         * used.
+         * Sets the color for the {@link Text}. If not set, {@link Colors#ON_PRIMARY} will be used.
          */
         @NonNull
         public Builder setColor(@NonNull ColorProp color) {

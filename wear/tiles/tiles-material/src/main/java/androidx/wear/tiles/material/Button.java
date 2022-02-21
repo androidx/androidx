@@ -32,7 +32,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.wear.tiles.ActionBuilders.Action;
 import androidx.wear.tiles.ColorBuilders.ColorProp;
 import androidx.wear.tiles.DimensionBuilders.ContainerDimension;
 import androidx.wear.tiles.DimensionBuilders.DpProp;
@@ -85,9 +84,7 @@ public class Button implements LayoutElement {
         @interface ButtonType {}
 
         @Nullable private LayoutElement mCustomContent;
-        @Nullable private LayoutElement.Builder mContent;
-        @NonNull private final Action mAction;
-        @NonNull private final String mClickableId;
+        @NonNull private final Clickable mClickable;
         @NonNull private String mContentDescription = "";
         @NonNull private DpProp mSize = DEFAULT_BUTTON_SIZE;
         @Nullable private String mText = null;
@@ -106,16 +103,11 @@ public class Button implements LayoutElement {
          * later set with one of the following ({@link #setIconContent}, {@link #setTextContent},
          * {@link #setImageContent}.
          *
-         * @param action Associated Actions for click events. When the Button is clicked it will
-         *     fire the associated action.
-         * @param clickableId The ID associated with the given action.
+         * @param clickable Associated {@link Clickable} for click events. When the Button is
+         *     clicked it will fire the associated action.
          */
-        // Action is not a functional interface (and should not be used as one), suppress the
-        // warning.
-        @SuppressWarnings("LambdaLast")
-        public Builder(@NonNull Action action, @NonNull String clickableId) {
-            mAction = action;
-            mClickableId = clickableId;
+        public Builder(@NonNull Clickable clickable) {
+            mClickable = clickable;
         }
 
         /**
@@ -286,11 +278,7 @@ public class Button implements LayoutElement {
         public Button build() {
             Modifiers.Builder modifiers =
                     new Modifiers.Builder()
-                            .setClickable(
-                                    new Clickable.Builder()
-                                            .setId(mClickableId)
-                                            .setOnClick(mAction)
-                                            .build())
+                            .setClickable(mClickable)
                             .setBackground(
                                     new Background.Builder()
                                             .setColor(mButtonColors.getBackgroundColor())
@@ -322,6 +310,7 @@ public class Button implements LayoutElement {
         private LayoutElement getCorrectContent() {
             assertContentFields();
 
+            LayoutElement.Builder content;
             switch (mType) {
                 case ICON:
                 {
@@ -329,7 +318,7 @@ public class Button implements LayoutElement {
                             mDefaultSize
                                     ? ButtonDefaults.recommendedIconSize(mSize)
                                     : checkNotNull(mIconSize);
-                    mContent =
+                    content =
                             new Image.Builder()
                                     .setResourceId(checkNotNull(mIcon))
                                     .setHeight(checkNotNull(iconSize))
@@ -340,32 +329,33 @@ public class Button implements LayoutElement {
                                                     .setTint(mButtonColors.getContentColor())
                                                     .build());
 
-                    return mContent.build();
+                    return content.build();
                 }
                 case TEXT:
                 {
                     @TypographyName
                     int typographyName =
                             mIsTypographyNameSet
-                                    ? mTypographyName : getDefaultTypographyForSize(mSize);
-                    mContent =
+                                    ? mTypographyName
+                                    : getDefaultTypographyForSize(mSize);
+                    content =
                             new Text.Builder()
                                     .setText(checkNotNull(mText))
                                     .setMaxLines(1)
                                     .setTypography(typographyName)
                                     .setColor(mButtonColors.getContentColor());
 
-                    return mContent.build();
+                    return content.build();
                 }
                 case IMAGE:
                 {
-                    mContent =
+                    content =
                             new Image.Builder()
                                     .setResourceId(checkNotNull(mImage))
                                     .setHeight(mSize)
                                     .setWidth(mSize)
                                     .setContentScaleMode(CONTENT_SCALE_MODE_FILL_BOUNDS);
-                    return mContent.build();
+                    return content.build();
                 }
                 case CUSTOM_CONTENT:
                     return checkNotNull(mCustomContent);
@@ -421,9 +411,8 @@ public class Button implements LayoutElement {
 
     /** Returns click event action associated with this Button. */
     @NonNull
-    public Action getAction() {
-        return checkNotNull(
-                checkNotNull(checkNotNull(mElement.getModifiers()).getClickable()).getOnClick());
+    public Clickable getClickable() {
+        return checkNotNull(checkNotNull(mElement.getModifiers()).getClickable());
     }
 
     /** Returns content description for this Button. */

@@ -34,7 +34,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.wear.tiles.ActionBuilders.Action;
 import androidx.wear.tiles.ColorBuilders.ColorProp;
 import androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters;
 import androidx.wear.tiles.DimensionBuilders.ContainerDimension;
@@ -68,8 +67,8 @@ import java.util.List;
  * <p>The Chip is Stadium shape and has a max height designed to take no more than two lines of text
  * of {@link Typography#TYPOGRAPHY_BUTTON} style. The {@link Chip} can have an icon horizontally
  * parallel to the two lines of text. Width of chip can very, and the recommended size is screen
- * dependent with the recommended margin being defined in
- * {@link ChipDefaults#DEFAULT_MARGIN_PERCENT} which is set by default.
+ * dependent with the recommended margin being defined in {@link
+ * ChipDefaults#DEFAULT_MARGIN_PERCENT} which is set by default.
  *
  * <p>The recommended set of {@link ChipColors} styles can be obtained from {@link ChipDefaults}.,
  * e.g. {@link ChipDefaults#PRIMARY} to get a color scheme for a primary {@link Chip} which by
@@ -101,8 +100,7 @@ public class Chip implements LayoutElement {
         @NonNull private String mResourceId = "";
         @NonNull private String mPrimaryText = "";
         @Nullable private String mLabelText = null;
-        @NonNull private final Action mAction;
-        @NonNull private final String mClickableId;
+        @NonNull private final Clickable mClickable;
         @NonNull private String mContentDescription = "";
         @NonNull private ContainerDimension mWidth;
         @NonNull private DpProp mHeight = DEFAULT_HEIGHT;
@@ -117,18 +115,12 @@ public class Chip implements LayoutElement {
          * Creates a builder for the {@link Chip} with associated action. It is required to add
          * content later with setters.
          *
-         * @param action Associated Actions for click events. When the Chip is clicked it will fire
-         *     the associated action.
-         * @param clickableId The ID associated with the given action's clickable.
+         * @param clickable Associated {@link Clickable} for click events. When the Chip is clicked
+         *     it will fire the associated action.
          * @param deviceParameters The device parameters used to derive defaults for this Chip.
          */
-        @SuppressWarnings("LambdaLast")
-        public Builder(
-                @NonNull Action action,
-                @NonNull String clickableId,
-                @NonNull DeviceParameters deviceParameters) {
-            mAction = action;
-            mClickableId = clickableId;
+        public Builder(@NonNull Clickable clickable, @NonNull DeviceParameters deviceParameters) {
+            mClickable = clickable;
             mWidth =
                     dp(
                             (100 - 2 * DEFAULT_MARGIN_PERCENT)
@@ -324,11 +316,7 @@ public class Chip implements LayoutElement {
         public Chip build() {
             Modifiers.Builder modifiers =
                     new Modifiers.Builder()
-                            .setClickable(
-                                    new Clickable.Builder()
-                                            .setId(mClickableId)
-                                            .setOnClick(mAction)
-                                            .build())
+                            .setClickable(mClickable)
                             .setPadding(
                                     new Padding.Builder()
                                             .setStart(mHorizontalPadding)
@@ -447,9 +435,8 @@ public class Chip implements LayoutElement {
 
     /** Returns click event action associated with this Chip. */
     @NonNull
-    public Action getAction() {
-        return checkNotNull(
-                checkNotNull(checkNotNull(mElement.getModifiers()).getClickable()).getOnClick());
+    public Clickable getClickable() {
+        return checkNotNull(checkNotNull(mElement.getModifiers()).getClickable());
     }
 
     /** Returns background color of this Chip. */
