@@ -4033,14 +4033,8 @@ public class ExifInterface {
         }
         mFilename = null;
 
-        boolean shouldBeExifDataOnly = (streamType == STREAM_TYPE_EXIF_DATA_ONLY);
-        if (shouldBeExifDataOnly) {
-            inputStream = new BufferedInputStream(inputStream, IDENTIFIER_EXIF_APP1.length);
-            if (!isExifDataOnly((BufferedInputStream) inputStream)) {
-                Log.w(TAG, "Given data does not follow the structure of an Exif-only data.");
-                return;
-            }
-            mIsExifDataOnly = true;
+        mIsExifDataOnly = streamType == STREAM_TYPE_EXIF_DATA_ONLY;
+        if (mIsExifDataOnly) {
             mAssetInputStream = null;
             mSeekableFileDescriptor = null;
         } else {
@@ -4589,7 +4583,9 @@ public class ExifInterface {
                 SeekableByteOrderedDataInputStream inputStream =
                         new SeekableByteOrderedDataInputStream(in);
                 if (mIsExifDataOnly) {
-                    getStandaloneAttributes(inputStream);
+                    if (!getStandaloneAttributes(inputStream)) {
+                        return;
+                    }
                 } else {
                     if (mMimeType == IMAGE_TYPE_HEIF) {
                         getHeifAttributes(inputStream);
@@ -5558,19 +5554,6 @@ public class ExifInterface {
         return true;
     }
 
-    private static boolean isExifDataOnly(BufferedInputStream in) throws IOException {
-        in.mark(IDENTIFIER_EXIF_APP1.length);
-        byte[] signatureCheckBytes = new byte[IDENTIFIER_EXIF_APP1.length];
-        in.read(signatureCheckBytes);
-        in.reset();
-        for (int i = 0; i < IDENTIFIER_EXIF_APP1.length; i++) {
-            if (signatureCheckBytes[i] != IDENTIFIER_EXIF_APP1[i]) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     /**
      * Loads EXIF attributes from a JPEG input stream.
      *
@@ -6001,14 +5984,21 @@ public class ExifInterface {
         }
     }
 
-    private void getStandaloneAttributes(SeekableByteOrderedDataInputStream in) throws IOException {
-        in.skipFully(IDENTIFIER_EXIF_APP1.length);
+    /** Reads standalone EXIF data, returning whether the data was read successfully. */
+    private boolean getStandaloneAttributes(SeekableByteOrderedDataInputStream in)
+            throws IOException {
+        byte[] signatureCheckBytes = new byte[IDENTIFIER_EXIF_APP1.length];
+        in.readFully(signatureCheckBytes);
+        if (!Arrays.equals(signatureCheckBytes, IDENTIFIER_EXIF_APP1)) {
+            Log.w(TAG, "Given data is not EXIF-only.");
+            return false;
+        }
         // TODO: Need to handle potential OutOfMemoryError
-        byte[] data = new byte[in.available()];
-        in.readFully(data);
+        byte[] data = in.readToEnd();
         // Save offset to EXIF data for handling thumbnail and attribute offsets.
         mOffsetToExifData = IDENTIFIER_EXIF_APP1.length;
         readExifSegment(data, IFD_TYPE_PRIMARY);
+        return true;
     }
 
     /**
@@ -7771,6 +7761,25 @@ public class ExifInterface {
 
         public int position() {
             return mPosition;
+        }
+
+        /** Reads all remaining data. */
+        public byte[] readToEnd() throws IOException {
+            byte[] data = new byte[1024];
+            int bytesRead = 0;
+            while (true) {
+                if (bytesRead == data.length) {
+                    data = Arrays.copyOf(data, data.length * 2);
+                }
+                int readResult = mDataInputStream.read(data, bytesRead, data.length - bytesRead);
+                if (readResult != -1) {
+                    bytesRead += readResult;
+                    mPosition += readResult;
+                } else {
+                    break;
+                }
+            }
+            return Arrays.copyOf(data, bytesRead);
         }
 
         @Override
