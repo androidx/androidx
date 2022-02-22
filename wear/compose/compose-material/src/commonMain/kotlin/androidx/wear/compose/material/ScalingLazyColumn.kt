@@ -267,7 +267,7 @@ internal fun convertToCenterOffset(
 public fun ScalingLazyColumn(
     modifier: Modifier = Modifier,
     state: ScalingLazyListState = rememberScalingLazyListState(),
-    contentPadding: PaddingValues = PaddingValues(horizontal = 8.dp),
+    contentPadding: PaddingValues = PaddingValues(horizontal = 10.dp),
     reverseLayout: Boolean = false,
     verticalArrangement: Arrangement.Vertical =
         Arrangement.spacedBy(
