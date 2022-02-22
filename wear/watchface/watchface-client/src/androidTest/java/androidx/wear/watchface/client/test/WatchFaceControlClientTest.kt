@@ -100,14 +100,12 @@ import org.junit.After
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
-import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito
-import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 import java.time.Instant
 import java.time.ZoneId
@@ -1141,33 +1139,6 @@ class WatchFaceControlClientTest {
         interactiveInstance.close()
     }
 
-    @Test
-    fun crashingWatchFace() {
-        val wallpaperService = TestCrashingWatchFaceServiceWithBaseContext(surfaceHolder)
-        val client = handlerCoroutineScope.async {
-            service.getOrCreateInteractiveWatchFaceClient(
-                "testCrashingId",
-                deviceConfig,
-                systemState,
-                null,
-                complications
-            )
-        }
-
-        // Create the engine which triggers the crashing watchface.
-        handler.post {
-            engine = wallpaperService.onCreateEngine() as WatchFaceService.EngineWrapper
-        }
-
-        try {
-            // The first call on the interface should report the crash.
-            awaitWithTimeout(client).complicationSlotsState
-            fail("Expected an exception to be thrown because the watchface crashed on init")
-        } catch (e: Exception) {
-            assertThat(e.toString()).contains("Deliberately crashing")
-        }
-    }
-
     @Suppress("DEPRECATION") // DefaultComplicationDataSourcePolicyAndType
     @Test
     fun getDefaultProviderPolicies() {
@@ -1635,16 +1606,6 @@ internal open class TestCrashingWatchFaceService : WatchFaceService() {
     ): WatchFace {
         throw Exception("Deliberately crashing")
     }
-}
-
-internal class TestCrashingWatchFaceServiceWithBaseContext(
-    private var surfaceHolderOverride: SurfaceHolder
-) : TestCrashingWatchFaceService() {
-    init {
-        attachBaseContext(ApplicationProvider.getApplicationContext<Context>())
-    }
-
-    override fun getWallpaperSurfaceHolderOverride() = surfaceHolderOverride
 }
 
 internal class TestWatchfaceOverlayStyleWatchFaceService(
