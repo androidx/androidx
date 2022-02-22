@@ -81,44 +81,44 @@ public class Typography {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({
-            TYPOGRAPHY_DISPLAY1,
-            TYPOGRAPHY_DISPLAY2,
-            TYPOGRAPHY_DISPLAY3,
-            TYPOGRAPHY_TITLE1,
-            TYPOGRAPHY_TITLE2,
-            TYPOGRAPHY_TITLE3,
-            TYPOGRAPHY_BODY1,
-            TYPOGRAPHY_BODY2,
-            TYPOGRAPHY_BUTTON,
-            TYPOGRAPHY_CAPTION1,
-            TYPOGRAPHY_CAPTION2,
-            TYPOGRAPHY_CAPTION3
+        TYPOGRAPHY_DISPLAY1,
+        TYPOGRAPHY_DISPLAY2,
+        TYPOGRAPHY_DISPLAY3,
+        TYPOGRAPHY_TITLE1,
+        TYPOGRAPHY_TITLE2,
+        TYPOGRAPHY_TITLE3,
+        TYPOGRAPHY_BODY1,
+        TYPOGRAPHY_BODY2,
+        TYPOGRAPHY_BUTTON,
+        TYPOGRAPHY_CAPTION1,
+        TYPOGRAPHY_CAPTION2,
+        TYPOGRAPHY_CAPTION3
     })
-    public @interface TypographyName {}
+    @interface TypographyName {}
 
     /** Mapping for line height for different typography. */
     @NonNull
-    private static final Map<Integer, Float> FONT_STYLE_TO_LINE_HEIGHT_SP = new HashMap<>();
+    private static final Map<Integer, Float> TYPOGRAPHY_TO_LINE_HEIGHT_SP = new HashMap<>();
 
     static {
-        FONT_STYLE_TO_LINE_HEIGHT_SP.put(TYPOGRAPHY_DISPLAY1, 46f);
-        FONT_STYLE_TO_LINE_HEIGHT_SP.put(TYPOGRAPHY_DISPLAY2, 40f);
-        FONT_STYLE_TO_LINE_HEIGHT_SP.put(TYPOGRAPHY_DISPLAY3, 36f);
-        FONT_STYLE_TO_LINE_HEIGHT_SP.put(TYPOGRAPHY_TITLE1, 28f);
-        FONT_STYLE_TO_LINE_HEIGHT_SP.put(TYPOGRAPHY_TITLE2, 24f);
-        FONT_STYLE_TO_LINE_HEIGHT_SP.put(TYPOGRAPHY_TITLE3, 20f);
-        FONT_STYLE_TO_LINE_HEIGHT_SP.put(TYPOGRAPHY_BODY1, 20f);
-        FONT_STYLE_TO_LINE_HEIGHT_SP.put(TYPOGRAPHY_BODY2, 18f);
-        FONT_STYLE_TO_LINE_HEIGHT_SP.put(TYPOGRAPHY_BUTTON, 19f);
-        FONT_STYLE_TO_LINE_HEIGHT_SP.put(TYPOGRAPHY_CAPTION1, 18f);
-        FONT_STYLE_TO_LINE_HEIGHT_SP.put(TYPOGRAPHY_CAPTION2, 16f);
-        FONT_STYLE_TO_LINE_HEIGHT_SP.put(TYPOGRAPHY_CAPTION3, 14f);
+        TYPOGRAPHY_TO_LINE_HEIGHT_SP.put(TYPOGRAPHY_DISPLAY1, 46f);
+        TYPOGRAPHY_TO_LINE_HEIGHT_SP.put(TYPOGRAPHY_DISPLAY2, 40f);
+        TYPOGRAPHY_TO_LINE_HEIGHT_SP.put(TYPOGRAPHY_DISPLAY3, 36f);
+        TYPOGRAPHY_TO_LINE_HEIGHT_SP.put(TYPOGRAPHY_TITLE1, 28f);
+        TYPOGRAPHY_TO_LINE_HEIGHT_SP.put(TYPOGRAPHY_TITLE2, 24f);
+        TYPOGRAPHY_TO_LINE_HEIGHT_SP.put(TYPOGRAPHY_TITLE3, 20f);
+        TYPOGRAPHY_TO_LINE_HEIGHT_SP.put(TYPOGRAPHY_BODY1, 20f);
+        TYPOGRAPHY_TO_LINE_HEIGHT_SP.put(TYPOGRAPHY_BODY2, 18f);
+        TYPOGRAPHY_TO_LINE_HEIGHT_SP.put(TYPOGRAPHY_BUTTON, 19f);
+        TYPOGRAPHY_TO_LINE_HEIGHT_SP.put(TYPOGRAPHY_CAPTION1, 18f);
+        TYPOGRAPHY_TO_LINE_HEIGHT_SP.put(TYPOGRAPHY_CAPTION2, 16f);
+        TYPOGRAPHY_TO_LINE_HEIGHT_SP.put(TYPOGRAPHY_CAPTION3, 14f);
     }
 
     private Typography() {}
 
     /**
-     * Returns the {@link FontStyle.Builder} for the given Typography name with the recommended
+     * Returns the {@link FontStyle.Builder} for the given Typography code with the recommended
      * size, weight and letter spacing.
      */
     @NonNull
@@ -151,7 +151,7 @@ public class Typography {
             default:
                 // Shouldn't happen.
                 throw new IllegalArgumentException(
-                        "Typography name " + typographyCode + " doesn't exist.");
+                        "Typography " + typographyCode + " doesn't exist.");
         }
     }
 
@@ -161,10 +161,10 @@ public class Typography {
      */
     @NonNull
     static SpProp getLineHeightForTypography(@TypographyName int typography) {
-        if (!FONT_STYLE_TO_LINE_HEIGHT_SP.containsKey(typography)) {
+        if (!TYPOGRAPHY_TO_LINE_HEIGHT_SP.containsKey(typography)) {
             throw new IllegalArgumentException("Typography " + typography + " doesn't exist.");
         }
-        return sp(checkNotNull(FONT_STYLE_TO_LINE_HEIGHT_SP.get(typography)).intValue());
+        return sp(checkNotNull(TYPOGRAPHY_TO_LINE_HEIGHT_SP.get(typography)).intValue());
     }
 
     // The @Dimension(unit = SP) on sp() is seemingly being ignored, so lint complains that we're
