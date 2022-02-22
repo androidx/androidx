@@ -20,9 +20,7 @@ import { log } from './logger';
 import { ContentNode } from './types';
 import { PlainTextFormatter } from './plain_text_formatter';
 
-// https://github.com/ebidel/try-puppeteer/commit/aacadb54abf861a807e9a71ee54d03abbf21d193
-// use --no-sandbox for some reason
-const CHROME_LAUNCH_ARGS = ['--no-sandbox', '--enable-dom-distiller'];
+const CHROME_LAUNCH_ARGS = ['--enable-dom-distiller'];
 
 // A list of DOM Node types that are usually not useful in the context
 // of fetching text content from the page.
