@@ -81,6 +81,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+@SuppressWarnings("GuardedBy")
 public class AppSearchImplTest {
     /**
      * Always trigger optimize in this class. OptimizeStrategy will be tested in its own test class.
