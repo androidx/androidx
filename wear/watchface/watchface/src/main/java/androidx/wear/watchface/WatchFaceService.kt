@@ -904,8 +904,8 @@ public abstract class WatchFaceService : WallpaperService() {
         }
     }
 
-    private class RendererAndComplicationSlotsManager(
-        val renderer: Renderer,
+    internal class WatchFaceAndComplicationSlotsManager(
+        val watchFace: WatchFace,
         val complicationSlotsManager: ComplicationSlotsManager
     )
 
@@ -928,13 +928,13 @@ public abstract class WatchFaceService : WallpaperService() {
         internal val wslFlow = WslFlow(this)
 
         /**
-         * [deferredRendererAndComplicationManager] will complete before [deferredWatchFaceImpl].
+         * [deferredWatchFaceAndComplicationManager] will complete before [deferredWatchFaceImpl].
          */
-        private var deferredRendererAndComplicationManager =
-            CompletableDeferred<RendererAndComplicationSlotsManager>()
+        internal var deferredWatchFaceAndComplicationManager =
+            CompletableDeferred<WatchFaceAndComplicationSlotsManager>()
 
         /**
-         * [deferredWatchFaceImpl] will complete after [deferredRendererAndComplicationManager].
+         * [deferredWatchFaceImpl] will complete after [deferredWatchFaceAndComplicationManager].
          */
         @VisibleForTesting
         public var deferredWatchFaceImpl = CompletableDeferred<WatchFaceImpl>()
@@ -1409,9 +1409,10 @@ public abstract class WatchFaceService : WallpaperService() {
                     // it.
                     if (deferredWatchFaceImpl.isCompleted) {
                         deferredWatchFaceImpl.await().onDestroy()
-                    } else if (deferredRendererAndComplicationManager.isCompleted) {
+                    } else if (deferredWatchFaceAndComplicationManager.isCompleted) {
                         // However we should destroy the renderer if its been created.
-                        deferredRendererAndComplicationManager.await().renderer.onDestroy()
+                        deferredWatchFaceAndComplicationManager
+                            .await().watchFace.renderer.onDestroy()
                     }
                 } catch (e: Exception) {
                     // Throwing an exception here leads to a cascade of errors, log instead.
@@ -1744,9 +1745,9 @@ public abstract class WatchFaceService : WallpaperService() {
                             currentUserStyleRepository
                         )
                     }
-                    deferredRendererAndComplicationManager.complete(
-                        RendererAndComplicationSlotsManager(
-                            watchFace.renderer,
+                    deferredWatchFaceAndComplicationManager.complete(
+                        WatchFaceAndComplicationSlotsManager(
+                            watchFace,
                             complicationSlotsManager
                         )
                     )
@@ -2110,17 +2111,17 @@ public abstract class WatchFaceService : WallpaperService() {
                 TraceEvent(
                     "WatchFaceService.updateContentDescriptionLabels A"
                 ).close()
-                val rendererAndComplicationManager =
-                    deferredRendererAndComplicationManager.await()
+                val watchFaceAndComplicationManager =
+                    deferredWatchFaceAndComplicationManager.await()
 
                 TraceEvent(
                     "WatchFaceService.updateContentDescriptionLabels"
                 ).use {
                     // The side effects of this need to be applied before deferredWatchFaceImpl is
                     // completed.
-                    val renderer = rendererAndComplicationManager.renderer
+                    val renderer = watchFaceAndComplicationManager.watchFace.renderer
                     val complicationSlotsManager =
-                        rendererAndComplicationManager.complicationSlotsManager
+                        watchFaceAndComplicationManager.complicationSlotsManager
 
                     // Add a ContentDescriptionLabel for the main clock element.
                     labels.add(
