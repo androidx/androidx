@@ -455,8 +455,17 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
      * Returns The text within which the time difference is displayed.
      */
     @Nullable
-    CharSequence getSurroundingText() {
+    public CharSequence getSurroundingText() {
         return mSurroundingText;
+    }
+
+    /** Whether or not this is a placeholder. */
+    public boolean isPlaceholder() {
+        if (mSurroundingText == null) {
+            return false;
+        }
+        return mSurroundingText.toString().equals(
+                androidx.wear.watchface.complications.data.ComplicationText.PLACEHOLDER_STRING);
     }
 
     /**

@@ -22,7 +22,7 @@
     app:iconColor="@color/yellow"
     app:rangedValuePrimaryColor="@color/yellow_70"
     app:rangedValueRingWidth="2dp"
-    app:rangedValueSecondaryColor="@color/yellow_30"
+    app:rangedValueSecondaryColor="@color/transparent"
     app:textColor="@color/yellow"
     app:textTypeface="sans-serif-condensed"
     app:titleColor="@color/yellow_60"
