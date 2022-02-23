@@ -96,6 +96,7 @@ import java.io.ObjectOutputStream
 import java.io.PrintWriter
 import java.time.Instant
 import java.util.concurrent.CountDownLatch
+import kotlinx.coroutines.CancellationException
 
 /** The wire format for [ComplicationData]. */
 internal typealias WireComplicationData = android.support.wearable.complications.ComplicationData
@@ -938,6 +939,9 @@ public abstract class WatchFaceService : WallpaperService() {
         @VisibleForTesting
         public var deferredWatchFaceImpl = CompletableDeferred<WatchFaceImpl>()
 
+        @VisibleForTesting
+        public var deferredValidation = CompletableDeferred<Unit>()
+
         /**
          * [deferredSurfaceHolder] will complete after [onSurfaceChanged], before then it's not
          * safe to create a UiThread OpenGL context.
@@ -1040,22 +1044,24 @@ public abstract class WatchFaceService : WallpaperService() {
 
         /**
          * Returns the [WatchFaceImpl] if [deferredWatchFaceImpl] has completed successfully or
-         * `null` otherwise.
+         * `null` otherwise. Throws exception if there were problems with watchface validation.
          */
-        internal fun getWatchFaceImplOrNull(): WatchFaceImpl? =
-            if (deferredWatchFaceImpl.isCompleted) {
+        internal fun getWatchFaceImplOrNull(): WatchFaceImpl? {
+            if (deferredValidation.isCompleted) {
                 runBlocking {
-                    try {
-                        deferredWatchFaceImpl.await()
-                    } catch (e: Exception) {
-                        // The watch face crashed during init. This has already been logged so we
-                        // silently ignore.
-                        null
-                    }
+                    // if validation fails exception will be thrown here
+                    deferredValidation.await()
+                }
+            }
+
+            return if (deferredWatchFaceImpl.isCompleted) {
+                runBlocking {
+                    deferredWatchFaceImpl.await()
                 }
             } else {
                 null
             }
+        }
 
         init {
             maybeCreateWCSApi()
@@ -1777,10 +1783,14 @@ public abstract class WatchFaceService : WallpaperService() {
                     if (!watchState.isHeadless) {
                         validateSchemaWireSize(currentUserStyleRepository.schema)
                     }
+                } catch (e: CancellationException) {
+                    throw e
                 } catch (e: Exception) {
                     Log.e(TAG, "WatchFace crashed during init", e)
-                    deferredWatchFaceImpl.completeExceptionally(e)
+                    deferredValidation.completeExceptionally(e)
                 }
+
+                deferredValidation.complete(Unit)
             }
         }
 

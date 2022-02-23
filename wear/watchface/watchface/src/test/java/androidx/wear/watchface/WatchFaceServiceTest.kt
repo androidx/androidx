@@ -591,6 +591,7 @@ public class WatchFaceServiceTest {
         // coroutine dispatcher.
         runBlocking {
             watchFaceImpl = engineWrapper.deferredWatchFaceImpl.await()
+            engineWrapper.deferredValidation.await()
         }
 
         currentUserStyleRepository = watchFaceImpl.currentUserStyleRepository
@@ -3523,10 +3524,10 @@ public class WatchFaceServiceTest {
             UserStyleSchema(emptyList())
         )
 
-        assertTrue(engineWrapper.deferredWatchFaceImpl.isCancelled)
+        assertTrue(engineWrapper.deferredValidation.isCancelled)
         runBlocking {
             assertFailsWith<IllegalArgumentException> {
-                engineWrapper.deferredWatchFaceImpl.await()
+                engineWrapper.deferredValidation.await()
             }
         }
     }
