@@ -29,13 +29,15 @@ import androidx.camera.core.impl.CamcorderProfileProvider;
 import androidx.camera.core.impl.CamcorderProfileProxy;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.utils.CompareSizesByArea;
-import androidx.camera.video.internal.compat.quirk.CamcorderProfileResolutionNotSupportedByEncoderQuirk;
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
+import androidx.camera.video.internal.compat.quirk.VideoEncoderCrashQuirk;
 import androidx.camera.video.internal.compat.quirk.VideoQualityNotSupportQuirk;
+import androidx.camera.video.internal.compat.quirk.VideoQualityQuirk;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -199,15 +201,18 @@ public final class VideoCapabilities {
     }
 
     private boolean isDeviceValidQuality(@NonNull Quality quality) {
-        VideoQualityNotSupportQuirk quirk = DeviceQuirks.get(VideoQualityNotSupportQuirk.class);
-        boolean validQuality = quirk == null || !quirk.isProblematicVideoQuality(quality);
+        List<Class<? extends VideoQualityQuirk>> quirkList = Arrays.asList(
+                VideoQualityNotSupportQuirk.class, VideoEncoderCrashQuirk.class);
 
-        CamcorderProfileResolutionNotSupportedByEncoderQuirk quirk1 = DeviceQuirks.get(
-                CamcorderProfileResolutionNotSupportedByEncoderQuirk.class);
-        boolean validQualityForEncoder =
-                quirk1 == null || !quirk1.isProblematicVideoQuality(quality);
+        for (Class<? extends VideoQualityQuirk> quirkClass : quirkList) {
+            VideoQualityQuirk quirk = DeviceQuirks.get(quirkClass);
 
-        return validQuality && validQualityForEncoder;
+            if (quirk != null && quirk.isProblematicVideoQuality(quality)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
 }

@@ -23,7 +23,6 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.CamcorderProfileProvider;
-import androidx.camera.core.impl.Quirk;
 import androidx.camera.video.Quality;
 import androidx.camera.video.VideoCapabilities;
 
@@ -39,7 +38,7 @@ import androidx.camera.video.VideoCapabilities;
  *
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-public class VideoQualityNotSupportQuirk implements Quirk {
+public class VideoQualityNotSupportQuirk implements VideoQualityQuirk {
     static boolean load() {
         return isHuaweiMate20() || isHuaweiMate20Pro();
     }
@@ -53,6 +52,7 @@ public class VideoQualityNotSupportQuirk implements Quirk {
     }
 
     /** Checks if the given mime type is a problematic quality. */
+    @Override
     public boolean isProblematicVideoQuality(@NonNull Quality quality) {
         return quality == Quality.UHD;
     }
