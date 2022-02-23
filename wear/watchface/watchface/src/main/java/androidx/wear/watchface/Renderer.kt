@@ -109,6 +109,15 @@ private val HIGHLIGHT_LAYER_COMPOSITE_PAINT = Paint().apply {
  * thread but all rendering is done on the UiThread. There is a memory barrier between construction
  * and rendering so no special threading primitives are required.
  *
+ * Please note [android.graphics.drawable.AnimatedImageDrawable] and similar classes which rely on
+ * [android.graphics.drawable.Drawable.Callback] do not animate properly out of the box unless you
+ * register an implementation with [android.graphics.drawable.Drawable.setCallback] that calls
+ * [invalidate]. Even then these classes are not recommend because the [ZonedDateTime] passed
+ * to [Renderer.CanvasRenderer.render] or [Renderer.GlesRenderer.render] is not guaranteed to match
+ * the system time (e.g. for taking screenshots). In addition care is needed when implementing
+ * [android.graphics.drawable.Drawable.Callback] to ensure it does not animate in ambient mode which
+ * could lead to a significant power regression.
+ *
  * @param surfaceHolder The [SurfaceHolder] that [renderInternal] will draw into.
  * @param currentUserStyleRepository The associated [CurrentUserStyleRepository].
  * @param watchState The associated [WatchState].
