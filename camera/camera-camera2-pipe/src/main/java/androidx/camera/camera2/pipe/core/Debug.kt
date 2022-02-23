@@ -120,7 +120,7 @@ public object Debug {
                 }
             }
 
-            if (graphConfig.defaultParameters.isEmpty()) {
+            if (graphConfig.sessionParameters.isEmpty()) {
                 append("Session Parameters: (None)")
             } else {
                 append("Session Parameters:\n")
