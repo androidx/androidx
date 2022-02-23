@@ -5,4 +5,8 @@
     <issue id="NewApi">
         <ignore path="src/test/**" />
     </issue>
+
+    <issue id="UnsafeOptInUsageError">
+        <ignore path="src/main/**" />
+    </issue>
 </lint>

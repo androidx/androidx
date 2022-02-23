@@ -31,6 +31,7 @@ import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
 import androidx.camera.previewview.internal.quirk.DeviceQuirks;
 import androidx.camera.previewview.internal.quirk.SurfaceViewNotCroppedByParentQuirk;
@@ -50,7 +51,10 @@ import com.google.common.util.concurrent.ListenableFuture;
  * {@link TextureView} or {@link SurfaceView} to display the camera feed, and applies required
  * transformations on them to correctly display the preview, this involves correcting their
  * aspect ratio, scale and rotation.
+ *
+ * @hide
  */
+@RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class CameraViewFinder extends FrameLayout {
 

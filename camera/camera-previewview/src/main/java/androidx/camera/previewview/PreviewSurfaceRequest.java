@@ -55,7 +55,10 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * <p>Contains requirements for surface characteristics along with methods for completing the
  * request and listening for request cancellation.
+ *
+ * @hide
  */
+@RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class PreviewSurfaceRequest {
 
@@ -553,23 +556,5 @@ public class PreviewSurfaceRequest {
         // Ensure Result can't be subclassed outside the package
         Result() {
         }
-    }
-
-    /**
-     * Callback for surface request.
-     */
-    public interface Callback {
-
-        /**
-         * Callback for success.
-         * @param surface surface.
-         */
-        void onSuccess(@Nullable Surface surface);
-
-        /**
-         * Callback for failure.
-         * @param t throwable.
-         */
-        void onFailure(@NonNull Throwable t);
     }
 }
