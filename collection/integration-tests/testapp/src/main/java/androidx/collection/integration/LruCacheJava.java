@@ -17,6 +17,7 @@
 package androidx.collection.integration;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.collection.LruCache;
 
 /**
@@ -25,13 +26,35 @@ import androidx.collection.LruCache;
  * @param <K> key type
  * @param <V> value type
  */
-public class MyLruCache<K, V> extends LruCache<K, V> {
-    public MyLruCache(int maxSize) {
+public class LruCacheJava<K, V> extends LruCache<K, V> {
+    public LruCacheJava(int maxSize) {
         super(maxSize);
     }
 
     @Override
     protected int sizeOf(@NonNull K key, @NonNull V value) {
         return super.sizeOf(key, value);
+    }
+
+    @Override
+    public void resize(int maxSize) {
+        super.resize(maxSize);
+    }
+
+    @Override
+    public void trimToSize(int maxSize) {
+        super.trimToSize(maxSize);
+    }
+
+    @Override
+    protected void entryRemoved(boolean evicted, @NonNull K key, @NonNull V oldValue,
+            @Nullable V newValue) {
+        super.entryRemoved(evicted, key, oldValue, newValue);
+    }
+
+    @Nullable
+    @Override
+    protected V create(@NonNull K key) {
+        return super.create(key);
     }
 }
