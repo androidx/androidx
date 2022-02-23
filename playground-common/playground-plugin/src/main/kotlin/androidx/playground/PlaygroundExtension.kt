@@ -105,7 +105,6 @@ open class PlaygroundExtension @Inject constructor(
         }
 
         settings.rootProject.buildFileName = relativePathToBuild
-        settings.enableFeaturePreview("VERSION_CATALOGS")
 
         val catalogFiles =
             objectFactory.fileCollection().from("$supportRoot/gradle/libs.versions.toml")
