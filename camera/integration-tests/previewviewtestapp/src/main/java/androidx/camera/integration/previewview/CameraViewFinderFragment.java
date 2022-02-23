@@ -55,6 +55,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.previewview.CameraViewFinder;
@@ -575,13 +576,17 @@ public class CameraViewFinderFragment extends Fragment
                 Boolean available = characteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE);
                 mFlashSupported = available == null ? false : available;
                 mCameraId = cameraId;
-                mPreviewSurfaceRequest = new PreviewSurfaceRequest(
+
+                @OptIn(markerClass = androidx.camera.previewview.ExperimentalPreviewView.class)
+                PreviewSurfaceRequest previewSurfaceRequest = new PreviewSurfaceRequest(
                         mPreviewSize,
                         display,
                         characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)
                                 == CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
                         facing == CameraCharacteristics.LENS_FACING_FRONT,
                         mSensorOrientation);
+
+                mPreviewSurfaceRequest = previewSurfaceRequest;
                 return;
             }
         } catch (CameraAccessException e) {
@@ -664,6 +669,7 @@ public class CameraViewFinderFragment extends Fragment
      * Creates a new {@link CameraCaptureSession} for camera preview.
      */
     private void createCameraPreviewSession() {
+        @OptIn(markerClass = androidx.camera.previewview.ExperimentalPreviewView.class)
         ListenableFuture<Surface> surfaceListenableFuture =
                 mCameraViewFinder.requestSurfaceAsync(mPreviewSurfaceRequest);
 
