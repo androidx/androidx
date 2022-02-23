@@ -748,6 +748,30 @@ public class ScalingLazyColumnTest {
         rule.onNodeWithTag(scalingLazyColumnTag)
             .assertWidthIsEqualTo(itemSize)
     }
+
+    @Test
+    fun listStateUsesInitialCenterItemIndex() {
+        val startIndexValue = 5
+        lateinit var state: ScalingLazyListState
+
+        rule.setContent {
+            state = rememberScalingLazyListState(initialCenterItemIndex = startIndexValue)
+        }
+
+        assertThat(state.centerItemIndex).isEqualTo(startIndexValue)
+    }
+
+    @Test
+    fun listStateUsesInitialCenterItemScrollOffset() {
+        val startScrollValue = 5
+        lateinit var state: ScalingLazyListState
+
+        rule.setContent {
+            state = rememberScalingLazyListState(initialCenterItemScrollOffset = startScrollValue)
+        }
+
+        assertThat(state.centerItemScrollOffset).isEqualTo(startScrollValue)
+    }
 }
 
 internal const val TestTouchSlop = 18f

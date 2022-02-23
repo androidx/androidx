@@ -101,6 +101,9 @@ val WearMaterialDemos = DemoCategory(
                 ComposableDemo("Time 12 Hour") {
                     TimePickerWith12HourClock()
                 },
+                ComposableDemo("Date Picker") {
+                    DatePicker()
+                },
                 ComposableDemo("Simple Picker") {
                     SimplePicker()
                 },

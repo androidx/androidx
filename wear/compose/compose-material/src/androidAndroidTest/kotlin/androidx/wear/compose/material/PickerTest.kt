@@ -98,6 +98,18 @@ class PickerTest {
     }
 
     @Test
+    fun state_returns_initially_selected_option_at_start() {
+        val startValue = 5
+        lateinit var state: PickerState
+
+        rule.setContent {
+            state = rememberPickerState(numberOfOptions = 10, initiallySelectedOption = startValue)
+        }
+
+        assertThat(state.selectedOption).isEqualTo(startValue)
+    }
+
+    @Test
     fun can_scroll_picker_up_on_start() {
         lateinit var state: PickerState
         rule.setContent {

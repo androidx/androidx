@@ -20,6 +20,7 @@ import android.view.MotionEvent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -45,6 +46,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.Button
+import androidx.wear.compose.material.ButtonDefaults
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.CompactChip
 import androidx.wear.compose.material.Icon
@@ -56,6 +58,8 @@ import androidx.wear.compose.material.PickerState
 import androidx.wear.compose.material.ScalingParams
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.rememberPickerState
+import java.text.SimpleDateFormat
+import java.util.Calendar
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -68,7 +72,7 @@ fun TimePickerWithHoursMinutesSeconds() {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(12.dp))
             Text(
                 text = when (selectedColumn) {
                     0 -> "Hour"
@@ -86,51 +90,51 @@ fun TimePickerWithHoursMinutesSeconds() {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceEvenly,
             ) {
-                val selectablePickerModifier = Modifier.size(54.dp, 120.dp)
+                val selectablePickerModifier = Modifier.size(48.dp, 100.dp)
                 val separation = (-10).dp
-                Spacer(Modifier.width(8.dp))
+                Spacer(Modifier.width(4.dp))
                 SelectablePicker(
                     selected = selectedColumn == 0,
                     state = rememberPickerState(numberOfOptions = 24, initiallySelectedOption = 6),
                     modifier = selectablePickerModifier,
                     separation = separation,
-                ) { hour: Int, selected: Boolean ->
+                ) { hour: Int ->
                     TimePiece(
-                        selected = selected,
+                        selected = selectedColumn == 0,
                         onSelected = { selectedColumn = 0 },
                         text = "%02d".format(hour),
                         style = textStyle,
                     )
                 }
-                Separator(4.dp)
+                Separator(2.dp)
                 SelectablePicker(
                     selected = selectedColumn == 1,
                     state = rememberPickerState(numberOfOptions = 60),
                     modifier = selectablePickerModifier,
                     separation = separation,
-                ) { minute: Int, selected: Boolean ->
+                ) { minute: Int ->
                     TimePiece(
-                        selected = selected,
+                        selected = selectedColumn == 1,
                         onSelected = { selectedColumn = 1 },
                         text = "%02d".format(minute),
                         style = textStyle,
                     )
                 }
-                Separator(4.dp)
+                Separator(2.dp)
                 SelectablePicker(
                     selected = selectedColumn == 2,
                     state = rememberPickerState(numberOfOptions = 60),
                     modifier = selectablePickerModifier,
                     separation = separation,
-                ) { second: Int, selected: Boolean ->
+                ) { second: Int ->
                     TimePiece(
-                        selected = selected,
+                        selected = selectedColumn == 2,
                         onSelected = { selectedColumn = 2 },
                         text = "%02d".format(second),
                         style = textStyle,
                     )
                 }
-                Spacer(Modifier.width(8.dp))
+                Spacer(Modifier.width(4.dp))
             }
             Spacer(Modifier.fillMaxWidth().weight(weightsToCenterVertically))
             Button(onClick = {}) {
@@ -186,9 +190,9 @@ fun TimePickerWith12HourClock() {
                 modifier = Modifier.size(64.dp, 120.dp),
                 separation = (-10).dp,
                 label = { LabelText("Hour") }
-            ) { hour: Int, selected: Boolean ->
+            ) { hour: Int ->
                 TimePiece(
-                    selected = selected,
+                    selected = selectedColumn == 0,
                     onSelected = { selectedColumn = 0 },
                     text = "%2d".format(hour + 1),
                 )
@@ -200,9 +204,9 @@ fun TimePickerWith12HourClock() {
                 modifier = Modifier.size(64.dp, 120.dp),
                 separation = (-10).dp,
                 label = { LabelText("Minute") }
-            ) { minute: Int, selected: Boolean ->
+            ) { minute: Int ->
                 TimePiece(
-                    selected = selected,
+                    selected = selectedColumn == 1,
                     onSelected = { selectedColumn = 1 },
                     text = "%02d".format(minute),
                 )
@@ -218,6 +222,105 @@ fun TimePickerWith12HourClock() {
             )
         }
         Spacer(Modifier.height(12.dp))
+    }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+fun DatePicker() {
+    val calendar = Calendar.getInstance()
+    val dayState = rememberPickerState(
+        numberOfOptions = 31,
+        initiallySelectedOption = calendar.get(Calendar.DAY_OF_MONTH) - 1)
+    val monthState = rememberPickerState(
+        numberOfOptions = 12,
+        initiallySelectedOption = calendar.get(Calendar.MONTH))
+    val yearState = rememberPickerState(
+        numberOfOptions = 3000,
+        initiallySelectedOption = calendar.get(Calendar.YEAR) - 1)
+    val monthNames = remember {
+        val months = 0..11
+        months.map {
+            // Translate month index into 3-character month string e.g. Jan.
+            // Using deprecated Date constructor rather than LocalDate in order to avoid
+            // requirement for API 26+.
+            calendar.set(2022, it, 1)
+            SimpleDateFormat("MMM").format(calendar.getTime())
+        }
+    }
+    var selectedColumn by remember { mutableStateOf(0) }
+    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        val boxConstraints = this
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Spacer(Modifier.height(16.dp))
+            Text(
+                text = when (selectedColumn) {
+                    0 -> "Day"
+                    1 -> "Month"
+                    else -> "Year"
+                },
+                color = MaterialTheme.colors.secondary,
+                style = MaterialTheme.typography.button,
+                maxLines = 1,
+            )
+            val weightsToCenterVertically = 0.5f
+            Spacer(Modifier.fillMaxWidth().weight(weightsToCenterVertically))
+            val spacerWidth = 8.dp
+            val dayWidth = 54.dp
+            val monthWidth = 80.dp
+            val yearWidth = 128.dp
+            val offset = when (selectedColumn) {
+                0 -> (boxConstraints.maxWidth - dayWidth) / 2
+                1 -> (boxConstraints.maxWidth - monthWidth) / 2 - dayWidth - spacerWidth
+                else -> (boxConstraints.maxWidth - yearWidth) / 2 - monthWidth - spacerWidth
+            }
+            Row(modifier = Modifier.fillMaxWidth().offset(offset)) {
+                if (selectedColumn < 2) {
+                    DatePickerImpl(
+                        state = dayState,
+                        selected = selectedColumn == 0,
+                        onSelected = { selectedColumn = 0 },
+                        text = { day: Int -> "%2d".format(day + 1) },
+                        width = dayWidth
+                    )
+                    Spacer(modifier = Modifier.width(spacerWidth))
+                }
+                DatePickerImpl(
+                    state = monthState,
+                    selected = selectedColumn == 1,
+                    onSelected = { selectedColumn = 1 },
+                    text = { month: Int -> monthNames[month] },
+                    width = monthWidth
+                )
+                if (selectedColumn > 0) {
+                    Spacer(modifier = Modifier.width(spacerWidth))
+                    DatePickerImpl(
+                        state = yearState,
+                        selected = selectedColumn == 2,
+                        onSelected = { selectedColumn = 2 },
+                        text = { year: Int -> "%4d".format(year + 1) },
+                        width = yearWidth
+                    )
+                }
+            }
+            Spacer(Modifier.fillMaxWidth().weight(weightsToCenterVertically))
+            Button(
+                onClick = { selectedColumn = (selectedColumn + 1) % 3 },
+                colors =
+                    if (selectedColumn < 2) ButtonDefaults.secondaryButtonColors()
+                    else ButtonDefaults.primaryButtonColors()
+            ) {
+                DemoIcon(
+                    resourceId =
+                        if (selectedColumn < 2) R.drawable.ic_chevron_right_24
+                        else R.drawable.ic_check_24px
+                )
+            }
+            Spacer(Modifier.height(12.dp))
+        }
     }
 }
 
@@ -250,7 +353,7 @@ private fun SelectablePicker(
     label: @Composable (BoxScope.() -> Unit)? = null,
     scalingParams: ScalingParams = PickerDefaults.scalingParams(),
     separation: Dp = 0.dp,
-    option: @Composable BoxScope.(Int, Boolean) -> Unit
+    option: @Composable BoxScope.(Int) -> Unit
 ) {
     Box(modifier = modifier) {
         if (selected) {
@@ -260,17 +363,37 @@ private fun SelectablePicker(
                 separation = separation,
                 scalingParams = scalingParams,
             ) {
-                option(it, true)
+                option(it)
             }
         } else {
             if (label != null) {
                 label()
             }
-            option(
-                state.selectedOption,
-                false
-            )
+            option(state.selectedOption)
         }
+    }
+}
+
+@Composable
+private fun DatePickerImpl(
+    state: PickerState,
+    selected: Boolean,
+    onSelected: () -> Unit,
+    text: (option: Int) -> String,
+    width: Dp
+) {
+    SelectablePicker(
+        selected = selected,
+        state = state,
+        modifier = Modifier.size(width, 120.dp),
+        separation = (-10).dp,
+    ) { option ->
+        TimePiece(
+            selected = selected,
+            onSelected = onSelected,
+            text = text(option),
+            style = MaterialTheme.typography.display2,
+        )
     }
 }
 
@@ -285,6 +408,7 @@ private fun BoxScope.TimePiece(
     val modifier = Modifier.align(Alignment.Center).wrapContentSize()
     Text(
         text = text,
+        maxLines = 1,
         style = style,
         color =
             if (selected) MaterialTheme.colors.secondary
