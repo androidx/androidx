@@ -91,14 +91,21 @@ internal class InteractiveWatchFaceImpl(
 
     override fun unused18() {}
 
-    override fun getWatchFaceOverlayStyle() =
-        awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
-            "InteractiveWatchFaceImpl.getWatchFaceOverlayStyle"
-        ) {
-        watchFaceImpl -> WatchFaceOverlayStyleWireFormat(
-            watchFaceImpl.overlayStyle.backgroundColor,
-            watchFaceImpl.overlayStyle.foregroundColor
-        )
+    override fun getWatchFaceOverlayStyle(): WatchFaceOverlayStyleWireFormat? {
+        return runBlocking {
+            val engineCopy = engine
+            if (engineCopy != null) {
+                // Note this will complete earlier in the flow than deferredWatchFaceImpl.
+                val watchFace = engineCopy.deferredWatchFaceAndComplicationManager.await().watchFace
+                WatchFaceOverlayStyleWireFormat(
+                   watchFace.overlayStyle.backgroundColor,
+                   watchFace.overlayStyle.foregroundColor
+                )
+            } else {
+                Log.w(TAG, "Task getWatchFaceOverlayStyleposted after close(), ignoring.")
+                null
+            }
+        }
     }
 
     override fun getContentDescriptionLabels(): Array<ContentDescriptionLabel>? {
