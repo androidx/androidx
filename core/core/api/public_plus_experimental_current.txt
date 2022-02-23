@@ -1263,6 +1263,7 @@ package androidx.core.database.sqlite {
 package androidx.core.graphics {
 
   public final class BitmapCompat {
+    method public static android.graphics.Bitmap createScaledBitmap(android.graphics.Bitmap, int, int, android.graphics.Rect?, boolean);
     method public static int getAllocationByteCount(android.graphics.Bitmap);
     method public static boolean hasMipMap(android.graphics.Bitmap);
     method public static void setHasMipMap(android.graphics.Bitmap, boolean);
