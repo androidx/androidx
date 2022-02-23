@@ -22,6 +22,11 @@ package androidx.room
  * This annotation can be used in multiple places where Room processor runs. For instance, you can
  * add it to a field of an [Entity] and Room will not persist that field.
  */
-@Target(AnnotationTarget.FUNCTION, AnnotationTarget.FIELD, AnnotationTarget.CONSTRUCTOR)
+@Target(
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.FIELD,
+    AnnotationTarget.CONSTRUCTOR,
+    AnnotationTarget.PROPERTY_GETTER
+)
 @Retention(AnnotationRetention.BINARY)
 public annotation class Ignore
