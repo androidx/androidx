@@ -19,15 +19,10 @@ package androidx.work.impl.utils;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.work.Logger;
-import androidx.work.WorkInfo;
-import androidx.work.impl.Processor;
-import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
-import androidx.work.impl.model.WorkSpecDao;
 
 /**
- * A {@link Runnable} that can stop work and set the {@link WorkInfo.State} to
- * {@link WorkInfo.State#ENQUEUED} if it's in {@link WorkInfo.State#RUNNING}.
+ * A {@link Runnable} that requests {@link androidx.work.impl.Processor} to stop the work
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -47,39 +42,24 @@ public class StopWorkRunnable implements Runnable {
         mWorkSpecId = workSpecId;
         mStopInForeground = stopInForeground;
     }
-
     @Override
     public void run() {
-        WorkDatabase workDatabase = mWorkManagerImpl.getWorkDatabase();
-        Processor processor = mWorkManagerImpl.getProcessor();
-        WorkSpecDao workSpecDao = workDatabase.workSpecDao();
-        workDatabase.beginTransaction();
-        try {
-            boolean isForegroundWork = processor.isEnqueuedInForeground(mWorkSpecId);
-            boolean isStopped;
-            if (mStopInForeground) {
-                isStopped = mWorkManagerImpl
-                        .getProcessor()
-                        .stopForegroundWork(mWorkSpecId);
-            } else {
-                if (!isForegroundWork
-                        && workSpecDao.getState(mWorkSpecId) == WorkInfo.State.RUNNING) {
-                    workSpecDao.setState(WorkInfo.State.ENQUEUED, mWorkSpecId);
-                }
-                // This call is safe to make for foreground work because Processor ignores requests
-                // to stop for foreground work.
-                isStopped = mWorkManagerImpl
-                        .getProcessor()
-                        .stopWork(mWorkSpecId);
-            }
-
-            Logger.get().debug(
-                    TAG,
-                    "StopWorkRunnable for " + mWorkSpecId + "; Processor.stopWork = " + isStopped);
-
-            workDatabase.setTransactionSuccessful();
-        } finally {
-            workDatabase.endTransaction();
+        boolean isStopped;
+        if (mStopInForeground) {
+            isStopped = mWorkManagerImpl
+                    .getProcessor()
+                    .stopForegroundWork(mWorkSpecId);
+        } else {
+            // This call is safe to make for foreground work because Processor ignores requests
+            // to stop for foreground work.
+            isStopped = mWorkManagerImpl
+                    .getProcessor()
+                    .stopWork(mWorkSpecId);
         }
+
+        Logger.get().debug(
+                TAG,
+                "StopWorkRunnable for " + mWorkSpecId + "; Processor.stopWork = " + isStopped);
+
     }
 }
