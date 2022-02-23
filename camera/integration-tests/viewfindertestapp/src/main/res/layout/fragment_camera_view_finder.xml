@@ -21,7 +21,8 @@
 
     <androidx.camera.viewfinder.CameraViewfinder
         android:id="@+id/view_finder"
-        app:scaleType="fitCenter"
+        app:scaleType="fillCenter"
+        app:implementationMode="performance"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 

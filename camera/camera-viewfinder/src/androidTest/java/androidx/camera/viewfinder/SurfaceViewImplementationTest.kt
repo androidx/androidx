@@ -17,6 +17,7 @@
 package androidx.camera.viewfinder
 
 import android.content.Context
+import android.hardware.camera2.CameraManager
 import android.util.Size
 import android.view.View
 import android.widget.FrameLayout
@@ -30,6 +31,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import java.util.concurrent.TimeUnit
 import org.junit.After
+import org.junit.Assume
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -63,15 +65,15 @@ class SurfaceViewImplementationTest {
         mParent = FrameLayout(mContext)
         setContentView(mParent)
 
-        mSurfaceRequest = ViewfinderSurfaceRequest(
-            ANY_SIZE,
-            /*isLegacyDevice=*/true,
-            /*isFrontCamera=*/true,
-            /*sensorOrientation=*/0
-        )
-        mImplementation = SurfaceViewImplementation(mParent,
-            ViewfinderTransformation()
-        )
+        val cameraManager = ApplicationProvider.getApplicationContext<Context>().getSystemService(
+            Context.CAMERA_SERVICE
+        ) as CameraManager
+        val cameraIds = cameraManager.cameraIdList
+        Assume.assumeTrue("No cameras found on device.", cameraIds.isNotEmpty())
+        val cameraId = cameraIds[0]
+        val characteristics = cameraManager.getCameraCharacteristics(cameraId)
+        mSurfaceRequest = ViewfinderSurfaceRequest(ANY_SIZE, characteristics)
+        mImplementation = SurfaceViewImplementation(mParent, ViewfinderTransformation())
     }
 
     @After

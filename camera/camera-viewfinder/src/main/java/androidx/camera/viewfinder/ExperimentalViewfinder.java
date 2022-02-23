@@ -25,7 +25,6 @@ import android.view.SurfaceView;
 import android.view.TextureView;
 
 import androidx.annotation.RequiresOptIn;
-import androidx.annotation.RestrictTo;
 
 import java.lang.annotation.Retention;
 
@@ -40,10 +39,7 @@ import java.lang.annotation.Retention;
  * {@link CameraViewfinder#setScaleType(CameraViewfinder.ScaleType)}.
  *
  * <p>These will be changed in future release possibly, hence add @RequiresOptIn annotation.
- *
- * @hide
  */
-@RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresOptIn(level = ERROR)
 @Retention(CLASS)
 public @interface ExperimentalViewfinder {
