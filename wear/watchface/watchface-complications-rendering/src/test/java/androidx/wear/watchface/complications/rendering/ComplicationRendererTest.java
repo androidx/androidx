@@ -48,6 +48,15 @@ import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
 
 import androidx.test.core.app.ApplicationProvider;
+import androidx.wear.watchface.complications.data.LongTextComplicationData;
+import androidx.wear.watchface.complications.data.MonochromaticImage;
+import androidx.wear.watchface.complications.data.MonochromaticImageComplicationData;
+import androidx.wear.watchface.complications.data.NoDataComplicationData;
+import androidx.wear.watchface.complications.data.PhotoImageComplicationData;
+import androidx.wear.watchface.complications.data.RangedValueComplicationData;
+import androidx.wear.watchface.complications.data.ShortTextComplicationData;
+import androidx.wear.watchface.complications.data.SmallImage;
+import androidx.wear.watchface.complications.data.SmallImageComplicationData;
 import androidx.wear.watchface.complications.rendering.ComplicationRenderer.OnInvalidateListener;
 import androidx.wear.watchface.complications.rendering.ComplicationRenderer.PaintSet;
 
@@ -71,6 +80,8 @@ public class ComplicationRendererTest {
             Instant.ofEpochMilli(1234567890123L); // Fri, 13 Feb 2009 23:31:30.123 GMT
     private static final int BOUNDS_WIDTH = 100;
     private static final int BOUNDS_HEIGHT = 100;
+    private static final androidx.wear.watchface.complications.data.ComplicationText EMPTY_TEXT =
+            androidx.wear.watchface.complications.data.ComplicationText.EMPTY;
 
     private ComplicationRenderer mComplicationRenderer;
     private Rect mComplicationBounds;
@@ -955,6 +966,97 @@ public class ComplicationRendererTest {
                         ComplicationRenderer.PaintSet.createSingleColorMatrix(Color.WHITE));
 
         assertThat(output).isEqualTo(Color.WHITE);
+    }
+
+    @Test
+    public void placeholderIcon() {
+
+        mComplicationRenderer.setComplicationData(
+                new NoDataComplicationData(
+                        new MonochromaticImageComplicationData.Builder(
+                                MonochromaticImage.PLACEHOLDER, EMPTY_TEXT).build())
+                        .asWireComplicationData(),
+                true);
+        assertThat(mComplicationRenderer.mIsPlaceholderIcon).isTrue();
+    }
+
+    @Test
+    public void placeholderSmallImage() {
+        mComplicationRenderer.setComplicationData(
+                new NoDataComplicationData(
+                        new SmallImageComplicationData.Builder(
+                                SmallImage.PLACEHOLDER, EMPTY_TEXT).build())
+                        .asWireComplicationData(),
+                true);
+        assertThat(mComplicationRenderer.mIsPlaceholderSmallImage).isTrue();
+    }
+
+    @Test
+    public void placeholderPhotoImage() {
+        mComplicationRenderer.setComplicationData(
+                new NoDataComplicationData(
+                        new PhotoImageComplicationData.Builder(
+                                PhotoImageComplicationData.PLACEHOLDER, EMPTY_TEXT).build())
+                        .asWireComplicationData(),
+                true);
+        assertThat(mComplicationRenderer.mIsPlaceholderLargeImage).isTrue();
+    }
+
+    @Test
+    public void placeholderRangedValue() {
+        mComplicationRenderer.setComplicationData(
+                new NoDataComplicationData(
+                        new RangedValueComplicationData.Builder(
+                                RangedValueComplicationData.PLACEHOLDER, 0f, 100f, EMPTY_TEXT)
+                                .build())
+                        .asWireComplicationData(),
+                true);
+        assertThat(mComplicationRenderer.mIsPlaceholderRangedValue).isTrue();
+    }
+
+    @Test
+    public void placeholderTitle() {
+        androidx.wear.watchface.complications.data.ComplicationText placeholderText =
+                androidx.wear.watchface.complications.data.ComplicationText.PLACEHOLDER;
+
+        mComplicationRenderer.setComplicationData(
+                new NoDataComplicationData(
+                        new ShortTextComplicationData.Builder(placeholderText, EMPTY_TEXT)
+                                .setTitle(placeholderText)
+                                .build())
+                        .asWireComplicationData(),
+                true);
+        assertThat(mComplicationRenderer.mIsPlaceholderText).isTrue();
+
+        mComplicationRenderer.setComplicationData(
+                new NoDataComplicationData(
+                        new LongTextComplicationData.Builder(placeholderText, EMPTY_TEXT)
+                                .setTitle(placeholderText)
+                                .build())
+                        .asWireComplicationData(),
+                true);
+        assertThat(mComplicationRenderer.mIsPlaceholderText).isTrue();
+    }
+
+    @Test
+    public void placeholderText() {
+        androidx.wear.watchface.complications.data.ComplicationText placeholderText =
+                androidx.wear.watchface.complications.data.ComplicationText.PLACEHOLDER;
+
+        mComplicationRenderer.setComplicationData(
+                new NoDataComplicationData(
+                        new ShortTextComplicationData.Builder(placeholderText, EMPTY_TEXT).build()
+                )
+                        .asWireComplicationData(),
+                true);
+        assertThat(mComplicationRenderer.mIsPlaceholderText).isTrue();
+
+        mComplicationRenderer.setComplicationData(
+                new NoDataComplicationData(
+                        new LongTextComplicationData.Builder(placeholderText, EMPTY_TEXT).build())
+                        .asWireComplicationData(),
+                true);
+        assertThat(mComplicationRenderer.mIsPlaceholderText).isTrue();
     }
 
     private Drawable loadIconFromMock(Icon icon) {

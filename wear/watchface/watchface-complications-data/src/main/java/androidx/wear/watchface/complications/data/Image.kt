@@ -19,6 +19,12 @@ package androidx.wear.watchface.complications.data
 import android.graphics.drawable.Icon
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
+
+internal const val PLACEHOLDER_IMAGE_RESOURCE_ID = -1
+
+internal fun createPlaceholderIcon(): Icon =
+    Icon.createWithResource("", PLACEHOLDER_IMAGE_RESOURCE_ID)
 
 /**
  * A simple, monochromatic image that can be tinted by the watch face.
@@ -98,6 +104,25 @@ public class MonochromaticImage internal constructor(
 
     override fun toString(): String {
         return "MonochromaticImage(image=$image, ambientImage=$ambientImage)"
+    }
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    fun isPlaceholder() = image.isPlaceholder()
+
+    /** @hide */
+    public companion object {
+        /**
+         * For use when the real data isn't available yet, this [MonochromaticImage] should be
+         * rendered as a placeholder. It is suggested that it should be rendered with a light grey
+         * box.
+         *
+         * Note a placeholder may only be used in the context of
+         * [NoDataComplicationData.placeholder].
+         */
+        @JvmField
+        public val PLACEHOLDER: MonochromaticImage =
+            MonochromaticImage(createPlaceholderIcon(), null)
     }
 }
 
@@ -215,11 +240,41 @@ public class SmallImage internal constructor(
     override fun toString(): String {
         return "SmallImage(image=$image, type=$type, ambientImage=$ambientImage)"
     }
+
+    /** @hide */
+    public companion object {
+        /**
+         * For use when the real data isn't available yet, this [SmallImage] should be rendered
+         * as a placeholder. It is suggested that it should be rendered with a light grey box.
+         *
+         * Note a placeholder may only be used in the context of
+         * [NoDataComplicationData.placeholder].
+         */
+        @JvmField
+        public val PLACEHOLDER: SmallImage =
+            SmallImage(createPlaceholderIcon(), SmallImageType.ICON, null)
+    }
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    fun isPlaceholder() = image.isPlaceholder()
+}
+
+/** @hide */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+fun Icon.isPlaceholder() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+    IconHelperP.isPlaceholder(this)
+} else {
+    false
 }
 
 @RequiresApi(Build.VERSION_CODES.P)
 internal class IconHelperP {
     companion object {
+        fun isPlaceholder(icon: Icon): Boolean {
+            return icon.type == Icon.TYPE_RESOURCE && icon.resId == PLACEHOLDER_IMAGE_RESOURCE_ID
+        }
+
         fun equals(a: Icon?, b: Icon?): Boolean {
             if (a == null) {
                 return b == null

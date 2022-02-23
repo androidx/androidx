@@ -261,6 +261,7 @@ public final class ComplicationData implements Parcelable, Serializable {
     private static final String FIELD_TIMELINE_START_TIME = "TIMELINE_START_TIME";
     private static final String FIELD_TIMELINE_END_TIME = "TIMELINE_END_TIME";
     private static final String FIELD_TIMELINE_ENTRIES = "TIMELINE";
+    private static final String FIELD_PLACEHOLDER_TYPE = "PLACEHOLDER_TYPE";
 
     // Originally it was planned to support both content and image content descriptions.
     private static final String FIELD_CONTENT_DESCRIPTION = "IMAGE_CONTENT_DESCRIPTION";
@@ -278,7 +279,7 @@ public final class ComplicationData implements Parcelable, Serializable {
             {FIELD_SMALL_IMAGE, FIELD_IMAGE_STYLE}, // SMALL_IMAGE
             {FIELD_LARGE_IMAGE}, // LARGE_IMAGE
             {}, // TYPE_NO_PERMISSION
-            {} // TYPE_NO_DATA
+            {}, // TYPE_NO_DATA
     };
 
     // Used for validation. OPTIONAL_FIELDS[i] is an array containing all the fields which are
@@ -332,7 +333,24 @@ public final class ComplicationData implements Parcelable, Serializable {
                     FIELD_ICON_BURN_IN_PROTECTION,
                     FIELD_CONTENT_DESCRIPTION
             }, // TYPE_NO_PERMISSION
-            {} // TYPE_NO_DATA
+            {  // TYPE_NO_DATA
+                    FIELD_CONTENT_DESCRIPTION,
+                    FIELD_ICON,
+                    FIELD_ICON_BURN_IN_PROTECTION,
+                    FIELD_IMAGE_STYLE,
+                    FIELD_LARGE_IMAGE,
+                    FIELD_LONG_TEXT,
+                    FIELD_LONG_TITLE,
+                    FIELD_MAX_VALUE,
+                    FIELD_MIN_VALUE,
+                    FIELD_PLACEHOLDER_TYPE,
+                    FIELD_SHORT_TEXT,
+                    FIELD_SHORT_TITLE,
+                    FIELD_SMALL_IMAGE,
+                    FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
+                    FIELD_TAP_ACTION,
+                    FIELD_VALUE
+            }
     };
 
     @NonNull
@@ -374,11 +392,13 @@ public final class ComplicationData implements Parcelable, Serializable {
 
     @RequiresApi(api = Build.VERSION_CODES.P)
     private static class SerializedForm implements Serializable {
-        private static final int VERSION_NUMBER = 3;
+        private static final int VERSION_NUMBER = 4;
 
-        @NonNull ComplicationData mComplicationData;
+        @NonNull
+        ComplicationData mComplicationData;
 
-        SerializedForm() {}
+        SerializedForm() {
+        }
 
         SerializedForm(@NonNull ComplicationData complicationData) {
             mComplicationData = complicationData;
@@ -440,6 +460,9 @@ public final class ComplicationData implements Parcelable, Serializable {
             }
             if (isFieldValidForType(FIELD_END_TIME, type)) {
                 oos.writeLong(mComplicationData.getEndDateTimeMillis());
+            }
+            if (isFieldValidForType(FIELD_PLACEHOLDER_TYPE, type)) {
+                oos.writeInt(mComplicationData.getPlaceholderType());
             }
             // TapAction unfortunately can't be serialized, instead we record if we've lost it.
             oos.writeBoolean(mComplicationData.hasTapAction()
@@ -520,6 +543,12 @@ public final class ComplicationData implements Parcelable, Serializable {
             }
             if (isFieldValidForType(FIELD_END_TIME, type)) {
                 fields.putLong(FIELD_END_TIME, ois.readLong());
+            }
+            if (isFieldValidForType(FIELD_PLACEHOLDER_TYPE, type)) {
+                int placeholderType = ois.readInt();
+                if (placeholderType != 0) {
+                    fields.putInt(FIELD_PLACEHOLDER_TYPE, placeholderType);
+                }
             }
             if (ois.readBoolean()) {
                 fields.putBoolean(FIELD_TAP_ACTION_LOST, true);
@@ -676,7 +705,7 @@ public final class ComplicationData implements Parcelable, Serializable {
         } else {
             mFields.putParcelableArray(
                     FIELD_TIMELINE_ENTRIES,
-                    timelineEntries.stream().map(e-> e.mFields).toArray(Parcelable[]::new));
+                    timelineEntries.stream().map(e -> e.mFields).toArray(Parcelable[]::new));
         }
     }
 
@@ -1112,6 +1141,31 @@ public final class ComplicationData implements Parcelable, Serializable {
     public ComplicationText getContentDescription() {
         checkFieldValidForTypeWithoutThrowingException(FIELD_CONTENT_DESCRIPTION, mType);
         return getParcelableField(FIELD_CONTENT_DESCRIPTION);
+    }
+
+    /**
+     * Returns true if the ComplicationData contains a placeholder type. I.e. if
+     * {@link #getPlaceholderType} can succeed.
+     */
+    public boolean hasPlaceholderType() {
+        try {
+            return isFieldValidForType(FIELD_PLACEHOLDER_TYPE, mType)
+                    && mFields.containsKey(FIELD_PLACEHOLDER_TYPE);
+        } catch (BadParcelableException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Returns the type this complication is a placeholder for.
+     *
+     * <p>Valid only if the type of this complication data is {@link #TYPE_NO_DATA}.
+     * Otherwise returns zero.
+     */
+    @ComplicationType
+    public int getPlaceholderType() {
+        checkFieldValidForType(FIELD_PLACEHOLDER_TYPE, mType);
+        return mFields.getInt(FIELD_PLACEHOLDER_TYPE);
     }
 
     /**
@@ -1561,7 +1615,7 @@ public final class ComplicationData implements Parcelable, Serializable {
         }
 
         /**
-         * Sets whether or not tis ComplicationData has been serialized.
+         * Sets whether or not this ComplicationData has been serialized.
          *
          * <p>Returns this Builder to allow chaining.
          */
@@ -1570,6 +1624,17 @@ public final class ComplicationData implements Parcelable, Serializable {
             if (tapActionLostDueToSerialization) {
                 mFields.putBoolean(FIELD_TAP_ACTION_LOST, tapActionLostDueToSerialization);
             }
+            return this;
+        }
+
+        /**
+         * Sets the type this complication is a placeholder for.
+         *
+         * <p>Returns this Builder to allow chaining.
+         */
+        @NonNull
+        public Builder setPlaceholderType(@ComplicationType int placeholderType) {
+            putIntField(FIELD_PLACEHOLDER_TYPE, placeholderType);
             return this;
         }
 
