@@ -259,9 +259,14 @@ internal fun convertToCenterOffset(
  * @param scalingParams The parameters to configure the scaling and transparency effects for the
  * component
  * @param anchorType How to anchor list items to the center-line of the viewport
- * @param autoCentering Flag to determine whether all items should be centerable in the viewport.
- * If true then sufficient space will be made available before the first and after the last
- * list item to ensure that they can be scrolled to the center of the viewport.
+ * @param autoCentering Flag to indicate whether space/padding should be automatically added to make
+ * sure that list items can be scrolled into the center of the viewport (based on their
+ * [anchorType]). If true then space will be added before the first list item, if needed, to ensure
+ * that items with indexes greater than or equal to the initialCenterItemIndex passed to
+ * [ScalingLazyListState] will be able to be scrolled to the center. Similarly space will be added
+ * at the end of the list to ensure that items can be scrolled up to the center. If false no
+ * automatic space will be added and instead the developer can use [contentPadding] to manually
+ * arrange the items.
  */
 @Composable
 public fun ScalingLazyColumn(
