@@ -11,8 +11,6 @@ ArrayReturn: androidx.collection.ArraySet#toArray(T[]) parameter #0:
 
 KotlinOperator: androidx.collection.CircularArray#get(int):
     Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
-KotlinOperator: androidx.collection.CircularIntArray#get(int):
-    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
 KotlinOperator: androidx.collection.LongSparseArray#get(long):
     Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
 KotlinOperator: androidx.collection.LongSparseArray#get(long, E):

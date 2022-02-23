@@ -59,20 +59,22 @@ package androidx.collection {
   }
 
   public final class CircularIntArray {
+    ctor public CircularIntArray(optional int minCapacity);
     ctor public CircularIntArray();
-    ctor public CircularIntArray(int);
-    method public void addFirst(int);
-    method public void addLast(int);
+    method public void addFirst(int element);
+    method public void addLast(int element);
     method public void clear();
-    method public int get(int);
+    method public operator int get(int index);
     method public int getFirst();
     method public int getLast();
     method public boolean isEmpty();
     method public int popFirst();
     method public int popLast();
-    method public void removeFromEnd(int);
-    method public void removeFromStart(int);
+    method public void removeFromEnd(int count);
+    method public void removeFromStart(int count);
     method public int size();
+    property public final int first;
+    property public final int last;
   }
 
   public class LongSparseArray<E> implements java.lang.Cloneable {

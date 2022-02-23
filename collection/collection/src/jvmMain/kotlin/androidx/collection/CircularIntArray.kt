@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,205 +13,197 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.collection;
+package androidx.collection
 
 /**
- * CircularIntArray is a circular integer array data structure that provides O(1) random read, O(1)
- * prepend and O(1) append. The CircularIntArray automatically grows its capacity when number of
- * added integers is over its capacity.
+ * [CircularIntArray] is a circular integer array data structure that provides O(1) random read,
+ * O(1) prepend and O(1) append. The CircularIntArray automatically grows its capacity when number
+ * of added integers is over its capacity.
+ *
+ * @constructor Creates a circular array with capacity for at least [minCapacity] elements.
+ *
+ * @param minCapacity the minimum capacity, between 1 and 2^30 inclusive
  */
-public final class CircularIntArray
-{
-    private int[] mElements;
-    private int mHead;
-    private int mTail;
-    private int mCapacityBitmask;
+public class CircularIntArray @JvmOverloads public constructor(minCapacity: Int = 8) {
+    private var elements: IntArray
+    private var head = 0
+    private var tail = 0
+    private var capacityBitmask: Int
 
-    private void doubleCapacity() {
-        int n = mElements.length;
-        int r = n - mHead;
-        int newCapacity = n << 1;
-        if (newCapacity < 0) {
-            throw new RuntimeException("Max array capacity exceeded");
-        }
-        int[] a = new int[newCapacity];
-        System.arraycopy(mElements, mHead, a, 0, r);
-        System.arraycopy(mElements, 0, a, r, mHead);
-        mElements = a;
-        mHead = 0;
-        mTail = n;
-        mCapacityBitmask = newCapacity - 1;
-    }
-
-    /**
-     * Creates a circular array with default capacity.
-     */
-    public CircularIntArray() {
-        this(8);
-    }
-
-    /**
-     * Creates a circular array with capacity for at least {@code minCapacity}
-     * elements.
-     *
-     * @param minCapacity the minimum capacity, between 1 and 2^30 inclusive
-     */
-    public CircularIntArray(int minCapacity) {
-        if (minCapacity < 1) {
-            throw new IllegalArgumentException("capacity must be >= 1");
-        }
-        if (minCapacity > (2 << 29)) {
-            throw new IllegalArgumentException("capacity must be <= 2^30");
-        }
+    init {
+        require(minCapacity >= 1) { "capacity must be >= 1" }
+        require(minCapacity <= 2 shl 29) { "capacity must be <= 2^30" }
 
         // If minCapacity isn't a power of 2, round up to the next highest
         // power of 2.
-        final int arrayCapacity;
-        if (Integer.bitCount(minCapacity) != 1) {
-            arrayCapacity = Integer.highestOneBit(minCapacity - 1) << 1;
+        val arrayCapacity: Int = if (Integer.bitCount(minCapacity) != 1) {
+            Integer.highestOneBit(minCapacity - 1) shl 1
         } else {
-            arrayCapacity = minCapacity;
+            minCapacity
         }
+        capacityBitmask = arrayCapacity - 1
+        elements = IntArray(arrayCapacity)
+    }
 
-        mCapacityBitmask = arrayCapacity - 1;
-        mElements = new int[arrayCapacity];
+    private fun doubleCapacity() {
+        val n = elements.size
+        val r = n - head
+        val newCapacity = n shl 1
+        if (newCapacity < 0) {
+            throw RuntimeException("Max array capacity exceeded")
+        }
+        val a = IntArray(newCapacity)
+        elements.copyInto(destination = a, destinationOffset = 0, startIndex = head, endIndex = n)
+        elements.copyInto(destination = a, destinationOffset = r, startIndex = 0, endIndex = head)
+        elements = a
+        head = 0
+        tail = n
+        capacityBitmask = newCapacity - 1
     }
 
     /**
-     * Add an integer in front of the CircularIntArray.
-     * @param e  Integer to add.
+     * Add an integer in front of the [CircularIntArray].
+     *
+     * @param element Integer to add.
      */
-    public void addFirst(int e) {
-        mHead = (mHead - 1) & mCapacityBitmask;
-        mElements[mHead] = e;
-        if (mHead == mTail) {
-            doubleCapacity();
+    public fun addFirst(element: Int) {
+        head = (head - 1) and capacityBitmask
+        elements[head] = element
+        if (head == tail) {
+            doubleCapacity()
         }
     }
 
     /**
-     * Add an integer at end of the CircularIntArray.
-     * @param e  Integer to add.
+     * Add an integer at end of the [CircularIntArray].
+     *
+     * @param element Integer to add.
      */
-    public void addLast(int e) {
-        mElements[mTail] = e;
-        mTail = (mTail + 1) & mCapacityBitmask;
-        if (mTail == mHead) {
-            doubleCapacity();
+    public fun addLast(element: Int) {
+        elements[tail] = element
+        tail = (tail + 1) and capacityBitmask
+        if (tail == head) {
+            doubleCapacity()
         }
     }
 
     /**
-     * Remove first integer from front of the CircularIntArray and return it.
-     * @return  The integer removed.
-     * @throws ArrayIndexOutOfBoundsException if CircularIntArray is empty.
+     * Remove first integer from front of the [CircularIntArray] and return it.
+     *
+     * @return The integer removed.
+     * @throws ArrayIndexOutOfBoundsException if [CircularIntArray] is empty.
      */
-    public int popFirst() {
-        if (mHead == mTail) throw new ArrayIndexOutOfBoundsException();
-        int result = mElements[mHead];
-        mHead = (mHead + 1) & mCapacityBitmask;
-        return result;
+    public fun popFirst(): Int {
+        if (head == tail) throw ArrayIndexOutOfBoundsException()
+        val result = elements[head]
+        head = (head + 1) and capacityBitmask
+        return result
     }
 
     /**
-     * Remove last integer from end of the CircularIntArray and return it.
-     * @return  The integer removed.
-     * @throws ArrayIndexOutOfBoundsException if CircularIntArray is empty.
+     * Remove last integer from end of the [CircularIntArray] and return it.
+     *
+     * @return The integer removed.
+     * @throws ArrayIndexOutOfBoundsException if [CircularIntArray] is empty.
      */
-    public int popLast() {
-        if (mHead == mTail) throw new ArrayIndexOutOfBoundsException();
-        int t = (mTail - 1) & mCapacityBitmask;
-        int result = mElements[t];
-        mTail = t;
-        return result;
+    public fun popLast(): Int {
+        if (head == tail) throw ArrayIndexOutOfBoundsException()
+        val t = (tail - 1) and capacityBitmask
+        val result = elements[t]
+        tail = t
+        return result
     }
 
     /**
-     * Remove all integers from the CircularIntArray.
+     * Remove all integers from the [CircularIntArray].
      */
-    public void clear() {
-        mTail = mHead;
+    public fun clear() {
+        tail = head
     }
 
     /**
-     * Remove multiple integers from front of the CircularIntArray, ignore when numOfElements
+     * Remove multiple integers from front of the [CircularIntArray], ignore when [count]
      * is less than or equals to 0.
-     * @param numOfElements  Number of integers to remove.
-     * @throws ArrayIndexOutOfBoundsException if numOfElements is larger than
-     *         {@link #size()}
+     *
+     * @param count Number of integers to remove.
+     * @throws ArrayIndexOutOfBoundsException if numOfElements is larger than [size]
      */
-    public void removeFromStart(int numOfElements) {
-        if (numOfElements <= 0) {
-            return;
+    public fun removeFromStart(count: Int) {
+        if (count <= 0) {
+            return
         }
-        if (numOfElements > size()) {
-            throw new ArrayIndexOutOfBoundsException();
+        if (count > size()) {
+            throw ArrayIndexOutOfBoundsException()
         }
-        mHead = (mHead + numOfElements) & mCapacityBitmask;
+        head = (head + count) and capacityBitmask
     }
 
     /**
-     * Remove multiple elements from end of the CircularIntArray, ignore when numOfElements
+     * Remove multiple elements from end of the [CircularIntArray], ignore when [count]
      * is less than or equals to 0.
-     * @param numOfElements  Number of integers to remove.
-     * @throws ArrayIndexOutOfBoundsException if numOfElements is larger than
-     *         {@link #size()}
+     *
+     * @param count Number of integers to remove.
+     * @throws ArrayIndexOutOfBoundsException if [count] is larger than [size]
      */
-    public void removeFromEnd(int numOfElements) {
-        if (numOfElements <= 0) {
-            return;
+    public fun removeFromEnd(count: Int) {
+        if (count <= 0) {
+            return
         }
-        if (numOfElements > size()) {
-            throw new ArrayIndexOutOfBoundsException();
+        if (count > size()) {
+            throw ArrayIndexOutOfBoundsException()
         }
-        mTail = (mTail - numOfElements) & mCapacityBitmask;
+        tail = (tail - count) and capacityBitmask
     }
 
     /**
-     * Get first integer of the CircularIntArray.
+     * Get first integer of the [CircularIntArray].
+     *
      * @return The first integer.
-     * @throws {@link ArrayIndexOutOfBoundsException} if CircularIntArray is empty.
+     * @throws [ArrayIndexOutOfBoundsException] if [CircularIntArray] is empty.
      */
-    public int getFirst() {
-        if (mHead == mTail) throw new ArrayIndexOutOfBoundsException();
-        return mElements[mHead];
-    }
+    public val first: Int
+        get() {
+            if (head == tail) throw ArrayIndexOutOfBoundsException()
+            return elements[head]
+        }
 
     /**
-     * Get last integer of the CircularIntArray.
+     * Get last integer of the [CircularIntArray].
+     *
      * @return The last integer.
-     * @throws {@link ArrayIndexOutOfBoundsException} if CircularIntArray is empty.
+     * @throws [ArrayIndexOutOfBoundsException] if [CircularIntArray] is empty.
      */
-    public int getLast() {
-        if (mHead == mTail) throw new ArrayIndexOutOfBoundsException();
-        return mElements[(mTail - 1) & mCapacityBitmask];
-    }
+    public val last: Int
+        get() {
+            if (head == tail) throw ArrayIndexOutOfBoundsException()
+            return elements[(tail - 1) and capacityBitmask]
+        }
 
     /**
-     * Get nth (0 <= n <= size()-1) integer of the CircularIntArray.
-     * @param n  The zero based element index in the CircularIntArray.
+     * Get nth (0 <= n <= size()-1) integer of the [CircularIntArray].
+     *
+     * @param index The zero based element index in the [CircularIntArray].
      * @return The nth integer.
-     * @throws {@link ArrayIndexOutOfBoundsException} if n < 0 or n >= size().
+     * @throws [ArrayIndexOutOfBoundsException] if n < 0 or n >= size().
      */
-    public int get(int n) {
-        if (n < 0 || n >= size()) throw new ArrayIndexOutOfBoundsException();
-        return mElements[(mHead + n) & mCapacityBitmask];
+    public operator fun get(index: Int): Int {
+        if (index < 0 || index >= size()) throw ArrayIndexOutOfBoundsException()
+        return elements[(head + index) and capacityBitmask]
     }
 
     /**
-     * Get number of integers in the CircularIntArray.
-     * @return Number of integers in the CircularIntArray.
+     * Get number of integers in the [CircularIntArray].
+     *
+     * @return Number of integers in the [CircularIntArray].
      */
-    public int size() {
-        return (mTail - mHead) & mCapacityBitmask;
+    public fun size(): Int {
+        return (tail - head) and capacityBitmask
     }
 
     /**
-     * Return true if size() is 0.
-     * @return true if size() is 0.
+     * Return `true` if [size] is 0.
+     *
+     * @return `true` if [size] is 0.
      */
-    public boolean isEmpty() {
-        return mHead == mTail;
-    }
-
+    public fun isEmpty(): Boolean = head == tail
 }

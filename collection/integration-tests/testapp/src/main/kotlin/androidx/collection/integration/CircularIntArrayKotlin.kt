@@ -27,8 +27,8 @@ fun circularIntArraySourceCompatibility(): Boolean {
     circularIntArray.addFirst(1)
     circularIntArray.addLast(1)
     circularIntArray.clear()
-    @Suppress("ReplaceCallWithBinaryOperator")
-    return circularIntArray.isEmpty &&
+    @Suppress("ReplaceCallWithBinaryOperator", "ReplaceGetOrSet")
+    return circularIntArray.isEmpty() &&
         circularIntArray[0] == circularIntArray.get(0) &&
         circularIntArray.size() == 0 &&
         circularIntArray.first.equals(circularIntArray.last) &&
