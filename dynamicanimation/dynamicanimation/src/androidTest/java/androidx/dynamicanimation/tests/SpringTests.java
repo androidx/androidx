@@ -37,11 +37,12 @@ import android.os.SystemClock;
 import android.util.AndroidRuntimeException;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.core.view.ViewCompat;
-import androidx.dynamicanimation.animation.AnimationHandler;
 import androidx.dynamicanimation.animation.DynamicAnimation;
 import androidx.dynamicanimation.animation.FloatPropertyCompat;
 import androidx.dynamicanimation.animation.FloatValueHolder;
+import androidx.dynamicanimation.animation.FrameCallbackScheduler;
 import androidx.dynamicanimation.animation.SpringAnimation;
 import androidx.dynamicanimation.animation.SpringForce;
 import androidx.dynamicanimation.test.R;
@@ -731,7 +732,7 @@ public class SpringTests {
         mExpectedException.expect(AndroidRuntimeException.class);
         SpringAnimation anim = new SpringAnimation(mView1, DynamicAnimation.ALPHA, 0f);
         InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
-            anim.setAnimationHandler(anim.getAnimationHandler());
+            anim.setScheduler(anim.getScheduler());
         });
         runRunnableOnNewThread(() -> {
             anim.start();
@@ -746,7 +747,7 @@ public class SpringTests {
         mExpectedException.expect(AndroidRuntimeException.class);
         SpringAnimation anim = new SpringAnimation(mView1, DynamicAnimation.ALPHA, 0f);
         InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
-            anim.setAnimationHandler(anim.getAnimationHandler());
+            anim.setScheduler(anim.getScheduler());
         });
         runRunnableOnNewThread(() -> {
             anim.cancel();
@@ -761,7 +762,7 @@ public class SpringTests {
         mExpectedException.expect(AndroidRuntimeException.class);
         SpringAnimation anim = new SpringAnimation(mView1, DynamicAnimation.ALPHA, 0f);
         InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
-            anim.setAnimationHandler(anim.getAnimationHandler());
+            anim.setScheduler(anim.getScheduler());
         });
         runRunnableOnNewThread(() -> {
             anim.skipToEnd();
@@ -858,9 +859,8 @@ public class SpringTests {
         final SpringAnimation anim = new SpringAnimation(mView1, DynamicAnimation.Y, 0f);
         MyAnimationFrameCallbackScheduler scheduler =
                 new MyAnimationFrameCallbackScheduler();
-        AnimationHandler handler = new AnimationHandler(scheduler);
 
-        anim.setAnimationHandler(handler);
+        anim.setScheduler(scheduler);
 
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
@@ -870,16 +870,15 @@ public class SpringTests {
         });
 
         assertTrue(scheduler.mCallback);
-        assertEquals(handler, anim.getAnimationHandler());
+        assertEquals(scheduler, anim.getScheduler());
     }
 
-    static class MyAnimationFrameCallbackScheduler implements
-            AnimationHandler.FrameCallbackScheduler {
+    static class MyAnimationFrameCallbackScheduler implements FrameCallbackScheduler {
 
         boolean mCallback;
 
         @Override
-        public void postFrameCallback(Runnable frameCallback) {
+        public void postFrameCallback(@NonNull Runnable frameCallback) {
             mCallback = true;
         }
 
