@@ -81,6 +81,7 @@ dependencies {
     docs(project(":compose:ui:ui-graphics"))
     samples(project(":compose:ui:ui-graphics:ui-graphics-samples"))
     docs(project(":compose:ui:ui-test"))
+    samples(project(":compose:ui:ui-test:ui-test-samples"))
     docs(project(":compose:ui:ui-test-font"))
     docs(project(":compose:ui:ui-test-junit4"))
     docs(project(":compose:ui:ui-text"))
