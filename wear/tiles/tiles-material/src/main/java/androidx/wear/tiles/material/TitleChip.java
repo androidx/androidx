@@ -28,12 +28,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.wear.tiles.ActionBuilders.Action;
 import androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters;
 import androidx.wear.tiles.DimensionBuilders.ContainerDimension;
 import androidx.wear.tiles.DimensionBuilders.DpProp;
 import androidx.wear.tiles.LayoutElementBuilders.HorizontalAlignment;
 import androidx.wear.tiles.LayoutElementBuilders.LayoutElement;
+import androidx.wear.tiles.ModifiersBuilders.Clickable;
 import androidx.wear.tiles.proto.LayoutElementProto;
 
 /**
@@ -57,8 +57,7 @@ public class TitleChip implements LayoutElement {
     /** Builder class for {@link TitleChip}. */
     public static final class Builder implements LayoutElement.Builder {
         @NonNull private final String mText;
-        @NonNull private final Action mAction;
-        @NonNull private final String mClickableId;
+        @NonNull private final Clickable mClickable;
         @NonNull private final DeviceParameters mDeviceParameters;
         @NonNull private ChipColors mChipColors = TITLE_PRIMARY;
         private @HorizontalAlignment int mHorizontalAlign = HORIZONTAL_ALIGN_CENTER;
@@ -72,20 +71,16 @@ public class TitleChip implements LayoutElement {
          *
          * @param text The text to be displayed in this title chip. Text will be displayed in 1 line
          *     and truncated if it doesn't fit.
-         * @param action Associated Actions for click events. When the TitleChip is clicked it will
-         *     fire the associated action.
-         * @param clickableId The ID associated with the given action's clickable.
+         * @param clickable Associated {@link Clickable} for click events. When the TitleChip is
+         *     clicked it will fire the associated action.
          * @param deviceParameters The device parameters used for styling text.
          */
-        @SuppressWarnings("LambdaLast")
         public Builder(
                 @NonNull String text,
-                @NonNull Action action,
-                @NonNull String clickableId,
+                @NonNull Clickable clickable,
                 @NonNull DeviceParameters deviceParameters) {
             this.mText = text;
-            this.mAction = action;
-            this.mClickableId = clickableId;
+            this.mClickable = clickable;
             this.mDeviceParameters = deviceParameters;
         }
 
@@ -134,7 +129,7 @@ public class TitleChip implements LayoutElement {
         @Override
         public TitleChip build() {
             Chip.Builder chipBuilder =
-                    new Chip.Builder(mAction, mClickableId, mDeviceParameters)
+                    new Chip.Builder(mClickable, mDeviceParameters)
                             .setChipColors(mChipColors)
                             .setContentDescription(mText)
                             .setHorizontalAlignment(mHorizontalAlign)
@@ -166,8 +161,8 @@ public class TitleChip implements LayoutElement {
 
     /** Returns click event action associated with this Chip. */
     @NonNull
-    public Action getAction() {
-        return mElement.getAction();
+    public Clickable getClickable() {
+        return mElement.getClickable();
     }
 
     /** Returns chip color of this Chip. */
