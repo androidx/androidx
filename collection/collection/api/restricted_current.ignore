@@ -1,3 +1,9 @@
 // Baseline format: 1.0
+ChangedType: androidx.collection.LruCache#snapshot():
+    Method androidx.collection.LruCache.snapshot has changed return type from java.util.Map<K!,V!> to java.util.Map<K,V>
 ChangedType: androidx.collection.SparseArrayCompat#clone():
     Method androidx.collection.SparseArrayCompat.clone has changed return type from androidx.collection.SparseArrayCompat<E!> to androidx.collection.SparseArrayCompat<E>
+
+
+RemovedMethod: androidx.collection.LruCache#toString():
+    Removed method androidx.collection.LruCache.toString()

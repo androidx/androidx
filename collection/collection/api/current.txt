@@ -104,25 +104,24 @@ package androidx.collection {
   }
 
   public class LruCache<K, V> {
-    ctor public LruCache(int);
-    method protected V? create(K);
+    ctor public LruCache(@IntRange(from=1, to=kotlin.jvm.internal.LongCompanionObject.MAX_VALUE) int maxSize);
+    method protected V? create(K key);
     method public final int createCount();
-    method protected void entryRemoved(boolean, K, V, V?);
+    method protected void entryRemoved(boolean evicted, K key, V oldValue, V? newValue);
     method public final void evictAll();
     method public final int evictionCount();
-    method public final V? get(K);
+    method public final operator V? get(K key);
     method public final int hitCount();
     method public final int maxSize();
     method public final int missCount();
-    method public final V? put(K, V);
+    method public final V? put(K key, V value);
     method public final int putCount();
-    method public final V? remove(K);
-    method public void resize(int);
+    method public final V? remove(K key);
+    method public void resize(@IntRange(from=1, to=kotlin.jvm.internal.LongCompanionObject.MAX_VALUE) int maxSize);
     method public final int size();
-    method protected int sizeOf(K, V);
-    method public final java.util.Map<K!,V!>! snapshot();
-    method public final String toString();
-    method public void trimToSize(int);
+    method protected int sizeOf(K key, V value);
+    method public final java.util.Map<K,V> snapshot();
+    method public void trimToSize(int maxSize);
   }
 
   public class SimpleArrayMap<K, V> {
