@@ -135,13 +135,13 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
                         .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
                         .build())
                 .build();
-        mDb.setSchema(new SetSchemaRequest.Builder()
+        mDb.setSchemaAsync(new SetSchemaRequest.Builder()
                 .addSchemas(schema).setForceOverride(true).build()).get();
         GenericDocument doc = new GenericDocument.Builder<>(
                 "namespace", "id0", "testSchema")
                 .setPropertyString("subject", "testPut example1")
                 .setCreationTimestampMillis(DOCUMENT_CREATION_TIME).build();
-        AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb.put(
+        AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb.putAsync(
                 new PutDocumentsRequest.Builder().addGenericDocuments(doc).build()));
         assertThat(result.getSuccesses()).containsExactly("id0", null);
         assertThat(result.getFailures()).isEmpty();
@@ -150,7 +150,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
     @After
     public void tearDown() throws Exception {
         // Cleanup whatever documents may still exist in these databases.
-        mDb.setSchema(new SetSchemaRequest.Builder().setForceOverride(true).build()).get();
+        mDb.setSchemaAsync(new SetSchemaRequest.Builder().setForceOverride(true).build()).get();
     }
 
     @Test
@@ -165,7 +165,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
                         .build())
                 .build();
 
-        mDb.setSchema(
+        mDb.setSchemaAsync(
                 new SetSchemaRequest.Builder().addSchemas(B_C_Schema)
                         .setMigrator("testSchema", ACTIVE_NOOP_MIGRATOR)
                         .setForceOverride(true)
@@ -185,7 +185,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
                         .build())
                 .build();
 
-        mDb.setSchema(
+        mDb.setSchemaAsync(
                 new SetSchemaRequest.Builder().addSchemas(B_NC_Schema)
                         .setMigrator("testSchema", ACTIVE_NOOP_MIGRATOR)
                         .setForceOverride(true)
@@ -198,7 +198,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         AppSearchSchema NB_C_Schema = new AppSearchSchema.Builder("testSchema")
                 .build();
 
-        mDb.setSchema(
+        mDb.setSchemaAsync(
                 new SetSchemaRequest.Builder().addSchemas(NB_C_Schema)
                         .setMigrator("testSchema", ACTIVE_NOOP_MIGRATOR)
                         .setForceOverride(true)
@@ -212,7 +212,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         AppSearchSchema NB_C_Schema = new AppSearchSchema.Builder("testSchema")
                 .build();
 
-        mDb.setSchema(
+        mDb.setSchemaAsync(
                 new SetSchemaRequest.Builder().addSchemas(NB_C_Schema)
                         .setMigrator("testSchema", INACTIVE_MIGRATOR)  //ND
                         .setForceOverride(true)
@@ -226,7 +226,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         AppSearchSchema NB_NC_Schema = new AppSearchSchema.Builder("testSchema")
                 .build();
 
-        mDb.setSchema(
+        mDb.setSchemaAsync(
                 new SetSchemaRequest.Builder().addSchemas(NB_NC_Schema)
                         .setMigrator("testSchema", ACTIVE_NOOP_MIGRATOR)
                         .setForceOverride(true)
@@ -239,7 +239,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         AppSearchSchema $B_$C_Schema = new AppSearchSchema.Builder("testSchema")
                 .build();
 
-        mDb.setSchema(
+        mDb.setSchemaAsync(
                 new SetSchemaRequest.Builder().addSchemas($B_$C_Schema)
                         .setMigrator("testSchema", INACTIVE_MIGRATOR)  //ND
                         .setForceOverride(true)
@@ -258,7 +258,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
                         .build())
                 .build();
 
-        mDb.setSchema(
+        mDb.setSchemaAsync(
                 new SetSchemaRequest.Builder().addSchemas(B_C_Schema)
                         .setMigrator("testSchema", ACTIVE_NOOP_MIGRATOR)
                         .setVersion(2)     // upgrade version
@@ -277,7 +277,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
                         .build())
                 .build();
 
-        mDb.setSchema(
+        mDb.setSchemaAsync(
                 new SetSchemaRequest.Builder().addSchemas(B_NC_Schema)
                         .setMigrator("testSchema", ACTIVE_NOOP_MIGRATOR)
                         .setForceOverride(true)
@@ -290,7 +290,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         AppSearchSchema NB_C_Schema = new AppSearchSchema.Builder("testSchema")
                 .build();
 
-        mDb.setSchema(
+        mDb.setSchemaAsync(
                 new SetSchemaRequest.Builder().addSchemas(NB_C_Schema)
                         .setMigrator("testSchema", ACTIVE_NOOP_MIGRATOR)
                         .setVersion(2)     // upgrade version
@@ -304,7 +304,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
                 .build();
 
         ExecutionException exception = assertThrows(ExecutionException.class,
-                () -> mDb.setSchema(
+                () -> mDb.setSchemaAsync(
                         new SetSchemaRequest.Builder().addSchemas($B_C_Schema)
                                 .setMigrator("testSchema", INACTIVE_MIGRATOR)  //ND
                                 .setVersion(2)     // upgrade version
@@ -319,7 +319,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
                 .build();
 
         ExecutionException exception = assertThrows(ExecutionException.class,
-                () -> mDb.setSchema(
+                () -> mDb.setSchemaAsync(
                         new SetSchemaRequest.Builder().addSchemas($B_$C_Schema)
                                 .setMigrator("testSchema", INACTIVE_MIGRATOR)  //ND
                                 .build()).get());
@@ -342,7 +342,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
                         .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
                         .build())
                 .build();
-        mDb.setSchema(new SetSchemaRequest.Builder()
+        mDb.setSchemaAsync(new SetSchemaRequest.Builder()
                 .addSchemas(schema).setForceOverride(true).build()).get();
 
         GenericDocument doc1 = new GenericDocument.Builder<>("namespace", "id1", "testSchema")
@@ -354,7 +354,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
                 .setPropertyString("To", "testTo example2")
                 .build();
 
-        AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb.put(
+        AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb.putAsync(
                 new PutDocumentsRequest.Builder().addGenericDocuments(doc1, doc2).build()));
         assertThat(result.getSuccesses()).containsExactly("id1", null, "id2", null);
         assertThat(result.getFailures()).isEmpty();
@@ -406,13 +406,13 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         };
 
         SetSchemaResponse setSchemaResponse =
-                mDb.setSchema(new SetSchemaRequest.Builder().addSchemas(newSchema)
+                mDb.setSchemaAsync(new SetSchemaRequest.Builder().addSchemas(newSchema)
                         .setMigrator("testSchema", migrator)
                         .setVersion(2)     // upgrade version
                         .build()).get();
 
         // Check the schema has been saved
-        assertThat(mDb.getSchema().get().getSchemas()).containsExactly(newSchema);
+        assertThat(mDb.getSchemaAsync().get().getSchemas()).containsExactly(newSchema);
 
         assertThat(setSchemaResponse.getDeletedTypes()).isEmpty();
         assertThat(setSchemaResponse.getIncompatibleTypes())
@@ -458,7 +458,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
                         .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
                         .build())
                 .build();
-        mDb.setSchema(new SetSchemaRequest.Builder()
+        mDb.setSchemaAsync(new SetSchemaRequest.Builder()
                 .addSchemas(schema).setForceOverride(true).setVersion(3).build()).get();
 
         GenericDocument doc1 = new GenericDocument.Builder<>("namespace", "id1", "testSchema")
@@ -466,7 +466,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
                 .setPropertyString("To", "testTo example1")
                 .build();
 
-        AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb.put(
+        AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb.putAsync(
                 new PutDocumentsRequest.Builder().addGenericDocuments(doc1).build()));
         assertThat(result.getSuccesses()).containsExactly("id1", null);
         assertThat(result.getFailures()).isEmpty();
@@ -508,13 +508,13 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         };
 
         SetSchemaResponse setSchemaResponse =
-                mDb.setSchema(new SetSchemaRequest.Builder().addSchemas(newSchema)
+                mDb.setSchemaAsync(new SetSchemaRequest.Builder().addSchemas(newSchema)
                         .setMigrator("testSchema", migrator)
                         .setVersion(1)     // downgrade version
                         .build()).get();
 
         // Check the schema has been saved
-        assertThat(mDb.getSchema().get().getSchemas()).containsExactly(newSchema);
+        assertThat(mDb.getSchemaAsync().get().getSchemas()).containsExactly(newSchema);
 
         assertThat(setSchemaResponse.getDeletedTypes()).isEmpty();
         assertThat(setSchemaResponse.getIncompatibleTypes())
@@ -546,7 +546,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
                         .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
                         .build())
                 .build();
-        mDb.setSchema(new SetSchemaRequest.Builder()
+        mDb.setSchemaAsync(new SetSchemaRequest.Builder()
                 .addSchemas(schema).setForceOverride(true).setVersion(3).build()).get();
 
         GenericDocument doc1 = new GenericDocument.Builder<>("namespace", "id1", "testSchema")
@@ -554,7 +554,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
                 .setPropertyString("To", "testTo example1")
                 .build();
 
-        AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb.put(
+        AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb.putAsync(
                 new PutDocumentsRequest.Builder().addGenericDocuments(doc1).build()));
         assertThat(result.getSuccesses()).containsExactly("id1", null);
         assertThat(result.getFailures()).isEmpty();
@@ -594,7 +594,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
 
         // SetSchema with forceOverride=false
         ExecutionException exception = assertThrows(ExecutionException.class,
-                () -> mDb.setSchema(new SetSchemaRequest.Builder().addSchemas(newSchema)
+                () -> mDb.setSchemaAsync(new SetSchemaRequest.Builder().addSchemas(newSchema)
                         .setMigrator("testSchema", migrator)
                         .setVersion(3)     // same version
                         .build()).get());
@@ -602,12 +602,12 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
 
         // SetSchema with forceOverride=true
         SetSchemaResponse setSchemaResponse =
-                mDb.setSchema(new SetSchemaRequest.Builder().addSchemas(newSchema)
+                mDb.setSchemaAsync(new SetSchemaRequest.Builder().addSchemas(newSchema)
                         .setMigrator("testSchema", migrator)
                         .setVersion(3)     // same version
                         .setForceOverride(true).build()).get();
 
-        assertThat(mDb.getSchema().get().getSchemas()).containsExactly(newSchema);
+        assertThat(mDb.getSchemaAsync().get().getSchemas()).containsExactly(newSchema);
 
         assertThat(setSchemaResponse.getDeletedTypes()).isEmpty();
         assertThat(setSchemaResponse.getIncompatibleTypes())
@@ -632,7 +632,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
                         .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
                         .build())
                 .build();
-        mDb.setSchema(new SetSchemaRequest.Builder()
+        mDb.setSchemaAsync(new SetSchemaRequest.Builder()
                 .addSchemas(schema).setForceOverride(true).setVersion(2).build()).get();
 
         GenericDocument doc1 = new GenericDocument.Builder<>("namespace", "id1", "testSchema")
@@ -640,7 +640,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
                 .setPropertyString("To", "testTo example1")
                 .build();
 
-        AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb.put(
+        AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb.putAsync(
                 new PutDocumentsRequest.Builder().addGenericDocuments(doc1).build()));
         assertThat(result.getSuccesses()).containsExactly("id1", null);
         assertThat(result.getFailures()).isEmpty();
@@ -680,7 +680,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
 
         // SetSchema with forceOverride=false
         ExecutionException exception = assertThrows(ExecutionException.class,
-                () -> mDb.setSchema(new SetSchemaRequest.Builder().addSchemas(newSchema)
+                () -> mDb.setSchemaAsync(new SetSchemaRequest.Builder().addSchemas(newSchema)
                         .setMigrator("testSchema", migrator)
                         .setVersion(4)     // upgrade version
                         .build()).get());
@@ -692,14 +692,14 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         // set the source schema to AppSearch
         AppSearchSchema schema = new AppSearchSchema.Builder("sourceSchema")
                 .build();
-        mDb.setSchema(new SetSchemaRequest.Builder()
+        mDb.setSchemaAsync(new SetSchemaRequest.Builder()
                 .addSchemas(schema).setForceOverride(true).build()).get();
 
         // save a doc to the source type
         GenericDocument doc = new GenericDocument.Builder<>(
                 "namespace", "id1", "sourceSchema")
                 .setCreationTimestampMillis(DOCUMENT_CREATION_TIME).build();
-        AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb.put(
+        AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb.putAsync(
                 new PutDocumentsRequest.Builder().addGenericDocuments(doc).build()));
         assertThat(result.getSuccesses()).containsExactly("id1", null);
         assertThat(result.getFailures()).isEmpty();
@@ -730,7 +730,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         // SetSchema with forceOverride=false
         // Source type exist, destination type doesn't exist.
         ExecutionException exception = assertThrows(ExecutionException.class,
-                () -> mDb.setSchema(new SetSchemaRequest.Builder()
+                () -> mDb.setSchemaAsync(new SetSchemaRequest.Builder()
                         .addSchemas(new AppSearchSchema.Builder("emptySchema").build())
                         .setMigrator("sourceSchema", migrator_sourceToNowhere)
                         .setVersion(2).build())   // upgrade version
@@ -742,7 +742,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         // SetSchema with forceOverride=true
         // Source type exist, destination type doesn't exist.
         exception = assertThrows(ExecutionException.class,
-                () -> mDb.setSchema(new SetSchemaRequest.Builder()
+                () -> mDb.setSchemaAsync(new SetSchemaRequest.Builder()
                         .addSchemas(new AppSearchSchema.Builder("emptySchema").build())
                         .setMigrator("sourceSchema", migrator_sourceToNowhere)
                         .setForceOverride(true)
@@ -758,7 +758,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         // set the destination schema to AppSearch
         AppSearchSchema destinationSchema =
                 new AppSearchSchema.Builder("destinationSchema").build();
-        mDb.setSchema(new SetSchemaRequest.Builder()
+        mDb.setSchemaAsync(new SetSchemaRequest.Builder()
                 .addSchemas(destinationSchema).setForceOverride(true).build()).get();
 
         Migrator migrator_nowhereToDestination = new Migrator() {
@@ -787,7 +787,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         // no matter force override or not, the migrator won't be invoked
         // SetSchema with forceOverride=false
         SetSchemaResponse setSchemaResponse =
-                mDb.setSchema(new SetSchemaRequest.Builder().addSchemas(destinationSchema)
+                mDb.setSchemaAsync(new SetSchemaRequest.Builder().addSchemas(destinationSchema)
                         .addSchemas(new AppSearchSchema.Builder("emptySchema").build())
                         .setMigrator("nonExistSchema", migrator_nowhereToDestination)
                         .setVersion(2) //  upgrade version
@@ -796,7 +796,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
 
         // SetSchema with forceOverride=true
         setSchemaResponse =
-                mDb.setSchema(new SetSchemaRequest.Builder().addSchemas(destinationSchema)
+                mDb.setSchemaAsync(new SetSchemaRequest.Builder().addSchemas(destinationSchema)
                         .addSchemas(new AppSearchSchema.Builder("emptySchema").build())
                         .setMigrator("nonExistSchema", migrator_nowhereToDestination)
                         .setVersion(2) //  upgrade version
@@ -807,7 +807,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
     @Test
     public void testSchemaMigration_nowhereToNowhere() throws Exception {
         // set empty schema
-        mDb.setSchema(new SetSchemaRequest.Builder()
+        mDb.setSchemaAsync(new SetSchemaRequest.Builder()
                 .setForceOverride(true).build()).get();
         Migrator migrator_nowhereToNowhere = new Migrator() {
             @Override
@@ -835,7 +835,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         // no matter force override or not, the migrator won't be invoked
         // SetSchema with forceOverride=false
         SetSchemaResponse setSchemaResponse =
-                mDb.setSchema(new SetSchemaRequest.Builder()
+                mDb.setSchemaAsync(new SetSchemaRequest.Builder()
                         .addSchemas(new AppSearchSchema.Builder("emptySchema").build())
                         .setMigrator("nonExistSchema", migrator_nowhereToNowhere)
                         .setVersion(2)  //  upgrade version
@@ -844,7 +844,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
 
         // SetSchema with forceOverride=true
         setSchemaResponse =
-                mDb.setSchema(new SetSchemaRequest.Builder()
+                mDb.setSchemaAsync(new SetSchemaRequest.Builder()
                         .addSchemas(new AppSearchSchema.Builder("emptySchema").build())
                         .setMigrator("nonExistSchema", migrator_nowhereToNowhere)
                         .setVersion(2) //  upgrade version
@@ -857,13 +857,13 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         // set the source schema to AppSearch
         AppSearchSchema sourceSchema = new AppSearchSchema.Builder("sourceSchema")
                 .build();
-        mDb.setSchema(new SetSchemaRequest.Builder()
+        mDb.setSchemaAsync(new SetSchemaRequest.Builder()
                 .addSchemas(sourceSchema).setForceOverride(true).build()).get();
 
         // save a doc to the source type
         GenericDocument doc = new GenericDocument.Builder<>(
                 "namespace", "id1", "sourceSchema").build();
-        AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb.put(
+        AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb.putAsync(
                 new PutDocumentsRequest.Builder().addGenericDocuments(doc).build()));
         assertThat(result.getSuccesses()).containsExactly("id1", null);
         assertThat(result.getFailures()).isEmpty();
@@ -897,7 +897,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         };
 
         // SetSchema with forceOverride=false and increase overall version
-        SetSchemaResponse setSchemaResponse = mDb.setSchema(new SetSchemaRequest.Builder()
+        SetSchemaResponse setSchemaResponse = mDb.setSchemaAsync(new SetSchemaRequest.Builder()
                 .addSchemas(destinationSchema)
                 .setMigrator("sourceSchema", migrator)
                 .setForceOverride(false)
@@ -925,7 +925,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
                         .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REQUIRED)
                         .build())
                 .build();
-        mDb.setSchema(new SetSchemaRequest.Builder()
+        mDb.setSchemaAsync(new SetSchemaRequest.Builder()
                 .addSchemas(sourceSchema).setForceOverride(true).build()).get();
 
         // save a child and an adult to the Person type
@@ -935,7 +935,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         GenericDocument adultDoc = new GenericDocument.Builder<>(
                 "namespace", "Person2", "Person")
                 .setPropertyLong("Age", 36).build();
-        AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb.put(
+        AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb.putAsync(
                 new PutDocumentsRequest.Builder().addGenericDocuments(childDoc, adultDoc).build()));
         assertThat(result.getSuccesses()).containsExactly("Person1", null, "Person2", null);
         assertThat(result.getFailures()).isEmpty();
@@ -987,7 +987,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
                 .build();
 
         // SetSchema with forceOverride=false and increase overall version
-        SetSchemaResponse setSchemaResponse = mDb.setSchema(new SetSchemaRequest.Builder()
+        SetSchemaResponse setSchemaResponse = mDb.setSchemaAsync(new SetSchemaRequest.Builder()
                 .addSchemas(adultSchema, childSchema)
                 .setMigrator("Person", migrator)
                 .setForceOverride(false)
@@ -1031,7 +1031,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
                         .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REQUIRED)
                         .build())
                 .build();
-        mDb.setSchema(new SetSchemaRequest.Builder()
+        mDb.setSchemaAsync(new SetSchemaRequest.Builder()
                 .addSchemas(sourceSchemaA, sourceSchemaB).setForceOverride(true).build()).get();
 
         // save 100 docs to each type
@@ -1047,7 +1047,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
                     .setCreationTimestampMillis(DOCUMENT_CREATION_TIME).build();
             putRequestBuilder.addGenericDocuments(docInA, docInB);
         }
-        AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb.put(
+        AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb.putAsync(
                 putRequestBuilder.build()));
         assertThat(result.getFailures()).isEmpty();
 
@@ -1141,7 +1141,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         };
 
         // SetSchema with forceOverride=false and increase overall version
-        SetSchemaResponse setSchemaResponse = mDb.setSchema(new SetSchemaRequest.Builder()
+        SetSchemaResponse setSchemaResponse = mDb.setSchemaAsync(new SetSchemaRequest.Builder()
                 .addSchemas(destinationSchemaB, destinationSchemaC, destinationSchemaD)
                 .setMigrator("schemaA", migratorA)
                 .setMigrator("schemaB", migratorB)
@@ -1280,7 +1280,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
                         .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
                         .build())
                 .build();
-        mDb.setSchema(new SetSchemaRequest.Builder()
+        mDb.setSchemaAsync(new SetSchemaRequest.Builder()
                 .addSchemas(typeA).setForceOverride(true).setVersion(1).build()).get();
 
         // save a doc to version 1.
@@ -1288,13 +1288,13 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
                 "namespace", "id", "TypeA")
                 .setPropertyString("subject", "subject")
                 .setCreationTimestampMillis(DOCUMENT_CREATION_TIME).build();
-        AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb.put(
+        AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb.putAsync(
                 new PutDocumentsRequest.Builder().addGenericDocuments(doc).build()));
         assertThat(result.getSuccesses()).containsExactly("id", null);
         assertThat(result.getFailures()).isEmpty();
 
         // update to version 4.
-        SetSchemaResponse setSchemaResponse = mDb.setSchema(MULTI_STEP_REQUEST).get();
+        SetSchemaResponse setSchemaResponse = mDb.setSchemaAsync(MULTI_STEP_REQUEST).get();
         assertThat(setSchemaResponse.getDeletedTypes()).containsExactly("TypeA");
         assertThat(setSchemaResponse.getIncompatibleTypes()).isEmpty();
         assertThat(setSchemaResponse.getMigratedTypes()).containsExactly("TypeA");
@@ -1329,7 +1329,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
                         .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
                         .build())
                 .build();
-        mDb.setSchema(new SetSchemaRequest.Builder()
+        mDb.setSchemaAsync(new SetSchemaRequest.Builder()
                 .addSchemas(typeA).setForceOverride(true).setVersion(2).build()).get();
 
         // save a doc to version 2.
@@ -1338,13 +1338,13 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
                 .setPropertyString("subject", "subject")
                 .setPropertyString("body", "bodyFromA")
                 .setCreationTimestampMillis(DOCUMENT_CREATION_TIME).build();
-        AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb.put(
+        AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb.putAsync(
                 new PutDocumentsRequest.Builder().addGenericDocuments(doc).build()));
         assertThat(result.getSuccesses()).containsExactly("id", null);
         assertThat(result.getFailures()).isEmpty();
 
         // update to version 4.
-        SetSchemaResponse setSchemaResponse = mDb.setSchema(MULTI_STEP_REQUEST).get();
+        SetSchemaResponse setSchemaResponse = mDb.setSchemaAsync(MULTI_STEP_REQUEST).get();
         assertThat(setSchemaResponse.getDeletedTypes()).containsExactly("TypeA");
         assertThat(setSchemaResponse.getIncompatibleTypes()).isEmpty();
         assertThat(setSchemaResponse.getMigratedTypes()).containsExactly("TypeA");
@@ -1375,7 +1375,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
                         .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
                         .build())
                 .build();
-        mDb.setSchema(new SetSchemaRequest.Builder()
+        mDb.setSchemaAsync(new SetSchemaRequest.Builder()
                 .addSchemas(typeA).setForceOverride(true).setVersion(3).build()).get();
 
         // save a doc to version 2.
@@ -1384,13 +1384,13 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
                 .setPropertyString("subject", "subject")
                 .setPropertyString("body", "bodyFromB")
                 .setCreationTimestampMillis(DOCUMENT_CREATION_TIME).build();
-        AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb.put(
+        AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb.putAsync(
                 new PutDocumentsRequest.Builder().addGenericDocuments(doc).build()));
         assertThat(result.getSuccesses()).containsExactly("id", null);
         assertThat(result.getFailures()).isEmpty();
 
         // update to version 4.
-        SetSchemaResponse setSchemaResponse = mDb.setSchema(MULTI_STEP_REQUEST).get();
+        SetSchemaResponse setSchemaResponse = mDb.setSchemaAsync(MULTI_STEP_REQUEST).get();
         assertThat(setSchemaResponse.getDeletedTypes()).isEmpty();
         assertThat(setSchemaResponse.getIncompatibleTypes()).containsExactly("TypeB");
         assertThat(setSchemaResponse.getMigratedTypes()).containsExactly("TypeB");

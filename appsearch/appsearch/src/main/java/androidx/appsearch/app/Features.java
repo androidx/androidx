@@ -45,7 +45,7 @@ public interface Features {
 
     /**
      * Feature for {@link #isFeatureSupported(String)}. This feature covers
-     * {@link GlobalSearchSession#getSchema}.
+     * {@link GlobalSearchSession#getSchemaAsync}.
      */
     String GLOBAL_SEARCH_SESSION_GET_SCHEMA = "GLOBAL_SEARCH_SESSION_GET_SCHEMA";
 

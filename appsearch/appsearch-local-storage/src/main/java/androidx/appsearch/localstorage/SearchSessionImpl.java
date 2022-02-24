@@ -105,7 +105,7 @@ class SearchSessionImpl implements AppSearchSession {
 
     @Override
     @NonNull
-    public ListenableFuture<SetSchemaResponse> setSchema(
+    public ListenableFuture<SetSchemaResponse> setSchemaAsync(
             @NonNull SetSchemaRequest request) {
         Preconditions.checkNotNull(request);
         Preconditions.checkState(!mIsClosed, "AppSearchSession has already been closed");
@@ -257,7 +257,7 @@ class SearchSessionImpl implements AppSearchSession {
 
     @Override
     @NonNull
-    public ListenableFuture<GetSchemaResponse> getSchema() {
+    public ListenableFuture<GetSchemaResponse> getSchemaAsync() {
         Preconditions.checkState(!mIsClosed, "AppSearchSession has already been closed");
         return execute(
                 () -> mAppSearchImpl.getSchema(mPackageName, mDatabaseName, mSelfCallerAccess));
@@ -265,7 +265,7 @@ class SearchSessionImpl implements AppSearchSession {
 
     @NonNull
     @Override
-    public ListenableFuture<Set<String>> getNamespaces() {
+    public ListenableFuture<Set<String>> getNamespacesAsync() {
         Preconditions.checkState(!mIsClosed, "AppSearchSession has already been closed");
         return execute(() -> {
             List<String> namespaces = mAppSearchImpl.getNamespaces(mPackageName, mDatabaseName);
@@ -275,7 +275,7 @@ class SearchSessionImpl implements AppSearchSession {
 
     @Override
     @NonNull
-    public ListenableFuture<AppSearchBatchResult<String, Void>> put(
+    public ListenableFuture<AppSearchBatchResult<String, Void>> putAsync(
             @NonNull PutDocumentsRequest request) {
         Preconditions.checkNotNull(request);
         Preconditions.checkState(!mIsClosed, "AppSearchSession has already been closed");
@@ -310,7 +310,7 @@ class SearchSessionImpl implements AppSearchSession {
 
     @Override
     @NonNull
-    public ListenableFuture<AppSearchBatchResult<String, GenericDocument>> getByDocumentId(
+    public ListenableFuture<AppSearchBatchResult<String, GenericDocument>> getByDocumentIdAsync(
             @NonNull GetByDocumentIdRequest request) {
         Preconditions.checkNotNull(request);
         Preconditions.checkState(!mIsClosed, "AppSearchSession has already been closed");
@@ -353,7 +353,7 @@ class SearchSessionImpl implements AppSearchSession {
 
     @Override
     @NonNull
-    public ListenableFuture<Void> reportUsage(@NonNull ReportUsageRequest request) {
+    public ListenableFuture<Void> reportUsageAsync(@NonNull ReportUsageRequest request) {
         Preconditions.checkNotNull(request);
         Preconditions.checkState(!mIsClosed, "AppSearchSession has already been closed");
         return execute(() -> {
@@ -371,7 +371,7 @@ class SearchSessionImpl implements AppSearchSession {
 
     @Override
     @NonNull
-    public ListenableFuture<AppSearchBatchResult<String, Void>> remove(
+    public ListenableFuture<AppSearchBatchResult<String, Void>> removeAsync(
             @NonNull RemoveByDocumentIdRequest request) {
         Preconditions.checkNotNull(request);
         Preconditions.checkState(!mIsClosed, "AppSearchSession has already been closed");
@@ -410,7 +410,7 @@ class SearchSessionImpl implements AppSearchSession {
 
     @Override
     @NonNull
-    public ListenableFuture<Void> remove(
+    public ListenableFuture<Void> removeAsync(
             @NonNull String queryExpression, @NonNull SearchSpec searchSpec) {
         Preconditions.checkNotNull(queryExpression);
         Preconditions.checkNotNull(searchSpec);
@@ -439,14 +439,14 @@ class SearchSessionImpl implements AppSearchSession {
 
     @Override
     @NonNull
-    public ListenableFuture<StorageInfo> getStorageInfo() {
+    public ListenableFuture<StorageInfo> getStorageInfoAsync() {
         Preconditions.checkState(!mIsClosed, "AppSearchSession has already been closed");
         return execute(() -> mAppSearchImpl.getStorageInfoForDatabase(mPackageName, mDatabaseName));
     }
 
     @NonNull
     @Override
-    public ListenableFuture<Void> requestFlush() {
+    public ListenableFuture<Void> requestFlushAsync() {
         return execute(() -> {
             mAppSearchImpl.persistToDisk(PersistType.Code.FULL);
             return null;
@@ -479,7 +479,7 @@ class SearchSessionImpl implements AppSearchSession {
     /**
      * Set schema to Icing for no-migration scenario.
      *
-     * <p>We only need one time {@link #setSchema} call for no-migration scenario by using the
+     * <p>We only need one time {@link #setSchemaAsync} call for no-migration scenario by using the
      * forceoverride in the request.
      */
     private SetSchemaResponse setSchemaNoMigrations(@NonNull SetSchemaRequest request,

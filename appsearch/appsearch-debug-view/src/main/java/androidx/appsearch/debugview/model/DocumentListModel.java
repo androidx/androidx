@@ -76,7 +76,7 @@ public class DocumentListModel extends ViewModel {
      */
     @NonNull
     public LiveData<SearchResults> getAllDocumentsSearchResults() {
-        Futures.addCallback(mDebugAppSearchManager.getAllDocumentsSearchResults(),
+        Futures.addCallback(mDebugAppSearchManager.getAllDocumentsSearchResultsAsync(),
                 new FutureCallback<SearchResults>() {
                     @Override
                     public void onSuccess(SearchResults result) {
@@ -107,7 +107,7 @@ public class DocumentListModel extends ViewModel {
     @NonNull
     public LiveData<List<GenericDocument>> addAdditionalResultsPage(
             @NonNull SearchResults results) {
-        Futures.addCallback(mDebugAppSearchManager.getNextPage(results),
+        Futures.addCallback(mDebugAppSearchManager.getNextPageAsync(results),
                 new FutureCallback<List<GenericDocument>>() {
                     @Override
                     public void onSuccess(List<GenericDocument> result) {

@@ -209,7 +209,7 @@ public final class PlatformStorage {
      *                {@link AppSearchSession}
      */
     @NonNull
-    public static ListenableFuture<AppSearchSession> createSearchSession(
+    public static ListenableFuture<AppSearchSession> createSearchSessionAsync(
             @NonNull SearchContext context) {
         Preconditions.checkNotNull(context);
         AppSearchManager appSearchManager =
@@ -233,10 +233,23 @@ public final class PlatformStorage {
     }
 
     /**
+     * @deprecated use {@link #createSearchSessionAsync}.
+     *
+     * @param context The {@link SearchContext} contains all information to create a new
+     *                {@link AppSearchSession}
+     */
+    @NonNull
+    @Deprecated
+    public static ListenableFuture<AppSearchSession> createSearchSession(
+            @NonNull SearchContext context) {
+        return createSearchSessionAsync(context);
+    }
+
+    /**
      * Opens a new {@link GlobalSearchSession} on this storage.
      */
     @NonNull
-    public static ListenableFuture<GlobalSearchSession> createGlobalSearchSession(
+    public static ListenableFuture<GlobalSearchSession> createGlobalSearchSessionAsync(
             @NonNull GlobalSearchContext context) {
         Preconditions.checkNotNull(context);
         AppSearchManager appSearchManager =
@@ -256,5 +269,15 @@ public final class PlatformStorage {
                     }
                 });
         return future;
+    }
+
+    /**
+     * @deprecated use {@link #createGlobalSearchSessionAsync}.
+     */
+    @Deprecated
+    @NonNull
+    public static ListenableFuture<GlobalSearchSession> createGlobalSearchSession(
+            @NonNull GlobalSearchContext context) {
+        return createGlobalSearchSessionAsync(context);
     }
 }

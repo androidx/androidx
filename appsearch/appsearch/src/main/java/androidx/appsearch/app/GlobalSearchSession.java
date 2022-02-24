@@ -54,7 +54,7 @@ public interface GlobalSearchSession extends Closeable {
      * forming a query string.
      *
      * <p>This method is lightweight. The heavy work will be done in
-     * {@link SearchResults#getNextPage}.
+     * {@link SearchResults#getNextPageAsync}.
      *
      * @param queryExpression query string to search.
      * @param searchSpec      spec for setting document filters, adding projection, setting term
@@ -67,11 +67,11 @@ public interface GlobalSearchSession extends Closeable {
     /**
      * Reports that a particular document has been used from a system surface.
      *
-     * <p>See {@link AppSearchSession#reportUsage} for a general description of document usage, as
-     * well as an API that can be used by the app itself.
+     * <p>See {@link AppSearchSession#reportUsageAsync} for a general description of document usage,
+     * as well as an API that can be used by the app itself.
      *
      * <p>Usage reported via this method is accounted separately from usage reported via
-     * {@link AppSearchSession#reportUsage} and may be accessed using the constants
+     * {@link AppSearchSession#reportUsageAsync} and may be accessed using the constants
      * {@link SearchSpec#RANKING_STRATEGY_SYSTEM_USAGE_COUNT} and
      * {@link SearchSpec#RANKING_STRATEGY_SYSTEM_USAGE_LAST_USED_TIMESTAMP}.
      *
@@ -82,11 +82,26 @@ public interface GlobalSearchSession extends Closeable {
      *     is not part of the system.
      */
     @NonNull
-    ListenableFuture<Void> reportSystemUsage(@NonNull ReportSystemUsageRequest request);
+    ListenableFuture<Void> reportSystemUsageAsync(@NonNull ReportSystemUsageRequest request);
+
+    /**
+     * @deprecated use {@link #reportSystemUsageAsync}
+     *
+     * @return The pending result of performing this operation which resolves to {@code null} on
+     *     success. The pending result will be completed with an
+     *     {@link androidx.appsearch.exceptions.AppSearchException} with a code of
+     *     {@link AppSearchResult#RESULT_SECURITY_ERROR} if this API is invoked by an app which
+     *     is not part of the system.
+     */
+    @NonNull
+    @Deprecated
+    default ListenableFuture<Void> reportSystemUsage(@NonNull ReportSystemUsageRequest request) {
+        return reportSystemUsageAsync(request);
+    }
 
     /**
      * Retrieves the collection of schemas most recently successfully provided to
-     * {@link AppSearchSession#setSchema} for any types belonging to the requested package and
+     * {@link AppSearchSession#setSchemaAsync} for any types belonging to the requested package and
      * database that the caller has been granted access to.
      *
      * <p> If the requested package/database combination does not exist or the caller has not been
@@ -107,8 +122,30 @@ public interface GlobalSearchSession extends Closeable {
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
             name = Features.GLOBAL_SEARCH_SESSION_GET_SCHEMA)
     // @exportToFramework:endStrip()
-    ListenableFuture<GetSchemaResponse> getSchema(@NonNull String packageName,
+    ListenableFuture<GetSchemaResponse> getSchemaAsync(@NonNull String packageName,
             @NonNull String databaseName);
+
+    /**
+     * @deprecated use {@link #getSchemaAsync}.
+     *
+     * @param packageName the package that owns the requested {@link AppSearchSchema} instances.
+     * @param databaseName the database that owns the requested {@link AppSearchSchema} instances.
+     * @return The pending {@link GetSchemaResponse} containing the schemas that the caller has
+     * access to or an empty GetSchemaResponse if the request package and database does not
+     * exist, has not set a schema or contains no schemas that are accessible to the caller.
+     */
+    @SuppressLint("KotlinPropertyAccess")
+    @NonNull
+    // @exportToFramework:startStrip()
+    @RequiresFeature(
+            enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+            name = Features.GLOBAL_SEARCH_SESSION_GET_SCHEMA)
+    // @exportToFramework:endStrip()
+    @Deprecated
+    default ListenableFuture<GetSchemaResponse> getSchema(@NonNull String packageName,
+            @NonNull String databaseName) {
+        return getSchemaAsync(packageName, databaseName);
+    }
 
     /**
      * Returns the {@link Features} to check for the availability of certain features

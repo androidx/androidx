@@ -57,7 +57,7 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
     @Override
     protected ListenableFuture<AppSearchSession> createSearchSession(@NonNull String dbName) {
         Context context = ApplicationProvider.getApplicationContext();
-        return LocalStorage.createSearchSession(
+        return LocalStorage.createSearchSessionAsync(
                 new LocalStorage.SearchContext.Builder(context, dbName).build());
     }
 
@@ -65,7 +65,7 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
     protected ListenableFuture<AppSearchSession> createSearchSession(
             @NonNull String dbName, @NonNull ExecutorService executor) {
         Context context = ApplicationProvider.getApplicationContext();
-        return LocalStorage.createSearchSession(
+        return LocalStorage.createSearchSessionAsync(
                 new LocalStorage.SearchContext.Builder(context, dbName)
                         .setWorkerExecutor(executor).build());
     }
@@ -76,12 +76,12 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
     public void testLogger_searchStatsLogged_forEmptyFirstPage() throws Exception {
         SimpleTestLogger logger = new SimpleTestLogger();
         Context context = ApplicationProvider.getApplicationContext();
-        AppSearchSession db2 = LocalStorage.createSearchSession(
+        AppSearchSession db2 = LocalStorage.createSearchSessionAsync(
                 new LocalStorage.SearchContext.Builder(context, DB_NAME_2)
                         .setLogger(logger).build()).get();
 
         // Schema registration
-        db2.setSchema(
+        db2.setSchemaAsync(
                 new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()).get();
 
         // Index documents
@@ -99,7 +99,7 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
                         .setSubject("testPut example")
                         .setBody("This is the body of the testPut email")
                         .build();
-        checkIsBatchResultSuccess(db2.put(
+        checkIsBatchResultSuccess(db2.putAsync(
                 new PutDocumentsRequest.Builder().addGenericDocuments(inEmail1, inEmail2).build()));
 
         assertThat(logger.mSearchStats).isNull();
@@ -113,7 +113,7 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
                 .build());
 
         // Get first page
-        List<SearchResult> page = searchResults.getNextPage().get();
+        List<SearchResult> page = searchResults.getNextPageAsync().get();
         assertThat(page).hasSize(0);
 
         // Check searchStats has been set. We won't check all the fields here.
@@ -135,12 +135,12 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
     public void testLogger_searchStatsLogged_forNonEmptyFirstPage() throws Exception {
         SimpleTestLogger logger = new SimpleTestLogger();
         Context context = ApplicationProvider.getApplicationContext();
-        AppSearchSession db2 = LocalStorage.createSearchSession(
+        AppSearchSession db2 = LocalStorage.createSearchSessionAsync(
                 new LocalStorage.SearchContext.Builder(context, DB_NAME_2)
                         .setLogger(logger).build()).get();
 
         // Schema registration
-        db2.setSchema(
+        db2.setSchemaAsync(
                 new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()).get();
 
         // Index documents
@@ -158,7 +158,7 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
                         .setSubject("testPut example")
                         .setBody("This is the body of the testPut email")
                         .build();
-        checkIsBatchResultSuccess(db2.put(
+        checkIsBatchResultSuccess(db2.putAsync(
                 new PutDocumentsRequest.Builder().addGenericDocuments(inEmail1, inEmail2).build()));
 
         assertThat(logger.mSearchStats).isNull();
@@ -172,7 +172,7 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
                 .build());
 
         // Get first page
-        List<SearchResult> page = searchResults.getNextPage().get();
+        List<SearchResult> page = searchResults.getNextPageAsync().get();
         assertThat(page).hasSize(2);
 
         // Check searchStats has been set. We won't check all the fields here.
@@ -194,12 +194,12 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
     public void testLogger_searchStatsLogged_forEmptySecondPage() throws Exception {
         SimpleTestLogger logger = new SimpleTestLogger();
         Context context = ApplicationProvider.getApplicationContext();
-        AppSearchSession db2 = LocalStorage.createSearchSession(
+        AppSearchSession db2 = LocalStorage.createSearchSessionAsync(
                 new LocalStorage.SearchContext.Builder(context, DB_NAME_2)
                         .setLogger(logger).build()).get();
 
         // Schema registration
-        db2.setSchema(
+        db2.setSchemaAsync(
                 new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()).get();
 
         // Index documents
@@ -217,7 +217,7 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
                         .setSubject("testPut example")
                         .setBody("This is the body of the testPut email")
                         .build();
-        checkIsBatchResultSuccess(db2.put(
+        checkIsBatchResultSuccess(db2.putAsync(
                 new PutDocumentsRequest.Builder().addGenericDocuments(inEmail1, inEmail2).build()));
 
         // Query for the document
@@ -230,12 +230,12 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
                 .build());
 
         // Get first page
-        List<SearchResult> page = searchResults.getNextPage().get();
+        List<SearchResult> page = searchResults.getNextPageAsync().get();
         assertThat(page).hasSize(2);
 
         // Get second(empty) page
         logger.mSearchStats = null;
-        page = searchResults.getNextPage().get();
+        page = searchResults.getNextPageAsync().get();
         assertThat(page).hasSize(0);
 
         // Check searchStats has been set. We won't check all the fields here.
@@ -257,12 +257,12 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
     public void testLogger_searchStatsLogged_forNonEmptySecondPage() throws Exception {
         SimpleTestLogger logger = new SimpleTestLogger();
         Context context = ApplicationProvider.getApplicationContext();
-        AppSearchSession db2 = LocalStorage.createSearchSession(
+        AppSearchSession db2 = LocalStorage.createSearchSessionAsync(
                 new LocalStorage.SearchContext.Builder(context, DB_NAME_2)
                         .setLogger(logger).build()).get();
 
         // Schema registration
-        db2.setSchema(
+        db2.setSchemaAsync(
                 new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()).get();
 
         // Index documents
@@ -280,7 +280,7 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
                         .setSubject("testPut example")
                         .setBody("This is the body of the testPut email")
                         .build();
-        checkIsBatchResultSuccess(db2.put(
+        checkIsBatchResultSuccess(db2.putAsync(
                 new PutDocumentsRequest.Builder().addGenericDocuments(inEmail1, inEmail2).build()));
 
         // Query for the document
@@ -293,12 +293,12 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
                 .build());
 
         // Get first page
-        List<SearchResult> page = searchResults.getNextPage().get();
+        List<SearchResult> page = searchResults.getNextPageAsync().get();
         assertThat(page).hasSize(1);
 
         // Get second page
         logger.mSearchStats = null;
-        page = searchResults.getNextPage().get();
+        page = searchResults.getNextPageAsync().get();
         assertThat(page).hasSize(1);
 
         // Check searchStats has been set. We won't check all the fields here.
@@ -320,7 +320,7 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
     public void testSetSchemaStats_withoutSchemaMigration() throws Exception {
         SimpleTestLogger logger = new SimpleTestLogger();
         Context context = ApplicationProvider.getApplicationContext();
-        AppSearchSession db2 = LocalStorage.createSearchSession(
+        AppSearchSession db2 = LocalStorage.createSearchSessionAsync(
                 new LocalStorage.SearchContext.Builder(context, DB_NAME_2)
                         .setLogger(logger).build()).get();
         AppSearchSchema appSearchSchema = new AppSearchSchema.Builder("testSchema")
@@ -332,7 +332,7 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
                         .build())
                 .build();
 
-        db2.setSchema(
+        db2.setSchemaAsync(
                 new SetSchemaRequest.Builder().addSchemas(appSearchSchema).build()).get();
 
         assertThat(logger.mSetSchemaStats).isNotNull();
@@ -354,7 +354,7 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
     public void testSetSchemaStats_withSchemaMigration() throws Exception {
         SimpleTestLogger logger = new SimpleTestLogger();
         Context context = ApplicationProvider.getApplicationContext();
-        AppSearchSession db2 = LocalStorage.createSearchSession(
+        AppSearchSession db2 = LocalStorage.createSearchSessionAsync(
                 new LocalStorage.SearchContext.Builder(context, DB_NAME_2)
                         .setLogger(logger).build()).get();
         AppSearchSchema schema = new AppSearchSchema.Builder("testSchema")
@@ -409,11 +409,11 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
             }
         };
 
-        db2.setSchema(new SetSchemaRequest.Builder().addSchemas(
+        db2.setSchemaAsync(new SetSchemaRequest.Builder().addSchemas(
                 schema).setForceOverride(true).build()).get();
-        checkIsBatchResultSuccess(db2.put(
+        checkIsBatchResultSuccess(db2.putAsync(
                 new PutDocumentsRequest.Builder().addGenericDocuments(doc).build()));
-        db2.setSchema(new SetSchemaRequest.Builder().addSchemas(newSchema)
+        db2.setSchemaAsync(new SetSchemaRequest.Builder().addSchemas(newSchema)
                 .setMigrator("testSchema", migrator)
                 .setVersion(2)     // upgrade version
                 .build()).get();
@@ -431,11 +431,11 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
     @Test
     public void testPutLargeDocument() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
-        AppSearchSession db2 = LocalStorage.createSearchSession(
+        AppSearchSession db2 = LocalStorage.createSearchSessionAsync(
                 new LocalStorage.SearchContext.Builder(context, DB_NAME_2).build()).get();
 
         // Schema registration
-        db2.setSchema(
+        db2.setSchemaAsync(
                 new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()).get();
 
         char[] chars = new char[16_000_000];
@@ -449,7 +449,7 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
                 .setSubject("testPut example")
                 .setBody(body)
                 .build();
-        AppSearchBatchResult<String, Void> result = db2.put(
+        AppSearchBatchResult<String, Void> result = db2.putAsync(
                 new PutDocumentsRequest.Builder().addGenericDocuments(email).build()).get();
         assertThat(result.isSuccess()).isTrue();
 
@@ -467,11 +467,11 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
     @Test
     public void testPutLargeDocument_exceedLimit() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
-        AppSearchSession db2 = LocalStorage.createSearchSession(
+        AppSearchSession db2 = LocalStorage.createSearchSessionAsync(
                 new LocalStorage.SearchContext.Builder(context, DB_NAME_2).build()).get();
 
         // Schema registration
-        db2.setSchema(
+        db2.setSchemaAsync(
                 new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()).get();
 
         // Create a String property that make the document exceed the total size limit.
@@ -485,7 +485,7 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
                 .setSubject("testPut example")
                 .setBody(body)
                 .build();
-        AppSearchBatchResult<String, Void> result = db2.put(
+        AppSearchBatchResult<String, Void> result = db2.putAsync(
                 new PutDocumentsRequest.Builder().addGenericDocuments(email).build()).get();
         assertThat(result.getFailures()).containsKey("id1");
         assertThat(result.getFailures().get("id1").getErrorMessage())
@@ -495,7 +495,7 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
     @Test
     public void testCapabilities() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
-        AppSearchSession db2 = LocalStorage.createSearchSession(
+        AppSearchSession db2 = LocalStorage.createSearchSessionAsync(
                 new LocalStorage.SearchContext.Builder(context, DB_NAME_2).build()).get();
 
         assertThat(db2.getFeatures().isFeatureSupported(
@@ -508,7 +508,7 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
     @Test
     public void testPutDocuments_emptyBytesAndDocuments() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
-        AppSearchSession db = LocalStorage.createSearchSession(
+        AppSearchSession db = LocalStorage.createSearchSessionAsync(
                 new LocalStorage.SearchContext.Builder(context, DB_NAME_1).build()).get();
         // Schema registration
         AppSearchSchema schema = new AppSearchSchema.Builder("testSchema")
@@ -521,7 +521,7 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
                         .setShouldIndexNestedProperties(true)
                         .build())
                 .build();
-        db.setSchema(new SetSchemaRequest.Builder()
+        db.setSchemaAsync(new SetSchemaRequest.Builder()
                 .addSchemas(schema, AppSearchEmail.SCHEMA).build()).get();
 
         // Index a document
@@ -530,7 +530,7 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
                 .setPropertyDocument("document")
                 .build();
 
-        AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(db.put(
+        AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(db.putAsync(
                 new PutDocumentsRequest.Builder().addGenericDocuments(document).build()));
         assertThat(result.getSuccesses()).containsExactly("id1", null);
         assertThat(result.getFailures()).isEmpty();

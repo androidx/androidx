@@ -94,12 +94,12 @@ public class SearchResultsImplTest {
                 searchSpec,
                 /*logger=*/ null);
 
-        List<SearchResult> results = searchResults.getNextPage().get();
+        List<SearchResult> results = searchResults.getNextPageAsync().get();
         assertThat(results).hasSize(1);
         assertThat(results.get(0).getGenericDocument()).isEqualTo(document1);
 
         // We get all documents, and it shouldn't fail if we keep calling getNextPage().
-        results = searchResults.getNextPage().get();
+        results = searchResults.getNextPageAsync().get();
         assertThat(results).isEmpty();
     }
 
@@ -143,18 +143,18 @@ public class SearchResultsImplTest {
                 searchSpec,
                 /*logger=*/ null);
         List<GenericDocument> outDocs = new ArrayList<>();
-        List<SearchResult> results = searchResults.getNextPage().get();
+        List<SearchResult> results = searchResults.getNextPageAsync().get();
         assertThat(results).hasSize(2);
         outDocs.add(results.get(0).getGenericDocument());
         outDocs.add(results.get(1).getGenericDocument());
 
-        results = searchResults.getNextPage().get();
+        results = searchResults.getNextPageAsync().get();
         assertThat(results).hasSize(1);
         outDocs.add(results.get(0).getGenericDocument());
         assertThat(outDocs).containsExactly(document1, document2, document3);
 
         // We get all documents, and it shouldn't fail if we keep calling getNextPage().
-        results = searchResults.getNextPage().get();
+        results = searchResults.getNextPageAsync().get();
         assertThat(results).isEmpty();
     }
 }

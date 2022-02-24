@@ -30,7 +30,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-/** The response class of {@link AppSearchSession#setSchema} */
+/** The response class of {@link AppSearchSession#setSchemaAsync} */
 public class SetSchemaResponse {
 
     private static final String DELETED_TYPES_FIELD = "deletedTypes";
@@ -102,7 +102,7 @@ public class SetSchemaResponse {
      *
      * <p>A "deleted" type is a schema type that was previously a part of the database schema but
      * was not present in the {@link SetSchemaRequest} object provided in the
-     * {@link AppSearchSession#setSchema) call.
+     * {@link AppSearchSession#setSchemaAsync ) call.
      *
      * <p>Documents for a deleted type are removed from the database.
      */
@@ -117,7 +117,7 @@ public class SetSchemaResponse {
 
     /**
      * Returns a {@link Set} of schema type that were migrated by the
-     * {@link AppSearchSession#setSchema} call.
+     * {@link AppSearchSession#setSchemaAsync} call.
      *
      * <p> A "migrated" type is a schema type that has triggered a {@link Migrator} instance to
      * migrate documents of the schema type to another schema type, or to another version of the
@@ -139,13 +139,13 @@ public class SetSchemaResponse {
 
     /**
      * Returns a {@link Set} of schema type whose new definitions set in the
-     * {@link AppSearchSession#setSchema} call were incompatible with the pre-existing schema.
+     * {@link AppSearchSession#setSchemaAsync} call were incompatible with the pre-existing schema.
      *
      * <p>If a {@link Migrator} is provided for this type and the migration is success triggered.
      * The type will also appear in {@link #getMigratedTypes()}.
      *
      * @see SetSchemaRequest
-     * @see AppSearchSession#setSchema
+     * @see AppSearchSession#setSchemaAsync
      * @see SetSchemaRequest.Builder#setForceOverride
      */
     @NonNull
@@ -281,7 +281,7 @@ public class SetSchemaResponse {
 
     /**
      * The class represents a post-migrated {@link GenericDocument} that failed to be saved by
-     * {@link AppSearchSession#setSchema}.
+     * {@link AppSearchSession#setSchemaAsync}.
      */
     public static class MigrationFailure {
         private static final String SCHEMA_TYPE_FIELD = "schemaType";

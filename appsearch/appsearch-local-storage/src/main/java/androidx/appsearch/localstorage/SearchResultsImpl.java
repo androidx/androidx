@@ -85,7 +85,7 @@ class SearchResultsImpl implements SearchResults {
 
     @Override
     @NonNull
-    public ListenableFuture<List<SearchResult>> getNextPage() {
+    public ListenableFuture<List<SearchResult>> getNextPageAsync() {
         Preconditions.checkState(!mIsClosed, "SearchResults has already been closed");
         return FutureUtil.execute(mExecutor, () -> {
             SearchResultPage searchResultPage;

@@ -58,7 +58,7 @@ class SearchResultsImpl implements SearchResults {
 
     @Override
     @NonNull
-    public ListenableFuture<List<SearchResult>> getNextPage() {
+    public ListenableFuture<List<SearchResult>> getNextPageAsync() {
         ResolvableFuture<List<SearchResult>> future = ResolvableFuture.create();
         mPlatformResults.getNextPage(mExecutor, result -> {
             if (result.isSuccess()) {

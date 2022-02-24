@@ -34,7 +34,7 @@ import java.util.Set;
  * combination of these items will generate a unique {@link DocumentChangeInfo}.
  *
  * <p>Note that document changes that happen during schema migration from calling
- * {@link androidx.appsearch.app.AppSearchSession#setSchema} are not reported via this class.
+ * {@link androidx.appsearch.app.AppSearchSession#setSchemaAsync} are not reported via this class.
  * Such changes are reported through {@link SchemaChangeInfo}.
  */
 public final class DocumentChangeInfo {

@@ -60,7 +60,7 @@ public class AppSearchTestUtils {
             @NonNull AppSearchSession session, @NonNull String namespace, @NonNull String... ids)
             throws Exception {
         AppSearchBatchResult<String, GenericDocument> result = checkIsBatchResultSuccess(
-                session.getByDocumentId(
+                session.getByDocumentIdAsync(
                         new GetByDocumentIdRequest.Builder(namespace).addIds(ids).build()));
         assertThat(result.getSuccesses()).hasSize(ids.length);
         assertThat(result.getFailures()).isEmpty();
@@ -77,7 +77,7 @@ public class AppSearchTestUtils {
             @NonNull AppSearchSession session, @NonNull GetByDocumentIdRequest request)
             throws Exception {
         AppSearchBatchResult<String, GenericDocument> result = checkIsBatchResultSuccess(
-                session.getByDocumentId(request));
+                session.getByDocumentIdAsync(request));
         Set<String> ids = request.getIds();
         assertThat(result.getSuccesses()).hasSize(ids.size());
         assertThat(result.getFailures()).isEmpty();
@@ -105,11 +105,11 @@ public class AppSearchTestUtils {
     @NonNull
     public static List<SearchResult> retrieveAllSearchResults(@NonNull SearchResults searchResults)
             throws Exception {
-        List<SearchResult> page = searchResults.getNextPage().get();
+        List<SearchResult> page = searchResults.getNextPageAsync().get();
         List<SearchResult> results = new ArrayList<>();
         while (!page.isEmpty()) {
             results.addAll(page);
-            page = searchResults.getNextPage().get();
+            page = searchResults.getNextPageAsync().get();
         }
         return results;
     }

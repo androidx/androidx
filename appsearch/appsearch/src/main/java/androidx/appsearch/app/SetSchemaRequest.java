@@ -80,7 +80,7 @@ import java.util.Set;
  *         will be set into both {@link SetSchemaResponse#getIncompatibleTypes()} and
  *         {@link SetSchemaResponse#getMigratedTypes()}. See the migration section below.
  * </ul>
- * @see AppSearchSession#setSchema
+ * @see AppSearchSession#setSchemaAsync
  * @see Migrator
  */
 public final class SetSchemaRequest {
@@ -387,7 +387,7 @@ public final class SetSchemaRequest {
          * and visible on any system UI surface.
          *
          * <p>This setting applies to the provided {@code schemaType} only, and does not persist
-         * across {@link AppSearchSession#setSchema} calls.
+         * across {@link AppSearchSession#setSchemaAsync} calls.
          *
          * <p>The default behavior, if this method is not called, is to allow types to be
          * displayed on system UI surfaces.
@@ -551,7 +551,7 @@ public final class SetSchemaRequest {
          *
          * @see SetSchemaRequest.Builder#setVersion
          * @see SetSchemaRequest.Builder#addSchemas
-         * @see AppSearchSession#setSchema
+         * @see AppSearchSession#setSchemaAsync
          */
         @NonNull
         @SuppressLint("MissingGetterMatchingBuilder")        // Getter return plural objects.
@@ -586,7 +586,7 @@ public final class SetSchemaRequest {
          *
          * @see SetSchemaRequest.Builder#setVersion
          * @see SetSchemaRequest.Builder#addSchemas
-         * @see AppSearchSession#setSchema
+         * @see AppSearchSession#setSchemaAsync
          */
         @NonNull
         public Builder setMigrators(@NonNull Map<String, Migrator> migrators) {
@@ -604,7 +604,7 @@ public final class SetSchemaRequest {
          * visible on any system UI surface.
          *
          * <p>This setting applies to the provided {@link androidx.appsearch.annotation.Document}
-         * annotated class only, and does not persist across {@link AppSearchSession#setSchema}
+         * annotated class only, and does not persist across {@link AppSearchSession#setSchemaAsync}
          * calls.
          *
          * <p>The default behavior, if this method is not called, is to allow types to be
@@ -755,7 +755,7 @@ public final class SetSchemaRequest {
          *
          * <p>Setting a version number that is different from the version number currently stored
          * in AppSearch will result in AppSearch calling the {@link Migrator}s provided to
-         * {@link AppSearchSession#setSchema} to migrate the documents already in AppSearch from
+         * {@link AppSearchSession#setSchemaAsync} to migrate the documents already in AppSearch from
          * the previous version to the one set in this request. The version number can be
          * updated without any other changes to the set of schemas.
          *
@@ -771,7 +771,7 @@ public final class SetSchemaRequest {
          *
          * @throws IllegalArgumentException if the version is negative.
          *
-         * @see AppSearchSession#setSchema
+         * @see AppSearchSession#setSchemaAsync
          * @see Migrator
          * @see SetSchemaRequest.Builder#setMigrator
          */

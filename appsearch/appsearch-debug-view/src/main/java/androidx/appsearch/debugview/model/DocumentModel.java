@@ -61,7 +61,7 @@ public class DocumentModel extends ViewModel {
      */
     @NonNull
     public LiveData<GenericDocument> getDocument(@NonNull String namespace, @NonNull String id) {
-        Futures.addCallback(mDebugAppSearchManager.getDocument(namespace, id),
+        Futures.addCallback(mDebugAppSearchManager.getDocumentAsync(namespace, id),
                 new FutureCallback<GenericDocument>() {
                     @Override
                     public void onSuccess(GenericDocument result) {

@@ -50,7 +50,7 @@ public class AppSearchSessionPlatformCtsTest extends AppSearchSessionCtsTestBase
     @Override
     protected ListenableFuture<AppSearchSession> createSearchSession(@NonNull String dbName) {
         Context context = ApplicationProvider.getApplicationContext();
-        return PlatformStorage.createSearchSession(
+        return PlatformStorage.createSearchSessionAsync(
                 new PlatformStorage.SearchContext.Builder(context, dbName).build());
     }
 
@@ -58,7 +58,7 @@ public class AppSearchSessionPlatformCtsTest extends AppSearchSessionCtsTestBase
     protected ListenableFuture<AppSearchSession> createSearchSession(
             @NonNull String dbName, @NonNull ExecutorService executor) {
         Context context = ApplicationProvider.getApplicationContext();
-        return PlatformStorage.createSearchSession(
+        return PlatformStorage.createSearchSessionAsync(
                 new PlatformStorage.SearchContext.Builder(context, dbName)
                         .setWorkerExecutor(executor).build());
     }
@@ -66,7 +66,7 @@ public class AppSearchSessionPlatformCtsTest extends AppSearchSessionCtsTestBase
     @Test
     public void testCapabilities() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
-        AppSearchSession db2 = PlatformStorage.createSearchSession(
+        AppSearchSession db2 = PlatformStorage.createSearchSessionAsync(
                 new PlatformStorage.SearchContext.Builder(context, DB_NAME_2).build()).get();
 
         // TODO(b/201316758) Update to reflect support in Android T+ once this feature is synced
@@ -78,7 +78,7 @@ public class AppSearchSessionPlatformCtsTest extends AppSearchSessionCtsTestBase
     @Test
     public void testPutDocuments_emptyBytesAndDocuments() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
-        AppSearchSession db = PlatformStorage.createSearchSession(
+        AppSearchSession db = PlatformStorage.createSearchSessionAsync(
                 new PlatformStorage.SearchContext.Builder(context, DB_NAME_1).build()).get();
         // Schema registration
         AppSearchSchema schema = new AppSearchSchema.Builder("testSchema")
@@ -91,7 +91,7 @@ public class AppSearchSessionPlatformCtsTest extends AppSearchSessionCtsTestBase
                         .setShouldIndexNestedProperties(true)
                         .build())
                 .build();
-        db.setSchema(new SetSchemaRequest.Builder()
+        db.setSchemaAsync(new SetSchemaRequest.Builder()
                 .addSchemas(schema, AppSearchEmail.SCHEMA).build()).get();
 
         // Index a document
@@ -100,7 +100,7 @@ public class AppSearchSessionPlatformCtsTest extends AppSearchSessionCtsTestBase
                 .setPropertyDocument("document")
                 .build();
 
-        AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(db.put(
+        AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(db.putAsync(
                 new PutDocumentsRequest.Builder().addGenericDocuments(document).build()));
         assertThat(result.getSuccesses()).containsExactly("id1", null);
         assertThat(result.getFailures()).isEmpty();
