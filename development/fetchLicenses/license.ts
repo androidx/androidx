@@ -36,6 +36,11 @@ export async function handleRequest(request: Request, response: Response) {
   if (url) {
     try {
       log(`Handling license request for ${url}`);
+      if (!isValidProtocol(url)) {
+        response.status(400).send('Invalid request.');
+        return;
+      }
+
       const nodes = await handleLicenseRequest(url);
       const content = PlainTextFormatter.plainTextFor(nodes);
       response.status(200).send(content);
@@ -45,6 +50,22 @@ export async function handleRequest(request: Request, response: Response) {
     }
   } else {
     response.status(400).send('URL required');
+  }
+}
+
+/**
+ * Validates the protocol. Only allows `https?` requests.
+ * @param requestUrl The request url
+ * @return `true` if the protocol is valid.
+ */
+function isValidProtocol(requestUrl: string): boolean {
+  const url = new URL(requestUrl);
+  if (url.protocol === 'http') {
+    return true;
+  } else if (url.protocol === 'https') {
+    return true;
+  } else {
+    return false;
   }
 }
 
