@@ -186,7 +186,8 @@ fun runProcessorTest(
                 }
         step.process(
             env = invocation.processingEnv,
-            elementsByAnnotation = elements
+            elementsByAnnotation = elements,
+            isLastRound = false
         )
         invocation.assertCompilationResult(onCompilationResult)
     }

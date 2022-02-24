@@ -1425,7 +1425,7 @@ class DatabaseProcessorTest {
                     arrayOf(URL("file://${resolverLib.absolutePath}")),
                     currentClassLoader,
                 )
-                DatabaseProcessingStep().process(invocation.processingEnv, roundElements)
+                DatabaseProcessingStep().process(invocation.processingEnv, roundElements, false)
             } finally {
                 Thread.currentThread().contextClassLoader = currentClassLoader
             }
