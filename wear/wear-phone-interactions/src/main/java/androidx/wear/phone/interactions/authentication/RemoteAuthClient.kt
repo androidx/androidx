@@ -52,7 +52,7 @@ import java.util.concurrent.Executor
  *
  * public fun startAuthFlow() {
  *    // PKCE (Proof Key for Code Exchange) is required, store this code verifier here .
- *    // To access the resource later, both the auth token ans code verifier are needed.
+ *    // To access the resource later, both the auth token and code verifier are needed.
  *    codeVerifier = CodeVerifier()
  *
  *   // Construct your auth request.
