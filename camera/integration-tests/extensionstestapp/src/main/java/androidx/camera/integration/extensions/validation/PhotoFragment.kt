@@ -75,7 +75,7 @@ class PhotoFragment constructor(
     private fun setPhotoViewerScaleGestureListener() {
         scaleGestureListener?.let {
             val scaleDetector = ScaleGestureDetector(requireContext(), scaleGestureListener)
-            photoViewer.setOnTouchListener { _, e: MotionEvent? ->
+            photoViewer.setOnTouchListener { _, e: MotionEvent ->
                 scaleDetector.onTouchEvent(e)
             }
         }

@@ -701,12 +701,12 @@ package androidx.appcompat.view.menu {
     method public boolean requiresActionButton();
     method public boolean requiresOverflow();
     method public android.view.MenuItem! setActionProvider(android.view.ActionProvider!);
-    method public androidx.core.internal.view.SupportMenuItem! setActionView(android.view.View!);
-    method public androidx.core.internal.view.SupportMenuItem! setActionView(int);
+    method public androidx.core.internal.view.SupportMenuItem setActionView(android.view.View!);
+    method public androidx.core.internal.view.SupportMenuItem setActionView(int);
     method public android.view.MenuItem! setAlphabeticShortcut(char);
     method public android.view.MenuItem! setCheckable(boolean);
     method public android.view.MenuItem! setChecked(boolean);
-    method public androidx.core.internal.view.SupportMenuItem! setContentDescription(CharSequence!);
+    method public androidx.core.internal.view.SupportMenuItem setContentDescription(CharSequence!);
     method public android.view.MenuItem! setEnabled(boolean);
     method public androidx.appcompat.view.menu.ActionMenuItem! setExclusiveCheckable(boolean);
     method public android.view.MenuItem! setIcon(android.graphics.drawable.Drawable!);
@@ -717,12 +717,12 @@ package androidx.appcompat.view.menu {
     method public android.view.MenuItem! setOnMenuItemClickListener(android.view.MenuItem.OnMenuItemClickListener!);
     method public android.view.MenuItem! setShortcut(char, char);
     method public void setShowAsAction(int);
-    method public androidx.core.internal.view.SupportMenuItem! setShowAsActionFlags(int);
-    method public androidx.core.internal.view.SupportMenuItem! setSupportActionProvider(androidx.core.view.ActionProvider!);
+    method public androidx.core.internal.view.SupportMenuItem setShowAsActionFlags(int);
+    method public androidx.core.internal.view.SupportMenuItem setSupportActionProvider(androidx.core.view.ActionProvider!);
     method public android.view.MenuItem! setTitle(CharSequence!);
     method public android.view.MenuItem! setTitle(int);
     method public android.view.MenuItem! setTitleCondensed(CharSequence!);
-    method public androidx.core.internal.view.SupportMenuItem! setTooltipText(CharSequence!);
+    method public androidx.core.internal.view.SupportMenuItem setTooltipText(CharSequence!);
     method public android.view.MenuItem! setVisible(boolean);
   }
 
@@ -960,14 +960,14 @@ package androidx.appcompat.view.menu {
     method public boolean requiresActionButton();
     method public boolean requiresOverflow();
     method public android.view.MenuItem! setActionProvider(android.view.ActionProvider!);
-    method public androidx.core.internal.view.SupportMenuItem! setActionView(android.view.View!);
-    method public androidx.core.internal.view.SupportMenuItem! setActionView(int);
+    method public androidx.core.internal.view.SupportMenuItem setActionView(android.view.View!);
+    method public androidx.core.internal.view.SupportMenuItem setActionView(int);
     method public void setActionViewExpanded(boolean);
     method public android.view.MenuItem! setAlphabeticShortcut(char);
     method public android.view.MenuItem! setCallback(Runnable!);
     method public android.view.MenuItem! setCheckable(boolean);
     method public android.view.MenuItem! setChecked(boolean);
-    method public androidx.core.internal.view.SupportMenuItem! setContentDescription(CharSequence!);
+    method public androidx.core.internal.view.SupportMenuItem setContentDescription(CharSequence!);
     method public android.view.MenuItem! setEnabled(boolean);
     method public void setExclusiveCheckable(boolean);
     method public android.view.MenuItem! setIcon(android.graphics.drawable.Drawable!);
@@ -979,13 +979,13 @@ package androidx.appcompat.view.menu {
     method public android.view.MenuItem! setOnMenuItemClickListener(android.view.MenuItem.OnMenuItemClickListener!);
     method public android.view.MenuItem! setShortcut(char, char);
     method public void setShowAsAction(int);
-    method public androidx.core.internal.view.SupportMenuItem! setShowAsActionFlags(int);
+    method public androidx.core.internal.view.SupportMenuItem setShowAsActionFlags(int);
     method public void setSubMenu(androidx.appcompat.view.menu.SubMenuBuilder!);
-    method public androidx.core.internal.view.SupportMenuItem! setSupportActionProvider(androidx.core.view.ActionProvider!);
+    method public androidx.core.internal.view.SupportMenuItem setSupportActionProvider(androidx.core.view.ActionProvider!);
     method public android.view.MenuItem! setTitle(CharSequence!);
     method public android.view.MenuItem! setTitle(int);
     method public android.view.MenuItem! setTitleCondensed(CharSequence!);
-    method public androidx.core.internal.view.SupportMenuItem! setTooltipText(CharSequence!);
+    method public androidx.core.internal.view.SupportMenuItem setTooltipText(CharSequence!);
     method public android.view.MenuItem! setVisible(boolean);
     method public boolean shouldShowIcon();
     method public boolean showsTextAsAction();
