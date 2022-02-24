@@ -120,4 +120,30 @@ class ComponentActivityMenuTest {
             assertThat(itemSelectedId).isEqualTo(R.id.item3)
         }
     }
+
+    @Test
+    fun onMenuClosed() {
+        with(ActivityScenario.launch(ComponentActivity::class.java)) {
+            val menuHost: ComponentActivity = withActivity { this }
+            var menuClosed = false
+
+            menuHost.addMenuProvider(object : MenuProvider {
+                override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                    menuInflater.inflate(R.menu.example_menu, menu)
+                }
+
+                override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                    return true
+                }
+
+                override fun onMenuClosed(menu: Menu) {
+                    menuClosed = true
+                }
+            })
+
+            openActionBarOverflowOrOptionsMenu(menuHost)
+            withActivity { closeOptionsMenu() }
+            assertThat(menuClosed).isTrue()
+        }
+    }
 }
