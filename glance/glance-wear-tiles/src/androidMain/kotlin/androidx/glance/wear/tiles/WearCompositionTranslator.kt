@@ -33,6 +33,7 @@ import androidx.glance.EmittableImage
 import androidx.glance.GlanceModifier
 import androidx.glance.VisibilityModifier
 import androidx.glance.action.ActionModifier
+import androidx.glance.wear.tiles.action.RunCallbackAction
 import androidx.glance.action.StartActivityAction
 import androidx.glance.action.StartActivityClassAction
 import androidx.glance.action.StartActivityComponentAction
@@ -192,7 +193,12 @@ private fun ActionModifier.toProto(context: Context): ModifiersBuilders.Clickabl
     when (val action = this.action) {
         is StartActivityAction -> {
             builder.setOnClick(action.toProto(context))
-        } else -> {
+        }
+        is RunCallbackAction -> {
+            builder.setOnClick(ActionBuilders.LoadAction.Builder().build())
+                .setId(action.callbackClass.canonicalName!!)
+        }
+        else -> {
             Log.e(GlanceWearTileTag, "Unknown Action $this, skipped")
         }
     }
@@ -681,13 +687,17 @@ internal fun translateComposition(
     return when (element) {
         is EmittableBox -> translateEmittableBox(context, resourceBuilder, element)
         is EmittableRow -> translateEmittableRow(context, resourceBuilder, element)
-        is EmittableColumn -> translateEmittableColumn(context, resourceBuilder, element)
+        is EmittableColumn ->
+            translateEmittableColumn(context, resourceBuilder, element)
         is EmittableText -> translateEmittableText(context, element)
-        is EmittableCurvedRow -> translateEmittableCurvedRow(context, resourceBuilder, element)
+        is EmittableCurvedRow ->
+            translateEmittableCurvedRow(context, resourceBuilder, element)
         is EmittableAndroidLayoutElement -> translateEmittableAndroidLayoutElement(element)
-        is EmittableButton -> translateEmittableText(context, element.toEmittableText())
+        is EmittableButton ->
+            translateEmittableText(context, element.toEmittableText())
         is EmittableSpacer -> translateEmittableSpacer(context, element)
-        is EmittableImage -> translateEmittableImage(context, resourceBuilder, element)
+        is EmittableImage ->
+            translateEmittableImage(context, resourceBuilder, element)
         else -> throw IllegalArgumentException("Unknown element $element")
     }
 }

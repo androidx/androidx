@@ -64,6 +64,19 @@ package androidx.glance.wear.tiles {
 
 }
 
+package androidx.glance.wear.tiles.action {
+
+  public interface ActionCallback {
+    method public suspend Object? onRun(android.content.Context context, androidx.glance.GlanceId glanceId, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
+  }
+
+  public final class RunCallbackActionKt {
+    method public static <T extends androidx.glance.wear.tiles.action.ActionCallback> androidx.glance.action.Action actionRunCallback(Class<T> callbackClass);
+    method public static inline <reified T extends androidx.glance.wear.tiles.action.ActionCallback> androidx.glance.action.Action! actionRunCallback();
+  }
+
+}
+
 package androidx.glance.wear.tiles.curved {
 
   public final inline class AnchorType {
@@ -111,6 +124,15 @@ package androidx.glance.wear.tiles.curved {
     property public final int Center;
     property public final int Inner;
     property public final int Outer;
+  }
+
+}
+
+package androidx.glance.wear.tiles.state {
+
+  public final class GlanceWearTilesStateKt {
+    method public static suspend <T> Object? getWearTileState(android.content.Context context, androidx.glance.state.GlanceStateDefinition<T> definition, androidx.glance.GlanceId glanceId, kotlin.coroutines.Continuation<? super T> p);
+    method public static suspend <T> Object? updateWearTileState(android.content.Context context, androidx.glance.state.GlanceStateDefinition<T> definition, androidx.glance.GlanceId glanceId, kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super T>,?> updateState, kotlin.coroutines.Continuation<? super T> p);
   }
 
 }
