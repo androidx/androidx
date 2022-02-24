@@ -46,8 +46,8 @@ public class ChipDefaults {
     /** The recommended horizontal padding for standard {@link TitleChip} */
     @NonNull public static final DpProp TITLE_HORIZONTAL_PADDING = dp(16);
 
-    /** The recommended vertical padding for standard {@link Chip} */
-    @NonNull public static final DpProp VERTICAL_PADDING = dp(6);
+    /** The recommended vertical space between icon and text in standard {@link Chip} */
+    @NonNull public static final DpProp ICON_SPACER_WIDTH = dp(6);
 
     /** The icon size used in standard {@link Chip} */
     @NonNull public static final DpProp ICON_SIZE = dp(24);
