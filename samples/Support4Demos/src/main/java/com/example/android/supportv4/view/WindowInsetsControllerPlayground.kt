@@ -99,7 +99,7 @@ class WindowInsetsControllerPlayground : Activity() {
         addPlot()
 
         WindowCompat.setDecorFitsSystemWindows(window, fitSystemWindow.isChecked)
-        ViewCompat.getWindowInsetsController(mRoot)!!.systemBarsBehavior =
+        WindowCompat.getInsetsController(window, window.decorView).systemBarsBehavior =
             WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
 
         Log.e(
@@ -172,11 +172,12 @@ class WindowInsetsControllerPlayground : Activity() {
     private fun setupAppearanceButtons() {
         mapOf<String, (Boolean) -> Unit>(
             "LIGHT_NAV" to { isLight ->
-                ViewCompat.getWindowInsetsController(mRoot)!!.isAppearanceLightNavigationBars =
+                WindowCompat.getInsetsController(window, mRoot).isAppearanceLightNavigationBars =
                     isLight
             },
             "LIGHT_STAT" to { isLight ->
-                ViewCompat.getWindowInsetsController(mRoot)!!.isAppearanceLightStatusBars = isLight
+                WindowCompat.getInsetsController(window, mRoot).isAppearanceLightStatusBars =
+                    isLight
             },
         ).forEach { (name, callback) ->
             buttonsRow.addView(
@@ -217,7 +218,7 @@ class WindowInsetsControllerPlayground : Activity() {
 
     private fun setupActionButton() {
         findViewById<View>(R.id.floating_action_button).setOnClickListener { v: View? ->
-            ViewCompat.getWindowInsetsController(v!!)!!.controlWindowInsetsAnimation(
+            WindowCompat.getInsetsController(window, v!!).controlWindowInsetsAnimation(
                 ime(), -1, LinearInterpolator(), null /* cancellationSignal */,
                 object : WindowInsetsAnimationControlListenerCompat {
                     override fun onReady(
@@ -307,14 +308,14 @@ class WindowInsetsControllerPlayground : Activity() {
         findViewById<Button>(R.id.btn_show).apply {
             setOnClickListener { view ->
                 currentType?.let { type ->
-                    ViewCompat.getWindowInsetsController(view)?.show(type)
+                    WindowCompat.getInsetsController(window, view).show(type)
                 }
             }
         }
         findViewById<Button>(R.id.btn_hide).apply {
-            setOnClickListener {
+            setOnClickListener { view ->
                 currentType?.let { type ->
-                    ViewCompat.getWindowInsetsController(it)?.hide(type)
+                    WindowCompat.getInsetsController(window, view).hide(type)
                 }
             }
         }
@@ -410,13 +411,15 @@ class WindowInsetsControllerPlayground : Activity() {
                             }
                             mCurrentRequest = listener
 
-                            ViewCompat.getWindowInsetsController(v)!!.controlWindowInsetsAnimation(
-                                ime(),
-                                1000,
-                                LinearInterpolator(),
-                                null /* cancellationSignal */,
-                                listener
-                            )
+                            WindowCompat
+                                .getInsetsController(window, v)
+                                .controlWindowInsetsAnimation(
+                                    ime(),
+                                    1000,
+                                    LinearInterpolator(),
+                                    null /* cancellationSignal */,
+                                    listener
+                                )
                         }
                     }
                     MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
@@ -504,7 +507,7 @@ class WindowInsetsControllerPlayground : Activity() {
                     id: Long
                 ) {
                     if (parent != null && view != null) {
-                        ViewCompat.getWindowInsetsController(view)!!
+                        WindowCompat.getInsetsController(window, view)
                             .systemBarsBehavior = types[selectedItem]!!
                     }
                 }

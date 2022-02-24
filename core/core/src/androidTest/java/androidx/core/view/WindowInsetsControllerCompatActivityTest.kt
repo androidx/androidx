@@ -67,15 +67,15 @@ public class WindowInsetsControllerCompatActivityTest {
         scenario = ActivityScenario.launch(WindowInsetsCompatActivity::class.java)
 
         container = scenario.withActivity { findViewById(R.id.container) }
-        windowInsetsController = ViewCompat.getWindowInsetsController(container)!!
         scenario.withActivity {
+            windowInsetsController = WindowCompat.getInsetsController(window, container)
             WindowCompat.setDecorFitsSystemWindows(window, true)
         }
         // Close the IME if it's open, so we start from a known scenario
         onView(withId(R.id.edittext)).perform(closeSoftKeyboard())
 
         scenario.withActivity {
-            ViewCompat.getWindowInsetsController(container)!!.systemBarsBehavior =
+            WindowCompat.getInsetsController(window, container).systemBarsBehavior =
                 WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
             // Needed on API 23 to report the nav bar insets
             this.window.addFlags(FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
@@ -93,7 +93,9 @@ public class WindowInsetsControllerCompatActivityTest {
         val container: View = scenario.withActivity { findViewById(R.id.container) }
         scenario.withActivity { findViewById<View>(R.id.edittext).requestFocus() }
 
-        val windowInsetsController = ViewCompat.getWindowInsetsController(container)!!
+        val windowInsetsController = scenario.withActivity {
+            WindowCompat.getInsetsController(window, container)
+        }
         scenario.onActivity { windowInsetsController.hide(WindowInsetsCompat.Type.ime()) }
         container.assertInsetsVisibility(WindowInsetsCompat.Type.ime(), false)
         testShow(WindowInsetsCompat.Type.ime())
@@ -131,7 +133,9 @@ public class WindowInsetsControllerCompatActivityTest {
         assumeNotCuttlefish()
         val type = WindowInsetsCompat.Type.ime()
         val editText = scenario.withActivity { findViewById(R.id.edittext) }
-        val controller = scenario.withActivity { ViewCompat.getWindowInsetsController(editText)!! }
+        val controller = scenario.withActivity {
+            WindowCompat.getInsetsController(window, editText)
+        }
 
         scenario.onActivity {
             editText.requestFocus()
@@ -168,7 +172,9 @@ public class WindowInsetsControllerCompatActivityTest {
         }
 
         val type = WindowInsetsCompat.Type.ime()
-        scenario.onActivity { ViewCompat.getWindowInsetsController(editText)!!.show(type) }
+        scenario.onActivity {
+            WindowCompat.getInsetsController(dialog.window!!, editText).show(type)
+        }
         container.assertInsetsVisibility(type, false)
     }
 
@@ -194,7 +200,7 @@ public class WindowInsetsControllerCompatActivityTest {
 
         scenario.onActivity { dialog.show() }
 
-        val controller = ViewCompat.getWindowInsetsController(editText)!!
+        val controller = WindowCompat.getInsetsController(dialog.window!!, editText)
 
         scenario.onActivity { controller.show(type) }
         editText.assertInsetsVisibility(type, true)
@@ -345,7 +351,9 @@ public class WindowInsetsControllerCompatActivityTest {
             assertEquals(Insets.NONE, insets.getInsets(type))
         }
 
-        val windowInsetsController = ViewCompat.getWindowInsetsController(container)!!
+        val windowInsetsController = scenario.withActivity {
+            WindowCompat.getInsetsController(window, container)
+        }
 
         // Now open the IME using the InsetsController The IME should
         // now be open
