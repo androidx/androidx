@@ -16,6 +16,7 @@
 
 package androidx.camera.video;
 
+import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_DURATION_LIMIT_REACHED;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_ENCODING_FAILED;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_FILE_SIZE_LIMIT_REACHED;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_INVALID_OUTPUT_OPTIONS;
@@ -375,12 +376,18 @@ public final class Recorder implements VideoOutput {
     long mRecordingDurationNs = 0L;
     @VisibleForTesting
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    long mFirstRecordingVideoDataTimeUs = 0L;
+    long mFirstRecordingVideoDataTimeUs = Long.MAX_VALUE;
     @VisibleForTesting
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    long mFirstRecordingAudioDataTimeUs = 0L;
+    long mFirstRecordingAudioDataTimeUs = Long.MAX_VALUE;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    long mPreviousRecordingVideoDataTimeUs = Long.MAX_VALUE;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    long mPreviousRecordingAudioDataTimeUs = Long.MAX_VALUE;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     long mFileSizeLimitInBytes = OutputOptions.FILE_SIZE_UNLIMITED;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    long mDurationLimitNs = OutputOptions.DURATION_UNLIMITED;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @VideoRecordError
     int mRecordingStopError = ERROR_UNKNOWN;
@@ -1465,6 +1472,14 @@ public final class Recorder implements VideoOutput {
             mFileSizeLimitInBytes = OutputOptions.FILE_SIZE_UNLIMITED;
         }
 
+        if (recordingToStart.getOutputOptions().getDurationLimit() > 0) {
+            mDurationLimitNs = TimeUnit.MILLISECONDS.toNanos(
+                    recordingToStart.getOutputOptions().getDurationLimit());
+            Logger.d(TAG, "Duration limit in nanoseconds: " + mDurationLimitNs);
+        } else {
+            mDurationLimitNs = OutputOptions.DURATION_UNLIMITED;
+        }
+
         mInProgressRecording = recordingToStart;
 
         // Configure audio based on the current audio state.
@@ -1752,6 +1767,7 @@ public final class Recorder implements VideoOutput {
                 CameraXExecutors.directExecutor());
     }
 
+    @ExecutedBy("mSequentialExecutor")
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     void writeVideoData(@NonNull EncodedData encodedData,
             @NonNull RecordingRecord recording) {
@@ -1771,22 +1787,46 @@ public final class Recorder implements VideoOutput {
             return;
         }
 
+        long newRecordingDurationNs = 0L;
+        long currentPresentationTimeUs = encodedData.getPresentationTimeUs();
+
+        if (mFirstRecordingVideoDataTimeUs == Long.MAX_VALUE) {
+            mFirstRecordingVideoDataTimeUs = currentPresentationTimeUs;
+            Logger.d(TAG, String.format("First video time: %d (%s)", mFirstRecordingVideoDataTimeUs,
+                    readableUs(mFirstRecordingVideoDataTimeUs)));
+        } else {
+            newRecordingDurationNs = TimeUnit.MICROSECONDS.toNanos(
+                    currentPresentationTimeUs - Math.min(mFirstRecordingVideoDataTimeUs,
+                            mFirstRecordingAudioDataTimeUs));
+            Preconditions.checkState(mPreviousRecordingVideoDataTimeUs != Long.MAX_VALUE, "There "
+                    + "should be a previous data for adjusting the duration.");
+            // We currently don't send an additional empty buffer (bufferInfo.size = 0) with
+            // MediaCodec.BUFFER_FLAG_END_OF_STREAM to let the muxer know the duration of the
+            // last data, so it will be assumed to have the same duration as the data before it. So
+            // add the estimated value to the duration to ensure the final duration will not
+            // exceed the limit.
+            long adjustedDurationNs = newRecordingDurationNs + TimeUnit.MICROSECONDS.toNanos(
+                    currentPresentationTimeUs - mPreviousRecordingVideoDataTimeUs);
+            if (mDurationLimitNs != OutputOptions.DURATION_UNLIMITED
+                    && adjustedDurationNs > mDurationLimitNs) {
+                Logger.d(TAG, String.format("Video data reaches duration limit %d > %d",
+                        adjustedDurationNs, mDurationLimitNs));
+                onInProgressRecordingInternalError(recording, ERROR_DURATION_LIMIT_REACHED, null);
+                return;
+            }
+        }
+
         mMediaMuxer.writeSampleData(mVideoTrackIndex, encodedData.getByteBuffer(),
                 encodedData.getBufferInfo());
 
         mRecordingBytes = newRecordingBytes;
-
-        if (mFirstRecordingVideoDataTimeUs == 0L) {
-            mFirstRecordingVideoDataTimeUs = encodedData.getPresentationTimeUs();
-            Logger.d(TAG, String.format("First video time: %d (%s)", mFirstRecordingVideoDataTimeUs,
-                    readableUs(mFirstRecordingVideoDataTimeUs)));
-        }
-        mRecordingDurationNs = TimeUnit.MICROSECONDS.toNanos(
-                encodedData.getPresentationTimeUs() - mFirstRecordingVideoDataTimeUs);
+        mRecordingDurationNs = newRecordingDurationNs;
+        mPreviousRecordingVideoDataTimeUs = currentPresentationTimeUs;
 
         updateInProgressStatusEvent();
     }
 
+    @ExecutedBy("mSequentialExecutor")
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     void writeAudioData(@NonNull EncodedData encodedData,
             @NonNull RecordingRecord recording) {
@@ -1802,17 +1842,40 @@ public final class Recorder implements VideoOutput {
             return;
         }
 
+        long newRecordingDurationNs = 0L;
+        long currentPresentationTimeUs = encodedData.getPresentationTimeUs();
+        if (mFirstRecordingAudioDataTimeUs == Long.MAX_VALUE) {
+            mFirstRecordingAudioDataTimeUs = currentPresentationTimeUs;
+            Logger.d(TAG, String.format("First audio time: %d (%s)", mFirstRecordingAudioDataTimeUs,
+                    readableUs(mFirstRecordingAudioDataTimeUs)));
+        } else {
+            newRecordingDurationNs = TimeUnit.MICROSECONDS.toNanos(
+                    currentPresentationTimeUs - Math.min(mFirstRecordingVideoDataTimeUs,
+                            mFirstRecordingAudioDataTimeUs));
+            Preconditions.checkState(mPreviousRecordingAudioDataTimeUs != Long.MAX_VALUE, "There "
+                    + "should be a previous data for adjusting the duration.");
+            // We currently don't send an additional empty buffer (bufferInfo.size = 0) with
+            // MediaCodec.BUFFER_FLAG_END_OF_STREAM to let the muxer know the duration of the
+            // last data, so it will be assumed to have the same duration as the data before it. So
+            // add the estimated value to the duration to ensure the final duration will not
+            // exceed the limit.
+            long adjustedDurationNs = newRecordingDurationNs + TimeUnit.MICROSECONDS.toNanos(
+                    currentPresentationTimeUs - mPreviousRecordingAudioDataTimeUs);
+            if (mDurationLimitNs != OutputOptions.DURATION_UNLIMITED
+                    && adjustedDurationNs > mDurationLimitNs) {
+                Logger.d(TAG, String.format("Audio data reaches duration limit %d > %d",
+                        adjustedDurationNs, mDurationLimitNs));
+                onInProgressRecordingInternalError(recording, ERROR_DURATION_LIMIT_REACHED, null);
+                return;
+            }
+        }
+
         mMediaMuxer.writeSampleData(mAudioTrackIndex,
                 encodedData.getByteBuffer(),
                 encodedData.getBufferInfo());
 
         mRecordingBytes = newRecordingBytes;
-
-        if (mFirstRecordingAudioDataTimeUs == 0L) {
-            mFirstRecordingAudioDataTimeUs = encodedData.getPresentationTimeUs();
-            Logger.d(TAG, String.format("First audio time: %d (%s)", mFirstRecordingAudioDataTimeUs,
-                    readableUs(mFirstRecordingAudioDataTimeUs)));
-        }
+        mPreviousRecordingAudioDataTimeUs = currentPresentationTimeUs;
     }
 
     @ExecutedBy("mSequentialExecutor")
@@ -2037,8 +2100,10 @@ public final class Recorder implements VideoOutput {
         mOutputUri = Uri.EMPTY;
         mRecordingBytes = 0L;
         mRecordingDurationNs = 0L;
-        mFirstRecordingVideoDataTimeUs = 0L;
-        mFirstRecordingAudioDataTimeUs = 0L;
+        mFirstRecordingVideoDataTimeUs = Long.MAX_VALUE;
+        mFirstRecordingAudioDataTimeUs = Long.MAX_VALUE;
+        mPreviousRecordingVideoDataTimeUs = Long.MAX_VALUE;
+        mPreviousRecordingAudioDataTimeUs = Long.MAX_VALUE;
         mRecordingStopError = ERROR_UNKNOWN;
         mRecordingStopErrorCause = null;
         mAudioErrorCause = null;
