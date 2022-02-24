@@ -387,7 +387,7 @@ class ImageCaptureActivity : AppCompatActivity() {
 
         val tapGestureDetector = GestureDetector(this, onTapGestureListener)
         val scaleDetector = ScaleGestureDetector(this, scaleGestureListener)
-        viewFinder.setOnTouchListener { _, e: MotionEvent? ->
+        viewFinder.setOnTouchListener { _, e: MotionEvent ->
             val tapEventProcessed = tapGestureDetector.onTouchEvent(e)
             val scaleEventProcessed = scaleDetector.onTouchEvent(e)
             tapEventProcessed || scaleEventProcessed
