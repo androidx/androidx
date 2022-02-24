@@ -18,11 +18,18 @@ package androidx.wear.compose.material.dialog
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.wear.compose.material.ExperimentalWearMaterialApi
+import androidx.wear.compose.material.PositionIndicator
+import androidx.wear.compose.material.Scaffold
+import androidx.wear.compose.material.ScalingLazyListState
 import androidx.wear.compose.material.SwipeDismissTarget
 import androidx.wear.compose.material.SwipeToDismissBox
+import androidx.wear.compose.material.Vignette
+import androidx.wear.compose.material.VignettePosition
+import androidx.wear.compose.material.rememberScalingLazyListState
 import androidx.wear.compose.material.rememberSwipeToDismissBoxState
 
 /**
@@ -42,13 +49,17 @@ import androidx.wear.compose.material.rememberSwipeToDismissBoxState
 
  * @param onDismissRequest Executes when the user dismisses the dialog.
  * Must remove the dialog from the composition.
+ * @param modifier Modifier to be applied to the dialog.
+ * @param scrollState The scroll state for the dialog so that the scroll position can be displayed.
  * @param properties Typically platform specific properties to further configure the dialog.
  * @param content Slot for dialog content such as [Alert] or [Confirmation].
  */
 @OptIn(ExperimentalWearMaterialApi::class)
 @Composable
-fun Dialog(
+public fun Dialog(
     onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier,
+    scrollState: ScalingLazyListState? = rememberScalingLazyListState(),
     properties: DialogProperties = DialogProperties(),
     content: @Composable () -> Unit,
 ) {
@@ -62,10 +73,16 @@ fun Dialog(
                 onDismissRequest()
             }
         }
-        SwipeToDismissBox(
-            state = swipeState,
-        ) { isBackground ->
-            if (!isBackground) content()
+        Scaffold(
+            vignette = { Vignette(vignettePosition = VignettePosition.TopAndBottom) },
+            positionIndicator = { if (scrollState != null) PositionIndicator(scrollState) },
+            modifier = modifier,
+        ) {
+            SwipeToDismissBox(
+                state = swipeState,
+            ) { isBackground ->
+                if (!isBackground) content()
+            }
         }
     }
 }

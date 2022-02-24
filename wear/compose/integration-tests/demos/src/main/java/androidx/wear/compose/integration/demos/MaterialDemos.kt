@@ -218,21 +218,46 @@ val WearMaterialDemos = DemoCategory(
         DemoCategory(
             "Dialogs",
             listOf(
-                ComposableDemo("Alert Dialog") {
-                    AlertDialogSample()
-                },
-                ComposableDemo("Confirmation Dialog") {
-                    ConfirmationDialogSample()
-                },
-                ComposableDemo("Alert - Buttons") {
-                    AlertWithButtons()
-                },
-                ComposableDemo("Alert - Chips") {
-                    AlertWithChips()
-                },
-                ComposableDemo("Confirmation") {
-                    ConfirmationWithAnimation()
-                },
+                DemoCategory(
+                    "Samples",
+                    listOf(
+                        ComposableDemo("Alert Dialog") {
+                            AlertDialogSample()
+                        },
+                        ComposableDemo("Confirmation Dialog") {
+                            ConfirmationDialogSample()
+                        },
+                        ComposableDemo("Alert - Buttons") {
+                            AlertWithButtons()
+                        },
+                        ComposableDemo("Alert - Chips") {
+                            AlertWithChips()
+                        },
+                        ComposableDemo("Confirmation") {
+                            ConfirmationWithAnimation()
+                        },
+                    )
+                ),
+                DemoCategory(
+                    "Demos",
+                    listOf(
+                        ComposableDemo("Power Off") { navBack ->
+                            DialogPowerOff(navBack)
+                        },
+                        ComposableDemo("Access Location") { navBack ->
+                            DialogAccessLocation(navBack)
+                        },
+                        ComposableDemo("Grant Permission") { navBack ->
+                            DialogGrantPermission(navBack)
+                        },
+                        ComposableDemo("Long Chips") { navBack ->
+                            DialogLongChips(navBack)
+                        },
+                        ComposableDemo("Confirmation") { navBack ->
+                            DialogSuccessConfirmation(navBack)
+                        },
+                    )
+                )
             )
         ),
         DemoCategory(

@@ -25,13 +25,10 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -45,15 +42,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.Button
+import androidx.wear.compose.material.ButtonDefaults
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
-import androidx.wear.compose.material.CompactChip
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.dialog.Alert
 import androidx.wear.compose.material.dialog.Confirmation
 import androidx.wear.compose.material.dialog.Dialog
+import androidx.wear.compose.material.rememberScalingLazyListState
 
 @Sampled
 @Composable
@@ -72,10 +70,16 @@ fun AlertDialogSample() {
             )
         }
         if (showDialog) {
+            val scrollState = rememberScalingLazyListState()
             Dialog(
                 onDismissRequest = { showDialog = false },
+                scrollState = scrollState,
             ) {
                 Alert(
+                    scrollState = scrollState,
+                    verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.Top),
+                    contentPadding =
+                        PaddingValues(start = 10.dp, end = 10.dp, top = 24.dp, bottom = 52.dp),
                     icon = {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_airplanemode_active_24px),
@@ -93,19 +97,20 @@ fun AlertDialogSample() {
                         )
                     },
                 ) {
-                    CompactChip(
-                        label = { Text("Primary") },
-                        onClick = { showDialog = false },
-                        colors = ChipDefaults.primaryChipColors(),
-                        modifier = Modifier.width(100.dp)
-                    )
-                    Spacer(Modifier.fillMaxWidth().height(4.dp))
-                    CompactChip(
-                        label = { Text("Secondary") },
-                        onClick = { showDialog = false },
-                        colors = ChipDefaults.secondaryChipColors(),
-                        modifier = Modifier.width(100.dp)
-                    )
+                    item {
+                        Chip(
+                            label = { Text("Primary") },
+                            onClick = { showDialog = false },
+                            colors = ChipDefaults.primaryChipColors(),
+                        )
+                    }
+                    item {
+                        Chip(
+                            label = { Text("Secondary") },
+                            onClick = { showDialog = false },
+                            colors = ChipDefaults.secondaryChipColors(),
+                        )
+                    }
                 }
             }
         }
@@ -150,7 +155,7 @@ fun ConfirmationDialogSample() {
                         Image(
                             painter = rememberAnimatedVectorPainter(animation, atEnd),
                             contentDescription = "Open on phone",
-                            modifier = Modifier.size(64.dp)
+                            modifier = Modifier.size(48.dp)
                         )
                     },
                     durationMillis = 3000,
@@ -177,12 +182,18 @@ fun AlertWithButtons() {
             )
         },
         title = { Text("Title text displayed here", textAlign = TextAlign.Center) },
-        negativeButton = { Button(onClick = {
-            /* Do something e.g. navController.popBackStack()*/
-        }) { Text("No") } },
+        negativeButton = { Button(
+            colors = ButtonDefaults.secondaryButtonColors(),
+            onClick = {
+                /* Do something e.g. navController.popBackStack()*/
+            }) {
+            Text("No")
+        } },
         positiveButton = { Button(onClick = {
             /* Do something e.g. navController.popBackStack()*/
         }) { Text("Yes") } },
+        contentPadding =
+            PaddingValues(start = 10.dp, end = 10.dp, top = 24.dp, bottom = 32.dp),
     ) {
         Text(
             text = "Body text displayed here " +
@@ -196,6 +207,8 @@ fun AlertWithButtons() {
 @Composable
 fun AlertWithChips() {
     Alert(
+        verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.Top),
+        contentPadding = PaddingValues(start = 10.dp, end = 10.dp, top = 24.dp, bottom = 52.dp),
         icon = {
             Icon(
                 painter = painterResource(id = R.drawable.ic_airplanemode_active_24px),
@@ -213,19 +226,20 @@ fun AlertWithChips() {
             )
         },
     ) {
-        CompactChip(
-            label = { Text("Primary") },
-            onClick = { /* Do something e.g. navController.popBackStack() */ },
-            colors = ChipDefaults.primaryChipColors(),
-            modifier = Modifier.width(100.dp)
-        )
-        Spacer(Modifier.fillMaxWidth().height(4.dp))
-        CompactChip(
-            label = { Text("Secondary") },
-            onClick = { /* Do something e.g. navController.popBackStack() */ },
-            colors = ChipDefaults.secondaryChipColors(),
-            modifier = Modifier.width(100.dp)
-        )
+        item {
+            Chip(
+                label = { Text("Primary") },
+                onClick = { /* Do something e.g. navController.popBackStack() */ },
+                colors = ChipDefaults.primaryChipColors(),
+            )
+        }
+        item {
+            Chip(
+                label = { Text("Secondary") },
+                onClick = { /* Do something e.g. navController.popBackStack() */ },
+                colors = ChipDefaults.secondaryChipColors(),
+            )
+        }
     }
 }
 
@@ -250,7 +264,7 @@ fun ConfirmationWithAnimation() {
             Image(
                 painter = rememberAnimatedVectorPainter(animation, atEnd),
                 contentDescription = "Open on phone",
-                modifier = Modifier.size(64.dp)
+                modifier = Modifier.size(48.dp)
             )
         },
         durationMillis = animation.totalDuration * 2L,
