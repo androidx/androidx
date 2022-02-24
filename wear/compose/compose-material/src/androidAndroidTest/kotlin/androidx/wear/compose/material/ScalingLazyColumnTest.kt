@@ -80,7 +80,7 @@ public class ScalingLazyColumnTest {
     @Test
     fun autoCenteringCorrectSizeWithCenterAnchor() {
         lateinit var state: ScalingLazyListState
-        val listSize = itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
+        val listSize = itemSizeDp * 3.5f
         rule.setContent {
             WithTouchSlop(0f) {
                 ScalingLazyColumn(
@@ -108,13 +108,13 @@ public class ScalingLazyColumnTest {
         val listSizePx = with(rule.density) {
             listSize.roundToPx()
         }
-
         rule.runOnIdle {
             // Make sure that the edge items have been scaled
             assertThat(state.layoutInfo.visibleItemsInfo.first().scale).isLessThan(1.0f)
-            // But that size of the Spacer is as expected
+            // But that size of the Spacer is as expected - it should be half the viewport size
+            // minus half the size of the center item minus the full size of the 0th item
             assertThat(state.lazyListState.layoutInfo.visibleItemsInfo.first().size)
-                .isEqualTo(((listSizePx / 2f) - (itemSizePx / 2f)).roundToInt())
+                .isEqualTo(((listSizePx / 2f) - (itemSizePx * 1.5f)).roundToInt())
         }
         rule.onNodeWithTag(TEST_TAG).performTouchInput {
             swipeUp()
@@ -132,7 +132,7 @@ public class ScalingLazyColumnTest {
     @Test
     fun autoCenteringCorrectSizeWithStartAnchor() {
         lateinit var state: ScalingLazyListState
-        val listSize = itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
+        val listSize = itemSizeDp * 3.5f
         rule.setContent {
             WithTouchSlop(0f) {
                 ScalingLazyColumn(
@@ -164,9 +164,10 @@ public class ScalingLazyColumnTest {
         rule.runOnIdle {
             // Make sure that the edge items have been scaled
             assertThat(state.layoutInfo.visibleItemsInfo.first().scale).isLessThan(1.0f)
-            // But that size of the Spacer is as expected
+            // But that size of the Spacer is as expected, it should be half the viewport size
+            // minus the size of zeroth item in the list
             assertThat(state.lazyListState.layoutInfo.visibleItemsInfo.first().size)
-                .isEqualTo((listSizePx / 2f).roundToInt())
+                .isEqualTo((listSizePx / 2f).roundToInt() - itemSizePx)
         }
         rule.onNodeWithTag(TEST_TAG).performTouchInput {
             swipeUp(endY = top)
