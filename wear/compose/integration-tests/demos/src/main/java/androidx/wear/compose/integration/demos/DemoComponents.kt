@@ -87,10 +87,11 @@ fun DemoIcon(
     resourceId: Int,
     modifier: Modifier = Modifier,
     size: Dp = 24.dp,
+    contentDescription: String? = null,
 ) {
     Icon(
         painter = painterResource(id = resourceId),
-        contentDescription = null,
+        contentDescription = contentDescription,
         modifier = modifier
             .size(size)
             .wrapContentSize(align = Alignment.Center),

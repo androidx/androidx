@@ -512,15 +512,15 @@ package androidx.wear.compose.material {
 package androidx.wear.compose.material.dialog {
 
   public final class DialogDefaults {
-    method @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues getButtonsContentPadding();
-    method @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues getChipsContentPadding();
-    method @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues getConfirmationContentPadding();
+    method public androidx.compose.foundation.layout.Arrangement.Vertical getAlertVerticalArrangement();
+    method public androidx.compose.foundation.layout.Arrangement.Vertical getConfirmationVerticalArrangement();
+    method public androidx.compose.foundation.layout.PaddingValues getContentPadding();
     method public long getIndefiniteDurationMillis();
     method public long getLongDurationMillis();
     method public long getShortDurationMillis();
-    property @androidx.compose.runtime.Composable public final androidx.compose.foundation.layout.PaddingValues ButtonsContentPadding;
-    property @androidx.compose.runtime.Composable public final androidx.compose.foundation.layout.PaddingValues ChipsContentPadding;
-    property @androidx.compose.runtime.Composable public final androidx.compose.foundation.layout.PaddingValues ConfirmationContentPadding;
+    property public final androidx.compose.foundation.layout.Arrangement.Vertical AlertVerticalArrangement;
+    property public final androidx.compose.foundation.layout.Arrangement.Vertical ConfirmationVerticalArrangement;
+    property public final androidx.compose.foundation.layout.PaddingValues ContentPadding;
     property public final long IndefiniteDurationMillis;
     property public final long LongDurationMillis;
     property public final long ShortDurationMillis;
@@ -528,13 +528,13 @@ package androidx.wear.compose.material.dialog {
   }
 
   public final class DialogKt {
-    method @androidx.compose.runtime.Composable public static void Alert(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> title, kotlin.jvm.functions.Function0<kotlin.Unit> negativeButton, kotlin.jvm.functions.Function0<kotlin.Unit> positiveButton, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? icon, optional androidx.compose.foundation.ScrollState scrollState, optional long backgroundColor, optional long contentColor, optional long titleColor, optional long iconTintColor, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>? content);
-    method @androidx.compose.runtime.Composable public static void Alert(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> title, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? icon, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>? message, optional androidx.compose.foundation.ScrollState scrollState, optional long backgroundColor, optional long contentColor, optional long titleColor, optional long messageColor, optional long iconTintColor, optional androidx.compose.foundation.layout.PaddingValues contentPadding, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> content);
-    method @androidx.compose.runtime.Composable public static void Confirmation(kotlin.jvm.functions.Function0<kotlin.Unit> onTimeout, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? icon, optional androidx.compose.foundation.ScrollState scrollState, optional long durationMillis, optional long backgroundColor, optional long contentColor, optional long iconTintColor, optional androidx.compose.foundation.layout.PaddingValues contentPadding, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void Alert(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> title, kotlin.jvm.functions.Function0<kotlin.Unit> negativeButton, kotlin.jvm.functions.Function0<kotlin.Unit> positiveButton, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>? icon, optional androidx.wear.compose.material.ScalingLazyListState scrollState, optional long backgroundColor, optional long contentColor, optional long titleColor, optional long iconTintColor, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>? content);
+    method @androidx.compose.runtime.Composable public static void Alert(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> title, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>? icon, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>? message, optional androidx.wear.compose.material.ScalingLazyListState scrollState, optional long backgroundColor, optional long titleColor, optional long messageColor, optional long iconTintColor, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.foundation.layout.PaddingValues contentPadding, kotlin.jvm.functions.Function1<? super androidx.wear.compose.material.ScalingLazyListScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void Confirmation(kotlin.jvm.functions.Function0<kotlin.Unit> onTimeout, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>? icon, optional androidx.wear.compose.material.ScalingLazyListState scrollState, optional long durationMillis, optional long backgroundColor, optional long contentColor, optional long iconTintColor, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.foundation.layout.PaddingValues contentPadding, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> content);
   }
 
   public final class Dialog_androidKt {
-    method @androidx.compose.runtime.Composable public static void Dialog(kotlin.jvm.functions.Function0<kotlin.Unit> onDismissRequest, optional androidx.compose.ui.window.DialogProperties properties, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void Dialog(kotlin.jvm.functions.Function0<kotlin.Unit> onDismissRequest, optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.material.ScalingLazyListState? scrollState, optional androidx.compose.ui.window.DialogProperties properties, kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
 
 }

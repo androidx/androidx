@@ -16,8 +16,8 @@
 
 package androidx.wear.compose.material.dialog
 
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,8 +28,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -50,6 +48,10 @@ import androidx.wear.compose.material.LocalTextStyle
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.PositionIndicator
 import androidx.wear.compose.material.Scaffold
+import androidx.wear.compose.material.ScalingLazyColumn
+import androidx.wear.compose.material.ScalingLazyListScope
+import androidx.wear.compose.material.ScalingLazyListState
+import androidx.wear.compose.material.rememberScalingLazyListState
 import kotlinx.coroutines.delay
 
 /**
@@ -71,7 +73,7 @@ import kotlinx.coroutines.delay
  * Clicking the button must remove the dialog from the composition hierarchy.
  * @param positiveButton A slot for a [Button] indicating positive sentiment (e.g. Yes).
  * Clicking the button must remove the dialog from the composition hierarchy.
- * @param modifier Modifier to be applied to the dialog.
+ * @param modifier Modifier to be applied to the dialog content.
  * @param icon Optional slot for an icon to be shown at the top of the dialog.
  * @param scrollState The scroll state for the dialog so that the scroll position can be displayed
  * e.g. by the [PositionIndicator] passed to [Scaffold].
@@ -80,6 +82,9 @@ import kotlinx.coroutines.delay
  * @param titleColor [Color] representing the color for [title].
  * @param iconTintColor Icon [Color] that defaults to [contentColor],
  * unless specifically overridden.
+ * @param verticalArrangement The vertical arrangement of the dialog's children. This allows us
+ * to add spacing between items and specify the arrangement of the items when we have not enough
+ * of them to fill the whole minimum size.
  * @param contentPadding The padding to apply around the whole of the dialog's contents.
  * @param content A slot for additional content, expected to be 2-3 lines of text.
  */
@@ -89,46 +94,48 @@ public fun Alert(
     negativeButton: @Composable () -> Unit,
     positiveButton: @Composable () -> Unit,
     modifier: Modifier = Modifier,
-    icon: @Composable (() -> Unit)? = null,
-    scrollState: ScrollState = rememberScrollState(),
+    icon: @Composable (ColumnScope.() -> Unit)? = null,
+    scrollState: ScalingLazyListState = rememberScalingLazyListState(),
     backgroundColor: Color = MaterialTheme.colors.background,
     contentColor: Color = contentColorFor(backgroundColor),
     titleColor: Color = contentColor,
     iconTintColor: Color = contentColor,
-    contentPadding: PaddingValues = DialogDefaults.ButtonsContentPadding,
+    verticalArrangement: Arrangement.Vertical = DialogDefaults.AlertVerticalArrangement,
+    contentPadding: PaddingValues = DialogDefaults.ContentPadding,
     content: @Composable (ColumnScope.() -> Unit)? = null
 ) {
     DialogImpl(
         modifier = modifier,
         scrollState = scrollState,
+        verticalArrangement = verticalArrangement,
         contentPadding = contentPadding,
         backgroundColor = backgroundColor,
     ) {
-        val weightsToCenterVertically = 0.5f
-
-        // Use 50:50 weights to center the title + content between icon and buttons
-        Spacer(Modifier.fillMaxWidth().weight(weightsToCenterVertically))
-
         if (icon != null) {
-            DialogIconHeader(iconTintColor, content = icon)
+            item {
+                DialogIconHeader(iconTintColor, content = icon)
+            }
         }
 
-        DialogTitle(titleColor, padding = DialogDefaults.TitlePadding, title)
+        item {
+            DialogTitle(titleColor, padding = DialogDefaults.TitlePadding, title)
+        }
 
         if (content != null) {
-            DialogBody(contentColor, content)
+            item {
+                DialogBody(contentColor, content)
+            }
         }
 
-        // Use 50:50 weights to center the title + content between icon and buttons
-        Spacer(Modifier.fillMaxWidth().weight(weightsToCenterVertically))
-
         // Buttons
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            negativeButton()
-            Spacer(modifier = Modifier.width(DialogDefaults.ButtonSpacing))
-            positiveButton()
+        item {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                negativeButton()
+                Spacer(modifier = Modifier.width(DialogDefaults.ButtonSpacing))
+                positiveButton()
+            }
         }
     }
 }
@@ -154,11 +161,12 @@ public fun Alert(
  * @param scrollState The scroll state for the dialog so that the scroll position can be displayed
  * e.g. by the [PositionIndicator] passed to [Scaffold].
  * @param backgroundColor [Color] representing the background color for the dialog.
- * @param contentColor [Color] representing the color for [content].
  * @param titleColor [Color] representing the color for [title].
  * @param messageColor [Color] representing the color for [message].
- * @param iconTintColor Icon [Color] that defaults to [contentColor],
- * unless specifically overridden.
+ * @param iconTintColor [Color] representing the color for [icon].
+ * @param verticalArrangement The vertical arrangement of the dialog's children. This allows us
+ * to add spacing between items and specify the arrangement of the items when we have not enough
+ * of them to fill the whole minimum size.
  * @param contentPadding The padding to apply around the whole of the dialog's contents.
  * @param content A slot for one or more spaced [Chip]s, stacked vertically.
  */
@@ -166,44 +174,41 @@ public fun Alert(
 public fun Alert(
     title: @Composable ColumnScope.() -> Unit,
     modifier: Modifier = Modifier,
-    icon: @Composable (() -> Unit)? = null,
+    icon: @Composable (ColumnScope.() -> Unit)? = null,
     message: @Composable (ColumnScope.() -> Unit)? = null,
-    scrollState: ScrollState = rememberScrollState(),
+    scrollState: ScalingLazyListState = rememberScalingLazyListState(),
     backgroundColor: Color = MaterialTheme.colors.background,
-    contentColor: Color = contentColorFor(backgroundColor),
-    titleColor: Color = contentColor,
-    messageColor: Color = contentColor,
-    iconTintColor: Color = contentColor,
-    contentPadding: PaddingValues = DialogDefaults.ChipsContentPadding,
-    content: @Composable ColumnScope.() -> Unit
+    titleColor: Color = contentColorFor(backgroundColor),
+    messageColor: Color = contentColorFor(backgroundColor),
+    iconTintColor: Color = contentColorFor(backgroundColor),
+    verticalArrangement: Arrangement.Vertical = DialogDefaults.AlertVerticalArrangement,
+    contentPadding: PaddingValues = DialogDefaults.ContentPadding,
+    content: ScalingLazyListScope.() -> Unit
 ) {
     DialogImpl(
         modifier = modifier,
         scrollState = scrollState,
+        verticalArrangement = verticalArrangement,
         contentPadding = contentPadding,
         backgroundColor = backgroundColor,
     ) {
-        val weightsToCenterVertically = 0.5f
-
-        // Use 50:50 weights to center the title + content between icon and buttons
-        Spacer(Modifier.fillMaxWidth().weight(weightsToCenterVertically))
-
         if (icon != null) {
-            DialogIconHeader(iconTintColor, content = icon)
+            item {
+                DialogIconHeader(iconTintColor, content = icon)
+            }
         }
 
-        DialogTitle(titleColor, padding = DialogDefaults.TitlePadding, content = title)
+        item {
+            DialogTitle(titleColor, padding = DialogDefaults.TitlePadding, content = title)
+        }
 
         if (message != null) {
-            DialogBody(messageColor, message)
+            item {
+                DialogBody(messageColor, message)
+            }
         }
 
-        // Use 50:50 weights to center the title + content between icon and buttons
-        Spacer(Modifier.fillMaxWidth().weight(weightsToCenterVertically))
-
-        CompositionLocalProvider(LocalContentColor provides contentColor) {
-            content()
-        }
+        content()
     }
 }
 
@@ -231,6 +236,9 @@ public fun Alert(
  * @param contentColor [Color] representing the color for [content].
  * @param iconTintColor Icon [Color] that defaults to the [contentColor],
  * unless specifically overridden.
+ * @param verticalArrangement The vertical arrangement of the dialog's children. This allows us
+ * to add spacing between items and specify the arrangement of the items when we have not enough
+ * of them to fill the whole minimum size.
  * @param contentPadding The padding to apply around the whole of the dialog's contents.
  * @param content A slot for the dialog title, expected to be one line of text.
  */
@@ -238,13 +246,14 @@ public fun Alert(
 public fun Confirmation(
     onTimeout: () -> Unit,
     modifier: Modifier = Modifier,
-    icon: @Composable (() -> Unit)? = null,
-    scrollState: ScrollState = rememberScrollState(),
+    icon: @Composable (ColumnScope.() -> Unit)? = null,
+    scrollState: ScalingLazyListState = rememberScalingLazyListState(),
     durationMillis: Long = DialogDefaults.ShortDurationMillis,
     backgroundColor: Color = MaterialTheme.colors.background,
     contentColor: Color = contentColorFor(backgroundColor),
     iconTintColor: Color = contentColor,
-    contentPadding: PaddingValues = DialogDefaults.ConfirmationContentPadding,
+    verticalArrangement: Arrangement.Vertical = DialogDefaults.ConfirmationVerticalArrangement,
+    contentPadding: PaddingValues = DialogDefaults.ContentPadding,
     content: @Composable ColumnScope.() -> Unit
 ) {
     require(durationMillis > 0) { "Duration must be a positive integer" }
@@ -259,25 +268,23 @@ public fun Confirmation(
     DialogImpl(
         modifier = modifier,
         scrollState = scrollState,
+        verticalArrangement = verticalArrangement,
         contentPadding = contentPadding,
         backgroundColor = backgroundColor,
     ) {
-        val weightsToCenterVertically = 0.5f
-
-        // Use 50:50 weights to center the icon & title
-        Spacer(Modifier.fillMaxWidth().weight(weightsToCenterVertically))
-
         if (icon != null) {
-            DialogIconHeader(iconTintColor, content = icon)
+            item {
+                DialogIconHeader(iconTintColor, content = icon)
+            }
         }
 
-        DialogTitle(
-            titleColor = contentColor,
-            padding = DialogDefaults.TitleBottomPadding,
-            content = content)
-
-        // Use 50:50 weights to center the icon & title
-        Spacer(Modifier.fillMaxWidth().weight(weightsToCenterVertically))
+        item {
+            DialogTitle(
+                titleColor = contentColor,
+                padding = DialogDefaults.TitleBottomPadding,
+                content = content
+            )
+        }
     }
 }
 
@@ -286,38 +293,21 @@ public fun Confirmation(
  */
 public object DialogDefaults {
     /**
-     * Creates the recommended contentPadding for [Alert] with chips, used to define
-     * the spacing around content that may contain several chips.
+     * Creates the recommended vertical arrangement for [Alert] dialog content.
      */
-    public val ChipsContentPadding
-        @Composable get() =
-            if (isRoundDevice())
-                PaddingValues(start = 10.dp, end = 10.dp, top = 24.dp, bottom = 70.dp)
-            else
-                PaddingValues(start = 5.dp, end = 5.dp, top = 20.dp, bottom = 64.dp)
+    public val AlertVerticalArrangement =
+        Arrangement.spacedBy(4.dp, Alignment.CenterVertically)
 
     /**
-     * Creates the recommended contentPadding for [Alert] with buttons, used to define
-     * the spacing around content for a dialog with icon, title, optional message text
-     * and two buttons.
+     * Creates the recommended vertical arrangement for [Confirmation] dialog content.
      */
-    public val ButtonsContentPadding
-        @Composable get() =
-            if (isRoundDevice())
-                PaddingValues(start = 10.dp, end = 10.dp, top = 24.dp, bottom = 40.dp)
-            else
-                PaddingValues(start = 5.dp, end = 5.dp, top = 20.dp, bottom = 38.dp)
+    public val ConfirmationVerticalArrangement =
+        Arrangement.spacedBy(space = 8.dp, alignment = Alignment.CenterVertically)
 
     /**
-     * Creates the recommended contentPadding for [Confirmation],
-     * used to define the spacing around content for a dialog with optional icon and title.
+     * The padding to apply around the contents.
      */
-    public val ConfirmationContentPadding
-        @Composable get() =
-            if (isRoundDevice())
-                PaddingValues(start = 14.dp, end = 14.dp, top = 24.dp, bottom = 24.dp)
-            else
-                PaddingValues(start = 12.dp, end = 12.dp, top = 20.dp, bottom = 20.dp)
+    public val ContentPadding = PaddingValues(horizontal = 10.dp)
 
     /**
      * Short duration for showing [Confirmation].
@@ -342,7 +332,7 @@ public object DialogDefaults {
     /**
      * Spacing below [Icon].
      */
-    internal val IconSpacing = 8.dp
+    internal val IconSpacing = 4.dp
 
     /**
      * Padding around body content.
@@ -350,9 +340,9 @@ public object DialogDefaults {
     internal val BodyPadding
         @Composable get() =
             if (isRoundDevice())
-                PaddingValues(start = 8.dp, end = 8.dp, top = 4.dp, bottom = 16.dp)
+                PaddingValues(start = 8.dp, end = 8.dp, top = 0.dp, bottom = 12.dp)
             else
-                PaddingValues(start = 5.dp, end = 5.dp, top = 4.dp, bottom = 16.dp)
+                PaddingValues(start = 5.dp, end = 5.dp, top = 0.dp, bottom = 12.dp)
 
     /**
      * Padding around title text.
@@ -364,10 +354,10 @@ public object DialogDefaults {
                     start = 14.dp,
                     end = 14.dp,
                     top = 0.dp,
-                    bottom = 12.dp
+                    bottom = 8.dp
                 )
             else
-                PaddingValues(start = 5.dp, end = 5.dp, top = 0.dp, bottom = 12.dp)
+                PaddingValues(start = 5.dp, end = 5.dp, top = 0.dp, bottom = 8.dp)
 
     /**
      * Bottom padding for title text.
@@ -384,18 +374,21 @@ public object DialogDefaults {
 @Composable
 private fun DialogImpl(
     modifier: Modifier = Modifier,
-    scrollState: ScrollState,
+    scrollState: ScalingLazyListState,
+    verticalArrangement: Arrangement.Vertical,
     backgroundColor: Color,
     contentPadding: PaddingValues,
-    content: @Composable ColumnScope.() -> Unit
+    content: ScalingLazyListScope.() -> Unit
 ) {
-    Column(
+    ScalingLazyColumn(
+        state = scrollState,
+        autoCentering = false,
         horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = verticalArrangement,
+        contentPadding = contentPadding,
         modifier = modifier
             .fillMaxSize()
-            .background(backgroundColor)
-            .verticalScroll(state = scrollState)
-            .padding(contentPadding),
+            .background(backgroundColor),
         content = content
     )
 }
@@ -410,11 +403,16 @@ private fun DialogImpl(
 @Composable
 private fun DialogIconHeader(
     iconTintColor: Color,
-    content: @Composable () -> Unit
+    content: @Composable ColumnScope.() -> Unit
 ) {
     CompositionLocalProvider(LocalContentColor provides iconTintColor) {
-        content()
-        Spacer(Modifier.fillMaxWidth().height(DialogDefaults.IconSpacing))
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            content()
+            Spacer(Modifier.fillMaxWidth().height(DialogDefaults.IconSpacing))
+        }
     }
 }
 
