@@ -64,6 +64,7 @@ import org.junit.After
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
@@ -658,6 +659,7 @@ class Camera2CapturePipelineTest {
     }
 
     @Test
+    @Ignore("AutoFlashUnderExposedQuirk was disabled, ignoring the test.")
     fun overrideAeModeForStillCapture_aePrecaptureStarted_override(): Unit = runBlocking {
         // Arrange.
         val cameraControl = createCameraControl(
