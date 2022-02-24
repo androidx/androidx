@@ -16,14 +16,21 @@
 
 package androidx.wear.compose.integration.demos
 
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.rotary.onRotaryScrollEvent
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.Chip
@@ -32,12 +39,18 @@ import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.ListHeader
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.ScalingLazyColumn
+import androidx.wear.compose.material.ScalingLazyColumnDefaults
+import androidx.wear.compose.material.ScalingLazyListScope
+import androidx.wear.compose.material.ScalingLazyListState
+import androidx.wear.compose.material.ScalingParams
 import androidx.wear.compose.material.SwipeDismissTarget
 import androidx.wear.compose.material.SwipeToDismissBox
 import androidx.wear.compose.material.SwipeToDismissBoxDefaults
 import androidx.wear.compose.material.SwipeToDismissBoxState
 import androidx.wear.compose.material.Text
+import androidx.wear.compose.material.rememberScalingLazyListState
 import androidx.wear.compose.material.rememberSwipeToDismissBoxState
+import kotlinx.coroutines.launch
 
 @Composable
 @ExperimentalWearMaterialApi
@@ -103,9 +116,8 @@ internal fun DisplayDemoList(
                 DisplayDemo(parentDemo, null, onNavigateTo, onNavigateBack)
             }
         } else {
-            ScalingLazyColumn(
+            ScalingLazyColumnWithRSB(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                contentPadding = PaddingValues(vertical = 16.dp),
                 modifier = Modifier.fillMaxWidth().testTag(DemoListTag),
             ) {
                 item {
@@ -154,4 +166,41 @@ internal fun swipeDismissStateWithNavigation(
         }
     }
     return state
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+fun ScalingLazyColumnWithRSB(
+    modifier: Modifier = Modifier,
+    state: ScalingLazyListState = rememberScalingLazyListState(),
+    scalingParams: ScalingParams = ScalingLazyColumnDefaults.scalingParams(),
+    reverseLayout: Boolean = false,
+    snap: Boolean = true,
+    horizontalAlignment: Alignment.Horizontal = Alignment.Start,
+    content: ScalingLazyListScope.() -> Unit
+) {
+    val coroutineScope = rememberCoroutineScope()
+    val focusRequester = remember { FocusRequester() }
+    ScalingLazyColumn(
+        modifier = modifier
+            .onRotaryScrollEvent {
+                coroutineScope.launch {
+                    state.dispatchRawDelta(it.verticalScrollPixels)
+                }
+                true
+            }
+            .focusRequester(focusRequester)
+            .focusable(),
+        state = state,
+        reverseLayout = reverseLayout,
+        scalingParams = scalingParams,
+        flingBehavior = if (snap) ScalingLazyColumnDefaults.snapFlingBehavior(
+            state = state
+        ) else ScrollableDefaults.flingBehavior(),
+        horizontalAlignment = horizontalAlignment,
+        content = content
+    )
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
 }
