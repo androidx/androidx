@@ -456,7 +456,7 @@ public final class Recorder implements VideoOutput {
                             setState(State.STOPPING);
                             RecordingRecord finalActiveRecordingRecord = mActiveRecordingRecord;
                             mSequentialExecutor.execute(
-                                    () -> stopInternal(finalActiveRecordingRecord,
+                                    () -> stopInternal(finalActiveRecordingRecord, null,
                                             ERROR_SOURCE_INACTIVE, null));
                             break;
                         case STOPPING:
@@ -876,9 +876,10 @@ public final class Recorder implements VideoOutput {
                     // Fall-through
                 case RECORDING:
                     setState(State.STOPPING);
+                    long explicitlyStopTimeUs = TimeUnit.NANOSECONDS.toMicros(System.nanoTime());
                     RecordingRecord finalActiveRecordingRecord = mActiveRecordingRecord;
                     mSequentialExecutor.execute(() -> stopInternal(finalActiveRecordingRecord,
-                            ERROR_NONE, null));
+                            explicitlyStopTimeUs, ERROR_NONE, null));
                     break;
                 case ERROR:
                     // In an error state, the recording will already be finalized. Treat as a
@@ -966,7 +967,7 @@ public final class Recorder implements VideoOutput {
         if (shouldReset) {
             resetInternal();
         } else if (shouldStop) {
-            stopInternal(mInProgressRecording, ERROR_NONE, null);
+            stopInternal(mInProgressRecording, null, ERROR_NONE, null);
         }
     }
 
@@ -1836,7 +1837,8 @@ public final class Recorder implements VideoOutput {
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @ExecutedBy("mSequentialExecutor")
-    void stopInternal(@NonNull RecordingRecord recordingToStop, @VideoRecordError int stopError,
+    void stopInternal(@NonNull RecordingRecord recordingToStop,
+            @Nullable Long explicitlyStopTime, @VideoRecordError int stopError,
             @Nullable Throwable errorCause) {
         // Only stop recording if recording is in-progress and it is not already stopping.
         if (mInProgressRecording == recordingToStop && !mInProgressRecordingStopping) {
@@ -1850,7 +1852,11 @@ public final class Recorder implements VideoOutput {
                     mPendingFirstAudioData.close();
                     mPendingFirstAudioData = null;
                 }
-                mAudioEncoder.stop();
+                if (explicitlyStopTime == null) {
+                    mAudioEncoder.stop();
+                } else {
+                    mAudioEncoder.stop(explicitlyStopTime);
+                }
             }
             if (mPendingFirstVideoData != null) {
                 mPendingFirstVideoData.close();
@@ -1892,7 +1898,13 @@ public final class Recorder implements VideoOutput {
 
             // Stop the encoder. This will tell the encoder to stop encoding new data. We'll notify
             // the encoder when the source has actually stopped in the FutureCallback.
-            mVideoEncoder.stop();
+            // If the recording is explicitly stopped by the user, pass the stop timestamp to the
+            // encoder so that the encoding can be stop as close as to the actual stop time.
+            if (explicitlyStopTime == null) {
+                mVideoEncoder.stop();
+            } else {
+                mVideoEncoder.stop(explicitlyStopTime);
+            }
 
             Futures.addCallback(sourceNonStreamingFuture, new FutureCallback<Void>() {
                 @Override
@@ -2160,7 +2172,7 @@ public final class Recorder implements VideoOutput {
         }
 
         if (needsStop) {
-            stopInternal(recording, error, cause);
+            stopInternal(recording, null, error, cause);
         }
     }
 
