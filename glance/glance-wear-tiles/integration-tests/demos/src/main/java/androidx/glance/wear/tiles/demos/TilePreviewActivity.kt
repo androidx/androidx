@@ -29,10 +29,11 @@ import androidx.wear.tiles.manager.TileUiClient
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.adapter.FragmentStateAdapter
 
-private const val NUM_PAGES = 2
+private const val NUM_PAGES = 3
 private val TILE_PROVIDERS_NAME = arrayOf(
     HelloTileService::class.java,
-    CalendarTileService::class.java
+    CalendarTileService::class.java,
+    CountTileService::class.java
 )
 
 class TilePageFragment(

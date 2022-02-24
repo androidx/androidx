@@ -64,5 +64,16 @@
                 <action android:name="androidx.wear.tiles.action.BIND_TILE_PROVIDER" />
             </intent-filter>
         </service>
+
+        <service
+            android:name="androidx.glance.wear.tiles.demos.CountTileService"
+            android:description="@string/count_tile_name"
+            android:exported="true"
+            android:label="@string/count_tile_name"
+            android:permission="com.google.android.wearable.permission.BIND_TILE_PROVIDER">
+            <intent-filter>
+                <action android:name="androidx.wear.tiles.action.BIND_TILE_PROVIDER" />
+            </intent-filter>
+        </service>
     </application>
 </manifest>

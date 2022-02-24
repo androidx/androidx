@@ -16,7 +16,6 @@
 
 package androidx.glance.wear.tiles
 
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.os.IBinder
@@ -31,12 +30,15 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.glance.Applier
 import androidx.glance.GlanceModifier
+import androidx.glance.GlanceId
 import androidx.glance.layout.EmittableBox
 import androidx.glance.LocalContext
+import androidx.glance.LocalGlanceId
 import androidx.glance.LocalSize
 import androidx.glance.LocalState
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.fillMaxSize
+import androidx.glance.wear.tiles.action.RunCallbackAction
 import androidx.glance.state.GlanceState
 import androidx.glance.state.GlanceStateDefinition
 import androidx.lifecycle.Lifecycle
@@ -122,8 +124,9 @@ public abstract class GlanceTileService(
         super.onStart(intent, startId)
     }
 
-    private fun getStateIdentifier(): String =
-        ComponentName(this, javaClass).flattenToString()
+    private fun getStateIdentifier(): String = javaClass.name
+
+    private fun getGlanceId(): GlanceId = WearTileId(javaClass)
 
     /**
      * Retrieve the state of the wear tile provided by this service
@@ -157,6 +160,7 @@ public abstract class GlanceTileService(
     private suspend fun runComposition(
         screenSize: DpSize,
         state: Any?,
+        lastClickableId: String,
         timeInterval: TimeInterval? = null
     ): CompositionResult =
         coroutineScope {
@@ -167,12 +171,23 @@ public abstract class GlanceTileService(
             val recomposer = Recomposer(currentCoroutineContext())
             val composition = Composition(applier, recomposer)
 
+            var currentState = state
+            if (lastClickableId.isNotEmpty()) {
+                RunCallbackAction.run(
+                    this@GlanceTileService,
+                    lastClickableId,
+                    getGlanceId()
+                )
+                currentState = if (stateDefinition != null) getTileState<Any>() else null
+            }
+
             composition.setContent {
                 CompositionLocalProvider(
                     LocalContext provides this@GlanceTileService,
                     LocalSize provides screenSize,
-                    LocalState provides state,
-                    LocalTimeInterval provides timeInterval
+                    LocalState provides currentState,
+                    LocalTimeInterval provides timeInterval,
+                    LocalGlanceId provides getGlanceId()
                 ) { Content() }
             }
 
@@ -206,14 +221,15 @@ public abstract class GlanceTileService(
      */
     private suspend fun runComposition(
         screenSize: DpSize,
-        resourcesOnly: Boolean
+        resourcesOnly: Boolean,
+        lastClickableId: String
     ): GlanceTile = coroutineScope {
         val timelineBuilders = if (resourcesOnly) null else TimelineBuilders.Timeline.Builder()
         var resourcesBuilder: ResourceBuilders.Resources.Builder
 
         val state = if (stateDefinition != null) getTileState<Any>() else null
         if (timelineMode === TimelineMode.SingleEntry) {
-            val content = runComposition(screenSize, state)
+            val content = runComposition(screenSize, state, lastClickableId)
 
             timelineBuilders?.let {
                 timelineBuilders.addTimelineEntry(
@@ -232,7 +248,7 @@ public abstract class GlanceTileService(
             resourcesBuilder = ResourceBuilders.Resources.Builder()
 
             timeIntervals.forEach { interval ->
-                val content = runComposition(screenSize, state, interval)
+                val content = runComposition(screenSize, state, lastClickableId, interval)
                 timelineBuilders?.let {
                     timelineBuilders
                         .addTimelineEntry(
@@ -303,7 +319,8 @@ public abstract class GlanceTileService(
                     requestParams.deviceParameters!!.screenWidthDp.dp,
                     requestParams.deviceParameters!!.screenHeightDp.dp
                 ) else DpSize(0.dp, 0.dp),
-            false
+            false,
+            requestParams.state?.lastClickableId ?: ""
         ).tile!!
     }
 
@@ -336,7 +353,8 @@ public abstract class GlanceTileService(
                         requestParams.deviceParameters!!.screenHeightDp.dp
                     )
                 else DpSize(0.dp, 0.dp),
-                true
+                true,
+                ""
             ).resources!!
         }
     }
@@ -350,3 +368,5 @@ public abstract class GlanceTileService(
         }
     }
 }
+
+internal data class WearTileId(val tileServiceClass: Class<out GlanceTileService>) : GlanceId
