@@ -38,14 +38,13 @@ echo "$KSP_VERSION / $BRANCH_NAME"
 repo abandon $BRANCH_NAME . platform/prebuilts/androidx/external 2> /dev/null || true
 repo start $BRANCH_NAME . platform/prebuilts/androidx/external
 
-# delete old ksp prebuilts
-rm -rf ../../prebuilts/androidx/external/com/google/devtools/ksp
+# other projects depend on ksp prebuilts so we don't delete them anymore.
 
 # download
 development/importMaven/import_maven_artifacts.py -n com.google.devtools.ksp:symbol-processing-gradle-plugin:$KSP_VERSION
 development/importMaven/import_maven_artifacts.py -n com.google.devtools.ksp:symbol-processing:$KSP_VERSION
 
 # update build version
-sed -i "s/ksp = \".*\"/ksp = \"$KSP_VERSION\"/" gradle/libs.versions.toml
+sed -i '' "s/ksp = \".*\"/ksp = \"$KSP_VERSION\"/" gradle/libs.versions.toml
 
 echo "done"
