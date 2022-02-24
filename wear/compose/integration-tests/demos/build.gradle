@@ -26,8 +26,8 @@ android {
         applicationId "androidx.wear.compose.integration.demos"
         minSdk 25
         targetSdk 30
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "1.1"
         // Change the APK name to match the *testapp regex we use to pick up APKs for testing as
         // part of CI.
         archivesBaseName = "wear-compose-demos-testapp"
