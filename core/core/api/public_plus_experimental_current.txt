@@ -1760,6 +1760,8 @@ package androidx.core.os {
   public final class ParcelCompat {
     method public static boolean readBoolean(android.os.Parcel);
     method public static <T extends android.os.Parcelable> T? readParcelable(android.os.Parcel, ClassLoader?, Class<T!>);
+    method public static <T> T![]? readParcelableArray(android.os.Parcel, ClassLoader?, Class<T!>);
+    method @RequiresApi(api=android.os.Build.VERSION_CODES.Q) public static <T> java.util.List<T!> readParcelableList(android.os.Parcel, java.util.List<T!>, ClassLoader?, Class<T!>);
     method public static <T extends java.io.Serializable> T? readSerializable(android.os.Parcel, ClassLoader?, Class<T!>);
     method public static void writeBoolean(android.os.Parcel, boolean);
   }

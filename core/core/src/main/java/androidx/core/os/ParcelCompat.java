@@ -16,6 +16,8 @@
 
 package androidx.core.os;
 
+import android.annotation.SuppressLint;
+import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -26,6 +28,7 @@ import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Helper for accessing features in {@link Parcel}.
@@ -71,6 +74,48 @@ public final class ParcelCompat {
     }
 
     /**
+     * Same as {@link Parcel#readParcelableArray(ClassLoader)}  but accepts {@code clazz} parameter
+     * as the type required for each item.
+     *
+     * @throws android.os.BadParcelableException Throws BadParcelableException if the item to be
+     * deserialized is not an instance of that class or any of its children classes or there was
+     * an error trying to instantiate an element.
+     */
+    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
+    @SuppressWarnings("unchecked")
+    @SuppressLint({"ArrayReturn", "NullableCollection"})
+    @Nullable
+    public static <T> T[] readParcelableArray(@NonNull Parcel in, @Nullable ClassLoader loader,
+            @NonNull Class<T> clazz) {
+        if (BuildCompat.isAtLeastT()) {
+            return TiramisuImpl.readParcelableArray(in, loader, clazz);
+        } else {
+            return (T[]) in.readParcelableArray(loader);
+        }
+    }
+
+    /**
+     * Same as {@link Parcel#readParcelableList(List, ClassLoader)} but accepts {@code clazz}
+     * parameter as the type required for each item.
+     *
+     * @throws android.os.BadParcelableException Throws BadParcelableException if the item to be
+     * deserialized is not an instance of that class or any of its children classes or there was
+     * an error trying to instantiate an element.
+     */
+    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
+    @NonNull
+    @SuppressWarnings({"deprecation", "unchecked"})
+    @RequiresApi(api = Build.VERSION_CODES.Q)
+    public static <T> List<T> readParcelableList(@NonNull Parcel in, @NonNull List<T> list,
+            @Nullable ClassLoader cl, @NonNull Class<T> clazz) {
+        if (BuildCompat.isAtLeastT()) {
+            return TiramisuImpl.readParcelableList(in, list, cl, clazz);
+        } else {
+            return Api29Impl.readParcelableList(in, (List) list, cl);
+        }
+    }
+
+    /**
      * Same as {@link Parcel#readSerializable()} but accepts {@code loader} parameter
      * as the primary classLoader for resolving the Serializable class; and {@code clazz} parameter
      * as the required type.
@@ -93,6 +138,19 @@ public final class ParcelCompat {
 
     private ParcelCompat() {}
 
+    @RequiresApi(29)
+    static class Api29Impl {
+        private Api29Impl() {
+            // This class is non-instantiable.
+        }
+
+        @DoNotInline
+        static final <T extends Parcelable> List<T> readParcelableList(@NonNull Parcel in,
+                @NonNull List<T> list, @Nullable ClassLoader cl) {
+            return in.readParcelableList(list, cl);
+        }
+    }
+
     @RequiresApi(33)
     static class TiramisuImpl {
         private TiramisuImpl() {
@@ -109,6 +167,18 @@ public final class ParcelCompat {
         static <T extends Parcelable> T readParcelable(@NonNull Parcel in,
                 @Nullable ClassLoader loader, @NonNull Class<T> clazz) {
             return in.readParcelable(loader, clazz);
+        }
+
+        @DoNotInline
+        static <T> T[] readParcelableArray(@NonNull Parcel in, @Nullable ClassLoader loader,
+                @NonNull Class<T> clazz) {
+            return in.readParcelableArray(loader, clazz);
+        }
+
+        @DoNotInline
+        static <T> List<T> readParcelableList(@NonNull Parcel in, @NonNull List<T> list,
+                @Nullable ClassLoader cl, @NonNull Class<T> clazz) {
+            return in.readParcelableList(list, cl, clazz);
         }
     }
 }
