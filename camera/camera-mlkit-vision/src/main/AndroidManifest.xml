@@ -10,5 +10,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<manifest package="androidx.camera.mlkit.vision"/>
-
+<manifest xmlns:tools="http://schemas.android.com/tools"
+    package="androidx.camera.mlkit.vision">
+    <uses-sdk tools:overrideLibrary="com.google.mlkit.vision.interfaces" />
+</manifest>
