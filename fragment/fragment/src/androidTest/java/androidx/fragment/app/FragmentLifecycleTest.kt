@@ -1162,6 +1162,7 @@ class FragmentLifecycleTest {
 
     @Test
     @UiThreadTest
+    @Suppress("DEPRECATION")
     fun optionsMenu() {
         val viewModelStore = ViewModelStore()
         val fc = activityRule.startupFragmentController(viewModelStore)

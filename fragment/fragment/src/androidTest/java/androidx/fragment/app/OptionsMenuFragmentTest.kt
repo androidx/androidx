@@ -25,16 +25,21 @@ import android.view.ViewGroup
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
 import androidx.test.core.app.ActivityScenario
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu
+import androidx.test.espresso.action.ViewActions
+import androidx.test.espresso.assertion.ViewAssertions
+import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SmallTest
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertWithMessage
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
@@ -90,7 +95,7 @@ class OptionsMenuFragmentTest {
                     .commitNow()
             }
 
-            assertWithMessage("conCreateOptions menu was not called")
+            assertWithMessage("onCreateOptionsMenu was not called")
                 .that(fragment.onCreateOptionsMenuCountDownLatch.await(1000, TimeUnit.MILLISECONDS))
                 .isTrue()
         }
@@ -240,9 +245,80 @@ class OptionsMenuFragmentTest {
             .that(parent.mChildFragmentManager.checkForMenus()).isTrue()
     }
 
+    @Test
+    fun onPrepareOptionsMenu() {
+        activityRule.setContentView(R.layout.simple_container)
+        val fragment = MenuFragment()
+        val fm = activityRule.activity.supportFragmentManager
+        fm.beginTransaction()
+            .add(R.id.fragmentContainer, fragment)
+            .commit()
+        activityRule.executePendingTransactions()
+
+        openActionBarOverflowOrOptionsMenu(activityRule.activity.applicationContext)
+        onView(ViewMatchers.withText("Item1")).perform(ViewActions.click())
+        assertWithMessage("onPrepareOptionsMenu was not called")
+            .that(fragment.onPrepareOptionsMenuCountDownLatch.await(1000, TimeUnit.MILLISECONDS))
+            .isTrue()
+    }
+
+    @Test
+    fun inflatesMenu() {
+        activityRule.setContentView(R.layout.simple_container)
+        val fragment = MenuFragment()
+        val fm = activityRule.activity.supportFragmentManager
+        fm.beginTransaction()
+            .add(R.id.fragmentContainer, fragment)
+            .commit()
+        activityRule.executePendingTransactions()
+
+        openActionBarOverflowOrOptionsMenu(activityRule.activity.applicationContext)
+        onView(ViewMatchers.withText("Item1"))
+            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+        onView(ViewMatchers.withText("Item2"))
+            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+    }
+
+    @Test
+    fun menuItemSelected() {
+        activityRule.setContentView(R.layout.simple_container)
+        val fragment = MenuFragment()
+        val fm = activityRule.activity.supportFragmentManager
+        fm.beginTransaction()
+            .add(R.id.fragmentContainer, fragment)
+            .commit()
+        activityRule.executePendingTransactions()
+
+        openActionBarOverflowOrOptionsMenu(activityRule.activity.applicationContext)
+        onView(ViewMatchers.withText("Item1")).perform(ViewActions.click())
+
+        openActionBarOverflowOrOptionsMenu(activityRule.activity.applicationContext)
+        onView(ViewMatchers.withText("Item2")).perform(ViewActions.click())
+    }
+
+    @Test
+    fun onOptionsMenuClosed() {
+        activityRule.setContentView(R.layout.simple_container)
+        val fragment = MenuFragment()
+        val fm = activityRule.activity.supportFragmentManager
+        fm.beginTransaction()
+            .add(R.id.fragmentContainer, fragment)
+            .commit()
+        activityRule.executePendingTransactions()
+
+        openActionBarOverflowOrOptionsMenu(activityRule.activity.applicationContext)
+        activityRule.runOnUiThread {
+            activityRule.activity.closeOptionsMenu()
+        }
+        assertWithMessage("onOptionsMenuClosed was not called")
+            .that(fragment.onOptionsMenuClosedCountDownLatch.await(1000, TimeUnit.MILLISECONDS))
+            .isTrue()
+    }
+
     class MenuFragment : StrictViewFragment(R.layout.fragment_a) {
         var onCreateOptionsMenuCountDownLatch = CountDownLatch(1)
         val onPrepareOptionsMenuCountDownLatch = CountDownLatch(1)
+        val onOptionsMenuClosedCountDownLatch = CountDownLatch(1)
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
@@ -258,6 +334,11 @@ class OptionsMenuFragmentTest {
         override fun onPrepareOptionsMenu(menu: Menu) {
             super.onPrepareOptionsMenu(menu)
             onPrepareOptionsMenuCountDownLatch.countDown()
+        }
+
+        override fun onOptionsMenuClosed(menu: Menu) {
+            super.onOptionsMenuClosed(menu)
+            onOptionsMenuClosedCountDownLatch.countDown()
         }
     }
 

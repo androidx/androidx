@@ -17,7 +17,6 @@
 package androidx.fragment.app;
 
 import static androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -29,7 +28,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -47,7 +45,6 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.MultiWindowModeChangedInfo;
 import androidx.core.app.OnMultiWindowModeChangedProvider;
@@ -57,6 +54,8 @@ import androidx.core.app.SharedElementCallback;
 import androidx.core.content.OnConfigurationChangedProvider;
 import androidx.core.content.OnTrimMemoryProvider;
 import androidx.core.util.Consumer;
+import androidx.core.view.MenuHost;
+import androidx.core.view.MenuProvider;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LifecycleRegistry;
@@ -221,21 +220,6 @@ public class FragmentActivity extends ComponentActivity implements
         mFragments.dispatchCreate();
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * Dispatch to Fragment.onCreateOptionsMenu().
-     */
-    @Override
-    public boolean onCreatePanelMenu(int featureId, @NonNull Menu menu) {
-        if (featureId == Window.FEATURE_OPTIONS_PANEL) {
-            boolean show = super.onCreatePanelMenu(featureId, menu);
-            show |= mFragments.dispatchCreateOptionsMenu(menu, getMenuInflater());
-            return show;
-        }
-        return super.onCreatePanelMenu(featureId, menu);
-    }
-
     @Override
     @Nullable
     public View onCreateView(@Nullable View parent, @NonNull String name, @NonNull Context context,
@@ -276,40 +260,17 @@ public class FragmentActivity extends ComponentActivity implements
         mFragmentLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * Dispatch context and options menu to fragments.
-     */
     @Override
     public boolean onMenuItemSelected(int featureId, @NonNull MenuItem item) {
         if (super.onMenuItemSelected(featureId, item)) {
             return true;
         }
 
-        switch (featureId) {
-            case Window.FEATURE_OPTIONS_PANEL:
-                return mFragments.dispatchOptionsItemSelected(item);
-
-            case Window.FEATURE_CONTEXT_MENU:
-                return mFragments.dispatchContextItemSelected(item);
-
-            default:
-                return false;
+        if (featureId == Window.FEATURE_CONTEXT_MENU) {
+            return mFragments.dispatchContextItemSelected(item);
         }
-    }
 
-    /**
-     * {@inheritDoc}
-     *
-     * Call onOptionsMenuClosed() on fragments.
-     */
-    @Override
-    public void onPanelClosed(int featureId, @NonNull Menu menu) {
-        if (featureId == Window.FEATURE_OPTIONS_PANEL) {
-            mFragments.dispatchOptionsMenuClosed(menu);
-        }
-        super.onPanelClosed(featureId, menu);
+        return false;
     }
 
     /**
@@ -371,33 +332,6 @@ public class FragmentActivity extends ComponentActivity implements
     protected void onResumeFragments() {
         mFragmentLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME);
         mFragments.dispatchResume();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * Dispatch onPrepareOptionsMenu() to fragments.
-     */
-    @SuppressWarnings("deprecation")
-    @Override
-    public boolean onPreparePanel(int featureId, @Nullable View view, @NonNull Menu menu) {
-        if (featureId == Window.FEATURE_OPTIONS_PANEL) {
-            boolean goforit = onPrepareOptionsPanel(view, menu);
-            goforit |= mFragments.dispatchPrepareOptionsMenu(menu);
-            return goforit;
-        }
-        return super.onPreparePanel(featureId, view, menu);
-    }
-
-    /**
-     * @hide
-     * @deprecated Override {@link #onPreparePanel(int, View, Menu)}.
-     */
-    @SuppressWarnings("DeprecatedIsStillUsed")
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    @Deprecated
-    protected boolean onPrepareOptionsPanel(@Nullable View view, @NonNull Menu menu) {
-        return super.onPreparePanel(Window.FEATURE_OPTIONS_PANEL, view, menu);
     }
 
     /**
@@ -645,7 +579,9 @@ public class FragmentActivity extends ComponentActivity implements
             OnBackPressedDispatcherOwner,
             ActivityResultRegistryOwner,
             SavedStateRegistryOwner,
-            FragmentOnAttachListener {
+            FragmentOnAttachListener,
+            MenuHost {
+
         public HostCallbacks() {
             super(FragmentActivity.this /*fragmentActivity*/);
         }
@@ -696,7 +632,7 @@ public class FragmentActivity extends ComponentActivity implements
 
         @Override
         public void onSupportInvalidateOptionsMenu() {
-            FragmentActivity.this.supportInvalidateOptionsMenu();
+            invalidateMenu();
         }
 
         @Override
@@ -793,6 +729,32 @@ public class FragmentActivity extends ComponentActivity implements
         public void removeOnPictureInPictureModeChangedListener(
                 @NonNull Consumer<PictureInPictureModeChangedInfo> listener) {
             FragmentActivity.this.removeOnPictureInPictureModeChangedListener(listener);
+        }
+
+        @Override
+        public void addMenuProvider(@NonNull MenuProvider provider) {
+            FragmentActivity.this.addMenuProvider(provider);
+        }
+
+        @Override
+        public void addMenuProvider(@NonNull MenuProvider provider, @NonNull LifecycleOwner owner) {
+            FragmentActivity.this.addMenuProvider(provider, owner);
+        }
+
+        @Override
+        public void addMenuProvider(@NonNull MenuProvider provider, @NonNull LifecycleOwner owner,
+                @NonNull Lifecycle.State state) {
+            FragmentActivity.this.addMenuProvider(provider, owner, state);
+        }
+
+        @Override
+        public void removeMenuProvider(@NonNull MenuProvider provider) {
+            FragmentActivity.this.removeMenuProvider(provider);
+        }
+
+        @Override
+        public void invalidateMenu() {
+            FragmentActivity.this.invalidateOptionsMenu();
         }
     }
 

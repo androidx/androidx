@@ -173,7 +173,6 @@ package androidx.fragment.app {
     method public androidx.fragment.app.FragmentManager getSupportFragmentManager();
     method @Deprecated public androidx.loader.app.LoaderManager getSupportLoaderManager();
     method @Deprecated @MainThread public void onAttachFragment(androidx.fragment.app.Fragment);
-    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected boolean onPrepareOptionsPanel(android.view.View?, android.view.Menu);
     method protected void onResumeFragments();
     method public void onStateNotSaved();
     method public void setEnterSharedElementCallback(androidx.core.app.SharedElementCallback?);
@@ -209,16 +208,16 @@ package androidx.fragment.app {
     method @Deprecated public void dispatchConfigurationChanged(android.content.res.Configuration);
     method public boolean dispatchContextItemSelected(android.view.MenuItem);
     method public void dispatchCreate();
-    method public boolean dispatchCreateOptionsMenu(android.view.Menu, android.view.MenuInflater);
+    method @Deprecated public boolean dispatchCreateOptionsMenu(android.view.Menu, android.view.MenuInflater);
     method public void dispatchDestroy();
     method public void dispatchDestroyView();
     method @Deprecated public void dispatchLowMemory();
     method @Deprecated public void dispatchMultiWindowModeChanged(boolean);
-    method public boolean dispatchOptionsItemSelected(android.view.MenuItem);
-    method public void dispatchOptionsMenuClosed(android.view.Menu);
+    method @Deprecated public boolean dispatchOptionsItemSelected(android.view.MenuItem);
+    method @Deprecated public void dispatchOptionsMenuClosed(android.view.Menu);
     method public void dispatchPause();
     method @Deprecated public void dispatchPictureInPictureModeChanged(boolean);
-    method public boolean dispatchPrepareOptionsMenu(android.view.Menu);
+    method @Deprecated public boolean dispatchPrepareOptionsMenu(android.view.Menu);
     method @Deprecated public void dispatchReallyStop();
     method public void dispatchResume();
     method public void dispatchStart();
