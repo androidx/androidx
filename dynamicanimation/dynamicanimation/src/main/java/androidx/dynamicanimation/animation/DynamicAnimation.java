@@ -329,7 +329,6 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
     // Animation handler used to schedule updates for this animation.
     private AnimationHandler mAnimationHandler;
 
-
     // Internal state for value/velocity pair.
     static class MassState {
         float mValue;
@@ -748,34 +747,47 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
     /**
      * Returns the {@link AnimationHandler} used to schedule updates for this animator.
      *
-     * This is initialized to an {@code AnimationHandler} that uses the thread's
-     * {@link Choreographer}.
-     *
-     * @return the {@code AnimationHandler} for this animator.
+     * @return the {@link AnimationHandler} for this animator.
      */
     @NonNull
-    public AnimationHandler getAnimationHandler() {
-        if (mAnimationHandler == null) {
-            mAnimationHandler = AnimationHandler.getInstance();
-        }
-        return mAnimationHandler;
+    AnimationHandler getAnimationHandler() {
+        return mAnimationHandler != null ? mAnimationHandler : AnimationHandler.getInstance();
     }
 
     /**
-     * Sets the animation handler used to schedule updates for this animator. Note this should
-     * not be called during an animation, as it would lead to discontinuity in animations.
+     * Returns the {@link FrameCallbackScheduler} used to schedule updates for this animator.
      *
-     * @param animationHandler The {@link AnimationHandler} that will be used to schedule updates
-     *                         for this animator.
+     * If not already set using {@link #setScheduler(FrameCallbackScheduler)}, this is initialized
+     * to an {@link FrameCallbackScheduler} that uses the caller thread's {@link Choreographer}.
+     * Otherwise, return the scheduler set via the previous
+     * {@link #setScheduler(FrameCallbackScheduler)} call.
+     *
+     * @return the {@link FrameCallbackScheduler} for this animator.
+     */
+    @NonNull
+    public FrameCallbackScheduler getScheduler() {
+        return mAnimationHandler != null ? mAnimationHandler.getScheduler()
+                : AnimationHandler.getInstance().getScheduler();
+    }
+
+    /**
+     * Sets the frame scheduler used to schedule updates for this animator. Note this should
+     * be called before animation running, as it would lead to discontinuity in animations.
+     *
+     * @param scheduler The {@link FrameCallbackScheduler} that will be used to schedule updates
+     *                  for this animator.
      * @throws AndroidRuntimeException if this method called when animation running
      */
-    public void setAnimationHandler(@NonNull AnimationHandler animationHandler) {
+    public void setScheduler(@NonNull FrameCallbackScheduler scheduler) {
+        if (mAnimationHandler != null && mAnimationHandler.getScheduler() == scheduler) {
+            return;
+        }
         if (mRunning) {
             throw new AndroidRuntimeException("Animations are still running and the animation"
                     + "handler should not be set at this timming");
         }
 
-        mAnimationHandler = animationHandler;
+        mAnimationHandler = new AnimationHandler(scheduler);
     }
 
     /****************Sub class animations**************/
