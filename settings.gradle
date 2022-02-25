@@ -106,6 +106,7 @@ enum BuildType {
     FLAN,
     MEDIA,
     WEAR,
+    GLANCE,
 }
 
 private String getRequestedProjectSubsetName() {
@@ -148,6 +149,12 @@ private Set<BuildType> createRequestedFilter() {
             case "WEAR":
                 filter.add(BuildType.WEAR)
                 break
+            case "GLANCE":
+                // Glance currently depends on a large part of Compose, add it here rather than
+                // requiring every project to be tagged
+                filter.add(BuildType.COMPOSE)
+                filter.add(BuildType.GLANCE)
+                break
             case "ALL":
                 // Return null so that no filtering is done
                 return null
@@ -160,7 +167,8 @@ private Set<BuildType> createRequestedFilter() {
                         "MAIN    - androidx projects that are not compose\n" +
                         "FLAN    - fragment, lifecycle, activity, and navigation projects\n" +
                         "MEDIA   - media, media2, and mediarouter projects\n" +
-                        "WEAR    - Wear OS projects")
+                        "WEAR    - Wear OS projects\n" +
+                        "GLANCE  - glance projects")
         }
     }
     return filter
@@ -459,11 +467,11 @@ includeProject(":core:core-animation-testing", "core/core-animation-testing", [B
 includeProject(":core:core-appdigest", "core/core-appdigest", [BuildType.MAIN])
 includeProject(":core:core-google-shortcuts", "core/core-google-shortcuts", [BuildType.MAIN])
 includeProject(":core:core-i18n", "core/core-i18n", [BuildType.MAIN])
-includeProject(":core:core-ktx", "core/core-ktx", [BuildType.MAIN])
+includeProject(":core:core-ktx", "core/core-ktx", [BuildType.MAIN, BuildType.GLANCE])
 includeProject(":core:core-performance", "core/core-performance", [BuildType.MAIN])
 includeProject(":core:core-performance:core-performance-samples", "core/core-performance/samples", [BuildType.MAIN])
-includeProject(":core:core-remoteviews", "core/core-remoteviews", [BuildType.MAIN])
-includeProject(":core:core-remoteviews:integration-tests:demos", "core/core-remoteviews/integration-tests/demos", [BuildType.MAIN])
+includeProject(":core:core-remoteviews", "core/core-remoteviews", [BuildType.MAIN, BuildType.GLANCE])
+includeProject(":core:core-remoteviews:integration-tests:demos", "core/core-remoteviews/integration-tests/demos", [BuildType.MAIN, BuildType.GLANCE])
 includeProject(":core:core-splashscreen", "core/core-splashscreen", [BuildType.MAIN])
 includeProject(":core:core-splashscreen:core-splashscreen-samples", "core/core-splashscreen/samples", [BuildType.MAIN])
 includeProject(":core:core-graphics-integration-tests:core-graphics-integration-tests", "core/core-graphics-integration-tests/testapp", [BuildType.MAIN])
@@ -517,13 +525,13 @@ includeProject(":fragment:fragment-testing", "fragment/fragment-testing", [Build
 includeProject(":fragment:fragment-testing-lint", "fragment/fragment-testing-lint", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":fragment:fragment-truth", "fragment/fragment-truth", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":fragment:integration-tests:testapp", "fragment/integration-tests/testapp", [BuildType.MAIN, BuildType.FLAN])
-includeProject(":glance:glance", "glance/glance", [BuildType.MAIN])
-includeProject(":glance:glance-appwidget", "glance/glance-appwidget", [BuildType.MAIN])
-includeProject(":glance:glance-appwidget-proto", "glance/glance-appwidget-proto", [BuildType.MAIN])
-includeProject(":glance:glance-appwidget:integration-tests:demos", "glance/glance-appwidget/integration-tests/demos", [BuildType.MAIN])
-includeProject(":glance:glance-appwidget:glance-layout-generator", "glance/glance-appwidget/glance-layout-generator", [BuildType.MAIN])
-includeProject(":glance:glance-wear-tiles:integration-tests:demos", "glance/glance-wear-tiles/integration-tests/demos", [BuildType.MAIN])
-includeProject(":glance:glance-wear-tiles", "glance/glance-wear-tiles", [BuildType.MAIN])
+includeProject(":glance:glance", "glance/glance", [BuildType.MAIN, BuildType.GLANCE])
+includeProject(":glance:glance-appwidget", "glance/glance-appwidget", [BuildType.MAIN, BuildType.GLANCE])
+includeProject(":glance:glance-appwidget-proto", "glance/glance-appwidget-proto", [BuildType.MAIN, BuildType.GLANCE])
+includeProject(":glance:glance-appwidget:integration-tests:demos", "glance/glance-appwidget/integration-tests/demos", [BuildType.MAIN, BuildType.GLANCE])
+includeProject(":glance:glance-appwidget:glance-layout-generator", "glance/glance-appwidget/glance-layout-generator", [BuildType.MAIN, BuildType.GLANCE])
+includeProject(":glance:glance-wear-tiles:integration-tests:demos", "glance/glance-wear-tiles/integration-tests/demos", [BuildType.MAIN, BuildType.GLANCE])
+includeProject(":glance:glance-wear-tiles", "glance/glance-wear-tiles", [BuildType.MAIN, BuildType.GLANCE])
 includeProject(":graphics:graphics-core", "graphics/graphics-core", [BuildType.MAIN])
 includeProject(":gridlayout:gridlayout", "gridlayout/gridlayout", [BuildType.MAIN])
 includeProject(":health:health-data-client", "health/health-data-client", [BuildType.MAIN])
@@ -696,9 +704,9 @@ includeProject(":startup:integration-tests:test-app", "startup/integration-tests
 includeProject(":startup:startup-runtime", "startup/startup-runtime", [BuildType.MAIN])
 includeProject(":startup:startup-runtime-lint", "startup/startup-runtime-lint", [BuildType.MAIN])
 includeProject(":swiperefreshlayout:swiperefreshlayout", "swiperefreshlayout/swiperefreshlayout", [BuildType.MAIN])
-includeProject(":template:template", "template/template", [BuildType.MAIN])
-includeProject(":template:template-appwidget", "template/template-appwidget", [BuildType.MAIN])
-includeProject(":template:template-appwidget:integration-tests:demos", "template/template-appwidget/integration-tests/demos", [BuildType.MAIN])
+includeProject(":template:template", "template/template", [BuildType.MAIN, BuildType.GLANCE])
+includeProject(":template:template-appwidget", "template/template-appwidget", [BuildType.MAIN, BuildType.GLANCE])
+includeProject(":template:template-appwidget:integration-tests:demos", "template/template-appwidget/integration-tests/demos", [BuildType.MAIN, BuildType.GLANCE])
 
 includeProject(":test:ext:junit-gtest", "test/ext/junit-gtest", [BuildType.MAIN])
 includeProject(":test:screenshot:screenshot", "test/screenshot/screenshot")
