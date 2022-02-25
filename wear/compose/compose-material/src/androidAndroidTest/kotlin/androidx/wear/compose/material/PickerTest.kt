@@ -103,7 +103,8 @@ class PickerTest {
         lateinit var state: PickerState
 
         rule.setContent {
-            state = rememberPickerState(numberOfOptions = 10, initiallySelectedOption = startValue)
+            state = rememberPickerState(
+                initialNumberOfOptions = 10, initiallySelectedOption = startValue)
         }
 
         assertThat(state.selectedOption).isEqualTo(startValue)
@@ -252,6 +253,64 @@ class PickerTest {
             pickerLayoutCoordinates.positionInWindow().y)
             .isWithin(0.1f)
             .of(pickerHeightPx / 2f - itemSizePx / 2f)
+    }
+
+    @Test
+    fun keeps_selection_when_increasing_options() {
+        val initialOption = 25
+        lateinit var state: PickerState
+        rule.setContent {
+            WithTouchSlop(0f) {
+                Picker(
+                    state = rememberPickerState(
+                            initialNumberOfOptions = 28,
+                            initiallySelectedOption = initialOption
+                        ).also { state = it },
+                ) {
+                    Box(Modifier.requiredSize(itemSizeDp))
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            runBlocking {
+                state.numberOfOptions = 31
+            }
+        }
+
+        rule.waitForIdle()
+
+        assertThat(state.selectedOption).isEqualTo(initialOption)
+    }
+
+    @Test
+    fun scrolls_to_correct_index_after_increasing_options() {
+        val initialOption = 5
+        val targetOption = 43
+        lateinit var state: PickerState
+        rule.setContent {
+            WithTouchSlop(0f) {
+                Picker(
+                    state = rememberPickerState(
+                            initialNumberOfOptions = 25,
+                            initiallySelectedOption = initialOption
+                        ).also { state = it },
+                ) {
+                    Box(Modifier.requiredSize(itemSizeDp))
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            runBlocking {
+                state.numberOfOptions = 57
+                state.scrollToOption(targetOption)
+            }
+        }
+
+        rule.waitForIdle()
+
+        assertThat(state.selectedOption).isEqualTo(targetOption)
     }
 
     @Test

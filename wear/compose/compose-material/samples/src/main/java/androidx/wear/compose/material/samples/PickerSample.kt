@@ -60,7 +60,7 @@ fun SimplePicker() {
 @Composable
 fun OptionChangePicker() {
     val coroutineScope = rememberCoroutineScope()
-    val state = rememberPickerState(numberOfOptions = 10)
+    val state = rememberPickerState(initialNumberOfOptions = 10)
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
