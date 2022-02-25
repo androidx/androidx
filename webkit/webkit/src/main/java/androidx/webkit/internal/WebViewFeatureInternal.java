@@ -408,6 +408,12 @@ public enum WebViewFeatureInternal implements ConditionallySupportedFeature {
     PROXY_OVERRIDE_REVERSE_BYPASS(WebViewFeature.PROXY_OVERRIDE_REVERSE_BYPASS,
             Features.PROXY_OVERRIDE_REVERSE_BYPASS),
 
+    /**
+     * This feature covers
+     * {@link androidx.webkit.WebViewCompat#getVariationsHeader()}
+     */
+    GET_VARIATIONS_HEADER(WebViewFeature.GET_VARIATIONS_HEADER, Features.GET_VARIATIONS_HEADER),
+
     ;  // This semicolon ends the enum. Add new features with a trailing comma above this line.
 
     private static final int NOT_SUPPORTED_BY_FRAMEWORK = -1;

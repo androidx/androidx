@@ -460,6 +460,15 @@ public class WebViewFeature {
     public static final String PROXY_OVERRIDE_REVERSE_BYPASS = "PROXY_OVERRIDE_REVERSE_BYPASS";
 
     /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers {@link WebViewCompat#getVariationsHeader()}.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String GET_VARIATIONS_HEADER = "GET_VARIATIONS_HEADER";
+
+    /**
      * Return whether a feature is supported at run-time. On devices running Android version {@link
      * android.os.Build.VERSION_CODES#LOLLIPOP} and higher, this will check whether a feature is
      * supported, depending on the combination of the desired feature, the Android version of

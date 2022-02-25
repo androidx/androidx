@@ -31,6 +31,7 @@ import android.webkit.WebViewClient;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresFeature;
+import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
 import androidx.webkit.internal.WebMessagePortImpl;
 import androidx.webkit.internal.WebViewFeatureInternal;
@@ -961,6 +962,24 @@ public class WebViewCompat {
         final WebViewFeatureInternal feature = WebViewFeatureInternal.MULTI_PROCESS;
         if (feature.isSupportedByWebView()) {
             return getFactory().getStatics().isMultiProcessEnabled();
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Gets the WebView variations encoded to be used as the X-Client-Data HTTP header.
+     *
+     * @return the variations header.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RequiresFeature(name = WebViewFeature.GET_VARIATIONS_HEADER,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    public static @NonNull String getVariationsHeader() {
+        final WebViewFeatureInternal feature = WebViewFeatureInternal.GET_VARIATIONS_HEADER;
+        if (feature.isSupportedByWebView()) {
+            return getFactory().getStatics().getVariationsHeader();
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
