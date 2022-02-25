@@ -25,7 +25,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.AppCard
 import androidx.wear.compose.material.CardDefaults
 import androidx.wear.compose.material.Icon
@@ -43,7 +42,8 @@ fun AppCardWithIcon() {
             Icon(
                 painter = painterResource(id = R.drawable.ic_airplanemode_active_24px),
                 contentDescription = "airplane",
-                modifier = Modifier.size(24.dp).wrapContentSize(align = Alignment.Center),
+                modifier = Modifier.size(CardDefaults.AppImageSize)
+                    .wrapContentSize(align = Alignment.Center),
             )
         },
         title = { Text("AppCard") },
