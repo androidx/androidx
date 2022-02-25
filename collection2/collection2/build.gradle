@@ -16,7 +16,6 @@
 
 
 import androidx.build.Publish
-import androidx.build.RunApiTasks
 import me.champeau.gradle.japicmp.JapicmpTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
 
@@ -186,6 +185,9 @@ if (githubBuild || enableMac) {
    sourceSets.test.java.srcDir('../../collection/collection/src/test/java')
 }
 
+def targetPlatformsList = ["jvm"]
+if (enableJs) targetPlatformsList += "js"
+
 androidx {
     name = "Android Support Library collections"
     publish = Publish.SNAPSHOT_AND_RELEASE
@@ -193,7 +195,7 @@ androidx {
     inceptionYear = "2020"
     description = "Standalone efficient collections."
     legacyDisableKotlinStrictApiMode = true // TODO: Re-enable this!
-    multiplatform = true
+    publishPlatforms = targetPlatformsList
 }
 
 repositories {
