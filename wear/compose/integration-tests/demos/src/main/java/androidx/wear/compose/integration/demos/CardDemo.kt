@@ -75,7 +75,8 @@ fun CardDemo() {
             AppCard(
                 onClick = {},
                 appName = { Text("AppName") },
-                appImage = { DemoImage(resourceId = R.drawable.ic_maps_icon) },
+                appImage = { DemoImage(resourceId = R.drawable.ic_maps_icon,
+                    size = CardDefaults.AppImageSize) },
                 title = { Text("AppCard") },
                 time = { Text("now") },
             ) {
