@@ -16,6 +16,7 @@
 
 package androidx.webkit;
 
+import android.app.PendingIntent;
 import android.os.Build;
 import android.webkit.SafeBrowsingResponse;
 import android.webkit.WebResourceError;
@@ -295,5 +296,18 @@ public class WebViewClientCompat extends WebViewClient implements WebViewClientB
             @NonNull WebResourceRequest request) {
         if (Build.VERSION.SDK_INT < 21) return false;
         return shouldOverrideUrlLoading(view, request.getUrl().toString());
+    }
+
+    /**
+     * @hide
+     */
+    // TODO(crbug.com/1284805): Replace the missing override suppression annotation with @Override
+    // After the boundary interface is rolled.
+    @SuppressWarnings("MissingOverride")
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public boolean onWebAuthnIntent(@NonNull WebView view, @NonNull PendingIntent intent,
+            @NonNull /* WebAuthnCallbackBoundaryInterface */ InvocationHandler callback) {
+        // TODO(crbug.com/1284805): Implement the actual logic.
+        return false;
     }
 }
