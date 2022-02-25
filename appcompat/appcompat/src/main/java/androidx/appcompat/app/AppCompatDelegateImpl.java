@@ -2564,7 +2564,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         } else if (Build.VERSION.SDK_INT >= 21) {
             return LocaleListCompat.forLanguageTags(Api21Impl.toLanguageTag(conf.locale));
         } else {
-            return LocaleListCompat.forLanguageTags(conf.locale.getLanguage());
+            return LocaleListCompat.create(conf.locale);
         }
     }
 
