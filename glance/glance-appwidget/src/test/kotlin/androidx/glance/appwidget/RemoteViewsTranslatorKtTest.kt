@@ -588,7 +588,7 @@ class RemoteViewsTranslatorKtTest {
     @Test
     fun canTranslateLazyVerticalGrid_emptyList() = fakeCoroutineScope.runBlockingTest {
         val rv = context.runAndTranslate {
-            LazyVerticalGrid(gridCells = GridCells.Adaptive) { }
+            LazyVerticalGrid(gridCells = GridCells.Fixed(3)) { }
         }
 
         assertIs<GridView>(context.applyRemoteViews(rv))
@@ -597,7 +597,7 @@ class RemoteViewsTranslatorKtTest {
     @Test
     fun canTranslateLazyVerticalGrid_withItem() = fakeCoroutineScope.runBlockingTest {
         val rv = context.runAndTranslate {
-            LazyVerticalGrid(gridCells = GridCells.Adaptive) {
+            LazyVerticalGrid(gridCells = GridCells.Fixed(3)) {
                 item { Text("First") }
                 item { Row { Text("Second") } }
             }
@@ -609,7 +609,7 @@ class RemoteViewsTranslatorKtTest {
     @Test
     fun canTranslateLazyVerticalGrid_withItems() = fakeCoroutineScope.runBlockingTest {
         val rv = context.runAndTranslate {
-            LazyVerticalGrid(gridCells = GridCells.Adaptive) {
+            LazyVerticalGrid(gridCells = GridCells.Fixed(3)) {
                 items(2, { it * 2L }) { index -> Text("Item $index") }
             }
         }

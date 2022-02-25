@@ -16,7 +16,7 @@
 
 package androidx.glance.appwidget.translators
 
-import android.util.Log
+import android.os.Build
 import android.app.PendingIntent
 import android.app.PendingIntent.FLAG_MUTABLE
 import android.app.PendingIntent.FLAG_UPDATE_CURRENT
@@ -24,6 +24,7 @@ import android.content.Intent
 import android.content.Intent.FILL_IN_COMPONENT
 import android.widget.RemoteViews
 import androidx.core.widget.RemoteViewsCompat
+import androidx.core.widget.RemoteViewsCompat.setGridViewColumnWidth
 import androidx.glance.appwidget.InsertedViewInfo
 import androidx.glance.appwidget.LayoutType
 import androidx.glance.appwidget.TopLevelLayoutsCount
@@ -62,6 +63,13 @@ private fun RemoteViews.translateEmittableLazyVerticalGrid(
     check(!translationContext.isLazyCollectionDescendant) {
         "Glance does not support nested list views."
     }
+
+    val gridCells = element.gridCells
+    if (gridCells is GridCells.Fixed) {
+      require(gridCells.count in 1..5) {
+          "Only counts from 1 to 5 are supported."
+      }
+    }
     setPendingIntentTemplate(
         viewDef.mainViewId,
         PendingIntent.getActivity(
@@ -96,6 +104,11 @@ private fun RemoteViews.translateEmittableLazyVerticalGrid(
         viewDef.mainViewId,
         items
     )
+    if (Build.VERSION.SDK_INT >= 31 && gridCells is GridCells.Adaptive) {
+      setGridViewColumnWidth(viewId = viewDef.mainViewId,
+                             value = gridCells.minSize.value,
+                             unit = android.util.TypedValue.COMPLEX_UNIT_DIP)
+    }
     applyModifiers(translationContext, this, element.modifier, viewDef)
 }
 
@@ -120,15 +133,10 @@ private const val LazyVerticalGridItemStartingViewId: Int = 0x00100000
 
 private fun GridCells.toLayout(): LayoutType =
   when (this) {
-    GridCells.Adaptive -> LayoutType.VerticalGridAutoFit
     GridCells.Fixed(1) -> LayoutType.VerticalGridOneColumn
     GridCells.Fixed(2) -> LayoutType.VerticalGridTwoColumns
     GridCells.Fixed(3) -> LayoutType.VerticalGridThreeColumns
     GridCells.Fixed(4) -> LayoutType.VerticalGridFourColumns
     GridCells.Fixed(5) -> LayoutType.VerticalGridFiveColumns
-    else -> {
-      Log.w("GlanceLazyVerticalGrid",
-"Unknown GridCells $this number of columns to AutoFit instead")
-      LayoutType.VerticalGridAutoFit
-    }
+    else -> LayoutType.VerticalGridAutoFit
   }
