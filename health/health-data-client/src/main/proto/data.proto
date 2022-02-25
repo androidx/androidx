@@ -1,0 +1,111 @@
+syntax = "proto2";
+
+package androidx.health.platform.client.proto;
+
+option java_package = "androidx.health.platform.client.proto";
+option java_outer_classname = "DataProto";
+
+// A string value with data type name.
+message DataType {
+  optional string name = 1;
+}
+
+// A union of either a long, double, string or enum value.
+message Value {
+  oneof value {
+    int64 long_val = 1;
+    double double_val = 2;
+    string string_val = 3;
+    string enum_val = 4;
+  }
+}
+
+// Serialization for device.
+message Device {
+  optional string identifier = 1;
+  optional string manufacturer = 2;
+  optional string model = 3;
+  optional string type = 4;
+}
+
+// Serialization for data origin.
+message DataOrigin {
+  optional string application_id = 1;
+}
+
+// Serialized individual series value.
+message SeriesValue {
+  map<string, Value> values = 1;
+  optional int64 instant_time_millis = 2;
+}
+
+// Serialized data point.
+message DataPoint {
+  optional DataType data_type = 1;
+  map<string, Value> values = 2;
+
+  optional string uid = 3;
+  optional string origin_series_uid = 4;
+  optional DataOrigin data_origin = 5;
+
+  // Unset if it is interval or series data, use start_zone_offset_seconds and
+  // end_zone_offset_seconds instead.
+  optional int32 zone_offset_seconds = 6;
+
+  optional int64 update_time_millis = 7;
+
+  // Unset if interval start/end millis are used.
+  optional int64 instant_time_millis = 8;
+
+  optional int64 start_time_millis = 9;
+  optional int64 end_time_millis = 10;
+
+  optional string client_id = 11;
+  optional int64 client_version = 12;
+  optional Device device = 13;
+
+  optional string origin_sample_uid = 14;
+  repeated SeriesValue series_values = 15;
+  optional AggregatedValue min = 16;
+  optional AggregatedValue max = 17;
+  optional AggregatedValue avg = 18;
+
+  optional int32 start_zone_offset_seconds = 19;
+  optional int32 end_zone_offset_seconds = 20;
+}
+
+// Serialized aggregated value, such as min,avg,max.
+message AggregatedValue {
+  map<string, Value> values = 1;
+}
+
+// Serialized aggregated data point.
+message AggregateDataPoint {
+  optional int64 start_time_epoch_ms = 1;
+  optional int64 end_time_epoch_ms = 2;
+  optional DataType data_type = 4;
+  optional AggregatedValue min_value = 5;
+  optional AggregatedValue max_value = 6;
+  optional AggregatedValue avg_value = 7;
+  optional AggregatedValue total_value = 8;
+  optional int32 count = 9 [default = 0];
+  optional int64 duration_millis = 13 [default = 0];
+  optional string start_local_date_time = 10;
+  optional string end_local_date_time = 11;
+  optional int32 zone_offset_seconds = 12;
+  repeated DataOrigin data_origins = 14;
+}
+
+// Serialized flattened aggregation representation.
+message AggregateDataRow {
+  optional int64 start_time_epoch_ms = 1;
+  optional int64 end_time_epoch_ms = 2;
+  optional string start_local_date_time = 3;
+  optional string end_local_date_time = 4;
+  optional int32 zone_offset_seconds = 5;
+
+  // Key by metric spec {type}_{field}_{agg}
+  map<string, double> double_values = 6;
+  map<string, int64> long_values = 7;
+  repeated DataOrigin data_origins = 8;
+}

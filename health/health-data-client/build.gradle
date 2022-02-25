@@ -19,6 +19,7 @@ import androidx.build.LibraryType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("com.google.protobuf")
     id("org.jetbrains.kotlin.android")
 }
 
@@ -26,11 +27,38 @@ dependencies {
     api(libs.kotlinStdlib)
     // Add dependencies here
     api("androidx.annotation:annotation:1.2.0")
+    implementation(libs.protobufLite)
+
+    testImplementation(libs.testCore)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
+    testImplementation(libs.robolectric)
 }
 
 android {
     defaultConfig {
-	minSdkVersion 26
+	minSdkVersion 27
+    }
+    testOptions.unitTests.includeAndroidResources = true
+}
+
+protobuf {
+    protoc {
+        artifact = libs.protobufCompiler.get()
+    }
+
+    // Generates the java proto-lite code for the protos in this project. See
+    // https://github.com/google/protobuf-gradle-plugin#customizing-protobuf-compilation
+    // for more information.
+    generateProtoTasks {
+        all().each { task ->
+                task.builtins {
+                    java {
+                        option 'lite'
+                    }
+                }
+        }
     }
 }
 
