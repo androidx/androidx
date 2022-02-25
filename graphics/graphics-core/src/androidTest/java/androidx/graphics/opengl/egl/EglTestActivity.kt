@@ -16,60 +16,119 @@
 
 package androidx.graphics.opengl.egl
 
+import android.animation.ValueAnimator
 import android.app.Activity
 import android.opengl.EGL14
+import android.opengl.EGLConfig
+import android.opengl.EGLSurface
 import android.opengl.GLES20
 import android.os.Bundle
 import android.view.Surface
-import android.view.SurfaceHolder
-import java.lang.IllegalStateException
+import android.view.SurfaceView
+import android.view.TextureView
+import android.widget.LinearLayout
+import androidx.graphics.opengl.GLRenderer
+import androidx.graphics.opengl.GLRenderer.RenderTarget
+import java.util.concurrent.atomic.AtomicInteger
+
+const val TAG: String = "EGLTestActivity"
 
 class EglTestActivity : Activity() {
 
-    private val eglManager = EglManager()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        window.takeSurface(object : SurfaceHolder.Callback2 {
-            override fun surfaceCreated(holder: SurfaceHolder) {
-                eglManager.setup(holder.surface)
-            }
-
-            override fun surfaceChanged(
-                holder: SurfaceHolder,
-                format: Int,
-                width: Int,
-                height: Int
-            ) {
-                GLES20.glViewport(0, 0, width, height)
-            }
-
-            override fun surfaceDestroyed(holder: SurfaceHolder) {
-                eglManager.release()
-            }
-
-            override fun surfaceRedrawNeeded(holder: SurfaceHolder) {
-                // Fill the screen red
-                GLES20.glClearColor(1.0f, 0.0f, 1.0f, 1.0f)
-                GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
-                eglManager.swapAndFlushBuffers()
-            }
-        })
-    }
-
-    fun EglManager.setup(surface: Surface) {
-        initialize()
-        loadConfig(EglConfigAttributes8888)?.let {
-            createContext(it)
+    private val mGLRenderer = GLRenderer()
+    private val mParam = AtomicInteger()
+    private val mRenderer1 = object : GLRenderer.RenderCallback {
+        override fun onSurfaceCreated(
+            spec: EglSpec,
+            config: EGLConfig,
+            surface: Surface,
+            width: Int,
+            height: Int
+        ): EGLSurface {
             val attrs = EglConfigAttributes {
                 EGL14.EGL_RENDER_BUFFER to EGL14.EGL_SINGLE_BUFFER
             }
-            val eglSurface = eglSpec.eglCreateWindowSurface(it, surface, attrs)
-            if (eglSurface != EGL14.EGL_NO_SURFACE) {
-                makeCurrent(eglSurface)
-            } else {
-                throw IllegalStateException("Bad surface")
-            }
+            return spec.eglCreateWindowSurface(config, surface, attrs)
         }
+
+        override fun onDrawFrame(eglManager: EglManager) {
+            val red = mParam.toFloat() / 100f
+            GLES20.glClearColor(red, 0.0f, 0.0f, 1.0f)
+            GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+        }
+    }
+
+    private val mRenderer2 = object : GLRenderer.RenderCallback {
+        override fun onDrawFrame(eglManager: EglManager) {
+            val blue = mParam.toFloat() / 100f
+            GLES20.glClearColor(0.0f, 0.0f, blue, 1.0f)
+            GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+        }
+    }
+
+    private lateinit var mSurfaceView: SurfaceView
+    private lateinit var mTextureView: TextureView
+    private lateinit var mRenderTarget1: RenderTarget
+    private lateinit var mRenderTarget2: RenderTarget
+
+    private var mAnimator: ValueAnimator? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        mGLRenderer.start()
+
+        mAnimator = ValueAnimator.ofFloat(0.0f, 1.0f).apply {
+            duration = 3000
+            repeatCount = ValueAnimator.INFINITE
+            repeatMode = ValueAnimator.REVERSE
+            addUpdateListener {
+                mParam.set(((it.animatedValue as Float) * 100).toInt())
+                mRenderTarget1.requestRender()
+                mRenderTarget2.requestRender()
+            }
+            start()
+        }
+
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            weightSum = 2f
+        }
+        mSurfaceView = SurfaceView(this)
+        mTextureView = TextureView(this)
+
+        val params = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0).apply {
+            weight = 1f
+        }
+
+        mRenderTarget1 = mGLRenderer.attach(mSurfaceView, mRenderer1)
+        mRenderTarget2 = mGLRenderer.attach(mTextureView, mRenderer2)
+
+        container.addView(mSurfaceView, params)
+        container.addView(mTextureView, params)
+
+        setContentView(container)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!mRenderTarget1.isAttached()) {
+            mRenderTarget1 = mGLRenderer.attach(mSurfaceView, mRenderer1)
+        }
+
+        if (!mRenderTarget2.isAttached()) {
+            mRenderTarget2 = mGLRenderer.attach(mTextureView, mRenderer2)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mRenderTarget1.detach(true)
+        mRenderTarget2.detach(true)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mAnimator?.cancel()
+        mGLRenderer.stop(true)
     }
 }

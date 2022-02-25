@@ -29,5 +29,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name="androidx.graphics.opengl.GLTestActivity"
+            android:label="Graphics Core Test"
+            android:exported="true">
+        </activity>
     </application>
 </manifest>
