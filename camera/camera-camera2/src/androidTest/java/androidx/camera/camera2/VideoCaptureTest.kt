@@ -324,44 +324,6 @@ class VideoCaptureTest {
         file.delete()
     }
 
-    @Test(timeout = 30000)
-    fun videoCapture_noKeyFrameVideoShouldCallOnError() {
-        val realFile = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-
-        val preview = Preview.Builder().build()
-        val videoCapture = VideoCapture.Builder().build()
-
-        assumeTrue(
-            "This combination (videoCapture, preview) is not supported.",
-            cameraUseCaseAdapter.isUseCasesCombinationSupported(videoCapture, preview)
-        )
-        instrumentation.runOnMainSync {
-            preview.setSurfaceProvider(
-                CameraXExecutors.mainThreadExecutor(),
-                getSurfaceProvider()
-            )
-            cameraUseCaseAdapter.addUseCases(listOf(videoCapture, preview))
-        }
-
-        val callback = mock(VideoCapture.OnVideoSavedCallback::class.java)
-        videoCapture.startRecording(
-            VideoCapture.OutputFileOptions.Builder(realFile).build(),
-            CameraXExecutors.mainThreadExecutor(),
-            callback
-        )
-
-        // Stop recording directly
-        videoCapture.stopRecording()
-        // Wait for the signal that the video has been saved.
-        verify(callback, timeout(10000)).onError(
-            VideoCapture.ERROR_RECORDING_TOO_SHORT, "The file has no video key frame.", null
-        )
-        // If verification fails, it still needs to be removed.
-        if (realFile.exists()) {
-            realFile.delete()
-        }
-    }
-
     /** Return a VideoOutputFileOption which is used to save a video.  */
     private fun getNewVideoOutputFileOptions(
         resolver: ContentResolver
