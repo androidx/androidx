@@ -1,52 +1,4 @@
 // Signature format: 4.0
-package androidx.graphics.opengl {
-
-  public final class GLRenderer {
-    ctor public GLRenderer(optional kotlin.jvm.functions.Function0<? extends androidx.graphics.opengl.egl.EglSpec> eglSpecFactory, optional kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.egl.EglManager,? extends android.opengl.EGLConfig> eglConfigFactory);
-    method public androidx.graphics.opengl.GLRenderer.RenderTarget attach(android.view.Surface surface, int width, int height, androidx.graphics.opengl.GLRenderer.RenderCallback renderer);
-    method public androidx.graphics.opengl.GLRenderer.RenderTarget attach(android.view.SurfaceView surfaceView, androidx.graphics.opengl.GLRenderer.RenderCallback renderer);
-    method public androidx.graphics.opengl.GLRenderer.RenderTarget attach(android.view.TextureView textureView, androidx.graphics.opengl.GLRenderer.RenderCallback renderer);
-    method public void detach(androidx.graphics.opengl.GLRenderer.RenderTarget target, boolean cancelPending, optional @WorkerThread kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.GLRenderer.RenderTarget,kotlin.Unit>? onDetachComplete);
-    method public void detach(androidx.graphics.opengl.GLRenderer.RenderTarget target, boolean cancelPending);
-    method public boolean isRunning();
-    method public void registerEglContextCallback(androidx.graphics.opengl.GLRenderer.EglContextCallback callback);
-    method public void requestRender(androidx.graphics.opengl.GLRenderer.RenderTarget target, optional kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.GLRenderer.RenderTarget,kotlin.Unit>? onRenderComplete);
-    method public void requestRender(androidx.graphics.opengl.GLRenderer.RenderTarget target);
-    method public void resize(androidx.graphics.opengl.GLRenderer.RenderTarget target, int width, int height, optional kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.GLRenderer.RenderTarget,kotlin.Unit>? onResizeComplete);
-    method public void resize(androidx.graphics.opengl.GLRenderer.RenderTarget target, int width, int height);
-    method public void start(optional String name);
-    method public void start();
-    method public void stop(boolean cancelPending, optional kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.GLRenderer,kotlin.Unit>? onStop);
-    method public void stop(boolean cancelPending);
-    method public void unregisterEglContextCallback(androidx.graphics.opengl.GLRenderer.EglContextCallback callback);
-    field public static final androidx.graphics.opengl.GLRenderer.Companion Companion;
-  }
-
-  public static final class GLRenderer.Companion {
-  }
-
-  public static interface GLRenderer.EglContextCallback {
-    method @WorkerThread public void onEglContextCreated(androidx.graphics.opengl.egl.EglManager eglManager);
-    method @WorkerThread public void onEglContextDestroyed(androidx.graphics.opengl.egl.EglManager eglManager);
-  }
-
-  public static interface GLRenderer.RenderCallback {
-    method @WorkerThread public void onDrawFrame(androidx.graphics.opengl.egl.EglManager eglManager);
-    method @WorkerThread public default android.opengl.EGLSurface onSurfaceCreated(androidx.graphics.opengl.egl.EglSpec spec, android.opengl.EGLConfig config, android.view.Surface surface, int width, int height);
-  }
-
-  public static final class GLRenderer.RenderTarget {
-    method public void detach(boolean cancelPending, optional kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.GLRenderer.RenderTarget,kotlin.Unit>? onDetachComplete);
-    method public void detach(boolean cancelPending);
-    method public boolean isAttached();
-    method public void requestRender(optional @WorkerThread kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.GLRenderer.RenderTarget,kotlin.Unit>? onRenderComplete);
-    method public void requestRender();
-    method public void resize(int width, int height, optional @WorkerThread kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.GLRenderer.RenderTarget,kotlin.Unit>? onResizeComplete);
-    method public void resize(int width, int height);
-  }
-
-}
-
 package androidx.graphics.opengl.egl {
 
   public final inline class EglConfigAttributes {
@@ -129,10 +81,6 @@ package androidx.graphics.opengl.egl {
     property public final android.opengl.EGLContext? eglContext;
     property public final androidx.graphics.opengl.egl.EglSpec eglSpec;
     property public final androidx.graphics.opengl.egl.EglVersion eglVersion;
-    field public static final androidx.graphics.opengl.egl.EglManager.Companion Companion;
-  }
-
-  public static final class EglManager.Companion {
   }
 
   public interface EglSpec {
