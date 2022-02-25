@@ -46,7 +46,10 @@ import androidx.wear.compose.material.ToggleChip
 import androidx.wear.compose.material.ToggleChipDefaults
 
 @Composable
-fun ToggleChips() {
+fun ToggleChips(
+    layoutDirection: LayoutDirection = LayoutDirection.Ltr,
+    description: String = "Toggle Chips"
+) {
     val applicationContext = LocalContext.current
     val scrollState: ScrollState = rememberScrollState()
     var enabled by remember { mutableStateOf(true) }
@@ -76,225 +79,41 @@ fun ToggleChips() {
         verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically)
     ) {
         Text(
-            text = "Toggle Chips",
+            text = description,
             modifier = Modifier.align(Alignment.CenterHorizontally),
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.caption1,
             color = Color.White
         )
-        ToggleChip(
-            label = { Text("CheckboxIcon") },
-            checked = checkBoxIconChecked,
-            toggleControl = {
-                ToggleChipDefaults.CheckboxIcon(checked = checkBoxIconChecked)
-            },
-            onCheckedChange = { checkBoxIconChecked = it },
-            enabled = enabled,
-        )
-        ToggleChip(
-            label = { Text("SwitchIcon") },
-            checked = switchIconChecked,
-            toggleControl = {
-                ToggleChipDefaults.SwitchIcon(checked = switchIconChecked)
-            },
-            onCheckedChange = { switchIconChecked = it },
-            enabled = enabled,
-        )
-        ToggleChip(
-            label = {
-                Text("RadioIcon", maxLines = 2, overflow = TextOverflow.Ellipsis)
-            },
-            checked = radioIconChecked,
-            toggleControl = {
-                ToggleChipDefaults.RadioIcon(checked = radioIconChecked)
-            },
-            onCheckedChange = { radioIconChecked = it },
-            enabled = enabled,
-        )
-        ToggleChip(
-            label = {
-                Text(
-                    "RadioIcon",
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            },
-            secondaryLabel = {
-                Text("With secondary label", maxLines = 1, overflow = TextOverflow.Ellipsis)
-            },
-            checked = radioIconWithSecondaryChecked,
-            toggleControl = {
-                ToggleChipDefaults.RadioIcon(checked = radioIconWithSecondaryChecked)
-            },
-            onCheckedChange = { radioIconWithSecondaryChecked = it },
-            enabled = enabled,
-        )
-        ToggleChip(
-            label = {
-                Text("SwitchIcon", maxLines = 1, overflow = TextOverflow.Ellipsis)
-            },
-            secondaryLabel = {
-                Text("With secondary label", maxLines = 1, overflow = TextOverflow.Ellipsis)
-            },
-            checked = switchIconWithSecondaryChecked,
-            toggleControl = {
-                ToggleChipDefaults.SwitchIcon(checked = switchIconWithSecondaryChecked)
-            },
-            onCheckedChange = { switchIconWithSecondaryChecked = it },
-            appIcon = { DemoIcon(R.drawable.ic_airplanemode_active_24px) },
-            enabled = enabled,
-        )
-        ToggleChip(
-            label = { Text("SwitchIcon", maxLines = 1, overflow = TextOverflow.Ellipsis) },
-            secondaryLabel = {
-                Text("With switchable icon", maxLines = 1, overflow = TextOverflow.Ellipsis)
-            },
-            checked = switchIconWithIconChecked,
-            toggleControl = { ToggleChipDefaults.SwitchIcon(checked = switchIconWithIconChecked) },
-            onCheckedChange = { switchIconWithIconChecked = it },
-            appIcon = {
-                if (switchIconWithIconChecked) DemoIcon(R.drawable.ic_volume_up_24px) else
-                    DemoIcon(R.drawable.ic_volume_off_24px)
-            },
-            enabled = enabled,
-        )
-        Text(
-            text = "Split Toggle Chips",
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.caption1,
-            color = Color.White
-        )
-        SplitToggleChip(
-            label = { Text("Split with CheckboxIcon") },
-            checked = splitWithCheckboxIconChecked,
-            toggleControl = {
-                ToggleChipDefaults.CheckboxIcon(checked = splitWithCheckboxIconChecked)
-            },
-            onCheckedChange = { splitWithCheckboxIconChecked = it },
-            onClick = {
-                Toast.makeText(
-                    applicationContext, "Text was clicked",
-                    Toast.LENGTH_SHORT
-                ).show()
-            },
-            enabled = enabled,
-        )
-        SplitToggleChip(
-            label = { Text("Split with SwitchIcon") },
-            checked = splitWithSwitchIconChecked,
-            toggleControl = {
-                ToggleChipDefaults.SwitchIcon(checked = splitWithSwitchIconChecked)
-            },
-            onCheckedChange = { splitWithSwitchIconChecked = it },
-            onClick = {
-                Toast.makeText(
-                    applicationContext, "Text was clicked",
-                    Toast.LENGTH_SHORT
-                ).show()
-            },
-            enabled = enabled,
-        )
-        SplitToggleChip(
-            label = { Text("Split with RadioIcon") },
-            checked = splitWithRadioIconChecked,
-            toggleControl = {
-                ToggleChipDefaults.RadioIcon(checked = splitWithRadioIconChecked)
-            },
-            onCheckedChange = { splitWithRadioIconChecked = it },
-            onClick = {
-                Toast.makeText(
-                    applicationContext, "Text was clicked",
-                    Toast.LENGTH_SHORT
-                ).show()
-            },
-            enabled = enabled,
-        )
-        SplitToggleChip(
-            label = {
-                Text(
-                    "Split with CheckboxIcon", maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            },
-            secondaryLabel = {
-                Text(
-                    "and custom background color", maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            },
-            checked = splitWithCustomColorChecked,
-            toggleControl = {
-                ToggleChipDefaults.CheckboxIcon(checked = splitWithCustomColorChecked)
-            },
-            onCheckedChange = { splitWithCustomColorChecked = it },
-            onClick = {
-                Toast.makeText(
-                    applicationContext,
-                    "Text was clicked", Toast.LENGTH_SHORT
-                ).show()
-            },
-            colors = ToggleChipDefaults.toggleChipColors(
-                checkedStartBackgroundColor = Color.Yellow.copy(alpha = 0.5f)
-            ),
-            enabled = enabled,
-        )
-        ToggleChip(
-            checked = enabled,
-            onCheckedChange = { enabled = it },
-            label = {
-                Text("Chips enabled")
-            },
-            toggleControl = {
-                ToggleChipDefaults.SwitchIcon(checked = enabled)
-            },
-        )
-    }
-}
-
-@Composable
-fun RtlToggleChips() {
-    val applicationContext = LocalContext.current
-    val scrollState: ScrollState = rememberScrollState()
-
-    var switchIconChecked by remember { mutableStateOf(true) }
-    var radioIconChecked by remember { mutableStateOf(true) }
-    var switchIconWithIconChecked by remember { mutableStateOf(true) }
-    var splitWithCheckboxIconChecked by remember { mutableStateOf(true) }
-    var splitWithSwitchIconChecked by remember { mutableStateOf(true) }
-    var splitWithRadioIconChecked by remember { mutableStateOf(true) }
-
-    var splitWithCustomColorChecked by remember { mutableStateOf(true) }
-
-    Column(
-        modifier = Modifier.verticalScroll(scrollState)
-            .padding(
-                PaddingValues(
-                    start = 8.dp,
-                    end = 8.dp,
-                    top = 15.dp,
-                    bottom = 50.dp
-                )
-            ),
-        verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically)
-    ) {
-        Text(
-            text = "RTL ToggleChips",
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.caption1,
-            color = Color.White
-        )
-        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+        CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
+            ToggleChip(
+                label = { Text("CheckboxIcon") },
+                checked = checkBoxIconChecked,
+                toggleControl = {
+                    ToggleChipDefaults.CheckboxIcon(checked = checkBoxIconChecked)
+                },
+                onCheckedChange = { checkBoxIconChecked = it },
+                enabled = enabled,
+            )
             ToggleChip(
                 label = { Text("SwitchIcon") },
                 checked = switchIconChecked,
                 toggleControl = {
                     ToggleChipDefaults.SwitchIcon(checked = switchIconChecked)
                 },
-                onCheckedChange = {
-                    switchIconChecked = it
+                onCheckedChange = { switchIconChecked = it },
+                enabled = enabled,
+            )
+            ToggleChip(
+                label = {
+                    Text("RadioIcon", maxLines = 2, overflow = TextOverflow.Ellipsis)
                 },
+                checked = radioIconChecked,
+                toggleControl = {
+                    ToggleChipDefaults.RadioIcon(checked = radioIconChecked)
+                },
+                onCheckedChange = { radioIconChecked = it },
+                enabled = enabled,
             )
             ToggleChip(
                 label = {
@@ -304,13 +123,30 @@ fun RtlToggleChips() {
                         overflow = TextOverflow.Ellipsis
                     )
                 },
-                checked = radioIconChecked,
+                secondaryLabel = {
+                    Text("With secondary label", maxLines = 1, overflow = TextOverflow.Ellipsis)
+                },
+                checked = radioIconWithSecondaryChecked,
                 toggleControl = {
-                    ToggleChipDefaults.RadioIcon(checked = radioIconChecked)
+                    ToggleChipDefaults.RadioIcon(checked = radioIconWithSecondaryChecked)
                 },
-                onCheckedChange = {
-                    radioIconChecked = it
+                onCheckedChange = { radioIconWithSecondaryChecked = it },
+                enabled = enabled,
+            )
+            ToggleChip(
+                label = {
+                    Text("SwitchIcon", maxLines = 1, overflow = TextOverflow.Ellipsis)
                 },
+                secondaryLabel = {
+                    Text("With secondary label", maxLines = 1, overflow = TextOverflow.Ellipsis)
+                },
+                checked = switchIconWithSecondaryChecked,
+                toggleControl = {
+                    ToggleChipDefaults.SwitchIcon(checked = switchIconWithSecondaryChecked)
+                },
+                onCheckedChange = { switchIconWithSecondaryChecked = it },
+                appIcon = { DemoIcon(R.drawable.ic_airplanemode_active_24px) },
+                enabled = enabled,
             )
             ToggleChip(
                 label = { Text("SwitchIcon", maxLines = 1, overflow = TextOverflow.Ellipsis) },
@@ -321,24 +157,20 @@ fun RtlToggleChips() {
                 toggleControl = {
                     ToggleChipDefaults.SwitchIcon(checked = switchIconWithIconChecked)
                 },
-                onCheckedChange = {
-                    switchIconWithIconChecked = it
-                },
+                onCheckedChange = { switchIconWithIconChecked = it },
                 appIcon = {
                     if (switchIconWithIconChecked) DemoIcon(R.drawable.ic_volume_up_24px) else
                         DemoIcon(R.drawable.ic_volume_off_24px)
                 },
+                enabled = enabled,
             )
-        }
-
-        Text(
-            text = "SplitToggleChip",
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.caption1,
-            color = Color.White
-        )
-        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+            Text(
+                text = "Split Toggle Chips",
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.caption1,
+                color = Color.White
+            )
             SplitToggleChip(
                 label = { Text("Split with CheckboxIcon") },
                 checked = splitWithCheckboxIconChecked,
@@ -347,9 +179,12 @@ fun RtlToggleChips() {
                 },
                 onCheckedChange = { splitWithCheckboxIconChecked = it },
                 onClick = {
-                    Toast.makeText(applicationContext, "Text was clicked", Toast.LENGTH_SHORT)
-                        .show()
+                    Toast.makeText(
+                        applicationContext, "Text was clicked",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 },
+                enabled = enabled,
             )
             SplitToggleChip(
                 label = { Text("Split with SwitchIcon") },
@@ -364,6 +199,7 @@ fun RtlToggleChips() {
                         Toast.LENGTH_SHORT
                     ).show()
                 },
+                enabled = enabled,
             )
             SplitToggleChip(
                 label = { Text("Split with RadioIcon") },
@@ -378,23 +214,24 @@ fun RtlToggleChips() {
                         Toast.LENGTH_SHORT
                     ).show()
                 },
+                enabled = enabled,
             )
             SplitToggleChip(
                 label = {
                     Text(
-                        "Split with CheckboxIcon", maxLines = 1,
+                        "Split with SwitchIcon", maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
                 },
                 secondaryLabel = {
                     Text(
-                        "and custom background color", maxLines = 1,
+                        "and custom color", maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
                 },
                 checked = splitWithCustomColorChecked,
                 toggleControl = {
-                    ToggleChipDefaults.CheckboxIcon(checked = splitWithCustomColorChecked)
+                    ToggleChipDefaults.SwitchIcon(checked = splitWithCustomColorChecked)
                 },
                 onCheckedChange = { splitWithCustomColorChecked = it },
                 onClick = {
@@ -403,9 +240,20 @@ fun RtlToggleChips() {
                         "Text was clicked", Toast.LENGTH_SHORT
                     ).show()
                 },
-                colors = ToggleChipDefaults.toggleChipColors(
-                    checkedStartBackgroundColor = Color.Yellow.copy(alpha = 0.5f)
+                colors = ToggleChipDefaults.splitToggleChipColors(
+                    checkedToggleControlTintColor = Color(161, 231, 176)
                 ),
+                enabled = enabled,
+            )
+            ToggleChip(
+                checked = enabled,
+                onCheckedChange = { enabled = it },
+                label = {
+                    Text("Chips enabled")
+                },
+                toggleControl = {
+                    ToggleChipDefaults.SwitchIcon(checked = enabled)
+                },
             )
         }
     }

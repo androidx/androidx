@@ -15,6 +15,8 @@
  */
 package androidx.wear.compose.material
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -34,6 +36,7 @@ import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -687,7 +690,7 @@ class ToggleChipColorTest {
                     checked = true,
                     onCheckedChange = {},
                     enabled = true,
-                    colors = ToggleChipDefaults.toggleChipColors(checkedContentColor = override),
+                    colors = ToggleChipDefaults.splitToggleChipColors(contentColor = override),
                     label = { actualContentColor = LocalContentColor.current },
                     toggleControl = {},
                     onClick = {},
@@ -697,6 +700,57 @@ class ToggleChipColorTest {
         }
 
         Assert.assertEquals(override, actualContentColor)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @Test
+    fun split_chip_background_color_correct() {
+        var actualBackgrondColor = Color.Transparent
+
+        rule.setContentWithTheme {
+            Box(modifier = Modifier.fillMaxSize()) {
+                SplitToggleChip(
+                    checked = true,
+                    onCheckedChange = {},
+                    enabled = true,
+                    colors = ToggleChipDefaults.splitToggleChipColors(),
+                    label = {},
+                    toggleControl = {},
+                    onClick = {},
+                    modifier = Modifier.testTag(TEST_TAG)
+                )
+            }
+            actualBackgrondColor = MaterialTheme.colors.surface
+        }
+
+        rule.onNodeWithTag(TEST_TAG)
+            .captureToImage()
+            .assertContainsColor(actualBackgrondColor, 50.0f)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @Test
+    fun split_chip_overridden_background_color_correct() {
+        val override = Color.Green
+
+        rule.setContentWithTheme {
+            Box(modifier = Modifier.fillMaxSize()) {
+                SplitToggleChip(
+                    checked = true,
+                    onCheckedChange = {},
+                    enabled = true,
+                    colors = ToggleChipDefaults.splitToggleChipColors(backgroundColor = override),
+                    label = {},
+                    toggleControl = {},
+                    onClick = {},
+                    modifier = Modifier.testTag(TEST_TAG)
+                )
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG)
+            .captureToImage()
+            .assertContainsColor(override, 50.0f)
     }
 
     private fun verifyColors(

@@ -18,6 +18,7 @@ package androidx.wear.compose.integration.demos
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.samples.AlertWithButtons
 import androidx.wear.compose.material.samples.AlertWithChips
@@ -333,7 +334,12 @@ val WearMaterialDemos = DemoCategory(
                     "Demos",
                     listOf(
                         ComposableDemo("Toggle chip") { ToggleChips() },
-                        ComposableDemo("RTL Toggle chip") { RtlToggleChips() },
+                        ComposableDemo("RTL Toggle chip") {
+                            ToggleChips(
+                                layoutDirection = LayoutDirection.Rtl,
+                                description = "RTL ToggleChips"
+                            )
+                        },
                     )
                 )
             )
