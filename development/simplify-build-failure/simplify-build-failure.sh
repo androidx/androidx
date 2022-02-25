@@ -103,18 +103,20 @@ while [ "$1" != "" ]; do
   fi
   if [ "$arg" == "--task" ]; then
     gradleTasks="$1"
-    shift
-    gradleExtraArguments="$1"
-    shift
-    errorMessage="$1"
-    shift
     if [ "$gradleTasks" == "" ]; then
       usage
     fi
-
+    shift
+    gradleExtraArguments="$1"
+    if [ "$gradleExtraArguments" == "" ]; then
+      usage
+    fi
+    shift
+    errorMessage="$1"
     if [ "$errorMessage" == "" ]; then
       usage
     fi
+    shift
 
     gradleCommand="OUT_DIR=out ./gradlew $gradleExtraArguments >log 2>&1"
     grepCommand="$scriptPath/impl/grepOrTail.sh \"$errorMessage\" log"
