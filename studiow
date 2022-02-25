@@ -34,6 +34,9 @@ function usage() {
   echo " w, wear"
   echo "  Open the project subset for Wear OS libraries"
   echo
+  echo " g, glance"
+  echo "  Open the project subset for glance projects"
+  echo
   echo " a, all"
   echo "  Open the project subset all"
   echo
@@ -88,6 +91,9 @@ while [ "$1" != "" ]; do
   fi
   if [ "$subsetArg" == "w" -o "$subsetArg" == "wear" ]; then
     newSubset=wear
+  fi
+  if [ "$subsetArg" == "g" -o "$subsetArg" == "glance" ]; then
+      newSubset=glance
   fi
   if [ "$subsetArg" == "a" -o "$subsetArg" == "all" ]; then
     newSubset=all
