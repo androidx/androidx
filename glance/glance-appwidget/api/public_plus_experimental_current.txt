@@ -190,14 +190,19 @@ package androidx.glance.appwidget.action {
 
 package androidx.glance.appwidget.lazy {
 
-  public final inline class GridCells {
-    ctor public GridCells();
+  public abstract sealed class GridCells {
   }
 
-  public static final class GridCells.Companion {
-    method public int Fixed(int count);
-    method public int getAdaptive();
-    property public final int Adaptive;
+  @RequiresApi(31) public static final class GridCells.Adaptive extends androidx.glance.appwidget.lazy.GridCells {
+    ctor public GridCells.Adaptive(float minSize);
+    method public float getMinSize();
+    property public final float minSize;
+  }
+
+  public static final class GridCells.Fixed extends androidx.glance.appwidget.lazy.GridCells {
+    ctor public GridCells.Fixed(int count);
+    method public int getCount();
+    property public final int count;
   }
 
   @androidx.glance.appwidget.lazy.LazyScopeMarker public interface LazyItemScope {
@@ -226,7 +231,7 @@ package androidx.glance.appwidget.lazy {
   }
 
   public final class LazyVerticalGridKt {
-    method @androidx.compose.runtime.Composable public static void LazyVerticalGrid(int gridCells, optional androidx.glance.GlanceModifier modifier, optional int horizontalAlignment, kotlin.jvm.functions.Function1<? super androidx.glance.appwidget.lazy.LazyVerticalGridScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void LazyVerticalGrid(androidx.glance.appwidget.lazy.GridCells gridCells, optional androidx.glance.GlanceModifier modifier, optional int horizontalAlignment, kotlin.jvm.functions.Function1<? super androidx.glance.appwidget.lazy.LazyVerticalGridScope,kotlin.Unit> content);
     method public static inline <T> void items(androidx.glance.appwidget.lazy.LazyVerticalGridScope, java.util.List<? extends T> items, optional kotlin.jvm.functions.Function1<? super T,java.lang.Long> itemId, kotlin.jvm.functions.Function2<? super androidx.glance.appwidget.lazy.LazyItemScope,? super T,kotlin.Unit> itemContent);
     method public static inline <T> void items(androidx.glance.appwidget.lazy.LazyVerticalGridScope, T![] items, optional kotlin.jvm.functions.Function1<? super T,java.lang.Long> itemId, kotlin.jvm.functions.Function2<? super androidx.glance.appwidget.lazy.LazyItemScope,? super T,kotlin.Unit> itemContent);
     method public static inline <T> void itemsIndexed(androidx.glance.appwidget.lazy.LazyVerticalGridScope, java.util.List<? extends T> items, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,java.lang.Long> itemId, kotlin.jvm.functions.Function3<? super androidx.glance.appwidget.lazy.LazyItemScope,? super java.lang.Integer,? super T,kotlin.Unit> itemContent);
