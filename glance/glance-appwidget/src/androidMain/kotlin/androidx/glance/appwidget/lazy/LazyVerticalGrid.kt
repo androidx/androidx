@@ -22,6 +22,8 @@ import androidx.glance.layout.Alignment
 import androidx.glance.EmittableWithChildren
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.wrapContentHeight
+import androidx.annotation.RequiresApi
+import androidx.compose.ui.unit.Dp
 
 /**
  * The DSL implementation of a lazy grid layout. It composes only visible rows of the grid.
@@ -230,7 +232,7 @@ internal abstract class EmittableLazyVerticalGridList : EmittableWithChildren(
   ) {
   override var modifier: GlanceModifier = GlanceModifier
   public var horizontalAlignment: Alignment.Horizontal = Alignment.Start
-  public var gridCells: GridCells = GridCells.Adaptive
+  public var gridCells: GridCells = GridCells.Fixed(1)
 
   override fun toString() =
       "EmittableLazyVerticalGridList(modifier=$modifier, " +
@@ -263,23 +265,58 @@ internal class EmittableLazyVerticalGrid : EmittableLazyVerticalGridList()
 /**
  * Defines the number of columns of the GridView.
  */
-@Suppress("INLINE_CLASS_DEPRECATED")
-public inline class GridCells internal constructor(private val value: Int) {
-  override fun toString(): String {
-      return when (value) {
-          0 -> "GridCells.Adaptive"
-          else -> "GridCells.Fixed($value)"
+sealed class GridCells {
+  /**
+   * Defines a fixed number of columns, limited to 1 through 5.
+   *
+   * For example, [LazyVerticalGrid] Fixed(3) would mean that there are 3 columns 1/3
+   * of the parent wide.
+   *
+   * @param count number of columns in LazyVerticalGrid
+   */
+  class Fixed(val count: Int) : GridCells() {
+      override fun equals(other: Any?): Boolean {
+          if (this === other) return true
+          if (javaClass != other?.javaClass) return false
+
+          other as Fixed
+
+          if (count != other.count) return false
+
+          return true
+      }
+
+      override fun hashCode(): Int {
+          return count
       }
   }
 
-  companion object {
-      fun Fixed(count: Int): GridCells {
-          require(count in 1..5) {
-              "Only counts from 1 to 5 are supported."
-          }
-          return GridCells(count)
-      }
+  /**
+   * Defines a grid with as many columns as possible on the condition that
+   * every cell has at least [minSize] space and all extra space distributed evenly.
+   *
+   * For example, for the vertical [LazyVerticalGrid] Adaptive(20.dp) would mean that
+   * there will be as many columns as possible and every column will be at least 20.dp
+   * and all the columns will have equal width. If the screen is 88.dp wide then
+   * there will be 4 columns 22.dp each.
+   *
+   * @param minSize fixed width of each column in LazyVerticalGrid
+   */
+  @RequiresApi(31)
+  class Adaptive(val minSize: Dp) : GridCells() {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
 
-      val Adaptive = GridCells(0)
-  }
+            other as Adaptive
+
+            if (minSize != other.minSize) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            return minSize.hashCode()
+        }
+    }
 }
