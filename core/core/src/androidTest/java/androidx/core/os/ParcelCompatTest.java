@@ -18,6 +18,7 @@ package androidx.core.os;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import android.content.pm.Signature;
@@ -29,6 +30,7 @@ import android.util.SparseArray;
 
 import androidx.annotation.RequiresApi;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
@@ -120,6 +122,24 @@ public class ParcelCompatTest {
     }
 
     @Test
+    public void readArrayListInT() {
+        Parcel p = Parcel.obtain();
+
+        ArrayList<Signature> s = new ArrayList<>();
+        s.add(new Signature("1234567890abcdef"));
+        s.add(null);
+        s.add(new Signature("abcdef1234567890"));
+
+        p.writeList(s);
+        p.setDataPosition(0);
+        ArrayList<Signature> s1 = ParcelCompat.readArrayList(p, Signature.class.getClassLoader(),
+                Signature.class);
+        assertEquals(s, s1);
+
+        p.recycle();
+    }
+
+    @Test
     public void readMapInT() {
         Parcel p = Parcel.obtain();
         ClassLoader loader = getClass().getClassLoader();
@@ -154,6 +174,22 @@ public class ParcelCompatTest {
         p.recycle();
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
+    @Test
+    public void readParcelableCreatorInT() {
+        final String signatureString  = "1234567890abcdef";
+        Signature s = new Signature(signatureString);
+
+        Parcel p = Parcel.obtain();
+        p.writeParcelableCreator(s);
+        p.setDataPosition(0);
+        assertSame(Signature.CREATOR, ParcelCompat.readParcelableCreator(p,
+                Signature.class.getClassLoader(), Signature.class));
+
+        p.setDataPosition(0);
+        p.recycle();
+    }
+
     @Test
     public void readParcelableArrayInT() {
         Parcel p = Parcel.obtain();
@@ -169,7 +205,7 @@ public class ParcelCompatTest {
         p.recycle();
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.Q)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     public void readParcelableListInT() {
         final Parcel p = Parcel.obtain();

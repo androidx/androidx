@@ -29,6 +29,7 @@ import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -72,6 +73,27 @@ public final class ParcelCompat {
             TiramisuImpl.readList(in, outVal, loader, clazz);
         } else {
             in.readList(outVal, loader);
+        }
+    }
+
+    /**
+     * Same as {@link Parcel#readArrayList(ClassLoader)} but accepts {@code clazz} parameter as
+     * the type required for each item.
+     *
+     * @throws android.os.BadParcelableException Throws BadParcelableException if the item to be
+     * deserialized is not an instance of that class or any of its children classes or there was
+     * an error trying to instantiate an element.
+     */
+    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
+    @SuppressLint({"ConcreteCollection", "NullableCollection"})
+    @SuppressWarnings({"deprecation", "unchecked"})
+    @Nullable
+    public static <T> ArrayList<T> readArrayList(@NonNull Parcel in, @Nullable ClassLoader loader,
+            @NonNull Class<? extends T> clazz) {
+        if (BuildCompat.isAtLeastT()) {
+            return TiramisuImpl.readArrayList(in, loader, clazz);
+        } else {
+            return in.readArrayList(loader);
         }
     }
 
@@ -178,6 +200,27 @@ public final class ParcelCompat {
     }
 
     /**
+     * Same as {@link Parcel#readParcelableCreator(ClassLoader)} but accepts {@code clazz} parameter
+     * as the required type.
+     *
+     * @throws android.os.BadParcelableException Throws BadParcelableException if the item to be
+     * deserialized is not an instance of that class or any of its children classes or there
+     * there was an error trying to read the {@link Parcelable.Creator}.
+     */
+    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
+    @SuppressWarnings({"deprecation", "unchecked"})
+    @Nullable
+    @RequiresApi(30)
+    public static <T> Parcelable.Creator<T> readParcelableCreator(@NonNull Parcel in,
+            @Nullable ClassLoader loader, @NonNull Class<T> clazz) {
+        if (BuildCompat.isAtLeastT()) {
+            return TiramisuImpl.readParcelableCreator(in, loader, clazz);
+        } else {
+            return (Parcelable.Creator<T>) Api30Impl.readParcelableCreator(in, loader);
+        }
+    }
+
+    /**
      * Same as {@link Parcel#readParcelableArray(ClassLoader)}  but accepts {@code clazz} parameter
      * as the type required for each item.
      *
@@ -255,6 +298,19 @@ public final class ParcelCompat {
         }
     }
 
+    @RequiresApi(30)
+    static class Api30Impl {
+        private Api30Impl() {
+            // This class is non-instantiable.
+        }
+
+        @DoNotInline
+        static final Parcelable.Creator<?> readParcelableCreator(@NonNull Parcel in,
+                @Nullable ClassLoader loader) {
+            return in.readParcelableCreator(loader);
+        }
+    }
+
     @RequiresApi(33)
     static class TiramisuImpl {
         private TiramisuImpl() {
@@ -274,6 +330,12 @@ public final class ParcelCompat {
         }
 
         @DoNotInline
+        public static <T> Parcelable.Creator<T> readParcelableCreator(Parcel in, ClassLoader loader,
+                Class<T> clazz) {
+            return in.readParcelableCreator(loader, clazz);
+        }
+
+        @DoNotInline
         static <T> T[] readParcelableArray(@NonNull Parcel in, @Nullable ClassLoader loader,
                 @NonNull Class<T> clazz) {
             return in.readParcelableArray(loader, clazz);
@@ -289,6 +351,12 @@ public final class ParcelCompat {
         public static <T> void readList(@NonNull Parcel in, @NonNull List<? super T> outVal,
                 @Nullable ClassLoader loader, @NonNull Class<T> clazz) {
             in.readList(outVal, loader, clazz);
+        }
+
+        @DoNotInline
+        public static <T> ArrayList<T> readArrayList(Parcel in, ClassLoader loader,
+                Class<? extends T> clazz) {
+            return in.readArrayList(loader, clazz);
         }
 
         @DoNotInline

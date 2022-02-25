@@ -1759,12 +1759,14 @@ package androidx.core.os {
 
   public final class ParcelCompat {
     method public static <T> T![]? readArray(android.os.Parcel, ClassLoader?, Class<T!>);
+    method public static <T> java.util.ArrayList<T!>? readArrayList(android.os.Parcel, ClassLoader?, Class<? extends T>);
     method public static boolean readBoolean(android.os.Parcel);
     method public static <K, V> java.util.HashMap<K!,V!>? readHashMap(android.os.Parcel, ClassLoader?, Class<? extends K>, Class<? extends V>);
     method public static <T> void readList(android.os.Parcel, java.util.List<? super T>, ClassLoader?, Class<T!>);
     method public static <K, V> void readMap(android.os.Parcel, java.util.Map<? super K,? super V>, ClassLoader?, Class<K!>, Class<V!>);
     method public static <T extends android.os.Parcelable> T? readParcelable(android.os.Parcel, ClassLoader?, Class<T!>);
     method public static <T> T![]? readParcelableArray(android.os.Parcel, ClassLoader?, Class<T!>);
+    method @RequiresApi(30) public static <T> android.os.Parcelable.Creator<T!>? readParcelableCreator(android.os.Parcel, ClassLoader?, Class<T!>);
     method @RequiresApi(api=android.os.Build.VERSION_CODES.Q) public static <T> java.util.List<T!> readParcelableList(android.os.Parcel, java.util.List<T!>, ClassLoader?, Class<T!>);
     method public static <T extends java.io.Serializable> T? readSerializable(android.os.Parcel, ClassLoader?, Class<T!>);
     method public static <T> android.util.SparseArray<T!>? readSparseArray(android.os.Parcel, ClassLoader?, Class<? extends T>);
