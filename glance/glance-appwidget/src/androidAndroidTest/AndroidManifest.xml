@@ -22,7 +22,7 @@
         <uses-library android:name="android.test.runner" />
         <activity
             android:name="androidx.glance.appwidget.AppWidgetHostTestActivity"
-            android:configChanges="orientation"
+            android:configChanges="orientation|screenLayout|screenSize"
             android:exported="true"/>
 
         <receiver
