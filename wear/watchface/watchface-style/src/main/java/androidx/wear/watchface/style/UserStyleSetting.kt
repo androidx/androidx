@@ -2599,7 +2599,7 @@ internal fun Icon.getWireSizeAndDimensions(context: Context): WireSizeAndDimensi
 
     // Fall back to loading the full drawable (comparatively expensive). We can't provide the
     // wire size in this instance.
-    val drawable = loadDrawable(context)
+    val drawable = loadDrawable(context)!!
     return WireSizeAndDimensions(null, drawable.minimumWidth, drawable.minimumHeight)
 }
 

@@ -1804,22 +1804,22 @@ package androidx.core.internal.view {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface SupportMenuItem extends android.view.MenuItem {
     method public int getAlphabeticModifiers();
-    method public CharSequence! getContentDescription();
-    method public android.content.res.ColorStateList! getIconTintList();
-    method public android.graphics.PorterDuff.Mode! getIconTintMode();
+    method public CharSequence? getContentDescription();
+    method public android.content.res.ColorStateList? getIconTintList();
+    method public android.graphics.PorterDuff.Mode? getIconTintMode();
     method public int getNumericModifiers();
-    method public androidx.core.view.ActionProvider! getSupportActionProvider();
-    method public CharSequence! getTooltipText();
+    method public androidx.core.view.ActionProvider? getSupportActionProvider();
+    method public CharSequence? getTooltipText();
     method public boolean requiresActionButton();
     method public boolean requiresOverflow();
-    method public android.view.MenuItem! setAlphabeticShortcut(char, int);
-    method public androidx.core.internal.view.SupportMenuItem! setContentDescription(CharSequence!);
-    method public android.view.MenuItem! setIconTintList(android.content.res.ColorStateList!);
-    method public android.view.MenuItem! setIconTintMode(android.graphics.PorterDuff.Mode!);
-    method public android.view.MenuItem! setNumericShortcut(char, int);
-    method public android.view.MenuItem! setShortcut(char, char, int, int);
-    method public androidx.core.internal.view.SupportMenuItem! setSupportActionProvider(androidx.core.view.ActionProvider!);
-    method public androidx.core.internal.view.SupportMenuItem! setTooltipText(CharSequence!);
+    method public android.view.MenuItem setAlphabeticShortcut(char, int);
+    method public androidx.core.internal.view.SupportMenuItem setContentDescription(CharSequence?);
+    method public android.view.MenuItem setIconTintList(android.content.res.ColorStateList?);
+    method public android.view.MenuItem setIconTintMode(android.graphics.PorterDuff.Mode?);
+    method public android.view.MenuItem setNumericShortcut(char, int);
+    method public android.view.MenuItem setShortcut(char, char, int, int);
+    method public androidx.core.internal.view.SupportMenuItem setSupportActionProvider(androidx.core.view.ActionProvider?);
+    method public androidx.core.internal.view.SupportMenuItem setTooltipText(CharSequence?);
     field public static final int SHOW_AS_ACTION_ALWAYS = 2; // 0x2
     field public static final int SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW = 8; // 0x8
     field public static final int SHOW_AS_ACTION_IF_ROOM = 1; // 0x1

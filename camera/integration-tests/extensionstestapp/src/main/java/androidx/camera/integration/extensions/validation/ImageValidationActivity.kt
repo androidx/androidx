@@ -301,7 +301,7 @@ class ImageValidationActivity : AppCompatActivity() {
         var previousX = 0.0f
         var previousY = 0.0f
 
-        photoImageView.setOnTouchListener { _, e: MotionEvent? ->
+        photoImageView.setOnTouchListener { _, e: MotionEvent ->
             if (photoImageView.visibility != View.VISIBLE) {
                 return@setOnTouchListener false
             }
@@ -309,7 +309,7 @@ class ImageValidationActivity : AppCompatActivity() {
             val doubleTapProcessed = doubleTapDetector.onTouchEvent(e)
             val scaleGestureProcessed = scaleDetector.onTouchEvent(e)
 
-            when (e?.actionMasked) {
+            when (e.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
                     previousX = e.x
                     previousY = e.y

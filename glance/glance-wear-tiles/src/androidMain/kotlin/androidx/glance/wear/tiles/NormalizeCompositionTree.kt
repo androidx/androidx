@@ -165,7 +165,7 @@ private fun ImageProvider.getImageSize(context: Context): DpSize {
             )
         }
         is IconImageProvider -> {
-            val drawable = icon.loadDrawable(context)
+            val drawable = icon.loadDrawable(context)!!
             DpSize(
                 (drawable.intrinsicWidth.toFloat() / density).dp,
                 (drawable.intrinsicHeight.toFloat() / density).dp,
