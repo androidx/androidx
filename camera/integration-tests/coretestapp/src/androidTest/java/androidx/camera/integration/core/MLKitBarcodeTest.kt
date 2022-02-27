@@ -30,7 +30,7 @@ import androidx.camera.testing.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertWithMessage
-import com.google.mlkit.vision.barcode.Barcode.FORMAT_QR_CODE
+import com.google.mlkit.vision.barcode.common.Barcode.FORMAT_QR_CODE
 import com.google.mlkit.vision.barcode.BarcodeScanner
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning

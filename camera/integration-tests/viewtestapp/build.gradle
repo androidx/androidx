@@ -62,6 +62,7 @@ dependencies {
     implementation(project(":camera:camera-view"))
     implementation(libs.guavaAndroid)
     implementation("androidx.exifinterface:exifinterface:1.3.2")
+    implementation(libs.mlkitBarcode, excludes.mlkit)
     // old version of common-java8 conflicts with newer version, because both have
     // DefaultLifecycleEventObserver.
     // Outside of androidx this is resolved via constraint added to lifecycle-common,
