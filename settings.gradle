@@ -525,6 +525,7 @@ includeProject(":glance:glance-appwidget:glance-layout-generator", "glance/glanc
 includeProject(":glance:glance-wear-tiles:integration-tests:demos", "glance/glance-wear-tiles/integration-tests/demos", [BuildType.MAIN])
 includeProject(":glance:glance-wear-tiles", "glance/glance-wear-tiles", [BuildType.MAIN])
 includeProject(":gridlayout:gridlayout", "gridlayout/gridlayout", [BuildType.MAIN])
+includeProject(":health:health-core", "health/health-core", [BuildType.MAIN])
 includeProject(":health:health-data-client", "health/health-data-client", [BuildType.MAIN])
 includeProject(":health:health-services-client", "health/health-services-client", [BuildType.MAIN])
 includeProject(":heifwriter:heifwriter", "heifwriter/heifwriter", [BuildType.MAIN])
