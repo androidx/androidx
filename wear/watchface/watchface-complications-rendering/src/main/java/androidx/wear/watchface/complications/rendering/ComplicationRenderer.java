@@ -106,7 +106,9 @@ class ComplicationRenderer {
     /** Used to apply padding to the beginning of the text when it's left aligned. */
     private static final float TEXT_PADDING_HEIGHT_FRACTION = 0.1f;
 
-    private static final Paint PLACEHOLDER_PAINT = createPlaceHolderPaint();
+    /** Used to apply a grey color to a placeholder. */
+    @VisibleForTesting
+    static final Paint PLACEHOLDER_PAINT = createPlaceHolderPaint();
 
     private static Paint createPlaceHolderPaint() {
         Paint paint = new Paint();
@@ -115,6 +117,7 @@ class ComplicationRenderer {
         return paint;
     }
 
+    /** Used to apply a grey color to a placeholder ranged value arc. */
     private static final Paint PLACEHOLDER_PROGRESS_PAINT = createPlaceHolderProgressPaint();
 
     private static Paint createPlaceHolderProgressPaint() {
@@ -124,6 +127,11 @@ class ComplicationRenderer {
         paint.setAntiAlias(true);
         return paint;
     }
+
+    /** Used to apply a grey tint to a placeholder icon. */
+    @VisibleForTesting
+    static final ColorFilter PLACEHOLDER_COLOR_FILTER = new PorterDuffColorFilter(
+            Color.LTGRAY, PorterDuff.Mode.SRC_IN);
 
     /** Context is required for localization. */
     private final Context mContext;
@@ -428,8 +436,8 @@ class ComplicationRenderer {
         drawSmallImage(canvas, currentPaintSet, mIsPlaceholderSmallImage);
         drawLargeImage(canvas, currentPaintSet, mIsPlaceholderLargeImage);
         drawRangedValue(canvas, currentPaintSet, mIsPlaceholderRangedValue);
-        drawMainText(canvas, currentPaintSet, mIsPlaceholderTitle);
-        drawSubText(canvas, currentPaintSet, mIsPlaceholderText);
+        drawMainText(canvas, currentPaintSet, mIsPlaceholderText);
+        drawSubText(canvas, currentPaintSet, mIsPlaceholderTitle);
         // Draw highlight if highlighted
         if (showTapHighlight) {
             drawHighlight(canvas, currentPaintSet);
@@ -528,8 +536,10 @@ class ComplicationRenderer {
         if (isPlaceholder) {
             float width;
             float height;
-            if (mComplicationData.getPlaceholderType() == ComplicationData.TYPE_SHORT_TEXT
-                    || mComplicationData.getPlaceholderType() == ComplicationData.TYPE_LONG_TEXT) {
+            // Avoid drawing two placeholder text fields of the same length.
+            if (!mSubTextBounds.isEmpty()
+                    && (mComplicationData.getPlaceholderType() == ComplicationData.TYPE_SHORT_TEXT
+                    || mComplicationData.getPlaceholderType() == ComplicationData.TYPE_LONG_TEXT)) {
                 width = mMainTextBounds.width() * 0.4f;
                 height = mMainTextBounds.height() * 0.9f;
             } else {
@@ -640,7 +650,8 @@ class ComplicationRenderer {
             if (paintSet.isInBurnInProtectionMode() && mBurnInProtectionIcon != null) {
                 icon = mBurnInProtectionIcon;
             }
-            icon.setColorFilter(paintSet.mIconColorFilter);
+            icon.setColorFilter(mComplicationData.hasPlaceholderType() ? PLACEHOLDER_COLOR_FILTER :
+                    paintSet.mIconColorFilter);
             drawIconOnCanvas(canvas, mIconBounds, icon, paintSet.getAlpha());
         } else if (isPlaceholder) {
             canvas.drawRect(mIconBounds, PLACEHOLDER_PAINT);

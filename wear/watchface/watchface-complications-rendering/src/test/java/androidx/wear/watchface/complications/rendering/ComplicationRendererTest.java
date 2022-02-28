@@ -31,6 +31,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorMatrix;
@@ -60,6 +61,8 @@ import androidx.wear.watchface.complications.data.SmallImageComplicationData;
 import androidx.wear.watchface.complications.rendering.ComplicationRenderer.OnInvalidateListener;
 import androidx.wear.watchface.complications.rendering.ComplicationRenderer.PaintSet;
 
+import com.google.common.truth.Truth;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -82,6 +85,9 @@ public class ComplicationRendererTest {
     private static final int BOUNDS_HEIGHT = 100;
     private static final androidx.wear.watchface.complications.data.ComplicationText EMPTY_TEXT =
             androidx.wear.watchface.complications.data.ComplicationText.EMPTY;
+    private static final ComplicationText PLACEHOLDER_COMPLICATION_TEXT =
+            ComplicationText.plainText(
+                    androidx.wear.watchface.complications.data.ComplicationText.PLACEHOLDER_STRING);
 
     private ComplicationRenderer mComplicationRenderer;
     private Rect mComplicationBounds;
@@ -599,6 +605,86 @@ public class ComplicationRendererTest {
     }
 
     @Test
+    public void placeholderLongTextIsDrawnAsPlaceholder() {
+        mComplicationRenderer.setComplicationData(
+                new ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
+                        .setPlaceholderType(ComplicationData.TYPE_LONG_TEXT)
+                        .setLongText(PLACEHOLDER_COMPLICATION_TEXT)
+                        .build(),
+                true);
+
+        mComplicationRenderer.draw(mMockCanvas, REFERENCE_TIME, false, false, false, true);
+
+        verify(mMockCanvas).drawRoundRect(anyFloat(), anyFloat(), anyFloat(), anyFloat(),
+                anyFloat(), anyFloat(), eq(ComplicationRenderer.PLACEHOLDER_PAINT));
+    }
+
+    @Test
+    public void placeholderShortTextIsDrawnAsPlaceholder() {
+        mComplicationRenderer.setComplicationData(
+                new ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
+                        .setPlaceholderType(ComplicationData.TYPE_SHORT_TEXT)
+                        .setShortText(PLACEHOLDER_COMPLICATION_TEXT)
+                        .build(),
+                true);
+
+        mComplicationRenderer.draw(mMockCanvas, REFERENCE_TIME, false, false, false, true);
+
+        verify(mMockCanvas).drawRoundRect(anyFloat(), anyFloat(), anyFloat(), anyFloat(),
+                anyFloat(), anyFloat(), eq(ComplicationRenderer.PLACEHOLDER_PAINT));
+    }
+
+    @Test
+    public void placeholderLongTitleIsDrawnAsPlaceholder() {
+        mComplicationRenderer.setComplicationData(
+                new ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
+                        .setPlaceholderType(ComplicationData.TYPE_LONG_TEXT)
+                        .setLongText(ComplicationText.plainText("Hi"))
+                        .setLongTitle(PLACEHOLDER_COMPLICATION_TEXT)
+                        .build(),
+                true);
+
+        mComplicationRenderer.draw(mMockCanvas, REFERENCE_TIME, false, false, false, true);
+
+        verify(mMockCanvas).drawRoundRect(anyFloat(), anyFloat(), anyFloat(), anyFloat(),
+                anyFloat(), anyFloat(), eq(ComplicationRenderer.PLACEHOLDER_PAINT));
+    }
+
+    @Test
+    public void placeholderShortTitleIsDrawnAsPlaceholder() {
+        mComplicationRenderer.setComplicationData(
+                new ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
+                        .setPlaceholderType(ComplicationData.TYPE_SHORT_TEXT)
+                        .setShortText(ComplicationText.plainText("Hi"))
+                        .setShortTitle(PLACEHOLDER_COMPLICATION_TEXT)
+                        .build(),
+                true);
+
+        mComplicationRenderer.draw(mMockCanvas, REFERENCE_TIME, false, false, false, true);
+
+        verify(mMockCanvas).drawRoundRect(anyFloat(), anyFloat(), anyFloat(), anyFloat(),
+                anyFloat(), anyFloat(), eq(ComplicationRenderer.PLACEHOLDER_PAINT));
+    }
+
+    @Test
+    public void iconIsTintedWithPlaceholderTintForPlaceholderComplication() {
+        mComplicationRenderer.setComplicationData(
+                new ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
+                        .setPlaceholderType(ComplicationData.TYPE_SHORT_TEXT)
+                        .setShortText(ComplicationText.plainText("Hi"))
+                        .setIcon(Icon.createWithBitmap(
+                                Bitmap.createBitmap(100, 100, Bitmap.Config.RGB_565)))
+                        .setShortTitle(PLACEHOLDER_COMPLICATION_TEXT)
+                        .build(),
+                false);
+
+        mComplicationRenderer.draw(mMockCanvas, REFERENCE_TIME, false, false, false, true);
+
+        Truth.assertThat(mComplicationRenderer.mIcon.getColorFilter())
+                .isEqualTo(ComplicationRenderer.PLACEHOLDER_COLOR_FILTER);
+    }
+
+    @Test
     public void highlightIsNotDrawnInAmbientMode() {
         // GIVEN a complication renderer with short text data
         mComplicationRenderer.setComplicationData(
@@ -970,7 +1056,6 @@ public class ComplicationRendererTest {
 
     @Test
     public void placeholderIcon() {
-
         mComplicationRenderer.setComplicationData(
                 new NoDataComplicationData(
                         new MonochromaticImageComplicationData.Builder(

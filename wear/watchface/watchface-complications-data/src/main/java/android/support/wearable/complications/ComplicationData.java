@@ -380,9 +380,19 @@ public final class ComplicationData implements Parcelable, Serializable {
     }
 
     ComplicationData(int type, Bundle fields) {
-        mType = type;
         mFields = fields;
         mFields.setClassLoader(getClass().getClassLoader());
+        // If this is a placeholder, coerce to TYPE_NO_DATA.
+        // If this is defined within a timeline, we assume the type of the outer ComplicationData
+        // applies to all elements in the timeline and we can just use the passed in type. The only
+        // exception is if we get a NO_DATA ComplicationData. In that case, we can check whether
+        // the placeholder type is included the serialization to determine if NO_DATA was passed
+        // in and coerce the type to NO_DATA.
+        if (mFields.containsKey(FIELD_PLACEHOLDER_TYPE)) {
+            mType = TYPE_NO_DATA;
+        } else {
+            mType = type;
+        }
     }
 
     private ComplicationData(@NonNull Parcel in) {
@@ -692,8 +702,12 @@ public final class ComplicationData implements Parcelable, Serializable {
             return null;
         }
         ArrayList<ComplicationData> entries = new ArrayList<>();
-        for (Parcelable parcel : bundles) {
-            entries.add(new ComplicationData(mType, (Bundle) parcel));
+        for (Parcelable parcelable : bundles) {
+            // Pass is the type of the outer complication data to the timeline entries by default.
+            // The array should only contain elements of the same type. The only exception is the
+            // NO_DATA type, which is allowed, but the code in the constructor is going to coerce
+            // the type to NO_DATA if necessary.
+            entries.add(new ComplicationData(mType, (Bundle) parcelable));
         }
         return entries;
     }

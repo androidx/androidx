@@ -1093,6 +1093,28 @@ public class ComplicationDataTest {
         Truth.assertThat(data.isTimeDependent).isTrue()
     }
 
+    @Test
+    public fun timelineEntryCollectionWithPlaceholder() {
+        val data =
+            ComplicationData.Builder(ComplicationData.TYPE_LONG_TEXT)
+                .setLongText(ComplicationText.plainText(
+                    androidx.wear.watchface.complications.data.ComplicationText.PLACEHOLDER_STRING))
+                .build()
+        val timelineEntry =
+            ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
+                .setPlaceholderType(ComplicationData.TYPE_LONG_TEXT)
+                .setLongText(ComplicationText.plainText(
+                    androidx.wear.watchface.complications.data.ComplicationText.PLACEHOLDER_STRING))
+                .build()
+        timelineEntry.timelineStartEpochSecond = 100
+        timelineEntry.timelineEndEpochSecond = 1000
+        data.setTimelineEntryCollection(listOf(timelineEntry))
+
+        val entry = data.timelineEntries!!.first()
+        Truth.assertThat(entry.type).isEqualTo(ComplicationData.TYPE_NO_DATA)
+        Truth.assertThat(entry.placeholderType).isEqualTo(ComplicationData.TYPE_LONG_TEXT)
+    }
+
     private companion object {
         private val TEST_CONTENT_DESCRIPTION: CharSequence = "This is a test description!"
         private const val TEST_LONG_TITLE = "what a long title such a long title"
