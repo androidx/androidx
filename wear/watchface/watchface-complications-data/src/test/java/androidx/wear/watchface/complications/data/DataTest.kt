@@ -41,7 +41,9 @@ public class AsWireComplicationDataTest {
         val data = NoDataComplicationData()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
-                WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA).build()
+                WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA)
+                    .setPlaceholderType(WireComplicationData.TYPE_NO_DATA)
+                    .build()
             )
         testRoundTripConversions(data)
         assertThat(serializeAndDeserialize(data)).isInstanceOf(NoDataComplicationData::class.java)
@@ -801,7 +803,8 @@ public class FromWireComplicationDataTest {
     @Test
     public fun noDataComplicationData() {
         assertRoundtrip(
-            WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA).build(),
+            WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA)
+                .setPlaceholderType(WireComplicationData.TYPE_NO_DATA).build(),
             ComplicationType.NO_DATA
         )
     }

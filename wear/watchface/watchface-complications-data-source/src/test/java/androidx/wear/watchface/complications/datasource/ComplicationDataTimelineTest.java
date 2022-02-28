@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package androidx.wear.watchface.complications;
+package androidx.wear.watchface.complications.datasource;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.wear.watchface.complications.data.ComplicationData;
 import androidx.wear.watchface.complications.data.ComplicationText;
+import androidx.wear.watchface.complications.data.ComplicationType;
+import androidx.wear.watchface.complications.data.DataKt;
+import androidx.wear.watchface.complications.data.NoDataComplicationData;
 import androidx.wear.watchface.complications.data.PlainComplicationText;
 import androidx.wear.watchface.complications.data.ShortTextComplicationData;
-import androidx.wear.watchface.complications.datasource.ComplicationDataTimeline;
-import androidx.wear.watchface.complications.datasource.TimeInterval;
-import androidx.wear.watchface.complications.datasource.TimelineEntry;
 
 import com.google.common.collect.ImmutableList;
 
@@ -132,5 +133,28 @@ public class ComplicationDataTimelineTest {
                         + "-1000000000-01-01T00:00:00Z, endDateTimeMillis="
                         + "+1000000000-12-31T23:59:59.999999999Z)))])"
         );
+    }
+
+    @Test
+    public void noDataTimelineEntryRoundTrip() {
+        ComplicationDataTimeline timeline =
+                new ComplicationDataTimeline(
+                        new ShortTextComplicationData.Builder(new PlainComplicationText.Builder(
+                                "World").build(), ComplicationText.EMPTY).build(),
+                        ImmutableList.of(
+                                new TimelineEntry(
+                                        new TimeInterval(Instant.ofEpochMilli(120000000),
+                                                Instant.ofEpochMilli(220000000)),
+                                        new NoDataComplicationData()
+                                )
+                        ));
+
+        @SuppressWarnings("KotlinInternal")
+        ComplicationData complicationData = DataKt.toApiComplicationData(
+                timeline.asWireComplicationData$watchface_complications_data_source_debug()
+        );
+
+        assertThat(complicationData.asWireComplicationData().getTimelineEntries().get(0).getType())
+                .isEqualTo(ComplicationType.NO_DATA.toWireComplicationType());
     }
 }
