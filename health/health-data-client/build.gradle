@@ -28,6 +28,8 @@ dependencies {
     // Add dependencies here
     api("androidx.annotation:annotation:1.2.0")
     implementation(libs.protobufLite)
+    implementation(libs.guavaListenableFuture)
+    implementation(libs.guavaAndroid)
 
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)

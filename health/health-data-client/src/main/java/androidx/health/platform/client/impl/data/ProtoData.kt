@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright (C) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.health.platform.client.impl.data
 
 import androidx.annotation.RestrictTo
@@ -30,7 +29,8 @@ abstract class ProtoData<T : MessageLite> {
             return true
         }
 
-        // It's possible that two objects from different classes have the same serialized form, however
+        // It's possible that two objects from different classes have the same serialized form,
+        // however
         // they shouldn't be considered equal unless they're of the same class.
         if (other == null || javaClass != other.javaClass) {
             return false

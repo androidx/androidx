@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.health.platform.client.error;
 
-parcelable ErrorStatus;
+/** @hide */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+package androidx.health.platform.client.permission;
+
+import androidx.annotation.RestrictTo;

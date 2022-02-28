@@ -13,6 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.health.platform.client.error;
+syntax = "proto2";
 
-parcelable ErrorStatus;
+package androidx.health.platform.client.proto;
+
+import "data.proto";
+
+option java_package = "androidx.health.platform.client.proto";
+option java_outer_classname = "SyncProto";
+
+message DataChange {
+  reserved 3;  // delete_characteristic_type
+  oneof change {
+    DataPoint upsert_data_point = 1;
+    string delete_uid = 2;
+  }
+}

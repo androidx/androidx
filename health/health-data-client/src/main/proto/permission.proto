@@ -13,6 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.health.platform.client.error;
+syntax = "proto2";
 
-parcelable ErrorStatus;
+package androidx.health.platform.client.proto;
+
+import "data.proto";
+
+option java_package = "androidx.health.platform.client.proto";
+option java_outer_classname = "PermissionProto";
+
+enum AccessType {
+  ACCESS_TYPE_UNKNOWN = 0;
+  ACCESS_TYPE_READ = 1;
+  ACCESS_TYPE_WRITE = 2;
+}
+
+message Permission {
+  optional DataType data_type = 1;
+  optional AccessType access_type = 2;
+}

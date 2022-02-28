@@ -17,14 +17,34 @@ syntax = "proto2";
 
 package androidx.health.platform.client.proto;
 
-import "permission.proto";
+import "data.proto";
 
 option java_package = "androidx.health.platform.client.proto";
-option java_outer_classname = "ErrorProto";
+option java_outer_classname = "ResponseProto";
 
-message ErrorStatus {
-  optional int32 code = 1;
-  optional string message = 2;
+message ReadDataPointResponse {
+  optional DataPoint data = 1;
+}
 
-  repeated Permission permission = 3;
+message ReadAggregatedDataResponse {
+  repeated AggregateDataPoint statistical_data = 1;
+  repeated AggregateDataPoint count_data = 2;
+  repeated AggregateDataPoint cumulative_data = 3;
+  repeated AggregateDataPoint duration_data = 4;
+}
+
+message InsertDataResponse {
+  repeated string data_point_uid = 1;
+}
+
+message ReadDataResponse {
+  optional DataPoint data_point = 1;
+}
+
+message ReadDataRangeResponse {
+  repeated DataPoint data_point = 1;
+}
+
+message AggregateDataResponse {
+  repeated AggregateDataRow rows = 1;
 }

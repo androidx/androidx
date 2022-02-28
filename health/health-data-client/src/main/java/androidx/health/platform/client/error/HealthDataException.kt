@@ -13,6 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.health.platform.client.error;
+package androidx.health.platform.client.error
 
-parcelable ErrorStatus;
+/**
+ * Exception thrown by Health Platform. Contains one of [ErrorCode]s and message with details on the
+ * error.
+ */
+open class HealthDataException(val errorCode: Int, errorMessage: String? = "") :
+    Exception("$errorCode: $errorMessage")
