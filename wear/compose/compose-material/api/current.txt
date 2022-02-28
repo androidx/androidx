@@ -139,6 +139,10 @@ package androidx.wear.compose.material {
   public final class DefaultTimeSourceKt {
   }
 
+  public final class HorizontalPageIndicatorKt {
+    method @androidx.compose.runtime.Composable public static void HorizontalPageIndicator(androidx.wear.compose.material.PageIndicatorState pageIndicatorState, optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.material.PageIndicatorStyle indicatorStyle, optional long selectedColor, optional long unselectedColor, optional float indicatorSize, optional float spacing, optional androidx.compose.ui.graphics.Shape indicatorShape);
+  }
+
   public final class IconKt {
     method @androidx.compose.runtime.Composable public static void Icon(androidx.compose.ui.graphics.vector.ImageVector imageVector, String? contentDescription, optional androidx.compose.ui.Modifier modifier, optional long tint);
     method @androidx.compose.runtime.Composable public static void Icon(androidx.compose.ui.graphics.ImageBitmap bitmap, String? contentDescription, optional androidx.compose.ui.Modifier modifier, optional long tint);
@@ -175,6 +179,25 @@ package androidx.wear.compose.material {
 
   public final class MaterialThemeKt {
     method @androidx.compose.runtime.Composable public static void MaterialTheme(optional androidx.wear.compose.material.Colors colors, optional androidx.wear.compose.material.Typography typography, optional androidx.wear.compose.material.Shapes shapes, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+  }
+
+  public final class PageIndicatorDefaults {
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material.PageIndicatorStyle style();
+    field public static final androidx.wear.compose.material.PageIndicatorDefaults INSTANCE;
+  }
+
+  public interface PageIndicatorState {
+    method public int getPageCount();
+    method public float getPageOffset();
+    method public int getSelectedPage();
+    property public abstract int pageCount;
+    property public abstract float pageOffset;
+    property public abstract int selectedPage;
+  }
+
+  public enum PageIndicatorStyle {
+    enum_constant public static final androidx.wear.compose.material.PageIndicatorStyle Curved;
+    enum_constant public static final androidx.wear.compose.material.PageIndicatorStyle Linear;
   }
 
   public final class PickerDefaults {
