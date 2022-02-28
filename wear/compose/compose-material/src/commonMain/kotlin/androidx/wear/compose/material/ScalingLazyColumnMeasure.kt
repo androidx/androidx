@@ -418,7 +418,7 @@ internal class DefaultScalingLazyListItemInfo(
     override val size: Int,
     override val scale: Float,
     override val alpha: Float,
-    internal val unadjustedSize: Int
+    override val unadjustedSize: Int
 ) : ScalingLazyListItemInfo {
     override fun toString(): String {
         return "DefaultScalingLazyListItemInfo(index=$index, key=$key, " +
@@ -439,14 +439,6 @@ internal data class ScaleAndAlpha(
 }
 
 /**
- * Find the unadjusted/unscaled size of the list item.
- */
-// TODO(b/221079441): Get rid of this by moving unadjustedSize into the public API
-internal fun ScalingLazyListItemInfo.unadjustedSize(): Int {
-    return (this as? DefaultScalingLazyListItemInfo)?.unadjustedSize ?: (size / scale).roundToInt()
-}
-
-/**
  * Find the start offset of the list item w.r.t. the
  */
 internal fun ScalingLazyListItemInfo.startOffset(anchorType: ScalingLazyListAnchorType) =
@@ -462,7 +454,7 @@ internal fun ScalingLazyListItemInfo.startOffset(anchorType: ScalingLazyListAnch
  */
 internal fun ScalingLazyListItemInfo.unadjustedStartOffset(anchorType: ScalingLazyListAnchorType) =
     unadjustedOffset - if (anchorType == ScalingLazyListAnchorType.ItemCenter) {
-        (unadjustedSize() / 2f)
+        (unadjustedSize / 2f)
     } else {
         0f
     }
