@@ -38,7 +38,10 @@ dependencies {
 
 android {
     defaultConfig {
-	minSdkVersion 27
+	    minSdkVersion 27
+    }
+    buildFeatures {
+        aidl = true
     }
     testOptions.unitTests.includeAndroidResources = true
 }
