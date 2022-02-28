@@ -62,7 +62,7 @@ public class WindowInsetsAnimationCompatActivityTest {
         onView(withId(R.id.edittext)).perform(ViewActions.closeSoftKeyboard())
         scenario.onActivity {
             WindowCompat.setDecorFitsSystemWindows(it.window, false)
-            ViewCompat.getWindowInsetsController(it.window.decorView)!!.show(systemBars())
+            WindowCompat.getInsetsController(it.window, it.window.decorView).show(systemBars())
             barsShown = true
         }
         onIdle()
@@ -227,10 +227,10 @@ public class WindowInsetsAnimationCompatActivityTest {
     private fun triggerInsetAnimation(container: View) {
         scenario.onActivity {
             if (barsShown) {
-                ViewCompat.getWindowInsetsController(container)!!.hide(statusBars())
+                WindowCompat.getInsetsController(it.window, container).hide(statusBars())
                 barsShown = false
             } else {
-                ViewCompat.getWindowInsetsController(container)!!.show(statusBars())
+                WindowCompat.getInsetsController(it.window, container).show(statusBars())
                 barsShown = true
             }
         }

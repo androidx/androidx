@@ -25,7 +25,6 @@ import android.view.Window;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 /**
@@ -127,16 +126,13 @@ public final class WindowCompat {
      * Retrieves the single {@link WindowInsetsControllerCompat} of the window this view is attached
      * to.
      *
-     * @return The {@link WindowInsetsControllerCompat} or {@code null} if the view is neither
-     * attached to a window nor a view tree with a decor.
+     * @return The {@link WindowInsetsControllerCompat} for the window.
      * @see Window#getInsetsController()
-     * @deprecated use {@link ViewCompat#getWindowInsetsController(View)} instead
      */
-    @Nullable
-    @Deprecated
+    @NonNull
     public static WindowInsetsControllerCompat getInsetsController(@NonNull Window window,
             @NonNull View view) {
-        return ViewCompat.getWindowInsetsController(view);
+        return new WindowInsetsControllerCompat(window, view);
     }
 
     @RequiresApi(16)
