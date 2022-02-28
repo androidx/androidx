@@ -611,3 +611,5 @@ at org\.jetbrains\.kotlin\.compilerRunner\.GradleCompilerRunner\.runJvmCompilerA
 at org\.jetbrains\.kotlin\.gradle\.tasks\.KotlinCompile\.callCompilerAsync\$kotlin_gradle_plugin\(Tasks\.kt:[0-9]+\)
 at org\.jetbrains\.kotlin\.gradle\.tasks\.AbstractKotlinCompile\.executeImpl\(Tasks\.kt:[0-9]+\)
 at org\.jetbrains\.kotlin\.gradle\.tasks\.AbstractKotlinCompile\.execute\(Tasks\.kt:[0-9]+\)
+# Gradle will log if you are not authenticated to upload scans
+A build scan was not published as you have not authenticated with server 'ge\.androidx\.dev'\.
