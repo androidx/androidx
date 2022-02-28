@@ -65,6 +65,9 @@ public class DeviceQuirksLoader {
         if (ExtraSupportedSurfaceCombinationsQuirk.load()) {
             quirks.add(new ExtraSupportedSurfaceCombinationsQuirk());
         }
+        if (FlashAvailabilityBufferUnderflowQuirk.load()) {
+            quirks.add(new FlashAvailabilityBufferUnderflowQuirk());
+        }
 
         return quirks;
     }

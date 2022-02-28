@@ -30,6 +30,7 @@ import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.camera2.internal.compat.quirk.CameraQuirks;
+import androidx.camera.camera2.internal.compat.workaround.FlashAvailabilityChecker;
 import androidx.camera.camera2.interop.Camera2CameraInfo;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraSelector;
@@ -255,10 +256,7 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
 
     @Override
     public boolean hasFlashUnit() {
-        Boolean hasFlashUnit = mCameraCharacteristicsCompat.get(
-                CameraCharacteristics.FLASH_INFO_AVAILABLE);
-        Preconditions.checkNotNull(hasFlashUnit);
-        return hasFlashUnit;
+        return FlashAvailabilityChecker.isFlashAvailable(mCameraCharacteristicsCompat);
     }
 
     @NonNull
