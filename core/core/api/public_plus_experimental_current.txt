@@ -2615,7 +2615,7 @@ package androidx.core.view {
     method @Deprecated public static float getTranslationX(android.view.View!);
     method @Deprecated public static float getTranslationY(android.view.View!);
     method public static float getTranslationZ(android.view.View);
-    method public static androidx.core.view.WindowInsetsControllerCompat? getWindowInsetsController(android.view.View);
+    method @Deprecated public static androidx.core.view.WindowInsetsControllerCompat? getWindowInsetsController(android.view.View);
     method @Deprecated public static int getWindowSystemUiVisibility(android.view.View);
     method @Deprecated public static float getX(android.view.View!);
     method @Deprecated public static float getY(android.view.View!);
@@ -2855,7 +2855,7 @@ package androidx.core.view {
   }
 
   public final class WindowCompat {
-    method @Deprecated public static androidx.core.view.WindowInsetsControllerCompat? getInsetsController(android.view.Window, android.view.View);
+    method public static androidx.core.view.WindowInsetsControllerCompat getInsetsController(android.view.Window, android.view.View);
     method public static <T extends android.view.View> T requireViewById(android.view.Window, @IdRes int);
     method public static void setDecorFitsSystemWindows(android.view.Window, boolean);
     field public static final int FEATURE_ACTION_BAR = 8; // 0x8
@@ -2980,7 +2980,7 @@ package androidx.core.view {
   }
 
   public final class WindowInsetsControllerCompat {
-    ctor @Deprecated public WindowInsetsControllerCompat(android.view.Window, android.view.View);
+    ctor public WindowInsetsControllerCompat(android.view.Window, android.view.View);
     method public void addOnControllableInsetsChangedListener(androidx.core.view.WindowInsetsControllerCompat.OnControllableInsetsChangedListener);
     method public void controlWindowInsetsAnimation(int, long, android.view.animation.Interpolator?, android.os.CancellationSignal?, androidx.core.view.WindowInsetsAnimationControlListenerCompat);
     method public int getSystemBarsBehavior();
