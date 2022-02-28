@@ -58,22 +58,22 @@ class TextLayoutSpanTest {
         val text = SpannableString("abc")
         val fontSize = 20
 
-        val spanOutterMult = 0.5f
-        val spanOutter = spy(BaselineShiftSpan(spanOutterMult))
+        val spanOuterMult = 0.5f
+        val spanOuter = spy(BaselineShiftSpan(spanOuterMult))
         val spanInnerMult = 0.3f
         val spanInner = spy(BaselineShiftSpan(spanInnerMult))
 
-        text.setSpan(spanOutter, 1, 3, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        text.setSpan(spanOuter, 1, 3, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         text.setSpan(spanInner, 2, 3, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 
         val ascent = 0.8f; // The test font has 0.8em ascent
         // first baselineShiftSpan is applied
-        var expectShift = (-fontSize * ascent * spanOutterMult).toInt()
+        var expectShift = (-fontSize * ascent * spanOuterMult).toInt()
         doAnswer(updatePaintAnswer(baselineShift = expectShift))
-            .`when`(spanOutter).updateMeasureState(any())
+            .`when`(spanOuter).updateMeasureState(any())
 
         // second baselineShiftSpan is applied
-        expectShift = (-fontSize * ascent * (spanOutterMult + spanInnerMult)).toInt()
+        expectShift = (-fontSize * ascent * (spanOuterMult + spanInnerMult)).toInt()
         doAnswer(updatePaintAnswer(baselineShift = expectShift))
             .`when`(spanInner).updateMeasureState(any())
 
