@@ -146,6 +146,7 @@ dependencies {
     docs(project(":glance:glance-appwidget"))
     docs(project(":glance:glance-wear-tiles"))
     docs(project(":gridlayout:gridlayout"))
+    docs(project(":health:health-core"))
     docs(project(":health:health-data-client"))
     docs(project(":health:health-services-client"))
     docs(project(":heifwriter:heifwriter"))
