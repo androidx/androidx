@@ -48,7 +48,7 @@ function unzipScan() {
   echo
   echo unzipping build scan
   rm -rf "$scanDir"
-  unzip /tmp/scan.zip -d "$scanDir"
+  unzip -q /tmp/scan.zip -d "$scanDir"
 }
 unzipScan
 
