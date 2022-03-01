@@ -572,6 +572,7 @@ package androidx.core.view {
     method public static operator android.view.View get(android.view.ViewGroup, int index);
     method public static kotlin.sequences.Sequence<android.view.View> getChildren(android.view.ViewGroup);
     method public static kotlin.sequences.Sequence<android.view.View> getDescendants(android.view.ViewGroup);
+    method public static inline kotlin.ranges.IntRange getIndices(android.view.ViewGroup);
     method public static inline int getSize(android.view.ViewGroup);
     method public static inline boolean isEmpty(android.view.ViewGroup);
     method public static inline boolean isNotEmpty(android.view.ViewGroup);
