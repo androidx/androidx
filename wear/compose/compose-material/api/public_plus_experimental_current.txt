@@ -335,6 +335,7 @@ package androidx.wear.compose.material {
     method public float getScale();
     method public int getSize();
     method public int getUnadjustedOffset();
+    method public int getUnadjustedSize();
     property public abstract float alpha;
     property public abstract int index;
     property public abstract Object key;
@@ -342,6 +343,7 @@ package androidx.wear.compose.material {
     property public abstract float scale;
     property public abstract int size;
     property public abstract int unadjustedOffset;
+    property public abstract int unadjustedSize;
   }
 
   @androidx.compose.runtime.Stable @androidx.wear.compose.material.ScalingLazyScopeMarker public interface ScalingLazyListItemScope {
