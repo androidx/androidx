@@ -47,6 +47,7 @@ import androidx.car.app.hardware.CarHardwareManager;
 import androidx.car.app.managers.Manager;
 import androidx.car.app.managers.ResultManager;
 import androidx.car.app.navigation.NavigationManager;
+import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.testing.TestLifecycleOwner;
 import androidx.lifecycle.Lifecycle.Event;
 import androidx.lifecycle.Lifecycle.State;
@@ -114,6 +115,14 @@ public class CarContextTest {
 
                             @Override
                             public void sendLocation(Location location) {
+                            }
+
+                            @Override
+                            public void showAlert(Bundleable alert) {
+                            }
+
+                            @Override
+                            public void dismissAlert(int alertId) {
                             }
                         }.asBinder());
 
