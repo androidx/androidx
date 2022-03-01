@@ -41,6 +41,7 @@ import androidx.camera.testing.AudioUtil
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.GarbageCollectionUtil
+import androidx.camera.testing.LabTestRule
 import androidx.camera.testing.SurfaceTextureProvider
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_FILE_SIZE_LIMIT_REACHED
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_INVALID_OUTPUT_OPTIONS
@@ -100,6 +101,9 @@ class RecorderTest {
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.RECORD_AUDIO
         )
+
+    @get:Rule
+    val labTest: LabTestRule = LabTestRule()
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val context: Context = ApplicationProvider.getApplicationContext()
@@ -516,6 +520,8 @@ class RecorderTest {
         runFileSizeLimitTest(fileSizeLimit)
     }
 
+    @LabTestRule.LabTestOnly
+    // TODO(b/221321104): flaky on AndroidX test, @LabTestOnly should be removed after resolved.
     @Test
     fun checkStreamState() {
         clearInvocations(videoRecordEventListener)
