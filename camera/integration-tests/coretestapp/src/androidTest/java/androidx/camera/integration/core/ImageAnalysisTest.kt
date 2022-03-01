@@ -34,6 +34,7 @@ import androidx.camera.core.impl.ImageOutputConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.LabTestRule
 import androidx.camera.testing.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
@@ -62,6 +63,9 @@ internal class ImageAnalysisTest(
 
     @get:Rule
     val cameraRule = CameraUtil.grantCameraPermissionAndPreTest()
+
+    @get:Rule
+    val labTest: LabTestRule = LabTestRule()
 
     companion object {
         private val DEFAULT_RESOLUTION = Size(640, 480)
@@ -179,6 +183,8 @@ internal class ImageAnalysisTest(
             synchronized(analysisResultLock) { assertThat(analysisResults).isNotEmpty() }
         }
 
+    @LabTestRule.LabTestOnly
+    // TODO(b/221321202): flaky on AndroidX test, @LabTestOnly should be removed after resolved.
     @Test
     fun analyzerDoesNotAnalyzeImages_whenCameraIsNotOpen() = runBlocking {
         val useCase = ImageAnalysis.Builder().build()
