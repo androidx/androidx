@@ -29,6 +29,8 @@ import android.opengl.GLES20
  */
 class EglManager(val eglSpec: EglSpec = EglSpec.Egl14) {
 
+    private val TAG = "EglManager"
+
     private var mEglConfig: EGLConfig? = null
 
     /**
@@ -221,9 +223,5 @@ class EglManager(val eglSpec: EglSpec = EglSpec.Egl14) {
         if (eglSpec.eglQuerySurface(surface, EGL14.EGL_RENDER_BUFFER, resultArray, 0)) {
             mIsSingleBuffered = resultArray[0] == EGL14.EGL_SINGLE_BUFFER
         }
-    }
-
-    companion object {
-        private const val TAG = "EglManager"
     }
 }
