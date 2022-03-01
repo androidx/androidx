@@ -14,8 +14,4 @@
  * limitations under the License.
  */
 
-/**
- * <p>Helps developer read, write and share user's health and fitness records in a platform agnostic
- * way. </p>
- */
-package androidx.health.data.client;
+package androidx.health.data.client.metadata;

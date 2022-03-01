@@ -13,9 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.health.data.client.records
 
-/**
- * <p>Helps developer read, write and share user's health and fitness records in a platform agnostic
- * way. </p>
- */
-package androidx.health.data.client;
+import androidx.annotation.RestrictTo
+import androidx.health.data.client.metadata.Metadata
+
+/** Common interface shared by readable or writable records. */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+interface Record {
+    val metadata: Metadata
+}

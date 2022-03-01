@@ -17,7 +17,7 @@ package androidx.health.data.client.records
 
 import androidx.annotation.StringDef
 
-/** List of supported activities used in workout records. */
+/** List of supported activities on Health Platform. */
 public object ActivityTypes {
     const val BACK_EXTENSION = "back_extension"
     const val BADMINTON = "badminton"
@@ -105,7 +105,7 @@ public object ActivityTypes {
 }
 
 /**
- * List of supported activities.
+ * List of supported activities on Health Platform.
  * @suppress
  */
 @Retention(AnnotationRetention.SOURCE)
@@ -194,6 +194,7 @@ public object ActivityTypes {
             ActivityTypes.WATER_POLO,
             ActivityTypes.WEIGHTLIFTING,
             ActivityTypes.WORKOUT,
-            ActivityTypes.YOGA]
+            ActivityTypes.YOGA,
+        ]
 )
 annotation class ActivityType
