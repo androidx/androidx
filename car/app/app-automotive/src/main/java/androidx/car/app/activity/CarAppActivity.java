@@ -162,19 +162,13 @@ public final class CarAppActivity extends FragmentActivity {
                             .getInsets(WindowInsetsCompat.Type.systemBars()
                                     | WindowInsetsCompat.Type.ime())
                             .toPlatformInsets();
-                    boolean insetsHandled = requireNonNull(mViewModel).updateWindowInsets(insets);
 
-                    if (insetsHandled) {
-                        // Insets are handled by the host. Only local content need padding.
-                        mActivityContainerView.setPadding(0, 0, 0, 0);
-                        mLocalContentContainerView.setPadding(insets.left, insets.top,
-                                insets.right, insets.bottom);
-                    } else {
-                        // Insets are handled locally, padding is applied at the top level.
-                        mActivityContainerView.setPadding(insets.left, insets.top,
-                                insets.right, insets.bottom);
-                        mLocalContentContainerView.setPadding(0, 0, 0, 0);
-                    }
+                    requireNonNull(mViewModel).updateWindowInsets(insets);
+
+                    // Insets are handled by the host. Only local content need padding.
+                    mActivityContainerView.setPadding(0, 0, 0, 0);
+                    mLocalContentContainerView.setPadding(insets.left, insets.top,
+                            insets.right, insets.bottom);
 
                     return WindowInsetsCompat.CONSUMED.toWindowInsets();
                 }

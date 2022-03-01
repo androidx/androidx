@@ -28,16 +28,12 @@ import android.graphics.Insets;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
-import androidx.car.app.HandshakeInfo;
 import androidx.car.app.activity.renderer.ICarAppActivity;
 import androidx.car.app.activity.renderer.IInsetsListener;
 import androidx.car.app.activity.renderer.IRendererCallback;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.utils.ThreadUtils;
-import androidx.car.app.versioning.CarAppApiLevels;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -238,32 +234,22 @@ public class CarAppViewModel extends AndroidViewModel implements
      * Updates the insets for this {@link CarAppActivity}
      *
      * @param insets latest received {@link Insets}
-     * @return true if this insets will be consumed by the host. Otherwise, the insets should be
-     * consumed by the client.
      */
-    public boolean updateWindowInsets(@NonNull Insets insets) {
+    public void updateWindowInsets(@NonNull Insets insets) {
         if (!Objects.equals(mInsets, insets)) {
             mInsets = insets;
-            dispatchInsetsUpdates();
+            // If listener is not set yet, the inset will be dispatched once the listener is set.
+            if (mIInsetsListener != null) {
+                dispatchInsetsUpdates();
+            }
         }
-        return isHostHandlingInsets();
-    }
-
-    @OptIn(markerClass = ExperimentalCarApi.class)
-    private boolean isHostHandlingInsets() {
-        HandshakeInfo handshakeInfo = mServiceConnectionManager.getHandshakeInfo();
-        return mIInsetsListener != null
-                && handshakeInfo != null
-                && handshakeInfo.getHostCarAppApiLevel() >= CarAppApiLevels.LEVEL_4;
     }
 
     @SuppressWarnings("NullAway")
     private void dispatchInsetsUpdates() {
-        if (isHostHandlingInsets()) {
-            getServiceDispatcher().dispatch("onInsetsChanged",
-                    () -> requireNonNull(mIInsetsListener).onInsetsChanged(mInsets)
-            );
-        }
+        getServiceDispatcher().dispatch("onInsetsChanged",
+                () -> requireNonNull(mIInsetsListener).onInsetsChanged(mInsets)
+        );
     }
 
     /**
