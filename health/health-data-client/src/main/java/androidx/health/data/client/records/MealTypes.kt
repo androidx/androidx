@@ -15,23 +15,33 @@
  */
 package androidx.health.data.client.records
 
+import androidx.annotation.RestrictTo
 import androidx.annotation.StringDef
 
-/** The result of a user's ovulation test, which shows if they're ovulating or not. */
-public object OvulationTestResults {
-    const val NEGATIVE = "negative"
-    const val POSITIVE = "positive"
+/** Type of meal. */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+public object MealTypes {
+    const val UNKNOWN = "unknown"
+    const val BREAKFAST = "breakfast"
+    const val LUNCH = "lunch"
+    const val DINNER = "dinner"
+    const val SNACK = "snack"
 }
 
 /**
- * The result of a user's ovulation test, which shows if they're ovulating or not.
+ * Type of meal.
  * @suppress
  */
+@Retention(AnnotationRetention.SOURCE)
 @StringDef(
     value =
         [
-            OvulationTestResults.NEGATIVE,
-            OvulationTestResults.POSITIVE,
+            MealTypes.UNKNOWN,
+            MealTypes.BREAKFAST,
+            MealTypes.LUNCH,
+            MealTypes.DINNER,
+            MealTypes.SNACK,
         ]
 )
-annotation class OvulationTestResult
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+annotation class MealType
