@@ -21,6 +21,12 @@ plugins {
     id("com.android.library")
 }
 
+android {
+    defaultConfig {
+        multiDexEnabled true
+    }
+}
+
 dependencies {
     // Public API dependencies
     api("androidx.annotation:annotation:1.1.0")
@@ -48,6 +54,7 @@ dependencies {
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy)
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy)
     androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.multidex)
 }
 
 android {
