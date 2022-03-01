@@ -63,6 +63,27 @@ public inline fun ViewGroup.forEachIndexed(action: (index: Int, view: View) -> U
     }
 }
 
+/**
+ * Returns an [IntRange] of the valid indices for the children of this view group.
+ *
+ * This can be used for looping:
+ * ```kotlin
+ * for (i in viewGroup.indices.reversed) {
+ *   if (viewGroup[i] is SomeView) {
+ *     viewGroup.removeViewAt(i)
+ *   }
+ * }
+ * ```
+ *
+ * Or to determine if an index is valid:
+ * ```kotlin
+ * if (2 in viewGroup.indices) {
+ *   // Do something…
+ * }
+ * ```
+ */
+public inline val ViewGroup.indices: IntRange get() = 0 until childCount
+
 /** Returns a [MutableIterator] over the views in this view group. */
 public operator fun ViewGroup.iterator(): MutableIterator<View> = object : MutableIterator<View> {
     private var index = 0
