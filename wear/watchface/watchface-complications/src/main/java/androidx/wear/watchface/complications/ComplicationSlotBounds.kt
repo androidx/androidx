@@ -25,6 +25,7 @@ import android.content.res.XmlResourceParser
 import android.graphics.RectF
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.complications.data.ComplicationType
+import java.io.DataOutputStream
 import org.xmlpull.v1.XmlPullParser
 
 /**
@@ -39,6 +40,18 @@ public class ComplicationSlotBounds(
     /** Per [ComplicationType] fractional unit-square screen space complication bounds. */
     public val perComplicationTypeBounds: Map<ComplicationType, RectF>
 ) {
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    fun write(dos: DataOutputStream) {
+        for ((type, bounds) in perComplicationTypeBounds) {
+            dos.writeInt(type.toWireComplicationType())
+            dos.writeFloat(bounds.left)
+            dos.writeFloat(bounds.right)
+            dos.writeFloat(bounds.top)
+            dos.writeFloat(bounds.bottom)
+        }
+    }
+
     /**
      * Constructs a ComplicationSlotBounds where all complication types have the same screen space
      * unit-square bounds.

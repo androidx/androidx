@@ -18,6 +18,7 @@ package androidx.wear.watchface.style
 
 import android.content.res.Resources
 import android.content.res.XmlResourceParser
+import android.graphics.drawable.Icon
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.style.UserStyleSetting.Option
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
@@ -26,11 +27,14 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.DataInputStream
 import java.io.DataOutputStream
+import java.io.IOException
+import java.io.OutputStream
+import java.security.DigestOutputStream
+import java.security.MessageDigest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
-import java.io.IOException
 
 /**
  * An immutable representation of user style choices that maps each [UserStyleSetting] to
@@ -611,6 +615,28 @@ public class UserStyleSchema constructor(
         // NB more than one match is not allowed, UserStyleSetting id's are required to be unique.
         @Suppress("Deprecation")
         return userStyleSettings.firstOrNull { it.id == settingId }
+    }
+
+    /**
+     * Computes a SHA-1 [MessageDigest] hash of the [UserStyleSchema]. Note that for performance
+     * reasons where possible the resource id or url for [Icon]s in the schema are used rather than
+     * the image bytes. This means that this hash should be considered insensitive to changes to the
+     * contents of icons between APK versions, which the developer should account for accordingly.
+     */
+    fun getDigestHash(): ByteArray {
+        val md = MessageDigest.getInstance("SHA-1")
+        val digestOutputStream = DigestOutputStream(NullOutputStream(), md)
+
+        @Suppress("Deprecation")
+        for (setting in userStyleSettings) {
+            setting.updateMessageDigest(digestOutputStream)
+        }
+
+        return md.digest()
+    }
+
+    private class NullOutputStream : OutputStream() {
+        override fun write(value: Int) {}
     }
 }
 
