@@ -20,7 +20,7 @@ import androidx.testutils.TestDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -93,7 +93,7 @@ class PageKeyedDataSourceTest {
     @Test
     fun loadFullVerify() {
         // validate paging entire ItemDataSource results in full, correctly ordered data
-        val dispatcher = TestCoroutineDispatcher()
+        val dispatcher = UnconfinedTestDispatcher()
         val testCoroutineScope = CoroutineScope(dispatcher)
         @Suppress("DEPRECATION")
         val pagedList = PagedList.Builder(ItemDataSource(), 100)
@@ -109,7 +109,7 @@ class PageKeyedDataSourceTest {
         for (i in 0..PAGE_MAP.keys.size) {
             pagedList.loadAround(0)
             pagedList.loadAround(pagedList.size - 1)
-            dispatcher.advanceUntilIdle()
+            dispatcher.scheduler.advanceUntilIdle()
         }
 
         // validate full load

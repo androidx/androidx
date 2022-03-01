@@ -21,7 +21,7 @@ import androidx.paging.RemoteMediator.InitializeAction.SKIP_INITIAL_REFRESH
 import androidx.paging.rxjava3.RxRemoteMediator
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -32,7 +32,7 @@ import kotlin.test.fail
 @RunWith(JUnit4::class)
 class RxRemoteMediatorTest {
     @Test
-    fun initializeSingle() = runBlockingTest {
+    fun initializeSingle() = runTest {
         val remoteMediator = object : RxRemoteMediator<Int, Int>() {
             override fun loadSingle(
                 loadType: LoadType,
@@ -50,7 +50,7 @@ class RxRemoteMediatorTest {
     }
 
     @Test
-    fun initializeSingleDefault() = runBlockingTest {
+    fun initializeSingleDefault() = runTest {
         val remoteMediator = object : RxRemoteMediator<Int, Int>() {
             override fun loadSingle(
                 loadType: LoadType,

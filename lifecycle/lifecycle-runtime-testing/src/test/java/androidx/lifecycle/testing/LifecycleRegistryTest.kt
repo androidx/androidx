@@ -19,7 +19,7 @@ package androidx.lifecycle.testing
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -29,7 +29,7 @@ class LifecycleRegistryTest {
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     private val lifecycleOwner = TestLifecycleOwner(
         Lifecycle.State.INITIALIZED,
-        TestCoroutineDispatcher()
+        UnconfinedTestDispatcher()
     )
 
     @Test

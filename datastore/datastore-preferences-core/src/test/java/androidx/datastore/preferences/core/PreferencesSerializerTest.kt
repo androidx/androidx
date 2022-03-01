@@ -17,7 +17,7 @@
 package androidx.datastore.preferences.core
 
 import androidx.datastore.core.CorruptionException
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -43,7 +43,7 @@ class PreferencesSerializerTest {
     }
 
     @Test
-    fun testWriteAndReadString() = runBlockingTest {
+    fun testWriteAndReadString() = runTest {
         val stringKey = stringPreferencesKey("string_key")
 
         val prefs = preferencesOf(
@@ -62,7 +62,7 @@ class PreferencesSerializerTest {
     }
 
     @Test
-    fun testWriteAndReadStringSet() = runBlockingTest {
+    fun testWriteAndReadStringSet() = runTest {
         val stringSetKey =
             stringSetPreferencesKey("string_set_key")
 
@@ -82,7 +82,7 @@ class PreferencesSerializerTest {
     }
 
     @Test
-    fun testWriteAndReadLong() = runBlockingTest {
+    fun testWriteAndReadLong() = runTest {
         val longKey = longPreferencesKey("long_key")
 
         val prefs = preferencesOf(
@@ -101,7 +101,7 @@ class PreferencesSerializerTest {
     }
 
     @Test
-    fun testWriteAndReadInt() = runBlockingTest {
+    fun testWriteAndReadInt() = runTest {
         val intKey = intPreferencesKey("int_key")
 
         val prefs = preferencesOf(
@@ -120,7 +120,7 @@ class PreferencesSerializerTest {
     }
 
     @Test
-    fun testWriteAndReadBoolean() = runBlockingTest {
+    fun testWriteAndReadBoolean() = runTest {
         val booleanKey = booleanPreferencesKey("boolean_key")
 
         val prefs = preferencesOf(
@@ -139,7 +139,7 @@ class PreferencesSerializerTest {
     }
 
     @Test
-    fun testWriteAndReadFloat() = runBlockingTest {
+    fun testWriteAndReadFloat() = runTest {
         val floatKey = floatPreferencesKey("float_key")
 
         val prefs = preferencesOf(
@@ -158,7 +158,7 @@ class PreferencesSerializerTest {
     }
 
     @Test
-    fun testWriteAndReadDouble() = runBlockingTest {
+    fun testWriteAndReadDouble() = runTest {
         val maxDouble = doublePreferencesKey("max_double_key")
         val minDouble = doublePreferencesKey("min_double_key")
 
@@ -179,7 +179,7 @@ class PreferencesSerializerTest {
     }
 
     @Test
-    fun testThrowsCorruptionException() = runBlockingTest {
+    fun testThrowsCorruptionException() = runTest {
         // Not a valid proto - protos cannot start with a 0 byte.
         testFile.writeBytes(byteArrayOf(0, 1, 2, 3, 4))
 

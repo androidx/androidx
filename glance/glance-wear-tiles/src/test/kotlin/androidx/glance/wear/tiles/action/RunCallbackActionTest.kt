@@ -23,7 +23,7 @@ import androidx.glance.action.ActionModifier
 import androidx.glance.action.clickable
 import androidx.glance.findModifier
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineScope
+import kotlinx.coroutines.test.TestScope
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -34,11 +34,11 @@ import kotlin.test.assertIs
 @RunWith(RobolectricTestRunner::class)
 class RunCallbackActionTest {
 
-    private lateinit var fakeCoroutineScope: TestCoroutineScope
+    private lateinit var fakeCoroutineScope: TestScope
 
     @Before
     fun setUp() {
-        fakeCoroutineScope = TestCoroutineScope()
+        fakeCoroutineScope = TestScope()
     }
 
     @Test

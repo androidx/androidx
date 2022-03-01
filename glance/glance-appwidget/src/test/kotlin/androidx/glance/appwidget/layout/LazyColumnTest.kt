@@ -29,23 +29,23 @@ import androidx.glance.text.EmittableText
 import androidx.glance.text.Text
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertIs
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class LazyColumnTest {
-    private lateinit var fakeCoroutineScope: TestCoroutineScope
+    private lateinit var fakeCoroutineScope: TestScope
 
     @Before
     fun setUp() {
-        fakeCoroutineScope = TestCoroutineScope()
+        fakeCoroutineScope = TestScope()
     }
 
     @Test
-    fun emptyLazyColumn_addsLazyColumnToTree() = fakeCoroutineScope.runBlockingTest {
+    fun emptyLazyColumn_addsLazyColumnToTree() = fakeCoroutineScope.runTest {
         val root = runTestingComposition {
             LazyColumn { }
         }
@@ -55,7 +55,7 @@ class LazyColumnTest {
     }
 
     @Test
-    fun items_createsListItemsEachWithChild() = fakeCoroutineScope.runBlockingTest {
+    fun items_createsListItemsEachWithChild() = fakeCoroutineScope.runTest {
         val root = runTestingComposition {
             LazyColumn {
                 items(2, { it * 2L }) { index -> Text("Item $index") }
@@ -74,7 +74,7 @@ class LazyColumnTest {
     }
 
     @Test
-    fun item_multipleChildren_createsListItemWithChildren() = fakeCoroutineScope.runBlockingTest {
+    fun item_multipleChildren_createsListItemWithChildren() = fakeCoroutineScope.runTest {
         val root = runTestingComposition {
             LazyColumn {
                 item {
@@ -92,7 +92,7 @@ class LazyColumnTest {
     }
 
     @Test
-    fun items_withItemId_addsChildrenWithIds() = fakeCoroutineScope.runBlockingTest {
+    fun items_withItemId_addsChildrenWithIds() = fakeCoroutineScope.runTest {
         val root = runTestingComposition {
             LazyColumn {
                 items(2, { it * 2L }) { index -> Text("Item $index") }
@@ -111,7 +111,7 @@ class LazyColumnTest {
 
     @Test
     fun items_withoutItemId_addsItemsWithConsecutiveReservedIds() =
-        fakeCoroutineScope.runBlockingTest {
+        fakeCoroutineScope.runTest {
             val root = runTestingComposition {
                 LazyColumn {
                     items(2) { index -> Text("Item $index") }
@@ -127,7 +127,7 @@ class LazyColumnTest {
         }
 
     @Test
-    fun items_someWithItemIds_addsChildrenWithIds() = fakeCoroutineScope.runBlockingTest {
+    fun items_someWithItemIds_addsChildrenWithIds() = fakeCoroutineScope.runTest {
         val root = runTestingComposition {
             LazyColumn {
                 items(1, { 5L }) { Text("Item 0") }
@@ -146,7 +146,7 @@ class LazyColumnTest {
     }
 
     @Test
-    fun items_listItemsWithoutItemIds_addsChildren() = fakeCoroutineScope.runBlockingTest {
+    fun items_listItemsWithoutItemIds_addsChildren() = fakeCoroutineScope.runTest {
         val root = runTestingComposition {
             LazyColumn {
                 items(people) { person ->
@@ -164,7 +164,7 @@ class LazyColumnTest {
     }
 
     @Test
-    fun items_listItemsWithItemIds_addsChildren() = fakeCoroutineScope.runBlockingTest {
+    fun items_listItemsWithItemIds_addsChildren() = fakeCoroutineScope.runTest {
         val root = runTestingComposition {
             LazyColumn {
                 items(people, itemId = { person -> person.userId }) { person ->
@@ -182,7 +182,7 @@ class LazyColumnTest {
     }
 
     @Test
-    fun itemsIndexed_listItems_addsChildren() = fakeCoroutineScope.runBlockingTest {
+    fun itemsIndexed_listItems_addsChildren() = fakeCoroutineScope.runTest {
         val root = runTestingComposition {
             LazyColumn {
                 itemsIndexed(people) { index, person ->
@@ -197,7 +197,7 @@ class LazyColumnTest {
     }
 
     @Test
-    fun items_arrayItemsWithoutItemIds_addsChildren() = fakeCoroutineScope.runBlockingTest {
+    fun items_arrayItemsWithoutItemIds_addsChildren() = fakeCoroutineScope.runTest {
         val root = runTestingComposition {
             LazyColumn {
                 items(people.toTypedArray()) { person ->
@@ -215,7 +215,7 @@ class LazyColumnTest {
     }
 
     @Test
-    fun items_arrayItemsWithItemIds_addsChildren() = fakeCoroutineScope.runBlockingTest {
+    fun items_arrayItemsWithItemIds_addsChildren() = fakeCoroutineScope.runTest {
         val root = runTestingComposition {
             LazyColumn {
                 items(people.toTypedArray(), itemId = { person -> person.userId }) { person ->
@@ -233,7 +233,7 @@ class LazyColumnTest {
     }
 
     @Test
-    fun itemsIndexed_arrayItems_addsChildren() = fakeCoroutineScope.runBlockingTest {
+    fun itemsIndexed_arrayItems_addsChildren() = fakeCoroutineScope.runTest {
         val root = runTestingComposition {
             LazyColumn {
                 itemsIndexed(people.toTypedArray()) { index, person ->

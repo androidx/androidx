@@ -29,19 +29,19 @@ import androidx.glance.unit.ColorProvider
 import androidx.glance.wear.tiles.runTestingComposition
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertIs
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class CurvedRowTest {
-    private lateinit var fakeCoroutineScope: TestCoroutineScope
+    private lateinit var fakeCoroutineScope: TestScope
 
     @Before
     fun setUp() {
-        fakeCoroutineScope = TestCoroutineScope()
+        fakeCoroutineScope = TestScope()
     }
 
     @Test
@@ -67,7 +67,7 @@ class CurvedRowTest {
     }
 
     @Test
-    fun createComposableArc() = fakeCoroutineScope.runBlockingTest {
+    fun createComposableArc() = fakeCoroutineScope.runTest {
         val root = runTestingComposition {
             CurvedRow(
                 modifier = GlanceModifier.padding(1.dp),
@@ -88,7 +88,7 @@ class CurvedRowTest {
     }
 
     @Test
-    fun createComposableArcText() = fakeCoroutineScope.runBlockingTest {
+    fun createComposableArcText() = fakeCoroutineScope.runTest {
         val root = runTestingComposition {
             CurvedRow {
                 CurvedText(

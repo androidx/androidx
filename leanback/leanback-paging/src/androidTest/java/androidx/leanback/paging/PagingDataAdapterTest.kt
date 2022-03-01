@@ -34,8 +34,9 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -47,7 +48,7 @@ import kotlin.test.assertEquals
 @RunWith(AndroidJUnit4::class)
 class PagingDataAdapterTest {
 
-    private val testScope = TestCoroutineScope()
+    private val testScope = TestScope(StandardTestDispatcher())
 
     @get:Rule
     val dispatcherRule = MainDispatcherRule(
@@ -58,7 +59,7 @@ class PagingDataAdapterTest {
      * Testing get(), size()
      */
     @Test
-    fun testGetItem() = testScope.runBlockingTest {
+    fun testGetItem() = testScope.runTest {
         val pagingSource = TestPagingSource()
         val pagingDataAdapter =
             PagingDataAdapter(
@@ -81,7 +82,7 @@ class PagingDataAdapterTest {
                 pagingDataAdapter.submitData(it)
             }
         }
-        advanceUntilIdle()
+        testScheduler.advanceUntilIdle()
         job.cancel()
         assertEquals(null, pagingDataAdapter.get(90))
         assertEquals(pagingSource.items.get(51), pagingDataAdapter.get(51))
@@ -92,7 +93,7 @@ class PagingDataAdapterTest {
      * Testing loadStateListener callbacks
      */
     @Test
-    fun testLoadStateListenerCallbacks() = testScope.runBlockingTest {
+    fun testLoadStateListenerCallbacks() = testScope.runTest {
         val pagingDataAdapter =
             PagingDataAdapter(
                 diffCallback = DiffCallback,
@@ -116,7 +117,7 @@ class PagingDataAdapterTest {
                 pagingDataAdapter.submitData(it)
             }
         }
-        advanceUntilIdle()
+        testScheduler.advanceUntilIdle()
         // Assert that all load state updates are sent, even when differ enters fast path for
         // empty previous list.
         assertEvents(
@@ -133,7 +134,7 @@ class PagingDataAdapterTest {
         job.cancel()
 
         pagingDataAdapter.submitData(TestLifecycleOwner().lifecycle, PagingData.empty())
-        advanceUntilIdle()
+        testScheduler.advanceUntilIdle()
         // Assert that all load state updates are sent, even when differ enters fast path for
         // empty next list.
         assertEvents(
@@ -149,7 +150,7 @@ class PagingDataAdapterTest {
     }
 
     @Test
-    fun snapshot() = testScope.runBlockingTest {
+    fun snapshot() = testScope.runTest {
         val pagingSource = TestPagingSource()
         val pagingDataAdapter =
             PagingDataAdapter(
@@ -175,7 +176,7 @@ class PagingDataAdapterTest {
 
         assertEquals(listOf(), pagingDataAdapter.snapshot())
 
-        advanceUntilIdle()
+        testScheduler.advanceUntilIdle()
         assertEquals(
             List(50) { null } + listOf(50, 51) + List(48) { null },
             pagingDataAdapter.snapshot()
@@ -185,7 +186,7 @@ class PagingDataAdapterTest {
     }
 
     @Test
-    fun peek() = testScope.runBlockingTest {
+    fun peek() = testScope.runTest {
         val pagingSource = TestPagingSource()
         val pagingDataAdapter =
             PagingDataAdapter(
@@ -209,7 +210,7 @@ class PagingDataAdapterTest {
             }
         }
 
-        advanceUntilIdle()
+        testScheduler.advanceUntilIdle()
         assertEquals(null, pagingDataAdapter.peek(0))
         assertEquals(50, pagingDataAdapter.peek(50))
         assertEquals(null, pagingDataAdapter.peek(99))

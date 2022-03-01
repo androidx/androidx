@@ -27,8 +27,8 @@ import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.TestCoroutineDispatcher
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import org.junit.Test
@@ -345,13 +345,11 @@ class RepeatOnLifecycleTest {
         owner.setState(Lifecycle.State.CREATED)
         expectations.expect(1)
 
-        val testDispatcher = TestCoroutineDispatcher().apply {
-            runBlockingTest {
-                owner.lifecycleScope.launch {
-                    owner.repeatOnLifecycle(Lifecycle.State.CREATED) {
-                        withContext(this@apply) {
-                            expectations.expect(2)
-                        }
+        runTest(UnconfinedTestDispatcher()) {
+            owner.lifecycleScope.launch {
+                owner.repeatOnLifecycle(Lifecycle.State.CREATED) {
+                    withContext(this@runTest.coroutineContext) {
+                        expectations.expect(2)
                     }
                 }
             }
@@ -359,7 +357,6 @@ class RepeatOnLifecycleTest {
 
         expectations.expect(3)
         owner.setState(Lifecycle.State.DESTROYED)
-        testDispatcher.cleanupTestCoroutines()
     }
 
     @Test

@@ -43,8 +43,8 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -55,12 +55,13 @@ import java.io.ByteArrayOutputStream
 import java.time.Instant
 import java.util.Arrays
 import kotlin.test.assertIs
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalStdlibApi::class)
 @RunWith(RobolectricTestRunner::class)
 class GlanceTileServiceTest {
     private lateinit var executor: InlineExecutorService
-    private lateinit var fakeCoroutineScope: TestCoroutineScope
+    private lateinit var fakeCoroutineScope: TestScope
     private lateinit var tileService: TestGlanceTileService
     private lateinit var tileServiceClient: TestTileClient<GlanceTileService>
     private lateinit var tileServiceWithTimeline: TestGlanceTileServiceWithTimeline
@@ -72,7 +73,7 @@ class GlanceTileServiceTest {
 
     @Before
     fun setUp() {
-        fakeCoroutineScope = TestCoroutineScope()
+        fakeCoroutineScope = TestScope(UnconfinedTestDispatcher())
 
         tileService = TestGlanceTileService()
         tileServiceClient = TestTileClient(
@@ -107,7 +108,7 @@ class GlanceTileServiceTest {
     }
 
     @Test
-    fun tileProviderReturnsTile() = fakeCoroutineScope.runBlockingTest {
+    fun tileProviderReturnsTile() = fakeCoroutineScope.runTest {
         // Request is currently un-used, provide an empty one.
         val tileRequest = RequestBuilders.TileRequest.Builder().build()
 
@@ -137,7 +138,7 @@ class GlanceTileServiceTest {
     }
 
     @Test
-    fun tileProviderReturnsTimelineTile() = fakeCoroutineScope.runBlockingTest {
+    fun tileProviderReturnsTimelineTile() = fakeCoroutineScope.runTest {
         // Request is currently un-used, provide an empty one.
         val tileRequest = RequestBuilders.TileRequest.Builder().build()
 
@@ -190,7 +191,7 @@ class GlanceTileServiceTest {
     }
 
     @Test
-    fun tileProviderReturnsResources() = fakeCoroutineScope.runBlockingTest {
+    fun tileProviderReturnsResources() = fakeCoroutineScope.runTest {
         val tileRequest = RequestBuilders.TileRequest.Builder().build()
         val tileFuture = tileServiceClient.requestTile(tileRequest)
         shadowOf(Looper.getMainLooper()).idle()
@@ -210,7 +211,7 @@ class GlanceTileServiceTest {
     }
 
     @Test
-    fun tileProviderReturnsTimelineResources() = fakeCoroutineScope.runBlockingTest {
+    fun tileProviderReturnsTimelineResources() = fakeCoroutineScope.runTest {
         val tileRequest = RequestBuilders.TileRequest.Builder().build()
         val tileFuture = tileServiceClientWithTimeline.requestTile(tileRequest)
         shadowOf(Looper.getMainLooper()).idle()
