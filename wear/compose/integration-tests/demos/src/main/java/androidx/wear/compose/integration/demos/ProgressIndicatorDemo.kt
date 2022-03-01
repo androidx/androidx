@@ -13,7 +13,6 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -42,7 +41,6 @@ import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.InlineSlider
 import androidx.wear.compose.material.InlineSliderDefaults
 import androidx.wear.compose.material.ProgressIndicatorDefaults
-import androidx.wear.compose.material.ScalingLazyColumn
 import androidx.wear.compose.material.Text
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -84,14 +82,10 @@ public fun ProgressWithCustomAngles() {
     val animatedProgress: Float by animateFloatAsState(targetValue = progress)
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        ScalingLazyColumn(
+        ScalingLazyColumnWithRSB(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 8.dp),
-            contentPadding = PaddingValues(
-                top = 20.dp,
-                bottom = 20.dp
-            ),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {

@@ -19,7 +19,6 @@ package androidx.wear.compose.integration.demos
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -35,7 +34,6 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.InlineSlider
 import androidx.wear.compose.material.InlineSliderDefaults
-import androidx.wear.compose.material.ScalingLazyColumn
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.ToggleChip
 import androidx.wear.compose.material.ToggleChipDefaults
@@ -46,13 +44,12 @@ fun InlineSliderDemo() {
     var valueWithSegments by remember { mutableStateOf(2f) }
     var enabled by remember { mutableStateOf(true) }
 
-    ScalingLazyColumn(
+    ScalingLazyColumnWithRSB(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(
             space = 4.dp,
             alignment = Alignment.CenterVertically
         ),
-        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 30.dp),
         modifier = Modifier.fillMaxSize()
     ) {
         item { Text("No segments, value = $valueWithoutSegments") }
@@ -91,13 +88,12 @@ fun InlineSliderWithIntegersDemo() {
     var valueWithoutSegments by remember { mutableStateOf(5) }
     var valueWithSegments by remember { mutableStateOf(2) }
 
-    ScalingLazyColumn(
+    ScalingLazyColumnWithRSB(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(
             space = 4.dp,
             alignment = Alignment.CenterVertically
         ),
-        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 30.dp),
         modifier = Modifier.fillMaxSize()
     ) {
         item { Text("No segments, value = $valueWithoutSegments") }
