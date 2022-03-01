@@ -33,6 +33,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -95,7 +97,8 @@ fun TimePickerWithHoursMinutesSeconds() {
                 Spacer(Modifier.width(4.dp))
                 SelectablePicker(
                     selected = selectedColumn == 0,
-                    state = rememberPickerState(numberOfOptions = 24, initiallySelectedOption = 6),
+                    state = rememberPickerState(initialNumberOfOptions = 24,
+                        initiallySelectedOption = 6),
                     modifier = selectablePickerModifier,
                     separation = separation,
                 ) { hour: Int ->
@@ -109,7 +112,7 @@ fun TimePickerWithHoursMinutesSeconds() {
                 Separator(2.dp)
                 SelectablePicker(
                     selected = selectedColumn == 1,
-                    state = rememberPickerState(numberOfOptions = 60),
+                    state = rememberPickerState(initialNumberOfOptions = 60),
                     modifier = selectablePickerModifier,
                     separation = separation,
                 ) { minute: Int ->
@@ -123,7 +126,7 @@ fun TimePickerWithHoursMinutesSeconds() {
                 Separator(2.dp)
                 SelectablePicker(
                     selected = selectedColumn == 2,
-                    state = rememberPickerState(numberOfOptions = 60),
+                    state = rememberPickerState(initialNumberOfOptions = 60),
                     modifier = selectablePickerModifier,
                     separation = separation,
                 ) { second: Int ->
@@ -186,7 +189,8 @@ fun TimePickerWith12HourClock() {
             Spacer(Modifier.width(8.dp))
             SelectablePicker(
                 selected = selectedColumn == 0,
-                state = rememberPickerState(numberOfOptions = 12, initiallySelectedOption = 6),
+                state = rememberPickerState(initialNumberOfOptions = 12,
+                    initiallySelectedOption = 6),
                 modifier = Modifier.size(64.dp, 120.dp),
                 separation = (-10).dp,
                 label = { LabelText("Hour") }
@@ -200,7 +204,7 @@ fun TimePickerWith12HourClock() {
             Separator(8.dp)
             SelectablePicker(
                 selected = selectedColumn == 1,
-                state = rememberPickerState(numberOfOptions = 60),
+                state = rememberPickerState(initialNumberOfOptions = 60),
                 modifier = Modifier.size(64.dp, 120.dp),
                 separation = (-10).dp,
                 label = { LabelText("Minute") }
@@ -228,22 +232,37 @@ fun TimePickerWith12HourClock() {
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun DatePicker() {
-    val calendar = Calendar.getInstance()
-    val dayState = rememberPickerState(
-        numberOfOptions = 31,
-        initiallySelectedOption = calendar.get(Calendar.DAY_OF_MONTH) - 1)
-    val monthState = rememberPickerState(
-        numberOfOptions = 12,
-        initiallySelectedOption = calendar.get(Calendar.MONTH))
+    val today = remember { Calendar.getInstance() }
     val yearState = rememberPickerState(
-        numberOfOptions = 3000,
-        initiallySelectedOption = calendar.get(Calendar.YEAR) - 1)
+        initialNumberOfOptions = 3000,
+        initiallySelectedOption = today.get(Calendar.YEAR) - 1)
+    val monthState = rememberPickerState(
+        initialNumberOfOptions = 12,
+        initiallySelectedOption = today.get(Calendar.MONTH))
+    val monthCalendar = remember { Calendar.getInstance() }
+    val maxDayInMonth by remember {
+        derivedStateOf {
+            monthCalendar.set(yearState.selectedOption + 1, monthState.selectedOption, 1)
+            val max = monthCalendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+            max
+        }
+    }
+    val dayState = rememberPickerState(
+        initialNumberOfOptions = maxDayInMonth,
+        initiallySelectedOption = today.get(Calendar.DAY_OF_MONTH) - 1
+    )
+    LaunchedEffect(maxDayInMonth) {
+        if (maxDayInMonth != dayState.numberOfOptions) {
+            dayState.numberOfOptions = maxDayInMonth
+        }
+    }
     val monthNames = remember {
         val months = 0..11
         months.map {
             // Translate month index into 3-character month string e.g. Jan.
             // Using deprecated Date constructor rather than LocalDate in order to avoid
             // requirement for API 26+.
+            val calendar = Calendar.getInstance()
             calendar.set(2022, it, 1)
             SimpleDateFormat("MMM").format(calendar.getTime())
         }
