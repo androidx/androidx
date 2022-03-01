@@ -150,7 +150,7 @@ class ScalingLazyListState constructor(
                     viewportHeightPx.value!! / 2f - layoutInfo.visibleItemsInfo.last().size
                 } else {
                     viewportHeightPx.value!! / 2f -
-                        layoutInfo.visibleItemsInfo.last().unadjustedSize() / 2f
+                        layoutInfo.visibleItemsInfo.last().unadjustedSize / 2f
                 }.roundToInt() - gapBetweenItemsPx.value!!
             } else {
                 0
@@ -522,7 +522,7 @@ class ScalingLazyListState constructor(
         // we have more than enough content before it to make sure it can be scrolled to the center
         // of the viewport
         val initialCenterItemSize =
-            visibleItems.find { it.index == itemIndexToFind }?.unadjustedSize() ?: return 0
+            visibleItems.find { it.index == itemIndexToFind }?.unadjustedSize ?: return 0
 
         // Determine how much space we actually need
         var spaceNeeded = spaceNeeded(initialCenterItemSize)
@@ -532,7 +532,7 @@ class ScalingLazyListState constructor(
             visibleItems.map {
                 if (it.index < itemIndexToFind) {
                     // Reduce the space needed
-                    spaceNeeded = spaceNeeded - gapBetweenItemsPx.value!! - it.unadjustedSize()
+                    spaceNeeded = spaceNeeded - gapBetweenItemsPx.value!! - it.unadjustedSize
                 }
             }
         }
