@@ -19,7 +19,6 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.StringDef
 
 /** List of supported device types on Health Platform. */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public object DeviceTypes {
     const val UNKNOWN = "UNKNOWN"
     const val WATCH = "WATCH"

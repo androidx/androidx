@@ -16,18 +16,22 @@
 package androidx.health.data.client.metadata
 
 /**
- * The physical device (such as phone, watch, scale, or chest strap) that captured associated health
- * record.
+ * A physical device (such as phone, watch, scale, or chest strap) which captured associated health
+ * data point.
  *
- * [Device] needs to be populated by users of the API. Fields not provided by clients will remain
- * absent. Two devices with corresponding unknown fields will compare as equal, but may represent
- * different devices.
+ * Device needs to be populated by users of the API. Metadata fields not provided by clients will
+ * remain absent.
+ *
+ * @property identifier an optional client supplied identifier for the device
+ * @property manufacturer an optional client supplied manufacturer of the device
+ * @property model an optional client supplied model of the device
+ * @property type an optional client supplied type of the device
  */
 public class Device(
     public val identifier: String? = null,
     public val manufacturer: String? = null,
     public val model: String? = null,
-    public val type: String? = null
+    @property:DeviceType public val type: String? = null
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
