@@ -103,6 +103,7 @@ package androidx.wear.watchface.client {
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationSlotState> getComplicationSlotsState();
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public java.time.Instant getPreviewReferenceInstant();
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public androidx.wear.watchface.style.UserStyleSchema getUserStyleSchema();
+    method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public default byte[] getUserStyleSchemaDigestHash() throws android.os.RemoteException;
     method @AnyThread public boolean isConnectionAlive();
     method @AnyThread public void removeClientDisconnectListener(androidx.wear.watchface.client.HeadlessWatchFaceClient.ClientDisconnectListener listener);
     method @RequiresApi(27) @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public android.graphics.Bitmap? renderComplicationToBitmap(int complicationSlotId, androidx.wear.watchface.RenderParameters renderParameters, java.time.Instant instant, androidx.wear.watchface.complications.data.ComplicationData complicationData, androidx.wear.watchface.style.UserStyle? userStyle) throws android.os.RemoteException;

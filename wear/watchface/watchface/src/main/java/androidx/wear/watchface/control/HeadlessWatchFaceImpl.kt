@@ -117,6 +117,11 @@ internal class HeadlessWatchFaceImpl(
             "HeadlessWatchFaceImpl.getUserStyleSchema"
         ) { watchFaceImpl -> watchFaceImpl.currentUserStyleRepository.schema.toWireFormat() }
 
+    override fun computeUserStyleSchemaDigestHash() =
+        awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
+            "HeadlessWatchFaceImpl.getUserStyleSchema"
+        ) { watchFaceImpl -> watchFaceImpl.currentUserStyleRepository.schema.getDigestHash() }
+
     override fun release() {
         TraceEvent("HeadlessWatchFaceImpl.release").use {
             runBlocking {
