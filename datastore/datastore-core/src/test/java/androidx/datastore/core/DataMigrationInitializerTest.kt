@@ -21,8 +21,9 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.test.TestCoroutineScope
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -53,7 +54,7 @@ class DataMigrationInitializerTest {
     }
 
     @Test
-    fun testMigration() = runBlockingTest {
+    fun testMigration() = runTest {
         val migrateTo100 = TestingDataMigration(migration = { 100 })
 
         val store = newDataStore(
@@ -68,7 +69,7 @@ class DataMigrationInitializerTest {
     }
 
     @Test
-    fun testMultipleDataMigrationsExecuted() = runBlockingTest {
+    fun testMultipleDataMigrationsExecuted() = runTest {
         val migratePlus2 = TestingDataMigration(migration = { it.inc().inc() })
         val migratePlus3 = TestingDataMigration(migration = { it.inc().inc().inc() })
 
@@ -84,7 +85,7 @@ class DataMigrationInitializerTest {
     }
 
     @Test
-    fun testCleanupRunAfterMigration() = runBlockingTest {
+    fun testCleanupRunAfterMigration() = runTest {
         val continueMigration = CompletableDeferred<Byte>()
         val cleanUpFinished = CompletableDeferred<Unit>()
 
@@ -107,6 +108,7 @@ class DataMigrationInitializerTest {
         assertThat(getData.await()).isEqualTo(5)
     }
 
+    @Suppress("DEPRECATION") // b/220884145
     @Test
     fun testCleanupNotRunAfterFailedMigrate() = runBlockingTest {
         val continueMigration = CompletableDeferred<Byte>()
@@ -132,6 +134,7 @@ class DataMigrationInitializerTest {
         assertThat(cleanUpFinished.isCompleted).isFalse()
     }
 
+    @Suppress("DEPRECATION") // b/220884145
     @Test
     fun testCleanupNotRunAfterFailedUpdate() = runBlockingTest {
         val continueMigration = CompletableDeferred<Byte>()
@@ -160,7 +163,7 @@ class DataMigrationInitializerTest {
     }
 
     @Test
-    fun testCleanUpErrorPropagates() = runBlockingTest {
+    fun testCleanUpErrorPropagates() = runTest {
         val cleanUpFailingMigration = TestingDataMigration(
             cleanUpFunction = {
                 throw IOException("Clean up failure")
@@ -177,7 +180,7 @@ class DataMigrationInitializerTest {
     }
 
     @Test
-    fun testShouldMigrateUsed() = runBlockingTest {
+    fun testShouldMigrateUsed() = runTest {
         val neverRunMigration = TestingDataMigration(shouldMigrate = false, migration = { 99 })
 
         val store = newDataStore(
@@ -189,14 +192,14 @@ class DataMigrationInitializerTest {
         assertThat(store.data.first()).isEqualTo(0)
     }
 
-    private fun newDataStore(
+    private fun CoroutineScope.newDataStore(
         initTasksList: List<suspend (api: InitializerApi<Byte>) -> Unit> = listOf(),
         serializer: TestingSerializer = TestingSerializer()
     ): DataStore<Byte> {
         return SingleProcessDataStore(
             { testFile },
             serializer = serializer,
-            scope = TestCoroutineScope(),
+            scope = this,
             initTasksList = initTasksList
         )
     }

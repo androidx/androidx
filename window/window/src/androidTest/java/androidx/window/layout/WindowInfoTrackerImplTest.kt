@@ -22,10 +22,11 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.window.TestActivity
 import androidx.window.TestConsumer
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.Job
 import org.junit.Rule
 import org.junit.Test
 import java.util.concurrent.Executor
@@ -37,10 +38,10 @@ public class WindowInfoTrackerImplTest {
     public val activityScenario: ActivityScenarioRule<TestActivity> =
         ActivityScenarioRule(TestActivity::class.java)
 
-    private val testScope = TestCoroutineScope()
+    private val testScope = TestScope(UnconfinedTestDispatcher())
 
     @Test
-    public fun testWindowLayoutFeatures(): Unit = testScope.runBlockingTest {
+    public fun testWindowLayoutFeatures(): Unit = testScope.runTest {
         activityScenario.scenario.onActivity { testActivity ->
             val windowMetricsCalculator = WindowMetricsCalculatorCompat
             val fakeBackend = FakeWindowBackend()
@@ -49,7 +50,7 @@ public class WindowInfoTrackerImplTest {
                 fakeBackend
             )
             val collector = TestConsumer<WindowLayoutInfo>()
-            testScope.launch {
+            testScope.launch(Job()) {
                 repo.windowLayoutInfo(testActivity).collect(collector::accept)
             }
             fakeBackend.triggerSignal(WindowLayoutInfo(emptyList()))
@@ -58,7 +59,7 @@ public class WindowInfoTrackerImplTest {
     }
 
     @Test
-    public fun testWindowLayoutFeatures_multicasting(): Unit = testScope.runBlockingTest {
+    public fun testWindowLayoutFeatures_multicasting(): Unit = testScope.runTest {
         activityScenario.scenario.onActivity { testActivity ->
             val windowMetricsCalculator = WindowMetricsCalculatorCompat
             val fakeBackend = FakeWindowBackend()
@@ -67,10 +68,11 @@ public class WindowInfoTrackerImplTest {
                 fakeBackend
             )
             val collector = TestConsumer<WindowLayoutInfo>()
-            testScope.launch {
+            val job = Job()
+            launch(job) {
                 repo.windowLayoutInfo(testActivity).collect(collector::accept)
             }
-            testScope.launch {
+            launch(job) {
                 repo.windowLayoutInfo(testActivity).collect(collector::accept)
             }
             fakeBackend.triggerSignal(WindowLayoutInfo(emptyList()))

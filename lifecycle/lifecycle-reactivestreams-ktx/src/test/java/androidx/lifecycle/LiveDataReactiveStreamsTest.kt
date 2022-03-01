@@ -21,7 +21,7 @@ import androidx.lifecycle.testing.TestLifecycleOwner
 import com.google.common.truth.Truth.assertThat
 import io.reactivex.processors.PublishProcessor
 import io.reactivex.processors.ReplayProcessor
-import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -33,7 +33,7 @@ class LiveDataReactiveStreamsTest {
 
     @Before fun init() {
         @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-        lifecycleOwner = TestLifecycleOwner(coroutineDispatcher = TestCoroutineDispatcher())
+        lifecycleOwner = TestLifecycleOwner(coroutineDispatcher = UnconfinedTestDispatcher())
     }
 
     @Test fun convertsFromPublisher() {

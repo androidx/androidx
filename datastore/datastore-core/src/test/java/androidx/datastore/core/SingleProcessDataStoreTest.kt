@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION") // b/220884658
+
 package androidx.datastore.core
 
 import androidx.datastore.core.handlers.NoOpCorruptionHandler

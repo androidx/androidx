@@ -25,16 +25,16 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.withContext
 import org.junit.Test
 import java.util.concurrent.CancellationException
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 
 @OptIn(ExperimentalCoroutinesApi::class)
 abstract class LifecycleCoroutineScopeTestBase {
     @Test
     fun initialization() {
-        val owner = TestLifecycleOwner(Lifecycle.State.INITIALIZED, TestCoroutineDispatcher())
+        val owner = TestLifecycleOwner(Lifecycle.State.INITIALIZED, UnconfinedTestDispatcher())
         val scope = owner.lifecycleScope
         assertThat(owner.lifecycle.mInternalScopeRef.get()).isSameInstanceAs(scope)
         val scope2 = owner.lifecycleScope
@@ -46,7 +46,7 @@ abstract class LifecycleCoroutineScopeTestBase {
 
     @Test
     fun simpleLaunch() {
-        val owner = TestLifecycleOwner(Lifecycle.State.INITIALIZED, TestCoroutineDispatcher())
+        val owner = TestLifecycleOwner(Lifecycle.State.INITIALIZED, UnconfinedTestDispatcher())
         assertThat(
             runBlocking {
                 owner.lifecycleScope.async {
@@ -59,7 +59,7 @@ abstract class LifecycleCoroutineScopeTestBase {
 
     @Test
     fun launchAfterDestroy() {
-        val owner = TestLifecycleOwner(Lifecycle.State.CREATED, TestCoroutineDispatcher())
+        val owner = TestLifecycleOwner(Lifecycle.State.CREATED, UnconfinedTestDispatcher())
         owner.lifecycle.currentState = Lifecycle.State.DESTROYED
         runBlocking {
             owner.lifecycleScope.launch {
@@ -71,7 +71,7 @@ abstract class LifecycleCoroutineScopeTestBase {
 
     @Test
     fun launchOnMain() {
-        val owner = TestLifecycleOwner(Lifecycle.State.STARTED, TestCoroutineDispatcher())
+        val owner = TestLifecycleOwner(Lifecycle.State.STARTED, UnconfinedTestDispatcher())
         assertThat(
             runBlocking(Dispatchers.Main) {
                 owner.lifecycleScope.async {
@@ -83,7 +83,7 @@ abstract class LifecycleCoroutineScopeTestBase {
 
     @Test
     fun launchOnIO() {
-        val owner = TestLifecycleOwner(Lifecycle.State.STARTED, TestCoroutineDispatcher())
+        val owner = TestLifecycleOwner(Lifecycle.State.STARTED, UnconfinedTestDispatcher())
         assertThat(
             runBlocking(Dispatchers.IO) {
                 owner.lifecycleScope.async {
@@ -97,7 +97,7 @@ abstract class LifecycleCoroutineScopeTestBase {
     fun destroyWhileRunning() {
         val startMutex = Mutex(locked = true)
         val alwaysLocked = Mutex(locked = true)
-        val owner = TestLifecycleOwner(Lifecycle.State.STARTED, TestCoroutineDispatcher())
+        val owner = TestLifecycleOwner(Lifecycle.State.STARTED, UnconfinedTestDispatcher())
         val actionWasActive = owner.lifecycleScope.async(Dispatchers.IO) {
             startMutex.unlock()
             alwaysLocked.lock() // wait 4ever
@@ -112,7 +112,7 @@ abstract class LifecycleCoroutineScopeTestBase {
 
     @Test
     fun throwException() {
-        val owner = TestLifecycleOwner(Lifecycle.State.STARTED, TestCoroutineDispatcher())
+        val owner = TestLifecycleOwner(Lifecycle.State.STARTED, UnconfinedTestDispatcher())
         runBlocking {
             val action = owner.lifecycleScope.async {
                 throw RuntimeException("foo")
@@ -126,7 +126,7 @@ abstract class LifecycleCoroutineScopeTestBase {
 
     @Test
     fun throwException_onStart() {
-        val owner = TestLifecycleOwner(Lifecycle.State.CREATED, TestCoroutineDispatcher())
+        val owner = TestLifecycleOwner(Lifecycle.State.CREATED, UnconfinedTestDispatcher())
         runBlocking {
             // TODO guarantee later execution
             val action = owner.lifecycleScope.async {
@@ -144,7 +144,7 @@ abstract class LifecycleCoroutineScopeTestBase {
 
     @Test
     fun runAnotherAfterCancellation_cancelOutside() {
-        val owner = TestLifecycleOwner(Lifecycle.State.STARTED, TestCoroutineDispatcher())
+        val owner = TestLifecycleOwner(Lifecycle.State.STARTED, UnconfinedTestDispatcher())
         runBlocking {
             val action = owner.lifecycleScope.async {
                 delay(20000)
@@ -163,7 +163,7 @@ abstract class LifecycleCoroutineScopeTestBase {
 
     @Test
     fun runAnotherAfterCancellation_cancelInside() {
-        val owner = TestLifecycleOwner(Lifecycle.State.STARTED, TestCoroutineDispatcher())
+        val owner = TestLifecycleOwner(Lifecycle.State.STARTED, UnconfinedTestDispatcher())
         runBlocking {
             val action = owner.lifecycleScope.async {
                 throw CancellationException("")
@@ -181,7 +181,7 @@ abstract class LifecycleCoroutineScopeTestBase {
 
     @Test
     fun runAnotherAfterFailure() {
-        val owner = TestLifecycleOwner(Lifecycle.State.STARTED, TestCoroutineDispatcher())
+        val owner = TestLifecycleOwner(Lifecycle.State.STARTED, UnconfinedTestDispatcher())
         runBlocking {
             val action = owner.lifecycleScope.async {
                 throw IllegalArgumentException("why not ?")

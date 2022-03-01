@@ -40,8 +40,9 @@ import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertNotNull
 import org.junit.Assume.assumeTrue
 import org.junit.Before
@@ -86,8 +87,8 @@ public class SidecarCompatDeviceTest : WindowTestBase(), CompatDeviceTestInterfa
 
     @Test
     fun testWindowLayoutCallbackOnConfigChange() {
-        val testScope = TestCoroutineScope()
-        testScope.runBlockingTest {
+        val testScope = TestScope(UnconfinedTestDispatcher())
+        testScope.runTest {
             val scenario = ActivityScenario.launch(TestConfigChangeHandlingActivity::class.java)
             val callbackInterface = mock<ExtensionCallbackInterface>()
             scenario.onActivity { activity ->

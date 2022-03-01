@@ -66,12 +66,12 @@ class BuildLiveDataTest {
             unsubscribe()
         }
         // trigger cancellation
-        mainScope.advanceTimeBy(100)
+        mainScope.testScheduler.advanceTimeBy(100)
         assertThat(ld.hasActiveObservers()).isFalse()
         ld.addObserver().apply {
             scopes.triggerAllActions()
             assertItems(2, 1, 2)
-            mainScope.advanceTimeBy(1001)
+            mainScope.testScheduler.advanceTimeBy(1001)
             assertItems(2, 1, 2, 3)
         }
     }
@@ -89,13 +89,13 @@ class BuildLiveDataTest {
             unsubscribe()
         }
         // advance some but not enough to cover the delay
-        mainScope.advanceTimeBy(500)
+        mainScope.testScheduler.advanceTimeBy(500)
         assertThat(ld.hasActiveObservers()).isFalse()
         assertThat(ld.value).isEqualTo(2)
         ld.addObserver().apply {
             assertItems(2)
             // advance enough to cover the rest of the delay
-            mainScope.advanceTimeBy(501)
+            mainScope.testScheduler.advanceTimeBy(501)
             assertItems(2, 3)
         }
     }
@@ -118,12 +118,13 @@ class BuildLiveDataTest {
             unsubscribe()
         }
         // advance some but not enough to cover the delay
-        mainScope.advanceTimeBy(4_000)
+        mainScope.testScheduler.advanceTimeBy(4_000)
         assertThat(running.isActive).isTrue()
         assertThat(ld.hasActiveObservers()).isFalse()
         assertThat(ld.value).isEqualTo(1)
         // advance time to finish
-        mainScope.advanceTimeBy(1_000)
+        mainScope.testScheduler.advanceTimeBy(1_000)
+        mainScope.testScheduler.runCurrent()
         // ensure it is not running anymore
         assertThat(running.isActive).isFalse()
         assertThat(ld.value).isEqualTo(1)

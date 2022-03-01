@@ -22,23 +22,23 @@ import androidx.glance.findModifier
 import androidx.glance.unit.Dimension
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertIs
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SpacerTest {
-    private lateinit var fakeCoroutineScope: TestCoroutineScope
+    private lateinit var fakeCoroutineScope: TestScope
 
     @Before
     fun setUp() {
-        fakeCoroutineScope = TestCoroutineScope()
+        fakeCoroutineScope = TestScope()
     }
 
     @Test
-    fun createSpacerWithWidth() = fakeCoroutineScope.runBlockingTest {
+    fun createSpacerWithWidth() = fakeCoroutineScope.runTest {
         val root = runTestingComposition {
             Spacer(GlanceModifier.width(10.dp))
         }
@@ -53,7 +53,7 @@ class SpacerTest {
     }
 
     @Test
-    fun createSpacerWithHeight() = fakeCoroutineScope.runBlockingTest {
+    fun createSpacerWithHeight() = fakeCoroutineScope.runTest {
         val root = runTestingComposition {
             Spacer(GlanceModifier.height(10.dp))
         }
@@ -68,7 +68,7 @@ class SpacerTest {
     }
 
     @Test
-    fun createSpacerWithSize() = fakeCoroutineScope.runBlockingTest {
+    fun createSpacerWithSize() = fakeCoroutineScope.runTest {
         val root = runTestingComposition {
             Spacer(GlanceModifier.size(10.dp, 15.dp))
         }
