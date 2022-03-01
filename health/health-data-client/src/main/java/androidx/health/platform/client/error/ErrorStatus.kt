@@ -27,7 +27,7 @@ import java.lang.reflect.Field
 class ErrorStatus
 constructor(
     @ErrorCode val errorCode: Int,
-    private val errorMessage: String? = null
+    internal val errorMessage: String? = null
 ) : ProtoParcelable<ErrorProto.ErrorStatus>() {
 
     override val proto: ErrorProto.ErrorStatus by lazy {

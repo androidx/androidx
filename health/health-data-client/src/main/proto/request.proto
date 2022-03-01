@@ -1,0 +1,103 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+syntax = "proto2";
+
+package androidx.health.platform.client.proto;
+
+import "data.proto";
+import "time.proto";
+
+option java_package = "androidx.health.platform.client.proto";
+option java_outer_classname = "RequestProto";
+
+message SimpleDataRequest {
+  optional DataPoint data_point = 1;
+}
+
+message ReadDataPointRequest {
+  optional DataType data_type = 1;
+  optional string uid = 2;
+  optional string client_id = 3;
+}
+
+message RequestContext {
+  optional string calling_package = 1;
+  optional int32 sdk_version = 2;
+  optional string permission_token = 3;
+  optional bool is_in_foreground = 4;
+}
+
+message AggregationSpec {
+  optional DataType data_type = 1;
+  optional bool sample_data_included = 2;
+  optional bool series_data_included = 3;
+  repeated DataOrigin data_origin = 4;
+}
+
+message ReadAggregatedDataRequest {
+  optional TimeSpec time_spec = 1;
+  repeated AggregationSpec statistical_aggregation_spec = 2;
+  repeated AggregationSpec count_aggregation_spec = 3;
+  repeated AggregationSpec cumulative_aggregation_spec = 4;
+  repeated AggregationSpec duration_aggregation_spec = 5;
+}
+
+message UpsertDataRequest {
+  repeated DataPoint data_point = 1;
+}
+
+message DataTypeIdPair {
+  optional DataType data_type = 1;
+  optional string id = 2;
+}
+
+message DeleteDataRequest {
+  repeated DataTypeIdPair uids = 1;
+  repeated DataTypeIdPair client_ids = 2;
+}
+
+message DeleteDataRangeRequest {
+  optional TimeSpec time_spec = 1;
+  repeated DataType data_type = 2;
+}
+
+message ReadDataRequest {
+  optional DataTypeIdPair data_type_id_pair = 1;
+}
+
+message ReadDataRangeRequest {
+  optional TimeSpec time_spec = 1;
+  optional DataType data_type = 2;
+  repeated DataOrigin data_origin_filters = 3;
+  optional int32 limit = 4;
+  optional int32 page_size = 5;
+  optional string page_token = 6;
+}
+
+message AggregateMetricSpec {
+  optional string data_type_name = 1;
+  // count, duration, etc
+  optional string aggregation_type = 2;
+  optional string field_name = 3;
+}
+
+// Flattened aggregation
+message AggregateDataRequest {
+  optional TimeSpec time_spec = 1;
+  repeated AggregateMetricSpec metric_spec = 2;
+  repeated DataOrigin data_origin = 3;
+  // TODO(b/219339660): Add group by here
+}

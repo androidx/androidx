@@ -13,6 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.health.platform.client.error;
+syntax = "proto2";
 
-parcelable ErrorStatus;
+package androidx.health.platform.client.proto;
+
+option java_package = "androidx.health.platform.client.proto";
+option java_outer_classname = "TimeProto";
+
+message TimeSpec {
+  optional int64 start_time_epoch_ms = 1;
+  optional int64 end_time_epoch_ms = 2;
+  optional string start_local_date_time = 3;
+  optional string end_local_date_time = 4;
+}

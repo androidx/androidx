@@ -13,6 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.health.platform.client.error;
+package androidx.health.platform.client.service;
 
-parcelable ErrorStatus;
+import androidx.health.platform.client.error.ErrorStatus;
+import androidx.health.platform.client.response.InsertDataResponse;
+
+oneway interface IInsertDataCallback {
+  void onSuccess(in InsertDataResponse response) = 0;
+  void onError(in ErrorStatus status) = 1;
+}
