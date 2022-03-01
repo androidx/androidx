@@ -20,12 +20,11 @@ package androidx.health.platform.client.proto;
 option java_package = "androidx.health.platform.client.proto";
 option java_outer_classname = "DataProto";
 
-// A string value with data type name.
+// Unknown data type names will be ignored.
 message DataType {
   optional string name = 1;
 }
 
-// A union of either a long, double, string or enum value.
 message Value {
   oneof value {
     int64 long_val = 1;
@@ -35,7 +34,6 @@ message Value {
   }
 }
 
-// Serialization for device.
 message Device {
   optional string identifier = 1;
   optional string manufacturer = 2;
@@ -43,18 +41,15 @@ message Device {
   optional string type = 4;
 }
 
-// Serialization for data origin.
 message DataOrigin {
   optional string application_id = 1;
 }
 
-// Serialized individual series value.
 message SeriesValue {
   map<string, Value> values = 1;
   optional int64 instant_time_millis = 2;
 }
 
-// Serialized data point.
 message DataPoint {
   optional DataType data_type = 1;
   map<string, Value> values = 2;
@@ -89,12 +84,10 @@ message DataPoint {
   optional int32 end_zone_offset_seconds = 20;
 }
 
-// Serialized aggregated value, such as min,avg,max.
 message AggregatedValue {
   map<string, Value> values = 1;
 }
 
-// Serialized aggregated data point.
 message AggregateDataPoint {
   optional int64 start_time_epoch_ms = 1;
   optional int64 end_time_epoch_ms = 2;
@@ -111,7 +104,6 @@ message AggregateDataPoint {
   repeated DataOrigin data_origins = 14;
 }
 
-// Serialized flattened aggregation representation.
 message AggregateDataRow {
   optional int64 start_time_epoch_ms = 1;
   optional int64 end_time_epoch_ms = 2;

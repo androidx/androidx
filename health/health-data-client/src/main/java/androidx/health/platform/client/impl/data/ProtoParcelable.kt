@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright (C) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.health.platform.client.impl.data
 
 import android.os.Parcel
@@ -61,6 +60,7 @@ abstract class ProtoParcelable<T : MessageLite> : ProtoData<T>(), Parcelable {
      *
      * @see Parcelable.writeToParcel
      */
+    @Suppress("NewApi") // API only ever used on SDK 27 and above.
     private fun writeToParcelUsingSharedMemory(dest: Parcel, flags: Int) {
         SharedMemory.create("ProtoParcelable", bytes.size).use { memory ->
             memory.setProtect(OsConstants.PROT_READ or OsConstants.PROT_WRITE)
@@ -77,12 +77,14 @@ abstract class ProtoParcelable<T : MessageLite> : ProtoData<T>(), Parcelable {
 
     companion object {
         /**
-         * Constructs and returns a [Creator] based on the provided [parser] accepting a [ByteArray].
+         * Constructs and returns a [Creator] based on the provided [parser] accepting a [ByteArray]
+         * .
          */
-        internal inline fun <reified U : ProtoParcelable<*>> newCreator(
+        inline fun <reified U : ProtoParcelable<*>> newCreator(
             crossinline parser: (ByteArray) -> U
         ): Creator<U> {
             return object : Creator<U> {
+                @Suppress("NewApi") // API only ever used on SDK 27 and above.
                 override fun createFromParcel(source: Parcel): U? {
                     when (val storage = source.readInt()) {
                         STORE_IN_PLACE -> {
@@ -108,10 +110,10 @@ abstract class ProtoParcelable<T : MessageLite> : ProtoData<T>(), Parcelable {
 }
 
 /** Flag marking that a proto is stored as an in-place `byte[]` array. */
-private const val STORE_IN_PLACE = 0
+const val STORE_IN_PLACE = 0
 
 /** Flag marking that a proto is stored in [SharedMemory]. */
-private const val STORE_SHARED_MEMORY = 1
+const val STORE_SHARED_MEMORY = 1
 
 /** Maximum size of a proto stored as an in-place `byte[]` array (16 KiB). */
 private const val MAX_IN_PLACE_SIZE = 16 * 1024

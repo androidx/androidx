@@ -13,6 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.health.platform.client.error;
+package androidx.health.platform.client.service;
 
-parcelable ErrorStatus;
+import androidx.health.platform.client.permission.Permission;
+import androidx.health.platform.client.error.ErrorStatus;
+
+oneway interface IGetGrantedPermissionsCallback {
+  void onSuccess(in List<Permission> permissions) = 0;
+  void onError(in ErrorStatus status) = 1;
+}
+

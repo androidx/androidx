@@ -13,6 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.health.platform.client.error;
+package androidx.health.platform.client.response
 
-parcelable ErrorStatus;
+import android.os.Parcelable
+import androidx.health.platform.client.impl.data.ProtoParcelable
+import androidx.health.platform.client.proto.ResponseProto
+
+class ReadDataResponse(override val proto: ResponseProto.ReadDataResponse) :
+    ProtoParcelable<ResponseProto.ReadDataResponse>() {
+
+    companion object {
+        @JvmField
+        val CREATOR: Parcelable.Creator<ReadDataResponse> =
+            ProtoParcelable.newCreator {
+                val proto = ResponseProto.ReadDataResponse.parseFrom(it)
+                ReadDataResponse(proto)
+            }
+    }
+}
