@@ -15,27 +15,29 @@
  */
 package androidx.health.data.client.records
 
+import androidx.annotation.RestrictTo
 import androidx.annotation.StringDef
 
-/** The arm and part of the arm where a blood pressure measurement was taken. */
-public object BloodPressureMeasurementLocations {
-    public const val LEFT_WRIST = "left_wrist"
-    public const val RIGHT_WRIST = "right_wrist"
-    public const val LEFT_UPPER_ARM = "left_upper_arm"
-    public const val RIGHT_UPPER_ARM = "right_upper_arm"
+/** How firm the user's cervix is. */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+public object CervicalFirmnesses {
+    const val SOFT = "soft"
+    const val A_LITTLE_FIRM = "a_little_firm"
+    const val FIRM = "firm"
 }
 
 /**
- * The arm and part of the arm where a blood pressure measurement was taken.
+ * How firm the user's cervix is.
  * @suppress
  */
 @Retention(AnnotationRetention.SOURCE)
 @StringDef(
     value =
         [
-            BloodPressureMeasurementLocations.LEFT_WRIST,
-            BloodPressureMeasurementLocations.RIGHT_WRIST,
-            BloodPressureMeasurementLocations.LEFT_UPPER_ARM,
-            BloodPressureMeasurementLocations.RIGHT_UPPER_ARM]
+            CervicalFirmnesses.SOFT,
+            CervicalFirmnesses.A_LITTLE_FIRM,
+            CervicalFirmnesses.FIRM,
+        ]
 )
-annotation class BloodPressureMeasurementLocation
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+annotation class CervicalFirmness

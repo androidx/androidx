@@ -15,7 +15,9 @@
  */
 
 /**
- * <p>Helps developer read, write and share user's health and fitness records in a platform agnostic
- * way. </p>
+ * @hide
  */
-package androidx.health.data.client;
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+package androidx.health.data.client.response;
+
+import androidx.annotation.RestrictTo;

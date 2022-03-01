@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.health.data.client.permission
 
-/**
- * <p>Helps developer read, write and share user's health and fitness records in a platform agnostic
- * way. </p>
- */
-package androidx.health.data.client;
+/** Type of access to health data: read or write. */
+public enum class AccessType {
+    UNKNOWN,
+    READ,
+    WRITE
+}

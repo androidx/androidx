@@ -15,26 +15,17 @@
  */
 package androidx.health.data.client.records
 
-import androidx.annotation.StringDef
+import androidx.annotation.RestrictTo
+import java.time.Instant
+import java.time.ZoneOffset
 
-/** The user's body position when a health measurement is taken. */
-public object BodyPositions {
-    public const val STANDING_UP = "standing_up"
-    public const val SITTING_DOWN = "sitting_down"
-    public const val LYING_DOWN = "lying_down"
-    public const val RECLINING = "reclining"
+/** Common interface that records happenned at an instantaneous time inherits. */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+interface InstantaneousRecord : Record {
+    val time: Instant
+    /**
+     * User experienced zoneoffset at [time], or null if unknown. Providing these will help history
+     * aggregations results stay consistent should user travel.
+     */
+    val zoneOffset: ZoneOffset?
 }
-
-/**
- * The user's body position when a health measurement is taken.
- * @suppress
- */
-@StringDef(
-    value =
-        [
-            BodyPositions.STANDING_UP,
-            BodyPositions.SITTING_DOWN,
-            BodyPositions.LYING_DOWN,
-            BodyPositions.RECLINING]
-)
-annotation class BodyPosition

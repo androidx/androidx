@@ -13,9 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.health.data.client.metadata
+
+import androidx.annotation.RestrictTo
+import androidx.health.data.client.records.Record
 
 /**
- * <p>Helps developer read, write and share user's health and fitness records in a platform agnostic
- * way. </p>
+ * Specifies the original source of any [Record]: application that inserted it and device on which
+ * the data was generated.
+ *
+ * [applicationId] is populated automatically by Health Platform at insertion time based on the
+ * caller application ID.
  */
-package androidx.health.data.client;
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+data class DataOrigin(val applicationId: String)

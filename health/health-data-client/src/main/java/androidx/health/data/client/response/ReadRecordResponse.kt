@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The Android Open Source Project
+ * Copyright (C) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.health.data.client.response
+
+import androidx.health.data.client.records.Record
 
 /**
- * <p>Helps developer read, write and share user's health and fitness records in a platform agnostic
- * way. </p>
+ * Response to record read.
+ *
+ * @see [HealthDataClient.readRecord]
  */
-package androidx.health.data.client;
+class ReadRecordResponse<T : Record>
+/* internal */
+constructor(val record: T)
