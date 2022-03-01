@@ -5,6 +5,7 @@ package androidx.wear.ongoing {
     method public void apply(android.content.Context);
     method public android.graphics.drawable.Icon? getAnimatedIcon();
     method public String? getCategory();
+    method public String? getContentDescription();
     method public androidx.core.content.LocusIdCompat? getLocusId();
     method public int getNotificationId();
     method public int getOngoingActivityId();
@@ -27,6 +28,7 @@ package androidx.wear.ongoing {
     method public androidx.wear.ongoing.OngoingActivity.Builder setAnimatedIcon(android.graphics.drawable.Icon?);
     method public androidx.wear.ongoing.OngoingActivity.Builder setAnimatedIcon(@DrawableRes int);
     method public androidx.wear.ongoing.OngoingActivity.Builder setCategory(String?);
+    method public androidx.wear.ongoing.OngoingActivity.Builder setContentDescription(String?);
     method public androidx.wear.ongoing.OngoingActivity.Builder setLocusId(androidx.core.content.LocusIdCompat?);
     method public androidx.wear.ongoing.OngoingActivity.Builder setOngoingActivityId(int);
     method public androidx.wear.ongoing.OngoingActivity.Builder setStaticIcon(android.graphics.drawable.Icon);
