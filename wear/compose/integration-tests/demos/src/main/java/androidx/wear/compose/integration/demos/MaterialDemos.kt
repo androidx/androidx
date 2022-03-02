@@ -456,6 +456,9 @@ val WearMaterialDemos = DemoCategory(
                 ComposableDemo("Hide when no scrollable on ScalingLazyColumn") {
                     HideWhenFullSLCDemo()
                 },
+                ComposableDemo("Controllable PI") {
+                    ControllablePositionIndicator()
+                },
             )
         ),
         ComposableDemo("Curved Text") { CurvedTextDemo() },

@@ -17,6 +17,13 @@
 package androidx.wear.compose.material
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.AnimationVector
+import androidx.compose.animation.core.AnimationVector2D
+import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.TwoWayConverter
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ScrollState
@@ -26,10 +33,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
@@ -40,6 +50,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -47,7 +58,10 @@ import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.asin
 import kotlin.math.max
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /**
  * Enum used by adapters to specify if the Position Indicator needs to be shown, hidden,
@@ -285,9 +299,36 @@ public fun PositionIndicator(
     } else {
         state.positionFraction
     }
-
     var containerHeight by remember { mutableStateOf(1f) }
     val indicatorSize = state.sizeFraction(containerHeight)
+    val displayState = DisplayState(indicatorPosition, indicatorSize)
+
+    val highlightAlpha = remember { Animatable(0f) }
+    val animatedDisplayState = customAnimateValueAsState(
+        displayState,
+        DisplayStateTwoWayConverter,
+        animationSpec = tween(
+            durationMillis = 500,
+            easing = CubicBezierEasing(0f, 0f, 0f, 1f)
+        )
+    ) { _, _ ->
+        launch {
+            highlightAlpha.animateTo(
+                0.33f,
+                animationSpec = tween(
+                    durationMillis = 150,
+                    easing = CubicBezierEasing(0f, 0f, 0.2f, 1f) // Standard In
+                )
+            )
+            highlightAlpha.animateTo(
+                0f,
+                animationSpec = tween(
+                    durationMillis = 500,
+                    easing = CubicBezierEasing(0.25f, 0f, 0.75f, 1f)
+                )
+            )
+        }
+    }
 
     when (state.shouldShow(containerHeight)) {
         ShowResult.Show -> actuallyVisible.value = true
@@ -316,7 +357,8 @@ public fun PositionIndicator(
 
                     // We want position = 0 be the indicator aligned at the top of its area and
                     // position = 1 be aligned at the bottom of the area.
-                    val indicatorStart = indicatorPosition * (1 - indicatorSize)
+                    val indicatorStart = animatedDisplayState.value.position *
+                        (1 - animatedDisplayState.value.size)
 
                     val diameter = max(size.width, size.height)
 
@@ -334,7 +376,8 @@ public fun PositionIndicator(
                             sweepDegrees,
                             indicatorWidthPx,
                             indicatorStart,
-                            indicatorSize
+                            animatedDisplayState.value.size,
+                            highlightAlpha.value
                         )
                     } else {
                         drawStraightIndicator(
@@ -344,13 +387,64 @@ public fun PositionIndicator(
                             indicatorWidthPx,
                             indicatorHeightPx = indicatorHeight.toPx(),
                             indicatorStart,
-                            indicatorSize
+                            animatedDisplayState.value.size,
+                            highlightAlpha.value
                         )
                     }
                 }
         )
     }
 }
+
+// Copy of animateValueAsState, changing the listener to be notified before the animation starts,
+// so we can link this animation with another one.
+@Composable
+internal fun <T, V : AnimationVector> customAnimateValueAsState(
+    targetValue: T,
+    typeConverter: TwoWayConverter<T, V>,
+    animationSpec: AnimationSpec<T>,
+    changeListener: (CoroutineScope.(T, T) -> Unit)? = null
+): State<T> {
+    val animatable = remember { Animatable(targetValue, typeConverter) }
+    val listener by rememberUpdatedState(changeListener)
+    val animSpec by rememberUpdatedState(animationSpec)
+    val channel = remember { Channel<T>(Channel.CONFLATED) }
+    SideEffect {
+        channel.trySend(targetValue)
+    }
+    LaunchedEffect(channel) {
+        for (target in channel) {
+            // This additional poll is needed because when the channel suspends on receive and
+            // two values are produced before consumers' dispatcher resumes, only the first value
+            // will be received.
+            // It may not be an issue elsewhere, but in animation we want to avoid being one
+            // frame late.
+            val newTarget = channel.tryReceive().getOrNull() ?: target
+            launch {
+                if (newTarget != animatable.targetValue) {
+                    listener?.invoke(this, animatable.value, newTarget)
+                    animatable.animateTo(newTarget, animSpec)
+                }
+            }
+        }
+    }
+    return animatable.asState()
+}
+
+internal class DisplayState(
+    val position: Float,
+    val size: Float,
+)
+
+internal val DisplayStateTwoWayConverter: TwoWayConverter<DisplayState, AnimationVector2D> =
+    TwoWayConverter(
+        convertToVector = { ds ->
+            AnimationVector2D(ds.position, ds.size)
+        },
+        convertFromVector = { av ->
+            DisplayState(av.v1, av.v2)
+        }
+    )
 
 /**
  * An implementation of [PositionIndicatorState] to display a value that is being incremented or
@@ -626,7 +720,8 @@ private fun ContentDrawScope.drawCurvedIndicator(
     sweepDegrees: Float,
     indicatorWidthPx: Float,
     indicatorStart: Float,
-    indicatorSize: Float
+    indicatorSize: Float,
+    highlightAlpha: Float
 ) {
     val diameter = max(size.width, size.height)
     val arcSize = Size(
@@ -647,7 +742,7 @@ private fun ContentDrawScope.drawCurvedIndicator(
         style = Stroke(width = indicatorWidthPx, cap = StrokeCap.Round)
     )
     drawArc(
-        color,
+        lerp(color, Color.White, highlightAlpha),
         startAngle = sweepDegrees * (-0.5f + indicatorStart),
         sweepAngle = sweepDegrees * indicatorSize,
         useCenter = false,
@@ -664,7 +759,8 @@ private fun ContentDrawScope.drawStraightIndicator(
     indicatorWidthPx: Float,
     indicatorHeightPx: Float,
     indicatorStart: Float,
-    indicatorSize: Float
+    indicatorSize: Float,
+    highlightAlpha: Float
 ) {
     val lineTop = Offset(
         size.width - paddingRightPx - indicatorWidthPx / 2,
@@ -679,7 +775,7 @@ private fun ContentDrawScope.drawStraightIndicator(
         cap = StrokeCap.Round
     )
     drawLine(
-        color = color,
+        lerp(color, Color.White, highlightAlpha),
         lerp(lineTop, lineBottom, indicatorStart),
         lerp(lineTop, lineBottom, indicatorStart + indicatorSize),
         strokeWidth = indicatorWidthPx,
