@@ -24,6 +24,8 @@ import static androidx.wear.tiles.material.Typography.TYPOGRAPHY_DISPLAY1;
 import static androidx.wear.tiles.material.Typography.getFontStyleBuilder;
 import static androidx.wear.tiles.material.Typography.getLineHeightForTypography;
 
+import android.content.Context;
+
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
@@ -53,15 +55,26 @@ public class Text implements LayoutElement {
 
     /** Builder class for {@link Text}. */
     public static final class Builder implements LayoutElement.Builder {
+        @NonNull private final Context mContext;
         @NonNull private String mTextContent = "";
         @NonNull private ColorProp mColor = argb(Colors.ON_PRIMARY);
         private @TypographyName int mTypographyName = TYPOGRAPHY_DISPLAY1;
         private boolean mItalic = false;
         private int mMaxLines = 1;
         private boolean mUnderline = false;
-        private @TextAlignment int mMultilineAlignment = TEXT_ALIGN_CENTER;
+        @TextAlignment private int mMultilineAlignment = TEXT_ALIGN_CENTER;
         @NonNull private Modifiers mModifiers = new Modifiers.Builder().build();
         private @TextOverflow int mOverflow = TEXT_OVERFLOW_TRUNCATE;
+        private boolean mIsScalable = true;
+
+        /**
+         * Creates a builder for {@link Text}.
+         *
+         * @param context The application's context.
+         */
+        public Builder(@NonNull Context context) {
+            mContext = context;
+        }
 
         /** Sets the text content for the {@link Text}. */
         @NonNull
@@ -81,6 +94,12 @@ public class Text implements LayoutElement {
         // FontStyle object of that text.
         public Builder setTypography(@TypographyName int typography) {
             this.mTypographyName = typography;
+            return this;
+        }
+
+        /** Sets whether the text size will change if user has changed default font style or not. */
+        Builder setIsScalable(boolean isScalable) {
+            this.mIsScalable = isScalable;
             return this;
         }
 
@@ -149,7 +168,7 @@ public class Text implements LayoutElement {
                     new LayoutElementBuilders.Text.Builder()
                             .setText(mTextContent)
                             .setFontStyle(
-                                    getFontStyleBuilder(mTypographyName)
+                                    getFontStyleBuilder(mTypographyName, mContext, mIsScalable)
                                             .setColor(mColor)
                                             .setItalic(mItalic)
                                             .setUnderline(mUnderline)
@@ -192,7 +211,8 @@ public class Text implements LayoutElement {
     }
 
     /** Returns the multiline alignment of this Text element. */
-    public @TextAlignment int getMultilineAlignment() {
+    @TextAlignment
+    public int getMultilineAlignment() {
         return checkNotNull(mText.getMultilineAlignment()).getValue();
     }
 
@@ -203,7 +223,8 @@ public class Text implements LayoutElement {
     }
 
     /** Returns the overflow of this Text element. */
-    public @TextOverflow int getOverflow() {
+    @TextOverflow
+    public int getOverflow() {
         return checkNotNull(mText.getOverflow()).getValue();
     }
 

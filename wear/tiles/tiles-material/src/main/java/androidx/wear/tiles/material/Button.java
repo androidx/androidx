@@ -26,6 +26,8 @@ import static androidx.wear.tiles.material.ButtonDefaults.PRIMARY_BUTTON_COLORS;
 import static androidx.wear.tiles.material.Helper.checkNotNull;
 import static androidx.wear.tiles.material.Helper.radiusOf;
 
+import android.content.Context;
+
 import androidx.annotation.Dimension;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -83,6 +85,7 @@ public class Button implements LayoutElement {
         @IntDef({NOT_SET, ICON, TEXT, IMAGE, CUSTOM_CONTENT})
         @interface ButtonType {}
 
+        @NonNull private final Context mContext;
         @Nullable private LayoutElement mCustomContent;
         @NonNull private final Clickable mClickable;
         @NonNull private String mContentDescription = "";
@@ -95,7 +98,7 @@ public class Button implements LayoutElement {
         @Nullable private DpProp mIconSize = null;
         @Nullable private String mImage = null;
         @NonNull private ButtonColors mButtonColors = PRIMARY_BUTTON_COLORS;
-        private @ButtonType int mType = NOT_SET;
+        @ButtonType private int mType = NOT_SET;
         private boolean mDefaultSize = false;
 
         /**
@@ -103,11 +106,13 @@ public class Button implements LayoutElement {
          * later set with one of the following ({@link #setIconContent}, {@link #setTextContent},
          * {@link #setImageContent}.
          *
+         * @param context The application's context.
          * @param clickable Associated {@link Clickable} for click events. When the Button is
          *     clicked it will fire the associated action.
          */
-        public Builder(@NonNull Clickable clickable) {
+        public Builder(@NonNull Context context, @NonNull Clickable clickable) {
             mClickable = clickable;
+            mContext = context;
         }
 
         /**
@@ -339,7 +344,7 @@ public class Button implements LayoutElement {
                                     ? mTypographyName
                                     : getDefaultTypographyForSize(mSize);
                     content =
-                            new Text.Builder()
+                            new Text.Builder(mContext)
                                     .setText(checkNotNull(mText))
                                     .setMaxLines(1)
                                     .setTypography(typographyName)
@@ -477,7 +482,8 @@ public class Button implements LayoutElement {
      * color because if the content is set by some of the provided setters in the Builder it will
      * have color.
      */
-    private @Builder.ButtonType int getType(LayoutElement element) {
+    @Builder.ButtonType
+    private int getType(LayoutElement element) {
         // To elementary Text class as Material Text when it goes to proto disappears.
         if (element instanceof LayoutElementBuilders.Text) {
             FontStyle fontStyle = ((LayoutElementBuilders.Text) element).getFontStyle();

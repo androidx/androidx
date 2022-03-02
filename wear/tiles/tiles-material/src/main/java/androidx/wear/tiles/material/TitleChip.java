@@ -23,6 +23,8 @@ import static androidx.wear.tiles.material.ChipDefaults.TITLE_HEIGHT;
 import static androidx.wear.tiles.material.ChipDefaults.TITLE_HORIZONTAL_PADDING;
 import static androidx.wear.tiles.material.ChipDefaults.TITLE_PRIMARY;
 
+import android.content.Context;
+
 import androidx.annotation.Dimension;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -56,11 +58,12 @@ public class TitleChip implements LayoutElement {
 
     /** Builder class for {@link TitleChip}. */
     public static final class Builder implements LayoutElement.Builder {
+        @NonNull private final Context mContext;
         @NonNull private final String mText;
         @NonNull private final Clickable mClickable;
         @NonNull private final DeviceParameters mDeviceParameters;
         @NonNull private ChipColors mChipColors = TITLE_PRIMARY;
-        private @HorizontalAlignment int mHorizontalAlign = HORIZONTAL_ALIGN_CENTER;
+        @HorizontalAlignment private int mHorizontalAlign = HORIZONTAL_ALIGN_CENTER;
 
         // Indicates that the width isn't set, so it will be automatically set by Chip.Builder
         // constructor.
@@ -69,6 +72,7 @@ public class TitleChip implements LayoutElement {
         /**
          * Creates a builder for the {@link TitleChip} with associated action and the given text
          *
+         * @param context The application's context.
          * @param text The text to be displayed in this title chip. Text will be displayed in 1 line
          *     and truncated if it doesn't fit.
          * @param clickable Associated {@link Clickable} for click events. When the TitleChip is
@@ -76,9 +80,11 @@ public class TitleChip implements LayoutElement {
          * @param deviceParameters The device parameters used for styling text.
          */
         public Builder(
+                @NonNull Context context,
                 @NonNull String text,
                 @NonNull Clickable clickable,
                 @NonNull DeviceParameters deviceParameters) {
+            this.mContext = context;
             this.mText = text;
             this.mClickable = clickable;
             this.mDeviceParameters = deviceParameters;
@@ -129,7 +135,7 @@ public class TitleChip implements LayoutElement {
         @Override
         public TitleChip build() {
             Chip.Builder chipBuilder =
-                    new Chip.Builder(mClickable, mDeviceParameters)
+                    new Chip.Builder(mContext, mClickable, mDeviceParameters)
                             .setChipColors(mChipColors)
                             .setContentDescription(mText)
                             .setHorizontalAlignment(mHorizontalAlign)
@@ -137,7 +143,8 @@ public class TitleChip implements LayoutElement {
                             .setMaxLines(1)
                             .setHorizontalPadding(TITLE_HORIZONTAL_PADDING)
                             .setPrimaryTextContent(mText)
-                            .setPrimaryTextTypography(Typography.TYPOGRAPHY_TITLE2);
+                            .setPrimaryTextTypography(Typography.TYPOGRAPHY_TITLE2)
+                            .setIsPrimaryTextScalable(false);
 
             if (mWidth != null) {
                 chipBuilder.setWidth(mWidth);
@@ -184,7 +191,8 @@ public class TitleChip implements LayoutElement {
     }
 
     /** Returns the horizontal alignment of the content in this Chip. */
-    public @HorizontalAlignment int getHorizontalAlignment() {
+    @HorizontalAlignment
+    public int getHorizontalAlignment() {
         return mElement.getHorizontalAlignment();
     }
 
