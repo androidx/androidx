@@ -111,6 +111,9 @@ internal class ScalingLazyColumnSnapFlingBehavior(
 
             // avoid rounding errors and stop if anything is unconsumed
             if (abs(delta - consumed) > 0.5f) this.cancelAnimation()
+
+            // Stop when we are there.
+            if (abs(lastValue * velocityAdjustment - targetValue) < 1f) this.cancelAnimation()
         }
     }
 }
