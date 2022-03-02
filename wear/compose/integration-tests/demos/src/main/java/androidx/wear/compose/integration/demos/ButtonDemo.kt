@@ -20,8 +20,10 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,9 +37,11 @@ import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.ButtonDefaults
 import androidx.wear.compose.material.CompactButton
+import androidx.wear.compose.material.ListHeader
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.ToggleButton
+import androidx.wear.compose.material.rememberScalingLazyListState
 
 @Composable
 fun ButtonSizes() {
@@ -209,6 +213,172 @@ fun ButtonStyles() {
                 modifier = Modifier.size(ButtonDefaults.SmallButtonSize),
             ) {
                 DemoIcon(R.drawable.ic_check_24px)
+            }
+        }
+    }
+}
+
+@Composable
+fun ButtonGallery() {
+    val state = rememberScalingLazyListState()
+    ScalingLazyColumnWithRSB(
+        state = state,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxSize(),
+    ) {
+        item {
+            ListHeader { Text("Large - 60 x 60") }
+        }
+        item {
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                Button(
+                    onClick = {},
+                    colors = ButtonDefaults.primaryButtonColors(),
+                    modifier = Modifier.size(ButtonDefaults.LargeButtonSize),
+                ) {
+                    DemoIcon(resourceId = R.drawable.ic_play, contentDescription = "Play")
+                }
+                Button(
+                    onClick = {},
+                    colors = ButtonDefaults.secondaryButtonColors(),
+                    modifier = Modifier.size(ButtonDefaults.LargeButtonSize),
+                ) {
+                    DemoIcon(resourceId = R.drawable.ic_play, contentDescription = "Play")
+                }
+            }
+        }
+        item {
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                Button(
+                    onClick = {},
+                    colors = ButtonDefaults.iconButtonColors(),
+                    modifier = Modifier.size(ButtonDefaults.LargeButtonSize),
+                ) {
+                    DemoIcon(resourceId = R.drawable.ic_skip_next, contentDescription = "Skip")
+                }
+                Spacer(Modifier.width(ButtonDefaults.LargeButtonSize))
+            }
+        }
+
+        item {
+            ListHeader { Text("Default - 52 x 52") }
+        }
+        item {
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                Button(
+                    onClick = {},
+                    colors = ButtonDefaults.primaryButtonColors(),
+                ) {
+                    DemoIcon(resourceId = R.drawable.ic_check_24px, contentDescription = "Tick")
+                }
+                Button(
+                    onClick = {},
+                    colors = ButtonDefaults.secondaryButtonColors(),
+                ) {
+                    DemoIcon(
+                        resourceId = R.drawable.ic_clear_24px,
+                        contentDescription = "Cross"
+                    )
+                }
+            }
+        }
+        item {
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                Button(
+                    onClick = {},
+                    colors = ButtonDefaults.iconButtonColors(),
+                ) {
+                    DemoIcon(
+                        resourceId = R.drawable.ic_devices_24,
+                        contentDescription = "Devices"
+                    )
+                }
+                Spacer(Modifier.width(ButtonDefaults.DefaultButtonSize))
+            }
+        }
+
+        item {
+            ListHeader { Text("Small - 48 x 48") }
+        }
+        item {
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                Button(
+                    onClick = {},
+                    colors = ButtonDefaults.primaryButtonColors(),
+                    modifier = Modifier.size(ButtonDefaults.SmallButtonSize),
+                ) {
+                    DemoIcon(resourceId = R.drawable.ic_music_24, contentDescription = "Music")
+                }
+                Button(
+                    onClick = {},
+                    colors = ButtonDefaults.secondaryButtonColors(),
+                    modifier = Modifier.size(ButtonDefaults.SmallButtonSize),
+                ) {
+                    DemoIcon(resourceId = R.drawable.ic_mic_24, contentDescription = "Mic")
+                }
+            }
+        }
+        item {
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                Button(
+                    onClick = {},
+                    colors = ButtonDefaults.iconButtonColors(),
+                    modifier = Modifier.size(ButtonDefaults.SmallButtonSize),
+                ) {
+                    DemoIcon(
+                        resourceId = R.drawable.ic_volume_up_24px,
+                        contentDescription = "Vol"
+                    )
+                }
+                Spacer(Modifier.width(ButtonDefaults.SmallButtonSize))
+            }
+        }
+
+        item {
+            ListHeader { Text("Extra small - 32 x 32") }
+        }
+        item {
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                CompactButton(
+                    onClick = {},
+                    colors = ButtonDefaults.primaryButtonColors(),
+                ) {
+                    DemoIcon(
+                        resourceId = R.drawable.ic_arrow_left_modified,
+                        contentDescription = "Left",
+                    )
+                }
+                CompactButton(
+                    onClick = {},
+                    colors = ButtonDefaults.secondaryButtonColors(),
+                ) {
+                    DemoIcon(
+                        resourceId = R.drawable.ic_arrow_right_modified,
+                        contentDescription = "Right",
+                    )
+                }
+            }
+        }
+        item {
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                CompactButton(
+                    onClick = {},
+                    colors = ButtonDefaults.iconButtonColors(),
+                ) {
+                    DemoIcon(
+                        resourceId = R.drawable.ic_arrow_left_modified,
+                        contentDescription = "Left",
+                    )
+                }
+                CompactButton(
+                    onClick = {},
+                    colors = ButtonDefaults.iconButtonColors(),
+                ) {
+                    DemoIcon(
+                        resourceId = R.drawable.ic_arrow_right_modified,
+                        contentDescription = "Right",
+                    )
+                }
             }
         }
     }
