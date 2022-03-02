@@ -41,12 +41,11 @@ import androidx.wear.compose.material.samples.InlineSliderSegmentedSample
 import androidx.wear.compose.material.samples.InlineSliderWithIntegerSample
 import androidx.wear.compose.material.samples.OptionChangePicker
 import androidx.wear.compose.material.samples.ScalingLazyColumnEdgeAnchoredAndAnimatedScrollTo
-import androidx.wear.compose.material.samples.ScalingLazyColumnWithHeaders
-import androidx.wear.compose.material.samples.ScalingLazyColumnWithHeadersReversed
 import androidx.wear.compose.material.samples.SimplePicker
 import androidx.wear.compose.material.samples.SimpleScaffoldWithScrollIndicator
 import androidx.wear.compose.material.samples.SimpleScalingLazyColumn
 import androidx.wear.compose.material.samples.SimpleScalingLazyColumnWithContentPadding
+import androidx.wear.compose.material.samples.SimpleScalingLazyColumnWithSnap
 import androidx.wear.compose.material.samples.SimpleSwipeToDismissBox
 import androidx.wear.compose.material.samples.SplitToggleChipWithCheckbox
 import androidx.wear.compose.material.samples.StatefulSwipeToDismissBox
@@ -173,7 +172,7 @@ val WearMaterialDemos = DemoCategory(
             )
         ),
         DemoCategory(
-            "TimeText",
+            "Time Text",
             listOf(
                 DemoCategory(
                     "Samples",
@@ -268,10 +267,10 @@ val WearMaterialDemos = DemoCategory(
                 DemoCategory(
                     "Samples",
                     listOf(
-                        ComposableDemo("ButtonWithIcon") { Centralize({ ButtonWithIcon() }) },
-                        ComposableDemo("ButtonWithText") { Centralize({ ButtonWithText() }) },
-                        ComposableDemo("CompactButtonWithIcon") {
-                            Centralize({ CompactButtonWithIcon() })
+                        ComposableDemo("Button With Icon") { Centralize { ButtonWithIcon() } },
+                        ComposableDemo("Button With Text") { Centralize { ButtonWithText() } },
+                        ComposableDemo("Compact Button With Icon") {
+                            Centralize { CompactButtonWithIcon() }
                         },
                     )
                 ),
@@ -286,9 +285,9 @@ val WearMaterialDemos = DemoCategory(
             )
         ),
         DemoCategory(
-            "ToggleButton",
+            "Toggle Button",
             listOf(
-                ComposableDemo("Sample") { Centralize({ ToggleButtonWithIcon() }) },
+                ComposableDemo("Sample") { Centralize { ToggleButtonWithIcon() } },
                 ComposableDemo("Demos") { ToggleButtons() },
             )
         ),
@@ -298,11 +297,11 @@ val WearMaterialDemos = DemoCategory(
                 DemoCategory(
                     "Samples",
                     listOf(
-                        ComposableDemo("ChipWithIconAndLabels") {
-                            Centralize({ ChipWithIconAndLabels() })
+                        ComposableDemo("Chip With Icon And Labels") {
+                            Centralize { ChipWithIconAndLabels() }
                         },
-                        ComposableDemo("CompactChipWithIconAndLabel") {
-                            Centralize({ CompactChipWithIconAndLabel() })
+                        ComposableDemo("Compact Chip With Icon And Label") {
+                            Centralize { CompactChipWithIconAndLabel() }
                         },
                     )
                 ),
@@ -320,13 +319,13 @@ val WearMaterialDemos = DemoCategory(
             )
         ),
         DemoCategory(
-            "PageIndicator",
+            "Page Indicator",
             listOf(
                 DemoCategory(
                     "Samples",
                     listOf(
                         ComposableDemo("Sample with InlineSlider") {
-                            Centralize({ HorizontalPageIndicatorSample() })
+                            Centralize { HorizontalPageIndicatorSample() }
                         },
                     )
                 ),
@@ -345,11 +344,11 @@ val WearMaterialDemos = DemoCategory(
             listOf(
                 DemoCategory("Samples",
                     listOf(
-                        ComposableDemo("ToggleChipWithIcon") {
-                            Centralize({ ToggleChipWithIcon() })
+                        ComposableDemo("ToggleChip With Icon") {
+                            Centralize { ToggleChipWithIcon() }
                         },
-                        ComposableDemo("SplitToggleChipWithCheckbox") {
-                            Centralize({ SplitToggleChipWithCheckbox() })
+                        ComposableDemo("SplitToggleChip With Checkbox") {
+                            Centralize { SplitToggleChipWithCheckbox() }
                         }
                     )
                 ),
@@ -375,8 +374,8 @@ val WearMaterialDemos = DemoCategory(
                     listOf(
                         ComposableDemo("AppCard") { Centralize { AppCardWithIcon() } },
                         ComposableDemo("TitleCard") { Centralize { TitleCardStandard() } },
-                        ComposableDemo("TitleCardWithImage") {
-                            Centralize({ TitleCardWithImage() })
+                        ComposableDemo("TitleCard With Image") {
+                            Centralize { TitleCardWithImage() }
                         },
                     )
                 ),
@@ -384,7 +383,7 @@ val WearMaterialDemos = DemoCategory(
             )
         ),
         DemoCategory(
-            "ProgressIndicator",
+            "Progress Indicator",
             listOf(
                 DemoCategory(
                     "Samples",
@@ -427,17 +426,66 @@ val WearMaterialDemos = DemoCategory(
         ),
         SwipeToDismissDemos,
         DemoCategory(
-            "List",
+            "List (Scaling Lazy Column)",
             listOf(
-                ComposableDemo("Scaling Lazy Column [SLC]") { SimpleScalingLazyColumn() },
-                ComposableDemo("SLC with Edge Anchoring and Animated Scroll") {
-                    ScalingLazyColumnEdgeAnchoredAndAnimatedScrollTo()
+                ComposableDemo(
+                    "Defaults",
+                    "Basic ScalingLazyColumn using default values"
+                ) {
+                    SimpleScalingLazyColumn()
                 },
-                ComposableDemo("SLC with Content Padding") {
+                ComposableDemo(
+                    "With Content Padding",
+                    "Basic ScalingLazyColumn with autoCentering disabled and explicit " +
+                        "content padding of top = 20.dp, bottom = 20.dp"
+                ) {
                     SimpleScalingLazyColumnWithContentPadding()
                 },
-                ComposableDemo("List Headers") { ScalingLazyColumnWithHeaders() },
-                ComposableDemo("Reverse Layout") { ScalingLazyColumnWithHeadersReversed() },
+                ComposableDemo(
+                    "With Snap",
+                    "Basic ScalingLazyColumn, center aligned with snap enabled"
+                ) {
+                    SimpleScalingLazyColumnWithSnap()
+                },
+                ComposableDemo(
+                    "Edge Anchor",
+                    "A ScalingLazyColumn with Edge (rather than center) item anchoring. " +
+                        "If you click on an item there will be an animated scroll of the items " +
+                        "edge to the center"
+                ) {
+                    ScalingLazyColumnEdgeAnchoredAndAnimatedScrollTo()
+                },
+                ComposableDemo(
+                    "Edge Anchor (G)",
+                    "A ScalingLazyColumn with Edge (rather than center) item anchoring. " +
+                        "If you click on an item there will be an animated scroll of the items " +
+                        "edge to the center and guidelines drawn on top"
+                ) {
+                    ScalingLazyColumnEdgeAnchoredAndAnimatedScrollTo()
+                    GuideLines()
+                },
+                ComposableDemo(
+                    "Scaling Details (G)",
+                    "A ScalingLazyColumn with items that show their position and size as" +
+                        "well as guidelines"
+                ) {
+                    ScalingLazyColumnDetail()
+                    GuideLines()
+                },
+                ComposableDemo(
+                    "Stress Test",
+                    "A ScalingLazyColumn with a mixture of different types of items"
+                ) {
+                    ScalingLazyColumnMixedTypes()
+                },
+                ComposableDemo(
+                    "Stress Test [G]",
+                    "A ScalingLazyColumn with a mixture of different types of items with " +
+                        "guidelines"
+                ) {
+                    ScalingLazyColumnMixedTypes()
+                    GuideLines()
+                },
             )
         ),
         DemoCategory(
@@ -449,7 +497,7 @@ val WearMaterialDemos = DemoCategory(
             )
         ),
         DemoCategory(
-            "PositionIndicator",
+            "Position Indicator",
             listOf(
                 ComposableDemo("Hide when no scrollable") {
                     HideWhenFullDemo()
