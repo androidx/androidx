@@ -353,34 +353,6 @@ public class CarAppActivityTest {
     }
 
     @Test
-    public void testWindowInsetsHandledLocallyWhenHostIsNotCapable() {
-        setupCarAppActivityForTesting();
-        try (ActivityScenario<CarAppActivity> scenario = ActivityScenario.launch(
-                CarAppActivity.class)) {
-            scenario.onActivity(activity -> {
-                View activityContainer = activity.mActivityContainerView;
-                View localContentContainer = activity.mLocalContentContainerView;
-                Insets systemWindowInsets = Insets.of(10, 20, 30, 40);
-                WindowInsets windowInsets = new WindowInsetsCompat.Builder()
-                        .setInsets(WindowInsetsCompat.Type.systemBars(), systemWindowInsets)
-                        .build()
-                        .toWindowInsets();
-                activityContainer.onApplyWindowInsets(windowInsets);
-
-                // Verify that the insets are handled locally
-                assertThat(activityContainer.getPaddingBottom()).isEqualTo(40);
-                assertThat(activityContainer.getPaddingTop()).isEqualTo(20);
-                assertThat(activityContainer.getPaddingLeft()).isEqualTo(10);
-                assertThat(activityContainer.getPaddingRight()).isEqualTo(30);
-                assertThat(localContentContainer.getPaddingBottom()).isEqualTo(0);
-                assertThat(localContentContainer.getPaddingTop()).isEqualTo(0);
-                assertThat(localContentContainer.getPaddingLeft()).isEqualTo(0);
-                assertThat(localContentContainer.getPaddingRight()).isEqualTo(0);
-            });
-        }
-    }
-
-    @Test
     public void testWindowInsetsHandledRemotelyWhenHostIsCapable() {
         setupCarAppActivityForTesting();
         try (ActivityScenario<CarAppActivity> scenario = ActivityScenario.launch(
