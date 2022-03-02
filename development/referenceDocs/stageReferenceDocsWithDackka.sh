@@ -53,6 +53,7 @@ gbash::init_google "$@"
 readonly javaLibraryDirs=(
   "activity"
   "annotation"
+  "arch"
 #  "benchmark"
 #  "collection"
   "core"
@@ -69,6 +70,7 @@ readonly javaLibraryDirs=(
 readonly kotlinLibraryDirs=(
   "activity"
   "annotation"
+  "arch"
 #  "benchmark"
   "compose"
 #  "collection"
