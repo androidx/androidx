@@ -34,6 +34,7 @@ import androidx.car.app.ISurfaceCallback;
 import androidx.car.app.OnDoneCallback;
 import androidx.car.app.SurfaceCallback;
 import androidx.car.app.SurfaceContainer;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
@@ -342,6 +343,15 @@ public final class RemoteUtils {
         public void onScale(float focusX, float focusY, float scaleFactor) {
             dispatchCallFromHost(mLifecycle, "onScale", () -> {
                 mSurfaceCallback.onScale(focusX, focusY, scaleFactor);
+                return null;
+            });
+        }
+        @RequiresCarApi(5)
+        @ExperimentalCarApi
+        @Override
+        public void onClick(float x, float y) throws RemoteException {
+            dispatchCallFromHost(mLifecycle, "onClick", () -> {
+                mSurfaceCallback.onClick(x, y);
                 return null;
             });
         }

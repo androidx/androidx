@@ -20,6 +20,7 @@ import android.graphics.Rect;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 
 /** A callback for changes on the {@link SurfaceContainer} and its attributes. */
@@ -128,5 +129,21 @@ public interface SurfaceCallback {
      */
     @RequiresCarApi(2)
     default void onScale(float focusX, float focusY, float scaleFactor) {
+    }
+
+    /**
+     * Provides information about a click event on the car screen.
+     *
+     * <p>See {@link androidx.car.app.navigation.model.NavigationTemplate} class description for
+     * more details on how to receive this callback.
+     *
+     * <p>This method may not be called in some car systems.
+     *
+     * @param x x coordinate of the click in pixels
+     * @param y y coordinate of the click in pixels
+     */
+    @RequiresCarApi(5)
+    @ExperimentalCarApi
+    default void onClick(float x, float y) {
     }
 }

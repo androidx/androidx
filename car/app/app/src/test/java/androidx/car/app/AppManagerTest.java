@@ -447,6 +447,18 @@ public final class AppManagerTest {
     }
 
     @Test
+    public void onSurfaceClick_dispatches()
+            throws RemoteException {
+        mTestCarContext.getLifecycleOwner().mRegistry.setCurrentState(Lifecycle.State.CREATED);
+        mAppManager.setSurfaceCallback(mSurfaceCallback);
+        verify(mMockAppHost).setSurfaceCallback(mSurfaceCallbackCaptor.capture());
+
+        mSurfaceCallbackCaptor.getValue().onClick(1, 2);
+
+        verify(mSurfaceCallback).onClick(1, 2);
+    }
+
+    @Test
     public void onSurfaceScale_lifecycleNotCreated_doesNotDispatch()
             throws RemoteException, BundlerException {
         mAppManager.setSurfaceCallback(mSurfaceCallback);

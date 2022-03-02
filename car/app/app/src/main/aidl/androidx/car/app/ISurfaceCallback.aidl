@@ -58,4 +58,9 @@ oneway interface ISurfaceCallback {
    * Notifies the app about a surface scale touch event.
    */
   void onScale(float focusX, float focusY, float scaleFactor) = 7;
+
+  /**
+   * Notifies the app about a surface click event.
+   */
+  void onClick(float x, float y) = 8;
 }
