@@ -85,7 +85,7 @@ dependencyResolutionManagement {
             } else {
                 throw GradleException("Unsupported operating system $os")
             }
-            alias("skikoCurrentOs").to("org.jetbrains.skiko", currentOsArtifact).versionRef("skiko")
+            library("skikoCurrentOs", "org.jetbrains.skiko", currentOsArtifact).versionRef("skiko")
         }
     }
 }
