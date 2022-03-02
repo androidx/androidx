@@ -35,6 +35,8 @@ dependencies {
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
     testImplementation(libs.truth)
+    androidTestImplementation(libs.testRules)
+    testImplementation(libs.mockitoCore)
     testImplementation(libs.robolectric)
 }
 
