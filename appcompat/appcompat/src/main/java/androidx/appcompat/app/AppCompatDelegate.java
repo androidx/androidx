@@ -658,16 +658,18 @@ public abstract class AppCompatDelegate {
      *
      * <p>For API levels below that, the developer has two options:</p>
      * <ul>
-     *     <li>They can opt-in to automatic storage handled through AndroidX. They can do this by
-     *     adding a special metaData entry in their AndroidManifest, similar to :
-     *        <service
-     *            android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"
-     *            android:enabled="false"
-     *            android:exported="false">
-     *            <meta-data
-     *                android:name="autoStoreLocales"
-     *                android:value="true" />
-     *        </service>
+     *     <li>They can opt-in to automatic storage handled through the library. They can do this by
+     *     adding a special metaData entry in their {@code AndroidManifest.xml}, similar to :
+     *     <pre><code>
+     *     &lt;service
+     *         android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"
+     *         android:enabled="false"
+     *         android:exported="false"&gt;
+     *         &lt;meta-data
+     *             android:name="autoStoreLocales"
+     *             android:value="true" /&gt;
+     *     &lt;/service&gt;
+     *     </code></pre>
      *     They should be mindful that this will cause a blocking diskRead and diskWrite
      *     strictMode violation, and they might need to suppress it at their end.</li>
      *
