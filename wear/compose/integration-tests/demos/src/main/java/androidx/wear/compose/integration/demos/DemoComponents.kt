@@ -47,7 +47,7 @@ import kotlin.reflect.KClass
 /**
  * Generic demo with a [title] that will be displayed in the list of demos.
  */
-sealed class Demo(val title: String) {
+sealed class Demo(val title: String, val description: String? = null) {
     override fun toString() = title
 }
 
@@ -76,8 +76,9 @@ class DemoCategory(
  */
 class ComposableDemo(
     title: String,
+    description: String? = null,
     val content: @Composable (navigateBack: () -> Unit) -> Unit,
-) : Demo(title)
+) : Demo(title, description)
 
 /**
  * A simple [Icon] with default size

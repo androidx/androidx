@@ -234,6 +234,9 @@ internal fun convertToCenterOffset(
  * shows scrolling to a clicked list item with [ScalingLazyListState.animateScrollToItem]:
  * @sample androidx.wear.compose.material.samples.ScalingLazyColumnEdgeAnchoredAndAnimatedScrollTo
  *
+ * Example of a [ScalingLazyColumn] with snap of items to the viewport center:
+ * @sample androidx.wear.compose.material.samples.SimpleScalingLazyColumnWithSnap
+ *
  * Example of a [ScalingLazyColumn] where [autoCentering] has been disabled and explicit
  * [contentPadding] provided to ensure there is space above the first and below the last list item
  * to allow them to be scrolled into view on circular screens:
