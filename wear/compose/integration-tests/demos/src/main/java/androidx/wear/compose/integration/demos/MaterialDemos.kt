@@ -277,6 +277,7 @@ val WearMaterialDemos = DemoCategory(
                 DemoCategory(
                     "Demos",
                     listOf(
+                        ComposableDemo("Button Gallery") { ButtonGallery() },
                         ComposableDemo("Button Sizes") { ButtonSizes() },
                         ComposableDemo("Button Styles") { ButtonStyles() },
                     )
