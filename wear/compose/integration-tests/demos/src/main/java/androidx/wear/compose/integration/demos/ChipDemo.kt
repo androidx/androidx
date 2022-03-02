@@ -61,15 +61,9 @@ fun StandardChips() {
     var enabled by remember { mutableStateOf(true) }
     var chipStyle by remember { mutableStateOf(ChipStyle.Primary) }
 
-    ScalingLazyColumn(
+    ScalingLazyColumnWithRSB(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
-        contentPadding = PaddingValues(
-            start = 8.dp,
-            end = 8.dp,
-            top = 15.dp,
-            bottom = 50.dp
-        )
     ) {
         item {
             Text(

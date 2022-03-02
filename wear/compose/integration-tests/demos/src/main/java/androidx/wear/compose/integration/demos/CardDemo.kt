@@ -18,7 +18,6 @@ package androidx.wear.compose.integration.demos
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
@@ -31,19 +30,17 @@ import androidx.wear.compose.material.AppCard
 import androidx.wear.compose.material.Card
 import androidx.wear.compose.material.CardDefaults
 import androidx.wear.compose.material.MaterialTheme
-import androidx.wear.compose.material.ScalingLazyColumn
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.TitleCard
 
 @Composable
 fun CardDemo() {
-    ScalingLazyColumn(
+    ScalingLazyColumnWithRSB(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(
             space = 4.dp,
             alignment = Alignment.CenterVertically
         ),
-        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 30.dp),
         modifier = Modifier.fillMaxSize()
     ) {
         item {
