@@ -245,9 +245,22 @@ package androidx.wear.compose.material {
 
   @androidx.compose.runtime.Stable public interface PositionIndicatorState {
     method public float getPositionFraction();
-    method public int shouldShow(float scrollableContainerSizePx);
     method public float sizeFraction(float scrollableContainerSizePx);
+    method public int visibility(float scrollableContainerSizePx);
     property public abstract float positionFraction;
+  }
+
+  public final inline class PositionIndicatorVisibility {
+    ctor public PositionIndicatorVisibility();
+  }
+
+  public static final class PositionIndicatorVisibility.Companion {
+    method public int getAutoHide();
+    method public int getHide();
+    method public int getShow();
+    property public final int AutoHide;
+    property public final int Hide;
+    property public final int Show;
   }
 
   public final class ProgressIndicatorDefaults {
@@ -407,19 +420,6 @@ package androidx.wear.compose.material {
   }
 
   public final class ShapesKt {
-  }
-
-  public final inline class ShowResult {
-    ctor public ShowResult();
-  }
-
-  public static final class ShowResult.Companion {
-    method public int getAutoHide();
-    method public int getHide();
-    method public int getShow();
-    property public final int AutoHide;
-    property public final int Hide;
-    property public final int Show;
   }
 
   public final class SliderKt {

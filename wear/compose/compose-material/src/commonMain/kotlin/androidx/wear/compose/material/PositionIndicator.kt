@@ -36,6 +36,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -68,22 +69,22 @@ import kotlinx.coroutines.launch
  * or hidden after a small delay.
  */
 @Suppress("INLINE_CLASS_DEPRECATED")
-public inline class ShowResult internal constructor(internal val value: Int) {
+public inline class PositionIndicatorVisibility internal constructor(internal val value: Int) {
     companion object {
         /**
          * Show the Position Indicator.
          */
-        val Show = ShowResult(1)
+        val Show = PositionIndicatorVisibility(1)
 
         /**
          * Hide the Position Indicator.
          */
-        val Hide = ShowResult(2)
+        val Hide = PositionIndicatorVisibility(2)
 
         /**
-         * Hide the Position Indicator after 2 seconds.
+         * Hide the Position Indicator after a short delay.
          */
-        val AutoHide = ShowResult(3)
+        val AutoHide = PositionIndicatorVisibility(3)
     }
 }
 
@@ -130,7 +131,7 @@ interface PositionIndicatorState {
      * in pixels depending on orientation of the indicator, (height for vertical, width for
      * horizontal)
      */
-    fun shouldShow(scrollableContainerSizePx: Float): ShowResult
+    fun visibility(scrollableContainerSizePx: Float): PositionIndicatorVisibility
 }
 
 /**
@@ -294,14 +295,22 @@ public fun PositionIndicator(
     val isScreenRound = isRoundDevice()
 
     val actuallyVisible = remember { mutableStateOf(false) }
-    val indicatorPosition = if (reverseDirection) {
-        1 - state.positionFraction
-    } else {
-        state.positionFraction
-    }
     var containerHeight by remember { mutableStateOf(1f) }
-    val indicatorSize = state.sizeFraction(containerHeight)
-    val displayState = DisplayState(indicatorPosition, indicatorSize)
+
+    val displayState by remember {
+        derivedStateOf {
+            val indicatorPosition = if (reverseDirection) {
+                1 - state.positionFraction
+            } else {
+                state.positionFraction
+            }
+
+            DisplayState(
+                indicatorPosition,
+                state.sizeFraction(containerHeight)
+            )
+        }
+    }
 
     val highlightAlpha = remember { Animatable(0f) }
     val animatedDisplayState = customAnimateValueAsState(
@@ -330,10 +339,11 @@ public fun PositionIndicator(
         }
     }
 
-    when (state.shouldShow(containerHeight)) {
-        ShowResult.Show -> actuallyVisible.value = true
-        ShowResult.Hide -> actuallyVisible.value = false
-        ShowResult.AutoHide -> if (actuallyVisible.value) {
+    val visibility by remember { derivedStateOf { state.visibility(containerHeight) } }
+    when (visibility) {
+        PositionIndicatorVisibility.Show -> actuallyVisible.value = true
+        PositionIndicatorVisibility.Hide -> actuallyVisible.value = false
+        PositionIndicatorVisibility.AutoHide -> if (actuallyVisible.value) {
             LaunchedEffect(true) {
                 delay(2000)
                 actuallyVisible.value = false
@@ -433,7 +443,7 @@ internal fun <T, V : AnimationVector> customAnimateValueAsState(
 
 internal class DisplayState(
     val position: Float,
-    val size: Float,
+    val size: Float
 )
 
 internal val DisplayStateTwoWayConverter: TwoWayConverter<DisplayState, AnimationVector2D> =
@@ -468,7 +478,7 @@ internal class FractionPositionIndicatorState(
 
     override fun hashCode(): Int = fraction().hashCode()
 
-    override fun shouldShow(scrollableContainerSizePx: Float) = ShowResult.Show
+    override fun visibility(scrollableContainerSizePx: Float) = PositionIndicatorVisibility.Show
 }
 
 /**
@@ -496,12 +506,12 @@ internal class ScrollStateAdapter(private val scrollState: ScrollState) : Positi
             scrollableContainerSizePx / (scrollableContainerSizePx + scrollState.maxValue)
         }
 
-    override fun shouldShow(scrollableContainerSizePx: Float) = if (scrollState.maxValue == 0) {
-        ShowResult.Hide
+    override fun visibility(scrollableContainerSizePx: Float) = if (scrollState.maxValue == 0) {
+        PositionIndicatorVisibility.Hide
     } else if (scrollState.isScrollInProgress) {
-        ShowResult.Show
+        PositionIndicatorVisibility.Show
     } else {
-        ShowResult.AutoHide
+        PositionIndicatorVisibility.AutoHide
     }
 
     override fun equals(other: Any?): Boolean {
@@ -557,7 +567,7 @@ internal class ScalingLazyColumnStateAdapter(
                 state.layoutInfo.totalItemsCount.toFloat()
         }
 
-    override fun shouldShow(scrollableContainerSizePx: Float): ShowResult {
+    override fun visibility(scrollableContainerSizePx: Float): PositionIndicatorVisibility {
         val canScroll = state.layoutInfo.visibleItemsInfo.isNotEmpty() && run {
             val firstItem = state.layoutInfo.visibleItemsInfo.first()
             val lastItem = state.layoutInfo.visibleItemsInfo.last()
@@ -568,9 +578,13 @@ internal class ScalingLazyColumnStateAdapter(
                 lastItemEndOffset > scrollableContainerSizePx
         }
         return if (canScroll) {
-            if (state.isScrollInProgress) ShowResult.Show else ShowResult.AutoHide
+            if (state.isScrollInProgress) {
+                PositionIndicatorVisibility.Show
+            } else {
+                PositionIndicatorVisibility.AutoHide
+            }
         } else {
-            ShowResult.Hide
+            PositionIndicatorVisibility.Hide
         }
     }
 
@@ -674,11 +688,15 @@ internal class LazyColumnStateAdapter(
                 state.layoutInfo.totalItemsCount.toFloat()
         }
 
-    override fun shouldShow(scrollableContainerSizePx: Float): ShowResult {
+    override fun visibility(scrollableContainerSizePx: Float): PositionIndicatorVisibility {
         return if (sizeFraction(scrollableContainerSizePx) < 0.999f) {
-            if (state.isScrollInProgress) ShowResult.Show else ShowResult.AutoHide
+            if (state.isScrollInProgress) {
+                PositionIndicatorVisibility.Show
+            } else {
+                PositionIndicatorVisibility.AutoHide
+            }
         } else {
-            ShowResult.Hide
+            PositionIndicatorVisibility.Hide
         }
     }
 
