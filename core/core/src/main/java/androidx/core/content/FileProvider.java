@@ -416,7 +416,12 @@ public class FileProvider extends ContentProvider {
             throw new SecurityException("Provider must grant uri permissions");
         }
 
-        mStrategy = getPathStrategy(context, info.authority.split(";")[0], mResourceId);
+        String authority = info.authority.split(";")[0];
+        synchronized (sCache) {
+            sCache.remove(authority);
+        }
+
+        mStrategy = getPathStrategy(context, authority, mResourceId);
     }
 
     /**
