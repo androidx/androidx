@@ -283,8 +283,6 @@ See the complete report at file://\$OUT_DIR/androidx/build/reports/configuration
 WARNING: An illegal reflective access operation has occurred
 WARNING: Illegal reflective access by org\.robolectric\.util\.ReflectionHelpers\$[0-9]+ \(file:\$CHECKOUT/prebuilts/androidx/external/org/robolectric/shadowapi/[0-9]+\.[0-9]+\.[0-9]+/shadowapi\-[0-9]+\.[0-9]+\.[0-9]+\.jar\) to field java\.io\.FileDescriptor\.fd
 WARNING: Please consider reporting this to the maintainers of org\.robolectric\.util\.ReflectionHelpers\$[0-9]+
-WARNING: Illegal reflective access by org\.jetbrains\.kotlin\.kapt[0-9]+\.util\.ModuleManipulationUtilsKt \(file:\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-annotation\-processing\-gradle/[0-9]+\.[0-9]+\.[0-9]+/kotlin\-annotation\-processing\-gradle\-[0-9]+\.[0-9]+\.[0-9]+\.jar\) to constructor com\.sun\.tools\.javac\.util\.Context\(\)
-WARNING: Please consider reporting this to the maintainers of org\.jetbrains\.kotlin\.kapt[0-9]+\.util\.ModuleManipulationUtilsKt
 WARNING: Please consider reporting this to the maintainers of org\.jetbrains\.kotlin\.kapt[0-9]+\.base\.javac\.KaptJavaFileManager
 WARNING: Illegal reflective access by com\.intellij\.util\.ReflectionUtil \(file:\$CHECKOUT/prebuilts/androidx/external/com/google/devsite/dackka/[0-9]+\.[0-9]+\.[0-9]+/dackka\-[0-9]+\.[0-9]+\.[0-9]+\.jar\) to method java\.util\.ResourceBundle\.setParent\(java\.util\.ResourceBundle\)
 WARNING: Please consider reporting this to the maintainers of com\.intellij\.util\.ReflectionUtil
