@@ -284,9 +284,8 @@ internal class JavacProcessingEnv(
         return when (val enclosingElement = element.enclosingElement) {
             is ExecutableElement -> {
                 val executableElement = wrapExecutableElement(enclosingElement)
-
                 executableElement.parameters.find { param ->
-                    param.element === element
+                    param.element.simpleName == element.simpleName
                 } ?: error("Unable to create variable element for $element")
             }
             is TypeElement -> {
