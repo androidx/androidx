@@ -41,7 +41,7 @@ import androidx.wear.compose.material.PositionIndicator
 import androidx.wear.compose.material.PositionIndicatorState
 import androidx.wear.compose.material.Scaffold
 import androidx.wear.compose.material.ScalingLazyColumn
-import androidx.wear.compose.material.ShowResult
+import androidx.wear.compose.material.PositionIndicatorVisibility
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.rememberScalingLazyListState
 
@@ -145,7 +145,7 @@ internal class CustomPositionIndicatorState(
         get() = position.value
 
     override fun sizeFraction(scrollableContainerSizePx: Float) = size.value
-    override fun shouldShow(scrollableContainerSizePx: Float) = ShowResult.Show
+    override fun visibility(scrollableContainerSizePx: Float) = PositionIndicatorVisibility.Show
 
     override fun equals(other: Any?) =
         other is CustomPositionIndicatorState &&
