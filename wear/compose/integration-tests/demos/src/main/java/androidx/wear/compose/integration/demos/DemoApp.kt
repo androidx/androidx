@@ -19,8 +19,8 @@ package androidx.wear.compose.integration.demos
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -32,11 +32,12 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.rotary.onRotaryScrollEvent
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.style.TextAlign
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.ListHeader
+import androidx.wear.compose.material.LocalTextStyle
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.ScalingLazyColumn
 import androidx.wear.compose.material.ScalingLazyColumnDefaults
@@ -125,7 +126,9 @@ internal fun DisplayDemoList(
                         Text(
                             text = category.title,
                             style = MaterialTheme.typography.caption1,
-                            color = Color.White
+                            color = Color.White,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
                         )
                     }
                 }
@@ -140,12 +143,21 @@ internal fun DisplayDemoList(
                                     modifier = Modifier.align(Alignment.Center)
                                 )
                             },
-                            modifier = Modifier.fillMaxWidth().padding(
-                                start = 10.dp,
-                                end = 10.dp,
-                                bottom = 4.dp
-                            )
+                            modifier = Modifier.fillMaxWidth()
                         )
+                    }
+                    if (demo.description != null) {
+                        item {
+                            CompositionLocalProvider(
+                                LocalTextStyle provides MaterialTheme.typography.caption3
+                            ) {
+                                Text(
+                                    text = demo.description,
+                                    modifier = Modifier.fillMaxWidth().align(Alignment.Center),
+                                    textAlign = TextAlign.Center
+                                )
+                            }
+                        }
                     }
                 }
             }

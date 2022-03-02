@@ -682,7 +682,7 @@ enum class ChipStyle {
 }
 
 @Composable
-private fun DemoIconChip(
+internal fun DemoIconChip(
     colors: ChipColors,
     label: String,
     modifier: Modifier = Modifier,
