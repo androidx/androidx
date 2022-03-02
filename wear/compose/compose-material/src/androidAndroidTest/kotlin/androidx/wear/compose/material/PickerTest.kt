@@ -130,7 +130,7 @@ class PickerTest {
             swipeWithVelocity(
                 start = Offset(centerX, bottom),
                 end = Offset(centerX, bottom - itemSizePx * 16), // 3 loops + 1 element
-                endVelocity = 1f, // Ensure it's not a fling.
+                endVelocity = NOT_A_FLING_SPEED
             )
         }
 
@@ -159,7 +159,7 @@ class PickerTest {
             swipeWithVelocity(
                 start = Offset(centerX, top),
                 end = Offset(centerX, top + itemSizePx * 16), // 3 loops + 1 element
-                endVelocity = 1f, // Ensure it's not a fling.
+                endVelocity = NOT_A_FLING_SPEED
             )
         }
 
@@ -198,7 +198,7 @@ class PickerTest {
                 start = Offset(centerX, bottom),
                 end = Offset(centerX, bottom -
                     (itemSizePx + separationPx * separationSign) * itemsToScroll),
-                endVelocity = 1f, // Ensure it's not a fling.
+                endVelocity = NOT_A_FLING_SPEED
             )
         }
 
@@ -350,7 +350,7 @@ class PickerTest {
         swipeWithVelocity(
             start = Offset(centerX, top),
             end = Offset(centerX, top + itemSizePx / 2),
-            endVelocity = 1f, // Ensure it's not a fling.
+            endVelocity = NOT_A_FLING_SPEED
         )
     }
 
@@ -359,7 +359,7 @@ class PickerTest {
         swipeWithVelocity(
             start = Offset(centerX, bottom),
             end = Offset(centerX, bottom - itemSizePx / 2),
-            endVelocity = 1f, // Ensure it's not a fling.
+            endVelocity = NOT_A_FLING_SPEED
         )
     }
 
@@ -368,7 +368,7 @@ class PickerTest {
         swipeWithVelocity(
             start = Offset(centerX, top),
             end = Offset(centerX, top + itemSizePx / 2),
-            endVelocity = 1f, // Ensure it's not a fling.
+            endVelocity = NOT_A_FLING_SPEED
         )
     }
 
@@ -377,7 +377,7 @@ class PickerTest {
         swipeWithVelocity(
             start = Offset(centerX, top),
             end = Offset(centerX, top + 300),
-            endVelocity = 10000f, // Ensure it IS a fling.
+            endVelocity = DO_FLING_SPEED
         )
     }
 
@@ -386,7 +386,7 @@ class PickerTest {
         swipeWithVelocity(
             start = Offset(centerX, bottom),
             end = Offset(centerX, bottom - 300),
-            endVelocity = 10000f, // Ensure it IS a fling.
+            endVelocity = DO_FLING_SPEED
         )
     }
 
@@ -428,6 +428,10 @@ class PickerTest {
             .isWithin(0.1f)
             .of(pickerHeightPx / 2f - itemSizePx / 2f)
     }
+
+    // The threshold is 1f, and the specified velocity is not exactly achieved by swipeWithVelocity
+    private val NOT_A_FLING_SPEED = 0.9f
+    private val DO_FLING_SPEED = 10000f
 
     /* TODO(199476914): Add tests for non-wraparound pickers to ensure they have the correct range
      * of scroll.
