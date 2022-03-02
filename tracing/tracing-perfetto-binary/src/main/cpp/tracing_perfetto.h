@@ -24,6 +24,7 @@ namespace tracing_perfetto {
     void TraceEventBegin(int key, const char *traceInfo);
     void TraceEventEnd();
     void Flush();
+    const char* Version();
 }
 
 #endif // TRACING_PERFETTO_H

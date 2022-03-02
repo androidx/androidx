@@ -22,6 +22,11 @@
 // TODO: define API for categories
 #define CATEGORY_RENDERING "rendering"
 
+// Concept of version useful e.g. for human-readable error messages, and stable once released.
+// Does not replace the need for a binary verification mechanism (e.g. checksum check).
+// TODO: populate using CMake
+#define VERSION "1.0.0-alpha01"
+
 namespace tracing_perfetto {
     void RegisterWithPerfetto() {
         perfetto::TracingInitArgs args;
@@ -46,5 +51,9 @@ namespace tracing_perfetto {
 
     void Flush() {
         perfetto::TrackEvent::Flush();
+    }
+
+    const char* Version() {
+        return VERSION;
     }
 } // tracing_perfetto
