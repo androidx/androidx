@@ -35,11 +35,13 @@ dependencies {
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(project(":internal-testutils-runtime"))
     androidTestImplementation(project(":media2:media2-player"))
+    androidTestImplementation(libs.multidex)
 }
 
 android {
     defaultConfig {
         minSdkVersion 16
+        multiDexEnabled true
     }
     sourceSets {
         main.res.srcDirs += "src/main/res-public"
