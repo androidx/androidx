@@ -24,6 +24,12 @@ import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.withIndex
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -184,6 +190,145 @@ class SavedStateHandleTest {
         accessor.setSavedStateProvider("provider") { Bundle() }
         assertThat(accessor.keys().size).isEqualTo(4)
         assertThat(accessor.keys()).containsExactly("s", "ld", "provider", "no value ld")
+    }
+
+    @Test
+    fun savedStateValueFlow() = runBlocking {
+        val handle = SavedStateHandle()
+
+        handle.getStateFlow("test", 1)
+            .take(3)
+            .withIndex()
+            .onEach { (index, value) ->
+                val expectedValue = index + 1
+                assertWithMessage("Flow emitted unexpected value")
+                    .that(value)
+                    .isEqualTo(expectedValue)
+
+                if (expectedValue < 3) {
+                    handle["test"] = expectedValue + 1
+                }
+            }
+            .collect()
+    }
+
+    @Test
+    @UiThreadTest
+    fun newFlow_nullInitial() = runBlocking {
+        val handle = SavedStateHandle()
+        handle.getStateFlow<String?>("aa", null)
+            .take(1)
+            .onEach {
+                assertWithMessage("Flow should emit a null value")
+                    .that(it)
+                    .isNull()
+            }
+            .collect()
+    }
+
+    @Test
+    @UiThreadTest
+    fun newFlow_withInitialGet() = runBlocking {
+        val handle = SavedStateHandle()
+        val flow = handle.getStateFlow("aa", "xx")
+
+        flow.take(1)
+            .onEach {
+                assertWithMessage("Flow should emit the initial value")
+                    .that(it)
+                    .isEqualTo("xx")
+            }
+            .collect()
+
+        assertThat(flow.value).isEqualTo("xx")
+    }
+
+    @Test
+    @UiThreadTest
+    fun newFlow_existingValue_withInitial() = runBlocking {
+        val handle = SavedStateHandle()
+        handle["aa"] = "existing"
+
+        handle.getStateFlow("aa", "xx")
+            .take(1)
+            .onEach {
+                assertWithMessage("Flow should emit a null value")
+                    .that(it)
+                    .isEqualTo("existing")
+            }
+            .collect()
+    }
+
+    @Test
+    @UiThreadTest
+    fun newFlow_existingValue_withNullInitial() = runBlocking {
+        val handle = SavedStateHandle()
+        handle["aa"] = "existing"
+
+        handle.getStateFlow<String?>("aa", null)
+            .take(1)
+            .onEach {
+                assertWithMessage("Flow should emit the set value")
+                    .that(it)
+                    .isEqualTo("existing")
+            }
+            .collect()
+    }
+
+    @Test
+    @UiThreadTest
+    fun newFlow_existingNullValue_withInitial() = runBlocking {
+        val handle = SavedStateHandle()
+        handle["aa"] = null
+
+        handle.getStateFlow<String?>("aa", "xx")
+            .take(1)
+            .onEach {
+                assertWithMessage("Flow should emit a null value")
+                    .that(it)
+                    .isNull()
+            }
+            .collect()
+    }
+
+    @Test
+    @UiThreadTest
+    fun newFlow_setNullValue_nonNullFlow() = runBlocking {
+        val handle = SavedStateHandle()
+        val flow = handle.getStateFlow("aa", "xx")
+
+        flow.take(1)
+            .onEach {
+                assertWithMessage("Flow should emit the initial value")
+                    .that(it)
+                    .isEqualTo("xx")
+            }
+            .collect()
+
+        handle["aa"] = null
+        assertThat(flow.value).isNull()
+    }
+
+    @Test
+    @UiThreadTest
+    fun flow_setByLiveDataSetValue() = runBlocking {
+        val handle = SavedStateHandle()
+        val flow = handle.getStateFlow("aa", "xx")
+
+        flow.take(1)
+            .onEach {
+                assertWithMessage("Flow should emit the initial value")
+                    .that(it)
+                    .isEqualTo("xx")
+            }
+            .collect()
+
+        assertThat(flow.value).isEqualTo("xx")
+
+        val ld = handle.getLiveData<String>("aa")
+        ld.value = "yy"
+        ld.assertValue("yy")
+        assertThat(flow.value).isEqualTo("yy")
     }
 
     @MainThread
