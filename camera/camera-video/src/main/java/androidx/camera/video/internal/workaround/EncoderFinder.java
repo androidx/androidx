@@ -21,10 +21,12 @@ import android.media.MediaCodecInfo;
 import android.media.MediaCodecList;
 import android.media.MediaFormat;
 import android.os.Build;
+import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.Logger;
 import androidx.camera.video.internal.DebugUtils;
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
@@ -71,28 +73,32 @@ public class EncoderFinder {
     public MediaCodec findEncoder(@NonNull MediaFormat mediaFormat,
             @NonNull MediaCodecList mediaCodecList) throws InvalidConfigException {
         MediaCodec codec;
-        if (shouldCreateCodecByType(mediaFormat)) {
-            String mimeType = mediaFormat.getString(MediaFormat.KEY_MIME);
-            try {
+        String encoderName = findEncoderForFormat(mediaFormat, mediaCodecList);
+        try {
+            if (TextUtils.isEmpty(encoderName)) {
+                String mimeType = mediaFormat.getString(MediaFormat.KEY_MIME);
                 codec = MediaCodec.createEncoderByType(mimeType);
-            } catch (IOException e) {
-                throw new InvalidConfigException(
-                        "Cannot create encoder by mime type: " + mimeType, e);
-            }
-        } else {
-            String encoderName = findEncoderForFormat(mediaFormat, mediaCodecList);
-            try {
+
+                String msg = DebugUtils.dumpCodecCapabilities(mimeType, codec, mediaFormat);
+                Logger.w(TAG, String.format("No encoder found that supports requested MediaFormat "
+                                + "%s. Create encoder by MIME type. Dump codec info:\n%s",
+                        mediaFormat, msg));
+            } else {
                 codec = MediaCodec.createByCodecName(encoderName);
-            } catch (IOException | NullPointerException | IllegalArgumentException e) {
-                DebugUtils.dumpMediaCodecListForFormat(mediaCodecList, mediaFormat);
-                throw new InvalidConfigException("Encoder cannot created: " + encoderName, e);
             }
+        } catch (IOException | NullPointerException | IllegalArgumentException e) {
+            boolean isMediaFormatInQuirk = shouldCreateCodecByType(mediaFormat);
+            String msg = DebugUtils.dumpMediaCodecListForFormat(mediaCodecList, mediaFormat);
+            throw new InvalidConfigException(
+                    "Encoder cannot created: " + encoderName + ", isMediaFormatInQuirk: "
+                            + isMediaFormatInQuirk + "\n" + msg, e);
         }
         return codec;
     }
 
+    @VisibleForTesting
     @Nullable
-    private String findEncoderForFormat(@NonNull MediaFormat mediaFormat,
+    String findEncoderForFormat(@NonNull MediaFormat mediaFormat,
             @NonNull MediaCodecList mediaCodecList) {
         Integer tempFrameRate = null;
         Integer tempAacProfile = null;
