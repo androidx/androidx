@@ -65,13 +65,13 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 
 /**
- * A [ToggleChip] is a specialized type of [Chip] that includes a slot for a bi-state toggle icon
+ * A [ToggleChip] is a specialized type of [Chip] that includes a slot for a bi-state toggle control
  * such as a radio button, toggle or checkbox.
  *
  * The Wear Material [ToggleChip] offers four slots and a specific layout for an application icon, a
- * label, a secondaryLabel and toggle icon. The application icon and secondaryLabel are optional.
+ * label, a secondaryLabel and toggle control. The application icon and secondaryLabel are optional.
  * The items are laid out in a row with the optional icon at the start, a column containing the two
- * label slots in the middle and a slot for the toggle icons at the end.
+ * label slots in the middle and a slot for the toggle control at the end.
  *
  * The [ToggleChip] is Stadium shaped and has a max height designed to take no more than
  * two lines of text of [Typography.button] style.
@@ -95,7 +95,7 @@ import androidx.compose.ui.unit.dp
  * @param modifier Modifier to be applied to the chip
  * @param toggleControl A slot for providing the chip's toggle controls(s). The contents are
  * expected to be a horizontally and vertically centre aligned icon of size
- * [ToggleChipDefaults.IconSize]. Three built-in types of toggle icon are supported and can be
+ * [ToggleChipDefaults.IconSize]. Three built-in types of toggle control are supported and can be
  * obtained from [ToggleChipDefaults.SwitchIcon], [ToggleChipDefaults.RadioIcon] and
  * [ToggleChipDefaults.CheckboxIcon]. In order to correctly render when the Chip is not enabled the
  * icon must set its alpha value to [LocalContentAlpha].
@@ -235,26 +235,26 @@ public fun ToggleChip(
  * [ToggleChip] by having two "tappable" areas, one clickable and one toggleable.
  *
  * The Wear Material [SplitToggleChip] offers three slots and a specific layout for a label,
- * secondaryLabel and toggle icon. The secondaryLabel is optional. The items are laid out
- * with a column containing the two label slots and a slot for the toggle icon at the
+ * secondaryLabel and toggle control. The secondaryLabel is optional. The items are laid out
+ * with a column containing the two label slots and a slot for the toggle control at the
  * end.
  *
  * A [SplitToggleChip] has two tappable areas, one tap area for the labels and another for the
  * toggle control. The [onClick] listener will be associated with the main body of the split toggle
- * chip with the [onCheckedChange] listener associated with the toggle icon area only.
+ * chip with the [onCheckedChange] listener associated with the toggle control area only.
  *
- * For a split toggle chip the background of the tappable background area behind the toggle icon
+ * For a split toggle chip the background of the tappable background area behind the toggle control
  * will have a visual effect applied to provide a "divider" between the two tappable areas.
  *
  * The [SplitToggleChip] is Stadium shaped and has a max height designed to take no more than
  * two lines of text of [Typography.button] style.
  *
- * The recommended set of [ToggleChipColors] can be obtained from
+ * The recommended set of [SplitToggleChipColors] can be obtained from
  * [ToggleChipDefaults], e.g. [ToggleChipDefaults.splitToggleChipColors].
  *
  * Chips can be enabled or disabled. A disabled chip will not respond to click events.
  *
- * Example of a [SplitToggleChip] with a label and the toggle icon changed to checkbox:
+ * Example of a [SplitToggleChip] with a label and the toggle control changed to checkbox:
  * @sample androidx.wear.compose.material.samples.SplitToggleChipWithCheckbox
  *
  * For more information, see the
@@ -271,14 +271,14 @@ public fun ToggleChip(
  * @param modifier Modifier to be applied to the chip
  * @param toggleControl A slot for providing the chip's toggle controls(s). The contents are
  * expected to be a horizontally and vertically centre aligned icon of size
- * [ToggleChipDefaults.IconSize]. Three built-in types of toggle icon are supported and can be
+ * [ToggleChipDefaults.IconSize]. Three built-in types of toggle control are supported and can be
  * obtained from [ToggleChipDefaults.SwitchIcon], [ToggleChipDefaults.RadioIcon] and
  * [ToggleChipDefaults.CheckboxIcon]. In order to correctly render when the Chip is not enabled the
  * icon must set its alpha value to [LocalContentAlpha].
  * @param secondaryLabel A slot for providing the chip's secondary label. The contents are expected
  * to be "start" or "center" aligned. label and secondaryLabel contents should be consistently
  * aligned.
- * @param colors [ToggleChipColors] that will be used to resolve the background and
+ * @param colors [SplitToggleChipColors] that will be used to resolve the background and
  * content color for this chip in different states, see
  * [ToggleChipDefaults.splitToggleChipColors].
  * @param enabled Controls the enabled state of the chip. When `false`, this chip will not
@@ -472,8 +472,8 @@ public interface ToggleChipColors {
     public fun secondaryContentColor(enabled: Boolean, checked: Boolean): State<Color>
 
     /**
-     * Represents the icon tint color for the toggle icon for this chip, depending on the [enabled]
-     * and [checked]properties.
+     * Represents the icon tint color for the toggle control for this chip, depending on the
+     * [enabled] and [checked]properties.
      *
      * @param enabled Whether the chip is enabled
      * @param checked Whether the chip is currently checked/selected or unchecked/not selected
@@ -512,8 +512,8 @@ public interface SplitToggleChipColors {
     public fun secondaryContentColor(enabled: Boolean): State<Color>
 
     /**
-     * Represents the icon tint color for the toggle icon for this chip, depending on the [enabled]
-     * and [checked]properties.
+     * Represents the icon tint color for the toggle control for this chip, depending on the
+     * [enabled] and [checked]properties.
      *
      * @param enabled Whether the chip is enabled
      * @param checked Whether the chip is currently checked/selected or unchecked/not selected
@@ -524,7 +524,7 @@ public interface SplitToggleChipColors {
     /**
      * Represents the overlay to apply to a split background SplitToggleChip to distinguish
      * between the two tappable areas. The overlay will be applied to "lighten" the background of
-     * area under the toggle icons, depending on the [enabled] and [checked] properties.
+     * area under the toggle control, depending on the [enabled] and [checked] properties.
      *
      * @param enabled Whether the chip is enabled
      * @param checked Whether the chip is currently checked/selected or unchecked/not selected
@@ -534,7 +534,7 @@ public interface SplitToggleChipColors {
 }
 
 /**
- * Contains the default values used by [ToggleChip]s
+ * Contains the default values used by [ToggleChip]s and [SplitToggleChip]s
  */
 public object ToggleChipDefaults {
 
@@ -662,7 +662,7 @@ public object ToggleChipDefaults {
     }
 
     /**
-     * Creates a [ToggleChipColors] for use in a [SplitToggleChip].
+     * Creates a [SplitToggleChipColors] for use in a [SplitToggleChip].
      *
      * @param backgroundColor The background color of this [SplitToggleChip] when enabled
      * @param contentColor The content color of this [SplitToggleChip] when enabled.
@@ -724,7 +724,8 @@ public object ToggleChipDefaults {
     )
 
     /**
-     * Creates switch style toggle [Icon]s for use in the toggleControl slot of a [ToggleChip].
+     * Creates switch style toggle [Icon]s for use in the toggleControl slot of a [ToggleChip] or
+     * [SplitToggleChip].
      * Depending on [checked] will return either an 'on' (checked) or 'off' (unchecked) switch icon.
      *
      * @param checked whether the [ToggleChip] or [SplitToggleChip] is currently 'on' (checked/true)
@@ -751,7 +752,8 @@ public object ToggleChipDefaults {
     }
 
     /**
-     * Creates a radio button style toggle [Icon]s for use in the toggleControl slot of a [ToggleChip].
+     * Creates a radio button style toggle [Icon]s for use in the toggleControl slot of a
+     * [ToggleChip] or [SplitToggleChip].
      * Depending on [checked] will return either an 'on' (checked) or 'off' (unchecked) radio button
      * icon.
      *
@@ -768,7 +770,8 @@ public object ToggleChipDefaults {
     }
 
     /**
-     * Creates a checkbox style toggle [Icon]s for use in the toggleControl slot of a [ToggleChip].
+     * Creates a checkbox style toggle [Icon]s for use in the toggleControl slot of a [ToggleChip]
+     * or [SplitToggleChip].
      * Depending on [checked] will return either an 'on' (ticked/checked) or 'off'
      * (unticked/unchecked) checkbox icon.
      *
@@ -785,25 +788,27 @@ public object ToggleChipDefaults {
     }
 
     /**
-     * The default height applied for the [ToggleChip].
-     * Note that you can override it by applying Modifier.heightIn directly on [ToggleChip].
+     * The default height applied for the [ToggleChip] or [SplitToggleChip].
+     * Note that you can override it by applying Modifier.heightIn directly on [ToggleChip] or
+     * [SplitToggleChip].
      */
     internal val Height = 52.dp
 
     /**
-     * The default size of app or toggle icons when used inside a [ToggleChip].
+     * The default size of app icons or toggle controls when used inside a [ToggleChip] or
+     * [SplitToggleChip].
      */
     public val IconSize: Dp = 24.dp
 
     /**
      * The default size of the spacing between an icon and a text when they are used inside a
-     * [ToggleChip].
+     * [ToggleChip] or [SplitToggleChip].
      */
     internal val IconSpacing = 6.dp
 
     /**
-     * The default size of the spacing between a toggle icon and text when they are used
-     * inside a [ToggleChip].
+     * The default size of the spacing between a toggle control and text when they are used
+     * inside a [ToggleChip] or [SplitToggleChip].
      */
     internal val ToggleControlSpacing = 4.dp
 
