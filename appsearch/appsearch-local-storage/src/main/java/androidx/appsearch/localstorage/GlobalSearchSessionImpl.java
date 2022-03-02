@@ -16,13 +16,18 @@
 // @exportToFramework:skipFile()
 package androidx.appsearch.localstorage;
 
+import static androidx.appsearch.app.AppSearchResult.throwableToFailedResult;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.Features;
+import androidx.appsearch.app.GenericDocument;
+import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.GetSchemaResponse;
 import androidx.appsearch.app.GlobalSearchSession;
 import androidx.appsearch.app.ReportSystemUsageRequest;
@@ -37,6 +42,8 @@ import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 /**
@@ -70,6 +77,35 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
         mLogger = logger;
 
         mSelfCallerAccess = new CallerAccess(/*callingPackageName=*/mContext.getPackageName());
+    }
+
+    @NonNull
+    @Override
+    public ListenableFuture<AppSearchBatchResult<String, GenericDocument>> getByDocumentIdAsync(
+            @NonNull String packageName,
+            @NonNull String databaseName,
+            @NonNull GetByDocumentIdRequest request) {
+        Preconditions.checkNotNull(packageName);
+        Preconditions.checkNotNull(databaseName);
+        Preconditions.checkNotNull(request);
+        Preconditions.checkState(!mIsClosed, "AppSearchSession has already been closed");
+        return FutureUtil.execute(mExecutor, () -> {
+            AppSearchBatchResult.Builder<String, GenericDocument> resultBuilder =
+                    new AppSearchBatchResult.Builder<>();
+
+            Map<String, List<String>> typePropertyPaths = request.getProjectionsInternal();
+            CallerAccess access = new CallerAccess(mContext.getPackageName());
+            for (String id : request.getIds()) {
+                try {
+                    GenericDocument document = mAppSearchImpl.globalGetDocument(packageName,
+                            databaseName, request.getNamespace(), id, typePropertyPaths, access);
+                    resultBuilder.setSuccess(id, document);
+                } catch (Throwable t) {
+                    resultBuilder.setResult(id, throwableToFailedResult(t));
+                }
+            }
+            return resultBuilder.build();
+        });
     }
 
     @NonNull

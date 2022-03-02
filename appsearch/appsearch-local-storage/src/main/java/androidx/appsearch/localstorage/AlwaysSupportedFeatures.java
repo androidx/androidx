@@ -39,6 +39,9 @@ public class AlwaysSupportedFeatures implements Features {
         if (Features.GLOBAL_SEARCH_SESSION_GET_SCHEMA.equals(feature)) {
             return true;
         }
+        if (Features.GLOBAL_SEARCH_SESSION_GET_BY_ID.equals(feature)) {
+            return true;
+        }
         if (Features.ADD_PERMISSIONS_AND_GET_VISIBILITY.equals(feature)) {
             return true;
         }

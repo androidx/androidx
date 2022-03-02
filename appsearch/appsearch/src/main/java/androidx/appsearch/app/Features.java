@@ -51,6 +51,14 @@ public interface Features {
 
     /**
      * Feature for {@link #isFeatureSupported(String)}. This feature covers
+     * {@link GlobalSearchSession#getByDocumentIdAsync}.
+     */
+    String GLOBAL_SEARCH_SESSION_GET_BY_ID = "GLOBAL_SEARCH_SESSION_GET_BY_ID";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}. This feature covers
+     * {@link SetSchemaRequest.Builder#addAllowedRoleForSchemaTypeVisibility},
+     * {@link SetSchemaRequest.Builder#clearAllowedRolesForSchemaTypeVisibility},
      * {@link GetSchemaResponse#getSchemaTypesNotDisplayedBySystem()},
      * {@link GetSchemaResponse#getSchemaTypesVisibleToPackages()},
      * {@link GetSchemaResponse#getRequiredPermissionsForSchemaTypeVisibility()},

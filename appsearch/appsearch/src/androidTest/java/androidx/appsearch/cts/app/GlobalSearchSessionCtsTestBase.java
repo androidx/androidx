@@ -28,12 +28,14 @@ import static org.junit.Assume.assumeTrue;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.Features;
 import androidx.appsearch.app.GenericDocument;
+import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.GetSchemaResponse;
 import androidx.appsearch.app.GlobalSearchSession;
 import androidx.appsearch.app.PutDocumentsRequest;
@@ -128,6 +130,48 @@ public abstract class GlobalSearchSessionCtsTestBase {
         List<GenericDocument> expectedDocuments = new ArrayList<>(beforeDocuments);
         expectedDocuments.addAll(addedDocuments);
         assertThat(afterDocuments).containsExactlyElementsIn(expectedDocuments);
+    }
+
+    @Test
+    public void testGlobalGetById() throws Exception {
+        assumeTrue(mGlobalSearchSession.getFeatures().isFeatureSupported(
+                Features.GLOBAL_SEARCH_SESSION_GET_BY_ID));
+        SearchSpec exactSearchSpec = new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build();
+
+        // Schema registration
+        mDb1.setSchema(
+                new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()).get();
+
+        AppSearchBatchResult<String, GenericDocument> nonExistent =
+                mGlobalSearchSession.getByDocumentIdAsync(mContext.getPackageName(), DB_NAME_1,
+                        new GetByDocumentIdRequest.Builder("namespace").addIds("id1")
+                                .build()).get();
+
+        assertThat(nonExistent.isSuccess()).isFalse();
+        assertThat(nonExistent.getSuccesses()).isEmpty();
+        assertThat(nonExistent.getFailures()).containsKey("id1");
+        assertThat(nonExistent.getFailures().get("id1").getResultCode())
+                .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
+
+        // Index a document
+        AppSearchEmail inEmail =
+                new AppSearchEmail.Builder("namespace", "id1")
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
+                        .build();
+        checkIsBatchResultSuccess(mDb1.put(
+                new PutDocumentsRequest.Builder().addGenericDocuments(inEmail).build()));
+
+        // Query for the document
+        AppSearchBatchResult<String, GenericDocument> afterPutDocuments =
+                mGlobalSearchSession.getByDocumentIdAsync(mContext.getPackageName(), DB_NAME_1,
+                        new GetByDocumentIdRequest.Builder("namespace").addIds("id1")
+                                .build()).get();
+        assertThat(afterPutDocuments.getSuccesses()).containsExactly("id1", inEmail);
     }
 
     @Test
@@ -1356,6 +1400,22 @@ public abstract class GlobalSearchSessionCtsTestBase {
         UnsupportedOperationException e = assertThrows(UnsupportedOperationException.class,
                 () -> mGlobalSearchSession.getSchema(mContext.getPackageName(), DB_NAME_1));
         assertThat(e).hasMessageThat().isEqualTo(Features.GLOBAL_SEARCH_SESSION_GET_SCHEMA
+                + " is not supported on this AppSearch implementation.");
+    }
+
+    @Test
+    public void testGlobalGetByDocumentId_notSupported() throws Exception {
+        assumeFalse(mGlobalSearchSession.getFeatures()
+                .isFeatureSupported(Features.GLOBAL_SEARCH_SESSION_GET_BY_ID));
+
+        Context context = ApplicationProvider.getApplicationContext();
+
+        UnsupportedOperationException e = assertThrows(UnsupportedOperationException.class,
+                () -> mGlobalSearchSession.getByDocumentIdAsync(context.getPackageName(), DB_NAME_1,
+                        new GetByDocumentIdRequest.Builder("namespace")
+                                .addIds("id").build()));
+
+        assertThat(e).hasMessageThat().isEqualTo(Features.GLOBAL_SEARCH_SESSION_GET_BY_ID
                 + " is not supported on this AppSearch implementation.");
     }
 
