@@ -103,7 +103,8 @@ fun ScalingLazyColumnEdgeAnchoredAndAnimatedScrollTo() {
             Chip(
                 onClick = {
                     coroutineScope.launch {
-                        state.animateScrollToItem(it, scrollOffset)
+                        // Add +1 to allow for the ListHeader
+                        state.animateScrollToItem(it + 1, scrollOffset)
                     }
                 },
                 label = { Text("List item $it") },
