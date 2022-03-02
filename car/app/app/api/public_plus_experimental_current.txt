@@ -153,6 +153,7 @@ package androidx.car.app {
   }
 
   public interface SurfaceCallback {
+    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(5) public default void onClick(float, float);
     method @androidx.car.app.annotations.RequiresCarApi(2) public default void onFling(float, float);
     method @androidx.car.app.annotations.RequiresCarApi(2) public default void onScale(float, float, float);
     method @androidx.car.app.annotations.RequiresCarApi(2) public default void onScroll(float, float);
