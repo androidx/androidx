@@ -141,7 +141,7 @@ public abstract class GlobalSearchSessionCtsTestBase {
                 .build();
 
         // Schema registration
-        mDb1.setSchema(
+        mDb1.setSchemaAsync(
                 new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()).get();
 
         AppSearchBatchResult<String, GenericDocument> nonExistent =
@@ -163,7 +163,7 @@ public abstract class GlobalSearchSessionCtsTestBase {
                         .setSubject("testPut example")
                         .setBody("This is the body of the testPut email")
                         .build();
-        checkIsBatchResultSuccess(mDb1.put(
+        checkIsBatchResultSuccess(mDb1.putAsync(
                 new PutDocumentsRequest.Builder().addGenericDocuments(inEmail).build()));
 
         // Query for the document
