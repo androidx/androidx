@@ -27,12 +27,12 @@ import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.state.updateAppWidgetState
-import androidx.glance.unit.ColorProvider
 import androidx.template.appwidget.GlanceTemplateAppWidget
 import androidx.template.template.SingleEntityTemplate
 import androidx.template.template.TemplateImageWithDescription
 import androidx.template.template.TemplateText
 import androidx.template.template.TemplateTextButton
+import androidx.template.template.TemplateText.Type
 
 class SingleEntityDemoWidget : GlanceTemplateAppWidget(SingleEntityInputWidgetTemplate)
 
@@ -55,14 +55,17 @@ private object SingleEntityInputWidgetTemplate : SingleEntityTemplate() {
 }
 
 private fun createData(toggled: Boolean) = SingleEntityTemplate.Data(
-    header = TemplateText("Single Entity Demo"),
+    header = TemplateText("Single Entity Demo", Type.Title),
     headerIcon = TemplateImageWithDescription(
         ImageProvider(R.drawable.compose),
         "Header icon"
     ),
-    title = TemplateText(getTitle(toggled)),
-    subtitle = TemplateText("Subtitle"),
-    body = TemplateText("Body Lorem ipsum dolor sit amet, consectetur adipiscing elit"),
+    text1 = TemplateText(getTitle(toggled), Type.Title),
+    text2 = TemplateText("Subtitle", Type.Label),
+    text3 = TemplateText(
+        "Body Lorem ipsum dolor sit amet, consectetur adipiscing elit",
+        Type.Body
+    ),
     button = TemplateTextButton(
         actionRunCallback<SEButtonAction>(),
         "Toggle title"
@@ -70,8 +73,7 @@ private fun createData(toggled: Boolean) = SingleEntityTemplate.Data(
     image = TemplateImageWithDescription(
         ImageProvider(R.drawable.compose),
         "Compose image"
-    ),
-    backgroundColor = ColorProvider(R.color.default_widget_background)
+    )
 )
 
 private fun getTitle(toggled: Boolean) = if (toggled) "Title2" else "Title1"

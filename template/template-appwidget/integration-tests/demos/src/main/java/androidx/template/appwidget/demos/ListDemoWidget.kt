@@ -34,6 +34,7 @@ import androidx.template.template.ListTemplate
 import androidx.template.template.TemplateImageWithDescription
 import androidx.template.template.TemplateText
 import androidx.template.template.TemplateTextButton
+import androidx.template.template.TemplateText.Type
 
 class ListDemoWidget : GlanceTemplateAppWidget(MyTemplate)
 
@@ -81,8 +82,11 @@ private object MyTemplate : ListTemplate() {
                 title = "$title (clicked)"
             }
             content.add(ListItem(
-                title = TemplateText(title),
-                body = TemplateText("Lorem ipsum dolor sit amet, consectetur adipiscing elit"),
+                title = TemplateText(title, Type.Title),
+                body = TemplateText(
+                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit",
+                    Type.Body
+                ),
                 image = TemplateImageWithDescription(
                     ImageProvider(R.drawable.compose), "List item $i image"
                 ),
@@ -93,9 +97,9 @@ private object MyTemplate : ListTemplate() {
         }
 
         return Data(
-            header = TemplateText("List Demo"),
+            header = TemplateText("List Demo", Type.Title),
             headerIcon = TemplateImageWithDescription(ImageProvider(R.drawable.compose), "Logo"),
-            title = TemplateText("Title"),
+            title = TemplateText("Title", Type.Title),
             button = TemplateTextButton(actionRunCallback<ListButtonAction>(), "Add item"),
             listContent = content,
             backgroundColor = ColorProvider(R.color.default_widget_background)

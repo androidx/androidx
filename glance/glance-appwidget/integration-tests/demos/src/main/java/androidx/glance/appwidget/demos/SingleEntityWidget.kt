@@ -27,12 +27,12 @@ import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.state.updateAppWidgetState
-import androidx.glance.unit.ColorProvider
 import androidx.template.appwidget.GlanceTemplateAppWidget
 import androidx.template.template.TemplateImageWithDescription
 import androidx.template.template.SingleEntityTemplate
 import androidx.template.template.TemplateText
 import androidx.template.template.TemplateTextButton
+import androidx.template.template.TemplateText.Type
 
 /** A [SingleEntityTemplate] implementation that sets the title given widget state */
 class MyWidgetTemplate : SingleEntityTemplate() {
@@ -61,19 +61,18 @@ class SingleEntityWidgetReceiver : GlanceAppWidgetReceiver() {
 }
 
 private fun createData(title: String) = SingleEntityTemplate.Data(
-    header = TemplateText("Single Entity demo"),
+    header = TemplateText("Single Entity demo", Type.Title),
     headerIcon = TemplateImageWithDescription(
         ImageProvider(R.drawable.compose),
         "Header icon"
     ),
-    title = TemplateText(title, 1),
-    subtitle = TemplateText("Subtitle test", 2),
+    text1 = TemplateText(title, Type.Title),
+    text2 = TemplateText("Subtitle test", Type.Title),
     button = TemplateTextButton(actionRunCallback<ButtonAction>(), "toggle"),
     image = TemplateImageWithDescription(
         ImageProvider(R.drawable.compose),
         "Compose image"
-    ),
-    backgroundColor = ColorProvider(R.color.default_widget_background)
+    )
 )
 
 private fun getHeader(pressed: Boolean) = if (pressed) "header2" else "header1"
