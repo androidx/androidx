@@ -39,6 +39,7 @@ import org.junit.runner.RunWith;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Objects;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
@@ -97,7 +98,11 @@ public class ParcelCompatTest {
         p.setDataPosition(0);
         SparseArray<Signature> s1 = ParcelCompat.readSparseArray(p,
                 Signature.class.getClassLoader(), Signature.class);
-        assertTrue(s.contentEquals(s1));
+        assertEquals(s.size(), s1.size());
+        for (int index = 0; index < s.size(); index++) {
+            int key = s.keyAt(index);
+            assertTrue(Objects.equals(s.valueAt(index), s1.get(key)));
+        }
 
         p.recycle();
     }
