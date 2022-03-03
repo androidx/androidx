@@ -35,7 +35,7 @@ import java.nio.BufferUnderflowException;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class FlashAvailabilityChecker {
-    private static final String TAG = "FlashAvailabilityChecker";
+    private static final String TAG = "FlashAvailability";
 
     /**
      * Checks whether the camera characteristics advertise that flash is available safely.
