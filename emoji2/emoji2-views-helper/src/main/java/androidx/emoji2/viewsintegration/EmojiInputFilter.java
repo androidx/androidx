@@ -114,7 +114,19 @@ final class EmojiInputFilter implements android.text.InputFilter {
             @Nullable final InputFilter myInputFilter = mEmojiInputFilterReference.get();
             if (!isInputFilterCurrentlyRegisteredOnTextView(textView, myInputFilter)) return;
             if (textView.isAttachedToWindow()) {
-                final CharSequence result = EmojiCompat.get().process(textView.getText());
+                final CharSequence originalText = textView.getText();
+                final CharSequence result = EmojiCompat.get().process(originalText);
+
+                // fixes: b/206859724
+                if (originalText == result) {
+                    // if it's the _same instance_ it is not safe to call setText() as the
+                    // originalText may be TextView$CharWrapper. It is also not necessary to
+                    // update the text or selection which will cause relayout.
+
+                    // If it's not the same instance, that means emoji2 has wrapped the
+                    // originalText with emoji spans, and it is safe to call setText().
+                    return;
+                }
 
                 final int selectionStart = Selection.getSelectionStart(result);
                 final int selectionEnd = Selection.getSelectionEnd(result);
