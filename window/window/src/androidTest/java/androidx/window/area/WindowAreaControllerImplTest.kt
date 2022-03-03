@@ -29,13 +29,14 @@ import androidx.window.extensions.area.WindowAreaComponent
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
 import java.util.function.Consumer
 import kotlin.test.assertFailsWith
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalWindowApi::class)
 class WindowAreaControllerImplTest {
@@ -44,11 +45,11 @@ class WindowAreaControllerImplTest {
     public val activityScenario: ActivityScenarioRule<TestActivity> =
         ActivityScenarioRule(TestActivity::class.java)
 
-    private val testScope = TestCoroutineScope()
+    private val testScope = TestScope(UnconfinedTestDispatcher())
 
     @TargetApi(Build.VERSION_CODES.N)
     @Test
-    public fun testRearDisplayStatus(): Unit = testScope.runBlockingTest {
+    public fun testRearDisplayStatus(): Unit = testScope.runTest {
         assumeTrue(Build.VERSION.SDK_INT > Build.VERSION_CODES.N)
         activityScenario.scenario.onActivity {
             val extensionComponent = FakeWindowAreaComponent()
@@ -70,7 +71,7 @@ class WindowAreaControllerImplTest {
     }
 
     @Test
-    public fun testRearDisplayStatusNullComponent(): Unit = testScope.runBlockingTest {
+    public fun testRearDisplayStatusNullComponent(): Unit = testScope.runTest {
         activityScenario.scenario.onActivity {
             val repo = EmptyWindowAreaControllerImpl()
             val collector = TestConsumer<WindowAreaStatus>()
@@ -89,7 +90,7 @@ class WindowAreaControllerImplTest {
      */
     @TargetApi(Build.VERSION_CODES.N)
     @Test
-    public fun testRearDisplayMode(): Unit = testScope.runBlockingTest {
+    public fun testRearDisplayMode(): Unit = testScope.runTest {
         val extensions = FakeWindowAreaComponent()
         val repo = WindowAreaControllerImpl(extensions)
         extensions.currentStatus = WindowAreaComponent.STATUS_AVAILABLE
@@ -120,7 +121,7 @@ class WindowAreaControllerImplTest {
 
     @TargetApi(Build.VERSION_CODES.N)
     @Test
-    public fun testRearDisplayModeReturnsError(): Unit = testScope.runBlockingTest {
+    public fun testRearDisplayModeReturnsError(): Unit = testScope.runTest {
         val extensionComponent = FakeWindowAreaComponent()
         extensionComponent.currentStatus = WindowAreaComponent.STATUS_UNAVAILABLE
         val repo = WindowAreaControllerImpl(extensionComponent)
@@ -134,7 +135,7 @@ class WindowAreaControllerImplTest {
     }
 
     @Test
-    public fun testRearDisplayModeNullComponent(): Unit = testScope.runBlockingTest {
+    public fun testRearDisplayModeNullComponent(): Unit = testScope.runTest {
         val repo = EmptyWindowAreaControllerImpl()
         val callback = TestWindowAreaSessionCallback()
         activityScenario.scenario.onActivity { testActivity ->
