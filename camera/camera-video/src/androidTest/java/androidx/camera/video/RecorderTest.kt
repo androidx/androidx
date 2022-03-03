@@ -520,8 +520,6 @@ class RecorderTest {
         runFileSizeLimitTest(fileSizeLimit)
     }
 
-    @LabTestRule.LabTestOnly
-    // TODO(b/221321104): flaky on AndroidX test, @LabTestOnly should be removed after resolved.
     @Test
     fun checkStreamState() {
         clearInvocations(videoRecordEventListener)
