@@ -30,6 +30,7 @@ dependencies {
     implementation(libs.protobufLite)
     implementation(libs.guavaListenableFuture)
     implementation(libs.guavaAndroid)
+    implementation(libs.kotlinCoroutinesAndroid)
 
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
@@ -38,7 +39,8 @@ dependencies {
     androidTestImplementation(libs.testRules)
     testImplementation(libs.mockitoCore)
     testImplementation(libs.robolectric)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.testExtJunit)
+    testImplementation(libs.kotlinTest)
 }
 
 android {

@@ -13,9 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-/** @hide */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 package androidx.health.platform.client;
 
 import androidx.annotation.RestrictTo;
+
+/**
+ * SDK Configurations
+ *
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+public final class SdkConfig {
+    // should be increased everytime a new SDK is released
+    public static final int SDK_VERSION = 1;
+
+    private SdkConfig() {}
+}
