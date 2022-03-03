@@ -19,9 +19,11 @@ package androidx.camera.view;
 import static androidx.camera.core.impl.utils.Threads.checkMainThread;
 import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor;
 import static androidx.camera.view.CameraController.OutputSize.UNASSIGNED_ASPECT_RATIO;
+import static androidx.core.content.ContextCompat.getMainExecutor;
 
 import static java.util.Collections.emptyList;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Matrix;
@@ -38,6 +40,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RequiresPermission;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.AspectRatio;
@@ -64,15 +67,26 @@ import androidx.camera.core.UseCaseGroup;
 import androidx.camera.core.ViewPort;
 import androidx.camera.core.ZoomState;
 import androidx.camera.core.impl.ImageOutputConfig;
+import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.lifecycle.ProcessCameraProvider;
+import androidx.camera.video.FallbackStrategy;
+import androidx.camera.video.FileDescriptorOutputOptions;
+import androidx.camera.video.FileOutputOptions;
+import androidx.camera.video.MediaStoreOutputOptions;
+import androidx.camera.video.OutputOptions;
+import androidx.camera.video.PendingRecording;
+import androidx.camera.video.Quality;
+import androidx.camera.video.QualitySelector;
+import androidx.camera.video.Recorder;
+import androidx.camera.video.Recording;
+import androidx.camera.video.VideoCapture;
+import androidx.camera.video.VideoRecordEvent;
 import androidx.camera.view.transform.OutputTransform;
 import androidx.camera.view.video.ExperimentalVideo;
-import androidx.camera.view.video.OnVideoSavedCallback;
-import androidx.camera.view.video.OutputFileOptions;
-import androidx.camera.view.video.OutputFileResults;
+import androidx.core.util.Consumer;
 import androidx.core.util.Preconditions;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -81,10 +95,11 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * The abstract base camera controller class.
@@ -108,7 +123,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * {@link UseCase}s freezes the preview for a short period of time. To avoid the glitch, the
  * {@link UseCase}s need to be enabled/disabled before the controller is set on {@link PreviewView}.
  */
-@SuppressWarnings("deprecation")
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public abstract class CameraController {
 
@@ -121,6 +135,8 @@ public abstract class CameraController {
     private static final String CAMERA_NOT_ATTACHED = "Use cases not attached to camera.";
     private static final String IMAGE_CAPTURE_DISABLED = "ImageCapture disabled.";
     private static final String VIDEO_CAPTURE_DISABLED = "VideoCapture disabled.";
+    private static final String VIDEO_RECORDING_UNFINISHED = "Recording video. Only one recording"
+            + " can be active at a time.";
 
     // Auto focus is 1/6 of the area.
     private static final float AF_SIZE = 1.0f / 6.0f;
@@ -254,18 +270,17 @@ public abstract class CameraController {
     @Nullable
     OutputSize mImageAnalysisTargetSize;
 
-    // Synthetic access
-    @SuppressWarnings("WeakerAccess")
     @NonNull
-    androidx.camera.core.VideoCapture mVideoCapture;
-
-    // Synthetic access
-    @SuppressWarnings("WeakerAccess")
-    @NonNull
-    final AtomicBoolean mVideoIsRecording = new AtomicBoolean(false);
+    VideoCapture<Recorder> mVideoCapture;
 
     @Nullable
-    OutputSize mVideoCaptureOutputSize;
+    Recording mActiveRecording = null;
+
+    @NonNull
+    Map<Consumer<VideoRecordEvent>, Recording> mRecordingMap = new HashMap<>();
+
+    @Nullable
+    Quality mVideoCaptureQuality;
 
     // The latest bound camera.
     // Synthetic access
@@ -322,7 +337,7 @@ public abstract class CameraController {
         mPreview = new Preview.Builder().build();
         mImageCapture = new ImageCapture.Builder().build();
         mImageAnalysis = new ImageAnalysis.Builder().build();
-        mVideoCapture = new androidx.camera.core.VideoCapture.Builder().build();
+        mVideoCapture = VideoCapture.withOutput(generateVideoCaptureRecorder(mVideoCaptureQuality));
 
         // Wait for camera to be initialized before binding use cases.
         mInitializationFuture = Futures.transform(
@@ -342,6 +357,18 @@ public abstract class CameraController {
             mImageCapture.setTargetRotation(rotation);
             mVideoCapture.setTargetRotation(rotation);
         };
+    }
+
+    private static Recorder generateVideoCaptureRecorder(Quality videoQuality) {
+        Recorder.Builder builder = new Recorder.Builder();
+        if (videoQuality != null) {
+            builder.setQualitySelector(QualitySelector.from(
+                    videoQuality,
+                    FallbackStrategy.lowerQualityOrHigherThan(videoQuality)
+            ));
+        }
+
+        return builder.build();
     }
 
     /**
@@ -427,7 +454,6 @@ public abstract class CameraController {
      * // Switch to video capture to shoot video.
      * controller.setEnabledUseCases(VIDEO_CAPTURE);
      * controller.startRecording(...);
-     * controller.stopRecording(...);
      *
      * // Switch back to image capture and image analysis before taking another picture.
      * controller.setEnabledUseCases(IMAGE_CAPTURE|IMAGE_ANALYSIS);
@@ -453,7 +479,7 @@ public abstract class CameraController {
         }
         int oldEnabledUseCases = mEnabledUseCases;
         mEnabledUseCases = enabledUseCases;
-        if (!isVideoCaptureEnabled()) {
+        if (!isVideoCaptureEnabled() && isRecording()) {
             stopRecording();
         }
         startCameraAndTrackStates(() -> mEnabledUseCases = oldEnabledUseCases);
@@ -650,7 +676,7 @@ public abstract class CameraController {
      * <p> By default, the saved image is mirrored to match the output of the preview if front
      * camera is used. To override this behavior, the app needs to explicitly set the flag to
      * {@code false} using {@link ImageCapture.Metadata#setReversedHorizontal} and
-     * {@link OutputFileOptions.Builder#setMetadata}.
+     * {@link ImageCapture.OutputFileOptions.Builder#setMetadata}.
      *
      * @param outputFileOptions  Options to store the newly captured image.
      * @param executor           The executor in which the callback methods will be run.
@@ -1120,99 +1146,284 @@ public abstract class CameraController {
     }
 
     /**
-     * Takes a video and calls the OnVideoSavedCallback when done.
+     * Takes a video to a given file.
      *
-     * @param outputFileOptions Options to store the newly captured video.
-     * @param executor          The executor in which the callback methods will be run.
-     * @param callback          Callback which will receive success or failure.
+     * <p> Only a single recording can be active at a time, so if {@link #isRecording()} is true,
+     * this will throw an {@link IllegalStateException}.
+     *
+     * <p> Upon successfully starting the recording, a {@link VideoRecordEvent.Start} event will
+     * be the first event sent to the provided event listener.
+     *
+     * <p> If errors occur while starting the recording, a {@link VideoRecordEvent.Finalize} event
+     * will be the first event sent to the provided listener, and information about the error can
+     * be found in that event's {@link VideoRecordEvent.Finalize#getError()} method.
+     *
+     * <p> Recording requires the {@link android.Manifest.permission#RECORD_AUDIO} permission;
+     * without it, starting a recording will fail with a {@link SecurityException}.
+     *
+     * @param outputOptions the options to store the newly captured video.
+     * @param executor the executor that the event listener will be run on.
+     * @param listener the event listener to handle video record events.
+     * @return a {@link Recording} that provides controls for new active recordings.
+     * @throws IllegalStateException if there is an unfinished active recording.
+     * @throws SecurityException if the {@link android.Manifest.permission#RECORD_AUDIO}
+     * permission is denied.
      */
-    @SuppressLint("MissingPermission")
+    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     @ExperimentalVideo
     @MainThread
-    public void startRecording(@NonNull OutputFileOptions outputFileOptions,
-            @NonNull Executor executor, final @NonNull OnVideoSavedCallback callback) {
-        checkMainThread();
-        Preconditions.checkState(isCameraInitialized(), CAMERA_NOT_INITIALIZED);
-        Preconditions.checkState(isVideoCaptureEnabled(), VIDEO_CAPTURE_DISABLED);
-
-        mVideoCapture.startRecording(outputFileOptions.toVideoCaptureOutputFileOptions(), executor,
-                new androidx.camera.core.VideoCapture.OnVideoSavedCallback() {
-                    @Override
-                    public void onVideoSaved(
-                            @NonNull androidx.camera.core.VideoCapture.OutputFileResults
-                                    outputFileResults) {
-                        mVideoIsRecording.set(false);
-                        callback.onVideoSaved(
-                                OutputFileResults.create(outputFileResults.getSavedUri()));
-                    }
-
-                    @Override
-                    public void onError(int videoCaptureError, @NonNull String message,
-                            @Nullable Throwable cause) {
-                        mVideoIsRecording.set(false);
-                        callback.onError(videoCaptureError, message, cause);
-                    }
-                });
-        mVideoIsRecording.set(true);
+    @NonNull
+    public Recording startRecording(
+            @NonNull FileOutputOptions outputOptions,
+            @NonNull Executor executor,
+            @NonNull Consumer<VideoRecordEvent> listener) {
+        return startRecordingInternal(outputOptions, executor, listener);
     }
 
     /**
-     * Stops a in progress video recording.
+     * Takes a video to a given file descriptor.
+     *
+     * <p> Currently, file descriptors as output destinations are not supported on pre-Android O
+     * (API 26) devices.
+     *
+     * <p> Only a single recording can be active at a time, so if {@link #isRecording()} is true,
+     * this will throw an {@link IllegalStateException}.
+     *
+     * <p> Upon successfully starting the recording, a {@link VideoRecordEvent.Start} event will
+     * be the first event sent to the provided event listener.
+     *
+     * <p> If errors occur while starting the recording, a {@link VideoRecordEvent.Finalize} event
+     * will be the first event sent to the provided listener, and information about the error can
+     * be found in that event's {@link VideoRecordEvent.Finalize#getError()} method.
+     *
+     * <p> Recording requires the {@link android.Manifest.permission#RECORD_AUDIO} permission;
+     * without it, starting a recording will fail with a {@link SecurityException}.
+     *
+     * @param outputOptions the options to store the newly captured video.
+     * @param executor the executor that the event listener will be run on.
+     * @param listener the event listener to handle video record events.
+     * @return a {@link Recording} that provides controls for new active recordings.
+     * @throws IllegalStateException if there is an unfinished active recording.
+     * @throws SecurityException if the {@link android.Manifest.permission#RECORD_AUDIO}
+     * permission is denied.
+     */
+    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
+    @ExperimentalVideo
+    @RequiresApi(26)
+    @MainThread
+    @NonNull
+    public Recording startRecording(
+            @NonNull FileDescriptorOutputOptions outputOptions,
+            @NonNull Executor executor,
+            @NonNull Consumer<VideoRecordEvent> listener) {
+        return startRecordingInternal(outputOptions, executor, listener);
+    }
+
+    /**
+     * Takes a video to MediaStore.
+     *
+     * <p> Only a single recording can be active at a time, so if {@link #isRecording()} is true,
+     * this will throw an {@link IllegalStateException}.
+     *
+     * <p> Upon successfully starting the recording, a {@link VideoRecordEvent.Start} event will
+     * be the first event sent to the provided event listener.
+     *
+     * <p> If errors occur while starting the recording, a {@link VideoRecordEvent.Finalize} event
+     * will be the first event sent to the provided listener, and information about the error can
+     * be found in that event's {@link VideoRecordEvent.Finalize#getError()} method.
+     *
+     * <p> Recording requires the {@link android.Manifest.permission#RECORD_AUDIO} permission;
+     * without it, starting a recording will fail with a {@link SecurityException}.
+     *
+     * @param outputOptions the options to store the newly captured video.
+     * @param executor the executor that the event listener will be run on.
+     * @param listener the event listener to handle video record events.
+     * @return a {@link Recording} that provides controls for new active recordings.
+     * @throws IllegalStateException if there is an unfinished active recording.
+     * @throws SecurityException if the {@link android.Manifest.permission#RECORD_AUDIO}
+     * permission is denied.
+     */
+    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
+    @ExperimentalVideo
+    @MainThread
+    @NonNull
+    public Recording startRecording(
+            @NonNull MediaStoreOutputOptions outputOptions,
+            @NonNull Executor executor,
+            @NonNull Consumer<VideoRecordEvent> listener) {
+        return startRecordingInternal(outputOptions, executor, listener);
+    }
+
+    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
+    @ExperimentalVideo
+    @MainThread
+    private Recording startRecordingInternal(
+            @NonNull OutputOptions outputOptions,
+            @NonNull Executor executor,
+            @NonNull Consumer<VideoRecordEvent> listener) {
+        checkMainThread();
+        Preconditions.checkState(isCameraInitialized(), CAMERA_NOT_INITIALIZED);
+        Preconditions.checkState(isVideoCaptureEnabled(), VIDEO_CAPTURE_DISABLED);
+        Preconditions.checkState(!isRecording(), VIDEO_RECORDING_UNFINISHED);
+
+        Consumer<VideoRecordEvent> wrappedListener =
+                wrapListenerToDeactivateRecordingOnFinalized(listener);
+        PendingRecording pendingRecording = prepareRecording(outputOptions).withAudioEnabled();
+        Recording recording = pendingRecording.start(executor, wrappedListener);
+        setActiveRecording(recording, wrappedListener);
+
+        return recording;
+    }
+
+    /**
+     * Generates a {@link PendingRecording} instance for starting a recording.
+     *
+     * <p> This method handles {@code prepareRecording()} methods for different output formats,
+     * and makes {@link #startRecordingInternal(OutputOptions, Executor, Consumer)} only handle
+     * the general flow.
+     *
+     * <p> This method uses the parent class {@link OutputOptions} as the parameter. On the other
+     * hand, the public {@code startRecording()} is overloaded with subclasses. The reason is to
+     * enforce compile-time check for API levels.
      */
     @ExperimentalVideo
     @MainThread
-    public void stopRecording() {
-        checkMainThread();
-        if (mVideoIsRecording.get()) {
-            mVideoCapture.stopRecording();
+    private PendingRecording prepareRecording(@NonNull OutputOptions options) {
+        Recorder recorder = mVideoCapture.getOutput();
+        if (options instanceof FileOutputOptions) {
+            return recorder.prepareRecording(mAppContext, (FileOutputOptions) options);
+        } else if (options instanceof FileDescriptorOutputOptions) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+                throw new UnsupportedOperationException(
+                        "File descriptors are not supported on pre-Android O (API 26) devices."
+                );
+            }
+            return recorder.prepareRecording(mAppContext, (FileDescriptorOutputOptions) options);
+        } else if (options instanceof MediaStoreOutputOptions) {
+            return recorder.prepareRecording(mAppContext, (MediaStoreOutputOptions) options);
+        } else {
+            throw new IllegalArgumentException("Unsupported OutputOptions type.");
+        }
+    }
+
+    @ExperimentalVideo
+    private Consumer<VideoRecordEvent> wrapListenerToDeactivateRecordingOnFinalized(
+            @NonNull final Consumer<VideoRecordEvent> listener) {
+        final Executor mainExecutor = getMainExecutor(mAppContext);
+
+        return new Consumer<VideoRecordEvent>() {
+            @Override
+            public void accept(VideoRecordEvent videoRecordEvent) {
+                if (videoRecordEvent instanceof VideoRecordEvent.Finalize) {
+                    if (!Threads.isMainThread()) {
+                        // Post on main thread to ensure thread safety.
+                        mainExecutor.execute(() -> deactivateRecordingByListener(this));
+                    } else {
+                        deactivateRecordingByListener(this);
+                    }
+                }
+                listener.accept(videoRecordEvent);
+            }
+        };
+    }
+
+    @ExperimentalVideo
+    @MainThread
+    void deactivateRecordingByListener(@NonNull Consumer<VideoRecordEvent> listener) {
+        Recording recording = mRecordingMap.remove(listener);
+        if (recording != null) {
+            deactivateRecording(recording);
         }
     }
 
     /**
-     * Returns whether there is a in progress video recording.
+     * Clears the active video recording reference if the recording to be deactivated matches.
+     */
+    @ExperimentalVideo
+    @MainThread
+    private void deactivateRecording(@NonNull Recording recording) {
+        if (mActiveRecording == recording) {
+            mActiveRecording = null;
+        }
+    }
+
+    @ExperimentalVideo
+    @MainThread
+    private void setActiveRecording(
+            @NonNull Recording recording,
+            @NonNull Consumer<VideoRecordEvent> listener) {
+        mRecordingMap.put(listener, recording);
+        mActiveRecording = recording;
+    }
+
+    /**
+     * Stops an in-progress video recording.
+     *
+     * <p> Once the current recording has been stopped, the next recording can be started.
+     *
+     * <p> If the recording completes successfully, a {@link VideoRecordEvent.Finalize} event with
+     * {@link VideoRecordEvent.Finalize#ERROR_NONE} will be sent to the provided listener.
+     */
+    @ExperimentalVideo
+    @MainThread
+    private void stopRecording() {
+        checkMainThread();
+
+        if (mActiveRecording != null) {
+            mActiveRecording.stop();
+            deactivateRecording(mActiveRecording);
+        }
+    }
+
+    /**
+     * Returns whether there is an in-progress video recording.
      */
     @ExperimentalVideo
     @MainThread
     public boolean isRecording() {
         checkMainThread();
-        return mVideoIsRecording.get();
+        return mActiveRecording != null && !mActiveRecording.isClosed();
     }
 
     /**
-     * Sets the intended video size for {@code VideoCapture}.
+     * Sets the intended video quality for {@code VideoCapture}.
      *
-     * <p> The value is used as a hint when determining the resolution and aspect ratio of
-     * the video. The actual output may differ from the requested value due to device constraints.
+     * <p> The value is used as a hint when determining the resolution of the video.
+     * The actual output may differ from the requested value due to device constraints.
+     * The {@link FallbackStrategy#lowerQualityOrHigherThan(Quality)} fallback strategy
+     * will be applied when the quality is not supported.
      *
-     * <p> When set to null, the output will be based on the default config of {@code VideoCapture}.
+     * <p> When set to null, the output will be based on the default config of {@link
+     * Recorder#DEFAULT_QUALITY_SELECTOR}.
      *
-     * <p> Changing the value will reconfigure the camera which will cause video capture to stop.
-     * To avoid this, set the value before controller is bound to lifecycle.
+     * <p> Changing the value will reconfigure the camera which will cause video
+     * capture to stop. To avoid this, set the value before controller is bound to
+     * lifecycle.
      *
-     * @param targetSize the intended video size for {@code VideoCapture}.
+     * @param targetQuality the intended video quality for {@code VideoCapture}.
      */
     @ExperimentalVideo
     @MainThread
-    public void setVideoCaptureTargetSize(@Nullable OutputSize targetSize) {
+    public void setVideoCaptureTargetQuality(@Nullable Quality targetQuality) {
         checkMainThread();
-        if (isOutputSizeEqual(mVideoCaptureOutputSize, targetSize)) {
+        if (targetQuality == mVideoCaptureQuality) {
             return;
         }
-        mVideoCaptureOutputSize = targetSize;
+        mVideoCaptureQuality = targetQuality;
         unbindVideoAndRecreate();
         startCameraAndTrackStates();
     }
 
     /**
-     * Returns the intended output size for {@code VideoCapture} set by
-     * {@link #setVideoCaptureTargetSize(OutputSize)}, or null if not set.
+     * Returns the intended quality for {@code VideoCapture} set by
+     * {@link #setVideoCaptureTargetQuality(Quality)}, or null if not set.
      */
     @ExperimentalVideo
     @MainThread
     @Nullable
-    public OutputSize getVideoCaptureTargetSize() {
+    public Quality getVideoCaptureTargetQuality() {
         checkMainThread();
-        return mVideoCaptureOutputSize;
+        return mVideoCaptureQuality;
     }
 
     /**
@@ -1222,10 +1433,7 @@ public abstract class CameraController {
         if (isCameraInitialized()) {
             mCameraProvider.unbind(mVideoCapture);
         }
-        androidx.camera.core.VideoCapture.Builder builder =
-                new androidx.camera.core.VideoCapture.Builder();
-        setTargetOutputSize(builder, mVideoCaptureOutputSize);
-        mVideoCapture = builder.build();
+        mVideoCapture = VideoCapture.withOutput(generateVideoCaptureRecorder(mVideoCaptureQuality));
     }
 
     // -----------------
@@ -1806,7 +2014,6 @@ public abstract class CameraController {
      * @see #setImageAnalysisTargetSize(OutputSize)
      * @see #setPreviewTargetSize(OutputSize)
      * @see #setImageCaptureTargetSize(OutputSize)
-     * @see #setVideoCaptureTargetSize(OutputSize)
      */
     @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static final class OutputSize {
