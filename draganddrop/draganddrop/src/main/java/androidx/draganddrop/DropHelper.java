@@ -65,7 +65,7 @@ import java.util.List;
  *
  * @see <a href="https://developer.android.com/guide/topics/ui/drag-drop">Drag and drop</a>
  * @see <a href="https://developer.android.com/guide/topics/large-screens/multi-window-support#dnd">
- *     Multi-window support</a>
+ *      Multi-window support</a>
  */
 public final class DropHelper {
 
@@ -77,11 +77,11 @@ public final class DropHelper {
      * Configures a {@code View} for drag and drop operations, including the highlighting that
      * indicates the view is a drop target. Sets a listener that enables the view to handle dropped
      * data.
-     * <p>
-     * Same as <code>{@link #configureView(Activity, View, String[], Options,
+     *
+     * <p>Same as <code>{@link #configureView(Activity, View, String[], Options,
      * OnReceiveContentListener)}</code> but with default configuration options.
-     * <p>
-     * <b>Note:</b> If the drop target contains {@link EditText} elements, you must use
+     *
+     * <p><b>Note:</b> If the drop target contains {@link EditText} elements, you must use
      * {@link #configureView(Activity, View, String[], Options, OnReceiveContentListener)}. The
      * {@code Options} argument enables you to specify a list of the {@code EditText} elements
      * (see {@link Options.Builder#addInnerEditTexts(EditText...)}).
@@ -109,16 +109,16 @@ public final class DropHelper {
      * Configures a {@code View} for drag and drop operations, including the highlighting that
      * indicates the view is a drop target. Sets a listener that enables the view to handle dropped
      * data.
-     * <p>
-     * If the drop target's view hierarchy contains any {@code EditText} elements, they all must be
-     * specified in {@code options} (see {@link Options.Builder#addInnerEditTexts(EditText...)}).
-     * <p>
-     * View highlighting occurs for a drag action only if a MIME type in the
+     *
+     * <p>If the drop target's view hierarchy contains any {@code EditText} elements, they all must
+     * be specified in {@code options} (see {@link Options.Builder#addInnerEditTexts(EditText...)}).
+     *
+     * <p>View highlighting occurs for a drag action only if a MIME type in the
      * {@link android.content.ClipDescription ClipDescription} matches a MIME type provided in
      * {@code mimeTypes}; wildcards are allowed (for example, "image/*"). A drop can be executed
      * and passed on to the {@code OnReceiveContentListener} even if the MIME type is not matched.
-     * <p>
-     * See {@link DropHelper} for more information.
+     *
+     * <p>See {@link DropHelper} for more information.
      *
      * @param activity The current {@code Activity} (used for URI permissions).
      * @param dropTarget A {@code View} that accepts the drag and drop data.
@@ -333,11 +333,15 @@ public final class DropHelper {
         }
 
         /**
-         * Indicates whether or not we should respond to drag events when the drag operation
-         * contains a {@link DragEvent#getLocalState() localState}. Setting localState is only
-         * possible when the drag operation originated from this Activity.
+         * Indicates whether or not the app should respond to drag events when the drag operation
+         * contains {@link DragEvent#getLocalState() local state}. By default, the app does not
+         * respond to drag events that have local state.
          *
-         * @return True if drag events will be accepted when the localState is non-null.
+         * Setting local state is only possible when the drag operation originated from this
+         * activity.
+         *
+         * @return True if drag events will be accepted when the local state is non-null, otherwise
+         *      false.
          */
         public boolean shouldAcceptDragsWithLocalState() {
             return mAcceptDragsWithLocalState;
@@ -387,8 +391,8 @@ public final class DropHelper {
              * the drop target view hierarchy must be included in a call to this method. Otherwise,
              * an {@code EditText} within the target, rather than the target view itself, acquires
              * focus during the drag and drop operation.
-             * <p>
-             * If the user is dragging text data and URI data in the drag and drop
+             *
+             * <p>If the user is dragging text data and URI data in the drag and drop
              * {@link ClipData}, one of the {@code EditText} elements in the drop target is
              * selected to handle the text data. Selection is based on the following order of
              * precedence:
@@ -397,16 +401,16 @@ public final class DropHelper {
              *     <li>The {@code EditText} (if any) that contains the text cursor (caret)
              *     <li>The first {@code EditText} provided in {@code editTexts}
              * </ol>
-             * <p>
-             * To set the default {@code EditText}, make it the first argument of the
+             *
+             * <p>To set the default {@code EditText}, make it the first argument of the
              * {@code editTexts} parameter. For example, if your drop target handles images and
              * contains two editable text fields, T1 and T2, make T2 the default by calling
              * <code>addInnerEditTexts(T2, T1)</code>.
-             * <p>
-             * <b>Note:</b> Behavior is undefined if {@code EditText}s are added to or removed
+             *
+             * <p><b>Note:</b> Behavior is undefined if {@code EditText}s are added to or removed
              * from the drop target after this method has been called.
-             * <p>
-             * See {@link DropHelper} for more information.
+             *
+             * <p>See {@link DropHelper} for more information.
              *
              * @param editTexts The {@code EditText} elements contained in the drop target.
              * @return This {@link DropHelper.Options.Builder} instance.
@@ -427,8 +431,8 @@ public final class DropHelper {
              * to
              * {@link DropHelper#configureView(Activity, View, String[], OnReceiveContentListener)
              * DropHelper#configureView}.
-             * <p>
-             * <b>Note:</b> Opacity, if provided, is ignored.
+             *
+             * <p><b>Note:</b> Opacity, if provided, is ignored.
              *
              * @param highlightColor The highlight color.
              * @return This {@link DropHelper.Options.Builder} instance.
@@ -458,22 +462,20 @@ public final class DropHelper {
             }
 
             /**
-             * Sets whether or not we should respond to drag events when the drag operation contains
-             * a {@link DragEvent#getLocalState() localState}. Setting localState is only possible
-             * when the drag operation originated from this Activity.
+             * Sets whether or not the app should respond to drag events when the drag operation
+             * contains {@link DragEvent#getLocalState() local state}. By default, the app does not
+             * respond to drag events that have local state.
              *
-             * <p>
-             * By default, this is false.
+             * Setting local state is only possible when the drag operation originated from the
+             * current activity.
              *
-             * <p>
-             * Note that to elicit the default behavior of ignoring drags from the same Activity as
-             * the drop target, the localState supplied when starting the drag (via
+             * <p><b>Note:</b> To elicit the default behavior of ignoring drags from the same
+             * activity as the drop target, the local state supplied when starting the drag (via
              * {@link View#startDragAndDrop(ClipData, View.DragShadowBuilder, Object, int)} or using
-             * <a href="https://developer.android.com/reference/androidx/core/view/DragStartHelper">DragStartHelper</a>
-             * must be set to non-null.
+             * {@link androidx.core.view.DragStartHelper}) must be non-null.
              *
              * @param acceptDragsWithLocalState Whether or not to accept drag events with non-null
-             *                                  localState.
+             *      local state.
              * @return This {@link DropHelper.Options.Builder} instance.
              */
             public @NonNull Options.Builder setAcceptDragsWithLocalState(
