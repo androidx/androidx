@@ -1,6 +1,12 @@
 // Signature format: 4.0
 package androidx.health.data.client.metadata {
 
+  public final class DataOrigin {
+    ctor public DataOrigin(String packageName);
+    method public String getPackageName();
+    property public final String packageName;
+  }
+
   public final class Device {
     ctor public Device(optional String? identifier, optional String? manufacturer, optional String? model, optional String? type);
     method public String? getIdentifier();
@@ -13,15 +19,30 @@ package androidx.health.data.client.metadata {
     property public final String? type;
   }
 
+  public final class DeviceTypes {
+    field public static final String CHEST_STRAP = "CHEST_STRAP";
+    field public static final String FITNESS_BAND = "FITNESS_BAND";
+    field public static final String HEAD_MOUNTED = "HEAD_MOUNTED";
+    field public static final androidx.health.data.client.metadata.DeviceTypes INSTANCE;
+    field public static final String PHONE = "PHONE";
+    field public static final String RING = "RING";
+    field public static final String SCALE = "SCALE";
+    field public static final String SMART_DISPLAY = "SMART_DISPLAY";
+    field public static final String UNKNOWN = "UNKNOWN";
+    field public static final String WATCH = "WATCH";
+  }
+
   public final class Metadata {
-    ctor public Metadata(optional String? uid, optional java.time.Instant lastModifiedTime, optional String? clientId, optional long clientVersion, optional androidx.health.data.client.metadata.Device? device);
+    ctor public Metadata(optional String? uid, optional androidx.health.data.client.metadata.DataOrigin dataOrigin, optional java.time.Instant lastModifiedTime, optional String? clientId, optional long clientVersion, optional androidx.health.data.client.metadata.Device? device);
     method public String? getClientId();
     method public long getClientVersion();
+    method public androidx.health.data.client.metadata.DataOrigin getDataOrigin();
     method public androidx.health.data.client.metadata.Device? getDevice();
     method public java.time.Instant getLastModifiedTime();
     method public String? getUid();
     property public final String? clientId;
     property public final long clientVersion;
+    property public final androidx.health.data.client.metadata.DataOrigin dataOrigin;
     property public final androidx.health.data.client.metadata.Device? device;
     property public final java.time.Instant lastModifiedTime;
     property public final String? uid;
