@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright (C) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.health.platform.client.error
 
 import android.os.Parcelable
@@ -27,7 +26,7 @@ import java.lang.reflect.Field
 class ErrorStatus
 constructor(
     @ErrorCode val errorCode: Int,
-    internal val errorMessage: String? = null
+    val errorMessage: String? = null,
 ) : ProtoParcelable<ErrorProto.ErrorStatus>() {
 
     override val proto: ErrorProto.ErrorStatus by lazy {
@@ -39,10 +38,7 @@ constructor(
     companion object {
         @JvmStatic
         @JvmOverloads
-        fun create(
-            errorCode: Int,
-            errorMessage: String? = null
-        ): ErrorStatus {
+        fun create(errorCode: Int, errorMessage: String? = null): ErrorStatus {
             return ErrorStatus(safeErrorCode(errorCode), errorMessage)
         }
 

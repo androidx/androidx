@@ -43,5 +43,4 @@ public object MealTypes {
             MealTypes.SNACK,
         ]
 )
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 annotation class MealType

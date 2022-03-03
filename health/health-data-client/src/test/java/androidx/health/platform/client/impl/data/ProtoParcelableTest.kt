@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright (C) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.health.platform.client.impl.data
 
 import android.os.Parcel
 import android.os.Parcelable
-import androidx.test.filters.MediumTest
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import com.google.protobuf.ByteString
 import com.google.protobuf.BytesValue
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
 
-@MediumTest
-@RunWith(RobolectricTestRunner::class)
+@RunWith(AndroidJUnit4::class)
 class ProtoParcelableTest {
 
     @Test
@@ -60,15 +57,17 @@ private fun parcelAndRead(
     // now read it back out and create the result
     parcel.setDataPosition(0)
 
-    return TestProtoParcelable.CREATOR.createFromParcel(parcel)
+    @Suppress("UNCHECKED_CAST") // Safe to use in test
+    val creator =
+        protoParcelable.javaClass.getField("CREATOR").get(protoParcelable) as
+            Parcelable.Creator<TestProtoParcelable>
+    return creator.createFromParcel(parcel)
 }
 
 private class TestProtoParcelable(override val proto: BytesValue) : ProtoParcelable<BytesValue>() {
-    companion object {
-        @JvmField
-        val CREATOR: Parcelable.Creator<TestProtoParcelable> = newCreator {
-            val proto = BytesValue.parseFrom(it)
-            TestProtoParcelable(proto)
-        }
+    @JvmField
+    val CREATOR: Parcelable.Creator<TestProtoParcelable> = newCreator {
+        val proto = BytesValue.parseFrom(it)
+        TestProtoParcelable(proto)
     }
 }

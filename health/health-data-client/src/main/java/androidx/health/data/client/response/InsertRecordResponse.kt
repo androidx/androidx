@@ -15,14 +15,16 @@
  */
 package androidx.health.data.client.response
 
+import androidx.annotation.RestrictTo
+
 /**
  * Response to record insertion.
  *
  * @see [HealthDataClient.insertRecord]
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 class InsertRecordResponse
-/* internal */
-constructor(
+internal constructor(
     /*
      * Contains
      * [androidx.health.data.client.metadata.Metadata.uid] of inserted [Record] in same order as

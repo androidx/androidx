@@ -15,7 +15,10 @@
  */
 package androidx.health.data.client.aggregate
 
+import androidx.annotation.RestrictTo
+
 /** A common interface that all derived or aggregated metrics share. */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 interface AggregateMetric {
     /** Data type of the metric, for SDK internal use only. */
     val dataTypeName: String

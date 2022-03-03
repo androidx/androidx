@@ -18,6 +18,7 @@ package androidx.health.data.client.metadata
 import java.time.Instant
 
 /** Set of shared metadata fields for [androidx.health.data.client.records.Record]. */
+@SuppressWarnings("NewApi") // Temporary until we can enable java8 desugaring effectively.
 public class Metadata(
     /**
      * Unique identifier of this data, assigned by the Android Health Platform at insertion time.

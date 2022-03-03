@@ -25,7 +25,8 @@ class InsertDataResponse(val dataPointUids: List<String>) :
         get() {
             val obj = this
             return ResponseProto.InsertDataResponse.newBuilder()
-                .addAllDataPointUid(obj.dataPointUids).build()
+                .addAllDataPointUid(obj.dataPointUids)
+                .build()
         }
 
     companion object {

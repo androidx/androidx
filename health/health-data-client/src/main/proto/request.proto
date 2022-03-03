@@ -82,6 +82,7 @@ message ReadDataRangeRequest {
   optional TimeSpec time_spec = 1;
   optional DataType data_type = 2;
   repeated DataOrigin data_origin_filters = 3;
+  optional bool asc_ordering = 7 [default = true];
   optional int32 limit = 4;
   optional int32 page_size = 5;
   optional string page_token = 6;

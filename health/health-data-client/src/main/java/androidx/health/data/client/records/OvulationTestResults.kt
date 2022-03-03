@@ -15,6 +15,7 @@
  */
 package androidx.health.data.client.records
 
+import androidx.annotation.RestrictTo
 import androidx.annotation.StringDef
 
 /** The result of a user's ovulation test, which shows if they're ovulating or not. */
@@ -35,4 +36,5 @@ public object OvulationTestResults {
             OvulationTestResults.POSITIVE,
         ]
 )
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 annotation class OvulationTestResult

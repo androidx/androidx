@@ -17,44 +17,11 @@ package androidx.health.platform.client.permission
 
 import android.os.Parcelable
 import androidx.health.platform.client.impl.data.ProtoParcelable
-import androidx.health.platform.client.proto.DataProto
 import androidx.health.platform.client.proto.PermissionProto
 
-/** Pair of DataType and AccessType. */
-class Permission(
-    val dataType: DataProto.DataType,
-    val accessType: AccessType,
-) : ProtoParcelable<PermissionProto.Permission>() {
-
-    internal constructor(
-        proto: PermissionProto.Permission
-    ) : this(proto.dataType, AccessType.fromProto(proto.accessType))
-
-    enum class AccessType(public val id: Int) {
-        UNKNOWN(0),
-        READ(1),
-        WRITE(2);
-
-        internal fun toProto(): PermissionProto.AccessType =
-            PermissionProto.AccessType.forNumber(id)
-                ?: PermissionProto.AccessType.ACCESS_TYPE_UNKNOWN
-
-        companion object {
-            fun fromProto(proto: PermissionProto.AccessType): AccessType =
-                values().firstOrNull { it.id == proto.number } ?: UNKNOWN
-        }
-    }
-
-    override val proto: PermissionProto.Permission by lazy {
-        PermissionProto.Permission.newBuilder()
-            .setDataType(dataType)
-            .setAccessType(accessType.toProto())
-            .build()
-    }
-
-    override fun toString(): String = "Permission(dataType=$dataType, accessType=$accessType)"
-    override fun equals(other: Any?): Boolean =
-        other is Permission && other.dataType == dataType && other.accessType === accessType
+/** Internal parcelable wrapper over proto object. */
+class Permission(override val proto: PermissionProto.Permission) :
+    ProtoParcelable<PermissionProto.Permission>() {
 
     companion object {
         @JvmField
