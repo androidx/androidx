@@ -67,7 +67,7 @@ import java.util.Calendar
 @Composable
 fun TimePickerWithHoursMinutesSeconds() {
     var selectedColumn by remember { mutableStateOf(0) }
-    val textStyle = MaterialTheme.typography.display2
+    val textStyle = MaterialTheme.typography.display3
     val optionColor = MaterialTheme.colors.secondary
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -90,11 +90,10 @@ fun TimePickerWithHoursMinutesSeconds() {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceEvenly,
+                horizontalArrangement = Arrangement.Center,
             ) {
-                val selectablePickerModifier = Modifier.size(48.dp, 100.dp)
+                val selectablePickerModifier = Modifier.size(40.dp, 100.dp)
                 val separation = (-10).dp
-                Spacer(Modifier.width(4.dp))
                 SelectablePicker(
                     selected = selectedColumn == 0,
                     state = rememberPickerState(initialNumberOfOptions = 24,
@@ -109,7 +108,7 @@ fun TimePickerWithHoursMinutesSeconds() {
                         style = textStyle,
                     )
                 }
-                Separator(2.dp)
+                Separator(6.dp, textStyle)
                 SelectablePicker(
                     selected = selectedColumn == 1,
                     state = rememberPickerState(initialNumberOfOptions = 60),
@@ -123,7 +122,7 @@ fun TimePickerWithHoursMinutesSeconds() {
                         style = textStyle,
                     )
                 }
-                Separator(2.dp)
+                Separator(6.dp, textStyle)
                 SelectablePicker(
                     selected = selectedColumn == 2,
                     state = rememberPickerState(initialNumberOfOptions = 60),
@@ -137,7 +136,6 @@ fun TimePickerWithHoursMinutesSeconds() {
                         style = textStyle,
                     )
                 }
-                Spacer(Modifier.width(4.dp))
             }
             Spacer(Modifier.fillMaxWidth().weight(weightsToCenterVertically))
             Button(onClick = {}) {
@@ -157,6 +155,7 @@ fun TimePickerWithHoursMinutesSeconds() {
 fun TimePickerWith12HourClock() {
     var morning by remember { mutableStateOf(true) }
     var selectedColumn by remember { mutableStateOf(0) }
+    val textStyle = MaterialTheme.typography.display1
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -191,7 +190,7 @@ fun TimePickerWith12HourClock() {
                 selected = selectedColumn == 0,
                 state = rememberPickerState(initialNumberOfOptions = 12,
                     initiallySelectedOption = 6),
-                modifier = Modifier.size(64.dp, 120.dp),
+                modifier = Modifier.size(64.dp, 100.dp),
                 separation = (-10).dp,
                 label = { LabelText("Hour") }
             ) { hour: Int ->
@@ -199,13 +198,14 @@ fun TimePickerWith12HourClock() {
                     selected = selectedColumn == 0,
                     onSelected = { selectedColumn = 0 },
                     text = "%2d".format(hour + 1),
+                    style = textStyle,
                 )
             }
-            Separator(8.dp)
+            Separator(8.dp, textStyle)
             SelectablePicker(
                 selected = selectedColumn == 1,
                 state = rememberPickerState(initialNumberOfOptions = 60),
-                modifier = Modifier.size(64.dp, 120.dp),
+                modifier = Modifier.size(64.dp, 100.dp),
                 separation = (-10).dp,
                 label = { LabelText("Minute") }
             ) { minute: Int ->
@@ -213,6 +213,7 @@ fun TimePickerWith12HourClock() {
                     selected = selectedColumn == 1,
                     onSelected = { selectedColumn = 1 },
                     text = "%02d".format(minute),
+                    style = textStyle,
                 )
             }
             Spacer(Modifier.width(8.dp))
@@ -294,7 +295,7 @@ fun DatePicker() {
             val offset = when (selectedColumn) {
                 0 -> (boxConstraints.maxWidth - dayWidth) / 2
                 1 -> (boxConstraints.maxWidth - monthWidth) / 2 - dayWidth - spacerWidth
-                else -> (boxConstraints.maxWidth - yearWidth) / 2 - monthWidth - spacerWidth
+                else -> (boxConstraints.maxWidth - yearWidth) / 2 - monthWidth
             }
             Row(modifier = Modifier.fillMaxWidth().offset(offset)) {
                 if (selectedColumn < 2) {
@@ -329,13 +330,13 @@ fun DatePicker() {
             Button(
                 onClick = { selectedColumn = (selectedColumn + 1) % 3 },
                 colors =
-                    if (selectedColumn < 2) ButtonDefaults.secondaryButtonColors()
-                    else ButtonDefaults.primaryButtonColors()
+                if (selectedColumn < 2) ButtonDefaults.secondaryButtonColors()
+                else ButtonDefaults.primaryButtonColors()
             ) {
                 DemoIcon(
                     resourceId =
-                        if (selectedColumn < 2) R.drawable.ic_chevron_right_24
-                        else R.drawable.ic_check_24px
+                    if (selectedColumn < 2) R.drawable.ic_chevron_right_24
+                    else R.drawable.ic_check_24px
                 )
             }
             Spacer(Modifier.height(12.dp))
@@ -430,14 +431,14 @@ private fun BoxScope.TimePiece(
         maxLines = 1,
         style = style,
         color =
-            if (selected) MaterialTheme.colors.secondary
-            else MaterialTheme.colors.onBackground,
+        if (selected) MaterialTheme.colors.secondary
+        else MaterialTheme.colors.onBackground,
         modifier =
-            if (selected) modifier
-            else modifier.pointerInteropFilter {
-                if (it.action == MotionEvent.ACTION_DOWN) onSelected()
-                true
-            },
+        if (selected) modifier
+        else modifier.pointerInteropFilter {
+            if (it.action == MotionEvent.ACTION_DOWN) onSelected()
+            true
+        },
     )
 }
 
@@ -445,18 +446,18 @@ private fun BoxScope.TimePiece(
 private fun BoxScope.LabelText(text: String) {
     Text(
         text = text,
-        style = MaterialTheme.typography.button,
+        style = MaterialTheme.typography.caption1,
         color = MaterialTheme.colors.onBackground,
-        modifier = Modifier.align(Alignment.TopCenter).offset(y = 12.dp)
+        modifier = Modifier.align(Alignment.TopCenter).offset(y = 8.dp)
     )
 }
 
 @Composable
-private fun Separator(width: Dp) {
+private fun Separator(width: Dp, textStyle: TextStyle) {
     Spacer(Modifier.width(width))
     Text(
         text = ":",
-        style = MaterialTheme.typography.display2,
+        style = textStyle,
         color = MaterialTheme.colors.onBackground
     )
     Spacer(Modifier.width(width))
