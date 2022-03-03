@@ -49,8 +49,9 @@ gradleEnterprise {
             value("BUILD_NUMBER", buildNumber)
             link("ci.android.com build", "https://ci.android.com/builds/branches/aosp-androidx-main/grid?head=$buildNumber&tail=$buildNumber")
         }
-        publishAlways()
-        publishIfAuthenticated()
+        // Do not publish scan for androidx-platform-dev
+        // publishAlways()
+        // publishIfAuthenticated()
     }
 }
 
