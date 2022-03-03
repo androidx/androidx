@@ -138,6 +138,7 @@ public class EncoderImpl implements Encoder {
     private static final long NO_LIMIT_LONG = Long.MAX_VALUE;
     private static final Range<Long> NO_RANGE = Range.create(NO_LIMIT_LONG, NO_LIMIT_LONG);
     private static final long STOP_TIMEOUT_MS = 1000L;
+    private static final long TIMESTAMP_ANY = -1;
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final String mTag;
@@ -365,7 +366,7 @@ public class EncoderImpl implements Encoder {
      */
     @Override
     public void stop() {
-        stop(generatePresentationTimeUs());
+        stop(TIMESTAMP_ANY);
     }
 
     /**
@@ -376,6 +377,9 @@ public class EncoderImpl implements Encoder {
      *
      * <p>The encoder will try to provide the last {@link EncodedData} with a timestamp as close
      * as to the given stop timestamp.
+     *
+     * <p>Use {@link #stop()} to stop the encoder without specifying expected stop time and let
+     * the Encoder to decide.
      *
      * @param expectedStopTimeUs The desired stop time.
      */
@@ -393,14 +397,30 @@ public class EncoderImpl implements Encoder {
                     InternalState currentState = mState;
                     setState(STOPPING);
                     final long startTimeUs = mStartStopTimeRangeUs.getLower();
-                    Preconditions.checkState(startTimeUs != NO_LIMIT_LONG,
-                            "There should be a \"start\" before \"stop\"");
-                    Preconditions.checkArgument(expectedStopTimeUs >= startTimeUs, "The expected "
-                            + "stop time should be greater than the start time.");
+                    if (startTimeUs == NO_LIMIT_LONG) {
+                        throw new AssertionError("There should be a \"start\" before \"stop\"");
+                    }
+                    long stopTimeUs;
+                    if (expectedStopTimeUs == TIMESTAMP_ANY) {
+                        stopTimeUs = generatePresentationTimeUs();
+                    } else if (expectedStopTimeUs < startTimeUs) {
+                        // If the recording is stopped immediately after started, it's possible
+                        // that the expected stop time is less than the start time because the
+                        // encoder is run on different executor. Ignore the expected stop time in
+                        // this case so that the recording can be stopped correctly.
+                        Logger.w(mTag, "The expected stop time is less than the start time. Use "
+                                + "current time as stop time.");
+                        stopTimeUs = generatePresentationTimeUs();
+                    } else {
+                        stopTimeUs = expectedStopTimeUs;
+                    }
+                    if (stopTimeUs < startTimeUs) {
+                        throw new AssertionError("The start time should be before the stop time.");
+                    }
                     // Store the stop time. The codec will be stopped after receiving the data
                     // that has a timestamp equal or greater than the stop time.
-                    mStartStopTimeRangeUs = Range.create(startTimeUs, expectedStopTimeUs);
-                    Logger.d(mTag, "Stop on " + DebugUtils.readableUs(expectedStopTimeUs));
+                    mStartStopTimeRangeUs = Range.create(startTimeUs, stopTimeUs);
+                    Logger.d(mTag, "Stop on " + DebugUtils.readableUs(stopTimeUs));
                     // If the Encoder is paused and has received enough data, directly signal
                     // the codec to stop.
                     if (currentState == PAUSED && mLastDataStopTimestamp != null) {
