@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
+<issues format="6" by="lint 7.3.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha05)" variant="all" version="7.3.0-alpha05">
 
     <issue
         id="UnsafeOptInUsageError"
@@ -26,6 +26,28 @@
     <issue
         id="UnsafeOptInUsageError"
         message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
+        errorLine1="            camera2ConfigurationBuilder.setCaptureRequestOption(captureParameter.first,"
+        errorLine2="                                                                ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/internal/AdaptingCaptureStage.java"
+            line="43"
+            column="65"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
+        errorLine1="                    captureParameter.second);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/internal/AdaptingCaptureStage.java"
+            line="44"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
         errorLine1="        captureConfigBuilder.addImplementationOptions(camera2ConfigurationBuilder.build());"
         errorLine2="                                                                                  ~~~~~">
         <location
@@ -43,6 +65,17 @@
             file="src/main/java/androidx/camera/extensions/internal/sessionprocessor/AdvancedSessionProcessor.java"
             line="120"
             column="47"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
+        errorLine1="                CaptureRequestOptions.Builder.from(parameters).build();"
+        errorLine2="                                                   ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/internal/sessionprocessor/AdvancedSessionProcessor.java"
+            line="120"
+            column="52"/>
     </issue>
 
     <issue
@@ -81,6 +114,28 @@
     <issue
         id="UnsafeOptInUsageError"
         message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
+        errorLine1="                camera2ConfigBuilder.setCaptureRequestOption(objKey,"
+        errorLine2="                                                             ~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/internal/sessionprocessor/AdvancedSessionProcessor.java"
+            line="267"
+            column="62"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
+        errorLine1="                        implRequest.getParameters().get(objKey));"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/internal/sessionprocessor/AdvancedSessionProcessor.java"
+            line="268"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
         errorLine1="            mParameters = camera2ConfigBuilder.build();"
         errorLine2="                                               ~~~~~">
         <location
@@ -104,11 +159,33 @@
         id="UnsafeOptInUsageError"
         message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
         errorLine1="            new Camera2ImplConfig.Extender&lt;>(builder).setCameraEventCallback("
+        errorLine2="                                             ~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/internal/ImageCaptureConfigProvider.java"
+            line="112"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
+        errorLine1="            new Camera2ImplConfig.Extender&lt;>(builder).setCameraEventCallback("
         errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/internal/ImageCaptureConfigProvider.java"
             line="112"
             column="55"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
+        errorLine1="                    new CameraEventCallbacks(imageCaptureEventAdapter));"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/internal/ImageCaptureConfigProvider.java"
+            line="113"
+            column="21"/>
     </issue>
 
     <issue
@@ -126,11 +203,33 @@
         id="UnsafeOptInUsageError"
         message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
         errorLine1="            new Camera2ImplConfig.Extender&lt;>(builder).setCameraEventCallback("
+        errorLine2="                                             ~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/internal/PreviewConfigProvider.java"
+            line="112"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
+        errorLine1="            new Camera2ImplConfig.Extender&lt;>(builder).setCameraEventCallback("
         errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/internal/PreviewConfigProvider.java"
             line="112"
             column="55"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
+        errorLine1="                    new CameraEventCallbacks(previewEventAdapter));"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/internal/PreviewConfigProvider.java"
+            line="113"
+            column="21"/>
     </issue>
 
 </issues>
