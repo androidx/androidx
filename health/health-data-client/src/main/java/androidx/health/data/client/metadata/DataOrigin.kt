@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The Android Open Source Project
+ * Copyright (C) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,26 @@
  */
 package androidx.health.data.client.metadata
 
-import androidx.annotation.RestrictTo
 import androidx.health.data.client.records.Record
 
 /**
  * Specifies the original source of any [Record]: application that inserted it and device on which
  * the data was generated.
  *
- * [applicationId] is populated automatically by Health Platform at insertion time based on the
- * caller application ID.
+ * @property packageName auto-populated by Health Platform at insertion time of the client package
+ * name.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-data class DataOrigin(val applicationId: String)
+public class DataOrigin(public val packageName: String) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is DataOrigin) return false
+
+        if (packageName != other.packageName) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return packageName.hashCode()
+    }
+}

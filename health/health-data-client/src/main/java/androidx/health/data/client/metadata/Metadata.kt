@@ -24,6 +24,11 @@ public class Metadata(
      */
     public val uid: String? = null,
 
+    /**
+     * Where the data comes from, such as application information originally generated this data.
+     */
+    public val dataOrigin: DataOrigin = DataOrigin(""),
+
     /** Automatically populated to when data was last modified (or originally created). */
     public val lastModifiedTime: Instant = Instant.EPOCH,
 
@@ -41,6 +46,7 @@ public class Metadata(
         if (other !is Metadata) return false
 
         if (uid != other.uid) return false
+        if (dataOrigin != other.dataOrigin) return false
         if (lastModifiedTime != other.lastModifiedTime) return false
         if (clientId != other.clientId) return false
         if (clientVersion != other.clientVersion) return false
@@ -51,6 +57,7 @@ public class Metadata(
 
     override fun hashCode(): Int {
         var result = uid?.hashCode() ?: 0
+        result = 31 * result + dataOrigin.hashCode()
         result = 31 * result + lastModifiedTime.hashCode()
         result = 31 * result + (clientId?.hashCode() ?: 0)
         result = 31 * result + clientVersion.hashCode()
