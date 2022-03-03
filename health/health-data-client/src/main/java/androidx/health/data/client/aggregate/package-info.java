@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-/**
- * @hide
- */
+/** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 package androidx.health.data.client.aggregate;
 
