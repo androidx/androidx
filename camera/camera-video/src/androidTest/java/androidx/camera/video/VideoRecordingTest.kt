@@ -562,7 +562,7 @@ class VideoRecordingTest(
                         .accept(any(VideoRecordEvent.Status::class.java))
                 }
 
-            verify(mockListener, timeout(5000L))
+            inOrder.verify(mockListener, timeout(5000L))
                 .accept(any(VideoRecordEvent.Finalize::class.java))
         } finally {
             file1.delete()
