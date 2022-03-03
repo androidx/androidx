@@ -60,9 +60,6 @@ function run() {
   fi
 }
 
-# Confirm the existence of .git dirs. TODO(b/170634430) remove this
-(echo "top commit:" && git --no-pager log -1)
-
 # export some variables
 ANDROID_HOME=../../prebuilts/fullsdk-linux
 
