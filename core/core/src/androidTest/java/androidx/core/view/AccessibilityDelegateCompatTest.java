@@ -592,9 +592,17 @@ public class AccessibilityDelegateCompatTest extends
     @SdkSuppress(minSdkVersion = 19)
     public void testSetAccessibilityPaneTitle_sendsOutCorrectEvent() throws TimeoutException {
         final Activity activity = mActivityTestRule.getActivity();
+        final CharSequence title = "Sample title";
 
         sUiAutomation.executeAndWaitForEvent(
-                () -> ViewCompat.setAccessibilityPaneTitle(mView, "test"),
+                () -> {
+                    try {
+                        mActivityTestRule.runOnUiThread(() ->
+                                ViewCompat.setAccessibilityPaneTitle(mView, title));
+                    } catch (Throwable throwable) {
+                        throwable.printStackTrace();
+                    }
+                },
                 event -> {
                     boolean isWindowStateChanged = event.getEventType()
                             == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED;
@@ -605,14 +613,14 @@ public class AccessibilityDelegateCompatTest extends
                     boolean isFromThisPackage = Build.VERSION.SDK_INT == 28
                             || TextUtils.equals(event.getPackageName(),
                             activity.getPackageName());
-
-                    boolean isSourceNull = event.getSource() == null;
-                    boolean isFromThisSource = !isSourceNull
-                            && event.getSource().equals(mView.createAccessibilityNodeInfo());
-                    // Don't check source if source is null.
-                    return
-                            isWindowStateChanged && (isPaneTitle != 0) && isFromThisPackage
-                            && (isSourceNull || isFromThisSource);
+                    boolean hasTitleText = false;
+                    if (event.getText().size() > 0) {
+                        hasTitleText = event.getText().get(0).equals(title);
+                    }
+                    return isWindowStateChanged
+                            && (isPaneTitle != 0)
+                            && isFromThisPackage
+                            && hasTitleText;
                 },
                 TIMEOUT_ASYNC_PROCESSING);
     }
@@ -628,7 +636,15 @@ public class AccessibilityDelegateCompatTest extends
         assertNull(getNodeCompatForView(mView).getStateDescription());
 
         sUiAutomation.executeAndWaitForEvent(
-                () -> ViewCompat.setStateDescription(mView, state), event -> {
+                () -> {
+                    try {
+                        mActivityTestRule.runOnUiThread(() ->
+                                ViewCompat.setStateDescription(mView, state));
+                    } catch (Throwable throwable) {
+                        throwable.printStackTrace();
+                    }
+                },
+                event -> {
                     boolean isContentChanged = event.getEventType()
                             == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED;
                     int isStateDescription = (event.getContentChangeTypes()
