@@ -51,14 +51,14 @@ public class GlobalSearchSessionLocalCtsTest extends GlobalSearchSessionCtsTestB
     @Override
     protected ListenableFuture<AppSearchSession> createSearchSession(@NonNull String dbName) {
         Context context = ApplicationProvider.getApplicationContext();
-        return LocalStorage.createSearchSession(
+        return LocalStorage.createSearchSessionAsync(
                 new LocalStorage.SearchContext.Builder(context, dbName).build());
     }
 
     @Override
     protected ListenableFuture<GlobalSearchSession> createGlobalSearchSession() {
         Context context = ApplicationProvider.getApplicationContext();
-        return LocalStorage.createGlobalSearchSession(
+        return LocalStorage.createGlobalSearchSessionAsync(
                 new LocalStorage.GlobalSearchContext.Builder(context).build());
     }
 
@@ -88,12 +88,12 @@ public class GlobalSearchSessionLocalCtsTest extends GlobalSearchSessionCtsTestB
     public void testLogger_searchStatsLogged_forEmptyFirstPage() throws Exception {
         SimpleTestLogger logger = new SimpleTestLogger();
         Context context = ApplicationProvider.getApplicationContext();
-        AppSearchSession db2 = LocalStorage.createSearchSession(
+        AppSearchSession db2 = LocalStorage.createSearchSessionAsync(
                 new LocalStorage.SearchContext.Builder(context, DB_NAME_2)
                         .setLogger(logger).build()).get();
 
         // Schema registration
-        db2.setSchema(
+        db2.setSchemaAsync(
                 new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()).get();
 
         // Index documents
@@ -111,10 +111,10 @@ public class GlobalSearchSessionLocalCtsTest extends GlobalSearchSessionCtsTestB
                         .setSubject("testPut example")
                         .setBody("This is the body of the testPut email")
                         .build();
-        checkIsBatchResultSuccess(db2.put(
+        checkIsBatchResultSuccess(db2.putAsync(
                 new PutDocumentsRequest.Builder().addGenericDocuments(inEmail1, inEmail2).build()));
 
-        GlobalSearchSession globalSearchSession = LocalStorage.createGlobalSearchSession(
+        GlobalSearchSession globalSearchSession = LocalStorage.createGlobalSearchSessionAsync(
                 new LocalStorage.GlobalSearchContext.Builder(context).setLogger(
                         logger).build()).get();
         assertThat(logger.mSearchStats).isNull();
@@ -128,7 +128,7 @@ public class GlobalSearchSessionLocalCtsTest extends GlobalSearchSessionCtsTestB
                 .build());
 
         // Get first page
-        List<SearchResult> page = searchResults.getNextPage().get();
+        List<SearchResult> page = searchResults.getNextPageAsync().get();
         assertThat(page).hasSize(0);
 
         // Check searchStats has been set. We won't check all the fields here.
@@ -149,12 +149,12 @@ public class GlobalSearchSessionLocalCtsTest extends GlobalSearchSessionCtsTestB
     public void testLogger_searchStatsLogged_forNonEmptyFirstPage() throws Exception {
         SimpleTestLogger logger = new SimpleTestLogger();
         Context context = ApplicationProvider.getApplicationContext();
-        AppSearchSession db2 = LocalStorage.createSearchSession(
+        AppSearchSession db2 = LocalStorage.createSearchSessionAsync(
                 new LocalStorage.SearchContext.Builder(context, DB_NAME_2)
                         .setLogger(logger).build()).get();
 
         // Schema registration
-        db2.setSchema(
+        db2.setSchemaAsync(
                 new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()).get();
 
         // Index documents
@@ -172,10 +172,10 @@ public class GlobalSearchSessionLocalCtsTest extends GlobalSearchSessionCtsTestB
                         .setSubject("testPut example")
                         .setBody("This is the body of the testPut email")
                         .build();
-        checkIsBatchResultSuccess(db2.put(
+        checkIsBatchResultSuccess(db2.putAsync(
                 new PutDocumentsRequest.Builder().addGenericDocuments(inEmail1, inEmail2).build()));
 
-        GlobalSearchSession globalSearchSession = LocalStorage.createGlobalSearchSession(
+        GlobalSearchSession globalSearchSession = LocalStorage.createGlobalSearchSessionAsync(
                 new LocalStorage.GlobalSearchContext.Builder(context).setLogger(
                         logger).build()).get();
         assertThat(logger.mSearchStats).isNull();
@@ -189,7 +189,7 @@ public class GlobalSearchSessionLocalCtsTest extends GlobalSearchSessionCtsTestB
                 .build());
 
         // Get first page
-        List<SearchResult> page = searchResults.getNextPage().get();
+        List<SearchResult> page = searchResults.getNextPageAsync().get();
         assertThat(page).hasSize(1);
 
         // Check searchStats has been set. We won't check all the fields here.
@@ -210,12 +210,12 @@ public class GlobalSearchSessionLocalCtsTest extends GlobalSearchSessionCtsTestB
     public void testLogger_searchStatsLogged_forEmptySecondPage() throws Exception {
         SimpleTestLogger logger = new SimpleTestLogger();
         Context context = ApplicationProvider.getApplicationContext();
-        AppSearchSession db2 = LocalStorage.createSearchSession(
+        AppSearchSession db2 = LocalStorage.createSearchSessionAsync(
                 new LocalStorage.SearchContext.Builder(context, DB_NAME_2)
                         .setLogger(logger).build()).get();
 
         // Schema registration
-        db2.setSchema(
+        db2.setSchemaAsync(
                 new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()).get();
 
         // Index documents
@@ -233,10 +233,10 @@ public class GlobalSearchSessionLocalCtsTest extends GlobalSearchSessionCtsTestB
                         .setSubject("testPut example")
                         .setBody("This is the body of the testPut email")
                         .build();
-        checkIsBatchResultSuccess(db2.put(
+        checkIsBatchResultSuccess(db2.putAsync(
                 new PutDocumentsRequest.Builder().addGenericDocuments(inEmail1, inEmail2).build()));
 
-        GlobalSearchSession globalSearchSession = LocalStorage.createGlobalSearchSession(
+        GlobalSearchSession globalSearchSession = LocalStorage.createGlobalSearchSessionAsync(
                 new LocalStorage.GlobalSearchContext.Builder(context).setLogger(
                         logger).build()).get();
         assertThat(logger.mSearchStats).isNull();
@@ -250,12 +250,12 @@ public class GlobalSearchSessionLocalCtsTest extends GlobalSearchSessionCtsTestB
                 .build());
 
         // Get first page
-        List<SearchResult> page = searchResults.getNextPage().get();
+        List<SearchResult> page = searchResults.getNextPageAsync().get();
         assertThat(page).hasSize(2);
 
         // Get second(empty) page
         logger.mSearchStats = null;
-        page = searchResults.getNextPage().get();
+        page = searchResults.getNextPageAsync().get();
         assertThat(page).hasSize(0);
 
         // Check searchStats has been set. We won't check all the fields here.
@@ -276,12 +276,12 @@ public class GlobalSearchSessionLocalCtsTest extends GlobalSearchSessionCtsTestB
     public void testLogger_searchStatsLogged_forNonEmptySecondPage() throws Exception {
         SimpleTestLogger logger = new SimpleTestLogger();
         Context context = ApplicationProvider.getApplicationContext();
-        AppSearchSession db2 = LocalStorage.createSearchSession(
+        AppSearchSession db2 = LocalStorage.createSearchSessionAsync(
                 new LocalStorage.SearchContext.Builder(context, DB_NAME_2)
                         .setLogger(logger).build()).get();
 
         // Schema registration
-        db2.setSchema(
+        db2.setSchemaAsync(
                 new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()).get();
 
         // Index documents
@@ -299,10 +299,10 @@ public class GlobalSearchSessionLocalCtsTest extends GlobalSearchSessionCtsTestB
                         .setSubject("testPut example")
                         .setBody("This is the body of the testPut email")
                         .build();
-        checkIsBatchResultSuccess(db2.put(
+        checkIsBatchResultSuccess(db2.putAsync(
                 new PutDocumentsRequest.Builder().addGenericDocuments(inEmail1, inEmail2).build()));
 
-        GlobalSearchSession globalSearchSession = LocalStorage.createGlobalSearchSession(
+        GlobalSearchSession globalSearchSession = LocalStorage.createGlobalSearchSessionAsync(
                 new LocalStorage.GlobalSearchContext.Builder(context).setLogger(
                         logger).build()).get();
         assertThat(logger.mSearchStats).isNull();
@@ -316,12 +316,12 @@ public class GlobalSearchSessionLocalCtsTest extends GlobalSearchSessionCtsTestB
                 .build());
 
         // Get first page
-        List<SearchResult> page = searchResults.getNextPage().get();
+        List<SearchResult> page = searchResults.getNextPageAsync().get();
         assertThat(page).hasSize(1);
 
         // Get second page
         logger.mSearchStats = null;
-        page = searchResults.getNextPage().get();
+        page = searchResults.getNextPageAsync().get();
         assertThat(page).hasSize(1);
 
         // Check searchStats has been set. We won't check all the fields here.

@@ -177,18 +177,28 @@ package androidx.appsearch.app {
 
   public interface AppSearchSession extends java.io.Closeable {
     method public void close();
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchBatchResult<java.lang.String!,androidx.appsearch.app.GenericDocument!>!> getByDocumentId(androidx.appsearch.app.GetByDocumentIdRequest);
+    method @Deprecated public default com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchBatchResult<java.lang.String!,androidx.appsearch.app.GenericDocument!>!> getByDocumentId(androidx.appsearch.app.GetByDocumentIdRequest);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchBatchResult<java.lang.String!,androidx.appsearch.app.GenericDocument!>!> getByDocumentIdAsync(androidx.appsearch.app.GetByDocumentIdRequest);
     method public androidx.appsearch.app.Features getFeatures();
-    method public com.google.common.util.concurrent.ListenableFuture<java.util.Set<java.lang.String!>!> getNamespaces();
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.GetSchemaResponse!> getSchema();
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.StorageInfo!> getStorageInfo();
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchBatchResult<java.lang.String!,java.lang.Void!>!> put(androidx.appsearch.app.PutDocumentsRequest);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchBatchResult<java.lang.String!,java.lang.Void!>!> remove(androidx.appsearch.app.RemoveByDocumentIdRequest);
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> remove(String, androidx.appsearch.app.SearchSpec);
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> reportUsage(androidx.appsearch.app.ReportUsageRequest);
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> requestFlush();
+    method @Deprecated public default com.google.common.util.concurrent.ListenableFuture<java.util.Set<java.lang.String!>!> getNamespaces();
+    method public com.google.common.util.concurrent.ListenableFuture<java.util.Set<java.lang.String!>!> getNamespacesAsync();
+    method @Deprecated public default com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.GetSchemaResponse!> getSchema();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.GetSchemaResponse!> getSchemaAsync();
+    method @Deprecated public default com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.StorageInfo!> getStorageInfo();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.StorageInfo!> getStorageInfoAsync();
+    method @Deprecated public default com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchBatchResult<java.lang.String!,java.lang.Void!>!> put(androidx.appsearch.app.PutDocumentsRequest);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchBatchResult<java.lang.String!,java.lang.Void!>!> putAsync(androidx.appsearch.app.PutDocumentsRequest);
+    method @Deprecated public default com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchBatchResult<java.lang.String!,java.lang.Void!>!> remove(androidx.appsearch.app.RemoveByDocumentIdRequest);
+    method @Deprecated public default com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> remove(String, androidx.appsearch.app.SearchSpec);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchBatchResult<java.lang.String!,java.lang.Void!>!> removeAsync(androidx.appsearch.app.RemoveByDocumentIdRequest);
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> removeAsync(String, androidx.appsearch.app.SearchSpec);
+    method @Deprecated public default com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> reportUsage(androidx.appsearch.app.ReportUsageRequest);
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> reportUsageAsync(androidx.appsearch.app.ReportUsageRequest);
+    method @Deprecated public default com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> requestFlush();
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> requestFlushAsync();
     method public androidx.appsearch.app.SearchResults search(String, androidx.appsearch.app.SearchSpec);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.SetSchemaResponse!> setSchema(androidx.appsearch.app.SetSchemaRequest);
+    method @Deprecated public default com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.SetSchemaResponse!> setSchema(androidx.appsearch.app.SetSchemaRequest);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.SetSchemaResponse!> setSchemaAsync(androidx.appsearch.app.SetSchemaRequest);
   }
 
   public interface DocumentClassFactory<T> {
@@ -291,9 +301,11 @@ package androidx.appsearch.app {
     method public void close();
     method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.GLOBAL_SEARCH_SESSION_GET_BY_ID) public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchBatchResult<java.lang.String!,androidx.appsearch.app.GenericDocument!>!> getByDocumentIdAsync(String, String, androidx.appsearch.app.GetByDocumentIdRequest);
     method public androidx.appsearch.app.Features getFeatures();
-    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.GLOBAL_SEARCH_SESSION_GET_SCHEMA) public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.GetSchemaResponse!> getSchema(String, String);
+    method @Deprecated @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.GLOBAL_SEARCH_SESSION_GET_SCHEMA) public default com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.GetSchemaResponse!> getSchema(String, String);
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.GLOBAL_SEARCH_SESSION_GET_SCHEMA) public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.GetSchemaResponse!> getSchemaAsync(String, String);
     method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER) public void removeObserver(String, androidx.appsearch.observer.AppSearchObserverCallback);
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> reportSystemUsage(androidx.appsearch.app.ReportSystemUsageRequest);
+    method @Deprecated public default com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> reportSystemUsage(androidx.appsearch.app.ReportSystemUsageRequest);
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> reportSystemUsageAsync(androidx.appsearch.app.ReportSystemUsageRequest);
     method public androidx.appsearch.app.SearchResults search(String, androidx.appsearch.app.SearchSpec);
   }
 
@@ -406,7 +418,8 @@ package androidx.appsearch.app {
 
   public interface SearchResults extends java.io.Closeable {
     method public void close();
-    method public com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.appsearch.app.SearchResult!>!> getNextPage();
+    method @Deprecated public default com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.appsearch.app.SearchResult!>!> getNextPage();
+    method public com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.appsearch.app.SearchResult!>!> getNextPageAsync();
   }
 
   public final class SearchSpec {

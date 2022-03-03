@@ -22,9 +22,9 @@ import androidx.core.util.Preconditions;
 /**
  * A request to report usage of a document.
  *
- * <p>See {@link AppSearchSession#reportUsage} for a detailed description of usage reporting.
+ * <p>See {@link AppSearchSession#reportUsageAsync} for a detailed description of usage reporting.
  *
- * @see AppSearchSession#reportUsage
+ * @see AppSearchSession#reportUsageAsync
  */
 public final class ReportUsageRequest {
     private final String mNamespace;

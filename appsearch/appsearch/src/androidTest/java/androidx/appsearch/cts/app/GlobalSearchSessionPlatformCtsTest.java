@@ -45,14 +45,14 @@ public class GlobalSearchSessionPlatformCtsTest extends GlobalSearchSessionCtsTe
     @Override
     protected ListenableFuture<AppSearchSession> createSearchSession(@NonNull String dbName) {
         Context context = ApplicationProvider.getApplicationContext();
-        return PlatformStorage.createSearchSession(
+        return PlatformStorage.createSearchSessionAsync(
                 new PlatformStorage.SearchContext.Builder(context, dbName).build());
     }
 
     @Override
     protected ListenableFuture<GlobalSearchSession> createGlobalSearchSession() {
         Context context = ApplicationProvider.getApplicationContext();
-        return PlatformStorage.createGlobalSearchSession(
+        return PlatformStorage.createGlobalSearchSessionAsync(
                 new PlatformStorage.GlobalSearchContext.Builder(context).build());
     }
 
@@ -141,12 +141,12 @@ public class GlobalSearchSessionPlatformCtsTest extends GlobalSearchSessionCtsTe
 
         // One schema should be set with global access and the other should be set with local
         // access.
-        mDb1.setSchema(
+        mDb1.setSchemaAsync(
                 new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()).get();
 
         Context context = ApplicationProvider.getApplicationContext();
         UnsupportedOperationException e = assertThrows(UnsupportedOperationException.class,
-                () -> mGlobalSearchSession.getSchema(context.getPackageName(), DB_NAME_1));
+                () -> mGlobalSearchSession.getSchemaAsync(context.getPackageName(), DB_NAME_1));
         assertThat(e).hasMessageThat().isEqualTo(Features.GLOBAL_SEARCH_SESSION_GET_SCHEMA
                 + " is not supported on this AppSearch implementation.");
     }

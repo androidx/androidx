@@ -28,7 +28,7 @@ public class AnnotationProcessorLocalTest extends AnnotationProcessorTestBase {
     @Override
     protected ListenableFuture<AppSearchSession> createSearchSession(@NonNull String dbName) {
         Context context = ApplicationProvider.getApplicationContext();
-        return LocalStorage.createSearchSession(
+        return LocalStorage.createSearchSessionAsync(
                 new LocalStorage.SearchContext.Builder(context, dbName).build());
     }
 }

@@ -133,7 +133,8 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
      */
     @NonNull
     @Override
-    public ListenableFuture<Void> reportSystemUsage(@NonNull ReportSystemUsageRequest request) {
+    public ListenableFuture<Void> reportSystemUsageAsync(
+            @NonNull ReportSystemUsageRequest request) {
         Preconditions.checkNotNull(request);
         Preconditions.checkState(!mIsClosed, "GlobalSearchSession has already been closed");
         return FutureUtil.execute(mExecutor, () -> {
@@ -146,7 +147,7 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
     @SuppressLint("KotlinPropertyAccess")
     @NonNull
     @Override
-    public ListenableFuture<GetSchemaResponse> getSchema(
+    public ListenableFuture<GetSchemaResponse> getSchemaAsync(
             @NonNull String packageName, @NonNull String databaseName) {
         Preconditions.checkNotNull(packageName);
         Preconditions.checkNotNull(databaseName);

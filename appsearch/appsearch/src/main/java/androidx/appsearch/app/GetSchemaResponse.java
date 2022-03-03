@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/** The response class of {@link AppSearchSession#getSchema} */
+/** The response class of {@link AppSearchSession#getSchemaAsync} */
 public final class GetSchemaResponse {
     private static final String VERSION_FIELD = "version";
     private static final String SCHEMAS_FIELD = "schemas";
@@ -101,7 +101,7 @@ public final class GetSchemaResponse {
 
     /**
      * Return the schemas most recently successfully provided to
-     * {@link AppSearchSession#setSchema}.
+     * {@link AppSearchSession#setSchemaAsync}.
      *
      * <p>It is inefficient to call this method repeatedly.
      */

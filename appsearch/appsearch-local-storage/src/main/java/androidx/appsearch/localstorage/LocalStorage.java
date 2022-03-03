@@ -270,7 +270,7 @@ public class LocalStorage {
      *                {@link AppSearchSession}
      */
     @NonNull
-    public static ListenableFuture<AppSearchSession> createSearchSession(
+    public static ListenableFuture<AppSearchSession> createSearchSessionAsync(
             @NonNull SearchContext context) {
         Preconditions.checkNotNull(context);
         return FutureUtil.execute(context.mExecutor, () -> {
@@ -278,6 +278,18 @@ public class LocalStorage {
                     context.mLogger);
             return instance.doCreateSearchSession(context);
         });
+    }
+
+    /**
+     * @deprecated use {@link #createSearchSessionAsync}
+     * @param context The {@link SearchContext} contains all information to create a new
+     *                {@link AppSearchSession}
+     */
+    @NonNull
+    @Deprecated
+    public static ListenableFuture<AppSearchSession> createSearchSession(
+            @NonNull SearchContext context) {
+        return createSearchSessionAsync(context);
     }
 
     /**
@@ -290,7 +302,7 @@ public class LocalStorage {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
-    public static ListenableFuture<GlobalSearchSession> createGlobalSearchSession(
+    public static ListenableFuture<GlobalSearchSession> createGlobalSearchSessionAsync(
             @NonNull GlobalSearchContext context) {
         Preconditions.checkNotNull(context);
         return FutureUtil.execute(context.mExecutor, () -> {
@@ -298,6 +310,18 @@ public class LocalStorage {
                     context.mLogger);
             return instance.doCreateGlobalSearchSession(context);
         });
+    }
+
+    /**
+     * @deprecated use {@link #createGlobalSearchSessionAsync}
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @NonNull
+    @Deprecated
+    public static ListenableFuture<GlobalSearchSession> createGlobalSearchSession(
+            @NonNull GlobalSearchContext context) {
+        return createGlobalSearchSessionAsync(context);
     }
 
     /**

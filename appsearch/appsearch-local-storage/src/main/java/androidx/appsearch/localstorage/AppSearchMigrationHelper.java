@@ -165,7 +165,7 @@ class AppSearchMigrationHelper implements Closeable {
      *                        {@link androidx.appsearch.app.SetSchemaResponse.MigrationFailure}
      *                        added in.
      * @return  the {@link SetSchemaResponse} for this
-     *          {@link androidx.appsearch.app.AppSearchSession#setSchema} call.
+     *          {@link androidx.appsearch.app.AppSearchSession#setSchemaAsync} call.
      *
      * @throws IOException        on i/o problem
      * @throws AppSearchException on AppSearch problem

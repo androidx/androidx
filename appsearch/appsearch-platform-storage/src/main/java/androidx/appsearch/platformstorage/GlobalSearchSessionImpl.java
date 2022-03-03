@@ -110,7 +110,8 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
 
     @NonNull
     @Override
-    public ListenableFuture<Void> reportSystemUsage(@NonNull ReportSystemUsageRequest request) {
+    public ListenableFuture<Void> reportSystemUsageAsync(
+            @NonNull ReportSystemUsageRequest request) {
         Preconditions.checkNotNull(request);
         ResolvableFuture<Void> future = ResolvableFuture.create();
         mPlatformSession.reportSystemUsage(
@@ -124,7 +125,7 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
     @BuildCompat.PrereleaseSdkCheck
     @NonNull
     @Override
-    public ListenableFuture<GetSchemaResponse> getSchema(@NonNull String packageName,
+    public ListenableFuture<GetSchemaResponse> getSchemaAsync(@NonNull String packageName,
             @NonNull String databaseName) {
         // Superclass is annotated with @RequiresFeature, so we shouldn't get here on an
         // unsupported build.

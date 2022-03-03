@@ -60,7 +60,8 @@ public abstract class AnnotationProcessorTestBase {
     }
 
     private void cleanup() throws Exception {
-        mSession.setSchema(new SetSchemaRequest.Builder().setForceOverride(true).build()).get();
+        mSession.setSchemaAsync(new SetSchemaRequest.Builder()
+                .setForceOverride(true).build()).get();
     }
 
     @Document
@@ -297,7 +298,7 @@ public abstract class AnnotationProcessorTestBase {
     public void testAnnotationProcessor() throws Exception {
         //TODO(b/156296904) add test for int, float, GenericDocument, and class with
         // @Document annotation
-        mSession.setSchema(
+        mSession.setSchemaAsync(
                 new SetSchemaRequest.Builder().addDocumentClasses(Card.class, Gift.class).build())
                 .get();
 
@@ -305,7 +306,7 @@ public abstract class AnnotationProcessorTestBase {
         Gift inputDocument = Gift.createPopulatedGift();
 
         // Index the Gift document and query it.
-        checkIsBatchResultSuccess(mSession.put(
+        checkIsBatchResultSuccess(mSession.putAsync(
                 new PutDocumentsRequest.Builder().addDocuments(inputDocument).build()));
         SearchResults searchResults = mSession.search("", new SearchSpec.Builder()
                 .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
@@ -320,7 +321,7 @@ public abstract class AnnotationProcessorTestBase {
 
     @Test
     public void testAnnotationProcessor_queryByType() throws Exception {
-        mSession.setSchema(
+        mSession.setSchemaAsync(
                 new SetSchemaRequest.Builder()
                         .addDocumentClasses(Card.class, Gift.class)
                         .addSchemas(AppSearchEmail.SCHEMA).build())
@@ -340,7 +341,7 @@ public abstract class AnnotationProcessorTestBase {
                         .setSubject("testPut example")
                         .setBody("This is the body of the testPut email")
                         .build();
-        checkIsBatchResultSuccess(mSession.put(
+        checkIsBatchResultSuccess(mSession.putAsync(
                 new PutDocumentsRequest.Builder()
                         .addDocuments(inputDocument1, inputDocument2)
                         .addGenericDocuments(email1).build()));

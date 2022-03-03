@@ -37,9 +37,9 @@ import java.util.Map;
  * @param <KeyType> The type of the keys for which the results will be reported.
  * @param <ValueType> The type of the result objects for successful results.
  *
- * @see AppSearchSession#put
- * @see AppSearchSession#getByDocumentId
- * @see AppSearchSession#remove
+ * @see AppSearchSession#putAsync
+ * @see AppSearchSession#getByDocumentIdAsync
+ * @see AppSearchSession#removeAsync
  */
 public final class AppSearchBatchResult<KeyType, ValueType> {
     @NonNull private final Map<KeyType, ValueType> mSuccesses;
@@ -64,9 +64,9 @@ public final class AppSearchBatchResult<KeyType, ValueType> {
      * Returns a {@link Map} of keys mapped to instances of the value type for all successful
      * individual results.
      *
-     * <p>Example: {@link AppSearchSession#getByDocumentId} returns an {@link AppSearchBatchResult}.
-     * Each key (the document ID, of {@code String} type) will map to a {@link GenericDocument}
-     * object.
+     * <p>Example: {@link AppSearchSession#getByDocumentIdAsync} returns an
+     * {@link AppSearchBatchResult}. Each key (the document ID, of {@code String} type) will map to
+     * a {@link GenericDocument} object.
      *
      * <p>The values of the {@link Map} will not be {@code null}.
      */

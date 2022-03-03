@@ -51,8 +51,8 @@ import java.util.Set;
  * <p>Documents are constructed by using the {@link GenericDocument.Builder}.
  * -->
  *
- * @see AppSearchSession#put
- * @see AppSearchSession#getByDocumentId
+ * @see AppSearchSession#putAsync
+ * @see AppSearchSession#getByDocumentIdAsync
  * @see AppSearchSession#search
  */
 public class GenericDocument {
@@ -204,7 +204,7 @@ public class GenericDocument {
      * time base, the document will be auto-deleted.
      *
      * <p>The default value is 0, which means the document is permanent and won't be auto-deleted
-     * until the app is uninstalled or {@link AppSearchSession#remove} is called.
+     * until the app is uninstalled or {@link AppSearchSession#removeAsync} is called.
      */
     public long getTtlMillis() {
         return mBundle.getLong(TTL_MILLIS_FIELD, DEFAULT_TTL_MILLIS);
@@ -1101,12 +1101,12 @@ public class GenericDocument {
          * @param id         the unique identifier for the {@link GenericDocument} in its namespace.
          * @param schemaType the {@link AppSearchSchema} type of the {@link GenericDocument}. The
          *                   provided {@code schemaType} must be defined using
-         *                   {@link AppSearchSession#setSchema} prior
+         *                   {@link AppSearchSession#setSchemaAsync} prior
          *                   to inserting a document of this {@code schemaType} into the
          *                   AppSearch index using
-         *                   {@link AppSearchSession#put}.
+         *                   {@link AppSearchSession#putAsync}.
          *                   Otherwise, the document will be rejected by
-         *                   {@link AppSearchSession#put} with result code
+         *                   {@link AppSearchSession#putAsync} with result code
          *                   {@link AppSearchResult#RESULT_NOT_FOUND}.
          */
         @SuppressWarnings("unchecked")
@@ -1175,7 +1175,7 @@ public class GenericDocument {
          * Sets the schema type of this document, changing the value provided in the constructor.
          *
          * <p>To successfully index a document, the schema type must match the name of an
-         * {@link AppSearchSchema} object previously provided to {@link AppSearchSession#setSchema}.
+         * {@link AppSearchSchema} object previously provided to {@link AppSearchSession#setSchemaAsync}.
          * <!--@exportToFramework:hide-->
          */
         @NonNull
@@ -1236,7 +1236,7 @@ public class GenericDocument {
          * {@link System#currentTimeMillis} time base, the document will be auto-deleted.
          *
          * <p>The default value is 0, which means the document is permanent and won't be
-         * auto-deleted until the app is uninstalled or {@link AppSearchSession#remove} is
+         * auto-deleted until the app is uninstalled or {@link AppSearchSession#removeAsync} is
          * called.
          *
          * @param ttlMillis a non-negative duration in milliseconds.

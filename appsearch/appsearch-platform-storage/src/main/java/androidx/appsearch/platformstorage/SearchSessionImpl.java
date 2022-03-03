@@ -75,7 +75,7 @@ class SearchSessionImpl implements AppSearchSession {
 
     @Override
     @NonNull
-    public ListenableFuture<SetSchemaResponse> setSchema(@NonNull SetSchemaRequest request) {
+    public ListenableFuture<SetSchemaResponse> setSchemaAsync(@NonNull SetSchemaRequest request) {
         Preconditions.checkNotNull(request);
         ResolvableFuture<SetSchemaResponse> future = ResolvableFuture.create();
         mPlatformSession.setSchema(
@@ -97,7 +97,7 @@ class SearchSessionImpl implements AppSearchSession {
 
     @Override
     @NonNull
-    public ListenableFuture<GetSchemaResponse> getSchema() {
+    public ListenableFuture<GetSchemaResponse> getSchemaAsync() {
         ResolvableFuture<GetSchemaResponse> future = ResolvableFuture.create();
         mPlatformSession.getSchema(
                 mExecutor,
@@ -132,7 +132,7 @@ class SearchSessionImpl implements AppSearchSession {
 
     @NonNull
     @Override
-    public ListenableFuture<Set<String>> getNamespaces() {
+    public ListenableFuture<Set<String>> getNamespacesAsync() {
         ResolvableFuture<Set<String>> future = ResolvableFuture.create();
         mPlatformSession.getNamespaces(
                 mExecutor,
@@ -148,7 +148,7 @@ class SearchSessionImpl implements AppSearchSession {
 
     @Override
     @NonNull
-    public ListenableFuture<AppSearchBatchResult<String, Void>> put(
+    public ListenableFuture<AppSearchBatchResult<String, Void>> putAsync(
             @NonNull PutDocumentsRequest request) {
         Preconditions.checkNotNull(request);
         ResolvableFuture<AppSearchBatchResult<String, Void>> future = ResolvableFuture.create();
@@ -161,7 +161,7 @@ class SearchSessionImpl implements AppSearchSession {
 
     @Override
     @NonNull
-    public ListenableFuture<AppSearchBatchResult<String, GenericDocument>> getByDocumentId(
+    public ListenableFuture<AppSearchBatchResult<String, GenericDocument>> getByDocumentIdAsync(
             @NonNull GetByDocumentIdRequest request) {
         Preconditions.checkNotNull(request);
         ResolvableFuture<AppSearchBatchResult<String, GenericDocument>> future =
@@ -190,7 +190,7 @@ class SearchSessionImpl implements AppSearchSession {
 
     @Override
     @NonNull
-    public ListenableFuture<Void> reportUsage(@NonNull ReportUsageRequest request) {
+    public ListenableFuture<Void> reportUsageAsync(@NonNull ReportUsageRequest request) {
         Preconditions.checkNotNull(request);
         ResolvableFuture<Void> future = ResolvableFuture.create();
         mPlatformSession.reportUsage(
@@ -203,7 +203,7 @@ class SearchSessionImpl implements AppSearchSession {
 
     @Override
     @NonNull
-    public ListenableFuture<AppSearchBatchResult<String, Void>> remove(
+    public ListenableFuture<AppSearchBatchResult<String, Void>> removeAsync(
             @NonNull RemoveByDocumentIdRequest request) {
         Preconditions.checkNotNull(request);
         ResolvableFuture<AppSearchBatchResult<String, Void>> future = ResolvableFuture.create();
@@ -216,7 +216,7 @@ class SearchSessionImpl implements AppSearchSession {
 
     @Override
     @NonNull
-    public ListenableFuture<Void> remove(
+    public ListenableFuture<Void> removeAsync(
             @NonNull String queryExpression, @NonNull SearchSpec searchSpec) {
         Preconditions.checkNotNull(queryExpression);
         Preconditions.checkNotNull(searchSpec);
@@ -271,7 +271,7 @@ class SearchSessionImpl implements AppSearchSession {
 
     @Override
     @NonNull
-    public ListenableFuture<StorageInfo> getStorageInfo() {
+    public ListenableFuture<StorageInfo> getStorageInfoAsync() {
         ResolvableFuture<StorageInfo> future = ResolvableFuture.create();
         mPlatformSession.getStorageInfo(
                 mExecutor,
@@ -290,7 +290,7 @@ class SearchSessionImpl implements AppSearchSession {
 
     @NonNull
     @Override
-    public ListenableFuture<Void> requestFlush() {
+    public ListenableFuture<Void> requestFlushAsync() {
         ResolvableFuture<Void> future = ResolvableFuture.create();
         // The data in platform will be flushed by scheduled task. This api won't do anything extra
         // flush.
