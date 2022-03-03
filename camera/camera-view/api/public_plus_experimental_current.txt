@@ -164,42 +164,5 @@ package androidx.camera.view.video {
   @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalVideo {
   }
 
-  @RequiresApi(21) @androidx.camera.view.video.ExperimentalVideo @com.google.auto.value.AutoValue public abstract class Metadata {
-    method public static androidx.camera.view.video.Metadata.Builder builder();
-    method public abstract android.location.Location? getLocation();
-  }
-
-  @com.google.auto.value.AutoValue.Builder public abstract static class Metadata.Builder {
-    method public abstract androidx.camera.view.video.Metadata build();
-    method public abstract androidx.camera.view.video.Metadata.Builder setLocation(android.location.Location?);
-  }
-
-  @RequiresApi(21) @androidx.camera.view.video.ExperimentalVideo public interface OnVideoSavedCallback {
-    method public void onError(int, String, Throwable?);
-    method public void onVideoSaved(androidx.camera.view.video.OutputFileResults);
-    field public static final int ERROR_ENCODER = 1; // 0x1
-    field public static final int ERROR_FILE_IO = 4; // 0x4
-    field public static final int ERROR_INVALID_CAMERA = 5; // 0x5
-    field public static final int ERROR_MUXER = 2; // 0x2
-    field public static final int ERROR_RECORDING_IN_PROGRESS = 3; // 0x3
-    field public static final int ERROR_UNKNOWN = 0; // 0x0
-  }
-
-  @RequiresApi(21) @androidx.camera.view.video.ExperimentalVideo @com.google.auto.value.AutoValue public abstract class OutputFileOptions {
-    method public static androidx.camera.view.video.OutputFileOptions.Builder builder(java.io.File);
-    method public static androidx.camera.view.video.OutputFileOptions.Builder builder(android.os.ParcelFileDescriptor);
-    method public static androidx.camera.view.video.OutputFileOptions.Builder builder(android.content.ContentResolver, android.net.Uri, android.content.ContentValues);
-    method public abstract androidx.camera.view.video.Metadata getMetadata();
-  }
-
-  @com.google.auto.value.AutoValue.Builder public abstract static class OutputFileOptions.Builder {
-    method public abstract androidx.camera.view.video.OutputFileOptions build();
-    method public abstract androidx.camera.view.video.OutputFileOptions.Builder setMetadata(androidx.camera.view.video.Metadata);
-  }
-
-  @RequiresApi(21) @androidx.camera.view.video.ExperimentalVideo @com.google.auto.value.AutoValue public abstract class OutputFileResults {
-    method public abstract android.net.Uri? getSavedUri();
-  }
-
 }
 
