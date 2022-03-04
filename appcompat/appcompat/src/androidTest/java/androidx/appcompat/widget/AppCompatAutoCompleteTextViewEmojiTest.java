@@ -41,6 +41,33 @@ public class AppCompatAutoCompleteTextViewEmojiTest
         super(AppCompatAutoCompleteTextViewEmojiActivity.class);
     }
 
+    /**
+     * Verify b/221094907 is fixed
+     */
+    @Test
+    @UiThreadTest
+    public void respectsClickable() {
+        AppCompatAutoCompleteTextView notClickable = mActivityTestRule.getActivity()
+                .findViewById(androidx.appcompat.test.R.id.not_clickable);
+
+        // matches platform behavior
+        assertThat(notClickable.isClickable()).isTrue();
+        assertThat(notClickable.isLongClickable()).isTrue();
+    }
+
+    /**
+     * Verify b/221094907 is fixed
+     */
+    @Test
+    @UiThreadTest
+    public void respectsLongClickable() {
+        AppCompatAutoCompleteTextView notLongClickable = mActivityTestRule.getActivity()
+                .findViewById(androidx.appcompat.test.R.id.not_long_clickable);
+
+        assertThat(notLongClickable.isLongClickable()).isFalse();
+        assertThat(notLongClickable.isClickable()).isTrue();
+    }
+
     @Test
     @UiThreadTest
     public void whenSubclassing_setKeyListener_notCalledDuringConstructor() {
