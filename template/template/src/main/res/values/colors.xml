@@ -16,4 +16,5 @@
 
 <resources>
     <color name="text_default">#40484b</color>
+    <color name="background_default">#CCCCCC</color>
 </resources>
