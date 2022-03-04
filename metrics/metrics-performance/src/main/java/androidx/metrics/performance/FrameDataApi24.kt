@@ -59,7 +59,7 @@ open class FrameDataApi24(
 
     override fun equals(other: Any?): Boolean {
         other as FrameDataApi24
-        return super.equals(other) && (frameDurationCpuNanos != other.frameDurationCpuNanos)
+        return super.equals(other) && (frameDurationCpuNanos == other.frameDurationCpuNanos)
     }
 
     override fun hashCode(): Int {
