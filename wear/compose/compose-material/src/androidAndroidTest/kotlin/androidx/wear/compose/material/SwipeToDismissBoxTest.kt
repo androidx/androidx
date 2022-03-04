@@ -46,7 +46,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 
-@ExperimentalWearMaterialApi
 class SwipeToDismissBoxTest {
     @get:Rule
     val rule = createComposeRule()
@@ -182,7 +181,8 @@ class SwipeToDismissBoxTest {
         rule.setContentWithTheme {
             val outerState = rememberSwipeToDismissBoxState()
             LaunchedEffect(outerState.currentValue) {
-                outerDismissed = outerState.currentValue == SwipeDismissTarget.Dismissal
+                outerDismissed =
+                    outerState.currentValue == SwipeDismissTarget.Dismissal
             }
             SwipeToDismissBox(
                 state = outerState,
@@ -192,7 +192,8 @@ class SwipeToDismissBoxTest {
                 Text("Outer", color = MaterialTheme.colors.onPrimary)
                 val innerState = rememberSwipeToDismissBoxState()
                 LaunchedEffect(innerState.currentValue) {
-                    innerDismissed = innerState.currentValue == SwipeDismissTarget.Dismissal
+                    innerDismissed =
+                        innerState.currentValue == SwipeDismissTarget.Dismissal
                 }
                 SwipeToDismissBox(
                     state = innerState,

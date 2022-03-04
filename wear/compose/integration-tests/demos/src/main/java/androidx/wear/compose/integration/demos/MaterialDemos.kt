@@ -19,7 +19,6 @@ package androidx.wear.compose.integration.demos
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.samples.AlertDialogSample
 import androidx.wear.compose.material.samples.AlertWithButtons
 import androidx.wear.compose.material.samples.AlertWithChips
@@ -60,7 +59,6 @@ import androidx.wear.compose.material.samples.ToggleChipWithIcon
 
 // Declare the swipe to dismiss demos so that we can use this variable as the background composable
 // for the SwipeToDismissDemo itself.
-@ExperimentalWearMaterialApi
 internal val SwipeToDismissDemos =
     DemoCategory(
         "Swipe to Dismiss",
@@ -89,7 +87,6 @@ internal val SwipeToDismissDemos =
         )
     )
 
-@ExperimentalWearMaterialApi
 val WearMaterialDemos = DemoCategory(
     "Material",
     listOf(

@@ -45,7 +45,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
-import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.ListHeader
 import androidx.wear.compose.material.LocalTextStyle
 import androidx.wear.compose.material.MaterialTheme
@@ -66,7 +65,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 
 @Composable
-@ExperimentalWearMaterialApi
 fun DemoApp(
     currentDemo: Demo,
     parentDemo: Demo?,
@@ -77,7 +75,6 @@ fun DemoApp(
 }
 
 @Composable
-@ExperimentalWearMaterialApi
 private fun DisplayDemo(
     demo: Demo,
     parentDemo: Demo?,
@@ -111,7 +108,6 @@ private fun DisplayDemo(
 }
 
 @Composable
-@ExperimentalWearMaterialApi
 internal fun DisplayDemoList(
     category: DemoCategory,
     parentDemo: Demo?,
@@ -178,7 +174,6 @@ internal fun DisplayDemoList(
 }
 
 @Composable
-@ExperimentalWearMaterialApi
 internal fun swipeDismissStateWithNavigation(
     onNavigateBack: () -> Unit
 ): SwipeToDismissBoxState {

@@ -21,13 +21,11 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeRight
-import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.navigation.samples.NavHostWithNamedArgument
 import androidx.wear.compose.navigation.samples.SimpleNavHost
 import org.junit.Rule
 import org.junit.Test
 
-@ExperimentalWearMaterialApi
 class SwipeDismissableNavHostSampleTest {
     @get:Rule
     val rule = createComposeRule()

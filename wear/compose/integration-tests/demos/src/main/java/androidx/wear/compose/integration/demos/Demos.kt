@@ -23,7 +23,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
-import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.Text
 
 val Info = DemoCategory(
@@ -52,7 +51,6 @@ val Info = DemoCategory(
 /**
  * [DemoCategory] containing all the top level demo categories.
  */
-@ExperimentalWearMaterialApi
 val WearComposeDemos = DemoCategory(
     "Wear Compose Demos",
     listOf(

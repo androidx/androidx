@@ -31,7 +31,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.wear.compose.material.Button
-import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.SwipeDismissTarget
 import androidx.wear.compose.material.SwipeToDismissBox
@@ -40,7 +39,6 @@ import androidx.wear.compose.material.ToggleButton
 import androidx.wear.compose.material.rememberSwipeToDismissBoxState
 
 @Composable
-@ExperimentalWearMaterialApi
 fun SwipeToDismissBoxWithState(
     quit: () -> Unit
 ) {

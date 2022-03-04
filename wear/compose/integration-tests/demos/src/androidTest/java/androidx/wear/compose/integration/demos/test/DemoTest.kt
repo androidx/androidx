@@ -32,7 +32,6 @@ import androidx.wear.compose.integration.demos.Demo
 import androidx.wear.compose.integration.demos.DemoActivity
 import androidx.wear.compose.integration.demos.DemoCategory
 import androidx.wear.compose.integration.demos.WearComposeDemos
-import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -45,7 +44,6 @@ private val ignoredDemos = listOf<String>(
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 @OptIn(ExperimentalTestApi::class)
-@ExperimentalWearMaterialApi
 class DemoTest {
     // We need to provide the recompose factory first to use new clock.
     @get:Rule
@@ -165,7 +163,6 @@ class DemoTest {
     }
 }
 
-@ExperimentalWearMaterialApi
 private val AllButIgnoredDemos =
     WearComposeDemos.filter { path, demo ->
         demo.navigationTitle(path) !in ignoredDemos
