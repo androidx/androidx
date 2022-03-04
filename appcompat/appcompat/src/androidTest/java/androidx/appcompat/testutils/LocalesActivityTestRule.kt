@@ -18,6 +18,7 @@ package androidx.appcompat.testutils
 
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.app.LocalesUpdateActivity
 import androidx.appcompat.testutils.LocalesUtils.initCustomLocaleList
 import androidx.core.os.LocaleListCompat
 
@@ -37,9 +38,7 @@ class LocalesActivityTestRule<T : AppCompatActivity>(
     }
 
     override fun afterActivityFinished() {
-        // Reset the default locales.
-        runOnUiThread {
-            AppCompatDelegate.setApplicationLocales(LocaleListCompat.getEmptyLocaleList())
-        }
+        // Reset locales persisted in static storage.
+        LocalesUpdateActivity.teardown()
     }
 }

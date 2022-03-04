@@ -36,6 +36,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.LifecycleOwnerUtils.waitUntilState
 import junit.framework.Assert.assertNotNull
 import junit.framework.Assert.assertNotSame
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -357,5 +358,10 @@ class LocalesStackedHandlingTestCase {
 
         assertNotNull("Recreated activity " + activity.title, activityResult)
         return activityResult!!
+    }
+
+    @After
+    fun teardown() {
+        LocalesUpdateActivity.teardown()
     }
 }

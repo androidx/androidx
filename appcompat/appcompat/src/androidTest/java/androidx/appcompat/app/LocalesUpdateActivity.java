@@ -207,4 +207,11 @@ public class LocalesUpdateActivity extends BaseTestActivity {
         mOnDestroySemaphore.tryAcquire(timeout, TimeUnit.MILLISECONDS);
     }
 
+    /**
+     * Teardown method to clean up persistent locales in static storage.
+     */
+    public static void teardown() {
+        AppCompatDelegate.resetStaticRequestedAndStoredLocales();
+    }
+
 }

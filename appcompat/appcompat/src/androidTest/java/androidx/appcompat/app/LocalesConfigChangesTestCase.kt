@@ -177,6 +177,7 @@ class LocalesConfigChangesTestCase() {
         if (scenario.state != Lifecycle.State.DESTROYED) {
             scenario.onActivity { setLocales(LocaleListCompat.getEmptyLocaleList()) }
         }
+        LocalesUpdateActivity.teardown()
         scenario.close()
     }
 }
