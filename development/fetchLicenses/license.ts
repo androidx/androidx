@@ -60,11 +60,14 @@ export async function handleRequest(request: Request, response: Response) {
  */
 function isValidProtocol(requestUrl: string): boolean {
   const url = new URL(requestUrl);
-  if (url.protocol === 'http') {
+  if (url.protocol === 'https:') {
+    // Allow https requests
     return true;
-  } else if (url.protocol === 'https') {
+  } else if (url.protocol === 'http:') {
+    // Allow http requests
     return true;
   } else {
+    log(`Invalid protocol ${url.protocol}`);
     return false;
   }
 }
