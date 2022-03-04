@@ -128,6 +128,8 @@ public class AppCompatMultiAutoCompleteTextView extends MultiAutoCompleteTextVie
         KeyListener currentKeyListener = getKeyListener();
         if (appCompatEmojiEditTextHelper.isEmojiCapableKeyListener(currentKeyListener)) {
             boolean wasFocusable = super.isFocusable();
+            boolean wasClickable = super.isClickable();
+            boolean wasLongClickable = super.isLongClickable();
             int inputType = super.getInputType();
             KeyListener wrappedKeyListener = appCompatEmojiEditTextHelper.getKeyListener(
                     currentKeyListener);
@@ -137,6 +139,8 @@ public class AppCompatMultiAutoCompleteTextView extends MultiAutoCompleteTextVie
             // reset the input type and focusable attributes after calling setKeyListener
             super.setRawInputType(inputType);
             super.setFocusable(wasFocusable);
+            super.setClickable(wasClickable);
+            super.setLongClickable(wasLongClickable);
         }
     }
 

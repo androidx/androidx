@@ -52,6 +52,20 @@
             android:text="Not focusable" />
 
         <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/not_clickable"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:text="Not clickable" />
+
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/not_long_clickable"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:longClickable="false"
+            android:text="Not long clickable" />
+
+        <androidx.appcompat.widget.AppCompatEditText
             android:id="@+id/text_email_address"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

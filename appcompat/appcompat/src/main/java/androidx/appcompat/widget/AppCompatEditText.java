@@ -137,6 +137,8 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
         KeyListener currentKeyListener = getKeyListener();
         if (appCompatEmojiEditTextHelper.isEmojiCapableKeyListener(currentKeyListener)) {
             boolean wasFocusable = super.isFocusable();
+            boolean wasClickable = super.isClickable();
+            boolean wasLongClickable = super.isLongClickable();
             int inputType = super.getInputType();
             KeyListener wrappedKeyListener = appCompatEmojiEditTextHelper.getKeyListener(
                     currentKeyListener);
@@ -146,6 +148,8 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
             // reset the input type and focusable attributes after calling setKeyListener
             super.setRawInputType(inputType);
             super.setFocusable(wasFocusable);
+            super.setClickable(wasClickable);
+            super.setLongClickable(wasLongClickable);
         }
     }
 
