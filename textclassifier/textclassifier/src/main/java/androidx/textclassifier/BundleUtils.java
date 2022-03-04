@@ -105,6 +105,7 @@ import java.util.Map;
     }
 
     /** @throws IllegalArgumentException if key can't be found in the bundle */
+    @SuppressWarnings("deprecation")
     static List<TextLinks.TextLink> getTextLinkListOrThrow(
             @NonNull Bundle bundle, @NonNull String key) {
         final List<Bundle> linkBundles = bundle.getParcelableArrayList(key);
@@ -163,6 +164,7 @@ import java.util.Map;
     }
 
     @NonNull
+    @SuppressWarnings("deprecation")
     static List<ConversationAction> getConversationActionsList(
             @NonNull Bundle container, @NonNull String key) {
         ArrayList<Bundle> bundles = container.getParcelableArrayList(key);
@@ -185,6 +187,7 @@ import java.util.Map;
     }
 
     @NonNull
+    @SuppressWarnings("deprecation")
     static List<ConversationActions.Message> getConversationActionsMessageList(
             @NonNull Bundle container, @NonNull String key) {
         ArrayList<Bundle> bundles = container.getParcelableArrayList(key);

@@ -1365,6 +1365,7 @@ public class EditorSessionTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     @Test
     public fun launchComplicationDataSourceChooser_ComplicationConfigExtrasToHelper() {
         ComplicationDataSourceChooserContract.useTestComplicationHelperActivity = true
@@ -1420,6 +1421,7 @@ public class EditorSessionTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     @Test
     public fun launchComplicationDataSourceChooser_ComplicationConfigExtrasToChooser() {
         // Invoke the test data source chooser to record the result.

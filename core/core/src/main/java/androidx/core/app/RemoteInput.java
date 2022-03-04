@@ -381,7 +381,8 @@ public final class RemoteInput {
      * @param intent The intent object that fired in response to an action or content intent
      *               which also had one or more remote input requested.
      */
-    @SuppressWarnings("NullableCollection") // This is on purpose.
+    // This is on purpose.
+    @SuppressWarnings({"NullableCollection", "deprecation"})
     @Nullable
     public static Bundle getResultsFromIntent(@NonNull Intent intent) {
         if (Build.VERSION.SDK_INT >= 20) {
@@ -408,6 +409,7 @@ public final class RemoteInput {
      *                be populated with keys matching the result keys specified in
      *                {@code remoteInputs} with values being the result per key.
      */
+    @SuppressWarnings("deprecation")
     public static void addResultsToIntent(@NonNull RemoteInput[] remoteInputs,
             @NonNull Intent intent, @NonNull Bundle results) {
         if (Build.VERSION.SDK_INT >= 26) {

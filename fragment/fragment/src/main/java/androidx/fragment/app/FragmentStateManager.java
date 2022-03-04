@@ -399,6 +399,7 @@ class FragmentStateManager {
         }
     }
 
+    @SuppressWarnings("deprecation")
     void restoreState(@NonNull ClassLoader classLoader) {
         if (mFragment.mSavedFragmentState == null) {
             return;

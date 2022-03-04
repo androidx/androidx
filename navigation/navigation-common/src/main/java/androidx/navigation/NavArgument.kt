@@ -67,6 +67,7 @@ public class NavArgument internal constructor(
 
     /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Suppress("DEPRECATION")
     public fun verify(name: String, bundle: Bundle): Boolean {
         if (!isNullable && bundle.containsKey(name) && bundle[name] == null) {
             return false

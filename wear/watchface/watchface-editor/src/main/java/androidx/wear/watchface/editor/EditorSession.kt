@@ -1098,4 +1098,5 @@ internal fun extractComplicationsDataSourceInfoMap(
         { it.info }
     )
 
+@Suppress("DEPRECATION")
 internal fun Bundle.asString() = keySet().map { "$it: ${get(it)}" }

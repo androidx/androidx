@@ -128,6 +128,7 @@ public final class MediaRouteProviderDescriptor {
      * @return The new instance, or null if the bundle was null.
      */
     @Nullable
+    @SuppressWarnings("deprecation")
     public static MediaRouteProviderDescriptor fromBundle(@Nullable Bundle bundle) {
         if (bundle == null) {
             return null;

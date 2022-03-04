@@ -2080,6 +2080,7 @@ public class Preference implements Comparable<Preference> {
      * @see #restoreHierarchyState
      * @see #onRestoreInstanceState
      */
+    @SuppressWarnings("deprecation")
     void dispatchRestoreInstanceState(@NonNull Bundle container) {
         if (hasKey()) {
             Parcelable state = container.getParcelable(mKey);

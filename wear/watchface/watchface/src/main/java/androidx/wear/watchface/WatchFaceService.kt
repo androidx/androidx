@@ -810,6 +810,7 @@ public abstract class WatchFaceService : WallpaperService() {
             pendingBackgroundAction = null
         }
 
+        @Suppress("DEPRECATION")
         fun onComplicationSlotDataUpdate(extras: Bundle) {
             extras.classLoader = WireComplicationData::class.java.classLoader
             val complicationData: WireComplicationData =
