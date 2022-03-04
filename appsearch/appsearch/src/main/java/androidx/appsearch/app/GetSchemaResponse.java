@@ -163,8 +163,8 @@ public final class GetSchemaResponse {
                     packageIdentifiers.add(new PackageIdentifier(PackageIdentifierBundles.get(i)));
                 }
                 copy.put(key, packageIdentifiers);
-                mSchemasVisibleToPackages = Collections.unmodifiableMap(copy);
             }
+            mSchemasVisibleToPackages = Collections.unmodifiableMap(copy);
         }
         return mSchemasVisibleToPackages;
     }
