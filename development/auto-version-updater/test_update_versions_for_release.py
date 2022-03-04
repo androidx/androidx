@@ -94,13 +94,26 @@ class TestVersionUpdates(unittest.TestCase):
         self.assertEqual("1.4.2", higher_version)
 
     def test_should_update_version_in_library_versions_kt(self):
-        self.assertTrue(should_update_version_in_library_versions_toml("1.1.0-alpha01", "1.1.0-alpha02"))
-        self.assertTrue(should_update_version_in_library_versions_toml("1.1.0-alpha01", "1.3.0-alpha01"))
-        self.assertFalse(should_update_version_in_library_versions_toml("1.1.0-alpha01", "1.0.0-alpha01"))
+        self.assertTrue(should_update_version_in_library_versions_toml(
+            "1.1.0-alpha01", "1.1.0-alpha02", "androidx.core"))
+        self.assertTrue(should_update_version_in_library_versions_toml(
+            "1.1.0-alpha01", "1.3.0-alpha01", "androidx.appcompat"))
+        self.assertFalse(should_update_version_in_library_versions_toml(
+            "1.1.0-alpha01", "1.0.0-alpha01", "androidx.work"))
 
-        self.assertTrue(should_update_version_in_library_versions_toml("1.0.0-beta04", "1.1.0-alpha02"))
-        self.assertTrue(should_update_version_in_library_versions_toml("1.0.0-beta04", "1.3.0-alpha01"))
-        self.assertFalse(should_update_version_in_library_versions_toml("1.0.0-beta04", "1.0.0-alpha01"))
+        self.assertTrue(should_update_version_in_library_versions_toml(
+            "1.0.0-beta04", "1.1.0-alpha02", "androidx.wear"))
+        self.assertTrue(should_update_version_in_library_versions_toml(
+            "1.0.0-beta04", "1.3.0-alpha01", "androidx.viewpager"))
+        self.assertFalse(should_update_version_in_library_versions_toml(
+            "1.0.0-beta04", "1.0.0-alpha01", "androidx.compose.foundation"))
+
+        self.assertFalse(should_update_version_in_library_versions_toml(
+            "1.0.0-beta04", "1.1.0-alpha02", "androidx.car"))
+        self.assertFalse(should_update_version_in_library_versions_toml(
+            "1.0.0-beta04", "1.3.0-alpha01", "androidx.car"))
+        self.assertFalse(should_update_version_in_library_versions_toml(
+            "1.0.0-beta04", "1.0.0-alpha01", "androidx.car"))
 
 
 class TestFileParsing(unittest.TestCase):
