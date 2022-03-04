@@ -413,10 +413,10 @@ public class ListRowPresenter extends RowPresenter {
     }
 
     @Override
-    protected void initializeRowViewHolder(RowPresenter.ViewHolder holder) {
-        super.initializeRowViewHolder(holder);
-        final ViewHolder rowViewHolder = (ViewHolder) holder;
-        Context context = holder.view.getContext();
+    protected void initializeRowViewHolder(RowPresenter.ViewHolder vh) {
+        super.initializeRowViewHolder(vh);
+        final ViewHolder rowViewHolder = (ViewHolder) vh;
+        Context context = vh.view.getContext();
         if (mShadowOverlayHelper == null) {
             mShadowOverlayHelper = new ShadowOverlayHelper.Builder()
                     .needsOverlay(needsDefaultListSelectEffect())
