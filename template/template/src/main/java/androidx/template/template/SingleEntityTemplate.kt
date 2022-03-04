@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.LocalSize
+import androidx.glance.appwidget.cornerRadius
 import androidx.glance.background
 import androidx.glance.currentState
 import androidx.glance.layout.Column
@@ -34,25 +35,27 @@ import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.width
-import androidx.glance.unit.ColorProvider
 
 /**
  * A basic [GlanceTemplate] implementation based around a single entity, using [Data].
  */
 abstract class SingleEntityTemplate : GlanceTemplate<SingleEntityTemplate.Data>() {
+    // TODO: Design API for applying style (background color, text color etc.)
+    // TODO: Move widget layouts that use corner radius out of top level template package
 
     @Composable
     override fun WidgetLayoutCollapsed() {
         getData(currentState()).let {
-            var modifier = GlanceModifier.fillMaxSize().padding(16.dp)
-            it.backgroundColor?.let { color -> modifier = modifier.background(color) }
+            var modifier = modifier()
             it.image?.let { image ->
                 modifier = modifier.background(image.image, ContentScale.Crop)
             }
             Column(modifier = modifier) {
-                TemplateHeader(it.headerIcon, it.header)
+                if (it.displayHeader) {
+                    TemplateHeader(it.headerIcon, it.header)
+                }
                 Spacer(modifier = GlanceModifier.defaultWeight())
-                TextSection(textList(it.title, it.subtitle))
+                TextSection(textList(it.text1, it.text2))
             }
         }
     }
@@ -60,22 +63,25 @@ abstract class SingleEntityTemplate : GlanceTemplate<SingleEntityTemplate.Data>(
     @Composable
     override fun WidgetLayoutVertical() {
         getData(currentState()).let {
-            var modifier = GlanceModifier.fillMaxSize().padding(16.dp)
-            it.backgroundColor?.let { color -> modifier = modifier.background(color) }
-            Column(modifier = modifier) {
-                TemplateHeader(it.headerIcon, it.header)
-                Spacer(modifier = GlanceModifier.height(16.dp))
+            Column(modifier = modifier()) {
+                if (it.displayHeader) {
+                    TemplateHeader(it.headerIcon, it.header)
+                    Spacer(modifier = GlanceModifier.height(16.dp))
+                }
                 it.image?.let { image ->
                     Image(
                         provider = image.image,
                         contentDescription = image.description,
-                        modifier = GlanceModifier.fillMaxWidth().defaultWeight(),
+                        modifier = GlanceModifier
+                            .fillMaxWidth()
+                            .defaultWeight()
+                            .cornerRadius(image.cornerRadius),
                         contentScale = ContentScale.Crop
                     )
                     Spacer(modifier = GlanceModifier.height(16.dp))
                 }
                 Row(modifier = GlanceModifier.fillMaxWidth()) {
-                    TextSection(textList(it.title, it.subtitle))
+                    TextSection(textList(it.text1, it.text2))
                     Spacer(modifier = GlanceModifier.defaultWeight())
                     it.button?.let { button -> TemplateButton(button) }
                 }
@@ -86,25 +92,23 @@ abstract class SingleEntityTemplate : GlanceTemplate<SingleEntityTemplate.Data>(
     @Composable
     override fun WidgetLayoutHorizontal() {
         getData(currentState()).let {
-            var modifier = GlanceModifier.fillMaxSize().padding(16.dp)
-            it.backgroundColor?.let { color -> modifier = modifier.background(color) }
-            Row(modifier = modifier) {
+            Row(modifier = modifier()) {
                 Column(
                     modifier =
                     GlanceModifier.fillMaxHeight().background(Color.Transparent).defaultWeight()
                 ) {
-                    TemplateHeader(it.headerIcon, it.header)
-                    Spacer(modifier = GlanceModifier.height(16.dp))
+                    if (it.displayHeader) {
+                        TemplateHeader(it.headerIcon, it.header)
+                        Spacer(modifier = GlanceModifier.height(16.dp))
+                    }
                     Spacer(modifier = GlanceModifier.defaultWeight())
 
                     // TODO: Extract small height as template constant
-                    val body =
-                        if (LocalSize.current.height > 240.dp) {
-                            it.body
-                        } else {
-                            null
-                        }
-                    TextSection(textList(it.title, it.subtitle, body))
+                    TextSection(textList(
+                        it.text1,
+                        it.text2,
+                        it.text3.takeIf { LocalSize.current.height > 240.dp }
+                    ))
                     it.button?.let { button ->
                         Spacer(modifier = GlanceModifier.height(16.dp))
                         TemplateButton(button)
@@ -115,7 +119,10 @@ abstract class SingleEntityTemplate : GlanceTemplate<SingleEntityTemplate.Data>(
                     Image(
                         provider = image.image,
                         contentDescription = image.description,
-                        modifier = GlanceModifier.fillMaxHeight().defaultWeight(),
+                        modifier = GlanceModifier
+                            .fillMaxHeight()
+                            .defaultWeight()
+                            .cornerRadius(image.cornerRadius),
                         contentScale = ContentScale.Crop
                     )
                 }
@@ -123,57 +130,55 @@ abstract class SingleEntityTemplate : GlanceTemplate<SingleEntityTemplate.Data>(
         }
     }
 
+    private fun modifier() =
+        GlanceModifier.fillMaxSize().padding(16.dp).background(R.color.background_default)
+
     private fun textList(
-        title: TemplateText? = null,
-        subtitle: TemplateText? = null,
-        body: TemplateText? = null
-    ): List<TypedTemplateText> {
-        val result = mutableListOf<TypedTemplateText>()
-        title?.let {
-            result.add(TypedTemplateText(it, TemplateTextType.Title))
-        }
-        subtitle?.let {
-            result.add(TypedTemplateText(it, TemplateTextType.Label))
-        }
-        body?.let {
-            result.add(TypedTemplateText(it, TemplateTextType.Body))
-        }
+        text1: TemplateText? = null,
+        text2: TemplateText? = null,
+        text3: TemplateText? = null
+    ): List<TemplateText> {
+        val result = mutableListOf<TemplateText>()
+        text1?.let { result.add(it) }
+        text2?.let { result.add(it) }
+        text3?.let { result.add(it) }
 
         return result
     }
 
     /**
-     * The semantic data required to build [SingleEntityTemplate] layouts.
+     * The semantic data required to build [SingleEntityTemplate] layouts. The template allows for
+     * a header, text section with up to three text items, main image, and single action button.
      *
-     * @param headerIcon Logo icon, displayed in the glanceable header
-     * @param header Main header text, text priority is ignored in default layouts
-     * @param title Text section main title, priority ordered
-     * @param subtitle Text section subtitle, priority ordered
-     * @param body Text section body text, priority ordered
+     * @param displayHeader True if the glanceable header should be displayed
+     * @param headerIcon Header logo icon, image corner radius is ignored in default layouts
+     * @param header Main header text
+     * @param text1 Text section first text item
+     * @param text2 Text section second text item
+     * @param text3 Text section third text item
      * @param button Action button
      * @param image Main image content
-     * @param backgroundColor Glanceable background color
      */
     class Data(
-        val headerIcon: TemplateImageWithDescription,
+        val displayHeader: Boolean = true,
+        val headerIcon: TemplateImageWithDescription? = null,
         val header: TemplateText? = null,
-        val title: TemplateText? = null,
-        val subtitle: TemplateText? = null,
-        val body: TemplateText? = null,
+        val text1: TemplateText? = null,
+        val text2: TemplateText? = null,
+        val text3: TemplateText? = null,
         val button: TemplateButton? = null,
-        val image: TemplateImageWithDescription? = null,
-        val backgroundColor: ColorProvider? = null
+        val image: TemplateImageWithDescription? = null
     ) {
 
         override fun hashCode(): Int {
-            var result = headerIcon.hashCode()
+            var result = displayHeader.hashCode()
+            result = 31 * result + (headerIcon?.hashCode() ?: 0)
             result = 31 * result + (header?.hashCode() ?: 0)
-            result = 31 * result + (title?.hashCode() ?: 0)
-            result = 31 * result + (subtitle?.hashCode() ?: 0)
-            result = 31 * result + (body?.hashCode() ?: 0)
+            result = 31 * result + (text1?.hashCode() ?: 0)
+            result = 31 * result + (text2?.hashCode() ?: 0)
+            result = 31 * result + (text3?.hashCode() ?: 0)
             result = 31 * result + (button?.hashCode() ?: 0)
             result = 31 * result + (image?.hashCode() ?: 0)
-            result = 31 * result + (backgroundColor?.hashCode() ?: 0)
             return result
         }
 
@@ -183,14 +188,14 @@ abstract class SingleEntityTemplate : GlanceTemplate<SingleEntityTemplate.Data>(
 
             other as Data
 
+            if (displayHeader != other.displayHeader) return false
             if (headerIcon != other.headerIcon) return false
             if (header != other.header) return false
-            if (title != other.title) return false
-            if (subtitle != other.subtitle) return false
-            if (body != other.body) return false
+            if (text1 != other.text1) return false
+            if (text2 != other.text2) return false
+            if (text3 != other.text3) return false
             if (button != other.button) return false
             if (image != other.image) return false
-            if (backgroundColor != other.backgroundColor) return false
 
             return true
         }

@@ -26,6 +26,7 @@ import androidx.glance.layout.Alignment
 import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.TextUnit
 import androidx.glance.Button
@@ -38,7 +39,6 @@ import androidx.glance.layout.height
 import androidx.glance.layout.width
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
-import androidx.glance.unit.ColorProvider
 
 /** Transforms semantic data into a composable layout for any glanceable */
 abstract class GlanceTemplate<T> {
@@ -65,19 +65,13 @@ abstract class GlanceTemplate<T> {
  * Contains the information required to display a string on a template.
  *
  * @param text string to be displayed
- * @param priority the priority order for this string, in orderable blocks
- * @param color text color
+ * @param type the [Type] of the item, used for styling
  */
-public class TemplateText(
-    val text: String,
-    val priority: Int = 0,
-    val color: ColorProvider? = null
-) {
+public class TemplateText(val text: String, val type: Type) {
 
     override fun hashCode(): Int {
         var result = text.hashCode()
-        result = 31 * result + priority
-        result = 31 * result + (color?.hashCode() ?: 0)
+        result = 31 * result + type.hashCode()
         return result
     }
 
@@ -88,10 +82,20 @@ public class TemplateText(
         other as TemplateText
 
         if (text != other.text) return false
-        if (priority != other.priority) return false
-        if (color != other.color) return false
+        if (type != other.type) return false
 
         return true
+    }
+
+    /**
+     * The text types that can be used with templates. Types are set on [TemplateText] items and
+     * can be used by templates to determine text styling.
+     */
+    public enum class Type {
+        Display,
+        Title,
+        Label,
+        Body
     }
 }
 
@@ -100,17 +104,25 @@ public class TemplateText(
  *
  * @param image The image to display
  * @param description The image description, usually used as alt text
+ * @param cornerRadius The image corner radius in Dp
  */
-public class TemplateImageWithDescription(val image: ImageProvider, val description: String) {
+public class TemplateImageWithDescription(
+    val image: ImageProvider,
+    val description: String,
+    val cornerRadius: Dp = 16.dp
+) {
 
-    override fun hashCode(): Int = 31 * image.hashCode() + description.hashCode()
+    override fun hashCode(): Int =
+        31 * image.hashCode() + description.hashCode() + cornerRadius.hashCode()
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
         other as TemplateImageWithDescription
-        return image == other.image && description == other.description
+        return image == other.image &&
+            description == other.description &&
+            cornerRadius == other.cornerRadius
     }
 }
 
@@ -181,27 +193,33 @@ public class TemplateImageButton(
  */
 @Composable
 internal fun TemplateHeader(
-    headerIcon: TemplateImageWithDescription,
+    headerIcon: TemplateImageWithDescription?,
     header: TemplateText?
 ) {
+    if (headerIcon == null && header == null) return
+
     Row(
         modifier = GlanceModifier.background(Color.Transparent),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Image(
-            provider = headerIcon.image,
-            contentDescription = headerIcon.description,
-            modifier = GlanceModifier.height(24.dp).width(24.dp)
-        )
+        headerIcon?.let {
+            Image(
+                provider = it.image,
+                contentDescription = it.description,
+                modifier = GlanceModifier.height(24.dp).width(24.dp)
+            )
+        }
         header?.let {
-            Spacer(modifier = GlanceModifier.width(8.dp))
-            val size =
-                textSize(TemplateTextType.Title, DisplaySize.fromDpSize(LocalSize.current))
+            if (headerIcon != null) {
+                Spacer(modifier = GlanceModifier.width(8.dp))
+            }
 
+            val size =
+                textSize(TemplateText.Type.Title, DisplaySize.fromDpSize(LocalSize.current))
             Text(
                 modifier = GlanceModifier.defaultWeight(),
                 text = header.text,
-                style = TextStyle(fontSize = size, color = it.color),
+                style = TextStyle(fontSize = size),
                 maxLines = 1
             )
         }
@@ -210,23 +228,22 @@ internal fun TemplateHeader(
 
 /**
  * Default glanceable text section layout. Displays a list of reorderable text fields, ordered by
- * priority and styled according to the [TemplateTextType] of each field.
+ * priority and styled according to the [TemplateText.Type] of each field.
  *
  * @param textList the list of text fields to display in the block
  */
 @Composable
-internal fun TextSection(textList: List<TypedTemplateText>) {
+internal fun TextSection(textList: List<TemplateText>) {
     if (textList.isEmpty()) return
 
-    val sorted = textList.sortedBy { it.text.priority }
     Column(modifier = GlanceModifier.background(Color.Transparent)) {
-        sorted.forEach {
+        textList.forEach {
             // TODO: Spacing
-            val size = textSize(it.textType, DisplaySize.fromDpSize(LocalSize.current))
+            val size = textSize(it.type, DisplaySize.fromDpSize(LocalSize.current))
             Text(
-                it.text.text,
-                style = TextStyle(fontSize = size, color = it.text.color),
-                maxLines = maxLines(it.textType),
+                it.text,
+                style = TextStyle(fontSize = size),
+                maxLines = maxLines(it.type),
                 modifier = GlanceModifier.background(Color.Transparent)
             )
         }
@@ -254,25 +271,6 @@ internal fun TemplateButton(button: TemplateButton) {
     }
 }
 
-/**
- * A [TemplateText] tagged with the [TemplateTextType] of the field. Templates can use the
- * text type to assign appropriate styling.
- *
- * @param text base text field
- * @param textType text field type type
- */
-internal data class TypedTemplateText(val text: TemplateText, val textType: TemplateTextType)
-
-/**
- * The text types that can be used with templates
- */
-internal enum class TemplateTextType {
-    Display,
-    Title,
-    Label,
-    Body
-}
-
 private enum class DisplaySize {
     Small,
     Medium,
@@ -290,25 +288,25 @@ private enum class DisplaySize {
     }
 }
 
-private fun textSize(textClass: TemplateTextType, displaySize: DisplaySize): TextUnit =
+private fun textSize(textClass: TemplateText.Type, displaySize: DisplaySize): TextUnit =
     when (textClass) {
         // TODO: Does display scale?
-        TemplateTextType.Display -> 45.sp
-        TemplateTextType.Title -> {
+        TemplateText.Type.Display -> 45.sp
+        TemplateText.Type.Title -> {
             when (displaySize) {
                 DisplaySize.Small -> 14.sp
                 DisplaySize.Medium -> 16.sp
                 DisplaySize.Large -> 22.sp
             }
         }
-        TemplateTextType.Body -> {
+        TemplateText.Type.Body -> {
             when (displaySize) {
                 DisplaySize.Small -> 12.sp
                 DisplaySize.Medium -> 14.sp
                 DisplaySize.Large -> 14.sp
             }
         }
-        TemplateTextType.Label -> {
+        TemplateText.Type.Label -> {
             when (displaySize) {
                 DisplaySize.Small -> 11.sp
                 DisplaySize.Medium -> 12.sp
@@ -317,10 +315,10 @@ private fun textSize(textClass: TemplateTextType, displaySize: DisplaySize): Tex
         }
     }
 
-private fun maxLines(textClass: TemplateTextType): Int =
+private fun maxLines(textClass: TemplateText.Type): Int =
     when (textClass) {
-        TemplateTextType.Display -> 1
-        TemplateTextType.Title -> 3
-        TemplateTextType.Body -> 3
-        TemplateTextType.Label -> 1
+        TemplateText.Type.Display -> 1
+        TemplateText.Type.Title -> 3
+        TemplateText.Type.Body -> 3
+        TemplateText.Type.Label -> 1
     }
