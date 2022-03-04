@@ -29,17 +29,13 @@ internal data class Slice(
     }
 
     companion object {
-        private fun String.unquote(): String {
-            require(this.first() == '"' && this.last() == '"')
-            return this.substring(1, length - 1)
-        }
 
         fun parseListFromQueryResult(queryResult: String): List<Slice> {
             val resultLines = queryResult.split("\n").onEach {
                 println("query result line $it")
             }
 
-            if (resultLines.first() != "\"name\",\"ts\",\"dur\"") {
+            if (resultLines.first() != """"name","ts","dur"""") {
                 throw IllegalStateException("query failed!")
             }
 
