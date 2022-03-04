@@ -286,6 +286,28 @@ src/sample/optin/UseJavaPackageFromJava.java:67: Error: This declaration is opt-
         check(*input).expect(expected)
     }
 
+    /**
+     * Regression test for b/218798815 where the lint check yields false positives on usages within
+     * an annotated package.
+     */
+    @Test
+    fun regressionTestJava218798815() {
+        val input = arrayOf(
+            SAMPLE_FOO_PACKAGE_INFO,
+            javaSample("sample.optin.foo.AnnotatedJavaPackage"),
+            javaSample("sample.optin.ExperimentalJavaAnnotation"),
+            javaSample("sample.optin.foo.RegressionTestJava218798815")
+        )
+
+        /* ktlint-disable max-line-length */
+        val expected = """
+No warnings.
+        """.trimIndent()
+        /* ktlint-enable max-line-length */
+
+        check(*input).expect(expected)
+    }
+
     @Test
     fun useJavaPackageFromKt() {
         val input = arrayOf(

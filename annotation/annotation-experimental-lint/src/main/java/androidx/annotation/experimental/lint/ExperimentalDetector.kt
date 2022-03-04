@@ -40,6 +40,7 @@ import com.intellij.psi.PsiField
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.PsiModifier
 import com.intellij.psi.PsiModifierListOwner
+import com.intellij.psi.PsiPackage
 import com.intellij.psi.impl.source.PsiClassReferenceType
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
@@ -599,7 +600,11 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
             anyParentMatches({ element ->
                 element.isDeclarationAnnotatedWith(annotationFqName) ||
                     element.isDeclarationAnnotatedWithOptInOf(annotationFqName, optInFqNames)
-            })
+            }) ||
+            context.evaluator.getPackage(this)?.let { element ->
+                element.isAnnotatedWith(annotationFqName) ||
+                    element.isAnnotatedWithOptInOf(annotationFqName, optInFqNames)
+            } ?: false
     }
 
     private fun createLintFix(
@@ -817,6 +822,32 @@ private inline fun UElement.anyParentMatches(
         if (positivePredicate(element)) return true
         if (negativePredicate(element)) return false
         element = element.uastParent ?: return defaultValue
+    }
+}
+
+/**
+ * Returns whether the package is annotated with the specified annotation.
+ */
+private fun PsiPackage.isAnnotatedWith(
+    annotationFqName: String,
+): Boolean = annotations.any { annotation ->
+    annotation.hasQualifiedName(annotationFqName)
+}
+
+/**
+ * Returns whether the package is annotated with any of the specified opt-in annotations where the
+ * value of `markerClass` contains the specified annotation.
+ */
+private fun PsiPackage.isAnnotatedWithOptInOf(
+    annotationFqName: String,
+    optInFqNames: List<String>,
+): Boolean = optInFqNames.any { optInFqName ->
+    annotations.any { annotation ->
+        annotation.hasQualifiedName(optInFqName) &&
+            ((annotation as? UAnnotation)?.hasMatchingAttributeValueClass(
+                "markerClass",
+                annotationFqName,
+            ) ?: false)
     }
 }
 
