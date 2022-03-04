@@ -2800,15 +2800,6 @@ public final class ImageCapture extends UseCase {
         @Override
         @NonNull
         public ImageCapture build() {
-            // Error at runtime for using both setTargetResolution and setTargetAspectRatio on
-            // the same config.
-            if (getMutableConfig().retrieveOption(OPTION_TARGET_ASPECT_RATIO, null) != null
-                    && getMutableConfig().retrieveOption(OPTION_TARGET_RESOLUTION, null) != null) {
-                throw new IllegalArgumentException(
-                        "Cannot use both setTargetResolution and setTargetAspectRatio on the same "
-                                + "config.");
-            }
-
             // Update the input format base on the other options set (mainly whether processing
             // is done)
             Integer bufferFormat = getMutableConfig().retrieveOption(OPTION_BUFFER_FORMAT, null);
@@ -2825,7 +2816,9 @@ public final class ImageCapture extends UseCase {
                 }
             }
 
-            ImageCapture imageCapture = new ImageCapture(getUseCaseConfig());
+            ImageCaptureConfig imageCaptureConfig = getUseCaseConfig();
+            ImageOutputConfig.validateConfig(imageCaptureConfig);
+            ImageCapture imageCapture = new ImageCapture(imageCaptureConfig);
 
             // Makes the crop aspect ratio match the target resolution setting as what mentioned
             // in javadoc of setTargetResolution(). When the target resolution is set, {@link

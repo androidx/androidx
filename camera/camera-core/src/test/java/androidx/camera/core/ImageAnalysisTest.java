@@ -18,6 +18,7 @@ package androidx.camera.core;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
 import static org.robolectric.Shadows.shadowOf;
 
 import android.content.Context;
@@ -37,6 +38,7 @@ import androidx.camera.core.impl.ImageAnalysisConfig;
 import androidx.camera.core.impl.TagBundle;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
+import androidx.camera.core.internal.utils.SizeUtil;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.CameraXUtil;
 import androidx.camera.testing.fakes.FakeAppConfig;
@@ -358,6 +360,33 @@ public class ImageAnalysisTest {
         // If image leakage happens, 4 unclosed image will never be closed. It means the analyzer
         // won't be able to receive images anymore.
         assertCanReceiveAnalysisImage(mImageAnalysis);
+    }
+
+    @Test
+    public void throwException_whenSetBothTargetResolutionAndAspectRatio() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new ImageAnalysis.Builder()
+                        .setTargetResolution(SizeUtil.RESOLUTION_VGA)
+                        .setTargetAspectRatio(AspectRatio.RATIO_4_3)
+                        .build());
+    }
+
+    @Test
+    public void throwException_whenSetTargetResolutionWithResolutionSelector() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new ImageAnalysis.Builder()
+                        .setTargetResolution(SizeUtil.RESOLUTION_VGA)
+                        .setResolutionSelector(new ResolutionSelector.Builder().build())
+                        .build());
+    }
+
+    @Test
+    public void throwException_whenSetTargetAspectRatioWithResolutionSelector() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new ImageAnalysis.Builder()
+                        .setTargetAspectRatio(AspectRatio.RATIO_4_3)
+                        .setResolutionSelector(new ResolutionSelector.Builder().build())
+                        .build());
     }
 
     void assertCanReceiveAnalysisImage(ImageAnalysis imageAnalysis) throws InterruptedException {

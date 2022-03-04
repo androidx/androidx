@@ -35,7 +35,6 @@ import static androidx.camera.core.impl.PreviewConfig.OPTION_SURFACE_OCCUPANCY_P
 import static androidx.camera.core.impl.PreviewConfig.OPTION_TARGET_ASPECT_RATIO;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_TARGET_CLASS;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_TARGET_NAME;
-import static androidx.camera.core.impl.PreviewConfig.OPTION_TARGET_RESOLUTION;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_TARGET_ROTATION;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_USE_CASE_EVENT_CALLBACK;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
@@ -868,16 +867,9 @@ public final class Preview extends UseCase {
         @NonNull
         @Override
         public Preview build() {
-            // Error at runtime for using both setTargetResolution and setTargetAspectRatio on
-            // the same config.
-            if (getMutableConfig().retrieveOption(OPTION_TARGET_ASPECT_RATIO, null) != null
-                    && getMutableConfig().retrieveOption(OPTION_TARGET_RESOLUTION, null) != null) {
-                throw new IllegalArgumentException(
-                        "Cannot use both setTargetResolution and setTargetAspectRatio on the same "
-                                + "config.");
-            }
-
-            return new Preview(getUseCaseConfig());
+            PreviewConfig previewConfig = getUseCaseConfig();
+            ImageOutputConfig.validateConfig(previewConfig);
+            return new Preview(previewConfig);
         }
 
         // Implementations of TargetConfig.Builder default methods

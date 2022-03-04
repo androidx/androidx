@@ -288,6 +288,39 @@ public interface ImageOutputConfig extends ReadableConfig {
     }
 
     /**
+     * Checks whether the input config contains any conflicted settings.
+     *
+     * @param config to be validated.
+     * @throws IllegalArgumentException if both the target aspect ratio and the target resolution
+     * settings are contained in the config, or if either the target aspect ratio or the target
+     * resolution is contained when a resolution selector has been set in the config.
+     */
+    static void validateConfig(@NonNull ImageOutputConfig config) {
+        boolean hasTargetAspectRatio = config.hasTargetAspectRatio();
+        boolean hasTargetResolution = config.getTargetResolution(null) != null;
+
+        // Case 1. Error at runtime for using both setTargetResolution and setTargetAspectRatio on
+        // the same config.
+        if (hasTargetAspectRatio && hasTargetResolution) {
+            throw new IllegalArgumentException(
+                    "Cannot use both setTargetResolution and setTargetAspectRatio on the same "
+                            + "config.");
+        }
+
+        ResolutionSelector resolutionSelector = config.getResolutionSelector(null);
+
+        if (resolutionSelector != null) {
+            // Case 2. Error at runtime for using setTargetResolution or setTargetAspectRatio
+            // with setResolutionSelector on the same config.
+            if (hasTargetAspectRatio || hasTargetResolution) {
+                throw new IllegalArgumentException(
+                        "Cannot use setTargetResolution or setTargetAspectRatio with "
+                                + "setResolutionSelector on the same config.");
+            }
+        }
+    }
+
+    /**
      * Builder for a {@link ImageOutputConfig}.
      *
      * @param <B> The top level builder type for which this builder is composed with.

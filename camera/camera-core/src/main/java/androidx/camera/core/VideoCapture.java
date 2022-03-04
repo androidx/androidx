@@ -1496,15 +1496,9 @@ public final class VideoCapture extends UseCase {
         @Override
         @NonNull
         public VideoCapture build() {
-            // Error at runtime for using both setTargetResolution and setTargetAspectRatio on
-            // the same config.
-            if (getMutableConfig().retrieveOption(OPTION_TARGET_ASPECT_RATIO, null) != null
-                    && getMutableConfig().retrieveOption(OPTION_TARGET_RESOLUTION, null) != null) {
-                throw new IllegalArgumentException(
-                        "Cannot use both setTargetResolution and setTargetAspectRatio on the same "
-                                + "config.");
-            }
-            return new VideoCapture(getUseCaseConfig());
+            VideoCaptureConfig videoCaptureConfig = getUseCaseConfig();
+            ImageOutputConfig.validateConfig(videoCaptureConfig);
+            return new VideoCapture(videoCaptureConfig);
         }
 
         /**
