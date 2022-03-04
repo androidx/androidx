@@ -464,6 +464,7 @@ internal fun createUniqueRemoteUiName(appWidgetId: Int) = "appWidget-$appWidgetI
 internal data class AppWidgetId(val appWidgetId: Int) : GlanceId
 
 // Extract the sizes from the bundle
+@Suppress("DEPRECATION")
 internal fun Bundle.extractAllSizes(minSize: () -> DpSize): List<DpSize> {
     val sizes = getParcelableArrayList<SizeF>(AppWidgetManager.OPTION_APPWIDGET_SIZES)
     return if (sizes.isNullOrEmpty()) {

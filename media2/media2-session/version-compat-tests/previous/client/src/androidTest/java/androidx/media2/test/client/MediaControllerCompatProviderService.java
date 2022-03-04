@@ -318,6 +318,7 @@ public class MediaControllerCompatProviderService extends Service {
             controller.getTransportControls().sendCustomAction(action, args);
         }
 
+        @SuppressWarnings("deprecation")
         private Parcelable getParcelable(Bundle bundle) {
             bundle.setClassLoader(MediaSessionCompat.class.getClassLoader());
             return bundle.getParcelable(KEY_ARGUMENTS);

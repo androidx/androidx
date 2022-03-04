@@ -77,6 +77,7 @@ public final class ShareData {
 
     /** Unpacks the object from a {@link Bundle}. */
     @NonNull
+    @SuppressWarnings("deprecation")
     public static ShareData fromBundle(@NonNull Bundle bundle) {
         return new ShareData(bundle.getString(KEY_TITLE),
                 bundle.getString(KEY_TEXT),

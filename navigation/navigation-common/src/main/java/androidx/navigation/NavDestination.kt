@@ -556,6 +556,7 @@ public open class NavDestination(
             equalArguments
     }
 
+    @Suppress("DEPRECATION")
     override fun hashCode(): Int {
         var result = id
         result = 31 * result + route.hashCode()

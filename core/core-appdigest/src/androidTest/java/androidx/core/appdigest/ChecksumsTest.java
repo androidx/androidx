@@ -1049,6 +1049,7 @@ public class ChecksumsTest {
             }
         }
 
+        @SuppressWarnings("deprecation")
         void commitSession(PackageInstaller.Session session) throws Exception {
             final ResolvableFuture<Intent> result = ResolvableFuture.create();
 

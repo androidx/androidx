@@ -67,6 +67,7 @@ final class PlatformEntityConfigWrapper {
     }
 
     @Nullable
+    @SuppressWarnings("deprecation")
     static PlatformEntityConfigWrapper createFromBundle(@Nullable Bundle bundle) {
         if (bundle == null) {
             return null;

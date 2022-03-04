@@ -426,6 +426,7 @@ public class BrowserActionsIntent {
      * @return List of {@link BrowserActionItem}
      */
     @NonNull
+    @SuppressWarnings("deprecation")
     public static List<BrowserActionItem> parseBrowserActionItems(
             @NonNull ArrayList<Bundle> bundles) {
         List<BrowserActionItem> mActions = new ArrayList<>();

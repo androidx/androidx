@@ -114,6 +114,7 @@ class MediaRouter2Utils {
     }
 
     @Nullable
+    @SuppressWarnings("deprecation")
     public static MediaRouteDescriptor toMediaRouteDescriptor(
             @Nullable MediaRoute2Info fwkMediaRoute2Info) {
         if (fwkMediaRoute2Info == null) {

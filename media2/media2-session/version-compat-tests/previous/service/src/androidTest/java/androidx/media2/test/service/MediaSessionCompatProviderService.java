@@ -144,6 +144,7 @@ public class MediaSessionCompatProviderService extends Service {
         }
 
         @Override
+        @SuppressWarnings("deprecation")
         public void setPlaybackState(String sessionTag, Bundle stateBundle) throws RemoteException {
             MediaSessionCompat session = mSessionMap.get(sessionTag);
             stateBundle.setClassLoader(MediaSessionCompat.class.getClassLoader());
@@ -152,6 +153,7 @@ public class MediaSessionCompatProviderService extends Service {
         }
 
         @Override
+        @SuppressWarnings("deprecation")
         public void setMetadata(String sessionTag, Bundle metadataBundle) throws RemoteException {
             MediaSessionCompat session = mSessionMap.get(sessionTag);
             metadataBundle.setClassLoader(MediaSessionCompat.class.getClassLoader());
@@ -160,6 +162,7 @@ public class MediaSessionCompatProviderService extends Service {
         }
 
         @Override
+        @SuppressWarnings("deprecation")
         public void setQueue(String sessionTag, Bundle queueBundle) throws RemoteException {
             MediaSessionCompat session = mSessionMap.get(sessionTag);
             queueBundle.setClassLoader(MediaSessionCompat.class.getClassLoader());

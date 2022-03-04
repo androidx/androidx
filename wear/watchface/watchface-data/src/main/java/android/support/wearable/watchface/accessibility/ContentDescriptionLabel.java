@@ -102,6 +102,7 @@ public final class ContentDescriptionLabel implements Parcelable {
         this.mText = text;
     }
 
+    @SuppressWarnings("deprecation")
     protected ContentDescriptionLabel(@NonNull Parcel in) {
         Bundle bundle = in.readBundle(getClass().getClassLoader());
         mText = bundle.getParcelable(Constants.KEY_TEXT);

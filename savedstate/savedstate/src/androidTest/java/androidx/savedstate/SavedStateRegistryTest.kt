@@ -248,6 +248,7 @@ private fun bundleOf(key: String, value: String): Bundle {
     return result
 }
 
+@Suppress("DEPRECATION")
 private fun Bundle?.isSame(other: Bundle): Boolean {
     if (this == null) {
         return false

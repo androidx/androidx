@@ -44,6 +44,7 @@ import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 
 @Composable
+@Suppress("DEPRECATION")
 fun NavByDeepLinkDemo() {
     val navController = rememberNavController()
     val uri = "https://example.com/dashboard?userId="

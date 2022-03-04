@@ -421,6 +421,7 @@ public final class MediaMetadataCompat implements Parcelable {
      * @param key The key the value is stored under
      * @return A {@link RatingCompat} or null
      */
+    @SuppressWarnings("deprecation")
     public RatingCompat getRating(@RatingKey String key) {
         RatingCompat rating = null;
         try {
@@ -445,6 +446,7 @@ public final class MediaMetadataCompat implements Parcelable {
      * @param key The key the value is stored under
      * @return A {@link Bitmap} or null
      */
+    @SuppressWarnings("deprecation")
     public Bitmap getBitmap(@BitmapKey String key) {
         Bitmap bmp = null;
         try {
@@ -680,6 +682,7 @@ public final class MediaMetadataCompat implements Parcelable {
          * @hide
          */
         @RestrictTo(LIBRARY)
+        @SuppressWarnings("deprecation")
         public Builder(MediaMetadataCompat source, int maxBitmapSize) {
             this(source);
             for (String key : mBundle.keySet()) {

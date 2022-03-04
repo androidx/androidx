@@ -346,6 +346,7 @@ class SavedStateHandle {
         private const val KEYS = "keys"
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
+        @Suppress("DEPRECATION")
         fun createHandle(restoredState: Bundle?, defaultState: Bundle?): SavedStateHandle {
             if (restoredState == null) {
                 return if (defaultState == null) {

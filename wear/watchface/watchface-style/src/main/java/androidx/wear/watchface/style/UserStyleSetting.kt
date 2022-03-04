@@ -117,6 +117,7 @@ public sealed class UserStyleSetting private constructor(
      * companion due to the watches smaller screen size.
      */
     public class OnWatchEditorData(public val icon: Icon?) {
+        @Suppress("DEPRECATION")
         internal constructor(wireFormat: Bundle) : this(wireFormat.getParcelable(ICON_KEY))
 
         internal fun toWireFormat() = Bundle().apply {

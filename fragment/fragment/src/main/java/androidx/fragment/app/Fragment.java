@@ -1953,6 +1953,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * @param savedInstanceState the savedInstanceState potentially containing fragment info
      */
+    @SuppressWarnings("deprecation")
     void restoreChildFragmentState(@Nullable Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             Parcelable p = savedInstanceState.getParcelable(

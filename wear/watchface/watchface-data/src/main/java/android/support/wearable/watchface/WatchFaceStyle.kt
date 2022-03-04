@@ -123,6 +123,7 @@ public open class WatchFaceStyle(
 
         /** Parcelable Creator */
         @JvmField
+        @Suppress("DEPRECATION")
         public val CREATOR: Parcelable.Creator<WatchFaceStyle> =
             object : Parcelable.Creator<WatchFaceStyle> {
                 override fun createFromParcel(parcel: Parcel): WatchFaceStyle {
