@@ -7,3 +7,5 @@ ChangedType: androidx.collection.SparseArrayCompat#clone():
 
 RemovedMethod: androidx.collection.LruCache#toString():
     Removed method androidx.collection.LruCache.toString()
+RemovedMethod: androidx.collection.SimpleArrayMap#SimpleArrayMap(androidx.collection.SimpleArrayMap<K,V>):
+    Removed constructor androidx.collection.SimpleArrayMap(androidx.collection.SimpleArrayMap<K,V>)

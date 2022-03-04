@@ -33,7 +33,7 @@ public class SimpleArrayMapJava extends SimpleArrayMap<Integer, String> {
         super(capacity);
     }
 
-    public SimpleArrayMapJava(SimpleArrayMap<Integer, String> map) {
+    public SimpleArrayMapJava(@NonNull SimpleArrayMap<Integer, String> map) {
         super(map);
     }
 
@@ -48,43 +48,47 @@ public class SimpleArrayMapJava extends SimpleArrayMap<Integer, String> {
     }
 
     @Override
-    public boolean containsKey(@Nullable Object key) {
+    public boolean containsKey(@Nullable Integer key) {
         return super.containsKey(key);
     }
 
     @Override
-    public int indexOfKey(@Nullable Object key) {
+    public int indexOfKey(@Nullable Integer key) {
         return super.indexOfKey(key);
     }
 
     @Override
-    public boolean containsValue(Object value) {
+    public boolean containsValue(@NonNull String value) {
         return super.containsValue(value);
     }
 
     @Nullable
     @Override
-    public String get(Object key) {
+    public String get(@NonNull Integer key) {
         return super.get(key);
     }
 
+    @NonNull
     @Override
-    public String getOrDefault(Object key, String defaultValue) {
+    public String getOrDefault(@Nullable Object key, @NonNull String defaultValue) {
         return super.getOrDefault(key, defaultValue);
     }
 
+    @NonNull
     @Override
     public Integer keyAt(int index) {
         return super.keyAt(index);
     }
 
+    @NonNull
     @Override
     public String valueAt(int index) {
         return super.valueAt(index);
     }
 
+    @NonNull
     @Override
-    public String setValueAt(int index, String value) {
+    public String setValueAt(int index, @NonNull String value) {
         return super.setValueAt(index, value);
     }
 
@@ -95,32 +99,33 @@ public class SimpleArrayMapJava extends SimpleArrayMap<Integer, String> {
 
     @Nullable
     @Override
-    public String put(Integer key, String value) {
+    public String put(@NonNull Integer key, @NonNull String value) {
         return super.put(key, value);
     }
 
     @Override
-    public void putAll(@NonNull SimpleArrayMap<? extends Integer, ? extends String> array) {
-        super.putAll(array);
+    public void putAll(@NonNull SimpleArrayMap<? extends Integer, ? extends String> map) {
+        super.putAll(map);
     }
 
     @Nullable
     @Override
-    public String putIfAbsent(Integer key, String value) {
+    public String putIfAbsent(@NonNull Integer key, @NonNull String value) {
         return super.putIfAbsent(key, value);
     }
 
     @Nullable
     @Override
-    public String remove(Object key) {
+    public String remove(@NonNull Integer key) {
         return super.remove(key);
     }
 
     @Override
-    public boolean remove(Object key, Object value) {
+    public boolean remove(@NonNull Integer key, @NonNull String value) {
         return super.remove(key, value);
     }
 
+    @NonNull
     @Override
     public String removeAt(int index) {
         return super.removeAt(index);
@@ -128,12 +133,13 @@ public class SimpleArrayMapJava extends SimpleArrayMap<Integer, String> {
 
     @Nullable
     @Override
-    public String replace(Integer key, String value) {
+    public String replace(@NonNull Integer key, @NonNull String value) {
         return super.replace(key, value);
     }
 
     @Override
-    public boolean replace(Integer key, String oldValue, String newValue) {
+    public boolean replace(@NonNull Integer key, @NonNull String oldValue,
+            @NonNull String newValue) {
         return super.replace(key, oldValue, newValue);
     }
 
@@ -152,6 +158,7 @@ public class SimpleArrayMapJava extends SimpleArrayMap<Integer, String> {
         return super.hashCode();
     }
 
+    @NonNull
     @Override
     public String toString() {
         return super.toString();
@@ -166,8 +173,8 @@ public class SimpleArrayMapJava extends SimpleArrayMap<Integer, String> {
 
         //noinspection StringEquality
         return map.isEmpty() && map.size() == 0
-                && map.get(new Object()) == map.getOrDefault(new Object(), null)
-                && map.containsKey(new Object()) && map.containsValue(new Object())
-                && map.indexOfKey(new Object()) == 0 && map.remove(new Object()) == null;
+                && map.get(5) == map.getOrDefault(5, null)
+                && map.containsKey(2) && map.containsValue("")
+                && map.indexOfKey(0) == 0 && map.remove(1) == null;
     }
 }

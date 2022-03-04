@@ -55,9 +55,12 @@ import java.util.Set;
  * explicit call to set the capacity should turn off this aggressive shrinking behavior.</p>
  */
 public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
-    @Nullable EntrySet mEntrySet;
-    @Nullable KeySet mKeySet;
-    @Nullable ValueCollection mValues;
+    @Nullable
+    EntrySet mEntrySet;
+    @Nullable
+    KeySet mKeySet;
+    @Nullable
+    ValueCollection mValues;
 
     public ArrayMap() {
         super();
@@ -74,12 +77,13 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
      * Create a new ArrayMap with the mappings from the given ArrayMap.
      */
     @SuppressWarnings("unchecked")
-    public ArrayMap(SimpleArrayMap map) {
+    public ArrayMap(@Nullable SimpleArrayMap map) {
         super(map);
     }
 
     /**
      * Determine if the array map contains all of the keys in the given collection.
+     *
      * @param collection The collection whose contents are to be checked against.
      * @return Returns true if this array map contains a key for every entry
      * in <var>collection</var>, else returns false.
@@ -94,12 +98,64 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
     }
 
     /**
+     * Check whether a key exists in the array.
+     *
+     * @param key The key to search for. ** This must be the same type as <var>K</var> **
+     * @return Returns {@code true} if the key exists, else {@code false}.
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public boolean containsKey(@Nullable Object key) {
+        return super.containsKey((K) key);
+    }
+
+    /**
+     * Check whether a value exists in the array. This requires a linear search
+     * through the entire array.
+     *
+     * @param value The value to search for. ** This must be the same type as <var>V</var> **
+     * @return Returns {@code true} if the value exists, else {@code false}.
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public boolean containsValue(@Nullable Object value) {
+        return super.containsValue((V) value);
+    }
+
+    /**
+     * Retrieve a value from the array.
+     *
+     * @param key The key of the value to retrieve. ** This must be the same type as <var>K</var> **
+     * @return Returns the value associated with the given key, or {@code null} if there is no such
+     * key.
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public V get(@Nullable Object key) {
+        return super.get((K) key);
+    }
+
+    /**
+     * Remove an existing key from the array map.
+     *
+     * @param key The key of the mapping to remove. ** This must be the same type as <var>V</var> **
+     * @return Returns the value that was stored under the key, or {@code null} if there was no
+     * such key.
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public V remove(@Nullable Object key) {
+        return super.remove((K) key);
+    }
+
+    /**
      * Perform a {@link #put(Object, Object)} of all key/value pairs in <var>map</var>
+     *
      * @param map The map whose contents are to be retrieved.
      */
     @Override
     public void putAll(@NonNull Map<? extends K, ? extends V> map) {
-        ensureCapacity(mSize + map.size());
+        ensureCapacity(size() + map.size());
         for (Map.Entry<? extends K, ? extends V> entry : map.entrySet()) {
             put(entry.getKey(), entry.getValue());
         }
@@ -107,31 +163,33 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
 
     /**
      * Remove all keys in the array map that exist in the given collection.
+     *
      * @param collection The collection whose contents are to be used to remove keys.
      * @return Returns true if any keys were removed from the array map, else false.
      */
     public boolean removeAll(@NonNull Collection<?> collection) {
-        int oldSize = mSize;
+        int oldSize = size();
         for (Object o : collection) {
             remove(o);
         }
-        return oldSize != mSize;
+        return oldSize != size();
     }
 
     /**
      * Remove all keys in the array map that do <b>not</b> exist in the given collection.
+     *
      * @param collection The collection whose contents are to be used to determine which
-     * keys to keep.
+     *                   keys to keep.
      * @return Returns true if any keys were removed from the array map, else false.
      */
     public boolean retainAll(@NonNull Collection<?> collection) {
-        int oldSize = mSize;
-        for (int i = mSize - 1; i >= 0; i--) {
+        int oldSize = size();
+        for (int i = size() - 1; i >= 0; i--) {
             if (!collection.contains(keyAt(i))) {
                 removeAt(i);
             }
         }
-        return oldSize != mSize;
+        return oldSize != size();
     }
 
     /**
@@ -192,6 +250,7 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
     }
 
     final class EntrySet extends AbstractSet<Map.Entry<K, V>> {
+        @NonNull
         @Override
         public Iterator<Entry<K, V>> iterator() {
             return new MapIterator();
@@ -199,7 +258,7 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
 
         @Override
         public int size() {
-            return mSize;
+            return ArrayMap.this.size();
         }
     }
 
@@ -210,7 +269,7 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
         }
 
         @Override
-        public boolean addAll(Collection<? extends K> collection) {
+        public boolean addAll(@NonNull Collection<? extends K> collection) {
             throw new UnsupportedOperationException();
         }
 
@@ -225,7 +284,7 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
         }
 
         @Override
-        public boolean containsAll(Collection<?> collection) {
+        public boolean containsAll(@NonNull Collection<?> collection) {
             return ArrayMap.this.containsAll(collection);
         }
 
@@ -234,14 +293,16 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
             return ArrayMap.this.isEmpty();
         }
 
+        @NonNull
         @Override
         public Iterator<K> iterator() {
             return new KeyIterator();
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public boolean remove(Object object) {
-            int index = indexOfKey(object);
+            int index = indexOfKey((K) object);
             if (index >= 0) {
                 removeAt(index);
                 return true;
@@ -250,32 +311,33 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
         }
 
         @Override
-        public boolean removeAll(Collection<?> collection) {
+        public boolean removeAll(@NonNull Collection<?> collection) {
             return ArrayMap.this.removeAll(collection);
         }
 
         @Override
-        public boolean retainAll(Collection<?> collection) {
+        public boolean retainAll(@NonNull Collection<?> collection) {
             return ArrayMap.this.retainAll(collection);
         }
 
         @Override
         public int size() {
-            return mSize;
+            return ArrayMap.this.size();
         }
 
+        @NonNull
         @Override
         public Object[] toArray() {
-            final int N = mSize;
+            final int N = ArrayMap.this.size();
             Object[] result = new Object[N];
-            for (int i=0; i<N; i++) {
+            for (int i = 0; i < N; i++) {
                 result[i] = keyAt(i);
             }
             return result;
         }
 
         @Override
-        public <T> T[] toArray(T[] array) {
+        public <T> T[] toArray(@NonNull T[] array) {
             return toArrayHelper(array, 0);
         }
 
@@ -287,7 +349,7 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
         @Override
         public int hashCode() {
             int result = 0;
-            for (int i=mSize-1; i>=0; i--) {
+            for (int i = ArrayMap.this.size() - 1; i >= 0; i--) {
                 K obj = keyAt(i);
                 result += obj == null ? 0 : obj.hashCode();
             }
@@ -302,7 +364,7 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
         }
 
         @Override
-        public boolean addAll(Collection<? extends V> collection) {
+        public boolean addAll(@NonNull Collection<? extends V> collection) {
             throw new UnsupportedOperationException();
         }
 
@@ -312,8 +374,9 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public boolean contains(Object object) {
-            return indexOfValue(object) >= 0;
+            return __restricted$indexOfValue((V) object) >= 0;
         }
 
         @Override
@@ -331,14 +394,16 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
             return ArrayMap.this.isEmpty();
         }
 
+        @NonNull
         @Override
         public Iterator<V> iterator() {
             return new ValueIterator();
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public boolean remove(Object object) {
-            int index = indexOfValue(object);
+            int index = __restricted$indexOfValue((V) object);
             if (index >= 0) {
                 removeAt(index);
                 return true;
@@ -347,10 +412,10 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
         }
 
         @Override
-        public boolean removeAll(Collection<?> collection) {
-            int N = mSize;
+        public boolean removeAll(@NonNull Collection<?> collection) {
+            int N = ArrayMap.this.size();
             boolean changed = false;
-            for (int i=0; i<N; i++) {
+            for (int i = 0; i < N; i++) {
                 V cur = valueAt(i);
                 if (collection.contains(cur)) {
                     removeAt(i);
@@ -363,10 +428,10 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
         }
 
         @Override
-        public boolean retainAll(Collection<?> collection) {
-            int N = mSize;
+        public boolean retainAll(@NonNull Collection<?> collection) {
+            int N = ArrayMap.this.size();
             boolean changed = false;
-            for (int i=0; i<N; i++) {
+            for (int i = 0; i < N; i++) {
                 V cur = valueAt(i);
                 if (!collection.contains(cur)) {
                     removeAt(i);
@@ -380,28 +445,29 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
 
         @Override
         public int size() {
-            return mSize;
+            return ArrayMap.this.size();
         }
 
+        @NonNull
         @Override
         public Object[] toArray() {
-            final int N = mSize;
+            final int N = ArrayMap.this.size();
             Object[] result = new Object[N];
-            for (int i=0; i<N; i++) {
+            for (int i = 0; i < N; i++) {
                 result[i] = valueAt(i);
             }
             return result;
         }
 
         @Override
-        public <T> T[] toArray(T[] array) {
+        public <T> T[] toArray(@NonNull T[] array) {
             return toArrayHelper(array, 1);
         }
     }
 
     final class KeyIterator extends IndexBasedArrayIterator<K> {
         KeyIterator() {
-            super(ArrayMap.this.mSize);
+            super(ArrayMap.this.size());
         }
 
         @Override
@@ -417,7 +483,7 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
 
     final class ValueIterator extends IndexBasedArrayIterator<V> {
         ValueIterator() {
-            super(ArrayMap.this.mSize);
+            super(ArrayMap.this.size());
         }
 
         @Override
@@ -437,7 +503,7 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
         boolean mEntryValid;
 
         MapIterator() {
-            mEnd = mSize - 1;
+            mEnd = size() - 1;
             mIndex = -1;
         }
 
@@ -526,14 +592,14 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
 
     @SuppressWarnings("unchecked")
     <T> T[] toArrayHelper(T[] array, int offset) {
-        final int N  = mSize;
+        final int N = size();
         if (array.length < N) {
             @SuppressWarnings("unchecked") T[] newArray
                     = (T[]) Array.newInstance(array.getClass().getComponentType(), N);
             array = newArray;
         }
-        for (int i=0; i<N; i++) {
-            array[i] = (T) mArray[(i<<1)+offset];
+        for (int i = 0; i < N; i++) {
+            array[i] = (T) array[(i << 1) + offset];
         }
         if (array.length > N) {
             array[N] = null;
@@ -550,8 +616,7 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
 
             try {
                 return set.size() == s.size() && set.containsAll(s);
-            } catch (NullPointerException ignored) {
-            } catch (ClassCastException ignored) {
+            } catch (NullPointerException | ClassCastException ignored) {
             }
         }
         return false;

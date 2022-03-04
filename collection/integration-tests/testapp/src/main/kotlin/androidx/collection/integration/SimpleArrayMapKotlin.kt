@@ -36,25 +36,23 @@ class SimpleArrayMapKotlin : SimpleArrayMap<Int, String>() {
         super.ensureCapacity(minimumCapacity)
     }
 
-    override fun containsKey(key: Any?): Boolean {
+    override fun containsKey(key: Int): Boolean {
         return super.containsKey(key)
     }
 
-    override fun indexOfKey(key: Any?): Int {
+    override fun indexOfKey(key: Int): Int {
         return super.indexOfKey(key)
     }
 
-    fun indexOfValue(value: Any?): Int = 0
-
-    override fun containsValue(value: Any?): Boolean {
+    override fun containsValue(value: String): Boolean {
         return super.containsValue(value)
     }
 
-    override fun get(key: Any?): String? {
+    override fun get(key: Int): String? {
         return super.get(key)
     }
 
-    override fun getOrDefault(key: Any?, defaultValue: String?): String {
+    override fun getOrDefault(key: Any?, defaultValue: String): String {
         return super.getOrDefault(key, defaultValue)
     }
 
@@ -66,7 +64,7 @@ class SimpleArrayMapKotlin : SimpleArrayMap<Int, String>() {
         return super.valueAt(index)
     }
 
-    override fun setValueAt(index: Int, value: String?): String {
+    override fun setValueAt(index: Int, value: String): String {
         return super.setValueAt(index, value)
     }
 
@@ -74,23 +72,23 @@ class SimpleArrayMapKotlin : SimpleArrayMap<Int, String>() {
         return super.isEmpty()
     }
 
-    override fun put(key: Int?, value: String?): String? {
+    override fun put(key: Int, value: String): String? {
         return super.put(key, value)
     }
 
-    override fun putAll(array: SimpleArrayMap<out Int, out String>) {
-        super.putAll(array)
+    override fun putAll(map: SimpleArrayMap<out Int, out String>) {
+        super.putAll(map)
     }
 
-    override fun putIfAbsent(key: Int?, value: String?): String? {
+    override fun putIfAbsent(key: Int, value: String): String? {
         return super.putIfAbsent(key, value)
     }
 
-    override fun remove(key: Any?): String? {
+    override fun remove(key: Int): String? {
         return super.remove(key)
     }
 
-    override fun remove(key: Any?, value: Any?): Boolean {
+    override fun remove(key: Int, value: String): Boolean {
         return super.remove(key, value)
     }
 
@@ -98,11 +96,11 @@ class SimpleArrayMapKotlin : SimpleArrayMap<Int, String>() {
         return super.removeAt(index)
     }
 
-    override fun replace(key: Int?, value: String?): String? {
+    override fun replace(key: Int, value: String): String? {
         return super.replace(key, value)
     }
 
-    override fun replace(key: Int?, oldValue: String?, newValue: String?): Boolean {
+    override fun replace(key: Int, oldValue: String, newValue: String): Boolean {
         return super.replace(key, oldValue, newValue)
     }
 
@@ -129,8 +127,8 @@ fun simpleArrayMapSourceCompatibility(): Boolean {
     map.putAll(map)
     map.clear()
 
-    @Suppress("UsePropertyAccessSyntax")
-    return map.isEmpty && map.isEmpty() && map.size() == 0 && map[0] == map.get(0) &&
+    @Suppress("ReplaceGetOrSet", "ReplaceCallWithBinaryOperator")
+    return map.isEmpty() && map.size() == 0 && map[0] == map.get(0) &&
         map.getOrDefault(0, "").equals("") && map.put(0, "")?.equals(map.putIfAbsent(0, ""))!! &&
         map.removeAt(0).plus(map.remove(0)) == map.setValueAt(0, "")
 }
