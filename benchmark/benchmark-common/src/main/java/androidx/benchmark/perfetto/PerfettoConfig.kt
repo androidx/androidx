@@ -21,6 +21,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.benchmark.Shell
 import perfetto.protos.DataSourceConfig
+import perfetto.protos.AndroidPowerConfig
 import perfetto.protos.FtraceConfig
 import perfetto.protos.MeminfoCounters
 import perfetto.protos.ProcessStatsConfig
@@ -134,6 +135,21 @@ private val LINUX_SYS_STATS_DATASOURCE = TraceConfig.DataSource(
     )
 )
 
+private val ANDROID_POWER_DATASOURCE = TraceConfig.DataSource(
+    config = DataSourceConfig(
+        name = "android.power",
+        android_power_config = AndroidPowerConfig(
+            battery_poll_ms = 250,
+            battery_counters = listOf(
+                AndroidPowerConfig.BatteryCounters.BATTERY_COUNTER_CAPACITY_PERCENT,
+                AndroidPowerConfig.BatteryCounters.BATTERY_COUNTER_CHARGE,
+                AndroidPowerConfig.BatteryCounters.BATTERY_COUNTER_CURRENT
+            ),
+            collect_power_rails = true
+        )
+    )
+)
+
 /**
  * Config for perfetto.
  *
@@ -153,6 +169,7 @@ fun perfettoConfig(
         ftraceDataSource(atraceApps),
         PROCESS_STATS_DATASOURCE,
         LINUX_SYS_STATS_DATASOURCE,
+        ANDROID_POWER_DATASOURCE,
         TraceConfig.DataSource(DataSourceConfig("android.surfaceflinger.frametimeline"))
     ),
     // periodically dump to file, so we don't overrun our ring buffer
