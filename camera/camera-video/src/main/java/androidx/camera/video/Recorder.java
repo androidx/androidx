@@ -2101,7 +2101,9 @@ public final class Recorder implements VideoOutput {
                     // Fall-through
                 case PENDING_RECORDING:
                     if (mShouldWaitForNewSurface) {
-                        Logger.d(TAG, "Waiting for a new surface to start the pending recording.");
+                        // If the encoder doesn't use persistent input surface, reset the
+                        // non-pending state to INITIALIZING to wait for a surface update.
+                        updateNonPendingState(State.INITIALIZING);
                     } else {
                         recordingToStart = makePendingRecordingActiveLocked(mState);
                     }
