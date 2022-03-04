@@ -761,6 +761,7 @@ public open class NavController(
      * stack used to start this Activity. Returns false if
      * the current destination was already the root of the deep link.
      */
+    @Suppress("DEPRECATION")
     private fun tryRelaunchUpToExplicitStack(): Boolean {
         if (!deepLinkHandled) {
             return false
@@ -1188,6 +1189,7 @@ public open class NavController(
      * @see NavDestination.addDeepLink
      */
     @MainThread
+    @Suppress("DEPRECATION")
     public open fun handleDeepLink(intent: Intent?): Boolean {
         if (intent == null) {
             return false
@@ -2080,6 +2082,7 @@ public open class NavController(
      * @param navState state bundle to restore
      */
     @CallSuper
+    @Suppress("DEPRECATION")
     public open fun restoreState(navState: Bundle?) {
         if (navState == null) {
             return

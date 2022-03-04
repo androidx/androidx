@@ -32,6 +32,7 @@ import org.junit.Test
 @SdkSuppress(minSdkVersion = 21)
 @SmallTest
 class PersistableBundleTest {
+    @Suppress("DEPRECATION")
     @Test fun persistableBundleOfValid() {
         val bundle = persistableBundleOf(
             "null" to null,
@@ -67,6 +68,7 @@ class PersistableBundleTest {
     }
 
     @SdkSuppress(minSdkVersion = 22)
+    @Suppress("DEPRECATION")
     @Test fun persistableBundleOfValidApi22() {
         val bundle = persistableBundleOf(
             "boolean" to true,
@@ -96,6 +98,7 @@ class PersistableBundleTest {
         assertTrue(bundle.isEmpty)
     }
 
+    @Suppress("DEPRECATION")
     @Test fun mapToPersistableBundle() {
         val map = mapOf(
             "null" to null,

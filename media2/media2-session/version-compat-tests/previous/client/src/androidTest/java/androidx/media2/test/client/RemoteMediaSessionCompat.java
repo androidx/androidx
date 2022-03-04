@@ -95,6 +95,7 @@ public class RemoteMediaSessionCompat {
      *
      * @return A {@link MediaSessionCompat.Token} object if succeeded, {@code null} if failed.
      */
+    @SuppressWarnings("deprecation")
     public MediaSessionCompat.Token getSessionToken() {
         MediaSessionCompat.Token token = null;
         try {

@@ -33,6 +33,7 @@ import kotlinx.coroutines.CancellationException
  */
 internal class ActionCallbackBroadcastReceiver : BroadcastReceiver() {
 
+    @Suppress("DEPRECATION")
     override fun onReceive(context: Context, intent: Intent) {
         goAsync {
             try {

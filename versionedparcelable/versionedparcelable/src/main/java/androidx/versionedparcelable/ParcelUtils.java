@@ -111,8 +111,8 @@ public class ParcelUtils {
      *
      * Returns null if the bundle isn't present or ClassLoader issues occur.
      */
-    @SuppressWarnings("TypeParameterUnusedInFormals")
     @Nullable
+    @SuppressWarnings({"TypeParameterUnusedInFormals", "deprecation"})
     public static <T extends VersionedParcelable> T getVersionedParcelable(
             @NonNull Bundle bundle, @NonNull String key) {
         try {
@@ -147,7 +147,7 @@ public class ParcelUtils {
      *
      * Returns an empty list if the bundle isn't present or ClassLoader issues occur.
      */
-    @SuppressWarnings({"TypeParameterUnusedInFormals","unchecked"})
+    @SuppressWarnings({"TypeParameterUnusedInFormals", "unchecked", "deprecation"})
     @NonNull
     public static <T extends VersionedParcelable> List<T> getVersionedParcelableList(
             @NonNull Bundle bundle,

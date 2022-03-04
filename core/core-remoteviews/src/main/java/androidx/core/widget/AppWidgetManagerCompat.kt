@@ -192,6 +192,7 @@ private fun AppWidgetManager.requireValidAppWidgetId(appWidgetId: Int) {
 }
 
 @RequiresApi(31)
+@Suppress("DEPRECATION")
 private object AppWidgetManagerApi31Impl {
     @DoNotInline
     fun createExactSizeAppWidget(

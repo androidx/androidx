@@ -339,6 +339,7 @@ public class RemoteAuthClient internal constructor(
          * <ul><li>"responseUrl": the response URL from the Auth request (Uri)
          * <ul><li>"error": an error code explaining why the request failed (int)
          */
+        @Suppress("DEPRECATION")
         override fun onResult(result: Bundle) {
             val errorCode = result.getInt(KEY_ERROR_CODE, NO_ERROR)
             val responseUrl: Uri? = result.getParcelable(KEY_RESPONSE_URL)

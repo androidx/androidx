@@ -41,6 +41,7 @@ public final class BundleUtil {
      * <p>Two bundles will be considered equal if they contain the same keys, and each value is also
      * equal. Bundle values are compared using deepEquals.
      */
+    @SuppressWarnings("deprecation")
     public static boolean deepEquals(@Nullable Bundle one, @Nullable Bundle two) {
         if (one == null && two == null) {
             return true;
@@ -146,6 +147,7 @@ public final class BundleUtil {
      * <p> The hash code is only effected by the contents in the bundle. Bundles will get
      * consistent hash code if they have same contents.
      */
+    @SuppressWarnings("deprecation")
     public static int deepHashCode(@Nullable Bundle bundle) {
         if (bundle == null) {
             return 0;

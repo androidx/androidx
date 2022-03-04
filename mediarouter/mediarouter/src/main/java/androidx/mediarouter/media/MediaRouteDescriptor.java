@@ -221,6 +221,7 @@ public final class MediaRouteDescriptor {
      * @return An {@link IntentSender} to start a settings activity.
      */
     @Nullable
+    @SuppressWarnings("deprecation")
     public IntentSender getSettingsActivity() {
         return mBundle.getParcelable(KEY_SETTINGS_INTENT);
     }
@@ -234,6 +235,7 @@ public final class MediaRouteDescriptor {
         return mControlFilters;
     }
 
+    @SuppressWarnings("deprecation")
     void ensureControlFilters() {
         if (mControlFilters == null) {
             mControlFilters = mBundle.<IntentFilter>getParcelableArrayList(KEY_CONTROL_FILTERS);

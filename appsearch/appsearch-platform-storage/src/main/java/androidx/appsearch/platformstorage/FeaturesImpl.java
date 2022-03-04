@@ -42,6 +42,9 @@ final class FeaturesImpl implements Features {
             // synced over into service-appsearch.
             return false;
         }
+        if (Features.GLOBAL_SEARCH_SESSION_GET_BY_ID.equals(feature)) {
+            return BuildCompat.isAtLeastT();
+        }
         if (Features.ADD_PERMISSIONS_AND_GET_VISIBILITY.equals(feature)) {
             // TODO(b/205749173) : Update to reflect support in Android T+ once this feature is
             // synced over into service-appsearch.

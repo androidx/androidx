@@ -106,6 +106,7 @@ public final class GetSchemaResponse {
      * <p>It is inefficient to call this method repeatedly.
      */
     @NonNull
+    @SuppressWarnings("deprecation")
     public Set<AppSearchSchema> getSchemas() {
         ArrayList<Bundle> schemaBundles = mBundle.getParcelableArrayList(SCHEMAS_FIELD);
         Set<AppSearchSchema> schemas = new ArraySet<>(schemaBundles.size());
@@ -146,6 +147,7 @@ public final class GetSchemaResponse {
             name = Features.ADD_PERMISSIONS_AND_GET_VISIBILITY)
     // @exportToFramework:endStrip()
     @NonNull
+    @SuppressWarnings("deprecation")
     public Map<String, Set<PackageIdentifier>> getSchemaTypesVisibleToPackages() {
         checkGetVisibilitySettingSupported();
         if (mSchemasVisibleToPackages == null) {
@@ -198,6 +200,7 @@ public final class GetSchemaResponse {
             name = Features.ADD_PERMISSIONS_AND_GET_VISIBILITY)
     // @exportToFramework:endStrip()
     @NonNull
+    @SuppressWarnings("deprecation")
     public Map<String, Set<Set<Integer>>> getRequiredPermissionsForSchemaTypeVisibility() {
         checkGetVisibilitySettingSupported();
         if (mSchemasVisibleToPermissions == null) {

@@ -696,6 +696,7 @@ public final class ComplicationData implements Parcelable, Serializable {
 
     /** Returns the list of {@link ComplicationData} timeline entries. */
     @Nullable
+    @SuppressWarnings("deprecation")
     public List<ComplicationData> getTimelineEntries() {
         Parcelable[] bundles = mFields.getParcelableArray(FIELD_TIMELINE_ENTRIES);
         if (bundles == null) {
@@ -796,6 +797,7 @@ public final class ComplicationData implements Parcelable, Serializable {
      * Returns true if the ComplicationData contains a short title. I.e. if {@link #getShortTitle}
      * can succeed.
      */
+    @SuppressWarnings("deprecation")
     public boolean hasShortTitle() {
         try {
             return isFieldValidForType(FIELD_SHORT_TITLE, mType)
@@ -832,6 +834,7 @@ public final class ComplicationData implements Parcelable, Serializable {
      * Returns true if the ComplicationData contains short text. I.e. if {@link #getShortText} can
      * succeed.
      */
+    @SuppressWarnings("deprecation")
     public boolean hasShortText() {
         try {
             return isFieldValidForType(FIELD_SHORT_TEXT, mType)
@@ -868,6 +871,7 @@ public final class ComplicationData implements Parcelable, Serializable {
      * Returns true if the ComplicationData contains a long title. I.e. if {@link #getLongTitle}
      * can succeed.
      */
+    @SuppressWarnings("deprecation")
     public boolean hasLongTitle() {
         try {
             return isFieldValidForType(FIELD_LONG_TITLE, mType)
@@ -897,6 +901,7 @@ public final class ComplicationData implements Parcelable, Serializable {
      * Returns true if the ComplicationData contains long text. I.e. if {@link #getLongText} can
      * succeed.
      */
+    @SuppressWarnings("deprecation")
     public boolean hasLongText() {
         try {
             return isFieldValidForType(FIELD_LONG_TEXT, mType)
@@ -924,6 +929,7 @@ public final class ComplicationData implements Parcelable, Serializable {
     /**
      * Returns true if the ComplicationData contains an Icon. I.e. if {@link #getIcon} can succeed.
      */
+    @SuppressWarnings("deprecation")
     public boolean hasIcon() {
         try {
             return isFieldValidForType(FIELD_ICON, mType)
@@ -956,6 +962,7 @@ public final class ComplicationData implements Parcelable, Serializable {
      * Returns true if the ComplicationData contains a burn in protection Icon. I.e. if
      * {@link #getBurnInProtectionIcon} can succeed.
      */
+    @SuppressWarnings("deprecation")
     public boolean hasBurnInProtectionIcon() {
         try {
             return isFieldValidForType(FIELD_ICON_BURN_IN_PROTECTION, mType)
@@ -990,6 +997,7 @@ public final class ComplicationData implements Parcelable, Serializable {
      * Returns true if the ComplicationData contains a small image. I.e. if {@link #getSmallImage}
      * can succeed.
      */
+    @SuppressWarnings("deprecation")
     public boolean hasSmallImage() {
         try {
             return isFieldValidForType(FIELD_SMALL_IMAGE, mType)
@@ -1027,6 +1035,7 @@ public final class ComplicationData implements Parcelable, Serializable {
      *
      * @throws IllegalStateException for invalid types
      */
+    @SuppressWarnings("deprecation")
     public boolean hasBurnInProtectionSmallImage() {
         try {
             return isFieldValidForType(FIELD_SMALL_IMAGE_BURN_IN_PROTECTION, mType)
@@ -1079,6 +1088,7 @@ public final class ComplicationData implements Parcelable, Serializable {
      * Returns true if the ComplicationData contains a large image. I.e. if {@link #getLargeImage}
      * can succeed.
      */
+    @SuppressWarnings("deprecation")
     public boolean hasLargeImage() {
         try {
             return isFieldValidForType(FIELD_LARGE_IMAGE, mType)
@@ -1109,6 +1119,7 @@ public final class ComplicationData implements Parcelable, Serializable {
      * Returns true if the ComplicationData contains a tap action. I.e. if {@link #getTapAction}
      * can succeed.
      */
+    @SuppressWarnings("deprecation")
     public boolean hasTapAction() {
         try {
             return isFieldValidForType(FIELD_TAP_ACTION, mType)
@@ -1136,6 +1147,7 @@ public final class ComplicationData implements Parcelable, Serializable {
      * Returns true if the ComplicationData contains a content description. I.e. if
      * {@link #getContentDescription} can succeed.
      */
+    @SuppressWarnings("deprecation")
     public boolean hasContentDescription() {
         try {
             return isFieldValidForType(FIELD_CONTENT_DESCRIPTION, mType)
@@ -1260,7 +1272,7 @@ public final class ComplicationData implements Parcelable, Serializable {
         }
     }
 
-    @SuppressWarnings("TypeParameterUnusedInFormals")
+    @SuppressWarnings({"TypeParameterUnusedInFormals", "deprecation"})
     private <T extends Parcelable> T getParcelableField(String field) {
         try {
             return mFields.getParcelable(field);

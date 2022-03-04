@@ -941,6 +941,7 @@ public class IconCompat extends CustomVersionedParcelable {
     /**
      * Extracts an icon from a bundle that was added using {@link #toBundle()}.
      */
+    @SuppressWarnings("deprecation")
     public static @Nullable IconCompat createFromBundle(@NonNull Bundle bundle) {
         int type = bundle.getInt(EXTRA_TYPE);
         IconCompat icon = new IconCompat(type);

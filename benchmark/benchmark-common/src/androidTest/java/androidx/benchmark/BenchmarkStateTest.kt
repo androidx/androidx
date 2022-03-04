@@ -195,6 +195,7 @@ public class BenchmarkStateTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     public fun bundle() {
         val bundle = BenchmarkState().apply {
             while (keepRunning()) {

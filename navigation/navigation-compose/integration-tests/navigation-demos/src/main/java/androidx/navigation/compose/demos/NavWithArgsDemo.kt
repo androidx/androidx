@@ -39,6 +39,7 @@ import androidx.navigation.compose.samples.NavigateButton
 import androidx.navigation.compose.samples.Screen
 
 @Composable
+@Suppress("DEPRECATION")
 fun NavWithArgsDemo() {
     val navController = rememberNavController()
     NavHost(navController, startDestination = Screen.Profile.route) {

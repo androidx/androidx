@@ -92,6 +92,7 @@ public final class ComplicationTextTemplate implements Parcelable, TimeDependent
         this(in.readBundle(ComplicationTextTemplate.class.getClassLoader()));
     }
 
+    @SuppressWarnings("deprecation")
     private ComplicationTextTemplate(@NonNull Bundle rootBundle) {
         mSurroundingText = rootBundle.getCharSequence(KEY_SURROUNDING_STRING);
 
