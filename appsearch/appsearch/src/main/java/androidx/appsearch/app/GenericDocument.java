@@ -138,6 +138,7 @@ public class GenericDocument {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @SuppressWarnings("deprecation")
     public GenericDocument(@NonNull Bundle bundle) {
         Preconditions.checkNotNull(bundle);
         mBundle = bundle;
@@ -358,6 +359,7 @@ public class GenericDocument {
      * (String[], long[], double[], boolean[], ArrayList&lt;Bundle&gt;, Parcelable[]).
      */
     @Nullable
+    @SuppressWarnings("deprecation")
     private static Object getRawPropertyFromRawDocument(
             @NonNull String path, @NonNull Bundle documentBundle) {
         Preconditions.checkNotNull(path);

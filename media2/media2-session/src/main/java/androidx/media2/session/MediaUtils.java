@@ -314,6 +314,7 @@ public class MediaUtils {
      * and rating type to a {@link MediaItem}.
      */
     @Nullable
+    @SuppressWarnings("deprecation")
     public static MediaItem convertToMediaItem(@Nullable MediaMetadataCompat metadataCompat,
             int ratingType) {
         if (metadataCompat == null) {
@@ -987,7 +988,7 @@ public class MediaUtils {
         return stream;
     }
 
-    @SuppressWarnings("ParcelClassLoader")
+    @SuppressWarnings({"ParcelClassLoader", "deprecation"})
     static boolean doesBundleHaveCustomParcelable(@NonNull Bundle bundle) {
         // Try writing the bundle to parcel, and read it with framework classloader.
         Parcel parcel = Parcel.obtain();

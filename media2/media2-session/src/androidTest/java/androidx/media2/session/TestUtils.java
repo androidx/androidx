@@ -94,6 +94,7 @@ public final class TestUtils {
      * @return {@code true} if a contains b. {@code false} otherwise. This may be incorrect if any
      *      bundle contains a bundle.
      */
+    @SuppressWarnings("deprecation")
     public static boolean contains(Bundle a, Bundle b) {
         if (a == b) {
             return true;

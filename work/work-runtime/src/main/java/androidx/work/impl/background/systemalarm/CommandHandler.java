@@ -324,6 +324,7 @@ public class CommandHandler implements ExecutionListener {
         onExecuted(workSpecId, needsReschedule);
     }
 
+    @SuppressWarnings("deprecation")
     private static boolean hasKeys(@Nullable Bundle bundle, @NonNull String... keys) {
         if (bundle == null || bundle.isEmpty()) {
             return false;

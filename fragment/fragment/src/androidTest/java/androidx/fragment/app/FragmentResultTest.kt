@@ -490,6 +490,7 @@ class ChildResultFragment : StrictFragment() {
 class ParcelableResultFragment : StrictFragment() {
     var actualResult: Parcelable? = null
 
+    @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

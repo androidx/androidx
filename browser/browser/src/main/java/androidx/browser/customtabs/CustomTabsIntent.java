@@ -950,6 +950,7 @@ public final class CustomTabsIntent {
      * @return An instance of {@link CustomTabColorSchemeParams} with retrieved parameters.
      */
     @NonNull
+    @SuppressWarnings("deprecation")
     public static CustomTabColorSchemeParams getColorSchemeParams(@NonNull Intent intent,
             @ColorScheme int colorScheme) {
         if (colorScheme < 0 || colorScheme > COLOR_SCHEME_MAX

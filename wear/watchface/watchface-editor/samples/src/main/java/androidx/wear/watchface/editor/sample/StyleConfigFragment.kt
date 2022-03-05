@@ -189,6 +189,7 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
         rangedStyle.visibility = View.VISIBLE
     }
 
+    @Suppress("DEPRECATION")
     private fun readOptionsFromArguments() {
         settingId = requireArguments().getCharSequence(SETTING_ID).toString()
 

@@ -1001,6 +1001,7 @@ public class MediaSessionCompatCallbackTest {
 
     @Test
     @SmallTest
+    @SuppressWarnings("deprecation")
     public void testReceivingMediaParcelables() throws Exception {
         mCallback.reset(1);
         final String action = "test-action";
@@ -1054,6 +1055,7 @@ public class MediaSessionCompatCallbackTest {
 
     @Test
     @SmallTest
+    @SuppressWarnings("deprecation")
     public void testMediaDescriptionContainsUserParcelable() {
         mCallback.reset(1);
         mSession.setFlags(MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS);

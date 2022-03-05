@@ -37,6 +37,7 @@ import java.util.List;
 public class ParcelableEntityDaoTest extends TestDatabaseTest {
 
     @Test
+    @SuppressWarnings("deprecation")
     public void readWrite_toFromBundle() {
         ParcelableEntity entity = ParcelableEntity.create("value");
         Bundle bundle = new Bundle();

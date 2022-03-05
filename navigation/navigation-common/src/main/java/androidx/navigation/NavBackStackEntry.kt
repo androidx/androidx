@@ -240,6 +240,7 @@ public class NavBackStackEntry private constructor(
         savedStateRegistryController.performSave(outBundle)
     }
 
+    @Suppress("DEPRECATION")
     override fun equals(other: Any?): Boolean {
         if (other == null || other !is NavBackStackEntry) return false
         return id == other.id && destination == other.destination &&
@@ -251,6 +252,7 @@ public class NavBackStackEntry private constructor(
                 )
     }
 
+    @Suppress("DEPRECATION")
     override fun hashCode(): Int {
         var result = id.hashCode()
         result = 31 * result + destination.hashCode()

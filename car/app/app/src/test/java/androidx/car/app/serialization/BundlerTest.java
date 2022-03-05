@@ -558,6 +558,7 @@ public class BundlerTest {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void imageCompat_dejetify() throws BundlerException {
         CarIcon image = TestUtils.getTestCarIcon(mContext, "ic_test_1");
         Bundle bundle = Bundler.toBundle(image);
