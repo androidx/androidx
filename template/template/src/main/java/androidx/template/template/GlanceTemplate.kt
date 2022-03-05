@@ -237,15 +237,17 @@ internal fun TextSection(textList: List<TemplateText>) {
     if (textList.isEmpty()) return
 
     Column(modifier = GlanceModifier.background(Color.Transparent)) {
-        textList.forEach {
-            // TODO: Spacing
-            val size = textSize(it.type, DisplaySize.fromDpSize(LocalSize.current))
+        textList.forEachIndexed { index, item ->
+            val size = textSize(item.type, DisplaySize.fromDpSize(LocalSize.current))
             Text(
-                it.text,
+                item.text,
                 style = TextStyle(fontSize = size),
-                maxLines = maxLines(it.type),
+                maxLines = maxLines(item.type),
                 modifier = GlanceModifier.background(Color.Transparent)
             )
+            if (index < textList.size - 1) {
+                Spacer(modifier = GlanceModifier.height(8.dp))
+            }
         }
     }
 }
