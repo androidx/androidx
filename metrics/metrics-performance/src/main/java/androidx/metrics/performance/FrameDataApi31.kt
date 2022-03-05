@@ -67,7 +67,7 @@ class FrameDataApi31(
 
     override fun equals(other: Any?): Boolean {
         other as FrameDataApi31
-        return super.equals(other) && (frameOverrunNanos != other.frameOverrunNanos)
+        return super.equals(other) && (frameOverrunNanos == other.frameOverrunNanos)
     }
 
     override fun hashCode(): Int {
