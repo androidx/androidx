@@ -121,11 +121,11 @@ class LocalesPersistTestCase() {
 
     @After
     fun teardown() {
-        //
-        AppCompatDelegate.setIsAutoStoreLocalesOptedIn(false)
         rule.runOnUiThread {
             // clean-up
             AppCompatDelegate.setApplicationLocales(LocaleListCompat.getEmptyLocaleList())
+            // setting auto storage opt-in to false
+            AppCompatDelegate.setIsAutoStoreLocalesOptedIn(false)
         }
     }
 }

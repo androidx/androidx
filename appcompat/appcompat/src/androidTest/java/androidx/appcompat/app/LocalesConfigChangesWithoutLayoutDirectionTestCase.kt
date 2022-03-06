@@ -24,6 +24,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.filters.SdkSuppress
 import junit.framework.Assert.assertNull
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
@@ -72,5 +73,10 @@ class LocalesConfigChangesWithoutLayoutDirectionTestCase {
                 it.resources.configuration!!
             )
         }
+    }
+
+    @After
+    fun teardown() {
+        LocalesUpdateActivity.teardown()
     }
 }
