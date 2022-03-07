@@ -52,6 +52,7 @@ package androidx.wear.watchface.style {
   public final class UserStyleSchema {
     ctor public UserStyleSchema(@Deprecated java.util.List<? extends androidx.wear.watchface.style.UserStyleSetting> userStyleSettings);
     method public operator androidx.wear.watchface.style.UserStyleSetting? get(androidx.wear.watchface.style.UserStyleSetting.Id settingId);
+    method public byte[] getDigestHash();
     method @Deprecated public java.util.List<androidx.wear.watchface.style.UserStyleSetting> getUserStyleSettings();
     property @Deprecated public final java.util.List<androidx.wear.watchface.style.UserStyleSetting> userStyleSettings;
   }
