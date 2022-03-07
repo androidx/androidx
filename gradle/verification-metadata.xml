@@ -290,6 +290,7 @@
          <trusted-key id="ee9e7dc9d92fc896" group="com.google.errorprone"/>
          <trusted-key id="eef9ecc7d5d90518" group="com.google.dagger"/>
          <trusted-key id="efe8086f9e93774e" group="junit"/>
+         <trusted-key id="f1a51e051f527e0c8e24d54d4b1e11d5a4b91e89" group="com.google.protobuf"/>
          <trusted-key id="f1f111af65925306" group="io.github.classgraph"/>
          <trusted-key id="f254b35617dc255d9344bcfa873a8e86b4372146">
             <trusting group="org.apache"/>
