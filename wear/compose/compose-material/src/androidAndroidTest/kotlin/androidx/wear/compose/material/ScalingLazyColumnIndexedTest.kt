@@ -93,7 +93,8 @@ class ScalingLazyColumnIndexedTest {
                 state = rememberScalingLazyListState(initialCenterItemIndex = 0)
                     .also { state = it },
                 modifier = Modifier.height(200.dp),
-                autoCentering = false
+                autoCentering = false,
+                scalingParams = ScalingLazyColumnDefaults.scalingParams(edgeScale = 1.0f)
             ) {
                 itemsIndexed(items) { index, item ->
                     BasicText(
