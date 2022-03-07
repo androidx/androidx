@@ -136,6 +136,7 @@ abstract class WorkDatabase : RoomDatabase() {
                         configBuilder.name(configuration.name)
                             .callback(configuration.callback)
                             .noBackupDirectory(true)
+                            .allowDataLossOnRecovery(true)
                         FrameworkSQLiteOpenHelperFactory().create(configBuilder.build())
                     }
             }
