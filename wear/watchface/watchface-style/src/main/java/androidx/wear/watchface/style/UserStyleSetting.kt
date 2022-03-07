@@ -28,6 +28,7 @@ import android.os.Build
 import android.os.Bundle
 import android.util.TypedValue
 import androidx.annotation.Px
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.StringRes
 import androidx.wear.watchface.complications.ComplicationSlotBounds
@@ -49,9 +50,11 @@ import androidx.wear.watchface.style.data.LongRangeOptionWireFormat
 import androidx.wear.watchface.style.data.LongRangeUserStyleSettingWireFormat
 import androidx.wear.watchface.style.data.OptionWireFormat
 import androidx.wear.watchface.style.data.UserStyleSettingWireFormat
+import java.io.DataOutputStream
 import org.xmlpull.v1.XmlPullParser
 import java.io.InputStream
 import java.nio.ByteBuffer
+import java.security.DigestOutputStream
 import java.security.InvalidParameterException
 
 /** Wrapper around either a [CharSequence] or a string resource. */
@@ -60,8 +63,17 @@ internal sealed class DisplayText {
 
     override fun toString(): String = toCharSequence().toString()
 
+    /** Used in evaluating [UserStyleSchema.getDigestHash]. */
+    internal open fun write(dos: DataOutputStream) {
+        // Intentionally empty.
+    }
+
     class CharSequenceDisplayText(private val charSequence: CharSequence) : DisplayText() {
         override fun toCharSequence() = charSequence
+
+        override fun write(dos: DataOutputStream) {
+            dos.writeUTF(charSequence.toString())
+        }
     }
 
     class ResourceDisplayText(
@@ -69,6 +81,10 @@ internal sealed class DisplayText {
         @StringRes private val id: Int
     ) : DisplayText() {
         override fun toCharSequence() = resources.getString(id)
+
+        override fun write(dos: DataOutputStream) {
+            dos.writeInt(id)
+        }
     }
 }
 
@@ -122,6 +138,10 @@ public sealed class UserStyleSetting private constructor(
 
         internal fun toWireFormat() = Bundle().apply {
             icon?.let { putParcelable(ICON_KEY, it) }
+        }
+
+        internal fun write(dos: DataOutputStream) {
+            icon?.write(dos)
         }
 
         internal companion object {
@@ -349,6 +369,24 @@ public sealed class UserStyleSetting private constructor(
     public fun getWireFormatOptionsList(): List<OptionWireFormat> =
         options.map { it.toWireFormat() }
 
+    internal fun updateMessageDigest(digestOutputStream: DigestOutputStream) {
+        val dos = DataOutputStream(digestOutputStream)
+        dos.writeUTF(id.value)
+
+        displayNameInternal.write(dos)
+        descriptionInternal.write(dos)
+        icon?.write(dos)
+        onWatchEditorData?.write(dos)
+        for (option in options) {
+            option.write(dos)
+        }
+        dos.writeInt(defaultOptionIndex)
+        for (layer in affectedWatchFaceLayers) {
+            dos.writeInt(layer.ordinal)
+        }
+        dos.close()
+    }
+
     /** Returns the default for when the user hasn't selected an option. */
     public val defaultOption: Option
         get() = options[defaultOptionIndex]
@@ -512,6 +550,10 @@ public sealed class UserStyleSetting private constructor(
             } catch (e: Exception) {
                 id.value.toString()
             }
+
+        internal open fun write(dos: DataOutputStream) {
+            // Intentionally empty.
+        }
     }
 
     /**
@@ -733,6 +775,11 @@ public sealed class UserStyleSetting private constructor(
 
             override fun toString(): String = if (id.value[0] == 1.toByte()) "true" else "false"
 
+            override fun write(dos: DataOutputStream) {
+                dos.write(id.value)
+                dos.writeBoolean(value)
+            }
+
             public companion object {
                 @JvmField
                 public val TRUE = BooleanOption(true)
@@ -797,6 +844,13 @@ public sealed class UserStyleSetting private constructor(
             @get:SuppressWarnings("AutoBoxing")
             public val accessibilityTraversalIndex: Int? = null
         ) {
+            internal fun write(dos: DataOutputStream) {
+                dos.write(complicationSlotId)
+                enabled?.let { dos.writeBoolean(it) }
+                complicationSlotBounds?.write(dos)
+                accessibilityTraversalIndex?.let { dos.writeInt(it) }
+            }
+
             /**
              * Constructs a [ComplicationSlotOverlay].Builder.
              *
@@ -1326,12 +1380,22 @@ public sealed class UserStyleSetting private constructor(
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
             override fun toWireFormat():
                 ComplicationsOptionWireFormat =
-                    ComplicationsOptionWireFormat(
-                        id.value,
-                        displayName,
-                        icon,
-                        complicationSlotOverlays.map { it.toWireFormat() }.toTypedArray()
-                    )
+                ComplicationsOptionWireFormat(
+                    id.value,
+                    displayName,
+                    icon,
+                    complicationSlotOverlays.map { it.toWireFormat() }.toTypedArray()
+                )
+
+            override fun write(dos: DataOutputStream) {
+                dos.write(id.value)
+                for (overlay in complicationSlotOverlays) {
+                    overlay.write(dos)
+                }
+                displayNameInternal.write(dos)
+                icon?.write(dos)
+                onWatchEditorData?.write(dos)
+            }
 
             internal companion object {
                 @SuppressLint("ResourceType")
@@ -1665,6 +1729,11 @@ public sealed class UserStyleSetting private constructor(
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
             override fun toWireFormat(): DoubleRangeOptionWireFormat =
                 DoubleRangeOptionWireFormat(id.value)
+
+            override fun write(dos: DataOutputStream) {
+                dos.write(id.value)
+                dos.writeDouble(value)
+            }
 
             override fun toString(): String = value.toString()
         }
@@ -2086,6 +2155,13 @@ public sealed class UserStyleSetting private constructor(
                     icon
                 )
 
+            override fun write(dos: DataOutputStream) {
+                dos.write(id.value)
+                displayNameInternal.write(dos)
+                icon?.write(dos)
+                onWatchEditorData?.write(dos)
+            }
+
             internal companion object {
                 @SuppressLint("ResourceType")
                 fun inflate(
@@ -2131,7 +2207,7 @@ public sealed class UserStyleSetting private constructor(
                                 }
 
                                 "OnWatchEditorData" -> {
-                                        if (onWatchEditorData == null) {
+                                    if (onWatchEditorData == null) {
                                         onWatchEditorData =
                                             OnWatchEditorData.inflate(resources, parser)
                                     } else {
@@ -2429,6 +2505,11 @@ public sealed class UserStyleSetting private constructor(
             override fun toWireFormat(): LongRangeOptionWireFormat =
                 LongRangeOptionWireFormat(id.value)
 
+            override fun write(dos: DataOutputStream) {
+                dos.write(id.value)
+                dos.writeLong(value)
+            }
+
             override fun toString(): String = value.toString()
         }
 
@@ -2541,6 +2622,10 @@ public sealed class UserStyleSetting private constructor(
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
             override fun toWireFormat(): CustomValueOptionWireFormat =
                 CustomValueOptionWireFormat(id.value)
+
+            override fun write(dos: DataOutputStream) {
+                dos.write(id.value)
+            }
         }
 
         override fun getOptionForId(optionId: Option.Id): Option =
@@ -2568,33 +2653,63 @@ internal class WireSizeAndDimensions(
     val height: Int
 )
 
-@SuppressLint("ClassVerificationFailure", "ResourceType")
+@RequiresApi(Build.VERSION_CODES.P)
+internal class IconHelper {
+    internal companion object {
+        @SuppressLint("ResourceType")
+        fun getWireSizeAndDimensions(icon: Icon, context: Context): WireSizeAndDimensions? {
+            when (icon.type) {
+                Icon.TYPE_RESOURCE -> {
+                    return getWireSizeAndDimensionsFromStream(
+                        context.resources.openRawResource(icon.resId, TypedValue()),
+                        context.resources
+                    )
+                }
+
+                Icon.TYPE_URI -> {
+                    if (icon.uri.scheme == ContentResolver.SCHEME_CONTENT) {
+                        context.contentResolver.openInputStream(icon.uri)?.let {
+                            return getWireSizeAndDimensionsFromStream(it, context.resources)
+                        }
+                    }
+                }
+
+                Icon.TYPE_URI_ADAPTIVE_BITMAP -> {
+                    if (icon.uri.scheme == ContentResolver.SCHEME_CONTENT) {
+                        context.contentResolver.openInputStream(icon.uri)?.let {
+                            return getWireSizeAndDimensionsFromStream(it, context.resources)
+                        }
+                    }
+                }
+            }
+            return null
+        }
+
+        fun writeToDataOutputStream(icon: Icon, dos: DataOutputStream) {
+            dos.writeInt(icon.type)
+            when (icon.type) {
+                Icon.TYPE_RESOURCE -> {
+                    dos.writeInt(icon.resId)
+                    dos.writeUTF(icon.resPackage)
+                }
+
+                Icon.TYPE_URI -> dos.writeUTF(icon.uri.toString())
+
+                Icon.TYPE_URI_ADAPTIVE_BITMAP -> dos.writeUTF(icon.uri.toString())
+            }
+
+            // Unsupported cases are ignored, as a fallback we could load the icon drawable and
+            // convert to a png but that requires a context and is computationally expensive.
+        }
+    }
+}
+
 internal fun Icon.getWireSizeAndDimensions(context: Context): WireSizeAndDimensions {
     // Where possible use the exact wire size.
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-        when (type) {
-            Icon.TYPE_RESOURCE -> {
-                return getWireSizeAndDimensionsFromStream(
-                    context.resources.openRawResource(resId, TypedValue()),
-                    context.resources
-                )
-            }
-
-            Icon.TYPE_URI -> {
-                if (uri.scheme == ContentResolver.SCHEME_CONTENT) {
-                    context.contentResolver.openInputStream(uri)?.let {
-                        return getWireSizeAndDimensionsFromStream(it, context.resources)
-                    }
-                }
-            }
-
-            Icon.TYPE_URI_ADAPTIVE_BITMAP -> {
-                if (uri.scheme == ContentResolver.SCHEME_CONTENT) {
-                    context.contentResolver.openInputStream(uri)?.let {
-                        return getWireSizeAndDimensionsFromStream(it, context.resources)
-                    }
-                }
-            }
+        val wireSizeAndDimensions = IconHelper.getWireSizeAndDimensions(this, context)
+        if (wireSizeAndDimensions != null) {
+            return wireSizeAndDimensions
         }
     }
 
@@ -2602,6 +2717,13 @@ internal fun Icon.getWireSizeAndDimensions(context: Context): WireSizeAndDimensi
     // wire size in this instance.
     val drawable = loadDrawable(context)!!
     return WireSizeAndDimensions(null, drawable.minimumWidth, drawable.minimumHeight)
+}
+
+@SuppressLint("ClassVerificationFailure")
+internal fun Icon.write(dos: DataOutputStream) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        IconHelper.writeToDataOutputStream(this, dos)
+    }
 }
 
 private fun getWireSizeAndDimensionsFromStream(
