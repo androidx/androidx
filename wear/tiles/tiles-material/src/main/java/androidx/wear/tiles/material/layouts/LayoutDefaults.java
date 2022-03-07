@@ -82,6 +82,6 @@ public class LayoutDefaults {
     /** The default spacer width for slots in a {@link MultiSlotLayout}. */
     public static final DpProp MULTI_SLOT_LAYOUT_HORIZONTAL_SPACER_WIDTH = dp(8);
 
-    /** The recommended space between slots in a {@link MultiSlotLayout} and additional labels. */
-    public static final DpProp MULTI_SLOT_LAYOUT_VERTICAL_SPACER_HEIGHT = dp(8);
+    /** The recommended space between the main content and additional labels in layouts. */
+    public static final DpProp DEFAULT_VERTICAL_SPACER_HEIGHT = dp(8);
 }
