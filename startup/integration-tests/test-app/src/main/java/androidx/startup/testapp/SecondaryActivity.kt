@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,25 @@
 
 package androidx.startup.testapp
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 
-class MainActivity : AppCompatActivity() {
+class SecondaryActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_secondary)
 
         val notice = findViewById<TextView>(R.id.txtNotice)
-        notice.setText(R.string.app_notice)
-        val secondary = findViewById<Button>(R.id.btnSecondary)
-        secondary.setOnClickListener {
-            SecondaryActivity.launchActivity(it.context)
+        notice.setText(R.string.app_notice_secondary)
+    }
+
+    companion object {
+        fun launchActivity(context: Context) {
+            val intent = Intent(context, SecondaryActivity::class.java)
+            context.startActivity(intent)
         }
     }
 }

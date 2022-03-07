@@ -16,4 +16,6 @@
 
 <resources>
     <string name="app_notice">Application initialized.</string>
+    <string name="app_notice_secondary">Application initialized in secondary process.</string>
+    <string name="launch_secondary">Launch Secondary Activity</string>
 </resources>

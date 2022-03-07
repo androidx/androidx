@@ -15,6 +15,7 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="androidx.startup.testapp">
 
     <application
@@ -27,10 +28,27 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".SecondaryActivity"
+            android:exported="true"
+            android:process=":secondary" />
+
+        <provider
+            android:name=".SecondaryProvider"
+            android:authorities="${applicationId}.secondary.androidx-startup"
+            android:exported="false"
+            tools:node="merge"
+            android:process=":secondary">
+            <meta-data
+                android:name="androidx.startup.testapp.SecondaryInitializer"
+                android:value="@string/androidx_startup" />
+        </provider>
 
     </application>
 </manifest>
