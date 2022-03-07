@@ -15,6 +15,7 @@
  */
 package androidx.health.data.client.time
 
+import androidx.annotation.RestrictTo
 import java.time.Instant
 import java.time.LocalDateTime
 
@@ -23,6 +24,7 @@ import java.time.LocalDateTime
  *
  * The time range can be specified either in exact times, or zoneless local times.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 class TimeRangeFilter
 internal constructor(
     val startTime: Instant? = null,

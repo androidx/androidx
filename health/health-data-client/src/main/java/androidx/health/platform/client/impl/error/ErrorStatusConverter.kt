@@ -22,8 +22,6 @@ import androidx.health.platform.client.error.ErrorStatus
 import java.io.IOException
 import java.lang.IllegalArgumentException
 
-/* internal. */
-// Visible for testing due to setup in g3.
 val errorCodeExceptionMap =
     mapOf(
         ErrorCode.PROVIDER_NOT_INSTALLED to java.lang.UnsupportedOperationException::class,
@@ -41,7 +39,7 @@ val errorCodeExceptionMap =
         ErrorCode.CHANGES_TOKEN_OUTDATED to RemoteException::class
     )
 
-@Suppress("ObsoleteSdkInt") // Temporary until we bump sdk version down
+@Suppress("ObsoleteSdkInt") // We want to target lower down to 14 in the future.
 fun ErrorStatus.toException(): Exception {
     errorCodeExceptionMap[this.errorCode]?.let {
         return when (it) {

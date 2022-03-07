@@ -15,11 +15,14 @@
  */
 package androidx.health.data.client.aggregate
 
+import androidx.annotation.RestrictTo
+
 /**
  * A aggregate metric identifier with value of type [Duration].
  *
  * See [AggregateDataRow.getMetric].
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 class DurationAggregateMetric
 internal constructor(override val dataTypeName: String, override val aggregationSuffix: String) :
     AggregateMetric {

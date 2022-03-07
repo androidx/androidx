@@ -33,9 +33,7 @@ class RequestContext(
         RequestProto.RequestContext.newBuilder()
             .setCallingPackage(obj.callingPackage)
             .setSdkVersion(obj.sdkVersion)
-            .apply {
-                obj.permissionToken?.let { setPermissionToken(it) }
-            }
+            .apply { obj.permissionToken?.let { setPermissionToken(it) } }
             .setIsInForeground(obj.isInForeground)
             .build()
     }

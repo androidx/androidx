@@ -43,6 +43,7 @@ message ReadDataResponse {
 
 message ReadDataRangeResponse {
   repeated DataPoint data_point = 1;
+  optional string page_token = 2;
 }
 
 message AggregateDataResponse {

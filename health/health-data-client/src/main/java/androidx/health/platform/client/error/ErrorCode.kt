@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright (C) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.health.platform.client.error
 
 import androidx.annotation.IntDef
-import androidx.annotation.RestrictTo
 
 /** List of error codes returned by Health Platform, used in [ErrorStatus]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 @IntDef(
     ErrorCode.PROVIDER_NOT_INSTALLED,
     ErrorCode.PROVIDER_NOT_ENABLED,
@@ -50,14 +47,12 @@ annotation class ErrorCode {
          */
         const val PROVIDER_NEEDS_UPDATE = 3
 
-        /**
-         * The calling application is trying to access data without required authorization.
-         */
+        /** The calling application is trying to access data without required authorization. */
         const val NO_PERMISSION = 4
 
         /**
-         * Calling application is trying to modify data it doesn't own, i.e. the data was inserted by
-         * another app into Health Platform.
+         * Calling application is trying to modify data it doesn't own, i.e. the data was inserted
+         * by another app into Health Platform.
          */
         const val INVALID_OWNERSHIP = 10000
 
@@ -86,8 +81,8 @@ annotation class ErrorCode {
         const val INTERNAL_ERROR = 10007
 
         /**
-         * Calling application is using a changes token that indicates some changes were cleaned after
-         * its last sync and before this call.
+         * Calling application is using a changes token that indicates some changes were cleaned
+         * after its last sync and before this call.
          */
         const val CHANGES_TOKEN_OUTDATED = 10008
     }

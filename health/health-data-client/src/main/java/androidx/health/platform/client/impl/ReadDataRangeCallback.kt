@@ -17,19 +17,18 @@ package androidx.health.platform.client.impl
 
 import androidx.health.platform.client.error.ErrorStatus
 import androidx.health.platform.client.impl.error.toException
-import androidx.health.platform.client.proto.DataProto
+import androidx.health.platform.client.proto.ResponseProto
 import androidx.health.platform.client.response.ReadDataRangeResponse
 import androidx.health.platform.client.service.IReadDataRangeCallback
 import com.google.common.util.concurrent.SettableFuture
 
 /** Wrapper to convert [IReadDataRangeCallback] to listenable futures. */
 internal class ReadDataRangeCallback(
-    private val resultFuture: SettableFuture<List<DataProto.DataPoint>>
-// TODO(b/220859477): Add pageToken to result.
+    private val resultFuture: SettableFuture<ResponseProto.ReadDataRangeResponse>
 ) : IReadDataRangeCallback.Stub() {
 
     override fun onSuccess(response: ReadDataRangeResponse) {
-        resultFuture.set(response.proto.dataPointList)
+        resultFuture.set(response.proto)
     }
 
     override fun onError(error: ErrorStatus) {
