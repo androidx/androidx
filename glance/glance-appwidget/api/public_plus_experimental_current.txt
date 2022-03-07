@@ -34,7 +34,7 @@ package androidx.glance.appwidget {
   }
 
   public final class CircularProgressIndicatorKt {
-    method @androidx.compose.runtime.Composable public static void CircularProgressIndicator(optional androidx.glance.GlanceModifier modifier);
+    method @androidx.compose.runtime.Composable public static void CircularProgressIndicator(optional androidx.glance.GlanceModifier modifier, optional androidx.glance.unit.ColorProvider color);
   }
 
   public final class CompositionLocalsKt {
@@ -95,11 +95,21 @@ package androidx.glance.appwidget {
   }
 
   public final class LinearProgressIndicatorKt {
-    method @androidx.compose.runtime.Composable public static void LinearProgressIndicator(float progress, optional androidx.glance.GlanceModifier modifier);
-    method @androidx.compose.runtime.Composable public static void LinearProgressIndicator(optional androidx.glance.GlanceModifier modifier);
+    method @androidx.compose.runtime.Composable public static void LinearProgressIndicator(float progress, optional androidx.glance.GlanceModifier modifier, optional androidx.glance.unit.ColorProvider color, optional androidx.glance.unit.ColorProvider backgroundColor);
+    method @androidx.compose.runtime.Composable public static void LinearProgressIndicator(optional androidx.glance.GlanceModifier modifier, optional androidx.glance.unit.ColorProvider color, optional androidx.glance.unit.ColorProvider backgroundColor);
   }
 
   public final class NormalizeCompositionTreeKt {
+  }
+
+  public final class ProgressIndicatorDefaults {
+    method public androidx.glance.unit.ColorProvider getBackgroundColorProvider();
+    method public long getColor();
+    method public androidx.glance.unit.ColorProvider getIndicatorColorProvider();
+    property public final androidx.glance.unit.ColorProvider BackgroundColorProvider;
+    property public final long Color;
+    property public final androidx.glance.unit.ColorProvider IndicatorColorProvider;
+    field public static final androidx.glance.appwidget.ProgressIndicatorDefaults INSTANCE;
   }
 
   public final class RemoteViewsTranslatorKt {
