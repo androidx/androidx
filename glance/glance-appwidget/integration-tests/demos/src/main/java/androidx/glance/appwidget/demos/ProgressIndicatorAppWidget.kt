@@ -29,6 +29,8 @@ import androidx.glance.layout.Column
 import androidx.glance.layout.Spacer
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.size
+import androidx.compose.ui.graphics.Color
+import androidx.glance.unit.ColorProvider
 
 class ProgressIndicatorAppWidget : GlanceAppWidget() {
 
@@ -43,7 +45,11 @@ class ProgressIndicatorAppWidget : GlanceAppWidget() {
             Spacer(GlanceModifier.size(8.dp))
             LinearProgressIndicator(0.5f)
             Spacer(GlanceModifier.size(8.dp))
+            LinearProgressIndicator(progress = 0.8f, color = ColorProvider(Color.White))
+            Spacer(GlanceModifier.size(8.dp))
             CircularProgressIndicator()
+            Spacer(GlanceModifier.size(8.dp))
+            CircularProgressIndicator(color = ColorProvider(Color.White))
         }
     }
 }
