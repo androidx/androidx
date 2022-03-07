@@ -45,14 +45,45 @@ public final class AppSearchResultToPlatformConverter {
      * {@link androidx.appsearch.app.AppSearchResult}.
      */
     @NonNull
-    public static <T> AppSearchResult<T> platformAppSearchResultToJetpack(
-            @NonNull android.app.appsearch.AppSearchResult<T> platformResult) {
+    public static <PlatformType, JetpackType> AppSearchResult<JetpackType>
+            platformAppSearchResultToJetpack(
+            @NonNull android.app.appsearch.AppSearchResult<PlatformType> platformResult,
+            @NonNull Function<PlatformType, JetpackType> valueMapper) {
         Preconditions.checkNotNull(platformResult);
         if (platformResult.isSuccess()) {
-            return AppSearchResult.newSuccessfulResult(platformResult.getResultValue());
+            try {
+                JetpackType jetpackType = valueMapper.apply(platformResult.getResultValue());
+                return AppSearchResult.newSuccessfulResult(jetpackType);
+            } catch (Throwable t) {
+                return AppSearchResult.throwableToFailedResult(t);
+            }
         }
         return AppSearchResult.newFailedResult(
                 platformResult.getResultCode(), platformResult.getErrorMessage());
+    }
+
+    /**
+     * Uses the given {@link android.app.appsearch.AppSearchResult} to populate the given
+     * {@link ResolvableFuture}, transforming it using {@code valueMapper}.
+     */
+    public static <PlatformType, JetpackType> void platformAppSearchResultToFuture(
+            @NonNull android.app.appsearch.AppSearchResult<PlatformType> platformResult,
+            @NonNull ResolvableFuture<JetpackType> future,
+            @NonNull Function<PlatformType, JetpackType> valueMapper) {
+        Preconditions.checkNotNull(platformResult);
+        Preconditions.checkNotNull(future);
+        if (platformResult.isSuccess()) {
+            try {
+                JetpackType jetpackType = valueMapper.apply(platformResult.getResultValue());
+                future.set(jetpackType);
+            } catch (Throwable t) {
+                future.setException(t);
+            }
+        } else {
+            future.setException(
+                    new AppSearchException(
+                            platformResult.getResultCode(), platformResult.getErrorMessage()));
+        }
     }
 
     /**
@@ -62,15 +93,7 @@ public final class AppSearchResultToPlatformConverter {
     public static <T> void platformAppSearchResultToFuture(
             @NonNull android.app.appsearch.AppSearchResult<T> platformResult,
             @NonNull ResolvableFuture<T> future) {
-        Preconditions.checkNotNull(platformResult);
-        Preconditions.checkNotNull(future);
-        if (platformResult.isSuccess()) {
-            future.set(platformResult.getResultValue());
-        } else {
-            future.setException(
-                    new AppSearchException(
-                            platformResult.getResultCode(), platformResult.getErrorMessage()));
-        }
+        platformAppSearchResultToFuture(platformResult, future, Function.identity());
     }
 
     /**
@@ -89,8 +112,13 @@ public final class AppSearchResultToPlatformConverter {
         AppSearchBatchResult.Builder<K, JetpackValue> jetpackResult =
                 new AppSearchBatchResult.Builder<>();
         for (Map.Entry<K, PlatformValue> success : platformResult.getSuccesses().entrySet()) {
-            JetpackValue jetpackValue = valueMapper.apply(success.getValue());
-            jetpackResult.setSuccess(success.getKey(), jetpackValue);
+            try {
+                JetpackValue jetpackValue = valueMapper.apply(success.getValue());
+                jetpackResult.setSuccess(success.getKey(), jetpackValue);
+            } catch (Throwable t) {
+                jetpackResult.setResult(
+                        success.getKey(), AppSearchResult.throwableToFailedResult(t));
+            }
         }
         for (Map.Entry<K, android.app.appsearch.AppSearchResult<PlatformValue>> failure :
                 platformResult.getFailures().entrySet()) {

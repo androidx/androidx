@@ -31,6 +31,7 @@ import androidx.core.util.Preconditions;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * Translates between Platform and Jetpack versions of {@link SetSchemaRequest}.
@@ -148,7 +149,8 @@ public final class SetSchemaRequestToPlatformConverter {
                     migrationFailure.getDocumentId(),
                     migrationFailure.getSchemaType(),
                     AppSearchResultToPlatformConverter.platformAppSearchResultToJetpack(
-                            migrationFailure.getAppSearchResult())));
+                            migrationFailure.getAppSearchResult(), Function.identity()))
+            );
         }
         return jetpackBuilder.build();
     }
