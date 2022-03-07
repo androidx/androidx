@@ -97,6 +97,7 @@ import java.io.PrintWriter
 import java.time.Instant
 import java.util.concurrent.CountDownLatch
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.withContext
 
 /** The wire format for [ComplicationData]. */
 internal typealias WireComplicationData = android.support.wearable.complications.ComplicationData
@@ -304,6 +305,47 @@ public abstract class WatchFaceService : WallpaperService() {
         @JvmField
         public val XML_WATCH_FACE_METADATA =
             "androidx.wear.watchface.XmlSchemaAndComplicationSlotsDefinition"
+
+        internal fun <R> awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
+            engine: WatchFaceService.EngineWrapper?,
+            traceName: String,
+            task: (watchFaceImpl: WatchFaceImpl) -> R
+        ): R? = TraceEvent(traceName).use {
+            if (engine == null) {
+                Log.w(TAG, "Task $traceName posted after close(), ignoring.")
+                return null
+            }
+            runBlocking {
+                try {
+                    val watchFaceImpl = engine.deferredWatchFaceImpl.await()
+                    withContext(engine.uiThreadCoroutineScope.coroutineContext) {
+                        task(watchFaceImpl)
+                    }
+                } catch (e: Exception) {
+                    Log.e(HeadlessWatchFaceImpl.TAG, "Operation failed", e)
+                    throw e
+                }
+            }
+        }
+
+        internal fun <R> deferredWatchFaceAndComplicationManagerThenRunOnBinderThread(
+            engine: WatchFaceService.EngineWrapper?,
+            traceName: String,
+            task: (watchFaceInitDetails: WatchFaceService.WatchFaceInitDetails) -> R
+        ): R? = TraceEvent(traceName).use {
+            if (engine == null) {
+                Log.w(TAG, "Task $traceName posted after close(), ignoring.")
+                return null
+            }
+            runBlocking {
+                try {
+                    task(engine.watchFaceInitDetails.await())
+                } catch (e: Exception) {
+                    Log.e(HeadlessWatchFaceImpl.TAG, "Operation failed", e)
+                    throw e
+                }
+            }
+        }
     }
 
     /**
@@ -905,9 +947,10 @@ public abstract class WatchFaceService : WallpaperService() {
         }
     }
 
-    internal class WatchFaceAndComplicationSlotsManager(
+    internal class WatchFaceInitDetails(
         val watchFace: WatchFace,
-        val complicationSlotsManager: ComplicationSlotsManager
+        val complicationSlotsManager: ComplicationSlotsManager,
+        val userStyleRepository: CurrentUserStyleRepository
     )
 
     /** @hide */
@@ -929,13 +972,12 @@ public abstract class WatchFaceService : WallpaperService() {
         internal val wslFlow = WslFlow(this)
 
         /**
-         * [deferredWatchFaceAndComplicationManager] will complete before [deferredWatchFaceImpl].
+         * [watchFaceInitDetails] will complete before [deferredWatchFaceImpl].
          */
-        internal var deferredWatchFaceAndComplicationManager =
-            CompletableDeferred<WatchFaceAndComplicationSlotsManager>()
+        internal var watchFaceInitDetails = CompletableDeferred<WatchFaceInitDetails>()
 
         /**
-         * [deferredWatchFaceImpl] will complete after [deferredWatchFaceAndComplicationManager].
+         * [deferredWatchFaceImpl] will complete after [watchFaceInitDetails].
          */
         @VisibleForTesting
         public var deferredWatchFaceImpl = CompletableDeferred<WatchFaceImpl>()
@@ -1410,9 +1452,9 @@ public abstract class WatchFaceService : WallpaperService() {
                     // it.
                     if (deferredWatchFaceImpl.isCompleted) {
                         deferredWatchFaceImpl.await().onDestroy()
-                    } else if (deferredWatchFaceAndComplicationManager.isCompleted) {
+                    } else if (watchFaceInitDetails.isCompleted) {
                         // However we should destroy the renderer if its been created.
-                        deferredWatchFaceAndComplicationManager
+                        watchFaceInitDetails
                             .await().watchFace.renderer.onDestroy()
                     }
                 } catch (e: Exception) {
@@ -1746,10 +1788,11 @@ public abstract class WatchFaceService : WallpaperService() {
                             currentUserStyleRepository
                         )
                     }
-                    deferredWatchFaceAndComplicationManager.complete(
-                        WatchFaceAndComplicationSlotsManager(
+                    watchFaceInitDetails.complete(
+                        WatchFaceInitDetails(
                             watchFace,
-                            complicationSlotsManager
+                            complicationSlotsManager,
+                            currentUserStyleRepository
                         )
                     )
 
@@ -2113,7 +2156,7 @@ public abstract class WatchFaceService : WallpaperService() {
                     "WatchFaceService.updateContentDescriptionLabels A"
                 ).close()
                 val watchFaceAndComplicationManager =
-                    deferredWatchFaceAndComplicationManager.await()
+                    watchFaceInitDetails.await()
 
                 TraceEvent(
                     "WatchFaceService.updateContentDescriptionLabels"
