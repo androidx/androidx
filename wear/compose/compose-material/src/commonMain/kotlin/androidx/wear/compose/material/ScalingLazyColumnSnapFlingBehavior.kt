@@ -79,12 +79,16 @@ internal class ScalingLazyColumnSnapFlingBehavior(
                 decay,
                 sequentialAnimation = true
             ) { delta -> scrollBy(delta) }
+
+            // Since the previous animation can finish a bit early, do a final scroll to ensure we
+            // have an item properly positioned.
+            scrollBy((snapOffset - state.centerItemScrollOffset).toFloat())
         } else {
             // The fling was too slow (or not even a fling), just animate a snap to the item
             // already in the center.
             var lastValue = 0f
             animationState.animateTo(
-                targetValue = -(state.centerItemScrollOffset - snapOffset).toFloat(),
+                targetValue = (snapOffset - state.centerItemScrollOffset).toFloat(),
                 sequentialAnimation = true
             ) {
                 scrollBy(value - lastValue)
@@ -102,6 +106,7 @@ internal class ScalingLazyColumnSnapFlingBehavior(
         block: AnimationScope<Float, V>.(delta: Float) -> Float
     ) {
         var lastValue = value
+        val initialValue = value
         val target = decay.calculateTargetValue(initialValue = value, initialVelocity = velocity)
         val velocityAdjustment = (targetValue - value) / (target - value)
         animateDecay(decay, sequentialAnimation = sequentialAnimation) {
@@ -113,7 +118,8 @@ internal class ScalingLazyColumnSnapFlingBehavior(
             if (abs(delta - consumed) > 0.5f) this.cancelAnimation()
 
             // Stop when we are there.
-            if (abs(lastValue * velocityAdjustment - targetValue) < 1f) this.cancelAnimation()
+            val projectedTarget = initialValue + (lastValue - initialValue) * velocityAdjustment
+            if (abs(projectedTarget - targetValue) < 1f) this.cancelAnimation()
         }
     }
 }
