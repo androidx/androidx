@@ -18,7 +18,7 @@ package androidx.wear.tiles.material;
 
 import static androidx.wear.tiles.ColorBuilders.argb;
 import static androidx.wear.tiles.LayoutElementBuilders.TEXT_ALIGN_CENTER;
-import static androidx.wear.tiles.LayoutElementBuilders.TEXT_OVERFLOW_TRUNCATE;
+import static androidx.wear.tiles.LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE_END;
 import static androidx.wear.tiles.material.Helper.checkNotNull;
 import static androidx.wear.tiles.material.Typography.TYPOGRAPHY_DISPLAY1;
 import static androidx.wear.tiles.material.Typography.getFontStyleBuilder;
@@ -64,7 +64,7 @@ public class Text implements LayoutElement {
         private boolean mUnderline = false;
         @TextAlignment private int mMultilineAlignment = TEXT_ALIGN_CENTER;
         @NonNull private Modifiers mModifiers = new Modifiers.Builder().build();
-        private @TextOverflow int mOverflow = TEXT_OVERFLOW_TRUNCATE;
+        private @TextOverflow int mOverflow = TEXT_OVERFLOW_ELLIPSIZE_END;
         private boolean mIsScalable = true;
 
         /**
@@ -151,8 +151,8 @@ public class Text implements LayoutElement {
         }
 
         /**
-         * Sets the overflow for text. If not set, {@link TextAlignment#TEXT_OVERFLOW_TRUNCATE} will
-         * be used.
+         * Sets the overflow for text. If not set, {@link TextAlignment#TEXT_OVERFLOW_ELLIPSIZE_END}
+         * will be used.
          */
         @NonNull
         Builder setOverflow(@TextOverflow int overflow) {

@@ -376,7 +376,7 @@ public class Chip implements LayoutElement {
                             .setTypography(mPrimaryTextTypography)
                             .setColor(mChipColors.getContentColor())
                             .setMaxLines(getCorrectMaxLines())
-                            .setOverflow(LayoutElementBuilders.TEXT_OVERFLOW_TRUNCATE)
+                            .setOverflow(LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE_END)
                             .setMultilineAlignment(LayoutElementBuilders.TEXT_ALIGN_START)
                             .setIsScalable(mIsScalable)
                             .build();
@@ -394,7 +394,7 @@ public class Chip implements LayoutElement {
                                 .setTypography(Typography.TYPOGRAPHY_CAPTION2)
                                 .setColor(mChipColors.getSecondaryContentColor())
                                 .setMaxLines(1)
-                                .setOverflow(LayoutElementBuilders.TEXT_OVERFLOW_TRUNCATE)
+                                .setOverflow(LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE_END)
                                 .setMultilineAlignment(LayoutElementBuilders.TEXT_ALIGN_START)
                                 .build();
                 column.addContent(putLayoutInBox(labelTextElement).build());
