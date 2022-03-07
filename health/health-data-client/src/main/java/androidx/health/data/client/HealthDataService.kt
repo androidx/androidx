@@ -53,7 +53,7 @@ object HealthDataService {
     /**
      * Creates an IPC-backed [HealthDataClient] instance binding to an available implementation.
      *
-     * @param packageName optional package provider to choose implementation from
+     * @param packageNames optional package provider to choose implementation from
      * @return instance of [HealthDataClient] ready for issuing requests
      * @throws UnsupportedOperationException if service not available
      */
