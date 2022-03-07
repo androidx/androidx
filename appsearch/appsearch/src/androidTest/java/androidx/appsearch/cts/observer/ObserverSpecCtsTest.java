@@ -36,7 +36,7 @@ public class ObserverSpecCtsTest {
                 "Schema1", "Schema2", "Schema3", "Schema4");
     }
 
-// @exportToFramework:startStrip
+// @exportToFramework:startStrip()
 
     @Document
     public static class King {
@@ -74,5 +74,5 @@ public class ObserverSpecCtsTest {
                 "Schema1", "Schema2", "King", "Queen", "Schema3", "Schema4", "Jack", "Ace");
     }
 
-// @exportToFramework:endStrip
+// @exportToFramework:endStrip()
 }

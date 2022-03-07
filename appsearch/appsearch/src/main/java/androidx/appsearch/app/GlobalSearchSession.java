@@ -53,9 +53,11 @@ public interface GlobalSearchSession extends Closeable {
      * @param request a request containing a namespace and IDs of the documents to retrieve.
      */
     @NonNull
+    // @exportToFramework:startStrip()
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
             name = Features.GLOBAL_SEARCH_SESSION_GET_BY_ID)
+    // @exportToFramework:endStrip()
     ListenableFuture<AppSearchBatchResult<String, GenericDocument>> getByDocumentIdAsync(
             @NonNull String packageName,
             @NonNull String databaseName,

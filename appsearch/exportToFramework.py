@@ -71,7 +71,7 @@ GOOGLE_JAVA_FORMAT = (
         '../../../prebuilts/tools/common/google-java-format/google-java-format')
 
 # Miscellaneous constants
-CHANGEID_FILE_NAME = 'synced_jetpack_changeid.txt'
+SHA_FILE_NAME = 'synced_jetpack_sha.txt'
 
 
 class ExportToFramework:
@@ -133,7 +133,7 @@ class ExportToFramework:
                     flags=re.MULTILINE)
 
         # Apply in-place replacements
-        return (contents
+        contents = (contents
             .replace('androidx.appsearch.app', 'android.app.appsearch')
             .replace(
                     'androidx.appsearch.localstorage.',
@@ -161,11 +161,17 @@ class ExportToFramework:
             .replace('@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)', '')
             .replace('Preconditions.checkNotNull(', 'Objects.requireNonNull(')
             .replace('ObjectsCompat.', 'Objects.')
+
             .replace('/*@exportToFramework:CurrentTimeMillisLong*/', '@CurrentTimeMillisLong')
             .replace('/*@exportToFramework:UnsupportedAppUsage*/', '@UnsupportedAppUsage')
             .replace('<!--@exportToFramework:hide-->', '@hide')
             .replace('// @exportToFramework:skipFile()', '')
         )
+
+        # Jetpack methods have the Async suffix, but framework doesn't. Strip the Async suffix
+        # to allow the same documentation to compile for both.
+        contents = re.sub(r'(#[a-zA-Z0-9_]+)Async}', r'\1}', contents)
+        return contents
 
     def _TransformTestCode(self, contents):
         contents = (contents
@@ -318,18 +324,18 @@ class ExportToFramework:
         self._ExportImplCode()
         self._FormatWrittenFiles()
 
-    def WriteChangeIdFile(self, changeid):
-        """Copies the changeid of the most recent public CL into a file on the framework side.
+    def WriteShaFile(self, sha):
+        """Copies the git sha of the most recent public CL into a file on the framework side.
 
         This file is used for tracking, to determine what framework is synced to.
 
-        You must always provide a changeid of an exported, preferably even submitted CL. If you
-        abandon the CL pointed to by this changeid, the next person syncing framework will be unable
-        to find what CL it is synced to.
+        You must always provide a sha of a submitted submitted git commit. If you abandon the CL
+        pointed to by this sha, the next person syncing framework will be unable to find what CL it
+        is synced to.
         """
-        file_path = os.path.join(self._framework_appsearch_root, CHANGEID_FILE_NAME)
+        file_path = os.path.join(self._framework_appsearch_root, SHA_FILE_NAME)
         with open(file_path, 'w') as fh:
-            print(changeid, file=fh)
+            print(sha, file=fh)
         print('Wrote "%s"' % file_path)
 
 
@@ -339,6 +345,12 @@ if __name__ == '__main__':
                   sys.argv[0]),
               file=sys.stderr)
         sys.exit(1)
+    if sys.argv[2].startswith('I'):
+        print('Error: Git sha "%s" looks like a changeid. Please provide a git sha instead.' % (
+                  sys.argv[2]),
+              file=sys.stderr)
+        sys.exit(1)
+
     source_dir = os.path.normpath(os.path.dirname(sys.argv[0]))
     dest_dir = os.path.normpath(sys.argv[1])
     dest_dir = os.path.join(dest_dir, 'packages/modules/AppSearch')
@@ -349,4 +361,4 @@ if __name__ == '__main__':
         sys.exit(1)
     exporter = ExportToFramework(source_dir, dest_dir)
     exporter.ExportCode()
-    exporter.WriteChangeIdFile(sys.argv[2])
+    exporter.WriteShaFile(sys.argv[2])
