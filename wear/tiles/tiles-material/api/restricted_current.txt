@@ -162,14 +162,22 @@ package androidx.wear.tiles.material {
     method public int getMultilineAlignment();
     method public int getOverflow();
     method public String getText();
+    method public boolean isItalic();
+    method public boolean isUnderline();
   }
 
   public static final class Text.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
     ctor public Text.Builder(android.content.Context);
     method public androidx.wear.tiles.material.Text build();
     method public androidx.wear.tiles.material.Text.Builder setColor(androidx.wear.tiles.ColorBuilders.ColorProp);
+    method public androidx.wear.tiles.material.Text.Builder setItalic(boolean);
+    method public androidx.wear.tiles.material.Text.Builder setMaxLines(@IntRange(from=1) int);
+    method public androidx.wear.tiles.material.Text.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.Modifiers);
+    method public androidx.wear.tiles.material.Text.Builder setMultilineAlignment(int);
+    method public androidx.wear.tiles.material.Text.Builder setOverflow(int);
     method public androidx.wear.tiles.material.Text.Builder setText(String);
     method public androidx.wear.tiles.material.Text.Builder setTypography(int);
+    method public androidx.wear.tiles.material.Text.Builder setUnderline(boolean);
   }
 
   public class TitleChip implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {

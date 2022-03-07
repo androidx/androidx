@@ -114,38 +114,40 @@ public class Text implements LayoutElement {
 
         /** Sets the text to be italic. */
         @NonNull
-        Builder setItalic(boolean italic) {
+        public Builder setItalic(boolean italic) {
             this.mItalic = italic;
             return this;
         }
 
         /** Sets the text to be underlined. */
         @NonNull
-        Builder setUnderline(boolean underline) {
+        public Builder setUnderline(boolean underline) {
             this.mUnderline = underline;
             return this;
         }
 
         /** Sets the maximum lines of text. If not set, 1 will be used. */
         @NonNull
-        Builder setMaxLines(@IntRange(from = 1) int maxLines) {
+        public Builder setMaxLines(@IntRange(from = 1) int maxLines) {
             this.mMaxLines = maxLines;
             return this;
         }
 
         /**
-         * Sets the mutliline alignenment for text. If not set, {@link
-         * TextAlignment#TEXT_ALIGN_CENTER} will be used.
+         * Sets the multiline alignment for text within bounds of the Text element. Note that this
+         * option has no effect for single line of text, and for that, alignment on the outer
+         * container should be used. If not set, {@link TextAlignment#TEXT_ALIGN_CENTER} will be
+         * used.
          */
         @NonNull
-        Builder setMultilineAlignment(@TextAlignment int multilineAlignment) {
+        public Builder setMultilineAlignment(@TextAlignment int multilineAlignment) {
             this.mMultilineAlignment = multilineAlignment;
             return this;
         }
 
         /** Sets the modifiers of text. */
         @NonNull
-        Builder setModifiers(@NonNull Modifiers modifiers) {
+        public Builder setModifiers(@NonNull Modifiers modifiers) {
             this.mModifiers = modifiers;
             return this;
         }
@@ -155,7 +157,7 @@ public class Text implements LayoutElement {
          * will be used.
          */
         @NonNull
-        Builder setOverflow(@TextOverflow int overflow) {
+        public Builder setOverflow(@TextOverflow int overflow) {
             this.mOverflow = overflow;
             return this;
         }
@@ -226,6 +228,16 @@ public class Text implements LayoutElement {
     @TextOverflow
     public int getOverflow() {
         return checkNotNull(mText.getOverflow()).getValue();
+    }
+
+    /** Returns whether the Text is in italic. */
+    public boolean isItalic() {
+        return checkNotNull(checkNotNull(mText.getFontStyle()).getItalic()).getValue();
+    }
+
+    /** Returns whether the Text is underlined. */
+    public boolean isUnderline() {
+        return checkNotNull(checkNotNull(mText.getFontStyle()).getUnderline()).getValue();
     }
 
     /** @hide */
