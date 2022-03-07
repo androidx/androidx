@@ -54,10 +54,7 @@ import androidx.wear.compose.material.CompactChip
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Picker
-import androidx.wear.compose.material.PickerDefaults
-import androidx.wear.compose.material.PickerScope
 import androidx.wear.compose.material.PickerState
-import androidx.wear.compose.material.ScalingParams
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.rememberPickerState
 import java.text.SimpleDateFormat
@@ -92,13 +89,13 @@ fun TimePickerWithHoursMinutesSeconds() {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,
             ) {
-                val selectablePickerModifier = Modifier.size(40.dp, 100.dp)
+                val pickerModifier = Modifier.size(40.dp, 100.dp)
                 val separation = (-10).dp
-                SelectablePicker(
-                    selected = selectedColumn == 0,
+                Picker(
+                    readOnly = selectedColumn != 0,
                     state = rememberPickerState(initialNumberOfOptions = 24,
                         initiallySelectedOption = 6),
-                    modifier = selectablePickerModifier,
+                    modifier = pickerModifier,
                     separation = separation,
                 ) { hour: Int ->
                     TimePiece(
@@ -109,10 +106,10 @@ fun TimePickerWithHoursMinutesSeconds() {
                     )
                 }
                 Separator(6.dp, textStyle)
-                SelectablePicker(
-                    selected = selectedColumn == 1,
+                Picker(
+                    readOnly = selectedColumn != 1,
                     state = rememberPickerState(initialNumberOfOptions = 60),
-                    modifier = selectablePickerModifier,
+                    modifier = pickerModifier,
                     separation = separation,
                 ) { minute: Int ->
                     TimePiece(
@@ -123,10 +120,10 @@ fun TimePickerWithHoursMinutesSeconds() {
                     )
                 }
                 Separator(6.dp, textStyle)
-                SelectablePicker(
-                    selected = selectedColumn == 2,
+                Picker(
+                    readOnly = selectedColumn != 2,
                     state = rememberPickerState(initialNumberOfOptions = 60),
-                    modifier = selectablePickerModifier,
+                    modifier = pickerModifier,
                     separation = separation,
                 ) { second: Int ->
                     TimePiece(
@@ -186,13 +183,13 @@ fun TimePickerWith12HourClock() {
             horizontalArrangement = Arrangement.Center,
         ) {
             Spacer(Modifier.width(8.dp))
-            SelectablePicker(
-                selected = selectedColumn == 0,
+            Picker(
+                readOnly = selectedColumn != 0,
                 state = rememberPickerState(initialNumberOfOptions = 12,
                     initiallySelectedOption = 6),
                 modifier = Modifier.size(64.dp, 100.dp),
                 separation = (-10).dp,
-                label = { LabelText("Hour") }
+                readOnlyLabel = { LabelText("Hour") }
             ) { hour: Int ->
                 TimePiece(
                     selected = selectedColumn == 0,
@@ -202,12 +199,12 @@ fun TimePickerWith12HourClock() {
                 )
             }
             Separator(8.dp, textStyle)
-            SelectablePicker(
-                selected = selectedColumn == 1,
+            Picker(
+                readOnly = selectedColumn != 1,
                 state = rememberPickerState(initialNumberOfOptions = 60),
                 modifier = Modifier.size(64.dp, 100.dp),
                 separation = (-10).dp,
-                label = { LabelText("Minute") }
+                readOnlyLabel = { LabelText("Minute") }
             ) { minute: Int ->
                 TimePiece(
                     selected = selectedColumn == 1,
@@ -301,7 +298,7 @@ fun DatePicker() {
                 if (selectedColumn < 2) {
                     DatePickerImpl(
                         state = dayState,
-                        selected = selectedColumn == 0,
+                        readOnly = selectedColumn != 0,
                         onSelected = { selectedColumn = 0 },
                         text = { day: Int -> "%2d".format(day + 1) },
                         width = dayWidth
@@ -310,7 +307,7 @@ fun DatePicker() {
                 }
                 DatePickerImpl(
                     state = monthState,
-                    selected = selectedColumn == 1,
+                    readOnly = selectedColumn != 1,
                     onSelected = { selectedColumn = 1 },
                     text = { month: Int -> monthNames[month] },
                     width = monthWidth
@@ -319,7 +316,7 @@ fun DatePicker() {
                     Spacer(modifier = Modifier.width(spacerWidth))
                     DatePickerImpl(
                         state = yearState,
-                        selected = selectedColumn == 2,
+                        readOnly = selectedColumn != 2,
                         onSelected = { selectedColumn = 2 },
                         text = { year: Int -> "%4d".format(year + 1) },
                         width = yearWidth
@@ -344,72 +341,22 @@ fun DatePicker() {
     }
 }
 
-/**
- * [SelectablePicker] builds on the functionality of [Picker], displaying a [Picker] when selected
- * and providing a slot for content (typically [Text]) otherwise.
- *
- * @param selected Determines whether the [SelectablePicker] is selected
- * (in which case it shows a Picker).
- * @param state The state of the component.
- * @param modifier Modifier to be applied to the Picker. Typically provides size for the underlying
- * [Picker].
- * @param label A slot for providing a label, displayed above the [SelectablePicker]
- * when unselected.
- * @param scalingParams the parameters to configure the scaling and transparency effects for the
- * component. See [ScalingParams]
- * @param separation the amount of separation in [Dp] between items. Can be negative, which can be
- * useful for Text if it has plenty of whitespace.
- * @param option a block which describes the content. Inside this block you can reference
- * [PickerScope.selectedOption] and other properties in [PickerScope]. The Int parameter determines
- * the option index and the Boolean parameter determines whether the Pickable is selected (typically
- * this is used to change the appearance of the content, e.g. by setting a highlight color).
- */
-@OptIn(ExperimentalComposeUiApi::class)
-@Composable
-private fun SelectablePicker(
-    selected: Boolean,
-    state: PickerState,
-    modifier: Modifier = Modifier,
-    label: @Composable (BoxScope.() -> Unit)? = null,
-    scalingParams: ScalingParams = PickerDefaults.scalingParams(),
-    separation: Dp = 0.dp,
-    option: @Composable BoxScope.(Int) -> Unit
-) {
-    Box(modifier = modifier) {
-        if (selected) {
-            Picker(
-                state = state,
-                modifier = Modifier.fillMaxSize(),
-                separation = separation,
-                scalingParams = scalingParams,
-            ) {
-                option(it)
-            }
-        } else {
-            if (label != null) {
-                label()
-            }
-            option(state.selectedOption)
-        }
-    }
-}
-
 @Composable
 private fun DatePickerImpl(
     state: PickerState,
-    selected: Boolean,
+    readOnly: Boolean,
     onSelected: () -> Unit,
     text: (option: Int) -> String,
     width: Dp
 ) {
-    SelectablePicker(
-        selected = selected,
+    Picker(
+        readOnly = readOnly,
         state = state,
-        modifier = Modifier.size(width, 120.dp),
+        modifier = Modifier.size(width, 100.dp),
         separation = (-10).dp,
     ) { option ->
         TimePiece(
-            selected = selected,
+            selected = !readOnly,
             onSelected = onSelected,
             text = text(option),
             style = MaterialTheme.typography.display2,
@@ -419,27 +366,29 @@ private fun DatePickerImpl(
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-private fun BoxScope.TimePiece(
+private fun TimePiece(
     selected: Boolean,
     onSelected: () -> Unit,
     text: String,
     style: TextStyle = MaterialTheme.typography.display1,
 ) {
-    val modifier = Modifier.align(Alignment.Center).wrapContentSize()
-    Text(
-        text = text,
-        maxLines = 1,
-        style = style,
-        color =
-        if (selected) MaterialTheme.colors.secondary
-        else MaterialTheme.colors.onBackground,
-        modifier =
-        if (selected) modifier
-        else modifier.pointerInteropFilter {
-            if (it.action == MotionEvent.ACTION_DOWN) onSelected()
-            true
-        },
-    )
+    Box(modifier = Modifier.fillMaxSize()) {
+        val modifier = Modifier.align(Alignment.Center).wrapContentSize()
+        Text(
+            text = text,
+            maxLines = 1,
+            style = style,
+            color =
+                if (selected) MaterialTheme.colors.secondary
+                else MaterialTheme.colors.onBackground,
+            modifier =
+                if (selected) modifier
+                else modifier.pointerInteropFilter {
+                    if (it.action == MotionEvent.ACTION_DOWN) onSelected()
+                    true
+                },
+        )
+    }
 }
 
 @Composable

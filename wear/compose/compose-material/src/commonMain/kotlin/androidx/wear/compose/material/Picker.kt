@@ -19,8 +19,11 @@ package androidx.wear.compose.material
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.Easing
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -46,8 +49,18 @@ import androidx.compose.ui.unit.dp
  * Example of a simple picker to select one of five options:
  * @sample androidx.wear.compose.material.samples.SimplePicker
  *
+ * Example of dual pickers, where clicking switches which one is editable and which is read-only:
+ * @sample androidx.wear.compose.material.samples.DualPicker
+ *
  * @param state The state of the component
  * @param modifier Modifier to be applied to the Picker
+ * @param readOnly Determines whether the Picker should allow the currently selected option
+ * to be changed - otherwise, displays the currently selected option (and optionally a label).
+ * This is intended to be used for screens that display multiple Pickers, only one of which is
+ * editable at a time, the others being shown as read-only.
+ * @param readOnlyLabel A slot for providing a label, displayed above the selected option
+ * when the [Picker] is read-only. The label is overlaid with the currently selected
+ * option within a Box, so it is recommended that the label is given [Alignment.TopCenter].
  * @param scalingParams The parameters to configure the scaling and transparency effects for the
  * component. See [ScalingParams]
  * @param separation The amount of separation in [Dp] between items. Can be negative, which can be
@@ -58,12 +71,16 @@ import androidx.compose.ui.unit.dp
  * 0.5. Use 0.0 to disable the gradient.
  * @param gradientColor Should be the color outside of the Picker, so there is continuity.
  * @param option A block which describes the content. Inside this block you can reference
- * [PickerScope.selectedOption] and other properties in [PickerScope]
+ * [PickerScope.selectedOption] and other properties in [PickerScope]. When read-only mode is in
+ * use on a screen, it is recommended that this content is given [Alignment.Center] in order to
+ * align with the centrally selected Picker value.
  */
 @Composable
 public fun Picker(
     state: PickerState,
     modifier: Modifier = Modifier,
+    readOnly: Boolean = false,
+    readOnlyLabel: @Composable (BoxScope.() -> Unit)? = null,
     scalingParams: ScalingParams = PickerDefaults.scalingParams(),
     separation: Dp = 0.dp,
     /* @FloatRange(from = 0.0, to = 0.5) */
@@ -73,39 +90,62 @@ public fun Picker(
 ) {
     require(gradientRatio in 0f..0.5f) { "gradientRatio should be between 0.0 and 0.5" }
     val pickerScope = remember(state) { PickerScopeImpl(state) }
-    ScalingLazyColumn(
-        modifier = modifier.drawWithContent {
-            drawContent()
-            if (gradientRatio > 0.0f) {
-                // Apply a fade-out gradient on the top and bottom.
-                drawRect(Brush.linearGradient(
-                    colors = listOf(gradientColor, Color.Transparent),
-                    start = Offset(size.width / 2, 0f),
-                    end = Offset(size.width / 2, size.height * gradientRatio)
-                ))
-                drawRect(Brush.linearGradient(
-                    colors = listOf(Color.Transparent, gradientColor),
-                    start = Offset(size.width / 2, size.height * (1 - gradientRatio)),
-                    end = Offset(size.width / 2, size.height)
-                ))
+    var forceScrollWhenReadOnly by remember { mutableStateOf(false) }
+    if (readOnly) {
+        Box(modifier = modifier) {
+            if (readOnlyLabel != null) {
+                readOnlyLabel()
             }
-        },
-        state = state.scalingLazyListState,
-        content = {
-            items(state.numberOfItems()) { ix ->
-                with(pickerScope) {
-                    option((ix + state.optionsOffset) % state.numberOfOptions)
+            with(pickerScope) {
+                option(state.selectedOption)
+            }
+        }
+    } else {
+        forceScrollWhenReadOnly = true
+        ScalingLazyColumn(
+            modifier = modifier.drawWithContent {
+                drawContent()
+                if (gradientRatio > 0.0f) {
+                    // Apply a fade-out gradient on the top and bottom.
+                    drawRect(Brush.linearGradient(
+                        colors = listOf(gradientColor, Color.Transparent),
+                        start = Offset(size.width / 2, 0f),
+                        end = Offset(size.width / 2, size.height * gradientRatio)
+                    ))
+                    drawRect(Brush.linearGradient(
+                        colors = listOf(Color.Transparent, gradientColor),
+                        start = Offset(size.width / 2, size.height * (1 - gradientRatio)),
+                        end = Offset(size.width / 2, size.height)
+                    ))
                 }
-            }
-        },
-        contentPadding = PaddingValues(0.dp),
-        scalingParams = scalingParams,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(
-            space = separation
-        ),
-        flingBehavior = ScalingLazyColumnDefaults.snapFlingBehavior(state.scalingLazyListState)
-    )
+            },
+            state = state.scalingLazyListState,
+            content = {
+                items(state.numberOfItems()) { ix ->
+                    with(pickerScope) {
+                        option((ix + state.optionsOffset) % state.numberOfOptions)
+                    }
+                }
+            },
+            contentPadding = PaddingValues(0.dp),
+            scalingParams = scalingParams,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(
+                space = separation
+            ),
+            flingBehavior = ScalingLazyColumnDefaults.snapFlingBehavior(state.scalingLazyListState)
+        )
+    }
+
+    // If a Picker switches to read-only during animation, the ScalingLazyColumn can be
+    // out of position, so we force an instant scroll to the selected option so that it is
+    // correctly lined up when the Picker is next displayed.
+    LaunchedEffect(readOnly, forceScrollWhenReadOnly) {
+        if (readOnly && forceScrollWhenReadOnly) {
+            state.scrollToOption(state.selectedOption)
+            forceScrollWhenReadOnly = false
+        }
+    }
 }
 
 /**

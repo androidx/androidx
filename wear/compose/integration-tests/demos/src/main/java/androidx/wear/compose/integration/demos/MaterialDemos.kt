@@ -34,6 +34,7 @@ import androidx.wear.compose.material.samples.CompactChipWithIconAndLabel
 import androidx.wear.compose.material.samples.ConfirmationDialogSample
 import androidx.wear.compose.material.samples.ConfirmationWithAnimation
 import androidx.wear.compose.material.samples.CurvedTextDemo
+import androidx.wear.compose.material.samples.DualPicker
 import androidx.wear.compose.material.samples.HorizontalPageIndicatorSample
 import androidx.wear.compose.material.samples.IndeterminateCircularProgressIndicator
 import androidx.wear.compose.material.samples.InlineSliderSample
@@ -110,6 +111,9 @@ val WearMaterialDemos = DemoCategory(
                 },
                 ComposableDemo("Change Selected Option Picker") {
                     OptionChangePicker()
+                },
+                ComposableDemo("Dual Picker") {
+                    DualPicker()
                 },
             )
         ),
