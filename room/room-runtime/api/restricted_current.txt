@@ -249,97 +249,128 @@ package androidx.room.paging {
 
 package androidx.room.util {
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class CursorUtil {
-    method public static android.database.Cursor copyAndClose(android.database.Cursor);
-    method public static int getColumnIndex(android.database.Cursor, String);
-    method public static int getColumnIndexOrThrow(android.database.Cursor, String);
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public final class CursorUtil {
+    method public static android.database.Cursor copyAndClose(android.database.Cursor c);
+    method public static int getColumnIndex(android.database.Cursor c, String name);
+    method public static int getColumnIndexOrThrow(android.database.Cursor c, String name);
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class DBUtil {
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public final class DBUtil {
     method public static android.os.CancellationSignal? createCancellationSignal();
-    method public static void dropFtsSyncTriggers(androidx.sqlite.db.SupportSQLiteDatabase!);
-    method public static void foreignKeyCheck(androidx.sqlite.db.SupportSQLiteDatabase, String);
-    method @Deprecated public static android.database.Cursor query(androidx.room.RoomDatabase!, androidx.sqlite.db.SupportSQLiteQuery!, boolean);
-    method public static android.database.Cursor query(androidx.room.RoomDatabase, androidx.sqlite.db.SupportSQLiteQuery, boolean, android.os.CancellationSignal?);
-    method public static int readVersion(java.io.File) throws java.io.IOException;
+    method public static void dropFtsSyncTriggers(androidx.sqlite.db.SupportSQLiteDatabase db);
+    method public static void foreignKeyCheck(androidx.sqlite.db.SupportSQLiteDatabase db, String tableName);
+    method @Deprecated public static android.database.Cursor query(androidx.room.RoomDatabase db, androidx.sqlite.db.SupportSQLiteQuery sqLiteQuery, boolean maybeCopy);
+    method public static android.database.Cursor query(androidx.room.RoomDatabase db, androidx.sqlite.db.SupportSQLiteQuery sqLiteQuery, boolean maybeCopy, android.os.CancellationSignal? signal);
+    method @kotlin.jvm.Throws(exceptionClasses=IOException::class) public static int readVersion(java.io.File databaseFile) throws java.io.IOException;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class FileUtil {
-    method public static void copy(java.nio.channels.ReadableByteChannel, java.nio.channels.FileChannel) throws java.io.IOException;
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public final class FileUtil {
+    method @kotlin.jvm.Throws(exceptionClasses=IOException::class) public static void copy(java.nio.channels.ReadableByteChannel input, java.nio.channels.FileChannel output) throws java.io.IOException;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class FtsTableInfo {
-    ctor public FtsTableInfo(String!, java.util.Set<java.lang.String!>!, java.util.Set<java.lang.String!>!);
-    ctor public FtsTableInfo(String!, java.util.Set<java.lang.String!>!, String!);
-    method public static androidx.room.util.FtsTableInfo! read(androidx.sqlite.db.SupportSQLiteDatabase!, String!);
-    field public final java.util.Set<java.lang.String!>! columns;
-    field public final String! name;
-    field public final java.util.Set<java.lang.String!>! options;
+    ctor public FtsTableInfo(String name, java.util.Set<java.lang.String> columns, java.util.Set<java.lang.String> options);
+    ctor public FtsTableInfo(String name, java.util.Set<java.lang.String> columns, String createSql);
+    method @VisibleForTesting public static java.util.Set<java.lang.String> parseOptions(String createStatement);
+    method public static androidx.room.util.FtsTableInfo read(androidx.sqlite.db.SupportSQLiteDatabase database, String tableName);
+    field public static final androidx.room.util.FtsTableInfo.Companion Companion;
+    field public final java.util.Set<java.lang.String> columns;
+    field public final String name;
+    field public final java.util.Set<java.lang.String> options;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class StringUtil {
-    method public static void appendPlaceholders(StringBuilder!, int);
-    method public static String? joinIntoString(java.util.List<java.lang.Integer!>?);
-    method public static StringBuilder! newStringBuilder();
-    method public static java.util.List<java.lang.Integer!>? splitToIntList(String?);
-    field public static final String![]! EMPTY_STRING_ARRAY;
+  public static final class FtsTableInfo.Companion {
+    method @VisibleForTesting public java.util.Set<java.lang.String> parseOptions(String createStatement);
+    method public androidx.room.util.FtsTableInfo read(androidx.sqlite.db.SupportSQLiteDatabase database, String tableName);
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public final class StringUtil {
+    method public static void appendPlaceholders(StringBuilder builder, int count);
+    method public static String? joinIntoString(java.util.List<java.lang.Integer>? input);
+    method public static StringBuilder newStringBuilder();
+    method public static java.util.List<java.lang.Integer>? splitToIntList(String? input);
+    field public static final String![] EMPTY_STRING_ARRAY;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class TableInfo {
-    ctor public TableInfo(String!, java.util.Map<java.lang.String!,androidx.room.util.TableInfo.Column!>!, java.util.Set<androidx.room.util.TableInfo.ForeignKey!>!, java.util.Set<androidx.room.util.TableInfo.Index!>!);
-    ctor public TableInfo(String!, java.util.Map<java.lang.String!,androidx.room.util.TableInfo.Column!>!, java.util.Set<androidx.room.util.TableInfo.ForeignKey!>!);
-    method public static androidx.room.util.TableInfo! read(androidx.sqlite.db.SupportSQLiteDatabase!, String!);
+    ctor public TableInfo(String name, java.util.Map<java.lang.String,androidx.room.util.TableInfo.Column> columns, java.util.Set<androidx.room.util.TableInfo.ForeignKey> foreignKeys, optional java.util.Set<androidx.room.util.TableInfo.Index>? indices);
+    ctor public TableInfo(String name, java.util.Map<java.lang.String,androidx.room.util.TableInfo.Column> columns, java.util.Set<androidx.room.util.TableInfo.ForeignKey> foreignKeys);
+    method public static androidx.room.util.TableInfo read(androidx.sqlite.db.SupportSQLiteDatabase database, String tableName);
     field public static final int CREATED_FROM_DATABASE = 2; // 0x2
     field public static final int CREATED_FROM_ENTITY = 1; // 0x1
     field public static final int CREATED_FROM_UNKNOWN = 0; // 0x0
-    field public final java.util.Map<java.lang.String!,androidx.room.util.TableInfo.Column!>! columns;
-    field public final java.util.Set<androidx.room.util.TableInfo.ForeignKey!>! foreignKeys;
-    field public final java.util.Set<androidx.room.util.TableInfo.Index!>? indices;
-    field public final String! name;
+    field public static final androidx.room.util.TableInfo.Companion Companion;
+    field public final java.util.Map<java.lang.String,androidx.room.util.TableInfo.Column> columns;
+    field public final java.util.Set<androidx.room.util.TableInfo.ForeignKey> foreignKeys;
+    field public final java.util.Set<androidx.room.util.TableInfo.Index>? indices;
+    field public final String name;
   }
 
   public static final class TableInfo.Column {
-    ctor @Deprecated public TableInfo.Column(String!, String!, boolean, int);
-    ctor public TableInfo.Column(String!, String!, boolean, int, String!, int);
-    method public static boolean defaultValueEquals(String, String?);
+    ctor public TableInfo.Column(String name, String type, boolean notNull, int primaryKeyPosition, String? defaultValue, int createdFrom);
+    ctor @Deprecated public TableInfo.Column(String name, String type, boolean notNull, int primaryKeyPosition);
+    method @VisibleForTesting public static boolean defaultValueEquals(String current, String? other);
     method public boolean isPrimaryKey();
+    property public final boolean isPrimaryKey;
+    field public static final androidx.room.util.TableInfo.Column.Companion Companion;
     field @androidx.room.ColumnInfo.SQLiteTypeAffinity public final int affinity;
-    field public final String! defaultValue;
-    field public final String! name;
+    field public final int createdFrom;
+    field public final String? defaultValue;
+    field public final String name;
     field public final boolean notNull;
     field public final int primaryKeyPosition;
-    field public final String! type;
+    field public final String type;
+  }
+
+  public static final class TableInfo.Column.Companion {
+    method @VisibleForTesting public boolean defaultValueEquals(String current, String? other);
+  }
+
+  public static final class TableInfo.Companion {
+    method public androidx.room.util.TableInfo read(androidx.sqlite.db.SupportSQLiteDatabase database, String tableName);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final class TableInfo.ForeignKey {
-    ctor public TableInfo.ForeignKey(String, String, String, java.util.List<java.lang.String!>, java.util.List<java.lang.String!>);
-    field public final java.util.List<java.lang.String!> columnNames;
+    ctor public TableInfo.ForeignKey(String referenceTable, String onDelete, String onUpdate, java.util.List<java.lang.String> columnNames, java.util.List<java.lang.String> referenceColumnNames);
+    field public final java.util.List<java.lang.String> columnNames;
     field public final String onDelete;
     field public final String onUpdate;
-    field public final java.util.List<java.lang.String!> referenceColumnNames;
+    field public final java.util.List<java.lang.String> referenceColumnNames;
     field public final String referenceTable;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final class TableInfo.Index {
-    ctor @Deprecated public TableInfo.Index(String!, boolean, java.util.List<java.lang.String!>!);
-    ctor public TableInfo.Index(String!, boolean, java.util.List<java.lang.String!>!, java.util.List<java.lang.String!>!);
+    ctor public TableInfo.Index(String name, boolean unique, java.util.List<java.lang.String> columns, java.util.List<java.lang.String> orders);
+    ctor @Deprecated public TableInfo.Index(String name, boolean unique, java.util.List<java.lang.String> columns);
+    field public static final androidx.room.util.TableInfo.Index.Companion Companion;
     field public static final String DEFAULT_PREFIX = "index_";
-    field public final java.util.List<java.lang.String!>! columns;
-    field public final String! name;
-    field public final java.util.List<java.lang.String!>! orders;
+    field public final java.util.List<java.lang.String> columns;
+    field public final String name;
+    field public java.util.List<java.lang.String> orders;
     field public final boolean unique;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class UUIDUtil {
-    method public static java.util.UUID convertByteToUUID(byte[]);
-    method public static byte[] convertUUIDToByte(java.util.UUID);
+  public static final class TableInfo.Index.Companion {
+  }
+
+  public final class TableInfoKt {
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public final class UUIDUtil {
+    method public static java.util.UUID convertByteToUUID(byte[] bytes);
+    method public static byte[] convertUUIDToByte(java.util.UUID uuid);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class ViewInfo {
-    ctor public ViewInfo(String!, String!);
-    method public static androidx.room.util.ViewInfo! read(androidx.sqlite.db.SupportSQLiteDatabase!, String!);
-    field public final String! name;
-    field public final String! sql;
+    ctor public ViewInfo(String name, String? sql);
+    method public static androidx.room.util.ViewInfo read(androidx.sqlite.db.SupportSQLiteDatabase database, String viewName);
+    field public static final androidx.room.util.ViewInfo.Companion Companion;
+    field public final String name;
+    field public final String? sql;
+  }
+
+  public static final class ViewInfo.Companion {
+    method public androidx.room.util.ViewInfo read(androidx.sqlite.db.SupportSQLiteDatabase database, String viewName);
   }
 
 }

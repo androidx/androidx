@@ -1,3 +1,25 @@
 // Baseline format: 1.0
+ChangedType: androidx.room.util.FtsTableInfo#columns:
+    Field androidx.room.util.FtsTableInfo.columns has changed type from java.util.Set<java.lang.String!> to java.util.Set<java.lang.String>
+ChangedType: androidx.room.util.FtsTableInfo#options:
+    Field androidx.room.util.FtsTableInfo.options has changed type from java.util.Set<java.lang.String!> to java.util.Set<java.lang.String>
+ChangedType: androidx.room.util.StringUtil#splitToIntList(String):
+    Method androidx.room.util.StringUtil.splitToIntList has changed return type from java.util.List<java.lang.Integer!> to java.util.List<java.lang.Integer>
+ChangedType: androidx.room.util.TableInfo#columns:
+    Field androidx.room.util.TableInfo.columns has changed type from java.util.Map<java.lang.String!,androidx.room.util.TableInfo.Column!> to java.util.Map<java.lang.String,androidx.room.util.TableInfo.Column>
+ChangedType: androidx.room.util.TableInfo#foreignKeys:
+    Field androidx.room.util.TableInfo.foreignKeys has changed type from java.util.Set<androidx.room.util.TableInfo.ForeignKey!> to java.util.Set<androidx.room.util.TableInfo.ForeignKey>
+ChangedType: androidx.room.util.TableInfo#indices:
+    Field androidx.room.util.TableInfo.indices has changed type from java.util.Set<androidx.room.util.TableInfo.Index!> to java.util.Set<androidx.room.util.TableInfo.Index>
+ChangedType: androidx.room.util.TableInfo.ForeignKey#columnNames:
+    Field androidx.room.util.TableInfo.ForeignKey.columnNames has changed type from java.util.List<java.lang.String!> to java.util.List<java.lang.String>
+ChangedType: androidx.room.util.TableInfo.ForeignKey#referenceColumnNames:
+    Field androidx.room.util.TableInfo.ForeignKey.referenceColumnNames has changed type from java.util.List<java.lang.String!> to java.util.List<java.lang.String>
+ChangedType: androidx.room.util.TableInfo.Index#columns:
+    Field androidx.room.util.TableInfo.Index.columns has changed type from java.util.List<java.lang.String!> to java.util.List<java.lang.String>
+ChangedType: androidx.room.util.TableInfo.Index#orders:
+    Field androidx.room.util.TableInfo.Index.orders has changed type from java.util.List<java.lang.String!> to java.util.List<java.lang.String>
+
+
 RemovedClass: androidx.room.util.CopyLock:
     Removed class androidx.room.util.CopyLock

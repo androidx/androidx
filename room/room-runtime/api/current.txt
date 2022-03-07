@@ -141,3 +141,10 @@ package androidx.room.migration {
 
 }
 
+package androidx.room.util {
+
+  public final class TableInfoKt {
+  }
+
+}
+
