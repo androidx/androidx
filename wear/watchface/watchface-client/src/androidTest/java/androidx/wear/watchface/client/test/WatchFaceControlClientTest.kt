@@ -1514,6 +1514,34 @@ class WatchFaceControlClientTest {
 
         interactiveInstance.close()
     }
+
+    @Test
+    fun computeUserStyleSchemaDigestHash() {
+        val headlessInstance1 = service.createHeadlessWatchFaceClient(
+            "id",
+            exampleCanvasAnalogWatchFaceComponentName,
+            DeviceConfig(
+                false,
+                false,
+                0,
+                0
+            ),
+            400,
+            400
+        )!!
+
+        val headlessInstance2 = service.createHeadlessWatchFaceClient(
+            "id",
+            exampleOpenGLWatchFaceComponentName,
+            deviceConfig,
+            400,
+            400
+        )!!
+
+        assertThat(headlessInstance1.getUserStyleSchemaDigestHash()).isNotEqualTo(
+            headlessInstance2.getUserStyleSchemaDigestHash()
+        )
+    }
 }
 
 internal class TestExampleCanvasAnalogWatchFaceService(
