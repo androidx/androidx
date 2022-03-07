@@ -80,10 +80,15 @@ kotlin {
        linuxX64()
 }
 
+val androidxBuildId: String? = findProperty("androidxBuildId") as String?
 val metalavaBuildId: String? = findProperty("metalavaBuildId") as String?
+
 // Set up repositories from this to fetch the artifacts
 repositories {
-    // Metalava has to be first on the list because it is also published on google() and we
+    if (androidxBuildId != null) {
+        maven(url="https://androidx.dev/snapshots/builds/${androidxBuildId}/artifacts/repository")
+    }
+    // Metalava has to be early in the list because it is also published on google() and we
     // sometimes re-use versions
     if (metalavaBuildId != null) {
         maven(url="https://androidx.dev/metalava/builds/${metalavaBuildId}/artifacts/repo/m2repository")

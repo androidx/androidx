@@ -23,6 +23,11 @@ NAME_HELP = '''
   E.g. android.arch.work:work-runtime-ktx:1.0.0-alpha07
 '''
 
+ANDROIDX_BUILD_ID_HELP = '''
+  The build id of https://ci.android.com/builds/branches/aosp-androidx-main/grid?
+  to use for fetching androidx prebuilts.
+'''
+
 METALAVA_BUILD_ID_HELP = '''
   The build id of https://ci.android.com/builds/branches/aosp-metalava-master/grid?
   to use for metalava prebuilt fetching.
@@ -44,6 +49,8 @@ def main():
         description='Helps download maven artifacts to prebuilts.')
     parser.add_argument('-n', '--name', help=NAME_HELP,
                         required=True, dest='name')
+    parser.add_argument('-ab', '--androidx-build-id', help=ANDROIDX_BUILD_ID_HELP,
+                        required=False, dest='androidx_build_id')
     parser.add_argument('-mb', '--metalava-build-id', help=METALAVA_BUILD_ID_HELP,
                         required=False, dest='metalava_build_id')
     parser.add_argument('-ajd', '--allow-jetbrains-dev', help=ALLOW_JETBRAINS_DEV_HELP,
@@ -56,6 +63,11 @@ def main():
     # Add -Dorg.gradle.debug=true to debug or --stacktrace to see the stack trace
     command = './gradlew --build-file build.gradle.kts --no-configuration-cache -PartifactNames=%s' % (
         artifact_name)
+    # AndroidX Build Id
+    androidx_build_id = parse_result.androidx_build_id
+    if (androidx_build_id):
+      command = command + ' -PandroidxBuildId=%s' % (androidx_build_id)
+    # Metalava Build Id
     metalava_build_id = parse_result.metalava_build_id
     if (metalava_build_id):
       command = command + ' -PmetalavaBuildId=%s' % (metalava_build_id)
