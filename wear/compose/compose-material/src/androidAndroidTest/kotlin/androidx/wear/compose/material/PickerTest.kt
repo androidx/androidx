@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.testutils.WithTouchSlop
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -31,6 +32,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.TouchInjectionScope
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeWithVelocity
 import androidx.compose.ui.unit.Dp
@@ -388,6 +390,80 @@ class PickerTest {
             end = Offset(centerX, bottom - 300),
             endVelocity = DO_FLING_SPEED
         )
+    }
+
+    @Test
+    fun displays_label_when_read_only() {
+        val labelText = "Show Me"
+
+        rule.setContent {
+            WithTouchSlop(0f) {
+                Picker(
+                    state = rememberPickerState(5),
+                    readOnly = true,
+                    readOnlyLabel = { Text(text = labelText) },
+                    modifier = Modifier.testTag(TEST_TAG)
+                        .requiredSize(itemSizeDp * 3)
+                ) {
+                    Box(Modifier.requiredSize(itemSizeDp))
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        rule.onNodeWithText(labelText).assertExists()
+    }
+
+    @Test
+    fun hides_label_when_not_read_only() {
+        val labelText = "Show Me"
+
+        rule.setContent {
+            WithTouchSlop(0f) {
+                Picker(
+                    state = rememberPickerState(5),
+                    readOnly = false,
+                    readOnlyLabel = { Text(text = labelText) },
+                    modifier = Modifier.testTag(TEST_TAG)
+                        .requiredSize(itemSizeDp * 3)
+                ) {
+                    Box(Modifier.requiredSize(itemSizeDp))
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        rule.onNodeWithText(labelText).assertDoesNotExist()
+    }
+
+    @Test
+    fun displays_selected_option_when_read_only() {
+        val readOnly = mutableStateOf(false)
+        val initialOption = 4
+        val selectedOption = 2
+        lateinit var state: PickerState
+
+        rule.setContent {
+            WithTouchSlop(0f) {
+                Picker(
+                    state = rememberPickerState(
+                        initialNumberOfOptions = 5,
+                        initiallySelectedOption = initialOption)
+                        .also { state = it },
+                    readOnly = readOnly.value,
+                    modifier = Modifier.testTag(TEST_TAG).requiredSize(itemSizeDp * 3),
+                ) {
+                    Box(Modifier.requiredSize(itemSizeDp))
+                }
+                LaunchedEffect(state) {
+                    state.scrollToOption(selectedOption)
+                }
+            }
+        }
+        readOnly.value = true
+        rule.waitForIdle()
+
+        assertThat(state.selectedOption).isEqualTo(selectedOption)
     }
 
     private fun scroll_snaps(separationSign: Int = 0, touch: (TouchInjectionScope).() -> Unit) {
