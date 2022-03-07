@@ -72,6 +72,10 @@ abstract class ImageCaptureBaseTest<A : CameraActivity> {
             "Cuttlefish does not correctly handle rotating. Unable to test.",
             Build.MODEL.contains("Cuttlefish")
         )
+        assumeFalse(
+            "Known issue on this device. Please see b/199115443",
+            Build.MODEL.contains("k61v1_basic_ref")
+        )
 
         CoreAppTestUtil.assumeCompatibleDevice()
         assumeTrue(CameraUtil.hasCameraWithLensFacing(lensFacing))
