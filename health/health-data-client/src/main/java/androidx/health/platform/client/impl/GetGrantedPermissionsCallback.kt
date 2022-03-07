@@ -18,15 +18,16 @@ package androidx.health.platform.client.impl
 import androidx.health.platform.client.error.ErrorStatus
 import androidx.health.platform.client.impl.error.toException
 import androidx.health.platform.client.permission.Permission
+import androidx.health.platform.client.proto.PermissionProto
 import androidx.health.platform.client.service.IGetGrantedPermissionsCallback
 import com.google.common.util.concurrent.SettableFuture
 
 /** Wrapper to convert [IGetGrantedPermissionsCallback] to listenable futures. */
 internal class GetGrantedPermissionsCallback(
-    private val resultFuture: SettableFuture<Set<Permission>>,
+    private val resultFuture: SettableFuture<Set<PermissionProto.Permission>>,
 ) : IGetGrantedPermissionsCallback.Stub() {
     override fun onSuccess(response: List<Permission>) {
-        resultFuture.set(response.toSet())
+        resultFuture.set(response.map { it.proto }.toSet())
     }
 
     override fun onError(error: ErrorStatus) {

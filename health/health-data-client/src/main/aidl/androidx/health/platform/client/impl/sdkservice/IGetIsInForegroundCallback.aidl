@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- package androidx.health.platform.client.impl.sdkservice;
+package androidx.health.platform.client.impl.sdkservice;
 
 oneway interface IGetIsInForegroundCallback {
   void onSuccess(in boolean isInForeground) = 0;

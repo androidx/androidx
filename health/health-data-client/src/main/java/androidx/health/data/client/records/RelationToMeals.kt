@@ -41,5 +41,4 @@ public object RelationToMeals {
             RelationToMeals.AFTER_MEAL,
         ]
 )
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 annotation class RelationToMeal
