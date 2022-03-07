@@ -29,12 +29,12 @@ import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat;
 interface IHeadlessWatchFace {
     // IMPORTANT NOTE: All methods must be given an explicit transaction id that must never change
     // in the future to remain binary backwards compatible.
-    // Next Id: 8
+    // Next Id: 9
 
     /**
      * API version number. This should be incremented every time a new method is added.
      */
-    const int API_VERSION = 1;
+    const int API_VERSION = 2;
 
     /**
      * Returns the version number for this API which the client can use to determine which methods
@@ -99,4 +99,11 @@ interface IHeadlessWatchFace {
      * @since API version 1.
      */
     oneway void release() = 7;
+
+    /**
+     * Computes the digest hash of the UserStyleSchema.
+     *
+     * @since API version 2.
+     */
+    byte[] computeUserStyleSchemaDigestHash() = 8;
 }
