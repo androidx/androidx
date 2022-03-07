@@ -28,7 +28,7 @@ import androidx.room.RoomDatabase
 import androidx.room.RoomSQLiteQuery
 import androidx.room.awaitPendingRefresh
 import androidx.room.refreshRunnable
-import androidx.room.util.CursorUtil
+import androidx.room.util.getColumnIndexOrThrow
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -939,7 +939,7 @@ class LimitOffsetPagingSourceImpl(
 ) {
 
     override fun convertRows(cursor: Cursor): List<TestItem> {
-        val cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(cursor, "id")
+        val cursorIndexOfId = getColumnIndexOrThrow(cursor, "id")
         val data = mutableListOf<TestItem>()
         while (cursor.moveToNext()) {
             val tmpId = cursor.getInt(cursorIndexOfId)

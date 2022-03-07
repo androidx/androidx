@@ -114,7 +114,7 @@ dependencies {
             include : "android.jar"
     ))
     testImplementation(fileTree(
-            dir: "${new File(project(":room:room-runtime").buildDir, "libJar")}",
+            dir: "${new File(project(":room:room-runtime").buildDir, "intermediates/runtime_library_classes_jar/release/")}",
             include : "*.jar"
     ))
     testImplementation(fileTree(
@@ -272,7 +272,7 @@ BuildOnServerKt.addToBuildOnServer(project, checkArtifactContentsTask)
 
 tasks.findByName("compileKotlin").dependsOn(generateAntlrTask)
 tasks.findByName("sourceJar").dependsOn(generateAntlrTask)
-tasks.findByName("compileKotlin").dependsOn(":room:room-runtime:jarRelease")
+tasks.findByName("compileKotlin").dependsOn(":room:room-runtime:bundleLibRuntimeToJarRelease")
 tasks.findByName("compileKotlin").dependsOn(":sqlite:sqlite:jarRelease")
 
 tasks.withType(KotlinCompile).configureEach {
