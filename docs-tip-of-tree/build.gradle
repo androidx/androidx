@@ -38,7 +38,7 @@ dependencies {
     stubs(fileTree(dir: "../camera/camera-extensions-stub", include: ["camera-extensions-stub.jar"]))
     docs(project(":camera:camera-mlkit-vision"))
     docs(project(":camera:camera-lifecycle"))
-    docs(project(":camera:camera-previewview"))
+    docs(project(":camera:camera-viewfinder"))
     docs(project(":camera:camera-video"))
     docs(project(":camera:camera-view"))
     docs(project(":car:app:app"))
