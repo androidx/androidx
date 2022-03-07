@@ -18,6 +18,7 @@ package androidx.collection;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -127,5 +128,17 @@ public class CircularArrayTest {
             array.addFirst("String " + i);
         }
         assertEquals(expectedSize, array.size());
+    }
+
+    @Test(expected = ArrayIndexOutOfBoundsException.class)
+    public void storeAndRetrieveNull() {
+        CircularArray<String> array = new CircularArray<>(1);
+        array.addFirst(null);
+        assertNull(array.popFirst());
+        array.addLast(null);
+        assertNull(array.popLast());
+
+        // Collection is empty so this should throw.
+        array.popLast();
     }
 }
