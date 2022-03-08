@@ -29,46 +29,22 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.ButtonDefaults
 import androidx.wear.compose.material.CircularProgressIndicator
 import androidx.wear.compose.material.CompactChip
-import androidx.wear.compose.material.ContentAlpha
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.InlineSlider
-import androidx.wear.compose.material.InlineSliderDefaults
-import androidx.wear.compose.material.ProgressIndicatorDefaults
+import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-public fun FullscreenIndeterminateProgress() {
-    var anchor by remember { mutableStateOf(360f) }
-
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        CircularProgressIndicator(
-            startAngle = anchor,
-            modifier = Modifier.fillMaxSize(),
-        )
-        Column {
-            Text("Anchor: $anchor", modifier = Modifier.align(Alignment.CenterHorizontally))
-            InlineSlider(
-                value = anchor,
-                modifier = Modifier.padding(8.dp),
-                onValueChange = { anchor = it },
-                steps = 15,
-                valueRange = 0f..360f
-            )
-        }
-    }
-}
-
-@Composable
-public fun SmallIndeterminateProgress() {
+public fun IndeterminateProgress() {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         CircularProgressIndicator()
     }
@@ -117,21 +93,18 @@ public fun ProgressWithCustomAngles() {
                 )
             }
         }
-
+        val padding = if (LocalConfiguration.current.isScreenRound) 3.dp else 5.dp
         CircularProgressIndicator(
             startAngle = startAngle,
             endAngle = endAngle,
             progress = animatedProgress,
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().padding(all = padding)
         )
     }
 }
 
 @Composable
 public fun ProgressWithMedia() {
-    val contentColor = Color(0xFFD1B916)
-    val backgroundColor = contentColor.copy(alpha = ContentAlpha.disabled)
-
     var status by remember { mutableStateOf(Status.Loading) }
 
     val playerState = remember { PlayerState() }
@@ -149,10 +122,7 @@ public fun ProgressWithMedia() {
                             startPlaying(playerState.progress)
                         }
                     },
-                    colors = ButtonDefaults.primaryButtonColors(
-                        backgroundColor = backgroundColor,
-                        contentColor = contentColor
-                    )
+                    colors = ButtonDefaults.iconButtonColors()
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_skip_previous),
@@ -182,10 +152,7 @@ public fun ProgressWithMedia() {
                                 }
                             }
                         },
-                        colors = ButtonDefaults.primaryButtonColors(
-                            backgroundColor = backgroundColor,
-                            contentColor = contentColor
-                        ),
+                        colors = ButtonDefaults.secondaryButtonColors(),
                         modifier = Modifier
                             .fillMaxSize()
                     ) {
@@ -203,16 +170,18 @@ public fun ProgressWithMedia() {
                         CircularProgressIndicator(
                             modifier = Modifier.fillMaxSize(),
                             startAngle = playerState.startOffsetAngle,
-                            indicatorColor = contentColor,
-                            trackColor = backgroundColor
+                            indicatorColor = MaterialTheme.colors.secondary,
+                            trackColor = MaterialTheme.colors.onBackground.copy(alpha = 0.1f),
+                            strokeWidth = 4.dp
                         )
                     else
                         CircularProgressIndicator(
                             progress = playerState.progress.value,
                             modifier = Modifier.fillMaxSize(),
                             startAngle = playerState.startOffsetAngle,
-                            indicatorColor = contentColor,
-                            trackColor = backgroundColor
+                            indicatorColor = MaterialTheme.colors.secondary,
+                            trackColor = MaterialTheme.colors.onBackground.copy(alpha = 0.1f),
+                            strokeWidth = 4.dp
                         )
                 }
                 Spacer(modifier = Modifier.size(12.dp))
@@ -223,10 +192,7 @@ public fun ProgressWithMedia() {
                             startPlaying(playerState.progress)
                         }
                     },
-                    colors = ButtonDefaults.primaryButtonColors(
-                        backgroundColor = backgroundColor,
-                        contentColor = contentColor
-                    )
+                    colors = ButtonDefaults.iconButtonColors()
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_skip_next),
@@ -246,68 +212,12 @@ public fun ProgressWithMedia() {
     }
 }
 
-@Composable
-public fun MultipleProgressIndicators() {
-    val innerColor = Color(0xFF4285F4)
-    val outerColor = Color(0XFF00DCB0)
-    var innerProgress by remember { mutableStateOf(0.3f) }
-    var outerProgress by remember { mutableStateOf(0.3f) }
-    val animatedInnerProgress by animateFloatAsState(
-        targetValue = innerProgress,
-        animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec
-    )
-    val animatedOuterProgress by animateFloatAsState(
-        targetValue = outerProgress,
-        animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec
-    )
-
-    Box(contentAlignment = Alignment.Center) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Center
-        ) {
-            InlineSlider(
-                value = innerProgress,
-                onValueChange = { innerProgress = it },
-                valueRange = 0f..1f,
-                steps = 9,
-                colors = InlineSliderDefaults.colors(selectedBarColor = innerColor)
-            )
-            Spacer(modifier = Modifier.height(5.dp))
-            InlineSlider(
-                value = outerProgress,
-                onValueChange = { outerProgress = it },
-                valueRange = 0f..1f,
-                steps = 9,
-                colors = InlineSliderDefaults.colors(selectedBarColor = outerColor)
-            )
-        }
-        CircularProgressIndicator(
-            progress = animatedOuterProgress,
-            indicatorColor = outerColor,
-            modifier = Modifier.fillMaxSize()
-        )
-        CircularProgressIndicator(
-            progress = animatedInnerProgress,
-            indicatorColor = innerColor,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(6.dp)
-        )
-    }
-}
-
 /**
  * This is an example of possible smooth transition between indeterminate progress state
  * to determinate
  */
 @Composable
 public fun TransformingCustomProgressIndicator() {
-    val contentColor = Color(0xFFD1B916)
-    val backgroundColor = contentColor.copy(alpha = ContentAlpha.disabled)
-
     val transformState = remember { TransformingState() }
     val scope = rememberCoroutineScope()
 
@@ -319,10 +229,7 @@ public fun TransformingCustomProgressIndicator() {
                         onClick = {
                             scope.launch { transformState.stopPlayingStartLoading() }
                         },
-                        colors = ButtonDefaults.primaryButtonColors(
-                            backgroundColor = backgroundColor,
-                            contentColor = contentColor
-                        ),
+                        colors = ButtonDefaults.secondaryButtonColors(),
                         modifier = Modifier
                             .fillMaxSize()
                     ) {
@@ -337,9 +244,9 @@ public fun TransformingCustomProgressIndicator() {
                         progress = transformState.progress.value,
                         modifier = Modifier.fillMaxSize(),
                         startAngle = transformState.startOffsetAngle,
-                        indicatorColor = contentColor,
-                        trackColor = backgroundColor
-
+                        indicatorColor = MaterialTheme.colors.secondary,
+                        trackColor = MaterialTheme.colors.onBackground.copy(alpha = 0.1f),
+                        strokeWidth = 4.dp
                     )
                 }
                 Spacer(modifier = Modifier.size(12.dp))
@@ -350,10 +257,7 @@ public fun TransformingCustomProgressIndicator() {
                             startPlaying(transformState.progress)
                         }
                     },
-                    colors = ButtonDefaults.primaryButtonColors(
-                        backgroundColor = backgroundColor,
-                        contentColor = contentColor
-                    )
+                    colors = ButtonDefaults.iconButtonColors()
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_skip_next),

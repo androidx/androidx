@@ -16,7 +16,6 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.progressSemantics
-import androidx.compose.material.ContentAlpha
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -31,9 +30,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.ProgressIndicatorDefaults.BaseRotationAngle
 import androidx.wear.compose.material.ProgressIndicatorDefaults.CircularEasing
-import androidx.wear.compose.material.ProgressIndicatorDefaults.CircularIndicatorDiameter
+import androidx.wear.compose.material.ProgressIndicatorDefaults.ButtonCircularIndicatorDiameter
 import androidx.wear.compose.material.ProgressIndicatorDefaults.HeadAndTailAnimationDuration
 import androidx.wear.compose.material.ProgressIndicatorDefaults.HeadAndTailDelayDuration
+import androidx.wear.compose.material.ProgressIndicatorDefaults.IndeterminateCircularIndicatorDiameter
+import androidx.wear.compose.material.ProgressIndicatorDefaults.IndeterminateStrokeWidth
 import androidx.wear.compose.material.ProgressIndicatorDefaults.JumpRotationAngle
 import androidx.wear.compose.material.ProgressIndicatorDefaults.RotationAngleOffset
 import androidx.wear.compose.material.ProgressIndicatorDefaults.RotationDuration
@@ -83,8 +84,7 @@ public fun CircularProgressIndicator(
     startAngle: Float = 270f,
     endAngle: Float = startAngle,
     indicatorColor: Color = MaterialTheme.colors.primary,
-    trackColor: Color = MaterialTheme.colors.onBackground
-        .copy(alpha = ContentAlpha.disabled),
+    trackColor: Color = MaterialTheme.colors.onBackground.copy(alpha = 0.1f),
     strokeWidth: Dp = ProgressIndicatorDefaults.StrokeWidth,
 ) {
     val stroke = with(LocalDensity.current) {
@@ -94,7 +94,7 @@ public fun CircularProgressIndicator(
     Canvas(
         modifier
             .progressSemantics(progress)
-            .size(CircularIndicatorDiameter)
+            .size(ButtonCircularIndicatorDiameter)
             .focusable()
     ) {
         val backgroundSweep = 360f - ((startAngle - endAngle) % 360 + 360) % 360
@@ -141,10 +141,10 @@ public fun CircularProgressIndicator(
 public fun CircularProgressIndicator(
     modifier: Modifier = Modifier,
     startAngle: Float = 270f,
-    indicatorColor: Color = MaterialTheme.colors.primary,
+    indicatorColor: Color = MaterialTheme.colors.onBackground,
     trackColor: Color = MaterialTheme.colors.onBackground
-        .copy(alpha = ContentAlpha.disabled),
-    strokeWidth: Dp = ProgressIndicatorDefaults.StrokeWidth,
+        .copy(alpha = 0.3f),
+    strokeWidth: Dp = IndeterminateStrokeWidth,
 ) {
     val stroke = with(LocalDensity.current) {
         Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Round)
@@ -201,7 +201,7 @@ public fun CircularProgressIndicator(
     Canvas(
         modifier
             .progressSemantics()
-            .size(CircularIndicatorDiameter)
+            .size(IndeterminateCircularIndicatorDiameter)
             .focusable()
     ) {
 
@@ -234,6 +234,20 @@ public object ProgressIndicatorDefaults {
     public val StrokeWidth = 4.dp
 
     /**
+     * Default stroke width for indeterminate [CircularProgressIndicator]
+     *
+     * This can be customized with the `strokeWidth` parameter on [CircularProgressIndicator]
+     */
+    internal val IndeterminateStrokeWidth = 3.dp
+
+    /**
+     * Stroke width for full screen [CircularProgressIndicator]
+     *
+     * This can be customized with the `strokeWidth` parameter on [CircularProgressIndicator]
+     */
+    internal val FullScreenStrokeWidth = 5.dp
+
+    /**
      * The default [AnimationSpec] that should be used when animating between progress in a
      * determinate progress indicator.
      */
@@ -247,7 +261,11 @@ public object ProgressIndicatorDefaults {
 
     // CircularProgressIndicator Material specs
     // Diameter of the indicator circle
-    internal val CircularIndicatorDiameter = 40.dp
+    internal val ButtonCircularIndicatorDiameter = 40.dp
+
+    // CircularProgressIndicator Material specs
+    // Diameter of the indicator circle
+    internal val IndeterminateCircularIndicatorDiameter = 24.dp
 
     // The animation comprises of 5 rotations around the circle forming a 5 pointed star.
     // After the 5th rotation, we are back at the beginning of the circle.

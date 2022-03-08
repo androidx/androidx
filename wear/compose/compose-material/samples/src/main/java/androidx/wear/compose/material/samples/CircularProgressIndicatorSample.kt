@@ -21,6 +21,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
@@ -30,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.CompactChip
 import androidx.wear.compose.material.CircularProgressIndicator
@@ -52,7 +54,9 @@ public fun CircularProgressIndicatorWithAnimation() {
     )
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        CircularProgressIndicator(progress = animatedProgress)
+        CircularProgressIndicator(
+            progress = animatedProgress,
+        )
         Spacer(Modifier.requiredHeight(10.dp))
         CompactChip(
             modifier = Modifier.width(90.dp),
@@ -67,10 +71,12 @@ public fun CircularProgressIndicatorWithAnimation() {
 @Sampled
 @Composable
 public fun CircularProgressIndicatorFullscreenWithGap() {
+    val padding = if (LocalConfiguration.current.isScreenRound) 3.dp else 5.dp
     CircularProgressIndicator(
-        modifier = Modifier.fillMaxSize(),
-        startAngle = 300f,
-        endAngle = 240f,
-        progress = 0.3f
+        modifier = Modifier.fillMaxSize().padding(all = padding),
+        startAngle = 295.5f,
+        endAngle = 245.5f,
+        progress = 0.3f,
+        strokeWidth = 5.dp
     )
 }
