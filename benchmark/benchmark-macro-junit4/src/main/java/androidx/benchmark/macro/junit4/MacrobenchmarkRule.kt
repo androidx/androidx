@@ -41,9 +41,11 @@ import org.junit.runners.model.Statement
  *         packageName = "mypackage.myapp",
  *         metrics = listOf(StartupTimingMetric()),
  *         iterations = 5,
- *         startupMode = StartupMode.COLD
+ *         startupMode = StartupMode.COLD,
+ *         setupBlock = {
+ *           pressHome()
+ *         }
  *     ) { // this = MacrobenchmarkScope
- *         pressHome()
  *         val intent = Intent()
  *         intent.setPackage("mypackage.myapp")
  *         intent.setAction("mypackage.myapp.myaction")
