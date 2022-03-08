@@ -136,7 +136,7 @@ internal class ConfigFragment : Fragment() {
             configOptions.add(
                 ConfigOption(
                     id = styleCategory.id.value,
-                    icon = styleCategory.onWatchEditorData?.icon ?: styleCategory.icon,
+                    icon = styleCategory.watchFaceEditorData?.icon ?: styleCategory.icon,
                     title = styleCategory.displayName.toString(),
                     summary = styleCategory.description.toString(),
                     highlight = false
