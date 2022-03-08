@@ -257,6 +257,7 @@ public final class SetSchemaRequest {
      *         {@link SetSchemaRequest#READ_HOME_APP_SEARCH_DATA} and
      *         {@link SetSchemaRequest#READ_ASSISTANT_APP_SEARCH_DATA}.
      */
+    @SetSchemaRequest.AppSearchSupportedPermission
     @NonNull
     public Map<String, Set<Set<Integer>>> getRequiredPermissionsForSchemaTypeVisibility() {
         return deepCopy(mSchemasVisibleToPermissions);
