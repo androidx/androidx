@@ -980,8 +980,6 @@ class RecorderTest {
         file.delete()
     }
 
-    // TODO:(b/187266265): Encoder surface cannot be reused on API level < 23 on some devices
-    @SdkSuppress(minSdkVersion = 23)
     @Test
     fun canSwitchAudioOnOff() {
         clearInvocations(videoRecordEventListener)
