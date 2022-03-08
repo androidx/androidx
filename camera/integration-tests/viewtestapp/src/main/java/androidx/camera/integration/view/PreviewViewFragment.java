@@ -174,8 +174,6 @@ public class PreviewViewFragment extends Fragment {
         }
     }
 
-    // TODO(b/185869869) Remove the UnsafeOptInUsageError once view's version matches core's.
-    @SuppressLint("UnsafeOptInUsageError")
     void setUpTargetRotationButton(@NonNull final ProcessCameraProvider cameraProvider,
             @NonNull final View rootView) {
         Button button = rootView.findViewById(R.id.target_rotation);
@@ -337,8 +335,6 @@ public class PreviewViewFragment extends Fragment {
     }
 
     @SuppressWarnings("WeakerAccess")
-    // TODO(b/185869869) Remove the UnsafeOptInUsageError once view's version matches core's.
-    @SuppressLint("UnsafeOptInUsageError")
     void bindPreview(@NonNull ProcessCameraProvider cameraProvider) {
         if (mPreview == null) {
             return;

@@ -166,8 +166,6 @@ public final class PreviewView extends FrameLayout {
     @SuppressWarnings("WeakerAccess")
     final Preview.SurfaceProvider mSurfaceProvider = new Preview.SurfaceProvider() {
 
-        // TODO(b/185869869) Remove the UnsafeOptInUsageError once view's version matches core's.
-        @SuppressLint("UnsafeOptInUsageError")
         @Override
         @AnyThread
         public void onSurfaceRequested(@NonNull SurfaceRequest surfaceRequest) {
@@ -554,9 +552,8 @@ public final class PreviewView extends FrameLayout {
      * @return null if the view's width/height is zero.
      * @see ImplementationMode
      */
-    // TODO(b/185869869) Remove the UnsafeOptInUsageError once view's version matches core's.
     @UiThread
-    @SuppressLint({"WrongConstant", "UnsafeOptInUsageError"})
+    @SuppressLint("WrongConstant")
     @Nullable
     public ViewPort getViewPort(@ImageOutputConfig.RotationValue int targetRotation) {
         checkMainThread();
