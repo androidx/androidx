@@ -45,7 +45,6 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.CompactChip
-import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.ToggleButton
@@ -53,7 +52,6 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 
-@ExperimentalWearMaterialApi
 class SwipeDismissableNavHostTest {
     @get:Rule
     val rule = createComposeRule()
@@ -311,7 +309,6 @@ fun ComposeContentTestRule.setContentWithTheme(
     }
 }
 
-private const val LONG_SWIPE = 1000L
 private const val NEXT = "next"
 private const val START = "start"
 private const val TEST_TAG = "test-item"

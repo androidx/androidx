@@ -43,7 +43,6 @@ import androidx.navigation.Navigator
 import androidx.navigation.createGraph
 import androidx.navigation.compose.LocalOwnersProvider
 import androidx.navigation.get
-import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.SwipeDismissTarget
 import androidx.wear.compose.material.SwipeToDismissBox
 import androidx.wear.compose.material.SwipeToDismissBoxDefaults
@@ -75,7 +74,6 @@ import androidx.wear.compose.material.rememberSwipeToDismissBoxState
  * @param route The route for the graph
  * @param builder The builder used to construct the graph
  */
-@ExperimentalWearMaterialApi
 @Composable
 public fun SwipeDismissableNavHost(
     navController: NavHostController,
@@ -118,7 +116,6 @@ public fun SwipeDismissableNavHost(
  *
  * @throws IllegalArgumentException if no WearNavigation.Destination is on the navigation backstack.
  */
-@ExperimentalWearMaterialApi
 @Composable
 public fun SwipeDismissableNavHost(
     navController: NavHostController,

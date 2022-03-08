@@ -21,7 +21,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.PositionIndicator
 import androidx.wear.compose.material.Scaffold
 import androidx.wear.compose.material.ScalingLazyListState
@@ -54,7 +53,6 @@ import androidx.wear.compose.material.rememberSwipeToDismissBoxState
  * @param properties Typically platform specific properties to further configure the dialog.
  * @param content Slot for dialog content such as [Alert] or [Confirmation].
  */
-@OptIn(ExperimentalWearMaterialApi::class)
 @Composable
 public fun Dialog(
     onDismissRequest: () -> Unit,
@@ -67,9 +65,9 @@ public fun Dialog(
         onDismissRequest = onDismissRequest,
         properties = properties,
     ) {
-        val swipeState = rememberSwipeToDismissBoxState()
-        LaunchedEffect(swipeState.currentValue) {
-            if (swipeState.currentValue == SwipeDismissTarget.Dismissal) {
+        val state = rememberSwipeToDismissBoxState()
+        LaunchedEffect(state.currentValue) {
+            if (state.currentValue == SwipeDismissTarget.Dismissal) {
                 onDismissRequest()
             }
         }
@@ -79,7 +77,7 @@ public fun Dialog(
             modifier = modifier,
         ) {
             SwipeToDismissBox(
-                state = swipeState,
+                state = state,
             ) { isBackground ->
                 if (!isBackground) content()
             }
