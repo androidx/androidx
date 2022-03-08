@@ -296,7 +296,7 @@ public abstract class JobIntentService extends Service {
 
         @Override
         public boolean onStopJob(JobParameters params) {
-            if (DEBUG) Log.d(TAG, "onStartJob: " + params);
+            if (DEBUG) Log.d(TAG, "onStopJob: " + params);
             boolean result = mService.doStopCurrentWork();
             synchronized (mLock) {
                 // Once we return, the job is stopped, so its JobParameters are no
