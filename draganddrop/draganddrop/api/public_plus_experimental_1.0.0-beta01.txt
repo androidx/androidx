@@ -1,0 +1,28 @@
+// Signature format: 4.0
+package androidx.draganddrop {
+
+  public final class DropHelper {
+    method public static void configureView(android.app.Activity, android.view.View, String![], androidx.core.view.OnReceiveContentListener);
+    method public static void configureView(android.app.Activity, android.view.View, String![], androidx.draganddrop.DropHelper.Options, androidx.core.view.OnReceiveContentListener);
+  }
+
+  public static final class DropHelper.Options {
+    method @ColorInt public int getHighlightColor();
+    method public int getHighlightCornerRadiusPx();
+    method public java.util.List<android.widget.EditText!> getInnerEditTexts();
+    method public boolean hasHighlightColor();
+    method public boolean hasHighlightCornerRadiusPx();
+    method public boolean shouldAcceptDragsWithLocalState();
+  }
+
+  public static final class DropHelper.Options.Builder {
+    ctor public DropHelper.Options.Builder();
+    method public androidx.draganddrop.DropHelper.Options.Builder addInnerEditTexts(android.widget.EditText!...);
+    method public androidx.draganddrop.DropHelper.Options build();
+    method public androidx.draganddrop.DropHelper.Options.Builder setAcceptDragsWithLocalState(boolean);
+    method public androidx.draganddrop.DropHelper.Options.Builder setHighlightColor(@ColorInt int);
+    method public androidx.draganddrop.DropHelper.Options.Builder setHighlightCornerRadiusPx(int);
+  }
+
+}
+
