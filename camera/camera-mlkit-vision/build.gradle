@@ -27,6 +27,11 @@ dependencies {
     api(project(":camera:camera-view"))
     api("androidx.annotation:annotation:1.2.0")
     api(libs.guavaListenableFuture)
+    api('com.google.mlkit:vision-interfaces:16.0.0') {
+        version {
+            prefer '16.0.0'
+        }
+    }
 
     testImplementation(libs.testRunner)
     testImplementation(libs.robolectric)
