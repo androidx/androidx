@@ -16,9 +16,12 @@
 
 package androidx.wear.compose.integration.demos
 
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.samples.AlertDialogSample
 import androidx.wear.compose.material.samples.AlertWithButtons
 import androidx.wear.compose.material.samples.AlertWithChips
@@ -120,12 +123,20 @@ val WearMaterialDemos = DemoCategory(
                 DemoCategory(
                     "Samples",
                     listOf(
-                        ComposableDemo("Inline slider") { Centralize { InlineSliderSample() } },
+                        ComposableDemo("Inline slider") {
+                            Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                InlineSliderSample()
+                            }
+                        },
                         ComposableDemo("Segmented inline slider") {
-                            Centralize { InlineSliderSegmentedSample() }
+                            Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                InlineSliderSegmentedSample()
+                            }
                         },
                         ComposableDemo("Integer inline slider") {
-                            Centralize { InlineSliderWithIntegerSample() }
+                            Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                InlineSliderWithIntegerSample()
+                            }
                         },
                     )
                 ),
@@ -150,10 +161,10 @@ val WearMaterialDemos = DemoCategory(
                     "Samples",
                     listOf(
                         ComposableDemo("Stepper") {
-                            Centralize({ StepperSample() })
+                            Centralize { StepperSample() }
                         },
                         ComposableDemo("Integer Stepper") {
-                            Centralize({ StepperWithIntegerSample() })
+                            Centralize { StepperWithIntegerSample() }
                         },
                     )
                 ),
@@ -299,10 +310,14 @@ val WearMaterialDemos = DemoCategory(
                     "Samples",
                     listOf(
                         ComposableDemo("Chip With Icon And Labels") {
-                            Centralize { ChipWithIconAndLabels() }
+                            Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                ChipWithIconAndLabels()
+                            }
                         },
                         ComposableDemo("Compact Chip With Icon And Label") {
-                            Centralize { CompactChipWithIconAndLabel() }
+                            Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                CompactChipWithIconAndLabel()
+                            }
                         },
                     )
                 ),
@@ -346,10 +361,14 @@ val WearMaterialDemos = DemoCategory(
                 DemoCategory("Samples",
                     listOf(
                         ComposableDemo("ToggleChip With Icon") {
-                            Centralize { ToggleChipWithIcon() }
+                            Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                ToggleChipWithIcon()
+                            }
                         },
                         ComposableDemo("SplitToggleChip With Checkbox") {
-                            Centralize { SplitToggleChipWithCheckbox() }
+                            Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                SplitToggleChipWithCheckbox()
+                            }
                         }
                     )
                 ),
@@ -373,10 +392,20 @@ val WearMaterialDemos = DemoCategory(
                 DemoCategory(
                     "Samples",
                     listOf(
-                        ComposableDemo("AppCard") { Centralize { AppCardWithIcon() } },
-                        ComposableDemo("TitleCard") { Centralize { TitleCardStandard() } },
+                        ComposableDemo("AppCard") {
+                            Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                AppCardWithIcon()
+                            }
+                        },
+                        ComposableDemo("TitleCard") {
+                            Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                TitleCardStandard()
+                            }
+                        },
                         ComposableDemo("TitleCard With Image") {
-                            Centralize { TitleCardWithImage() }
+                            Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                TitleCardWithImage()
+                            }
                         },
                     )
                 ),
