@@ -422,13 +422,13 @@ public class IconCompat extends CustomVersionedParcelable {
     }
 
     /**
-     * Gets the resource id used to create this icon.
+     * Gets the drawable resource id used to create this icon.
      * <p>
      * Only valid for icons of type TYPE_RESOURCE.
      * Note: This resource may not be available if the application changes at all, and it is
      * up to the caller to ensure safety if this resource is re-used and/or persisted.
      */
-    @IdRes
+    @DrawableRes
     public int getResId() {
         if (mType == TYPE_UNKNOWN && Build.VERSION.SDK_INT >= 23) {
             return Api23Impl.getResId(mObj1);

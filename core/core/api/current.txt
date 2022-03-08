@@ -1403,7 +1403,7 @@ package androidx.core.graphics.drawable {
     method public static androidx.core.graphics.drawable.IconCompat createWithContentUri(android.net.Uri);
     method public static androidx.core.graphics.drawable.IconCompat createWithData(byte[], int, int);
     method public static androidx.core.graphics.drawable.IconCompat createWithResource(android.content.Context, @DrawableRes int);
-    method @IdRes public int getResId();
+    method @DrawableRes public int getResId();
     method public String getResPackage();
     method public int getType();
     method public android.net.Uri getUri();

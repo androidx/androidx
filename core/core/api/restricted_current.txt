@@ -1681,7 +1681,7 @@ package androidx.core.graphics.drawable {
     method public static androidx.core.graphics.drawable.IconCompat createWithResource(android.content.Context, @DrawableRes int);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.graphics.drawable.IconCompat createWithResource(android.content.res.Resources?, String, @DrawableRes int);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.graphics.Bitmap? getBitmap();
-    method @IdRes public int getResId();
+    method @DrawableRes public int getResId();
     method public String getResPackage();
     method public int getType();
     method public android.net.Uri getUri();
