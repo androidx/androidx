@@ -39,6 +39,7 @@ import androidx.glance.layout.width
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
+import androidx.glance.layout.Alignment
 
 /**
  * A basic [GlanceTemplate] implementation based around a list of entities, using [Data].
@@ -69,61 +70,45 @@ abstract class ListTemplate : GlanceTemplate<ListTemplate.Data>() {
 
     @Composable
     override fun WidgetLayoutVertical() {
-        getData(currentState()).let {
-            var modifier = GlanceModifier.fillMaxSize().padding(16.dp)
-            it.backgroundColor?.let { modifier = modifier.background(it) }
-            Column(modifier = modifier) {
-                it.header?.let { header ->
-                    TemplateHeader(it.headerIcon, header)
-                    Spacer(modifier = GlanceModifier.height(16.dp))
-                }
-                it.title?.let {
-                    Text(it.text, style = TextStyle(fontSize = 20.sp))
-                    Spacer(modifier = GlanceModifier.height(16.dp))
-                }
-                it.button?.let {
-                    Button(text = it.text, onClick = it.action)
-                }
-                LazyColumn {
-                    itemsIndexed(it.listContent) { _, item ->
-                        // TODO: Extract and allow override
-                        var itemModifier = GlanceModifier.fillMaxWidth()
-                        item.action?.let { itemModifier = itemModifier.clickable(it) }
-                        Row(modifier = itemModifier) {
-                            Column(modifier = GlanceModifier.defaultWeight()) {
-                                Text(item.title.text, style = TextStyle(fontSize = 18.sp))
-                                item.body?.let { Text(item.body.text) }
-                            }
-                            item.image?.let {
-                                Spacer(modifier = GlanceModifier.width(16.dp))
-                                Image(provider = it.image, contentDescription = it.description)
-                            }
-                        }
+      getData(currentState()).let {
+        var modifier = GlanceModifier.fillMaxSize().padding(16.dp)
+        it.backgroundColor?.let { modifier = modifier.background(it) }
+        Column(modifier = modifier) {
+            it.header?.let { header ->
+                TemplateHeader(it.headerIcon, header)
+                Spacer(modifier = GlanceModifier.height(16.dp))
+            }
+            LazyColumn {
+              itemsIndexed(it.listContent) { _, item ->
+                    var itemModifier = GlanceModifier.fillMaxWidth().height(64.dp)
+                    item.action?.let { itemModifier = itemModifier.clickable(it) }
+                    Row(modifier = itemModifier, horizontalAlignment = Alignment.Start) {
+                      item.image?.let {
+                        Image(provider = it.image,
+                              contentDescription = it.description,
+                              modifier = GlanceModifier.width(64.dp))
+                      }
+                      Spacer(modifier = GlanceModifier.width(16.dp))
+                      Column(modifier = GlanceModifier.defaultWeight()) {
+                          Text(item.title.text,
+                               style = TextStyle(fontSize = 18.sp),
+                               maxLines = 2)
+                          item.body?.let { Text(item.body.text) }
+                      }
+                      item.button?.let {
+                        Spacer(modifier = GlanceModifier.width(16.dp))
+                        TemplateButton(item.button)
+                      }
                     }
                 }
             }
         }
+      }
     }
 
     @Composable
     override fun WidgetLayoutHorizontal() {
-        getData(currentState()).let {
-            var modifier = GlanceModifier.fillMaxSize().padding(16.dp)
-            it.backgroundColor?.let { modifier = modifier.background(it) }
-            Column(modifier = modifier) {
-                it.header?.let { header ->
-                    TemplateHeader(it.headerIcon, header)
-                    Spacer(modifier = GlanceModifier.height(16.dp))
-                }
-                it.title?.let {
-                    Text(it.text, style = TextStyle(fontSize = 20.sp))
-                    Spacer(modifier = GlanceModifier.height(16.dp))
-                }
-                it.button?.let {
-                    Button(text = it.text, onClick = it.action)
-                }
-            }
-        }
+        WidgetLayoutVertical()
     }
 
     /**
@@ -133,13 +118,15 @@ abstract class ListTemplate : GlanceTemplate<ListTemplate.Data>() {
      * @param body list item body text
      * @param action list item onClick action
      * @param image list item image
+     * @param button Action button
      */
     // TODO: Allow users to define a custom list item
     public class ListItem(
         val title: TemplateText,
         val body: TemplateText?,
         val action: Action?,
-        val image: TemplateImageWithDescription?
+        val image: TemplateImageWithDescription?,
+        val button: TemplateButton?
     ) {
 
         override fun hashCode(): Int {
@@ -147,6 +134,7 @@ abstract class ListTemplate : GlanceTemplate<ListTemplate.Data>() {
             result = 31 * result + (body?.hashCode() ?: 0)
             result = 31 * result + (action?.hashCode() ?: 0)
             result = 31 * result + (image?.hashCode() ?: 0)
+            result = 31 * result + (button?.hashCode() ?: 0)
             return result
         }
 
@@ -160,6 +148,7 @@ abstract class ListTemplate : GlanceTemplate<ListTemplate.Data>() {
             if (body != other.body) return false
             if (action != other.action) return false
             if (image != other.image) return false
+            if (button != other.button) return false
 
             return true
         }

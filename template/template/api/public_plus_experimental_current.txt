@@ -84,13 +84,15 @@ package androidx.template.template {
   }
 
   public static final class ListTemplate.ListItem {
-    ctor public ListTemplate.ListItem(androidx.template.template.TemplateText title, androidx.template.template.TemplateText? body, androidx.glance.action.Action? action, androidx.template.template.TemplateImageWithDescription? image);
+    ctor public ListTemplate.ListItem(androidx.template.template.TemplateText title, androidx.template.template.TemplateText? body, androidx.glance.action.Action? action, androidx.template.template.TemplateImageWithDescription? image, androidx.template.template.TemplateButton? button);
     method public androidx.glance.action.Action? getAction();
     method public androidx.template.template.TemplateText? getBody();
+    method public androidx.template.template.TemplateButton? getButton();
     method public androidx.template.template.TemplateImageWithDescription? getImage();
     method public androidx.template.template.TemplateText getTitle();
     property public final androidx.glance.action.Action? action;
     property public final androidx.template.template.TemplateText? body;
+    property public final androidx.template.template.TemplateButton? button;
     property public final androidx.template.template.TemplateImageWithDescription? image;
     property public final androidx.template.template.TemplateText title;
   }
