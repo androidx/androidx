@@ -18,6 +18,7 @@ package androidx.health.data.client
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.annotation.RestrictTo
 import androidx.health.data.client.impl.HealthDataClientImpl
 import androidx.health.platform.client.HealthDataService
@@ -44,7 +45,7 @@ object HealthDataService {
         context: Context,
         packageNames: List<String> = listOf(DEFAULT_PROVIDER_PACKAGE_NAME),
     ): Boolean {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O_MR1) {
+        if (!isSdkVersionSufficient()) {
             return false
         }
         return packageNames.any { isPackageInstalled(context.packageManager, it) }
@@ -55,7 +56,8 @@ object HealthDataService {
      *
      * @param packageName optional package provider to choose implementation from
      * @return instance of [HealthDataClient] ready for issuing requests
-     * @throws UnsupportedOperationException if service not available
+     * @throws UnsupportedOperationException if service not available due to SDK version too low
+     * @throws IllegalStateException if service not available due to not installed
      */
     @JvmOverloads
     @JvmStatic
@@ -63,12 +65,18 @@ object HealthDataService {
         context: Context,
         packageNames: List<String> = listOf(DEFAULT_PROVIDER_PACKAGE_NAME),
     ): HealthDataClient {
+        if (!isSdkVersionSufficient()) {
+            throw UnsupportedOperationException("SDK version too low")
+        }
         if (!isAvailable(context, packageNames)) {
-            throw UnsupportedOperationException("Not supported yet")
+            throw IllegalStateException("Service not available")
         }
         val enabledPackage = packageNames.first { isPackageInstalled(context.packageManager, it) }
         return HealthDataClientImpl(HealthDataService.getClient(context, enabledPackage))
     }
+
+    @ChecksSdkIntAtLeast
+    private fun isSdkVersionSufficient() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
 
     @Suppress("Deprecation") // getApplicationInfo deprecated in T but is the only choice.
     private fun isPackageInstalled(packageManager: PackageManager, packageName: String): Boolean {
