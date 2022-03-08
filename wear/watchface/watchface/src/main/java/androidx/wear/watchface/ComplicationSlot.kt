@@ -216,10 +216,14 @@ public annotation class ComplicationSlotBoundsType {
  * complications.
  * @param tapFilter The [ComplicationTapFilter] used to determine whether or not a tap hit the
  * complication slot.
- * @param nameResourceId The ID of a string resource (or `null` if absent) to identify the
- * complication slot on screen in an editor.
- * @param screenReaderNameResourceId The ID of a string resource (or `null` if absent) to identify
- * the complication slot in a screen reader.
+ * @param nameResourceId The ID of string resource (or `null` if absent) to identify the
+ * complication slot on screen in an editor. These strings should be short (perhaps 10 characters
+ * max) E.g. complication slots named 'left' and 'right' might be shown by the editor in a list from
+ * which the user selects a complication slot for editing.
+ * @param screenReaderNameResourceId The ID of a string resource (or `null` if absent) for use by a
+ * watch face editor to identify the complication slot in a screen reader. While similar to
+ * [nameResourceId] this string can be longer and should be more descriptive. E.g. saying
+ * 'left complication' rather than just 'left'.
  */
 public class ComplicationSlot internal constructor(
     public val id: Int,
