@@ -214,6 +214,13 @@ public interface WatchFaceMetadataClient : AutoCloseable {
     public fun getUserStyleSchema(): UserStyleSchema
 
     /**
+     * Whether or not the [UserStyleSchema] is static and won't change unless the APK is updated.
+     */
+    @Suppress("INAPPLICABLE_JVM_NAME")
+    @get:JvmName("isUserStyleSchemaStatic")
+    public val isUserStyleSchemaStatic: Boolean
+
+    /**
      * Returns a map of [androidx.wear.watchface.ComplicationSlot] ID to [ComplicationSlotMetadata]
      * for each slot in the watch face's [androidx.wear.watchface.ComplicationSlotsManager].
      */
@@ -319,6 +326,9 @@ internal class WatchFaceMetadataClientImpl internal constructor(
         }
     }
 
+    override val isUserStyleSchemaStatic: Boolean
+        get() = false
+
     override fun getComplicationSlotMetadataMap(): Map<Int, ComplicationSlotMetadata> {
         requireNotClosed()
         return try {
@@ -401,6 +411,9 @@ internal class XmlWatchFaceMetadataClientImpl(
 ) : WatchFaceMetadataClient {
     override fun getUserStyleSchema() =
         xmlSchemaAndComplicationSlotsDefinition.schema ?: UserStyleSchema(emptyList())
+
+    override val isUserStyleSchemaStatic: Boolean
+        get() = true
 
     override fun getComplicationSlotMetadataMap() =
         xmlSchemaAndComplicationSlotsDefinition.complicationSlots.associateBy(
