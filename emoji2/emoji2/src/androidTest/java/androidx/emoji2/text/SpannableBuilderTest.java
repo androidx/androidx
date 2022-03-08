@@ -15,6 +15,9 @@
  */
 package androidx.emoji2.text;
 
+import static android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE;
+import static android.text.Spanned.SPAN_INCLUSIVE_INCLUSIVE;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.Matchers.instanceOf;
@@ -32,15 +35,19 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.withSettings;
 
+import android.text.DynamicLayout;
 import android.text.Editable;
+import android.text.Layout;
 import android.text.SpanWatcher;
 import android.text.Spannable;
-import android.text.Spanned;
+import android.text.TextPaint;
 import android.text.TextWatcher;
 import android.text.style.QuoteSpan;
+import android.text.style.TypefaceSpan;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -75,8 +82,8 @@ public class SpannableBuilderTest {
         final SpannableBuilder spannable = new SpannableBuilder(mClass, "abc");
         final QuoteSpan span1 = mock(QuoteSpan.class);
         final QuoteSpan span2 = mock(QuoteSpan.class);
-        spannable.setSpan(span1, 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        spannable.setSpan(span2, 2, 3, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spannable.setSpan(span1, 0, 1, SPAN_EXCLUSIVE_EXCLUSIVE);
+        spannable.setSpan(span2, 2, 3, SPAN_EXCLUSIVE_EXCLUSIVE);
 
         final CharSequence subsequence = spannable.subSequence(0, 1);
         assertNotNull(subsequence);
@@ -90,7 +97,7 @@ public class SpannableBuilderTest {
     @Test
     public void testSetAndGetSpan() {
         final SpannableBuilder spannable = new SpannableBuilder(mClass, "abcde");
-        spannable.setSpan(mWatcher, 1, 2, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+        spannable.setSpan(mWatcher, 1, 2, SPAN_INCLUSIVE_INCLUSIVE);
 
         // getSpans should return the span
         Object[] spans = spannable.getSpans(0, spannable.length(), mClass);
@@ -101,7 +108,7 @@ public class SpannableBuilderTest {
         // span attributes should be correct
         assertEquals(1, spannable.getSpanStart(mWatcher));
         assertEquals(2, spannable.getSpanEnd(mWatcher));
-        assertEquals(Spanned.SPAN_INCLUSIVE_INCLUSIVE, spannable.getSpanFlags(mWatcher));
+        assertEquals(SPAN_INCLUSIVE_INCLUSIVE, spannable.getSpanFlags(mWatcher));
 
         // should remove the span
         spannable.removeSpan(mWatcher);
@@ -113,7 +120,7 @@ public class SpannableBuilderTest {
     @Test
     public void testNextSpanTransition() {
         final SpannableBuilder spannable = new SpannableBuilder(mClass, "abcde");
-        spannable.setSpan(mWatcher, 1, 2, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+        spannable.setSpan(mWatcher, 1, 2, SPAN_INCLUSIVE_INCLUSIVE);
         final int start = spannable.nextSpanTransition(0, spannable.length(), mClass);
         assertEquals(1, start);
     }
@@ -122,8 +129,8 @@ public class SpannableBuilderTest {
     public void testBlocksSpanCallbacks_forEmojiSpans() {
         final EmojiSpan span = mock(EmojiSpan.class);
         final SpannableBuilder spannable = new SpannableBuilder(mClass, "123456");
-        spannable.setSpan(mWatcher, 0, spannable.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
-        spannable.setSpan(span, 1, 2, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spannable.setSpan(mWatcher, 0, spannable.length(), SPAN_INCLUSIVE_INCLUSIVE);
+        spannable.setSpan(span, 1, 2, SPAN_EXCLUSIVE_EXCLUSIVE);
         reset(mWatcher);
 
         spannable.delete(0, 3);
@@ -155,8 +162,8 @@ public class SpannableBuilderTest {
     public void testDoesNotBlockSpanCallbacks_forNonEmojiSpans() {
         final QuoteSpan span = mock(QuoteSpan.class);
         final SpannableBuilder spannable = new SpannableBuilder(mClass, "123456");
-        spannable.setSpan(mWatcher, 0, spannable.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
-        spannable.setSpan(span, 1, 2, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spannable.setSpan(mWatcher, 0, spannable.length(), SPAN_INCLUSIVE_INCLUSIVE);
+        spannable.setSpan(span, 1, 2, SPAN_EXCLUSIVE_EXCLUSIVE);
         reset(mWatcher);
 
         spannable.delete(0, 3);
@@ -186,9 +193,9 @@ public class SpannableBuilderTest {
 
         final EmojiSpan span = mock(EmojiSpan.class);
         final SpannableBuilder spannable = new SpannableBuilder(mClass, "123456");
-        spannable.setSpan(textWatcher, 0, spannable.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
-        spannable.setSpan(spanWatcher, 0, spannable.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
-        spannable.setSpan(span, 1, 2, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spannable.setSpan(textWatcher, 0, spannable.length(), SPAN_INCLUSIVE_INCLUSIVE);
+        spannable.setSpan(spanWatcher, 0, spannable.length(), SPAN_INCLUSIVE_INCLUSIVE);
+        spannable.setSpan(span, 1, 2, SPAN_EXCLUSIVE_EXCLUSIVE);
         reset(textWatcher);
 
         spannable.delete(0, 3);
@@ -209,5 +216,51 @@ public class SpannableBuilderTest {
         verify(textWatcher, times(1)).onTextChanged(any(CharSequence.class), anyInt(), anyInt(),
                 anyInt());
         verify(textWatcher, times(1)).afterTextChanged(any(Editable.class));
+    }
+
+    @Test
+    @SdkSuppress(maxSdkVersion = 27) /* this is for testing before P crash */
+    @SuppressWarnings("deprecation")
+    public void testSpanRangeOldValueCalculation() throws Exception {
+        // this test is ported from CTS
+        // DynamicLayoutTest.testReflow_afterSpanChangedShouldNotThrowException
+        String className = "android.text.DynamicLayout$ChangeWatcher";
+        Class<?> watcherClass = Class.forName(className, false,
+                getClass().getClassLoader());
+        SpannableBuilder builder = new SpannableBuilder(watcherClass, "crash crash crash!!");
+
+        TypefaceSpan span = mock(TypefaceSpan.class);
+        builder.setSpan(span, 1, 4, SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        // this DynamicLayout causes the replace/insert before position 1 below to crash prior to P
+        new DynamicLayout(builder, new TextPaint(), Integer.MAX_VALUE,
+                Layout.Alignment.ALIGN_NORMAL, 1.0f, 1.0f, true);
+        try {
+            builder.replace(1, 1, "Hello there\n\n");
+        } catch (Throwable e) {
+            throw new RuntimeException("Inserting text into DynamicLayout should not crash", e);
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 28)
+    public void testSpanRangeOldValueCalculation_androidPandLater() throws Exception {
+        // this test is ported from CTS
+        // DynamicLayoutTest.testReflow_afterSpanChangedShouldNotThrowException
+        String className = "android.text.DynamicLayout$ChangeWatcher";
+        Class<?> watcherClass = Class.forName(className, false,
+                getClass().getClassLoader());
+        SpannableBuilder builder = new SpannableBuilder(watcherClass, "crash crash crash!!");
+
+        TypefaceSpan span = mock(TypefaceSpan.class);
+        builder.setSpan(span, 1, 4, SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        // this DynamicLayout causes the replace/insert before position 1 below to crash prior to P
+        DynamicLayout.Builder.obtain(builder, new TextPaint(), Integer.MAX_VALUE).build();
+        try {
+            builder.replace(1, 1, "Hello there\n\n");
+        } catch (Throwable e) {
+            throw new RuntimeException("Inserting text into DynamicLayout should not crash", e);
+        }
     }
 }
