@@ -150,7 +150,6 @@ public class StyleParcelableTest {
     }
 
     @Test
-    @Suppress("Deprecation") // userStyleSettings
     public fun parcelAndUnparcelUserStyleSchema() {
         val companionIcon1 = Icon.createWithContentUri("companionEditorIcon1")
         val companionIcon2 = Icon.createWithContentUri("companionEditorIcon2")
@@ -277,7 +276,6 @@ public class StyleParcelableTest {
 
     @OptIn(ExperimentalHierarchicalStyle::class)
     @Test
-    @Suppress("Deprecation") // userStyleSettings
     public fun parcelAndUnparcelHierarchicalSchema() {
         val twelveHourClockOption =
             ListOption(Option.Id("12_style"), "12", icon = null)

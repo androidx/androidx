@@ -114,7 +114,6 @@ public class UserStyle private constructor(
         styleSchema: UserStyleSchema
     ) : this(
         HashMap<UserStyleSetting, UserStyleSetting.Option>().apply {
-            @Suppress("Deprecation") // userStyleSettings
             for (styleSetting in styleSchema.userStyleSettings) {
                 val option = userStyle.userStyleMap[styleSetting.id.value]
                 if (option != null) {
@@ -426,7 +425,7 @@ public class UserStyleData(
  */
 @OptIn(ExperimentalHierarchicalStyle::class)
 public class UserStyleSchema constructor(
-    @get:Deprecated("Use rootUserStyleSettings instead")
+    // TODO(b/223610314): Deprecate userStyleSettings after rootUserStyleSettings is available
     public val userStyleSettings: List<UserStyleSetting>
 ) {
     /** For use with hierarchical schemas, lists all the settings with no parent [Option]. */
@@ -434,7 +433,6 @@ public class UserStyleSchema constructor(
     @get:ExperimentalHierarchicalStyle
     @ExperimentalHierarchicalStyle
     public val rootUserStyleSettings by lazy {
-        @Suppress("Deprecation")
         userStyleSettings.filter { !it.hasParent }
     }
 
@@ -499,7 +497,6 @@ public class UserStyleSchema constructor(
     init {
         var complicationSlotsUserStyleSettingCount = 0
         var customValueUserStyleSettingCount = 0
-        @Suppress("Deprecation")
         for (setting in userStyleSettings) {
             when (setting) {
                 is UserStyleSetting.ComplicationSlotsUserStyleSetting ->
@@ -542,7 +539,6 @@ public class UserStyleSchema constructor(
         wireFormat.mSchema.map { UserStyleSetting.createFromWireFormat(it) }
     ) {
         val wireUserStyleSettingsIterator = wireFormat.mSchema.iterator()
-        @Suppress("Deprecation")
         for (userStyle in userStyleSettings) {
             val wireUserStyleSetting = wireUserStyleSettingsIterator.next()
             wireUserStyleSetting.mOptionChildIndices?.let {
@@ -559,7 +555,6 @@ public class UserStyleSchema constructor(
                         option = null
                     } else {
                         val childSettings = option.childSettings as ArrayList
-                        @Suppress("Deprecation")
                         val child = userStyleSettings[childIndex]
                         childSettings.add(child)
                         child.hasParent = true
@@ -573,7 +568,6 @@ public class UserStyleSchema constructor(
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public fun toWireFormat(): UserStyleSchemaWireFormat =
         UserStyleSchemaWireFormat(
-            @Suppress("Deprecation")
             userStyleSettings.map { userStyleSetting ->
                 val wireFormat = userStyleSetting.toWireFormat()
                 // Unfortunately due to VersionedParcelable limitations, we can not extend the
@@ -597,14 +591,12 @@ public class UserStyleSchema constructor(
 
     internal fun getDefaultUserStyle() = UserStyle(
         HashMap<UserStyleSetting, UserStyleSetting.Option>().apply {
-            @Suppress("Deprecation")
             for (setting in userStyleSettings) {
                 this[setting] = setting.defaultOption
             }
         }
     )
 
-    @Suppress("Deprecation") // userStyleSettings
     override fun toString(): String = "[" + userStyleSettings.joinToString() + "]"
 
     /**
@@ -613,7 +605,6 @@ public class UserStyleSchema constructor(
      */
     operator fun get(settingId: UserStyleSetting.Id): UserStyleSetting? {
         // NB more than one match is not allowed, UserStyleSetting id's are required to be unique.
-        @Suppress("Deprecation")
         return userStyleSettings.firstOrNull { it.id == settingId }
     }
 
@@ -669,7 +660,6 @@ public class CurrentUserStyleRepository(public val schema: UserStyleSchema) {
 
     internal fun validateUserStyle(userStyle: UserStyle) {
         for ((key, value) in userStyle) {
-            @Suppress("Deprecation") // userStyleSettings
             val setting = schema.userStyleSettings.firstOrNull { it == key }
 
             require(setting != null) {

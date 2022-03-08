@@ -232,9 +232,7 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
         runBlocking {
             val watchFaceImpl = wrapper.deferredWatchFaceImpl.await()
             val schema = watchFaceImpl.currentUserStyleRepository.schema
-            @Suppress("Deprecation") // userStyleSettings
             assertThat(schema.userStyleSettings.size).isEqualTo(1)
-            @Suppress("Deprecation") // userStyleSettings
             assertThat(schema.userStyleSettings[0].id.value).isEqualTo("TimeStyle")
 
             assertThat(

@@ -53,13 +53,13 @@ package androidx.wear.watchface.style {
   }
 
   public final class UserStyleSchema {
-    ctor public UserStyleSchema(@Deprecated java.util.List<? extends androidx.wear.watchface.style.UserStyleSetting> userStyleSettings);
+    ctor public UserStyleSchema(java.util.List<? extends androidx.wear.watchface.style.UserStyleSetting> userStyleSettings);
     method public operator androidx.wear.watchface.style.UserStyleSetting? get(androidx.wear.watchface.style.UserStyleSetting.Id settingId);
     method public byte[] getDigestHash();
     method @androidx.wear.watchface.style.ExperimentalHierarchicalStyle public java.util.List<androidx.wear.watchface.style.UserStyleSetting> getRootUserStyleSettings();
-    method @Deprecated public java.util.List<androidx.wear.watchface.style.UserStyleSetting> getUserStyleSettings();
+    method public java.util.List<androidx.wear.watchface.style.UserStyleSetting> getUserStyleSettings();
     property @androidx.wear.watchface.style.ExperimentalHierarchicalStyle public final java.util.List<androidx.wear.watchface.style.UserStyleSetting> rootUserStyleSettings;
-    property @Deprecated public final java.util.List<androidx.wear.watchface.style.UserStyleSetting> userStyleSettings;
+    property public final java.util.List<androidx.wear.watchface.style.UserStyleSetting> userStyleSettings;
   }
 
   public abstract sealed class UserStyleSetting {

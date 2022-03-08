@@ -40,7 +40,6 @@ class UserStyleSchemaInflateTest {
 
     @OptIn(ExperimentalHierarchicalStyle::class)
     @Test
-    @Suppress("Deprecation") // userStyleSettings
     public fun test_inflate_list_schema() {
         val parser = context.resources.getXml(R.xml.list_schema)
 
@@ -129,7 +128,6 @@ class UserStyleSchemaInflateTest {
     }
 
     @Test
-    @Suppress("Deprecation") // userStyleSettings
     public fun test_inflate_mixed_schema() {
         val parser = context.resources.getXml(R.xml.mixed_schema)
 
