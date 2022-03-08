@@ -80,6 +80,9 @@
         <item>Web theme darkening only</item>
         <item>Prefer Web theme over UA darkening</item>
     </string-array>
+    <string name="variations_header_activity_title">Variations Header</string>
+    <string name="variations_header_message">Variations header is: "%1$s"</string>
+    <string name="variations_header_unavailable">Variations Header not available</string>
 
     <!-- Proxy Override -->
     <string name="proxy_override_activity_title">Proxy Override</string>
