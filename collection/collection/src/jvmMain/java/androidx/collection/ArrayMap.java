@@ -18,6 +18,7 @@ package androidx.collection;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.collection.internal.ContainerHelpersKt;
 
 import java.lang.reflect.Array;
 import java.util.AbstractSet;
@@ -568,8 +569,8 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
                 return false;
             }
             Map.Entry<?, ?> e = (Map.Entry<?, ?>) o;
-            return ContainerHelpers.equal(e.getKey(), keyAt(mIndex))
-                    && ContainerHelpers.equal(e.getValue(), valueAt(mIndex));
+            return ContainerHelpersKt.equal(e.getKey(), keyAt(mIndex))
+                    && ContainerHelpersKt.equal(e.getValue(), valueAt(mIndex));
         }
 
         @Override

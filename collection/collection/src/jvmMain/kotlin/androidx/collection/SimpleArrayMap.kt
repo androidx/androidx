@@ -19,6 +19,9 @@
 package androidx.collection
 
 import androidx.annotation.RestrictTo
+import androidx.collection.internal.EMPTY_INTS
+import androidx.collection.internal.EMPTY_OBJECTS
+import androidx.collection.internal.binarySearch
 
 private const val DEBUG = false
 private const val TAG = "ArrayMap"
@@ -57,12 +60,12 @@ public open class SimpleArrayMap<K, V>
  */
 @JvmOverloads public constructor(capacity: Int = 0) {
     private var hashes: IntArray = when (capacity) {
-        0 -> ContainerHelpers.EMPTY_INTS
+        0 -> EMPTY_INTS
         else -> IntArray(capacity)
     }
 
     private var array: Array<Any?> = when (capacity) {
-        0 -> ContainerHelpers.EMPTY_OBJECTS
+        0 -> EMPTY_OBJECTS
         else -> arrayOfNulls<Any?>(capacity shl 1)
     }
 
@@ -92,7 +95,7 @@ public open class SimpleArrayMap<K, V>
         if (n == 0) {
             return 0.inv()
         }
-        val index = ContainerHelpers.binarySearch(hashes, n, hash)
+        val index = binarySearch(hashes, n, hash)
 
         // If the hash code wasn't found, then we have no entry for this key.
         if (index < 0) {
@@ -134,7 +137,7 @@ public open class SimpleArrayMap<K, V>
         if (n == 0) {
             return 0.inv()
         }
-        val index = ContainerHelpers.binarySearch(hashes, n, 0)
+        val index = binarySearch(hashes, n, 0)
 
         // If the hash code wasn't found, then we have no entry for this key.
         if (index < 0) {
@@ -175,8 +178,8 @@ public open class SimpleArrayMap<K, V>
      */
     public open fun clear() {
         if (size > 0) {
-            hashes = ContainerHelpers.EMPTY_INTS
-            array = ContainerHelpers.EMPTY_OBJECTS
+            hashes = EMPTY_INTS
+            array = EMPTY_OBJECTS
             size = 0
         }
         @Suppress("KotlinConstantConditions")

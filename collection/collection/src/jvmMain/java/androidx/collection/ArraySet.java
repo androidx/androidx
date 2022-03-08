@@ -18,6 +18,7 @@ package androidx.collection;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.collection.internal.ContainerHelpersKt;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
@@ -64,7 +65,7 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
 
     private int binarySearch(int hash) {
         try {
-            return ContainerHelpers.binarySearch(mHashes, mSize, hash);
+            return ContainerHelpersKt.binarySearch(mHashes, mSize, hash);
         } catch (ArrayIndexOutOfBoundsException e) {
             throw new ConcurrentModificationException();
         }
@@ -165,8 +166,8 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
     @SuppressWarnings("NullAway") // allocArrays initializes mHashes and mArray.
     public ArraySet(int capacity) {
         if (capacity == 0) {
-            mHashes = ContainerHelpers.EMPTY_INTS;
-            mArray = ContainerHelpers.EMPTY_OBJECTS;
+            mHashes = ContainerHelpersKt.EMPTY_INTS;
+            mArray = ContainerHelpersKt.EMPTY_OBJECTS;
         } else {
             allocArrays(capacity);
         }
@@ -211,8 +212,8 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
     @Override
     public void clear() {
         if (mSize != 0) {
-            mHashes = ContainerHelpers.EMPTY_INTS;
-            mArray = ContainerHelpers.EMPTY_OBJECTS;
+            mHashes = ContainerHelpersKt.EMPTY_INTS;
+            mArray = ContainerHelpersKt.EMPTY_OBJECTS;
             mSize = 0;
         }
         if (mSize != 0) {
