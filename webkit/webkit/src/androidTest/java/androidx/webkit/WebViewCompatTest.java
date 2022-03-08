@@ -314,6 +314,17 @@ public class WebViewCompatTest {
     }
 
     /**
+     * Test to make sure variations header is not null.
+     */
+    @Test
+    public void testGetVariationsHeader() {
+        WebkitUtils.checkFeature(WebViewFeature.GET_VARIATIONS_HEADER);
+
+        WebViewOnUiThread.createWebView();
+        assertNotNull(WebViewCompat.getVariationsHeader());
+    }
+
+    /**
      * WebViewCompat.getCurrentWebViewPackage should be null on pre-L devices.
      * On L+ devices WebViewCompat.getCurrentWebViewPackage should be null only in exceptional
      * circumstances - like when the WebView APK is being updated, or for Wear devices. The L+
