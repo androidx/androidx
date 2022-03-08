@@ -110,8 +110,6 @@ public final class LifecycleCameraController extends CameraController {
      *
      * @return null if failed to start camera.
      */
-    // TODO(b/185869869) Remove the UnsafeOptInUsageError once view's version matches core's.
-    @SuppressLint("UnsafeOptInUsageError")
     @RequiresPermission(Manifest.permission.CAMERA)
     @Override
     @Nullable

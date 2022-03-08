@@ -29,7 +29,6 @@ import static androidx.camera.view.TransformUtils.is90or270;
 import static androidx.camera.view.TransformUtils.isAspectRatioMatchingWithRoundingError;
 import static androidx.camera.view.TransformUtils.surfaceRotationToRotationDegrees;
 
-import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
@@ -120,8 +119,6 @@ final class PreviewTransformation {
      *
      * <p> All the values originally come from a {@link SurfaceRequest}.
      */
-    // TODO(b/185869869) Remove the UnsafeOptInUsageError once view's version matches core's.
-    @SuppressLint("UnsafeOptInUsageError")
     void setTransformationInfo(@NonNull SurfaceRequest.TransformationInfo transformationInfo,
             Size resolution, boolean isFrontCamera) {
         Logger.d(TAG, "Transformation info set: " + transformationInfo + " " + resolution + " "
