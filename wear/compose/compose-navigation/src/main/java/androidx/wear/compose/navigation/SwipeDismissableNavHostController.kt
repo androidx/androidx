@@ -24,14 +24,12 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import androidx.wear.compose.material.ExperimentalWearMaterialApi
 
 /**
  * Creates a NavHostController that handles the adding of the [WearNavigator]
  * from androidx.wear.compose.navigation.
  */
 @Composable
-@ExperimentalWearMaterialApi
 public fun rememberSwipeDismissableNavController(): NavHostController {
     return rememberNavController(remember { WearNavigator() })
 }

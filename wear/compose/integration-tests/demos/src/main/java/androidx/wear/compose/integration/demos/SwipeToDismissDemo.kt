@@ -33,7 +33,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
-import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.SwipeDismissTarget
 import androidx.wear.compose.material.SwipeToDismissBox
 import androidx.wear.compose.material.Text
@@ -46,7 +45,6 @@ import androidx.wear.compose.material.rememberSwipeToDismissBoxState
  * Uses LaunchedEffect to reset the offset of the swipe by snapping back to original position.
  */
 @Composable
-@ExperimentalWearMaterialApi
 fun SwipeToDismissDemo(
     navigateBack: () -> Unit,
     demoState: MutableState<SwipeDismissDemoState>,
