@@ -1661,8 +1661,6 @@ public abstract class CameraController {
      */
     @Nullable
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    // TODO(b/185869869) Remove the UnsafeOptInUsageError once view's version matches core's.
-    @SuppressLint("UnsafeOptInUsageError")
     @OptIn(markerClass = {ExperimentalVideo.class})
     protected UseCaseGroup createUseCaseGroup() {
         if (!isCameraInitialized()) {
@@ -1718,8 +1716,6 @@ public abstract class CameraController {
         public void onDisplayRemoved(int displayId) {
         }
 
-        // TODO(b/185869869) Remove the UnsafeOptInUsageError once view's version matches core's.
-        @SuppressLint({"UnsafeOptInUsageError", "WrongConstant"})
         @Override
         public void onDisplayChanged(int displayId) {
             if (mPreviewDisplay != null && mPreviewDisplay.getDisplayId() == displayId) {
