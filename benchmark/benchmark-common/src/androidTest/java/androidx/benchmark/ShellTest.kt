@@ -338,21 +338,7 @@ class ShellTest {
 
     @RequiresApi(21)
     private fun pidof(packageName: String): Int? {
-        if (Build.VERSION.SDK_INT >= 24) {
-            // On API 23 (first version to offer it) we observe that 'pidof'
-            // returns list of all processes :|
-            return Shell.executeCommand("pidof $packageName").trim().toIntOrNull()
-        }
-        val psLineForPackage: String? = Shell.executeScript("ps | grep $packageName")
-            .split("\r?\n")
-            .firstOrNull { it.trim().endsWith(" $packageName") }
-
-        // e.g.
-        // "root      8803  1173  3696   864   813fcf0c b0144fea S logcat"
-        return psLineForPackage
-            ?.split(Regex("\\s+"))
-            ?.get(1)
-            ?.toIntOrNull()
+        return Shell.getPidsForProcess(packageName).firstOrNull()
     }
 
     companion object {

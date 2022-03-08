@@ -131,11 +131,21 @@ public class MacrobenchmarkScope(
             throw IllegalStateException(result.stderr)
         }
 
-        // because `am start -W` doesn't wait for renderthread pre API 29, we stick a conservative
+        // `am start -W` doesn't wait for renderthread pre API 29, we stick a conservative
         // extra wait in to ensure the launch has fully rendered.
-        if (Build.VERSION.SDK_INT < 29) {
+
+        // On newer platform versions, `start -W` does not necessarily wait for the process to be
+        // alive. So we need to check for that irrespective of `launchWithClearTask`.
+        // b/218668335
+        if (Build.VERSION.SDK_INT < 29 || !Shell.isPackageAlive(packageName)) {
             trace("sleeping to ensure am start completed") {
                 Thread.sleep(250) // conservative number, determined empirically
+                // Wait for up to an additional 1 second.
+                var retryCount = 0
+                while (!Shell.isPackageAlive(packageName) && retryCount < 10) {
+                    retryCount += 1
+                    Thread.sleep(100) // Wait for a little longer until package is alive
+                }
             }
         }
     }
