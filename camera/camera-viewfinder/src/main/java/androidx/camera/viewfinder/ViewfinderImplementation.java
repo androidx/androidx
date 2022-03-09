@@ -16,6 +16,7 @@
 
 package androidx.camera.viewfinder;
 
+import android.graphics.Bitmap;
 import android.util.Size;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -81,4 +82,18 @@ abstract class ViewfinderImplementation {
         mViewfinderTransformation.transformView(new Size(mParent.getWidth(),
                 mParent.getHeight()), mParent.getLayoutDirection(), viewfinder);
     }
+
+    @Nullable
+    Bitmap getBitmap() {
+        final Bitmap bitmap = getViewfinderBitmap();
+        if (bitmap == null) {
+            return null;
+        }
+        return mViewfinderTransformation.createTransformedBitmap(bitmap,
+                new Size(mParent.getWidth(), mParent.getHeight()),
+                mParent.getLayoutDirection());
+    }
+
+    @Nullable
+    abstract Bitmap getViewfinderBitmap();
 }

@@ -16,13 +16,17 @@
 
 package androidx.camera.viewfinder;
 
+import android.graphics.Bitmap;
+import android.os.Handler;
 import android.util.Size;
+import android.view.PixelCopy;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -83,6 +87,38 @@ final class SurfaceViewImplementation extends ViewfinderImplementation {
     @Override
     void onDetachedFromWindow() {
         // Do nothing currently.
+    }
+
+    /**
+     * Getting a Bitmap from a Surface is achieved using the `PixelCopy#request()` API, which
+     * would introduced in API level 24. CameraViewfinder doesn't currently use a SurfaceView on API
+     * levels below 24.
+     */
+    @RequiresApi(24)
+    @Nullable
+    @Override
+    Bitmap getViewfinderBitmap() {
+        // If the viewfinder surface isn't ready yet or isn't valid, return null
+        if (mSurfaceView == null || mSurfaceView.getHolder().getSurface() == null
+                || !mSurfaceView.getHolder().getSurface().isValid()) {
+            return null;
+        }
+
+        // Copy display contents of the surfaceView's surface into a Bitmap.
+        final Bitmap bitmap = Bitmap.createBitmap(mSurfaceView.getWidth(), mSurfaceView.getHeight(),
+                Bitmap.Config.ARGB_8888);
+        Api24Impl.pixelCopyRequest(mSurfaceView, bitmap, copyResult -> {
+            if (copyResult == PixelCopy.SUCCESS) {
+                Logger.d(TAG,
+                        "CameraViewfinder.SurfaceViewImplementation.getBitmap() succeeded");
+            } else {
+                Logger.e(TAG,
+                        "CameraViewfinder.SurfaceViewImplementation.getBitmap() failed with error "
+                        + copyResult);
+            }
+        }, mSurfaceView.getHandler());
+
+        return bitmap;
     }
 
     @Nullable
@@ -220,6 +256,22 @@ final class SurfaceViewImplementation extends ViewfinderImplementation {
                 Logger.d(TAG, "Surface invalidated " + mSurfaceRequest);
                 mSurfaceRequest.getViewfinderSurface().close();
             }
+        }
+    }
+
+    /**
+     * Nested class to avoid verification errors for methods introduced in Android 7.0 (API 24).
+     */
+    @RequiresApi(24)
+    private static class Api24Impl {
+
+        private Api24Impl() {
+        }
+
+        @DoNotInline
+        static void pixelCopyRequest(@NonNull SurfaceView source, @NonNull Bitmap dest,
+                @NonNull PixelCopy.OnPixelCopyFinishedListener listener, @NonNull Handler handler) {
+            PixelCopy.request(source, dest, listener, handler);
         }
     }
 }

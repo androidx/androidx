@@ -16,14 +16,19 @@
 
 package androidx.camera.integration.viewfinder;
 
+import static android.os.Environment.DIRECTORY_PICTURES;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.ImageFormat;
 import android.graphics.Point;
 import android.graphics.SurfaceTexture;
@@ -39,10 +44,13 @@ import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageReader;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.util.Size;
 import android.util.SparseIntArray;
@@ -72,12 +80,16 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -421,6 +433,7 @@ public class CameraViewFinderFragment extends Fragment
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         view.findViewById(R.id.picture).setOnClickListener(this);
         view.findViewById(R.id.toggle).setOnClickListener(this);
+        view.findViewById(R.id.bitmap).setOnClickListener(this);
         mCameraViewfinder = view.findViewById(R.id.view_finder);
 
         if (Build.VERSION.SDK_INT >= 23) {
@@ -753,6 +766,59 @@ public class CameraViewFinderFragment extends Fragment
         openCamera(mCameraViewfinder.getWidth(), mCameraViewfinder.getHeight(), true);
     }
 
+    private void saveBitmap() {
+        @OptIn(markerClass = ExperimentalViewfinder.class)
+        Bitmap bitmap = mCameraViewfinder.getBitmap();
+        saveBitmapAsFile(bitmap, "ViewfinderBitmap");
+    }
+
+    private void saveBitmapAsFile(Bitmap bitmap, String fileName) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyyMMddHHmmss", Locale.US);
+            String displayName = mDateFormat.format(new Date()) + "_" + fileName + ".png";
+
+            final ContentValues values = new ContentValues();
+            values.put(MediaStore.MediaColumns.DISPLAY_NAME, displayName);
+            values.put(MediaStore.MediaColumns.MIME_TYPE, "image/png");
+            values.put(MediaStore.MediaColumns.RELATIVE_PATH, DIRECTORY_PICTURES);
+
+            final ContentResolver resolver = getContext().getContentResolver();
+            final Uri contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+            Uri uri = resolver.insert(contentUri, values);
+            try {
+                final OutputStream fos = resolver.openOutputStream(uri);
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                fos.close();
+                showToast("Saved: " + displayName);
+            } catch (IOException e) {
+                Log.e(TAG, "saveBitmapAsFile IOException message = " + e.getMessage());
+            }
+        } else {
+            try {
+                SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyyMMddHHmmss", Locale.US);
+                File file = new File(getBatchDirectoryName(),
+                        mDateFormat.format(new Date()) + "_" + fileName + ".png");
+                FileOutputStream fos = new FileOutputStream(file);
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                fos.close();
+                showToast("Saved: " + fileName);
+            } catch (IOException e) {
+                Log.e(TAG, "saveBitmapAsFile IOException message = " + e.getMessage());
+            }
+        }
+    }
+
+    @NonNull
+    private String getBatchDirectoryName() {
+        String app_folder_path =
+                Environment.getExternalStoragePublicDirectory(DIRECTORY_PICTURES).toString();
+        File dir = new File(app_folder_path);
+        if (!dir.exists() && !dir.mkdirs()) {
+            return "";
+        }
+        return app_folder_path;
+    }
+
     /**
      * Lock the focus as the first step for a still image capture.
      */
@@ -877,6 +943,10 @@ public class CameraViewFinderFragment extends Fragment
             }
             case R.id.toggle: {
                 toggleCamera();
+                break;
+            }
+            case R.id.bitmap: {
+                saveBitmap();
                 break;
             }
             default:
