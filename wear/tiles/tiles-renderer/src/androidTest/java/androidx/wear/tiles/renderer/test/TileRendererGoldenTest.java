@@ -180,7 +180,7 @@ public class TileRendererGoldenTest {
                         ImageResource.newBuilder()
                                 .setAndroidResourceByResId(
                                         AndroidImageResourceByResId.newBuilder()
-                                                .setResourceId(R.mipmap.android_withbg_120dp))
+                                                .setResourceId(R.drawable.android_withbg_120dp))
                                 .build())
                 .putIdToImage(
                         "inline",
