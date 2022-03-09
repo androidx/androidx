@@ -27,6 +27,7 @@ import androidx.appsearch.app.Migrator;
 import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.SetSchemaResponse;
+import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import java.util.Map;
@@ -46,6 +47,7 @@ public final class SetSchemaRequestToPlatformConverter {
      * Translates a jetpack {@link SetSchemaRequest} into a platform
      * {@link android.app.appsearch.SetSchemaRequest}.
      */
+    @BuildCompat.PrereleaseSdkCheck
     @NonNull
     public static android.app.appsearch.SetSchemaRequest toPlatformSetSchemaRequest(
             @NonNull SetSchemaRequest jetpackRequest) {
@@ -72,11 +74,18 @@ public final class SetSchemaRequestToPlatformConverter {
             }
         }
         if (!jetpackRequest.getRequiredPermissionsForSchemaTypeVisibility().isEmpty()) {
-            // TODO(b/181908338) set getRequiredPermissionsForSchemaTypeVisibilities when we support
-            //  it in framework.
-            throw new UnsupportedOperationException(
-                    "Set required permissions for schema type visibility are not supported with "
-                            + "this backend/Android API level combination.");
+            if (!BuildCompat.isAtLeastT()) {
+                throw new UnsupportedOperationException(
+                        "Set required permissions for schema type visibility are not supported "
+                                + "with this backend/Android API level combination.");
+            }
+            for (Map.Entry<String, Set<Set<Integer>>> entry :
+                    jetpackRequest.getRequiredPermissionsForSchemaTypeVisibility().entrySet()) {
+                for (Set<Integer> permissionGroup : entry.getValue()) {
+                    platformBuilder.addRequiredPermissionsForSchemaTypeVisibility(
+                            entry.getKey(), permissionGroup);
+                }
+            }
         }
         for (Map.Entry<String, Migrator> entry : jetpackRequest.getMigrators().entrySet()) {
             Migrator jetpackMigrator = entry.getValue();

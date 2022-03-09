@@ -23,6 +23,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.SearchResult;
+import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import java.util.List;
@@ -37,6 +38,7 @@ public class SearchResultToPlatformConverter {
     private SearchResultToPlatformConverter() {}
 
     /** Translates from Platform to Jetpack versions of {@link SearchResult}. */
+    @BuildCompat.PrereleaseSdkCheck
     @NonNull
     public static SearchResult toJetpackSearchResult(
             @NonNull android.app.appsearch.SearchResult platformResult) {
@@ -56,13 +58,13 @@ public class SearchResultToPlatformConverter {
         return builder.build();
     }
 
+    @BuildCompat.PrereleaseSdkCheck
     @NonNull
     private static SearchResult.MatchInfo toJetpackMatchInfo(
             @NonNull android.app.appsearch.SearchResult.MatchInfo platformMatchInfo) {
         Preconditions.checkNotNull(platformMatchInfo);
-        // TODO(b/201316758) : Copy over submatch range info once it is added to
-        //  framework-appsearch.
-        return new SearchResult.MatchInfo.Builder(platformMatchInfo.getPropertyPath())
+        SearchResult.MatchInfo.Builder builder = new SearchResult.MatchInfo.Builder(
+                platformMatchInfo.getPropertyPath())
                 .setExactMatchRange(
                         new SearchResult.MatchRange(
                                 platformMatchInfo.getExactMatchRange().getStart(),
@@ -70,7 +72,13 @@ public class SearchResultToPlatformConverter {
                 .setSnippetRange(
                         new SearchResult.MatchRange(
                                 platformMatchInfo.getSnippetRange().getStart(),
-                                platformMatchInfo.getSnippetRange().getEnd()))
-                .build();
+                                platformMatchInfo.getSnippetRange().getEnd()));
+        if (BuildCompat.isAtLeastT()) {
+            builder.setSubmatchRange(
+                    new SearchResult.MatchRange(
+                            platformMatchInfo.getSubmatchRange().getStart(),
+                            platformMatchInfo.getSubmatchRange().getEnd()));
+        }
+        return builder.build();
     }
 }

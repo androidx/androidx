@@ -22,8 +22,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.GetSchemaResponse;
+import androidx.appsearch.app.PackageIdentifier;
+import androidx.collection.ArraySet;
 import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
+
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Translates between Platform and Jetpack versions of {@link GetSchemaResponse}.
@@ -44,7 +49,7 @@ public final class GetSchemaResponseToPlatformConverter {
             @NonNull android.app.appsearch.GetSchemaResponse platformResponse) {
         Preconditions.checkNotNull(platformResponse);
         GetSchemaResponse.Builder jetpackBuilder;
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2) {
+        if (!BuildCompat.isAtLeastT()) {
             // Android API level in S-v2 and lower won't have any supported feature.
             jetpackBuilder = new GetSchemaResponse.Builder(/*getVisibilitySettingSupported=*/false);
         } else {
@@ -55,7 +60,51 @@ public final class GetSchemaResponseToPlatformConverter {
             jetpackBuilder.addSchema(SchemaToPlatformConverter.toJetpackSchema(platformSchema));
         }
         jetpackBuilder.setVersion(platformResponse.getVersion());
-        // TODO(b/205749173) add visibility setting when they are supported in framework.
+        if (BuildCompat.isAtLeastT()) {
+            // Convert schemas not displayed by system
+            for (String schemaTypeNotDisplayedBySystem :
+                    platformResponse.getSchemaTypesNotDisplayedBySystem()) {
+                jetpackBuilder.addSchemaTypeNotDisplayedBySystem(schemaTypeNotDisplayedBySystem);
+            }
+            // Convert schemas visible to packages
+            convertSchemasVisibleToPackages(platformResponse, jetpackBuilder);
+            // Convert schemas visible to permissions
+            for (Map.Entry<String, Set<Set<Integer>>> entry :
+                    platformResponse.getRequiredPermissionsForSchemaTypeVisibility().entrySet()) {
+                jetpackBuilder.setRequiredPermissionsForSchemaTypeVisibility(entry.getKey(),
+                        entry.getValue());
+            }
+        }
         return jetpackBuilder.build();
+    }
+
+    /**
+     * Adds package visibilities in a platform {@link android.app.appsearch.GetSchemaResponse} into
+     * the given jetpack {@link GetSchemaResponse}.
+     */
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private static void convertSchemasVisibleToPackages(
+            @NonNull android.app.appsearch.GetSchemaResponse platformResponse,
+            @NonNull GetSchemaResponse.Builder jetpackBuilder) {
+        // TODO(b/205749173): If there were no packages, getSchemaTypesVisibleToPackages
+        //  incorrectly returns {@code null} in some prerelease versions of Android T. Remove
+        //  this workaround after the issue is fixed in T.
+        Map<String, Set<android.app.appsearch.PackageIdentifier>> schemaTypesVisibleToPackages =
+                platformResponse.getSchemaTypesVisibleToPackages();
+        if (schemaTypesVisibleToPackages != null) {
+            for (Map.Entry<String, Set<android.app.appsearch.PackageIdentifier>> entry
+                    : schemaTypesVisibleToPackages.entrySet()) {
+                Set<PackageIdentifier> jetpackPackageIdentifiers =
+                        new ArraySet<>(entry.getValue().size());
+                for (android.app.appsearch.PackageIdentifier frameworkPackageIdentifier
+                        : entry.getValue()) {
+                    jetpackPackageIdentifiers.add(new PackageIdentifier(
+                            frameworkPackageIdentifier.getPackageName(),
+                            frameworkPackageIdentifier.getSha256Certificate()));
+                }
+                jetpackBuilder.setSchemaTypeVisibleToPackages(
+                        entry.getKey(), jetpackPackageIdentifiers);
+            }
+        }
     }
 }

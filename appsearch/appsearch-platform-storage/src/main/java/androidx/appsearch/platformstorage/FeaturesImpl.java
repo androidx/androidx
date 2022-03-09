@@ -30,25 +30,19 @@ final class FeaturesImpl implements Features {
     @BuildCompat.PrereleaseSdkCheck
     public boolean isFeatureSupported(@NonNull String feature) {
         if (Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH.equals(feature)) {
-            // TODO(b/201316758) : Update to reflect support in Android T+ once this feature is
-            // synced over into service-appsearch.
-            return false;
+            return BuildCompat.isAtLeastT();
         }
         if (Features.GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER.equals(feature)) {
             return BuildCompat.isAtLeastT();
         }
         if (Features.GLOBAL_SEARCH_SESSION_GET_SCHEMA.equals(feature)) {
-            // TODO(b/215624105) : Update to reflect support in Android T+ once this feature is
-            // synced over into service-appsearch.
-            return false;
+            return BuildCompat.isAtLeastT();
         }
         if (Features.GLOBAL_SEARCH_SESSION_GET_BY_ID.equals(feature)) {
             return BuildCompat.isAtLeastT();
         }
         if (Features.ADD_PERMISSIONS_AND_GET_VISIBILITY.equals(feature)) {
-            // TODO(b/205749173) : Update to reflect support in Android T+ once this feature is
-            // synced over into service-appsearch.
-            return false;
+            return BuildCompat.isAtLeastT();
         }
         return false;
     }
