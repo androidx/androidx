@@ -432,20 +432,14 @@ val WearMaterialDemos = DemoCategory(
                 DemoCategory(
                     "Demos",
                     listOf(
-                        ComposableDemo("Full screen indeterminate progress") {
-                            Centralize { FullscreenIndeterminateProgress() }
-                        },
-                        ComposableDemo("Small indeterminate progress") {
-                            Centralize { SmallIndeterminateProgress() }
+                        ComposableDemo("Indeterminate progress") {
+                            Centralize { IndeterminateProgress() }
                         },
                         ComposableDemo("Custom angles") {
                             Centralize { ProgressWithCustomAngles() }
                         },
                         ComposableDemo("Media controls") {
                             Centralize { ProgressWithMedia() }
-                        },
-                        ComposableDemo("Multiple progress indicators") {
-                            Centralize { MultipleProgressIndicators() }
                         },
                         ComposableDemo("Transforming progress indicator") {
                             Centralize { TransformingCustomProgressIndicator() }
