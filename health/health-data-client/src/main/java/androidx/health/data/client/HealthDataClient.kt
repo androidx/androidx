@@ -202,6 +202,7 @@ interface HealthDataClient {
         )
 
     /** See [HealthDataClient.readRecords]. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     suspend fun <T : Record> readRecords(
         recordType: KClass<T>,
         timeRangeFilter: TimeRangeFilter,
