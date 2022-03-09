@@ -30,9 +30,12 @@ import androidx.glance.appwidget.CheckBox
 import androidx.glance.appwidget.CheckBoxColors
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
+import androidx.glance.appwidget.RadioButton
+import androidx.glance.appwidget.RadioButtonColors
 import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.Switch
 import androidx.glance.appwidget.SwitchColors
+import androidx.glance.appwidget.selectableGroup
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.ToggleableStateKey
 import androidx.glance.appwidget.action.actionRunCallback
@@ -44,6 +47,7 @@ import androidx.glance.background
 import androidx.glance.currentState
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Column
+import androidx.glance.layout.Row
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.padding
@@ -56,7 +60,12 @@ class CompoundButtonAppWidget : GlanceAppWidget() {
     override val sizeMode: SizeMode = SizeMode.Exact
 
     enum class Buttons {
-        CHECK_1, CHECK_2, CHECK_3, SWITCH_1, SWITCH_2;
+        CHECK_1, CHECK_2, CHECK_3, SWITCH_1, SWITCH_2, RADIO_1, RADIO_2, RADIO_3;
+        val prefsKey = booleanPreferencesKey(name)
+    }
+
+    enum class Radios {
+        RADIO_1, RADIO_2, RADIO_3;
         val prefsKey = booleanPreferencesKey(name)
     }
 
@@ -83,6 +92,9 @@ class CompoundButtonAppWidget : GlanceAppWidget() {
             val checkbox3Checked = prefs[Buttons.CHECK_3.prefsKey] ?: false
             val switch1Checked = prefs[Buttons.SWITCH_1.prefsKey] ?: false
             val switch2Checked = prefs[Buttons.SWITCH_2.prefsKey] ?: false
+            val radio1Checked = prefs[Buttons.RADIO_1.prefsKey] ?: false
+            val radio2Checked = prefs[Buttons.RADIO_2.prefsKey] ?: false
+            val radio3Checked = prefs[Buttons.RADIO_3.prefsKey] ?: false
 
             CheckBox(
                 checked = checkbox1Checked,
@@ -134,6 +146,54 @@ class CompoundButtonAppWidget : GlanceAppWidget() {
                 style = textStyle,
                 modifier = fillModifier
             )
+            Column(modifier = fillModifier.selectableGroup()) {
+                RadioButton(
+                    checked = radio1Checked,
+                    onClick = actionRunCallback<RadioAction>(
+                        actionParametersOf(EventTargetKey to Radios.RADIO_1.name)
+                    ),
+                    text = "Radio 1",
+                    colors = RadioButtonColors(
+                        checkedColor = ColorProvider(day = Color.Red, night = Color.Cyan),
+                        uncheckedColor = ColorProvider(day = Color.Green, night = Color.Magenta)
+                    ),
+                )
+                RadioButton(
+                    checked = radio2Checked,
+                    onClick = actionRunCallback<RadioAction>(
+                        actionParametersOf(EventTargetKey to Radios.RADIO_2.name)
+                    ),
+                    text = "Radio 2",
+                    colors = RadioButtonColors(
+                        checkedColor = ColorProvider(day = Color.Cyan, night = Color.Yellow),
+                        uncheckedColor = ColorProvider(day = Color.Red, night = Color.Blue)
+                    ),
+                )
+                RadioButton(
+                    checked = radio3Checked,
+                    onClick = actionRunCallback<RadioAction>(
+                        actionParametersOf(EventTargetKey to Radios.RADIO_3.name)
+                    ),
+                    text = "Radio 3",
+                )
+            }
+            Row(modifier = fillModifier.selectableGroup()) {
+                RadioButton(
+                    checked = radio1Checked,
+                    onClick = null,
+                    text = "Radio 1",
+                )
+                RadioButton(
+                    checked = radio2Checked,
+                    onClick = null,
+                    text = "Radio 2",
+                )
+                RadioButton(
+                    checked = radio3Checked,
+                    onClick = null,
+                    text = "Radio 3",
+                )
+            }
         }
     }
 }
@@ -159,6 +219,23 @@ class ToggleAction : ActionCallback {
 }
 
 private val EventTargetKey = ActionParameters.Key<String>("EventTarget")
+
+class RadioAction : ActionCallback {
+    override suspend fun onRun(
+        context: Context,
+        glanceId: GlanceId,
+        parameters: ActionParameters,
+    ) {
+        val target = requireNotNull(parameters[EventTargetKey]) {
+            "Add event target to parameters in order to update the view state."
+        }.let { CompoundButtonAppWidget.Radios.valueOf(it) }
+
+        updateAppWidgetState(context, glanceId) { state ->
+            CompoundButtonAppWidget.Radios.values().forEach { state[it.prefsKey] = it == target }
+        }
+        CompoundButtonAppWidget().update(context, glanceId)
+    }
+}
 
 class CompoundButtonAppWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget = CompoundButtonAppWidget()

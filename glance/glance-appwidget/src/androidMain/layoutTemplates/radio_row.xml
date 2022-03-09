@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?><!--
-  Copyright 2021 The Android Open Source Project
+  Copyright 2022 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -14,20 +14,6 @@
   limitations under the License.
   -->
 
-<resources>
-    <id name="checkBoxIcon" />
-    <id name="checkBoxText" />
-    <id name="glanceView" />
-    <id name="glanceViewStub" />
-    <id name="relativeLayout" />
-    <id name="sizeView" />
-    <id name="sizeViewStub" />
-    <id name="switchText" />
-    <id name="switchThumb" />
-    <id name="switchTrack" />
-    <id name="rootView" />
-    <id name="rootStubId" />
-    <id name="deletedViewId" />
-    <id name="radioIcon" />
-    <id name="radioText" />
-</resources>
+<RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    style="@style/Glance.AppWidget.Row"/>
