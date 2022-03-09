@@ -81,6 +81,10 @@ class SavedStateViewModelFactory : ViewModelProvider.OnRequeryFactory, ViewModel
      * [androidx.lifecycle.ViewModel] created with this factory can access to saved state
      * scoped to the given `activity`.
      *
+     * When a factory is constructed this way, if you add any [CreationExtras] those arguments will
+     * be used instead of the state passed in here. It is not possible to mix the arguments
+     * received here with the [CreationExtras].
+     *
      * @param application an application. If null, [AndroidViewModel] instances will not be
      * supported.
      * @param owner       [SavedStateRegistryOwner] that will provide restored state for created
@@ -94,7 +98,8 @@ class SavedStateViewModelFactory : ViewModelProvider.OnRequeryFactory, ViewModel
         lifecycle = owner.lifecycle
         this.defaultArgs = defaultArgs
         this.application = application
-        factory = if (application != null) getInstance(application) else instance
+        factory = if (application != null) getInstance(application)
+            else ViewModelProvider.AndroidViewModelFactory()
     }
 
     /**
@@ -108,27 +113,36 @@ class SavedStateViewModelFactory : ViewModelProvider.OnRequeryFactory, ViewModel
             ?: throw IllegalStateException(
                 "VIEW_MODEL_KEY must always be provided by ViewModelProvider"
             )
-        // legacy constructor was called
-        if (lifecycle != null) {
-            return create(key, modelClass)
-        }
-        val application = extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY]
-        val isAndroidViewModel = AndroidViewModel::class.java.isAssignableFrom(modelClass)
-        val constructor: Constructor<T>? = if (isAndroidViewModel && application != null) {
-            findMatchingConstructor(modelClass, ANDROID_VIEWMODEL_SIGNATURE)
+
+        return if (extras[SAVED_STATE_REGISTRY_OWNER_KEY] != null &&
+            extras[VIEW_MODEL_STORE_OWNER_KEY] != null) {
+            val application = extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY]
+            val isAndroidViewModel = AndroidViewModel::class.java.isAssignableFrom(modelClass)
+            val constructor: Constructor<T>? = if (isAndroidViewModel && application != null) {
+                findMatchingConstructor(modelClass, ANDROID_VIEWMODEL_SIGNATURE)
+            } else {
+                findMatchingConstructor(modelClass, VIEWMODEL_SIGNATURE)
+            }
+            // doesn't need SavedStateHandle
+            if (constructor == null) {
+                return factory.create(modelClass, extras)
+            }
+            val viewModel = if (isAndroidViewModel && application != null) {
+                newInstance(modelClass, constructor, application, extras.createSavedStateHandle())
+            } else {
+                newInstance(modelClass, constructor, extras.createSavedStateHandle())
+            }
+            viewModel
         } else {
-            findMatchingConstructor(modelClass, VIEWMODEL_SIGNATURE)
+            val viewModel = if (lifecycle != null) {
+                create(key, modelClass)
+            } else {
+                throw IllegalStateException("SAVED_STATE_REGISTRY_OWNER_KEY and" +
+                    "VIEW_MODEL_STORE_OWNER_KEY must be provided in the creation extras to" +
+                    "successfully create a ViewModel.")
+            }
+            viewModel
         }
-        // doesn't need SavedStateHandle
-        if (constructor == null) {
-            return factory.create(modelClass, extras)
-        }
-        val viewModel: T = if (isAndroidViewModel && application != null) {
-            newInstance(modelClass, constructor, application, extras.createSavedStateHandle())
-        } else {
-            newInstance(modelClass, constructor, extras.createSavedStateHandle())
-        }
-        return viewModel
     }
 
     /**
@@ -156,7 +170,10 @@ class SavedStateViewModelFactory : ViewModelProvider.OnRequeryFactory, ViewModel
         }
         // doesn't need SavedStateHandle
         if (constructor == null) {
-            return factory.create(modelClass)
+            // If you are using a stateful constructor and no application is available, we
+            // use an instance factory instead.
+            return if (application != null) factory.create(modelClass)
+                else instance.create(modelClass)
         }
         val controller = LegacySavedStateHandleController.create(
             savedStateRegistry, lifecycle, key, defaultArgs
