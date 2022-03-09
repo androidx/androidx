@@ -102,6 +102,10 @@ internal enum class LayoutType {
     ImageCrop,
     ImageFit,
     ImageFillBounds,
+    RadioButton,
+    RadioButtonBackport,
+    RadioRow,
+    RadioColumn,
 }
 
 /** Mapping from layout type to fixed layout (if any). */
@@ -125,6 +129,8 @@ private val LayoutMap = mapOf(
     LayoutType.VerticalGridFourColumns to R.layout.vertical_grid_four_columns,
     LayoutType.VerticalGridFiveColumns to R.layout.vertical_grid_five_columns,
     LayoutType.VerticalGridAutoFit to R.layout.vertical_grid_auto_fit,
+    LayoutType.RadioButton to R.layout.radio_button,
+    LayoutType.RadioButtonBackport to R.layout.radio_button_backport,
 )
 
 internal data class SizeSelector(
