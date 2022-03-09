@@ -50,6 +50,32 @@ class MenuHostHelperTest {
     }
 
     @Test
+    fun onPrepareMenu() {
+        with(ActivityScenario.launch(TestActivity::class.java)) {
+            val toolbar = Toolbar(context)
+            val menuHost = TestMenuHost(toolbar.menu, withActivity { menuInflater })
+
+            var menuPrepared = false
+            menuHost.addMenuProvider(object : MenuProvider {
+                override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                    menuInflater.inflate(R.menu.example_menu, menu)
+                }
+
+                override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                    return true
+                }
+
+                override fun onPrepareMenu(menu: Menu) {
+                    menuPrepared = true
+                }
+            })
+
+            menuHost.onPrepareMenu(toolbar.menu)
+            assertThat(menuPrepared).isTrue()
+        }
+    }
+
+    @Test
     fun addMenuProvider() {
         with(ActivityScenario.launch(TestActivityWithLifecycle::class.java)) {
             val toolbar = Toolbar(context)

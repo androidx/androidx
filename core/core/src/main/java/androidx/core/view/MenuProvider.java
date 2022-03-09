@@ -29,6 +29,15 @@ import androidx.annotation.NonNull;
 public interface MenuProvider {
 
     /**
+     * Called by the {@link MenuHost} right before the {@link Menu} is shown.
+     * This should be called when the menu has been dynamically updated.
+     *
+     * @param menu the menu that is to be prepared
+     * @see #onCreateMenu(Menu, MenuInflater)
+     */
+    default void onPrepareMenu(@NonNull Menu menu) {}
+
+    /**
      * Called by the {@link MenuHost} to allow the {@link MenuProvider}
      * to inflate {@link MenuItem}s into the menu.
      *
