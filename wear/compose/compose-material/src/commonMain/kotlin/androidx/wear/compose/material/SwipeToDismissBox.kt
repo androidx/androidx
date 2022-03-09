@@ -88,8 +88,8 @@ public fun SwipeToDismissBox(
     modifier: Modifier = Modifier,
     backgroundScrimColor: Color = MaterialTheme.colors.background,
     contentScrimColor: Color = contentColorFor(backgroundScrimColor),
-    backgroundKey: Any = SwipeToDismissBoxDefaults.BackgroundKey,
-    contentKey: Any = SwipeToDismissBoxDefaults.ContentKey,
+    backgroundKey: Any = SwipeToDismissKeys.Background,
+    contentKey: Any = SwipeToDismissKeys.Content,
     hasBackground: Boolean = true,
     content: @Composable BoxScope.(isBackground: Boolean) -> Unit
 ) {
@@ -111,7 +111,7 @@ public fun SwipeToDismissBox(
         val dismissAnimatable = remember { Animatable(0f) }
 
         LaunchedEffect(state.isAnimationRunning) {
-            if (state.targetValue == SwipeDismissTarget.Dismissal) {
+            if (state.targetValue == SwipeToDismissValue.Dismissed) {
                 dismissAnimatable.animateTo(1f, SpringSpec())
             } else {
                 // because SwipeToDismiss remains alive, it worth resetting animation to 0
@@ -204,15 +204,15 @@ public fun SwipeToDismissBox(
 @OptIn(ExperimentalWearMaterialApi::class)
 public class SwipeToDismissBoxState(
     animationSpec: AnimationSpec<Float> = SwipeToDismissBoxDefaults.AnimationSpec,
-    confirmStateChange: (SwipeDismissTarget) -> Boolean = { true },
+    confirmStateChange: (SwipeToDismissValue) -> Boolean = { true },
 ) {
     /**
      * The current value of the state.
      *
-     * Before and during a swipe, corresponds to [SwipeDismissTarget.Original], then switches to
-     * [SwipeDismissTarget.Dismissal] if the swipe has been completed.
+     * Before and during a swipe, corresponds to [SwipeToDismissValue.Default], then switches to
+     * [SwipeToDismissValue.Dismissed] if the swipe has been completed.
      */
-    val currentValue: SwipeDismissTarget
+    val currentValue: SwipeToDismissValue
         get() = swipeableState.currentValue
 
     /**
@@ -222,7 +222,7 @@ public class SwipeToDismissBoxState(
      * swipe finished. If an animation is running, this is the target value of that animation.
      * Finally, if no swipe or animation is in progress, this is the same as the [currentValue].
      */
-    val targetValue: SwipeDismissTarget
+    val targetValue: SwipeToDismissValue
         get() = swipeableState.targetValue
 
     /**
@@ -231,7 +231,7 @@ public class SwipeToDismissBoxState(
     val isAnimationRunning: Boolean
         get() = swipeableState.isAnimationRunning
 
-    suspend fun snapTo(targetValue: SwipeDismissTarget) = swipeableState.snapTo(targetValue)
+    suspend fun snapTo(targetValue: SwipeToDismissValue) = swipeableState.snapTo(targetValue)
 
     companion object {
         /**
@@ -239,7 +239,7 @@ public class SwipeToDismissBoxState(
          */
         fun Saver(
             animationSpec: AnimationSpec<Float>,
-            confirmStateChange: (SwipeDismissTarget) -> Boolean
+            confirmStateChange: (SwipeToDismissValue) -> Boolean
         ): Saver<SwipeToDismissBoxState, *> = Saver(
             save = { it.currentValue },
             restore = {
@@ -252,7 +252,7 @@ public class SwipeToDismissBoxState(
     }
 
     internal val swipeableState = SwipeableState(
-        initialValue = SwipeDismissTarget.Original,
+        initialValue = SwipeToDismissValue.Default,
         animationSpec = animationSpec,
         confirmStateChange = confirmStateChange,
     )
@@ -267,7 +267,7 @@ public class SwipeToDismissBoxState(
 @Composable
 public fun rememberSwipeToDismissBoxState(
     animationSpec: AnimationSpec<Float> = SwipeToDismissBoxDefaults.AnimationSpec,
-    confirmStateChange: (SwipeDismissTarget) -> Boolean = { true },
+    confirmStateChange: (SwipeToDismissValue) -> Boolean = { true },
 ): SwipeToDismissBoxState {
     return rememberSaveable(
         saver = SwipeToDismissBoxState.Saver(
@@ -291,35 +291,37 @@ public object SwipeToDismissBoxDefaults {
      */
     @OptIn(ExperimentalWearMaterialApi::class)
     public val AnimationSpec = SwipeableDefaults.AnimationSpec
+}
 
+public enum class SwipeToDismissKeys {
     /**
      * The default background key to identify the content displayed by the content block
      * when isBackground == true. Specifying a background key instead of using the default
      * allows remembered state to be correctly moved between background and foreground.
      */
-    public val BackgroundKey: Any = "background"
+    Background,
 
     /**
      * The default content key to identify the content displayed by the content block
      * when isBackground == false. Specifying a background key instead of using the default
      * allows remembered state to be correctly moved between background and foreground.
      */
-    public val ContentKey: Any = "content"
+    Content
 }
 
 /**
  * States used as targets for the anchor points for swipe-to-dismiss.
  */
-public enum class SwipeDismissTarget {
+public enum class SwipeToDismissValue {
     /**
      * The state of the SwipeToDismissBox before the swipe started.
      */
-    Original,
+    Default,
 
     /**
      * The state of the SwipeToDismissBox after the swipe passes the swipe-to-dismiss threshold.
      */
-    Dismissal
+    Dismissed
 }
 
 /**
@@ -396,10 +398,10 @@ private data class Modifiers(
 )
 
 // Map pixel position to states - initially, don't know the width in pixels so omit upper bound.
-private fun anchors(maxWidth: Float): Map<Float, SwipeDismissTarget> =
+private fun anchors(maxWidth: Float): Map<Float, SwipeToDismissValue> =
     mapOf(
-        0f to SwipeDismissTarget.Original,
-        maxWidth to SwipeDismissTarget.Dismissal
+        0f to SwipeToDismissValue.Default,
+        maxWidth to SwipeToDismissValue.Dismissed
     )
 
 private val SwipeThreshold = 0.5f

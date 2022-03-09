@@ -24,7 +24,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.wear.compose.material.PositionIndicator
 import androidx.wear.compose.material.Scaffold
 import androidx.wear.compose.material.ScalingLazyListState
-import androidx.wear.compose.material.SwipeDismissTarget
+import androidx.wear.compose.material.SwipeToDismissValue
 import androidx.wear.compose.material.SwipeToDismissBox
 import androidx.wear.compose.material.Vignette
 import androidx.wear.compose.material.VignettePosition
@@ -67,7 +67,7 @@ public fun Dialog(
     ) {
         val state = rememberSwipeToDismissBoxState()
         LaunchedEffect(state.currentValue) {
-            if (state.currentValue == SwipeDismissTarget.Dismissal) {
+            if (state.currentValue == SwipeToDismissValue.Dismissed) {
                 onDismissRequest()
             }
         }

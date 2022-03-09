@@ -32,7 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.MaterialTheme
-import androidx.wear.compose.material.SwipeDismissTarget
+import androidx.wear.compose.material.SwipeToDismissValue
 import androidx.wear.compose.material.SwipeToDismissBox
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.ToggleButton
@@ -54,9 +54,9 @@ fun SwipeToDismissBoxWithState(
     val toggleKey = "Toggle"
     val counterKey = "Counter"
     LaunchedEffect(state.currentValue) {
-        if (state.currentValue == SwipeDismissTarget.Dismissal) {
+        if (state.currentValue == SwipeToDismissValue.Dismissed) {
             showCounterForContent.value = !showCounterForContent.value
-            state.snapTo(SwipeDismissTarget.Original)
+            state.snapTo(SwipeToDismissValue.Default)
         }
     }
     SwipeToDismissBox(
