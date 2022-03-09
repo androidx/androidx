@@ -131,7 +131,6 @@ internal class ConfigFragment : Fragment() {
         }
 
         for (settingId in settingIds) {
-            @Suppress("Deprecation") // userStyleSettings
             val styleCategory = editingSession.userStyleSchema[UserStyleSetting.Id(settingId)]!!
             configOptions.add(
                 ConfigOption(
