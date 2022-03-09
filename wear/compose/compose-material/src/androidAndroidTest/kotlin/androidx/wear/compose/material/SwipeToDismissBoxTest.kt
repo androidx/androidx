@@ -105,7 +105,7 @@ class SwipeToDismissBoxTest {
             val state = rememberSwipeToDismissBoxState()
             LaunchedEffect(state.currentValue) {
                 dismissed =
-                    state.currentValue == SwipeDismissTarget.Dismissal
+                    state.currentValue == SwipeToDismissValue.Dismissed
             }
             SwipeToDismissBox(
                 state = state,
@@ -130,9 +130,9 @@ class SwipeToDismissBoxTest {
             val state = rememberSwipeToDismissBoxState()
             val holder = rememberSaveableStateHolder()
             LaunchedEffect(state.currentValue) {
-                if (state.currentValue == SwipeDismissTarget.Dismissal) {
+                if (state.currentValue == SwipeToDismissValue.Dismissed) {
                     showCounterForContent.value = !showCounterForContent.value
-                    state.snapTo(SwipeDismissTarget.Original)
+                    state.snapTo(SwipeToDismissValue.Default)
                 }
             }
             SwipeToDismissBox(
@@ -182,7 +182,7 @@ class SwipeToDismissBoxTest {
             val outerState = rememberSwipeToDismissBoxState()
             LaunchedEffect(outerState.currentValue) {
                 outerDismissed =
-                    outerState.currentValue == SwipeDismissTarget.Dismissal
+                    outerState.currentValue == SwipeToDismissValue.Dismissed
             }
             SwipeToDismissBox(
                 state = outerState,
@@ -193,7 +193,7 @@ class SwipeToDismissBoxTest {
                 val innerState = rememberSwipeToDismissBoxState()
                 LaunchedEffect(innerState.currentValue) {
                     innerDismissed =
-                        innerState.currentValue == SwipeDismissTarget.Dismissal
+                        innerState.currentValue == SwipeToDismissValue.Dismissed
                 }
                 SwipeToDismissBox(
                     state = innerState,
@@ -257,7 +257,7 @@ class SwipeToDismissBoxTest {
             val state = rememberSwipeToDismissBoxState()
             LaunchedEffect(state.currentValue) {
                 dismissed =
-                    state.currentValue == SwipeDismissTarget.Dismissal
+                    state.currentValue == SwipeToDismissValue.Dismissed
             }
             SwipeToDismissBox(
                 state = state,
