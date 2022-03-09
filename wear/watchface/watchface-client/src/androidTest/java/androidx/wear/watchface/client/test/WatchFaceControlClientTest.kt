@@ -490,7 +490,6 @@ class WatchFaceControlClientTest {
     }
 
     @Test
-    @Suppress("Deprecation") // userStyleSettings
     fun headlessUserStyleSchema() {
         val headlessInstance = service.createHeadlessWatchFaceClient(
             "id",
@@ -532,7 +531,6 @@ class WatchFaceControlClientTest {
             )!!.toBundle()
         )
 
-        @Suppress("Deprecation")
         assertThat(headlessInstance.userStyleSchema.userStyleSettings.size).isEqualTo(5)
     }
 

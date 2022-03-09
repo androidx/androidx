@@ -260,7 +260,6 @@ public class EditorSessionGuavaTest {
             // corresponding setting definitions.
             listenableEditorSession.userStyle.value =
                 listenableEditorSession.userStyle.value.toMutableUserStyle().apply {
-                    @Suppress("Deprecation")
                     listenableEditorSession.userStyleSchema.userStyleSettings.forEach {
                         this[it] = it.options.last()
                     }
