@@ -105,7 +105,12 @@ public fun SwipeToDismissBox(
                 enabled = hasBackground,
                 anchors = anchors(maxWidth),
                 thresholds = { _, _ -> FractionalThreshold(SwipeThreshold) },
-                orientation = Orientation.Horizontal
+                resistance = ResistanceConfig(
+                    basis = maxWidth,
+                    factorAtMin = TotalResistance,
+                    factorAtMax = TotalResistance,
+                ),
+                orientation = Orientation.Horizontal,
             )
     ) {
         val dismissAnimatable = remember { Animatable(0f) }
@@ -403,3 +408,4 @@ private fun anchors(maxWidth: Float): Map<Float, SwipeDismissTarget> =
     )
 
 private val SwipeThreshold = 0.5f
+private val TotalResistance = 1000f
