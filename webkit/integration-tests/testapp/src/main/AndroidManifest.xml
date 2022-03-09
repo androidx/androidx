@@ -118,5 +118,8 @@
         <activity
             android:name=".ForceDarkStrategyActivity"
             android:exported="true" />
+        <activity
+            android:name=".GetVariationsHeaderActivity"
+            android:exported="true" />
     </application>
 </manifest>
