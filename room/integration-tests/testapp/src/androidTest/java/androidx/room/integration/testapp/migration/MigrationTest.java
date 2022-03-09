@@ -594,6 +594,31 @@ public class MigrationTest {
         }
     }
 
+    @Test
+    public void invalid_hash() throws IOException {
+        // Create DB at version 1
+        SupportSQLiteDatabase db = helper.createDatabase(TEST_DB, 1);
+        // Set its version to 2
+        db.setVersion(2);
+        db.close();
+
+        // Open the database again at version 2 and it should fail identity, replicating the
+        // scenario of 1. bumping version code without schema changes, 2. making schema changes and
+        // 3. opening the DB again.
+        try {
+            helper.runMigrationsAndValidate(TEST_DB, 2, false);
+            Assert.fail("Expected a room cannot verify the data integrity exception");
+        } catch (IllegalStateException ex) {
+            Truth.assertThat(ex).hasMessageThat().contains(
+                    "Room cannot verify the data integrity"
+            );
+            Truth.assertThat(ex).hasMessageThat().contains(
+                    "Expected identity hash: aee9a6eed720c059df0f2ee0d6e96d89, "
+                            + "found: 2f3557e56d7f665363f3e20d14787a59"
+            );
+        }
+    }
+
     private void testFailure(int startVersion, int endVersion) throws IOException {
         final SupportSQLiteDatabase db = helper.createDatabase(TEST_DB, startVersion);
         db.close();
