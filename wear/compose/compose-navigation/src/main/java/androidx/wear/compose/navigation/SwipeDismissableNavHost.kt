@@ -43,9 +43,9 @@ import androidx.navigation.Navigator
 import androidx.navigation.createGraph
 import androidx.navigation.compose.LocalOwnersProvider
 import androidx.navigation.get
-import androidx.wear.compose.material.SwipeDismissTarget
+import androidx.wear.compose.material.SwipeToDismissValue
 import androidx.wear.compose.material.SwipeToDismissBox
-import androidx.wear.compose.material.SwipeToDismissBoxDefaults
+import androidx.wear.compose.material.SwipeToDismissKeys
 import androidx.wear.compose.material.rememberSwipeToDismissBoxState
 
 /**
@@ -173,8 +173,8 @@ public fun SwipeDismissableNavHost(
         // This effect operates when the swipe gesture is complete:
         // 1) Resets the screen offset (otherwise, the next destination is draw off-screen)
         // 2) Pops the navigation back stack to return to the previous level
-        if (state.currentValue == SwipeDismissTarget.Dismissal) {
-            state.snapTo(SwipeDismissTarget.Original)
+        if (state.currentValue == SwipeToDismissValue.Dismissed) {
+            state.snapTo(SwipeToDismissValue.Default)
             navController.popBackStack()
         }
     }
@@ -192,7 +192,7 @@ public fun SwipeDismissableNavHost(
         state = state,
         modifier = Modifier,
         hasBackground = previous != null,
-        backgroundKey = previous?.id ?: SwipeToDismissBoxDefaults.BackgroundKey,
+        backgroundKey = previous?.id ?: SwipeToDismissKeys.Background,
         contentKey = current.id,
         content = { isBackground ->
             BoxedStackEntryContent(if (isBackground) previous else current, stateHolder, modifier)

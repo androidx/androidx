@@ -53,10 +53,10 @@ import androidx.wear.compose.material.ScalingLazyColumnDefaults
 import androidx.wear.compose.material.ScalingLazyListScope
 import androidx.wear.compose.material.ScalingLazyListState
 import androidx.wear.compose.material.ScalingParams
-import androidx.wear.compose.material.SwipeDismissTarget
+import androidx.wear.compose.material.SwipeToDismissValue
 import androidx.wear.compose.material.SwipeToDismissBox
-import androidx.wear.compose.material.SwipeToDismissBoxDefaults
 import androidx.wear.compose.material.SwipeToDismissBoxState
+import androidx.wear.compose.material.SwipeToDismissKeys
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.rememberScalingLazyListState
 import androidx.wear.compose.material.rememberSwipeToDismissBoxState
@@ -89,7 +89,7 @@ private fun DisplayDemo(
             SwipeToDismissBox(
                 state = swipeDismissStateWithNavigation(onNavigateBack),
                 hasBackground = parentDemo != null,
-                backgroundKey = parentDemo?.title ?: SwipeToDismissBoxDefaults.BackgroundKey,
+                backgroundKey = parentDemo?.title ?: SwipeToDismissKeys.Background,
                 contentKey = demo.title,
             ) { isBackground ->
                 if (isBackground) {
@@ -117,7 +117,7 @@ internal fun DisplayDemoList(
     SwipeToDismissBox(
         state = swipeDismissStateWithNavigation(onNavigateBack),
         hasBackground = parentDemo != null,
-        backgroundKey = parentDemo?.title ?: SwipeToDismissBoxDefaults.BackgroundKey,
+        backgroundKey = parentDemo?.title ?: SwipeToDismissKeys.Background,
         contentKey = category.title,
     ) { isBackground ->
         if (isBackground) {
@@ -179,8 +179,8 @@ internal fun swipeDismissStateWithNavigation(
 ): SwipeToDismissBoxState {
     val state = rememberSwipeToDismissBoxState()
     LaunchedEffect(state.currentValue) {
-        if (state.currentValue == SwipeDismissTarget.Dismissal) {
-            state.snapTo(SwipeDismissTarget.Original)
+        if (state.currentValue == SwipeToDismissValue.Dismissed) {
+            state.snapTo(SwipeToDismissValue.Default)
             onNavigateBack()
         }
     }
