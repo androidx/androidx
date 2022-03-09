@@ -154,7 +154,7 @@ public class RoomOpenHelper extends SupportSQLiteOpenHelper.Callback {
                 throw new IllegalStateException("Room cannot verify the data integrity. Looks like"
                         + " you've changed schema but forgot to update the version number. You can"
                         + " simply fix this by increasing the version number. Expected identity"
-                        + " hash: " + identityHash + ", found: " + mIdentityHash);
+                        + " hash: " + mIdentityHash + ", found: " + identityHash);
             }
         } else {
             // No room_master_table, this might an a pre-populated DB, we must validate to see if
