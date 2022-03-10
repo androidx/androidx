@@ -50,6 +50,7 @@ import android.os.HandlerThread;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.impl.CameraEventCallback;
 import androidx.camera.camera2.impl.CameraEventCallbacks;
@@ -131,7 +132,9 @@ public final class CaptureSessionTest {
     private final List<CaptureSession> mCaptureSessions = new ArrayList<>();
 
     @Rule
-    public TestRule mUseCameraRule = CameraUtil.grantCameraPermissionAndPreTest();
+    public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest(
+            new CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+    );
 
     @BeforeClass
     public static void setUpClass() {

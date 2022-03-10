@@ -60,7 +60,6 @@ import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
@@ -84,8 +83,10 @@ private const val I_FRAME_INTERVAL = 1
 @SdkSuppress(minSdkVersion = 21)
 class VideoEncoderTest {
 
-    @get: Rule
-    var cameraRule: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
+    @get:Rule
+    val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
+        CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+    )
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val context: Context = ApplicationProvider.getApplicationContext()

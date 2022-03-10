@@ -27,6 +27,7 @@ import static org.junit.Assume.assumeTrue;
 import android.app.Instrumentation;
 
 import androidx.annotation.NonNull;
+import androidx.camera.camera2.Camera2Config;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.CoreAppTestUtil;
@@ -58,7 +59,9 @@ public final class PreviewViewFragmentTest {
     private static final int PREVIEW_UPDATE_COUNT = 30;
 
     @Rule
-    public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest();
+    public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest(
+            new CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+    );
 
     @Rule
     public GrantPermissionRule mStoragePermissionRule =

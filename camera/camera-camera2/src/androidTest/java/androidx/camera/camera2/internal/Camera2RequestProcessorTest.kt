@@ -28,6 +28,7 @@ import android.media.ImageReader
 import android.os.Handler
 import android.os.Looper
 import android.view.Surface
+import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.impl.Camera2CameraCaptureResultConverter
 import androidx.camera.camera2.internal.util.RequestProcessorRequest
 import androidx.camera.camera2.interop.CaptureRequestOptions
@@ -38,12 +39,16 @@ import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.SessionProcessorSurface
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.CameraUtil.PreTestCameraIdList
 import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Executor
+import java.util.concurrent.ScheduledExecutorService
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -53,9 +58,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.Executor
-import java.util.concurrent.ScheduledExecutorService
 
 const val CAMERA_ID = "0"
 const val PREVIEW_OUTPUT_CONFIG_ID = 1
@@ -69,7 +71,9 @@ const val ORIENTATION_2 = 270
 @SdkSuppress(minSdkVersion = 21)
 class Camera2RequestProcessorTest {
     @get:Rule
-    val cameraRule = CameraUtil.grantCameraPermissionAndPreTest()
+    val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
+        PreTestCameraIdList(Camera2Config.defaultConfig())
+    )
 
     private lateinit var cameraDeviceHolder: CameraUtil.CameraDeviceHolder
     private lateinit var captureSessionRepository: CaptureSessionRepository

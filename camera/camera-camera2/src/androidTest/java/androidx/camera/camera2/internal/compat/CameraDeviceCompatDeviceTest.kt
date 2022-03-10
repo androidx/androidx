@@ -16,21 +16,23 @@
 package androidx.camera.camera2.internal.compat
 
 import android.content.Context
-import androidx.camera.testing.CameraUtil
-import android.hardware.camera2.CameraDevice
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraAccessException
-import android.hardware.camera2.CameraManager
-import androidx.test.core.app.ApplicationProvider
-import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraCaptureSession
+import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraDevice
+import android.hardware.camera2.CameraManager
 import android.os.Handler
 import android.os.HandlerThread
 import android.view.Surface
 import androidx.camera.camera2.AsyncCameraDevice
+import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.internal.compat.params.OutputConfigurationCompat
 import androidx.camera.camera2.internal.compat.params.SessionConfigurationCompat
+import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.CameraUtil.PreTestCameraIdList
 import androidx.core.os.HandlerCompat
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -44,7 +46,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito
-import java.lang.AssertionError
 
 /**
  * Tests some of the methods of [CameraDeviceCompat] on device.
@@ -58,7 +59,9 @@ import java.lang.AssertionError
 @SdkSuppress(minSdkVersion = 21)
 class CameraDeviceCompatDeviceTest {
     @get:Rule
-    var useCamera = CameraUtil.grantCameraPermissionAndPreTest()
+    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
+        PreTestCameraIdList(Camera2Config.defaultConfig())
+    )
 
     private var cameraDevice: AsyncCameraDevice? = null
     private var surfaceTexture: SurfaceTexture? = null

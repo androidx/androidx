@@ -43,6 +43,7 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.camera2.internal.util.SemaphoreReleasingCamera2Callbacks;
 import androidx.camera.camera2.interop.Camera2Interop;
@@ -120,8 +121,9 @@ public final class Camera2CameraImplTest {
     static ExecutorService sCameraExecutor;
 
     @Rule
-    public TestRule mCameraRule = CameraUtil.grantCameraPermissionAndPreTest();
-
+    public TestRule mCameraRule = CameraUtil.grantCameraPermissionAndPreTest(
+            new CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+    );
 
     private ArrayList<FakeUseCase> mFakeUseCases = new ArrayList<>();
     private Camera2CameraImpl mCamera2CameraImpl;

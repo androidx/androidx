@@ -34,6 +34,7 @@ package androidx.camera.video
 
 import android.content.Context
 import android.os.Build
+import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
@@ -67,7 +68,9 @@ class SupportedQualitiesVerificationTest(
 ) {
 
     @get:Rule
-    val cameraRule = CameraUtil.grantCameraPermissionAndPreTest()
+    val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
+        CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+    )
 
     companion object {
         private const val VIDEO_TIMEOUT_SEC = 10L

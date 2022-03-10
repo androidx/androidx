@@ -23,6 +23,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
 import androidx.camera.camera2.AsyncCameraDevice
+import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.internal.compat.CameraManagerCompat
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.Logger
@@ -31,6 +32,7 @@ import androidx.camera.core.impl.CameraStateRegistry
 import androidx.camera.core.impl.Observable.Observer
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.CameraUtil.PreTestCameraIdList
 import androidx.core.os.HandlerCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -38,6 +40,9 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Semaphore
+import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.AfterClass
 import org.junit.Assume.assumeFalse
@@ -45,11 +50,7 @@ import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TestRule
 import org.junit.runner.RunWith
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Semaphore
-import java.util.concurrent.TimeUnit
 
 /**
  * Tests [Camera2CameraImpl]'s force opening camera behavior.
@@ -68,7 +69,9 @@ import java.util.concurrent.TimeUnit
 class Camera2CameraImplForceOpenCameraTest {
 
     @get:Rule
-    val mCameraRule: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
+    val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
+        PreTestCameraIdList(Camera2Config.defaultConfig())
+    )
 
     private lateinit var cameraId: String
     private lateinit var camera2Camera: AsyncCameraDevice
