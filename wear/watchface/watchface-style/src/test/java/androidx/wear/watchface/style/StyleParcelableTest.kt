@@ -28,7 +28,7 @@ import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSettin
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting.ListOption
 import androidx.wear.watchface.style.UserStyleSetting.LongRangeUserStyleSetting
-import androidx.wear.watchface.style.UserStyleSetting.OnWatchEditorData
+import androidx.wear.watchface.style.UserStyleSetting.WatchFaceEditorData
 import androidx.wear.watchface.style.UserStyleSetting.Option
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
 import androidx.wear.watchface.style.data.UserStyleSettingWireFormat
@@ -58,25 +58,25 @@ public class StyleParcelableTest {
         Option.Id("1"),
         "one",
         icon1,
-        onWatchEditorData = OnWatchEditorData(wfIcon1)
+        watchFaceEditorData = WatchFaceEditorData(wfIcon1)
     )
     private val option2 = ListOption(
         Option.Id("2"),
         "two",
         icon2,
-        onWatchEditorData = OnWatchEditorData(wfIcon2)
+        watchFaceEditorData = WatchFaceEditorData(wfIcon2)
     )
     private val option3 = ListOption(
         Option.Id("3"),
         "three",
         icon3,
-        onWatchEditorData = OnWatchEditorData(wfIcon3)
+        watchFaceEditorData = WatchFaceEditorData(wfIcon3)
     )
     private val option4 = ListOption(
         Option.Id("4"),
         "four",
         icon4,
-        onWatchEditorData = OnWatchEditorData(wfIcon4)
+        watchFaceEditorData = WatchFaceEditorData(wfIcon4)
     )
 
     @Before
@@ -162,7 +162,7 @@ public class StyleParcelableTest {
             companionIcon1,
             listOf(option1, option2),
             listOf(WatchFaceLayer.BASE),
-            onWatchEditorData = OnWatchEditorData(watchEditorIcon1)
+            watchFaceEditorData = WatchFaceEditorData(watchEditorIcon1)
         )
         val styleSetting2 = ListUserStyleSetting(
             UserStyleSetting.Id("id2"),
@@ -171,7 +171,7 @@ public class StyleParcelableTest {
             companionIcon2,
             listOf(option3, option4),
             listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY),
-            onWatchEditorData = OnWatchEditorData(watchEditorIcon2)
+            watchFaceEditorData = WatchFaceEditorData(watchEditorIcon2)
         )
         val styleSetting3 = BooleanUserStyleSetting(
             UserStyleSetting.Id("id3"),
@@ -210,7 +210,7 @@ public class StyleParcelableTest {
         assertThat(schema.userStyleSettings[0].description).isEqualTo("description1")
         assertThat(schema.userStyleSettings[0].icon!!.uri.toString())
             .isEqualTo("companionEditorIcon1")
-        assertThat(schema.userStyleSettings[0].onWatchEditorData!!.icon!!.uri.toString())
+        assertThat(schema.userStyleSettings[0].watchFaceEditorData!!.icon!!.uri.toString())
             .isEqualTo("watchEditorIcon1")
         assertThat(schema.userStyleSettings[0].affectedWatchFaceLayers.size).isEqualTo(1)
         assertThat(schema.userStyleSettings[0].affectedWatchFaceLayers.first()).isEqualTo(
@@ -222,11 +222,11 @@ public class StyleParcelableTest {
         assertThat(optionArray1[0].id.value.decodeToString()).isEqualTo("1")
         assertThat(optionArray1[0].displayName).isEqualTo("one")
         assertThat(optionArray1[0].icon!!.uri.toString()).isEqualTo("icon1")
-        assertThat(optionArray1[0].onWatchEditorData!!.icon!!.uri.toString()).isEqualTo("wfIcon1")
+        assertThat(optionArray1[0].watchFaceEditorData!!.icon!!.uri.toString()).isEqualTo("wfIcon1")
         assertThat(optionArray1[1].id.value.decodeToString()).isEqualTo("2")
         assertThat(optionArray1[1].displayName).isEqualTo("two")
         assertThat(optionArray1[1].icon!!.uri.toString()).isEqualTo("icon2")
-        assertThat(optionArray1[1].onWatchEditorData!!.icon!!.uri.toString()).isEqualTo("wfIcon2")
+        assertThat(optionArray1[1].watchFaceEditorData!!.icon!!.uri.toString()).isEqualTo("wfIcon2")
 
         assert(schema.userStyleSettings[1] is ListUserStyleSetting)
         assertThat(schema.userStyleSettings[1].id.value).isEqualTo("id2")
@@ -234,7 +234,7 @@ public class StyleParcelableTest {
         assertThat(schema.userStyleSettings[1].description).isEqualTo("description2")
         assertThat(schema.userStyleSettings[1].icon!!.uri.toString())
             .isEqualTo("companionEditorIcon2")
-        assertThat(schema.userStyleSettings[1].onWatchEditorData!!.icon!!.uri.toString())
+        assertThat(schema.userStyleSettings[1].watchFaceEditorData!!.icon!!.uri.toString())
             .isEqualTo("watchEditorIcon2")
         assertThat(schema.userStyleSettings[1].affectedWatchFaceLayers.size).isEqualTo(1)
         assertThat(schema.userStyleSettings[1].affectedWatchFaceLayers.first()).isEqualTo(
@@ -246,18 +246,18 @@ public class StyleParcelableTest {
         assertThat(optionArray2[0].id.value.decodeToString()).isEqualTo("3")
         assertThat(optionArray2[0].displayName).isEqualTo("three")
         assertThat(optionArray2[0].icon!!.uri.toString()).isEqualTo("icon3")
-        assertThat(optionArray2[0].onWatchEditorData!!.icon!!.uri.toString()).isEqualTo("wfIcon3")
+        assertThat(optionArray2[0].watchFaceEditorData!!.icon!!.uri.toString()).isEqualTo("wfIcon3")
         assertThat(optionArray2[1].id.value.decodeToString()).isEqualTo("4")
         assertThat(optionArray2[1].displayName).isEqualTo("four")
         assertThat(optionArray2[1].icon!!.uri.toString()).isEqualTo("icon4")
-        assertThat(optionArray2[1].onWatchEditorData!!.icon!!.uri.toString()).isEqualTo("wfIcon4")
+        assertThat(optionArray2[1].watchFaceEditorData!!.icon!!.uri.toString()).isEqualTo("wfIcon4")
 
         assert(schema.userStyleSettings[2] is BooleanUserStyleSetting)
         assertThat(schema.userStyleSettings[2].id.value).isEqualTo("id3")
         assertThat(schema.userStyleSettings[2].displayName).isEqualTo("displayName3")
         assertThat(schema.userStyleSettings[2].description).isEqualTo("description3")
         assertThat(schema.userStyleSettings[2].icon).isNull()
-        assertThat(schema.userStyleSettings[2].onWatchEditorData).isNull()
+        assertThat(schema.userStyleSettings[2].watchFaceEditorData).isNull()
         assertThat(schema.userStyleSettings[2].affectedWatchFaceLayers.size).isEqualTo(1)
         assertThat(schema.userStyleSettings[2].affectedWatchFaceLayers.first()).isEqualTo(
             WatchFaceLayer.BASE
@@ -271,7 +271,7 @@ public class StyleParcelableTest {
             WatchFaceLayer.BASE
         )
         assertThat(schema.userStyleSettings[3].icon).isNull()
-        assertThat(schema.userStyleSettings[3].onWatchEditorData).isNull()
+        assertThat(schema.userStyleSettings[3].watchFaceEditorData).isNull()
     }
 
     @OptIn(ExperimentalHierarchicalStyle::class)
