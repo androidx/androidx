@@ -156,8 +156,8 @@ public class MultiSlotLayout implements LayoutElement {
         @NonNull
         @Override
         // The @Dimension(unit = DP) on mVerticalSpacerHeight.getValue() is seemingly being ignored,
-        // so lint complains that we're passing PX to something expecting DP.
-        // Just suppress the warning for now.
+        // so lint complains that we're passing PX to something expecting DP. Just suppress the
+        // warning for now.
         @SuppressLint("ResourceType")
         public MultiSlotLayout build() {
             PrimaryLayout.Builder layoutBuilder = new PrimaryLayout.Builder(mDeviceParameters);
