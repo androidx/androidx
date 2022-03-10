@@ -19,7 +19,7 @@ package androidx.activity
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
-import androidx.core.R
+import androidx.activity.test.R
 import androidx.core.view.MenuProvider
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
