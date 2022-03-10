@@ -94,7 +94,7 @@ class FtsTableInfo(
 
         private fun readColumns(database: SupportSQLiteDatabase, tableName: String): Set<String> {
             return buildSet {
-                database.query("PRAGMA table_info(`$tableName`)").use { cursor ->
+                database.query("PRAGMA table_info(`$tableName`)").useCursor { cursor ->
                     if (cursor.columnCount > 0) {
                         val nameIndex = cursor.getColumnIndex("name")
                         while (cursor.moveToNext()) {
@@ -108,7 +108,7 @@ class FtsTableInfo(
         private fun readOptions(database: SupportSQLiteDatabase, tableName: String): Set<String> {
             val sql = database.query(
                 "SELECT * FROM sqlite_master WHERE `name` = '$tableName'"
-            ).use { cursor ->
+            ).useCursor { cursor ->
                 if (cursor.moveToFirst()) {
                     cursor.getString(cursor.getColumnIndexOrThrow("sql"))
                 } else {

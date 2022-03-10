@@ -24,9 +24,6 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
-import java.lang.Exception
-import java.lang.IllegalArgumentException
-import java.lang.IllegalStateException
 
 /**
  * Copies the given cursor into a in-memory cursor and then closes it.
@@ -38,7 +35,7 @@ import java.lang.IllegalStateException
  * @param c the cursor to copy.
  * @return a new cursor containing the same data as the given cursor.
  */
-fun copyAndClose(c: Cursor): Cursor = c.use { cursor ->
+fun copyAndClose(c: Cursor): Cursor = c.useCursor { cursor ->
     val matrixCursor = MatrixCursor(cursor.columnNames, cursor.count)
     while (cursor.moveToNext()) {
         val row = arrayOfNulls<Any>(cursor.columnCount)
@@ -137,4 +134,20 @@ fun findColumnIndexBySuffix(columnNames: Array<String>, name: String): Int {
         }
     }
     return -1
+}
+
+/**
+ * Backwards compatible function that executes the given block function on this Cursor and then
+ * closes the Cursor.
+ */
+internal inline fun <R> Cursor.useCursor(block: (Cursor) -> R): R {
+    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+        return this.use(block)
+    } else {
+        try {
+            return block(this)
+        } finally {
+            this.close()
+        }
+    }
 }

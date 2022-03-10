@@ -71,7 +71,7 @@ class ViewInfo(
             return database.query(
                 "SELECT name, sql FROM sqlite_master " +
                     "WHERE type = 'view' AND name = '$viewName'"
-            ).use { cursor ->
+            ).useCursor { cursor ->
                 if (cursor.moveToFirst()) {
                     ViewInfo(cursor.getString(0), cursor.getString(1))
                 } else {
