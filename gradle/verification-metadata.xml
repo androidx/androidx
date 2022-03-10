@@ -81,6 +81,7 @@
             <trusting group="org.apache.commons"/>
             <trusting group="xml-apis"/>
          </trusted-key>
+         <trusted-key id="21939ff0ca2a6567" group="commons-codec"/>
          <trusted-key id="2e2010f8a7ff4a41" group="org.apache"/>
          <trusted-key id="2e3a1affe42b5f53af19f780bcf4173966770193" group="org.jetbrains"/>
          <trusted-key id="2f566d4221d3ec52" group="com.ryanharter.auto.value"/>
