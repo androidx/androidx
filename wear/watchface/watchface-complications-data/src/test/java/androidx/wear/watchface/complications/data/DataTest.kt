@@ -51,7 +51,7 @@ public class AsWireComplicationDataTest {
         assertThat(data).isEqualTo(NoDataComplicationData())
         assertThat(data.hashCode()).isEqualTo(NoDataComplicationData().hashCode())
         assertThat(data.toString()).isEqualTo(
-            "NoDataComplicationData(placeholder=null, contentDescription=null, " +
+            "NoDataComplicationData(placeholder=null, " +
                 "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=TimeRange(" +
                 "startDateTimeMillis=-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
                 "+1000000000-12-31T23:59:59.999999999Z))"
@@ -488,8 +488,7 @@ public class AsWireComplicationDataTest {
                 "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=" +
                 "TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                 "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z)), " +
-                "contentDescription=ComplicationText{mSurroundingText=content description, " +
-                "mTimeDependentText=null}, tapActionLostDueToSerialization=false, tapAction=null," +
+                "tapActionLostDueToSerialization=false, tapAction=null," +
                 " validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                 "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z))"
         )
@@ -540,8 +539,7 @@ public class AsWireComplicationDataTest {
                 "mSurroundingText=content description, mTimeDependentText=null}), " +
                 "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=TimeRange(" +
                 "startDateTimeMillis=-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
-                "+1000000000-12-31T23:59:59.999999999Z)), contentDescription=ComplicationText{" +
-                "mSurroundingText=content description, mTimeDependentText=null}, " +
+                "+1000000000-12-31T23:59:59.999999999Z)), " +
                 "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=TimeRange(" +
                 "startDateTimeMillis=-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
                 "+1000000000-12-31T23:59:59.999999999Z))"
@@ -602,9 +600,8 @@ public class AsWireComplicationDataTest {
                 "}, contentDescription=ComplicationText{mSurroundingText=content description, " +
                 "mTimeDependentText=null}), tapActionLostDueToSerialization=false, tapAction=" +
                 "null, validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
-                "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z)), contentDescription=" +
-                "ComplicationText{mSurroundingText=content description, mTimeDependentText=null}," +
-                " tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=" +
+                "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z)), " +
+                "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=" +
                 "TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
                 "+1000000000-12-31T23:59:59.999999999Z))"
         )
@@ -658,8 +655,7 @@ public class AsWireComplicationDataTest {
                 "mSurroundingText=content description, mTimeDependentText=null}), " +
                 "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=TimeRange(" +
                 "startDateTimeMillis=-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
-                "+1000000000-12-31T23:59:59.999999999Z)), contentDescription=ComplicationText{" +
-                "mSurroundingText=content description, mTimeDependentText=null}, " +
+                "+1000000000-12-31T23:59:59.999999999Z)), " +
                 "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=TimeRange(" +
                 "startDateTimeMillis=-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
                 "+1000000000-12-31T23:59:59.999999999Z))"
@@ -715,8 +711,7 @@ public class AsWireComplicationDataTest {
                 "content description, mTimeDependentText=null}), tapActionLostDueToSerialization=" +
                 "false, tapAction=null, validTimeRange=TimeRange(startDateTimeMillis=" +
                 "-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
-                "+1000000000-12-31T23:59:59.999999999Z)), contentDescription=ComplicationText{" +
-                "mSurroundingText=content description, mTimeDependentText=null}, " +
+                "+1000000000-12-31T23:59:59.999999999Z)), " +
                 "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=TimeRange(" +
                 "startDateTimeMillis=-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
                 "+1000000000-12-31T23:59:59.999999999Z))"
@@ -769,8 +764,7 @@ public class AsWireComplicationDataTest {
                 "mSurroundingText=content description, mTimeDependentText=null}), " +
                 "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=TimeRange(" +
                 "startDateTimeMillis=-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
-                "+1000000000-12-31T23:59:59.999999999Z)), contentDescription=ComplicationText{" +
-                "mSurroundingText=content description, mTimeDependentText=null}, " +
+                "+1000000000-12-31T23:59:59.999999999Z)), " +
                 "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=TimeRange(" +
                 "startDateTimeMillis=-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
                 "+1000000000-12-31T23:59:59.999999999Z))"

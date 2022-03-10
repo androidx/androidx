@@ -117,7 +117,7 @@
                 android:value="androidx.wear.watchface.complications.datasource.samples.CONFIGURE"/>
             <meta-data
                 android:name=
-                    "androidx.watchface.complications.datasource.DEFAULT_CONFIGURATION_SUPPORTED"
+                    "androidx.watchface.complications.datasource.DEFAULT_CONFIG_SUPPORTED"
                 android:value="true"/>
             <intent-filter>
                 <action android:name=

@@ -167,7 +167,7 @@ public class ComplicationRequest(
  * complication data source should be set on the given complication.
  *
  * It is possible to provide additional 'meta-data' tag
- * androidx.watchface.complications.datasource.DEFAULT_CONFIGURATION_SUPPORTED in the service
+ * androidx.watchface.complications.datasource.DEFAULT_CONFIG_SUPPORTED in the service
  * set to "true" to let the system know that the data source is able to provide complication data
  * before it is configured.
  *
@@ -733,8 +733,8 @@ public abstract class ComplicationDataSourceService : Service() {
          * before it is configured.
          * See [METADATA_KEY_DATA_SOURCE_CONFIG_ACTION].
          */
-        public const val METADATA_KEY_DATA_SOURCE_DEFAULT_CONFIGURATION_SUPPORTED: String =
-            "androidx.watchface.complications.datasource.DEFAULT_CONFIGURATION_SUPPORTED"
+        public const val METADATA_KEY_DATA_SOURCE_DEFAULT_CONFIG_SUPPORTED: String =
+            "androidx.watchface.complications.datasource.DEFAULT_CONFIG_SUPPORTED"
 
         /**
          * Category for complication data source config activities. The configuration activity for a

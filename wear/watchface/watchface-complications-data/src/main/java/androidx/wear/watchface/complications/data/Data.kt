@@ -120,18 +120,14 @@ public sealed class ComplicationData constructor(
  * that would have otherwise been sent. The placeholder is expected to be rendered if the watch
  * face has been built with a compatible library, older libraries which don't support placeholders
  * will ignore this field.
- * @property contentDescription An optional localized [ComplicationText] label describing the
- * [placeholder] for use by screen readers.
  */
 public class NoDataComplicationData internal constructor(
     public val placeholder: ComplicationData?,
-    public val contentDescription: ComplicationText?,
-    tapAction: PendingIntent?,
     cachedWireComplicationData: WireComplicationData?
-) : ComplicationData(TYPE, tapAction, cachedWireComplicationData) {
+) : ComplicationData(TYPE, placeholder?.tapAction, cachedWireComplicationData) {
 
     /** Constructs a NoDataComplicationData without a [placeholder]. */
-    constructor() : this(null, null, null, null)
+    constructor() : this(null, null)
 
     /**
      * Constructs a NoDataComplicationData with a [placeholder] [ComplicationData] which is allowed
@@ -140,6 +136,10 @@ public class NoDataComplicationData internal constructor(
      */
     constructor(placeholder: ComplicationData) : this(
         placeholder,
+        null
+    )
+
+    val contentDescription: ComplicationText? =
         when (placeholder) {
             is ShortTextComplicationData -> placeholder.contentDescription
             is LongTextComplicationData -> placeholder.contentDescription
@@ -148,10 +148,7 @@ public class NoDataComplicationData internal constructor(
             is SmallImageComplicationData -> placeholder.contentDescription
             is PhotoImageComplicationData -> placeholder.contentDescription
             else -> null
-        },
-        placeholder.tapAction,
-        null
-    )
+        }
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -176,7 +173,6 @@ public class NoDataComplicationData internal constructor(
         other as NoDataComplicationData
 
         if (placeholder != other.placeholder) return false
-        if (contentDescription != other.contentDescription) return false
         if (tapActionLostDueToSerialization != other.tapActionLostDueToSerialization) return false
         if (tapAction != other.tapAction) return false
         if (validTimeRange != other.validTimeRange) return false
@@ -186,7 +182,6 @@ public class NoDataComplicationData internal constructor(
 
     override fun hashCode(): Int {
         var result = placeholder.hashCode()
-        result = 31 * result + (contentDescription?.hashCode() ?: 0)
         result = 31 * result + tapActionLostDueToSerialization.hashCode()
         result = 31 * result + (tapAction?.hashCode() ?: 0)
         result = 31 * result + validTimeRange.hashCode()
@@ -195,7 +190,7 @@ public class NoDataComplicationData internal constructor(
 
     override fun toString(): String {
         return "NoDataComplicationData(" +
-            "placeholder=$placeholder, contentDescription=$contentDescription, " +
+            "placeholder=$placeholder, " +
             "tapActionLostDueToSerialization=$tapActionLostDueToSerialization, " +
             "tapAction=$tapAction, validTimeRange=$validTimeRange)"
     }
