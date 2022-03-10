@@ -16,12 +16,13 @@
 
 package androidx.wear.tiles.material.layouts;
 
+import static androidx.annotation.Dimension.DP;
 import static androidx.wear.tiles.DimensionBuilders.dp;
 import static androidx.wear.tiles.DimensionBuilders.expand;
 import static androidx.wear.tiles.DimensionBuilders.wrap;
 import static androidx.wear.tiles.material.ChipDefaults.COMPACT_HEIGHT;
-import static androidx.wear.tiles.material.Helper.checkNotNull;
 import static androidx.wear.tiles.material.Helper.isRoundDevice;
+import static androidx.wear.tiles.material.layouts.LayoutDefaults.DEFAULT_VERTICAL_SPACER_HEIGHT;
 import static androidx.wear.tiles.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_MARGIN_BOTTOM_ROUND_PERCENT;
 import static androidx.wear.tiles.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_MARGIN_BOTTOM_SQUARE_PERCENT;
 import static androidx.wear.tiles.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_MARGIN_HORIZONTAL_ROUND_PERCENT;
@@ -30,6 +31,9 @@ import static androidx.wear.tiles.material.layouts.LayoutDefaults.PRIMARY_LAYOUT
 import static androidx.wear.tiles.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_MARGIN_TOP_SQUARE_PERCENT;
 import static androidx.wear.tiles.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_SPACER_HEIGHT;
 
+import android.annotation.SuppressLint;
+
+import androidx.annotation.Dimension;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -67,11 +71,15 @@ public class PrimaryLayout implements LayoutElement {
 
         @NonNull private final DeviceParameters mDeviceParameters;
         @Nullable private LayoutElement mPrimaryChip = null;
+        @Nullable private LayoutElement mPrimaryLabelText = null;
+        @Nullable private LayoutElement mSecondaryLabelText = null;
         @NonNull private LayoutElement mContent = new Box.Builder().build();
+        @NonNull private DpProp mVerticalSpacerHeight = DEFAULT_VERTICAL_SPACER_HEIGHT;
 
         /**
-         * Creates a builder for the {@link PrimaryLayout} from the given content. Custom content
-         * inside of it can later be set with ({@link #setContent}.
+         * Creates a builder for the {@link PrimaryLayout} from the given content. Content inside of
+         * it can later be set with {@link #setContent}, {@link #setPrimaryChipContent}, {@link
+         * #setPrimaryLabelTextContent} and {@link #setSecondaryLabelTextContent}.
          */
         public Builder(@NonNull DeviceParameters deviceParameters) {
             this.mDeviceParameters = deviceParameters;
@@ -87,15 +95,62 @@ public class PrimaryLayout implements LayoutElement {
         // There is no direct matching getter for this setter as the serialized format of the
         // ProtoLayouts do not allow for a direct reconstruction of the arguments. Instead there are
         // methods to get the contents a whole for rendering.
-        public Builder setCompactChipContent(@NonNull LayoutElement compactChip) {
+        public Builder setPrimaryChipContent(@NonNull LayoutElement compactChip) {
             this.mPrimaryChip = compactChip;
+            return this;
+        }
+
+        /** Sets the content in the primary label slot which will be above the main content. */
+        @NonNull
+        @SuppressWarnings("MissingGetterMatchingBuilder")
+        // There is no direct matching getter for this setter as the serialized format of the
+        // ProtoLayouts do not allow for a direct reconstruction of the arguments. Instead there are
+        // methods to get the contents a whole for rendering.
+        public Builder setPrimaryLabelTextContent(@NonNull LayoutElement primaryLabelText) {
+            this.mPrimaryLabelText = primaryLabelText;
+            return this;
+        }
+
+        /**
+         * Sets the content in the primary label slot which will be below the main content. It is
+         * highly recommended to have primary label set when having secondary label.
+         */
+        @NonNull
+        @SuppressWarnings("MissingGetterMatchingBuilder")
+        // There is no direct matching getter for this setter as the serialized format of the
+        // ProtoLayouts do not allow for a direct reconstruction of the arguments. Instead there are
+        // methods to get the contents a whole for rendering.
+        public Builder setSecondaryLabelTextContent(@NonNull LayoutElement secondaryLabelText) {
+            this.mSecondaryLabelText = secondaryLabelText;
             return this;
         }
 
         /** Sets the additional content to this layout, above the primary chip. */
         @NonNull
+        @SuppressWarnings("MissingGetterMatchingBuilder")
+        // TODO(b/221427609): Add getter - there is a problem when serializing this to the
+        // ProtoLayouts as we can't easily reconstruct the position of the actual content vs
+        // additional labels.
         public Builder setContent(@NonNull LayoutElement content) {
             this.mContent = content;
+            return this;
+        }
+
+        /**
+         * Sets the vertical spacer height which is used as a space between main content and primary
+         * or secondary label if there is any. If not set, {@link
+         * LayoutDefaults#DEFAULT_VERTICAL_SPACER_HEIGHT} will be used.
+         */
+        @NonNull
+        // The @Dimension(unit = DP) on dp() is seemingly being ignored, so lint complains that
+        // we're passing PX to something expecting DP. Just suppress the warning for now.
+        @SuppressLint("ResourceType")
+        @SuppressWarnings("MissingGetterMatchingBuilder")
+        // There is no direct matching getter for this setter as the serialized format of the
+        // ProtoLayouts do not allow for a direct reconstruction of the arguments. Instead there are
+        // methods to get the contents a whole for rendering.
+        public Builder setVerticalSpacerHeight(@Dimension(unit = DP) float height) {
+            this.mVerticalSpacerHeight = dp(height);
             return this;
         }
 
@@ -115,11 +170,7 @@ public class PrimaryLayout implements LayoutElement {
                                             ? PRIMARY_LAYOUT_MARGIN_BOTTOM_ROUND_PERCENT
                                             : PRIMARY_LAYOUT_MARGIN_BOTTOM_SQUARE_PERCENT))
                             : topPadding;
-            float horizontalPadding =
-                    mDeviceParameters.getScreenWidthDp()
-                            * (isRoundDevice(mDeviceParameters)
-                                    ? PRIMARY_LAYOUT_MARGIN_HORIZONTAL_ROUND_PERCENT
-                                    : PRIMARY_LAYOUT_MARGIN_HORIZONTAL_SQUARE_PERCENT);
+            float horizontalPadding = getHorizontalPadding();
 
             float primaryChipHeight =
                     mPrimaryChip != null
@@ -144,23 +195,43 @@ public class PrimaryLayout implements LayoutElement {
                                             .build())
                             .build();
 
-            Column.Builder columnBuilder =
+            Column.Builder innerContentBuilder =
+                    new Column.Builder()
+                            .setWidth(expand())
+                            .setHeight(mainContentHeight)
+                            .setHorizontalAlignment(LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER);
+
+            if (mPrimaryLabelText != null) {
+                innerContentBuilder.addContent(mPrimaryLabelText);
+                innerContentBuilder.addContent(
+                        new Spacer.Builder().setHeight(mVerticalSpacerHeight).build());
+            }
+
+            innerContentBuilder.addContent(
+                    new Box.Builder()
+                            .setVerticalAlignment(LayoutElementBuilders.VERTICAL_ALIGN_CENTER)
+                            .setHeight(expand())
+                            .setWidth(expand())
+                            .addContent(mContent)
+                            .build());
+
+            if (mSecondaryLabelText != null) {
+                innerContentBuilder.addContent(
+                        new Spacer.Builder().setHeight(mVerticalSpacerHeight).build());
+                innerContentBuilder.addContent(mSecondaryLabelText);
+            }
+
+            Column.Builder layoutBuilder =
                     new Column.Builder()
                             .setModifiers(modifiers)
                             .setWidth(expand())
                             .setHeight(expand())
-                            .setHorizontalAlignment(LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER)
-                            .addContent(
-                                    new Box.Builder()
-                                            .setVerticalAlignment(
-                                                    LayoutElementBuilders.VERTICAL_ALIGN_CENTER)
-                                            .setHeight(mainContentHeight)
-                                            .setWidth(expand())
-                                            .addContent(mContent)
-                                            .build());
+                            .setHorizontalAlignment(LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER);
+
+            layoutBuilder.addContent(innerContentBuilder.build());
 
             if (mPrimaryChip != null) {
-                columnBuilder
+                layoutBuilder
                         .addContent(
                                 new Spacer.Builder()
                                         .setHeight(PRIMARY_LAYOUT_SPACER_HEIGHT)
@@ -179,9 +250,20 @@ public class PrimaryLayout implements LayoutElement {
                             .setWidth(expand())
                             .setHeight(expand())
                             .setVerticalAlignment(LayoutElementBuilders.VERTICAL_ALIGN_BOTTOM)
-                            .addContent(columnBuilder.build());
+                            .addContent(layoutBuilder.build());
 
             return new PrimaryLayout(element.build());
+        }
+
+        /**
+         * Returns the recommended horizontal padding, based on percentage values in {@link
+         * LayoutDefaults}.
+         */
+        float getHorizontalPadding() {
+            return mDeviceParameters.getScreenWidthDp()
+                    * (isRoundDevice(mDeviceParameters)
+                            ? PRIMARY_LAYOUT_MARGIN_HORIZONTAL_ROUND_PERCENT
+                            : PRIMARY_LAYOUT_MARGIN_HORIZONTAL_SQUARE_PERCENT);
         }
     }
 
@@ -219,14 +301,6 @@ public class PrimaryLayout implements LayoutElement {
     @NonNull
     public Timeline toTimeline() {
         return toTimelineBuilder().build();
-    }
-
-    @NonNull
-    public LayoutElement getContent() {
-        return checkNotNull(
-                ((Box) ((Column) ((Box) mElement).getContents().get(0)).getContents().get(0))
-                        .getContents()
-                        .get(0));
     }
 
     /** @hide */
