@@ -299,7 +299,7 @@ internal class ListStyleSettingViewAdapter(
         textView.setBackgroundColor(
             if (styleOption == currentSelection) Color.rgb(20, 40, 60) else Color.BLACK
         )
-        val icon = styleOption.onWatchEditorData?.icon ?: styleOption.icon
+        val icon = styleOption.watchFaceEditorData?.icon ?: styleOption.icon
         icon?.loadDrawableAsync(
             context,
             { drawable ->
@@ -342,7 +342,7 @@ internal class ComplicationsStyleSettingViewAdapter(
         holder.userStyleOption = styleOption
         val textView = holder.itemView as TextView
         textView.text = styleOption.displayName
-        val icon = styleOption.onWatchEditorData?.icon ?: styleOption.icon
+        val icon = styleOption.watchFaceEditorData?.icon ?: styleOption.icon
         icon?.loadDrawableAsync(
             context,
             { drawable ->
