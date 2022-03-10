@@ -109,31 +109,38 @@ public class CameraUseCaseAdapterTest {
     @Test
     public void attachUseCases_restoreInteropConfig() {
         // Set an config to CameraControl.
-        Config.Option<Integer> option = Config.Option.create("OPTION_ID", Integer.class);
+        Config.Option<Integer> option = Config.Option.create("OPTION_ID_1", Integer.class);
         Integer value = 1;
         MutableOptionsBundle originalConfig = MutableOptionsBundle.create();
         originalConfig.insertOption(option, value);
         mFakeCamera.getCameraControlInternal().addInteropConfig(originalConfig);
-        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCameraSet,
+        CameraUseCaseAdapter cameraUseCaseAdapter1 = new CameraUseCaseAdapter(mFakeCameraSet,
+                mFakeCameraDeviceSurfaceManager,
+                mUseCaseConfigFactory);
+        CameraUseCaseAdapter cameraUseCaseAdapter2 = new CameraUseCaseAdapter(mFakeCameraSet,
                 mFakeCameraDeviceSurfaceManager,
                 mUseCaseConfigFactory);
 
         // This caches the original config and clears it from CameraControl internally.
-        cameraUseCaseAdapter.detachUseCases();
+        cameraUseCaseAdapter1.detachUseCases();
 
         // Set a different config.
-        mFakeCamera.getCameraControlInternal().addInteropConfig(MutableOptionsBundle.create());
+        MutableOptionsBundle newConfig = MutableOptionsBundle.create();
+        newConfig.insertOption(Config.Option.create("OPTION_ID_2", Integer.class), 2);
+        mFakeCamera.getCameraControlInternal().addInteropConfig(newConfig);
+
+        // This caches the second config and clears it from CameraControl internally.
+        cameraUseCaseAdapter2.detachUseCases();
 
         // This restores the cached config to CameraControl.
-        cameraUseCaseAdapter.attachUseCases();
+        cameraUseCaseAdapter1.attachUseCases();
 
-        // Check the config in CameraControl has the same value as the original config.
-        assertThat(
-                mFakeCamera.getCameraControlInternal().getInteropConfig().containsOption(
-                        option)).isTrue();
-        assertThat(
-                mFakeCamera.getCameraControlInternal().getInteropConfig().retrieveOption(
-                        option)).isEqualTo(value);
+        Config finalConfig = mFakeCamera.getCameraControlInternal().getInteropConfig();
+        // Check the final config in CameraControl has the same value as the original config.
+        assertThat(finalConfig.listOptions().containsAll(originalConfig.listOptions())).isTrue();
+        assertThat(finalConfig.retrieveOption(option)).isEqualTo(value);
+        // Check the final config doesn't contain the options set before it's attached again.
+        assertThat(finalConfig.listOptions().containsAll(newConfig.listOptions())).isFalse();
     }
 
     @Test

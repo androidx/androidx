@@ -219,7 +219,7 @@ public final class FakeCameraControl implements CameraControlInternal {
     @NonNull
     @Override
     public Config getInteropConfig() {
-        return mInteropConfig;
+        return MutableOptionsBundle.from(mInteropConfig);
     }
 
     /** A listener which are used to notify when there are new submitted capture requests */
