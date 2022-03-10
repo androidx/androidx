@@ -103,9 +103,7 @@ public class Text implements LayoutElement {
             return this;
         }
 
-        /**
-         * Sets the color for the {@link Text}. If not set, {@link Colors#ON_PRIMARY} will be used.
-         */
+        /** Sets the color for the {@link Text}. */
         @NonNull
         public Builder setColor(@NonNull ColorProp color) {
             this.mColor = color;

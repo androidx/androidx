@@ -116,13 +116,6 @@ package androidx.wear.tiles.material {
     method public androidx.wear.tiles.material.CircularProgressIndicator.Builder setStrokeWidth(@Dimension(unit=androidx.annotation.Dimension.DP) float);
   }
 
-  public class Colors {
-    field @ColorInt public static final int ON_PRIMARY = -14671580; // 0xff202124
-    field @ColorInt public static final int ON_SURFACE = -1; // 0xffffffff
-    field @ColorInt public static final int PRIMARY = -5321734; // 0xffaecbfa
-    field @ColorInt public static final int SURFACE = -14671580; // 0xff202124
-  }
-
   public class CompactChip implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
     method public androidx.wear.tiles.material.ChipColors getChipColors();
     method public androidx.wear.tiles.ModifiersBuilders.Clickable getClickable();

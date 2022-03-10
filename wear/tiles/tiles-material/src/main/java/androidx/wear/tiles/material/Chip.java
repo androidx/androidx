@@ -73,9 +73,7 @@ import java.util.List;
  * ChipDefaults#DEFAULT_MARGIN_PERCENT} which is set by default.
  *
  * <p>The recommended set of {@link ChipColors} styles can be obtained from {@link ChipDefaults}.,
- * e.g. {@link ChipDefaults#PRIMARY} to get a color scheme for a primary {@link Chip} which by
- * default will have a solid background of {@link Colors#PRIMARY} and content color of {@link
- * Colors#ON_PRIMARY}.
+ * e.g. {@link ChipDefaults#PRIMARY} to get a color scheme for a primary {@link Chip}.
  */
 public class Chip implements LayoutElement {
     @NonNull private final Box mElement;
