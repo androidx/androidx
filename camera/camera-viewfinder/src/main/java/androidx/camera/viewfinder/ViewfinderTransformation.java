@@ -16,6 +16,10 @@
 
 package androidx.camera.viewfinder;
 
+import static android.graphics.Paint.ANTI_ALIAS_FLAG;
+import static android.graphics.Paint.DITHER_FLAG;
+import static android.graphics.Paint.FILTER_BITMAP_FLAG;
+
 import static androidx.camera.viewfinder.CameraViewfinder.ScaleType.FIT_CENTER;
 import static androidx.camera.viewfinder.CameraViewfinder.ScaleType.FIT_END;
 import static androidx.camera.viewfinder.CameraViewfinder.ScaleType.FIT_START;
@@ -24,7 +28,10 @@ import static androidx.camera.viewfinder.internal.utils.TransformUtils.is90or270
 import static androidx.camera.viewfinder.internal.utils.TransformUtils.isAspectRatioMatchingWithRoundingError;
 import static androidx.camera.viewfinder.internal.utils.TransformUtils.surfaceRotationToRotationDegrees;
 
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.LayoutDirection;
@@ -171,6 +178,38 @@ final class ViewfinderTransformation {
      */
     ScaleType getScaleType() {
         return mScaleType;
+    }
+
+    /**
+     * Creates a transformed screenshot of {@link CameraViewfinder}.
+     *
+     * <p> Creates the transformed {@link Bitmap} by applying the same transformation applied to
+     * the inner view. T
+     *
+     * @param original a snapshot of the untransformed inner view.
+     */
+    Bitmap createTransformedBitmap(@NonNull Bitmap original, Size previewViewSize,
+            int layoutDirection) {
+        if (!isTransformationInfoReady()) {
+            return original;
+        }
+        Matrix textureViewCorrection = getTextureViewCorrectionMatrix();
+        RectF surfaceRectInPreviewView = getTransformedSurfaceRect(previewViewSize,
+                layoutDirection);
+
+        Bitmap transformed = Bitmap.createBitmap(
+                previewViewSize.getWidth(), previewViewSize.getHeight(), original.getConfig());
+        Canvas canvas = new Canvas(transformed);
+
+        Matrix canvasTransform = new Matrix();
+        canvasTransform.postConcat(textureViewCorrection);
+        canvasTransform.postScale(surfaceRectInPreviewView.width() / mResolution.getWidth(),
+                surfaceRectInPreviewView.height() / mResolution.getHeight());
+        canvasTransform.postTranslate(surfaceRectInPreviewView.left, surfaceRectInPreviewView.top);
+
+        canvas.drawBitmap(original, canvasTransform,
+                new Paint(ANTI_ALIAS_FLAG | FILTER_BITMAP_FLAG | DITHER_FLAG));
+        return transformed;
     }
 
     @VisibleForTesting
