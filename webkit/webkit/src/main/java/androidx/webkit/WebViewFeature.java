@@ -463,10 +463,7 @@ public class WebViewFeature {
     /**
      * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers {@link WebViewCompat#getVariationsHeader()}.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String GET_VARIATIONS_HEADER = "GET_VARIATIONS_HEADER";
 
     /**
