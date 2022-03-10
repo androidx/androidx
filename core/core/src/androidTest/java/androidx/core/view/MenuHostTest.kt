@@ -20,8 +20,8 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import androidx.appcompat.widget.Toolbar
-import androidx.core.R
 import androidx.core.app.TestActivity
+import androidx.core.test.R
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.test.core.app.ActivityScenario

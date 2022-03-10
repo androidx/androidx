@@ -19,7 +19,7 @@ package androidx.appcompat.widget
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
-import androidx.core.R
+import androidx.appcompat.test.R
 import androidx.core.view.MenuProvider
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.testing.TestLifecycleOwner
