@@ -16,6 +16,7 @@
 
 package androidx.camera.viewfinder;
 
+import android.graphics.Bitmap;
 import android.graphics.SurfaceTexture;
 import android.view.Surface;
 import android.view.TextureView;
@@ -187,6 +188,18 @@ final class TextureViewImplementation extends ViewfinderImplementation {
     @Override
     View getViewfinder() {
         return mTextureView;
+    }
+
+    @Nullable
+    @Override
+    Bitmap getViewfinderBitmap() {
+        // If textureView is still null or its SurfaceTexture isn't available yet, return null
+        if (mTextureView == null || !mTextureView.isAvailable()) {
+            return null;
+        }
+
+        // Get bitmap of the SurfaceTexture's display contents
+        return mTextureView.getBitmap();
     }
 
     /**

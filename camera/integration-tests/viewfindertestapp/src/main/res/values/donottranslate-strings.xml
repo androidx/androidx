@@ -19,6 +19,7 @@ limitations under the License.
     <string name="intro_message">This sample demonstrates the basic use of CameraViewFinder API.</string>
     <string name="picture">Picture</string>
     <string name="toggle">Toggle</string>
+    <string name="bitmap">Bitmap</string>
     <string name="description_info">Info</string>
     <string name="request_permission">This sample needs camera permission.</string>
 

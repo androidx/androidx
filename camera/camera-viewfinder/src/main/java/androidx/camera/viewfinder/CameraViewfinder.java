@@ -18,12 +18,15 @@ package androidx.camera.viewfinder;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.os.Build;
 import android.os.Looper;
 import android.util.AttributeSet;
 import android.view.Surface;
 import android.view.SurfaceView;
 import android.view.TextureView;
+import android.view.View;
 import android.widget.FrameLayout;
 
 import androidx.annotation.AnyThread;
@@ -259,6 +262,29 @@ public final class CameraViewfinder extends FrameLayout {
         provideSurfaceIfReady();
 
         return surfaceListenableFuture;
+    }
+
+    /**
+     * Returns a {@link Bitmap} representation of the content displayed on the
+     * {@link CameraViewfinder}, or {@code null} if the camera viewfinder hasn't started yet.
+     * <p>
+     * The returned {@link Bitmap} uses the {@link Bitmap.Config#ARGB_8888} pixel format and its
+     * dimensions are the same as this view's.
+     * <p>
+     * <strong>Do not</strong> invoke this method from a drawing method
+     * ({@link View#onDraw(Canvas)} for instance).
+     * <p>
+     * If an error occurs during the copy, an empty {@link Bitmap} will be returned.
+     *
+     * @return A {@link Bitmap.Config#ARGB_8888} {@link Bitmap} representing the content
+     * displayed on the {@link CameraViewfinder}, or null if the camera viewfinder hasn't started
+     * yet.
+     */
+    @UiThread
+    @Nullable
+    public Bitmap getBitmap() {
+        checkUiThread();
+        return mImplementation == null ? null : mImplementation.getBitmap();
     }
 
     @Override
