@@ -83,62 +83,74 @@ public class Typography internal constructor(
         defaultFontFamily: FontFamily = FontFamily.Default,
         display1: TextStyle = TextStyle(
             fontWeight = FontWeight.Medium,
-            fontSize = 50.sp,
-            letterSpacing = 0.2.sp
+            fontSize = 40.sp,
+            lineHeight = 46.sp,
+            letterSpacing = 0.5.sp
         ),
         display2: TextStyle = TextStyle(
             fontWeight = FontWeight.Medium,
-            fontSize = 40.sp,
-            letterSpacing = 0.5.sp
+            fontSize = 34.sp,
+            lineHeight = 40.sp,
+            letterSpacing = 1.sp
         ),
         display3: TextStyle = TextStyle(
             fontWeight = FontWeight.Medium,
             fontSize = 30.sp,
-            letterSpacing = 0.5.sp
+            lineHeight = 36.sp,
+            letterSpacing = 0.8.sp,
         ),
         title1: TextStyle = TextStyle(
             fontWeight = FontWeight.Medium,
             fontSize = 24.sp,
-            letterSpacing = 0.sp
+            lineHeight = 28.sp,
+            letterSpacing = 0.2.sp
         ),
         title2: TextStyle = TextStyle(
             fontWeight = FontWeight.Medium,
             fontSize = 20.sp,
+            lineHeight = 24.sp,
             letterSpacing = 0.2.sp
         ),
         title3: TextStyle = TextStyle(
             fontWeight = FontWeight.Medium,
             fontSize = 16.sp,
+            lineHeight = 20.sp,
             letterSpacing = 0.2.sp
         ),
         body1: TextStyle = TextStyle(
             fontWeight = FontWeight.Normal,
             fontSize = 16.sp,
-            letterSpacing = 0.sp
+            lineHeight = 20.sp,
+            letterSpacing = 0.18.sp
         ),
         body2: TextStyle = TextStyle(
             fontWeight = FontWeight.Normal,
             fontSize = 14.sp,
-            letterSpacing = 0.25.sp
+            lineHeight = 18.sp,
+            letterSpacing = 0.2.sp
         ),
         button: TextStyle = TextStyle(
             fontWeight = FontWeight.Bold,
-            fontSize = 14.sp,
-            letterSpacing = 0.sp
+            fontSize = 15.sp,
+            lineHeight = 19.sp,
+            letterSpacing = 0.38.sp
         ),
         caption1: TextStyle = TextStyle(
             fontWeight = FontWeight.Medium,
             fontSize = 14.sp,
-            letterSpacing = 0.sp
+            lineHeight = 18.sp,
+            letterSpacing = 0.1.sp
         ),
         caption2: TextStyle = TextStyle(
             fontWeight = FontWeight.Medium,
             fontSize = 12.sp,
-            letterSpacing = 0.sp
+            lineHeight = 16.sp,
+            letterSpacing = 0.1.sp
         ),
         caption3: TextStyle = TextStyle(
             fontWeight = FontWeight.Medium,
             fontSize = 10.sp,
+            lineHeight = 14.sp,
             letterSpacing = 0.1.sp
         )
 

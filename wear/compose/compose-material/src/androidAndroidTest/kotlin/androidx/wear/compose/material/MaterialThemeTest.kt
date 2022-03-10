@@ -17,6 +17,7 @@
 package androidx.wear.compose.material
 
 import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -134,6 +135,7 @@ class MaterialThemeTest {
         assertTextTypographyEquals(override, rule.textStyleOf("Test"))
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @Test
     fun sets_primary_color_dynamically() =
         verifyBackgroundColorIsDynamic(
@@ -142,6 +144,7 @@ class MaterialThemeTest {
             updateThemeColors = { colors, primary -> colors.copy(primary = primary) }
         )
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @Test
     fun sets_primaryvariant_color_dynamically() =
         verifyBackgroundColorIsDynamic(
@@ -154,6 +157,7 @@ class MaterialThemeTest {
                 { colors, primaryVariant -> colors.copy(primaryVariant = primaryVariant) }
         )
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @Test
     fun sets_secondary_color_dynamically() =
         verifyBackgroundColorIsDynamic(
@@ -165,6 +169,7 @@ class MaterialThemeTest {
             updateThemeColors = { colors, secondary -> colors.copy(secondary = secondary) }
         )
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @Test
     fun sets_secondaryvariant_color_dynamically() =
         verifyBackgroundColorIsDynamic(
@@ -177,6 +182,7 @@ class MaterialThemeTest {
                 { colors, secondaryVariant -> colors.copy(secondaryVariant = secondaryVariant) }
         )
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @Test
     fun sets_error_color_dynamically() =
         verifyBackgroundColorIsDynamic(
@@ -305,12 +311,7 @@ class MaterialThemeTest {
 
     @Test
     fun sets_typography_dynamically() {
-        val initialStyle = TextStyle(
-            fontFamily = FontFamily.Default,
-            fontWeight = FontWeight.Bold,
-            fontSize = 14.sp,
-            letterSpacing = 0.sp
-        )
+        var initialStyle: TextStyle? = null
         val overrideTextStyle = TextStyle(
             fontFamily = FontFamily.Default,
             fontWeight = FontWeight.Normal,
@@ -320,6 +321,7 @@ class MaterialThemeTest {
 
         rule.setContentWithTheme {
             val typography = Typography()
+            initialStyle = typography.button.copy()
             val rememberedTypography = remember { mutableStateOf(typography) }
             MaterialTheme(typography = rememberedTypography.value) {
                 Column {
@@ -340,7 +342,7 @@ class MaterialThemeTest {
             }
         }
 
-        assertTextTypographyEquals(initialStyle, rule.textStyleOf("Test"))
+        assertTextTypographyEquals(initialStyle!!, rule.textStyleOf("Test"))
         rule.onNodeWithTag("button").performClick()
         assertTextTypographyEquals(overrideTextStyle, rule.textStyleOf("Test"))
     }
