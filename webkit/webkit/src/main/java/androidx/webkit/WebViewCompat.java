@@ -31,7 +31,6 @@ import android.webkit.WebViewClient;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresFeature;
-import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
 import androidx.webkit.internal.WebMessagePortImpl;
 import androidx.webkit.internal.WebViewFeatureInternal;
@@ -970,11 +969,16 @@ public class WebViewCompat {
     /**
      * Gets the WebView variations encoded to be used as the X-Client-Data HTTP header.
      *
-     * @return the variations header.
-     * @hide
+     * <p>The app is responsible for adding the X-Client-Data header to any request that may use
+     * variations metadata, such as requests to Google web properties. The returned string will be a
+     * base64 encoded ClientVariations proto:
+     * https://source.chromium.org/chromium/chromium/src/+/main:components/variations/proto/client_variations.proto
+     *
+     * @return the variations header. The string may be empty if the header is not available.
+     * @see WebView#loadUrl(java.lang.String, java.util.Map<java.lang.String, java.lang.String>)
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @RequiresFeature(name = WebViewFeature.GET_VARIATIONS_HEADER,
+    @RequiresFeature(
+            name = WebViewFeature.GET_VARIATIONS_HEADER,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static @NonNull String getVariationsHeader() {
         final WebViewFeatureInternal feature = WebViewFeatureInternal.GET_VARIATIONS_HEADER;
