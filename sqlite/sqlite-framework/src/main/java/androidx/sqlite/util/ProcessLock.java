@@ -19,6 +19,7 @@ package androidx.sqlite.util;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -46,7 +47,10 @@ import java.util.concurrent.locks.ReentrantLock;
  *   <li>
  *     Multi-process locking is done via a lock file whose name contains the key and FileLock
  *     objects.
+ *
+ * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class ProcessLock {
 
     private static final String TAG = "SupportSQLiteLock";
