@@ -25,6 +25,12 @@ import androidx.compose.ui.unit.sp
 /**
  * Class holding typography definitions as defined by the Wear Material typography specification.
  *
+ * The text styles in this typography are scaled according to the user's preferred font size in
+ * the system settings. Larger font sizes can be fixed if necessary in order to avoid pressure on
+ * screen space, because they are already sufficiently accessible.
+ * Here is an example of fixing the font size for Display1:
+ * @sample androidx.wear.compose.material.samples.FixedFontSize
+ *
  * @property display1 Display1 is the largest headline. Displays are the largest text on the screen,
  * reserved for short, important text or numerals.
  *
