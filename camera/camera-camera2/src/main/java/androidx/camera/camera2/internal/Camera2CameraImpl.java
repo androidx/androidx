@@ -1769,10 +1769,12 @@ final class Camera2CameraImpl implements CameraInternal {
 
         /**
          * Enables active resume only when camera is stolen by other apps.
+         * ERROR_CAMERA_IN_USE: The same camera id is occupied.
+         * ERROR_MAX_CAMERAS_IN_USE: when other app is opening camera but with different camera id.
          */
         boolean shouldActiveResume() {
-            return mIsActiveResumingMode && (mCameraDeviceError != ERROR_CAMERA_DEVICE
-                    && mCameraDeviceError != ERROR_MAX_CAMERAS_IN_USE);
+            return mIsActiveResumingMode && (mCameraDeviceError == ERROR_CAMERA_IN_USE
+                    || mCameraDeviceError == ERROR_MAX_CAMERAS_IN_USE);
         }
 
         /**
