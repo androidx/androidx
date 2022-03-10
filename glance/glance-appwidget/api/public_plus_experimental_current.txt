@@ -44,6 +44,9 @@ package androidx.glance.appwidget {
   public final class CoroutineBroadcastReceiverKt {
   }
 
+  @kotlin.RequiresOptIn(message="This API is experimental and is likely to change in the future.") public @interface ExperimentalGlanceRemoteViewsApi {
+  }
+
   public final class GeneratedLayoutsKt {
   }
 
@@ -81,6 +84,14 @@ package androidx.glance.appwidget {
   public final class GlanceAppWidgetReceiverKt {
   }
 
+  @androidx.glance.appwidget.ExperimentalGlanceRemoteViewsApi public final class GlanceRemoteViews {
+    ctor public GlanceRemoteViews();
+    method public suspend Object? compose(android.content.Context context, long size, optional Object? state, optional android.os.Bundle appWidgetOptions, kotlin.jvm.functions.Function0<kotlin.Unit> content, kotlin.coroutines.Continuation<? super androidx.glance.appwidget.RemoteViewsCompositionResult> p);
+  }
+
+  public final class GlanceRemoteViewsKt {
+  }
+
   public final class ImageProvidersKt {
     method public static androidx.glance.ImageProvider ImageProvider(android.net.Uri uri);
   }
@@ -115,6 +126,12 @@ package androidx.glance.appwidget {
     method public static androidx.glance.appwidget.RadioButtonColors RadioButtonColors(optional @ColorRes int color);
     method public static androidx.glance.appwidget.RadioButtonColors RadioButtonColors(long checkedColor, long uncheckedColor);
     method public static androidx.glance.GlanceModifier selectableGroup(androidx.glance.GlanceModifier);
+  }
+
+  @androidx.glance.appwidget.ExperimentalGlanceRemoteViewsApi public final class RemoteViewsCompositionResult {
+    ctor public RemoteViewsCompositionResult(android.widget.RemoteViews remoteViews);
+    method public android.widget.RemoteViews getRemoteViews();
+    property public final android.widget.RemoteViews remoteViews;
   }
 
   public final class RemoteViewsTranslatorKt {
