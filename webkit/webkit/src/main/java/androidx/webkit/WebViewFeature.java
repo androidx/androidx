@@ -96,6 +96,7 @@ public class WebViewFeature {
             DOCUMENT_START_SCRIPT,
             PROXY_OVERRIDE_REVERSE_BYPASS,
             GET_VARIATIONS_HEADER,
+            ALGORITHMIC_DARKENING,
     })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
@@ -437,6 +438,14 @@ public class WebViewFeature {
      * {@link WebSettingsCompat#getForceDarkStrategy(WebSettings)}.
      */
     public static final String FORCE_DARK_STRATEGY = "FORCE_DARK_STRATEGY";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link WebSettingsCompat#setAlgorithmicDarkeningAllowed(WebSettings, boolean)} and
+     * {@link WebSettingsCompat#isAlgorithmicDarkeningAllowed(WebSettings)}.
+     */
+    public static final String ALGORITHMIC_DARKENING = "ALGORITHMIC_DARKENING";
 
     /**
      * Feature for {@link #isFeatureSupported(String)}.
