@@ -31,7 +31,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.CompactChip
 import androidx.wear.compose.material.CircularProgressIndicator
@@ -71,9 +70,8 @@ public fun CircularProgressIndicatorWithAnimation() {
 @Sampled
 @Composable
 public fun CircularProgressIndicatorFullscreenWithGap() {
-    val padding = if (LocalConfiguration.current.isScreenRound) 3.dp else 5.dp
     CircularProgressIndicator(
-        modifier = Modifier.fillMaxSize().padding(all = padding),
+        modifier = Modifier.fillMaxSize().padding(all = 1.dp),
         startAngle = 295.5f,
         endAngle = 245.5f,
         progress = 0.3f,
