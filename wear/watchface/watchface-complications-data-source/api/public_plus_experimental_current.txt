@@ -17,7 +17,7 @@ package androidx.wear.watchface.complications.datasource {
     field public static final String EXTRA_CONFIG_COMPLICATION_TYPE = "android.support.wearable.complications.EXTRA_CONFIG_COMPLICATION_TYPE";
     field public static final String EXTRA_CONFIG_DATA_SOURCE_COMPONENT = "android.support.wearable.complications.EXTRA_CONFIG_PROVIDER_COMPONENT";
     field public static final String METADATA_KEY_DATA_SOURCE_CONFIG_ACTION = "android.support.wearable.complications.PROVIDER_CONFIG_ACTION";
-    field public static final String METADATA_KEY_DATA_SOURCE_DEFAULT_CONFIGURATION_SUPPORTED = "androidx.watchface.complications.datasource.DEFAULT_CONFIGURATION_SUPPORTED";
+    field public static final String METADATA_KEY_DATA_SOURCE_DEFAULT_CONFIG_SUPPORTED = "androidx.watchface.complications.datasource.DEFAULT_CONFIG_SUPPORTED";
     field public static final String METADATA_KEY_IMMEDIATE_UPDATE_PERIOD_MILLISECONDS = "androidx.wear.watchface.complications.data.source.IMMEDIATE_UPDATE_PERIOD_MILLISECONDS";
     field public static final String METADATA_KEY_SAFE_WATCH_FACES = "android.support.wearable.complications.SAFE_WATCH_FACES";
     field public static final String METADATA_KEY_SUPPORTED_TYPES = "android.support.wearable.complications.SUPPORTED_TYPES";
