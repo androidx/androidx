@@ -17,10 +17,7 @@
 package androidx.wear.compose.integration.demos
 
 import android.text.format.DateFormat
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.BasicCurvedText
 import androidx.wear.compose.foundation.CurvedTextStyle
 import androidx.wear.compose.material.ExperimentalWearMaterialApi
@@ -38,124 +35,20 @@ fun TimeTextClockOnly() {
 @OptIn(ExperimentalWearMaterialApi::class)
 @Composable
 fun TimeTextWithLeadingText() {
-    val textStyle = TimeTextDefaults.timeTextStyle(color = Color.Green)
+    val textStyle = TimeTextDefaults.timeTextStyle(color = AlternatePrimaryColor1)
     TimeText(
         leadingLinearContent = {
             Text(
-                text = "Leading content",
+                text = "ETA 12:48",
                 style = textStyle
             )
         },
         leadingCurvedContent = {
             BasicCurvedText(
-                text = "Leading content",
+                text = "ETA 12:48",
                 style = CurvedTextStyle(textStyle)
             )
         }
-    )
-}
-
-@OptIn(ExperimentalWearMaterialApi::class)
-@Composable
-fun TimeTextWithTrailingText() {
-    val textStyle = TimeTextDefaults.timeTextStyle(color = Color.Yellow)
-    TimeText(
-        trailingLinearContent = {
-            Text(
-                text = "Trailing content",
-                style = textStyle
-            )
-        },
-        trailingCurvedContent = {
-            BasicCurvedText(
-                text = "Trailing content",
-                style = CurvedTextStyle(textStyle)
-            )
-        }
-    )
-}
-
-@OptIn(ExperimentalWearMaterialApi::class)
-@Composable
-fun TimeTextWithLeadingAndTrailingText() {
-    val leadingTextStyle = TimeTextDefaults.timeTextStyle(color = Color.Green)
-    val trailingTextStyle = TimeTextDefaults.timeTextStyle(color = Color.Yellow)
-    TimeText(
-        leadingLinearContent = {
-            Text(
-                text = "Leading content",
-                style = leadingTextStyle
-            )
-        },
-        leadingCurvedContent = {
-            BasicCurvedText(
-                text = "Leading content",
-                style = CurvedTextStyle(leadingTextStyle)
-            )
-        },
-        trailingLinearContent = {
-            Text(
-                text = "Trailing content",
-                style = trailingTextStyle
-            )
-        },
-        trailingCurvedContent = {
-            BasicCurvedText(
-                text = "Trailing content",
-                style = CurvedTextStyle(trailingTextStyle)
-            )
-        }
-    )
-}
-
-@OptIn(ExperimentalWearMaterialApi::class)
-@Composable
-fun TimeTextWithPadding() {
-    val leadingTextStyle = TimeTextDefaults.timeTextStyle(color = Color.Green)
-    val trailingTextStyle = TimeTextDefaults.timeTextStyle(color = Color.Yellow)
-    TimeText(
-        leadingLinearContent = {
-            Text(
-                text = "Leading content",
-                style = leadingTextStyle
-            )
-        },
-        leadingCurvedContent = {
-            BasicCurvedText(
-                text = "Leading content",
-                style = CurvedTextStyle(leadingTextStyle)
-            )
-        },
-        trailingLinearContent = {
-            Text(
-                text = "Trailing content",
-                style = trailingTextStyle
-            )
-        },
-        trailingCurvedContent = {
-            BasicCurvedText(
-                text = "Trailing content",
-                style = CurvedTextStyle(trailingTextStyle)
-            )
-        },
-        contentPadding = PaddingValues(8.dp)
-    )
-}
-
-@OptIn(ExperimentalWearMaterialApi::class)
-@Composable
-fun TimeTextWithLongDateTime() {
-    TimeText(
-        timeSource = TimeTextDefaults.timeSource("yyyy.MM.dd HH:mm:ss")
-    )
-}
-
-@OptIn(ExperimentalWearMaterialApi::class)
-@Composable
-fun TimeTextWithCustomFormatAndColor() {
-    TimeText(
-        timeSource = TimeTextDefaults.timeSource("EEE, d MMM yyyy HH:mm:ss z"),
-        timeTextStyle = TimeTextDefaults.timeTextStyle(color = Color.Red)
     )
 }
 
