@@ -123,3 +123,6 @@ It looks like you are a Googler running without remote build cache.*
 > Run with \-\-scan to get full insights\.
 # developers already see this message when local builds fail and don't need to also see it in CI
 \* Get more help at https://help\.gradle\.org
+# Flaky printout from kapt
+WARNING: Illegal reflective access by org\.jetbrains\.kotlin\.kapt3\.util\.ModuleManipulationUtilsKt .* to constructor com\.sun\.tools\.javac\.util\.Context\(\)
+WARNING: Please consider reporting this to the maintainers of org\.jetbrains\.kotlin\.kapt3\.util\.ModuleManipulationUtilsKt
