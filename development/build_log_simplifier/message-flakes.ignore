@@ -117,3 +117,9 @@ warning\: The following options were not recognized by any processor\: \'\[dagge
 Native API checking is currently not supported on non-linux devices
 # Known warning for Googlers
 It looks like you are a Googler running without remote build cache.*
+# built-in Gradle suggestions that a developer can't easily take when running remotely in CI
+\* Try:
+> Run with \-\-info or \-\-debug option to get more log output\.
+> Run with \-\-scan to get full insights\.
+# developers already see this message when local builds fail and don't need to also see it in CI
+\* Get more help at https://help\.gradle\.org
