@@ -77,22 +77,21 @@ private object MyTemplate : ListTemplate() {
         require(state is Preferences)
         val content = mutableListOf<ListItem>()
         for (i in 1..(state[CountKey] ?: 1)) {
-            var title = "Item $i"
+            var itemNumber = "Item $i"
             if (state[ItemClickedKey] == i) {
-                title = "$title (clicked)"
+              itemNumber = "$itemNumber (clicked)"
             }
             content.add(ListItem(
-                title = TemplateText(title, Type.Title),
-                body = TemplateText(
-                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit",
-                    Type.Body
-                ),
+                title = TemplateText("Title Small Lorem ipsum dolor sit amet, consectetur",
+                                     Type.Title),
+                body = TemplateText("Label Small $itemNumber", Type.Body),
                 image = TemplateImageWithDescription(
                     ImageProvider(R.drawable.compose), "List item $i image"
                 ),
                 action = actionRunCallback<ListTemplateItemAction>(actionParametersOf(
                     ClickedKey to i
                 )),
+                button = TemplateTextButton(actionRunCallback<ListButtonAction>(), "Button"),
             ))
         }
 
