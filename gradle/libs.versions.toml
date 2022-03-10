@@ -62,7 +62,7 @@ autoValue = { module = "com.google.auto.value:auto-value", version.ref = "autoVa
 autoValueAnnotations = { module = "com.google.auto.value:auto-value-annotations", version.ref = "autoValue" }
 autoValueParcel = { module = "com.ryanharter.auto.value:auto-value-parcel", version = "0.2.6" }
 antlr4 = { module = "org.antlr:antlr4", version = "4.7.1" }
-apacheCommonsCodec = { module = "commons-codec:commons-codec", version = "1.10" }
+apacheCommonsCodec = { module = "commons-codec:commons-codec", version = "1.15" }
 assertj = { module = "org.assertj:assertj-core", version = "3.11.1" }
 checkerframework = { module = "org.checkerframework:checker-qual", version = "2.5.3" }
 constraintLayout = { module = "androidx.constraintlayout:constraintlayout", version = "2.0.1"}
