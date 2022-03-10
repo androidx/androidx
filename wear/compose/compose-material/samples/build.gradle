@@ -37,6 +37,13 @@ dependencies {
     implementation(project(":compose:ui:ui-text"))
     implementation(project(":wear:compose:compose-material"))
     implementation(project(":wear:compose:compose-foundation"))
+
+    androidTestImplementation(project(":compose:ui:ui-test"))
+    androidTestImplementation(project(":compose:ui:ui-test-junit4"))
+    androidTestImplementation(project(":compose:test-utils"))
+
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.truth)
 }
 
 android {
