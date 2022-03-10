@@ -36,13 +36,12 @@ import androidx.wear.compose.material.samples.CompactChipWithIconAndLabel
 import androidx.wear.compose.material.samples.ConfirmationDialogSample
 import androidx.wear.compose.material.samples.ConfirmationWithAnimation
 import androidx.wear.compose.material.samples.CurvedTextDemo
-import androidx.wear.compose.material.samples.DualPicker
+import androidx.wear.compose.material.samples.FixedFontSize
 import androidx.wear.compose.material.samples.HorizontalPageIndicatorSample
 import androidx.wear.compose.material.samples.IndeterminateCircularProgressIndicator
 import androidx.wear.compose.material.samples.InlineSliderSample
 import androidx.wear.compose.material.samples.InlineSliderSegmentedSample
 import androidx.wear.compose.material.samples.InlineSliderWithIntegerSample
-import androidx.wear.compose.material.samples.OptionChangePicker
 import androidx.wear.compose.material.samples.ScalingLazyColumnEdgeAnchoredAndAnimatedScrollTo
 import androidx.wear.compose.material.samples.SimplePicker
 import androidx.wear.compose.material.samples.SimpleScaffoldWithScrollIndicator
@@ -108,12 +107,6 @@ val WearMaterialDemos = DemoCategory(
                 },
                 ComposableDemo("Simple Picker") {
                     SimplePicker()
-                },
-                ComposableDemo("Change Selected Option Picker") {
-                    OptionChangePicker()
-                },
-                ComposableDemo("Dual Picker") {
-                    DualPicker()
                 },
             )
         ),
@@ -540,6 +533,13 @@ val WearMaterialDemos = DemoCategory(
             listOf(
                 ComposableDemo("Fonts") {
                     ThemeFonts()
+                },
+                ComposableDemo(title = "Fixed Font Size", description =
+                    "Display1 font size not impacted by changes to user font selection",
+                ) {
+                    Centralize {
+                        FixedFontSize()
+                    }
                 },
                 ComposableDemo("Colors") {
                     ThemeColors()
