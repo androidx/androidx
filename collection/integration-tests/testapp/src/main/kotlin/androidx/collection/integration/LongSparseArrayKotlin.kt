@@ -38,8 +38,8 @@ class LongSparseArrayKotlin(initialCapacity: Int) : LongSparseArray<Int>(initial
         return super.get(key)
     }
 
-    override fun get(key: Long, valueIfKeyNotFound: Int?): Int {
-        return super.get(key, valueIfKeyNotFound)
+    override fun get(key: Long, defaultValue: Int): Int {
+        return super.get(key, defaultValue)
     }
 
     @Suppress("DEPRECATION")
@@ -51,7 +51,7 @@ class LongSparseArrayKotlin(initialCapacity: Int) : LongSparseArray<Int>(initial
         super.remove(key)
     }
 
-    override fun remove(key: Long, value: Any?): Boolean {
+    override fun remove(key: Long, value: Int): Boolean {
         return super.remove(key, value)
     }
 
@@ -59,15 +59,15 @@ class LongSparseArrayKotlin(initialCapacity: Int) : LongSparseArray<Int>(initial
         super.removeAt(index)
     }
 
-    override fun replace(key: Long, value: Int?): Int? {
+    override fun replace(key: Long, value: Int): Int? {
         return super.replace(key, value)
     }
 
-    override fun replace(key: Long, oldValue: Int?, newValue: Int?): Boolean {
+    override fun replace(key: Long, oldValue: Int, newValue: Int): Boolean {
         return super.replace(key, oldValue, newValue)
     }
 
-    override fun put(key: Long, value: Int?) {
+    override fun put(key: Long, value: Int) {
         super.put(key, value)
     }
 
@@ -75,7 +75,7 @@ class LongSparseArrayKotlin(initialCapacity: Int) : LongSparseArray<Int>(initial
         super.putAll(other)
     }
 
-    override fun putIfAbsent(key: Long, value: Int?): Int? {
+    override fun putIfAbsent(key: Long, value: Int): Int? {
         return super.putIfAbsent(key, value)
     }
 
@@ -95,7 +95,7 @@ class LongSparseArrayKotlin(initialCapacity: Int) : LongSparseArray<Int>(initial
         return super.valueAt(index)
     }
 
-    override fun setValueAt(index: Int, value: Int?) {
+    override fun setValueAt(index: Int, value: Int) {
         super.setValueAt(index, value)
     }
 
@@ -103,7 +103,7 @@ class LongSparseArrayKotlin(initialCapacity: Int) : LongSparseArray<Int>(initial
         return super.indexOfKey(key)
     }
 
-    override fun indexOfValue(value: Int?): Int {
+    override fun indexOfValue(value: Int): Int {
         return super.indexOfValue(value)
     }
 
@@ -111,7 +111,7 @@ class LongSparseArrayKotlin(initialCapacity: Int) : LongSparseArray<Int>(initial
         return super.containsKey(key)
     }
 
-    override fun containsValue(value: Int?): Boolean {
+    override fun containsValue(value: Int): Boolean {
         return super.containsValue(value)
     }
 
@@ -119,7 +119,7 @@ class LongSparseArrayKotlin(initialCapacity: Int) : LongSparseArray<Int>(initial
         super.clear()
     }
 
-    override fun append(key: Long, value: Int?) {
+    override fun append(key: Long, value: Int) {
         super.append(key, value)
     }
 
@@ -130,18 +130,18 @@ class LongSparseArrayKotlin(initialCapacity: Int) : LongSparseArray<Int>(initial
 
 fun longSparseArraySourceCompatibility(): Boolean {
     val array = LongSparseArray<Int>(10)
-    array.put(0, null)
+    array.put(0, 0)
     array.putAll(array)
-    array.putIfAbsent(1, null)
-    array.append(2, null)
+    array.putIfAbsent(1, 0)
+    array.append(2, 0)
     array.remove(2)
     array.removeAt(2)
-    array.setValueAt(3, null)
+    array.setValueAt(3, 0)
     array.clear()
 
-    return array.size() == 0 && array.isEmpty && array.get(0) == array[0] &&
-        array.get(2, null) == null && array[2, null] == null && array.containsKey(0) &&
-        array.containsValue(null) && array.remove(0, 0) && array.replace(0, null, 1) &&
-        array.replace(0, null) == null && array.indexOfKey(0) == array.indexOfValue(null) &&
-        array.valueAt(3) == null
+    return array.size() == 0 && array.isEmpty() && array.get(0) == array[0] &&
+        array.get(2, 0) == 1 && array.containsKey(0) &&
+        array.containsValue(0) && array.remove(0, 0) && array.replace(0, 0, 1) &&
+        array.replace(0, 0) == null && array.indexOfKey(0) == array.indexOfValue(0) &&
+        array.valueAt(3) == 0
 }

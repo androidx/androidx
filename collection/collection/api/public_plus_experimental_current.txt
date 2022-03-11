@@ -84,31 +84,31 @@ package androidx.collection {
   }
 
   public class LongSparseArray<E> implements java.lang.Cloneable {
+    ctor public LongSparseArray(optional int initialCapacity);
     ctor public LongSparseArray();
-    ctor public LongSparseArray(int);
-    method public void append(long, E!);
+    method public void append(long key, E? value);
     method public void clear();
-    method public androidx.collection.LongSparseArray<E!>! clone();
-    method public boolean containsKey(long);
-    method public boolean containsValue(E!);
-    method @Deprecated public void delete(long);
-    method public E? get(long);
-    method public E! get(long, E!);
-    method public int indexOfKey(long);
-    method public int indexOfValue(E!);
+    method public androidx.collection.LongSparseArray<E> clone();
+    method public boolean containsKey(long key);
+    method public boolean containsValue(E? value);
+    method @Deprecated public void delete(long key);
+    method public operator E? get(long key);
+    method public E! get(long key, E? defaultValue);
+    method public int indexOfKey(long key);
+    method public int indexOfValue(E? value);
     method public boolean isEmpty();
-    method public long keyAt(int);
-    method public void put(long, E!);
-    method public void putAll(androidx.collection.LongSparseArray<? extends E>);
-    method public E? putIfAbsent(long, E!);
-    method public void remove(long);
-    method public boolean remove(long, Object!);
-    method public void removeAt(int);
-    method public E? replace(long, E!);
-    method public boolean replace(long, E!, E!);
-    method public void setValueAt(int, E!);
+    method public long keyAt(int index);
+    method public void put(long key, E? value);
+    method public void putAll(androidx.collection.LongSparseArray<? extends E> other);
+    method public E? putIfAbsent(long key, E? value);
+    method public void remove(long key);
+    method public boolean remove(long key, E? value);
+    method public void removeAt(int index);
+    method public E? replace(long key, E? value);
+    method public boolean replace(long key, E? oldValue, E? newValue);
+    method public void setValueAt(int index, E? value);
     method public int size();
-    method public E! valueAt(int);
+    method public E! valueAt(int index);
   }
 
   public class LruCache<K, V> {

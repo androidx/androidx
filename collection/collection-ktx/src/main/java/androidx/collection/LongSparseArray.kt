@@ -46,7 +46,7 @@ public inline fun <T> LongSparseArray<T>.getOrElse(key: Long, defaultValue: () -
     get(key) ?: defaultValue()
 
 /** Return true when the collection contains elements. */
-public inline fun <T> LongSparseArray<T>.isNotEmpty(): Boolean = !isEmpty
+public inline fun <T> LongSparseArray<T>.isNotEmpty(): Boolean = !isEmpty()
 
 /** Removes the entry for [key] only if it is mapped to [value]. */
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER") // Binary API compatibility.

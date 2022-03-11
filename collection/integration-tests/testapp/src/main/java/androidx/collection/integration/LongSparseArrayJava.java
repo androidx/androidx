@@ -28,6 +28,7 @@ import androidx.collection.LongSparseArray;
 @SuppressWarnings("unused")
 class LongSparseArrayJava<E> extends LongSparseArray<E> {
 
+    @NonNull
     @Override
     public LongSparseArray<E> clone() {
         return super.clone();
@@ -56,7 +57,7 @@ class LongSparseArrayJava<E> extends LongSparseArray<E> {
     }
 
     @Override
-    public boolean remove(long key, Object value) {
+    public boolean remove(long key, E value) {
         return super.remove(key, value);
     }
 
@@ -147,6 +148,7 @@ class LongSparseArrayJava<E> extends LongSparseArray<E> {
         super.append(key, value);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return super.toString();
@@ -162,6 +164,7 @@ class LongSparseArrayJava<E> extends LongSparseArray<E> {
         return super.equals(obj);
     }
 
+    @SuppressWarnings("BoxedPrimitiveEquality, ConstantConditions, ReferenceEquality")
     public static boolean sourceCompatibility() {
         LongSparseArray<Integer> array = new LongSparseArray<>(10);
         array.put(0, null);
@@ -173,10 +176,10 @@ class LongSparseArrayJava<E> extends LongSparseArray<E> {
         array.setValueAt(3, null);
         array.clear();
 
-        //noinspection NumberEquality
-        return array.size() == 0 && array.isEmpty() && array.get(0) == array.get(2, null)
-                && array.get(2, null) == null && array.containsKey(0) && array.containsValue(null)
-                && array.remove(0, 0) && array.replace(0, null, 1) && array.replace(0, null) == null
+        return array.size() == 0 && array.isEmpty() && array.get(0).equals(array.get(2, null))
+                && array.get(2, null).equals(null) && array.containsKey(0)
+                && array.containsValue(null) && array.remove(0, 0) && array.replace(0, null, 1)
+                && array.replace(0, null) == null
                 && array.indexOfKey(0) == array.indexOfValue(null) && array.valueAt(3) == null;
     }
 }
