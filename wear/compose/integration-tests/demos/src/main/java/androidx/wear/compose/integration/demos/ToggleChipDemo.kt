@@ -128,7 +128,7 @@ fun ToggleChips(
                         )
                     },
                     secondaryLabel = {
-                        Text("With secondary label", maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text("Custom Color", maxLines = 1, overflow = TextOverflow.Ellipsis)
                     },
                     checked = radioIconWithSecondaryChecked,
                     toggleControl = {
@@ -136,6 +136,10 @@ fun ToggleChips(
                     },
                     onCheckedChange = { radioIconWithSecondaryChecked = it },
                     enabled = enabled,
+                    colors = ToggleChipDefaults.toggleChipColors(
+                        checkedToggleControlTintColor = AlternatePrimaryColor3,
+                        checkedEndBackgroundColor = AlternatePrimaryColor3.copy(alpha = 0.325f)
+                    )
                 )
             }
         }

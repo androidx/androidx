@@ -328,27 +328,6 @@ val WearMaterialDemos = DemoCategory(
             )
         ),
         DemoCategory(
-            "Page Indicator",
-            listOf(
-                DemoCategory(
-                    "Samples",
-                    listOf(
-                        ComposableDemo("Sample with InlineSlider") {
-                            Centralize { HorizontalPageIndicatorSample() }
-                        },
-                    )
-                ),
-                DemoCategory(
-                    "Demos",
-                    listOf(
-                        ComposableDemo("Customized PageIndicator") {
-                            CustomizedHorizontalPageIndicator()
-                        },
-                    )
-                )
-            )
-        ),
-        DemoCategory(
             "Toggle Chip",
             listOf(
                 DemoCategory("Samples",
@@ -403,6 +382,27 @@ val WearMaterialDemos = DemoCategory(
                     )
                 ),
                 ComposableDemo("Demos") { CardDemo() },
+            )
+        ),
+        DemoCategory(
+            "Page Indicator",
+            listOf(
+                DemoCategory(
+                    "Samples",
+                    listOf(
+                        ComposableDemo("Sample with InlineSlider") {
+                            Centralize { HorizontalPageIndicatorSample() }
+                        },
+                    )
+                ),
+                DemoCategory(
+                    "Demos",
+                    listOf(
+                        ComposableDemo("Customized PageIndicator") {
+                            CustomizedHorizontalPageIndicator()
+                        },
+                    )
+                )
             )
         ),
         DemoCategory(

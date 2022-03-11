@@ -48,6 +48,7 @@ import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipColors
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.CompactChip
+import androidx.wear.compose.material.ListHeader
 import androidx.wear.compose.material.LocalContentColor
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.ScalingLazyColumn
@@ -249,20 +250,11 @@ fun AvatarChips() {
     ScalingLazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
-        contentPadding = PaddingValues(
-            start = 8.dp,
-            end = 8.dp,
-            top = 15.dp,
-            bottom = 50.dp
-        )
     ) {
         item {
-            Text(
-                text = "Chips with avatars",
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.body2,
-                color = Color.White
-            )
+            ListHeader {
+                Text(text = "Chips with avatars")
+            }
         }
         item {
             DemoIconChip(
@@ -292,12 +284,9 @@ fun AvatarChips() {
             }
         }
         item {
-            Text(
-                text = "Small Avatar Chips",
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.body2,
-                color = Color.White
-            )
+            ListHeader {
+                Text(text = "Small Avatar Chips")
+            }
         }
         item {
             DemoIconChip(
@@ -323,9 +312,9 @@ fun AvatarChips() {
             DemoIconChip(
                 label = "Custom Gradient Color",
                 secondaryLabel = "Matching Secondary Label Color",
-                secondaryLabelColor = Color(0x775FB2FF),
+                secondaryLabelColor = AlternatePrimaryColor3,
                 colors = ChipDefaults.gradientBackgroundChipColors(
-                    startBackgroundColor = Color(0x775FB2FF).copy(alpha = 0.325f)
+                    startBackgroundColor = AlternatePrimaryColor3.copy(alpha = 0.325f)
                         .compositeOver(MaterialTheme.colors.surface.copy(alpha = 0.75f)),
                 ),
                 enabled = enabled,
@@ -443,59 +432,12 @@ fun CustomChips() {
         )
     ) {
         item {
-            MaterialTheme(colors = MaterialTheme.colors.copy(primary = Color.Cyan)) {
+            MaterialTheme(colors = MaterialTheme.colors.copy(primary = AlternatePrimaryColor1)) {
                 DemoIconChip(
                     label = "Overridden Theme Primary + Icon",
                     colors = ChipDefaults.primaryChipColors(),
                     enabled = enabled,
                 ) { DemoIcon(resourceId = R.drawable.ic_accessibility_24px) }
-            }
-        }
-        item {
-            DemoLabelChip(
-                label = "Custom background",
-                secondaryLabel = "With secondary label",
-                colors = ChipDefaults.primaryChipColors(
-                    backgroundColor = Color.Yellow.copy(alpha = 0.5f)
-                ),
-                enabled = enabled,
-            )
-        }
-        item {
-            Chip(
-                onClick = { },
-                colors = ChipDefaults.primaryChipColors(),
-                label = {
-                    Text(
-                        text = "Custom label color", maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        color = Color.Yellow,
-                    )
-                },
-                secondaryLabel = {
-                    Text(
-                        text = "Custom secondary label color",
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        color = Color.Yellow,
-                    )
-                },
-                icon = { DemoIcon(resourceId = R.drawable.ic_accessibility_24px) },
-                enabled = enabled
-            )
-        }
-        item {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentWidth(Alignment.CenterHorizontally)
-            ) {
-                DemoLabelChip(
-                    label = "Chip with fixed width",
-                    modifier = Modifier.width(100.dp),
-                    colors = ChipDefaults.primaryChipColors(),
-                    enabled = enabled,
-                )
             }
         }
         item {
@@ -507,13 +449,12 @@ fun CustomChips() {
                 CompactChip(
                     onClick = {
                         Toast.makeText(
-                            applicationContext, "Wrap content chip with custom background color",
+                            applicationContext, "Compact chip with custom color",
                             Toast.LENGTH_LONG
                         ).show()
                     },
                     colors = ChipDefaults.primaryChipColors(
-                        backgroundColor = Color.Yellow,
-                        contentColor = MaterialTheme.colors.surface
+                        contentColor = AlternatePrimaryColor2
                     ),
                     icon = {
                         DemoIcon(
@@ -539,7 +480,9 @@ fun CustomChips() {
                         ).show()
                     },
                     modifier = Modifier.width(100.dp),
-                    colors = ChipDefaults.secondaryChipColors(contentColor = Color.Yellow),
+                    colors = ChipDefaults.secondaryChipColors(
+                        contentColor = AlternatePrimaryColor3
+                    ),
                     icon = {
                         DemoIcon(
                             resourceId = R.drawable.ic_accessibility_24px,

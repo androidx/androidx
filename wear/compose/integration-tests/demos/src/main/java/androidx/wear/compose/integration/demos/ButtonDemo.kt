@@ -128,8 +128,7 @@ fun ButtonStyles() {
                     ).show()
                 },
                 colors = ButtonDefaults.primaryButtonColors(
-                    backgroundColor = Color.Yellow,
-                    contentColor = Color.Red
+                    backgroundColor = AlternatePrimaryColor1,
                 ),
                 enabled = enabled,
             ) {
