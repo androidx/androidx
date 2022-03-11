@@ -45,4 +45,11 @@ public interface MenuProvider {
      *         {@code false} otherwise
      */
     boolean onMenuItemSelected(@NonNull MenuItem menuItem);
+
+    /**
+     * Called by the {@link MenuHost} when the {@link Menu} is closed.
+     *
+     * @param menu the menu that was closed
+     */
+    default void onMenuClosed(@NonNull Menu menu) {}
 }

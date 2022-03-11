@@ -81,6 +81,18 @@ public class MenuHostHelper {
     }
 
     /**
+     * Called when the given {@link Menu}, which was provided by one of the
+     * current {@link MenuProvider}s, is closed.
+     *
+     * @param menu the menu that has been closed
+     */
+    public void onMenuClosed(@NonNull Menu menu) {
+        for (MenuProvider menuProvider : mMenuProviders) {
+            menuProvider.onMenuClosed(menu);
+        }
+    }
+
+    /**
      * Adds the given {@link MenuProvider} to the helper.
      *
      * @param provider the MenuProvider to be added

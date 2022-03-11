@@ -81,6 +81,10 @@ class TestMenuHost(private val menu: Menu, private val menuInflater: MenuInflate
         return menuHostHelper.onMenuItemSelected(item)
     }
 
+    fun onMenuClosed(menu: Menu) {
+        menuHostHelper.onMenuClosed(menu)
+    }
+
     override fun addMenuProvider(provider: MenuProvider) {
         menuHostHelper.addMenuProvider(provider)
     }
