@@ -67,7 +67,7 @@ package androidx.lifecycle {
   public static final class ViewModelProvider.NewInstanceFactory.Companion {
   }
 
-  public final class ViewModelProviderKt {
+  public final class ViewModelProviderGetKt {
     method @MainThread public static inline <reified VM extends androidx.lifecycle.ViewModel> VM! get(androidx.lifecycle.ViewModelProvider);
   }
 
