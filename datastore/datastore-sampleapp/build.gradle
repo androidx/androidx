@@ -21,8 +21,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.protobuf")
-    id 'org.jetbrains.kotlin.plugin.serialization' version '1.4.21'
-
+    alias(libs.plugins.kotlinSerialization)
 }
 
 dependencies {
