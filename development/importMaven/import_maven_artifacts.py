@@ -80,6 +80,13 @@ def main():
     process.communicate()
     assert not process.returncode
 
+    # TODO(b/223642687) automate the updating of signature information
+    COLOR_YELLOW="\u001B[33m"
+    COLOR_CLEAR="\u001B[0m"
+    print("")
+    print(COLOR_YELLOW + "You may also need to update signature information. See gradle/README.md" + COLOR_CLEAR)
+    print("")
+
     # Generate our own .pom file so Gradle will use this artifact without also checking the internet.
     # This can be removed once https://youtrack.jetbrains.com/issue/KT-35049 is resolved
     if ("kotlin-native-linux" in artifact_name):
