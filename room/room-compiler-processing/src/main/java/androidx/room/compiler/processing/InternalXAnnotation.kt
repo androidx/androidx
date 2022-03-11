@@ -28,34 +28,41 @@ internal interface InternalXAnnotation : XAnnotation {
  * nested inside it.
  */
 internal fun XAnnotation.unwrapRepeatedAnnotationsFromContainer(): List<XAnnotation>? {
-    // The contract of a repeatable annotation requires that the container annotation have a single
-    // "default" method that returns an array typed with the repeatable annotation type.
-    if (annotationValues.size != 1 ||
-        annotationValues[0].name != "value" ||
-        annotationValues[0].value !is List<*>) {
-        return null
-    }
-    val nestedValues = getAsAnnotationValueList("value")
+    return try {
+        // The contract of a repeatable annotation requires that the container annotation have a
+        // single "default" method that returns an array typed with the repeatable annotation type.
+        if (annotationValues.size != 1 ||
+            annotationValues[0].name != "value" ||
+            annotationValues[0].value !is List<*>
+        ) {
+            return null
+        }
+        val nestedValues = getAsAnnotationValueList("value")
 
-    if (nestedValues.isEmpty() || nestedValues[0].value !is XAnnotation) {
-        return null
-    }
-    val nestedAnnotations = nestedValues.map { it.asAnnotation() }
+        if (nestedValues.isEmpty() || nestedValues[0].value !is XAnnotation) {
+            return null
+        }
+        val nestedAnnotations = nestedValues.map { it.asAnnotation() }
 
-    // Ideally we would read the value of the Repeatable annotation to get the container class
-    // type and check that it matches "this" type. However, there seems to be a KSP bug where
-    // the value of Repeatable is not present so the best we can do is check that all the nested
-    // members are annotated with repeatable.
-    // https://github.com/google/ksp/issues/358
-    val isRepeatable = nestedAnnotations.isNotEmpty() && nestedAnnotations.all {
-        // The java and kotlin versions of Repeatable are not interchangeable.
-        // https://github.com/google/ksp/issues/459 asks whether the built in type mapper
-        // should convert them, but it may not be possible because there are differences
-        // to how they work (eg different parameters).
-        it.type.typeElement?.hasAnyAnnotation(
-            Repeatable::class, kotlin.annotation.Repeatable::class
-        ) == true
-    }
+        // Ideally we would read the value of the Repeatable annotation to get the container class
+        // type and check that it matches "this" type. However, there seems to be a KSP bug where
+        // the value of Repeatable is not present so the best we can do is check that all the nested
+        // members are annotated with repeatable.
+        // https://github.com/google/ksp/issues/358
+        val isRepeatable = nestedAnnotations.isNotEmpty() && nestedAnnotations.all {
+            // The java and kotlin versions of Repeatable are not interchangeable.
+            // https://github.com/google/ksp/issues/459 asks whether the built in type mapper
+            // should convert them, but it may not be possible because there are differences
+            // to how they work (eg different parameters).
+            it.type.typeElement?.hasAnyAnnotation(
+                Repeatable::class, kotlin.annotation.Repeatable::class
+            ) == true
+        }
 
-    return if (isRepeatable) nestedAnnotations else null
+        return if (isRepeatable) nestedAnnotations else null
+    } catch (e: Throwable) {
+        // If the "value" type either doesn't exist or isn't an array of annotations then the
+        // above code will throw.
+        null
+    }
 }
