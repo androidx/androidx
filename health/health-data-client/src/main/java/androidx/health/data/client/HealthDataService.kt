@@ -21,7 +21,6 @@ import android.os.Build
 import androidx.annotation.RestrictTo
 import androidx.health.data.client.impl.HealthDataClientImpl
 import androidx.health.platform.client.HealthDataService
-import java.lang.UnsupportedOperationException
 
 /**
  * Entry point for connecting to Health Data Provider on the device and creating instances of
@@ -29,7 +28,8 @@ import java.lang.UnsupportedOperationException
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 object HealthDataService {
-    private const val DEFAULT_PROVIDER_PACKAGE_NAME = "com.google.android.apps.healthdata"
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    const val DEFAULT_PROVIDER_PACKAGE_NAME = "com.google.android.apps.healthdata"
 
     /**
      * Determines whether there [HealthDataClient] is available on this device at the moment.
@@ -53,7 +53,7 @@ object HealthDataService {
     /**
      * Creates an IPC-backed [HealthDataClient] instance binding to an available implementation.
      *
-     * @param packageNames optional package provider to choose implementation from
+     * @param packageName optional package provider to choose implementation from
      * @return instance of [HealthDataClient] ready for issuing requests
      * @throws UnsupportedOperationException if service not available
      */
@@ -61,7 +61,7 @@ object HealthDataService {
     @JvmStatic
     public fun getClient(
         context: Context,
-        packageNames: List<String> = listOf(DEFAULT_PROVIDER_PACKAGE_NAME)
+        packageNames: List<String> = listOf(DEFAULT_PROVIDER_PACKAGE_NAME),
     ): HealthDataClient {
         if (!isAvailable(context, packageNames)) {
             throw UnsupportedOperationException("Not supported yet")

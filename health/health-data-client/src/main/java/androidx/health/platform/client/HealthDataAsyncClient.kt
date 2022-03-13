@@ -61,4 +61,11 @@ interface HealthDataAsyncClient {
     fun aggregate(
         request: RequestProto.AggregateDataRequest
     ): ListenableFuture<ResponseProto.AggregateDataResponse>
+
+    fun getChangesToken(
+        request: RequestProto.GetChangesTokenRequest
+    ): ListenableFuture<ResponseProto.GetChangesTokenResponse>
+    fun getChanges(
+        request: RequestProto.GetChangesRequest
+    ): ListenableFuture<ResponseProto.GetChangesResponse>
 }

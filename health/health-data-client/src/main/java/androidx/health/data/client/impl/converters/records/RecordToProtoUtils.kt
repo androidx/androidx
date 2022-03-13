@@ -20,6 +20,7 @@ import androidx.health.data.client.metadata.Metadata
 import androidx.health.data.client.records.InstantaneousRecord
 import androidx.health.data.client.records.IntervalRecord
 import androidx.health.platform.client.proto.DataProto
+import java.time.Instant
 
 internal fun protoDataType(dataTypeName: String): DataProto.DataType =
     DataProto.DataType.newBuilder().setName(dataTypeName).build()
@@ -49,13 +50,22 @@ internal fun IntervalRecord.intervalProto(): DataProto.DataPoint.Builder {
 @SuppressWarnings("GoodTime", "NewApi") // Suppress GoodTime for serialize/de-serialize.
 private fun DataProto.DataPoint.Builder.setMetadata(metadata: Metadata) = apply {
     metadata.uid?.let { setUid(it) }
-    setDataOrigin(
-        DataProto.DataOrigin.newBuilder().setApplicationId(metadata.dataOrigin.packageName).build()
-    )
-    metadata.lastModifiedTime.let { setUpdateTimeMillis(it.toEpochMilli()) }
+    if (metadata.dataOrigin.packageName.isNotEmpty()) {
+        setDataOrigin(
+            DataProto.DataOrigin.newBuilder()
+                .setApplicationId(metadata.dataOrigin.packageName)
+                .build()
+        )
+    }
+
+    if (metadata.lastModifiedTime.isAfter(Instant.EPOCH)) {
+        setUpdateTimeMillis(metadata.lastModifiedTime.toEpochMilli())
+    }
 
     metadata.clientId?.let { setClientId(it) }
-    metadata.clientVersion.let { setClientVersion(it) }
+    if (metadata.clientVersion > 0) {
+        metadata.clientVersion.let { setClientVersion(it) }
+    }
     metadata.device?.let { setDevice(it.toProto()) }
 }
 

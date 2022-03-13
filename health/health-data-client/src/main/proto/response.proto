@@ -17,6 +17,7 @@ syntax = "proto2";
 
 package androidx.health.platform.client.proto;
 
+import "change.proto";
 import "data.proto";
 
 option java_package = "androidx.health.platform.client.proto";
@@ -48,4 +49,15 @@ message ReadDataRangeResponse {
 
 message AggregateDataResponse {
   repeated AggregateDataRow rows = 1;
+}
+
+message GetChangesTokenResponse {
+  optional string changes_token = 1;
+}
+
+message GetChangesResponse {
+  repeated DataChange changes = 1;
+  optional bool has_more = 2;
+  optional string next_changes_token = 3;
+  optional bool changes_token_expired = 4;
 }
