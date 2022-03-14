@@ -755,6 +755,15 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
         mFlag |= PF_FORCE_FULL_LAYOUT;
     }
 
+    /**
+     * Sets whether focus can move out from the front and/or end of the grid view.
+     */
+    public void setFocusOutAllowed(boolean throughFront, boolean throughEnd) {
+        mFlag = (mFlag & ~PF_FOCUS_OUT_MASKS)
+                | (throughFront ? PF_FOCUS_OUT_FRONT : 0)
+                | (throughEnd ? PF_FOCUS_OUT_END : 0);
+    }
+
     void onRtlPropertiesChanged(int layoutDirection) {
         final int flags;
         if (mOrientation == HORIZONTAL) {
@@ -836,12 +845,6 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     int getItemAlignmentViewId() {
         return mItemAlignment.mainAxis().getItemAlignmentViewId();
-    }
-
-    void setFocusOutAllowed(boolean throughFront, boolean throughEnd) {
-        mFlag = (mFlag & ~PF_FOCUS_OUT_MASKS)
-                | (throughFront ? PF_FOCUS_OUT_FRONT : 0)
-                | (throughEnd ? PF_FOCUS_OUT_END : 0);
     }
 
     void setFocusOutSideAllowed(boolean throughStart, boolean throughEnd) {
