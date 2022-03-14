@@ -29,6 +29,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
+import androidx.camera.camera2.internal.compat.workaround.SupportedRepeatingSurfaceSize;
 import androidx.camera.core.Logger;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.Config;
@@ -50,7 +51,6 @@ import java.util.Collections;
  * <p> When ImageCapture only to do the action of takePicture, the MeteringRepeating is
  * created in Camera2 layer to make Camera2 have the repeating surface to metering the auto 3A or
  * wait for 3A converged.
- *
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class MeteringRepeatingSession {
@@ -59,6 +59,10 @@ class MeteringRepeatingSession {
 
     @NonNull
     private final SessionConfig mSessionConfig;
+
+    @NonNull
+    private final SupportedRepeatingSurfaceSize mSupportedRepeatingSurfaceSize =
+            new SupportedRepeatingSurfaceSize();
 
     /** Creates a new instance of a {@link MeteringRepeatingSession}. */
     MeteringRepeatingSession(@NonNull CameraCharacteristicsCompat cameraCharacteristicsCompat) {
@@ -125,6 +129,7 @@ class MeteringRepeatingSession {
     private static class MeteringRepeatingConfig implements UseCaseConfig<UseCase> {
         @NonNull
         private final Config mConfig;
+
         MeteringRepeatingConfig() {
             MutableOptionsBundle mutableOptionsBundle = MutableOptionsBundle.create();
             mutableOptionsBundle.insertOption(UseCaseConfig.OPTION_SESSION_CONFIG_UNPACKER,
@@ -139,7 +144,8 @@ class MeteringRepeatingSession {
         }
     }
 
-    @NonNull private Size getMinimumPreviewSize(@NonNull CameraCharacteristicsCompat
+    @NonNull
+    private Size getMinimumPreviewSize(@NonNull CameraCharacteristicsCompat
             cameraCharacteristicsCompat) {
         Size[] outputSizes;
         StreamConfigurationMap map = cameraCharacteristicsCompat.get(
@@ -160,6 +166,8 @@ class MeteringRepeatingSession {
             Logger.e(TAG, "Can not get output size list.");
             return new Size(0, 0);
         }
+
+        outputSizes = mSupportedRepeatingSurfaceSize.getSupportedSizes(outputSizes);
 
         return Collections.min(
                 Arrays.asList(outputSizes), (o1, o2) -> {
