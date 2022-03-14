@@ -97,7 +97,7 @@ fun query(
  */
 fun dropFtsSyncTriggers(db: SupportSQLiteDatabase) {
     val existingTriggers = buildList {
-        db.query("SELECT name FROM sqlite_master WHERE type = 'trigger'").use { cursor ->
+        db.query("SELECT name FROM sqlite_master WHERE type = 'trigger'").useCursor { cursor ->
             while (cursor.moveToNext()) {
                 add(cursor.getString(0))
             }
@@ -118,7 +118,7 @@ fun foreignKeyCheck(
     db: SupportSQLiteDatabase,
     tableName: String
 ) {
-    db.query("PRAGMA foreign_key_check(`$tableName`)").use { cursor ->
+    db.query("PRAGMA foreign_key_check(`$tableName`)").useCursor { cursor ->
         if (cursor.count > 0) {
             val errorMsg = processForeignKeyCheckFailure(cursor)
             throw IllegalStateException(errorMsg)

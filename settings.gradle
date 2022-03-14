@@ -676,6 +676,7 @@ includeProject(":room:room-ktx", "room/room-ktx", [BuildType.MAIN, BuildType.COM
 includeProject(":room:room-migration", "room/room-migration", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":room:room-paging", "room/room-paging", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":room:room-runtime", "room/room-runtime", [BuildType.MAIN, BuildType.COMPOSE])
+includeProject(":room:room-runtime-lint", "room/room-runtime-lint", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":room:room-rxjava2", "room/room-rxjava2", [BuildType.MAIN])
 includeProject(":room:room-rxjava3", "room/room-rxjava3", [BuildType.MAIN])
 includeProject(":room:room-testing", "room/room-testing", [BuildType.MAIN])
