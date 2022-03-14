@@ -19,6 +19,7 @@ package androidx.glance.appwidget.demos
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
@@ -51,6 +52,7 @@ import androidx.glance.layout.Row
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.padding
+import androidx.glance.layout.height
 import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
 import androidx.glance.text.TextStyle
@@ -101,7 +103,8 @@ class CompoundButtonAppWidget : GlanceAppWidget() {
                 onCheckedChange = actionRunCallback<ToggleAction>(
                     actionParametersOf(EventTargetKey to Buttons.CHECK_1.name)
                 ),
-                text = "Checkbox 1"
+                text = "Checkbox 1",
+                modifier = GlanceModifier.height(56.dp).padding(bottom = 24.dp),
             )
             CheckBox(
                 checked = checkbox2Checked,
