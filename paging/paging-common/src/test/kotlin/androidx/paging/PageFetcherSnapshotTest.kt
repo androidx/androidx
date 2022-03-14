@@ -29,6 +29,12 @@ import androidx.paging.PagingSource.LoadResult.Page
 import androidx.paging.RemoteMediatorMock.LoadEvent
 import androidx.paging.TestPagingSource.Companion.LOAD_ERROR
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
+import kotlin.test.fail
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -51,26 +57,18 @@ import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.TestCoroutineScope
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import kotlin.test.assertFalse
-import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
-import kotlin.test.fail
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.TestScope
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.advanceTimeBy
-import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.runBlockingTest
-import kotlinx.coroutines.test.runCurrent
 
 @ExperimentalPagingApi
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -1615,9 +1613,8 @@ class PageFetcherSnapshotTest {
         }
     }
 
-    @Suppress("DEPRECATION") // b/220884819
     @Test
-    fun retry_remotePrepend() = runBlockingTest {
+    fun retry_remotePrepend() = runTest {
         @OptIn(ExperimentalPagingApi::class)
         val remoteMediator = object : RemoteMediatorMock() {
             override suspend fun load(
@@ -1665,9 +1662,8 @@ class PageFetcherSnapshotTest {
         }
     }
 
-    @Suppress("DEPRECATION") // b/220884819
     @Test
-    fun retry_remoteAppend() = runBlockingTest {
+    fun retry_remoteAppend() = runTest {
         @OptIn(ExperimentalPagingApi::class)
         val remoteMediator = object : RemoteMediatorMock() {
             override suspend fun load(
@@ -2505,9 +2501,8 @@ class PageFetcherSnapshotTest {
         state.job.cancel()
     }
 
-    @Suppress("DEPRECATION") // b/220884819
     @Test
-    fun remoteMediator_endOfPaginationNotReachedLoadStatePrepend() = runBlockingTest {
+    fun remoteMediator_endOfPaginationNotReachedLoadStatePrepend() = testScope.runTest {
         @OptIn(ExperimentalPagingApi::class)
         val remoteMediator = object : RemoteMediatorMock() {
             override suspend fun load(
@@ -2553,10 +2548,6 @@ class PageFetcherSnapshotTest {
                 ),
             ),
             listOf(
-                remoteLoadStateUpdate(
-                    refreshLocal = Loading,
-                    prependRemote = Loading,
-                ),
                 remoteLoadStateUpdate(
                     refreshLocal = Loading,
                     prependRemote = NotLoading.Incomplete,
@@ -2713,9 +2704,8 @@ class PageFetcherSnapshotTest {
         }
     }
 
-    @Suppress("DEPRECATION") // b/220884819
     @Test
-    fun remoteMediator_endOfPaginationNotReachedLoadStateAppend() = runBlockingTest {
+    fun remoteMediator_endOfPaginationNotReachedLoadStateAppend() = testScope.runTest {
         @OptIn(ExperimentalPagingApi::class)
         val remoteMediator = object : RemoteMediatorMock() {
             override suspend fun load(
@@ -2761,10 +2751,6 @@ class PageFetcherSnapshotTest {
                     ),
                 ),
                 listOf(
-                    remoteLoadStateUpdate(
-                        refreshLocal = Loading,
-                        appendRemote = Loading,
-                    ),
                     remoteLoadStateUpdate(
                         refreshLocal = Loading,
                         appendRemote = NotLoading.Incomplete,
@@ -2915,9 +2901,8 @@ class PageFetcherSnapshotTest {
         }
     }
 
-    @Suppress("DEPRECATION") // b/220884819
     @Test
-    fun remoteMediator_immediateInvalidation() = runBlockingTest {
+    fun remoteMediator_immediateInvalidation() = runTest {
         @OptIn(ExperimentalPagingApi::class)
         val remoteMediator = object : RemoteMediatorMock() {
             override suspend fun initialize(): InitializeAction {
@@ -2930,7 +2915,13 @@ class PageFetcherSnapshotTest {
                 state: PagingState<Int, Int>
             ): MediatorResult {
                 super.load(loadType, state)
+                // Wait for remote events to get sent and observed by PageFetcher, but don't let
+                // source REFRESH complete yet until we invalidate.
+                advanceTimeBy(500)
                 currentPagingSource!!.invalidate()
+                // Wait for second generation to start before letting remote REFRESH finish, but
+                // ensure that remote REFRESH finishes before source REFRESH does.
+                delay(100)
                 return MediatorResult.Success(endOfPaginationReached = false)
             }
         }
@@ -2950,7 +2941,6 @@ class PageFetcherSnapshotTest {
         )
         val fetcherState = collectFetcherState(pager)
         advanceUntilIdle()
-        runCurrent()
         assertThat(fetcherState.pageEventLists).hasSize(2)
         assertThat(fetcherState.pageEventLists[0]).containsExactly(
             remoteLoadStateUpdate<Int>(
@@ -2966,7 +2956,10 @@ class PageFetcherSnapshotTest {
                 refreshLocal = Loading,
                 refreshRemote = Loading,
             ),
-            remoteLoadStateUpdate<Int>(refreshLocal = Loading),
+            remoteLoadStateUpdate<Int>(
+                refreshLocal = Loading,
+                refreshRemote = NotLoading.Incomplete,
+            ),
             remoteRefresh(
                 pages = listOf(
                     TransformablePage(
@@ -3735,8 +3728,7 @@ class PageFetcherSnapshotTest {
             uiReceiver!!.retry()
         }
 
-        @Suppress("DEPRECATION") // b/220884819
-        suspend fun TestCoroutineScope.awaitIdle() {
+        suspend fun TestScope.awaitIdle() {
             yield()
             advanceUntilIdle()
         }
