@@ -243,6 +243,10 @@ public final class ImageCapture extends UseCase {
     @FlashMode
     private static final int DEFAULT_FLASH_MODE = FLASH_MODE_OFF;
 
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    static final ExifRotationAvailability EXIF_ROTATION_AVAILABILITY =
+            new ExifRotationAvailability();
+
     private final ImageReaderProxy.OnImageAvailableListener mClosingListener = (imageReader -> {
         try (ImageProxy image = imageReader.acquireLatestImage()) {
             Log.d(TAG, "Discarding ImageProxy which was inadvertently acquired: " + image);
@@ -439,6 +443,12 @@ public final class ImageCapture extends UseCase {
                             // again when the capture request was created.
                             finalSoftwareJpegProcessor.setJpegQuality(
                                     imageCaptureRequest.mJpegQuality);
+
+                            // Updates output rotation degrees value to the YuvToJpegProcessor so
+                            // that it can write the correct value to the ExifData in the output
+                            // JPEG image file.
+                            finalSoftwareJpegProcessor.setRotationDegrees(
+                                    imageCaptureRequest.mRotationDegrees);
                         }
                     }
                 });
@@ -1567,13 +1577,19 @@ public final class ImageCapture extends UseCase {
 
             builder.addSurface(mDeferrableSurface);
 
-            // Add the dynamic implementation options of ImageCapture
-            if (new ExifRotationAvailability().isRotationOptionSupported()) {
-                builder.addImplementationOption(CaptureConfig.OPTION_ROTATION,
-                        imageCaptureRequest.mRotationDegrees);
+            // Only sets the JPEG rotation and quality capture request options when capturing
+            // images in JPEG format. Some devices do not handle these CaptureRequest key values
+            // when capturing a non-JPEG image. Setting these capture requests and checking the
+            // returned capture results for specific purpose might cause problems. See b/204375890.
+            if (getImageFormat() == ImageFormat.JPEG) {
+                // Add the dynamic implementation options of ImageCapture
+                if (EXIF_ROTATION_AVAILABILITY.isRotationOptionSupported()) {
+                    builder.addImplementationOption(CaptureConfig.OPTION_ROTATION,
+                            imageCaptureRequest.mRotationDegrees);
+                }
+                builder.addImplementationOption(CaptureConfig.OPTION_JPEG_QUALITY,
+                        imageCaptureRequest.mJpegQuality);
             }
-            builder.addImplementationOption(CaptureConfig.OPTION_JPEG_QUALITY,
-                    imageCaptureRequest.mJpegQuality);
 
             // Add the implementation options required by the CaptureStage
             builder.addImplementationOptions(
@@ -2100,7 +2116,7 @@ public final class ImageCapture extends UseCase {
 
             // Retrieve the dimension and rotation values from the embedded EXIF data in the
             // captured image only if those information is available.
-            if (new ExifRotationAvailability().shouldUseExifOrientation(image)) {
+            if (EXIF_ROTATION_AVAILABILITY.shouldUseExifOrientation(image)) {
                 // JPEG needs to have rotation/crop based on the EXIF
                 try {
                     ImageProxy.PlaneProxy[] planes = image.getPlanes();
