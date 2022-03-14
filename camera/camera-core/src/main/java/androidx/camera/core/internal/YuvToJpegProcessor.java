@@ -31,6 +31,7 @@ import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CaptureProcessor;
+import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.ImageProxyBundle;
 import androidx.camera.core.impl.utils.ExifData;
 import androidx.camera.core.impl.utils.ExifOutputStream;
@@ -55,11 +56,16 @@ public class YuvToJpegProcessor implements CaptureProcessor {
 
     private static final Rect UNINITIALIZED_RECT = new Rect(0, 0, 0, 0);
 
-    @IntRange(from = 0, to = 100)
-    private int mQuality;
     private final int mMaxImages;
 
     private final Object mLock = new Object();
+
+    @GuardedBy("mLock")
+    @IntRange(from = 0, to = 100)
+    private int mQuality;
+    @GuardedBy("mLock")
+    @ImageOutputConfig.RotationDegreesValue
+    private int mRotationDegrees = 0;
 
     @GuardedBy("mLock")
     private boolean mClosed = false;
@@ -79,7 +85,20 @@ public class YuvToJpegProcessor implements CaptureProcessor {
      * Sets the compression quality for the output JPEG image.
      */
     public void setJpegQuality(@IntRange(from = 0, to = 100) int quality) {
-        mQuality = quality;
+        synchronized (mLock) {
+            mQuality = quality;
+        }
+    }
+
+    /**
+     * Sets the rotation degrees value of the output images.
+     *
+     * @param rotationDegrees The rotation in degrees which will be a value in {0, 90, 180, 270}.
+     */
+    public void setRotationDegrees(@ImageOutputConfig.RotationDegreesValue int rotationDegrees) {
+        synchronized (mLock) {
+            mRotationDegrees = rotationDegrees;
+        }
     }
 
     @Override
@@ -110,6 +129,8 @@ public class YuvToJpegProcessor implements CaptureProcessor {
         ImageWriter imageWriter;
         Rect imageRect;
         boolean processing;
+        int quality;
+        int rotationDegrees;
         synchronized (mLock) {
             imageWriter = mImageWriter;
             processing = !mClosed;
@@ -117,6 +138,8 @@ public class YuvToJpegProcessor implements CaptureProcessor {
             if (processing) {
                 mProcessingImages++;
             }
+            quality = mQuality;
+            rotationDegrees = mRotationDegrees;
         }
 
         ImageProxy imageProxy = null;
@@ -143,8 +166,8 @@ public class YuvToJpegProcessor implements CaptureProcessor {
             ByteBuffer jpegBuf = jpegImage.getPlanes()[0].getBuffer();
             int initialPos = jpegBuf.position();
             OutputStream os = new ExifOutputStream(new ByteBufferOutputStream(jpegBuf),
-                    getExifData(imageProxy));
-            yuvImage.compressToJpeg(imageRect, mQuality, os);
+                    getExifData(imageProxy, rotationDegrees));
+            yuvImage.compressToJpeg(imageRect, quality, os);
 
             // Input can now be closed.
             imageProxy.close();
@@ -228,9 +251,16 @@ public class YuvToJpegProcessor implements CaptureProcessor {
     }
 
     @NonNull
-    private static ExifData getExifData(@NonNull ImageProxy imageProxy) {
+    private static ExifData getExifData(@NonNull ImageProxy imageProxy,
+            @ImageOutputConfig.RotationDegreesValue int rotationDegrees) {
         ExifData.Builder builder = ExifData.builderForDevice();
         imageProxy.getImageInfo().populateExifData(builder);
+
+        // Overwrites the orientation degrees value of the output image because the capture
+        // results might not have correct value when capturing image in YUV_420_888 format. See
+        // b/204375890.
+        builder.setOrientationDegrees(rotationDegrees);
+
         return builder.setImageWidth(imageProxy.getWidth())
                 .setImageHeight(imageProxy.getHeight())
                 .build();
