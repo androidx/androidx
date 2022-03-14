@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.AppCard
@@ -109,7 +108,7 @@ fun CardDemo() {
             TitleCard(
                 onClick = {},
                 title = { Text("Custom TitleCard") },
-                titleColor = Color.Yellow
+                titleColor = AlternatePrimaryColor2
             ) {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Text("This title card emphasises the title with custom color")

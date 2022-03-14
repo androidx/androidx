@@ -64,8 +64,7 @@ fun ToggleButtons() {
                 },
                 enabled = toggleButtonsEnabled,
                 colors = ToggleButtonDefaults.toggleButtonColors(
-                    checkedBackgroundColor = Color.Yellow,
-                    checkedContentColor = Color.Black
+                    checkedBackgroundColor = AlternatePrimaryColor2,
                 ),
                 modifier = Modifier.size(ButtonDefaults.SmallButtonSize)
             ) {
@@ -83,8 +82,7 @@ fun ToggleButtons() {
                 },
                 enabled = toggleButtonsEnabled,
                 colors = ToggleButtonDefaults.toggleButtonColors(
-                    checkedBackgroundColor = Color.Yellow,
-                    checkedContentColor = Color.Black
+                    checkedBackgroundColor = AlternatePrimaryColor3,
                 ),
                 modifier = Modifier.size(ButtonDefaults.SmallButtonSize),
             ) {
