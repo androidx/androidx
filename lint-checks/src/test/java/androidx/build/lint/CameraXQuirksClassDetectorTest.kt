@@ -38,7 +38,7 @@ class CameraXQuirksClassDetectorTest : AbstractLintDetectorTest(
         val expected = """
             src/androidx/CameraXMissingQuirkSummaryJava.java:22: Error: CameraX quirks should include this template in the javadoc:
 
-            * @QuirkSummary
+            * <p>QuirkSummary
             *     Bug Id:
             *     Description:
             *     Device(s):
