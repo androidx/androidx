@@ -479,7 +479,7 @@ private fun readForeignKeys(
     tableName: String
 ): Set<TableInfo.ForeignKey> {
     // this seems to return everything in order but it is not documented so better be safe
-    database.query("PRAGMA foreign_key_list(`$tableName`)").use { cursor ->
+    database.query("PRAGMA foreign_key_list(`$tableName`)").useCursor { cursor ->
         val idColumnIndex = cursor.getColumnIndex("id")
         val seqColumnIndex = cursor.getColumnIndex("seq")
         val tableColumnIndex = cursor.getColumnIndex("table")
@@ -544,7 +544,7 @@ private fun readColumns(
     database: SupportSQLiteDatabase,
     tableName: String
 ): Map<String, TableInfo.Column> {
-    database.query("PRAGMA table_info(`$tableName`)").use { cursor ->
+    database.query("PRAGMA table_info(`$tableName`)").useCursor { cursor ->
         if (cursor.columnCount <= 0) {
             return emptyMap()
         }
@@ -582,7 +582,7 @@ private fun readColumns(
  * @return null if we cannot read the indices due to older sqlite implementations.
  */
 private fun readIndices(database: SupportSQLiteDatabase, tableName: String): Set<TableInfo.Index>? {
-    database.query("PRAGMA index_list(`$tableName`)").use { cursor ->
+    database.query("PRAGMA index_list(`$tableName`)").useCursor { cursor ->
         val nameColumnIndex = cursor.getColumnIndex("name")
         val originColumnIndex = cursor.getColumnIndex("origin")
         val uniqueIndex = cursor.getColumnIndex("unique")
@@ -615,7 +615,7 @@ private fun readIndex(
     name: String,
     unique: Boolean
 ): TableInfo.Index? {
-    return database.query("PRAGMA index_xinfo(`$name`)").use { cursor ->
+    return database.query("PRAGMA index_xinfo(`$name`)").useCursor { cursor ->
         val seqnoColumnIndex = cursor.getColumnIndex("seqno")
         val cidColumnIndex = cursor.getColumnIndex("cid")
         val nameColumnIndex = cursor.getColumnIndex("name")
