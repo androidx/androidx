@@ -62,6 +62,7 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runBlockingTest
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
@@ -2501,8 +2502,9 @@ class PageFetcherSnapshotTest {
         state.job.cancel()
     }
 
+    @Suppress("DEPRECATION") // b/220884819
     @Test
-    fun remoteMediator_endOfPaginationNotReachedLoadStatePrepend() = testScope.runTest {
+    fun remoteMediator_endOfPaginationNotReachedLoadStatePrepend() = runBlockingTest {
         @OptIn(ExperimentalPagingApi::class)
         val remoteMediator = object : RemoteMediatorMock() {
             override suspend fun load(
@@ -2548,6 +2550,10 @@ class PageFetcherSnapshotTest {
                 ),
             ),
             listOf(
+                remoteLoadStateUpdate(
+                    refreshLocal = Loading,
+                    prependRemote = Loading,
+                ),
                 remoteLoadStateUpdate(
                     refreshLocal = Loading,
                     prependRemote = NotLoading.Incomplete,
@@ -2704,8 +2710,9 @@ class PageFetcherSnapshotTest {
         }
     }
 
+    @Suppress("DEPRECATION") // b/220884819
     @Test
-    fun remoteMediator_endOfPaginationNotReachedLoadStateAppend() = testScope.runTest {
+    fun remoteMediator_endOfPaginationNotReachedLoadStateAppend() = runBlockingTest {
         @OptIn(ExperimentalPagingApi::class)
         val remoteMediator = object : RemoteMediatorMock() {
             override suspend fun load(
@@ -2751,6 +2758,10 @@ class PageFetcherSnapshotTest {
                     ),
                 ),
                 listOf(
+                    remoteLoadStateUpdate(
+                        refreshLocal = Loading,
+                        appendRemote = Loading,
+                    ),
                     remoteLoadStateUpdate(
                         refreshLocal = Loading,
                         appendRemote = NotLoading.Incomplete,
