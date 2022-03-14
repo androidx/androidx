@@ -84,7 +84,7 @@ fun HideWhenFullSLCDemo() {
     ) {
         ScalingLazyColumn(
             state = listState,
-            autoCentering = true
+            autoCentering = false
         ) {
             items(
                 count = if (smallList) 3 else 10
@@ -100,8 +100,8 @@ fun HideWhenFullSLCDemo() {
 
 @Composable
 fun ControllablePositionIndicator() {
-    var position = remember { mutableStateOf(0.5f) }
-    var size = remember { mutableStateOf(0.5f) }
+    val position = remember { mutableStateOf(0.5f) }
+    val size = remember { mutableStateOf(0.5f) }
     Scaffold(
         positionIndicator = {
             PositionIndicator(

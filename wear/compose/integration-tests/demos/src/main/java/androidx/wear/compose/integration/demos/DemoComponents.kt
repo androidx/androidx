@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -162,3 +163,7 @@ fun Centralize(modifier: Modifier = Modifier, content: @Composable ColumnScope.(
 }
 
 public val DemoListTag = "DemoListTag"
+
+public val AlternatePrimaryColor1 = Color(0x7F, 0xCF, 0xFF)
+public val AlternatePrimaryColor2 = Color(0xD0, 0xBC, 0xFF)
+public val AlternatePrimaryColor3 = Color(0x6D, 0xD5, 0x8C)
