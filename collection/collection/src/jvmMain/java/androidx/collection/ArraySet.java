@@ -56,28 +56,6 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
      */
     private static final int BASE_SIZE = 4;
 
-    /**
-     * Maximum number of entries to have in array caches.
-     */
-    private static final int CACHE_SIZE = 10;
-
-    /**
-     * Caches of small array objects to avoid spamming garbage.  The cache
-     * Object[] variable is a pointer to a linked list of array objects.
-     * The first entry in the array is a pointer to the next array in the
-     * list; the second entry is a pointer to the int[] hash code array for it.
-     */
-    private static @Nullable Object[] sBaseCache;
-    private static int sBaseCacheSize;
-    private static @Nullable Object[] sTwiceBaseCache;
-    private static int sTwiceBaseCacheSize;
-    /**
-     * Separate locks for each cache since each can be accessed independently of the other without
-     * risk of a deadlock.
-     */
-    private static final Object sBaseCacheLock = new Object();
-    private static final Object sTwiceBaseCacheLock = new Object();
-
     private int[] mHashes;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     Object[] mArray;
@@ -168,107 +146,9 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
         return ~end;
     }
 
-    @SuppressWarnings("ArrayToString")
     private void allocArrays(final int size) {
-        if (size == (BASE_SIZE * 2)) {
-            synchronized (sTwiceBaseCacheLock) {
-                if (sTwiceBaseCache != null) {
-                    final Object[] array = sTwiceBaseCache;
-                    try {
-                        mArray = array;
-                        sTwiceBaseCache = (Object[]) array[0];
-                        mHashes = (int[]) array[1];
-                        if (mHashes != null) {
-                            array[0] = array[1] = null;
-                            sTwiceBaseCacheSize--;
-                            if (DEBUG) {
-                                System.out.println(TAG + " Retrieving 2x cache " + mHashes
-                                        + " now have " + sTwiceBaseCacheSize + " entries");
-                            }
-                            return;
-                        }
-                    } catch (ClassCastException e) {
-                    }
-                    // Whoops!  Someone trampled the array (probably due to not protecting
-                    // their access with a lock).  Our cache is corrupt; report and give up.
-                    System.out.println(TAG + " Found corrupt ArraySet cache: [0]=" + array[0]
-                            + " [1]=" + array[1]);
-                    sTwiceBaseCache = null;
-                    sTwiceBaseCacheSize = 0;
-                }
-            }
-        } else if (size == BASE_SIZE) {
-            synchronized (sBaseCacheLock) {
-                if (sBaseCache != null) {
-                    final Object[] array = sBaseCache;
-                    try {
-                        mArray = array;
-                        sBaseCache = (Object[]) array[0];
-                        mHashes = (int[]) array[1];
-                        if (mHashes != null) {
-                            array[0] = array[1] = null;
-                            sBaseCacheSize--;
-                            if (DEBUG) {
-                                System.out.println(TAG + " Retrieving 1x cache " + mHashes
-                                        + " now have " + sBaseCacheSize + " entries");
-                            }
-                            return;
-                        }
-                    } catch (ClassCastException e) {
-                    }
-                    // Whoops!  Someone trampled the array (probably due to not protecting
-                    // their access with a lock).  Our cache is corrupt; report and give up.
-                    System.out.println(TAG + " Found corrupt ArraySet cache: [0]=" + array[0]
-                            + " [1]=" + array[1]);
-                    sBaseCache = null;
-                    sBaseCacheSize = 0;
-                }
-            }
-        }
-
         mHashes = new int[size];
         mArray = new Object[size];
-    }
-
-    /**
-     * Make sure <b>NOT</b> to call this method with arrays that can still be modified. In other
-     * words, don't pass mHashes or mArray in directly.
-     */
-    @SuppressWarnings("ArrayToString")
-    private static void freeArrays(final int[] hashes, final Object[] array, final int size) {
-        if (hashes.length == (BASE_SIZE * 2)) {
-            synchronized (sTwiceBaseCacheLock) {
-                if (sTwiceBaseCacheSize < CACHE_SIZE) {
-                    array[0] = sTwiceBaseCache;
-                    array[1] = hashes;
-                    for (int i = size - 1; i >= 2; i--) {
-                        array[i] = null;
-                    }
-                    sTwiceBaseCache = array;
-                    sTwiceBaseCacheSize++;
-                    if (DEBUG) {
-                        System.out.println(TAG + " Storing 2x cache " + array + " now have "
-                                + sTwiceBaseCacheSize + " entries");
-                    }
-                }
-            }
-        } else if (hashes.length == BASE_SIZE) {
-            synchronized (sBaseCacheLock) {
-                if (sBaseCacheSize < CACHE_SIZE) {
-                    array[0] = sBaseCache;
-                    array[1] = hashes;
-                    for (int i = size - 1; i >= 2; i--) {
-                        array[i] = null;
-                    }
-                    sBaseCache = array;
-                    sBaseCacheSize++;
-                    if (DEBUG) {
-                        System.out.println(TAG + " Storing 1x cache " + array + " now have "
-                                + sBaseCacheSize + " entries");
-                    }
-                }
-            }
-        }
     }
 
     /**
@@ -331,13 +211,9 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
     @Override
     public void clear() {
         if (mSize != 0) {
-            final int[] ohashes = mHashes;
-            final Object[] oarray = mArray;
-            final int osize = mSize;
             mHashes = ContainerHelpers.EMPTY_INTS;
             mArray = ContainerHelpers.EMPTY_OBJECTS;
             mSize = 0;
-            freeArrays(ohashes, oarray, osize);
         }
         if (mSize != 0) {
             throw new ConcurrentModificationException();
@@ -358,7 +234,6 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
                 System.arraycopy(ohashes, 0, mHashes, 0, mSize);
                 System.arraycopy(oarray, 0, mArray, 0, mSize);
             }
-            freeArrays(ohashes, oarray, mSize);
         }
         if (mSize != oSize) {
             throw new ConcurrentModificationException();
@@ -447,8 +322,6 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
                 System.arraycopy(ohashes, 0, mHashes, 0, ohashes.length);
                 System.arraycopy(oarray, 0, mArray, 0, oarray.length);
             }
-
-            freeArrays(ohashes, oarray, oSize);
         }
 
         if (index < oSize) {
