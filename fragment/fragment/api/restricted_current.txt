@@ -92,10 +92,10 @@ package androidx.fragment.app {
     method @MainThread public android.view.animation.Animation? onCreateAnimation(int, boolean, int);
     method @MainThread public android.animation.Animator? onCreateAnimator(int, boolean, int);
     method @MainThread public void onCreateContextMenu(android.view.ContextMenu, android.view.View, android.view.ContextMenu.ContextMenuInfo?);
-    method @MainThread public void onCreateOptionsMenu(android.view.Menu, android.view.MenuInflater);
+    method @Deprecated @MainThread public void onCreateOptionsMenu(android.view.Menu, android.view.MenuInflater);
     method @MainThread public android.view.View? onCreateView(android.view.LayoutInflater, android.view.ViewGroup?, android.os.Bundle?);
     method @CallSuper @MainThread public void onDestroy();
-    method @MainThread public void onDestroyOptionsMenu();
+    method @Deprecated @MainThread public void onDestroyOptionsMenu();
     method @CallSuper @MainThread public void onDestroyView();
     method @CallSuper @MainThread public void onDetach();
     method public android.view.LayoutInflater onGetLayoutInflater(android.os.Bundle?);
@@ -104,11 +104,11 @@ package androidx.fragment.app {
     method @Deprecated @CallSuper @UiThread public void onInflate(android.app.Activity, android.util.AttributeSet, android.os.Bundle?);
     method @CallSuper @MainThread public void onLowMemory();
     method public void onMultiWindowModeChanged(boolean);
-    method @MainThread public boolean onOptionsItemSelected(android.view.MenuItem);
-    method @MainThread public void onOptionsMenuClosed(android.view.Menu);
+    method @Deprecated @MainThread public boolean onOptionsItemSelected(android.view.MenuItem);
+    method @Deprecated @MainThread public void onOptionsMenuClosed(android.view.Menu);
     method @CallSuper @MainThread public void onPause();
     method public void onPictureInPictureModeChanged(boolean);
-    method @MainThread public void onPrepareOptionsMenu(android.view.Menu);
+    method @Deprecated @MainThread public void onPrepareOptionsMenu(android.view.Menu);
     method @MainThread public void onPrimaryNavigationFragmentChanged(boolean);
     method @Deprecated public void onRequestPermissionsResult(int, String![], int[]);
     method @CallSuper @MainThread public void onResume();

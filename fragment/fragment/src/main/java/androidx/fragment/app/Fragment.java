@@ -75,6 +75,8 @@ import androidx.arch.core.util.Function;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.app.SharedElementCallback;
 import androidx.core.view.LayoutInflaterCompat;
+import androidx.core.view.MenuHost;
+import androidx.core.view.MenuProvider;
 import androidx.fragment.app.strictmode.FragmentStrictMode;
 import androidx.lifecycle.HasDefaultViewModelProviderFactory;
 import androidx.lifecycle.Lifecycle;
@@ -2293,8 +2295,18 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @see #setHasOptionsMenu
      * @see #onPrepareOptionsMenu
      * @see #onOptionsItemSelected
+     *
+     * @deprecated {@link androidx.activity.ComponentActivity} now implements {@link MenuHost},
+     * an interface that allows any component, including your activity itself, to add menu items
+     * by calling {@link #addMenuProvider(MenuProvider)} without forcing all components through
+     * this single method override. As this provides a consistent, optionally {@link Lifecycle}
+     * -aware, and modular way to handle menu creation and item selection, replace usages of this
+     * method with one or more calls to {@link #addMenuProvider(MenuProvider)} in your Activity's
+     * {@link #onCreate(Bundle)} method, having each provider override
+     * {@link MenuProvider#onCreateMenu(Menu, MenuInflater)} to create their menu items.
      */
     @MainThread
+    @Deprecated
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
     }
 
@@ -2311,8 +2323,18 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * @see #setHasOptionsMenu
      * @see #onCreateOptionsMenu
+     *
+     * @deprecated {@link androidx.activity.ComponentActivity} now implements {@link MenuHost},
+     * an interface that allows any component, including your activity itself, to add menu items
+     * by calling {@link #addMenuProvider(MenuProvider)} without forcing all components through
+     * this single method override. The {@link MenuProvider} interface uses a single
+     * {@link MenuProvider#onCreateMenu(Menu, MenuInflater)} method for managing both the creation
+     * and preparation of menu items. Replace usages of this method with one or more calls to
+     * {@link #addMenuProvider(MenuProvider)} in your Activity's {@link #onCreate(Bundle)} method,
+     * moving any preparation of menu items to {@link MenuProvider#onPrepareMenu(Menu)}.
      */
     @MainThread
+    @Deprecated
     public void onPrepareOptionsMenu(@NonNull Menu menu) {
     }
 
@@ -2322,8 +2344,20 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * the menu needed to be rebuilt, but this fragment's items were not
      * included in the newly built menu (its {@link #onCreateOptionsMenu(Menu, MenuInflater)}
      * was not called).
+     *
+     * @deprecated {@link androidx.activity.ComponentActivity} now implements {@link MenuHost},
+     * an interface that allows any component, including your activity itself, to add menu items
+     * by calling {@link #addMenuProvider(MenuProvider)} without forcing all components through
+     * this single method override. Each {@link MenuProvider} then provides a consistent, optionally
+     * {@link Lifecycle}-aware, and modular way to handle menu item selection for the menu items
+     * created by that provider. Replace usages of this method with one or more calls to
+     * {@link #removeMenuProvider(MenuProvider)} in your Activity's {@link #onCreate(Bundle)}
+     * method, whenever it is necessary to remove the individual {@link MenuProvider}. If a
+     * {@link MenuProvider} was added with Lifecycle-awareness, this removal will happen
+     * automatically.
      */
     @MainThread
+    @Deprecated
     public void onDestroyOptionsMenu() {
     }
 
@@ -2344,9 +2378,20 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *         proceed, true to consume it here.
      *
      * @see #onCreateOptionsMenu
+     *
+     * @deprecated {@link androidx.activity.ComponentActivity} now implements {@link MenuHost},
+     * an interface that allows any component, including your activity itself, to add menu items
+     * by calling {@link #addMenuProvider(MenuProvider)} without forcing all components through
+     * this single method override. Each {@link MenuProvider} then provides a consistent, optionally
+     * {@link Lifecycle}-aware, and modular way to handle menu item selection for the menu items
+     * created by that provider. Replace usages of this method with one or more calls to
+     * {@link #addMenuProvider(MenuProvider)} in your Activity's {@link #onCreate(Bundle)} method,
+     * delegating menu item selection to the individual {@link MenuProvider} that created the menu
+     * items you wish to handle.
      */
     @SuppressWarnings("unused")
     @MainThread
+    @Deprecated
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         return false;
     }
@@ -2357,9 +2402,20 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * @param menu The options menu as last shown or first initialized by
      *             onCreateOptionsMenu().
+     *
+     * @deprecated {@link androidx.activity.ComponentActivity} now implements {@link MenuHost},
+     * an interface that allows any component, including your activity itself, to add menu items
+     * by calling {@link #addMenuProvider(MenuProvider)} without forcing all components through
+     * this single method override. The {@link MenuProvider} interface uses a single
+     * {@link MenuProvider#onCreateMenu(Menu, MenuInflater)} method for managing both the creation
+     * and preparation of menu items. Replace usages of this method with one or more calls to
+     * {@link #addMenuProvider(MenuProvider)} in your Activity's {@link #onCreate(Bundle)} method,
+     * overriding {@link MenuProvider#onMenuClosed(Menu)} to delegate menu closing to the
+     * individual {@link MenuProvider} that created the menu.
      */
     @SuppressWarnings("unused")
     @MainThread
+    @Deprecated
     public void onOptionsMenuClosed(@NonNull Menu menu) {
     }
 

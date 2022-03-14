@@ -25,6 +25,7 @@ import androidx.fragment.testing.test.R
 /**
  * A minimum example Fragment with options menu for testing.
  */
+@Suppress("DEPRECATION")
 class OptionsMenuFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
