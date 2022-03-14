@@ -43,12 +43,17 @@ class ScalingLazyColumnIndexedTest {
     fun scalingLazyColumnShowsIndexedItems() {
         lateinit var state: ScalingLazyListState
         val items = (1..4).map { it.toString() }
+        val viewPortHeight = 100.dp
+        val itemHeight = 51.dp
+        val itemWidth = 50.dp
+        val gapBetweenItems = 2.dp
 
         rule.setContent {
             ScalingLazyColumn(
                 state = rememberScalingLazyListState(initialCenterItemIndex = 0)
                     .also { state = it },
-                modifier = Modifier.height(200.dp),
+                modifier = Modifier.height(viewPortHeight),
+                verticalArrangement = Arrangement.spacedBy(gapBetweenItems),
                 scalingParams = ScalingLazyColumnDefaults.scalingParams(
                     edgeScale = 1.0f,
                     // Create some extra composables to check that extraPadding works.
@@ -57,7 +62,7 @@ class ScalingLazyColumnIndexedTest {
             ) {
                 itemsIndexed(items) { index, item ->
                     Spacer(
-                        Modifier.height(101.dp).width(100.dp)
+                        Modifier.height(itemHeight).width(itemWidth)
                             .testTag("$index-$item")
                     )
                 }
@@ -117,9 +122,9 @@ class ScalingLazyColumnIndexedTest {
     fun columnWithIndexesComposedWithCorrectIndexAndItemWithAutoCentering() {
         lateinit var state: ScalingLazyListState
         val items = (0..1).map { it.toString() }
-        val viewPortHeight = 200.dp
-        val itemHeight = 100.dp
-        val gapBetweenItems = 4.dp
+        val viewPortHeight = 100.dp
+        val itemHeight = 50.dp
+        val gapBetweenItems = 2.dp
         rule.setContent {
             ScalingLazyColumn(
                 state = rememberScalingLazyListState(initialCenterItemIndex = 0)
