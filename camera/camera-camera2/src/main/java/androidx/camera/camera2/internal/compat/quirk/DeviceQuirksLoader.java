@@ -68,6 +68,9 @@ public class DeviceQuirksLoader {
         if (FlashAvailabilityBufferUnderflowQuirk.load()) {
             quirks.add(new FlashAvailabilityBufferUnderflowQuirk());
         }
+        if (RepeatingStreamConstraintForVideoRecordingQuirk.load()) {
+            quirks.add(new RepeatingStreamConstraintForVideoRecordingQuirk());
+        }
 
         return quirks;
     }
