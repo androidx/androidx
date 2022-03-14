@@ -23,6 +23,8 @@ import androidx.benchmark.macro.EnergyMetric
 import androidx.benchmark.macro.ExperimentalMetricApi
 import androidx.benchmark.macro.PowerMetric
 import androidx.benchmark.macro.StartupMode
+import androidx.benchmark.macro.TotalEnergyMetric
+import androidx.benchmark.macro.TotalPowerMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -83,6 +85,59 @@ class TrivialPowerBenchmark() {
                         thread(start = true) {
                         while (!done) { }
                     })
+                }
+                Thread.sleep(DURATION_MS.toLong())
+            } finally {
+                done = true
+                threads.forEach {
+                    it.join()
+                }
+            }
+        }
+    }
+
+    @Test
+    fun measureTotalEnergyPower() {
+        assumeTrue(hasRailMetrics())
+        benchmarkRule.measureRepeated(
+            packageName = PACKAGE_NAME,
+            metrics = listOf(TotalEnergyMetric(), TotalPowerMetric()),
+            compilationMode = CompilationMode.None(),
+            startupMode = StartupMode.COLD,
+            iterations = 3,
+            setupBlock = {
+                val intent = Intent()
+                intent.action = ACTION
+                startActivityAndWait(intent)
+            }
+        ) {
+            Thread.sleep(DURATION_MS.toLong())
+        }
+    }
+
+    @Test
+    fun measureTotalEnergyPowerMultiple() {
+        assumeTrue(hasRailMetrics())
+        benchmarkRule.measureRepeated(
+            packageName = PACKAGE_NAME,
+            metrics = listOf(TotalPowerMetric(), TotalEnergyMetric()),
+            compilationMode = CompilationMode.None(),
+            startupMode = StartupMode.COLD,
+            iterations = 3,
+            setupBlock = {
+                val intent = Intent()
+                intent.action = ACTION
+                startActivityAndWait(intent)
+            }
+        ) {
+            var done = false
+            val threads = emptyList<Thread>()
+            try {
+                repeat(8) {
+                    threads.toMutableList().add(
+                        thread(start = true) {
+                            while (!done) { }
+                        })
                 }
                 Thread.sleep(DURATION_MS.toLong())
             } finally {

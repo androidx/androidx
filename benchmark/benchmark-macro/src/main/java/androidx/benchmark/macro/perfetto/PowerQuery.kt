@@ -31,9 +31,33 @@ internal object PowerQuery {
     """.trimIndent()
 
     data class PowerMetrics(
-        val name: String,
-        val powerUs: Double,
+        var name: String,
+        var powerUs: Double,
     )
+
+    fun getTotalPowerMetrics(
+        absoluteTracePath: String,
+        slice: Slice
+    ): List<PowerMetrics> {
+        val allMetrics = getPowerMetrics(absoluteTracePath, slice)
+        allMetrics.ifEmpty { return emptyList() }
+
+        val regex = "Rails(Cpu\\w+|SystemFabric|MemoryInterface|[A-Z][a-z]+)".toRegex()
+
+        return allMetrics.map { original ->
+            val subsystem = if (regex.containsMatchIn(original.name))
+                regex.find(original.name)?.groups?.get(1)?.value.toString()
+            else original.name
+            PowerMetrics(
+                subsystem,
+                allMetrics.filter {
+                    it.name.contains(subsystem)
+                }.fold(0.0) { total, next ->
+                    total + next.powerUs
+                }
+            )
+        }.distinct()
+    }
 
     fun getPowerMetrics(
         absoluteTracePath: String,
