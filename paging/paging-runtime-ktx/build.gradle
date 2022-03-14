@@ -35,3 +35,7 @@ androidx {
     inceptionYear = "2018"
     description = "Kotlin extensions for 'paging-runtime' artifact"
 }
+
+android {
+    namespace "androidx.paging.runtime.ktx"
+}

@@ -49,6 +49,7 @@ android {
     }
 
     testOptions.unitTests.includeAndroidResources = true
+    namespace "androidx.camera.mlkit.vision"
 }
 
 androidx {

@@ -15,8 +15,7 @@
   ~ limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:tools="http://schemas.android.com/tools"
-          package="com.example.androidx.slice.demos">
+          xmlns:tools="http://schemas.android.com/tools">
 
     <uses-sdk tools:overrideLibrary="androidx.slice.view, androidx.slice.builders, androidx.slice.core" />
 

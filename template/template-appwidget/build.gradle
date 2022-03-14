@@ -44,3 +44,7 @@ androidx {
             "template functionality to widget development."
     targetsJavaConsumers = false
 }
+
+android {
+    namespace "androidx.template.appwidget"
+}

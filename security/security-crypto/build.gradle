@@ -42,6 +42,7 @@ android {
     defaultConfig {
         minSdkVersion 21
     }
+    namespace "androidx.security"
 }
 
 androidx {

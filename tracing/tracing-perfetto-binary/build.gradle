@@ -29,6 +29,7 @@ android {
             version libs.versions.cmake.get()
         }
     }
+    namespace "androidx.tracing.perfetto.binary"
 }
 
 dependencies {

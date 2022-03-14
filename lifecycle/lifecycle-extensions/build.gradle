@@ -58,3 +58,7 @@ androidx {
     description = "Android Lifecycle Extensions"
     failOnDeprecationWarnings = false
 }
+
+android {
+    namespace "androidx.lifecycle.extensions"
+}

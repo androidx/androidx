@@ -62,3 +62,7 @@ androidx {
     description = "Android Proto DataStore"
     runApiTasks = new RunApiTasks.No("Unreleased library.")
 }
+
+android {
+    namespace "androidx.datastore.protodatastore"
+}

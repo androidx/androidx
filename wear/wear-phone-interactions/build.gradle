@@ -50,6 +50,7 @@ android {
     buildFeatures {
         aidl = true
     }
+    namespace "androidx.wear.phone.interactions"
 }
 
 androidx {

@@ -51,6 +51,7 @@ android {
         additionalParameters "--no-version-vectors"
         noCompress "ttf"
     }
+    namespace "androidx.appcompat.resources"
 }
 
 androidx {

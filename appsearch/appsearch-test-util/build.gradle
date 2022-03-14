@@ -43,3 +43,7 @@ androidx {
     inceptionYear = '2021'
     description = 'Test Utilities to be used by any test module for AppSearch'
 }
+
+android {
+    namespace "androidx.appsearch.testutil"
+}

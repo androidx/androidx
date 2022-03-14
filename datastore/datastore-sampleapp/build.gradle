@@ -66,6 +66,10 @@ protobuf {
     }
 }
 
+android {
+    namespace "com.example.datastoresampleapp"
+}
+
 // Allow usage of Kotlin's @OptIn.
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {

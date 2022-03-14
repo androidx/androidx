@@ -35,3 +35,7 @@ androidx {
     description = "This version of the OEM extension is deprecated. Please use window:extensions:extensions." +
             "module instead."
 }
+
+android {
+    namespace "androidx.window.sidecar"
+}

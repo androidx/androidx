@@ -51,6 +51,7 @@ android {
         testInstrumentationRunner "androidx.testutils.ActivityRecyclingAndroidJUnitRunner"
         multiDexEnabled true
     }
+    namespace "androidx.recyclerview"
 }
 
 androidx {

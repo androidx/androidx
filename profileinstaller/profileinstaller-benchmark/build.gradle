@@ -44,3 +44,7 @@ androidx {
     inceptionYear = "2021"
     description = "Profileinstaller Benchmarks"
 }
+
+android {
+    namespace "androidx.profileinstaller.benchmark"
+}

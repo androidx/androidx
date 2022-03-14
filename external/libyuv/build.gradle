@@ -55,6 +55,7 @@ android {
             name "yuv"
         }
     }
+    namespace "com.google.libyuv"
 }
 
 androidx {

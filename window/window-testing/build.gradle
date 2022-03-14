@@ -27,6 +27,7 @@ android {
     defaultConfig {
         multiDexEnabled = true
     }
+    namespace "androidx.window.testing"
 }
 
 dependencies {

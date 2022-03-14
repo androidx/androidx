@@ -75,4 +75,5 @@ android {
             minifyEnabled true
         }
     }
+    namespace "com.example.androidx.webkit"
 }

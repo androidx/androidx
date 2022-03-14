@@ -34,3 +34,7 @@ androidx {
             " to integrate with OEM specific camera features."
 }
 
+ android {
+     namespace "androidx.camera.extensions.impl"
+ }
+

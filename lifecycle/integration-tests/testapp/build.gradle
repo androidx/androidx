@@ -42,3 +42,7 @@ dependencies {
     testImplementation(libs.mockitoCore)
     testAnnotationProcessor(project(":lifecycle:lifecycle-compiler"))
 }
+
+android {
+    namespace "androidx.lifecycle.testapp"
+}

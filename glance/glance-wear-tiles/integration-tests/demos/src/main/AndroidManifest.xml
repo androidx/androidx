@@ -15,8 +15,7 @@
   limitations under the License.
   -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="androidx.glance.wear.tiles.demos">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-feature android:name="android.hardware.type.watch" />
     <meta-data android:name="com.google.android.wearable.standalone" android:value="true" />

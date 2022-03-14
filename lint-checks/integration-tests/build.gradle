@@ -51,6 +51,7 @@ android {
         // We don't want errors to cause lint to fail
         abortOnError false
     }
+    namespace "androidx.lint.integration.tests"
 }
 
 

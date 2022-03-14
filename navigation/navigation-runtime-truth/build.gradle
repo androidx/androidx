@@ -44,3 +44,7 @@ androidx {
     inceptionYear = "2019"
     description = "Android Navigation-Runtime-Truth"
 }
+
+android {
+    namespace "androidx.navigation.truth"
+}

@@ -9,6 +9,7 @@ android {
     defaultConfig {
         minSdkVersion 28
     }
+    namespace "androidx.heifwriter"
 }
 
 dependencies {

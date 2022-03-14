@@ -26,6 +26,7 @@ android {
 
         applicationId "androidx.activity.integration.testapp"
     }
+    namespace "androidx.activity.integration.testapp"
 }
 
 dependencies {

@@ -6,3 +6,7 @@ plugins {
 dependencies {
     implementation(project(":dynamicanimation:dynamicanimation"))
 }
+
+android {
+    namespace "com.example.android.support.animation"
+}

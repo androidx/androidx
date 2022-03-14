@@ -51,6 +51,7 @@ android {
                 "api21",
         ]
     }
+    namespace "androidx.leanback"
 }
 
 androidx {

@@ -42,3 +42,7 @@ androidx {
     inceptionYear = "2019"
     description = "Truth extensions for Fragments"
 }
+
+android {
+    namespace "androidx.fragment.truth"
+}

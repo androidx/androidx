@@ -34,3 +34,7 @@ androidx {
     inceptionYear = "2021"
     description = "This is a project for Lifecycle ViewModel demos."
 }
+
+android {
+    namespace "androidx.lifecycle.viewmodel.compose.demos"
+}

@@ -46,6 +46,10 @@ androidx {
     description = "Testing utilities for 'lifecycle' artifact"
 }
 
+android {
+    namespace "androidx.lifecycle.testing"
+}
+
 // Allow usage of Kotlin's @OptIn.
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {

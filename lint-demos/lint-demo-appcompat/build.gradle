@@ -19,4 +19,5 @@ android {
         // TODO: Enable lint after appcompat:1.1.0 release or use lint-baseline.xml instead.
         abortOnError false
     }
+    namespace "com.example.android.appcompat"
 }

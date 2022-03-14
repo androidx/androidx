@@ -34,3 +34,7 @@ androidx {
     inceptionYear = "2022"
     description = "Public API surface for apps to use UWB (ultra-wideband) on supported devices."
 }
+
+android {
+    namespace "androidx.core.uwb"
+}

@@ -47,6 +47,7 @@ android {
     sourceSets {
         androidTest.assets.srcDirs += files("$projectDir/src/schemas".toString())
     }
+    namespace "androidx.work"
 }
 
 dependencies {

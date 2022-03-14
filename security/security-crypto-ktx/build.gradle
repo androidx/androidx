@@ -38,6 +38,7 @@ android {
     defaultConfig {
         minSdkVersion 23
     }
+    namespace "androidx.security.ktx"
 }
 
 androidx {

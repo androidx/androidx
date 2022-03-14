@@ -46,6 +46,10 @@ androidx {
     description = "WindowManager Java Support"
 }
 
+android {
+    namespace "androidx.window.java"
+}
+
 // Allow usage of Kotlin's @OptIn.
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {

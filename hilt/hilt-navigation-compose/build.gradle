@@ -30,6 +30,7 @@ android {
     defaultConfig {
         testInstrumentationRunner "androidx.hilt.navigation.compose.TestRunner"
     }
+    namespace "androidx.hilt.navigation.compose"
 }
 
 dependencies {

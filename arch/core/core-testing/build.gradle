@@ -43,3 +43,7 @@ androidx {
     inceptionYear = "2017"
     description = "Android Core-Testing"
 }
+
+android {
+    namespace "androidx.arch.core.testing"
+}

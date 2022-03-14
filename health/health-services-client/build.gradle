@@ -40,6 +40,7 @@ android {
     buildFeatures {
         aidl = true
     }
+    namespace "androidx.health.services.client"
 }
 
 protobuf {

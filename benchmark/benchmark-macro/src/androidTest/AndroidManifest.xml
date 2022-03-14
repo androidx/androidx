@@ -14,8 +14,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="androidx.benchmark.macro.test">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
      <!--
        The Macro Benchmark Sample needs to launch activities in
        `androidx.benchmark.integration.macrobenchmark.target` APK.

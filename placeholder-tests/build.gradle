@@ -30,3 +30,7 @@ dependencies {
 androidx {
     name = "Dummy Project for test runner"
 }
+
+android {
+    namespace "androidx.testinfra.placeholderintegrationtest"
+}

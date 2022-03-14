@@ -47,3 +47,7 @@ androidx {
     description = "A library that holds common code for testing slices"
     failOnDeprecationWarnings = false
 }
+
+android {
+    namespace "androidx.slice.test"
+}

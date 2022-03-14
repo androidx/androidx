@@ -55,6 +55,7 @@ android {
     sourceSets {
         main.resources.srcDirs += "src/main/proto"
     }
+    namespace "androidx.sqlite.inspection"
 }
 
 // Allow usage of Kotlin's @OptIn.

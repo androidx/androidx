@@ -36,8 +36,6 @@ dependencies {
 android {
     sourceSets {
         main {
-            // We use a non-standard manifest path.
-            manifest.srcFile "AndroidManifest.xml"
             res.srcDirs += "src/main/res-public"
             resources {
                 srcDirs += [fontDir.getAbsolutePath()]
@@ -52,6 +50,7 @@ android {
             }
         }
     }
+    namespace "androidx.emoji"
 }
 
 androidx {

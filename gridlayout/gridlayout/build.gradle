@@ -24,3 +24,7 @@ androidx {
     description = "Android Support Grid Layout"
     failOnDeprecationWarnings = false
 }
+
+android {
+    namespace "androidx.gridlayout"
+}

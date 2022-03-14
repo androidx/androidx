@@ -48,6 +48,7 @@ android {
 
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
+    namespace "androidx.wear.watchface.complications.datasource"
 }
 
 androidx {

@@ -44,6 +44,7 @@ android {
     buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
     }
+    namespace "androidx.wear.watchface.data"
 }
 
 androidx {

@@ -27,6 +27,7 @@ android {
         minSdkVersion 21
         testInstrumentationRunner("androidx.test.runner.AndroidJUnitRunner")
     }
+    namespace "androidx.core.splashscreen"
 }
 
 dependencies {

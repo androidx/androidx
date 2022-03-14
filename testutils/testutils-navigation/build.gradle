@@ -44,6 +44,10 @@ androidx {
     type = LibraryType.INTERNAL_TEST_LIBRARY
 }
 
+android {
+    namespace "androidx.testutils.navigation"
+}
+
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
         freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"

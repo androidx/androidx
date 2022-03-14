@@ -33,3 +33,7 @@ androidx {
     inceptionYear = "2017"
     description = "Android Arch-Runtime"
 }
+
+android {
+    namespace "androidx.arch.core"
+}

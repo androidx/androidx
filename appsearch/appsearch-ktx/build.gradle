@@ -42,3 +42,7 @@ androidx {
     inceptionYear = '2021'
     description = 'AndroidX AppSearch - Kotlin Extensions'
 }
+
+android {
+    namespace "androidx.appsearch.ktx"
+}

@@ -47,3 +47,7 @@ androidx {
     inceptionYear = "2020"
     description = "Samples for Compose integration with Activity"
 }
+
+android {
+    namespace "androidx.activity.compose.samples"
+}

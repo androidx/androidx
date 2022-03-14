@@ -37,4 +37,5 @@ android {
     defaultConfig {
         minSdkVersion 19
     }
+    namespace "androidx.media2.integration.testapp"
 }

@@ -69,6 +69,7 @@ android {
             name "junit-gtest"
         }
     }
+    namespace "androidx.test.ext.junitgtest"
 }
 
 afterEvaluate {

@@ -13,6 +13,7 @@ android {
         aidl = true
     }
     testOptions.unitTests.includeAndroidResources = true
+    namespace "androidx.browser"
 }
 
 dependencies {

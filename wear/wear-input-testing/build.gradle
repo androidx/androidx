@@ -30,6 +30,7 @@ android {
     defaultConfig {
         minSdkVersion 25
     }
+    namespace "androidx.wear.input.testing"
 }
 
 androidx {

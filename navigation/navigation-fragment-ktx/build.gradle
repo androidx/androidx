@@ -37,3 +37,7 @@ androidx {
     description = "Android Navigation-Fragment-Ktx"
 }
 
+android {
+    namespace "androidx.navigation.fragment.ktx"
+}
+

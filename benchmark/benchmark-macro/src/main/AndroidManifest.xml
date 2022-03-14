@@ -15,7 +15,6 @@
   ~ limitations under the License.
   -->
 <manifest xmlns:tools="http://schemas.android.com/tools"
-    package="androidx.benchmark.macro"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- QUERY_ALL_PACKAGES is used to enable macrobenchmarks to read package information from

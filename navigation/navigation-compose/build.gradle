@@ -69,3 +69,7 @@ androidx {
     runApiTasks = new RunApiTasks.Yes()
     legacyDisableKotlinStrictApiMode = true
 }
+
+android {
+    namespace "androidx.navigation.compose"
+}

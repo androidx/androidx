@@ -28,6 +28,7 @@ android {
         minSdkVersion 23
         multiDexEnabled true
     }
+    namespace "androidx.benchmark.macro.junit4"
 }
 
 dependencies {

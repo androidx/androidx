@@ -49,3 +49,7 @@ androidx {
     inceptionYear = "2019"
     description = "AndroidX Ads Identifier"
 }
+
+android {
+    namespace "androidx.ads.identifier"
+}

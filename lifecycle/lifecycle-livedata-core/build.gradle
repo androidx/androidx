@@ -41,3 +41,7 @@ androidx {
     inceptionYear = "2017"
     description = "Android Lifecycle LiveData Core"
 }
+
+android {
+    namespace "androidx.lifecycle.livedata.core"
+}
