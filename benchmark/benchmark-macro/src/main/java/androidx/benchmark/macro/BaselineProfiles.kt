@@ -144,6 +144,6 @@ private fun summaryRecord(
         Baseline profile [results](file://$relativePath)
 
         To copy the profile use:
-        `adb pull "$tsAbsolutePath" .`
+        adb pull "$tsAbsolutePath" .
     """.trimIndent()
 }
