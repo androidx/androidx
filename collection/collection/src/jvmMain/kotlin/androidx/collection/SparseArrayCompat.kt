@@ -16,6 +16,10 @@
 
 package androidx.collection
 
+import androidx.collection.internal.EMPTY_INTS
+import androidx.collection.internal.EMPTY_OBJECTS
+import androidx.collection.internal.binarySearch
+import androidx.collection.internal.idealIntArraySize
 import kotlin.math.min
 
 /**
@@ -65,10 +69,10 @@ public open class SparseArrayCompat<E> public constructor(
 
     init {
         if (initialCapacity == 0) {
-            keys = ContainerHelpers.EMPTY_INTS
-            values = ContainerHelpers.EMPTY_OBJECTS
+            keys = EMPTY_INTS
+            values = EMPTY_OBJECTS
         } else {
-            val capacity = ContainerHelpers.idealIntArraySize(initialCapacity)
+            val capacity = idealIntArraySize(initialCapacity)
             keys = IntArray(capacity)
             values = arrayOfNulls(capacity)
         }
@@ -99,7 +103,7 @@ public open class SparseArrayCompat<E> public constructor(
 
     @Suppress("NOTHING_TO_INLINE")
     private inline fun <T : E?> internalGet(key: Int, defaultValue: T): T {
-        val i = ContainerHelpers.binarySearch(keys, size, key)
+        val i = binarySearch(keys, size, key)
         return if (i < 0 || values[i] === DELETED) {
             defaultValue
         } else {
@@ -120,7 +124,7 @@ public open class SparseArrayCompat<E> public constructor(
      * Removes the mapping from the specified key, if there was any.
      */
     public open fun remove(key: Int) {
-        val i = ContainerHelpers.binarySearch(keys, size, key)
+        val i = binarySearch(keys, size, key)
         if (i >= 0 && values[i] !== DELETED) {
             values[i] = DELETED
             garbage = true
@@ -234,7 +238,7 @@ public open class SparseArrayCompat<E> public constructor(
      * mapping from the specified [key] if there was one.
      */
     public open fun put(key: Int, value: E) {
-        var i = ContainerHelpers.binarySearch(keys, size, key)
+        var i = binarySearch(keys, size, key)
         if (i >= 0) {
             values[i] = value
         } else {
@@ -248,10 +252,10 @@ public open class SparseArrayCompat<E> public constructor(
                 gc()
 
                 // Search again because indices may have changed.
-                i = ContainerHelpers.binarySearch(keys, size, key).inv()
+                i = binarySearch(keys, size, key).inv()
             }
             if (size >= keys.size) {
-                val n = ContainerHelpers.idealIntArraySize(size + 1)
+                val n = idealIntArraySize(size + 1)
                 val nkeys = IntArray(n)
                 val nvalues = arrayOfNulls<Any>(n)
 
@@ -370,7 +374,7 @@ public open class SparseArrayCompat<E> public constructor(
         if (garbage) {
             gc()
         }
-        return ContainerHelpers.binarySearch(keys, size, key)
+        return binarySearch(keys, size, key)
     }
 
     /**
@@ -432,7 +436,7 @@ public open class SparseArrayCompat<E> public constructor(
         }
         val pos = size
         if (pos >= keys.size) {
-            val n = ContainerHelpers.idealIntArraySize(pos + 1)
+            val n = idealIntArraySize(pos + 1)
             val nkeys = IntArray(n)
             val nvalues = arrayOfNulls<Any>(n)
 
