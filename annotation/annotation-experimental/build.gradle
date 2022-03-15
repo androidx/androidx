@@ -23,15 +23,8 @@ plugins {
 }
 
 dependencies {
-    compileOnly(libs.kotlinStdlib)
-
+    api(libs.kotlinStdlib)
     lintPublish(project(":annotation:annotation-experimental-lint"))
-}
-
-android {
-    buildTypes.all {
-        consumerProguardFiles("proguard-rules.pro")
-    }
 }
 
 androidx {
