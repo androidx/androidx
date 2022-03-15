@@ -16,7 +16,6 @@
 package androidx.health.platform.client.impl.testing
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.VisibleForTesting
 import androidx.health.platform.client.error.ErrorCode
 import androidx.health.platform.client.error.ErrorCode.Companion.INVALID_UID
 import androidx.health.platform.client.error.ErrorStatus
@@ -26,17 +25,23 @@ import androidx.health.platform.client.proto.ResponseProto
 import androidx.health.platform.client.request.AggregateDataRequest
 import androidx.health.platform.client.request.DeleteDataRangeRequest
 import androidx.health.platform.client.request.DeleteDataRequest
+import androidx.health.platform.client.request.GetChangesRequest
+import androidx.health.platform.client.request.GetChangesTokenRequest
 import androidx.health.platform.client.request.ReadDataRangeRequest
 import androidx.health.platform.client.request.ReadDataRequest
 import androidx.health.platform.client.request.RequestContext
 import androidx.health.platform.client.request.UpsertDataRequest
 import androidx.health.platform.client.response.AggregateDataResponse
+import androidx.health.platform.client.response.GetChangesResponse
+import androidx.health.platform.client.response.GetChangesTokenResponse
 import androidx.health.platform.client.response.InsertDataResponse
 import androidx.health.platform.client.response.ReadDataRangeResponse
 import androidx.health.platform.client.response.ReadDataResponse
 import androidx.health.platform.client.service.IAggregateDataCallback
 import androidx.health.platform.client.service.IDeleteDataCallback
 import androidx.health.platform.client.service.IDeleteDataRangeCallback
+import androidx.health.platform.client.service.IGetChangesCallback
+import androidx.health.platform.client.service.IGetChangesTokenCallback
 import androidx.health.platform.client.service.IGetGrantedPermissionsCallback
 import androidx.health.platform.client.service.IHealthDataService
 import androidx.health.platform.client.service.IInsertDataCallback
@@ -46,7 +51,6 @@ import androidx.health.platform.client.service.IRevokeAllPermissionsCallback
 import androidx.health.platform.client.service.IUpdateDataCallback
 
 /** Fake {@link IHealthDataService} implementation for unit testing. */
-@VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class FakeHealthDataService : IHealthDataService.Stub() {
     private val readDataResponseMap: MutableMap<ReadDataRequest, ReadDataResponse> = mutableMapOf()
@@ -55,7 +59,7 @@ class FakeHealthDataService : IHealthDataService.Stub() {
     private val grantedPermissions: MutableSet<Permission> = mutableSetOf()
     @ErrorCode private var errorCode: Int? = null
 
-    private val dataStore = mutableListOf<DataProto.DataPoint>()
+    val dataStore = mutableListOf<DataProto.DataPoint>()
     private var nextDataUid = 0
 
     override fun getApiVersion(): Int {
@@ -187,6 +191,34 @@ class FakeHealthDataService : IHealthDataService.Stub() {
         }
         callback.onSuccess(
             AggregateDataResponse(ResponseProto.AggregateDataResponse.getDefaultInstance())
+        )
+    }
+
+    override fun getChangesToken(
+        context: RequestContext,
+        request: GetChangesTokenRequest,
+        callback: IGetChangesTokenCallback,
+    ) {
+        errorCode?.let {
+            callback.onError(ErrorStatus.create(it, "" + it))
+            return@getChangesToken
+        }
+        callback.onSuccess(
+            GetChangesTokenResponse(ResponseProto.GetChangesTokenResponse.getDefaultInstance())
+        )
+    }
+
+    override fun getChanges(
+        context: RequestContext,
+        request: GetChangesRequest,
+        callback: IGetChangesCallback,
+    ) {
+        errorCode?.let {
+            callback.onError(ErrorStatus.create(it, "" + it))
+            return@getChanges
+        }
+        callback.onSuccess(
+            GetChangesResponse(ResponseProto.GetChangesResponse.getDefaultInstance())
         )
     }
 

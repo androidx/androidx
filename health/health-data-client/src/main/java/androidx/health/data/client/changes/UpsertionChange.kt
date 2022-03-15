@@ -13,19 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-syntax = "proto2";
+package androidx.health.data.client.changes
 
-package androidx.health.platform.client.proto;
+import androidx.annotation.RestrictTo
+import androidx.health.data.client.records.Record
 
-import "data.proto";
-
-option java_package = "androidx.health.platform.client.proto";
-option java_outer_classname = "SyncProto";
-
-message DataChange {
-  reserved 3;  // delete_characteristic_type
-  oneof change {
-    DataPoint upsert_data_point = 1;
-    string delete_uid = 2;
-  }
-}
+/**
+ * A [Change] with inserted or updated [Record].
+ *
+ * @property record Updated or inserted record
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+class UpsertionChange internal constructor(public val record: Record) : Change

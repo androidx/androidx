@@ -33,6 +33,8 @@ import androidx.health.platform.client.proto.ResponseProto
 import androidx.health.platform.client.request.AggregateDataRequest
 import androidx.health.platform.client.request.DeleteDataRangeRequest
 import androidx.health.platform.client.request.DeleteDataRequest
+import androidx.health.platform.client.request.GetChangesRequest
+import androidx.health.platform.client.request.GetChangesTokenRequest
 import androidx.health.platform.client.request.ReadDataRangeRequest
 import androidx.health.platform.client.request.ReadDataRequest
 import androidx.health.platform.client.request.RequestContext
@@ -194,6 +196,36 @@ class ServiceBackedHealthDataClient(
                     requestContext,
                     AggregateDataRequest(request),
                     AggregateDataCallback(resultFuture)
+                )
+            },
+            IHealthDataService.MIN_API_VERSION
+        )
+    }
+
+    override fun getChangesToken(
+        request: RequestProto.GetChangesTokenRequest
+    ): ListenableFuture<ResponseProto.GetChangesTokenResponse> {
+        return executeWithVersionCheck(
+            { service, resultFuture ->
+                service.getChangesToken(
+                    requestContext,
+                    GetChangesTokenRequest(request),
+                    GetChangesTokenCallback(resultFuture)
+                )
+            },
+            IHealthDataService.MIN_API_VERSION
+        )
+    }
+
+    override fun getChanges(
+        request: RequestProto.GetChangesRequest
+    ): ListenableFuture<ResponseProto.GetChangesResponse> {
+        return executeWithVersionCheck(
+            { service, resultFuture ->
+                service.getChanges(
+                    requestContext,
+                    GetChangesRequest(request),
+                    GetChangesCallback(resultFuture)
                 )
             },
             IHealthDataService.MIN_API_VERSION

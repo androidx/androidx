@@ -19,10 +19,14 @@ import androidx.health.platform.client.permission.Permission;
 import androidx.health.platform.client.request.AggregateDataRequest;
 import androidx.health.platform.client.request.DeleteDataRequest;
 import androidx.health.platform.client.request.DeleteDataRangeRequest;
+import androidx.health.platform.client.request.GetChangesTokenRequest;
+import androidx.health.platform.client.request.GetChangesRequest;
 import androidx.health.platform.client.request.UpsertDataRequest;
 import androidx.health.platform.client.request.ReadDataRequest;
 import androidx.health.platform.client.request.ReadDataRangeRequest;
 import androidx.health.platform.client.request.RequestContext;
+import androidx.health.platform.client.service.IGetChangesCallback;
+import androidx.health.platform.client.service.IGetChangesTokenCallback;
 import androidx.health.platform.client.service.IGetGrantedPermissionsCallback;
 import androidx.health.platform.client.service.IDeleteDataCallback;
 import androidx.health.platform.client.service.IDeleteDataRangeCallback;
@@ -42,7 +46,7 @@ interface IHealthDataService {
 
   const int MIN_API_VERSION = 1;
 
-  // Next Id: 16
+  // Next Id: 18
 
   /**
    * Returns version of this AIDL interface.
@@ -69,4 +73,8 @@ interface IHealthDataService {
   void updateData(in RequestContext context, in UpsertDataRequest request, in IUpdateDataCallback callback) = 12;
 
   void aggregate(in RequestContext context, in AggregateDataRequest request, in IAggregateDataCallback callback) = 14;
+
+  void getChangesToken(in RequestContext context, in GetChangesTokenRequest request, in IGetChangesTokenCallback callback) = 16;
+
+  void getChanges(in RequestContext context, in GetChangesRequest request, in IGetChangesCallback callback) = 17;
 }

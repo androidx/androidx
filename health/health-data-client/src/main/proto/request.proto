@@ -102,3 +102,12 @@ message AggregateDataRequest {
   repeated DataOrigin data_origin = 3;
   // TODO(b/219339660): Add group by here
 }
+
+message GetChangesTokenRequest {
+  repeated DataType data_type = 1;
+  repeated DataOrigin data_origin_filters = 2;
+}
+
+message GetChangesRequest {
+  optional string changes_token = 1;
+}
