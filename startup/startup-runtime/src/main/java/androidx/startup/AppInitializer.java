@@ -196,11 +196,11 @@ public final class AppInitializer {
     }
 
     @SuppressWarnings("deprecation")
-    void discoverAndInitialize() {
+    void discoverAndInitialize(
+            @NonNull Class<? extends InitializationProvider> initializationProvider) {
         try {
             Trace.beginSection(SECTION_NAME);
-            ComponentName provider = new ComponentName(mContext.getPackageName(),
-                    InitializationProvider.class.getName());
+            ComponentName provider = new ComponentName(mContext, initializationProvider);
             ProviderInfo providerInfo = mContext.getPackageManager()
                     .getProviderInfo(provider, GET_META_DATA);
             Bundle metadata = providerInfo.metaData;
