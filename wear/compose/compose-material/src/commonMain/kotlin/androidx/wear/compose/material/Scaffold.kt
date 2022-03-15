@@ -18,10 +18,7 @@ package androidx.wear.compose.material
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.unit.LayoutDirection
 
 // TODO(jnichol): Add pagination indication to the scaffold
 /**
@@ -61,31 +58,10 @@ public fun Scaffold(
     timeText: @Composable (() -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
-
     Box(modifier = modifier) {
         content()
-
-        if (positionIndicator != null) {
-            Box(
-                modifier = Modifier.align(
-                    alignment = if (LocalLayoutDirection.current == LayoutDirection.Ltr)
-                        Alignment.CenterEnd else Alignment.CenterStart
-                )
-            ) {
-                positionIndicator()
-            }
-        }
-
-        if (vignette != null) {
-            vignette()
-        }
-
-        if (timeText != null) {
-            Box(
-                modifier = Modifier.align(alignment = Alignment.TopCenter)
-            ) {
-                timeText()
-            }
-        }
+        positionIndicator?.invoke()
+        vignette?.invoke()
+        timeText?.invoke()
     }
 }

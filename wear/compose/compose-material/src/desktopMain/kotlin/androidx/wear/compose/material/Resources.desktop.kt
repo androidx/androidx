@@ -42,3 +42,5 @@ internal actual fun is24HourFormat(): Boolean {
 }
 
 internal actual fun currentTimeMillis(): Long = System.currentTimeMillis()
+
+internal actual fun isLeftyModeEnabled() = false

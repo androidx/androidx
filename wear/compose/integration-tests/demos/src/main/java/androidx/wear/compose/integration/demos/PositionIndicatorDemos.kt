@@ -19,6 +19,7 @@ package androidx.wear.compose.integration.demos
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -26,6 +27,7 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,16 +35,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.InlineSlider
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.PositionIndicator
+import androidx.wear.compose.material.PositionIndicatorAlignment
 import androidx.wear.compose.material.PositionIndicatorState
+import androidx.wear.compose.material.PositionIndicatorVisibility
 import androidx.wear.compose.material.Scaffold
 import androidx.wear.compose.material.ScalingLazyColumn
-import androidx.wear.compose.material.PositionIndicatorVisibility
 import androidx.wear.compose.material.Text
+import androidx.wear.compose.material.ToggleButton
 import androidx.wear.compose.material.rememberScalingLazyListState
 
 @Composable
@@ -100,38 +108,71 @@ fun HideWhenFullSLCDemo() {
 
 @Composable
 fun ControllablePositionIndicator() {
-    val position = remember { mutableStateOf(0.5f) }
-    val size = remember { mutableStateOf(0.5f) }
-    Scaffold(
-        positionIndicator = {
-            PositionIndicator(
-                state = CustomPositionIndicatorState(position, size),
-                indicatorHeight = 76.dp,
-                indicatorWidth = 6.dp,
-                paddingRight = 5.dp,
-                color = MaterialTheme.colors.secondary
-            )
-        }
-    ) {
-        Box(
-            modifier = Modifier.fillMaxHeight().padding(horizontal = 20.dp),
-            contentAlignment = Alignment.Center
+    var position = remember { mutableStateOf(0.2f) }
+    var size = remember { mutableStateOf(0.5f) }
+    var alignment by remember { mutableStateOf(0) }
+    var reverseDirection by remember { mutableStateOf(false) }
+    var layoutDirection by remember { mutableStateOf(false) }
+    val actualLayoutDirection =
+        if (layoutDirection) LayoutDirection.Rtl
+        else LayoutDirection.Ltr
+    val alignmentValues = listOf(
+        PositionIndicatorAlignment.End,
+        PositionIndicatorAlignment.OppositeRsb,
+        PositionIndicatorAlignment.Left,
+        PositionIndicatorAlignment.Right
+    )
+    val alignmentNames = listOf("End", "!Rsb", "Left", "Right")
+    CompositionLocalProvider(LocalLayoutDirection provides actualLayoutDirection) {
+        Scaffold(
+            positionIndicator = {
+                PositionIndicator(
+                    state = CustomPositionIndicatorState(position, size),
+                    indicatorHeight = 76.dp,
+                    indicatorWidth = 6.dp,
+                    paddingHorizontal = 5.dp,
+                    color = MaterialTheme.colors.secondary,
+                    reverseDirection = reverseDirection,
+                    position = alignmentValues[alignment]
+                )
+            }
         ) {
-            Column {
-                Text("Position")
-                InlineSlider(
-                    modifier = Modifier.height(40.dp),
-                    value = position.value,
-                    valueRange = 0f..1f,
-                    steps = 9,
-                    onValueChange = { position.value = it })
-                Text("Size")
-                InlineSlider(
-                    modifier = Modifier.height(40.dp),
-                    value = size.value,
-                    valueRange = 0f..1f,
-                    steps = 9,
-                    onValueChange = { size.value = it })
+            Box(
+                modifier = Modifier.fillMaxHeight().padding(horizontal = 20.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Column {
+                    Text("Position")
+                    InlineSlider(
+                        modifier = Modifier.height(40.dp),
+                        value = position.value,
+                        valueRange = 0f..1f,
+                        steps = 9,
+                        onValueChange = { position.value = it })
+                    Text("Size")
+                    InlineSlider(
+                        modifier = Modifier.height(40.dp),
+                        value = size.value,
+                        valueRange = 0f..1f,
+                        steps = 9,
+                        onValueChange = { size.value = it })
+                    Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                        Button(onClick = { alignment = (alignment + 1) % 3 }) {
+                            Text(alignmentNames[alignment])
+                        }
+                        ToggleButton(
+                            checked = layoutDirection,
+                            onCheckedChange = { layoutDirection = !layoutDirection }
+                        ) { Text(if (layoutDirection) "Rtl" else "Ltr") }
+                        ToggleButton(
+                            checked = reverseDirection,
+                            onCheckedChange = { reverseDirection = !reverseDirection }
+                        ) { Text(
+                            text = "Rev Dir",
+                            textAlign = TextAlign.Center
+                        ) }
+                    }
+                }
             }
         }
     }
@@ -141,9 +182,7 @@ internal class CustomPositionIndicatorState(
     private val position: State<Float>,
     private val size: State<Float>
 ) : PositionIndicatorState {
-    override val positionFraction
-        get() = position.value
-
+    override val positionFraction get() = position.value
     override fun sizeFraction(scrollableContainerSizePx: Float) = size.value
     override fun visibility(scrollableContainerSizePx: Float) = PositionIndicatorVisibility.Show
 

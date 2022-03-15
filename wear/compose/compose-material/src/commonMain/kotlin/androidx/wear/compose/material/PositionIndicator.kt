@@ -53,10 +53,11 @@ import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import kotlin.math.PI
-import kotlin.math.abs
 import kotlin.math.asin
 import kotlin.math.max
 import kotlinx.coroutines.CoroutineScope
@@ -155,7 +156,7 @@ public fun PositionIndicator(
     ScrollStateAdapter(scrollState),
     indicatorHeight = 50.dp,
     indicatorWidth = 4.dp,
-    paddingRight = 5.dp,
+    paddingHorizontal = 5.dp,
     modifier = modifier,
     reverseDirection = reverseDirection
 )
@@ -184,7 +185,7 @@ public fun PositionIndicator(
     ),
     indicatorHeight = 50.dp,
     indicatorWidth = 4.dp,
-    paddingRight = 5.dp,
+    paddingHorizontal = 5.dp,
     modifier = modifier,
     reverseDirection = reverseDirection
 )
@@ -213,10 +214,59 @@ public fun PositionIndicator(
     ),
     indicatorHeight = 50.dp,
     indicatorWidth = 4.dp,
-    paddingRight = 5.dp,
+    paddingHorizontal = 5.dp,
     modifier = modifier,
     reverseDirection = reverseDirection
 )
+
+/**
+ * Specifies where in the screen the Position indicator will be.
+ */
+@Suppress("INLINE_CLASS_DEPRECATED")
+inline class PositionIndicatorAlignment internal constructor(internal val pos: Int) {
+    companion object {
+        /**
+         * Position the indicator at the end of the layout (at the right for LTR and left for RTL)
+         * This is the norm for scroll indicators.
+         */
+        val End = PositionIndicatorAlignment(0)
+
+        // TODO(b/224770222): Add tests.
+        /**
+         * Position the indicator opposite to the physical rsb. (at the left for default mode and
+         * at the right if the device is rotated 180 degrees)
+         * This is the default for RSB indicators as we want to avoid it being obscured when the
+         * user is interacting with the RSB.
+         */
+        val OppositeRsb = PositionIndicatorAlignment(1)
+
+        /**
+         * Position the indicator at the left of the screen.
+         * This is useful to implement custom positioning, but usually
+         * [PositionIndicatorAlignment#End] or [PositionIndicatorAlignment#OppositeRsb] should be
+         * used.
+         */
+        val Left = PositionIndicatorAlignment(2)
+
+        /**
+         * Position the indicator at the right of the screen
+         * This is useful to implement custom positioning, but usually
+         * [PositionIndicatorAlignment#End] or [PositionIndicatorAlignment#OppositeRsb] should be
+         * used.
+         */
+        val Right = PositionIndicatorAlignment(3)
+    }
+
+    override fun toString(): String {
+        return when (this) {
+            End -> "PositionIndicatorAlignment.End"
+            OppositeRsb -> "PositionIndicatorAlignment.OppositeRsb"
+            Left -> "PositionIndicatorAlignment.Left"
+            Right -> "PositionIndicatorAlignment.Right"
+            else -> "PositionIndicatorAlignment.unknown"
+        }
+    }
+}
 
 /**
  * Creates a [PositionIndicator] for controls like rotating side button, rotating bezel or slider.
@@ -232,6 +282,8 @@ public fun PositionIndicator(
  * @param modifier Modifier to be applied to the component
  * @param color Color to draw the indicator on.
  * @param reverseDirection Reverses direction of PositionIndicator if true
+ * @param position indicates where to put the PositionIndicator in the screen, default is
+ * [PositionIndicatorPosition#OppositeRsb]
  */
 @Composable
 public fun PositionIndicator(
@@ -239,21 +291,23 @@ public fun PositionIndicator(
     modifier: Modifier = Modifier,
     range: ClosedFloatingPointRange<Float> = 0f..1f,
     color: Color = MaterialTheme.colors.onBackground,
-    reverseDirection: Boolean = false
+    reverseDirection: Boolean = false,
+    position: PositionIndicatorAlignment = PositionIndicatorAlignment.OppositeRsb
 ) = PositionIndicator(
     state = FractionPositionIndicatorState {
         (value() - range.start) / (range.endInclusive - range.start)
     },
     indicatorHeight = 76.dp,
     indicatorWidth = 6.dp,
-    paddingRight = 5.dp,
+    paddingHorizontal = 5.dp,
     color = color,
     modifier = modifier,
-    reverseDirection = reverseDirection
+    reverseDirection = reverseDirection,
+    position = position
 )
 
 /**
- * An indicator on the right side on the screen to show the current [PositionIndicatorState].
+ * An indicator on one side of the screen to show the current [PositionIndicatorState].
  *
  * Typically used with the [Scaffold] but can be used to decorate any full screen situation.
  *
@@ -263,50 +317,47 @@ public fun PositionIndicator(
  *
  * It detects if the screen is round or square and draws itself as a curve or line.
  *
- * Note that since this indicator can be drawn as a curve that follows the shape of the screen,
- * it needs to be able take the whole screen, but also needs the actual dimensions it needs to be
- * draw [indicatorHeight] and [indicatorWidth], and position with respect to the right edge
- * [paddingRight]
+ * Note that the composable will take the whole screen, but it will be drawn with the given
+ * dimensions [indicatorHeight] and [indicatorWidth], and position with respect to the edge of the
+ * screen according to [paddingHorizontal]
  *
  * For more information, see the
  * [Scroll indicators](https://developer.android.com/training/wearables/components/scroll)
  * guide.
  *
- * @param state the [PositionIndicatorState] of the state we are displaying
+ * @param state the [PositionIndicatorState] of the state we are displaying.
  * @param indicatorHeight the height of the position indicator in Dp.
  * @param indicatorWidth the width of the position indicator in Dp.
- * @param paddingRight the padding to apply to right of the indicator
- * @param modifier The modifier to be applied to the component
- * @param color the color to draw the active part of the indicator in
+ * @param paddingHorizontal the padding to apply between the indicator and the border of the screen.
+ * @param modifier The modifier to be applied to the component.
+ * @param color the color to draw the active part of the indicator in.
  * @param background the color to draw the non-active part of the position indicator.
- * @param reverseDirection Reverses direction of PositionIndicator if true
+ * @param reverseDirection Reverses direction of PositionIndicator if true.
+ * @param position indicates where to put the PositionIndicator on the screen, default is
+ * [PositionIndicatorPosition#End]
  */
 @Composable
 public fun PositionIndicator(
     state: PositionIndicatorState,
     indicatorHeight: Dp,
     indicatorWidth: Dp,
-    paddingRight: Dp,
+    paddingHorizontal: Dp,
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colors.onBackground,
     background: Color = MaterialTheme.colors.onBackground.copy(alpha = 0.3f),
-    reverseDirection: Boolean = false
+    reverseDirection: Boolean = false,
+    position: PositionIndicatorAlignment = PositionIndicatorAlignment.End
 ) {
     val isScreenRound = isRoundDevice()
-
+    val layoutDirection = LocalLayoutDirection.current
+    val leftyMode = isLeftyModeEnabled()
     val actuallyVisible = remember { mutableStateOf(false) }
     var containerHeight by remember { mutableStateOf(1f) }
 
     val displayState by remember {
         derivedStateOf {
-            val indicatorPosition = if (reverseDirection) {
-                1 - state.positionFraction
-            } else {
-                state.positionFraction
-            }
-
             DisplayState(
-                indicatorPosition,
+                state.positionFraction,
                 state.sizeFraction(containerHeight)
             )
         }
@@ -363,26 +414,48 @@ public fun PositionIndicator(
                     containerHeight = it.size.height.toFloat()
                 }
                 .drawWithContent {
+                    val indicatorOnTheRight = when (position) {
+                        PositionIndicatorAlignment.Left -> false
+                        PositionIndicatorAlignment.Right -> true
+                        PositionIndicatorAlignment.OppositeRsb -> leftyMode
+                        PositionIndicatorAlignment.End -> layoutDirection == LayoutDirection.Ltr
+                        else -> true
+                    }
+
+                    // We need to invert reverseDirection when the screen is round and we are on
+                    // the left.
+                    val actualReverseDirection = if (isScreenRound && !indicatorOnTheRight) {
+                        !reverseDirection
+                    } else {
+                        reverseDirection
+                    }
+
+                    val indicatorPosition = if (actualReverseDirection) {
+                        1 - animatedDisplayState.value.position
+                    } else {
+                        animatedDisplayState.value.position
+                    }
+
                     val indicatorWidthPx = indicatorWidth.toPx()
 
                     // We want position = 0 be the indicator aligned at the top of its area and
                     // position = 1 be aligned at the bottom of the area.
-                    val indicatorStart = animatedDisplayState.value.position *
-                        (1 - animatedDisplayState.value.size)
+                    val indicatorStart = indicatorPosition * (1 - animatedDisplayState.value.size)
 
                     val diameter = max(size.width, size.height)
 
-                    // Note that indicators are always to the right, centered vertically.
-                    val paddingRightPx = paddingRight.toPx()
+                    // Note that indicators are on right or left, centered vertically.
+                    val paddingHorizontalPx = paddingHorizontal.toPx()
                     if (isScreenRound) {
-                        val usableHalf = diameter / 2f - paddingRight.toPx()
+                        val usableHalf = diameter / 2f - paddingHorizontalPx
                         val sweepDegrees =
                             (2 * asin((indicatorHeight.toPx() / 2) / usableHalf)).toDegrees()
 
                         drawCurvedIndicator(
                             color,
                             background,
-                            paddingRightPx,
+                            paddingHorizontalPx,
+                            indicatorOnTheRight,
                             sweepDegrees,
                             indicatorWidthPx,
                             indicatorStart,
@@ -393,7 +466,8 @@ public fun PositionIndicator(
                         drawStraightIndicator(
                             color,
                             background,
-                            paddingRightPx,
+                            paddingHorizontalPx,
+                            indicatorOnTheRight,
                             indicatorWidthPx,
                             indicatorHeightPx = indicatorHeight.toPx(),
                             indicatorStart,
@@ -712,21 +786,16 @@ internal class LazyColumnStateAdapter(
         if (state.layoutInfo.visibleItemsInfo.isEmpty()) return 0f
         val lastItem = state.layoutInfo.visibleItemsInfo.last()
         val lastItemVisibleSize = state.layoutInfo.viewportEndOffset - lastItem.offset
-        val decimalLastItemIndex = lastItem.index.toFloat() +
+        return lastItem.index.toFloat() +
             lastItemVisibleSize.toFloat() / lastItem.size.toFloat()
-        return decimalLastItemIndex
     }
 
     private fun decimalFirstItemIndex(): Float {
         if (state.layoutInfo.visibleItemsInfo.isEmpty()) return 0f
         val firstItem = state.layoutInfo.visibleItemsInfo.first()
         val firstItemOffset = firstItem.offset - state.layoutInfo.viewportStartOffset
-        val decimalFirstItemIndex =
-            if (firstItemOffset < 0)
-                firstItem.index.toFloat() +
-                    abs(firstItemOffset.toFloat()) / firstItem.size.toFloat()
-            else firstItem.index.toFloat()
-        return decimalFirstItemIndex
+        return firstItem.index.toFloat() -
+            firstItemOffset.coerceAtMost(0).toFloat() / firstItem.size.toFloat()
     }
 }
 
@@ -734,7 +803,8 @@ internal class LazyColumnStateAdapter(
 private fun ContentDrawScope.drawCurvedIndicator(
     color: Color,
     background: Color,
-    paddingRightPx: Float,
+    paddingHorizontalPx: Float,
+    indicatorOnTheRight: Boolean,
     sweepDegrees: Float,
     indicatorWidthPx: Float,
     indicatorStart: Float,
@@ -743,16 +813,17 @@ private fun ContentDrawScope.drawCurvedIndicator(
 ) {
     val diameter = max(size.width, size.height)
     val arcSize = Size(
-        diameter - 2 * paddingRightPx,
-        diameter - 2 * paddingRightPx
+        diameter - 2 * paddingHorizontalPx - indicatorWidthPx,
+        diameter - 2 * paddingHorizontalPx - indicatorWidthPx
     )
     val arcTopLeft = Offset(
-        size.width - diameter + paddingRightPx,
-        (size.height - diameter) / 2f + paddingRightPx,
+        size.width - diameter + paddingHorizontalPx + indicatorWidthPx / 2f,
+        (size.height - diameter) / 2f + paddingHorizontalPx + indicatorWidthPx / 2f,
     )
+    val startAngleOffset = if (indicatorOnTheRight) 0f else 180f
     drawArc(
         background,
-        startAngle = -sweepDegrees / 2,
+        startAngle = startAngleOffset - sweepDegrees / 2,
         sweepDegrees,
         useCenter = false,
         topLeft = arcTopLeft,
@@ -761,7 +832,7 @@ private fun ContentDrawScope.drawCurvedIndicator(
     )
     drawArc(
         lerp(color, Color.White, highlightAlpha),
-        startAngle = sweepDegrees * (-0.5f + indicatorStart),
+        startAngle = startAngleOffset + sweepDegrees * (-0.5f + indicatorStart),
         sweepAngle = sweepDegrees * indicatorSize,
         useCenter = false,
         topLeft = arcTopLeft,
@@ -773,17 +844,20 @@ private fun ContentDrawScope.drawCurvedIndicator(
 private fun ContentDrawScope.drawStraightIndicator(
     color: Color,
     background: Color,
-    paddingRightPx: Float,
+    paddingHorizontalPx: Float,
+    indicatorOnTheRight: Boolean,
     indicatorWidthPx: Float,
     indicatorHeightPx: Float,
     indicatorStart: Float,
     indicatorSize: Float,
     highlightAlpha: Float
 ) {
-    val lineTop = Offset(
-        size.width - paddingRightPx - indicatorWidthPx / 2,
-        (size.height - indicatorHeightPx) / 2f
-    )
+    val x = if (indicatorOnTheRight) {
+        size.width - paddingHorizontalPx - indicatorWidthPx / 2
+    } else {
+        paddingHorizontalPx + indicatorWidthPx / 2
+    }
+    val lineTop = Offset(x, (size.height - indicatorHeightPx) / 2f)
     val lineBottom = lineTop + Offset(0f, indicatorHeightPx)
     drawLine(
         color = background,
