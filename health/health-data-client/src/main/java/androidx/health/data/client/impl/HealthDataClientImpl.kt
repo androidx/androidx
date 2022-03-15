@@ -19,6 +19,7 @@ import androidx.health.data.client.HealthDataClient
 import androidx.health.data.client.aggregate.AggregateDataRow
 import androidx.health.data.client.aggregate.AggregateMetric
 import androidx.health.data.client.impl.converters.datatype.toDataTypeIdPairProtoList
+import androidx.health.data.client.impl.converters.datatype.toDataTypeName
 import androidx.health.data.client.impl.converters.permission.toJetpackPermission
 import androidx.health.data.client.impl.converters.permission.toProtoPermission
 import androidx.health.data.client.impl.converters.records.toProto
@@ -26,16 +27,20 @@ import androidx.health.data.client.impl.converters.records.toRecord
 import androidx.health.data.client.impl.converters.request.toDeleteDataRangeRequestProto
 import androidx.health.data.client.impl.converters.request.toReadDataRangeRequestProto
 import androidx.health.data.client.impl.converters.request.toReadDataRequestProto
+import androidx.health.data.client.impl.converters.response.toChangesResponse
 import androidx.health.data.client.impl.converters.response.toReadRecordsResponse
 import androidx.health.data.client.impl.converters.time.toProto
 import androidx.health.data.client.metadata.DataOrigin
 import androidx.health.data.client.permission.Permission
 import androidx.health.data.client.records.Record
+import androidx.health.data.client.request.ChangesTokenRequest
+import androidx.health.data.client.response.ChangesResponse
 import androidx.health.data.client.response.InsertRecordResponse
 import androidx.health.data.client.response.ReadRecordResponse
 import androidx.health.data.client.response.ReadRecordsResponse
 import androidx.health.data.client.time.TimeRangeFilter
 import androidx.health.platform.client.HealthDataAsyncClient
+import androidx.health.platform.client.proto.DataProto
 import androidx.health.platform.client.proto.RequestProto
 import kotlin.reflect.KClass
 import kotlinx.coroutines.guava.await
@@ -94,6 +99,41 @@ class HealthDataClientImpl(
         return ReadRecordResponse(toRecord(proto) as T)
     }
 
+    override suspend fun getChangesToken(request: ChangesTokenRequest): String {
+        val proto =
+            delegate
+                .getChangesToken(
+                    RequestProto.GetChangesTokenRequest.newBuilder()
+                        .addAllDataType(
+                            request.recordTypes.map {
+                                DataProto.DataType.newBuilder().setName(it.toDataTypeName()).build()
+                            }
+                        )
+                        .addAllDataOriginFilters(
+                            request.dataOriginFilters.map {
+                                DataProto.DataOrigin.newBuilder()
+                                    .setApplicationId(it.packageName)
+                                    .build()
+                            }
+                        )
+                        .build()
+                )
+                .await()
+        return proto.changesToken
+    }
+
+    override suspend fun getChanges(changesToken: String): ChangesResponse {
+        val proto =
+            delegate
+                .getChanges(
+                    RequestProto.GetChangesRequest.newBuilder()
+                        .setChangesToken(changesToken)
+                        .build()
+                )
+                .await()
+        return toChangesResponse(proto)
+    }
+
     override suspend fun <T : Record> readRecords(
         recordType: KClass<T>,
         timeRangeFilter: TimeRangeFilter,
@@ -123,12 +163,20 @@ class HealthDataClientImpl(
     override suspend fun aggregate(
         aggregateMetrics: Set<AggregateMetric>,
         timeRangeFilter: TimeRangeFilter,
+        dataOriginFilter: List<DataOrigin>
     ): AggregateDataRow {
         val responseProto =
             delegate
                 .aggregate(
                     RequestProto.AggregateDataRequest.newBuilder()
                         .setTimeSpec(timeRangeFilter.toProto())
+                        .addAllDataOrigin(
+                            dataOriginFilter.map {
+                                DataProto.DataOrigin.newBuilder()
+                                    .setApplicationId(it.packageName)
+                                    .build()
+                            }
+                        )
                         .addAllMetricSpec(
                             aggregateMetrics.map {
                                 RequestProto.AggregateMetricSpec.newBuilder()
@@ -144,7 +192,8 @@ class HealthDataClientImpl(
         val rowProto = responseProto.rowsList.first()
         return AggregateDataRow(
             longValues = rowProto.longValuesMap,
-            doubleValues = rowProto.doubleValuesMap
+            doubleValues = rowProto.doubleValuesMap,
+            dataOrigins = rowProto.dataOriginsList.map { DataOrigin(it.applicationId) }
         )
     }
 }

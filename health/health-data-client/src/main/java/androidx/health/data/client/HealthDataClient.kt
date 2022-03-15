@@ -21,6 +21,8 @@ import androidx.health.data.client.aggregate.AggregateMetric
 import androidx.health.data.client.metadata.DataOrigin
 import androidx.health.data.client.permission.Permission
 import androidx.health.data.client.records.Record
+import androidx.health.data.client.request.ChangesTokenRequest
+import androidx.health.data.client.response.ChangesResponse
 import androidx.health.data.client.response.InsertRecordResponse
 import androidx.health.data.client.response.ReadRecordResponse
 import androidx.health.data.client.response.ReadRecordsResponse
@@ -202,7 +204,6 @@ interface HealthDataClient {
         )
 
     /** See [HealthDataClient.readRecords]. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     suspend fun <T : Record> readRecords(
         recordType: KClass<T>,
         timeRangeFilter: TimeRangeFilter,
@@ -275,7 +276,46 @@ interface HealthDataClient {
     suspend fun aggregate(
         aggregateMetrics: Set<AggregateMetric>,
         timeRangeFilter: TimeRangeFilter,
+        dataOriginFilter: List<DataOrigin>
     ): AggregateDataRow
 
     // TODO(b/219327548): Adds overload with groupBy that return a list
+
+    /**
+     * Retrieves a changes-token, representing current point in time in the underlying Android
+     * Health Platform for a given [ChangesTokenRequest]. Changes-tokens are used in [getChanges] to
+     * retrieve changes since that point in time.
+     *
+     * Changes-tokens represent a point in time after which the client is interested in knowing the
+     * changes for a set of interested types of [Record] and optional [DataOrigin] filters.
+     *
+     * Changes-tokens are only valid for 30 days after they're generated. Calls to [getChanges] with
+     * an invalid changes-token will fail.
+     *
+     * @param request Includes interested types of record to observe changes and optional filters.
+     * @throws RemoteException For any IPC transportation failures.
+     * @throws SecurityException For requests with unpermitted access.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    suspend fun getChangesToken(request: ChangesTokenRequest): String
+
+    /**
+     * Retrieves changes in Android Health Platform, from a specific point in time represented by
+     * provided [changesToken].
+     *
+     * The response returned may not provide all the changes due to IPC or memory limits, see
+     * [ChangesResponse.hasMore]. Clients can make more api calls to fetch more changes from the
+     * Android Health Platform with updated [ChangesResponse.nextChangesToken].
+     *
+     * Provided [changesToken] may have expired if clients have not synced for extended period of
+     * time (such as a month). In this case [ChangesResponse.changesTokenExpired] will be set, and
+     * clients should generate a new changes-token via [getChangesToken].
+     *
+     * @param changesToken A Changes-Token that represents a specific point in time in Android
+     * Health Platform.
+     * @throws RemoteException For any IPC transportation failures.
+     * @throws SecurityException For requests with unpermitted access.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    suspend fun getChanges(changesToken: String): ChangesResponse
 }

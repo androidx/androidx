@@ -19,6 +19,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.annotation.RestrictTo
+import androidx.health.data.client.HealthDataService.DEFAULT_PROVIDER_PACKAGE_NAME
 import androidx.health.data.client.impl.converters.permission.toJetpackPermission
 import androidx.health.data.client.impl.converters.permission.toProtoPermission
 import androidx.health.platform.client.permission.Permission as ProtoPermission
@@ -29,7 +30,10 @@ import androidx.health.platform.client.service.HealthDataServiceConstants.KEY_RE
 
 /** An [ActivityResultContract] to request Health Data permissions. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class HealthDataRequestPermissions : ActivityResultContract<Set<Permission>, Set<Permission>>() {
+class HealthDataRequestPermissions(
+    private val providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME,
+) : ActivityResultContract<Set<Permission>, Set<Permission>>() {
+
     override fun createIntent(context: Context, input: Set<Permission>): Intent {
         require(input.isNotEmpty()) { "At least one permission is required!" }
 
@@ -41,6 +45,9 @@ class HealthDataRequestPermissions : ActivityResultContract<Set<Permission>, Set
         return Intent(ACTION_REQUEST_PERMISSIONS).apply {
             putParcelableArrayListExtra(KEY_REQUESTED_PERMISSIONS_JETPACK, protoPermissionList)
             putExtra(HealthDataServiceConstants.KEY_PACKAGE_NAME, context.packageName)
+            if (providerPackageName.isNotEmpty()) {
+                setPackage(providerPackageName)
+            }
         }
     }
 

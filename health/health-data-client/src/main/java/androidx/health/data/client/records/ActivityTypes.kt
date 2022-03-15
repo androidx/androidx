@@ -15,6 +15,7 @@
  */
 package androidx.health.data.client.records
 
+import androidx.annotation.RestrictTo
 import androidx.annotation.StringDef
 
 /** List of supported activities on Health Platform. */
@@ -100,6 +101,8 @@ public object ActivityTypes {
     const val WALKING = "walking"
     const val WATER_POLO = "water_polo"
     const val WEIGHTLIFTING = "weightlifting"
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    const val WHEELCHAIR = "wheelchair"
     const val WORKOUT = "workout"
     const val YOGA = "yoga"
 }
@@ -193,6 +196,7 @@ public object ActivityTypes {
             ActivityTypes.WALKING,
             ActivityTypes.WATER_POLO,
             ActivityTypes.WEIGHTLIFTING,
+            ActivityTypes.WHEELCHAIR,
             ActivityTypes.WORKOUT,
             ActivityTypes.YOGA,
         ]
