@@ -180,10 +180,6 @@ class PerformanceMetricsState private constructor() {
         markStateForRemoval(stateName, states, System.nanoTime())
     }
 
-    private fun markSingleFrameStateForRemoval(stateName: String) {
-        markStateForRemoval(stateName, singleFrameStates, System.nanoTime())
-    }
-
     /**
      * Internal representation of state information. timeAdded/Removed allows synchronizing states
      * with frame boundaries during the FrameMetrics callback, when we can compare which states
