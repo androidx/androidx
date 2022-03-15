@@ -18,6 +18,7 @@ package androidx.collection;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.collection.internal.ContainerHelpersKt;
 
 /**
  * SparseArray mapping longs to Objects.  Unlike a normal array of Objects,
@@ -71,10 +72,10 @@ public class LongSparseArray<E> implements Cloneable {
      */
     public LongSparseArray(int initialCapacity) {
         if (initialCapacity == 0) {
-            mKeys = ContainerHelpers.EMPTY_LONGS;
-            mValues = ContainerHelpers.EMPTY_OBJECTS;
+            mKeys = ContainerHelpersKt.EMPTY_LONGS;
+            mValues = ContainerHelpersKt.EMPTY_OBJECTS;
         } else {
-            initialCapacity = ContainerHelpers.idealLongArraySize(initialCapacity);
+            initialCapacity = ContainerHelpersKt.idealLongArraySize(initialCapacity);
             mKeys = new long[initialCapacity];
             mValues = new Object[initialCapacity];
         }
@@ -115,7 +116,7 @@ public class LongSparseArray<E> implements Cloneable {
      */
     @SuppressWarnings("unchecked")
     public E get(long key, E valueIfKeyNotFound) {
-        int i = ContainerHelpers.binarySearch(mKeys, mSize, key);
+        int i = ContainerHelpersKt.binarySearch(mKeys, mSize, key);
 
         if (i < 0 || mValues[i] == DELETED) {
             return valueIfKeyNotFound;
@@ -136,7 +137,7 @@ public class LongSparseArray<E> implements Cloneable {
      * Removes the mapping from the specified key, if there was any.
      */
     public void remove(long key) {
-        int i = ContainerHelpers.binarySearch(mKeys, mSize, key);
+        int i = ContainerHelpersKt.binarySearch(mKeys, mSize, key);
 
         if (i >= 0) {
             if (mValues[i] != DELETED) {
@@ -246,7 +247,7 @@ public class LongSparseArray<E> implements Cloneable {
      * was one.
      */
     public void put(long key, E value) {
-        int i = ContainerHelpers.binarySearch(mKeys, mSize, key);
+        int i = ContainerHelpersKt.binarySearch(mKeys, mSize, key);
 
         if (i >= 0) {
             mValues[i] = value;
@@ -263,11 +264,11 @@ public class LongSparseArray<E> implements Cloneable {
                 gc();
 
                 // Search again because indices may have changed.
-                i = ~ContainerHelpers.binarySearch(mKeys, mSize, key);
+                i = ~ContainerHelpersKt.binarySearch(mKeys, mSize, key);
             }
 
             if (mSize >= mKeys.length) {
-                int n = ContainerHelpers.idealLongArraySize(mSize + 1);
+                int n = ContainerHelpersKt.idealLongArraySize(mSize + 1);
 
                 long[] nkeys = new long[n];
                 Object[] nvalues = new Object[n];
@@ -401,7 +402,7 @@ public class LongSparseArray<E> implements Cloneable {
             gc();
         }
 
-        return ContainerHelpers.binarySearch(mKeys, mSize, key);
+        return ContainerHelpersKt.binarySearch(mKeys, mSize, key);
     }
 
     /**
@@ -465,7 +466,7 @@ public class LongSparseArray<E> implements Cloneable {
 
         int pos = mSize;
         if (pos >= mKeys.length) {
-            int n = ContainerHelpers.idealLongArraySize(pos + 1);
+            int n = ContainerHelpersKt.idealLongArraySize(pos + 1);
 
             long[] nkeys = new long[n];
             Object[] nvalues = new Object[n];

@@ -45,8 +45,7 @@ public class CallbackHandlerRegistry {
     public static final CallbackHandlerRegistry sInstance = new CallbackHandlerRegistry();
     private static final String TAG = "CallbackHandlerRegistry";
 
-    private final SimpleArrayMap<Class<? extends CallbackReceiver>, ClsHandler> mClsLookup =
-            new SimpleArrayMap<>();
+    private final SimpleArrayMap<Class<?>, ClsHandler> mClsLookup = new SimpleArrayMap<>();
 
     /**
      * @hide
