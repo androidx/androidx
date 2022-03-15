@@ -510,6 +510,9 @@ val WearMaterialDemos = DemoCategory(
                 ComposableDemo("Controllable PI") {
                     ControllablePositionIndicator()
                 },
+                ComposableDemo("Shared PI") {
+                    SharedPositionIndicator()
+                }
             )
         ),
         ComposableDemo("Curved Text") { CurvedTextDemo() },
