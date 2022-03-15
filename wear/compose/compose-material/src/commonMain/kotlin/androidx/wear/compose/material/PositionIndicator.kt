@@ -297,7 +297,7 @@ public fun PositionIndicator(
     val actuallyVisible = remember { mutableStateOf(false) }
     var containerHeight by remember { mutableStateOf(1f) }
 
-    val displayState by remember {
+    val displayState by remember(state) {
         derivedStateOf {
             val indicatorPosition = if (reverseDirection) {
                 1 - state.positionFraction
@@ -339,7 +339,7 @@ public fun PositionIndicator(
         }
     }
 
-    val visibility by remember { derivedStateOf { state.visibility(containerHeight) } }
+    val visibility by remember(state) { derivedStateOf { state.visibility(containerHeight) } }
     when (visibility) {
         PositionIndicatorVisibility.Show -> actuallyVisible.value = true
         PositionIndicatorVisibility.Hide -> actuallyVisible.value = false

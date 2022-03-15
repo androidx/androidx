@@ -19,9 +19,12 @@ package androidx.wear.compose.integration.demos
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -39,9 +42,9 @@ import androidx.wear.compose.material.InlineSlider
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.PositionIndicator
 import androidx.wear.compose.material.PositionIndicatorState
+import androidx.wear.compose.material.PositionIndicatorVisibility
 import androidx.wear.compose.material.Scaffold
 import androidx.wear.compose.material.ScalingLazyColumn
-import androidx.wear.compose.material.PositionIndicatorVisibility
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.rememberScalingLazyListState
 
@@ -132,6 +135,36 @@ fun ControllablePositionIndicator() {
                     valueRange = 0f..1f,
                     steps = 9,
                     onValueChange = { size.value = it })
+            }
+        }
+    }
+}
+
+@Composable
+fun SharedPositionIndicator() {
+    val listStates = listOf(rememberScrollState(), rememberScrollState())
+    val selected = remember { mutableStateOf(0) }
+    Scaffold(
+        positionIndicator = {
+            PositionIndicator(listStates[selected.value])
+        }
+    ) {
+        Row(modifier = Modifier.fillMaxSize()) {
+            repeat(2) { listIndex ->
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .width(80.dp)
+                        .verticalScroll(listStates[listIndex])
+                ) {
+                    repeat(10) {
+                        Chip(
+                            onClick = { selected.value = listIndex },
+                            label = { Text("#$it") }
+                        )
+                    }
+                }
             }
         }
     }
