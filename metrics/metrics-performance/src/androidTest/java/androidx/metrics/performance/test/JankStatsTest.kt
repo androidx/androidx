@@ -18,6 +18,8 @@ package androidx.metrics.performance.test
 import androidx.core.util.Pair
 import androidx.metrics.performance.PerformanceMetricsState
 import androidx.metrics.performance.FrameData
+import androidx.metrics.performance.FrameDataApi24
+import androidx.metrics.performance.FrameDataApi31
 import androidx.metrics.performance.JankStats
 import androidx.metrics.performance.JankStats.OnFrameListener
 import androidx.metrics.performance.StateInfo
@@ -32,6 +34,7 @@ import kotlinx.coroutines.asExecutor
 import org.hamcrest.Matchers
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertThat
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -85,6 +88,46 @@ class JankStatsTest {
         assertFalse(jankStats.isTrackingEnabled)
         jankStats.isTrackingEnabled = true
         assertTrue(jankStats.isTrackingEnabled)
+    }
+
+    @Test
+    fun testEquality() {
+        val states1 = listOf<StateInfo>(StateInfo("1", "a"))
+        val states2 = listOf<StateInfo>(StateInfo("1", "a"), StateInfo("2", "b"))
+        val frameDataBase = FrameData(0, 0, true, states1)
+        val frameDataBaseCopy = FrameData(0, 0, true, states1)
+        val frameDataBaseA = FrameData(0, 0, true, states2)
+        val frameDataBaseB = FrameData(0, 0, false, states1)
+        val frameDataBaseC = FrameData(0, 1, true, states1)
+        val frameDataBaseD = FrameData(1, 0, true, states1)
+
+        val frameData24 = FrameDataApi24(0, 0, 0, true, states1)
+        val frameData24Copy = FrameDataApi24(0, 0, 0, true, states1)
+        val frameData24A = FrameDataApi24(0, 0, 1, true, states1)
+
+        val frameData31 = FrameDataApi31(0, 0, 0, 0, true, states1)
+        val frameData31Copy = FrameDataApi31(0, 0, 0, 0, true, states1)
+        val frameData31A = FrameDataApi31(0, 0, 0, 1, true, states1)
+
+        assertEquals(frameDataBase, frameDataBase)
+        assertEquals(frameDataBase, frameDataBaseCopy)
+        assertEquals(frameData24, frameData24)
+        assertEquals(frameData24, frameData24Copy)
+        assertEquals(frameData31, frameData31)
+        assertEquals(frameData31, frameData31Copy)
+
+        assertNotEquals(frameDataBase, frameDataBaseA)
+        assertNotEquals(frameDataBase, frameDataBaseB)
+        assertNotEquals(frameDataBase, frameDataBaseC)
+        assertNotEquals(frameDataBase, frameDataBaseD)
+        assertNotEquals(frameDataBase, frameData24)
+        assertNotEquals(frameData24, frameDataBase)
+        assertNotEquals(frameDataBase, frameData31)
+        assertNotEquals(frameData31, frameDataBase)
+        assertNotEquals(frameData24, frameData31)
+        assertNotEquals(frameData31, frameData24)
+        assertNotEquals(frameData24, frameData24A)
+        assertNotEquals(frameData31, frameData31A)
     }
 
     @Test

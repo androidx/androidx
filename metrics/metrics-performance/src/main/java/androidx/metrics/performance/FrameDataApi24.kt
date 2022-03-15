@@ -16,50 +16,40 @@
 
 package androidx.metrics.performance
 
+/**
+ * This class stores duration data for a single frame.
+ *
+ * This subclass of [FrameData] adds an additional value for [frameDurationCpuNanos]
+ *
+ * @property frameStartNanos The time at which this frame began (in nanoseconds)
+ * @property frameDurationUiNanos The time spent in the UI portion of this frame (in nanoseconds).
+ * This is essentially the time spent on the UI thread to draw this frame, but does
+ * not include any time spent on the RenderThread.
+ * @property frameDurationCpuNanos The time spent in the non-GPU portions of this frame (in
+ * nanoseconds).  This includes the time spent on the UI thread [frameDurationUiNanos] plus time
+ * spent on the RenderThread.
+ * @property isJank Whether this frame was determined to be janky, meaning that its
+ * duration exceeds the duration determined by the system to indicate jank (@see
+ * [JankStats.jankHeuristicMultiplier]).
+ * @property states The UI/app state during this frame.
+ * This is the information set by the app, or by other library code, that can be analyzed
+ * later to determine the UI state that was current when jank occurred.
+ *
+ * @see JankStats.jankHeuristicMultiplier
+ * @see PerformanceMetricsState.addState
+ */
 open class FrameDataApi24(
-    /**
-     * The time at which this frame began (in nanoseconds)
-     */
     frameStartNanos: Long,
-
-    /**
-     * The time spent in the UI portion of this frame (in nanoseconds).
-     *
-     * This is essentially the time spent on the UI thread to draw this frame, but does
-     * not include any time spent on the RenderThread.
-     */
     frameDurationUiNanos: Long,
-
-    /**
-     * The time spent in the non-GPU portions of this frame (in nanoseconds).
-     *
-     * This includes the time spent on the UI thread [frameDurationUiNanos] plus time
-     * spent on the RenderThread.
-     */
     val frameDurationCpuNanos: Long,
-
-    /**
-     * Whether this frame was determined to be janky, meaning that its
-     * duration exceeds the duration determined by the system to indicate jank (@see
-     * [JankStats.jankHeuristicMultiplier])
-     */
     isJank: Boolean,
-
-    /**
-     * The UI/app state during this frame.
-     *
-     * This is the information set by the app, or by other library code, that can be analyzed
-     * later to determine the UI state that was current when jank occurred.
-     *
-     * @see PerformanceMetricsState.addState
-     */
     states: List<StateInfo>
-
 ) : FrameData(frameStartNanos, frameDurationUiNanos, isJank, states) {
 
     override fun equals(other: Any?): Boolean {
-        other as FrameDataApi24
-        return super.equals(other) && (frameDurationCpuNanos == other.frameDurationCpuNanos)
+        return other is FrameDataApi24 &&
+            super.equals(other) &&
+            (frameDurationCpuNanos == other.frameDurationCpuNanos)
     }
 
     override fun hashCode(): Int {
