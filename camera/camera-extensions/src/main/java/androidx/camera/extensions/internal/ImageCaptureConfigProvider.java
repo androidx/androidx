@@ -95,25 +95,29 @@ public class ImageCaptureConfigProvider implements ConfigProvider<ImageCaptureCo
             ImageCaptureExtenderImpl imageCaptureExtenderImpl =
                     ((BasicVendorExtender) vendorExtender).getImageCaptureExtenderImpl();
 
-            CaptureProcessorImpl captureProcessor =
-                    imageCaptureExtenderImpl.getCaptureProcessor();
-            if (captureProcessor != null) {
-                builder.setCaptureProcessor(new AdaptingCaptureProcessor(captureProcessor));
+            if (imageCaptureExtenderImpl != null) {
+                CaptureProcessorImpl captureProcessor =
+                        imageCaptureExtenderImpl.getCaptureProcessor();
+                if (captureProcessor != null) {
+                    builder.setCaptureProcessor(new AdaptingCaptureProcessor(captureProcessor));
+                }
+
+                if (imageCaptureExtenderImpl.getMaxCaptureStage() > 0) {
+                    builder.setMaxCaptureStages(
+                            imageCaptureExtenderImpl.getMaxCaptureStage());
+                }
+
+                ImageCaptureEventAdapter imageCaptureEventAdapter =
+                        new ImageCaptureEventAdapter(imageCaptureExtenderImpl,
+                                context);
+                new Camera2ImplConfig.Extender<>(builder).setCameraEventCallback(
+                        new CameraEventCallbacks(imageCaptureEventAdapter));
+                builder.setUseCaseEventCallback(imageCaptureEventAdapter);
+
+                builder.setCaptureBundle(imageCaptureEventAdapter);
+            } else {
+                Logger.e(TAG, "ImageCaptureExtenderImpl is null!");
             }
-
-            if (imageCaptureExtenderImpl.getMaxCaptureStage() > 0) {
-                builder.setMaxCaptureStages(
-                        imageCaptureExtenderImpl.getMaxCaptureStage());
-            }
-
-            ImageCaptureEventAdapter imageCaptureEventAdapter =
-                    new ImageCaptureEventAdapter(imageCaptureExtenderImpl,
-                            context);
-            new Camera2ImplConfig.Extender<>(builder).setCameraEventCallback(
-                    new CameraEventCallbacks(imageCaptureEventAdapter));
-            builder.setUseCaseEventCallback(imageCaptureEventAdapter);
-
-            builder.setCaptureBundle(imageCaptureEventAdapter);
         }
 
         builder.getMutableConfig().insertOption(OPTION_IMAGE_CAPTURE_CONFIG_PROVIDER_MODE,
