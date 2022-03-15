@@ -135,26 +135,11 @@ open class PlaygroundExtension @Inject constructor(
         if (supportRootDir == null) {
             throw RuntimeException("Must call setupPlayground() first.")
         }
-
-        // Multiline matcher for anything of the form:
-        //  includeProject(name, path, ...)
-        // where '...' is anything except the ')' character.
-        /* ktlint-disable max-line-length */
-        val includeProjectPattern = Regex(
-            """[\n\r\s]*includeProject\("(?<name>[a-z0-9-:]*)",[\n\r\s]*"(?<path>[a-z0-9-\/]+)[^)]+\)$""",
-            setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE)
-        ).toPattern()
         val supportSettingsFile = File(supportRootDir, "settings.gradle")
-        val matcher = includeProjectPattern.matcher(supportSettingsFile.readText())
-
-        while (matcher.find()) {
-            // check if is an include project line, if so, extract project gradle path and
-            // file system path and call the filter
-            val projectGradlePath = matcher.group("name")
-            val projectFilePath = matcher.group("path")
-            if (filter(projectGradlePath)) {
-                includeProject(projectGradlePath, projectFilePath)
-            }
+        SettingsParser.findProjects(supportSettingsFile).filter {
+            filter(it.gradlePath)
+        }.forEach { (projectGradlePath, projectFilePath) ->
+            includeProject(projectGradlePath, projectFilePath)
         }
     }
 
