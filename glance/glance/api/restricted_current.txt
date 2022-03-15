@@ -381,6 +381,7 @@ package androidx.glance.text {
 package androidx.glance.unit {
 
   public interface ColorProvider {
+    method public long resolve(android.content.Context context);
   }
 
   public final class ColorProviderKt {
