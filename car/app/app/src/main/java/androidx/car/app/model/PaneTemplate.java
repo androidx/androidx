@@ -258,7 +258,7 @@ public final class PaneTemplate implements Template {
          * @throws NullPointerException if {@code pane} is {@code null}
          */
         public Builder(@NonNull Pane pane) {
-            mPane = pane;
+            mPane = requireNonNull(pane);
         }
     }
 }
