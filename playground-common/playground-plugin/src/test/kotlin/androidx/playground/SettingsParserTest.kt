@@ -16,17 +16,13 @@
 
 package androidx.playground
 
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
 
 class SettingsParserTest {
     @Test
     fun parseProjects() {
-        SettingsParser.includeProjectPattern = Regex(
-            """^[\n\r\s]*includeProject\("(?<name>[a-z0-9-:]*)"(,[\n\r\s]*"(?<path>[a-z0-9-/]+))?.*\).*$""",
-            setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE)
-        ).toPattern()
         val projects = SettingsParser.findProjects(
             """
             includeProject(":no:filepath", [BuildType.MAIN])
@@ -38,7 +34,7 @@ class SettingsParserTest {
             includeProject("no:build:type:with:path", "dir4")
             """.trimIndent()
         )
-        Truth.assertThat(
+        assertThat(
             projects
         ).containsExactly(
             SettingsParser.IncludedProject(

@@ -28,7 +28,7 @@ internal object SettingsParser {
      * path and an optional argument for project file path.
      */
     /* ktlint-disable max-line-length */
-    var includeProjectPattern = Regex(
+    private val includeProjectPattern = Regex(
         """^[\n\r\s]*includeProject\("(?<name>[a-z0-9-:]*)"(,[\n\r\s]*"(?<path>[a-z0-9-/]+))?.*\).*$""",
         setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE)
     ).toPattern()
@@ -61,12 +61,21 @@ internal object SettingsParser {
     /**
      * Converts a gradle path (e.g. :a:b:c) to a file path (a/b/c)
      */
-    private fun createFilePathFromGradlePath(projectGradlePath: String): String {
-        return projectGradlePath.trimStart(':').replace(':', '/')
+    private fun createFilePathFromGradlePath(gradlePath: String): String {
+        return gradlePath.trimStart(':').replace(':', '/')
     }
 
+    /**
+     * Represents an included project from the main settings.gradle file.
+     */
     internal data class IncludedProject(
+        /**
+         * Gradle path of the project (using : as separator)
+         */
         val gradlePath: String,
+        /**
+         * File path for the project, relative to support root folder.
+         */
         val filePath: String
     )
 }
