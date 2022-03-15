@@ -66,6 +66,10 @@ android {
     }
 
     testOptions.unitTests.includeAndroidResources = true
+
+    lintOptions {
+        enable 'CameraXQuirksClassDetector'
+    }
 }
 
 androidx {

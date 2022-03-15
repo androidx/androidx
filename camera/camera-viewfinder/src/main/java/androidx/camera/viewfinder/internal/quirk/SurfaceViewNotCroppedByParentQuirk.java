@@ -23,9 +23,13 @@ import androidx.annotation.RequiresApi;
 /**
  * A quirk where a scaled up SurfaceView is not cropped by the parent View.
  *
- * <p> On certain Xiaomi devices, when the scale type is FILL_* and the preview is scaled up
- * to be larger than its parent, the SurfaceView is not cropped by its parent. As the result, the
- * preview incorrectly covers the neighboring UI elements. b/211370840
+ * <p>QuirkSummary
+ *     Bug Id: 211370840
+ *     Description: On certain Xiaomi devices, when the scale type is FILL_* and the preview is
+ *                  scaled up to be larger than its parent, the SurfaceView is not cropped by its
+ *                  parent. As the result, the preview incorrectly covers the neighboring UI
+ *                  elements.
+ *     Device(s): XIAOMI M2101K7AG
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class SurfaceViewNotCroppedByParentQuirk implements Quirk {
