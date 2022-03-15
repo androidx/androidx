@@ -76,6 +76,7 @@ class SearchSessionImpl implements AppSearchSession {
 
     @Override
     @NonNull
+    @BuildCompat.PrereleaseSdkCheck
     public ListenableFuture<SetSchemaResponse> setSchemaAsync(@NonNull SetSchemaRequest request) {
         Preconditions.checkNotNull(request);
         ResolvableFuture<SetSchemaResponse> future = ResolvableFuture.create();

@@ -35,6 +35,7 @@ import androidx.appsearch.app.PutDocumentsRequest;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.platformstorage.PlatformStorage;
 import androidx.appsearch.testutil.AppSearchEmail;
+import androidx.core.os.BuildCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SdkSuppress;
 
@@ -64,15 +65,25 @@ public class AppSearchSessionPlatformCtsTest extends AppSearchSessionCtsTestBase
     }
 
     @Test
-    public void testCapabilities() throws Exception {
+    public void testFeaturesSupported() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
         AppSearchSession db2 = PlatformStorage.createSearchSessionAsync(
                 new PlatformStorage.SearchContext.Builder(context, DB_NAME_2).build()).get();
-
-        // TODO(b/201316758) Update to reflect support in Android T+ once this feature is synced
-        // over into service-appsearch.
         assertThat(db2.getFeatures().isFeatureSupported(
-                Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH)).isFalse();
+                Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH))
+                .isEqualTo(BuildCompat.isAtLeastT());
+        assertThat(db2.getFeatures().isFeatureSupported(
+                Features.GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER))
+                .isEqualTo(BuildCompat.isAtLeastT());
+        assertThat(db2.getFeatures().isFeatureSupported(
+                Features.GLOBAL_SEARCH_SESSION_GET_SCHEMA))
+                .isEqualTo(BuildCompat.isAtLeastT());
+        assertThat(db2.getFeatures().isFeatureSupported(
+                Features.GLOBAL_SEARCH_SESSION_GET_BY_ID))
+                .isEqualTo(BuildCompat.isAtLeastT());
+        assertThat(db2.getFeatures().isFeatureSupported(
+                Features.ADD_PERMISSIONS_AND_GET_VISIBILITY))
+                .isEqualTo(BuildCompat.isAtLeastT());
     }
 
     @Test

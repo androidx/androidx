@@ -70,6 +70,24 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
                         .setWorkerExecutor(executor).build());
     }
 
+    @Test
+    public void testFeaturesSupported() throws Exception {
+        Context context = ApplicationProvider.getApplicationContext();
+        AppSearchSession db2 = LocalStorage.createSearchSessionAsync(
+                new LocalStorage.SearchContext.Builder(context, DB_NAME_2).build()).get();
+
+        assertThat(db2.getFeatures().isFeatureSupported(
+                Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH)).isTrue();
+        assertThat(db2.getFeatures().isFeatureSupported(
+                Features.GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER)).isTrue();
+        assertThat(db2.getFeatures().isFeatureSupported(
+                Features.GLOBAL_SEARCH_SESSION_GET_SCHEMA)).isTrue();
+        assertThat(db2.getFeatures().isFeatureSupported(
+                Features.GLOBAL_SEARCH_SESSION_GET_BY_ID)).isTrue();
+        assertThat(db2.getFeatures().isFeatureSupported(
+                Features.ADD_PERMISSIONS_AND_GET_VISIBILITY)).isTrue();
+    }
+
     // TODO(b/194207451) This test can be moved to CtsTestBase if customized logger is
     //  supported for platform backend.
     @Test
@@ -490,19 +508,6 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
         assertThat(result.getFailures()).containsKey("id1");
         assertThat(result.getFailures().get("id1").getErrorMessage())
                 .contains("was too large to write. Max is 16777215");
-    }
-
-    @Test
-    public void testCapabilities() throws Exception {
-        Context context = ApplicationProvider.getApplicationContext();
-        AppSearchSession db2 = LocalStorage.createSearchSessionAsync(
-                new LocalStorage.SearchContext.Builder(context, DB_NAME_2).build()).get();
-
-        assertThat(db2.getFeatures().isFeatureSupported(
-                Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH)).isTrue();
-
-        assertThat(db2.getFeatures().isFeatureSupported(
-                Features.ADD_PERMISSIONS_AND_GET_VISIBILITY)).isTrue();
     }
 
     @Test

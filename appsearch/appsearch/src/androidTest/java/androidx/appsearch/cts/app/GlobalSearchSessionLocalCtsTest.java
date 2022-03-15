@@ -26,7 +26,6 @@ import androidx.annotation.NonNull;
 import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSession;
-import androidx.appsearch.app.Features;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.GlobalSearchSession;
@@ -60,14 +59,6 @@ public class GlobalSearchSessionLocalCtsTest extends GlobalSearchSessionCtsTestB
         Context context = ApplicationProvider.getApplicationContext();
         return LocalStorage.createGlobalSearchSessionAsync(
                 new LocalStorage.GlobalSearchContext.Builder(context).build());
-    }
-
-    @Test
-    public void testFeaturesSupported() {
-        assertThat(mDb1.getFeatures().isFeatureSupported(
-                Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH)).isTrue();
-        assertThat(mDb1.getFeatures().isFeatureSupported(
-                Features.GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER)).isTrue();
     }
 
     @Test

@@ -238,7 +238,8 @@ public interface GlobalSearchSession extends Closeable {
             name = Features.GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER)
     // @exportToFramework:endStrip()
     void removeObserver(
-            @NonNull String targetPackageName, @NonNull AppSearchObserverCallback observer);
+            @NonNull String targetPackageName, @NonNull AppSearchObserverCallback observer)
+            throws AppSearchException;
 
     /** Closes the {@link GlobalSearchSession}. */
     @Override

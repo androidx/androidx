@@ -16,29 +16,17 @@
 // @exportToFramework:skipFile()
 package androidx.appsearch.cts.app;
 
-import static com.google.common.truth.Truth.assertThat;
-
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assume.assumeFalse;
-
 import android.content.Context;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.appsearch.app.AppSearchSession;
-import androidx.appsearch.app.Features;
 import androidx.appsearch.app.GlobalSearchSession;
-import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.platformstorage.PlatformStorage;
-import androidx.appsearch.testutil.AppSearchEmail;
-import androidx.core.os.BuildCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SdkSuppress;
 
 import com.google.common.util.concurrent.ListenableFuture;
-
-import org.junit.Ignore;
-import org.junit.Test;
 
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
 public class GlobalSearchSessionPlatformCtsTest extends GlobalSearchSessionCtsTestBase {
@@ -54,100 +42,5 @@ public class GlobalSearchSessionPlatformCtsTest extends GlobalSearchSessionCtsTe
         Context context = ApplicationProvider.getApplicationContext();
         return PlatformStorage.createGlobalSearchSessionAsync(
                 new PlatformStorage.GlobalSearchContext.Builder(context).build());
-    }
-
-    @Test
-    public void testFeaturesSupported() {
-        // TODO(b/201316758): Support submatch and uncomment this check
-        //assertThat(mDb1.getFeatures().isFeatureSupported(
-        //        Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH))
-        //        .isEqualTo(BuildCompat.isAtLeastT());
-        assertThat(mDb1.getFeatures().isFeatureSupported(
-                Features.GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER))
-                .isEqualTo(BuildCompat.isAtLeastT());
-        // TODO(b/205749173): Support get schema in framework and uncomment this check
-//        assertThat(mDb1.getFeatures().isFeatureSupported(
-//                Features.GET_SCHEMA_RESPONSE_VISIBILITY))
-//                .isEqualTo(BuildCompat.isAtLeastT());
-    }
-
-    @Ignore("b/193494000")
-    @Override
-    public void testAddObserver() {
-        // TODO(b/193494000): Propagate document ids in platform and enable this test
-    }
-
-    @Ignore("b/193494000")
-    @Override
-    public void testRemoveObserver() {
-        // TODO(b/193494000): Implement removeObserver in platform and enable this test
-    }
-
-    @Ignore("b/193494000")
-    @Override
-    public void testRegisterObserver_removeByQuery() {
-        // TODO(b/193494000): Propagate document ids in platform and enable this test
-    }
-
-    @Ignore("b/193494000")
-    @Override
-    public void testRegisterObserver_removeById() {
-        // TODO(b/193494000): Propagate document ids in platform and enable this test
-    }
-
-    @Ignore("b/193494000")
-    @Override
-    public void testRegisterObserver_sameCallback_differentSpecs() {
-        // TODO(b/193494000): Propagate document ids in platform and enable this test
-    }
-
-    @Ignore("b/193494000")
-    @Override
-    public void testRegisterObserver_MultiType() {
-        // TODO(b/193494000): Propagate document ids in platform and enable this test
-    }
-
-    @Ignore("b/193494000")
-    @Override
-    public void testAddObserver_schemaChange_added() {
-        // TODO(b/193494000): Support schema changes in platform and enable this test.
-    }
-
-    @Ignore("b/193494000")
-    @Override
-    public void testAddObserver_schemaChange_removed() {
-        // TODO(b/193494000): Support schema changes in platform and enable this test.
-    }
-
-    @Ignore("b/193494000")
-    @Override
-    public void testAddObserver_schemaChange_contents() {
-        // TODO(b/193494000): Support schema changes in platform and enable this test.
-    }
-
-    @Ignore("b/193494000")
-    @Override
-    public void testAddObserver_schemaChange_contents_skipBySpec() {
-        // TODO(b/193494000): Support schema changes in platform and enable this test.
-    }
-
-    @Override
-    public void testGlobalGetSchema_notSupported() throws Exception {
-        assumeFalse(mGlobalSearchSession.getFeatures()
-                .isFeatureSupported(Features.GLOBAL_SEARCH_SESSION_GET_SCHEMA));
-        // TODO(b/215624105): Implement GlobalSearchSession#getSchema in platform and remove this
-        //  line.
-        assumeFalse(BuildCompat.isAtLeastT());
-
-        // One schema should be set with global access and the other should be set with local
-        // access.
-        mDb1.setSchemaAsync(
-                new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()).get();
-
-        Context context = ApplicationProvider.getApplicationContext();
-        UnsupportedOperationException e = assertThrows(UnsupportedOperationException.class,
-                () -> mGlobalSearchSession.getSchemaAsync(context.getPackageName(), DB_NAME_1));
-        assertThat(e).hasMessageThat().isEqualTo(Features.GLOBAL_SEARCH_SESSION_GET_SCHEMA
-                + " is not supported on this AppSearch implementation.");
     }
 }
