@@ -300,21 +300,21 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestA
                 .setShortLabel("bitmap")
                 .setIcon(createBitmapIcon())
                 .setIntent(new Intent().setAction(Intent.ACTION_DEFAULT))
-                .setExcludedSurfaces(ShortcutInfoCompat.SURFACE_LAUNCHER)
+                .setExcludedFromSurfaces(ShortcutInfoCompat.SURFACE_LAUNCHER)
                 .build();
         final ShortcutInfoCompat excludedShortcut2 = new ShortcutInfoCompat.Builder(
                 mContext, "my-shortcut-2")
                 .setShortLabel("bitmap")
                 .setIcon(createBitmapIcon())
                 .setIntent(new Intent().setAction(Intent.ACTION_DEFAULT))
-                .setExcludedSurfaces(ShortcutInfoCompat.SURFACE_LAUNCHER)
+                .setExcludedFromSurfaces(ShortcutInfoCompat.SURFACE_LAUNCHER)
                 .build();
         final ShortcutInfoCompat excludedShortcut3 = new ShortcutInfoCompat.Builder(
                 mContext, "my-shortcut-3")
                 .setShortLabel("bitmap")
                 .setIcon(createBitmapIcon())
                 .setIntent(new Intent().setAction(Intent.ACTION_DEFAULT))
-                .setExcludedSurfaces(ShortcutInfoCompat.SURFACE_LAUNCHER)
+                .setExcludedFromSurfaces(ShortcutInfoCompat.SURFACE_LAUNCHER)
                 .build();
 
         final List<ShortcutInfoCompat> excludedShortcuts = new ArrayList<>();
