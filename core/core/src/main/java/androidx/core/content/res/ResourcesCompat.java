@@ -611,7 +611,8 @@ public final class ResourcesCompat {
             }
             return null;
         }
-        Typeface typeface = TypefaceCompat.findFromCache(wrapper, id, style);
+        Typeface typeface = TypefaceCompat.findFromCache(wrapper, id, file, value.assetCookie,
+                style);
 
         if (typeface != null) {
             if (fontCallback != null) {
@@ -636,10 +637,11 @@ public final class ResourcesCompat {
                     return null;
                 }
                 return TypefaceCompat.createFromResourcesFamilyXml(context, familyEntry, wrapper,
-                        id, style, fontCallback, handler, isRequestFromLayoutInflator);
+                        id, file, value.assetCookie, style, fontCallback, handler,
+                        isRequestFromLayoutInflator);
             }
             typeface = TypefaceCompat.createFromResourcesFontFile(
-                    context, wrapper, id, file, style);
+                    context, wrapper, id, file, value.assetCookie, style);
             if (fontCallback != null) {
                 if (typeface != null) {
                     fontCallback.callbackSuccessAsync(typeface, handler);

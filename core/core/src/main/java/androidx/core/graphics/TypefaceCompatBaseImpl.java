@@ -172,7 +172,7 @@ class TypefaceCompatBaseImpl {
             return null;
         }
         final Typeface typeface = TypefaceCompat.createFromResourcesFontFile(
-                context, resources, best.getResourceId(), best.getFileName(), style);
+                context, resources, best.getResourceId(), best.getFileName(), 0, style);
 
         addFontFamily(typeface, entry);
 
