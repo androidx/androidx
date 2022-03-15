@@ -54,8 +54,8 @@ import androidx.wear.compose.material.TimeTextDefaults.timeFormat
  * [Curved Text](https://developer.android.com/training/wearables/components/curved-text)
  * guide.
  *
- * The [TimeText] with full customization for square and round devices:
- * @sample androidx.wear.compose.material.samples.TimeTextWithCustomSeparator
+ * A [TimeText] with a short app status message shown in the leading content:
+ * @sample androidx.wear.compose.material.samples.TimeTextWithStatus
  *
  * An example of a [TimeText] with a different date and time format:
  * @sample androidx.wear.compose.material.samples.TimeTextWithFullDateAndTimeFormat

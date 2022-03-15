@@ -276,7 +276,7 @@ fun ToggleChips(
                         ).show()
                     },
                     colors = ToggleChipDefaults.splitToggleChipColors(
-                        checkedToggleControlTintColor = Color(161, 231, 176)
+                        checkedToggleControlTintColor = AlternatePrimaryColor1
                     ),
                     enabled = enabled,
                 )
