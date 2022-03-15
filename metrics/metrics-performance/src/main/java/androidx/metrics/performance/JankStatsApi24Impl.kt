@@ -21,6 +21,7 @@ import android.view.FrameMetrics
 import android.view.View
 import android.view.Window
 import androidx.annotation.RequiresApi
+import kotlin.math.max
 
 /**
  * Subclass of JankStatsBaseImpl records frame timing data for API 24 and later,
@@ -43,9 +44,14 @@ internal open class JankStatsApi24Impl(
     // Used to avoid problems with data gathered before things are set up
     var listenerAddedTime: Long = 0
 
+    // Constrain startTime to be >= previous frame's end time to avoid incorrect
+    // overlap of state information during janky times when intended frame times
+    // overlapped due to jank
+    var prevEnd: Long = 0
+
     private val frameMetricsAvailableListenerDelegate: Window.OnFrameMetricsAvailableListener =
         Window.OnFrameMetricsAvailableListener { _, frameMetrics, _ ->
-            val startTime = getFrameStartTime(frameMetrics)
+            val startTime = max(getFrameStartTime(frameMetrics), prevEnd)
             // ignore historical data gathered before we started listening
             if (startTime >= listenerAddedTime && startTime != prevStart) {
                 val expectedDuration = getExpectedFrameDuration(frameMetrics) *
@@ -67,8 +73,9 @@ internal open class JankStatsApi24Impl(
             frameMetrics.getMetric(FrameMetrics.LAYOUT_MEASURE_DURATION) +
             frameMetrics.getMetric(FrameMetrics.DRAW_DURATION) +
             frameMetrics.getMetric(FrameMetrics.SYNC_DURATION)
+        prevEnd = startTime + uiDuration
         val frameStates =
-            metricsStateHolder.state?.getIntervalStates(startTime, startTime + uiDuration)
+            metricsStateHolder.state?.getIntervalStates(startTime, prevEnd)
                 ?: emptyList()
         val isJank = uiDuration > expectedDuration
         val cpuDuration = uiDuration +
