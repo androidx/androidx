@@ -21,11 +21,20 @@ import android.view.Surface
 import androidx.annotation.RequiresApi
 
 @RequiresApi(Build.VERSION_CODES.Q)
-class SurfaceControlCompat(surface: Surface, debugName: String) {
-    private var mNativeSurfaceControl: Long
+class SurfaceControlCompat internal constructor(
+    surface: Surface? = null,
+    surfaceControl: SurfaceControlCompat? = null,
+    debugName: String
+) {
+    private var mNativeSurfaceControl: Long = 0
 
     init {
-        mNativeSurfaceControl = nCreateFromWindow(surface, debugName)
+        if (surface != null) {
+            mNativeSurfaceControl = nCreateFromWindow(surface, debugName)
+        } else if (surfaceControl != null) {
+            mNativeSurfaceControl = nCreate(surfaceControl.mNativeSurfaceControl, debugName)
+        }
+
         if (mNativeSurfaceControl == 0L) {
             throw IllegalArgumentException()
         }
@@ -89,6 +98,35 @@ class SurfaceControlCompat(surface: Surface, debugName: String) {
         mNativeSurfaceControl = 0
     }
 
+    /**
+     * Builder class for SurfaceControlCompat.
+     *
+     * Requires a parent surface. Debug name is default empty string.
+     */
+    class Builder private constructor(surface: Surface?, surfaceControl: SurfaceControlCompat?) {
+        private var mSurface: Surface? = surface
+        private var mSurfaceControl: SurfaceControlCompat? = surfaceControl
+        private var mDebugName: String = ""
+
+        constructor(surface: Surface) : this(surface, null) {}
+
+        constructor(surfaceControl: SurfaceControlCompat) : this(null, surfaceControl) {}
+
+        @Suppress("MissingGetterMatchingBuilder")
+        fun setDebugName(debugName: String): Builder {
+            mDebugName = debugName
+            return this
+        }
+
+        /**
+         * Builds the SurfaceControlCompat object
+         */
+        fun build(): SurfaceControlCompat {
+            return SurfaceControlCompat(mSurface, mSurfaceControl, mDebugName)
+        }
+    }
+
+    private external fun nCreate(surfaceControl: Long, debugName: String): Long
     private external fun nCreateFromWindow(surface: Surface, debugName: String): Long
     private external fun nRelease(surfaceControl: Long)
 

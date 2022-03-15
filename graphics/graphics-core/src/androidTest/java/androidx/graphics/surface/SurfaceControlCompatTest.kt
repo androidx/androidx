@@ -39,7 +39,43 @@ class SurfaceControlCompatTest {
             .setName("SurfaceControlCompact_createFromWindow")
             .build()
         try {
-            SurfaceControlCompat(Surface(surfaceControl), "SurfaceControlCompatTest")
+            SurfaceControlCompat.Builder(Surface(surfaceControl))
+                .setDebugName("SurfaceControlCompatTest")
+                .build()
+        } catch (e: IllegalArgumentException) {
+            fail()
+        }
+    }
+
+    @Test
+    fun testSurfaceControlCompatBuilder_surfaceControlParent() {
+        val surfaceControl = SurfaceControl.Builder()
+            .setName("SurfaceControlCompact_createFromWindow")
+            .build()
+        try {
+            SurfaceControlCompat.Builder(
+                SurfaceControlCompat(
+                    Surface(surfaceControl),
+                    null,
+                    "SurfaceControlCompatTest"
+                )
+            )
+                .setDebugName("SurfaceControlCompatTest")
+                .build()
+        } catch (e: IllegalArgumentException) {
+            fail()
+        }
+    }
+
+    @Test
+    fun testSurfaceControlCompatBuilder_surfaceParent() {
+        val surfaceControl = SurfaceControl.Builder()
+            .setName("SurfaceControlCompact_createFromWindow")
+            .build()
+        try {
+            SurfaceControlCompat.Builder(Surface(surfaceControl))
+                .setDebugName("SurfaceControlCompatTest")
+                .build()
         } catch (e: IllegalArgumentException) {
             fail()
         }

@@ -185,9 +185,15 @@ package androidx.graphics.opengl.egl {
 package androidx.graphics.surface {
 
   @RequiresApi(android.os.Build.VERSION_CODES.Q) public final class SurfaceControlCompat {
-    ctor public SurfaceControlCompat(android.view.Surface surface, String debugName);
     method protected void finalize();
     field public static final androidx.graphics.surface.SurfaceControlCompat.Companion Companion;
+  }
+
+  public static final class SurfaceControlCompat.Builder {
+    ctor public SurfaceControlCompat.Builder(android.view.Surface surface);
+    ctor public SurfaceControlCompat.Builder(androidx.graphics.surface.SurfaceControlCompat surfaceControl);
+    method public androidx.graphics.surface.SurfaceControlCompat build();
+    method public androidx.graphics.surface.SurfaceControlCompat.Builder setDebugName(String debugName);
   }
 
   public static final class SurfaceControlCompat.Companion {
