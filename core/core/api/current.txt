@@ -1130,6 +1130,7 @@ package androidx.core.content.pm {
     method public java.util.Set<java.lang.String!>? getCategories();
     method public CharSequence? getDisabledMessage();
     method public int getDisabledReason();
+    method public int getExcludedFromSurfaces();
     method public android.os.PersistableBundle? getExtras();
     method public String getId();
     method public android.content.Intent getIntent();
@@ -1146,8 +1147,8 @@ package androidx.core.content.pm {
     method public boolean isDeclaredInManifest();
     method public boolean isDynamic();
     method public boolean isEnabled();
+    method public boolean isExcludedFromSurfaces(int);
     method public boolean isImmutable();
-    method public boolean isIncludedIn(int);
     method public boolean isPinned();
     method @RequiresApi(25) public android.content.pm.ShortcutInfo! toShortcutInfo();
     field public static final int SURFACE_LAUNCHER = 1; // 0x1
@@ -1162,7 +1163,7 @@ package androidx.core.content.pm {
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setAlwaysBadged();
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setCategories(java.util.Set<java.lang.String!>);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setDisabledMessage(CharSequence);
-    method public androidx.core.content.pm.ShortcutInfoCompat.Builder setExcludedSurfaces(int);
+    method public androidx.core.content.pm.ShortcutInfoCompat.Builder setExcludedFromSurfaces(int);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setExtras(android.os.PersistableBundle);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setIcon(androidx.core.graphics.drawable.IconCompat!);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setIntent(android.content.Intent);
