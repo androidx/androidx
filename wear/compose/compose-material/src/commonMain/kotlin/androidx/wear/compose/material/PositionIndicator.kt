@@ -568,15 +568,9 @@ internal class ScalingLazyColumnStateAdapter(
         }
 
     override fun visibility(scrollableContainerSizePx: Float): PositionIndicatorVisibility {
-        val canScroll = state.layoutInfo.visibleItemsInfo.isNotEmpty() && run {
-            val firstItem = state.layoutInfo.visibleItemsInfo.first()
-            val lastItem = state.layoutInfo.visibleItemsInfo.last()
-            val firstItemStartOffset = firstItem.startOffset(state.anchorType.value!!)
-            val lastItemEndOffset = lastItem.startOffset(state.anchorType.value!!) + lastItem.size
-            firstItem.index > 0 || firstItemStartOffset < 0f ||
-                lastItem.index < state.layoutInfo.totalItemsCount - 1 ||
-                lastItemEndOffset > scrollableContainerSizePx
-        }
+        val canScroll = state.layoutInfo.visibleItemsInfo.isNotEmpty() &&
+            (decimalFirstItemIndex() > 0 ||
+                decimalLastItemIndex() < state.layoutInfo.totalItemsCount)
         return if (canScroll) {
             if (state.isScrollInProgress) {
                 PositionIndicatorVisibility.Show
