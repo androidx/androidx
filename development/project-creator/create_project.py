@@ -479,14 +479,11 @@ def get_new_settings_gradle_line(group_id, artifact_id):
     """
 
     build_type = "MAIN"
-    if (is_compose_project(group_id, artifact_id)):
+    if is_compose_project(group_id, artifact_id):
         build_type = "COMPOSE"
 
     gradle_cmd = get_gradle_project_coordinates(group_id, artifact_id)
-    sub_filepath = group_id.replace("androidx.", "").replace(".", "/") + \
-                   "/" + artifact_id
-    return "includeProject(\"" + gradle_cmd + \
-           "\", \"" + sub_filepath + "\", [BuildType." + build_type + "])\n"
+    return "includeProject(\"" + gradle_cmd + "\", [BuildType." + build_type + "])\n"
 
 def update_settings_gradle(group_id, artifact_id):
     """Updates frameworks/support/settings.gradle with the new library.
