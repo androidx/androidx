@@ -98,7 +98,7 @@ public sealed class ComplicationData constructor(
      *
      * See [ComplicationText.getNextChangeTime]
      *
-     * @param afterInstant The earliest [Instant] for which we're interested in changes
+     * @param afterInstant The reference [Instant], after which changes will be reported.
      */
     public open fun getNextChangeInstant(afterInstant: Instant): Instant = Instant.MAX
 }
