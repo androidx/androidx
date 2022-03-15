@@ -50,6 +50,10 @@ import androidx.wear.compose.material.TimeTextDefaults.timeFormat
  * For proper support of Square and Round screens both Linear and Curved methods should
  * be implemented.
  *
+ * Note that Wear Material UX guidance recommends that time text should not be larger than 90
+ * degrees of the screen edge on round devices and prefers short status messages be shown in leading
+ * content only using the MaterialTheme.colors.primary color for the status message.
+ *
  * For more information, see the
  * [Curved Text](https://developer.android.com/training/wearables/components/curved-text)
  * guide.
