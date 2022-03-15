@@ -653,6 +653,21 @@ package androidx.car.app.model {
     method public androidx.car.app.model.GridTemplate.Builder setTitle(CharSequence);
   }
 
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(5) public final class Header {
+    method public java.util.List<androidx.car.app.model.Action!> getEndHeaderActions();
+    method public androidx.car.app.model.Action? getStartHeaderAction();
+    method public androidx.car.app.model.CarText? getTitle();
+  }
+
+  public static final class Header.Builder {
+    ctor public Header.Builder();
+    method public androidx.car.app.model.Header.Builder addEndHeaderAction(androidx.car.app.model.Action);
+    method public androidx.car.app.model.Header build();
+    method public androidx.car.app.model.Header.Builder setStartHeaderAction(androidx.car.app.model.Action);
+    method public androidx.car.app.model.Header.Builder setTitle(CharSequence);
+    method public androidx.car.app.model.Header.Builder setTitle(androidx.car.app.model.CarText);
+  }
+
   @androidx.car.app.annotations.RequiresCarApi(2) public interface InputCallback {
     method public default void onInputSubmitted(String);
     method public default void onInputTextChanged(String);
@@ -1190,6 +1205,34 @@ package androidx.car.app.navigation.model {
     method public androidx.car.app.navigation.model.Maneuver.Builder setIcon(androidx.car.app.model.CarIcon);
     method public androidx.car.app.navigation.model.Maneuver.Builder setRoundaboutExitAngle(@IntRange(from=1, to=360) int);
     method public androidx.car.app.navigation.model.Maneuver.Builder setRoundaboutExitNumber(@IntRange(from=1) int);
+  }
+
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(5) public final class MapController {
+    method public androidx.car.app.model.ActionStrip? getMapActionStrip();
+    method public androidx.car.app.navigation.model.PanModeDelegate? getPanModeDelegate();
+  }
+
+  public static final class MapController.Builder {
+    ctor public MapController.Builder();
+    method public androidx.car.app.navigation.model.MapController build();
+    method public androidx.car.app.navigation.model.MapController.Builder setMapActionStrip(androidx.car.app.model.ActionStrip);
+    method public androidx.car.app.navigation.model.MapController.Builder setPanModeListener(androidx.car.app.navigation.model.PanModeListener);
+  }
+
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(5) public final class MapTemplate implements androidx.car.app.model.Template {
+    method public androidx.car.app.model.ActionStrip? getActionStrip();
+    method public androidx.car.app.model.Header? getHeader();
+    method public androidx.car.app.navigation.model.MapController? getMapController();
+    method public androidx.car.app.model.Pane? getPane();
+  }
+
+  public static final class MapTemplate.Builder {
+    ctor public MapTemplate.Builder();
+    method public androidx.car.app.navigation.model.MapTemplate build();
+    method public androidx.car.app.navigation.model.MapTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip);
+    method public androidx.car.app.navigation.model.MapTemplate.Builder setHeader(androidx.car.app.model.Header);
+    method public androidx.car.app.navigation.model.MapTemplate.Builder setMapController(androidx.car.app.navigation.model.MapController);
+    method public androidx.car.app.navigation.model.MapTemplate.Builder setPane(androidx.car.app.model.Pane);
   }
 
   @androidx.car.app.annotations.CarProtocol public final class MessageInfo implements androidx.car.app.navigation.model.NavigationTemplate.NavigationInfo {
