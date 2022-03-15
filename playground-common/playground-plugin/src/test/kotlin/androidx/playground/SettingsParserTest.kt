@@ -19,7 +19,6 @@ package androidx.playground
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
-
 class SettingsParserTest {
     @Test
     fun parseProjects() {
