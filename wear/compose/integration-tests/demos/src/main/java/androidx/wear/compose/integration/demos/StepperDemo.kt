@@ -23,7 +23,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.Chip
@@ -103,9 +102,7 @@ fun StepperWithCustomColors() {
         },
         valueRange = range,
         steps = 9,
-        backgroundColor = Color.Blue,
-        contentColor = Color.Red,
-        iconTintColor = Color.Green
+        contentColor = AlternatePrimaryColor2,
     ) {
         Text("Volume : ${valueState.value}")
     }

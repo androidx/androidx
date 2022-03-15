@@ -138,7 +138,7 @@ val WearMaterialDemos = DemoCategory(
                     listOf(
                         ComposableDemo("Inline slider") { InlineSliderDemo() },
                         ComposableDemo("RTL Inline slider") { InlineSliderRTLDemo() },
-                        ComposableDemo("With custom colors") { InlineSliderCustomColorsDemo() },
+                        ComposableDemo("With custom color") { InlineSliderCustomColorsDemo() },
                         ComposableDemo("Inline slider segmented") { InlineSliderSegmented() },
                         ComposableDemo("Inline slider with integers") {
                             InlineSliderWithIntegersDemo()
@@ -169,7 +169,7 @@ val WearMaterialDemos = DemoCategory(
                         ComposableDemo("With scrollbar") {
                             StepperWithScrollBarDemo()
                         },
-                        ComposableDemo("With custom colors") {
+                        ComposableDemo("With custom color") {
                             StepperWithCustomColors()
                         },
                     )
