@@ -42,7 +42,11 @@ public class InitializationProvider extends ContentProvider {
             // More context: b/196959015
             Context applicationContext = context.getApplicationContext();
             if (applicationContext != null) {
-                AppInitializer.getInstance(context).discoverAndInitialize();
+                // Pass the class context so the right metadata can be read.
+                // This is especially important in the context of apps that want to use
+                // InitializationProvider in multiple processes.
+                // b/183136596#comment18
+                AppInitializer.getInstance(context).discoverAndInitialize(getClass());
             } else {
                 StartupLogger.w("Deferring initialization because `applicationContext` is null.");
             }
