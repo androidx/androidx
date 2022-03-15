@@ -718,16 +718,21 @@ public final class SurfaceRequest {
          * {@link #getRotationDegrees()} is a function of 1)
          * {@link CameraCharacteristics#SENSOR_ORIENTATION}, 2) camera lens facing direction and 3)
          * target rotation. {@link TextureView} handles 1) & 2) automatically,
-         * while still needs the target rotation to correct the display.
+         * while still needs the target rotation to correct the display.This is used when apps
+         * need to rotate the preview to non-display orientation.
          *
          * <p>The API is internal for PreviewView to use. For external users, the value
          * is usually {@link Display#getRotation()} in practice. If that's not the case, they can
          * always obtain the value from {@link Preview#getTargetRotation()}.
          *
+         * <p>Please note that if the value is {@link ImageOutputConfig#ROTATION_NOT_SPECIFIED}
+         * which means targetRotation is not specified for Preview, the user should always get
+         * up-to-date display rotation and re-calculate the rotationDegrees to correct the display.
+         *
          * @hide
          * @see CameraCharacteristics#SENSOR_ORIENTATION
          */
-        @ImageOutputConfig.RotationValue
+        @ImageOutputConfig.OptionalRotationValue
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public abstract int getTargetRotation();
 
@@ -742,7 +747,7 @@ public final class SurfaceRequest {
         @NonNull
         public static TransformationInfo of(@NonNull Rect cropRect,
                 @ImageOutputConfig.RotationDegreesValue int rotationDegrees,
-                @ImageOutputConfig.RotationValue int targetRotation) {
+                @ImageOutputConfig.OptionalRotationValue int targetRotation) {
             return new AutoValue_SurfaceRequest_TransformationInfo(cropRect, rotationDegrees,
                     targetRotation);
         }

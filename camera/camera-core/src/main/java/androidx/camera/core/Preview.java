@@ -17,6 +17,7 @@
 package androidx.camera.core;
 
 import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_FORMAT;
+import static androidx.camera.core.impl.ImageOutputConfig.OPTION_APP_TARGET_ROTATION;
 import static androidx.camera.core.impl.PreviewConfig.IMAGE_INFO_PROCESSOR;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_BACKGROUND_EXECUTOR;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_CAPTURE_CONFIG_UNPACKER;
@@ -314,7 +315,7 @@ public final class Preview extends UseCase {
         SurfaceRequest surfaceRequest = mCurrentSurfaceRequest;
         if (cameraInternal != null && surfaceProvider != null && cropRect != null) {
             surfaceRequest.updateTransformationInfo(SurfaceRequest.TransformationInfo.of(cropRect,
-                    getRelativeRotation(cameraInternal), getTargetRotation()));
+                    getRelativeRotation(cameraInternal), getAppTargetRotation()));
         }
     }
 
@@ -854,6 +855,9 @@ public final class Preview extends UseCase {
         @Override
         public Builder setTargetRotation(@ImageOutputConfig.RotationValue int rotation) {
             getMutableConfig().insertOption(OPTION_TARGET_ROTATION, rotation);
+            // This app specific target rotation will be sent to PreviewView (or other
+            // SurfaceProvider) to transform the preview accordingly.
+            getMutableConfig().insertOption(OPTION_APP_TARGET_ROTATION, rotation);
             return this;
         }
 
