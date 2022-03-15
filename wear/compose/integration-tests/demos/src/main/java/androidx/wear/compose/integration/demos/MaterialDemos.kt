@@ -53,7 +53,7 @@ import androidx.wear.compose.material.samples.SplitToggleChipWithCheckbox
 import androidx.wear.compose.material.samples.StatefulSwipeToDismissBox
 import androidx.wear.compose.material.samples.StepperSample
 import androidx.wear.compose.material.samples.StepperWithIntegerSample
-import androidx.wear.compose.material.samples.TimeTextWithCustomSeparator
+import androidx.wear.compose.material.samples.TimeTextWithStatus
 import androidx.wear.compose.material.samples.TimeTextWithFullDateAndTimeFormat
 import androidx.wear.compose.material.samples.TitleCardStandard
 import androidx.wear.compose.material.samples.TitleCardWithImage
@@ -182,10 +182,10 @@ val WearMaterialDemos = DemoCategory(
                 DemoCategory(
                     "Samples",
                     listOf(
-                        ComposableDemo("Clock with custom separator") {
-                            TimeTextWithCustomSeparator()
+                        ComposableDemo("Clock with Status") {
+                            TimeTextWithStatus()
                         },
-                        ComposableDemo("Clock with full date and time format") {
+                        ComposableDemo("Clock with custom time format") {
                             TimeTextWithFullDateAndTimeFormat()
                         },
                     )
@@ -198,21 +198,6 @@ val WearMaterialDemos = DemoCategory(
                         },
                         ComposableDemo("Clock with leading text") {
                             TimeTextWithLeadingText()
-                        },
-                        ComposableDemo("Clock with trailing text") {
-                            TimeTextWithTrailingText()
-                        },
-                        ComposableDemo("Clock with leading and trailing text") {
-                            TimeTextWithLeadingAndTrailingText()
-                        },
-                        ComposableDemo("Clock with padding") {
-                            TimeTextWithPadding()
-                        },
-                        ComposableDemo("Clock with yyyy.MM.dd HH:mm:ss format") {
-                            TimeTextWithLongDateTime()
-                        },
-                        ComposableDemo("Clock with custom format and color") {
-                            TimeTextWithCustomFormatAndColor()
                         },
                         ComposableDemo("Clock with localised format") {
                             TimeTextWithLocalisedFormat()
