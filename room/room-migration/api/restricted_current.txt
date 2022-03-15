@@ -17,12 +17,14 @@ package androidx.room.migration.bundle {
     method public String getIdentityHash();
     method public int getVersion();
     method public java.util.List<androidx.room.migration.bundle.DatabaseViewBundle> getViews();
+    method public final java.util.Map<java.lang.String,androidx.room.migration.bundle.DatabaseViewBundle> getViewsByName();
     method public boolean isSchemaEqual(androidx.room.migration.bundle.DatabaseBundle other);
     property public java.util.List<androidx.room.migration.bundle.EntityBundle> entities;
     property public java.util.Map<java.lang.String,androidx.room.migration.bundle.EntityBundle> entitiesByTableName;
     property public String identityHash;
     property public int version;
     property public java.util.List<androidx.room.migration.bundle.DatabaseViewBundle> views;
+    property public final java.util.Map<java.lang.String,androidx.room.migration.bundle.DatabaseViewBundle> viewsByName;
   }
 
   public static final class DatabaseBundle.FtsEntityCreateComparator implements java.util.Comparator<androidx.room.migration.bundle.EntityBundle> {
