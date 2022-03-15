@@ -54,9 +54,12 @@ class CameraXQuirksClassDetector : Detector(), Detector.UastScanner {
                 comments.forEach { sb.append(it.text) }
                 val comment = sb.append("\n").toString()
 
-                if (!comment.contains("@QuirkSummary")) {
+                if (!comment.contains("<p>QuirkSummary") ||
+                    !comment.contains("Bug Id:") ||
+                    !comment.contains("Description:") ||
+                    !comment.contains("Device(s):")) {
                     val implForInsertion = """
-                         * @QuirkSummary
+                         * <p>QuirkSummary
                          *     Bug Id:
                          *     Description:
                          *     Device(s):
