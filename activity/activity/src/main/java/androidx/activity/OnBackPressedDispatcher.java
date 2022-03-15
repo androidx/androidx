@@ -17,10 +17,17 @@
 package androidx.activity;
 
 import android.annotation.SuppressLint;
+import android.view.OnBackInvokedCallback;
+import android.view.OnBackInvokedDispatcher;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
+import androidx.annotation.RequiresApi;
+import androidx.core.os.BuildCompat;
+import androidx.core.util.Consumer;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
@@ -59,6 +66,38 @@ public final class OnBackPressedDispatcher {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final ArrayDeque<OnBackPressedCallback> mOnBackPressedCallbacks = new ArrayDeque<>();
 
+    private Consumer<Boolean> mEnabledConsumer;
+
+    private OnBackInvokedCallback mOnBackInvokedCallback;
+    private OnBackInvokedDispatcher mInvokedDispatcher;
+    private boolean mBackInvokedCallbackRegistered = false;
+
+    /**
+     * Sets the {@link OnBackInvokedDispatcher} for handling system back for Android SDK T+.
+     *
+     * @param invoker the OnBackInvokedDispatcher to be set on this dispatcher
+     */
+    @RequiresApi(33)
+    public void setOnBackPressedInvoker(@NonNull OnBackInvokedDispatcher invoker) {
+        mInvokedDispatcher = invoker;
+    }
+
+    @RequiresApi(33)
+    void updateBackInvokedCallbackState() {
+        boolean shouldBeRegistered = hasEnabledCallbacks();
+        if (shouldBeRegistered && !mBackInvokedCallbackRegistered) {
+            Api33Impl.registerOnBackInvokedCallback(
+                    mInvokedDispatcher,
+                    mOnBackInvokedCallback,
+                    OnBackInvokedDispatcher.PRIORITY_OVERLAY
+            );
+            mBackInvokedCallbackRegistered = true;
+        } else if (!shouldBeRegistered && mBackInvokedCallbackRegistered) {
+            Api33Impl.unregisterOnBackInvokedCallback(mInvokedDispatcher, mOnBackInvokedCallback);
+            mBackInvokedCallbackRegistered = false;
+        }
+    }
+
     /**
      * Create a new OnBackPressedDispatcher that dispatches System back button pressed events
      * to one or more {@link OnBackPressedCallback} instances.
@@ -74,8 +113,22 @@ public final class OnBackPressedDispatcher {
      * @param fallbackOnBackPressed The Runnable that should be triggered if
      * {@link #onBackPressed()} is called when {@link #hasEnabledCallbacks()} returns false.
      */
+    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     public OnBackPressedDispatcher(@Nullable Runnable fallbackOnBackPressed) {
         mFallbackOnBackPressed = fallbackOnBackPressed;
+        if (BuildCompat.isAtLeastT()) {
+            mEnabledConsumer = aBoolean -> {
+                if (BuildCompat.isAtLeastT()) {
+                    updateBackInvokedCallbackState();
+                }
+            };
+            mOnBackInvokedCallback = new OnBackInvokedCallback() {
+                @Override
+                public void onBackInvoked() {
+                    onBackPressed();
+                }
+            };
+        }
     }
 
     /**
@@ -92,9 +145,14 @@ public final class OnBackPressedDispatcher {
      *
      * @see #onBackPressed()
      */
+    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @MainThread
     public void addCallback(@NonNull OnBackPressedCallback onBackPressedCallback) {
         addCancellableCallback(onBackPressedCallback);
+        if (BuildCompat.isAtLeastT()) {
+            updateBackInvokedCallbackState();
+            onBackPressedCallback.setIsEnabledConsumer(mEnabledConsumer);
+        }
     }
 
     /**
@@ -107,6 +165,7 @@ public final class OnBackPressedDispatcher {
      * @return a {@link Cancellable} which can be used to {@link Cancellable#cancel() cancel}
      * the callback and remove it from the set of OnBackPressedCallbacks.
      */
+    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     @MainThread
     @NonNull
@@ -114,6 +173,9 @@ public final class OnBackPressedDispatcher {
         mOnBackPressedCallbacks.add(onBackPressedCallback);
         OnBackPressedCancellable cancellable = new OnBackPressedCancellable(onBackPressedCallback);
         onBackPressedCallback.addCancellable(cancellable);
+        if (BuildCompat.isAtLeastT()) {
+            updateBackInvokedCallbackState();
+        }
         return cancellable;
     }
 
@@ -204,10 +266,15 @@ public final class OnBackPressedDispatcher {
             mOnBackPressedCallback = onBackPressedCallback;
         }
 
+        @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
         @Override
         public void cancel() {
             mOnBackPressedCallbacks.remove(mOnBackPressedCallback);
             mOnBackPressedCallback.removeCancellable(this);
+            if (BuildCompat.isAtLeastT()) {
+                mOnBackPressedCallback.setIsEnabledConsumer(null);
+                updateBackInvokedCallbackState();
+            }
         }
     }
 
@@ -249,6 +316,27 @@ public final class OnBackPressedDispatcher {
                 mCurrentCancellable.cancel();
                 mCurrentCancellable = null;
             }
+        }
+    }
+
+    @RequiresApi(33)
+    static class Api33Impl {
+        private Api33Impl() { }
+
+        @DoNotInline
+        static void registerOnBackInvokedCallback(
+                OnBackInvokedDispatcher onBackInvokedDispatcher,
+                OnBackInvokedCallback onBackInvokedCallback, int priority
+        ) {
+            onBackInvokedDispatcher.registerOnBackInvokedCallback(onBackInvokedCallback, priority);
+        }
+
+        @DoNotInline
+        static void unregisterOnBackInvokedCallback(
+                OnBackInvokedDispatcher onBackInvokedDispatcher,
+                OnBackInvokedCallback onBackInvokedCallback
+        ) {
+            onBackInvokedDispatcher.unregisterOnBackInvokedCallback(onBackInvokedCallback);
         }
     }
 }

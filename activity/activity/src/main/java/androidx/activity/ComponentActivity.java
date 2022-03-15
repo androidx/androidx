@@ -65,6 +65,7 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
@@ -76,6 +77,7 @@ import androidx.core.app.PictureInPictureModeChangedInfo;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.OnConfigurationChangedProvider;
 import androidx.core.content.OnTrimMemoryProvider;
+import androidx.core.os.BuildCompat;
 import androidx.core.util.Consumer;
 import androidx.core.view.MenuHost;
 import androidx.core.view.MenuHostHelper;
@@ -150,8 +152,8 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                 @Override
                 public void run() {
                     // Calling onBackPressed() on an Activity with its state saved can cause an
-                    // error on devices on API levels before 26. We catch that specific error and
-                    // throw all others.
+                    // error on devices on API levels before 26. We catch that specific error
+                    // and throw all others.
                     try {
                         ComponentActivity.super.onBackPressed();
                     } catch (IllegalStateException e) {
@@ -343,6 +345,8 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
      * If your ComponentActivity is annotated with {@link ContentView}, this will
      * call {@link #setContentView(int)} for you.
      */
+    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
+    @SuppressLint("ClassVerificationFailure") // TODO: b/225057132
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         enableSavedStateHandles(this);
@@ -352,6 +356,9 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         mContextAwareHelper.dispatchOnContextAvailable(this);
         super.onCreate(savedInstanceState);
         ReportFragment.injectIfNeededIn(this);
+        if (BuildCompat.isAtLeastT()) {
+            mOnBackPressedDispatcher.setOnBackPressedInvoker(getOnBackInvokedDispatcher());
+        }
         if (mContentLayoutId != 0) {
             setContentView(mContentLayoutId);
         }
