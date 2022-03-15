@@ -30,6 +30,7 @@ import androidx.camera.core.impl.CamcorderProfileProxy;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.utils.CompareSizesByArea;
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
+import androidx.camera.video.internal.compat.quirk.ExcludeStretchedVideoQualityQuirk;
 import androidx.camera.video.internal.compat.quirk.VideoEncoderCrashQuirk;
 import androidx.camera.video.internal.compat.quirk.VideoQualityNotSupportQuirk;
 import androidx.camera.video.internal.compat.quirk.VideoQualityQuirk;
@@ -202,7 +203,8 @@ public final class VideoCapabilities {
 
     private boolean isDeviceValidQuality(@NonNull Quality quality) {
         List<Class<? extends VideoQualityQuirk>> quirkList = Arrays.asList(
-                VideoQualityNotSupportQuirk.class, VideoEncoderCrashQuirk.class);
+                ExcludeStretchedVideoQualityQuirk.class, VideoQualityNotSupportQuirk.class,
+                VideoEncoderCrashQuirk.class);
 
         for (Class<? extends VideoQualityQuirk> quirkClass : quirkList) {
             VideoQualityQuirk quirk = DeviceQuirks.get(quirkClass);

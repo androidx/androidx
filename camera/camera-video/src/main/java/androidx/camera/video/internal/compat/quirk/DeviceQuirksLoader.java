@@ -62,6 +62,9 @@ public class DeviceQuirksLoader {
         if (VideoEncoderCrashQuirk.load()) {
             quirks.add(new VideoEncoderCrashQuirk());
         }
+        if (ExcludeStretchedVideoQualityQuirk.load()) {
+            quirks.add(new ExcludeStretchedVideoQualityQuirk());
+        }
 
         return quirks;
     }
