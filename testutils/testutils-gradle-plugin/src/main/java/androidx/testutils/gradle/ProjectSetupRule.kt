@@ -195,7 +195,11 @@ data class ProjectProps(
                         File(it).canonicalPath
                     }
                 },
-                compileSdkVersion = properties.getProperty("compileSdkVersion"),
+                compileSdkVersion = properties.getProperty("compileSdkVersion").let {
+                    // Add quotes around preview SDK string so that we call
+                    // compileSdkVersion(String) instead of compileSdkVersion(int)
+                    return@let if (it.startsWith("android-")) "\"$it\"" else it
+                },
                 buildToolsVersion = properties.getProperty("buildToolsVersion"),
                 minSdkVersion = properties.getProperty("minSdkVersion"),
                 navigationRuntime = properties.getProperty("navigationRuntime"),
