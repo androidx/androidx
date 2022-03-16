@@ -17,11 +17,11 @@
 package androidx.wear.compose.integration.demos
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.gestures.ScrollableState
-import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
@@ -31,7 +31,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -53,16 +52,18 @@ import androidx.wear.compose.material.ScalingLazyColumnDefaults
 import androidx.wear.compose.material.ScalingLazyListScope
 import androidx.wear.compose.material.ScalingLazyListState
 import androidx.wear.compose.material.ScalingParams
-import androidx.wear.compose.material.SwipeToDismissValue
 import androidx.wear.compose.material.SwipeToDismissBox
 import androidx.wear.compose.material.SwipeToDismissBoxState
 import androidx.wear.compose.material.SwipeToDismissKeys
+import androidx.wear.compose.material.SwipeToDismissValue
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.rememberScalingLazyListState
 import androidx.wear.compose.material.rememberSwipeToDismissBoxState
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.receiveAsFlow
 
 @Composable
 fun DemoApp(
@@ -187,6 +188,8 @@ internal fun swipeDismissStateWithNavigation(
     return state
 }
 
+internal data class TimestampedDelta(val time: Long, val delta: Float)
+
 @SuppressLint("ModifierInspectorInfo")
 @OptIn(ExperimentalComposeUiApi::class)
 @Suppress("ComposableModifierFactory")
@@ -195,15 +198,16 @@ fun Modifier.rsbScroll(
     scrollableState: ScrollableState,
     flingBehavior: FlingBehavior,
 ): Modifier {
-    val channel = remember { Channel<Float>(
+    val channel = remember { Channel<TimestampedDelta>(
         capacity = 10,
         onBufferOverflow = BufferOverflow.DROP_OLDEST
     ) }
     val focusRequester = remember { FocusRequester() }
 
-    var lastTimeNanos = remember { 0L }
+    var lastTimeMillis = remember { 0L }
     var smoothSpeed = remember { 0f }
     val speedWindowMillis = 200L
+    val timeoutToFling = 100L
 
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
@@ -212,45 +216,44 @@ fun Modifier.rsbScroll(
     return composed {
         var rsbScrollInProgress by remember { mutableStateOf(false) }
         LaunchedEffect(rsbScrollInProgress) {
-            while (rsbScrollInProgress) {
-                withFrameNanos { nanos ->
-                    val scrolledAmountPx = generateSequence {
-                        channel.tryReceive().getOrNull()
-                    }.sum()
+            if (rsbScrollInProgress) {
+                scrollableState.scroll(MutatePriority.UserInput) {
+                    channel.receiveAsFlow().collectLatest {
+                        val toScroll = if (lastTimeMillis > 0L && it.time > lastTimeMillis) {
+                            val timeSinceLastEventMillis = it.time - lastTimeMillis
 
-                    val timeSinceLastFrameMillis = (nanos - lastTimeNanos) / 1_000_000
-                    lastTimeNanos = nanos
-                    if (scrolledAmountPx != 0f) {
-                        // Speed is in pixels per second.
-                        val speed = scrolledAmountPx * 1000 / timeSinceLastFrameMillis
-                        val cappedElapsedTimeMillis =
-                            timeSinceLastFrameMillis.coerceAtMost(speedWindowMillis)
-                        smoothSpeed = ((speedWindowMillis - cappedElapsedTimeMillis) * speed +
-                            cappedElapsedTimeMillis * smoothSpeed) / speedWindowMillis
-                        launch {
-                            scrollableState
-                                .scrollBy(smoothSpeed * cappedElapsedTimeMillis / 1000)
+                            // Speed is in pixels per second.
+                            val speed = it.delta * 1000 / timeSinceLastEventMillis
+                            val cappedElapsedTimeMillis =
+                                timeSinceLastEventMillis.coerceAtMost(speedWindowMillis)
+                            smoothSpeed = ((speedWindowMillis - cappedElapsedTimeMillis) * speed +
+                                cappedElapsedTimeMillis * smoothSpeed) / speedWindowMillis
+                            smoothSpeed * cappedElapsedTimeMillis / 1000
+                        } else {
+                            0f
                         }
-                    } else if (smoothSpeed != 0f) {
-                        rsbScrollInProgress = false
-                    }
-                    null // withFrameNanos wants a return value
-                }
-            }
-            if (smoothSpeed != 0f) {
-                val launchSpeed = smoothSpeed
-                smoothSpeed = 0f
-                launch {
-                    scrollableState.scroll {
-                        with(flingBehavior) {
-                            performFling(launchSpeed)
+                        lastTimeMillis = it.time
+                        scrollBy(toScroll)
+
+                        // If more than the given time pass, start a fling.
+                        delay(timeoutToFling)
+
+                        lastTimeMillis = 0L
+
+                        if (smoothSpeed != 0f) {
+                            val launchSpeed = smoothSpeed
+                            smoothSpeed = 0f
+                            with(flingBehavior) {
+                                performFling(launchSpeed)
+                            }
+                            rsbScrollInProgress = false
                         }
                     }
                 }
             }
         }
         this.onRotaryScrollEvent {
-            channel.trySend(it.verticalScrollPixels)
+            channel.trySend(TimestampedDelta(it.uptimeMillis, it.verticalScrollPixels))
             rsbScrollInProgress = true
             true
         }
