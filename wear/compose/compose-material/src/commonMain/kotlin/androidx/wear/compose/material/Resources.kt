@@ -36,3 +36,6 @@ internal expect fun isRoundDevice(): Boolean
 internal expect fun is24HourFormat(): Boolean
 
 internal expect fun currentTimeMillis(): Long
+
+@Composable
+internal expect fun isLeftyModeEnabled(): Boolean

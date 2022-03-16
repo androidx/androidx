@@ -88,7 +88,7 @@ public class PositionIndicatorTest {
                 state = positionIndicatorState,
                 indicatorHeight = 50.dp,
                 indicatorWidth = 4.dp,
-                paddingRight = 5.dp,
+                paddingHorizontal = 5.dp,
             )
         }
 
@@ -128,7 +128,7 @@ public class PositionIndicatorTest {
                 state = positionIndicatorState,
                 indicatorHeight = 50.dp,
                 indicatorWidth = 4.dp,
-                paddingRight = 5.dp,
+                paddingHorizontal = 5.dp,
             )
         }
 
@@ -171,7 +171,7 @@ public class PositionIndicatorTest {
                 state = positionIndicatorState,
                 indicatorHeight = 50.dp,
                 indicatorWidth = 4.dp,
-                paddingRight = 5.dp,
+                paddingHorizontal = 5.dp,
             )
         }
 
@@ -214,7 +214,7 @@ public class PositionIndicatorTest {
                 state = positionIndicatorState,
                 indicatorHeight = 50.dp,
                 indicatorWidth = 4.dp,
-                paddingRight = 5.dp,
+                paddingHorizontal = 5.dp,
             )
         }
 
@@ -262,7 +262,7 @@ public class PositionIndicatorTest {
                 state = positionIndicatorState,
                 indicatorHeight = 50.dp,
                 indicatorWidth = 4.dp,
-                paddingRight = 5.dp,
+                paddingHorizontal = 5.dp,
             )
         }
 
@@ -308,7 +308,7 @@ public class PositionIndicatorTest {
                 state = positionIndicatorState,
                 indicatorHeight = 50.dp,
                 indicatorWidth = 4.dp,
-                paddingRight = 5.dp,
+                paddingHorizontal = 5.dp,
             )
         }
 
@@ -354,7 +354,7 @@ public class PositionIndicatorTest {
                 state = positionIndicatorState,
                 indicatorHeight = 50.dp,
                 indicatorWidth = 4.dp,
-                paddingRight = 5.dp,
+                paddingHorizontal = 5.dp,
             )
         }
 
@@ -400,7 +400,7 @@ public class PositionIndicatorTest {
                 state = positionIndicatorState,
                 indicatorHeight = 50.dp,
                 indicatorWidth = 4.dp,
-                paddingRight = 5.dp,
+                paddingHorizontal = 5.dp,
             )
         }
 
@@ -437,7 +437,7 @@ public class PositionIndicatorTest {
                 state = positionIndicatorState,
                 indicatorHeight = 50.dp,
                 indicatorWidth = 4.dp,
-                paddingRight = 5.dp,
+                paddingHorizontal = 5.dp,
             )
         }
 
@@ -478,7 +478,7 @@ public class PositionIndicatorTest {
                 state = positionIndicatorState,
                 indicatorHeight = 50.dp,
                 indicatorWidth = 4.dp,
-                paddingRight = 5.dp,
+                paddingHorizontal = 5.dp,
             )
         }
 
@@ -518,7 +518,7 @@ public class PositionIndicatorTest {
                 state = positionIndicatorState,
                 indicatorHeight = 50.dp,
                 indicatorWidth = 4.dp,
-                paddingRight = 5.dp,
+                paddingHorizontal = 5.dp,
             )
         }
 
@@ -559,7 +559,7 @@ public class PositionIndicatorTest {
                 state = positionIndicatorState,
                 indicatorHeight = 50.dp,
                 indicatorWidth = 4.dp,
-                paddingRight = 5.dp,
+                paddingHorizontal = 5.dp,
             )
         }
 
@@ -602,7 +602,7 @@ public class PositionIndicatorTest {
                 state = positionIndicatorState,
                 indicatorHeight = 50.dp,
                 indicatorWidth = 4.dp,
-                paddingRight = 5.dp,
+                paddingHorizontal = 5.dp,
             )
         }
 
@@ -643,7 +643,7 @@ public class PositionIndicatorTest {
                 state = positionIndicatorState,
                 indicatorHeight = 50.dp,
                 indicatorWidth = 4.dp,
-                paddingRight = 5.dp,
+                paddingHorizontal = 5.dp,
             )
         }
 
@@ -682,7 +682,7 @@ public class PositionIndicatorTest {
                 state = positionIndicatorState,
                 indicatorHeight = 50.dp,
                 indicatorWidth = 4.dp,
-                paddingRight = 5.dp,
+                paddingHorizontal = 5.dp,
             )
         }
 
@@ -715,7 +715,7 @@ public class PositionIndicatorTest {
                 state = positionIndicatorState,
                 indicatorHeight = 50.dp,
                 indicatorWidth = 4.dp,
-                paddingRight = 5.dp,
+                paddingHorizontal = 5.dp,
                 reverseDirection = true,
             )
         }
@@ -753,7 +753,7 @@ public class PositionIndicatorTest {
                 state = positionIndicatorState,
                 indicatorHeight = 50.dp,
                 indicatorWidth = 4.dp,
-                paddingRight = 5.dp,
+                paddingHorizontal = 5.dp,
             )
         }
 
@@ -790,7 +790,7 @@ public class PositionIndicatorTest {
                 state = positionIndicatorState,
                 indicatorHeight = 50.dp,
                 indicatorWidth = 4.dp,
-                paddingRight = 5.dp,
+                paddingHorizontal = 5.dp,
                 reverseDirection = true,
             )
         }
@@ -833,7 +833,7 @@ public class PositionIndicatorTest {
                 state = positionIndicatorState,
                 indicatorHeight = 50.dp,
                 indicatorWidth = 4.dp,
-                paddingRight = 5.dp,
+                paddingHorizontal = 5.dp,
             )
         }
 
@@ -879,7 +879,7 @@ public class PositionIndicatorTest {
                 state = positionIndicatorState,
                 indicatorHeight = 50.dp,
                 indicatorWidth = 4.dp,
-                paddingRight = 5.dp,
+                paddingHorizontal = 5.dp,
                 reverseDirection = true,
             )
         }
@@ -909,7 +909,7 @@ public class PositionIndicatorTest {
                 state = positionIndicatorState,
                 indicatorHeight = 50.dp,
                 indicatorWidth = 4.dp,
-                paddingRight = 5.dp,
+                paddingHorizontal = 5.dp,
             )
         }
 
