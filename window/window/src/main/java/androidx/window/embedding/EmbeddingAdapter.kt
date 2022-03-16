@@ -127,13 +127,8 @@ internal class EmbeddingAdapter(
             .setSplitRatio(rule.splitRatio)
             .setLayoutDirection(rule.layoutDirection)
             .setShouldClearTop(rule.clearTop)
-
-        try {
-            builder.setFinishPrimaryWithSecondary(rule.finishPrimaryWithSecondary)
-            builder.setFinishSecondaryWithPrimary(rule.finishSecondaryWithPrimary)
-        } catch (error: NoSuchMethodError) {
-            // TODO(b/205181250): Old extension interface, to be dropped with next developer preview
-        }
+            .setFinishPrimaryWithSecondary(rule.finishPrimaryWithSecondary)
+            .setFinishSecondaryWithPrimary(rule.finishSecondaryWithPrimary)
         return builder.build()
     }
 
@@ -155,13 +150,8 @@ internal class EmbeddingAdapter(
         )
             .setSplitRatio(rule.splitRatio)
             .setLayoutDirection(rule.layoutDirection)
-
-        try {
-            builder.setSticky(rule.isSticky)
-            builder.setFinishPrimaryWithSecondary(rule.finishPrimaryWithSecondary)
-        } catch (error: NoSuchMethodError) {
-            // TODO(b/205181250): Old extension interface, to be dropped with next developer preview
-        }
+            .setSticky(rule.isSticky)
+            .setFinishPrimaryWithSecondary(rule.finishPrimaryWithSecondary)
         return builder.build()
     }
 
