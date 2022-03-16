@@ -16,9 +16,8 @@
 
 package androidx.wear.compose.foundation
 
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.DrawScope
 
 internal actual class CurvedTextDelegate {
     actual var textWidth = 0f
@@ -35,7 +34,7 @@ internal actual class CurvedTextDelegate {
         throw java.lang.RuntimeException("Not implemented")
     }
 
-    actual fun doDraw(canvas: Canvas, size: Size, color: Color, background: Color) {
+    actual fun DrawScope.doDraw(layoutInfo: CurvedLayoutInfo, color: Color, background: Color) {
         // TODO(b/194653251): Implement
         throw java.lang.RuntimeException("Not implemented")
     }

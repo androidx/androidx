@@ -25,18 +25,60 @@ package androidx.wear.compose.foundation {
     method public static androidx.wear.compose.foundation.ArcPaddingValues ArcPaddingValues(optional float outer, optional float inner, optional float start, optional float end);
     method public static androidx.wear.compose.foundation.ArcPaddingValues ArcPaddingValues(float all);
     method public static androidx.wear.compose.foundation.ArcPaddingValues ArcPaddingValues(optional float radial, optional float angular);
-    method @androidx.compose.runtime.Composable public static void BasicCurvedText(androidx.wear.compose.foundation.CurvedRowScope, String text, androidx.wear.compose.foundation.CurvedTextStyle style, optional androidx.compose.ui.Modifier modifier, optional boolean clockwise, optional androidx.wear.compose.foundation.ArcPaddingValues contentArcPadding);
+    method public static void basicCurvedText(androidx.wear.compose.foundation.CurvedScope, String text, optional boolean clockwise, optional androidx.wear.compose.foundation.ArcPaddingValues contentArcPadding, optional kotlin.jvm.functions.Function0<androidx.wear.compose.foundation.CurvedTextStyle> style);
+    method public static void basicCurvedText(androidx.wear.compose.foundation.CurvedScope, String text, androidx.wear.compose.foundation.CurvedTextStyle style, optional boolean clockwise, optional androidx.wear.compose.foundation.ArcPaddingValues contentArcPadding);
+  }
+
+  public interface CurvedAlignment {
+  }
+
+  public static final inline class CurvedAlignment.Angular {
+    ctor public CurvedAlignment.Angular();
+  }
+
+  public static final class CurvedAlignment.Angular.Companion {
+    method public float Custom(float ratio);
+    method public float getCenter();
+    method public float getEnd();
+    method public float getStart();
+    property public final float Center;
+    property public final float End;
+    property public final float Start;
+  }
+
+  public static final inline class CurvedAlignment.Radial {
+    ctor public CurvedAlignment.Radial();
+  }
+
+  public static final class CurvedAlignment.Radial.Companion {
+    method public float Custom(float ratio);
+    method public float getCenter();
+    method public float getInner();
+    method public float getOuter();
+    property public final float Center;
+    property public final float Inner;
+    property public final float Outer;
+  }
+
+  public final class CurvedColumnKt {
+    method public static void curvedColumn(androidx.wear.compose.foundation.CurvedScope, optional boolean outsideIn, optional androidx.wear.compose.foundation.CurvedAlignment.Angular? angularAlignment, kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.CurvedScope,kotlin.Unit> contentBuilder);
+  }
+
+  public final class CurvedComposableKt {
+    method public static void curvedComposable(androidx.wear.compose.foundation.CurvedScope, optional float radialAlignment, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
+  }
+
+  public final class CurvedLayoutKt {
+    method @androidx.compose.runtime.Composable public static void CurvedLayout(optional androidx.compose.ui.Modifier modifier, optional float anchor, optional float anchorType, optional androidx.wear.compose.foundation.CurvedAlignment.Radial? radialAlignment, optional boolean clockwise, kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.CurvedScope,kotlin.Unit> contentBuilder);
   }
 
   public final class CurvedRowKt {
-    method @androidx.compose.runtime.Composable public static void CurvedRow(optional androidx.compose.ui.Modifier modifier, optional float anchor, optional float anchorType, optional float radialAlignment, optional boolean clockwise, kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.CurvedRowScope,kotlin.Unit> content);
+    method public static void curvedRow(androidx.wear.compose.foundation.CurvedScope, optional androidx.wear.compose.foundation.CurvedAlignment.Radial? radialAlignment, optional boolean clockwise, kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.CurvedScope,kotlin.Unit> contentBuilder);
   }
 
-  @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.compose.runtime.Immutable public interface CurvedRowScope {
-    method public androidx.compose.ui.Modifier radialAlignment(androidx.compose.ui.Modifier, float alignment);
-  }
-
-  public final class CurvedTextDelegate_androidKt {
+  @androidx.compose.foundation.layout.LayoutScopeMarker public final class CurvedScope {
+    method public boolean getReverseLayout();
+    property public final boolean reverseLayout;
   }
 
   public final class CurvedTextStyle {
@@ -55,20 +97,6 @@ package androidx.wear.compose.foundation {
   }
 
   public final class CurvedTextStyleKt {
-  }
-
-  public final inline class RadialAlignment {
-    ctor public RadialAlignment();
-  }
-
-  public static final class RadialAlignment.Companion {
-    method public float Custom(float ratio);
-    method public float getCenter();
-    method public float getInner();
-    method public float getOuter();
-    property public final float Center;
-    property public final float Inner;
-    property public final float Outer;
   }
 
 }

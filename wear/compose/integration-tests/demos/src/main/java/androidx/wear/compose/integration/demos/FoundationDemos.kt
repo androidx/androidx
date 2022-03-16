@@ -17,13 +17,15 @@
 package androidx.wear.compose.integration.demos
 
 import androidx.wear.compose.foundation.samples.CurvedAndNormalText
-import androidx.wear.compose.foundation.samples.SimpleCurvedRow
+import androidx.wear.compose.foundation.samples.CurvedRowAndColumn
+import androidx.wear.compose.foundation.samples.SimpleCurvedWorld
 
 val WearFoundationDemos = DemoCategory(
     "Foundation",
     listOf(
-        ComposableDemo("Curved Row") { CurvedRowDemo() },
-        ComposableDemo("Simple") { SimpleCurvedRow() },
+        ComposableDemo("Curved Row") { CurvedWorldDemo() },
+        ComposableDemo("Curved Row and Column") { CurvedRowAndColumn() },
+        ComposableDemo("Simple") { SimpleCurvedWorld() },
         ComposableDemo("Alignment") { CurvedRowAlignmentDemo() },
         ComposableDemo("Curved Text") { BasicCurvedTextDemo() },
         ComposableDemo("Curved and Normal Text") { CurvedAndNormalText() },
