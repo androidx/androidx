@@ -32,7 +32,7 @@ final class FeaturesImpl implements Features {
         if (Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH.equals(feature)) {
             return BuildCompat.isAtLeastT();
         }
-        if (Features.GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER.equals(feature)) {
+        if (Features.GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK.equals(feature)) {
             return BuildCompat.isAtLeastT();
         }
         if (Features.GLOBAL_SEARCH_SESSION_GET_SCHEMA.equals(feature)) {

@@ -37,8 +37,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Configures the types, namespaces and other properties that {@link AppSearchObserverCallback}
- * instances match against.
+ * Configures the types, namespaces and other properties that {@link ObserverCallback} instances
+ * match against.
  */
 public final class ObserverSpec {
     private static final String FILTER_SCHEMA_FIELD = "filterSchema";

@@ -32,8 +32,8 @@ import androidx.appsearch.app.ReportSystemUsageRequest;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.exceptions.AppSearchException;
-import androidx.appsearch.observer.AppSearchObserverCallback;
 import androidx.appsearch.observer.DocumentChangeInfo;
+import androidx.appsearch.observer.ObserverCallback;
 import androidx.appsearch.observer.ObserverSpec;
 import androidx.appsearch.observer.SchemaChangeInfo;
 import androidx.appsearch.platformstorage.converter.AppSearchResultToPlatformConverter;
@@ -68,8 +68,7 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
 
     // Management of observer callbacks.
     @GuardedBy("mObserverCallbacksLocked")
-    private final Map<
-            AppSearchObserverCallback, android.app.appsearch.observer.AppSearchObserverCallback>
+    private final Map<ObserverCallback, android.app.appsearch.observer.AppSearchObserverCallback>
             mObserverCallbacksLocked = new ArrayMap<>();
 
     GlobalSearchSessionImpl(
@@ -166,11 +165,11 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
     @SuppressLint("NewApi")
     @BuildCompat.PrereleaseSdkCheck
     @Override
-    public void addObserver(
+    public void registerObserverCallback(
             @NonNull String targetPackageName,
             @NonNull ObserverSpec spec,
             @NonNull Executor executor,
-            @NonNull AppSearchObserverCallback observer) throws AppSearchException {
+            @NonNull ObserverCallback observer) throws AppSearchException {
         Preconditions.checkNotNull(targetPackageName);
         Preconditions.checkNotNull(spec);
         Preconditions.checkNotNull(executor);
@@ -179,7 +178,7 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
         // unsupported build.
         if (!BuildCompat.isAtLeastT()) {
             throw new UnsupportedOperationException(
-                    Features.GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER
+                    Features.GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK
                             + " is not supported on this AppSearch implementation");
         }
 
@@ -233,8 +232,8 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
     @SuppressLint("NewApi")
     @BuildCompat.PrereleaseSdkCheck
     @Override
-    public void removeObserver(
-            @NonNull String targetPackageName, @NonNull AppSearchObserverCallback observer)
+    public void unregisterObserverCallback(
+            @NonNull String targetPackageName, @NonNull ObserverCallback observer)
             throws AppSearchException {
         Preconditions.checkNotNull(targetPackageName);
         Preconditions.checkNotNull(observer);
@@ -242,7 +241,7 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
         // unsupported build.
         if (!BuildCompat.isAtLeastT()) {
             throw new UnsupportedOperationException(
-                    Features.GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER
+                    Features.GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK
                             + " is not supported on this AppSearch implementation");
         }
 

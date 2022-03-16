@@ -36,7 +36,7 @@ import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.util.FutureUtil;
 import androidx.appsearch.localstorage.visibilitystore.CallerAccess;
-import androidx.appsearch.observer.AppSearchObserverCallback;
+import androidx.appsearch.observer.ObserverCallback;
 import androidx.appsearch.observer.ObserverSpec;
 import androidx.core.util.Preconditions;
 
@@ -163,11 +163,11 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
     }
 
     @Override
-    public void addObserver(
+    public void registerObserverCallback(
             @NonNull String targetPackageName,
             @NonNull ObserverSpec spec,
             @NonNull Executor executor,
-            @NonNull AppSearchObserverCallback observer) {
+            @NonNull ObserverCallback observer) {
         Preconditions.checkNotNull(targetPackageName);
         Preconditions.checkNotNull(spec);
         Preconditions.checkNotNull(executor);
@@ -178,7 +178,7 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
                     "Local storage implementation does not support receiving change notifications "
                             + "from other packages.");
         }
-        mAppSearchImpl.addObserver(
+        mAppSearchImpl.registerObserverCallback(
                 /*listeningPackageAccess=*/mSelfCallerAccess,
                 /*targetPackageName=*/targetPackageName,
                 spec,
@@ -187,8 +187,8 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
     }
 
     @Override
-    public void removeObserver(
-            @NonNull String targetPackageName, @NonNull AppSearchObserverCallback observer) {
+    public void unregisterObserverCallback(
+            @NonNull String targetPackageName, @NonNull ObserverCallback observer) {
         Preconditions.checkNotNull(targetPackageName);
         Preconditions.checkNotNull(observer);
         // LocalStorage does not support observing data from other packages.
@@ -197,7 +197,7 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
                     "Local storage implementation does not support receiving change notifications "
                             + "from other packages.");
         }
-        mAppSearchImpl.removeObserver(targetPackageName, observer);
+        mAppSearchImpl.unregisterObserverCallback(targetPackageName, observer);
     }
 
     @Override

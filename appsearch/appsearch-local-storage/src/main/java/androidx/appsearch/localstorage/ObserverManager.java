@@ -27,8 +27,8 @@ import androidx.appsearch.localstorage.visibilitystore.CallerAccess;
 import androidx.appsearch.localstorage.visibilitystore.VisibilityChecker;
 import androidx.appsearch.localstorage.visibilitystore.VisibilityStore;
 import androidx.appsearch.localstorage.visibilitystore.VisibilityUtil;
-import androidx.appsearch.observer.AppSearchObserverCallback;
 import androidx.appsearch.observer.DocumentChangeInfo;
+import androidx.appsearch.observer.ObserverCallback;
 import androidx.appsearch.observer.ObserverSpec;
 import androidx.appsearch.observer.SchemaChangeInfo;
 import androidx.collection.ArrayMap;
@@ -44,7 +44,7 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 
 /**
- * Manages {@link AppSearchObserverCallback} instances and queues notifications to them for later
+ * Manages {@link ObserverCallback} instances and queues notifications to them for later
  * dispatch.
  *
  * <p>This class is thread-safe.
@@ -95,7 +95,7 @@ public class ObserverManager {
         final CallerAccess mListeningPackageAccess;
         final ObserverSpec mObserverSpec;
         final Executor mExecutor;
-        final AppSearchObserverCallback mObserver;
+        final ObserverCallback mObserverCallback;
         // Values is a set of document IDs
         volatile Map<DocumentChangeGroupKey, Set<String>> mDocumentChanges = new ArrayMap<>();
         // Keys are database prefixes, values are a set of schema names
@@ -105,11 +105,11 @@ public class ObserverManager {
                 @NonNull CallerAccess listeningPackageAccess,
                 @NonNull ObserverSpec observerSpec,
                 @NonNull Executor executor,
-                @NonNull AppSearchObserverCallback observer) {
+                @NonNull ObserverCallback observerCallback) {
             mListeningPackageAccess = Preconditions.checkNotNull(listeningPackageAccess);
             mObserverSpec = Preconditions.checkNotNull(observerSpec);
             mExecutor = Preconditions.checkNotNull(executor);
-            mObserver = Preconditions.checkNotNull(observer);
+            mObserverCallback = Preconditions.checkNotNull(observerCallback);
         }
     }
 
@@ -122,8 +122,8 @@ public class ObserverManager {
     private volatile boolean mHasNotifications = false;
 
     /**
-     * Adds an {@link AppSearchObserverCallback} to monitor changes within the
-     * databases owned by {@code targetPackageName} if they match the given
+     * Adds an {@link ObserverCallback} to monitor changes within the databases owned by
+     * {@code targetPackageName} if they match the given
      * {@link androidx.appsearch.observer.ObserverSpec}.
      *
      * <p>If the data owned by {@code targetPackageName} is not visible to you, the registration
@@ -140,45 +140,45 @@ public class ObserverManager {
      *
      * @param listeningPackageAccess Visibility information about the app that wants to receive
      *                               notifications.
-     * @param targetPackageName      The package that owns the data the observer wants to be
+     * @param targetPackageName      The package that owns the data the observerCallback wants to be
      *                               notified for.
-     * @param spec                   Describes the kind of data changes the observer should trigger
-     *                               for.
-     * @param executor               The executor on which to trigger the observer callback to
-     *                               deliver notifications.
-     * @param observer               The callback to trigger on notifications.
+     * @param spec                   Describes the kind of data changes the observerCallback should
+     *                               trigger for.
+     * @param executor               The executor on which to trigger the observerCallback callback
+     *                               to deliver notifications.
+     * @param observerCallback       The callback to trigger on notifications.
      */
-    public void addObserver(
+    public void registerObserverCallback(
             @NonNull CallerAccess listeningPackageAccess,
             @NonNull String targetPackageName,
             @NonNull ObserverSpec spec,
             @NonNull Executor executor,
-            @NonNull AppSearchObserverCallback observer) {
+            @NonNull ObserverCallback observerCallback) {
         synchronized (mLock) {
             List<ObserverInfo> infos = mObserversLocked.get(targetPackageName);
             if (infos == null) {
                 infos = new ArrayList<>();
                 mObserversLocked.put(targetPackageName, infos);
             }
-            infos.add(new ObserverInfo(listeningPackageAccess, spec, executor, observer));
+            infos.add(new ObserverInfo(listeningPackageAccess, spec, executor, observerCallback));
         }
     }
 
     /**
-     * Removes all observers that match via {@link AppSearchObserverCallback#equals} to the given
-     * observer from watching the targetPackageName.
+     * Removes all observers that match via {@link ObserverCallback#equals} to the given observer
+     * from watching the targetPackageName.
      *
      * <p>Pending notifications queued for this observer, if any, are discarded.
      */
-    public void removeObserver(
-            @NonNull String targetPackageName, @NonNull AppSearchObserverCallback observer) {
+    public void unregisterObserverCallback(
+            @NonNull String targetPackageName, @NonNull ObserverCallback observer) {
         synchronized (mLock) {
             List<ObserverInfo> infos = mObserversLocked.get(targetPackageName);
             if (infos == null) {
                 return;
             }
             for (int i = 0; i < infos.size(); i++) {
-                if (infos.get(i).mObserver.equals(observer)) {
+                if (infos.get(i).mObserverCallback.equals(observer)) {
                     infos.remove(i);
                     i--;
                 }
@@ -410,9 +410,9 @@ public class ObserverManager {
                             /*changedSchemaNames=*/entry.getValue());
 
                     try {
-                        observerInfo.mObserver.onSchemaChanged(schemaChangeInfo);
+                        observerInfo.mObserverCallback.onSchemaChanged(schemaChangeInfo);
                     } catch (Throwable t) {
-                        Log.w(TAG, "AppSearchObserverCallback threw exception during dispatch", t);
+                        Log.w(TAG, "ObserverCallback threw exception during dispatch", t);
                     }
                 }
             }
@@ -429,9 +429,9 @@ public class ObserverManager {
                             entry.getValue());
 
                     try {
-                        observerInfo.mObserver.onDocumentChanged(documentChangeInfo);
+                        observerInfo.mObserverCallback.onDocumentChanged(documentChangeInfo);
                     } catch (Throwable t) {
-                        Log.w(TAG, "AppSearchObserverCallback threw exception during dispatch", t);
+                        Log.w(TAG, "ObserverCallback threw exception during dispatch", t);
                     }
                 }
             }
