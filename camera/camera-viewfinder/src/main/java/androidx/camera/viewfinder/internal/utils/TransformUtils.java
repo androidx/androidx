@@ -20,11 +20,13 @@ import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.Size;
+import android.view.Display;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.viewfinder.CameraViewfinder;
+import androidx.camera.viewfinder.internal.transform.TransformationInfo;
 
 /**
  * Utility class for transform.
@@ -155,6 +157,40 @@ public class TransformUtils {
         matrix.postConcat(getNormalizedToBuffer(target));
         return matrix;
     }
+
+    /**
+     * Creates {@link TransformationInfo} by resolution, display, front camera and sensor
+     * orientation.
+     *
+     * @param surfaceResolution The surface resolution.
+     * @param display The view {@link Display}.
+     * @param isFrontCamera The front or rear camera information.
+     * @param sensorOrientation THe sensor orientation.
+     * @return {@link TransformationInfo}.
+     */
+    @NonNull
+    public static TransformationInfo createTransformInfo(
+            @NonNull Size surfaceResolution,
+            @NonNull Display display,
+            boolean isFrontCamera,
+            int sensorOrientation) {
+        // For Camera2, cropRect is equal to full size of surface and targetRotation is default
+        // display rotation.
+        // For CameraX, targetRotation can be set by the user.
+        Rect cropRect = new Rect(0, 0,
+                surfaceResolution.getWidth(), surfaceResolution.getHeight());
+        // TODO: verify the viewfinder working correctly when not in a locked portrait orientation,
+        //  for both the PERFORMANCE and the COMPATIBLE mode
+        int relativeRotationDegrees =
+                CameraOrientationUtil.surfaceRotationToDegrees(display.getRotation());
+        return TransformationInfo.of(cropRect,
+                CameraOrientationUtil.getRelativeImageRotation(
+                        relativeRotationDegrees,
+                        sensorOrientation,
+                        !isFrontCamera),
+                display.getRotation());
+    }
+
     /**
      * Gets the transform from a normalized space (-1, -1) - (1, 1) to the given rect.
      */

@@ -17,10 +17,8 @@
 package androidx.camera.viewfinder;
 
 import android.annotation.SuppressLint;
-import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.util.Size;
-import android.view.Display;
 import android.view.Surface;
 
 import androidx.annotation.IntDef;
@@ -30,8 +28,6 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.viewfinder.internal.surface.ViewfinderSurface;
-import androidx.camera.viewfinder.internal.transform.TransformationInfo;
-import androidx.camera.viewfinder.internal.utils.CameraOrientationUtil;
 import androidx.camera.viewfinder.internal.utils.Logger;
 import androidx.camera.viewfinder.internal.utils.executor.CameraExecutors;
 import androidx.camera.viewfinder.internal.utils.futures.FutureCallback;
@@ -66,6 +62,7 @@ public class ViewfinderSurfaceRequest {
 
     private final boolean mIsLegacyDevice;
     private final boolean mIsFrontCamera;
+    private final int mSensorOrientation;
     @NonNull private final Size mResolution;
     @NonNull private final ViewfinderSurface mInternalViewfinderSurface;
     @NonNull private final CallbackToFutureAdapter.Completer<Void> mRequestCancellationCompleter;
@@ -76,24 +73,17 @@ public class ViewfinderSurfaceRequest {
     @NonNull
     final ListenableFuture<Surface> mSurfaceFuture;
 
-    @NonNull private TransformationInfo mTransformationInfo;
-
-    @Nullable private Executor mTransformationInfoExecutor;
-    @Nullable private TransformationInfoListener mTransformationInfoListener;
-
     /**
      * Creates a new surface request with surface resolution, view display and camera device
      * information.
      *
      * @param resolution requested surface resolution.
-     * @param display view display.
      * @param isLegacyDevice hardware level is legacy or not.
      * @param isFrontCamera camera is front facing or not.
      * @param sensorOrientation camera sensor orientation.
      */
     public ViewfinderSurfaceRequest(
             @NonNull Size resolution,
-            @NonNull Display display,
             boolean isLegacyDevice,
             boolean isFrontCamera,
             int sensorOrientation) {
@@ -101,8 +91,7 @@ public class ViewfinderSurfaceRequest {
         mResolution = resolution;
         mIsLegacyDevice = isLegacyDevice;
         mIsFrontCamera = isFrontCamera;
-        mTransformationInfo = createTransformInfo(resolution, display, isFrontCamera,
-                sensorOrientation);
+        mSensorOrientation = sensorOrientation;
 
         // To ensure concurrency and ordering, operations are chained. Completion can only be
         // triggered externally by the top-level completer (mSurfaceCompleter). The other future
@@ -243,6 +232,15 @@ public class ViewfinderSurfaceRequest {
     }
 
     /**
+     * Returns the sensor orientation.
+     *
+     * @return The sensor orientation.
+     */
+    public int getSensorOrientation() {
+        return mSensorOrientation;
+    }
+
+    /**
      * Returns the status of camera lens facing.
      *
      * @return true if front camera, otherwise false.
@@ -265,11 +263,6 @@ public class ViewfinderSurfaceRequest {
      */
     public void markSurfaceSafeToRelease() {
         mInternalViewfinderSurface.close();
-    }
-
-    @NonNull
-    TransformationInfo getTransformationInfo() {
-        return mTransformationInfo;
     }
 
     @NonNull
@@ -379,63 +372,10 @@ public class ViewfinderSurfaceRequest {
                         + "will not complete."));
     }
 
-    void setTransformationInfoListener(@NonNull Executor executor,
-            @NonNull TransformationInfoListener listener) {
-        mTransformationInfoListener = listener;
-        mTransformationInfoExecutor = executor;
-        TransformationInfo transformationInfo = mTransformationInfo;
-        if (transformationInfo != null) {
-            executor.execute(() -> listener.onTransformationInfoUpdate(
-                    transformationInfo));
-        }
-    }
-
-    void updateTransformationInfo(@NonNull TransformationInfo transformationInfo) {
-        mTransformationInfo = transformationInfo;
-        TransformationInfoListener listener = mTransformationInfoListener;
-        if (listener != null && mTransformationInfoExecutor != null) {
-            mTransformationInfoExecutor.execute(
-                    () -> listener.onTransformationInfoUpdate(
-                            transformationInfo));
-        }
-    }
-
-    @NonNull
-    private static TransformationInfo createTransformInfo(
-            @NonNull Size surfaceResolution,
-            @NonNull Display display,
-            boolean isFrontCamera,
-            int sensorOrientation) {
-        // For Camera2, cropRect is equal to full size of surface and targetRotation is default
-        // display rotation.
-        // For CameraX, targetRotation can be set by the user.
-        Rect cropRect = new Rect(0, 0,
-                surfaceResolution.getWidth(), surfaceResolution.getHeight());
-        // TODO: verify the viewfinder working correctly when not in a locked portrait orientation,
-        //  for both the PERFORMANCE and the COMPATIBLE mode
-        int relativeRotationDegrees =
-                CameraOrientationUtil.surfaceRotationToDegrees(display.getRotation());
-        return TransformationInfo.of(cropRect,
-                CameraOrientationUtil.getRelativeImageRotation(
-                        relativeRotationDegrees,
-                        sensorOrientation,
-                        !isFrontCamera),
-                display.getRotation());
-    }
-
     static final class RequestCancelledException extends RuntimeException {
         RequestCancelledException(@NonNull String message, @NonNull Throwable cause) {
             super(message, cause);
         }
-    }
-
-    interface TransformationInfoListener {
-
-        /**
-         * Callback for transformation info update.
-         * @param transformationInfo transformation info.
-         */
-        void onTransformationInfoUpdate(@NonNull TransformationInfo transformationInfo);
     }
 
     /**

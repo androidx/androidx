@@ -113,18 +113,25 @@ final class ViewfinderTransformation {
     }
 
     /**
-     * Sets the inputs.
+     * Sets the {@link TransformationInfo}.
      *
-     * <p> All the values originally come from a
-     * {@link ViewfinderSurfaceRequest}.
+     * <p> All the values originally come from a {@link ViewfinderSurfaceRequest}.
      */
     void setTransformationInfo(@NonNull TransformationInfo transformationInfo,
             Size resolution, boolean isFrontCamera) {
+        updateTransformInfo(transformationInfo);
+        mResolution = resolution;
+        mIsFrontCamera = isFrontCamera;
+    }
+
+    /**
+     * Updates the {@link TransformationInfo}.
+     * @param transformationInfo {@link TransformationInfo}.
+     */
+    void updateTransformInfo(@NonNull TransformationInfo transformationInfo) {
         mSurfaceCropRect = transformationInfo.getCropRect();
         mViewfinderRotationDegrees = transformationInfo.getRotationDegrees();
         mTargetRotation = transformationInfo.getTargetRotation();
-        mResolution = resolution;
-        mIsFrontCamera = isFrontCamera;
     }
 
     /**

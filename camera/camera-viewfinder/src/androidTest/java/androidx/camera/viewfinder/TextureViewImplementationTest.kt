@@ -15,12 +15,9 @@
  */
 package androidx.camera.viewfinder
 
-import android.content.Context.DISPLAY_SERVICE
 import android.graphics.SurfaceTexture
-import android.hardware.display.DisplayManager
 import android.os.Build
 import android.util.Size
-import android.view.Display
 import android.view.TextureView
 import android.widget.FrameLayout
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -50,7 +47,6 @@ class TextureViewImplementationTest {
                 _surfaceRequest =
                     ViewfinderSurfaceRequest(
                         ANY_SIZE,
-                        display,
                         /*isLegacyDevice=*/true,
                         /*isFrontCamera=*/true,
                         /*sensorOrientation=*/0
@@ -59,15 +55,11 @@ class TextureViewImplementationTest {
             return _surfaceRequest!!
         }
 
-    private lateinit var display: Display
-
     @Before
     fun setUp() {
         val mContext = InstrumentationRegistry.getInstrumentation().targetContext
         surfaceTexture = SurfaceTexture(0)
         parent = FrameLayout(mContext)
-        val displayManager = mContext.getSystemService(DISPLAY_SERVICE) as DisplayManager
-        display = displayManager.getDisplay(0)
         implementation = TextureViewImplementation(parent!!,
             ViewfinderTransformation()
         )

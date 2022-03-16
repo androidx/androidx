@@ -594,7 +594,6 @@ public class CameraViewFinderFragment extends Fragment
                 @OptIn(markerClass = ExperimentalViewfinder.class)
                 ViewfinderSurfaceRequest viewfinderSurfaceRequest = new ViewfinderSurfaceRequest(
                         mViewfinderSize,
-                        display,
                         characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)
                                 == CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
                         facing == CameraCharacteristics.LENS_FACING_FRONT,
