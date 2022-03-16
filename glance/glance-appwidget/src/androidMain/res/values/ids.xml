@@ -30,4 +30,5 @@
     <id name="deletedViewId" />
     <id name="radioIcon" />
     <id name="radioText" />
+    <id name="checkBox" />
 </resources>
