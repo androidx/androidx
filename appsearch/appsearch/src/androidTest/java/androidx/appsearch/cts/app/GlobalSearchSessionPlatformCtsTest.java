@@ -31,14 +31,14 @@ import com.google.common.util.concurrent.ListenableFuture;
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
 public class GlobalSearchSessionPlatformCtsTest extends GlobalSearchSessionCtsTestBase {
     @Override
-    protected ListenableFuture<AppSearchSession> createSearchSession(@NonNull String dbName) {
+    protected ListenableFuture<AppSearchSession> createSearchSessionAsync(@NonNull String dbName) {
         Context context = ApplicationProvider.getApplicationContext();
         return PlatformStorage.createSearchSessionAsync(
                 new PlatformStorage.SearchContext.Builder(context, dbName).build());
     }
 
     @Override
-    protected ListenableFuture<GlobalSearchSession> createGlobalSearchSession() {
+    protected ListenableFuture<GlobalSearchSession> createGlobalSearchSessionAsync() {
         Context context = ApplicationProvider.getApplicationContext();
         return PlatformStorage.createGlobalSearchSessionAsync(
                 new PlatformStorage.GlobalSearchContext.Builder(context).build());

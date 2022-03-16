@@ -55,14 +55,14 @@ import java.util.concurrent.ExecutorService;
 
 public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
     @Override
-    protected ListenableFuture<AppSearchSession> createSearchSession(@NonNull String dbName) {
+    protected ListenableFuture<AppSearchSession> createSearchSessionAsync(@NonNull String dbName) {
         Context context = ApplicationProvider.getApplicationContext();
         return LocalStorage.createSearchSessionAsync(
                 new LocalStorage.SearchContext.Builder(context, dbName).build());
     }
 
     @Override
-    protected ListenableFuture<AppSearchSession> createSearchSession(
+    protected ListenableFuture<AppSearchSession> createSearchSessionAsync(
             @NonNull String dbName, @NonNull ExecutorService executor) {
         Context context = ApplicationProvider.getApplicationContext();
         return LocalStorage.createSearchSessionAsync(

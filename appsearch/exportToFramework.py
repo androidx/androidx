@@ -171,6 +171,8 @@ class ExportToFramework:
         # Jetpack methods have the Async suffix, but framework doesn't. Strip the Async suffix
         # to allow the same documentation to compile for both.
         contents = re.sub(r'(#[a-zA-Z0-9_]+)Async}', r'\1}', contents)
+        contents = re.sub(
+                r'(\@see [^#]+#[a-zA-Z0-9_]+)Async$', r'\1', contents, flags=re.MULTILINE)
         return contents
 
     def _TransformTestCode(self, contents):

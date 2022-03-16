@@ -41,12 +41,12 @@ public abstract class AnnotationProcessorTestBase {
     private AppSearchSession mSession;
     private static final String DB_NAME_1 = "";
 
-    protected abstract ListenableFuture<AppSearchSession> createSearchSession(
+    protected abstract ListenableFuture<AppSearchSession> createSearchSessionAsync(
             @NonNull String dbName);
 
     @Before
     public void setUp() throws Exception {
-        mSession = createSearchSession(DB_NAME_1).get();
+        mSession = createSearchSessionAsync(DB_NAME_1).get();
 
         // Cleanup whatever documents may still exist in these databases. This is needed in
         // addition to tearDown in case a test exited without completing properly.

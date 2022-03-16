@@ -118,12 +118,12 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
 
     private AppSearchSession mDb;
 
-    protected abstract ListenableFuture<AppSearchSession> createSearchSession(
+    protected abstract ListenableFuture<AppSearchSession> createSearchSessionAsync(
             @NonNull String dbName);
 
     @Before
     public void setUp() throws Exception {
-        mDb = createSearchSession(DB_NAME).get();
+        mDb = createSearchSessionAsync(DB_NAME).get();
 
         // Cleanup whatever documents may still exist in these databases. This is needed in
         // addition to tearDown in case a test exited without completing properly.

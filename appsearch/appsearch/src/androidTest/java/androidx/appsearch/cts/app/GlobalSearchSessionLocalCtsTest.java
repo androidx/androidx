@@ -48,14 +48,14 @@ import java.util.List;
 
 public class GlobalSearchSessionLocalCtsTest extends GlobalSearchSessionCtsTestBase {
     @Override
-    protected ListenableFuture<AppSearchSession> createSearchSession(@NonNull String dbName) {
+    protected ListenableFuture<AppSearchSession> createSearchSessionAsync(@NonNull String dbName) {
         Context context = ApplicationProvider.getApplicationContext();
         return LocalStorage.createSearchSessionAsync(
                 new LocalStorage.SearchContext.Builder(context, dbName).build());
     }
 
     @Override
-    protected ListenableFuture<GlobalSearchSession> createGlobalSearchSession() {
+    protected ListenableFuture<GlobalSearchSession> createGlobalSearchSessionAsync() {
         Context context = ApplicationProvider.getApplicationContext();
         return LocalStorage.createGlobalSearchSessionAsync(
                 new LocalStorage.GlobalSearchContext.Builder(context).build());
