@@ -229,6 +229,11 @@ public interface GlobalSearchSession extends Closeable {
      *
      * @param targetPackageName Package which the observers to be removed are listening to.
      * @param observer          Callback to unregister.
+     * @throws AppSearchException            if an error occurs trying to remove the observer, such
+     *                                       as a failure to communicate with the system service
+     *                                       in the platform backend. Note that no
+     *                                       error will be thrown if the provided observer
+     *                                       doesn't match any registered observer.
      * @throws UnsupportedOperationException if this feature is not available on this
      *                                       AppSearch implementation.
      */
