@@ -20,7 +20,7 @@ import android.text.format.DateFormat
 import androidx.annotation.Sampled
 import androidx.compose.runtime.Composable
 import androidx.wear.compose.foundation.CurvedTextStyle
-import androidx.wear.compose.material.CurvedText
+import androidx.wear.compose.material.curvedText
 import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
@@ -42,7 +42,7 @@ fun TimeTextWithStatus() {
             )
         },
         leadingCurvedContent = {
-            CurvedText(
+            curvedText(
                 text = "ETA 12:48",
                 style = CurvedTextStyle(leadingTextStyle)
             )

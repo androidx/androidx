@@ -18,13 +18,20 @@ package androidx.wear.compose.foundation
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
 import kotlin.math.PI
+import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.min
 import org.junit.Assert.assertEquals
@@ -36,7 +43,7 @@ import org.junit.Test
 // much precision.
 internal const val FLOAT_TOLERANCE = 1f
 
-class CurvedRowTest {
+class CurvedLayoutTest {
     @get:Rule
     val rule = createComposeRule()
 
@@ -44,23 +51,33 @@ class CurvedRowTest {
         anchor: Float,
         anchorType: AnchorType,
         clockwise: Boolean,
-        dimensionExtractor: (RadialDimensions) -> Float
+        initialAnchorType: AnchorType = anchorType
     ) {
         var rowCoords: LayoutCoordinates? = null
         var coords: LayoutCoordinates? = null
+        var anchorTypeState by mutableStateOf(initialAnchorType)
+
         rule.setContent {
-            CurvedRow(
+            CurvedLayout(
                 modifier = Modifier.size(200.dp)
                     .onGloballyPositioned { rowCoords = it },
                 anchor = anchor,
-                anchorType = anchorType,
+                anchorType = anchorTypeState,
                 clockwise = clockwise
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .onGloballyPositioned { coords = it }
-                )
+                curvedComposable {
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .onGloballyPositioned { coords = it }
+                    )
+                }
+            }
+
+            if (anchorType != initialAnchorType) {
+                LaunchedEffect(true) {
+                    anchorTypeState = anchorType
+                }
             }
         }
 
@@ -74,48 +91,95 @@ class CurvedRowTest {
             // It's at the outer side of the CurvedRow,
             assertEquals(dims.rowRadius, dims.outerRadius, FLOAT_TOLERANCE)
 
-            checkAngle(anchor, dimensionExtractor(dims))
+            val actualAngle = if (anchorType == AnchorType.Center) {
+                dims.middleAngle
+            } else {
+                if (anchorType == AnchorType.Start == clockwise) {
+                    dims.startAngle
+                } else {
+                    dims.endAngle
+                }
+            }
+            checkAngle(anchor, actualAngle)
         }
     }
 
     @Test
     fun correctly_uses_anchortype_start_clockwise() =
-        anchor_and_clockwise_test(0f, AnchorType.Start, true) { it.startAngle }
+        anchor_and_clockwise_test(0f, AnchorType.Start, true)
 
     @Test
     fun correctly_uses_anchortype_center_clockwise() =
-        anchor_and_clockwise_test(60f, AnchorType.Center, true) { it.middleAngle }
+        anchor_and_clockwise_test(60f, AnchorType.Center, true)
 
     @Test
     fun correctly_uses_anchortype_end_clockwise() =
-        anchor_and_clockwise_test(120f, AnchorType.End, true) { it.endAngle }
+        anchor_and_clockwise_test(120f, AnchorType.End, true)
 
     @Test
     fun correctly_uses_anchortype_start_anticlockwise() =
-        anchor_and_clockwise_test(180f, AnchorType.Start, false) { it.endAngle }
+        anchor_and_clockwise_test(180f, AnchorType.Start, false)
 
     @Test
     fun correctly_uses_anchortype_center_anticlockwise() =
-        anchor_and_clockwise_test(240f, AnchorType.Center, false) { it.middleAngle }
+        anchor_and_clockwise_test(240f, AnchorType.Center, false)
 
     @Test
     fun correctly_uses_anchortype_end_anticlockwise() =
-        anchor_and_clockwise_test(300f, AnchorType.End, false) { it.startAngle }
+        anchor_and_clockwise_test(300f, AnchorType.End, false)
+
+    @Test
+    fun switched_anchortype_center_to_end_anticlockwise() =
+        anchor_and_clockwise_test(
+            0f,
+            AnchorType.End,
+            false,
+            initialAnchorType = AnchorType.Center
+        )
+
+    @Test
+    fun switched_anchortype_center_to_start_anticlockwise() =
+        anchor_and_clockwise_test(
+            60f,
+            AnchorType.Start,
+            false,
+            initialAnchorType = AnchorType.Center
+        )
+
+    @Test
+    fun switched_anchortype_end_to_center_anticlockwise() =
+        anchor_and_clockwise_test(
+            120f,
+            AnchorType.Center,
+            false,
+            initialAnchorType = AnchorType.End
+        )
+
+    @Test
+    fun switched_anchortype_end_to_start_clockwise() =
+        anchor_and_clockwise_test(
+            180f,
+            AnchorType.Start,
+            true,
+            initialAnchorType = AnchorType.End
+        )
 
     @Test
     fun lays_out_multiple_children_correctly() {
         var rowCoords: LayoutCoordinates? = null
         val coords = Array<LayoutCoordinates?>(3) { null }
         rule.setContent {
-            CurvedRow(
+            CurvedLayout(
                 modifier = Modifier.onGloballyPositioned { rowCoords = it }
             ) {
                 repeat(3) { ix ->
-                    Box(
-                        modifier = Modifier
-                            .size(30.dp)
-                            .onGloballyPositioned { coords[ix] = it }
-                    )
+                    curvedComposable {
+                        Box(
+                            modifier = Modifier
+                                .size(30.dp)
+                                .onGloballyPositioned { coords[ix] = it }
+                        )
+                    }
                 }
             }
         }
@@ -144,7 +208,7 @@ class CurvedRowTest {
     }
 
     private fun radial_alignment_test(
-        radialAlignment: RadialAlignment,
+        radialAlignment: CurvedAlignment.Radial,
         checker: (bigBoxDimensions: RadialDimensions, smallBoxDimensions: RadialDimensions) -> Unit
     ) {
         var rowCoords: LayoutCoordinates? = null
@@ -152,20 +216,23 @@ class CurvedRowTest {
         var bigBoxCoords: LayoutCoordinates? = null
         // We have a big box and a small box with the specified alignment
         rule.setContent {
-            CurvedRow(
+            CurvedLayout(
                 modifier = Modifier.onGloballyPositioned { rowCoords = it }
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(30.dp)
-                        .onGloballyPositioned { smallBoxCoords = it }
-                        .radialAlignment(radialAlignment)
-                )
-                Box(
-                    modifier = Modifier
-                        .size(45.dp)
-                        .onGloballyPositioned { bigBoxCoords = it }
-                )
+                curvedComposable(radialAlignment = radialAlignment) {
+                    Box(
+                        modifier = Modifier
+                            .size(30.dp)
+                            .onGloballyPositioned { smallBoxCoords = it }
+                    )
+                }
+                curvedComposable {
+                    Box(
+                        modifier = Modifier
+                            .size(45.dp)
+                            .onGloballyPositioned { bigBoxCoords = it }
+                    )
+                }
             }
         }
 
@@ -191,39 +258,70 @@ class CurvedRowTest {
 
     @Test
     fun radial_alignment_outer_works() =
-        radial_alignment_test(RadialAlignment.Outer) { bigBoxDimensions, smallBoxDimensions ->
+        radial_alignment_test(CurvedAlignment.Radial.Outer) { bigBoxDimension, smallBoxDimension ->
             assertEquals(
-                bigBoxDimensions.outerRadius,
-                smallBoxDimensions.outerRadius,
+                bigBoxDimension.outerRadius,
+                smallBoxDimension.outerRadius,
                 FLOAT_TOLERANCE
             )
         }
 
     @Test
     fun radial_alignment_center_works() =
-        radial_alignment_test(RadialAlignment.Center) { bigBoxDimensions, smallBoxDimensions ->
+        radial_alignment_test(CurvedAlignment.Radial.Center) { bigBoxDimension, smallBoxDimension ->
             assertEquals(
-                bigBoxDimensions.centerRadius,
-                smallBoxDimensions.centerRadius,
+                bigBoxDimension.centerRadius,
+                smallBoxDimension.centerRadius,
                 FLOAT_TOLERANCE
             )
         }
 
     @Test
     fun radial_alignment_inner_works() =
-        radial_alignment_test(RadialAlignment.Inner) { bigBoxDimensions, smallBoxDimensions ->
+        radial_alignment_test(CurvedAlignment.Radial.Inner) { bigBoxDimension, smallBoxDimension ->
             assertEquals(
-                bigBoxDimensions.innerRadius,
-                smallBoxDimensions.innerRadius,
+                bigBoxDimension.innerRadius,
+                smallBoxDimension.innerRadius,
                 FLOAT_TOLERANCE
             )
         }
+
+    private fun visibility_change_test_setup(targetVisibility: Boolean) {
+        val visible = mutableStateOf(!targetVisibility)
+        rule.setContent {
+            CurvedLayout {
+                curvedComposable { Box(modifier = Modifier.size(30.dp)) }
+                if (visible.value) {
+                    curvedComposable { Box(modifier = Modifier.size(30.dp).testTag(TEST_TAG)) }
+                }
+                curvedComposable { Box(modifier = Modifier.size(30.dp)) }
+            }
+        }
+
+        rule.runOnIdle {
+            visible.value = targetVisibility
+        }
+
+        rule.waitForIdle()
+        if (targetVisibility) {
+            rule.onNodeWithTag(TEST_TAG).assertExists()
+        } else {
+            rule.onNodeWithTag(TEST_TAG).assertDoesNotExist()
+        }
+    }
+
+    @Test
+    fun showing_child_works() = visibility_change_test_setup(true)
+
+    @Test
+    fun hiding_child_works() = visibility_change_test_setup(false)
 }
 
+internal const val TEST_TAG = "test-item"
+
 fun checkAngle(expected: Float, actual: Float) {
-    var d = expected - actual
-    if (d < 0) d += 360f
-    if (d > 180) d = 360f - d
+    var d = abs(expected - actual)
+    d = min(d, 360 - d)
     if (d > FLOAT_TOLERANCE) {
         fail("Angle is out of tolerance. Expected: $expected, actual: $actual")
     }
@@ -260,10 +358,7 @@ private class RadialDimensions(
         // center
         rowRadius = min(rowCoords.size.width, rowCoords.size.height) / 2f
         rowCenter = rowCoords.localToRoot(
-            Offset(
-                rowCoords.size.width / 2f,
-                rowCoords.size.height / 2f
-            )
+            Offset(rowRadius, rowRadius)
         )
 
         // Compute the radial coordinates (relative to the center of the CurvedRow) of the found

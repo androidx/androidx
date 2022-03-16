@@ -33,7 +33,8 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.foundation.CurvedRow
+import androidx.wear.compose.foundation.CurvedLayout
+import androidx.wear.compose.foundation.curvedComposable
 import kotlin.math.abs
 
 /**
@@ -159,14 +160,20 @@ private fun LinearPageIndicator(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.Bottom
     ) {
-        StaticItems(
-            pageIndicatorState,
-            selectedColor,
-            unselectedColor,
-            indicatorSize,
-            spacing,
-            indicatorShape
-        )
+        for (page in 0 until pageIndicatorState.pageCount) {
+            Item(
+                selectedColor = selectedColor,
+                unselectedColor = unselectedColor,
+                indicatorSize = indicatorSize,
+                horizontalPadding = spacing / 2,
+                indicatorShape = indicatorShape,
+                selectedPageRatio = calculateSelectedRatio(
+                    page,
+                    pageIndicatorState.selectedPage,
+                    pageIndicatorState.pageOffset
+                )
+            )
+        }
     }
 }
 
@@ -181,45 +188,28 @@ private fun CurvedPageIndicator(
     indicatorShape: Shape
 ) {
     // TODO: b/218985697 additional flexible layout will be added later to properly show pages > 6
-    CurvedRow(
+    CurvedLayout(
         modifier = modifier,
         // 90 degrees equals to 6 o'clock position, at the bottom of the screen
         anchor = 90f,
         clockwise = false,
     ) {
-        StaticItems(
-            pageIndicatorState,
-            selectedColor,
-            unselectedColor,
-            indicatorSize,
-            spacing,
-            indicatorShape
-        )
-    }
-}
-
-@Composable
-private fun StaticItems(
-    pageIndicatorState: PageIndicatorState,
-    selectedColor: Color,
-    unselectedColor: Color,
-    indicatorSize: Dp,
-    spacing: Dp,
-    indicatorShape: Shape
-) {
-    for (page in 0 until pageIndicatorState.pageCount) {
-        Item(
-            selectedColor = selectedColor,
-            unselectedColor = unselectedColor,
-            indicatorSize = indicatorSize,
-            horizontalPadding = spacing / 2,
-            indicatorShape = indicatorShape,
-            selectedPageRatio = calculateSelectedRatio(
-                page,
-                pageIndicatorState.selectedPage,
-                pageIndicatorState.pageOffset
-            )
-        )
+        for (page in 0 until pageIndicatorState.pageCount) {
+            curvedComposable {
+                Item(
+                    selectedColor = selectedColor,
+                    unselectedColor = unselectedColor,
+                    indicatorSize = indicatorSize,
+                    horizontalPadding = spacing / 2,
+                    indicatorShape = indicatorShape,
+                    selectedPageRatio = calculateSelectedRatio(
+                        page,
+                        pageIndicatorState.selectedPage,
+                        pageIndicatorState.pageOffset
+                    )
+                )
+            }
+        }
     }
 }
 

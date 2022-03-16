@@ -23,7 +23,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.wear.compose.foundation.CurvedRow
+import androidx.wear.compose.foundation.CurvedLayout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -43,7 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.wear.compose.foundation.ArcPaddingValues
-import androidx.wear.compose.foundation.BasicCurvedText
+import androidx.wear.compose.foundation.basicCurvedText
 import androidx.wear.compose.foundation.CurvedTextStyle
 import androidx.wear.compose.material.AppCard
 import androidx.wear.compose.material.Button
@@ -53,7 +53,7 @@ import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.CircularProgressIndicator
 import androidx.wear.compose.material.CompactButton
 import androidx.wear.compose.material.CompactChip
-import androidx.wear.compose.material.CurvedText
+import androidx.wear.compose.material.curvedText
 import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.InlineSlider
 import androidx.wear.compose.material.ListHeader
@@ -208,19 +208,20 @@ fun Chips() {
 
 @Composable
 fun CurvedTexts() {
-    CurvedRow(anchor = 235f) {
-        BasicCurvedText(
+    val background = MaterialTheme.colors.background
+    CurvedLayout(anchor = 235f) {
+        basicCurvedText(
             "Basic",
             CurvedTextStyle(
                 fontSize = 16.sp,
                 color = Color.White,
-                background = MaterialTheme.colors.background
+                background = background
             ),
             contentArcPadding = ArcPaddingValues(2.dp)
         )
     }
-    CurvedRow(anchor = 310f) {
-        CurvedText(text = "Curved")
+    CurvedLayout(anchor = 310f) {
+        curvedText(text = "Curved")
     }
 }
 

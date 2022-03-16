@@ -29,8 +29,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.ArcPaddingValues
-import androidx.wear.compose.foundation.CurvedRow
-import androidx.wear.compose.foundation.CurvedRowScope
+import androidx.wear.compose.foundation.CurvedLayout
+import androidx.wear.compose.foundation.CurvedScope
 import androidx.wear.compose.foundation.CurvedTextStyle
 import androidx.wear.compose.material.TimeTextDefaults.CurvedTextSeparator
 import androidx.wear.compose.material.TimeTextDefaults.TextSeparator
@@ -83,24 +83,23 @@ public fun TimeText(
     timeTextStyle: TextStyle = TimeTextDefaults.timeTextStyle(),
     contentPadding: PaddingValues = TimeTextDefaults.ContentPadding,
     leadingLinearContent: (@Composable () -> Unit)? = null,
-    leadingCurvedContent: (@Composable CurvedRowScope.() -> Unit)? = null,
+    leadingCurvedContent: (CurvedScope.() -> Unit)? = null,
     trailingLinearContent: (@Composable () -> Unit)? = null,
-    trailingCurvedContent: (@Composable CurvedRowScope.() -> Unit)? = null,
+    trailingCurvedContent: (CurvedScope.() -> Unit)? = null,
     textLinearSeparator: @Composable () -> Unit = { TextSeparator(textStyle = timeTextStyle) },
-    textCurvedSeparator: @Composable CurvedRowScope.() -> Unit = {
+    textCurvedSeparator: CurvedScope.() -> Unit = {
         CurvedTextSeparator(curvedTextStyle = CurvedTextStyle(timeTextStyle))
     },
 ) {
-
     val timeText = timeSource.currentTime
 
     if (isRoundDevice()) {
-        CurvedRow(modifier.padding(contentPadding)) {
+        CurvedLayout(modifier.padding(contentPadding)) {
             leadingCurvedContent?.let {
                 it.invoke(this)
                 textCurvedSeparator()
             }
-            CurvedText(
+            curvedText(
                 text = timeText,
                 style = CurvedTextStyle(timeTextStyle)
             )
@@ -203,18 +202,14 @@ public object TimeTextDefaults {
     /**
      * A default implementation of Separator shown between trailing/leading content and the time
      * on round screens
-     * @param modifier Current modifier.
      * @param curvedTextStyle A [CurvedTextStyle] for the separator
      * @param contentArcPadding A [ArcPaddingValues] for the separator text
      */
-    @Composable
-    public fun CurvedRowScope.CurvedTextSeparator(
-        modifier: Modifier = Modifier,
-        curvedTextStyle: CurvedTextStyle = CurvedTextStyle(timeTextStyle()),
+    public fun CurvedScope.CurvedTextSeparator(
+        curvedTextStyle: CurvedTextStyle? = null,
         contentArcPadding: ArcPaddingValues = ArcPaddingValues(angular = 4.dp)
     ) {
-        CurvedText(
-            modifier = modifier,
+        curvedText(
             text = "·",
             contentArcPadding = contentArcPadding,
             style = curvedTextStyle
@@ -239,7 +234,7 @@ public object TimeTextDefaults {
      *
      * @param timeFormat Date and time string pattern
      */
-    fun timeSource(timeFormat: String): TimeSource = DefaultTimeSource(timeFormat)
+    public fun timeSource(timeFormat: String): TimeSource = DefaultTimeSource(timeFormat)
 }
 
 /**
