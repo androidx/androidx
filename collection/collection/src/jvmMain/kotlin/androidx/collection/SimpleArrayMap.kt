@@ -304,11 +304,14 @@ public open class SimpleArrayMap<K, V>
     /**
      * Return the key at the given index in the array.
      *
-     * @param index The desired index, must be between 0 and [size]-1.
+     * @param index The desired index, must be between 0 and [size]-1 (inclusive).
      * @return Returns the key stored at the given index.
+     * @throws IllegalArgumentException if [index] is not between 0 and [size]-1
      */
     public open fun keyAt(index: Int): K {
-        require(index in 0 until size)
+        require(index in 0 until size) {
+            "Expected index to be within 0..size()-1, but was $index"
+        }
 
         @Suppress("UNCHECKED_CAST")
         return array[index shl 1] as K
@@ -317,11 +320,14 @@ public open class SimpleArrayMap<K, V>
     /**
      * Return the value at the given index in the array.
      *
-     * @param index The desired index, must be between 0 and [size]-1.
+     * @param index The desired index, must be between 0 and [size]-1 (inclusive).
      * @return Returns the value stored at the given index.
+     * @throws IllegalArgumentException if [index] is not between 0 and [size]-1
      */
     public open fun valueAt(index: Int): V {
-        require(index in 0 until size)
+        require(index in 0 until size) {
+            "Expected index to be within 0..size()-1, but was $index"
+        }
 
         @Suppress("UNCHECKED_CAST")
         return array[(index shl 1) + 1] as V
@@ -330,14 +336,18 @@ public open class SimpleArrayMap<K, V>
     /**
      * Set the value at a given index in the array.
      *
-     * @param index The desired index, must be between 0 and [size]-1.
+     * @param index The desired index, must be between 0 and [size]-1 (inclusive).
      * @param value The new value to store at this index.
      * @return Returns the previous value at the given index.
+     * @throws IllegalArgumentException if [index] is not between 0 and [size]-1
      */
     public open fun setValueAt(index: Int, value: V): V {
-        require(index in 0 until size)
+        require(index in 0 until size) {
+            "Expected index to be within 0..size()-1, but was $index"
+        }
 
         val indexInArray = (index shl 1) + 1
+
         @Suppress("UNCHECKED_CAST")
         val old = array[indexInArray] as V
         array[indexInArray] = value
@@ -494,13 +504,16 @@ public open class SimpleArrayMap<K, V>
     /**
      * Remove the key/value mapping at the given index.
      *
-     * @param index The desired index, must be between 0 and [size]-1.
+     * @param index The desired index, must be between 0 and [size]-1 (inclusive).
      * @return Returns the value that was stored at this index.
      * @throws ConcurrentModificationException if it was detected that this [SimpleArrayMap] was
      * written to while this operation was running.
+     * @throws IllegalArgumentException if [index] is not between 0 and [size]-1
      */
     public open fun removeAt(index: Int): V {
-        require(index in 0 until size)
+        require(index in 0 until size) {
+            "Expected index to be within 0..size()-1, but was $index"
+        }
 
         val old = array[(index shl 1) + 1]
         val osize = size
