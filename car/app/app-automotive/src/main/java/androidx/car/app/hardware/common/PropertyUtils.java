@@ -60,6 +60,10 @@ public final class PropertyUtils {
     private static final String CAR_PERMISSION_CONTROL_CAR_ENERGY_PORTS =
             "android.car.permission.CONTROL_CAR_ENERGY_PORTS";
 
+    // System level permission in car-lib to access car specific communication channel.
+    private static final String CAR_PERMISSION_VENDOR_EXTENSION =
+            "android.car.permission.CAR_VENDOR_EXTENSION";
+
     // Index key is property id, value is the permission to read property.
     private static final SparseArray<String> PERMISSION_READ_PROPERTY = new SparseArray<String>() {
         {
@@ -104,6 +108,8 @@ public final class PropertyUtils {
             append(VehiclePropertyIds.FUEL_DOOR_OPEN, CAR_PERMISSION_CONTROL_CAR_ENERGY_PORTS);
             append(VehiclePropertyIds.EV_CHARGE_PORT_OPEN, CAR_PERMISSION_CONTROL_CAR_ENERGY_PORTS);
             append(VehiclePropertyIds.RANGE_REMAINING, CAR_PERMISSION_ADJUST_RANGE_REMAINING);
+            append(VehiclePropertyIds.FUEL_VOLUME_DISPLAY_UNITS,
+                    Car.PERMISSION_CONTROL_DISPLAY_UNITS + CAR_PERMISSION_VENDOR_EXTENSION);
         }
     };
     private static final Set<Integer> ON_CHANGE_PROPERTIES =
