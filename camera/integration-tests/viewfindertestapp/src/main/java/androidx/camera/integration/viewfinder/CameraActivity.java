@@ -36,5 +36,4 @@ public class CameraActivity extends AppCompatActivity {
                     .commit();
         }
     }
-
 }

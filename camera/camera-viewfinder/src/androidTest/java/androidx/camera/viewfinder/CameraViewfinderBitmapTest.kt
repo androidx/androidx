@@ -18,7 +18,6 @@ package androidx.camera.viewfinder
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.hardware.display.DisplayManager
 import android.util.Size
 import android.view.Display
 import android.view.Surface
@@ -73,12 +72,8 @@ class CameraViewfinderBitmapTest {
         CoreAppTestUtil.prepareDeviceUI(mInstrumentation)
         mContext = ApplicationProvider.getApplicationContext()
 
-        val displayManager = mContext.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
-        mDisplay = displayManager.getDisplay(0)
-
         mSurfaceRequest = ViewfinderSurfaceRequest(
             ANY_SIZE,
-            mDisplay,
             /*isLegacyDevice=*/true,
             /*isFrontCamera=*/true,
             /*sensorOrientation=*/0

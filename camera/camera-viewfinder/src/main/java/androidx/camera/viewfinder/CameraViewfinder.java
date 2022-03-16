@@ -16,13 +16,18 @@
 
 package androidx.camera.viewfinder;
 
+import static androidx.camera.viewfinder.internal.utils.TransformUtils.createTransformInfo;
+
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.hardware.display.DisplayManager;
 import android.os.Build;
+import android.os.Handler;
 import android.os.Looper;
 import android.util.AttributeSet;
+import android.view.Display;
 import android.view.Surface;
 import android.view.SurfaceView;
 import android.view.TextureView;
@@ -72,6 +77,9 @@ public final class CameraViewfinder extends FrameLayout {
     final ViewfinderTransformation mViewfinderTransformation = new ViewfinderTransformation();
 
     @NonNull
+    private final DisplayRotationListener mDisplayRotationListener = new DisplayRotationListener();
+
+    @NonNull
     private final Looper mRequiredLooper = Looper.myLooper();
 
     @NonNull ImplementationMode mImplementationMode = DEFAULT_IMPL_MODE;
@@ -115,11 +123,18 @@ public final class CameraViewfinder extends FrameLayout {
 
             mImplementation.onSurfaceRequested(surfaceRequest);
 
-            mViewfinderTransformation.setTransformationInfo(
-                    surfaceRequest.getTransformationInfo(),
-                    surfaceRequest.getResolution(),
-                    surfaceRequest.isFrontCamera());
-            redrawViewfinder();
+
+            Display display = getDisplay();
+            if (display != null) {
+                mViewfinderTransformation.setTransformationInfo(
+                        createTransformInfo(surfaceRequest.getResolution(),
+                                display,
+                                surfaceRequest.isFrontCamera(),
+                                surfaceRequest.getSensorOrientation()),
+                        surfaceRequest.getResolution(),
+                        surfaceRequest.isFrontCamera());
+                redrawViewfinder();
+            }
         }
     };
 
@@ -294,6 +309,8 @@ public final class CameraViewfinder extends FrameLayout {
         if (mImplementation != null) {
             mImplementation.onAttachedToWindow();
         }
+        startListeningToDisplayChange();
+
         // TODO: need to handle incomplete surface request if request is received before view
         //  attached to window.
     }
@@ -309,6 +326,7 @@ public final class CameraViewfinder extends FrameLayout {
             mCurrentSurfaceRequest.markSurfaceSafeToRelease();
             mCurrentSurfaceRequest = null;
         }
+        stopListeningToDisplayChange();
     }
 
     // Synthetic access
@@ -498,6 +516,67 @@ public final class CameraViewfinder extends FrameLayout {
                 }
             }
             throw new IllegalArgumentException("Unknown scale type id " + id);
+        }
+    }
+
+    private void startListeningToDisplayChange() {
+        DisplayManager displayManager = getDisplayManager();
+        if (displayManager == null) {
+            return;
+        }
+        displayManager.registerDisplayListener(mDisplayRotationListener,
+                new Handler(Looper.getMainLooper()));
+    }
+
+    private void stopListeningToDisplayChange() {
+        DisplayManager displayManager = getDisplayManager();
+        if (displayManager == null) {
+            return;
+        }
+        displayManager.unregisterDisplayListener(mDisplayRotationListener);
+    }
+
+    @Nullable
+    private DisplayManager getDisplayManager() {
+        Context context = getContext();
+        if (context == null) {
+            return null;
+        }
+        return (DisplayManager) context.getApplicationContext()
+                .getSystemService(Context.DISPLAY_SERVICE);
+    }
+    /**
+     * Listener for display rotation changes.
+     *
+     * <p> When the device is rotated 180° from side to side, the activity is not
+     * destroyed and recreated. This class is necessary to make sure preview's target rotation
+     * gets updated when that happens.
+     */
+    // Synthetic access
+    @SuppressWarnings("WeakerAccess")
+    class DisplayRotationListener implements DisplayManager.DisplayListener {
+        @Override
+        public void onDisplayAdded(int displayId) {
+        }
+
+        @Override
+        public void onDisplayRemoved(int displayId) {
+        }
+
+        @Override
+        public void onDisplayChanged(int displayId) {
+            Display display = getDisplay();
+            if (display != null && display.getDisplayId() == displayId) {
+                ViewfinderSurfaceRequest surfaceRequest = mCurrentSurfaceRequest;
+                if (surfaceRequest != null) {
+                    mViewfinderTransformation.updateTransformInfo(
+                            createTransformInfo(surfaceRequest.getResolution(),
+                                    display,
+                                    surfaceRequest.isFrontCamera(),
+                                    surfaceRequest.getSensorOrientation()));
+                    redrawViewfinder();
+                }
+            }
         }
     }
 }
