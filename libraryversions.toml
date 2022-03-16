@@ -56,6 +56,7 @@ HEALTH_SERVICES_CLIENT = "1.0.0-alpha04"
 HEIFWRITER = "1.1.0-alpha02"
 HILT = "1.1.0-alpha01"
 HILT_NAVIGATION_COMPOSE = "1.1.0-alpha01"
+INK = "1.0.0-alpha01"
 INSPECTION = "1.0.0"
 INTERPOLATOR = "1.1.0-alpha01"
 JETIFIER = "1.0.0-beta11"
@@ -182,6 +183,7 @@ GRIDLAYOUT = { group = "androidx.gridlayout", atomicGroupVersion = "versions.GRI
 HEALTH = { group = "androidx.health" }
 HEIFWRITER = { group = "androidx.heifwriter", atomicGroupVersion = "versions.HEIFWRITER" }
 HILT = { group = "androidx.hilt" }
+INK = { group = "androidx.ink", atomicGroupVersion = "versions.INK" }
 INSPECTION = { group = "androidx.inspection", atomicGroupVersion = "versions.INSPECTION" }
 INSPECTION_EXTENSIONS = { group = "androidx.inspection.extensions", atomicGroupVersion = "versions.SQLITE_INSPECTOR" }
 INTERPOLATOR = { group = "androidx.interpolator", atomicGroupVersion = "versions.INTERPOLATOR" }
