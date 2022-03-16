@@ -61,5 +61,5 @@ androidx {
     mavenGroup = LibraryGroups.COLLECTION
     inceptionYear = "2018"
     description = "Standalone efficient collections."
-    multiplatform = true
+    publishPlatforms = ["jvm"]
 }
