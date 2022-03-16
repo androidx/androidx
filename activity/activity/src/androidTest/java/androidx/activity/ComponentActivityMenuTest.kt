@@ -73,6 +73,33 @@ class ComponentActivityMenuTest {
     }
 
     @Test
+    fun onPrepareMenu() {
+        with(ActivityScenario.launch(ComponentActivity::class.java)) {
+            val menuHost: ComponentActivity = withActivity { this }
+            var menuPrepared: Boolean
+
+            menuHost.addMenuProvider(object : MenuProvider {
+                override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                    menuInflater.inflate(R.menu.example_menu, menu)
+                }
+
+                override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                    return true
+                }
+
+                override fun onPrepareMenu(menu: Menu) {
+                    menuPrepared = true
+                }
+            })
+
+            menuPrepared = false
+            openActionBarOverflowOrOptionsMenu(menuHost)
+            onView(withText("Item1")).perform(click())
+            assertThat(menuPrepared).isTrue()
+        }
+    }
+
+    @Test
     fun menuItemSelected() {
         with(ActivityScenario.launch(ComponentActivity::class.java)) {
 

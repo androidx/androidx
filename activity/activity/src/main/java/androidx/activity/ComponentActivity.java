@@ -492,6 +492,13 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(@NonNull Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        mMenuHostHelper.onPrepareMenu(menu);
+        return true;
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(@NonNull Menu menu) {
         super.onCreateOptionsMenu(menu);
         mMenuHostHelper.onCreateMenu(menu, getMenuInflater());
