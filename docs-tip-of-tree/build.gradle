@@ -117,6 +117,7 @@ dependencies {
     docs(project(":customview:customview-poolingcontainer"))
     docs(project(":datastore:datastore"))
     docs(project(":datastore:datastore-core"))
+    docs(project(":datastore:datastore-multiprocess"))
     docs(project(":datastore:datastore-preferences"))
     docs(project(":datastore:datastore-preferences-core"))
     docs(project(":datastore:datastore-preferences-proto"))
