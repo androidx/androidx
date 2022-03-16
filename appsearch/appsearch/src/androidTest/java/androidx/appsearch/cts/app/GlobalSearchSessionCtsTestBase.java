@@ -80,21 +80,21 @@ public abstract class GlobalSearchSessionCtsTestBase {
 
     protected GlobalSearchSession mGlobalSearchSession;
 
-    protected abstract ListenableFuture<AppSearchSession> createSearchSession(
+    protected abstract ListenableFuture<AppSearchSession> createSearchSessionAsync(
             @NonNull String dbName);
 
-    protected abstract ListenableFuture<GlobalSearchSession> createGlobalSearchSession();
+    protected abstract ListenableFuture<GlobalSearchSession> createGlobalSearchSessionAsync();
 
     @Before
     public void setUp() throws Exception {
-        mDb1 = createSearchSession(DB_NAME_1).get();
-        mDb2 = createSearchSession(DB_NAME_2).get();
+        mDb1 = createSearchSessionAsync(DB_NAME_1).get();
+        mDb2 = createSearchSessionAsync(DB_NAME_2).get();
 
         // Cleanup whatever documents may still exist in these databases. This is needed in
         // addition to tearDown in case a test exited without completing properly.
         cleanup();
 
-        mGlobalSearchSession = createGlobalSearchSession().get();
+        mGlobalSearchSession = createGlobalSearchSessionAsync().get();
     }
 
     @After

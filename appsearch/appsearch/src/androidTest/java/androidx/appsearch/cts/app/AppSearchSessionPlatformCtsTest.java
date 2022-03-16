@@ -49,14 +49,14 @@ import java.util.concurrent.ExecutorService;
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
 public class AppSearchSessionPlatformCtsTest extends AppSearchSessionCtsTestBase {
     @Override
-    protected ListenableFuture<AppSearchSession> createSearchSession(@NonNull String dbName) {
+    protected ListenableFuture<AppSearchSession> createSearchSessionAsync(@NonNull String dbName) {
         Context context = ApplicationProvider.getApplicationContext();
         return PlatformStorage.createSearchSessionAsync(
                 new PlatformStorage.SearchContext.Builder(context, dbName).build());
     }
 
     @Override
-    protected ListenableFuture<AppSearchSession> createSearchSession(
+    protected ListenableFuture<AppSearchSession> createSearchSessionAsync(
             @NonNull String dbName, @NonNull ExecutorService executor) {
         Context context = ApplicationProvider.getApplicationContext();
         return PlatformStorage.createSearchSessionAsync(

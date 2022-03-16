@@ -32,7 +32,8 @@ import java.util.Set;
  * a schema, adding documents, and searching.
  *
  * <p>Instances of this interface are usually obtained from a storage implementation, e.g.
- * {@code LocalStorage.createSearchSession()} or {@code PlatformStorage.createSearchSession()}.
+ * {@code LocalStorage.createSearchSessionAsync()} or
+ * {@code PlatformStorage.createSearchSessionAsync()}.
  *
  * <p>All implementations of this interface must be thread safe.
  *

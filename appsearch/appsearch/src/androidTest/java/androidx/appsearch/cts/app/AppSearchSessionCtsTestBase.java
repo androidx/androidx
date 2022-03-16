@@ -83,16 +83,16 @@ public abstract class AppSearchSessionCtsTestBase {
     private AppSearchSession mDb1;
     private AppSearchSession mDb2;
 
-    protected abstract ListenableFuture<AppSearchSession> createSearchSession(
+    protected abstract ListenableFuture<AppSearchSession> createSearchSessionAsync(
             @NonNull String dbName);
 
-    protected abstract ListenableFuture<AppSearchSession> createSearchSession(
+    protected abstract ListenableFuture<AppSearchSession> createSearchSessionAsync(
             @NonNull String dbName, @NonNull ExecutorService executor);
 
     @Before
     public void setUp() throws Exception {
-        mDb1 = createSearchSession(DB_NAME_1).get();
-        mDb2 = createSearchSession(DB_NAME_2).get();
+        mDb1 = createSearchSessionAsync(DB_NAME_1).get();
+        mDb2 = createSearchSessionAsync(DB_NAME_2).get();
 
         // Cleanup whatever documents may still exist in these databases. This is needed in
         // addition to tearDown in case a test exited without completing properly.
@@ -517,7 +517,7 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Make sure the list of namespaces is preserved after restart
         mDb1.close();
-        mDb1 = createSearchSession(DB_NAME_1).get();
+        mDb1 = createSearchSessionAsync(DB_NAME_1).get();
         assertThat(mDb1.getNamespacesAsync().get()).containsExactly("namespace1", "namespace3");
     }
 
@@ -547,7 +547,7 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Make sure the list of namespaces is preserved after restart
         mDb1.close();
-        mDb1 = createSearchSession(DB_NAME_1).get();
+        mDb1 = createSearchSessionAsync(DB_NAME_1).get();
         assertThat(mDb1.getNamespacesAsync().get())
                 .containsExactly("namespace1_db1", "namespace2_db1");
         assertThat(mDb2.getNamespacesAsync().get()).containsExactly("namespace_db2");
@@ -2921,7 +2921,7 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // close and re-open the appSearchSession
         mDb1.close();
-        mDb1 = createSearchSession(DB_NAME_1).get();
+        mDb1 = createSearchSessionAsync(DB_NAME_1).get();
 
         // Query for the document
         SearchResults searchResults = mDb1.search("body", new SearchSpec.Builder()
@@ -2937,7 +2937,7 @@ public abstract class AppSearchSessionCtsTestBase {
         // Create a same-thread database by inject an executor which could help us maintain the
         // execution order of those async tasks.
         Context context = ApplicationProvider.getApplicationContext();
-        AppSearchSession sameThreadDb = createSearchSession(
+        AppSearchSession sameThreadDb = createSearchSessionAsync(
                 "sameThreadDb", MoreExecutors.newDirectExecutorService()).get();
 
         try {
@@ -2958,7 +2958,7 @@ public abstract class AppSearchSessionCtsTestBase {
         } finally {
             // To clean the data that has been added in the test, need to re-open the session and
             // set an empty schema.
-            AppSearchSession reopen = createSearchSession(
+            AppSearchSession reopen = createSearchSessionAsync(
                     "sameThreadDb", MoreExecutors.newDirectExecutorService()).get();
             reopen.setSchemaAsync(new SetSchemaRequest.Builder()
                     .setForceOverride(true).build()).get();
