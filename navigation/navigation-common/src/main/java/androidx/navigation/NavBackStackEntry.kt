@@ -114,7 +114,9 @@ public class NavBackStackEntry private constructor(
     private var lifecycle = LifecycleRegistry(this)
     private val savedStateRegistryController = SavedStateRegistryController.create(this)
     private var savedStateRegistryAttached = false
-    private val defaultFactory by lazy { SavedStateViewModelFactory() }
+    private val defaultFactory by lazy {
+        SavedStateViewModelFactory((context?.applicationContext as? Application), this, arguments)
+    }
 
     /**
      * The [SavedStateHandle] for this entry.
