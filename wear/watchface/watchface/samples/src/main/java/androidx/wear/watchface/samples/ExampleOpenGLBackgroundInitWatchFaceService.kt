@@ -277,7 +277,7 @@ internal class MainThreadRenderer(
         GLES20.glClearColor(0f, 1f, 0f, 1f)
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
 
-        val myAssets = sharedAssets!! as ExampleSharedAssets
+        val myAssets = sharedAssets.value!! as ExampleSharedAssets
         myAssets.triangleTextureProgram.bindProgramAndAttribs()
         GLES20.glBindTexture(
             GLES20.GL_TEXTURE_2D,
