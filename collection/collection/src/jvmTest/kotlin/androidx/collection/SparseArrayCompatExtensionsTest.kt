@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,22 +24,25 @@ import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-class SparseArrayCompatTest {
-    @Test fun sizeProperty() {
+internal class SparseArrayCompatExtensionsTest {
+    @Test
+    fun sizeProperty() {
         val array = SparseArrayCompat<String>()
         assertEquals(0, array.size)
         array.put(1, "one")
         assertEquals(1, array.size)
     }
 
-    @Test fun containsOperator() {
+    @Test
+    fun containsOperator() {
         val array = SparseArrayCompat<String>()
         assertFalse(1 in array)
         array.put(1, "one")
         assertTrue(1 in array)
     }
 
-    @Test fun containsOperatorWithItem() {
+    @Test
+    fun containsOperatorWithItem() {
         val array = SparseArrayCompat<String>()
 
         array.put(1, "one")
@@ -49,13 +52,15 @@ class SparseArrayCompatTest {
         assertTrue(2 in array)
     }
 
-    @Test fun setOperator() {
+    @Test
+    fun setOperator() {
         val array = SparseArrayCompat<String>()
         array[1] = "one"
         assertEquals("one", array.get(1))
     }
 
-    @Test fun plusOperator() {
+    @Test
+    fun plusOperator() {
         val first = SparseArrayCompat<String>().apply { put(1, "one") }
         val second = SparseArrayCompat<String>().apply { put(2, "two") }
         val combined = first + second
@@ -66,7 +71,8 @@ class SparseArrayCompatTest {
         assertEquals("two", combined.valueAt(1))
     }
 
-    @Test fun getOrDefault() {
+    @Test
+    fun getOrDefault() {
         val array = SparseArrayCompat<Any>()
         val default = Any()
         assertSame(default, array.getOrDefault(1, default))
@@ -74,7 +80,8 @@ class SparseArrayCompatTest {
         assertEquals("one", array.getOrDefault(1, default))
     }
 
-    @Test fun getOrElse() {
+    @Test
+    fun getOrElse() {
         val array = SparseArrayCompat<Any>()
         val default = Any()
         assertSame(default, array.getOrElse(1) { default })
@@ -82,14 +89,16 @@ class SparseArrayCompatTest {
         assertEquals("one", array.getOrElse(1) { fail() })
     }
 
-    @Test fun isNotEmpty() {
+    @Test
+    fun isNotEmpty() {
         val array = SparseArrayCompat<String>()
         assertFalse(array.isNotEmpty())
         array.put(1, "one")
         assertTrue(array.isNotEmpty())
     }
 
-    @Test fun forEach() {
+    @Test
+    fun forEach() {
         val array = SparseArrayCompat<String>()
         array.forEach { _, _ -> fail() }
 
@@ -107,7 +116,8 @@ class SparseArrayCompatTest {
         assertThat(values).containsExactly("one", "two", "six")
     }
 
-    @Test fun keyIterator() {
+    @Test
+    fun keyIterator() {
         val array = SparseArrayCompat<String>()
         assertFalse(array.keyIterator().hasNext())
 
@@ -125,7 +135,8 @@ class SparseArrayCompatTest {
         assertFalse(iterator.hasNext())
     }
 
-    @Test fun valueIterator() {
+    @Test
+    fun valueIterator() {
         val array = SparseArrayCompat<String>()
         assertFalse(array.valueIterator().hasNext())
 
