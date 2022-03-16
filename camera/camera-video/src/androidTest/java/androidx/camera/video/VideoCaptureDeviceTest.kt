@@ -30,6 +30,7 @@ import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.GLUtil
+import androidx.camera.video.VideoOutput.SourceState
 import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -39,20 +40,30 @@ import androidx.testutils.fail
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.ArrayBlockingQueue
+import java.util.concurrent.CopyOnWriteArraySet
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.getAndUpdate
 import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.takeWhile
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
@@ -285,6 +296,78 @@ class VideoCaptureDeviceTest {
         } ?: fail("Timed out waiting for `frameCount >= 5`. Waited $timeout.")
     }
 
+    @Test
+    fun activeStreamingVideoCaptureStaysInactive_afterUnbind(): Unit = runBlocking {
+        // Arrange.
+        val videoOutput =
+            TestVideoOutput(
+                streamInfo = StreamInfo.of(1, StreamInfo.StreamState.ACTIVE)
+            )
+        val videoCapture = VideoCapture.withOutput(videoOutput)
+        val finalSourceState = CompletableDeferred<SourceState>()
+        launch {
+            val flowScope = this
+            val inactiveWaitTimeMs = 2000L
+            videoOutput.sourceStateFlow
+                .buffer(Channel.UNLIMITED)
+                .dropWhile { it != SourceState.INACTIVE } // Drop all states until next INACTIVE
+                .collectIndexed { index, value ->
+                    // We should not receive any other states besides INACTIVE
+                    if (value != SourceState.INACTIVE) {
+                        finalSourceState.complete(value)
+                        flowScope.cancel()
+                        return@collectIndexed
+                    }
+
+                    if (index == 0) {
+                        launch {
+                            // Cancel collection after waiting for a delay after INACTIVE state.
+                            delay(inactiveWaitTimeMs)
+                            finalSourceState.complete(SourceState.INACTIVE)
+                            flowScope.cancel()
+                        }
+                    }
+                }
+        }
+
+        withContext(Dispatchers.Main) {
+            cameraUseCaseAdapter.addUseCases(listOf(videoCapture))
+        }
+
+        // Act.
+        val surfaceRequest = videoOutput.nextSurfaceRequest(5, TimeUnit.SECONDS)
+        val frameCountFlow = surfaceRequest.provideUpdatingSurface()
+
+        // Assert.
+        // Frames should be streaming
+        var timeout = 10.seconds
+        withTimeoutOrNull(timeout) {
+            frameCountFlow.takeWhile { frameCount -> frameCount <= 5 }.last()
+        } ?: fail("Timed out waiting for `frameCount >= 5`. Waited $timeout.")
+
+        // Act.
+        // Send a new StreamInfo with inactive stream state to emulate a recording stopping
+        videoOutput.setStreamInfo(StreamInfo.of(1, StreamInfo.StreamState.INACTIVE))
+
+        // Detach use case asynchronously with launch rather than synchronously with withContext
+        // so VideoCapture.onStateDetach() is in a race with the StreamInfo observable
+        launch(Dispatchers.Main) {
+            cameraUseCaseAdapter.removeUseCases(listOf(videoCapture))
+        }
+
+        // Send a new StreamInfo delayed to emulate resetting the surface of an encoder
+        videoOutput.setStreamInfo(
+            StreamInfo.of(StreamInfo.STREAM_ID_ANY, StreamInfo.StreamState.INACTIVE)
+        )
+
+        // Assert.
+        // Final state should be INACTIVE
+        timeout = 5.seconds
+        withTimeoutOrNull(timeout) {
+            assertThat(finalSourceState.await()).isEqualTo(SourceState.INACTIVE)
+        } ?: fail("Timed out waiting for INACTIVE state. Waited $timeout.")
+    }
+
     private class TestVideoOutput(
         streamInfo: StreamInfo = StreamInfo.of(
             StreamInfo.STREAM_ID_ANY,
@@ -300,6 +383,13 @@ class VideoCaptureDeviceTest {
         private val mediaSpecObservable: MutableStateObservable<MediaSpec> =
             MutableStateObservable.withInitialState(mediaSpec)
 
+        private val sourceStateListeners = CopyOnWriteArraySet<(SourceState) -> Unit>()
+        val sourceStateFlow = callbackFlow {
+            val listener: (SourceState) -> Unit = { sourceState -> trySend(sourceState) }
+            sourceStateListeners.add(listener)
+            awaitClose { sourceStateListeners.remove(listener) }
+        }
+
         override fun onSurfaceRequested(surfaceRequest: SurfaceRequest) {
             surfaceRequests.put(surfaceRequest)
         }
@@ -307,6 +397,12 @@ class VideoCaptureDeviceTest {
         override fun getStreamInfo(): Observable<StreamInfo> = streamInfoObservable
 
         override fun getMediaSpec(): Observable<MediaSpec> = mediaSpecObservable
+
+        override fun onSourceStateChanged(sourceState: SourceState) {
+            for (listener in sourceStateListeners) {
+                listener(sourceState)
+            }
+        }
 
         fun nextSurfaceRequest(timeout: Long, timeUnit: TimeUnit): SurfaceRequest {
             return surfaceRequests.poll(timeout, timeUnit)

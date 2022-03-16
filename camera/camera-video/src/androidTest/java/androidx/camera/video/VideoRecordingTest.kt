@@ -294,7 +294,9 @@ class VideoRecordingTest(
 
         // Act.
         startVideoRecording(videoCapture, file)
-        lifecycleOwner.pauseAndStop()
+        instrumentation.runOnMainSync {
+            lifecycleOwner.pauseAndStop()
+        }
 
         // Verify.
         // Wait for finalize event to saved file.
@@ -315,8 +317,8 @@ class VideoRecordingTest(
         val mockListener = mock(Consumer::class.java) as Consumer<VideoRecordEvent>
         instrumentation.runOnMainSync {
             cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview, videoCapture)
+            lifecycleOwner.pauseAndStop()
         }
-        lifecycleOwner.pauseAndStop()
 
         // Act.
         videoCapture.output

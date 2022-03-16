@@ -266,7 +266,7 @@ public final class CaptureConfig {
         }
 
         /**
-         * Adds a {@link CameraCaptureSession.StateCallback} callback.
+         * Adds a {@link CameraCaptureCallback} callback.
          */
         public void addCameraCaptureCallback(@NonNull CameraCaptureCallback cameraCaptureCallback) {
             if (mCameraCaptureCallbacks.contains(cameraCaptureCallback)) {
@@ -276,13 +276,24 @@ public final class CaptureConfig {
         }
 
         /**
-         * Adds all {@link CameraCaptureSession.StateCallback} callbacks.
+         * Adds all {@link CameraCaptureCallback} callbacks.
          */
         public void addAllCameraCaptureCallbacks(
                 @NonNull Collection<CameraCaptureCallback> cameraCaptureCallbacks) {
             for (CameraCaptureCallback c : cameraCaptureCallbacks) {
                 addCameraCaptureCallback(c);
             }
+        }
+
+        /**
+         * Removes a previously added {@link CameraCaptureCallback} callback.
+         * @param cameraCaptureCallback The callback to remove.
+         * @return {@code true} if the callback was successfully removed. {@code false} if the
+         * callback wasn't present in this builder.
+         */
+        public boolean removeCameraCaptureCallback(
+                @NonNull CameraCaptureCallback cameraCaptureCallback) {
+            return mCameraCaptureCallbacks.remove(cameraCaptureCallback);
         }
 
         /** Add a surface that the request will write data to. */
