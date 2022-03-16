@@ -232,10 +232,16 @@ class SavedStateHandle {
      *
      * @param key a key used to associate with the given value.
      * @param value object of any type that can be accepted by Bundle.
+     *
+     * @throws IllegalArgumentException value cannot be saved in saved state
      */
     @MainThread
     operator fun <T> set(key: String, value: T?) {
-        validateValue(value)
+        if (!validateValue(value)) {
+            throw IllegalArgumentException(
+                "Can't put value with type ${value!!::class.java} into saved state"
+            )
+        }
         @Suppress("UNCHECKED_CAST")
         val mutableLiveData = liveDatas[key] as? MutableLiveData<T?>?
         if (mutableLiveData != null) {
@@ -376,18 +382,20 @@ class SavedStateHandle {
             return SavedStateHandle(state)
         }
 
-        internal fun validateValue(value: Any?) {
+        /**
+         * @suppress
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        fun validateValue(value: Any?): Boolean {
             if (value == null) {
-                return
+                return true
             }
             for (cl in ACCEPTABLE_CLASSES) {
                 if (cl!!.isInstance(value)) {
-                    return
+                    return true
                 }
             }
-            throw IllegalArgumentException(
-                "Can't put value with type ${value.javaClass} into saved state"
-            )
+            return false
         }
 
         // doesn't have Integer, Long etc box types because they are "Serializable"
