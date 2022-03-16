@@ -16,7 +16,9 @@
 
 package androidx.wear.compose.material
 
+import android.provider.Settings
 import android.text.format.DateFormat
+import android.view.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalConfiguration
@@ -41,3 +43,11 @@ internal actual fun imageResource(image: ImageResources): Painter =
 internal actual fun is24HourFormat(): Boolean = DateFormat.is24HourFormat(LocalContext.current)
 
 internal actual fun currentTimeMillis(): Long = System.currentTimeMillis()
+
+@Composable
+internal actual fun isLeftyModeEnabled() =
+    Settings.System.getInt(
+        LocalContext.current.contentResolver,
+        Settings.System.USER_ROTATION,
+        Surface.ROTATION_0
+    ) == Surface.ROTATION_180
