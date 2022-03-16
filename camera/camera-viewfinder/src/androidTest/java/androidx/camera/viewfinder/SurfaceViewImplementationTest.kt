@@ -17,9 +17,7 @@
 package androidx.camera.viewfinder
 
 import android.content.Context
-import android.hardware.display.DisplayManager
 import android.util.Size
-import android.view.Display
 import android.view.View
 import android.widget.FrameLayout
 import androidx.camera.viewfinder.utils.CoreAppTestUtil
@@ -52,7 +50,6 @@ class SurfaceViewImplementationTest {
     private val mInstrumentation = InstrumentationRegistry.getInstrumentation()
     private lateinit var mSurfaceRequest: ViewfinderSurfaceRequest
     private lateinit var mContext: Context
-    private lateinit var mDisplay: Display
 
     // Shows the view in activity so that SurfaceView can work normally
     private lateinit var mActivityScenario: ActivityScenario<FakeActivity>
@@ -66,12 +63,8 @@ class SurfaceViewImplementationTest {
         mParent = FrameLayout(mContext)
         setContentView(mParent)
 
-        val displayManager = mContext.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
-        mDisplay = displayManager.getDisplay(0)
-
         mSurfaceRequest = ViewfinderSurfaceRequest(
             ANY_SIZE,
-            mDisplay,
             /*isLegacyDevice=*/true,
             /*isFrontCamera=*/true,
             /*sensorOrientation=*/0
