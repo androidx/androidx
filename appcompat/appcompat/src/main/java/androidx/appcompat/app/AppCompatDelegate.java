@@ -38,6 +38,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 
+import androidx.annotation.AnyThread;
 import androidx.annotation.CallSuper;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.IdRes;
@@ -716,6 +717,7 @@ public abstract class AppCompatDelegate {
      * <p>Returns a {@link LocaleListCompat#getEmptyLocaleList()} if no app-specific locales are
      * set.
      */
+    @AnyThread
     @NonNull
     @OptIn(markerClass = androidx.core.os.BuildCompat.PrereleaseSdkCheck.class)
     public static LocaleListCompat getApplicationLocales() {
