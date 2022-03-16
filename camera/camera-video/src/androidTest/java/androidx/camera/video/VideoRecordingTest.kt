@@ -48,6 +48,9 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import java.io.File
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Assume
 import org.junit.Before
@@ -55,6 +58,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentCaptor.forClass
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.atLeastOnce
@@ -63,9 +67,6 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.timeout
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
-import java.io.File
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
 @LargeTest
 @RunWith(Parameterized::class)
@@ -570,6 +571,76 @@ class VideoRecordingTest(
         } finally {
             file1.delete()
             file2.delete()
+        }
+    }
+
+    @Test
+    fun canSwitchAudioOnOff() {
+        @Suppress("UNCHECKED_CAST")
+        val mockListener = mock(Consumer::class.java) as Consumer<VideoRecordEvent>
+        val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
+        instrumentation.runOnMainSync {
+            cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview, videoCapture)
+        }
+
+        val file1 = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        val file2 = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        val file3 = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+
+        val inOrder = inOrder(mockListener)
+        try {
+            // Record the first video with audio enabled.
+            videoCapture.output.prepareRecording(context, FileOutputOptions.Builder(file1).build())
+                .withAudioEnabled()
+                .start(CameraXExecutors.directExecutor(), mockListener).use {
+                    inOrder.verify(mockListener, timeout(1000L))
+                        .accept(any(VideoRecordEvent.Start::class.java))
+                    inOrder.verify(mockListener, timeout(15000L).atLeast(5))
+                        .accept(any(VideoRecordEvent.Status::class.java))
+                }
+
+            // Record the second video with audio disabled.
+            videoCapture.output.prepareRecording(context, FileOutputOptions.Builder(file2).build())
+                .start(CameraXExecutors.directExecutor(), mockListener).use {
+                    inOrder.verify(mockListener, timeout(5000L))
+                        .accept(any(VideoRecordEvent.Finalize::class.java))
+                    inOrder.verify(mockListener, timeout(1000L))
+                        .accept(any(VideoRecordEvent.Start::class.java))
+                    inOrder.verify(mockListener, timeout(15000L).atLeast(5))
+                        .accept(any(VideoRecordEvent.Status::class.java))
+
+                    // Check the audio information reports state as disabled.
+                    val captor = ArgumentCaptor.forClass(VideoRecordEvent::class.java)
+                    verify(mockListener, atLeastOnce()).accept(captor.capture())
+                    assertThat(captor.value).isInstanceOf(VideoRecordEvent.Status::class.java)
+                    val status = captor.value as VideoRecordEvent.Status
+                    assertThat(status.recordingStats.audioStats.audioState)
+                        .isEqualTo(AudioStats.AUDIO_STATE_DISABLED)
+                }
+
+            // Record the third video with audio enabled.
+            videoCapture.output.prepareRecording(context, FileOutputOptions.Builder(file3).build())
+                .withAudioEnabled()
+                .start(CameraXExecutors.directExecutor(), mockListener).use {
+                    inOrder.verify(mockListener, timeout(5000L))
+                        .accept(any(VideoRecordEvent.Finalize::class.java))
+                    inOrder.verify(mockListener, timeout(1000L))
+                        .accept(any(VideoRecordEvent.Start::class.java))
+                    inOrder.verify(mockListener, timeout(15000L).atLeast(5))
+                        .accept(any(VideoRecordEvent.Status::class.java))
+                }
+
+            inOrder.verify(mockListener, timeout(5000L))
+                .accept(any(VideoRecordEvent.Finalize::class.java))
+
+            // Check the audio in file is as expected.
+            verifyRecordingResult(file1, true)
+            verifyRecordingResult(file2, false)
+            verifyRecordingResult(file3, true)
+        } finally {
+            file1.delete()
+            file2.delete()
+            file3.delete()
         }
     }
 
