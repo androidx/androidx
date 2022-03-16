@@ -61,8 +61,7 @@ import java.lang.annotation.RetentionPolicy;
  *
  * <p>The recommended set of {@link ButtonColors} styles can be obtained from {@link
  * ButtonDefaults}., e.g. {@link ButtonDefaults#PRIMARY_BUTTON_COLORS} to get a color scheme for a
- * primary {@link Button} which by default will have a solid background of {@link Colors#PRIMARY}
- * and content color of {@link Colors#ON_PRIMARY}.
+ * primary {@link Button}.
  */
 public class Button implements LayoutElement {
     @NonNull private final Box mElement;
