@@ -28,9 +28,12 @@ plugins {
 dependencies {
     kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
 
+    api projectOrArtifact(":lifecycle:lifecycle-common-java8")
     api projectOrArtifact(":lifecycle:lifecycle-viewmodel-ktx")
+    api projectOrArtifact(":lifecycle:lifecycle-viewmodel-savedstate")
     api("androidx.compose.runtime:runtime:1.0.1")
     api "androidx.compose.ui:ui:1.0.1"
+    api("androidx.annotation:annotation-experimental:1.1.0")
 
     implementation(libs.kotlinStdlib)
 
@@ -50,6 +53,7 @@ dependencies {
     androidTestImplementation projectOrArtifact(":lifecycle:lifecycle-common-java8")
     androidTestImplementation projectOrArtifact(":lifecycle:lifecycle-viewmodel-savedstate")
     androidTestImplementation projectOrArtifact(":activity:activity-compose")
+    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-runtime-testing"))
 
     samples(projectOrArtifact(":lifecycle:lifecycle-viewmodel-compose:lifecycle-viewmodel-compose-samples"))
 }
@@ -69,6 +73,8 @@ tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
         freeCompilerArgs += [
                 "-Xjvm-default=enable",
+                // Allow usage of Kotlin's @OptIn.
+                "-Xopt-in=kotlin.RequiresOptIn",
         ]
     }
 }
