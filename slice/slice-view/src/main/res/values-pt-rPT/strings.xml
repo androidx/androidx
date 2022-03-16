@@ -22,16 +22,16 @@
     <string name="abc_slice_show_more" msgid="1112789899890391107">"Mostrar mais"</string>
     <string name="abc_slice_updated" msgid="7932359091871934205">"Atualização: <xliff:g id="TIME">%1$s</xliff:g>"</string>
     <plurals name="abc_slice_duration_min" formatted="false" msgid="7664017844210142826">
-      <item quantity="one">Há <xliff:g id="ID_1">%d</xliff:g> min</item>
       <item quantity="other">Há <xliff:g id="ID_2">%d</xliff:g> min</item>
+      <item quantity="one">Há <xliff:g id="ID_1">%d</xliff:g> min</item>
     </plurals>
     <plurals name="abc_slice_duration_years" formatted="false" msgid="2628491538787454021">
-      <item quantity="one">Há <xliff:g id="ID_1">%d</xliff:g> ano</item>
       <item quantity="other">Há <xliff:g id="ID_2">%d</xliff:g> anos</item>
+      <item quantity="one">Há <xliff:g id="ID_1">%d</xliff:g> ano</item>
     </plurals>
     <plurals name="abc_slice_duration_days" formatted="false" msgid="8356547162075064530">
-      <item quantity="one">Há <xliff:g id="ID_1">%d</xliff:g> dia</item>
       <item quantity="other">Há <xliff:g id="ID_2">%d</xliff:g> dias</item>
+      <item quantity="one">Há <xliff:g id="ID_1">%d</xliff:g> dia</item>
     </plurals>
     <string name="abc_slice_error" msgid="1794214973158263497">"Não foi possível ligar"</string>
 </resources>
