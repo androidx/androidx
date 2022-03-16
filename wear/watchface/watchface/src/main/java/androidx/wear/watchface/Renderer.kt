@@ -53,6 +53,8 @@ import kotlinx.coroutines.sync.withLock
 import java.io.PrintWriter
 import java.nio.ByteBuffer
 import java.time.ZonedDateTime
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 /**
  * Describes the type of [Canvas] a [CanvasRenderer] should request from a [SurfaceHolder].
@@ -139,7 +141,7 @@ public sealed class Renderer @WorkerThread constructor(
 
     internal companion object {
         internal class SharedAssetsHolder {
-            var sharedAssets: SharedAssets? = null
+            var sharedAssets: MutableStateFlow<SharedAssets?> = MutableStateFlow(null)
             var refCount: Int = 0
 
             // To avoid undefined behavior with SharedAssets we also need to share the contexts
@@ -193,7 +195,7 @@ public sealed class Renderer @WorkerThread constructor(
             synchronized(sharedAssetsCacheLock) {
                 sharedAssetsCache[key]?.let {
                     if (--it.refCount == 0) {
-                        it.sharedAssets?.onDestroy()
+                        it.sharedAssets.value?.onDestroy()
                         it.onDestroy()
                         sharedAssetsCache.remove(key)
                     }
@@ -257,10 +259,16 @@ public sealed class Renderer @WorkerThread constructor(
     internal var sharedAssetsHolder = getOrCreateSharedAssetsHolder(this)
 
     /**
-     * The Renderer's [SharedAssets] returned by [createSharedAssets]. Note the default
-     * implementation of createAssets returns `null`.
+     * A [StateFlow] for the Renderer's [SharedAssets]. This will initially be `null` before being
+     * updated once to the result of [createSharedAssets] (note the default implementation of
+     * createAssets returns `null`).
+     *
+     * Note this update will occur before any calls to [CanvasRenderer.render],
+     * [CanvasRenderer.uiThreadInitInternal], [GlesRenderer.render],
+     * [GlesRenderer.onBackgroundThreadGlContextCreated] or
+     * [GlesRenderer.onUiThreadGlSurfaceCreated].
      */
-    public val sharedAssets: SharedAssets?
+    public val sharedAssets: StateFlow<SharedAssets?>
         get() = sharedAssetsHolder.sharedAssets
 
     /**
@@ -441,10 +449,6 @@ public sealed class Renderer @WorkerThread constructor(
         public fun onDestroy()
     }
 
-    public interface SharedAssetsFactory {
-        public fun create(): SharedAssets
-    }
-
     internal abstract fun renderBlackFrame()
 
     /**
@@ -575,8 +579,8 @@ public sealed class Renderer @WorkerThread constructor(
         }
 
         internal override suspend fun backgroundThreadInitInternal() {
-            if (sharedAssetsHolder.sharedAssets == null) {
-                sharedAssetsHolder.sharedAssets = createSharedAssets()
+            if (sharedAssetsHolder.sharedAssets.value == null) {
+                sharedAssetsHolder.sharedAssets.value = createSharedAssets()
             }
         }
 
@@ -973,7 +977,9 @@ public sealed class Renderer @WorkerThread constructor(
 
                     TraceEvent("GlesRenderer.onGlContextCreated").use {
                         runBackgroundThreadGlCommands {
-                            sharedAssetsHolder.sharedAssets = createSharedAssets()
+                            if (sharedAssetsHolder.sharedAssets.value == null) {
+                                sharedAssetsHolder.sharedAssets.value = createSharedAssets()
+                            }
                             this@GlesRenderer.onBackgroundThreadGlContextCreated()
                         }
                     }

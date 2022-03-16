@@ -47,7 +47,7 @@ internal class TestWatchFaceService(
         surfaceHolder: SurfaceHolder,
         currentUserStyleRepository: CurrentUserStyleRepository,
         watchState: WatchState,
-    ) -> TestRenderer,
+    ) -> Renderer,
     private val userStyleSchema: UserStyleSchema,
     private val watchState: MutableWatchState,
     private val handler: Handler,
@@ -69,7 +69,7 @@ internal class TestWatchFaceService(
         get() = mutableTappedComplicationIds
     var complicationSelected: Int? = null
     var mockZoneId: ZoneId = ZoneId.of("UTC")
-    var renderer: TestRenderer? = null
+    var renderer: Renderer? = null
 
     /** A mutable list of the ids of the complicationSlots that have been tapped. */
     private val mutableTappedComplicationIds: MutableList<Int> = ArrayList()
@@ -77,7 +77,9 @@ internal class TestWatchFaceService(
     fun reset() {
         clearTappedState()
         complicationSelected = null
-        renderer?.lastOnDrawZonedDateTime = null
+        if (renderer is TestRenderer) {
+            (renderer as TestRenderer).lastOnDrawZonedDateTime = null
+        }
         mockSystemTimeMillis = 0L
     }
 

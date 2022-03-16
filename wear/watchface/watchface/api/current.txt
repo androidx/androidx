@@ -195,7 +195,7 @@ package androidx.wear.watchface {
     method @UiThread public android.graphics.Rect getMainClockElementBounds();
     method public final androidx.wear.watchface.RenderParameters getRenderParameters();
     method public final android.graphics.Rect getScreenBounds();
-    method public final androidx.wear.watchface.Renderer.SharedAssets? getSharedAssets();
+    method public final kotlinx.coroutines.flow.StateFlow<androidx.wear.watchface.Renderer.SharedAssets> getSharedAssets();
     method public final android.view.SurfaceHolder getSurfaceHolder();
     method @UiThread public final void invalidate();
     method @UiThread public void onDestroy();
@@ -211,7 +211,7 @@ package androidx.wear.watchface {
     property public final long interactiveDrawModeUpdateDelayMillis;
     property public final androidx.wear.watchface.RenderParameters renderParameters;
     property public final android.graphics.Rect screenBounds;
-    property public final androidx.wear.watchface.Renderer.SharedAssets? sharedAssets;
+    property public final kotlinx.coroutines.flow.StateFlow<androidx.wear.watchface.Renderer.SharedAssets> sharedAssets;
     property public final android.view.SurfaceHolder surfaceHolder;
   }
 
@@ -255,10 +255,6 @@ package androidx.wear.watchface {
 
   public static interface Renderer.SharedAssets {
     method @UiThread public void onDestroy();
-  }
-
-  public static interface Renderer.SharedAssetsFactory {
-    method public androidx.wear.watchface.Renderer.SharedAssets create();
   }
 
   public final class RendererKt {
