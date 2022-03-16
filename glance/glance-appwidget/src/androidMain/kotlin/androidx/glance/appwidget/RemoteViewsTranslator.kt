@@ -114,6 +114,7 @@ internal data class TranslationContext(
     val layoutCollectionViewId: Int = View.NO_ID,
     val layoutCollectionItemId: Int = -1,
     val canUseSelectableGroup: Boolean = false,
+    val actionTargetId: Int? = null,
 ) {
     fun nextViewId() = lastViewId.incrementAndGet()
 
@@ -132,6 +133,8 @@ internal data class TranslationContext(
         copy(lastViewId = AtomicInteger(newViewId), layoutCollectionViewId = itemId)
 
     fun canUseSelectableGroup() = copy(canUseSelectableGroup = true)
+
+    fun forActionTargetId(viewId: Int) = copy(actionTargetId = viewId)
 }
 
 internal fun RemoteViews.translateChild(

@@ -14,14 +14,9 @@
   limitations under the License.
   -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<CheckBox xmlns:android="http://schemas.android.com/apk/res/android"
+    android:tag="glanceCompoundButton"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:textDirection="locale"
-    style="@style/Glance.AppWidget.CheckBox">
-    <ViewStub
-        android:id="@id/checkBox"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout="@layout/check_box_view" />
-</FrameLayout>
+    style="@style/Glance.AppWidget.CheckBox" />
