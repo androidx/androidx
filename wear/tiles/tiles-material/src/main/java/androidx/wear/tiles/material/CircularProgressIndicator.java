@@ -55,9 +55,8 @@ import androidx.wear.tiles.proto.LayoutElementProto;
  * length.
  *
  * <p>The recommended set of {@link ProgressIndicatorColors} can be obtained from {@link
- * ProgressIndicatorDefaults}., e.g. {@link ProgressIndicatorDefaults#DEFAULT_COLOR} to get a color
- * scheme for a {@link CircularProgressIndicator} which by default will have background arc of
- * {@link Colors#ON_SURFACE} and main progress arc color of {@link Colors#PRIMARY}.
+ * ProgressIndicatorDefaults}, e.g. {@link ProgressIndicatorDefaults#DEFAULT_COLOR} to get a default
+ * color scheme for a {@link CircularProgressIndicator}.
  */
 public class CircularProgressIndicator implements LayoutElement {
     @NonNull private final Arc mElement;

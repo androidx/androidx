@@ -45,9 +45,7 @@ import androidx.wear.tiles.proto.LayoutElementProto;
  * take one line of text of {@link Typography#TYPOGRAPHY_TITLE2} style.
  *
  * <p>The recommended set of {@link ChipColors} styles can be obtained from {@link ChipDefaults},
- * e.g. {@link ChipDefaults#TITLE_PRIMARY} to get a color scheme for a primary {@link TitleChip}
- * which by default will have a solid background of {@link Colors#PRIMARY} and text color of {@link
- * Colors#ON_PRIMARY}.
+ * e.g. {@link ChipDefaults#TITLE_PRIMARY} to get a color scheme for a primary {@link TitleChip}.
  */
 public class TitleChip implements LayoutElement {
     @NonNull private final Chip mElement;

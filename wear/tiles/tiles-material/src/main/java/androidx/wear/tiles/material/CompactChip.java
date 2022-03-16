@@ -41,9 +41,8 @@ import androidx.wear.tiles.proto.LayoutElementProto;
  * size.
  *
  * <p>The recommended set of {@link ChipColors} styles can be obtained from {@link ChipDefaults}.,
- * e.g. {@link ChipDefaults#COMPACT_PRIMARY} to get a color scheme for a primary {@link CompactChip}
- * which by default will have a solid background of {@link Colors#PRIMARY} and text color of {@link
- * Colors#ON_PRIMARY}.
+ * e.g. {@link ChipDefaults#COMPACT_PRIMARY} to get a color scheme for a primary
+ * {@link CompactChip}.
  */
 public class CompactChip implements LayoutElement {
     @NonNull private final Chip mElement;
@@ -84,7 +83,7 @@ public class CompactChip implements LayoutElement {
         /**
          * Sets the colors for the {@link CompactChip}. If set, {@link
          * ChipColors#getBackgroundColor()} will be used for the background of the button and {@link
-         * ChipColors#getBackgroundColor()} for the text. If not set, {@link
+         * ChipColors#getContentColor()} for the text. If not set, {@link
          * ChipDefaults#COMPACT_PRIMARY} will be used.
          */
         @NonNull

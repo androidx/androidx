@@ -17,8 +17,15 @@
 package androidx.wear.tiles.material;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
 
-/** Contains the default color values used by all Tiles Components. */
+/**
+ * Contains the default color values used by all Tiles Components.
+ *
+ * @hide
+ */
+@RestrictTo(Scope.LIBRARY_GROUP)
 public class Colors {
     private Colors() {}
 
