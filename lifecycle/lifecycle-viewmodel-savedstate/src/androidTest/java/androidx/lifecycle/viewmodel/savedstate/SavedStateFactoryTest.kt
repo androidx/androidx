@@ -74,6 +74,22 @@ class SavedStateFactoryTest {
 
     @UiThreadTest
     @Test
+    fun testCreateAndroidWithStatefulFactoryVM() {
+        val savedStateVMFactory = SavedStateViewModelFactory(
+            null,
+            activityRule.activity
+        )
+        val component = TestComponent()
+        component.enableSavedStateHandles()
+        val extras = component.extras
+        extras[APPLICATION_KEY] = activityRule.activity.application
+        val vm = ViewModelProvider(component.viewModelStore, savedStateVMFactory, extras)
+        assertThat(vm[MyAndroidViewModel::class.java].handle).isNotNull()
+        assertThat(vm[MyViewModel::class.java].handle).isNotNull()
+    }
+
+    @UiThreadTest
+    @Test
     fun testCreateAndroidVMWrongParameterOrder() {
         val savedStateVMFactory = SavedStateViewModelFactory()
         val component = TestComponent()

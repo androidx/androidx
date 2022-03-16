@@ -597,7 +597,10 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     @Override
     public ViewModelProvider.Factory getDefaultViewModelProviderFactory() {
         if (mDefaultFactory == null) {
-            mDefaultFactory = new SavedStateViewModelFactory();
+            mDefaultFactory = new SavedStateViewModelFactory(
+                    getApplication(),
+                    this,
+                    getIntent() != null ? getIntent().getExtras() : null);
         }
         return mDefaultFactory;
     }
