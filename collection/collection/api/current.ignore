@@ -1,4 +1,6 @@
 // Baseline format: 1.0
+ChangedType: androidx.collection.LongSparseArray#clone():
+    Method androidx.collection.LongSparseArray.clone has changed return type from androidx.collection.LongSparseArray<E!> to androidx.collection.LongSparseArray<E>
 ChangedType: androidx.collection.LruCache#snapshot():
     Method androidx.collection.LruCache.snapshot has changed return type from java.util.Map<K!,V!> to java.util.Map<K,V>
 ChangedType: androidx.collection.SparseArrayCompat#clone():
