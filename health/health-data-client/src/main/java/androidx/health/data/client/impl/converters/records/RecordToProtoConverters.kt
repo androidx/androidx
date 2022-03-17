@@ -49,7 +49,6 @@ import androidx.health.data.client.records.Menstruation
 import androidx.health.data.client.records.Nutrition
 import androidx.health.data.client.records.OvulationTest
 import androidx.health.data.client.records.OxygenSaturation
-import androidx.health.data.client.records.Pace
 import androidx.health.data.client.records.Power
 import androidx.health.data.client.records.Record
 import androidx.health.data.client.records.Repetitions
@@ -66,6 +65,7 @@ import androidx.health.data.client.records.TotalEnergyBurned
 import androidx.health.data.client.records.Vo2Max
 import androidx.health.data.client.records.WaistCircumference
 import androidx.health.data.client.records.Weight
+import androidx.health.data.client.records.WheelchairPushes
 import androidx.health.platform.client.proto.DataProto
 import java.lang.RuntimeException
 
@@ -217,11 +217,6 @@ fun Record.toProto(): DataProto.DataPoint {
             instantaneousProto()
                 .setDataType(protoDataType("OxygenSaturation"))
                 .apply { putValues("percentage", doubleVal(percentage)) }
-                .build()
-        is Pace ->
-            instantaneousProto()
-                .setDataType(protoDataType("Pace"))
-                .apply { putValues("pace", doubleVal(pace)) }
                 .build()
         is Power ->
             instantaneousProto()
@@ -489,6 +484,11 @@ fun Record.toProto(): DataProto.DataPoint {
             intervalProto()
                 .setDataType(protoDataType("TotalEnergyBurned"))
                 .apply { putValues("energy", doubleVal(energy)) }
+                .build()
+        is WheelchairPushes ->
+            intervalProto()
+                .setDataType(protoDataType("WheelchairPushes"))
+                .apply { putValues("count", longVal(count)) }
                 .build()
         else -> throw RuntimeException("Unsupported yet!")
     }

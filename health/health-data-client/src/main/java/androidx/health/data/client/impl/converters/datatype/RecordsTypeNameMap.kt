@@ -49,7 +49,6 @@ import androidx.health.data.client.records.Menstruation
 import androidx.health.data.client.records.Nutrition
 import androidx.health.data.client.records.OvulationTest
 import androidx.health.data.client.records.OxygenSaturation
-import androidx.health.data.client.records.Pace
 import androidx.health.data.client.records.Power
 import androidx.health.data.client.records.Repetitions
 import androidx.health.data.client.records.RespiratoryRate
@@ -65,6 +64,7 @@ import androidx.health.data.client.records.TotalEnergyBurned
 import androidx.health.data.client.records.Vo2Max
 import androidx.health.data.client.records.WaistCircumference
 import androidx.health.data.client.records.Weight
+import androidx.health.data.client.records.WheelchairPushes
 
 private val ALL_RECORDS_TYPES =
     setOf(
@@ -102,7 +102,6 @@ private val ALL_RECORDS_TYPES =
         Nutrition::class,
         OvulationTest::class,
         OxygenSaturation::class,
-        Pace::class,
         Power::class,
         Repetitions::class,
         RespiratoryRate::class,
@@ -117,6 +116,7 @@ private val ALL_RECORDS_TYPES =
         TotalEnergyBurned::class,
         Vo2Max::class,
         WaistCircumference::class,
+        WheelchairPushes::class,
         Weight::class,
     )
 

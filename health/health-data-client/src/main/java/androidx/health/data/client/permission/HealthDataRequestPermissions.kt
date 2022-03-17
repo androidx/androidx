@@ -23,7 +23,6 @@ import androidx.health.data.client.HealthDataService.DEFAULT_PROVIDER_PACKAGE_NA
 import androidx.health.data.client.impl.converters.permission.toJetpackPermission
 import androidx.health.data.client.impl.converters.permission.toProtoPermission
 import androidx.health.platform.client.permission.Permission as ProtoPermission
-import androidx.health.platform.client.service.HealthDataServiceConstants
 import androidx.health.platform.client.service.HealthDataServiceConstants.ACTION_REQUEST_PERMISSIONS
 import androidx.health.platform.client.service.HealthDataServiceConstants.KEY_GRANTED_PERMISSIONS_JETPACK
 import androidx.health.platform.client.service.HealthDataServiceConstants.KEY_REQUESTED_PERMISSIONS_JETPACK
@@ -44,7 +43,6 @@ class HealthDataRequestPermissions(
                 .toCollection(ArrayList())
         return Intent(ACTION_REQUEST_PERMISSIONS).apply {
             putParcelableArrayListExtra(KEY_REQUESTED_PERMISSIONS_JETPACK, protoPermissionList)
-            putExtra(HealthDataServiceConstants.KEY_PACKAGE_NAME, context.packageName)
             if (providerPackageName.isNotEmpty()) {
                 setPackage(providerPackageName)
             }
