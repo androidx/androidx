@@ -114,7 +114,7 @@ class HealthDataClientImplTest {
         Intents.release()
     }
 
-    @Test
+    @Test(timeout = 60000L)
     fun apiMethods_hasError_throwsException() {
         for (error in errorCodeExceptionMap) {
             fakeAhpServiceStub.setErrorCode(error.key)
@@ -126,8 +126,8 @@ class HealthDataClientImplTest {
             }
 
             // wait for the client to enqueue message and handle message
-            Thread.sleep(Duration.ofMillis(500).toMillis())
-            Shadows.shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(500))
+            Thread.sleep(Duration.ofMillis(1000).toMillis())
+            Shadows.shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(1000))
 
             for (response in responseList) {
                 assertThrows(error.value.java) { runBlocking { response.await() } }
@@ -135,7 +135,7 @@ class HealthDataClientImplTest {
         }
     }
 
-    @Test
+    @Test(timeout = 60000L)
     fun insertRecords_steps() {
         val deferred =
             CoroutineScope(Dispatchers.Default).async {
@@ -153,8 +153,8 @@ class HealthDataClientImplTest {
             }
 
         // wait for the client to enqueue message and handle message
-        Thread.sleep(Duration.ofMillis(500).toMillis())
-        Shadows.shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(500))
+        Thread.sleep(Duration.ofMillis(1000).toMillis())
+        Shadows.shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(1000))
 
         val response = runBlocking { deferred.await() }
         assertThat(response.recordUidsList).containsExactly("0")
@@ -169,7 +169,7 @@ class HealthDataClientImplTest {
             )
     }
 
-    @Test
+    @Test(timeout = 60000L)
     fun insertRecords_weight() {
         val deferred =
             CoroutineScope(Dispatchers.Default).async {
@@ -185,8 +185,8 @@ class HealthDataClientImplTest {
             }
 
         // wait for the client to enqueue message and handle message
-        Thread.sleep(Duration.ofMillis(500).toMillis())
-        Shadows.shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(500))
+        Thread.sleep(Duration.ofMillis(1000).toMillis())
+        Shadows.shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(1000))
 
         val response = runBlocking { deferred.await() }
         assertThat(response.recordUidsList).containsExactly("0")
@@ -200,7 +200,7 @@ class HealthDataClientImplTest {
             )
     }
 
-    @Test
+    @Test(timeout = 60000L)
     fun insertRecords_nutrition() {
         val deferred =
             CoroutineScope(Dispatchers.Default).async {
@@ -219,8 +219,8 @@ class HealthDataClientImplTest {
             }
 
         // wait for the client to enqueue message and handle message
-        Thread.sleep(Duration.ofMillis(500).toMillis())
-        Shadows.shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(500))
+        Thread.sleep(Duration.ofMillis(1000).toMillis())
+        Shadows.shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(1000))
 
         val response = runBlocking { deferred.await() }
         assertThat(response.recordUidsList).containsExactly("0")
