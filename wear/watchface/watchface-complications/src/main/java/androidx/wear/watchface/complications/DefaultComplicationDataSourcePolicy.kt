@@ -20,6 +20,7 @@ import android.content.ComponentName
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.complications.SystemDataSources.DataSourceId
 import androidx.wear.watchface.complications.data.ComplicationType
+import androidx.wear.watchface.complications.data.DefaultComplicationDataSourcePolicyWireFormat
 import java.util.ArrayList
 
 /**
@@ -240,6 +241,40 @@ public class DefaultComplicationDataSourcePolicy {
         primaryDataSource?.let { add(it) }
         secondaryDataSource?.let { add(it) }
     }
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public constructor(wireFormat: DefaultComplicationDataSourcePolicyWireFormat) : this(
+        wireFormat.mDefaultDataSourcesToTry,
+        wireFormat.mFallbackSystemDataSource,
+        ComplicationType.fromWireType(wireFormat.mPrimaryDataSourceDefaultType),
+        ComplicationType.fromWireType(wireFormat.mSecondaryDataSourceDefaultType),
+        ComplicationType.fromWireType(wireFormat.mDefaultType)
+    ) {
+    }
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public fun toWireFormat(): DefaultComplicationDataSourcePolicyWireFormat {
+        val systemDataSourceFallbackDefaultType = systemDataSourceFallbackDefaultType
+            .toWireComplicationType()
+
+        return DefaultComplicationDataSourcePolicyWireFormat(
+            dataSourcesAsList(),
+            systemDataSourceFallback,
+            systemDataSourceFallbackDefaultType,
+            primaryDataSourceDefaultType
+                ?.toWireComplicationType() ?: systemDataSourceFallbackDefaultType,
+            secondaryDataSourceDefaultType
+                ?.toWireComplicationType() ?: systemDataSourceFallbackDefaultType
+        )
+    }
+
+    override fun toString(): String =
+        "DefaultComplicationDataSourcePolicy[" +
+            "primary($primaryDataSource, $primaryDataSourceDefaultType), " +
+            "secondary($secondaryDataSource, $secondaryDataSourceDefaultType), " +
+            "system($systemDataSourceFallback, $systemDataSourceFallbackDefaultType)]"
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

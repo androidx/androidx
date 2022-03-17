@@ -15,15 +15,76 @@
   -->
 
 <resources>
-    <!-- A XmlWatchFace must have a child UserStyleSchema node and optionally ComplicationSlot
-    nodes. -->
+    <!-- A XmlWatchFace must have a child UserStyleSchema node and optionally ComplicationSlot and
+    UserStyleFlavors nodes. -->
     <declare-styleable name="XmlWatchFace" />
+
+    <!-- A slotId is required. -->
+    <attr name="slotId" format="integer" />
+
+    <!-- Optional. First of two non-system data source ComponentNames to be tried in turn. -->
+    <attr name="primaryDataSource" format="string" />
+
+    <!-- Optional unless primaryDataSource is specified. The default [ComplicationType] for the
+    primaryDataSource. This is a subset of
+    androidx.wear.watchface.complications.data.ComplicationType. -->
+    <attr name="primaryDataSourceDefaultType" format="enum">
+        <enum name="SHORT_TEXT" value="3" />
+        <enum name="LONG_TEXT" value="4" />
+        <enum name="RANGED_VALUE" value="5" />
+        <enum name="MONOCHROMATIC_IMAGE" value="6" />
+        <enum name="SMALL_IMAGE" value="7" />
+        <enum name="PHOTO_IMAGE" value="8" />
+    </attr>
+
+    <!-- Optional. Second of two non-system data source ComponentNames to be tried in turn. -->
+    <attr name="secondaryDataSource" format="string" />
+
+    <!-- Optional unless secondaryDataSource is specified. The default [ComplicationType] for
+    the secondaryDataSource.  This is a subset of
+    androidx.wear.watchface.complications.data.ComplicationType. -->
+    <attr name="secondaryDataSourceDefaultType" format="enum">
+        <enum name="SHORT_TEXT" value="3" />
+        <enum name="LONG_TEXT" value="4" />
+        <enum name="RANGED_VALUE" value="5" />
+        <enum name="MONOCHROMATIC_IMAGE" value="6" />
+        <enum name="SMALL_IMAGE" value="7" />
+        <enum name="PHOTO_IMAGE" value="8" />
+    </attr>
+
+    <!-- Required. Fallback in case none of the non-system data sources could be used.
+    These definitions match androidx.wear.watchface.complications.SystemDataSources. -->
+    <attr name="systemDataSourceFallback" format="enum">
+        <enum name="NO_DATA_SOURCE" value="-1" />
+        <enum name="DATA_SOURCE_WATCH_BATTERY" value="1" />
+        <enum name="DATA_SOURCE_DATE" value="2" />
+        <enum name="DATA_SOURCE_TIME_AND_DATE" value="3" />
+        <enum name="DATA_SOURCE_STEP_COUNT" value="4" />
+        <enum name="DATA_SOURCE_WORLD_CLOCK" value="5" />
+        <enum name="DATA_SOURCE_APP_SHORTCUT" value="6" />
+        <enum name="DATA_SOURCE_UNREAD_NOTIFICATION_COUNT" value="7" />
+        <enum name="DATA_SOURCE_NEXT_EVENT" value="9" />
+        <enum name="DATA_SOURCE_SUNRISE_SUNSET" value="12" />
+        <enum name="DATA_SOURCE_DAY_OF_WEEK" value="13" />
+        <enum name="DATA_SOURCE_FAVORITE_CONTACT" value="14" />
+        <enum name="DATA_SOURCE_DAY_AND_DATE" value="16" />
+    </attr>
+
+    <!-- Required. The default [ComplicationType] for the default complication data source.
+    This is a subset of androidx.wear.watchface.complications.data.ComplicationType. -->
+    <attr name="systemDataSourceFallbackDefaultType" format="enum">
+        <enum name="SHORT_TEXT" value="3" />
+        <enum name="LONG_TEXT" value="4" />
+        <enum name="RANGED_VALUE" value="5" />
+        <enum name="MONOCHROMATIC_IMAGE" value="6" />
+        <enum name="SMALL_IMAGE" value="7" />
+        <enum name="PHOTO_IMAGE" value="8" />
+    </attr>
 
     <!-- A ComplicationSlot may have a single ComplicationSlotBounds child node without a
     complicationType attribute, or one ComplicationSlotBounds per complicationType. -->
     <declare-styleable name="ComplicationSlot">
-        <!-- A slotId is required. -->
-        <attr name="slotId" format="integer" />
+        <attr name="slotId"/>
 
         <!-- Optional. Used to sort Complications when generating accessibility content description
         labels. Defaults to the slotId. -->
@@ -46,64 +107,12 @@
             <flag name="PHOTO_IMAGE" value="0x20" />
         </attr>
 
-        <!-- Optional. First of two non-system data source ComponentNames to be tried in turn. -->
-        <attr name="primaryDataSource" format="string" />
-
-        <!-- Optional unless primaryDataSource is specified. The default [ComplicationType] for the
-        primaryDataSource. This is a subset of
-        androidx.wear.watchface.complications.data.ComplicationType. -->
-        <attr name="primaryDataSourceDefaultType" format="enum">
-            <enum name="SHORT_TEXT" value="3" />
-            <enum name="LONG_TEXT" value="4" />
-            <enum name="RANGED_VALUE" value="5" />
-            <enum name="MONOCHROMATIC_IMAGE" value="6" />
-            <enum name="SMALL_IMAGE" value="7" />
-            <enum name="PHOTO_IMAGE" value="8" />
-        </attr>
-
-        <!-- Optional. Second of two non-system data source ComponentNames to be tried in turn. -->
-        <attr name="secondaryDataSource" format="string" />
-
-        <!-- Optional unless secondaryDataSource is specified. The default [ComplicationType] for
-        the secondaryDataSource.  This is a subset of
-        androidx.wear.watchface.complications.data.ComplicationType. -->
-        <attr name="secondaryDataSourceDefaultType" format="enum">
-            <enum name="SHORT_TEXT" value="3" />
-            <enum name="LONG_TEXT" value="4" />
-            <enum name="RANGED_VALUE" value="5" />
-            <enum name="MONOCHROMATIC_IMAGE" value="6" />
-            <enum name="SMALL_IMAGE" value="7" />
-            <enum name="PHOTO_IMAGE" value="8" />
-        </attr>
-
-        <!-- Required. Fallback in case none of the non-system data sources could be used.
-        These definitions match androidx.wear.watchface.complications.SystemDataSources. -->
-        <attr name="systemDataSourceFallback" format="enum">
-            <enum name="NO_DATA_SOURCE" value="-1" />
-            <enum name="DATA_SOURCE_WATCH_BATTERY" value="1" />
-            <enum name="DATA_SOURCE_DATE" value="2" />
-            <enum name="DATA_SOURCE_TIME_AND_DATE" value="3" />
-            <enum name="DATA_SOURCE_STEP_COUNT" value="4" />
-            <enum name="DATA_SOURCE_WORLD_CLOCK" value="5" />
-            <enum name="DATA_SOURCE_APP_SHORTCUT" value="6" />
-            <enum name="DATA_SOURCE_UNREAD_NOTIFICATION_COUNT" value="7" />
-            <enum name="DATA_SOURCE_NEXT_EVENT" value="9" />
-            <enum name="DATA_SOURCE_SUNRISE_SUNSET" value="12" />
-            <enum name="DATA_SOURCE_DAY_OF_WEEK" value="13" />
-            <enum name="DATA_SOURCE_FAVORITE_CONTACT" value="14" />
-            <enum name="DATA_SOURCE_DAY_AND_DATE" value="16" />
-        </attr>
-
-        <!-- Required. The default [ComplicationType] for the default complication data source.
-        This is a subset of androidx.wear.watchface.complications.data.ComplicationType. -->
-        <attr name="systemDataSourceFallbackDefaultType" format="enum">
-            <enum name="SHORT_TEXT" value="3" />
-            <enum name="LONG_TEXT" value="4" />
-            <enum name="RANGED_VALUE" value="5" />
-            <enum name="MONOCHROMATIC_IMAGE" value="6" />
-            <enum name="SMALL_IMAGE" value="7" />
-            <enum name="PHOTO_IMAGE" value="8" />
-        </attr>
+        <attr name="primaryDataSource"/>
+        <attr name="primaryDataSourceDefaultType"/>
+        <attr name="secondaryDataSource"/>
+        <attr name="secondaryDataSourceDefaultType"/>
+        <attr name="systemDataSourceFallback"/>
+        <attr name="systemDataSourceFallbackDefaultType"/>
 
         <!-- Optional. Whether the complication slot is initially enabled, defaults to true. -->
         <attr name="initiallyEnabled" format="boolean" />
@@ -120,5 +129,34 @@
         <!-- Optional. A reference to a string resource containing the name of the ComplicationSlot,
         to be used by a screen reader. -->
         <attr name="screenReaderName" format="reference" />
+    </declare-styleable>
+
+    <!-- A UserStyleFlavors element may have UserStyleFlavor child nodes. -->
+    <declare-styleable name="UserStyleFlavors"/>
+
+    <declare-styleable name="UserStyleFlavor">
+        <!-- An id is required, this must be unique within the flavors declared under
+        UserStyleFlavors. -->
+        <attr name="id"/>
+    </declare-styleable>
+
+    <!-- Defines style option to the appropriate setting. -->
+    <declare-styleable name="StyleOption">
+        <!-- And id of UserStyleSetting. -->
+        <attr name="id"/>
+        <!-- Boolean/Double/Long value or string id of an option. -->
+        <attr name="value" format="string"/>
+    </declare-styleable>
+
+    <declare-styleable name="ComplicationPolicy">
+        <!-- Id of complication slot which policy is being overridden. -->
+        <attr name="slotId"/>
+
+        <attr name="primaryDataSource"/>
+        <attr name="primaryDataSourceDefaultType"/>
+        <attr name="secondaryDataSource"/>
+        <attr name="secondaryDataSourceDefaultType"/>
+        <attr name="systemDataSourceFallback"/>
+        <attr name="systemDataSourceFallbackDefaultType"/>
     </declare-styleable>
 </resources>

@@ -166,5 +166,12 @@ public class Constants {
          */
         public const val META_DATA_MULTIPLE_INSTANCES_ALLOWED: String =
             "androidx.wear.watchface.MULTIPLE_INSTANCES_ALLOWED"
+
+        /**
+         * Metadata flag indicating the watch face service exposes flavors. The system will
+         * access them only if this flag is present in manifest.
+         */
+        public const val META_DATA_FLAVORS_SUPPORTED: String =
+            "androidx.wear.watchface.FLAVORS_SUPPORTED"
     }
 }

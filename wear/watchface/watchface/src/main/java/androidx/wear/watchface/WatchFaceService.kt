@@ -77,6 +77,7 @@ import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleData
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
+import androidx.wear.watchface.style.data.UserStyleFlavorsWireFormat
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -127,6 +128,16 @@ internal const val SURFACE_DRAW_TIMEOUT_MS = 100L
  * Watch face styling (color and visual look of watch face elements such as numeric fonts, watch
  * hands and ticks, etc...) and companion editing is directly supported via [UserStyleSchema] and
  * [UserStyleSetting]. To enable support for styling override [createUserStyleSchema].
+ *
+ * WatchFaceService can expose pre-populated style presets by overriding [createUserStyleFlavors]
+ * or via XML (see below). Each presents represents separate style configured with [UserStyle]
+ * and complication slot policies configured with
+ * [androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy]. The system will
+ * only access flavors if metadata tag is present in manifest:
+ *
+ *    <meta-data
+ *      android:name="androidx.wear.watchface.FLAVORS_SUPPORTED"
+ *      android:value="true" />
  *
  * WatchFaces are initially constructed on a background thread before being used exclusively on
  * the ui thread afterwards. There is a memory barrier between construction and rendering so no
@@ -206,8 +217,8 @@ internal const val SURFACE_DRAW_TIMEOUT_MS = 100L
  *      android:value="true" />
  *
  *
- * A watch face can declare the [UserStyleSchema] and the [ComplicationSlot]s in XML. The main
- * advantage is simplicity for the developer, however meta data queries (see
+ * A watch face can declare the [UserStyleSchema], [ComplicationSlot]s and [UserStyleFlavors] in
+ * XML. The main advantage is simplicity for the developer, however meta data queries (see
  * androidx.wear.watchface.client.WatchFaceMetadataClient) are faster because they can be
  * performed without having to bind to the WatchFaceService.
  *
@@ -249,6 +260,17 @@ internal const val SURFACE_DRAW_TIMEOUT_MS = 100L
  *             <ComplicationSlotBounds
  *                 app:left="0.3" app:top="0.7" app:right="0.7" app:bottom="0.9"/>
  *         </ComplicationSlot>
+ *         <UserStyleFlavors>
+ *             <UserStyleFlavor app:id="flavor1">
+ *                 <StyleOption app:id="TimeStyle" app:value="minimal"/>
+ *                 <ComplicationPolicy
+ *                     app:slotId="1"
+ *                     app:primaryDataSource="com.package/com.app"
+ *                     app:primaryDataSourceDefaultType="SHORT_TEXT"
+ *                     app:systemDataSourceFallback="DATA_SOURCE_DAY_AND_DATE"
+ *                     app:systemDataSourceFallbackDefaultType="SHORT_TEXT"/>
+ *             </UserStyleFlavor>
+ *         </UserStyleFlavors>
  *    </XmlWatchFace>
  *
  * If you use XmlSchemaAndComplicationSlotsDefinition then you shouldn't override
@@ -372,7 +394,10 @@ public abstract class WatchFaceService : WallpaperService() {
         xmlSchemaAndComplicationSlotsDefinition: XmlSchemaAndComplicationSlotsDefinition by lazy {
             val resourceId = getXmlWatchFaceResourceId()
             if (resourceId == 0) {
-                XmlSchemaAndComplicationSlotsDefinition(null, emptyList())
+                XmlSchemaAndComplicationSlotsDefinition(
+                    schema = null,
+                    complicationSlots = emptyList(),
+                    flavors = null)
             } else {
                 XmlSchemaAndComplicationSlotsDefinition.inflate(
                     resources,
@@ -385,8 +410,8 @@ public abstract class WatchFaceService : WallpaperService() {
      * If the WatchFaceService's manifest doesn't define a
      * androidx.wear.watchface.XmlSchemaAndComplicationSlotsDefinition meta data tag then override
      * this factory method to create a non-empty [UserStyleSchema]. A [CurrentUserStyleRepository]
-     * constructed with this schema will be passed to [createComplicationSlotsManager] and
-     * [createWatchFace]. This is called on a background thread.
+     * constructed with this schema will be passed to [createComplicationSlotsManager],
+     * [createUserStyleFlavors] and [createWatchFace]. This is called on a background thread.
      *
      * @return The [UserStyleSchema] to create a [CurrentUserStyleRepository] with, which is passed
      * to [createComplicationSlotsManager] and [createWatchFace].
@@ -399,8 +424,9 @@ public abstract class WatchFaceService : WallpaperService() {
      * If the WatchFaceService's manifest doesn't define a
      * androidx.wear.watchface.XmlSchemaAndComplicationSlotsDefinition meta data tag then override
      * this factory method to create a non-empty [ComplicationSlotsManager]. This manager will be
-     * passed to [createWatchFace]. This will be called from a background thread but the
-     * ComplicationSlotsManager should be accessed exclusively from the UiThread afterwards.
+     * passed to [createUserStyleFlavors] and [createWatchFace].
+     * This will be called from a background thread but the ComplicationSlotsManager should be
+     * accessed exclusively from the UiThread afterwards.
      *
      * @param currentUserStyleRepository The [CurrentUserStyleRepository] constructed using the
      * [UserStyleSchema] returned by [createUserStyleSchema].
@@ -428,6 +454,29 @@ public abstract class WatchFaceService : WallpaperService() {
     @WorkerThread
     protected open fun getComplicationSlotInflationFactory(): ComplicationSlotInflationFactory? =
         null
+
+    /**
+     * If the WatchFaceService's manifest doesn't define a
+     * androidx.wear.watchface.XmlSchemaAndComplicationSlotsDefinition meta data tag then override
+     * this factory method to create non-empty [UserStyleFlavors].
+     * This is called on a background thread. The system reads the flavors once and changes may be
+     * ignored until the APK is updated.
+     * Metadata tag "androidx.wear.watchface.FLAVORS_SUPPORTED" should be added to let the system
+     * know the service supports flavors.
+     *
+     * @param currentUserStyleRepository The [CurrentUserStyleRepository] constructed using the
+     * [UserStyleSchema] returned by [createUserStyleSchema].
+     * @param complicationSlotsManager The [ComplicationSlotsManager] returned by
+     * [createComplicationSlotsManager]
+     * @return The [UserStyleFlavors], which is exposed to the system.
+     */
+    @WorkerThread
+    @WatchFaceFlavorsExperimental
+    protected open fun createUserStyleFlavors(
+        currentUserStyleRepository: CurrentUserStyleRepository,
+        complicationSlotsManager: ComplicationSlotsManager
+    ): UserStyleFlavors =
+        xmlSchemaAndComplicationSlotsDefinition.flavors ?: UserStyleFlavors()
 
     /**
      * Override this factory method to create your WatchFaceImpl. This method will be called by the
@@ -947,10 +996,12 @@ public abstract class WatchFaceService : WallpaperService() {
         }
     }
 
+    @OptIn(WatchFaceFlavorsExperimental::class)
     internal class WatchFaceInitDetails(
         val watchFace: WatchFace,
         val complicationSlotsManager: ComplicationSlotsManager,
-        val userStyleRepository: CurrentUserStyleRepository
+        val userStyleRepository: CurrentUserStyleRepository,
+        val userStyleFlavors: UserStyleFlavors
     )
 
     /** @hide */
@@ -1576,6 +1627,17 @@ public abstract class WatchFaceService : WallpaperService() {
         internal fun getUserStyleSchemaWireFormat() = createUserStyleSchema().toWireFormat()
 
         /** This will be called from a binder thread. */
+        @OptIn(WatchFaceFlavorsExperimental::class)
+        @WorkerThread
+        internal fun getUserStyleFlavorsWireFormat(): UserStyleFlavorsWireFormat {
+            val currentUserStyleRepository = CurrentUserStyleRepository(createUserStyleSchema())
+            return createUserStyleFlavors(
+                currentUserStyleRepository,
+                createComplicationSlotsManager(currentUserStyleRepository)
+            ).toWireFormat()
+        }
+
+        /** This will be called from a binder thread. */
         @WorkerThread
         internal fun getComplicationSlotMetadataWireFormats() =
             createComplicationSlotsManager(
@@ -1740,6 +1802,7 @@ public abstract class WatchFaceService : WallpaperService() {
             }
         }
 
+        @OptIn(WatchFaceFlavorsExperimental::class)
         internal fun createWatchFaceInternal(
             watchState: WatchState,
             overrideSurfaceHolder: SurfaceHolder?,
@@ -1759,6 +1822,10 @@ public abstract class WatchFaceService : WallpaperService() {
                         createComplicationSlotsManager(currentUserStyleRepository)
                     }
                 complicationSlotsManager.watchState = watchState
+                val userStyleFlavors =
+                    TraceEvent("WatchFaceService.createUserStyleFlavors").use {
+                        createUserStyleFlavors(currentUserStyleRepository, complicationSlotsManager)
+                    }
 
                 val deferredWatchFace = CompletableDeferred<WatchFace>()
                 val initStyleAndComplicationsDone = CompletableDeferred<Unit>()
@@ -1792,7 +1859,8 @@ public abstract class WatchFaceService : WallpaperService() {
                         WatchFaceInitDetails(
                             watchFace,
                             complicationSlotsManager,
-                            currentUserStyleRepository
+                            currentUserStyleRepository,
+                            userStyleFlavors
                         )
                     )
 

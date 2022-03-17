@@ -19,8 +19,10 @@ package androidx.wear.watchface.client.test
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.res.XmlResourceParser
 import android.graphics.RectF
+import android.support.wearable.watchface.Constants
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -29,8 +31,13 @@ import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.client.WatchFaceMetadataClient
 import androidx.wear.watchface.control.WatchFaceControlService
 import androidx.wear.watchface.ComplicationSlotBoundsType
+import androidx.wear.watchface.WatchFaceFlavorsExperimental
+import androidx.wear.watchface.samples.CONFIGURABLE_DATA_SOURCE
+import androidx.wear.watchface.samples.CONFIGURABLE_DATA_SOURCE_PKG
 import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
 import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
+import androidx.wear.watchface.style.UserStyle
+import androidx.wear.watchface.style.UserStyleSetting
 import com.google.common.truth.Truth
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
@@ -294,5 +301,61 @@ public class WatchFaceMetadataServiceTest {
                     .systemDataSourceFallbackDefaultType
             ).isEqualTo(ComplicationType.PHOTO_IMAGE)
         }
+    }
+
+    @OptIn(WatchFaceFlavorsExperimental::class)
+    @Test
+    @Suppress("DEPRECATION") // getServiceInfo
+    public fun userStyleFlavors() {
+        val client = createWatchFaceMetadataClient(exampleWatchFaceComponentName)
+        val flavors = client.getUserStyleFlavors()
+        val schema = client.getUserStyleSchema()
+
+        val metadata = context.packageManager.getServiceInfo(
+            exampleWatchFaceComponentName,
+            PackageManager.GET_META_DATA
+        ).metaData
+
+        Truth.assertThat(metadata.getBoolean(Constants.META_DATA_FLAVORS_SUPPORTED)).isEqualTo(true)
+
+        Truth.assertThat(flavors.flavors.size).isEqualTo(1)
+        val flavor = flavors.flavors[0]
+        Truth.assertThat(flavor.id).isEqualTo("exampleFlavor")
+
+        // check settings' defaults
+        val userStyleMap = flavor.style.userStyleMap
+        Truth.assertThat(userStyleMap.keys).containsExactly(
+            "color_style_setting", "watch_hand_length_style_setting")
+
+        val userStyle = UserStyle(flavor.style, schema)
+        Truth.assertThat(userStyle[UserStyleSetting.Id("color_style_setting")]!!.id)
+            .isEqualTo(UserStyleSetting.Option.Id("blue_style"))
+
+        // Check complication slots' defaults
+        val complications = flavor.complications
+
+        Truth.assertThat(complications.keys).containsExactly(
+            EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
+            EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID)
+
+        val left = complications[EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID]!!
+        val right = complications[EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID]!!
+
+        Truth.assertThat(left.primaryDataSource).isNull()
+        Truth.assertThat(left.secondaryDataSource).isNull()
+        Truth.assertThat(left.systemDataSourceFallback).isEqualTo(
+            SystemDataSources.DATA_SOURCE_DAY_OF_WEEK)
+        Truth.assertThat(left.systemDataSourceFallbackDefaultType).isEqualTo(
+            ComplicationType.SHORT_TEXT)
+
+        Truth.assertThat(right.primaryDataSource).isEqualTo(ComponentName(
+            CONFIGURABLE_DATA_SOURCE_PKG, CONFIGURABLE_DATA_SOURCE))
+        Truth.assertThat(right.primaryDataSourceDefaultType).isEqualTo(
+            ComplicationType.SHORT_TEXT)
+        Truth.assertThat(right.secondaryDataSource).isNull()
+        Truth.assertThat(right.systemDataSourceFallback).isEqualTo(
+            SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET)
+        Truth.assertThat(right.systemDataSourceFallbackDefaultType).isEqualTo(
+            ComplicationType.SHORT_TEXT)
     }
 }

@@ -36,7 +36,10 @@ import androidx.wear.watchface.ComplicationSlot
 import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.Renderer
+import androidx.wear.watchface.UserStyleFlavor
+import androidx.wear.watchface.UserStyleFlavors
 import androidx.wear.watchface.WatchFace
+import androidx.wear.watchface.WatchFaceFlavorsExperimental
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
@@ -44,6 +47,7 @@ import androidx.wear.watchface.complications.permission.dialogs.sample.Complicat
 import androidx.wear.watchface.complications.permission.dialogs.sample.ComplicationRationalActivity
 import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
 import androidx.wear.watchface.style.CurrentUserStyleRepository
+import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting
@@ -262,6 +266,36 @@ open class ExampleCanvasAnalogWatchFaceService : WatchFaceService() {
             hoursDrawFreqStyleSetting
         )
     )
+
+    @OptIn(WatchFaceFlavorsExperimental::class)
+    internal val exampleFlavor by lazy {
+        UserStyleFlavor(
+            "exampleFlavor",
+            UserStyle(mapOf(
+                colorStyleSetting to colorStyleSetting.getOptionForId(Option.Id(BLUE_STYLE)),
+                watchHandLengthStyleSetting to DoubleRangeOption(1.0)
+            )),
+            mapOf(
+                EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID to
+                    DefaultComplicationDataSourcePolicy(
+                        SystemDataSources.DATA_SOURCE_DAY_OF_WEEK,
+                        ComplicationType.SHORT_TEXT
+                    ),
+                EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID to
+                    DefaultComplicationDataSourcePolicy(
+                        ComponentName(CONFIGURABLE_DATA_SOURCE_PKG, CONFIGURABLE_DATA_SOURCE),
+                        ComplicationType.SHORT_TEXT,
+                        SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET,
+                        ComplicationType.SHORT_TEXT
+                    )
+            ))
+    }
+
+    @OptIn(WatchFaceFlavorsExperimental::class)
+    public override fun createUserStyleFlavors(
+        currentUserStyleRepository: CurrentUserStyleRepository,
+        complicationSlotsManager: ComplicationSlotsManager
+    ) = UserStyleFlavors(listOf(exampleFlavor))
 
     public override fun createComplicationSlotsManager(
         currentUserStyleRepository: CurrentUserStyleRepository

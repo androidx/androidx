@@ -589,7 +589,9 @@ public class UserStyleSchema constructor(
             }
         )
 
-    internal fun getDefaultUserStyle() = UserStyle(
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public fun getDefaultUserStyle() = UserStyle(
         HashMap<UserStyleSetting, UserStyleSetting.Option>().apply {
             for (setting in userStyleSettings) {
                 this[setting] = setting.defaultOption

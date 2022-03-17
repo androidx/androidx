@@ -56,6 +56,18 @@ package androidx.wear.watchface.complications.data {
   public final class DataKt {
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public final class DefaultComplicationDataSourcePolicyWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
+    ctor public DefaultComplicationDataSourcePolicyWireFormat(java.util.List<android.content.ComponentName!>, int, int, int, int);
+    method public int describeContents();
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<androidx.wear.watchface.complications.data.DefaultComplicationDataSourcePolicyWireFormat!>! CREATOR;
+    field @androidx.versionedparcelable.ParcelField(1) public java.util.List<android.content.ComponentName!> mDefaultDataSourcesToTry;
+    field @androidx.versionedparcelable.ParcelField(3) public int mDefaultType;
+    field @androidx.versionedparcelable.ParcelField(2) public int mFallbackSystemDataSource;
+    field @androidx.versionedparcelable.ParcelField(4) public int mPrimaryDataSourceDefaultType;
+    field @androidx.versionedparcelable.ParcelField(5) public int mSecondaryDataSourceDefaultType;
+  }
+
   public final class EmptyComplicationData extends androidx.wear.watchface.complications.data.ComplicationData {
     ctor public EmptyComplicationData();
     field public static final androidx.wear.watchface.complications.data.ComplicationType TYPE;
