@@ -37,7 +37,9 @@ import kotlin.test.assertFailsWith
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
+import org.junit.Ignore
 
+@Ignore // todo(b/222407443)
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalWindowApi::class)
 class WindowAreaControllerImplTest {
 
