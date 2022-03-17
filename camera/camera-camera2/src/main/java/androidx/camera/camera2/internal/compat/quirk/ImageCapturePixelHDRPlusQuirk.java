@@ -26,12 +26,17 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Quirk required to turn on/off HDR+ on Pixel devices by enabling/disabling zero-shutter-lag
- * (ZSL) mode on the capture request, depending on the image capture use case's capture mode, i.e.
- * prioritizing image capture latency over quality, or vice versa. This means that when the
- * capture mode is {@link ImageCapture#CAPTURE_MODE_MINIMIZE_LATENCY}, HDR+ is turned off by
- * disabling ZSL, and when it is {@link ImageCapture#CAPTURE_MODE_MAXIMIZE_QUALITY}, HDR+ is
- * turned on by enabling ZSL.
+ * <p>QuirkSummary
+ *     Bug Id: b/123897971
+ *     Description: Quirk required to turn on/off HDR+ on Pixel devices by enabling/disabling
+ *                  zero-shutter-lag (ZSL) mode on the capture request, depending on the image
+ *                  capture use case's capture mode, i.e. prioritizing image capture latency over
+ *                  quality, or vice versa. This means that when the capture mode is
+ *                  {@link ImageCapture#CAPTURE_MODE_MINIMIZE_LATENCY}, HDR+ is turned off by
+ *                  disabling ZSL, and when it is
+ *                  {@link ImageCapture#CAPTURE_MODE_MAXIMIZE_QUALITY}, HDR+ is turned on by
+ *                  enabling ZSL.
+ *     Device(s): Pixel 2, Pixel 2 XL, Pixel 3, Pixel 3 XL
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ImageCapturePixelHDRPlusQuirk implements Quirk {
