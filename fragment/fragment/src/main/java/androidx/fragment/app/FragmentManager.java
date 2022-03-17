@@ -67,6 +67,8 @@ import androidx.core.app.PictureInPictureModeChangedInfo;
 import androidx.core.content.OnConfigurationChangedProvider;
 import androidx.core.content.OnTrimMemoryProvider;
 import androidx.core.util.Consumer;
+import androidx.core.view.MenuHost;
+import androidx.core.view.MenuProvider;
 import androidx.fragment.R;
 import androidx.fragment.app.strictmode.FragmentStrictMode;
 import androidx.lifecycle.Lifecycle;
@@ -453,6 +455,28 @@ public abstract class FragmentManager implements FragmentResultOwner {
     private final Consumer<PictureInPictureModeChangedInfo>
             mOnPictureInPictureModeChangedListener = info -> dispatchPictureInPictureModeChanged(
                     info.isInPictureInPictureMode());
+
+    private final MenuProvider mMenuProvider = new MenuProvider() {
+        @Override
+        public void onPrepareMenu(@NonNull Menu menu) {
+            dispatchPrepareOptionsMenu(menu);
+        }
+
+        @Override
+        public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
+            dispatchCreateOptionsMenu(menu, menuInflater);
+        }
+
+        @Override
+        public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
+            return dispatchOptionsItemSelected(menuItem);
+        }
+
+        @Override
+        public void onMenuClosed(@NonNull Menu menu) {
+            dispatchOptionsMenuClosed(menu);
+        }
+    };
 
     int mCurState = Fragment.INITIALIZING;
     private FragmentHostCallback<?> mHost;
@@ -2729,6 +2753,10 @@ public abstract class FragmentManager implements FragmentResultOwner {
             onPictureInPictureModeChangedProvider.addOnPictureInPictureModeChangedListener(
                     mOnPictureInPictureModeChangedListener);
         }
+
+        if (mHost instanceof MenuHost && parent == null) {
+            ((MenuHost) mHost).addMenuProvider(mMenuProvider);
+        }
     }
 
     void noteStateNotSaved() {
@@ -2887,6 +2915,9 @@ public abstract class FragmentManager implements FragmentResultOwner {
                     (OnPictureInPictureModeChangedProvider) mHost;
             onPictureInPictureModeChangedProvider.removeOnPictureInPictureModeChangedListener(
                     mOnPictureInPictureModeChangedListener);
+        }
+        if (mHost instanceof MenuHost) {
+            ((MenuHost) mHost).removeMenuProvider(mMenuProvider);
         }
         mHost = null;
         mContainer = null;
