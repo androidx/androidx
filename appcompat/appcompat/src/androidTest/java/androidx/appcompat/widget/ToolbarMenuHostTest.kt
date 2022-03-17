@@ -33,6 +33,9 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.PollingCheck
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -93,6 +96,7 @@ class ToolbarMenuHostTest {
     fun providedMenuItemSelected() {
         with(ActivityScenario.launch(ToolbarTestActivity::class.java)) {
             var itemSelectedId: Int? = null
+            val itemSelectedCountDownLatch = CountDownLatch(1)
             val toolbar: Toolbar = withActivity {
                 findViewById(androidx.appcompat.test.R.id.toolbar)
             }
@@ -107,6 +111,7 @@ class ToolbarMenuHostTest {
                         return when (menuItem.itemId) {
                             R.id.item1, R.id.item2 -> {
                                 itemSelectedId = menuItem.itemId
+                                itemSelectedCountDownLatch.countDown()
                                 true
                             }
                             else -> false
@@ -118,6 +123,10 @@ class ToolbarMenuHostTest {
             toolbar.showOverflowMenu()
             PollingCheck.waitFor { toolbar.isOverflowMenuShowing }
             onView(withText("Item1")).perform(click())
+
+            assertWithMessage("Failed to select MenuItem")
+                .that(itemSelectedCountDownLatch.await(1000, TimeUnit.MILLISECONDS))
+                .isTrue()
             assertThat(itemSelectedId).isEqualTo(R.id.item1)
 
             withActivity {
@@ -130,6 +139,7 @@ class ToolbarMenuHostTest {
                         return when (menuItem.itemId) {
                             R.id.item3, R.id.item4 -> {
                                 itemSelectedId = menuItem.itemId
+                                itemSelectedCountDownLatch.countDown()
                                 true
                             }
                             else -> false
@@ -141,6 +151,10 @@ class ToolbarMenuHostTest {
             toolbar.showOverflowMenu()
             PollingCheck.waitFor { toolbar.isOverflowMenuShowing }
             onView(withText("Item3")).perform(click())
+
+            assertWithMessage("Failed to select MenuItem")
+                .that(itemSelectedCountDownLatch.await(1000, TimeUnit.MILLISECONDS))
+                .isTrue()
             assertThat(itemSelectedId).isEqualTo(R.id.item3)
         }
     }
