@@ -352,10 +352,8 @@ def create_directories(group_id, artifact_id, project_type, is_compose_project):
 
     Given androidx.foo.bar:bar-qux, the structure will be:
     frameworks/support/foo/bar/bar-qux/build.gradle
-    frameworks/support/foo/bar/bar-qux/src/main/AndroidManifest.xml
     frameworks/support/foo/bar/bar-qux/src/main/androidx/foo/bar/package-info.java
     frameworks/support/foo/bar/bar-qux/src/main/androidx/foo/bar/artifact-documentation.md
-    frameworks/support/foo/bar/bar-qux/src/androidTest/AndroidManifest.xml
     frameworks/support/foo/bar/bar-qux/api/current.txt
 
     Args:
@@ -434,22 +432,11 @@ def create_directories(group_id, artifact_id, project_type, is_compose_project):
     year = get_year()
     sed("<YEAR>", year, full_artifact_path + "/build.gradle")
     sed("<YEAR>", year, full_package_docs_file)
-    if is_compose_project:
-        sed("<YEAR>", year, full_artifact_path + "/src/androidAndroidTest/AndroidManifest.xml")
-        sed("<YEAR>", year, full_artifact_path + "/src/androidMain/AndroidManifest.xml")
-    else:
-        sed("<YEAR>", year, full_artifact_path + "/src/androidTest/AndroidManifest.xml")
-        sed("<YEAR>", year, full_artifact_path + "/src/main/AndroidManifest.xml")
 
     # Populate the PACKAGE
     package = generate_package_name(group_id, artifact_id)
     sed("<PACKAGE>", package, full_package_docs_file)
-    if is_compose_project:
-        sed("<PACKAGE>", package, full_artifact_path + "/src/androidAndroidTest/AndroidManifest.xml")
-        sed("<PACKAGE>", package, full_artifact_path + "/src/androidMain/AndroidManifest.xml")
-    else:
-        sed("<PACKAGE>", package, full_artifact_path + "/src/androidTest/AndroidManifest.xml")
-        sed("<PACKAGE>", package, full_artifact_path + "/src/main/AndroidManifest.xml")
+    sed("<PACKAGE>", package, full_artifact_path + "/build.gradle")
 
     # Populate the VERSION macro
     group_id_version_macro = get_group_id_version_macro(group_id)
