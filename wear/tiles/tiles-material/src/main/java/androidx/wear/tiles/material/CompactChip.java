@@ -40,8 +40,8 @@ import androidx.wear.tiles.proto.LayoutElementProto;
  * size.
  *
  * <p>The recommended set of {@link ChipColors} styles can be obtained from {@link ChipDefaults}.,
- * e.g. {@link ChipDefaults#COMPACT_PRIMARY} to get a color scheme for a primary
- * {@link CompactChip}.
+ * e.g. {@link ChipDefaults#COMPACT_PRIMARY} to get a color scheme for a primary {@link
+ * CompactChip}.
  */
 public class CompactChip implements LayoutElement {
     @NonNull private final Chip mElement;

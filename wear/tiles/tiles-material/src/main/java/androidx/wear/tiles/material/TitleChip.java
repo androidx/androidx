@@ -108,8 +108,8 @@ public class TitleChip implements LayoutElement {
         }
 
         /**
-         * Sets the width of {@link TitleChip}. If not set, default value will be screen width
-         * decreased by {@link ChipDefaults#DEFAULT_MARGIN_PERCENT}.
+         * Sets the width of {@link TitleChip}. If not set, default value will be set to fill the
+         * screen.
          */
         @NonNull
         public Builder setWidth(@NonNull ContainerDimension width) {
@@ -118,8 +118,8 @@ public class TitleChip implements LayoutElement {
         }
 
         /**
-         * Sets the width of {@link TitleChip}. If not set, default value will be screen width
-         * decreased by {@link ChipDefaults#DEFAULT_MARGIN_PERCENT}.
+         * Sets the width of {@link TitleChip}. If not set, default value will be set to fill the
+         * screen.
          */
         @NonNull
         public Builder setWidth(@Dimension(unit = DP) float width) {

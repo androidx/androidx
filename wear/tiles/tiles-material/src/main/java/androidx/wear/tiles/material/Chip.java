@@ -69,8 +69,7 @@ import java.util.List;
  * <p>The Chip is Stadium shape and has a max height designed to take no more than two lines of text
  * of {@link Typography#TYPOGRAPHY_BUTTON} style. The {@link Chip} can have an icon horizontally
  * parallel to the two lines of text. Width of chip can very, and the recommended size is screen
- * dependent with the recommended margin being defined in {@link
- * ChipDefaults#DEFAULT_MARGIN_PERCENT} which is set by default.
+ * dependent with the recommended margin being applied.
  *
  * <p>The recommended set of {@link ChipColors} styles can be obtained from {@link ChipDefaults}.,
  * e.g. {@link ChipDefaults#PRIMARY} to get a color scheme for a primary {@link Chip}.
@@ -136,8 +135,7 @@ public class Chip implements LayoutElement {
         }
 
         /**
-         * Sets the width of {@link Chip}. If not set, default value will be screen width decreased
-         * by {@link ChipDefaults#DEFAULT_MARGIN_PERCENT}.
+         * Sets the width of {@link Chip}. If not set, default value will be set to fill the screen.
          */
         @NonNull
         public Builder setWidth(@NonNull ContainerDimension width) {
@@ -146,8 +144,8 @@ public class Chip implements LayoutElement {
         }
 
         /**
-         * Sets the width of {@link Chip}. If not set, default value will be screen width decreased
-         * by {@link ChipDefaults#DEFAULT_MARGIN_PERCENT}.
+         * Sets the width of {@link TitleChip}. If not set, default value will be set to fill the
+         * screen.
          */
         @NonNull
         public Builder setWidth(@Dimension(unit = DP) float width) {
@@ -356,7 +354,7 @@ public class Chip implements LayoutElement {
             if (mType == NOT_SET) {
                 throw new IllegalStateException(
                         "No content set. Use setPrimaryTextContent or similar method to add"
-                            + " content");
+                                + " content");
             }
             if (mType == CUSTOM_CONTENT) {
                 return checkNotNull(mCustomContent);

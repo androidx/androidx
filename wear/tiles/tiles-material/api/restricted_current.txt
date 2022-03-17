@@ -78,19 +78,10 @@ package androidx.wear.tiles.material {
   }
 
   public class ChipDefaults {
-    field public static final androidx.wear.tiles.DimensionBuilders.DpProp COMPACT_HEIGHT;
-    field public static final androidx.wear.tiles.DimensionBuilders.DpProp COMPACT_HORIZONTAL_PADDING;
     field public static final androidx.wear.tiles.material.ChipColors COMPACT_PRIMARY;
     field public static final androidx.wear.tiles.material.ChipColors COMPACT_SECONDARY;
-    field public static final androidx.wear.tiles.DimensionBuilders.DpProp DEFAULT_HEIGHT;
-    field public static final float DEFAULT_MARGIN_PERCENT = 5.2f;
-    field public static final androidx.wear.tiles.DimensionBuilders.DpProp HORIZONTAL_PADDING;
-    field public static final androidx.wear.tiles.DimensionBuilders.DpProp ICON_SIZE;
-    field public static final androidx.wear.tiles.DimensionBuilders.DpProp ICON_SPACER_WIDTH;
     field public static final androidx.wear.tiles.material.ChipColors PRIMARY;
     field public static final androidx.wear.tiles.material.ChipColors SECONDARY;
-    field public static final androidx.wear.tiles.DimensionBuilders.DpProp TITLE_HEIGHT;
-    field public static final androidx.wear.tiles.DimensionBuilders.DpProp TITLE_HORIZONTAL_PADDING;
     field public static final androidx.wear.tiles.material.ChipColors TITLE_PRIMARY;
     field public static final androidx.wear.tiles.material.ChipColors TITLE_SECONDARY;
   }
