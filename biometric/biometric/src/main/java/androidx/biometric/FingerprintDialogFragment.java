@@ -58,8 +58,6 @@ import java.lang.annotation.RetentionPolicy;
 public class FingerprintDialogFragment extends DialogFragment {
     private static final String TAG = "FingerprintFragment";
 
-    private static final String ARG_HOST_ACTIVITY = "host_activity";
-
     /**
      * The dialog has not been initialized.
      */
@@ -152,16 +150,8 @@ public class FingerprintDialogFragment extends DialogFragment {
      */
     @RequiresApi(Build.VERSION_CODES.KITKAT)
     @NonNull
-    static FingerprintDialogFragment newInstance(boolean hostedInActivity) {
-        final FingerprintDialogFragment fragment = new FingerprintDialogFragment();
-        final Bundle args = new Bundle();
-        args.putBoolean(ARG_HOST_ACTIVITY, hostedInActivity);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    private boolean isHostedInActivity() {
-        return getArguments().getBoolean(ARG_HOST_ACTIVITY, true);
+    static FingerprintDialogFragment newInstance() {
+        return new FingerprintDialogFragment();
     }
 
     @Override
@@ -259,7 +249,12 @@ public class FingerprintDialogFragment extends DialogFragment {
      * fragment.
      */
     private void connectViewModel() {
-        mViewModel = BiometricPrompt.getViewModel(this, isHostedInActivity());
+        final Context host = BiometricPrompt.getHostActivityOrContext(this);
+        if (host == null) {
+            return;
+        }
+
+        mViewModel = BiometricPrompt.getViewModel(host);
 
         mViewModel.getFingerprintDialogState().observe(this, new Observer<Integer>() {
             @Override
@@ -363,7 +358,8 @@ public class FingerprintDialogFragment extends DialogFragment {
      */
     private int getThemedColorFor(int attr) {
         final Context context = getContext();
-        if (context == null) {
+        final Context host = BiometricPrompt.getHostActivityOrContext(this);
+        if (context == null || host == null) {
             Log.w(TAG, "Unable to get themed color. Context or activity is null.");
             return 0;
         }
@@ -371,7 +367,7 @@ public class FingerprintDialogFragment extends DialogFragment {
         TypedValue tv = new TypedValue();
         Resources.Theme theme = context.getTheme();
         theme.resolveAttribute(attr, tv, true /* resolveRefs */);
-        TypedArray arr = context.obtainStyledAttributes(tv.data, new int[] {attr});
+        TypedArray arr = host.obtainStyledAttributes(tv.data, new int[] {attr});
 
         final int color = arr.getColor(0 /* index */, 0 /* defValue */);
         arr.recycle();
