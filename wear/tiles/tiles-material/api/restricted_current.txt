@@ -218,12 +218,6 @@ package androidx.wear.tiles.material.layouts {
   }
 
   public class MultiSlotLayout implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
-    method public androidx.wear.tiles.LayoutElementBuilders.Layout toLayout();
-    method public androidx.wear.tiles.LayoutElementBuilders.Layout.Builder toLayoutBuilder();
-    method public androidx.wear.tiles.TimelineBuilders.Timeline toTimeline();
-    method public androidx.wear.tiles.TimelineBuilders.Timeline.Builder toTimelineBuilder();
-    method public androidx.wear.tiles.TimelineBuilders.TimelineEntry toTimelineEntry();
-    method public androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder toTimelineEntryBuilder();
   }
 
   public static final class MultiSlotLayout.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
@@ -238,12 +232,6 @@ package androidx.wear.tiles.material.layouts {
   }
 
   public class PrimaryLayout implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
-    method public androidx.wear.tiles.LayoutElementBuilders.Layout toLayout();
-    method public androidx.wear.tiles.LayoutElementBuilders.Layout.Builder toLayoutBuilder();
-    method public androidx.wear.tiles.TimelineBuilders.Timeline toTimeline();
-    method public androidx.wear.tiles.TimelineBuilders.Timeline.Builder toTimelineBuilder();
-    method public androidx.wear.tiles.TimelineBuilders.TimelineEntry toTimelineEntry();
-    method public androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder toTimelineEntryBuilder();
   }
 
   public static final class PrimaryLayout.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
@@ -258,12 +246,6 @@ package androidx.wear.tiles.material.layouts {
 
   public class ProgressIndicatorLayout implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
     method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement getContent();
-    method public androidx.wear.tiles.LayoutElementBuilders.Layout toLayout();
-    method public androidx.wear.tiles.LayoutElementBuilders.Layout.Builder toLayoutBuilder();
-    method public androidx.wear.tiles.TimelineBuilders.Timeline toTimeline();
-    method public androidx.wear.tiles.TimelineBuilders.Timeline.Builder toTimelineBuilder();
-    method public androidx.wear.tiles.TimelineBuilders.TimelineEntry toTimelineEntry();
-    method public androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder toTimelineEntryBuilder();
   }
 
   public static final class ProgressIndicatorLayout.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
