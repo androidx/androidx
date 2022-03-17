@@ -96,6 +96,10 @@ class ExportToFramework:
             print('Skipping: "%s" -> "%s"' % (source_path, dest_path), file=sys.stderr)
             return
 
+        copyToPath = re.search(r'@exportToFramework:copyToPath\(([^)]+)\)', contents)
+        if copyToPath:
+          dest_path = os.path.join(self._framework_appsearch_root, copyToPath.group(1))
+
         print('Copy: "%s" -> "%s"' % (source_path, dest_path), file=sys.stderr)
         if transform_func:
             contents = transform_func(contents)
@@ -167,6 +171,7 @@ class ExportToFramework:
             .replace('<!--@exportToFramework:hide-->', '@hide')
             .replace('// @exportToFramework:skipFile()', '')
         )
+        contents = re.sub(r'\/\/ @exportToFramework:copyToPath\([^)]+\)', '', contents)
 
         # Jetpack methods have the Async suffix, but framework doesn't. Strip the Async suffix
         # to allow the same documentation to compile for both.
