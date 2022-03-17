@@ -44,4 +44,5 @@ android {
         // part of CI.
         archivesBaseName = "glance-appwidget-demos-testapp"
     }
+    namespace "androidx.glance.appwidget.demos"
 }

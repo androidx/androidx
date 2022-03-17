@@ -83,6 +83,7 @@ android {
     sourceSets {
         androidTest.assets.srcDirs += project.rootDir.absolutePath + "/../../golden/glance/glance-wear-tiles"
     }
+    namespace "androidx.glance.wear.tiles"
 
 }
 

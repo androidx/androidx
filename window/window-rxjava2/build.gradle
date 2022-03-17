@@ -28,6 +28,7 @@ android {
     defaultConfig {
         multiDexEnabled = true
     }
+    namespace "androidx.window.rxjava2"
 }
 
 dependencies {

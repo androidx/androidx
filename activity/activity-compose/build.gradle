@@ -62,3 +62,7 @@ androidx {
     description = "Compose integration with Activity"
     runApiTasks = new RunApiTasks.Yes()
 }
+
+android {
+    namespace "androidx.activity.compose"
+}

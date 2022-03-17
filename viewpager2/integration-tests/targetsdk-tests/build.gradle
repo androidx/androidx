@@ -36,6 +36,7 @@ android {
             // Default is set to latest
         }
     }
+    namespace "androidx.viewpager2.integration.targestsdktests"
 }
 
 dependencies {

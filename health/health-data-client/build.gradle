@@ -55,6 +55,7 @@ android {
         aidl = true
     }
     testOptions.unitTests.includeAndroidResources = true
+    namespace "androidx.health.data.client"
 }
 
 protobuf {

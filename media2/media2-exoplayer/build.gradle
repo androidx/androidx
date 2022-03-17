@@ -25,6 +25,7 @@ android {
     buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
     }
+    namespace "androidx.media2.exoplayer.external"
 }
 
 dependencies {

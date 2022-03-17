@@ -46,6 +46,7 @@ android {
     buildFeatures {
         aidl = true
     }
+    namespace "androidx.media2.session"
 }
 
 androidx {

@@ -29,6 +29,7 @@ android {
     buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
     }
+    namespace "androidx.room"
 }
 
 dependencies {

@@ -38,6 +38,7 @@ android {
                 "androidx/traceprocessor/testdata"
         )
     }
+    namespace "androidx.benchmark.macro"
 }
 
 dependencies {

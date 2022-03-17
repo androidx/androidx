@@ -45,6 +45,7 @@ android {
     buildFeatures {
         viewBinding true
     }
+    namespace "androidx.camera.integration.uiwidgets"
 }
 
 dependencies {

@@ -58,4 +58,5 @@ android {
     defaultConfig {
         minSdkVersion 26
     }
+    namespace "androidx.wear.watchface.client.guava"
 }

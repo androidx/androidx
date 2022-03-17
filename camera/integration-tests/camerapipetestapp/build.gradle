@@ -45,6 +45,7 @@ android {
                     "proguard-rules.pro")
         }
     }
+    namespace "androidx.camera.integration.camera2.pipe"
 }
 
 dependencies {

@@ -41,6 +41,7 @@ android {
         minSdkVersion 24
     }
     testOptions.unitTests.includeAndroidResources = true
+    namespace "androidx.draganddrop"
 }
 
 androidx {

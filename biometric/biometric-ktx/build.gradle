@@ -37,3 +37,7 @@ androidx {
     inceptionYear = "2020"
     description = "Kotlin extensions for the Biometric Library."
 }
+
+android {
+    namespace "androidx.biometric.ktx"
+}

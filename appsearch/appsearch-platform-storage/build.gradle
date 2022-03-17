@@ -43,3 +43,7 @@ androidx {
     description =
         "An implementation of AppSearchSession which uses the AppSearch service on Android S+"
 }
+
+android {
+    namespace "androidx.appsearch.platformstorage"
+}

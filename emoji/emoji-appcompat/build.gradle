@@ -34,3 +34,7 @@ androidx {
     inceptionYear = "2017"
     description = "EmojiCompat Widgets for AppCompat integration"
 }
+
+android {
+    namespace "androidx.emoji.appcompat"
+}

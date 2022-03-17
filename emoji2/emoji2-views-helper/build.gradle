@@ -29,6 +29,7 @@ android {
             manifest.srcFile 'AndroidManifest.xml'
         }
     }
+    namespace "androidx.emoji2.viewsintegration"
 }
 
 androidx {

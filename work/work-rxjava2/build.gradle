@@ -39,3 +39,7 @@ androidx {
     description = "Android WorkManager RxJava2 interoperatibility library"
     failOnDeprecationWarnings = false
 }
+
+android {
+    namespace "androidx.work.rxjava2"
+}

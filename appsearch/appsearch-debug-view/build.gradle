@@ -25,6 +25,7 @@ android {
     defaultConfig {
         multiDexEnabled true
     }
+    namespace "androidx.appsearch.debugview"
 }
 
 dependencies {

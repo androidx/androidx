@@ -56,6 +56,7 @@ android {
             includeAndroidResources = true
         }
     }
+    namespace "androidx.core.remoteviews"
 }
 
 androidx {

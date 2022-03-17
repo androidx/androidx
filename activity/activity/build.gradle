@@ -11,6 +11,7 @@ android {
         multiDexEnabled true
         testInstrumentationRunnerArgument "listener", "leakcanary.FailTestOnLeakRunListener"
     }
+    namespace "androidx.activity"
 }
 
 dependencies {

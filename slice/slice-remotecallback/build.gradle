@@ -44,3 +44,7 @@ androidx {
     description = "A library that handles PendingIntents in slices as remote callbacks"
     failOnDeprecationWarnings = false
 }
+
+android {
+    namespace "androidx.slice.remotecallback"
+}

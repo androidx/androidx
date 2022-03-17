@@ -27,6 +27,7 @@ android {
         test.java.srcDirs += "src/test-common/java"
         androidTest.java.srcDirs += "src/test-common/java"
     }
+    namespace "androidx.datastore.preferences.rxjava2"
 }
 
 dependencies {

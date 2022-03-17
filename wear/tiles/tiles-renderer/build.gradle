@@ -81,6 +81,7 @@ android {
     sourceSets {
         androidTest.assets.srcDirs += project.rootDir.absolutePath + "/../../golden/wear/wear-tiles-renderer"
     }
+    namespace "androidx.wear.tiles.renderer"
 }
 
 // Allow usage of Kotlin's @OptIn.

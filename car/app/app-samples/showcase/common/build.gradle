@@ -23,6 +23,7 @@ android {
     defaultConfig {
         minSdkVersion 23
     }
+    namespace "androidx.car.app.sample.showcase.common"
 }
 
 dependencies {

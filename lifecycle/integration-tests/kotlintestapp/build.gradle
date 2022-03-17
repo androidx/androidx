@@ -59,4 +59,5 @@ android {
         test.java.srcDirs += "src/test-common/java"
         androidTest.java.srcDirs += "src/test-common/java"
     }
+    namespace "androidx.lifecycle.kotlintestapp"
 }

@@ -37,6 +37,7 @@ android {
             shrinkResources true
         }
     }
+    namespace "androidx.camera.integration.viewfinder"
 }
 
 dependencies {

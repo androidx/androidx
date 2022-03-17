@@ -15,7 +15,6 @@
   limitations under the License.
   -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="androidx.wear.watchface.client.guava">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="com.google.android.wearable.permission.BIND_WATCH_FACE_CONTROL"/>
 </manifest>

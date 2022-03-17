@@ -117,6 +117,7 @@ android {
     testOptions.unitTests.includeAndroidResources = true
     sourceSets.androidTest.assets.srcDirs +=
             project.rootDir.absolutePath + "/../../golden/wear/compose/material"
+    namespace "androidx.wear.compose.material"
 }
 
 androidx {

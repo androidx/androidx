@@ -29,6 +29,7 @@ android {
         applicationId "androidx.core.graphics.sample"
         minSdkVersion 17
     }
+    namespace "androidx.core.graphics.sample"
 }
 
 dependencies {

@@ -61,6 +61,10 @@ androidx {
     description = "Kotlin extensions for 'fragment' artifact"
 }
 
+android {
+    namespace "androidx.fragment.ktx"
+}
+
 // needed only while https://youtrack.jetbrains.com/issue/KT-47000 isn't resolved which is
 // targeted to 1.6
 tasks.withType(KotlinCompile).configureEach {

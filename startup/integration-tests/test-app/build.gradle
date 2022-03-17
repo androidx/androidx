@@ -26,6 +26,7 @@ android {
             minifyEnabled = true
         }
     }
+    namespace "androidx.startup.testapp"
 }
 
 dependencies {

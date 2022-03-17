@@ -36,6 +36,7 @@ android {
                 "androidx/traceprocessor/testdata"
         )
     }
+    namespace "androidx.benchmark"
 }
 
 wire {

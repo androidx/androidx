@@ -96,6 +96,7 @@ android {
     }
 
     testOptions.unitTests.includeAndroidResources = true
+    namespace "androidx.car.app"
 }
 
 androidx {

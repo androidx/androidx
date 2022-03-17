@@ -27,6 +27,7 @@ android {
         consumerProguardFiles "proguard-rules.pro"
         multiDexKeepProguard file("multidex-rules.pro")
     }
+    namespace "androidx.startup"
 }
 
 dependencies {

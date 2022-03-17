@@ -57,6 +57,7 @@ android {
             path "../../../../external/icing/CMakeLists.txt"
         }
     }
+    namespace "androidx.appsearch.localstorage"
 }
 
 BundleInsideHelper.forInsideAar(

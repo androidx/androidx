@@ -22,6 +22,8 @@ plugins {
 }
 
 android {
+
+    namespace "androidx.wear.compose.integration.macrobenchmark.target"
     buildTypes {
         release {
             minifyEnabled true

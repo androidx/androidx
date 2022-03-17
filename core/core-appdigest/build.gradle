@@ -40,3 +40,7 @@ androidx {
     inceptionYear = "2020"
     description = "AndroidX AppDigest Library"
 }
+
+android {
+    namespace "androidx.core.appdigest"
+}

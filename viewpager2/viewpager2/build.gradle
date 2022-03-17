@@ -56,3 +56,7 @@ androidx {
     inceptionYear = "2017"
     description = "AndroidX Widget ViewPager2"
 }
+
+android {
+    namespace "androidx.viewpager2"
+}

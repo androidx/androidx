@@ -55,3 +55,7 @@ androidx {
     description = "Text primitives and utilities"
     legacyDisableKotlinStrictApiMode = true
 }
+
+android {
+    namespace "androidx.compose.ui.text.android"
+}

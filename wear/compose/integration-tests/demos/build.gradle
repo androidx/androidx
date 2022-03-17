@@ -43,6 +43,7 @@ android {
     buildFeatures {
         viewBinding true
     }
+    namespace "androidx.wear.compose.integration.demos"
 }
 
 dependencies {

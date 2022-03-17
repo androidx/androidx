@@ -39,6 +39,7 @@ android {
                     'proguard-rules.pro'
         }
     }
+    namespace "androidx.car.app.sample.showcase"
 }
 
 dependencies {

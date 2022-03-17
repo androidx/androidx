@@ -43,3 +43,7 @@ androidx {
     inceptionYear = "2020"
     description = "Samples for Compose integration with Navigation"
 }
+
+android {
+    namespace "androidx.navigation.compose.samples"
+}

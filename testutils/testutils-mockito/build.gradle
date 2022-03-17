@@ -32,6 +32,7 @@ android {
     lintOptions {
         disable "InvalidPackage" // Lint is unhappy about java.lang.instrument package
     }
+    namespace "androidx.testutils.mockito"
 }
 
 androidx {

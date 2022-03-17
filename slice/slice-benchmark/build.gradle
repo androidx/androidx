@@ -46,3 +46,7 @@ androidx {
     inceptionYear = "2018"
     description = "RecyclerView Benchmarks"
 }
+
+android {
+    namespace "androidx.slice.benchmark"
+}

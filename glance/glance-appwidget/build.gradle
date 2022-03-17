@@ -101,6 +101,7 @@ android {
             pseudoLocalesEnabled true
         }
     }
+    namespace "androidx.glance.appwidget"
 
     buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"

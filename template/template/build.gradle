@@ -45,3 +45,7 @@ androidx {
             "glanceable layouts across surface types."
     targetsJavaConsumers = false
 }
+
+android {
+    namespace "androidx.template.template"
+}

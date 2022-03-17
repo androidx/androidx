@@ -68,6 +68,7 @@ android {
         consumerProguardFiles "proguard-rules.pro"
     }
     testOptions.unitTests.includeAndroidResources = true
+    namespace "androidx.biometric"
 }
 
 androidx {

@@ -21,3 +21,7 @@ androidx {
     inceptionYear = "2019"
     description = "This Support Library provides names and documentation for roles."
 }
+
+android {
+    namespace "androidx.core.role"
+}

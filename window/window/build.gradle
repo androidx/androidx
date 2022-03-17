@@ -39,6 +39,7 @@ android {
             java.srcDir testUtilDir
         }
     }
+    namespace "androidx.window"
 }
 
 dependencies {

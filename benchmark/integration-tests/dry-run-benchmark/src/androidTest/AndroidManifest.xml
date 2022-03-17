@@ -16,8 +16,7 @@
   -->
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="androidx.benchmark.integration.dryrun.benchmark.test">
+    xmlns:tools="http://schemas.android.com/tools">
     <!-- NOTE: set debuggable=true below to verify that's not an error in dryRun mode -->
     <application
         android:name="androidx.benchmark.integration.dryrun.benchmark.ArgumentInjectingApplication"

@@ -41,6 +41,7 @@ android {
     defaultConfig {
         minSdkVersion 24
     }
+    namespace "androidx.security.identity.credential"
 }
 
 androidx {

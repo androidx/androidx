@@ -34,6 +34,7 @@ dependencies {
 
 android {
     testOptions.unitTests.includeAndroidResources = true
+    namespace "androidx.security.app.authenticator.testing"
 }
 
 androidx {
