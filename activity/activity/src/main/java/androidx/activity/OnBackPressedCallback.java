@@ -18,6 +18,10 @@ package androidx.activity;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
+import androidx.core.os.BuildCompat;
+import androidx.core.util.Consumer;
 import androidx.lifecycle.LifecycleOwner;
 
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -44,6 +48,7 @@ public abstract class OnBackPressedCallback {
 
     private boolean mEnabled;
     private CopyOnWriteArrayList<Cancellable> mCancellables = new CopyOnWriteArrayList<>();
+    private Consumer<Boolean> mEnabledConsumer;
 
     /**
      * Create a {@link OnBackPressedCallback}.
@@ -66,9 +71,13 @@ public abstract class OnBackPressedCallback {
      *
      * @param enabled whether the callback should be considered enabled
      */
+    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @MainThread
     public final void setEnabled(boolean enabled) {
         mEnabled = enabled;
+        if (BuildCompat.isAtLeastT()) {
+            mEnabledConsumer.accept(mEnabled);
+        }
     }
 
     /**
@@ -105,5 +114,9 @@ public abstract class OnBackPressedCallback {
 
     void removeCancellable(@NonNull Cancellable cancellable) {
         mCancellables.remove(cancellable);
+    }
+
+    void setIsEnabledConsumer(@Nullable Consumer<Boolean> isEnabled) {
+        mEnabledConsumer = isEnabled;
     }
 }
