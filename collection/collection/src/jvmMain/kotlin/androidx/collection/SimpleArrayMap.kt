@@ -198,7 +198,7 @@ public open class SimpleArrayMap<K, V>
         val osize = size
         if (hashes.size < minimumCapacity) {
             hashes = hashes.copyOf(minimumCapacity)
-            array = array.copyOf(minimumCapacity)
+            array = array.copyOf(minimumCapacity * 2)
         }
         if (CONCURRENT_MODIFICATION_EXCEPTIONS && size != osize) {
             throw ConcurrentModificationException()
