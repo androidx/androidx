@@ -16,6 +16,7 @@
 
 package androidx.work.impl.utils;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 
@@ -29,8 +30,11 @@ import java.util.concurrent.Executor;
 public class SerialExecutor implements Executor {
     private final ArrayDeque<Task> mTasks;
     private final Executor mExecutor;
-    private final Object mLock;
-    private volatile Runnable mActive;
+
+    @GuardedBy("mLock")
+    private Runnable mActive;
+
+    final Object mLock;
 
     public SerialExecutor(@NonNull Executor executor) {
         mExecutor = executor;
@@ -49,11 +53,10 @@ public class SerialExecutor implements Executor {
     }
 
     // Synthetic access
+    @GuardedBy("mLock")
     void scheduleNext() {
-        synchronized (mLock) {
-            if ((mActive = mTasks.poll()) != null) {
-                mExecutor.execute(mActive);
-            }
+        if ((mActive = mTasks.poll()) != null) {
+            mExecutor.execute(mActive);
         }
     }
 
@@ -90,7 +93,9 @@ public class SerialExecutor implements Executor {
             try {
                 mRunnable.run();
             } finally {
-                mSerialExecutor.scheduleNext();
+                synchronized (mSerialExecutor.mLock) {
+                    mSerialExecutor.scheduleNext();
+                }
             }
         }
     }
