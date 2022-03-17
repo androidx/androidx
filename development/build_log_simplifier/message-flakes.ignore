@@ -111,8 +111,8 @@ at com\.android\.build\.gradle\.internal\.lint\.AndroidLintWorkAction\.execute\(
 # > Task :wear:wear-watchface:testDebugUnitTest
 System\.logW: A resource was acquired at attached stack trace but never released\. See java\.io\.Closeable for information on avoiding resource leaks\.java\.lang\.Throwable: Explicit termination method 'dispose' not called
 System\.logW: A resource was acquired at attached stack trace but never released\. See java\.io\.Closeable for information on avoiding resource leaks\.java\.lang\.Throwable: Explicit termination method 'release' not called
-# > Task :camera:camera-camera2-pipe-integration:kaptReleaseKotlin
-warning\: The following options were not recognized by any processor\: \'\[dagger\.fastInit\, kapt\.kotlin\.generated\, dagger\.fullBindingGraphValidation\]\'
+# https://youtrack.jetbrains.com/issue/KT-46940
+warning\: The following options were not recognized by any processor\: \'\[.*\]\'
 # > Task :checkNativeApi / :generateNativeApi / :updateNativeApi
 Native API checking is currently not supported on non-linux devices
 # Known warning for Googlers
