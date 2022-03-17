@@ -22,7 +22,7 @@ internal object EnergyQuery {
     private fun getFullQuery(slice: Slice) = """
         SELECT
             t.name,
-            max(c.value) - min(c.value) AS energyUs
+            max(c.value) - min(c.value) AS energyUws
         FROM counter c
         JOIN counter_track t ON c.track_id = t.id
         WHERE t.name GLOB 'power.*'
@@ -32,8 +32,32 @@ internal object EnergyQuery {
 
     data class EnergyMetrics(
         val name: String,
-        val energyUs: Double
+        var energyUws: Double
     )
+
+    fun getTotalEnergyMetrics(
+        absoluteTracePath: String,
+        slice: Slice
+    ): List<EnergyMetrics> {
+        val allMetrics = getEnergyMetrics(absoluteTracePath, slice)
+        allMetrics.ifEmpty { return emptyList() }
+
+        val regex = "Rails(Cpu\\w+|SystemFabric|MemoryInterface|[A-Z][a-z]+)".toRegex()
+
+        return allMetrics.map { original ->
+            val subsystem = if (regex.containsMatchIn(original.name))
+                regex.find(original.name)?.groups?.get(1)?.value.toString()
+                else original.name
+            EnergyMetrics(
+                subsystem,
+                allMetrics.filter {
+                    it.name.contains(subsystem)
+                }.fold(0.0) { total, next ->
+                    total + next.energyUws
+                }
+            )
+        }.distinct()
+    }
 
     fun getEnergyMetrics(
         absoluteTracePath: String,
@@ -46,7 +70,7 @@ internal object EnergyQuery {
 
         val resultLines = queryResult.split("\n")
 
-        if (resultLines.first() != """"name","energyUs"""") {
+        if (resultLines.first() != """"name","energyUws"""") {
             throw IllegalStateException("query failed!\n${getFullQuery(slice)}")
         }
 
@@ -58,7 +82,7 @@ internal object EnergyQuery {
                 val columns = it.split(",")
                 EnergyMetrics(
                     name = columns[0].unquote().camelCase(),
-                    energyUs = columns[1].toDouble(),
+                    energyUws = columns[1].toDouble(),
                 )
             }
     }

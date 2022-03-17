@@ -361,8 +361,8 @@ public class TraceSectionMetric(
  * This outputs measurements like the following:
  *
  * ```
- * odpmEnergyL8sUfsVccqUws      min        39,902.0,    median        55,001.0,   max       205,745.0
- * odpmEnergyRailsAocLogicUws   min        81,548.0,    median        86,211.0,   max       87,650.0
+ * odpmEnergyRailsCpuBigUws     min        99,545.0,    median       110,339.0,  max      316,444.0
+ * odpmEnergyRailsAocLogicUws   min        81,548.0,    median       86,211.0,   max      87,650.0
  * ```
  *
  * * `name` - The name of the subsystem associated with the energy usage in camel case.
@@ -378,8 +378,8 @@ public class TraceSectionMetric(
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class EnergyMetric : Metric() {
 
-    companion object {
-        const val SECTION_NAME = "measureBlock"
+    internal companion object {
+        internal const val MEASURE_BLOCK_SECTION_NAME = "measureBlock"
     }
 
     internal override fun configure(packageName: String) {}
@@ -390,13 +390,64 @@ public class EnergyMetric : Metric() {
 
     internal override fun getMetrics(captureInfo: CaptureInfo, tracePath: String): IterationResult {
         // collect metrics between trace point flags
-        val slice = PerfettoTraceProcessor.querySlices(tracePath, SECTION_NAME).firstOrNull()
+        val slice = PerfettoTraceProcessor.querySlices(tracePath, MEASURE_BLOCK_SECTION_NAME)
+            .firstOrNull()
             ?: return IterationResult.EMPTY
 
         val metrics = EnergyQuery.getEnergyMetrics(tracePath, slice)
         val metricMap = mutableMapOf<String, Double>()
         for (metric in metrics) {
-            metricMap["odpmEnergy${metric.name}Uws"] = metric.energyUs
+            metricMap["odpmEnergy${metric.name}Uws"] = metric.energyUws
+        }
+        return IterationResult(
+            singleMetrics = metricMap,
+            sampledMetrics = emptyMap())
+    }
+}
+/**
+ * Captures the change of power rails metrics over time for specified duration.  All rails under
+ * the same subsystem are added together for the total energy consumed in each subsystem.
+ *
+ * This outputs measurements like the following:
+ *
+ * ```
+ * odpmTotalEnergyDdrUws      min        107,087.0,   median        133,942.0,  max       135,084.0
+ * odpmTotalEnergyAocUws      min        81,548.0,    median        86,211.0,   max       87,650.0
+ * ```
+ *
+ * * `name` - The name of the subsystem associated with the energy usage in camel case.
+ *
+ * * `energy` - The change in swpower usage over the course of the power test, measured in uWs.
+ *
+ * The outputs are stored in the format `odpmTotalEnergy<name>Uws`.
+ *
+ * This measurement is not available prior to API 29.
+ */
+@RequiresApi(29)
+@Suppress("CanSealedSubClassBeObject")
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+public class TotalEnergyMetric : Metric() {
+
+    internal companion object {
+        internal const val MEASURE_BLOCK_SECTION_NAME = "measureBlock"
+    }
+
+    internal override fun configure(packageName: String) {}
+
+    internal override fun start() {}
+
+    internal override fun stop() {}
+
+    internal override fun getMetrics(captureInfo: CaptureInfo, tracePath: String): IterationResult {
+        // collect metrics between trace point flags
+        val slice = PerfettoTraceProcessor.querySlices(tracePath, MEASURE_BLOCK_SECTION_NAME)
+            .firstOrNull()
+            ?: return IterationResult.EMPTY
+
+        val metrics = EnergyQuery.getTotalEnergyMetrics(tracePath, slice)
+        val metricMap = mutableMapOf<String, Double>()
+        for (metric in metrics) {
+            metricMap["odpmTotalEnergy${metric.name}Uws"] = metric.energyUws
         }
         return IterationResult(
             singleMetrics = metricMap,
@@ -410,7 +461,7 @@ public class EnergyMetric : Metric() {
  * This outputs measurements like the following:
  *
  * ```
- * odpmPowerL8sUfsVccqUw        min        8.9,         median        11.7,       max       42.0
+ * odpmPowerRailsCpuBigUw       min        22.1,        median        22.6,       max       67.6
  * odpmPowerRailsAocLogicUw     min        17.9,        median        18.1,       max       18.3
  * ```
  *
@@ -427,8 +478,8 @@ public class EnergyMetric : Metric() {
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class PowerMetric : Metric() {
 
-    companion object {
-        const val SECTION_NAME = "measureBlock"
+    internal companion object {
+        internal const val MEASURE_BLOCK_SECTION_NAME = "measureBlock"
     }
 
     internal override fun configure(packageName: String) {}
@@ -439,13 +490,65 @@ public class PowerMetric : Metric() {
 
     internal override fun getMetrics(captureInfo: CaptureInfo, tracePath: String): IterationResult {
         // collect metrics between trace point flags
-        val slice = PerfettoTraceProcessor.querySlices(tracePath, SECTION_NAME).firstOrNull()
+        val slice = PerfettoTraceProcessor.querySlices(tracePath, MEASURE_BLOCK_SECTION_NAME)
+            .firstOrNull()
             ?: return IterationResult.EMPTY
 
         val metrics = PowerQuery.getPowerMetrics(tracePath, slice)
         val metricMap = mutableMapOf<String, Double>()
         for (metric in metrics) {
             metricMap["odpmPower${metric.name}Uw"] = metric.powerUs
+        }
+        return IterationResult(
+            singleMetrics = metricMap,
+            sampledMetrics = emptyMap())
+    }
+}
+
+/**
+ * Captures the change of power rails metrics over time for specified duration. All rails under
+ * the same subsystem are added together for the total power consumed in each subsystem.
+ *
+ * This outputs measurements like the following:
+ *
+ * ```
+ * odpmTotalPowerDisplayUw    min        138.5,       median        140.0,      max       140.6
+ * odpmTotalPowerAocUw        min        17.9,        median        18.1,       max       18.3
+ * ```
+ *
+ * * `name` - The name of the subsystem associated with the power usage in camel case.
+ *
+ * * `power` - The energy used divided by the elapsed time, measured in mW.
+ *
+ * The outputs are stored in the format `odpmTotalPower<name>Uw`.
+ *
+ * This measurement is not available prior to API 29.
+ */
+@RequiresApi(29)
+@Suppress("CanSealedSubClassBeObject")
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+public class TotalPowerMetric : Metric() {
+
+    internal companion object {
+        internal const val MEASURE_BLOCK_SECTION_NAME = "measureBlock"
+    }
+
+    internal override fun configure(packageName: String) {}
+
+    internal override fun start() {}
+
+    internal override fun stop() {}
+
+    internal override fun getMetrics(captureInfo: CaptureInfo, tracePath: String): IterationResult {
+        // collect metrics between trace point flags
+        val slice = PerfettoTraceProcessor.querySlices(tracePath, MEASURE_BLOCK_SECTION_NAME)
+            .firstOrNull()
+            ?: return IterationResult.EMPTY
+
+        val metrics = PowerQuery.getTotalPowerMetrics(tracePath, slice)
+        val metricMap = mutableMapOf<String, Double>()
+        for (metric in metrics) {
+            metricMap["odpmTotalPower${metric.name}Uw"] = metric.powerUs
         }
         return IterationResult(
             singleMetrics = metricMap,
