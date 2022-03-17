@@ -73,6 +73,10 @@ class TestMenuHost(private val menu: Menu, private val menuInflater: MenuInflate
         invalidateCount++
     }
 
+    fun onPrepareMenu(menu: Menu) {
+        menuHostHelper.onPrepareMenu(menu)
+    }
+
     private fun onCreateMenu() {
         menuHostHelper.onCreateMenu(menu, menuInflater)
     }

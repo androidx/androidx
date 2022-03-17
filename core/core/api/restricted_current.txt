@@ -2719,6 +2719,7 @@ package androidx.core.view {
     method public void onCreateMenu(android.view.Menu, android.view.MenuInflater);
     method public void onMenuClosed(android.view.Menu);
     method public boolean onMenuItemSelected(android.view.MenuItem);
+    method public void onPrepareMenu(android.view.Menu);
     method public void removeMenuProvider(androidx.core.view.MenuProvider);
   }
 
@@ -2762,6 +2763,7 @@ package androidx.core.view {
     method public void onCreateMenu(android.view.Menu, android.view.MenuInflater);
     method public default void onMenuClosed(android.view.Menu);
     method public boolean onMenuItemSelected(android.view.MenuItem);
+    method public default void onPrepareMenu(android.view.Menu);
   }
 
   public final class MotionEventCompat {
