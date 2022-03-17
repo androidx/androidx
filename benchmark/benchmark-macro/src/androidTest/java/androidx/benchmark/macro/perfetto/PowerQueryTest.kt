@@ -16,7 +16,7 @@
 
 package androidx.benchmark.macro.perfetto
 
-import androidx.benchmark.macro.PowerMetric.Companion.SECTION_NAME
+import androidx.benchmark.macro.PowerMetric.Companion.MEASURE_BLOCK_SECTION_NAME
 import androidx.benchmark.macro.createTempFileFromAsset
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -36,26 +36,55 @@ class PowerQueryTest {
         assumeTrue(isAbiSupported())
 
         val traceFile = createTempFileFromAsset("api32_odpm_rails", ".perfetto-trace")
-        val slice = PerfettoTraceProcessor.querySlices(traceFile.absolutePath, SECTION_NAME).first()
+        val slice = PerfettoTraceProcessor.querySlices(
+            traceFile.absolutePath, MEASURE_BLOCK_SECTION_NAME
+        ).first()
         val actualMetrics = PowerQuery.getPowerMetrics(traceFile.absolutePath, slice)
         assertEquals(
             listOf(
-                PowerQuery.PowerMetrics("L15mVddSlcM", 20.138912),
-                PowerQuery.PowerMetrics("L8sUfsVccq", 17.775489),
-                PowerQuery.PowerMetrics("RailsAocLogic", 18.339422),
-                PowerQuery.PowerMetrics("RailsAocMemory", 14.182031),
-                PowerQuery.PowerMetrics("RailsCpuBig", 36.136576),
-                PowerQuery.PowerMetrics("RailsCpuLittle", 579.97876),
-                PowerQuery.PowerMetrics("RailsCpuMid", 674.998301),
-                PowerQuery.PowerMetrics("RailsDdrA", 6.01678),
-                PowerQuery.PowerMetrics("RailsDdrB", 2.536958),
-                PowerQuery.PowerMetrics("RailsDdrC", 12.894647),
-                PowerQuery.PowerMetrics("RailsDisplay", 134.277613),
-                PowerQuery.PowerMetrics("RailsGps", 3.958581),
-                PowerQuery.PowerMetrics("RailsGpu", 0.386151),
-                PowerQuery.PowerMetrics("RailsMemoryInterface", 36.141037),
-                PowerQuery.PowerMetrics("RailsSystemFabric", 30.41695),
-                PowerQuery.PowerMetrics("RailsTpu", 2.245327)
+                PowerQuery.PowerMetrics("RailsAocLogic", 15.544682),
+                PowerQuery.PowerMetrics("RailsAocMemory", 4.064068),
+                PowerQuery.PowerMetrics("RailsCpuBig", 6.621397),
+                PowerQuery.PowerMetrics("RailsCpuLittle", 62.878706),
+                PowerQuery.PowerMetrics("RailsCpuMid", 11.440804),
+                PowerQuery.PowerMetrics("RailsDdrA", 10.047273),
+                PowerQuery.PowerMetrics("RailsDdrB", 11.401203),
+                PowerQuery.PowerMetrics("RailsDdrC", 20.750985),
+                PowerQuery.PowerMetrics("RailsDisplay", 208.777524),
+                PowerQuery.PowerMetrics("RailsGpu", 13.799502),
+                PowerQuery.PowerMetrics("RailsMemoryInterface", 31.497408),
+                PowerQuery.PowerMetrics("RailsModem", 1.735227),
+                PowerQuery.PowerMetrics("RailsRadioFrontend", 0.0),
+                PowerQuery.PowerMetrics("RailsSystemFabric", 25.454282),
+                PowerQuery.PowerMetrics("RailsTpu", 10.52768),
+                PowerQuery.PowerMetrics("RailsWifiBt", 102.398507),
+            ), actualMetrics)
+    }
+
+    @Test
+    fun successfulFixedTraceTotal() {
+        assumeTrue(isAbiSupported())
+
+        val traceFile = createTempFileFromAsset("api32_odpm_rails", ".perfetto-trace")
+        val slice = PerfettoTraceProcessor.querySlices(
+            traceFile.absolutePath, MEASURE_BLOCK_SECTION_NAME
+        ).first()
+        val actualMetrics = PowerQuery.getTotalPowerMetrics(traceFile.absolutePath, slice)
+        assertEquals(
+            listOf(
+                PowerQuery.PowerMetrics("Aoc", 19.60875),
+                PowerQuery.PowerMetrics("CpuBig", 6.621397),
+                PowerQuery.PowerMetrics("CpuLittle", 62.878706),
+                PowerQuery.PowerMetrics("CpuMid", 11.440804),
+                PowerQuery.PowerMetrics("Ddr", 42.199461),
+                PowerQuery.PowerMetrics("Display", 208.777524),
+                PowerQuery.PowerMetrics("Gpu", 13.799502),
+                PowerQuery.PowerMetrics("MemoryInterface", 31.497408),
+                PowerQuery.PowerMetrics("Modem", 1.735227),
+                PowerQuery.PowerMetrics("Radio", 0.0),
+                PowerQuery.PowerMetrics("SystemFabric", 25.454282),
+                PowerQuery.PowerMetrics("Tpu", 10.52768),
+                PowerQuery.PowerMetrics("Wifi", 102.398507),
             ), actualMetrics)
     }
 
@@ -64,8 +93,22 @@ class PowerQueryTest {
         assumeTrue(isAbiSupported())
 
         val traceFile = createTempFileFromAsset("api31_odpm_rails_empty", ".perfetto-trace")
-        val slice = PerfettoTraceProcessor.querySlices(traceFile.absolutePath, SECTION_NAME).first()
+        val slice = PerfettoTraceProcessor.querySlices(
+            traceFile.absolutePath, MEASURE_BLOCK_SECTION_NAME
+        ).first()
         val actualMetrics = PowerQuery.getPowerMetrics(traceFile.absolutePath, slice)
+        assertEquals(emptyList(), actualMetrics)
+    }
+
+    @Test
+    fun emptyFixedTraceTotal() {
+        assumeTrue(isAbiSupported())
+
+        val traceFile = createTempFileFromAsset("api31_odpm_rails_empty", ".perfetto-trace")
+        val slice = PerfettoTraceProcessor.querySlices(
+            traceFile.absolutePath, MEASURE_BLOCK_SECTION_NAME
+        ).first()
+        val actualMetrics = PowerQuery.getTotalPowerMetrics(traceFile.absolutePath, slice)
         assertEquals(emptyList(), actualMetrics)
     }
 }
