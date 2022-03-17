@@ -177,8 +177,11 @@ class ComplicationRenderer {
     private RoundedDrawable mRoundedSmallImage = null;
 
     // Text renderers
-    private final TextRenderer mMainTextRenderer = new TextRenderer();
-    private final TextRenderer mSubTextRenderer = new TextRenderer();
+    @VisibleForTesting
+    TextRenderer mMainTextRenderer = new TextRenderer();
+
+    @VisibleForTesting
+    TextRenderer mSubTextRenderer = new TextRenderer();
 
     // Bounds for components. NB we want to avoid allocations in watch face rendering code to
     // reduce GC pressure.
@@ -195,8 +198,10 @@ class ComplicationRenderer {
     // Paint sets for active and ambient modes.
     @VisibleForTesting
     PaintSet mActivePaintSet = null;
+    PaintSet mActivePaintSetLostTapAction = null;
     @VisibleForTesting
     PaintSet mAmbientPaintSet = null;
+    PaintSet mAmbientPaintSetLostTapAction = null;
 
     // Paints for texts
     @Nullable
@@ -244,7 +249,11 @@ class ComplicationRenderer {
         mAmbientStyle = ambientStyle;
         // Reset paint sets
         mActivePaintSet = new PaintSet(activeStyle, false, false, false);
+        mActivePaintSetLostTapAction =
+                new PaintSet(activeStyle.asTinted(Color.DKGRAY), false, false, false);
         mAmbientPaintSet = new PaintSet(ambientStyle, true, false, false);
+        mAmbientPaintSetLostTapAction =
+                new PaintSet(activeStyle.asTinted(Color.DKGRAY), true, false, false);
         calculateBounds();
     }
 
@@ -422,9 +431,9 @@ class ComplicationRenderer {
             mAmbientPaintSet = new PaintSet(mAmbientStyle, true, lowBitAmbient, burnInProtection);
         }
         // Choose the correct paint set to use
-        PaintSet currentPaintSet = inAmbientMode ? mAmbientPaintSet : mActivePaintSet;
-        currentPaintSet.setAlpha(
-                mComplicationData.getTapActionLostDueToSerialization() ? 128 : 255);
+        PaintSet currentPaintSet = mComplicationData.getTapActionLostDueToSerialization()
+                ? (inAmbientMode ? mAmbientPaintSetLostTapAction : mActivePaintSetLostTapAction) :
+                (inAmbientMode ? mAmbientPaintSet : mActivePaintSet);
         // Update complication texts
         updateComplicationTexts(currentTime.toEpochMilli());
         canvas.save();
@@ -652,7 +661,7 @@ class ComplicationRenderer {
             }
             icon.setColorFilter(mComplicationData.hasPlaceholderType() ? PLACEHOLDER_COLOR_FILTER :
                     paintSet.mIconColorFilter);
-            drawIconOnCanvas(canvas, mIconBounds, icon, paintSet.getAlpha());
+            drawIconOnCanvas(canvas, mIconBounds, icon);
         } else if (isPlaceholder) {
             canvas.drawRect(mIconBounds, PLACEHOLDER_PAINT);
         }
@@ -717,11 +726,10 @@ class ComplicationRenderer {
         }
     }
 
-    private static void drawIconOnCanvas(Canvas canvas, Rect bounds, Drawable icon, int alpha) {
+    private static void drawIconOnCanvas(Canvas canvas, Rect bounds, Drawable icon) {
         icon.setBounds(0, 0, bounds.width(), bounds.height());
         canvas.save();
         canvas.translate(bounds.left, bounds.top);
-        icon.setAlpha(alpha);
         icon.draw(canvas);
         canvas.restore();
     }
@@ -1075,9 +1083,6 @@ class ComplicationRenderer {
         /** Icon tint color filter */
         final ColorFilter mIconColorFilter;
 
-        /** The alpha value to render with */
-        int mAlpha;
-
         @SuppressLint("SyntheticAccessor")
         PaintSet(
                 ComplicationStyle style,
@@ -1149,19 +1154,6 @@ class ComplicationRenderer {
             mHighlightPaint = new Paint();
             mHighlightPaint.setColor(style.getHighlightColor());
             mHighlightPaint.setAntiAlias(antiAlias);
-        }
-
-        void setAlpha(int alpha) {
-            mPrimaryTextPaint.setAlpha(alpha);
-            mSecondaryTextPaint.setAlpha(alpha);
-            mInProgressPaint.setAlpha(alpha);
-            mRemainingPaint.setAlpha(alpha);
-            mBorderPaint.setAlpha(alpha);
-            mAlpha = alpha;
-        }
-
-        int getAlpha() {
-            return mAlpha;
         }
 
         boolean isInBurnInProtectionMode() {
