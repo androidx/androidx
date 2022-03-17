@@ -18,8 +18,6 @@ package androidx.appsearch.cts.app;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assert.assertThrows;
-
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GetSchemaResponse;
 import androidx.appsearch.app.PackageIdentifier;
@@ -118,45 +116,6 @@ public class GetSchemaResponseCtsTest {
                                 SetSchemaRequest.READ_EXTERNAL_STORAGE),
                         ImmutableSet.of(SetSchemaRequest
                                 .READ_ASSISTANT_APP_SEARCH_DATA)));
-    }
-
-    @Test
-    public void testRebuild_noSupportedException() {
-        AppSearchSchema schema1 = new AppSearchSchema.Builder("Email1")
-                .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("subject")
-                        .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-                        .setIndexingType(
-                                AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
-                        .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
-                        .build()
-                ).build();
-
-        GetSchemaResponse.Builder builder =
-                new GetSchemaResponse.Builder(/*getVisibilitySettingSupported=*/false)
-                        .setVersion(42).addSchema(schema1);
-
-        GetSchemaResponse original = builder.build();
-        assertThrows(
-                UnsupportedOperationException.class,
-                () -> original.getSchemaTypesNotDisplayedBySystem());
-        assertThrows(
-                UnsupportedOperationException.class,
-                () -> original.getSchemaTypesVisibleToPackages());
-        assertThrows(
-                UnsupportedOperationException.class,
-                () -> original.getRequiredPermissionsForSchemaTypeVisibility());
-
-        // rebuild will throw same exception
-        GetSchemaResponse rebuild = builder.setVersion(42).build();
-        assertThrows(
-                UnsupportedOperationException.class,
-                () -> rebuild.getSchemaTypesNotDisplayedBySystem());
-        assertThrows(
-                UnsupportedOperationException.class,
-                () -> rebuild.getSchemaTypesVisibleToPackages());
-        assertThrows(
-                UnsupportedOperationException.class,
-                () -> original.getRequiredPermissionsForSchemaTypeVisibility());
     }
 
     @Test

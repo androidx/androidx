@@ -23,7 +23,8 @@ import android.os.Parcel;
 
 import org.junit.Test;
 
-public class GenericDocumentTest {
+/** Tests for private APIs of {@link GenericDocument}. */
+public class GenericDocumentInternalTest {
     @Test
     public void testRecreateFromParcel() {
         GenericDocument inDoc = new GenericDocument.Builder<>("namespace", "id1", "schema1")

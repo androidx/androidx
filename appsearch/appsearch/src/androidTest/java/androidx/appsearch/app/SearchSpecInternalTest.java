@@ -22,7 +22,8 @@ import android.os.Bundle;
 
 import org.junit.Test;
 
-public class SearchSpecTest {
+/** Tests for private APIs of {@link SearchSpec}. */
+public class SearchSpecInternalTest {
 
     @Test
     public void testGetBundle() {

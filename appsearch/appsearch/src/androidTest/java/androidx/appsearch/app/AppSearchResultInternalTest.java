@@ -22,7 +22,8 @@ import static org.junit.Assert.assertThrows;
 
 import org.junit.Test;
 
-public class AppSearchResultTest {
+/** Tests for private APIs of {@link AppSearchResult}. */
+public class AppSearchResultInternalTest {
     @Test
     public void testMapNullPointerException() {
         NullPointerException e = assertThrows(NullPointerException.class, () -> {

@@ -20,7 +20,8 @@ import static com.google.common.truth.Truth.assertThat;
 
 import org.junit.Test;
 
-public class SetSchemaResponseTest {
+/** Tests for private APIs of {@link SetSchemaResponse}. */
+public class SetSchemaResponseInternalTest {
     @Test
     public void testRebuild() {
         SetSchemaResponse.MigrationFailure failure1 = new SetSchemaResponse.MigrationFailure(
