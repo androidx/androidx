@@ -140,7 +140,6 @@ package androidx.wear.tiles.material {
 
   public class ProgressIndicatorDefaults {
     field public static final androidx.wear.tiles.material.ProgressIndicatorColors DEFAULT_COLOR;
-    field public static final androidx.wear.tiles.DimensionBuilders.DpProp DEFAULT_PADDING;
     field public static final androidx.wear.tiles.DimensionBuilders.DpProp DEFAULT_STROKE_WIDTH;
     field public static final float GAP_END_ANGLE = 156.1f;
     field public static final float GAP_START_ANGLE = -156.1f;
