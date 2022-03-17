@@ -102,7 +102,7 @@ public class Chip implements LayoutElement {
         @NonNull private String mPrimaryText = "";
         @Nullable private String mLabelText = null;
         @NonNull private final Clickable mClickable;
-        @NonNull private String mContentDescription = "";
+        @NonNull private CharSequence mContentDescription = "";
         @NonNull private ContainerDimension mWidth;
         @NonNull private DpProp mHeight = DEFAULT_HEIGHT;
         @NonNull private ChipColors mChipColors = PRIMARY;
@@ -171,7 +171,7 @@ public class Chip implements LayoutElement {
          * this for chip containing icon.
          */
         @NonNull
-        public Builder setContentDescription(@NonNull String contentDescription) {
+        public Builder setContentDescription(@NonNull CharSequence contentDescription) {
             this.mContentDescription = contentDescription;
             return this;
         }
@@ -340,10 +340,10 @@ public class Chip implements LayoutElement {
                                                             .setRadius(radiusOf(mHeight))
                                                             .build())
                                             .build());
-            if (!mContentDescription.isEmpty()) {
+            if (mContentDescription.length() > 0) {
                 modifiers.setSemantics(
                         new ModifiersBuilders.Semantics.Builder()
-                                .setContentDescription(mContentDescription)
+                                .setContentDescription(mContentDescription.toString())
                                 .build());
             }
 
@@ -551,7 +551,7 @@ public class Chip implements LayoutElement {
 
     /** Returns content description of this Chip. */
     @NonNull
-    public String getContentDescription() {
+    public CharSequence getContentDescription() {
         return checkNotNull(
                 checkNotNull(checkNotNull(mElement.getModifiers()).getSemantics())
                         .getContentDescription());

@@ -5,7 +5,7 @@ package androidx.wear.tiles.material {
     method public androidx.wear.tiles.material.ButtonColors getButtonColors();
     method public androidx.wear.tiles.ModifiersBuilders.Clickable getClickable();
     method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement getContent();
-    method public String getContentDescription();
+    method public CharSequence getContentDescription();
     method public androidx.wear.tiles.DimensionBuilders.ContainerDimension getSize();
   }
 
@@ -14,7 +14,7 @@ package androidx.wear.tiles.material {
     method public androidx.wear.tiles.material.Button build();
     method public androidx.wear.tiles.material.Button.Builder setButtonColors(androidx.wear.tiles.material.ButtonColors);
     method public androidx.wear.tiles.material.Button.Builder setContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
-    method public androidx.wear.tiles.material.Button.Builder setContentDescription(String);
+    method public androidx.wear.tiles.material.Button.Builder setContentDescription(CharSequence);
     method public androidx.wear.tiles.material.Button.Builder setIconContent(String, androidx.wear.tiles.DimensionBuilders.DpProp);
     method public androidx.wear.tiles.material.Button.Builder setIconContent(String);
     method public androidx.wear.tiles.material.Button.Builder setImageContent(String);
@@ -45,7 +45,7 @@ package androidx.wear.tiles.material {
     method public androidx.wear.tiles.material.ChipColors getChipColors();
     method public androidx.wear.tiles.ModifiersBuilders.Clickable getClickable();
     method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement getContent();
-    method public String getContentDescription();
+    method public CharSequence getContentDescription();
     method public androidx.wear.tiles.DimensionBuilders.ContainerDimension getHeight();
     method public int getHorizontalAlignment();
     method public androidx.wear.tiles.DimensionBuilders.ContainerDimension getWidth();
@@ -56,7 +56,7 @@ package androidx.wear.tiles.material {
     method public androidx.wear.tiles.material.Chip build();
     method public androidx.wear.tiles.material.Chip.Builder setChipColors(androidx.wear.tiles.material.ChipColors);
     method public androidx.wear.tiles.material.Chip.Builder setContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
-    method public androidx.wear.tiles.material.Chip.Builder setContentDescription(String);
+    method public androidx.wear.tiles.material.Chip.Builder setContentDescription(CharSequence);
     method public androidx.wear.tiles.material.Chip.Builder setHorizontalAlignment(int);
     method public androidx.wear.tiles.material.Chip.Builder setPrimaryTextContent(String);
     method public androidx.wear.tiles.material.Chip.Builder setPrimaryTextIconContent(String, String);
@@ -108,7 +108,7 @@ package androidx.wear.tiles.material {
     ctor public CircularProgressIndicator.Builder();
     method public androidx.wear.tiles.material.CircularProgressIndicator build();
     method public androidx.wear.tiles.material.CircularProgressIndicator.Builder setCircularProgressIndicatorColors(androidx.wear.tiles.material.ProgressIndicatorColors);
-    method public androidx.wear.tiles.material.CircularProgressIndicator.Builder setContentDescription(String);
+    method public androidx.wear.tiles.material.CircularProgressIndicator.Builder setContentDescription(CharSequence);
     method public androidx.wear.tiles.material.CircularProgressIndicator.Builder setEndAngle(float);
     method public androidx.wear.tiles.material.CircularProgressIndicator.Builder setProgress(@FloatRange(from=0, to=1) float);
     method public androidx.wear.tiles.material.CircularProgressIndicator.Builder setStartAngle(float);
@@ -120,7 +120,7 @@ package androidx.wear.tiles.material {
     method public androidx.wear.tiles.material.ChipColors getChipColors();
     method public androidx.wear.tiles.ModifiersBuilders.Clickable getClickable();
     method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement getContent();
-    method public String getContentDescription();
+    method public CharSequence getContentDescription();
     method public androidx.wear.tiles.DimensionBuilders.ContainerDimension getHeight();
     method public androidx.wear.tiles.DimensionBuilders.ContainerDimension getWidth();
   }
@@ -176,7 +176,7 @@ package androidx.wear.tiles.material {
     method public androidx.wear.tiles.material.ChipColors getChipColors();
     method public androidx.wear.tiles.ModifiersBuilders.Clickable getClickable();
     method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement getContent();
-    method public String getContentDescription();
+    method public CharSequence getContentDescription();
     method public androidx.wear.tiles.DimensionBuilders.ContainerDimension getHeight();
     method public int getHorizontalAlignment();
     method public androidx.wear.tiles.DimensionBuilders.ContainerDimension getWidth();

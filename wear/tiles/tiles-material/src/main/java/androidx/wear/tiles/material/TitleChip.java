@@ -178,7 +178,7 @@ public class TitleChip implements LayoutElement {
 
     /** Returns content description of this Chip. */
     @NonNull
-    public String getContentDescription() {
+    public CharSequence getContentDescription() {
         return mElement.getContentDescription();
     }
 

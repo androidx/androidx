@@ -87,7 +87,7 @@ public class Button implements LayoutElement {
         @NonNull private final Context mContext;
         @Nullable private LayoutElement mCustomContent;
         @NonNull private final Clickable mClickable;
-        @NonNull private String mContentDescription = "";
+        @NonNull private CharSequence mContentDescription = "";
         @NonNull private DpProp mSize = DEFAULT_BUTTON_SIZE;
         @Nullable private String mText = null;
         private @TypographyName int mTypographyName =
@@ -119,7 +119,7 @@ public class Button implements LayoutElement {
          * this for button containing icon or image.
          */
         @NonNull
-        public Builder setContentDescription(@NonNull String contentDescription) {
+        public Builder setContentDescription(@NonNull CharSequence contentDescription) {
             this.mContentDescription = contentDescription;
             return this;
         }
@@ -291,10 +291,10 @@ public class Button implements LayoutElement {
                                                             .setRadius(radiusOf(mSize))
                                                             .build())
                                             .build());
-            if (!mContentDescription.isEmpty()) {
+            if (mContentDescription.length() > 0) {
                 modifiers.setSemantics(
                         new ModifiersBuilders.Semantics.Builder()
-                                .setContentDescription(mContentDescription)
+                                .setContentDescription(mContentDescription.toString())
                                 .build());
             }
 
@@ -421,7 +421,7 @@ public class Button implements LayoutElement {
 
     /** Returns content description for this Button. */
     @NonNull
-    public String getContentDescription() {
+    public CharSequence getContentDescription() {
         return checkNotNull(
                 checkNotNull(checkNotNull(mElement.getModifiers()).getSemantics())
                         .getContentDescription());
