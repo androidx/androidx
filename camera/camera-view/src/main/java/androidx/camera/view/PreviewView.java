@@ -16,6 +16,7 @@
 
 package androidx.camera.view;
 
+import static androidx.camera.core.impl.ImageOutputConfig.ROTATION_NOT_SPECIFIED;
 import static androidx.camera.core.impl.utils.Threads.checkMainThread;
 import static androidx.camera.view.TransformUtils.getNormalizedToBuffer;
 import static androidx.core.content.ContextCompat.getMainExecutor;
@@ -28,7 +29,10 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.display.DisplayManager;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.AttributeSet;
 import android.util.Rational;
 import android.util.Size;
@@ -63,6 +67,7 @@ import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseGroup;
 import androidx.camera.core.ViewPort;
+import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.utils.Threads;
@@ -125,6 +130,7 @@ public final class PreviewView extends FrameLayout {
 
     @NonNull
     final PreviewTransformation mPreviewTransform = new PreviewTransformation();
+    boolean mUseDisplayRotation = true;
 
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
@@ -149,8 +155,16 @@ public final class PreviewView extends FrameLayout {
     @NonNull
     private final ScaleGestureDetector mScaleGestureDetector;
 
+    // Synthetic access
+    @SuppressWarnings("WeakerAccess")
+    @Nullable
+    CameraInfoInternal mCameraInfoInternal;
+
     @Nullable
     private MotionEvent mTouchUpEvent;
+
+    @NonNull
+    private final DisplayRotationListener mDisplayRotationListener = new DisplayRotationListener();
 
     private final OnLayoutChangeListener mOnLayoutChangeListener =
             (v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
@@ -177,6 +191,7 @@ public final class PreviewView extends FrameLayout {
             }
             Logger.d(TAG, "Surface requested by Preview.");
             CameraInternal camera = surfaceRequest.getCamera();
+            mCameraInfoInternal = camera.getCameraInfoInternal();
             surfaceRequest.setTransformationInfoListener(
                     getMainExecutor(getContext()),
                     transformationInfo -> {
@@ -189,6 +204,17 @@ public final class PreviewView extends FrameLayout {
                                         == CameraSelector.LENS_FACING_FRONT;
                         mPreviewTransform.setTransformationInfo(transformationInfo,
                                 surfaceRequest.getResolution(), isFrontCamera);
+
+                        // If targetRotation not specified or it's using SurfaceView, use current
+                        // display rotation.
+                        if (transformationInfo.getTargetRotation() == ROTATION_NOT_SPECIFIED
+                                || (mImplementation != null
+                                && mImplementation instanceof SurfaceViewImplementation)) {
+                            mUseDisplayRotation = true;
+                        } else {
+                            mUseDisplayRotation = false;
+                        }
+                        updateDisplayRotationIfNeeded();
                         redrawPreview();
                     });
 
@@ -269,6 +295,8 @@ public final class PreviewView extends FrameLayout {
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
+        updateDisplayRotationIfNeeded();
+        startListeningToDisplayChange();
         addOnLayoutChangeListener(mOnLayoutChangeListener);
         if (mImplementation != null) {
             mImplementation.onAttachedToWindow();
@@ -286,6 +314,7 @@ public final class PreviewView extends FrameLayout {
         if (mCameraController != null) {
             mCameraController.clearPreviewSurface();
         }
+        stopListeningToDisplayChange();
     }
 
     @Override
@@ -631,6 +660,19 @@ public final class PreviewView extends FrameLayout {
         }
     }
 
+    // Synthetic access
+    @SuppressWarnings("WeakerAccess")
+    void updateDisplayRotationIfNeeded() {
+        if (mUseDisplayRotation) {
+            Display display = getDisplay();
+            if (display != null && mCameraInfoInternal != null) {
+                mPreviewTransform.overrideWithDisplayRotation(
+                        mCameraInfoInternal.getSensorRotationDegrees(
+                                display.getRotation()), display.getRotation());
+            }
+        }
+    }
+
     /**
      * The implementation mode of a {@link PreviewView}.
      *
@@ -916,6 +958,61 @@ public final class PreviewView extends FrameLayout {
                 } else {
                     throw ex;
                 }
+            }
+        }
+    }
+
+    private void startListeningToDisplayChange() {
+        DisplayManager displayManager = getDisplayManager();
+        if (displayManager == null) {
+            return;
+        }
+        displayManager.registerDisplayListener(mDisplayRotationListener,
+                new Handler(Looper.getMainLooper()));
+    }
+
+    private void stopListeningToDisplayChange() {
+        DisplayManager displayManager = getDisplayManager();
+        if (displayManager == null) {
+            return;
+        }
+        displayManager.unregisterDisplayListener(mDisplayRotationListener);
+    }
+
+    @Nullable
+    private DisplayManager getDisplayManager() {
+        Context context = getContext();
+        if (context == null) {
+            return null;
+        }
+        return (DisplayManager) context.getApplicationContext()
+                .getSystemService(Context.DISPLAY_SERVICE);
+    }
+    /**
+     * Listener for display rotation changes.
+     *
+     * <p> When the device is rotated 180° from side to side, the activity is not
+     * destroyed and recreated. In some foldable or large screen devices, when rotating devices
+     * in multi-window mode, it's also possible that activity is not recreated. This class is
+     * necessary to make sure preview's display rotation gets updated when that happens.
+     */
+    // Synthetic access
+    @SuppressWarnings("WeakerAccess")
+    class DisplayRotationListener implements DisplayManager.DisplayListener {
+        @Override
+        public void onDisplayAdded(int displayId) {
+        }
+
+        @Override
+        public void onDisplayRemoved(int displayId) {
+        }
+
+        @Override
+        public void onDisplayChanged(int displayId) {
+            Display display = getDisplay();
+            if (display != null && display.getDisplayId() == displayId) {
+                updateDisplayRotationIfNeeded();
+                redrawPreview();
             }
         }
     }

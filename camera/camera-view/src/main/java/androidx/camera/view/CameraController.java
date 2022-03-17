@@ -23,10 +23,7 @@ import static androidx.camera.view.CameraController.OutputSize.UNASSIGNED_ASPECT
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.hardware.camera2.CaptureResult;
-import android.hardware.display.DisplayManager;
 import android.os.Build;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Size;
 import android.view.Display;
 
@@ -280,9 +277,6 @@ public abstract class CameraController {
     @NonNull
     final RotationProvider.Listener mDeviceRotationListener;
 
-    @Nullable
-    private final DisplayRotationListener mDisplayRotationListener;
-
     private boolean mPinchToZoomEnabled = true;
     private boolean mTapToFocusEnabled = true;
 
@@ -314,9 +308,6 @@ public abstract class CameraController {
                     return null;
                 }, mainThreadExecutor());
 
-        // Listen for display rotation changes and set Preview rotation. Preview does not
-        // need rotation in fixed landscape/portrait mode.
-        mDisplayRotationListener = new DisplayRotationListener();
         // Listen for device rotation changes and set target rotation for non-preview use cases.
         // The output of non-preview use cases need to be corrected in fixed landscape/portrait
         // mode.
@@ -524,19 +515,12 @@ public abstract class CameraController {
     }
 
     private void startListeningToRotationEvents() {
-        getDisplayManager().registerDisplayListener(mDisplayRotationListener,
-                new Handler(Looper.getMainLooper()));
         mRotationProvider.addListener(mainThreadExecutor(),
                 mDeviceRotationListener);
     }
 
     private void stopListeningToRotationEvents() {
-        getDisplayManager().unregisterDisplayListener(mDisplayRotationListener);
         mRotationProvider.removeListener(mDeviceRotationListener);
-    }
-
-    private DisplayManager getDisplayManager() {
-        return (DisplayManager) mAppContext.getSystemService(Context.DISPLAY_SERVICE);
     }
 
     /**
@@ -1695,33 +1679,6 @@ public abstract class CameraController {
 
         builder.setViewPort(mViewPort);
         return builder.build();
-    }
-
-    /**
-     * Listener for display rotation changes.
-     *
-     * <p> When the device is rotated 180° from side to side, the activity is not
-     * destroyed and recreated, thus {@link #attachPreviewSurface} will not be invoked. This
-     * class is necessary to make sure preview's target rotation gets updated when that happens.
-     */
-    // Synthetic access
-    @SuppressWarnings("WeakerAccess")
-    class DisplayRotationListener implements DisplayManager.DisplayListener {
-
-        @Override
-        public void onDisplayAdded(int displayId) {
-        }
-
-        @Override
-        public void onDisplayRemoved(int displayId) {
-        }
-
-        @Override
-        public void onDisplayChanged(int displayId) {
-            if (mPreviewDisplay != null && mPreviewDisplay.getDisplayId() == displayId) {
-                mPreview.setTargetRotation(mPreviewDisplay.getRotation());
-            }
-        }
     }
 
     /**

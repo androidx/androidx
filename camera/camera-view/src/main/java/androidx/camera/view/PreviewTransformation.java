@@ -20,6 +20,7 @@ import static android.graphics.Paint.ANTI_ALIAS_FLAG;
 import static android.graphics.Paint.DITHER_FLAG;
 import static android.graphics.Paint.FILTER_BITMAP_FLAG;
 
+import static androidx.camera.core.impl.ImageOutputConfig.ROTATION_NOT_SPECIFIED;
 import static androidx.camera.view.PreviewView.ScaleType.FILL_CENTER;
 import static androidx.camera.view.PreviewView.ScaleType.FIT_CENTER;
 import static androidx.camera.view.PreviewView.ScaleType.FIT_END;
@@ -128,6 +129,14 @@ final class PreviewTransformation {
         mTargetRotation = transformationInfo.getTargetRotation();
         mResolution = resolution;
         mIsFrontCamera = isFrontCamera;
+    }
+
+    /**
+     * Override with display rotation when Preview does not have a target rotation set.
+     */
+    void overrideWithDisplayRotation(int rotationDegrees, int displayRotation) {
+        mPreviewRotationDegrees = rotationDegrees;
+        mTargetRotation = displayRotation;
     }
 
     /**
@@ -432,6 +441,7 @@ final class PreviewTransformation {
     }
 
     private boolean isTransformationInfoReady() {
-        return mSurfaceCropRect != null && mResolution != null;
+        return mSurfaceCropRect != null && mResolution != null
+                && mTargetRotation != ROTATION_NOT_SPECIFIED;
     }
 }
