@@ -33,7 +33,7 @@ public class AlwaysSupportedFeatures implements Features {
         if (Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH.equals(feature)) {
             return true;
         }
-        if (Features.GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER.equals(feature)) {
+        if (Features.GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK.equals(feature)) {
             return true;
         }
         if (Features.GLOBAL_SEARCH_SESSION_GET_SCHEMA.equals(feature)) {

@@ -24,7 +24,7 @@ import androidx.annotation.NonNull;
  * <p>Features do not depend on any runtime state, and features will never be removed. Once
  * {@link #isFeatureSupported} returns {@code true} for a certain feature, it is safe to assume that
  * the feature will be available forever on that AppSearch storage implementation, at that
- * Android API level, on that device form factor.
+ * Android API level, on that device.
  * <!--@exportToFramework:hide-->
  */
 public interface Features {
@@ -38,10 +38,11 @@ public interface Features {
 
     /**
      * Feature for {@link #isFeatureSupported(String)}. This feature covers
-     * {@link GlobalSearchSession#addObserver} and
-     * {@link GlobalSearchSession#removeObserver}.
+     * {@link GlobalSearchSession#registerObserverCallback} and
+     * {@link GlobalSearchSession#unregisterObserverCallback}.
      */
-    String GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER = "GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER";
+    String GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK =
+            "GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK";
 
     /**
      * Feature for {@link #isFeatureSupported(String)}. This feature covers

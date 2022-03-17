@@ -25,7 +25,7 @@ import java.util.Collections;
 import java.util.Set;
 
 /**
- * Contains information about an individual change detected by an {@link AppSearchObserverCallback}.
+ * Contains information about an individual change detected by an {@link ObserverCallback}.
  *
  * <p>This class reports information about document changes, i.e. when documents were added, updated
  * or removed.

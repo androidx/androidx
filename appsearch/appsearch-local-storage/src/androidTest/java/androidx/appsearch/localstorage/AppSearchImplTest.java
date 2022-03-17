@@ -2768,13 +2768,13 @@ public class AppSearchImplTest {
 
         // Register an observer twice, on different packages.
         TestObserverCallback observer = new TestObserverCallback();
-        mAppSearchImpl.addObserver(
+        mAppSearchImpl.registerObserverCallback(
                 /*listeningPackageAccess=*/mSelfCallerAccess,
                 /*targetPackageName=*/mContext.getPackageName(),
                 new ObserverSpec.Builder().build(),
                 MoreExecutors.directExecutor(),
                 observer);
-        mAppSearchImpl.addObserver(
+        mAppSearchImpl.registerObserverCallback(
                 /*listeningPackageAccess=*/mSelfCallerAccess,
                 /*targetPackageName=*/fakePackage,
                 new ObserverSpec.Builder().build(),
@@ -2797,7 +2797,7 @@ public class AppSearchImplTest {
         observer.clear();
 
         // Remove the observer from the fake package
-        mAppSearchImpl.removeObserver(fakePackage, observer);
+        mAppSearchImpl.unregisterObserverCallback(fakePackage, observer);
 
         // Index a second document
         GenericDocument doc2 = new GenericDocument.Builder<>("namespace1", "id2", "Type1").build();
@@ -3352,7 +3352,7 @@ public class AppSearchImplTest {
 
         // Register an observer
         TestObserverCallback observer = new TestObserverCallback();
-        mAppSearchImpl.addObserver(
+        mAppSearchImpl.registerObserverCallback(
                 /*listeningPackageAccess=*/mSelfCallerAccess,
                 /*targetPackageName=*/mContext.getPackageName(),
                 new ObserverSpec.Builder().build(),
@@ -3406,7 +3406,7 @@ public class AppSearchImplTest {
 
         // Register an observer
         TestObserverCallback observer = new TestObserverCallback();
-        mAppSearchImpl.addObserver(
+        mAppSearchImpl.registerObserverCallback(
                 /*listeningPackageAccess=*/mSelfCallerAccess,
                 /*targetPackageName=*/mContext.getPackageName(),
                 new ObserverSpec.Builder().build(),
@@ -3449,7 +3449,7 @@ public class AppSearchImplTest {
 
         // Register an observer from a simulated different package
         TestObserverCallback observer = new TestObserverCallback();
-        mAppSearchImpl.addObserver(
+        mAppSearchImpl.registerObserverCallback(
                 new CallerAccess(/*callingPackageName=*/
                     "com.fake.Listening.package"),
                 /*targetPackageName=*/mContext.getPackageName(),
@@ -3501,7 +3501,7 @@ public class AppSearchImplTest {
 
         // Register an observer
         TestObserverCallback observer = new TestObserverCallback();
-        mAppSearchImpl.addObserver(
+        mAppSearchImpl.registerObserverCallback(
                 new CallerAccess(/*callingPackageName=*/fakeListeningPackage),
                 /*targetPackageName=*/mContext.getPackageName(),
                 new ObserverSpec.Builder().build(),
@@ -3557,7 +3557,7 @@ public class AppSearchImplTest {
 
         // Register an observer
         TestObserverCallback observer = new TestObserverCallback();
-        mAppSearchImpl.addObserver(
+        mAppSearchImpl.registerObserverCallback(
                 new CallerAccess(/*callingPackageName=*/fakeListeningPackage),
                 /*targetPackageName=*/mContext.getPackageName(),
                 new ObserverSpec.Builder().build(),
@@ -3585,7 +3585,7 @@ public class AppSearchImplTest {
     public void testAddObserver_schemaChange_added() throws Exception {
         // Register an observer
         TestObserverCallback observer = new TestObserverCallback();
-        mAppSearchImpl.addObserver(
+        mAppSearchImpl.registerObserverCallback(
                 /*listeningPackageAccess=*/mSelfCallerAccess,
                 /*targetPackageName=*/mContext.getPackageName(),
                 new ObserverSpec.Builder().build(),
@@ -3655,7 +3655,7 @@ public class AppSearchImplTest {
 
         // Register an observer
         TestObserverCallback observer = new TestObserverCallback();
-        mAppSearchImpl.addObserver(
+        mAppSearchImpl.registerObserverCallback(
                 /*listeningPackageAccess=*/mSelfCallerAccess,
                 /*targetPackageName=*/mContext.getPackageName(),
                 new ObserverSpec.Builder().build(),
@@ -3706,7 +3706,7 @@ public class AppSearchImplTest {
 
         // Register an observer
         TestObserverCallback observer = new TestObserverCallback();
-        mAppSearchImpl.addObserver(
+        mAppSearchImpl.registerObserverCallback(
                 /*listeningPackageAccess=*/mSelfCallerAccess,
                 /*targetPackageName=*/mContext.getPackageName(),
                 new ObserverSpec.Builder().build(),
@@ -3795,7 +3795,7 @@ public class AppSearchImplTest {
 
         // Register an observer that only listens for Type2
         TestObserverCallback observer = new TestObserverCallback();
-        mAppSearchImpl.addObserver(
+        mAppSearchImpl.registerObserverCallback(
                 /*listeningPackageAccess=*/mSelfCallerAccess,
                 /*targetPackageName=*/mContext.getPackageName(),
                 new ObserverSpec.Builder().addFilterSchemas("Type2").build(),
@@ -3861,7 +3861,7 @@ public class AppSearchImplTest {
 
         // Register an observer
         TestObserverCallback observer = new TestObserverCallback();
-        mAppSearchImpl.addObserver(
+        mAppSearchImpl.registerObserverCallback(
                 new CallerAccess(/*callingPackageName=*/fakeListeningPackage),
                 /*targetPackageName=*/mContext.getPackageName(),
                 new ObserverSpec.Builder().build(),
@@ -4036,7 +4036,7 @@ public class AppSearchImplTest {
 
         // Register an observer
         TestObserverCallback observer = new TestObserverCallback();
-        mAppSearchImpl.addObserver(
+        mAppSearchImpl.registerObserverCallback(
                 new CallerAccess(/*callingPackageName=*/fakeListeningPackage),
                 /*targetPackageName=*/mContext.getPackageName(),
                 new ObserverSpec.Builder().build(),
@@ -4108,7 +4108,7 @@ public class AppSearchImplTest {
 
         // Register an observer
         TestObserverCallback observer = new TestObserverCallback();
-        mAppSearchImpl.addObserver(
+        mAppSearchImpl.registerObserverCallback(
                 new CallerAccess(/*callingPackageName=*/fakeListeningPackage),
                 /*targetPackageName=*/mContext.getPackageName(),
                 new ObserverSpec.Builder().build(),
@@ -4198,7 +4198,7 @@ public class AppSearchImplTest {
 
         // Register three observers: one in each package, and another in package1 with a filter.
         TestObserverCallback observerPkg1NoFilter = new TestObserverCallback();
-        mAppSearchImpl.addObserver(
+        mAppSearchImpl.registerObserverCallback(
                 new CallerAccess(/*callingPackageName=*/fakePackage1),
                 /*targetPackageName=*/mContext.getPackageName(),
                 new ObserverSpec.Builder().build(),
@@ -4206,7 +4206,7 @@ public class AppSearchImplTest {
                 observerPkg1NoFilter);
 
         TestObserverCallback observerPkg2NoFilter = new TestObserverCallback();
-        mAppSearchImpl.addObserver(
+        mAppSearchImpl.registerObserverCallback(
                 new CallerAccess(/*callingPackageName=*/fakePackage2),
                 /*targetPackageName=*/mContext.getPackageName(),
                 new ObserverSpec.Builder().build(),
@@ -4214,7 +4214,7 @@ public class AppSearchImplTest {
                 observerPkg2NoFilter);
 
         TestObserverCallback observerPkg1FilterType4 = new TestObserverCallback();
-        mAppSearchImpl.addObserver(
+        mAppSearchImpl.registerObserverCallback(
                 new CallerAccess(/*callingPackageName=*/fakePackage1),
                 /*targetPackageName=*/mContext.getPackageName(),
                 new ObserverSpec.Builder().addFilterSchemas("Type4").build(),

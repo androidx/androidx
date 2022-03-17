@@ -19,15 +19,15 @@ package androidx.appsearch.testutil;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.appsearch.observer.AppSearchObserverCallback;
 import androidx.appsearch.observer.DocumentChangeInfo;
+import androidx.appsearch.observer.ObserverCallback;
 import androidx.appsearch.observer.SchemaChangeInfo;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * An implementation of {@link androidx.appsearch.observer.AppSearchObserverCallback} for testing
+ * An implementation of {@link androidx.appsearch.observer.ObserverCallback} for testing
  * that caches its notifications in memory.
  *
  * <p>You should wait for all notifications to be delivered using {@link #waitForNotificationCount}
@@ -36,7 +36,7 @@ import java.util.List;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class TestObserverCallback implements AppSearchObserverCallback {
+public class TestObserverCallback implements ObserverCallback {
     private final Object mLock = new Object();
 
     private final List<SchemaChangeInfo> mSchemaChanges = new ArrayList<>();

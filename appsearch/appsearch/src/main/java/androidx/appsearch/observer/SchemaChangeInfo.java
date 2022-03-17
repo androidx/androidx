@@ -25,7 +25,7 @@ import java.util.Collections;
 import java.util.Set;
 
 /**
- * Contains information about a schema change detected by an {@link AppSearchObserverCallback}.
+ * Contains information about a schema change detected by an {@link ObserverCallback}.
  *
  * <p>This object will be sent when a schema type having a name matching an observer's schema
  * type filters has been added, updated, or removed.

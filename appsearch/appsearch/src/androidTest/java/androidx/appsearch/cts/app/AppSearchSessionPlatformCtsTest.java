@@ -73,7 +73,7 @@ public class AppSearchSessionPlatformCtsTest extends AppSearchSessionCtsTestBase
                 Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH))
                 .isEqualTo(BuildCompat.isAtLeastT());
         assertThat(db2.getFeatures().isFeatureSupported(
-                Features.GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER))
+                Features.GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK))
                 .isEqualTo(BuildCompat.isAtLeastT());
         assertThat(db2.getFeatures().isFeatureSupported(
                 Features.GLOBAL_SEARCH_SESSION_GET_SCHEMA))
