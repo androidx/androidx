@@ -27,6 +27,7 @@ import androidx.health.data.client.response.InsertRecordResponse
 import androidx.health.data.client.response.ReadRecordResponse
 import androidx.health.data.client.response.ReadRecordsResponse
 import androidx.health.data.client.time.TimeRangeFilter
+import java.lang.IllegalStateException
 import kotlin.reflect.KClass
 
 /** Interface to access health and fitness records. */
@@ -38,6 +39,7 @@ interface HealthDataClient {
      *
      * @throws RemoteException For any IPC transportation failures.
      * @throws IOException For any disk I/O issues.
+     * @throws IllegalStateException If service is not available.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     suspend fun getGrantedPermissions(permissions: Set<Permission>): Set<Permission>
@@ -52,6 +54,7 @@ interface HealthDataClient {
      * @throws RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
      * @throws IOException For any disk I/O issues.
+     * @throws IllegalStateException If service is not available.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     suspend fun insertRecords(records: List<Record>): InsertRecordResponse
@@ -64,6 +67,7 @@ interface HealthDataClient {
      * @throws RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
      * @throws IOException For any disk I/O issues.
+     * @throws IllegalStateException If service is not available.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY) suspend fun updateRecords(records: List<Record>)
 
@@ -77,6 +81,7 @@ interface HealthDataClient {
      * @throws RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
      * @throws IOException For any disk I/O issues.
+     * @throws IllegalStateException If service is not available.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     suspend fun deleteRecords(
@@ -99,6 +104,7 @@ interface HealthDataClient {
      * @throws RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
      * @throws IOException For any disk I/O issues.
+     * @throws IllegalStateException If service is not available.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     suspend fun deleteRecords(recordType: KClass<out Record>, timeRangeFilter: TimeRangeFilter)
@@ -112,6 +118,7 @@ interface HealthDataClient {
      * @throws RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
      * @throws IOException For any disk I/O issues.
+     * @throws IllegalStateException If service is not available.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     suspend fun <T : Record> readRecord(recordType: KClass<T>, uid: String): ReadRecordResponse<T>
@@ -137,6 +144,7 @@ interface HealthDataClient {
      * @throws SecurityException For requests with unpermitted access.
      * @throws IOException For any disk I/O issues.
      * @throws IllegalStateException For incorrectly set parameters.
+     * @throws IllegalStateException If service is not available.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     suspend fun <T : Record> readRecords(
@@ -270,6 +278,20 @@ interface HealthDataClient {
             pageToken = null
         )
 
+    /**
+     * Reads [AggregateMetric]s according to requested read criteria: [Record]s from
+     * [dataOriginFilter] and within [timeRangeFilter]
+     *
+     * @param aggregateMetrics The [AggregateMetric]s to aggregate
+     * @param timeRangeFilter The [TimeRangeFilter] to read from.
+     * @param dataOriginFilter List of [DataOrigin] to read from, or empty for no filter.
+     *
+     * @return a response containing a collection of [Record]s.
+     * @throws RemoteException For any IPC transportation failures.
+     * @throws SecurityException For requests with unpermitted access.
+     * @throws IOException For any disk I/O issues.
+     * @throws IllegalStateException If service is not available.
+     */
     // TODO(b/219327548): Expand this to reuse readRecords time range filter and data origin
     // filters.
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -295,6 +317,7 @@ interface HealthDataClient {
      * @param request Includes interested types of record to observe changes and optional filters.
      * @throws RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
+     * @throws IllegalStateException If service is not available.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     suspend fun getChangesToken(request: ChangesTokenRequest): String
@@ -315,6 +338,7 @@ interface HealthDataClient {
      * Health Platform.
      * @throws RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
+     * @throws IllegalStateException If service is not available.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     suspend fun getChanges(changesToken: String): ChangesResponse
