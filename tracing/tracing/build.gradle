@@ -38,3 +38,7 @@ androidx {
     inceptionYear = "2020"
     description = "Android Tracing"
 }
+
+android {
+    namespace "androidx.tracing"
+}

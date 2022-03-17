@@ -57,6 +57,7 @@ android {
                 "proguard-rules.pro"
         )
     }
+    namespace "androidx.webkit"
 }
 
 androidx {

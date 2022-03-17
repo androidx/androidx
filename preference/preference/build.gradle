@@ -60,6 +60,7 @@ android {
     buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
     }
+    namespace "androidx.preference"
 }
 
 androidx {

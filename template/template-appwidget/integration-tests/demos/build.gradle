@@ -44,4 +44,5 @@ android {
         // part of CI.
         archivesBaseName = "template-appwidget-demos-testapp"
     }
+    namespace "androidx.template.appwidget.demos"
 }

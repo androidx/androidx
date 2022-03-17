@@ -41,3 +41,7 @@ androidx {
     inceptionYear = "2018"
     description = "Kotlin extensions for 'viewmodel' artifact"
 }
+
+android {
+    namespace "androidx.lifecycle.viewmodel.ktx"
+}

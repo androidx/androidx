@@ -44,3 +44,7 @@ androidx {
     inceptionYear = "2019"
     description = "Android WorkManager Benchmark Library"
 }
+
+android {
+    namespace "androidx.work.benchmark"
+}

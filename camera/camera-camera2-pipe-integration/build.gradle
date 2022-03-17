@@ -85,6 +85,7 @@ android {
     defaultConfig {
         multiDexEnabled = true
     }
+    namespace "androidx.camera.camera2.pipe.integration"
 }
 
 kapt {

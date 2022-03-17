@@ -44,3 +44,7 @@ androidx {
     description = "The slices core library provides utilities for the slices view and provider libraries"
     failOnDeprecationWarnings = false
 }
+
+android {
+    namespace "androidx.slice.core"
+}

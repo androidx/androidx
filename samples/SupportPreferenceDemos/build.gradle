@@ -15,3 +15,7 @@ dependencies {
     implementation(project(":leanback:leanback"))
     implementation(project(":leanback:leanback-preference"))
 }
+
+android {
+    namespace "com.example.androidx.preference"
+}

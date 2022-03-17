@@ -56,4 +56,5 @@ android {
         sourceCompatibility 1.8
         targetCompatibility 1.8
     }
+    namespace "androidx.wear.watchface.samples.minimal.style"
 }

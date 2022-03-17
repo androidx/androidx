@@ -48,6 +48,7 @@ android {
     kotlinOptions {
         freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
     }
+    namespace "androidx.camera.integration.antelope"
 }
 
 dependencies {

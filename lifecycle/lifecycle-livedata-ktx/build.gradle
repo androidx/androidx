@@ -56,3 +56,7 @@ androidx {
     inceptionYear = "2018"
     description = "Kotlin extensions for 'livedata' artifact"
 }
+
+android {
+    namespace "androidx.lifecycle.livedata.ktx"
+}

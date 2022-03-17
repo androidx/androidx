@@ -26,6 +26,7 @@ android {
     defaultConfig {
         minSdkVersion 23
     }
+    namespace "androidx.benchmark.integration.macrobenchmark"
 }
 
 dependencies {

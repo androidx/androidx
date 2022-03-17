@@ -65,6 +65,7 @@ android {
     }
     useLibrary 'android.car'
     testOptions.unitTests.includeAndroidResources = true
+    namespace "androidx.car.app.automotive"
 }
 
 androidx {

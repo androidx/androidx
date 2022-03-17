@@ -45,3 +45,7 @@ androidx {
     inceptionYear = "2020"
     description = "This is a project for Paging demos."
 }
+
+android {
+    namespace "androidx.paging.compose.demos"
+}

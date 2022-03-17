@@ -29,6 +29,7 @@ android {
             res.srcDirs += 'src/main/res-public'
         }
     }
+    namespace "androidx.emoji2.widget"
 }
 
 androidx {

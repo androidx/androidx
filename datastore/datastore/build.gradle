@@ -30,6 +30,7 @@ android {
             kotlin.srcDirs += test.kotlin.srcDirs
         }
     }
+    namespace "androidx.datastore.datastore"
 }
 
 dependencies {

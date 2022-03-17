@@ -44,3 +44,7 @@ androidx {
     inceptionYear = "2018"
     description = "Kotlin extensions for 'dynamicanimation' artifact"
 }
+
+android {
+    namespace "androidx.dynamicanimation.ktx"
+}

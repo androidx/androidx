@@ -50,6 +50,7 @@ android {
     defaultConfig {
         minSdkVersion 25
     }
+    namespace "androidx.wear.compose.material.samples"
 }
 
 androidx {

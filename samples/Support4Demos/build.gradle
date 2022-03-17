@@ -16,3 +16,7 @@ dependencies {
     implementation(libs.kotlinStdlib)
     implementation(libs.kotlinCoroutinesAndroid)
 }
+
+android {
+    namespace "com.example.android.supportv4"
+}

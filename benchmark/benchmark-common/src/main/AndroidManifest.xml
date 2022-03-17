@@ -14,8 +14,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<manifest package="androidx.benchmark"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- This is needed to write benchmark report data to an external directory during instrumented
     tests to allow the accompanying androidx.benchmark gradle plugin to pull the reports onto host

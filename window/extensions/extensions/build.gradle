@@ -45,3 +45,7 @@ androidx {
             "(androidx.window:window) will use when communicating with the " +
             "device-specific OEM extension."
 }
+
+android {
+    namespace "androidx.window.extensions"
+}

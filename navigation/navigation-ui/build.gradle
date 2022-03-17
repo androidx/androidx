@@ -31,6 +31,7 @@ android {
     defaultConfig {
         multiDexEnabled true
     }
+    namespace "androidx.navigation.ui"
 }
 
 dependencies {

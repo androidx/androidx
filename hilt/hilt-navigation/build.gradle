@@ -39,3 +39,7 @@ androidx {
     inceptionYear = "2021"
     description = "Android Navigation Hilt Extension"
 }
+
+android {
+    namespace "androidx.hilt.navigation"
+}

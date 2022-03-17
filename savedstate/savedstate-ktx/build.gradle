@@ -39,3 +39,7 @@ androidx {
     inceptionYear = "2020"
     description = "Kotlin extensions for 'savedstate' artifact"
 }
+
+android {
+    namespace "androidx.savedstate.ktx"
+}

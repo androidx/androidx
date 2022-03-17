@@ -95,6 +95,7 @@ android {
     packagingOptions {
         pickFirst "META-INF/support.camera_camera-core.version"
     }
+    namespace "androidx.camera.core"
 }
 
 androidx {

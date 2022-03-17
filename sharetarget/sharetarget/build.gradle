@@ -42,3 +42,7 @@ androidx {
     inceptionYear = "2018"
     description = "ShareTarget"
 }
+
+android {
+    namespace "androidx.sharetarget"
+}

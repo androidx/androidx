@@ -28,3 +28,7 @@ androidx {
     inceptionYear = "2018"
     description = "Kotlin extensions for 'core' artifact"
 }
+
+android {
+    namespace "androidx.core.ktx"
+}

@@ -15,8 +15,7 @@
   ~ limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:tools="http://schemas.android.com/tools"
-          package="androidx.fragment.testing">
+          xmlns:tools="http://schemas.android.com/tools">
     <!-- TODO: Remove this override after androidx.test:core lowers the level -->
     <uses-sdk tools:overrideLibrary="androidx.test.core" />
     <uses-permission android:name="android.permission.REORDER_TASKS" />

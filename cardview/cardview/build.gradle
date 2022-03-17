@@ -18,3 +18,7 @@ androidx {
     description = "Android Support CardView"
     failOnDeprecationWarnings = false
 }
+
+android {
+    namespace "androidx.cardview"
+}

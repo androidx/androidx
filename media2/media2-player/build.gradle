@@ -45,6 +45,7 @@ android {
     defaultConfig {
         minSdkVersion 16
     }
+    namespace "androidx.media2.player"
 }
 
 androidx {

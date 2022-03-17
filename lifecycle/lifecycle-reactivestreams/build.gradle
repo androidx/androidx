@@ -46,3 +46,7 @@ androidx {
     inceptionYear = "2017"
     description = "Android Lifecycle Reactivestreams"
 }
+
+android {
+    namespace "androidx.lifecycle.reactivestreams"
+}

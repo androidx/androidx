@@ -23,6 +23,7 @@ android {
     buildFeatures {
         aidl = true
     }
+    namespace "androidx.media2.test.common"
 }
 
 dependencies {

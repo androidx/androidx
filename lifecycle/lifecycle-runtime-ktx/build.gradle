@@ -51,6 +51,10 @@ androidx {
     description = "Kotlin extensions for 'lifecycle' artifact"
 }
 
+android {
+    namespace "androidx.lifecycle.ktx"
+}
+
 // Allow usage of Kotlin's @OptIn.
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {

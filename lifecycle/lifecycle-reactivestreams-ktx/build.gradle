@@ -44,6 +44,10 @@ androidx {
   description = "Kotlin extensions for Lifecycle ReactiveStreams"
 }
 
+android {
+    namespace "androidx.lifecycle.reactivestreams.ktx"
+}
+
 // Allow usage of Kotlin's @OptIn.
 tasks.withType(KotlinCompile).configureEach {
   kotlinOptions {

@@ -38,3 +38,7 @@ androidx {
     description = "A set of builders to create templates using SliceProvider APIs"
     failOnDeprecationWarnings = false
 }
+
+android {
+    namespace "androidx.slice.builders"
+}

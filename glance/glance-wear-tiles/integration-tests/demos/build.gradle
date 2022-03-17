@@ -40,4 +40,5 @@ android {
         // part of CI
         archivesBaseName = "glance-wear-tiles-demos-testapp"
     }
+    namespace "androidx.glance.wear.tiles.demos"
 }

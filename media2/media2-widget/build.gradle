@@ -52,6 +52,7 @@ android {
 	// Remove once b/136119801 is fixed
 	disable("RestrictedApi")
     }
+    namespace "androidx.media2.widget"
 }
 
 androidx {

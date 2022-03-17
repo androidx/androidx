@@ -43,6 +43,7 @@ android {
     defaultConfig {
         minSdkVersion 26
     }
+    namespace "androidx.wear.watchface.editor.samples"
 }
 
 // Allow usage of Kotlin's @OptIn.

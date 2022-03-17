@@ -55,6 +55,10 @@ kapt {
     }
 }
 
+android {
+    namespace "androidx.paging.integration.testapp"
+}
+
 // Allow usage of Kotlin's @OptIn.
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {

@@ -67,6 +67,10 @@ androidx {
     runApiTasks = new RunApiTasks.Yes()
 }
 
+android {
+    namespace "androidx.lifecycle.viewmodel.compose"
+}
+
 // needed only while https://youtrack.jetbrains.com/issue/KT-47000 isn't resolved which is
 // targeted to 1.6
 tasks.withType(KotlinCompile).configureEach {

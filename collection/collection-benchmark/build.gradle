@@ -38,3 +38,7 @@ dependencies {
 androidx {
     publish = Publish.NONE
 }
+
+android {
+    namespace "androidx.collection.benchmark"
+}

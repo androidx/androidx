@@ -14,5 +14,6 @@ android {
     aaptOptions {
         additionalParameters "--no-version-transitions"
     }
+    namespace "com.example.android.support.transition"
 }
 

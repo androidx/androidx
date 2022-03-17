@@ -28,9 +28,9 @@ dependencies {
 
 android {
     defaultConfig {
-        versionCode 1
         multiDexEnabled true
     }
+    namespace "androidx.camera.extensions.impl"
 }
 
 androidx {

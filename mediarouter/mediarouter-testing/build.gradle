@@ -34,3 +34,7 @@ androidx {
     description = "Test utilities for AndroidX MediaRouter"
 }
 
+android {
+    namespace "androidx.mediarouter.testing"
+}
+

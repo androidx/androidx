@@ -71,6 +71,7 @@ android {
 
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
+    namespace "androidx.camera.extensions"
 }
 
 androidx {

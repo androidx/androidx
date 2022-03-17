@@ -37,3 +37,7 @@ androidx {
     description = "Allows libraries to prepopulate ahead of time compilation traces to be read by" +
             " ART"
 }
+
+android {
+    namespace "androidx.profileinstaller"
+}

@@ -48,3 +48,7 @@ androidx {
     description = "A library that handles rendering of slice content into supported templates"
     failOnDeprecationWarnings = false
 }
+
+android {
+    namespace "androidx.slice.view"
+}

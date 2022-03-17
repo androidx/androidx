@@ -40,3 +40,7 @@ androidx {
     inceptionYear = "2020"
     description = "Android Room RXJava3"
 }
+
+android {
+    namespace "androidx.room.rxjava3"
+}

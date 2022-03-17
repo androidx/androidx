@@ -36,7 +36,7 @@ class AndroidManifestServiceExportedDetectorTest : AbstractLintDetectorTest(
 
         /* ktlint-disable max-line-length */
         val expected = """
-AndroidManifest.xml:22: Error: Missing exported=true in <service> tag [MissingServiceExportedEqualsTrue]
+AndroidManifest.xml:21: Error: Missing exported=true in <service> tag [MissingServiceExportedEqualsTrue]
         <service android:name="androidx.core.app.JobIntentService">
         ^
 1 errors, 0 warnings

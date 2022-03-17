@@ -39,6 +39,7 @@ android {
     defaultConfig {
         minSdkVersion 23
     }
+    namespace "androidx.security.biometric"
 }
 
 androidx {

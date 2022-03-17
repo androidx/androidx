@@ -34,6 +34,7 @@ android {
     lintOptions {
         disable "InvalidPackage" // Lint is unhappy about junit package
     }
+    namespace "androidx.testutils.espresso"
 }
 
 androidx {

@@ -27,6 +27,7 @@ android {
     }
     defaultConfig.vectorDrawables.useSupportLibrary = true
     defaultConfig.minSdkVersion 19
+    namespace "androidx.textclassifier.integration.testapp"
 }
 
 dependencies {

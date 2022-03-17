@@ -46,3 +46,7 @@ androidx {
             'apps, as well as structured parameters for semantic intents should use these ' +
             'built-in types as appropriate.'
 }
+
+android {
+    namespace "androidx.appsearch.builtintypes"
+}

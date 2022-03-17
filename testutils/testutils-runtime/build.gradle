@@ -38,6 +38,7 @@ android {
     defaultConfig {
         testInstrumentationRunner "androidx.testutils.ActivityRecyclingAndroidJUnitRunner"
     }
+    namespace "androidx.testutils.runtime"
 }
 
 androidx {

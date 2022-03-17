@@ -26,6 +26,7 @@ android {
     defaultConfig {
         multiDexEnabled = true
     }
+    namespace "androidx.core.google.shortcuts"
 }
 
 dependencies {

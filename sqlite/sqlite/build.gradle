@@ -27,6 +27,10 @@ dependencies {
     testImplementation(libs.mockitoCore)
 }
 
+android {
+    namespace "androidx.sqlite.db"
+}
+
 // Used by testImplementation in room-compiler
 android.libraryVariants.all { variant ->
     def name = variant.name

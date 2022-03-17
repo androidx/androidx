@@ -42,3 +42,7 @@ androidx {
     inceptionYear = "2017"
     description = "The implementation of Support SQLite library using the framework code."
 }
+
+android {
+    namespace "androidx.sqlite.db.framework"
+}
