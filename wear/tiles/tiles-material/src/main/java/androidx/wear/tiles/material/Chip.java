@@ -140,7 +140,7 @@ public class Chip implements LayoutElement {
          * by {@link ChipDefaults#DEFAULT_MARGIN_PERCENT}.
          */
         @NonNull
-        public Builder setWidth(@NonNull DpProp width) {
+        public Builder setWidth(@NonNull ContainerDimension width) {
             mWidth = width;
             return this;
         }
@@ -303,13 +303,6 @@ public class Chip implements LayoutElement {
         @NonNull
         Builder setHeight(@NonNull DpProp height) {
             this.mHeight = height;
-            return this;
-        }
-
-        /** Used for creating CompactChip and TitleChip. */
-        @NonNull
-        Builder setWidth(@NonNull ContainerDimension width) {
-            this.mWidth = width;
             return this;
         }
 

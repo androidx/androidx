@@ -27,7 +27,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters;
-import androidx.wear.tiles.DimensionBuilders.ContainerDimension;
 import androidx.wear.tiles.DimensionBuilders.WrappedDimensionProp;
 import androidx.wear.tiles.LayoutElementBuilders.LayoutElement;
 import androidx.wear.tiles.ModifiersBuilders.Clickable;
@@ -112,18 +111,6 @@ public class CompactChip implements LayoutElement {
         }
     }
 
-    /** Returns height of this Chip. */
-    @NonNull
-    public ContainerDimension getHeight() {
-        return mElement.getHeight();
-    }
-
-    /** Returns width of this Chip. */
-    @NonNull
-    public ContainerDimension getWidth() {
-        return mElement.getWidth();
-    }
-
     /** Returns click event action associated with this Chip. */
     @NonNull
     public Clickable getClickable() {
@@ -134,12 +121,6 @@ public class CompactChip implements LayoutElement {
     @NonNull
     public ChipColors getChipColors() {
         return mElement.getChipColors();
-    }
-
-    /** Returns content description of this Chip. */
-    @NonNull
-    public CharSequence getContentDescription() {
-        return mElement.getContentDescription();
     }
 
     /** Returns content of this Chip. */

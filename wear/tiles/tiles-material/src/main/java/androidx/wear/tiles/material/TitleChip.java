@@ -32,7 +32,6 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters;
 import androidx.wear.tiles.DimensionBuilders.ContainerDimension;
-import androidx.wear.tiles.DimensionBuilders.DpProp;
 import androidx.wear.tiles.LayoutElementBuilders.HorizontalAlignment;
 import androidx.wear.tiles.LayoutElementBuilders.LayoutElement;
 import androidx.wear.tiles.ModifiersBuilders.Clickable;
@@ -65,7 +64,7 @@ public class TitleChip implements LayoutElement {
 
         // Indicates that the width isn't set, so it will be automatically set by Chip.Builder
         // constructor.
-        @Nullable private DpProp mWidth = null;
+        @Nullable private ContainerDimension mWidth = null;
 
         /**
          * Creates a builder for the {@link TitleChip} with associated action and the given text
@@ -113,7 +112,7 @@ public class TitleChip implements LayoutElement {
          * decreased by {@link ChipDefaults#DEFAULT_MARGIN_PERCENT}.
          */
         @NonNull
-        public Builder setWidth(@NonNull DpProp width) {
+        public Builder setWidth(@NonNull ContainerDimension width) {
             mWidth = width;
             return this;
         }
@@ -152,12 +151,6 @@ public class TitleChip implements LayoutElement {
         }
     }
 
-    /** Returns height of this Chip. */
-    @NonNull
-    public ContainerDimension getHeight() {
-        return mElement.getHeight();
-    }
-
     /** Returns width of this Chip. */
     @NonNull
     public ContainerDimension getWidth() {
@@ -174,12 +167,6 @@ public class TitleChip implements LayoutElement {
     @NonNull
     public ChipColors getChipColors() {
         return mElement.getChipColors();
-    }
-
-    /** Returns content description of this Chip. */
-    @NonNull
-    public CharSequence getContentDescription() {
-        return mElement.getContentDescription();
     }
 
     /** Returns content of this Chip. */
