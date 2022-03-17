@@ -35,7 +35,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
-import java.util.concurrent.CancellationException;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -142,7 +141,7 @@ public class ServiceConnection implements android.content.ServiceConnection {
                             + "' and action '"
                             + mConnectionConfiguration.getBindAction()
                             + "'.");
-            handleNonRetriableDisconnection(new CancellationException("Service not available"));
+            handleNonRetriableDisconnection(new IllegalStateException("Service not available"));
         }
     }
 
@@ -305,7 +304,7 @@ public class ServiceConnection implements android.content.ServiceConnection {
                                 TAG,
                                 "Binder died for client:"
                                         + mConnectionConfiguration.getClientName());
-                        handleRetriableDisconnection(new CancellationException());
+                        handleRetriableDisconnection(new RemoteException("Binder died"));
                     },
                     /* flags= */ 0);
         } catch (RemoteException exception) {
@@ -326,7 +325,7 @@ public class ServiceConnection implements android.content.ServiceConnection {
     @Override
     public void onBindingDied(ComponentName name) {
         Log.e(TAG, "Binding died for client '" + mConnectionConfiguration.getClientName() + "'.");
-        handleRetriableDisconnection(new CancellationException());
+        handleRetriableDisconnection(new RemoteException("Binding died"));
     }
 
     @Override
@@ -337,6 +336,6 @@ public class ServiceConnection implements android.content.ServiceConnection {
                         + mConnectionConfiguration.getClientName()
                         + "', binder is null");
         // This connection will never be usable, don't bother with retries.
-        handleRetriableDisconnection(new CancellationException("Null binding"));
+        handleRetriableDisconnection(new IllegalStateException("Null binding"));
     }
 }
