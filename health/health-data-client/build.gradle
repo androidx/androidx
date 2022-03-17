@@ -15,6 +15,7 @@
  */
 
 import androidx.build.LibraryType
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -38,6 +39,7 @@ dependencies {
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
     testImplementation(libs.truth)
+    testImplementation(libs.kotlinCoroutinesTest)
     androidTestImplementation(libs.testRules)
     testImplementation(libs.mockitoCore)
     testImplementation(libs.robolectric)
@@ -49,7 +51,7 @@ dependencies {
 
 android {
     defaultConfig {
-	    minSdkVersion 27
+        minSdkVersion 27
     }
     buildFeatures {
         aidl = true
@@ -84,4 +86,11 @@ androidx {
     mavenGroup = LibraryGroups.HEALTH
     inceptionYear = "2021"
     description = "read or write user's health and fitness records."
+}
+
+// Allow usage of Kotlin's @OptIn.
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
+    }
 }
