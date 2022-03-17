@@ -233,8 +233,8 @@ inline class PositionIndicatorAlignment internal constructor(internal val pos: I
 
         // TODO(b/224770222): Add tests.
         /**
-         * Position the indicator opposite to the physical rsb. (at the left for default mode and
-         * at the right if the device is rotated 180 degrees)
+         * Position the indicator opposite to the physical rotating side button (RSB). (at the left
+         * by default and at the right if the device is rotated 180 degrees)
          * This is the default for RSB indicators as we want to avoid it being obscured when the
          * user is interacting with the RSB.
          */
