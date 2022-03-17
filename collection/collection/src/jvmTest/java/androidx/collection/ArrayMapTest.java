@@ -16,6 +16,7 @@
 
 package androidx.collection;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -24,6 +25,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import java.util.ConcurrentModificationException;
+import java.util.HashMap;
+import java.util.Map;
 
 @RunWith(JUnit4.class)
 public class ArrayMapTest {
@@ -103,5 +106,19 @@ public class ArrayMapTest {
     public void testIsSubclassOfSimpleArrayMap() {
         Object map = new ArrayMap<String, Integer>();
         assertTrue(map instanceof SimpleArrayMap);
+    }
+
+    /**
+     * Regression test for ensure capacity: b/224971154
+     */
+    @Test
+    public void putAll() {
+        ArrayMap<String, String> map = new ArrayMap<>();
+        Map<String, String> otherMap = new HashMap<>();
+        otherMap.put("abc", "def");
+        map.putAll(otherMap);
+        assertEquals(map.size(), 1);
+        assertEquals(map.keyAt(0), "abc");
+        assertEquals(map.valueAt(0), "def");
     }
 }
