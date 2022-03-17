@@ -57,7 +57,7 @@ class PreviewViewMeteringPointFactoryDeviceTest(
         // A fake target rotation IntDef. Target rotation is already included in rotationDegrees.
         // The IntRef value convenience for PreviewTransformation to correct TextureView and
         // it doesn't affect the metering point calculation.
-        private const val FAKE_TARGET_ROTATION = -1
+        private const val FAKE_TARGET_ROTATION = -999
 
         private val VIEW_SIZE: Size by lazy { Size(48, 36) }
 

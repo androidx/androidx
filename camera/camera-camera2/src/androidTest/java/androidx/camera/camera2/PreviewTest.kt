@@ -19,6 +19,7 @@ import android.content.Context
 import android.graphics.SurfaceTexture
 import android.util.Size
 import android.view.Surface
+import androidx.camera.camera2.internal.DisplayInfoManager
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
@@ -351,6 +352,15 @@ class PreviewTest {
         // lifecycle.
         camera = CameraUtil.createCameraAndAttachUseCase(context!!, cameraSelector, useCase)
         Truth.assertThat(useCase.targetRotation).isEqualTo(Surface.ROTATION_180)
+    }
+
+    @Test
+    fun targetRotationReturnsDisplayRotationIfNotSet() {
+        val displayRotation = DisplayInfoManager.getInstance(context!!).maxSizeDisplay.rotation
+        val useCase = defaultBuilder!!.build()
+        camera = CameraUtil.createCameraAndAttachUseCase(context!!, cameraSelector, useCase)
+
+        Truth.assertThat(useCase.targetRotation).isEqualTo(displayRotation)
     }
 
     @Test
