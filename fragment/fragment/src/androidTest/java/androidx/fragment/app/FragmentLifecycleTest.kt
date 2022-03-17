@@ -1623,6 +1623,7 @@ class FragmentLifecycleTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     class InvalidateOptionFragment : Fragment() {
         var onPrepareOptionsMenuCalled: Boolean = false
 

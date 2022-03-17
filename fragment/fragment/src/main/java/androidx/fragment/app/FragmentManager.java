@@ -2982,6 +2982,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
         }
     }
 
+    @SuppressWarnings({"deprecation", "DeprecatedIsStillUsed"})
     boolean dispatchCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         if (mCurState < Fragment.CREATED) {
             return false;

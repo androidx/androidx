@@ -315,6 +315,7 @@ class OptionsMenuFragmentTest {
             .isTrue()
     }
 
+    @Suppress("DEPRECATION")
     class MenuFragment : StrictViewFragment(R.layout.fragment_a) {
         var onCreateOptionsMenuCountDownLatch = CountDownLatch(1)
         val onPrepareOptionsMenuCountDownLatch = CountDownLatch(1)
@@ -342,6 +343,7 @@ class OptionsMenuFragmentTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     class ParentOptionsMenuFragment(
         val createMenu: Boolean = false
     ) : StrictViewFragment(R.layout.double_container) {
