@@ -32,6 +32,8 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation("androidx.concurrent:concurrent-futures:1.0.0")
+    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy)
 
     // Hamcrest matchers:
     androidTestImplementation(libs.espressoContrib, excludes.espresso)
