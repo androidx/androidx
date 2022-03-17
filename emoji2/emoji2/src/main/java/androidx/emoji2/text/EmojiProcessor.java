@@ -216,12 +216,12 @@ final class EmojiProcessor {
         }
 
         try {
-            Spannable spannable = null;
+            UnprecomputeTextOnModificationSpannable spannable = null;
             // if it is a spannable already, use the same instance to add/remove EmojiSpans.
             // otherwise wait until the first EmojiSpan found in order to change the result
             // into a Spannable.
             if (isSpannableBuilder || charSequence instanceof Spannable) {
-                spannable = (Spannable) charSequence;
+                spannable = new UnprecomputeTextOnModificationSpannable((Spannable) charSequence);
             } else if (charSequence instanceof Spanned) {
                 // check if there are any EmojiSpans as cheap as possible
                 // start-1, end+1 will return emoji span that starts/ends at start/end indices
@@ -229,7 +229,7 @@ final class EmojiProcessor {
                         start - 1, end + 1, EmojiSpan.class);
 
                 if (nextSpanTransition <= end) {
-                    spannable = new SpannableString(charSequence);
+                    spannable = new UnprecomputeTextOnModificationSpannable(charSequence);
                 }
             }
 
@@ -294,7 +294,8 @@ final class EmojiProcessor {
                         if (replaceAll || !hasGlyph(charSequence, start, currentOffset,
                                 sm.getFlushMetadata())) {
                             if (spannable == null) {
-                                spannable = new SpannableString(charSequence);
+                                spannable = new UnprecomputeTextOnModificationSpannable(
+                                        new SpannableString(charSequence));
                             }
                             addEmoji(spannable, sm.getFlushMetadata(), start, currentOffset);
                             addedCount++;
@@ -312,13 +313,18 @@ final class EmojiProcessor {
                 if (replaceAll || !hasGlyph(charSequence, start, currentOffset,
                         sm.getCurrentMetadata())) {
                     if (spannable == null) {
-                        spannable = new SpannableString(charSequence);
+                        spannable = new UnprecomputeTextOnModificationSpannable(charSequence);
                     }
                     addEmoji(spannable, sm.getCurrentMetadata(), start, currentOffset);
                     addedCount++;
                 }
             }
-            return spannable == null ? charSequence : spannable;
+            // if nothing was written, always return the source
+            if (spannable != null) {
+                return spannable.getUnwrappedSpannable();
+            } else {
+                return charSequence;
+            }
         } finally {
             if (isSpannableBuilder) {
                 ((SpannableBuilder) charSequence).endBatchEdit();
