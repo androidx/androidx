@@ -1,4 +1,8 @@
 // Baseline format: 1.0
+RemovedDeprecatedMethod: androidx.fragment.app.FragmentActivity#onPrepareOptionsPanel(android.view.View, android.view.Menu):
+    Removed deprecated method androidx.fragment.app.FragmentActivity.onPrepareOptionsPanel(android.view.View,android.view.Menu)
+
+
 RemovedMethod: androidx.fragment.app.FragmentActivity#onMultiWindowModeChanged(boolean):
     Removed method androidx.fragment.app.FragmentActivity.onMultiWindowModeChanged(boolean)
 RemovedMethod: androidx.fragment.app.FragmentActivity#onPictureInPictureModeChanged(boolean):
