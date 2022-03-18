@@ -24,6 +24,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.view.Surface;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -367,6 +368,17 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
         return mCameraCaptureSessionCompat.toCameraCaptureSession().getDevice();
     }
 
+    @Nullable
+    @Override
+    public Surface getInputSurface() {
+        Preconditions.checkNotNull(mCameraCaptureSessionCompat);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return Api23Impl.getInputSurface(mCameraCaptureSessionCompat.toCameraCaptureSession());
+        } else {
+            return null;
+        }
+    }
+
     @Override
     public int captureSingleRequest(@NonNull CaptureRequest request,
             @NonNull CameraCaptureSession.CaptureCallback listener) throws CameraAccessException {
@@ -598,5 +610,20 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
     @Override
     public void finishClose() {
         releaseDeferrableSurfaces();
+    }
+
+    /**
+     * Nested class to avoid verification errors for methods introduced in Android 6.0 (API 23).
+     */
+    @RequiresApi(23)
+    private static class Api23Impl {
+
+        private Api23Impl() {
+        }
+
+        @DoNotInline
+        static Surface getInputSurface(CameraCaptureSession cameraCaptureSession) {
+            return cameraCaptureSession.getInputSurface();
+        }
     }
 }
