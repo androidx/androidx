@@ -16,11 +16,18 @@
 
 package androidx.camera.core;
 
+import static androidx.camera.core.ImageProcessingUtil.convertJpegBytesToImage;
 import static androidx.camera.core.ImageProcessingUtil.rotateYUV;
 import static androidx.camera.testing.ImageProxyUtil.createYUV420ImagePlanes;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static java.lang.Math.abs;
+
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.ImageFormat;
 import android.graphics.PixelFormat;
 import android.media.ImageWriter;
@@ -36,8 +43,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 
+/**
+ * Unit test for {@link ImageProcessingUtil}.
+ */
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = 21)
@@ -50,6 +61,7 @@ public class ImageProcessingUtilTest {
     private static final int PIXEL_STRIDE_Y_UNSUPPORTED = 1;
     private static final int PIXEL_STRIDE_UV_UNSUPPORTED = 3;
     private static final int MAX_IMAGES = 4;
+    private static final int JPEG_ENCODE_ERROR_TOLERANCE = 3;
 
     private ByteBuffer mRgbConvertedBuffer;
     private ByteBuffer mYRotatedBuffer;
@@ -60,6 +72,7 @@ public class ImageProcessingUtilTest {
     private SafeCloseImageReaderProxy mRGBImageReaderProxy;
     private SafeCloseImageReaderProxy mRotatedRGBImageReaderProxy;
     private SafeCloseImageReaderProxy mRotatedYUVImageReaderProxy;
+    private SafeCloseImageReaderProxy mJpegImageReaderProxy;
 
     @Before
     public void setUp() {
@@ -91,6 +104,13 @@ public class ImageProcessingUtilTest {
                         ImageFormat.YUV_420_888,
                         MAX_IMAGES));
 
+        mJpegImageReaderProxy = new SafeCloseImageReaderProxy(
+                ImageReaderProxys.createIsolatedReader(
+                        WIDTH,
+                        HEIGHT,
+                        ImageFormat.JPEG,
+                        MAX_IMAGES));
+
         mRgbConvertedBuffer = ByteBuffer.allocateDirect(WIDTH * HEIGHT * 4);
         mYRotatedBuffer = ByteBuffer.allocateDirect(WIDTH * HEIGHT);
         mURotatedBuffer = ByteBuffer.allocateDirect(WIDTH * HEIGHT / 2);
@@ -101,6 +121,61 @@ public class ImageProcessingUtilTest {
     public void tearDown() {
         mRGBImageReaderProxy.safeClose();
         mRotatedRGBImageReaderProxy.safeClose();
+    }
+
+    @Test
+    public void writeJpeg_returnsTheSameImage() {
+        // Arrange: create a JPEG image with solid color.
+        byte[] inputBytes = createJpegBytesWithSolidColor(Color.RED);
+
+        // Act: acquire image and get the bytes.
+        ImageProxy imageProxy = convertJpegBytesToImage(mJpegImageReaderProxy, inputBytes);
+        assertThat(imageProxy).isNotNull();
+        ByteBuffer byteBuffer = imageProxy.getPlanes()[0].getBuffer();
+        byteBuffer.rewind();
+        byte[] outputBytes = new byte[byteBuffer.capacity()];
+        byteBuffer.get(outputBytes);
+
+        // Assert: the color and the dimension of the restored image.
+        Bitmap bitmap = BitmapFactory.decodeByteArray(outputBytes, 0, outputBytes.length);
+        assertThat(bitmap.getWidth()).isEqualTo(WIDTH);
+        assertThat(bitmap.getHeight()).isEqualTo(HEIGHT);
+        assertBitmapColor(bitmap, Color.RED);
+    }
+
+    /**
+     * Asserts that the given {@link Bitmap} is almost the given color.
+     *
+     * <p>Loops through all the pixels and verify that they are the given color. A small error
+     * is allowed because JPEG is lossy.
+     */
+    private void assertBitmapColor(Bitmap bitmap, int color) {
+        for (int i = 0; i < bitmap.getWidth(); i++) {
+            for (int j = 0; j < bitmap.getHeight(); j++) {
+                int pixelColor = bitmap.getPixel(i, j);
+                // Compare the R, G and B of the pixel to the given color.
+                for (int shift = 16; shift > 0; shift -= 8) {
+                    int pixelRgb = (pixelColor >> shift) & 0xFF;
+                    int rgb = (color >> shift) & 0xFF;
+                    assertThat(abs(pixelRgb - rgb)).isLessThan(JPEG_ENCODE_ERROR_TOLERANCE);
+                }
+            }
+        }
+    }
+
+    /**
+     * Returns JPEG bytes of a image with the given color.
+     */
+    private byte[] createJpegBytesWithSolidColor(int color) {
+        Bitmap bitmap = Bitmap.createBitmap(WIDTH, HEIGHT, Bitmap.Config.ARGB_8888);
+        // Draw a solid color
+        Canvas canvas = new Canvas(bitmap);
+        canvas.drawColor(color);
+        canvas.save();
+        // Encode to JPEG and return.
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+        return stream.toByteArray();
     }
 
     @Test
