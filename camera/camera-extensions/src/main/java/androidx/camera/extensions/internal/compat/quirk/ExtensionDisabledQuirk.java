@@ -25,15 +25,17 @@ import androidx.camera.extensions.ExtensionMode;
 
 
 /**
- * Quirk required to disable extension for some devices.
- *
- * <p>An example is that Pixel 5's availability check result of the basic extension
- * interface should be false, but it actually returns true. Therefore, force disable Basic
- * Extender capability on the device. See b/199408131.
- *
- * <p>Another example is that Motorola razr 5G's availability check results of both back
- * and front camera are true, but it will cause the black preview screen issue. Therefore, force
- * disable the bokeh mode on the device. See b/214130117.
+ * <p>QuirkSummary
+ *     Bug Id: b/199408131, b/214130117
+ *     Description: Quirk required to disable extension for some devices. An example is that
+ *                  Pixel 5's availability check result of the basic extension interface should
+ *                  be false, but it actually returns true. Therefore, force disable Basic
+ *                  Extender capability on the device. Another example is that Motorola razr 5G's
+ *                  availability check results of both back and front camera are true, but it
+ *                  will cause the black preview screen issue. Therefore, force disable the bokeh
+ *                  mode on the device.
+ *     Device(s): Pixel 5, Motorola razr 5G
+ *     @see androidx.camera.extensions.internal.compat.workaround.ExtensionDisabledValidator
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ExtensionDisabledQuirk implements Quirk {

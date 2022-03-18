@@ -21,6 +21,7 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.camera.camera2.internal.compat.workaround.ExtraSupportedSurfaceCombinationsContainer;
 import androidx.camera.core.impl.Quirk;
 import androidx.camera.core.impl.SurfaceCombination;
 import androidx.camera.core.impl.SurfaceConfig;
@@ -34,13 +35,16 @@ import java.util.Locale;
 import java.util.Set;
 
 /**
- * Quirk required to include extra supported surface combinations which are additional to the
- * guaranteed supported configurations.
- *
- * <p>An example is the Samsung S7's LIMITED-level camera device can support additional
- * YUV/640x480 + PRIV/PREVIEW + YUV/MAXIMUM combination. Some other Samsung devices can support
- * additional YUV/640x480 + PRIV/PREVIEW + YUV/MAXIMUM and YUV/640x480 + YUV/PREVIEW +
- * YUV/MAXIMUM configutations (See b/194149215).
+ * <p>QuirkSummary
+ *     Bug Id: b/194149215
+ *     Description: Quirk required to include extra supported surface combinations which are
+ *                  additional to the guaranteed supported configurations. An example is the
+ *                  Samsung S7's LIMITED-level camera device can support additional YUV/640x480 +
+ *                  PRIV/PREVIEW + YUV/MAXIMUM combination. Some other Samsung devices can
+ *                  support additional YUV/640x480 + PRIV/PREVIEW + YUV/MAXIMUM and YUV/640x480 +
+ *                  YUV/PREVIEW + YUV/MAXIMUM configurations.
+ *     Device(s): Some Samsung devices
+ *     @see ExtraSupportedSurfaceCombinationsContainer
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ExtraSupportedSurfaceCombinationsQuirk implements Quirk {
