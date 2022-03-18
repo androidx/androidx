@@ -197,21 +197,17 @@ internal data class TimestampedDelta(val time: Long, val delta: Float)
 fun Modifier.rsbScroll(
     scrollableState: ScrollableState,
     flingBehavior: FlingBehavior,
+    focusRequester: FocusRequester
 ): Modifier {
     val channel = remember { Channel<TimestampedDelta>(
         capacity = 10,
         onBufferOverflow = BufferOverflow.DROP_OLDEST
     ) }
-    val focusRequester = remember { FocusRequester() }
 
     var lastTimeMillis = remember { 0L }
     var smoothSpeed = remember { 0f }
     val speedWindowMillis = 200L
     val timeoutToFling = 100L
-
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-    }
 
     return composed {
         var rsbScrollInProgress by remember { mutableStateOf(false) }
@@ -279,8 +275,13 @@ fun ScalingLazyColumnWithRSB(
     val flingBehavior = if (snap) ScalingLazyColumnDefaults.snapFlingBehavior(
         state = state
     ) else ScrollableDefaults.flingBehavior()
+    val focusRequester = remember { FocusRequester() }
     ScalingLazyColumn(
-        modifier = modifier.rsbScroll(scrollableState = state, flingBehavior = flingBehavior),
+        modifier = modifier.rsbScroll(
+            scrollableState = state,
+            flingBehavior = flingBehavior,
+            focusRequester = focusRequester
+        ),
         state = state,
         reverseLayout = reverseLayout,
         scalingParams = scalingParams,
@@ -289,4 +290,7 @@ fun ScalingLazyColumnWithRSB(
         verticalArrangement = verticalArrangement,
         content = content
     )
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
 }
