@@ -55,6 +55,7 @@ import androidx.wear.compose.material.CompactChip
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Picker
+import androidx.wear.compose.material.PickerDefaults
 import androidx.wear.compose.material.PickerState
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.rememberPickerState
@@ -97,14 +98,19 @@ fun TimePickerWithHoursMinutesSeconds() {
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center,
                 ) {
-                    val pickerModifier = Modifier.size(40.dp, 100.dp)
+                    val state1 = rememberPickerState(
+                        initialNumberOfOptions = 24,
+                        initiallySelectedOption = 6
+                    )
+                    val flingBehavior1 = PickerDefaults.flingBehavior(state1)
+                    val pickerModifier1 = Modifier.size(40.dp, 100.dp)
+                        .rsbScroll(state1, flingBehavior1)
+
                     Picker(
                         readOnly = selectedColumn != 0,
-                        state = rememberPickerState(
-                            initialNumberOfOptions = 24,
-                            initiallySelectedOption = 6
-                        ),
-                        modifier = pickerModifier,
+                        state = state1,
+                        modifier = pickerModifier1,
+                        flingBehavior = flingBehavior1
                     ) { hour: Int ->
                         TimePiece(
                             selected = selectedColumn == 0,
@@ -117,7 +123,7 @@ fun TimePickerWithHoursMinutesSeconds() {
                     Picker(
                         readOnly = selectedColumn != 1,
                         state = rememberPickerState(initialNumberOfOptions = 60),
-                        modifier = pickerModifier,
+                        modifier = Modifier.size(40.dp, 100.dp),
                     ) { minute: Int ->
                         TimePiece(
                             selected = selectedColumn == 1,
@@ -130,7 +136,7 @@ fun TimePickerWithHoursMinutesSeconds() {
                     Picker(
                         readOnly = selectedColumn != 2,
                         state = rememberPickerState(initialNumberOfOptions = 60),
-                        modifier = pickerModifier,
+                        modifier = Modifier.size(40.dp, 100.dp),
                     ) { second: Int ->
                         TimePiece(
                             selected = selectedColumn == 2,

@@ -201,6 +201,7 @@ package androidx.wear.compose.material {
   }
 
   public final class PickerDefaults {
+    method @androidx.compose.runtime.Composable public androidx.compose.foundation.gestures.FlingBehavior flingBehavior(androidx.wear.compose.material.PickerState state, optional androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> decay);
     method public float getDefaultGradientRatio();
     method public androidx.wear.compose.material.ScalingParams scalingParams(optional float edgeScale, optional float edgeAlpha, optional float minElementHeight, optional float maxElementHeight, optional float minTransitionArea, optional float maxTransitionArea, optional androidx.compose.animation.core.Easing scaleInterpolator, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.unit.Constraints,java.lang.Integer> viewportVerticalOffsetResolver);
     property public final float DefaultGradientRatio;
@@ -208,7 +209,7 @@ package androidx.wear.compose.material {
   }
 
   public final class PickerKt {
-    method @androidx.compose.runtime.Composable public static void Picker(androidx.wear.compose.material.PickerState state, optional androidx.compose.ui.Modifier modifier, optional boolean readOnly, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>? readOnlyLabel, optional androidx.wear.compose.material.ScalingParams scalingParams, optional float separation, optional float gradientRatio, optional long gradientColor, kotlin.jvm.functions.Function2<? super androidx.wear.compose.material.PickerScope,? super java.lang.Integer,kotlin.Unit> option);
+    method @androidx.compose.runtime.Composable public static void Picker(androidx.wear.compose.material.PickerState state, optional androidx.compose.ui.Modifier modifier, optional boolean readOnly, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>? readOnlyLabel, optional androidx.wear.compose.material.ScalingParams scalingParams, optional float separation, optional float gradientRatio, optional long gradientColor, optional androidx.compose.foundation.gestures.FlingBehavior flingBehavior, kotlin.jvm.functions.Function2<? super androidx.wear.compose.material.PickerScope,? super java.lang.Integer,kotlin.Unit> option);
     method @androidx.compose.runtime.Composable public static androidx.wear.compose.material.PickerState rememberPickerState(int initialNumberOfOptions, optional int initiallySelectedOption, optional boolean repeatItems);
   }
 
@@ -217,13 +218,17 @@ package androidx.wear.compose.material {
     property public abstract int selectedOption;
   }
 
-  @androidx.compose.runtime.Stable public final class PickerState {
+  @androidx.compose.runtime.Stable public final class PickerState implements androidx.compose.foundation.gestures.ScrollableState {
     ctor public PickerState(int initialNumberOfOptions, optional int initiallySelectedOption, optional boolean repeatItems);
+    method public float dispatchRawDelta(float delta);
     method public int getNumberOfOptions();
     method public boolean getRepeatItems();
     method public int getSelectedOption();
+    method public boolean isScrollInProgress();
+    method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
     method public suspend Object? scrollToOption(int index, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
     method public void setNumberOfOptions(int newNumberOfOptions);
+    property public boolean isScrollInProgress;
     property public final int numberOfOptions;
     property public final boolean repeatItems;
     property public final int selectedOption;
