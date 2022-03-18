@@ -19,7 +19,6 @@
 package androidx.build.lint
 
 import com.android.SdkConstants.ATTR_VALUE
-import com.android.tools.lint.checks.ApiDetector.Companion.REQUIRES_API_ANNOTATION
 import com.android.tools.lint.checks.ApiLookup
 import com.android.tools.lint.checks.ApiLookup.equivalentName
 import com.android.tools.lint.checks.DesugaredMethodLookup
@@ -39,6 +38,8 @@ import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.android.tools.lint.detector.api.UastLintUtils.Companion.getLongAttribute
+import com.android.tools.lint.detector.api.VersionChecks
+import com.android.tools.lint.detector.api.VersionChecks.Companion.REQUIRES_API_ANNOTATION
 import com.android.tools.lint.detector.api.getInternalMethodName
 import com.android.tools.lint.detector.api.isKotlin
 import com.intellij.psi.PsiAnonymousClass
@@ -815,7 +816,7 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                                         return api
                                     }
                                 } else {
-                                    return codeNameToApi(name)
+                                    return VersionChecks.codeNameToApi(name)
                                 }
                             }
                         }
