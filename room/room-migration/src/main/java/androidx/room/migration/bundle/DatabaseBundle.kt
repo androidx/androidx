@@ -56,6 +56,11 @@ public open class DatabaseBundle(
         entities.associateBy { it.tableName }
     }
 
+    @delegate:Transient
+    public val viewsByName: Map<String, DatabaseViewBundle> by lazy {
+        views.associateBy { it.viewName }
+    }
+
     /**
      * @return List of SQL queries to build this database from scratch.
      */
@@ -73,10 +78,8 @@ public open class DatabaseBundle(
 
     @Override
     override fun isSchemaEqual(other: DatabaseBundle): Boolean {
-        return checkSchemaEquality(
-            entitiesByTableName,
-            other.entitiesByTableName
-        )
+        return checkSchemaEquality(entitiesByTableName, other.entitiesByTableName) &&
+            checkSchemaEquality(viewsByName, other.viewsByName)
     }
 
     // Comparator to sort FTS entities after their declared external content entity so that the

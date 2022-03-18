@@ -98,6 +98,23 @@ class DatabaseBundleTest {
         assertThat(bundle.buildCreateQueries(), `is`(listOf("sq1", "sq3", "sq2", "e2_trig")))
     }
 
+    @Test
+    fun schemaEquality_missingView_notEqual() {
+        val entity = EntityBundle("e", "sq",
+            listOf(createFieldBundle("foo"), createFieldBundle("bar")),
+            PrimaryKeyBundle(false, listOf("foo")),
+            emptyList(),
+            emptyList())
+        val view = DatabaseViewBundle("bar", "sq")
+        val bundle1 = DatabaseBundle(1, "hash",
+            listOf(entity), emptyList(),
+            emptyList())
+        val bundle2 = DatabaseBundle(1, "hash",
+            listOf(entity), listOf(view),
+            emptyList())
+        assertThat(bundle1.isSchemaEqual(bundle2), `is`(false))
+    }
+
     private fun createFieldBundle(name: String): FieldBundle {
         return FieldBundle("foo", name, "text", false, null)
     }
