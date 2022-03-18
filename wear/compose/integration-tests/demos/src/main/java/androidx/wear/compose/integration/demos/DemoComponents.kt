@@ -43,6 +43,7 @@ import androidx.wear.compose.material.ButtonDefaults
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.LocalContentAlpha
 import androidx.wear.compose.material.MaterialTheme
+import androidx.wear.compose.material.SwipeToDismissBoxState
 import androidx.wear.compose.material.Text
 import kotlin.reflect.KClass
 
@@ -73,13 +74,21 @@ class DemoCategory(
 ) : Demo(title)
 
 /**
+ * Parameters which are used by [Demo] screens.
+ */
+class DemoParameters(
+    val navigateBack: () -> Unit,
+    val swipeToDismissBoxState: SwipeToDismissBoxState
+)
+
+/**
  * Demo that displays [Composable] [content] when selected,
  * with a method to navigate back to the parent.
  */
 class ComposableDemo(
     title: String,
     description: String? = null,
-    val content: @Composable (navigateBack: () -> Unit) -> Unit,
+    val content: @Composable (params: DemoParameters) -> Unit,
 ) : Demo(title, description)
 
 /**
@@ -159,7 +168,8 @@ fun Centralize(modifier: Modifier = Modifier, content: @Composable ColumnScope.(
         modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
-        content = content)
+        content = content
+    )
 }
 
 public val DemoListTag = "DemoListTag"
