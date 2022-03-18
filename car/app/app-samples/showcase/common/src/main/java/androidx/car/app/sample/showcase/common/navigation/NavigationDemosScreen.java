@@ -99,6 +99,15 @@ public final class NavigationDemosScreen extends Screen {
                                                 .push(new NavigationMapOnlyScreen(getCarContext())))
                         .build());
 
+        listBuilder.addItem(
+                new Row.Builder()
+                        .setTitle("Map Template with Pane Demo")
+                        .setOnClickListener(
+                                () ->
+                                        getScreenManager()
+                                                .push(new MapTemplateDemoScreen(getCarContext())))
+                        .build());
+
         return new ListTemplate.Builder()
                 .setSingleList(listBuilder.build())
                 .setTitle("Navigation Demos")
