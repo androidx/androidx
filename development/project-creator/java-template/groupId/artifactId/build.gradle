@@ -26,6 +26,10 @@ dependencies {
     // Add dependencies here
 }
 
+android {
+    namespace "<PACKAGE>"
+}
+
 androidx {
     name = "<NAME>"
     type = LibraryType.<LIBRARY_TYPE>
