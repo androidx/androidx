@@ -38,15 +38,9 @@ class CameraXQuirksClassDetector : Detector(), Detector.UastScanner {
     override fun createUastHandler(context: JavaContext) = object : UElementHandler() {
 
         override fun visitClass(node: UClass) {
-            val elements = node.implementsList?.getReferenceElements()
-            var isQuirk = false
-            if (elements != null) {
-                for (element in elements) {
-                    if (("Quirk").equals(element.referenceName)) {
-                        isQuirk = true
-                    }
-                }
-            }
+            val isQuirk = node.implementsList?.referenceElements?.find { it ->
+                it.referenceName!!.endsWith("Quirk")
+            } != null
 
             if (isQuirk) {
                 val comments = node.comments
