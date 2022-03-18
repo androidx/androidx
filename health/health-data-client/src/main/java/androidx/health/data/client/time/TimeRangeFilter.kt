@@ -87,4 +87,7 @@ internal constructor(
                 localEndTime = null
             )
     }
+
+    internal fun isOpenEnded(): Boolean =
+        (localStartTime == null || localEndTime == null) && (startTime == null || endTime == null)
 }

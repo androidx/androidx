@@ -22,6 +22,7 @@ import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.annotation.RestrictTo
 import androidx.health.data.client.impl.HealthDataClientImpl
 import androidx.health.platform.client.HealthDataService
+import java.lang.IllegalStateException
 
 /**
  * Entry point for connecting to Health Data Provider on the device and creating instances of

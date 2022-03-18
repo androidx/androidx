@@ -28,6 +28,7 @@ import androidx.health.data.client.records.Nutrition
 import androidx.health.data.client.records.Steps
 import androidx.health.data.client.records.Weight
 import androidx.health.data.client.request.ChangesTokenRequest
+import androidx.health.data.client.request.ReadRecordsRequest
 import androidx.health.data.client.time.TimeRangeFilter
 import androidx.health.platform.client.impl.ServiceBackedHealthDataClient
 import androidx.health.platform.client.impl.error.errorCodeExceptionMap
@@ -65,8 +66,10 @@ private val API_METHOD_LIST =
         { readRecord(Steps::class, "uid") },
         {
             readRecords(
-                Steps::class,
-                TimeRangeFilter.exact(Instant.ofEpochMilli(1234L), Instant.ofEpochMilli(1235L))
+                ReadRecordsRequest(
+                    Steps::class,
+                    TimeRangeFilter.exact(Instant.ofEpochMilli(1234L), Instant.ofEpochMilli(1235L))
+                )
             )
         },
         { getChanges("token") },

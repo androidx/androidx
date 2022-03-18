@@ -58,7 +58,6 @@ import androidx.health.data.client.records.Nutrition
 import androidx.health.data.client.records.OvulationTest
 import androidx.health.data.client.records.OvulationTestResults
 import androidx.health.data.client.records.OxygenSaturation
-import androidx.health.data.client.records.Pace
 import androidx.health.data.client.records.Power
 import androidx.health.data.client.records.Repetitions
 import androidx.health.data.client.records.RespiratoryRate
@@ -76,6 +75,7 @@ import androidx.health.data.client.records.TotalEnergyBurned
 import androidx.health.data.client.records.Vo2Max
 import androidx.health.data.client.records.WaistCircumference
 import androidx.health.data.client.records.Weight
+import androidx.health.data.client.records.WheelchairPushes
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import java.time.Instant
@@ -430,19 +430,6 @@ class AllRecordsConverterTest {
         val data =
             OxygenSaturation(
                 percentage = 1.0,
-                time = START_TIME,
-                zoneOffset = END_ZONE_OFFSET,
-                metadata = TEST_METADATA
-            )
-
-        assertThat(toRecord(data.toProto())).isEqualTo(data)
-    }
-
-    @Test
-    fun testPace() {
-        val data =
-            Pace(
-                pace = 1.0,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
@@ -830,6 +817,21 @@ class AllRecordsConverterTest {
         val data =
             TotalEnergyBurned(
                 energy = 1.0,
+                startTime = START_TIME,
+                startZoneOffset = START_ZONE_OFFSET,
+                endTime = END_TIME,
+                endZoneOffset = END_ZONE_OFFSET,
+                metadata = TEST_METADATA
+            )
+
+        assertThat(toRecord(data.toProto())).isEqualTo(data)
+    }
+
+    @Test
+    fun testWheelchairPushes() {
+        val data =
+            WheelchairPushes(
+                count = 1,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
                 endTime = END_TIME,

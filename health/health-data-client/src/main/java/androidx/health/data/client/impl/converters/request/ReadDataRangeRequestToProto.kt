@@ -19,34 +19,33 @@ import androidx.health.data.client.impl.converters.datatype.toDataTypeName
 import androidx.health.data.client.impl.converters.time.toProto
 import androidx.health.data.client.metadata.DataOrigin
 import androidx.health.data.client.records.Record
-import androidx.health.data.client.time.TimeRangeFilter
+import androidx.health.data.client.request.ReadRecordsRequest
 import androidx.health.platform.client.proto.DataProto
 import androidx.health.platform.client.proto.RequestProto
-import kotlin.reflect.KClass
 
 /** Converts public API object into internal proto for ipc. */
-fun toReadDataRangeRequestProto(
-    dataTypeKC: KClass<out Record>,
-    timeRangeFilter: TimeRangeFilter,
-    dataOriginFilter: List<DataOrigin>,
-    ascOrdering: Boolean?,
-    limit: Int?,
-    pageSize: Int?,
-    pageToken: String?
+fun <T : Record> toReadDataRangeRequestProto(
+    request: ReadRecordsRequest<T>
 ): RequestProto.ReadDataRangeRequest {
     return RequestProto.ReadDataRangeRequest.newBuilder()
-        .setDataType(DataProto.DataType.newBuilder().setName(dataTypeKC.toDataTypeName()).build())
+        .setDataType(
+            DataProto.DataType.newBuilder().setName(request.recordType.toDataTypeName()).build()
+        )
         .apply {
-            setTimeSpec(timeRangeFilter.toProto())
+            setTimeSpec(request.timeRangeFilter.toProto())
             addAllDataOriginFilters(
-                dataOriginFilter.map {
+                request.dataOriginFilter.map {
                     DataProto.DataOrigin.newBuilder().setApplicationId(it.packageName).build()
                 }
             )
-            ascOrdering?.let { setAscOrdering(ascOrdering) }
-            limit?.let { setLimit(limit) }
-            pageSize?.let { setPageSize(pageSize) }
-            pageToken?.let { setPageToken(pageToken) }
+            setAscOrdering(request.ascendingOrder)
+            if (request.hasLimit()) {
+                setLimit(request.limit)
+            }
+            if (request.hasPageSize()) {
+                setPageSize(request.pageSize)
+            }
+            request.pageToken?.let { setPageToken(it) }
         }
         .build()
 }

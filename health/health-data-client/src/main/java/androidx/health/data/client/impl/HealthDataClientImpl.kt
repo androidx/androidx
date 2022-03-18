@@ -34,6 +34,7 @@ import androidx.health.data.client.metadata.DataOrigin
 import androidx.health.data.client.permission.Permission
 import androidx.health.data.client.records.Record
 import androidx.health.data.client.request.ChangesTokenRequest
+import androidx.health.data.client.request.ReadRecordsRequest
 import androidx.health.data.client.response.ChangesResponse
 import androidx.health.data.client.response.InsertRecordResponse
 import androidx.health.data.client.response.ReadRecordResponse
@@ -135,28 +136,9 @@ class HealthDataClientImpl(
     }
 
     override suspend fun <T : Record> readRecords(
-        recordType: KClass<T>,
-        timeRangeFilter: TimeRangeFilter,
-        dataOriginFilter: List<DataOrigin>,
-        ascendingOrder: Boolean,
-        limit: Int?,
-        pageSize: Int?,
-        pageToken: String?
+        request: ReadRecordsRequest<T>
     ): ReadRecordsResponse<T> {
-        val proto =
-            delegate
-                .readDataRange(
-                    toReadDataRangeRequestProto(
-                        recordType,
-                        timeRangeFilter,
-                        dataOriginFilter,
-                        ascendingOrder,
-                        limit,
-                        pageSize,
-                        pageToken
-                    )
-                )
-                .await()
+        val proto = delegate.readDataRange(toReadDataRangeRequestProto(request)).await()
         return toReadRecordsResponse(proto)
     }
 
