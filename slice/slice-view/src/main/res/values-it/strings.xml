@@ -22,16 +22,16 @@
     <string name="abc_slice_show_more" msgid="1112789899890391107">"Mostra altro"</string>
     <string name="abc_slice_updated" msgid="7932359091871934205">"Ultimo aggiornamento: <xliff:g id="TIME">%1$s</xliff:g>"</string>
     <plurals name="abc_slice_duration_min" formatted="false" msgid="7664017844210142826">
-      <item quantity="one"><xliff:g id="ID_2">%d</xliff:g> min fa</item>
       <item quantity="other"><xliff:g id="ID_2">%d</xliff:g> min fa</item>
+      <item quantity="one"><xliff:g id="ID_1">%d</xliff:g> min fa</item>
     </plurals>
     <plurals name="abc_slice_duration_years" formatted="false" msgid="2628491538787454021">
-      <item quantity="one"><xliff:g id="ID_2">%d</xliff:g> anno fa</item>
       <item quantity="other"><xliff:g id="ID_2">%d</xliff:g> anni fa</item>
+      <item quantity="one"><xliff:g id="ID_1">%d</xliff:g> anno fa</item>
     </plurals>
     <plurals name="abc_slice_duration_days" formatted="false" msgid="8356547162075064530">
-      <item quantity="one"><xliff:g id="ID_2">%d</xliff:g> giorno fa</item>
       <item quantity="other"><xliff:g id="ID_2">%d</xliff:g> giorni fa</item>
+      <item quantity="one"><xliff:g id="ID_1">%d</xliff:g> giorno fa</item>
     </plurals>
     <string name="abc_slice_error" msgid="1794214973158263497">"Impossibile collegarsi"</string>
 </resources>
