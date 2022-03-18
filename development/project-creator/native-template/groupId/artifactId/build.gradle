@@ -37,6 +37,7 @@ androidx {
 }
 
 android {
+    namespace "<PACKAGE>"
     defaultConfig {
         externalNativeBuild {
             cmake {
