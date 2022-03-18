@@ -750,6 +750,44 @@ public class ComplicationRendererTest {
     }
 
     @Test
+    public void notTintedWhenTapActionNotLostDueToSerialization() {
+        // GIVEN a complication renderer with short text data
+        mComplicationRenderer.setComplicationData(
+                new ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                        .setShortText(ComplicationText.plainText("Test text"))
+                        .setTapActionLostDueToSerialization(false)
+                        .build(),
+                true);
+        // WHEN the complication is drawn in low bit ambient mode
+        mComplicationRenderer.draw(mMockCanvas, REFERENCE_TIME, false, false, false, false);
+
+        assertThat(mComplicationRenderer.mMainTextRenderer.getPaint())
+                .isEqualTo(mComplicationRenderer.mActivePaintSet.mPrimaryTextPaint);
+
+        verify(mMockCanvas, atLeastOnce()).drawRoundRect(any(), anyFloat(), anyFloat(),
+                eq(mComplicationRenderer.mActivePaintSet.mBorderPaint));
+    }
+
+    @Test
+    public void darkTintWhenTapActionLostDueToSerialization() {
+        // GIVEN a complication renderer with short text data
+        mComplicationRenderer.setComplicationData(
+                new ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                        .setShortText(ComplicationText.plainText("Test text"))
+                        .setTapActionLostDueToSerialization(true)
+                        .build(),
+                true);
+        // WHEN the complication is drawn in low bit ambient mode
+        mComplicationRenderer.draw(mMockCanvas, REFERENCE_TIME, false, false, false, false);
+
+        assertThat(mComplicationRenderer.mMainTextRenderer.getPaint())
+                .isEqualTo(mComplicationRenderer.mActivePaintSetLostTapAction.mPrimaryTextPaint);
+
+        verify(mMockCanvas, atLeastOnce()).drawRoundRect(any(), anyFloat(), anyFloat(),
+                eq(mComplicationRenderer.mActivePaintSetLostTapAction.mBorderPaint));
+    }
+
+    @Test
     public void paintSetHasCorrectColorsAndValues() {
         // GIVEN a complication style
         Typeface textTypeface = Typeface.create("sans-serif", Typeface.NORMAL);
