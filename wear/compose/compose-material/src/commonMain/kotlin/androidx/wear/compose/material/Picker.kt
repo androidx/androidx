@@ -17,7 +17,13 @@
 package androidx.wear.compose.material
 
 import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.DecayAnimationSpec
 import androidx.compose.animation.core.Easing
+import androidx.compose.animation.core.exponentialDecay
+import androidx.compose.foundation.MutatePriority
+import androidx.compose.foundation.gestures.FlingBehavior
+import androidx.compose.foundation.gestures.ScrollScope
+import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -70,6 +76,7 @@ import androidx.compose.ui.unit.dp
  * so the top 1/3 and the bottom 1/3 of the picker are taken by gradients. Should be between 0.0 and
  * 0.5. Use 0.0 to disable the gradient.
  * @param gradientColor Should be the color outside of the Picker, so there is continuity.
+ * @param flingBehavior logic describing fling behavior.
  * @param option A block which describes the content. Inside this block you can reference
  * [PickerScope.selectedOption] and other properties in [PickerScope]. When read-only mode is in
  * use on a screen, it is recommended that this content is given [Alignment.Center] in order to
@@ -86,6 +93,7 @@ public fun Picker(
     /* @FloatRange(from = 0.0, to = 0.5) */
     gradientRatio: Float = PickerDefaults.DefaultGradientRatio,
     gradientColor: Color = MaterialTheme.colors.background,
+    flingBehavior: FlingBehavior = PickerDefaults.flingBehavior(state),
     option: @Composable PickerScope.(optionIndex: Int) -> Unit
 ) {
     require(gradientRatio in 0f..0.5f) { "gradientRatio should be between 0.0 and 0.5" }
@@ -133,7 +141,7 @@ public fun Picker(
             verticalArrangement = Arrangement.spacedBy(
                 space = separation
             ),
-            flingBehavior = ScalingLazyColumnDefaults.snapFlingBehavior(state.scalingLazyListState)
+            flingBehavior = flingBehavior
         )
     }
 
@@ -179,7 +187,7 @@ public class PickerState constructor(
     initialNumberOfOptions: Int,
     initiallySelectedOption: Int = 0,
     val repeatItems: Boolean = true
-) {
+) : ScrollableState {
     init {
         require(initialNumberOfOptions > 0) { "The picker should have at least one item." }
     }
@@ -258,6 +266,20 @@ public class PickerState constructor(
             }
         )
     }
+
+    override suspend fun scroll(
+        scrollPriority: MutatePriority,
+        block: suspend ScrollScope.() -> Unit
+    ) {
+        scalingLazyListState.scroll(scrollPriority, block)
+    }
+
+    override fun dispatchRawDelta(delta: Float): Float {
+        return scalingLazyListState.dispatchRawDelta(delta)
+    }
+
+    override val isScrollInProgress: Boolean
+        get() = scalingLazyListState.isScrollInProgress
 }
 
 /**
@@ -287,6 +309,27 @@ public object PickerDefaults {
         scaleInterpolator = scaleInterpolator,
         viewportVerticalOffsetResolver = viewportVerticalOffsetResolver
     )
+
+    /**
+     * Create and remember a [FlingBehavior] that will represent natural fling curve with snap to
+     * central item as the fling decays.
+     *
+     * @param state the state of the [Picker]
+     * @param decay the decay to use
+     */
+    @Composable
+    public fun flingBehavior(
+        state: PickerState,
+        decay: DecayAnimationSpec<Float> = exponentialDecay()
+    ): FlingBehavior {
+        return remember(state, decay) {
+            ScalingLazyColumnSnapFlingBehavior(
+                state = state.scalingLazyListState,
+                snapOffset = 0,
+                decay = decay
+            )
+        }
+    }
 
     val DefaultGradientRatio = 0.33f
 }
