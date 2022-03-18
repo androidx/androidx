@@ -132,6 +132,51 @@ JNIEXPORT jint Java_androidx_camera_core_ImageProcessingUtil_nativeShiftPixel(
     return 0;
 }
 
+/**
+ * Writes the content JPEG array to the Surface.
+ *
+ * <p>This is for wrapping JPEG bytes with a media.Image object.
+ */
+JNIEXPORT jint Java_androidx_camera_core_ImageProcessingUtil_nativeWriteJpegToSurface(
+        JNIEnv *env,
+        jclass,
+        jbyteArray jpeg_array,
+        jobject surface) {
+    ANativeWindow *window = ANativeWindow_fromSurface(env, surface);
+    if (window == nullptr) {
+        LOGE("Failed to get ANativeWindow");
+        return -1;
+    }
+
+    // Updates the size of ANativeWindow_Buffer with the JPEG bytes size.
+    jsize array_size = env->GetArrayLength(jpeg_array);
+    ANativeWindow_setBuffersGeometry(window, array_size, 1, AHARDWAREBUFFER_FORMAT_BLOB);
+
+    ANativeWindow_Buffer buffer;
+    int lockResult = ANativeWindow_lock(window, &buffer, NULL);
+    if (lockResult != 0) {
+        ANativeWindow_release(window);
+        LOGE("Failed to lock window.");
+        return -1;
+    }
+
+    // Copy from source to destination.
+    jbyte *jpeg_ptr = env->GetByteArrayElements(jpeg_array, NULL);
+    if (jpeg_ptr == nullptr) {
+        ANativeWindow_release(window);
+        LOGE("Failed to get JPEG bytes array pointer.");
+        return -1;
+    }
+    uint8_t *buffer_ptr = reinterpret_cast<uint8_t *>(buffer.bits);
+    memcpy(buffer_ptr, jpeg_ptr, array_size);
+
+    ANativeWindow_unlockAndPost(window);
+    ANativeWindow_release(window);
+
+    env->ReleaseByteArrayElements(jpeg_array, jpeg_ptr, 0);
+    return 0;
+}
+
 JNIEXPORT jint Java_androidx_camera_core_ImageProcessingUtil_nativeConvertAndroid420ToABGR(
         JNIEnv* env,
         jclass,
