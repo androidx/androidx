@@ -49,7 +49,6 @@ import androidx.health.data.client.records.Menstruation
 import androidx.health.data.client.records.Nutrition
 import androidx.health.data.client.records.OvulationTest
 import androidx.health.data.client.records.OxygenSaturation
-import androidx.health.data.client.records.Pace
 import androidx.health.data.client.records.Power
 import androidx.health.data.client.records.Record
 import androidx.health.data.client.records.Repetitions
@@ -66,6 +65,7 @@ import androidx.health.data.client.records.TotalEnergyBurned
 import androidx.health.data.client.records.Vo2Max
 import androidx.health.data.client.records.WaistCircumference
 import androidx.health.data.client.records.Weight
+import androidx.health.data.client.records.WheelchairPushes
 import androidx.health.platform.client.proto.DataProto
 import java.lang.RuntimeException
 
@@ -254,13 +254,6 @@ fun toRecord(proto: DataProto.DataPoint): Record {
             "OxygenSaturation" ->
                 OxygenSaturation(
                     percentage = getDouble("percentage"),
-                    time = time,
-                    zoneOffset = zoneOffset,
-                    metadata = metadata
-                )
-            "Pace" ->
-                Pace(
-                    pace = getDouble("pace"),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
@@ -504,6 +497,15 @@ fun toRecord(proto: DataProto.DataPoint): Record {
             "TotalEnergyBurned" ->
                 TotalEnergyBurned(
                     energy = getDouble("energy"),
+                    startTime = startTime,
+                    startZoneOffset = startZoneOffset,
+                    endTime = endTime,
+                    endZoneOffset = endZoneOffset,
+                    metadata = metadata
+                )
+            "WheelchairPushes" ->
+                WheelchairPushes(
+                    count = getLong("count"),
                     startTime = startTime,
                     startZoneOffset = startZoneOffset,
                     endTime = endTime,

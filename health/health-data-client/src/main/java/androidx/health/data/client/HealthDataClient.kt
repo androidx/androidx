@@ -22,6 +22,7 @@ import androidx.health.data.client.metadata.DataOrigin
 import androidx.health.data.client.permission.Permission
 import androidx.health.data.client.records.Record
 import androidx.health.data.client.request.ChangesTokenRequest
+import androidx.health.data.client.request.ReadRecordsRequest
 import androidx.health.data.client.response.ChangesResponse
 import androidx.health.data.client.response.InsertRecordResponse
 import androidx.health.data.client.response.ReadRecordResponse
@@ -87,7 +88,7 @@ interface HealthDataClient {
     suspend fun deleteRecords(
         recordType: KClass<out Record>,
         uidsList: List<String>,
-        clientIdsList: List<String>
+        clientIdsList: List<String>,
     )
 
     /**
@@ -124,159 +125,19 @@ interface HealthDataClient {
     suspend fun <T : Record> readRecord(recordType: KClass<T>, uid: String): ReadRecordResponse<T>
 
     /**
-     * Reads a set of [Record] points determined by time range and other filters.
+     * Retrieves a collection of [Record]s.
      *
-     * @param recordType Which type of [Record] to read, such as `Steps::class`.
-     * @param timeRangeFilter The [TimeRangeFilter] to read from. If open-ended in any direction,
-     * [limit] must be set.
-     * @param dataOriginFilter List of [DataOrigin] to read from, or empty for no filter.
-     * @param ascendingOrder Whether the [Record] should be returned in ascending or descending
-     * order by time. Default is true.
-     * @param limit Maximum number of [Record] to read. Cannot be set together with [pageSize]. Must
-     * be set if [timeRangeFilter] is open-ended in any direction.
-     * @param pageSize Maximum number of [Record] within one page. If there's more data remaining
-     * (and the next page should be read), the response will contain a [pageToken] to be used in the
-     * subsequent read request. Cannot be set together with [limit].
-     * @param pageToken Continuation token to access the next page, returned in the response to the
-     * previous page read request. [pageSize] must be set together with [pageToken].
-     * @return The list of [Record] data points and optionally a [pageToken] to read the next page.
+     * @param T the type of [Record]
+     * @param request [ReadRecordsRequest] object specifying time range and other filters
+     *
+     * @return a response containing a collection of [Record]s.
      * @throws RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
      * @throws IOException For any disk I/O issues.
-     * @throws IllegalStateException For incorrectly set parameters.
      * @throws IllegalStateException If service is not available.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    suspend fun <T : Record> readRecords(
-        recordType: KClass<T>,
-        timeRangeFilter: TimeRangeFilter,
-        dataOriginFilter: List<DataOrigin>,
-        ascendingOrder: Boolean,
-        limit: Int?,
-        pageSize: Int?,
-        pageToken: String?
-    ): ReadRecordsResponse<T>
-
-    /** See [HealthDataClient.readRecords]. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    suspend fun <T : Record> readRecords(
-        recordType: KClass<T>,
-        timeRangeFilter: TimeRangeFilter,
-        ascendingOrder: Boolean,
-        limit: Int
-    ): ReadRecordsResponse<T> =
-        readRecords(
-            recordType = recordType,
-            timeRangeFilter = timeRangeFilter,
-            dataOriginFilter = emptyList(),
-            ascendingOrder = ascendingOrder,
-            limit = limit,
-            pageSize = null,
-            pageToken = null
-        )
-
-    /** See [HealthDataClient.readRecords]. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    suspend fun <T : Record> readRecords(
-        recordType: KClass<T>,
-        timeRangeFilter: TimeRangeFilter,
-        limit: Int
-    ): ReadRecordsResponse<T> =
-        readRecords(
-            recordType = recordType,
-            timeRangeFilter = timeRangeFilter,
-            dataOriginFilter = emptyList(),
-            ascendingOrder = true,
-            limit = limit,
-            pageSize = null,
-            pageToken = null
-        )
-
-    /** See [HealthDataClient.readRecords]. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    suspend fun <T : Record> readRecords(
-        recordType: KClass<T>,
-        timeRangeFilter: TimeRangeFilter,
-        ascendingOrder: Boolean,
-        pageSize: Int,
-        pageToken: String?
-    ): ReadRecordsResponse<T> =
-        readRecords(
-            recordType = recordType,
-            timeRangeFilter = timeRangeFilter,
-            dataOriginFilter = emptyList(),
-            ascendingOrder = ascendingOrder,
-            limit = null,
-            pageSize = pageSize,
-            pageToken = pageToken
-        )
-
-    /** See [HealthDataClient.readRecords]. */
-    suspend fun <T : Record> readRecords(
-        recordType: KClass<T>,
-        timeRangeFilter: TimeRangeFilter,
-        pageSize: Int,
-        pageToken: String?
-    ): ReadRecordsResponse<T> =
-        readRecords(
-            recordType = recordType,
-            timeRangeFilter = timeRangeFilter,
-            dataOriginFilter = emptyList(),
-            ascendingOrder = true,
-            limit = null,
-            pageSize = pageSize,
-            pageToken = pageToken
-        )
-
-    /** See [HealthDataClient.readRecords]. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    suspend fun <T : Record> readRecords(
-        recordType: KClass<T>,
-        timeRangeFilter: TimeRangeFilter,
-        ascendingOrder: Boolean,
-    ): ReadRecordsResponse<T> =
-        readRecords(
-            recordType = recordType,
-            timeRangeFilter = timeRangeFilter,
-            dataOriginFilter = emptyList(),
-            ascendingOrder = ascendingOrder,
-            limit = null,
-            pageSize = null,
-            pageToken = null
-        )
-
-    /** See [HealthDataClient.readRecords]. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    suspend fun <T : Record> readRecords(
-        recordType: KClass<T>,
-        timeRangeFilter: TimeRangeFilter,
-    ): ReadRecordsResponse<T> =
-        readRecords(
-            recordType = recordType,
-            timeRangeFilter = timeRangeFilter,
-            dataOriginFilter = emptyList(),
-            ascendingOrder = true,
-            limit = null,
-            pageSize = null,
-            pageToken = null
-        )
-
-    /** See [HealthDataClient.readRecords]. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    suspend fun <T : Record> readRecords(
-        recordType: KClass<T>,
-        timeRangeFilter: TimeRangeFilter,
-        dataOriginFilter: List<DataOrigin>,
-    ): ReadRecordsResponse<T> =
-        readRecords(
-            recordType = recordType,
-            timeRangeFilter = timeRangeFilter,
-            dataOriginFilter = dataOriginFilter,
-            ascendingOrder = true,
-            limit = null,
-            pageSize = null,
-            pageToken = null
-        )
+    suspend fun <T : Record> readRecords(request: ReadRecordsRequest<T>): ReadRecordsResponse<T>
 
     /**
      * Reads [AggregateMetric]s according to requested read criteria: [Record]s from
@@ -298,14 +159,14 @@ interface HealthDataClient {
     suspend fun aggregate(
         aggregateMetrics: Set<AggregateMetric>,
         timeRangeFilter: TimeRangeFilter,
-        dataOriginFilter: List<DataOrigin>
+        dataOriginFilter: List<DataOrigin>,
     ): AggregateDataRow
 
     // TODO(b/219327548): Adds overload with groupBy that return a list
 
     /**
-     * Retrieves a changes-token, representing current point in time in the underlying Android
-     * Health Platform for a given [ChangesTokenRequest]. Changes-tokens are used in [getChanges] to
+     * Retrieves a changes-token, representing a point in time in the underlying Android Health
+     * Platform for a given [ChangesTokenRequest]. Changes-tokens are used in [getChanges] to
      * retrieve changes since that point in time.
      *
      * Changes-tokens represent a point in time after which the client is interested in knowing the
