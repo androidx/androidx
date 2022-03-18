@@ -75,7 +75,7 @@ public abstract class OnBackPressedCallback {
     @MainThread
     public final void setEnabled(boolean enabled) {
         mEnabled = enabled;
-        if (BuildCompat.isAtLeastT()) {
+        if (mEnabledConsumer != null) {
             mEnabledConsumer.accept(mEnabled);
         }
     }
