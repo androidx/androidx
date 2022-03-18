@@ -80,21 +80,25 @@ public final class OnBackPressedDispatcher {
     @RequiresApi(33)
     public void setOnBackPressedInvoker(@NonNull OnBackInvokedDispatcher invoker) {
         mInvokedDispatcher = invoker;
+        updateBackInvokedCallbackState();
     }
 
     @RequiresApi(33)
     void updateBackInvokedCallbackState() {
         boolean shouldBeRegistered = hasEnabledCallbacks();
-        if (shouldBeRegistered && !mBackInvokedCallbackRegistered) {
-            Api33Impl.registerOnBackInvokedCallback(
-                    mInvokedDispatcher,
-                    mOnBackInvokedCallback,
-                    OnBackInvokedDispatcher.PRIORITY_OVERLAY
-            );
-            mBackInvokedCallbackRegistered = true;
-        } else if (!shouldBeRegistered && mBackInvokedCallbackRegistered) {
-            Api33Impl.unregisterOnBackInvokedCallback(mInvokedDispatcher, mOnBackInvokedCallback);
-            mBackInvokedCallbackRegistered = false;
+        if (mInvokedDispatcher != null) {
+            if (shouldBeRegistered && !mBackInvokedCallbackRegistered) {
+                Api33Impl.registerOnBackInvokedCallback(
+                        mInvokedDispatcher,
+                        mOnBackInvokedCallback,
+                        OnBackInvokedDispatcher.PRIORITY_OVERLAY
+                );
+                mBackInvokedCallbackRegistered = true;
+            } else if (!shouldBeRegistered && mBackInvokedCallbackRegistered) {
+                Api33Impl.unregisterOnBackInvokedCallback(mInvokedDispatcher,
+                        mOnBackInvokedCallback);
+                mBackInvokedCallbackRegistered = false;
+            }
         }
     }
 
@@ -145,14 +149,9 @@ public final class OnBackPressedDispatcher {
      *
      * @see #onBackPressed()
      */
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @MainThread
     public void addCallback(@NonNull OnBackPressedCallback onBackPressedCallback) {
         addCancellableCallback(onBackPressedCallback);
-        if (BuildCompat.isAtLeastT()) {
-            updateBackInvokedCallbackState();
-            onBackPressedCallback.setIsEnabledConsumer(mEnabledConsumer);
-        }
     }
 
     /**
@@ -175,6 +174,7 @@ public final class OnBackPressedDispatcher {
         onBackPressedCallback.addCancellable(cancellable);
         if (BuildCompat.isAtLeastT()) {
             updateBackInvokedCallbackState();
+            onBackPressedCallback.setIsEnabledConsumer(mEnabledConsumer);
         }
         return cancellable;
     }
@@ -203,6 +203,7 @@ public final class OnBackPressedDispatcher {
      *
      * @see #onBackPressed()
      */
+    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @SuppressLint("LambdaLast")
     @MainThread
     public void addCallback(@NonNull LifecycleOwner owner,
@@ -214,6 +215,10 @@ public final class OnBackPressedDispatcher {
 
         onBackPressedCallback.addCancellable(
                 new LifecycleOnBackPressedCancellable(lifecycle, onBackPressedCallback));
+        if (BuildCompat.isAtLeastT()) {
+            updateBackInvokedCallbackState();
+            onBackPressedCallback.setIsEnabledConsumer(mEnabledConsumer);
+        }
     }
 
     /**

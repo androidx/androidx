@@ -95,4 +95,81 @@ class OnBackPressedDispatcherInvokerTest {
 
         assertThat(registerCount).isEqualTo(2)
     }
+
+    @Test
+    fun testCallbackEnabledDisabled() {
+        val callback = object : OnBackPressedCallback(false) {
+            override fun handleOnBackPressed() {
+                TODO("Not yet implemented")
+            }
+        }
+
+        callback.isEnabled = true
+        callback.isEnabled = false
+    }
+
+    @Test
+    fun testInvokerAddDisabledCallback() {
+        var registerCount = 0
+        var unregisterCount = 0
+        val invoker = object : OnBackInvokedDispatcher {
+            override fun registerOnBackInvokedCallback(p0: OnBackInvokedCallback, p1: Int) {
+                registerCount++
+            }
+
+            override fun unregisterOnBackInvokedCallback(p0: OnBackInvokedCallback) {
+                unregisterCount++
+            }
+        }
+
+        val callback = object : OnBackPressedCallback(false) {
+            override fun handleOnBackPressed() { }
+        }
+
+        val dispatcher = OnBackPressedDispatcher()
+
+        dispatcher.setOnBackPressedInvoker(invoker)
+
+        dispatcher.addCallback(callback)
+
+        assertThat(registerCount).isEqualTo(0)
+
+        callback.isEnabled = true
+
+        assertThat(registerCount).isEqualTo(1)
+
+        callback.isEnabled = false
+
+        assertThat(unregisterCount).isEqualTo(1)
+    }
+
+    @Test
+    fun testInvokerAddEnabledCallbackBeforeSet() {
+        var registerCount = 0
+        var unregisterCount = 0
+        val invoker = object : OnBackInvokedDispatcher {
+            override fun registerOnBackInvokedCallback(p0: OnBackInvokedCallback, p1: Int) {
+                registerCount++
+            }
+
+            override fun unregisterOnBackInvokedCallback(p0: OnBackInvokedCallback) {
+                unregisterCount++
+            }
+        }
+
+        val callback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() { }
+        }
+
+        val dispatcher = OnBackPressedDispatcher()
+        dispatcher.addCallback(callback)
+
+        dispatcher.setOnBackPressedInvoker(invoker)
+
+        assertThat(registerCount).isEqualTo(1)
+
+        callback.isEnabled = false
+
+        assertThat(unregisterCount).isEqualTo(1)
+    }
 }
