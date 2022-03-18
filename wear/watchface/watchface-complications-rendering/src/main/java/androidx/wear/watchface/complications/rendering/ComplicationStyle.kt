@@ -301,6 +301,22 @@ public class ComplicationStyle {
         isDirty = true
     }
 
+    /**
+     * Returns a copy of the ComplicationStyle [tint]ed by [tintColor].
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    fun asTinted(tintColor: Int): ComplicationStyle = ComplicationStyle(this).apply {
+        backgroundColor = tint(backgroundColor, tintColor)
+        borderColor = tint(borderColor, tintColor)
+        highlightColor = tint(highlightColor, tintColor)
+        iconColor = tint(iconColor, tintColor)
+        rangedValuePrimaryColor = tint(rangedValuePrimaryColor, tintColor)
+        rangedValueSecondaryColor = tint(rangedValueSecondaryColor, tintColor)
+        textColor = tint(textColor, tintColor)
+        titleColor = tint(titleColor, tintColor)
+    }
+
     public companion object {
         /** Style where the borders are not drawn.  */
         public const val BORDER_STYLE_NONE: Int = 0
@@ -357,5 +373,20 @@ public class ComplicationStyle {
         /** Default border radius.  */
         @Px
         public const val BORDER_RADIUS_DEFAULT: Int = Int.MAX_VALUE
+
+        /** Computes the luminance of [color] and applies that to [tint]. */
+        internal fun tint(color: Int, tint: Int): Int {
+            // See https://en.wikipedia.org/wiki/Relative_luminance
+            val luminance = (Color.red(color).toFloat() * (0.2126f / 255.0f)) +
+                (Color.green(color).toFloat() * (0.7152f / 255.0f)) +
+                (Color.blue(color).toFloat() * (0.0722f / 255.0f))
+
+            return Color.argb(
+                Color.alpha(color).toFloat() / 255.0f,
+                Color.red(tint) * luminance / 255.0f,
+                Color.green(tint) * luminance / 255.0f,
+                Color.blue(tint) * luminance / 255.0f
+            )
+        }
     }
 }
