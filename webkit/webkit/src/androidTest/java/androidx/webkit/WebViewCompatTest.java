@@ -320,7 +320,6 @@ public class WebViewCompatTest {
     public void testGetVariationsHeader() {
         WebkitUtils.checkFeature(WebViewFeature.GET_VARIATIONS_HEADER);
 
-        WebViewOnUiThread.createWebView();
         assertNotNull(WebViewCompat.getVariationsHeader());
     }
 
