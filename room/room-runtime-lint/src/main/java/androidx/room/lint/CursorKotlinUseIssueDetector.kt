@@ -27,6 +27,7 @@ import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
+import com.android.tools.lint.detector.api.VersionChecks
 import com.android.tools.lint.detector.api.minSdkLessThan
 import com.intellij.psi.PsiMethod
 import org.jetbrains.uast.UCallExpression
@@ -63,8 +64,8 @@ class CursorKotlinUseIssueDetector : Detector(), SourceCodeScanner {
         }
         // If the call is within an SDK_INT check, then its OK
         if (
-            isWithinVersionCheckConditional(context, node, 16) ||
-            isPrecededByVersionCheckExit(context, node, 16)
+            VersionChecks.isWithinVersionCheckConditional(context, node, 16) ||
+            VersionChecks.isPrecededByVersionCheckExit(context, node, 16)
         ) {
             return
         }
