@@ -16,6 +16,8 @@
 
 package androidx.car.app.sample.showcase.common.renderer;
 
+import static android.content.pm.PackageManager.FEATURE_AUTOMOTIVE;
+
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -407,18 +409,23 @@ public final class CarHardwareRenderer implements Renderer {
             canvas.drawText(info.toString(), LEFT_MARGIN, verticalPos, mCarInfoPaint);
             verticalPos += height;
 
-            // Prepare text for Odometer
-            info = new StringBuilder();
-            if (!mHasMileagePermission) {
-                info.append("No Mileage Permission.");
-            } else if (mMileage == null) {
-                info.append("Fetching mileage.");
-            } else {
-                info.append(generateCarValueText("Odometer", mMileage.getOdometerMeters(), " m. "));
-                info.append(generateCarValueText("Unit", mMileage.getDistanceDisplayUnit(), ". "));
+            // Prepare text for Odometer, skip for AAOS
+            if (!mCarContext.getPackageManager().hasSystemFeature(
+                    FEATURE_AUTOMOTIVE)) {
+                info = new StringBuilder();
+                if (!mHasMileagePermission) {
+                    info.append("No Mileage Permission.");
+                } else if (mMileage == null) {
+                    info.append("Fetching mileage.");
+                } else {
+                    info.append(
+                            generateCarValueText("Odometer", mMileage.getOdometerMeters(), " m. "));
+                    info.append(
+                            generateCarValueText("Unit", mMileage.getDistanceDisplayUnit(), ". "));
+                }
+                canvas.drawText(info.toString(), LEFT_MARGIN, verticalPos, mCarInfoPaint);
+                verticalPos += height;
             }
-            canvas.drawText(info.toString(), LEFT_MARGIN, verticalPos, mCarInfoPaint);
-            verticalPos += height;
 
             if (mCarContext.getCarAppApiLevel() >= CarAppApiLevels.LEVEL_4) {
                 // Prepare text for EV status
