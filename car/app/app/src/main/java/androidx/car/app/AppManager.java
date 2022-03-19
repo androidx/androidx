@@ -34,7 +34,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.car.app.annotations.ExperimentalCarApi;
+import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.managers.Manager;
+import androidx.car.app.model.Alert;
+import androidx.car.app.serialization.Bundleable;
+import androidx.car.app.serialization.BundlerException;
 import androidx.car.app.utils.RemoteUtils;
 import androidx.core.location.LocationListenerCompat;
 import androidx.lifecycle.Lifecycle;
@@ -123,6 +128,63 @@ public class AppManager implements Manager {
                 CarContext.APP_SERVICE,
                 "showToast", (IAppHost host) -> {
                     host.showToast(text, duration);
+                    return null;
+                }
+        );
+    }
+
+    /**
+     * Shows an alert on the car screen.
+     *
+     * <p>Alerts with the same id, in the scope of the application, are considered equal. Even if
+     * their content differ.</p>
+     *
+     * <p>Posting an alert while another alert is displayed would dismiss the old alert and replace
+     * it with the new one.</p>
+     *
+     * <p>Only navigation templates support alerts. Triggering an alert while showing a
+     * non-supported template results in the cancellation of the alert. </p>
+     *
+     * @param alert                 the alert to show
+     * @throws HostException        if the remote call fails
+     * @throws NullPointerException if {@code alert} is {@code null}
+     */
+    @RequiresCarApi(5)
+    @ExperimentalCarApi
+    public void showAlert(@NonNull Alert alert) {
+        requireNonNull(alert);
+
+        Bundleable bundle;
+        try {
+            bundle = Bundleable.create(alert);
+        } catch (BundlerException e) {
+            throw new IllegalArgumentException("Serialization failure", e);
+        }
+
+        mHostDispatcher.dispatch(
+                CarContext.APP_SERVICE,
+                "showAlert", (IAppHost host) -> {
+                    host.showAlert(bundle);
+                    return null;
+                }
+        );
+    }
+
+    /**
+     * Dismisses the alert with the given {@code id}.
+     *
+     * <p>This is a no-op if there is not an active alert with the given {@code id}</p>
+     *
+     * @param alertId     the {@code id} of the {@code alert} that should be dismissed
+     * @throws HostException        if the remote call fails
+     */
+    @RequiresCarApi(5)
+    @ExperimentalCarApi
+    public void dismissAlert(int alertId) {
+        mHostDispatcher.dispatch(
+                CarContext.APP_SERVICE,
+                "dismissAlert", (IAppHost host) -> {
+                    host.dismissAlert(alertId);
                     return null;
                 }
         );

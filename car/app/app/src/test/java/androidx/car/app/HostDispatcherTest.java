@@ -82,6 +82,16 @@ public class HostDispatcherTest {
                     public void sendLocation(Location location) throws RemoteException {
                         mMockAppHost.sendLocation(location);
                     }
+
+                    @Override
+                    public void showAlert(Bundleable alert) throws RemoteException {
+                        mMockAppHost.showAlert(alert);
+                    }
+
+                    @Override
+                    public void dismissAlert(int alertId) throws RemoteException {
+                        mMockAppHost.dismissAlert(alertId);
+                    }
                 };
 
         mNavigationHost = new INavigationHost.Stub() {

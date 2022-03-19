@@ -24,6 +24,7 @@ import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.RemoteException;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -139,6 +140,16 @@ public class FakeHost {
 
         @Override
         public void sendLocation(Location location) {
+            // No-op.
+        }
+
+        @Override
+        public void showAlert(Bundleable alert) throws RemoteException {
+            // No-op.
+        }
+
+        @Override
+        public void dismissAlert(int alertId) throws RemoteException {
             // No-op.
         }
     }

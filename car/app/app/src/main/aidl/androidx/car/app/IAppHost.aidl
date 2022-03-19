@@ -16,6 +16,7 @@
 
 package androidx.car.app;
 
+import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.ISurfaceCallback;
 
 /** @hide */
@@ -31,4 +32,10 @@ interface IAppHost {
 
   /** Sends the last known location to the host. */
   void sendLocation(in Location location) = 4;
+
+  /** Shows an alert to the car screen. */
+  void showAlert(in Bundleable alert) = 5;
+
+  /** Dismisses the alert if active. */
+  void dismissAlert(int alertId) = 6;
 }
