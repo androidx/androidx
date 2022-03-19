@@ -16,6 +16,8 @@
 
 package androidx.car.app;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyFloat;
@@ -36,6 +38,8 @@ import android.os.RemoteException;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.model.Alert;
+import androidx.car.app.model.CarText;
 import androidx.car.app.model.Template;
 import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
@@ -74,6 +78,12 @@ public final class AppManagerTest {
     @Captor
     private ArgumentCaptor<ISurfaceCallback> mSurfaceCallbackCaptor;
 
+    @Captor
+    private ArgumentCaptor<Bundleable> mAlertCaptor;
+
+    @Captor
+    private ArgumentCaptor<Integer> mAlertIdCaptor;
+
     private Application mApplication;
     private TestCarContext mTestCarContext;
     private final HostDispatcher mHostDispatcher = new HostDispatcher();
@@ -109,6 +119,16 @@ public final class AppManagerTest {
                     @Override
                     public void sendLocation(Location location) throws RemoteException {
                         mMockAppHost.sendLocation(location);
+                    }
+
+                    @Override
+                    public void showAlert(Bundleable alert) throws RemoteException {
+                        mMockAppHost.showAlert(alert);
+                    }
+
+                    @Override
+                    public void dismissAlert(int alertId) throws RemoteException {
+                        mMockAppHost.dismissAlert(alertId);
                     }
                 };
         when(mMockCarHost.getHost(any())).thenReturn(appHost.asBinder());
@@ -511,6 +531,25 @@ public final class AppManagerTest {
         mAppManager.getIInterface().stopLocationUpdates(mMockOnDoneCallback);
 
         verify(mMockOnDoneCallback).onFailure(any());
+    }
+
+    @Test
+    public void onShowAlert_dispatches() throws RemoteException, BundlerException {
+        mTestCarContext.getLifecycleOwner().mRegistry.setCurrentState(Lifecycle.State.CREATED);
+        Alert alert = new Alert.Builder(1, CarText.create("title"), 10).build();
+        mAppManager.showAlert(alert);
+        verify(mMockAppHost).showAlert(mAlertCaptor.capture());
+
+        assertThat(mAlertCaptor.getValue().get()).isEqualTo(alert);
+    }
+
+    @Test
+    public void onDismissAlert_dispatches() throws RemoteException, BundlerException {
+        mTestCarContext.getLifecycleOwner().mRegistry.setCurrentState(Lifecycle.State.CREATED);
+        mAppManager.dismissAlert(123);
+        verify(mMockAppHost).dismissAlert(mAlertIdCaptor.capture());
+
+        assertThat(mAlertIdCaptor.getValue()).isEqualTo(123);
     }
 
     private static class NonBundleableTemplate implements Template {

@@ -10,8 +10,10 @@ package androidx.car.app {
   }
 
   public class AppManager implements androidx.car.app.managers.Manager {
+    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(5) public void dismissAlert(int);
     method public void invalidate();
     method public void setSurfaceCallback(androidx.car.app.SurfaceCallback?);
+    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(5) public void showAlert(androidx.car.app.model.Alert);
     method public void showToast(CharSequence, int);
   }
 
@@ -484,6 +486,38 @@ package androidx.car.app.model {
     ctor public ActionStrip.Builder();
     method public androidx.car.app.model.ActionStrip.Builder addAction(androidx.car.app.model.Action);
     method public androidx.car.app.model.ActionStrip build();
+  }
+
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(5) public final class Alert {
+    method public java.util.List<androidx.car.app.model.Action!> getActions();
+    method public androidx.car.app.model.AlertCallbackDelegate? getCallbackDelegate();
+    method public long getDurationMillis();
+    method public androidx.car.app.model.CarIcon? getIcon();
+    method public int getId();
+    method public androidx.car.app.model.CarText? getSubtitle();
+    method public androidx.car.app.model.CarText getTitle();
+  }
+
+  public static final class Alert.Builder {
+    ctor public Alert.Builder(int, androidx.car.app.model.CarText, long);
+    method public androidx.car.app.model.Alert.Builder addAction(androidx.car.app.model.Action);
+    method public androidx.car.app.model.Alert build();
+    method public androidx.car.app.model.Alert.Builder setCallback(androidx.car.app.model.AlertCallback);
+    method public androidx.car.app.model.Alert.Builder setIcon(androidx.car.app.model.CarIcon);
+    method public androidx.car.app.model.Alert.Builder setSubtitle(androidx.car.app.model.CarText);
+  }
+
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(5) public interface AlertCallback {
+    method public void onCancel(int);
+    method public void onDismiss();
+    field public static final int REASON_NOT_SUPPORTED = 3; // 0x3
+    field public static final int REASON_TIMEOUT = 1; // 0x1
+    field public static final int REASON_USER_ACTION = 2; // 0x2
+  }
+
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(5) public interface AlertCallbackDelegate {
+    method public void sendCancel(int, androidx.car.app.OnDoneCallback);
+    method public void sendDismiss(androidx.car.app.OnDoneCallback);
   }
 
   @androidx.car.app.annotations.CarProtocol public final class CarColor {
