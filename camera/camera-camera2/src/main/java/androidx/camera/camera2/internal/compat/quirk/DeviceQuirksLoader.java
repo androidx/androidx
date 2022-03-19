@@ -44,8 +44,8 @@ public class DeviceQuirksLoader {
         if (ImageCapturePixelHDRPlusQuirk.load()) {
             quirks.add(new ImageCapturePixelHDRPlusQuirk());
         }
-        if (SelectResolutionQuirk.load()) {
-            quirks.add(new SelectResolutionQuirk());
+        if (ExtraCroppingQuirk.load()) {
+            quirks.add(new ExtraCroppingQuirk());
         }
         if (Nexus4AndroidLTargetAspectRatioQuirk.load()) {
             quirks.add(new Nexus4AndroidLTargetAspectRatioQuirk());

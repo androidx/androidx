@@ -32,11 +32,23 @@ import java.util.Locale;
 /**
  * Quirk that requires specific resolutions as the workaround.
  *
- * <p> This is an allowlist that selects specific resolutions to override the app provided
- * resolutions. The resolution provided in this file have been manually tested by CameraX team.
+ * <p>QuirkSummary
+ *     Bug Id: 190203334
+ *     Description: The symptom of these devices is that the output of one or many streams,
+ *                  including PRIV, JPEG and/or YUV, can have an unintended 25% crop, and the
+ *                  cropped image is stretched to fill the Surface, which results in a distorted
+ *                  output. The streams can also have an unintended 25% double crop, in which
+ *                  case the stretched image will not be distorted, but the FOV is smaller than
+ *                  it should be. The behavior is inconsistent in a way that the extra cropping
+ *                  depends on the resolution of the streams. The existence of the issue also
+ *                  depends on API level and/or build number. See discussion in
+ *                  go/samsung-camera-distortion.
+ *     Device(s): Samsung Galaxy Tab A (2016) SM-T580, Samsung Galaxy J7 (2016) SM-J710MN,
+ *                Samsung Galaxy A3 (2017) SM-A320FL, Samsung Galaxy J5 Prime SM-G570M,
+ *                Samsung Galaxy J7 Prime SM-G610F, Samsung Galaxy J7 Prime SM-G610M
  */
 @RequiresApi(21)
-public class SelectResolutionQuirk implements Quirk {
+public class ExtraCroppingQuirk implements Quirk {
 
     private static final List<String> SAMSUNG_DISTORTION_MODELS = Arrays.asList(
             "SM-T580", // Samsung Galaxy Tab A (2016)
@@ -51,7 +63,7 @@ public class SelectResolutionQuirk implements Quirk {
     }
 
     /**
-     * Selects a resolution based on {@link SurfaceConfig.ConfigType}.
+     * Get a verified resolution that is guaranteed to work.
      *
      * <p> The selected resolution have been manually tested by CameraX team. It is known to
      * work for the given device/stream.
@@ -60,7 +72,7 @@ public class SelectResolutionQuirk implements Quirk {
      * user provided target resolution.
      */
     @Nullable
-    public Size selectResolution(@NonNull SurfaceConfig.ConfigType configType) {
+    public Size getVerifiedResolution(@NonNull SurfaceConfig.ConfigType configType) {
         if (isSamsungDistortion()) {
             // The following resolutions are needed for both the front and the back camera.
             switch (configType) {
@@ -79,16 +91,6 @@ public class SelectResolutionQuirk implements Quirk {
 
     /**
      * Checks for device model with Samsung output distortion bug (b/190203334).
-     *
-     * <p> The symptom of these devices is that the output of one or many streams, including PRIV,
-     * JPEG and/or YUV, can have an extra 25% crop, and the cropped image is stretched to
-     * fill the Surface, which results in a distorted output. The streams can also have an
-     * extra 25% double crop, in which case the stretched image will not be distorted, but the
-     * FOV is smaller than it should be.
-     *
-     * <p> The behavior is inconsistent in a way that the extra cropping depends on the
-     * resolution of the streams. The existence of the issue also depends on API level and/or
-     * build number. See discussion in go/samsung-camera-distortion.
      */
     private static boolean isSamsungDistortion() {
         return "samsung".equalsIgnoreCase(Build.BRAND)
