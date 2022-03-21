@@ -17,6 +17,7 @@
 package androidx.camera.view
 
 import android.content.Context
+import android.graphics.Matrix
 import android.os.Build
 import android.util.Size
 import android.view.Surface
@@ -24,15 +25,22 @@ import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.ImageAnalysis.COORDINATE_SYSTEM_ORIGINAL
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageProxy
 import androidx.camera.core.impl.ImageAnalysisConfig
 import androidx.camera.core.impl.ImageCaptureConfig
 import androidx.camera.core.impl.ImageOutputConfig
+import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.fakes.FakeAppConfig
+import androidx.camera.view.CameraController.COORDINATE_SYSTEM_VIEW_REFERENCED
+import androidx.camera.view.transform.OutputTransform
 import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -40,8 +48,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 
 /**
  * Unit tests for [CameraController].
@@ -74,6 +80,81 @@ public class CameraControllerTest {
         if (::cameraProvider.isInitialized) {
             cameraProvider.shutdown()[10000, TimeUnit.MILLISECONDS]
         }
+    }
+
+    @Test
+    fun setAnalyzerWithResolution_imageAnalysisIsRecreated() {
+        // Arrange.
+        val originalImageAnalysis = controller.mImageAnalysis
+        val targetResolution = Size(1, 1)
+        val analyzer = object : ImageAnalysis.Analyzer {
+            override fun analyze(image: ImageProxy) {
+                // no-op
+            }
+
+            override fun getTargetResolutionOverride(): Size {
+                return targetResolution
+            }
+        }
+        // Act.
+        controller.setImageAnalysisAnalyzer(mainThreadExecutor(), analyzer)
+
+        // Assert.
+        assertThat(controller.mImageAnalysis).isNotEqualTo(originalImageAnalysis)
+    }
+
+    @Test
+    fun viewTransform_valueIsPassedToAnalyzer() {
+        val previewTransform = Matrix()
+        assertThat(
+            getPreviewTransformPassedToAnalyzer(
+                COORDINATE_SYSTEM_VIEW_REFERENCED,
+                previewTransform
+            )
+        ).isEqualTo(previewTransform)
+
+        assertThat(
+            getPreviewTransformPassedToAnalyzer(
+                COORDINATE_SYSTEM_VIEW_REFERENCED,
+                null
+            )
+        ).isEqualTo(null)
+    }
+
+    @Test
+    fun originalTransform_valueIsNotPassedToAnalyzer() {
+        assertThat(
+            getPreviewTransformPassedToAnalyzer(
+                COORDINATE_SYSTEM_ORIGINAL,
+                Matrix()
+            )
+        ).isNull()
+    }
+
+    private fun getPreviewTransformPassedToAnalyzer(
+        coordinateSystem: Int,
+        previewTransform: Matrix?
+    ): Matrix? {
+        var matrix: Matrix? = null
+        val analyzer = object : ImageAnalysis.Analyzer {
+            override fun analyze(image: ImageProxy) {
+                // no-op
+            }
+
+            override fun updateTransform(newMatrix: Matrix?) {
+                matrix = newMatrix
+            }
+
+            override fun getTargetCoordinateSystem(): Int {
+                return coordinateSystem
+            }
+        }
+        controller.setImageAnalysisAnalyzer(mainThreadExecutor(), analyzer)
+        val outputTransform = previewTransform?.let {
+            OutputTransform(it, Size(1, 1))
+        }
+        controller.updatePreviewViewTransform(outputTransform)
+        return matrix
     }
 
     @UiThreadTest

@@ -138,6 +138,9 @@ package androidx.camera.core {
     ctor public DisplayOrientedMeteringPointFactory(android.view.Display, androidx.camera.core.CameraInfo, float, float);
   }
 
+  @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalAnalyzer {
+  }
+
   @RequiresApi(21) @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalGetImage {
   }
 
@@ -187,6 +190,7 @@ package androidx.camera.core {
     method public boolean isOutputImageRotationEnabled();
     method public void setAnalyzer(java.util.concurrent.Executor, androidx.camera.core.ImageAnalysis.Analyzer);
     method public void setTargetRotation(int);
+    field @androidx.camera.core.ExperimentalAnalyzer public static final int COORDINATE_SYSTEM_ORIGINAL = 0; // 0x0
     field public static final int OUTPUT_IMAGE_FORMAT_RGBA_8888 = 2; // 0x2
     field public static final int OUTPUT_IMAGE_FORMAT_YUV_420_888 = 1; // 0x1
     field public static final int STRATEGY_BLOCK_PRODUCER = 1; // 0x1
@@ -195,6 +199,9 @@ package androidx.camera.core {
 
   public static interface ImageAnalysis.Analyzer {
     method public void analyze(androidx.camera.core.ImageProxy);
+    method @androidx.camera.core.ExperimentalAnalyzer public default int getTargetCoordinateSystem();
+    method @androidx.camera.core.ExperimentalAnalyzer public default android.util.Size? getTargetResolutionOverride();
+    method @androidx.camera.core.ExperimentalAnalyzer public default void updateTransform(android.graphics.Matrix?);
   }
 
   public static final class ImageAnalysis.Builder implements androidx.camera.core.ExtendableBuilder<androidx.camera.core.ImageAnalysis> {
