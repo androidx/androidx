@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The Android Open Source Project
+ * Copyright (C) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.health.data.client.response
 
-/** @hide */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-package androidx.health.data.client.response;
-
-import androidx.annotation.RestrictTo;
+/**
+ * Response to record insertion.
+ *
+ * @see [HealthDataClient.insertRecord]
+ */
+public class InsertRecordsResponse
+internal constructor(
+    /*
+     * Contains
+     * [androidx.health.data.client.metadata.Metadata.uid] of inserted [Record] in same order as
+     * passed to [androidx.health.data.client.HealthDataClient.insertRecords].
+     */
+    val recordUidsList: List<String>
+)

@@ -15,14 +15,12 @@
  */
 package androidx.health.data.client.records
 
-import androidx.annotation.RestrictTo
 import androidx.health.data.client.aggregate.DoubleAggregateMetric
 import androidx.health.data.client.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
 
 /** Captures that user's weight in kilograms. */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class Weight(
     /** User's weight in kilograms. Required field. Valid range: 0-1000. */
     public val weightKg: Double,
@@ -51,17 +49,20 @@ public class Weight(
         return result
     }
 
-    companion object {
+    internal companion object {
         /** Metric identifier to retrieve average weight from [AggregateDataRow]. */
         @JvmStatic
-        val WEIGHT_AVG: DoubleAggregateMetric = DoubleAggregateMetric("Weight", "avg", "weight")
+        internal val WEIGHT_AVG: DoubleAggregateMetric =
+            DoubleAggregateMetric("Weight", "avg", "weight")
 
         /** Metric identifier to retrieve minimum weight from [AggregateDataRow]. */
         @JvmStatic
-        val WEIGHT_MIN: DoubleAggregateMetric = DoubleAggregateMetric("Weight", "min", "weight")
+        internal val WEIGHT_MIN: DoubleAggregateMetric =
+            DoubleAggregateMetric("Weight", "min", "weight")
 
         /** Metric identifier to retrieve maximum weight from [AggregateDataRow]. */
         @JvmStatic
-        val WEIGHT_MAX: DoubleAggregateMetric = DoubleAggregateMetric("Weight", "max", "weight")
+        internal val WEIGHT_MAX: DoubleAggregateMetric =
+            DoubleAggregateMetric("Weight", "max", "weight")
     }
 }

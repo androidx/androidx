@@ -24,7 +24,7 @@ import androidx.health.data.client.records.Record
 import androidx.health.data.client.request.ChangesTokenRequest
 import androidx.health.data.client.request.ReadRecordsRequest
 import androidx.health.data.client.response.ChangesResponse
-import androidx.health.data.client.response.InsertRecordResponse
+import androidx.health.data.client.response.InsertRecordsResponse
 import androidx.health.data.client.response.ReadRecordResponse
 import androidx.health.data.client.response.ReadRecordsResponse
 import androidx.health.data.client.time.TimeRangeFilter
@@ -32,7 +32,6 @@ import java.lang.IllegalStateException
 import kotlin.reflect.KClass
 
 /** Interface to access health and fitness records. */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 interface HealthDataClient {
     /**
      * Returns a set of [Permission] granted by the user to this app, out of the input [permissions]
@@ -52,13 +51,13 @@ interface HealthDataClient {
      *
      * @param records List of records to insert
      * @return List of unique identifiers in the order of inserted records.
+     *
      * @throws RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
      * @throws IOException For any disk I/O issues.
      * @throws IllegalStateException If service is not available.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    suspend fun insertRecords(records: List<Record>): InsertRecordResponse
+    suspend fun insertRecords(records: List<Record>): InsertRecordsResponse
 
     /**
      * Updates one or more [Record] of given UIDs to newly specified values. Update of multiple
