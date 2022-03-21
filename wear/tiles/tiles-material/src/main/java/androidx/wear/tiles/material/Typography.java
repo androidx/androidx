@@ -19,6 +19,8 @@ package androidx.wear.tiles.material;
 import static androidx.annotation.Dimension.DP;
 import static androidx.annotation.Dimension.SP;
 import static androidx.wear.tiles.DimensionBuilders.sp;
+import static androidx.wear.tiles.LayoutElementBuilders.FONT_VARIANT_BODY;
+import static androidx.wear.tiles.LayoutElementBuilders.FONT_VARIANT_TITLE;
 import static androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_BOLD;
 import static androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_MEDIUM;
 import static androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_NORMAL;
@@ -35,6 +37,7 @@ import androidx.annotation.RestrictTo;
 import androidx.wear.tiles.DimensionBuilders;
 import androidx.wear.tiles.DimensionBuilders.SpProp;
 import androidx.wear.tiles.LayoutElementBuilders.FontStyle;
+import androidx.wear.tiles.LayoutElementBuilders.FontVariant;
 import androidx.wear.tiles.LayoutElementBuilders.FontWeight;
 
 import java.lang.annotation.Retention;
@@ -198,84 +201,98 @@ public class Typography {
     private static FontStyle.Builder createFontStyleBuilder(
             @Dimension(unit = SP) int size,
             @FontWeight int weight,
+            @FontVariant int variant,
             float letterSpacing,
             boolean isScalable,
             @NonNull Context context) {
         return new FontStyle.Builder()
                 .setSize(isScalable ? DimensionBuilders.sp(size) : dpToSp(context, size))
                 .setLetterSpacing(DimensionBuilders.em(letterSpacing))
+                .setVariant(variant)
                 .setWeight(weight);
     }
 
     /** Font style for large display text. */
     @NonNull
     private static FontStyle.Builder display1(boolean isScalable, @NonNull Context context) {
-        return createFontStyleBuilder(40, FONT_WEIGHT_MEDIUM, 0.01f, isScalable, context);
+        return createFontStyleBuilder(
+                40, FONT_WEIGHT_MEDIUM, FONT_VARIANT_TITLE, 0.01f, isScalable, context);
     }
 
     /** Font style for medium display text. */
     @NonNull
     private static FontStyle.Builder display2(boolean isScalable, @NonNull Context context) {
-        return createFontStyleBuilder(34, FONT_WEIGHT_MEDIUM, 0.03f, isScalable, context);
+        return createFontStyleBuilder(
+                34, FONT_WEIGHT_MEDIUM, FONT_VARIANT_TITLE, 0.03f, isScalable, context);
     }
 
     /** Font style for small display text. */
     @NonNull
     private static FontStyle.Builder display3(boolean isScalable, @NonNull Context context) {
-        return createFontStyleBuilder(30, FONT_WEIGHT_MEDIUM, 0.03f, isScalable, context);
+        return createFontStyleBuilder(
+                30, FONT_WEIGHT_MEDIUM, FONT_VARIANT_TITLE, 0.03f, isScalable, context);
     }
 
     /** Font style for large title text. */
     @NonNull
     private static FontStyle.Builder title1(boolean isScalable, @NonNull Context context) {
-        return createFontStyleBuilder(24, FONT_WEIGHT_MEDIUM, 0.008f, isScalable, context);
+        return createFontStyleBuilder(
+                24, FONT_WEIGHT_MEDIUM, FONT_VARIANT_TITLE, 0.008f, isScalable, context);
     }
 
     /** Font style for medium title text. */
     @NonNull
     private static FontStyle.Builder title2(boolean isScalable, @NonNull Context context) {
-        return createFontStyleBuilder(20, FONT_WEIGHT_MEDIUM, 0.01f, isScalable, context);
+        return createFontStyleBuilder(
+                20, FONT_WEIGHT_MEDIUM, FONT_VARIANT_TITLE, 0.01f, isScalable, context);
     }
 
     /** Font style for small title text. */
     @NonNull
     private static FontStyle.Builder title3(boolean isScalable, @NonNull Context context) {
-        return createFontStyleBuilder(16, FONT_WEIGHT_MEDIUM, 0.01f, isScalable, context);
+        return createFontStyleBuilder(
+                16, FONT_WEIGHT_MEDIUM, FONT_VARIANT_TITLE, 0.01f, isScalable, context);
     }
 
     /** Font style for normal body text. */
     @NonNull
     private static FontStyle.Builder body1(boolean isScalable, @NonNull Context context) {
-        return createFontStyleBuilder(16, FONT_WEIGHT_NORMAL, 0.01f, isScalable, context);
+        return createFontStyleBuilder(
+                16, FONT_WEIGHT_NORMAL, FONT_VARIANT_BODY, 0.01f, isScalable, context);
     }
 
     /** Font style for small body text. */
     @NonNull
     private static FontStyle.Builder body2(boolean isScalable, @NonNull Context context) {
-        return createFontStyleBuilder(14, FONT_WEIGHT_NORMAL, 0.014f, isScalable, context);
+        return createFontStyleBuilder(
+                14, FONT_WEIGHT_NORMAL, FONT_VARIANT_BODY, 0.014f, isScalable, context);
     }
 
     /** Font style for bold button text. */
     @NonNull
     private static FontStyle.Builder button(boolean isScalable, @NonNull Context context) {
-        return createFontStyleBuilder(15, FONT_WEIGHT_BOLD, 0.03f, isScalable, context);
+        return createFontStyleBuilder(
+                15, FONT_WEIGHT_BOLD, FONT_VARIANT_BODY, 0.03f, isScalable, context);
     }
 
     /** Font style for large caption text. */
     @NonNull
     private static FontStyle.Builder caption1(boolean isScalable, @NonNull Context context) {
-        return createFontStyleBuilder(14, FONT_WEIGHT_MEDIUM, 0.01f, isScalable, context);
+        return createFontStyleBuilder(
+                14, FONT_WEIGHT_MEDIUM, FONT_VARIANT_BODY, 0.01f, isScalable, context);
     }
 
     /** Font style for medium caption text. */
     @NonNull
     private static FontStyle.Builder caption2(boolean isScalable, @NonNull Context context) {
-        return createFontStyleBuilder(12, FONT_WEIGHT_MEDIUM, 0.01f, isScalable, context);
+        return createFontStyleBuilder(
+                12, FONT_WEIGHT_MEDIUM, FONT_VARIANT_BODY, 0.01f, isScalable, context);
     }
 
     /** Font style for small caption text. */
     @NonNull
     private static FontStyle.Builder caption3(boolean isScalable, @NonNull Context context) {
-        return createFontStyleBuilder(10, FONT_WEIGHT_MEDIUM, 0.01f, isScalable, context);
+        return createFontStyleBuilder(
+                10, FONT_WEIGHT_MEDIUM, FONT_VARIANT_BODY, 0.01f, isScalable, context);
     }
 }

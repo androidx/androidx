@@ -43,13 +43,10 @@ import androidx.wear.tiles.DimensionBuilders.DpProp;
 import androidx.wear.tiles.LayoutElementBuilders;
 import androidx.wear.tiles.LayoutElementBuilders.Box;
 import androidx.wear.tiles.LayoutElementBuilders.Column;
-import androidx.wear.tiles.LayoutElementBuilders.Layout;
 import androidx.wear.tiles.LayoutElementBuilders.LayoutElement;
 import androidx.wear.tiles.LayoutElementBuilders.Spacer;
 import androidx.wear.tiles.ModifiersBuilders.Modifiers;
 import androidx.wear.tiles.ModifiersBuilders.Padding;
-import androidx.wear.tiles.TimelineBuilders.Timeline;
-import androidx.wear.tiles.TimelineBuilders.TimelineEntry;
 import androidx.wear.tiles.material.CompactChip;
 import androidx.wear.tiles.proto.LayoutElementProto;
 
@@ -265,42 +262,6 @@ public class PrimaryLayout implements LayoutElement {
                             ? PRIMARY_LAYOUT_MARGIN_HORIZONTAL_ROUND_PERCENT
                             : PRIMARY_LAYOUT_MARGIN_HORIZONTAL_SQUARE_PERCENT);
         }
-    }
-
-    /** Returns the {@link Layout} object containing this layout template. */
-    @NonNull
-    public Layout toLayout() {
-        return toLayoutBuilder().build();
-    }
-
-    /** Returns the {@link Layout.Builder} object containing this layout template. */
-    @NonNull
-    public Layout.Builder toLayoutBuilder() {
-        return new Layout.Builder().setRoot(mElement);
-    }
-
-    /** Returns the {@link TimelineEntry.Builder} object containing this layout template. */
-    @NonNull
-    public TimelineEntry.Builder toTimelineEntryBuilder() {
-        return new TimelineEntry.Builder().setLayout(toLayout());
-    }
-
-    /** Returns the {@link TimelineEntry} object containing this layout template. */
-    @NonNull
-    public TimelineEntry toTimelineEntry() {
-        return toTimelineEntryBuilder().build();
-    }
-
-    /** Returns the {@link Timeline.Builder} object containing this layout template. */
-    @NonNull
-    public Timeline.Builder toTimelineBuilder() {
-        return new Timeline.Builder().addTimelineEntry(toTimelineEntry());
-    }
-
-    /** Returns the {@link Timeline} object containing this layout template. */
-    @NonNull
-    public Timeline toTimeline() {
-        return toTimelineBuilder().build();
     }
 
     /** @hide */

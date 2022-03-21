@@ -139,6 +139,15 @@ public final class TimelineBuilders {
             return new TimelineEntry(proto);
         }
 
+        /** Returns the {@link TimelineEntry} object containing the given layout element. */
+        @NonNull
+        public static TimelineEntry fromLayoutElement(
+                @NonNull LayoutElementBuilders.LayoutElement layoutElement
+        ) {
+            return new Builder()
+                    .setLayout(Layout.fromLayoutElement(layoutElement)).build();
+        }
+
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -210,6 +219,15 @@ public final class TimelineBuilders {
         @NonNull
         public static Timeline fromProto(@NonNull TimelineProto.Timeline proto) {
             return new Timeline(proto);
+        }
+
+        /** Returns the {@link Timeline} object containing the given layout element. */
+        @NonNull
+        public static Timeline fromLayoutElement(
+                @NonNull LayoutElementBuilders.LayoutElement layoutElement
+        ) {
+            return new Builder()
+                    .addTimelineEntry(TimelineEntry.fromLayoutElement(layoutElement)).build();
         }
 
         /** @hide */

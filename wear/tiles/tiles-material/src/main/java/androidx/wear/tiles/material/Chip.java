@@ -69,8 +69,7 @@ import java.util.List;
  * <p>The Chip is Stadium shape and has a max height designed to take no more than two lines of text
  * of {@link Typography#TYPOGRAPHY_BUTTON} style. The {@link Chip} can have an icon horizontally
  * parallel to the two lines of text. Width of chip can very, and the recommended size is screen
- * dependent with the recommended margin being defined in {@link
- * ChipDefaults#DEFAULT_MARGIN_PERCENT} which is set by default.
+ * dependent with the recommended margin being applied.
  *
  * <p>The recommended set of {@link ChipColors} styles can be obtained from {@link ChipDefaults}.,
  * e.g. {@link ChipDefaults#PRIMARY} to get a color scheme for a primary {@link Chip}.
@@ -102,7 +101,7 @@ public class Chip implements LayoutElement {
         @NonNull private String mPrimaryText = "";
         @Nullable private String mLabelText = null;
         @NonNull private final Clickable mClickable;
-        @NonNull private String mContentDescription = "";
+        @NonNull private CharSequence mContentDescription = "";
         @NonNull private ContainerDimension mWidth;
         @NonNull private DpProp mHeight = DEFAULT_HEIGHT;
         @NonNull private ChipColors mChipColors = PRIMARY;
@@ -136,18 +135,17 @@ public class Chip implements LayoutElement {
         }
 
         /**
-         * Sets the width of {@link Chip}. If not set, default value will be screen width decreased
-         * by {@link ChipDefaults#DEFAULT_MARGIN_PERCENT}.
+         * Sets the width of {@link Chip}. If not set, default value will be set to fill the screen.
          */
         @NonNull
-        public Builder setWidth(@NonNull DpProp width) {
+        public Builder setWidth(@NonNull ContainerDimension width) {
             mWidth = width;
             return this;
         }
 
         /**
-         * Sets the width of {@link Chip}. If not set, default value will be screen width decreased
-         * by {@link ChipDefaults#DEFAULT_MARGIN_PERCENT}.
+         * Sets the width of {@link TitleChip}. If not set, default value will be set to fill the
+         * screen.
          */
         @NonNull
         public Builder setWidth(@Dimension(unit = DP) float width) {
@@ -171,7 +169,7 @@ public class Chip implements LayoutElement {
          * this for chip containing icon.
          */
         @NonNull
-        public Builder setContentDescription(@NonNull String contentDescription) {
+        public Builder setContentDescription(@NonNull CharSequence contentDescription) {
             this.mContentDescription = contentDescription;
             return this;
         }
@@ -308,13 +306,6 @@ public class Chip implements LayoutElement {
 
         /** Used for creating CompactChip and TitleChip. */
         @NonNull
-        Builder setWidth(@NonNull ContainerDimension width) {
-            this.mWidth = width;
-            return this;
-        }
-
-        /** Used for creating CompactChip and TitleChip. */
-        @NonNull
         Builder setMaxLines(int maxLines) {
             this.mMaxLines = maxLines;
             return this;
@@ -340,10 +331,10 @@ public class Chip implements LayoutElement {
                                                             .setRadius(radiusOf(mHeight))
                                                             .build())
                                             .build());
-            if (!mContentDescription.isEmpty()) {
+            if (mContentDescription.length() > 0) {
                 modifiers.setSemantics(
                         new ModifiersBuilders.Semantics.Builder()
-                                .setContentDescription(mContentDescription)
+                                .setContentDescription(mContentDescription.toString())
                                 .build());
             }
 
@@ -363,7 +354,7 @@ public class Chip implements LayoutElement {
             if (mType == NOT_SET) {
                 throw new IllegalStateException(
                         "No content set. Use setPrimaryTextContent or similar method to add"
-                            + " content");
+                                + " content");
             }
             if (mType == CUSTOM_CONTENT) {
                 return checkNotNull(mCustomContent);
@@ -551,7 +542,7 @@ public class Chip implements LayoutElement {
 
     /** Returns content description of this Chip. */
     @NonNull
-    public String getContentDescription() {
+    public CharSequence getContentDescription() {
         return checkNotNull(
                 checkNotNull(checkNotNull(mElement.getModifiers()).getSemantics())
                         .getContentDescription());

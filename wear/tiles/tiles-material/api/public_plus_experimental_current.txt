@@ -5,7 +5,7 @@ package androidx.wear.tiles.material {
     method public androidx.wear.tiles.material.ButtonColors getButtonColors();
     method public androidx.wear.tiles.ModifiersBuilders.Clickable getClickable();
     method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement getContent();
-    method public String getContentDescription();
+    method public CharSequence getContentDescription();
     method public androidx.wear.tiles.DimensionBuilders.ContainerDimension getSize();
   }
 
@@ -14,7 +14,7 @@ package androidx.wear.tiles.material {
     method public androidx.wear.tiles.material.Button build();
     method public androidx.wear.tiles.material.Button.Builder setButtonColors(androidx.wear.tiles.material.ButtonColors);
     method public androidx.wear.tiles.material.Button.Builder setContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
-    method public androidx.wear.tiles.material.Button.Builder setContentDescription(String);
+    method public androidx.wear.tiles.material.Button.Builder setContentDescription(CharSequence);
     method public androidx.wear.tiles.material.Button.Builder setIconContent(String, androidx.wear.tiles.DimensionBuilders.DpProp);
     method public androidx.wear.tiles.material.Button.Builder setIconContent(String);
     method public androidx.wear.tiles.material.Button.Builder setImageContent(String);
@@ -45,7 +45,7 @@ package androidx.wear.tiles.material {
     method public androidx.wear.tiles.material.ChipColors getChipColors();
     method public androidx.wear.tiles.ModifiersBuilders.Clickable getClickable();
     method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement getContent();
-    method public String getContentDescription();
+    method public CharSequence getContentDescription();
     method public androidx.wear.tiles.DimensionBuilders.ContainerDimension getHeight();
     method public int getHorizontalAlignment();
     method public androidx.wear.tiles.DimensionBuilders.ContainerDimension getWidth();
@@ -56,13 +56,13 @@ package androidx.wear.tiles.material {
     method public androidx.wear.tiles.material.Chip build();
     method public androidx.wear.tiles.material.Chip.Builder setChipColors(androidx.wear.tiles.material.ChipColors);
     method public androidx.wear.tiles.material.Chip.Builder setContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
-    method public androidx.wear.tiles.material.Chip.Builder setContentDescription(String);
+    method public androidx.wear.tiles.material.Chip.Builder setContentDescription(CharSequence);
     method public androidx.wear.tiles.material.Chip.Builder setHorizontalAlignment(int);
     method public androidx.wear.tiles.material.Chip.Builder setPrimaryTextContent(String);
     method public androidx.wear.tiles.material.Chip.Builder setPrimaryTextIconContent(String, String);
     method public androidx.wear.tiles.material.Chip.Builder setPrimaryTextLabelContent(String, String);
     method public androidx.wear.tiles.material.Chip.Builder setPrimaryTextLabelIconContent(String, String, String);
-    method public androidx.wear.tiles.material.Chip.Builder setWidth(androidx.wear.tiles.DimensionBuilders.DpProp);
+    method public androidx.wear.tiles.material.Chip.Builder setWidth(androidx.wear.tiles.DimensionBuilders.ContainerDimension);
     method public androidx.wear.tiles.material.Chip.Builder setWidth(@Dimension(unit=androidx.annotation.Dimension.DP) float);
   }
 
@@ -78,19 +78,10 @@ package androidx.wear.tiles.material {
   }
 
   public class ChipDefaults {
-    field public static final androidx.wear.tiles.DimensionBuilders.DpProp COMPACT_HEIGHT;
-    field public static final androidx.wear.tiles.DimensionBuilders.DpProp COMPACT_HORIZONTAL_PADDING;
     field public static final androidx.wear.tiles.material.ChipColors COMPACT_PRIMARY;
     field public static final androidx.wear.tiles.material.ChipColors COMPACT_SECONDARY;
-    field public static final androidx.wear.tiles.DimensionBuilders.DpProp DEFAULT_HEIGHT;
-    field public static final float DEFAULT_MARGIN_PERCENT = 5.2f;
-    field public static final androidx.wear.tiles.DimensionBuilders.DpProp HORIZONTAL_PADDING;
-    field public static final androidx.wear.tiles.DimensionBuilders.DpProp ICON_SIZE;
-    field public static final androidx.wear.tiles.DimensionBuilders.DpProp ICON_SPACER_WIDTH;
     field public static final androidx.wear.tiles.material.ChipColors PRIMARY;
     field public static final androidx.wear.tiles.material.ChipColors SECONDARY;
-    field public static final androidx.wear.tiles.DimensionBuilders.DpProp TITLE_HEIGHT;
-    field public static final androidx.wear.tiles.DimensionBuilders.DpProp TITLE_HORIZONTAL_PADDING;
     field public static final androidx.wear.tiles.material.ChipColors TITLE_PRIMARY;
     field public static final androidx.wear.tiles.material.ChipColors TITLE_SECONDARY;
   }
@@ -108,7 +99,7 @@ package androidx.wear.tiles.material {
     ctor public CircularProgressIndicator.Builder();
     method public androidx.wear.tiles.material.CircularProgressIndicator build();
     method public androidx.wear.tiles.material.CircularProgressIndicator.Builder setCircularProgressIndicatorColors(androidx.wear.tiles.material.ProgressIndicatorColors);
-    method public androidx.wear.tiles.material.CircularProgressIndicator.Builder setContentDescription(String);
+    method public androidx.wear.tiles.material.CircularProgressIndicator.Builder setContentDescription(CharSequence);
     method public androidx.wear.tiles.material.CircularProgressIndicator.Builder setEndAngle(float);
     method public androidx.wear.tiles.material.CircularProgressIndicator.Builder setProgress(@FloatRange(from=0, to=1) float);
     method public androidx.wear.tiles.material.CircularProgressIndicator.Builder setStartAngle(float);
@@ -120,9 +111,6 @@ package androidx.wear.tiles.material {
     method public androidx.wear.tiles.material.ChipColors getChipColors();
     method public androidx.wear.tiles.ModifiersBuilders.Clickable getClickable();
     method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement getContent();
-    method public String getContentDescription();
-    method public androidx.wear.tiles.DimensionBuilders.ContainerDimension getHeight();
-    method public androidx.wear.tiles.DimensionBuilders.ContainerDimension getWidth();
   }
 
   public static final class CompactChip.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
@@ -140,7 +128,6 @@ package androidx.wear.tiles.material {
 
   public class ProgressIndicatorDefaults {
     field public static final androidx.wear.tiles.material.ProgressIndicatorColors DEFAULT_COLOR;
-    field public static final androidx.wear.tiles.DimensionBuilders.DpProp DEFAULT_PADDING;
     field public static final androidx.wear.tiles.DimensionBuilders.DpProp DEFAULT_STROKE_WIDTH;
     field public static final float GAP_END_ANGLE = 156.1f;
     field public static final float GAP_START_ANGLE = -156.1f;
@@ -177,8 +164,6 @@ package androidx.wear.tiles.material {
     method public androidx.wear.tiles.material.ChipColors getChipColors();
     method public androidx.wear.tiles.ModifiersBuilders.Clickable getClickable();
     method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement getContent();
-    method public String getContentDescription();
-    method public androidx.wear.tiles.DimensionBuilders.ContainerDimension getHeight();
     method public int getHorizontalAlignment();
     method public androidx.wear.tiles.DimensionBuilders.ContainerDimension getWidth();
   }
@@ -188,7 +173,7 @@ package androidx.wear.tiles.material {
     method public androidx.wear.tiles.material.TitleChip build();
     method public androidx.wear.tiles.material.TitleChip.Builder setChipColors(androidx.wear.tiles.material.ChipColors);
     method public androidx.wear.tiles.material.TitleChip.Builder setHorizontalAlignment(int);
-    method public androidx.wear.tiles.material.TitleChip.Builder setWidth(androidx.wear.tiles.DimensionBuilders.DpProp);
+    method public androidx.wear.tiles.material.TitleChip.Builder setWidth(androidx.wear.tiles.DimensionBuilders.ContainerDimension);
     method public androidx.wear.tiles.material.TitleChip.Builder setWidth(@Dimension(unit=androidx.annotation.Dimension.DP) float);
   }
 
@@ -219,12 +204,6 @@ package androidx.wear.tiles.material.layouts {
   }
 
   public class MultiSlotLayout implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
-    method public androidx.wear.tiles.LayoutElementBuilders.Layout toLayout();
-    method public androidx.wear.tiles.LayoutElementBuilders.Layout.Builder toLayoutBuilder();
-    method public androidx.wear.tiles.TimelineBuilders.Timeline toTimeline();
-    method public androidx.wear.tiles.TimelineBuilders.Timeline.Builder toTimelineBuilder();
-    method public androidx.wear.tiles.TimelineBuilders.TimelineEntry toTimelineEntry();
-    method public androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder toTimelineEntryBuilder();
   }
 
   public static final class MultiSlotLayout.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
@@ -239,12 +218,6 @@ package androidx.wear.tiles.material.layouts {
   }
 
   public class PrimaryLayout implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
-    method public androidx.wear.tiles.LayoutElementBuilders.Layout toLayout();
-    method public androidx.wear.tiles.LayoutElementBuilders.Layout.Builder toLayoutBuilder();
-    method public androidx.wear.tiles.TimelineBuilders.Timeline toTimeline();
-    method public androidx.wear.tiles.TimelineBuilders.Timeline.Builder toTimelineBuilder();
-    method public androidx.wear.tiles.TimelineBuilders.TimelineEntry toTimelineEntry();
-    method public androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder toTimelineEntryBuilder();
   }
 
   public static final class PrimaryLayout.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
@@ -259,12 +232,6 @@ package androidx.wear.tiles.material.layouts {
 
   public class ProgressIndicatorLayout implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
     method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement getContent();
-    method public androidx.wear.tiles.LayoutElementBuilders.Layout toLayout();
-    method public androidx.wear.tiles.LayoutElementBuilders.Layout.Builder toLayoutBuilder();
-    method public androidx.wear.tiles.TimelineBuilders.Timeline toTimeline();
-    method public androidx.wear.tiles.TimelineBuilders.Timeline.Builder toTimelineBuilder();
-    method public androidx.wear.tiles.TimelineBuilders.TimelineEntry toTimelineEntry();
-    method public androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder toTimelineEntryBuilder();
   }
 
   public static final class ProgressIndicatorLayout.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {

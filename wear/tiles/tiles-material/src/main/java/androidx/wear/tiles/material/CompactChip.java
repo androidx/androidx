@@ -27,7 +27,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters;
-import androidx.wear.tiles.DimensionBuilders.ContainerDimension;
 import androidx.wear.tiles.DimensionBuilders.WrappedDimensionProp;
 import androidx.wear.tiles.LayoutElementBuilders.LayoutElement;
 import androidx.wear.tiles.ModifiersBuilders.Clickable;
@@ -41,8 +40,8 @@ import androidx.wear.tiles.proto.LayoutElementProto;
  * size.
  *
  * <p>The recommended set of {@link ChipColors} styles can be obtained from {@link ChipDefaults}.,
- * e.g. {@link ChipDefaults#COMPACT_PRIMARY} to get a color scheme for a primary
- * {@link CompactChip}.
+ * e.g. {@link ChipDefaults#COMPACT_PRIMARY} to get a color scheme for a primary {@link
+ * CompactChip}.
  */
 public class CompactChip implements LayoutElement {
     @NonNull private final Chip mElement;
@@ -112,18 +111,6 @@ public class CompactChip implements LayoutElement {
         }
     }
 
-    /** Returns height of this Chip. */
-    @NonNull
-    public ContainerDimension getHeight() {
-        return mElement.getHeight();
-    }
-
-    /** Returns width of this Chip. */
-    @NonNull
-    public ContainerDimension getWidth() {
-        return mElement.getWidth();
-    }
-
     /** Returns click event action associated with this Chip. */
     @NonNull
     public Clickable getClickable() {
@@ -134,12 +121,6 @@ public class CompactChip implements LayoutElement {
     @NonNull
     public ChipColors getChipColors() {
         return mElement.getChipColors();
-    }
-
-    /** Returns content description of this Chip. */
-    @NonNull
-    public String getContentDescription() {
-        return mElement.getContentDescription();
     }
 
     /** Returns content of this Chip. */
