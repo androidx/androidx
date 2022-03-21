@@ -16,6 +16,7 @@
 
 package androidx.activity
 
+import android.os.Build
 import android.view.OnBackInvokedCallback
 import android.view.OnBackInvokedDispatcher
 import androidx.annotation.RequiresApi
@@ -27,7 +28,7 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-@RequiresApi(33)
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 class OnBackPressedDispatcherInvokerTest {
 
     @Test

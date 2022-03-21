@@ -17,6 +17,7 @@
 package androidx.activity;
 
 import android.annotation.SuppressLint;
+import android.os.Build;
 import android.view.OnBackInvokedCallback;
 import android.view.OnBackInvokedDispatcher;
 
@@ -77,13 +78,13 @@ public final class OnBackPressedDispatcher {
      *
      * @param invoker the OnBackInvokedDispatcher to be set on this dispatcher
      */
-    @RequiresApi(33)
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     public void setOnBackPressedInvoker(@NonNull OnBackInvokedDispatcher invoker) {
         mInvokedDispatcher = invoker;
         updateBackInvokedCallbackState();
     }
 
-    @RequiresApi(33)
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     void updateBackInvokedCallbackState() {
         boolean shouldBeRegistered = hasEnabledCallbacks();
         if (mInvokedDispatcher != null) {
@@ -324,7 +325,7 @@ public final class OnBackPressedDispatcher {
         }
     }
 
-    @RequiresApi(33)
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     static class Api33Impl {
         private Api33Impl() { }
 
