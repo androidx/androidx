@@ -61,7 +61,7 @@ import kotlinx.coroutines.flow.first
  * Receiver scope which is used by [ScalingLazyColumn].
  */
 @ScalingLazyScopeMarker
-public interface ScalingLazyListScope {
+public sealed interface ScalingLazyListScope {
     /**
      * Adds a single item.
      *
