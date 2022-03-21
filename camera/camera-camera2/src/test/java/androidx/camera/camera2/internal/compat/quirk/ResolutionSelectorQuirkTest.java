@@ -28,7 +28,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.util.ReflectionHelpers;
 
 /**
- * Unit tests for {@link SelectResolutionQuirk}.
+ * Unit tests for {@link ExtraCroppingQuirk}.
  */
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
@@ -40,20 +40,20 @@ public class ResolutionSelectorQuirkTest {
     public void samsungDistortionHasQuirks() {
         ReflectionHelpers.setStaticField(Build.class, "BRAND", "samsung");
         // Default is false
-        assertThat(SelectResolutionQuirk.load()).isFalse();
+        assertThat(ExtraCroppingQuirk.load()).isFalse();
 
         // Test all samsung models
         ReflectionHelpers.setStaticField(Build.class, "MODEL", "SM-T580");
-        assertThat(SelectResolutionQuirk.load()).isTrue();
+        assertThat(ExtraCroppingQuirk.load()).isTrue();
         ReflectionHelpers.setStaticField(Build.class, "MODEL", "SM-J710MN");
-        assertThat(SelectResolutionQuirk.load()).isTrue();
+        assertThat(ExtraCroppingQuirk.load()).isTrue();
         ReflectionHelpers.setStaticField(Build.class, "MODEL", "SM-A320FL");
-        assertThat(SelectResolutionQuirk.load()).isTrue();
+        assertThat(ExtraCroppingQuirk.load()).isTrue();
         ReflectionHelpers.setStaticField(Build.class, "MODEL", "SM-G570M");
-        assertThat(SelectResolutionQuirk.load()).isTrue();
+        assertThat(ExtraCroppingQuirk.load()).isTrue();
         ReflectionHelpers.setStaticField(Build.class, "MODEL", "SM-G610M");
-        assertThat(SelectResolutionQuirk.load()).isTrue();
+        assertThat(ExtraCroppingQuirk.load()).isTrue();
         ReflectionHelpers.setStaticField(Build.class, "MODEL", "SM-G610F");
-        assertThat(SelectResolutionQuirk.load()).isTrue();
+        assertThat(ExtraCroppingQuirk.load()).isTrue();
     }
 }
