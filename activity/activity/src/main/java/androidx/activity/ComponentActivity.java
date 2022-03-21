@@ -516,6 +516,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     @Override
     public void onPanelClosed(int featureId, @NonNull Menu menu) {
         mMenuHostHelper.onMenuClosed(menu);
+        super.onPanelClosed(featureId, menu);
     }
 
     @Override
