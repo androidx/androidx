@@ -19,9 +19,11 @@ import android.Manifest
 import android.app.Instrumentation
 import android.content.Context
 import android.os.Build
+import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraSelector
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.lifecycle.Lifecycle.State.CREATED
 import androidx.lifecycle.Lifecycle.State.RESUMED
@@ -37,6 +39,7 @@ import androidx.test.rule.GrantPermissionRule
 import androidx.test.uiautomator.UiDevice
 import androidx.testutils.RepeatRule
 import androidx.testutils.withActivity
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.AfterClass
@@ -44,9 +47,7 @@ import org.junit.Assume
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TestRule
 import org.junit.runner.RunWith
-import java.util.concurrent.TimeUnit
 
 private const val HOME_TIMEOUT_MS = 3000L
 private const val ROTATE_TIMEOUT_MS = 2000L
@@ -59,7 +60,9 @@ class ExistingActivityLifecycleTest {
         UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
     @get:Rule
-    val mUseCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
+    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
+        PreTestCameraIdList(Camera2Config.defaultConfig())
+    )
 
     @get:Rule
     val mPermissionRule: GrantPermissionRule =

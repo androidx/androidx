@@ -25,6 +25,7 @@ import android.os.Build
 import android.util.Log
 import android.util.Size
 import android.view.Surface
+import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
@@ -76,7 +77,9 @@ class VideoRecordingTest(
 ) {
 
     @get:Rule
-    val cameraRule = CameraUtil.grantCameraPermissionAndPreTest()
+    val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
+        CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+    )
 
     @get:Rule
     val permissionRule: GrantPermissionRule =

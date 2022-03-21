@@ -32,6 +32,7 @@ import android.os.Looper
 import android.os.SystemClock
 import android.util.Size
 import android.view.Surface
+import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.internal.compat.CameraManagerCompat
 import androidx.camera.camera2.internal.util.RequestProcessorRequest
 import androidx.camera.camera2.interop.CaptureRequestOptions
@@ -55,6 +56,7 @@ import androidx.camera.core.impl.SessionProcessorSurface
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraUtil.CameraDeviceHolder
+import androidx.camera.testing.CameraUtil.PreTestCameraIdList
 import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
@@ -62,6 +64,12 @@ import androidx.test.filters.SdkSuppress
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture
+import java.util.Objects
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.ExecutionException
+import java.util.concurrent.Executor
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -75,12 +83,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.util.Objects
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.ExecutionException
-import java.util.concurrent.Executor
-import java.util.concurrent.ScheduledExecutorService
-import java.util.concurrent.TimeUnit
 
 const val FAKE_CAPTURE_SEQUENCE_ID = 1
 const val JPEG_ORIENTATION_VALUE = 90
@@ -131,7 +133,9 @@ class ProcessingCaptureSessionTest(
     }
 
     @get:Rule
-    val cameraRule = CameraUtil.grantCameraPermissionAndPreTest()
+    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
+        PreTestCameraIdList(Camera2Config.defaultConfig())
+    )
 
     private lateinit var cameraDeviceHolder: CameraDeviceHolder
     private lateinit var captureSessionRepository: CaptureSessionRepository

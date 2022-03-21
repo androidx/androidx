@@ -29,6 +29,7 @@ import android.view.SurfaceView
 import android.view.TextureView
 import android.view.View
 import android.widget.FrameLayout
+import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
@@ -43,6 +44,7 @@ import androidx.camera.core.impl.utils.futures.FutureCallback
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.camera.testing.CoreAppTestUtil.ForegroundOccupiedError
 import androidx.camera.testing.SurfaceFormatUtil
@@ -66,6 +68,12 @@ import androidx.test.uiautomator.UiObjectNotFoundException
 import androidx.test.uiautomator.UiSelector
 import com.google.common.truth.Truth
 import com.google.common.util.concurrent.ListenableFuture
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.ExecutionException
+import java.util.concurrent.Semaphore
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
+import java.util.concurrent.atomic.AtomicReference
 import org.junit.After
 import org.junit.Assume
 import org.junit.Before
@@ -73,12 +81,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.ExecutionException
-import java.util.concurrent.Semaphore
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.TimeoutException
-import java.util.concurrent.atomic.AtomicReference
 
 /**
  * Instrumented tests for [PreviewView].
@@ -88,7 +90,9 @@ import java.util.concurrent.atomic.AtomicReference
 @SdkSuppress(minSdkVersion = 21)
 class PreviewViewDeviceTest {
     @get:Rule
-    var useCamera = CameraUtil.grantCameraPermissionAndPreTest()
+    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
+        PreTestCameraIdList(Camera2Config.defaultConfig())
+    )
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private var activityScenario: ActivityScenario<FakeActivity>? = null

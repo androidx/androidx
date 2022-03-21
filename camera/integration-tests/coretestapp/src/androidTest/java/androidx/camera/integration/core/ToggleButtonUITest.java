@@ -32,6 +32,7 @@ import static org.junit.Assume.assumeTrue;
 
 import android.content.Intent;
 
+import androidx.camera.camera2.Camera2Config;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
@@ -85,7 +86,9 @@ public final class ToggleButtonUITest {
                     false);
 
     @Rule
-    public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest();
+    public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest(
+            new CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+    );
     @Rule
     public GrantPermissionRule mStoragePermissionRule =
             GrantPermissionRule.grant(android.Manifest.permission.WRITE_EXTERNAL_STORAGE);

@@ -23,6 +23,7 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.os.Build
 import android.view.Surface
+import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.camera2.interop.Camera2Interop
 import androidx.camera.core.AspectRatio
@@ -56,7 +57,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -67,7 +67,6 @@ import org.junit.Assume
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
@@ -83,7 +82,9 @@ class VideoRecordingFrameDropTest(
     private val perSelectorTestData: PerSelectorTestData
 ) {
     @get:Rule
-    var cameraRule: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
+    val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
+        CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+    )
 
     // Due to the flaky nature of this test, it should only be run in the lab
     @get:Rule

@@ -21,6 +21,7 @@ import android.content.Intent
 import android.graphics.SurfaceTexture
 import android.view.TextureView
 import android.view.View
+import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraSelector
 import androidx.camera.integration.uiwidgets.R
 import androidx.camera.testing.CameraUtil
@@ -39,6 +40,8 @@ import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
@@ -46,11 +49,8 @@ import org.junit.Assume
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
 @RunWith(Parameterized::class)
 @LargeTest
@@ -70,7 +70,9 @@ class ViewPager2ActivityTest(private val lensFacing: Int) {
     }
 
     @get:Rule
-    val mUseCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest(testCameraRule)
+    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
+        testCameraRule, CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+    )
 
     private val mDevice =
         UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())

@@ -34,6 +34,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.AudioUtil
 import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.SurfaceTextureProvider.SurfaceTextureCallback
 import androidx.camera.testing.SurfaceTextureProvider.createSurfaceTextureProvider
@@ -46,21 +47,20 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
+import java.io.File
+import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.timeout
 import org.mockito.Mockito.verify
-import java.io.File
-import java.util.concurrent.TimeUnit
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
@@ -74,7 +74,9 @@ class VideoCaptureTest {
     val useRecordingResource = CameraUtil.checkVideoRecordingResource()
 
     @get:Rule
-    val useCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
+    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
+        PreTestCameraIdList(Camera2Config.defaultConfig())
+    )
 
     @get:Rule
     val permissionRule: GrantPermissionRule =

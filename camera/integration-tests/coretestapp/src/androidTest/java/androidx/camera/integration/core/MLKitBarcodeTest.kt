@@ -20,6 +20,7 @@ import android.content.Context
 import android.util.Log
 import android.util.Size
 import android.view.Surface
+import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
@@ -30,11 +31,13 @@ import androidx.camera.testing.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertWithMessage
-import com.google.mlkit.vision.barcode.common.Barcode.FORMAT_QR_CODE
 import com.google.mlkit.vision.barcode.BarcodeScanner
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
+import com.google.mlkit.vision.barcode.common.Barcode.FORMAT_QR_CODE
 import com.google.mlkit.vision.common.InputImage
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -44,8 +47,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
 /*  The integration-test is for MLKit vision barcode component with CameraX ImageAnalysis use case.
     The test is for lab device test. For the local test, mark the @LabTestRule.LabTestFrontCamera,
@@ -59,7 +60,9 @@ class MLKitBarcodeTest(
 ) {
 
     @get:Rule
-    val cameraRule = CameraUtil.grantCameraPermissionAndPreTest()
+    val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
+        CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+    )
 
     @get:Rule
     val labTest: LabTestRule = LabTestRule()
