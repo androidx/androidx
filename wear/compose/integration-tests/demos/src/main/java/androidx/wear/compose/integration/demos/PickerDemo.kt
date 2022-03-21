@@ -17,6 +17,7 @@
 package androidx.wear.compose.integration.demos
 
 import android.view.MotionEvent
+import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -42,6 +43,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -56,6 +58,7 @@ import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Picker
 import androidx.wear.compose.material.PickerDefaults
+import androidx.wear.compose.material.PickerScope
 import androidx.wear.compose.material.PickerState
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.rememberPickerState
@@ -75,6 +78,9 @@ fun TimePickerWithHoursMinutesSeconds() {
         var selectedColumn by remember { mutableStateOf(0) }
         val textStyle = MaterialTheme.typography.display3
         val optionColor = MaterialTheme.colors.secondary
+        val focusRequester1 = remember { FocusRequester() }
+        val focusRequester2 = remember { FocusRequester() }
+        val focusRequester3 = remember { FocusRequester() }
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
                 verticalArrangement = Arrangement.Center,
@@ -98,19 +104,14 @@ fun TimePickerWithHoursMinutesSeconds() {
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center,
                 ) {
-                    val state1 = rememberPickerState(
-                        initialNumberOfOptions = 24,
-                        initiallySelectedOption = 6
-                    )
-                    val flingBehavior1 = PickerDefaults.flingBehavior(state1)
-                    val pickerModifier1 = Modifier.size(40.dp, 100.dp)
-                        .rsbScroll(state1, flingBehavior1)
-
-                    Picker(
+                    PickerWithRSB(
                         readOnly = selectedColumn != 0,
-                        state = state1,
-                        modifier = pickerModifier1,
-                        flingBehavior = flingBehavior1
+                        state = rememberPickerState(
+                            initialNumberOfOptions = 24,
+                            initiallySelectedOption = 6
+                        ),
+                        focusRequester = focusRequester1,
+                        modifier = Modifier.size(40.dp, 100.dp),
                     ) { hour: Int ->
                         TimePiece(
                             selected = selectedColumn == 0,
@@ -120,9 +121,10 @@ fun TimePickerWithHoursMinutesSeconds() {
                         )
                     }
                     Separator(6.dp, textStyle)
-                    Picker(
+                    PickerWithRSB(
                         readOnly = selectedColumn != 1,
                         state = rememberPickerState(initialNumberOfOptions = 60),
+                        focusRequester = focusRequester2,
                         modifier = Modifier.size(40.dp, 100.dp),
                     ) { minute: Int ->
                         TimePiece(
@@ -133,9 +135,10 @@ fun TimePickerWithHoursMinutesSeconds() {
                         )
                     }
                     Separator(6.dp, textStyle)
-                    Picker(
+                    PickerWithRSB(
                         readOnly = selectedColumn != 2,
                         state = rememberPickerState(initialNumberOfOptions = 60),
+                        focusRequester = focusRequester3,
                         modifier = Modifier.size(40.dp, 100.dp),
                     ) { second: Int ->
                         TimePiece(
@@ -156,6 +159,10 @@ fun TimePickerWithHoursMinutesSeconds() {
                 }
                 Spacer(Modifier.height(12.dp))
             }
+            LaunchedEffect(selectedColumn) {
+                listOf(focusRequester1, focusRequester2, focusRequester3)[selectedColumn]
+                    .requestFocus()
+            }
         }
     }
 }
@@ -173,6 +180,9 @@ fun TimePickerWith12HourClock() {
         var morning by remember { mutableStateOf(true) }
         var selectedColumn by remember { mutableStateOf(0) }
         val textStyle = MaterialTheme.typography.display1
+        val focusRequester1 = remember { FocusRequester() }
+        val focusRequester2 = remember { FocusRequester() }
+
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
@@ -204,13 +214,14 @@ fun TimePickerWith12HourClock() {
                 horizontalArrangement = Arrangement.Center,
             ) {
                 Spacer(Modifier.width(8.dp))
-                Picker(
+                PickerWithRSB(
                     readOnly = selectedColumn != 0,
                     state = rememberPickerState(
                         initialNumberOfOptions = 12,
                         initiallySelectedOption = 6
                     ),
-                    modifier = Modifier.size(64.dp, 100.dp),
+                    focusRequester = focusRequester1,
+                    modifier = Modifier.size(40.dp, 100.dp),
                     readOnlyLabel = { LabelText("Hour") }
                 ) { hour: Int ->
                     TimePiece(
@@ -221,9 +232,11 @@ fun TimePickerWith12HourClock() {
                     )
                 }
                 Separator(8.dp, textStyle)
-                Picker(
+
+                PickerWithRSB(
                     readOnly = selectedColumn != 1,
                     state = rememberPickerState(initialNumberOfOptions = 60),
+                    focusRequester = focusRequester2,
                     modifier = Modifier.size(64.dp, 100.dp),
                     readOnlyLabel = { LabelText("Min") }
                 ) { minute: Int ->
@@ -245,6 +258,9 @@ fun TimePickerWith12HourClock() {
                 )
             }
             Spacer(Modifier.height(8.dp))
+            LaunchedEffect(selectedColumn) {
+                listOf(focusRequester1, focusRequester2)[selectedColumn].requestFocus()
+            }
         }
     }
 }
@@ -278,6 +294,10 @@ fun DatePicker() {
             initialNumberOfOptions = maxDayInMonth,
             initiallySelectedOption = today.get(Calendar.DAY_OF_MONTH) - 1
         )
+        val focusRequester1 = remember { FocusRequester() }
+        val focusRequester2 = remember { FocusRequester() }
+        val focusRequester3 = remember { FocusRequester() }
+
         LaunchedEffect(maxDayInMonth) {
             if (maxDayInMonth != dayState.numberOfOptions) {
                 dayState.numberOfOptions = maxDayInMonth
@@ -330,7 +350,8 @@ fun DatePicker() {
                             readOnly = selectedColumn != 0,
                             onSelected = { selectedColumn = 0 },
                             text = { day: Int -> "%d".format(day + 1) },
-                            width = dayWidth
+                            width = dayWidth,
+                            focusRequester = focusRequester1
                         )
                         Spacer(modifier = Modifier.width(spacerWidth))
                     }
@@ -339,7 +360,8 @@ fun DatePicker() {
                         readOnly = selectedColumn != 1,
                         onSelected = { selectedColumn = 1 },
                         text = { month: Int -> monthNames[month] },
-                        width = monthWidth
+                        width = monthWidth,
+                        focusRequester = focusRequester2
                     )
                     if (selectedColumn > 0) {
                         Spacer(modifier = Modifier.width(spacerWidth))
@@ -348,7 +370,8 @@ fun DatePicker() {
                             readOnly = selectedColumn != 2,
                             onSelected = { selectedColumn = 2 },
                             text = { year: Int -> "%4d".format(year + 1) },
-                            width = yearWidth
+                            width = yearWidth,
+                            focusRequester = focusRequester3
                         )
                     }
                 }
@@ -367,6 +390,10 @@ fun DatePicker() {
                 }
                 Spacer(Modifier.height(12.dp))
             }
+            LaunchedEffect(selectedColumn) {
+                listOf(focusRequester1, focusRequester2, focusRequester3)[selectedColumn]
+                    .requestFocus()
+            }
         }
     }
 }
@@ -377,11 +404,13 @@ private fun DatePickerImpl(
     readOnly: Boolean,
     onSelected: () -> Unit,
     text: (option: Int) -> String,
+    focusRequester: FocusRequester,
     width: Dp
 ) {
-    Picker(
+    PickerWithRSB(
         readOnly = readOnly,
         state = state,
+        focusRequester = focusRequester,
         modifier = Modifier.size(width, 100.dp),
     ) { option ->
         TimePiece(
@@ -439,4 +468,27 @@ private fun Separator(width: Dp, textStyle: TextStyle) {
         color = MaterialTheme.colors.onBackground
     )
     Spacer(Modifier.width(width))
+}
+
+@Composable fun PickerWithRSB(
+    state: PickerState,
+    readOnly: Boolean,
+    modifier: Modifier,
+    focusRequester: FocusRequester,
+    readOnlyLabel: @Composable (BoxScope.() -> Unit)? = null,
+    flingBehavior: FlingBehavior = PickerDefaults.flingBehavior(state = state),
+    option: @Composable PickerScope.(optionIndex: Int) -> Unit
+) {
+    Picker(
+        state = state,
+        modifier = modifier.rsbScroll(
+            scrollableState = state,
+            flingBehavior = flingBehavior,
+            focusRequester = focusRequester
+        ),
+        flingBehavior = flingBehavior,
+        readOnly = readOnly,
+        readOnlyLabel = readOnlyLabel,
+        option = option
+    )
 }
