@@ -931,7 +931,7 @@ public sealed class Renderer @WorkerThread constructor(
                     )
                 ) {
                     throw IllegalStateException(
-                        "eglMakeCurrent failed, glGetError() = " + GLES20.glGetError()
+                        "eglMakeCurrent failed, eglGetError() = " + EGL14.eglGetError()
                     )
                 }
 
@@ -1016,7 +1016,7 @@ public sealed class Renderer @WorkerThread constructor(
                     )
                 ) {
                     throw IllegalStateException(
-                        "eglMakeCurrent failed, glGetError() = " + GLES20.glGetError()
+                        "eglMakeCurrent failed, eglGetError() = " + EGL14.eglGetError()
                     )
                 }
 
