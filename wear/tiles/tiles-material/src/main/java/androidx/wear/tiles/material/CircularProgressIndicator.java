@@ -73,7 +73,7 @@ public class CircularProgressIndicator implements LayoutElement {
     public static final class Builder implements LayoutElement.Builder {
         @NonNull private ProgressIndicatorColors mCircularProgressIndicatorColors = DEFAULT_COLOR;
         @NonNull private DpProp mStrokeWidth = DEFAULT_STROKE_WIDTH;
-        @NonNull private String mContentDescription = "";
+        @NonNull private CharSequence mContentDescription = "";
         @NonNull private DegreesProp mStartAngle = degrees(DEFAULT_START_ANGLE);
         @NonNull private DegreesProp mEndAngle = degrees(DEFAULT_END_ANGLE);
 
@@ -122,7 +122,7 @@ public class CircularProgressIndicator implements LayoutElement {
          * accessibility support.
          */
         @NonNull
-        public Builder setContentDescription(@NonNull String contentDescription) {
+        public Builder setContentDescription(@NonNull CharSequence contentDescription) {
             this.mContentDescription = contentDescription;
             return this;
         }
@@ -180,7 +180,7 @@ public class CircularProgressIndicator implements LayoutElement {
                                             .setSemantics(
                                                     new Semantics.Builder()
                                                             .setContentDescription(
-                                                                    mContentDescription)
+                                                                    mContentDescription.toString())
                                                             .build())
                                             .setPadding(
                                                     new Padding.Builder()

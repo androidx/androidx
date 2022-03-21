@@ -554,6 +554,7 @@ package androidx.wear.tiles {
   }
 
   public static final class LayoutElementBuilders.Layout {
+    method public static androidx.wear.tiles.LayoutElementBuilders.Layout fromLayoutElement(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getRoot();
   }
 
@@ -1001,6 +1002,7 @@ package androidx.wear.tiles {
   }
 
   public static final class TimelineBuilders.Timeline {
+    method public static androidx.wear.tiles.TimelineBuilders.Timeline fromLayoutElement(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
     method public java.util.List<androidx.wear.tiles.TimelineBuilders.TimelineEntry!> getTimelineEntries();
   }
 
@@ -1011,6 +1013,7 @@ package androidx.wear.tiles {
   }
 
   public static final class TimelineBuilders.TimelineEntry {
+    method public static androidx.wear.tiles.TimelineBuilders.TimelineEntry fromLayoutElement(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.tiles.LayoutElementBuilders.Layout? getLayout();
     method public androidx.wear.tiles.TimelineBuilders.TimeInterval? getValidity();
   }

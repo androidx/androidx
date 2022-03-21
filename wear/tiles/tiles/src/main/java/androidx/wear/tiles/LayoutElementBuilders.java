@@ -3579,6 +3579,12 @@ public final class LayoutElementBuilders {
             return new Layout(proto);
         }
 
+        /** Returns the {@link Layout} object containing the given layout element. */
+        @NonNull
+        public static Layout fromLayoutElement(@NonNull LayoutElement layoutElement) {
+            return new Builder().setRoot(layoutElement).build();
+        }
+
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
