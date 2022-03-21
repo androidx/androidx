@@ -21,17 +21,42 @@ import kotlin.reflect.KClass
 
 /**
  * Class to represent a permission which consists of a [KClass] representing a data type and a
- * [AccessType] enum representing an access type.
+ * [AccessTypes] enum representing an access type.
+ *
+ * @property recordType type of [Record] the permission gives access for
+ * @property accessType whether read or write access
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public data class Permission(
-    public val recordType: KClass<out Record>,
-    public val accessType: AccessType,
+public class Permission(
+    internal val recordType: KClass<out Record>,
+    @property:AccessType internal val accessType: Int,
 ) {
     companion object {
-        /** Creates a permission of the given [accessType] for record type [T]. */
-        public inline fun <reified T : Record> create(accessType: AccessType): Permission {
+        /**
+         * Creates a permission of the given [accessType] for record type [T].
+         *
+         * @param T type of [Record]
+         * @param accessType whether read or write access
+         * @return Permission for given [accessType] for record type [T]
+         */
+        public inline fun <reified T : Record> create(@AccessType accessType: Int): Permission {
             return Permission(T::class, accessType)
         }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Permission) return false
+
+        if (recordType != other.recordType) return false
+        if (accessType != other.accessType) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = recordType.hashCode()
+        result = 31 * result + accessType
+        return result
     }
 }

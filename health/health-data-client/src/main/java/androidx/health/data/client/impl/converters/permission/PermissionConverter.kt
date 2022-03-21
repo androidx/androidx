@@ -17,24 +17,25 @@ package androidx.health.data.client.impl.converters.permission
 
 import androidx.health.data.client.impl.converters.datatype.toDataTypeKClass
 import androidx.health.data.client.impl.converters.datatype.toDataTypeName
-import androidx.health.data.client.permission.AccessType
+import androidx.health.data.client.permission.AccessTypes
 import androidx.health.data.client.permission.Permission
 import androidx.health.platform.client.proto.DataProto
 import androidx.health.platform.client.proto.PermissionProto
+import java.lang.IllegalStateException
 
-fun AccessType.toProto(): PermissionProto.AccessType {
-    return when (this) {
-        AccessType.WRITE -> PermissionProto.AccessType.ACCESS_TYPE_WRITE
-        AccessType.READ -> PermissionProto.AccessType.ACCESS_TYPE_READ
+private fun toAccessTypeProto(accessType: Int): PermissionProto.AccessType {
+    return when (accessType) {
+        AccessTypes.WRITE -> PermissionProto.AccessType.ACCESS_TYPE_WRITE
+        AccessTypes.READ -> PermissionProto.AccessType.ACCESS_TYPE_READ
         else -> PermissionProto.AccessType.ACCESS_TYPE_UNKNOWN
     }
 }
 
-fun PermissionProto.AccessType.toAccessType(): AccessType {
+private fun PermissionProto.AccessType.toAccessType(): Int {
     return when (this) {
-        PermissionProto.AccessType.ACCESS_TYPE_WRITE -> AccessType.WRITE
-        PermissionProto.AccessType.ACCESS_TYPE_READ -> AccessType.READ
-        else -> AccessType.UNKNOWN
+        PermissionProto.AccessType.ACCESS_TYPE_WRITE -> AccessTypes.WRITE
+        PermissionProto.AccessType.ACCESS_TYPE_READ -> AccessTypes.READ
+        else -> throw IllegalStateException("Unknown access type")
     }
 }
 
@@ -42,7 +43,7 @@ fun Permission.toProtoPermission(): PermissionProto.Permission {
     val dataType = DataProto.DataType.newBuilder().setName(this.recordType.toDataTypeName()).build()
     return PermissionProto.Permission.newBuilder()
         .setDataType(dataType)
-        .setAccessType(this.accessType.toProto())
+        .setAccessType(toAccessTypeProto(accessType))
         .build()
 }
 

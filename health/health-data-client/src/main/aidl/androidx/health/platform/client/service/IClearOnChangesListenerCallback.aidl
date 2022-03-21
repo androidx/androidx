@@ -13,14 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.health.data.client.permission
+package androidx.health.platform.client.service;
 
-import androidx.annotation.RestrictTo
+import androidx.health.platform.client.error.ErrorStatus;
 
-/** Type of access to health data: read or write. */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-public enum class AccessType {
-    UNKNOWN,
-    READ,
-    WRITE
+oneway interface IClearOnChangesListenerCallback {
+  void onSuccess() = 0;
+  void onError(in ErrorStatus status) = 1;
 }

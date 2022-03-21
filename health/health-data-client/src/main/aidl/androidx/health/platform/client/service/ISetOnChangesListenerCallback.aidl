@@ -15,10 +15,9 @@
  */
 package androidx.health.platform.client.service;
 
-import androidx.health.platform.client.response.AggregateDataResponse;
 import androidx.health.platform.client.error.ErrorStatus;
 
-oneway interface IAggregateDataCallback {
-  void onSuccess(in AggregateDataResponse response) = 0;
+oneway interface ISetOnChangesListenerCallback {
+  void onSuccess() = 0;
   void onError(in ErrorStatus status) = 1;
 }
