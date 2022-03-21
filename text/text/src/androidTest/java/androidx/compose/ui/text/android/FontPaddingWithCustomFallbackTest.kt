@@ -1,5 +1,6 @@
 package androidx.compose.ui.text.android
 
+import android.graphics.Path
 import android.graphics.Typeface
 import android.graphics.fonts.Font
 import android.graphics.fonts.FontFamily
@@ -11,6 +12,10 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.spy
+import com.nhaarman.mockitokotlin2.times
+import com.nhaarman.mockitokotlin2.verify
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -80,6 +85,97 @@ class FontPaddingWithCustomFallbackTest {
         val tallLayout = createTextLayout(tallText, typeface = tallTypeface)
 
         assertThat(tallTextFallbackLayout.height).isEqualTo(tallLayout.height)
+    }
+
+    @Test
+    fun getLineBottom_includeFontPaddingFalse() {
+        val textSize = 100.0f
+        val layoutWidth = textSize * mixedText.length
+
+        val layoutPaddingFalse = createTextLayout(
+            text = mixedTextMultiLine,
+            width = layoutWidth,
+            includePadding = false,
+            typeface = latinFirstFallback
+        )
+
+        val layoutPaddingTrue = createTextLayout(
+            text = mixedTextMultiLine,
+            width = layoutWidth,
+            includePadding = true,
+            typeface = latinFirstFallback
+        )
+
+        assertThat(layoutPaddingFalse.bottomPadding).isGreaterThan(0)
+        assertThat(layoutPaddingFalse.topPadding).isGreaterThan(0)
+
+        for (line in 0..1) {
+            assertThat(layoutPaddingFalse.getLineBottom(line)).isEqualTo(
+                layoutPaddingTrue.getLineBottom(line) + layoutPaddingFalse.topPadding
+            )
+        }
+
+        assertThat(layoutPaddingFalse.getLineBottom(2)).isEqualTo(
+            layoutPaddingTrue.getLineBottom(2) +
+                layoutPaddingFalse.topPadding +
+                layoutPaddingFalse.bottomPadding
+        )
+    }
+
+    @Test
+    fun getSelectionPath_emptySelection() {
+        val textSize = 100.0f
+        val layoutWidth = textSize * mixedText.length
+
+        val layout = createTextLayout(
+            text = mixedTextMultiLine,
+            width = layoutWidth,
+            includePadding = false,
+            typeface = latinFirstFallback
+        )
+
+        val path = spy(Path())
+        layout.getSelectionPath(0, 0, path)
+
+        assertThat(path.isEmpty).isTrue()
+        verify(path, times(0)).offset(any(), any())
+        verify(path, times(0)).offset(any(), any(), any())
+    }
+
+    @Test
+    fun getSelectionPath_offsetsByTopPadding() {
+        val textSize = 100.0f
+        val layoutWidth = textSize * mixedText.length
+
+        val layoutPaddingFalse = createTextLayout(
+            text = mixedTextMultiLine,
+            width = layoutWidth,
+            includePadding = false,
+            typeface = latinFirstFallback
+        )
+
+        val layoutPaddingTrue = createTextLayout(
+            text = mixedTextMultiLine,
+            width = layoutWidth,
+            includePadding = true,
+            typeface = latinFirstFallback
+        )
+
+        assertThat(layoutPaddingFalse.bottomPadding).isGreaterThan(0)
+        assertThat(layoutPaddingFalse.topPadding).isGreaterThan(0)
+
+        val pathPaddingFalse = Path()
+        layoutPaddingFalse.getSelectionPath(0, 1, pathPaddingFalse)
+
+        val pathPaddingTrue = Path()
+        layoutPaddingTrue.getSelectionPath(0, 1, pathPaddingTrue)
+
+        // padding true with offset is the expected path
+        pathPaddingTrue.offset(0f, layoutPaddingFalse.topPadding.toFloat())
+        val pathDifference = Path().apply {
+            op(pathPaddingFalse, pathPaddingTrue, Path.Op.DIFFERENCE)
+        }
+        assertThat(pathDifference.isEmpty).isTrue()
     }
 
     /**
