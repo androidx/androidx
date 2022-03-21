@@ -82,6 +82,9 @@
             android:name="androidx.core.app.TestActivityWithLifecycle"
             android:exported="true" />
         <activity
+            android:name="androidx.core.app.TestActivityRecreate"
+            android:exported="true" />
+        <activity
             android:name="androidx.core.app.ActivityCompatRecreateLifecycleTestActivity"
             android:exported="true" />
         <activity
