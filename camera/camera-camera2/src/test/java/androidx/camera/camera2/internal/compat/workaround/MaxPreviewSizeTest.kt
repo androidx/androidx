@@ -18,7 +18,7 @@ package androidx.camera.camera2.internal.compat.workaround
 
 import android.os.Build
 import android.util.Size
-import androidx.camera.camera2.internal.compat.quirk.SelectResolutionQuirk
+import androidx.camera.camera2.internal.compat.quirk.ExtraCroppingQuirk
 import androidx.camera.core.impl.SurfaceConfig
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -40,8 +40,8 @@ private val SELECT_RESOLUTION_JPEG = Size(1003, 1000)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class MaxPreviewSizeTest {
 
-    private val mMaxPreviewSize = MaxPreviewSize(object : SelectResolutionQuirk() {
-        override fun selectResolution(configType: SurfaceConfig.ConfigType): Size? {
+    private val mMaxPreviewSize = MaxPreviewSize(object : ExtraCroppingQuirk() {
+        override fun getVerifiedResolution(configType: SurfaceConfig.ConfigType): Size? {
             return when (configType) {
                 SurfaceConfig.ConfigType.YUV -> SELECT_RESOLUTION_YUV
                 SurfaceConfig.ConfigType.PRIV -> SELECT_RESOLUTION_PRIV
@@ -76,13 +76,13 @@ class MaxPreviewSizeTest {
     fun noResolutionQuirk_returnsOriginalMaxPreviewResolution() {
         noQuirk_returnsOriginalMaxPreviewResolution(
             Mockito.mock(
-                SelectResolutionQuirk::class.java
+                ExtraCroppingQuirk::class.java
             )
         )
     }
 
     private fun noQuirk_returnsOriginalMaxPreviewResolution(
-        quirk: SelectResolutionQuirk?
+        quirk: ExtraCroppingQuirk?
     ) {
         val maxPreviewSize = MaxPreviewSize(quirk)
         val result =

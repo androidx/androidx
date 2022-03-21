@@ -23,7 +23,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks;
-import androidx.camera.camera2.internal.compat.quirk.SelectResolutionQuirk;
+import androidx.camera.camera2.internal.compat.quirk.ExtraCroppingQuirk;
 import androidx.camera.core.impl.SurfaceConfig;
 
 import java.util.ArrayList;
@@ -37,21 +37,21 @@ import java.util.List;
 public class ResolutionSelector {
 
     @Nullable
-    private final SelectResolutionQuirk mSelectResolutionQuirk;
+    private final ExtraCroppingQuirk mExtraCroppingQuirk;
 
     /**
      * Constructs new {@link ResolutionSelector}.
      */
     public ResolutionSelector() {
-        this(DeviceQuirks.get(SelectResolutionQuirk.class));
+        this(DeviceQuirks.get(ExtraCroppingQuirk.class));
     }
 
     /**
      * Constructs new {@link ResolutionSelector}.
      */
     @VisibleForTesting
-    ResolutionSelector(@Nullable SelectResolutionQuirk selectResolutionQuirk) {
-        mSelectResolutionQuirk = selectResolutionQuirk;
+    ResolutionSelector(@Nullable ExtraCroppingQuirk extraCroppingQuirk) {
+        mExtraCroppingQuirk = extraCroppingQuirk;
     }
 
     /**
@@ -69,10 +69,10 @@ public class ResolutionSelector {
     public List<Size> insertOrPrioritize(
             @NonNull SurfaceConfig.ConfigType configType,
             @NonNull List<Size> supportedResolutions) {
-        if (mSelectResolutionQuirk == null) {
+        if (mExtraCroppingQuirk == null) {
             return supportedResolutions;
         }
-        Size selectResolution = mSelectResolutionQuirk.selectResolution(configType);
+        Size selectResolution = mExtraCroppingQuirk.getVerifiedResolution(configType);
         if (selectResolution == null) {
             return supportedResolutions;
         }
