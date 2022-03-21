@@ -24,6 +24,7 @@ import static org.junit.Assert.assertTrue;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.os.Build.VERSION_CODES;
 import android.util.Base64;
 import android.view.ViewGroup;
 import android.webkit.WebView;
@@ -66,10 +67,14 @@ public class WebSettingsCompatForceDarkTest {
     // LayoutParams are null until WebView has a parent Activity.
     // Test testForceDark_rendersDark requires LayoutParams to define
     // width and height of WebView to capture its bitmap representation.
+    //
+    // Set targetSdkVersion to the max version the force dark API works on.
+    // TODO(http://b/214741472): Use VERSION_CODES.S_V2 once Android X supports it.
     @SuppressWarnings("deprecation")
     @Rule
-    public final androidx.test.rule.ActivityTestRule<WebViewTestActivity> mActivityRule =
-            new androidx.test.rule.ActivityTestRule<>(WebViewTestActivity.class);
+    public final TargetSdkActivityTestRule<WebViewTestActivity> mActivityRule =
+            new TargetSdkActivityTestRule<WebViewTestActivity>(WebViewTestActivity.class,
+                    VERSION_CODES.S);
     private WebViewOnUiThread mWebViewOnUiThread;
 
     @Before
