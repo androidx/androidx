@@ -17,11 +17,17 @@
 package androidx.camera.integration.view
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.FocusMeteringAction
+import androidx.camera.core.FocusMeteringResult
+import androidx.camera.core.MeteringPointFactory
 import androidx.camera.core.Preview
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.integration.view.MainActivity.CAMERA_DIRECTION_BACK
@@ -32,8 +38,13 @@ import androidx.camera.view.PreviewView
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
+import com.google.common.util.concurrent.FutureCallback
+import com.google.common.util.concurrent.Futures
+
+private const val TAG = "ComposeUiFragment"
 
 class ComposeUiFragment : Fragment() {
 
@@ -83,7 +94,8 @@ class ComposeUiFragment : Fragment() {
         val cameraSelector = getCameraSelector()
 
         preview.setSurfaceProvider(previewView.surfaceProvider)
-        cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview)
+        val camera = cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview)
+        setUpFocusAndMetering(camera, previewView)
     }
 
     private fun getCameraSelector(): CameraSelector {
@@ -98,5 +110,34 @@ class ComposeUiFragment : Fragment() {
                 }
         }
         return cameraSelector
+    }
+
+    private fun setUpFocusAndMetering(camera: Camera, previewView: PreviewView) {
+        previewView.setOnTouchListener { _, motionEvent: MotionEvent ->
+            when (motionEvent.action) {
+                MotionEvent.ACTION_DOWN -> return@setOnTouchListener true
+                MotionEvent.ACTION_UP -> {
+                    val factory: MeteringPointFactory = previewView.meteringPointFactory
+                    val action = FocusMeteringAction.Builder(
+                        factory.createPoint(motionEvent.x, motionEvent.y)
+                    ).build()
+                    Futures.addCallback(
+                        camera.cameraControl.startFocusAndMetering(action),
+                        object : FutureCallback<FocusMeteringResult?> {
+                            override fun onSuccess(result: FocusMeteringResult?) {
+                                Log.d(TAG, "Focus and metering succeeded")
+                            }
+
+                            override fun onFailure(t: Throwable) {
+                                Log.e(TAG, "Focus and metering failed", t)
+                            }
+                        },
+                        ContextCompat.getMainExecutor(requireContext())
+                    )
+                    return@setOnTouchListener true
+                }
+                else -> return@setOnTouchListener false
+            }
+        }
     }
 }
