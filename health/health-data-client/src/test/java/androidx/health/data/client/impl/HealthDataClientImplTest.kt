@@ -40,15 +40,13 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.intent.Intents
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
-import java.time.Duration
 import java.time.Instant
-import kotlinx.coroutines.CoroutineScope
+import kotlin.test.assertFailsWith
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
 import org.junit.After
-import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -78,8 +76,10 @@ private val API_METHOD_LIST =
 
 @Suppress("GoodTime") // Safe to use in test setup
 @RunWith(AndroidJUnit4::class)
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class HealthDataClientImplTest {
-    private lateinit var healthConnectClient: HealthDataClientImpl
+
+    private lateinit var healthDataClient: HealthDataClientImpl
     private lateinit var fakeAhpServiceStub: FakeHealthDataService
 
     @Before
@@ -87,7 +87,7 @@ class HealthDataClientImplTest {
         val clientConfig =
             ClientConfiguration("FakeAHPProvider", PROVIDER_PACKAGE_NAME, "FakeProvider")
 
-        healthConnectClient =
+        healthDataClient =
             HealthDataClientImpl(
                 ServiceBackedHealthDataClient(
                     ApplicationProvider.getApplicationContext(),
@@ -118,48 +118,43 @@ class HealthDataClientImplTest {
     }
 
     @Test(timeout = 60000L)
-    fun apiMethods_hasError_throwsException() {
+    fun apiMethods_hasError_throwsException() = runTest {
         for (error in errorCodeExceptionMap) {
             fakeAhpServiceStub.setErrorCode(error.key)
-            val responseList = mutableListOf<Deferred<Unit>>()
+            val responseList = mutableListOf<Deferred<Any>>()
             for (method in API_METHOD_LIST) {
                 responseList.add(
-                    CoroutineScope(Dispatchers.Default).async { healthConnectClient.method() }
+                    async { assertFailsWith(error.value) { healthDataClient.method() } }
                 )
             }
-
-            // wait for the client to enqueue message and handle message
-            Thread.sleep(Duration.ofMillis(1000).toMillis())
-            Shadows.shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(1000))
-
+            advanceUntilIdle()
+            waitForMainLooperIdle()
             for (response in responseList) {
-                assertThrows(error.value.java) { runBlocking { response.await() } }
+                response.await()
             }
         }
     }
 
-    @Test(timeout = 60000L)
-    fun insertRecords_steps() {
-        val deferred =
-            CoroutineScope(Dispatchers.Default).async {
-                healthConnectClient.insertRecords(
-                    listOf(
-                        Steps(
-                            count = 100,
-                            startTime = Instant.ofEpochMilli(1234L),
-                            startZoneOffset = null,
-                            endTime = Instant.ofEpochMilli(5678L),
-                            endZoneOffset = null
-                        )
+    @Test(timeout = 10000L)
+    fun insertRecords_steps() = runTest {
+        val deferred = async {
+            healthDataClient.insertRecords(
+                listOf(
+                    Steps(
+                        count = 100,
+                        startTime = Instant.ofEpochMilli(1234L),
+                        startZoneOffset = null,
+                        endTime = Instant.ofEpochMilli(5678L),
+                        endZoneOffset = null
                     )
                 )
-            }
+            )
+        }
 
-        // wait for the client to enqueue message and handle message
-        Thread.sleep(Duration.ofMillis(1000).toMillis())
-        Shadows.shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(1000))
+        advanceUntilIdle()
+        waitForMainLooperIdle()
 
-        val response = runBlocking { deferred.await() }
+        val response = deferred.await()
         assertThat(response.recordUidsList).containsExactly("0")
         assertThat(fakeAhpServiceStub.dataStore.toList())
             .containsExactly(
@@ -172,26 +167,24 @@ class HealthDataClientImplTest {
             )
     }
 
-    @Test(timeout = 60000L)
-    fun insertRecords_weight() {
-        val deferred =
-            CoroutineScope(Dispatchers.Default).async {
-                healthConnectClient.insertRecords(
-                    listOf(
-                        Weight(
-                            weightKg = 45.8,
-                            time = Instant.ofEpochMilli(1234L),
-                            zoneOffset = null,
-                        )
+    @Test(timeout = 10000L)
+    fun insertRecords_weight() = runTest {
+        val deferred = async {
+            healthDataClient.insertRecords(
+                listOf(
+                    Weight(
+                        weightKg = 45.8,
+                        time = Instant.ofEpochMilli(1234L),
+                        zoneOffset = null,
                     )
                 )
-            }
+            )
+        }
 
-        // wait for the client to enqueue message and handle message
-        Thread.sleep(Duration.ofMillis(1000).toMillis())
-        Shadows.shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(1000))
+        advanceUntilIdle()
+        waitForMainLooperIdle()
 
-        val response = runBlocking { deferred.await() }
+        val response = deferred.await()
         assertThat(response.recordUidsList).containsExactly("0")
         assertThat(fakeAhpServiceStub.dataStore.toList())
             .containsExactly(
@@ -203,29 +196,27 @@ class HealthDataClientImplTest {
             )
     }
 
-    @Test(timeout = 60000L)
-    fun insertRecords_nutrition() {
-        val deferred =
-            CoroutineScope(Dispatchers.Default).async {
-                healthConnectClient.insertRecords(
-                    listOf(
-                        Nutrition(
-                            vitaminE = 10.0,
-                            vitaminC = 20.0,
-                            startTime = Instant.ofEpochMilli(1234L),
-                            startZoneOffset = null,
-                            endTime = Instant.ofEpochMilli(5678L),
-                            endZoneOffset = null
-                        )
+    @Test(timeout = 10000L)
+    fun insertRecords_nutrition() = runTest {
+        val deferred = async {
+            healthDataClient.insertRecords(
+                listOf(
+                    Nutrition(
+                        vitaminE = 10.0,
+                        vitaminC = 20.0,
+                        startTime = Instant.ofEpochMilli(1234L),
+                        startZoneOffset = null,
+                        endTime = Instant.ofEpochMilli(5678L),
+                        endZoneOffset = null
                     )
                 )
-            }
+            )
+        }
 
-        // wait for the client to enqueue message and handle message
-        Thread.sleep(Duration.ofMillis(1000).toMillis())
-        Shadows.shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(1000))
+        advanceUntilIdle()
+        waitForMainLooperIdle()
 
-        val response = runBlocking { deferred.await() }
+        val response = deferred.await()
         assertThat(response.recordUidsList).containsExactly("0")
         assertThat(fakeAhpServiceStub.dataStore.toList())
             .containsExactly(
@@ -237,6 +228,10 @@ class HealthDataClientImplTest {
                     .setDataType(DataProto.DataType.newBuilder().setName("Nutrition"))
                     .build()
             )
+    }
+
+    private fun waitForMainLooperIdle() {
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
     }
 
     private fun installPackage(context: Context, packageName: String, enabled: Boolean) {
