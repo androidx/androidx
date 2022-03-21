@@ -17,6 +17,7 @@
 package androidx.wear.watchface.complications.data
 
 import android.app.PendingIntent
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.Icon
@@ -35,6 +36,8 @@ import java.time.Instant
 @RunWith(SharedRobolectricTestRunner::class)
 public class AsWireComplicationDataTest {
     val resources = ApplicationProvider.getApplicationContext<Context>().resources
+    val dataSourceA = ComponentName("com.pkg_a", "com.a")
+    val dataSourceB = ComponentName("com.pkg_a", "com.a")
 
     @Test
     public fun noDataComplicationData() {
@@ -96,6 +99,7 @@ public class AsWireComplicationDataTest {
             "content description".complicationText
         )
             .setTitle("title".complicationText)
+            .setDataSource(dataSourceA)
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
@@ -103,6 +107,7 @@ public class AsWireComplicationDataTest {
                     .setShortText(WireComplicationText.plainText("text"))
                     .setShortTitle(WireComplicationText.plainText("title"))
                     .setContentDescription(WireComplicationText.plainText("content description"))
+                    .setDataSource(dataSourceA)
                     .build()
             )
         testRoundTripConversions(data)
@@ -119,12 +124,14 @@ public class AsWireComplicationDataTest {
             "content description".complicationText
         )
             .setTitle("title".complicationText)
+            .setDataSource(dataSourceA)
             .build()
         val data3 = ShortTextComplicationData.Builder(
             "text3".complicationText,
             "content description3".complicationText
         )
             .setTitle("title3".complicationText)
+            .setDataSource(dataSourceB)
             .build()
 
         assertThat(data).isEqualTo(data2)
@@ -138,7 +145,8 @@ public class AsWireComplicationDataTest {
                 "ComplicationText{mSurroundingText=content description, mTimeDependentText=null}," +
                 " tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=" +
                 "TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
-                "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z))"
+                "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), dataSource=" +
+                "ComponentInfo{com.pkg_a/com.a})"
         )
     }
 
@@ -149,6 +157,7 @@ public class AsWireComplicationDataTest {
             "content description".complicationText
         )
             .setTitle("title".complicationText)
+            .setDataSource(dataSourceA)
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
@@ -156,6 +165,7 @@ public class AsWireComplicationDataTest {
                     .setLongText(WireComplicationText.plainText("text"))
                     .setLongTitle(WireComplicationText.plainText("title"))
                     .setContentDescription(WireComplicationText.plainText("content description"))
+                    .setDataSource(dataSourceA)
                     .build()
             )
         testRoundTripConversions(data)
@@ -172,12 +182,14 @@ public class AsWireComplicationDataTest {
             "content description".complicationText
         )
             .setTitle("title".complicationText)
+            .setDataSource(dataSourceA)
             .build()
         val data3 = LongTextComplicationData.Builder(
             "text3".complicationText,
             "content description3".complicationText
         )
             .setTitle("title3".complicationText)
+            .setDataSource(dataSourceB)
             .build()
 
         assertThat(data).isEqualTo(data2)
@@ -192,7 +204,7 @@ public class AsWireComplicationDataTest {
                 "mTimeDependentText=null}), tapActionLostDueToSerialization=false, " +
                 "tapAction=null, validTimeRange=TimeRange(startDateTimeMillis=" +
                 "-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
-                "+1000000000-12-31T23:59:59.999999999Z))"
+                "+1000000000-12-31T23:59:59.999999999Z), dataSource=ComponentInfo{com.pkg_a/com.a})"
         )
     }
 
@@ -203,6 +215,7 @@ public class AsWireComplicationDataTest {
             contentDescription = "content description".complicationText
         )
             .setTitle("battery".complicationText)
+            .setDataSource(dataSourceA)
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
@@ -212,6 +225,7 @@ public class AsWireComplicationDataTest {
                     .setRangedMaxValue(100f)
                     .setShortTitle(WireComplicationText.plainText("battery"))
                     .setContentDescription(WireComplicationText.plainText("content description"))
+                    .setDataSource(dataSourceA)
                     .build()
             )
         testRoundTripConversions(data)
@@ -229,6 +243,7 @@ public class AsWireComplicationDataTest {
             contentDescription = "content description".complicationText
         )
             .setTitle("battery".complicationText)
+            .setDataSource(dataSourceA)
             .build()
 
         val data3 = RangedValueComplicationData.Builder(
@@ -236,6 +251,7 @@ public class AsWireComplicationDataTest {
             contentDescription = "content description2".complicationText
         )
             .setTitle("battery2".complicationText)
+            .setDataSource(dataSourceB)
             .build()
 
         assertThat(data).isEqualTo(data2)
@@ -249,7 +265,7 @@ public class AsWireComplicationDataTest {
                 "{mSurroundingText=content description, mTimeDependentText=null}), " +
                 "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=" +
                 "TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
-                "+1000000000-12-31T23:59:59.999999999Z))"
+                "+1000000000-12-31T23:59:59.999999999Z), dataSource=ComponentInfo{com.pkg_a/com.a})"
         )
     }
 
@@ -260,12 +276,13 @@ public class AsWireComplicationDataTest {
         val image = MonochromaticImage.Builder(icon).build()
         val data = MonochromaticImageComplicationData.Builder(
             image, "content description".complicationText
-        ).build()
+        ).setDataSource(dataSourceA).build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_ICON)
                     .setIcon(icon)
                     .setContentDescription(WireComplicationText.plainText("content description"))
+                    .setDataSource(dataSourceA)
                     .build()
             )
         testRoundTripConversions(data)
@@ -279,13 +296,13 @@ public class AsWireComplicationDataTest {
         val image2 = MonochromaticImage.Builder(icon2).build()
         val data2 = MonochromaticImageComplicationData.Builder(
             image2, "content description".complicationText
-        ).build()
+        ).setDataSource(dataSourceA).build()
 
         val icon3 = Icon.createWithContentUri("someuri3")
         val image3 = MonochromaticImage.Builder(icon3).build()
         val data3 = MonochromaticImageComplicationData.Builder(
             image3, "content description".complicationText
-        ).build()
+        ).setDataSource(dataSourceB).build()
 
         assertThat(data).isEqualTo(data2)
         assertThat(data).isNotEqualTo(data3)
@@ -297,7 +314,7 @@ public class AsWireComplicationDataTest {
                 "ComplicationText{mSurroundingText=content description, mTimeDependentText=null})" +
                 ", tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=" +
                 "TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
-                "+1000000000-12-31T23:59:59.999999999Z))"
+                "+1000000000-12-31T23:59:59.999999999Z), dataSource=ComponentInfo{com.pkg_a/com.a})"
         )
     }
 
@@ -308,13 +325,14 @@ public class AsWireComplicationDataTest {
         val image = SmallImage.Builder(icon, SmallImageType.PHOTO).build()
         val data = SmallImageComplicationData.Builder(
             image, "content description".complicationText
-        ).build()
+        ).setDataSource(dataSourceA).build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_SMALL_IMAGE)
                     .setSmallImage(icon)
                     .setSmallImageStyle(WireComplicationData.IMAGE_STYLE_PHOTO)
                     .setContentDescription(WireComplicationText.plainText("content description"))
+                    .setDataSource(dataSourceA)
                     .build()
             )
         testRoundTripConversions(data)
@@ -329,13 +347,13 @@ public class AsWireComplicationDataTest {
         val image2 = SmallImage.Builder(icon2, SmallImageType.PHOTO).build()
         val data2 = SmallImageComplicationData.Builder(
             image2, "content description".complicationText
-        ).build()
+        ).setDataSource(dataSourceA).build()
 
         val icon3 = Icon.createWithContentUri("someuri3")
         val image3 = SmallImage.Builder(icon3, SmallImageType.PHOTO).build()
         val data3 = SmallImageComplicationData.Builder(
             image3, "content description".complicationText
-        ).build()
+        ).setDataSource(dataSourceB).build()
 
         assertThat(data).isEqualTo(data2)
         assertThat(data).isNotEqualTo(data3)
@@ -347,7 +365,7 @@ public class AsWireComplicationDataTest {
                 "mSurroundingText=content description, mTimeDependentText=null}), " +
                 "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=" +
                 "TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
-                "+1000000000-12-31T23:59:59.999999999Z))"
+                "+1000000000-12-31T23:59:59.999999999Z), dataSource=ComponentInfo{com.pkg_a/com.a})"
         )
     }
 
@@ -357,12 +375,13 @@ public class AsWireComplicationDataTest {
         val photoImage = Icon.createWithContentUri("someuri")
         val data = PhotoImageComplicationData.Builder(
             photoImage, "content description".complicationText
-        ).build()
+        ).setDataSource(dataSourceA).build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_LARGE_IMAGE)
                     .setLargeImage(photoImage)
                     .setContentDescription(WireComplicationText.plainText("content description"))
+                    .setDataSource(dataSourceA)
                     .build()
             )
         testRoundTripConversions(data)
@@ -375,12 +394,12 @@ public class AsWireComplicationDataTest {
         val photoImage2 = Icon.createWithContentUri("someuri")
         val data2 = PhotoImageComplicationData.Builder(
             photoImage2, "content description".complicationText
-        ).build()
+        ).setDataSource(dataSourceA).build()
 
         val photoImage3 = Icon.createWithContentUri("someuri3")
         val data3 = PhotoImageComplicationData.Builder(
             photoImage3, "content description".complicationText
-        ).build()
+        ).setDataSource(dataSourceB).build()
 
         assertThat(data).isEqualTo(data2)
         assertThat(data).isNotEqualTo(data3)
@@ -391,7 +410,7 @@ public class AsWireComplicationDataTest {
                 "ComplicationText{mSurroundingText=content description, mTimeDependentText=null})" +
                 ", tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=" +
                 "TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
-                "+1000000000-12-31T23:59:59.999999999Z))"
+                "+1000000000-12-31T23:59:59.999999999Z), dataSource=ComponentInfo{com.pkg_a/com.a})"
         )
     }
 
@@ -399,11 +418,13 @@ public class AsWireComplicationDataTest {
     public fun noPermissionComplicationData() {
         val data = NoPermissionComplicationData.Builder()
             .setText("needs location".complicationText)
+            .setDataSource(dataSourceA)
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_NO_PERMISSION)
                     .setShortText(WireComplicationText.plainText("needs location"))
+                    .setDataSource(dataSourceA)
                     .build()
             )
         testRoundTripConversions(data)
@@ -413,10 +434,12 @@ public class AsWireComplicationDataTest {
 
         val data2 = NoPermissionComplicationData.Builder()
             .setText("needs location".complicationText)
+            .setDataSource(dataSourceA)
             .build()
 
         val data3 = NoPermissionComplicationData.Builder()
             .setText("needs location3".complicationText)
+            .setDataSource(dataSourceB)
             .build()
 
         assertThat(data).isEqualTo(data2)
@@ -428,7 +451,7 @@ public class AsWireComplicationDataTest {
                 " mTimeDependentText=null}, title=null, monochromaticImage=null, " +
                 "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=" +
                 "TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
-                "+1000000000-12-31T23:59:59.999999999Z))"
+                "+1000000000-12-31T23:59:59.999999999Z), dataSource=ComponentInfo{com.pkg_a/com.a})"
         )
     }
 
@@ -441,6 +464,7 @@ public class AsWireComplicationDataTest {
             )
                 .setTitle(ComplicationText.PLACEHOLDER)
                 .setMonochromaticImage(MonochromaticImage.PLACEHOLDER)
+                .setDataSource(dataSourceA)
                 .build()
         )
         ParcelableSubject.assertThat(data.asWireComplicationData())
@@ -451,6 +475,7 @@ public class AsWireComplicationDataTest {
                     .setShortTitle(ComplicationText.PLACEHOLDER.toWireComplicationText())
                     .setIcon(createPlaceholderIcon())
                     .setContentDescription(WireComplicationText.plainText("content description"))
+                    .setDataSource(dataSourceA)
                     .build()
             )
         testRoundTripConversions(data)
@@ -465,6 +490,7 @@ public class AsWireComplicationDataTest {
             )
                 .setTitle(ComplicationText.PLACEHOLDER)
                 .setMonochromaticImage(MonochromaticImage.PLACEHOLDER)
+                .setDataSource(dataSourceA)
                 .build()
         )
         val data3 = NoDataComplicationData(
@@ -472,6 +498,7 @@ public class AsWireComplicationDataTest {
                 ComplicationText.PLACEHOLDER,
                 "content description".complicationText
             )
+                .setDataSource(dataSourceB)
                 .build()
         )
         assertThat(data).isEqualTo(data2)
@@ -487,7 +514,8 @@ public class AsWireComplicationDataTest {
                 "mSurroundingText=content description, mTimeDependentText=null}, " +
                 "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=" +
                 "TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
-                "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z)), " +
+                "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
+                "dataSource=ComponentInfo{com.pkg_a/com.a}), " +
                 "tapActionLostDueToSerialization=false, tapAction=null," +
                 " validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                 "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z))"
@@ -500,7 +528,7 @@ public class AsWireComplicationDataTest {
             LongTextComplicationData.Builder(
                 "text".complicationText,
                 "content description".complicationText
-            ).build()
+            ).setDataSource(dataSourceA).build()
         )
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
@@ -508,6 +536,7 @@ public class AsWireComplicationDataTest {
                     .setPlaceholderType(WireComplicationData.TYPE_LONG_TEXT)
                     .setLongText(WireComplicationText.plainText("text"))
                     .setContentDescription(WireComplicationText.plainText("content description"))
+                    .setDataSource(dataSourceA)
                     .build()
             )
         testRoundTripConversions(data)
@@ -519,13 +548,13 @@ public class AsWireComplicationDataTest {
             LongTextComplicationData.Builder(
                 "text".complicationText,
                 "content description".complicationText
-            ).build()
+            ).setDataSource(dataSourceA).build()
         )
         val data3 = NoDataComplicationData(
             LongTextComplicationData.Builder(
                 ComplicationText.PLACEHOLDER,
                 "content description".complicationText
-            ).build()
+            ).setDataSource(dataSourceB).build()
         )
 
         assertThat(data).isEqualTo(data2)
@@ -539,7 +568,8 @@ public class AsWireComplicationDataTest {
                 "mSurroundingText=content description, mTimeDependentText=null}), " +
                 "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=TimeRange(" +
                 "startDateTimeMillis=-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
-                "+1000000000-12-31T23:59:59.999999999Z)), " +
+                "+1000000000-12-31T23:59:59.999999999Z), " +
+                "dataSource=ComponentInfo{com.pkg_a/com.a}), " +
                 "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=TimeRange(" +
                 "startDateTimeMillis=-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
                 "+1000000000-12-31T23:59:59.999999999Z))"
@@ -554,7 +584,10 @@ public class AsWireComplicationDataTest {
                 min = 0f,
                 max = 100f,
                 "content description".complicationText
-            ).setText(ComplicationText.PLACEHOLDER).build()
+            )
+                .setText(ComplicationText.PLACEHOLDER)
+                .setDataSource(dataSourceA)
+                .build()
         )
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
@@ -565,6 +598,7 @@ public class AsWireComplicationDataTest {
                     .setRangedMaxValue(100f)
                     .setShortText(ComplicationText.PLACEHOLDER.toWireComplicationText())
                     .setContentDescription(WireComplicationText.plainText("content description"))
+                    .setDataSource(dataSourceA)
                     .build()
             )
         testRoundTripConversions(data)
@@ -578,7 +612,10 @@ public class AsWireComplicationDataTest {
                 min = 0f,
                 max = 100f,
                 "content description".complicationText
-            ).setText(ComplicationText.PLACEHOLDER).build()
+            )
+                .setText(ComplicationText.PLACEHOLDER)
+                .setDataSource(dataSourceA)
+                .build()
         )
         val data3 = NoDataComplicationData(
             RangedValueComplicationData.Builder(
@@ -600,7 +637,8 @@ public class AsWireComplicationDataTest {
                 "}, contentDescription=ComplicationText{mSurroundingText=content description, " +
                 "mTimeDependentText=null}), tapActionLostDueToSerialization=false, tapAction=" +
                 "null, validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
-                "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z)), " +
+                "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z)," +
+                " dataSource=ComponentInfo{com.pkg_a/com.a}), " +
                 "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=" +
                 "TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
                 "+1000000000-12-31T23:59:59.999999999Z))"
@@ -613,7 +651,7 @@ public class AsWireComplicationDataTest {
             MonochromaticImageComplicationData.Builder(
                 MonochromaticImage.PLACEHOLDER,
                 "content description".complicationText
-            ).build()
+            ).setDataSource(dataSourceA).build()
         )
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
@@ -621,6 +659,7 @@ public class AsWireComplicationDataTest {
                     .setPlaceholderType(WireComplicationData.TYPE_ICON)
                     .setIcon(createPlaceholderIcon())
                     .setContentDescription(WireComplicationText.plainText("content description"))
+                    .setDataSource(dataSourceA)
                     .build()
             )
         testRoundTripConversions(data)
@@ -632,7 +671,7 @@ public class AsWireComplicationDataTest {
             MonochromaticImageComplicationData.Builder(
                 MonochromaticImage.PLACEHOLDER,
                 "content description".complicationText
-            ).build()
+            ).setDataSource(dataSourceA).build()
         )
 
         val icon = Icon.createWithContentUri("someuri")
@@ -641,7 +680,7 @@ public class AsWireComplicationDataTest {
             MonochromaticImageComplicationData.Builder(
                 image,
                 "content description".complicationText
-            ).build()
+            ).setDataSource(dataSourceB).build()
         )
 
         assertThat(data).isEqualTo(data2)
@@ -655,7 +694,8 @@ public class AsWireComplicationDataTest {
                 "mSurroundingText=content description, mTimeDependentText=null}), " +
                 "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=TimeRange(" +
                 "startDateTimeMillis=-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
-                "+1000000000-12-31T23:59:59.999999999Z)), " +
+                "+1000000000-12-31T23:59:59.999999999Z)," +
+                " dataSource=ComponentInfo{com.pkg_a/com.a}), " +
                 "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=TimeRange(" +
                 "startDateTimeMillis=-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
                 "+1000000000-12-31T23:59:59.999999999Z))"
@@ -668,7 +708,7 @@ public class AsWireComplicationDataTest {
             SmallImageComplicationData.Builder(
                 SmallImage.PLACEHOLDER,
                 "content description".complicationText
-            ).build()
+            ).setDataSource(dataSourceA).build()
         )
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
@@ -677,6 +717,7 @@ public class AsWireComplicationDataTest {
                     .setSmallImage(createPlaceholderIcon())
                     .setSmallImageStyle(WireComplicationData.IMAGE_STYLE_ICON)
                     .setContentDescription(WireComplicationText.plainText("content description"))
+                    .setDataSource(dataSourceA)
                     .build()
             )
         testRoundTripConversions(data)
@@ -688,7 +729,7 @@ public class AsWireComplicationDataTest {
             SmallImageComplicationData.Builder(
                 SmallImage.PLACEHOLDER,
                 "content description".complicationText
-            ).build()
+            ).setDataSource(dataSourceA).build()
         )
 
         val icon = Icon.createWithContentUri("someuri")
@@ -697,7 +738,7 @@ public class AsWireComplicationDataTest {
             SmallImageComplicationData.Builder(
                 image,
                 "content description".complicationText
-            ).build()
+            ).setDataSource(dataSourceA).build()
         )
 
         assertThat(data).isEqualTo(data2)
@@ -711,7 +752,8 @@ public class AsWireComplicationDataTest {
                 "content description, mTimeDependentText=null}), tapActionLostDueToSerialization=" +
                 "false, tapAction=null, validTimeRange=TimeRange(startDateTimeMillis=" +
                 "-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
-                "+1000000000-12-31T23:59:59.999999999Z)), " +
+                "+1000000000-12-31T23:59:59.999999999Z)," +
+                " dataSource=ComponentInfo{com.pkg_a/com.a}), " +
                 "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=TimeRange(" +
                 "startDateTimeMillis=-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
                 "+1000000000-12-31T23:59:59.999999999Z))"
@@ -724,7 +766,7 @@ public class AsWireComplicationDataTest {
             PhotoImageComplicationData.Builder(
                 PhotoImageComplicationData.PLACEHOLDER,
                 "content description".complicationText
-            ).build()
+            ).setDataSource(dataSourceA).build()
         )
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
@@ -732,6 +774,7 @@ public class AsWireComplicationDataTest {
                     .setPlaceholderType(WireComplicationData.TYPE_LARGE_IMAGE)
                     .setLargeImage(createPlaceholderIcon())
                     .setContentDescription(WireComplicationText.plainText("content description"))
+                    .setDataSource(dataSourceA)
                     .build()
             )
         testRoundTripConversions(data)
@@ -743,7 +786,7 @@ public class AsWireComplicationDataTest {
             PhotoImageComplicationData.Builder(
                 PhotoImageComplicationData.PLACEHOLDER,
                 "content description".complicationText
-            ).build()
+            ).setDataSource(dataSourceA).build()
         )
 
         val icon = Icon.createWithContentUri("someuri")
@@ -751,7 +794,7 @@ public class AsWireComplicationDataTest {
             PhotoImageComplicationData.Builder(
                 icon,
                 "content description".complicationText
-            ).build()
+            ).setDataSource(dataSourceA).build()
         )
 
         assertThat(data).isEqualTo(data2)
@@ -764,7 +807,8 @@ public class AsWireComplicationDataTest {
                 "mSurroundingText=content description, mTimeDependentText=null}), " +
                 "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=TimeRange(" +
                 "startDateTimeMillis=-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
-                "+1000000000-12-31T23:59:59.999999999Z)), " +
+                "+1000000000-12-31T23:59:59.999999999Z)," +
+                " dataSource=ComponentInfo{com.pkg_a/com.a}), " +
                 "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=TimeRange(" +
                 "startDateTimeMillis=-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
                 "+1000000000-12-31T23:59:59.999999999Z))"
