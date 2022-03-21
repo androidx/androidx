@@ -140,7 +140,7 @@ fun findColumnIndexBySuffix(columnNames: Array<String>, name: String): Int {
  * Backwards compatible function that executes the given block function on this Cursor and then
  * closes the Cursor.
  */
-internal inline fun <R> Cursor.useCursor(block: (Cursor) -> R): R {
+inline fun <R> Cursor.useCursor(block: (Cursor) -> R): R {
     if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
         return this.use(block)
     } else {

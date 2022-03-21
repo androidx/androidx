@@ -253,6 +253,7 @@ package androidx.room.util {
     method public static android.database.Cursor copyAndClose(android.database.Cursor c);
     method public static int getColumnIndex(android.database.Cursor c, String name);
     method public static int getColumnIndexOrThrow(android.database.Cursor c, String name);
+    method public static inline <R> R! useCursor(android.database.Cursor, kotlin.jvm.functions.Function1<? super android.database.Cursor,? extends R> block);
   }
 
   @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public final class DBUtil {
