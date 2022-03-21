@@ -126,9 +126,21 @@ class TextLayout constructor(
 
     val lineCount: Int
 
+    /**
+     * Top padding is added for backporting fallbackLineSpacing behavior. If a tall script is
+     * being laid out, topPadding might be non zero (based on Android version and support in
+     * StaticLayout and BoringLayout). When top padding is non-zero, the height of the TextLayout
+     * will increase with top padding to prevent clipping of the top of the first line.
+     */
     @VisibleForTesting
     internal val topPadding: Int
 
+    /**
+     * Bottom padding is added for backporting fallbackLineSpacing behavior. If a tall script is
+     * being laid out, bottomPadding might be non zero (based on Android version and support in
+     * StaticLayout and BoringLayout). When bottom padding is non-zero, the height of the TextLayout
+     * will increase with bottom padding to prevent clipping of the bottom if the last line.
+     */
     @VisibleForTesting
     internal val bottomPadding: Int
 
@@ -253,8 +265,11 @@ class TextLayout constructor(
         return top + if (line == 0) 0 else topPadding
     }
 
-    // TODO(b/171394808) shall we add bottom padding for last line?
-    fun getLineBottom(line: Int): Float = topPadding + layout.getLineBottom(line).toFloat()
+    fun getLineBottom(line: Int): Float {
+        return topPadding +
+            layout.getLineBottom(line).toFloat() +
+            if (line == lineCount - 1) bottomPadding else 0
+    }
 
     fun getLineBaseline(line: Int): Float = topPadding + layout.getLineBaseline(line).toFloat()
 
@@ -305,9 +320,10 @@ class TextLayout constructor(
     fun getParagraphDirection(line: Int): Int = layout.getParagraphDirection(line)
 
     fun getSelectionPath(start: Int, end: Int, dest: Path) {
-        // TODO(b/171394808) update according to top padding. Requires to rewrite
-        //  Layout#getSelectionPath in text:text
         layout.getSelectionPath(start, end, dest)
+        if (topPadding != 0 && !dest.isEmpty) {
+            dest.offset(0f /* dx */, topPadding.toFloat() /* dy */)
+        }
     }
 
     /**
