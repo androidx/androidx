@@ -40,15 +40,12 @@ import androidx.camera.extensions.impl.BeautyImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.BeautyPreviewExtenderImpl;
 import androidx.camera.extensions.impl.BokehImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.BokehPreviewExtenderImpl;
-import androidx.camera.extensions.impl.CaptureProcessorImpl;
-import androidx.camera.extensions.impl.CaptureStageImpl;
 import androidx.camera.extensions.impl.HdrImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.HdrPreviewExtenderImpl;
 import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.NightImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.NightPreviewExtenderImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
-import androidx.camera.extensions.impl.ProcessorImpl;
 import androidx.camera.extensions.internal.compat.workaround.ExtensionDisabledValidator;
 import androidx.core.util.Preconditions;
 
@@ -65,8 +62,8 @@ public class BasicVendorExtender implements VendorExtender {
     private final ExtensionDisabledValidator mExtensionDisabledValidator =
             new ExtensionDisabledValidator();
     private final @ExtensionMode.Mode int mMode;
-    private PreviewExtenderImpl mPreviewExtenderImpl;
-    private ImageCaptureExtenderImpl mImageCaptureExtenderImpl;
+    private PreviewExtenderImpl mPreviewExtenderImpl = null;
+    private ImageCaptureExtenderImpl mImageCaptureExtenderImpl = null;
     private CameraInfo mCameraInfo;
 
     public BasicVendorExtender(@ExtensionMode.Mode int mode) {
@@ -98,26 +95,26 @@ public class BasicVendorExtender implements VendorExtender {
                     throw new IllegalArgumentException("Should not activate ExtensionMode.NONE");
             }
         } catch (NoClassDefFoundError e) {
-            mPreviewExtenderImpl = createDefaultPreviewExtenderImpl();
-            mImageCaptureExtenderImpl = createDefaultImageCaptureExtenderImpl();
             Logger.e(TAG, "OEM implementation for extension mode " + mode + "does not exist!");
         }
     }
 
     /**
-     * Return the {@link PreviewExtenderImpl} instance. This method will be removed once the
-     * existing basic extender implementation is migrated to the unified vendor extender.
+     * Return the {@link PreviewExtenderImpl} instance which could be null if the implementation
+     * doesn't exist. This method will be removed once the existing basic extender implementation
+     * is migrated to the unified vendor extender.
      */
-    @NonNull
+    @Nullable
     public PreviewExtenderImpl getPreviewExtenderImpl() {
         return mPreviewExtenderImpl;
     }
 
     /**
-     * Return the {@link ImageCaptureExtenderImpl} instance. This method will be removed once the
-     * existing basic extender implementation is migrated to the unified vendor extender.
+     * Return the {@link ImageCaptureExtenderImpl} instance which could be null if the
+     * implementation doesn't exist.. This method will be removed once the existing basic
+     * extender implementation is migrated to the unified vendor extender.
      */
-    @NonNull
+    @Nullable
     public ImageCaptureExtenderImpl getImageCaptureExtenderImpl() {
         return mImageCaptureExtenderImpl;
     }
@@ -130,6 +127,11 @@ public class BasicVendorExtender implements VendorExtender {
             return false;
         }
 
+        // Returns false if implementation classes do not exist.
+        if (mPreviewExtenderImpl == null || mImageCaptureExtenderImpl == null) {
+            return false;
+        }
+
         CameraCharacteristics cameraCharacteristics = characteristicsMap.get(cameraId);
         return mPreviewExtenderImpl.isExtensionAvailable(cameraId, cameraCharacteristics)
                 && mImageCaptureExtenderImpl.isExtensionAvailable(cameraId, cameraCharacteristics);
@@ -139,6 +141,11 @@ public class BasicVendorExtender implements VendorExtender {
     @Override
     public void init(@NonNull CameraInfo cameraInfo) {
         mCameraInfo = cameraInfo;
+
+        if (mPreviewExtenderImpl == null || mImageCaptureExtenderImpl == null) {
+            return;
+        }
+
         String cameraId = Camera2CameraInfo.from(cameraInfo).getCameraId();
         CameraCharacteristics cameraCharacteristics =
                 Camera2CameraInfo.extractCameraCharacteristics(cameraInfo);
@@ -155,7 +162,8 @@ public class BasicVendorExtender implements VendorExtender {
     @Override
     public Range<Long> getEstimatedCaptureLatencyRange(@Nullable Size size) {
         Preconditions.checkNotNull(mCameraInfo, "VendorExtender#init() must be called first");
-        if (ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_2) >= 0) {
+        if (mImageCaptureExtenderImpl != null && ExtensionVersion.getRuntimeVersion().compareTo(
+                Version.VERSION_1_2) >= 0) {
             try {
                 return mImageCaptureExtenderImpl.getEstimatedCaptureLatencyRange(size);
             } catch (NoSuchMethodError e) {
@@ -173,7 +181,7 @@ public class BasicVendorExtender implements VendorExtender {
     }
 
     private int getPreviewInputImageFormat() {
-        if (mPreviewExtenderImpl.getProcessorType()
+        if (mPreviewExtenderImpl != null && mPreviewExtenderImpl.getProcessorType()
                 == PreviewExtenderImpl.ProcessorType.PROCESSOR_TYPE_IMAGE_PROCESSOR) {
             return ImageFormat.YUV_420_888;
         } else {
@@ -182,7 +190,8 @@ public class BasicVendorExtender implements VendorExtender {
     }
 
     private int getCaptureInputImageFormat() {
-        if (mImageCaptureExtenderImpl.getCaptureProcessor() != null) {
+        if (mImageCaptureExtenderImpl != null
+                && mImageCaptureExtenderImpl.getCaptureProcessor() != null) {
             return ImageFormat.YUV_420_888;
         } else {
             return ImageFormat.JPEG;
@@ -194,7 +203,8 @@ public class BasicVendorExtender implements VendorExtender {
     public List<Pair<Integer, Size[]>> getSupportedPreviewOutputResolutions() {
         Preconditions.checkNotNull(mCameraInfo, "VendorExtender#init() must be called first");
 
-        if (ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_1) >= 0) {
+        if (mPreviewExtenderImpl != null && ExtensionVersion.getRuntimeVersion().compareTo(
+                Version.VERSION_1_1) >= 0) {
             try {
                 List<Pair<Integer, Size[]>> result =
                         mPreviewExtenderImpl.getSupportedResolutions();
@@ -217,7 +227,8 @@ public class BasicVendorExtender implements VendorExtender {
     @Override
     public List<Pair<Integer, Size[]>> getSupportedCaptureOutputResolutions() {
         Preconditions.checkNotNull(mCameraInfo, "VendorExtender#init() must be called first");
-        if (ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_1) >= 0) {
+        if (mImageCaptureExtenderImpl != null && ExtensionVersion.getRuntimeVersion().compareTo(
+                Version.VERSION_1_1) >= 0) {
             try {
                 List<Pair<Integer, Size[]>> result =
                         mImageCaptureExtenderImpl.getSupportedResolutions();
@@ -250,135 +261,5 @@ public class BasicVendorExtender implements VendorExtender {
          * now. We will switch to SessionProcessor implementation once compatibility is ensured.
          */
         return null;
-    }
-
-    private PreviewExtenderImpl createDefaultPreviewExtenderImpl() {
-        return new PreviewExtenderImpl() {
-            @Override
-            public boolean isExtensionAvailable(String cameraId,
-                    CameraCharacteristics cameraCharacteristics) {
-                return false;
-            }
-
-            @Override
-            public void init(String cameraId, CameraCharacteristics cameraCharacteristics) {
-
-            }
-
-            @Override
-            public CaptureStageImpl getCaptureStage() {
-                return null;
-            }
-
-            @Override
-            public ProcessorType getProcessorType() {
-                return ProcessorType.PROCESSOR_TYPE_NONE;
-            }
-
-            @Override
-            public ProcessorImpl getProcessor() {
-                return null;
-            }
-
-            @Nullable
-            @Override
-            public List<Pair<Integer, Size[]>> getSupportedResolutions() {
-                return null;
-            }
-
-            @Override
-            public void onInit(String cameraId, CameraCharacteristics cameraCharacteristics,
-                    Context context) {
-
-            }
-
-            @Override
-            public void onDeInit() {
-
-            }
-
-            @Override
-            public CaptureStageImpl onPresetSession() {
-                return null;
-            }
-
-            @Override
-            public CaptureStageImpl onEnableSession() {
-                return null;
-            }
-
-            @Override
-            public CaptureStageImpl onDisableSession() {
-                return null;
-            }
-        };
-    }
-
-    private ImageCaptureExtenderImpl createDefaultImageCaptureExtenderImpl() {
-        return new ImageCaptureExtenderImpl() {
-            @Override
-            public boolean isExtensionAvailable(String cameraId,
-                    CameraCharacteristics cameraCharacteristics) {
-                return false;
-            }
-
-            @Override
-            public void init(String cameraId, CameraCharacteristics cameraCharacteristics) {
-
-            }
-
-            @Override
-            public CaptureProcessorImpl getCaptureProcessor() {
-                return null;
-            }
-
-            @Override
-            public List<CaptureStageImpl> getCaptureStages() {
-                return null;
-            }
-
-            @Override
-            public int getMaxCaptureStage() {
-                return 0;
-            }
-
-            @Nullable
-            @Override
-            public List<Pair<Integer, Size[]>> getSupportedResolutions() {
-                return null;
-            }
-
-            @Nullable
-            @Override
-            public Range<Long> getEstimatedCaptureLatencyRange(@Nullable Size captureOutputSize) {
-                return null;
-            }
-
-            @Override
-            public void onInit(String cameraId, CameraCharacteristics cameraCharacteristics,
-                    Context context) {
-
-            }
-
-            @Override
-            public void onDeInit() {
-
-            }
-
-            @Override
-            public CaptureStageImpl onPresetSession() {
-                return null;
-            }
-
-            @Override
-            public CaptureStageImpl onEnableSession() {
-                return null;
-            }
-
-            @Override
-            public CaptureStageImpl onDisableSession() {
-                return null;
-            }
-        };
     }
 }
