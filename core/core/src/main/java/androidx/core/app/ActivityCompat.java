@@ -662,28 +662,17 @@ public class ActivityCompat extends ContextCompat {
         if (Build.VERSION.SDK_INT >= 28) {
             // On Android P and later, we can safely rely on the platform recreate()
             activity.recreate();
-        } else if (Build.VERSION.SDK_INT <= 23) {
+        } else {
             // Prior to Android M, we can't call recreate() before the Activity has fully resumed,
             // but we also can't inspect its current lifecycle state, so we'll just schedule the
             // recreate for later.
             Handler handler = new Handler(activity.getMainLooper());
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    if (!activity.isFinishing()) {
-                        if (!ActivityRecreator.recreate(activity)) {
-                            // Fall back to the platform method if ActivityRecreator failed for any
-                            // reason.
-                            activity.recreate();
-                        }
-                    }
+            handler.post(() -> {
+                if (!activity.isFinishing() && !ActivityRecreator.recreate(activity)) {
+                    // Fall back to the platform method if ActivityRecreator failed for any reason.
+                    activity.recreate();
                 }
             });
-        } else {
-            if (!ActivityRecreator.recreate(activity)) {
-                // Fall back to the platform method if ActivityRecreator failed for any reason.
-                activity.recreate();
-            }
         }
     }
 
