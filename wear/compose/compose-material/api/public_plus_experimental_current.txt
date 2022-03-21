@@ -360,7 +360,7 @@ package androidx.wear.compose.material {
     property public final int ItemStart;
   }
 
-  public interface ScalingLazyListItemInfo {
+  public sealed interface ScalingLazyListItemInfo {
     method public float getAlpha();
     method public int getIndex();
     method public Object getKey();
@@ -379,13 +379,13 @@ package androidx.wear.compose.material {
     property public abstract int unadjustedSize;
   }
 
-  @androidx.compose.runtime.Stable @androidx.wear.compose.material.ScalingLazyScopeMarker public interface ScalingLazyListItemScope {
+  @androidx.compose.runtime.Stable @androidx.wear.compose.material.ScalingLazyScopeMarker public sealed interface ScalingLazyListItemScope {
     method public androidx.compose.ui.Modifier fillParentMaxHeight(androidx.compose.ui.Modifier, optional float fraction);
     method public androidx.compose.ui.Modifier fillParentMaxSize(androidx.compose.ui.Modifier, optional float fraction);
     method public androidx.compose.ui.Modifier fillParentMaxWidth(androidx.compose.ui.Modifier, optional float fraction);
   }
 
-  public interface ScalingLazyListLayoutInfo {
+  public sealed interface ScalingLazyListLayoutInfo {
     method public androidx.compose.foundation.gestures.Orientation getOrientation();
     method public boolean getReverseLayout();
     method public int getTotalItemsCount();
@@ -402,7 +402,7 @@ package androidx.wear.compose.material {
     property public abstract java.util.List<androidx.wear.compose.material.ScalingLazyListItemInfo> visibleItemsInfo;
   }
 
-  @androidx.wear.compose.material.ScalingLazyScopeMarker public interface ScalingLazyListScope {
+  @androidx.wear.compose.material.ScalingLazyScopeMarker public sealed interface ScalingLazyListScope {
     method public void item(optional Object? key, kotlin.jvm.functions.Function1<? super androidx.wear.compose.material.ScalingLazyListItemScope,kotlin.Unit> content);
     method public void items(int count, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,?>? key, kotlin.jvm.functions.Function2<? super androidx.wear.compose.material.ScalingLazyListItemScope,? super java.lang.Integer,kotlin.Unit> itemContent);
   }
