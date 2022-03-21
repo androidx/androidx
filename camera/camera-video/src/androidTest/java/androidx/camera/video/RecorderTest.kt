@@ -76,7 +76,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestName
-import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
@@ -98,7 +97,9 @@ private const val FINALIZE_TIMEOUT = 5000L
 class RecorderTest {
 
     @get:Rule
-    var cameraRule: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
+    val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
+        CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+    )
 
     @get:Rule
     var testName: TestName = TestName()

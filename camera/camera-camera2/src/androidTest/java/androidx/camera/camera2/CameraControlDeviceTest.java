@@ -82,7 +82,9 @@ public class CameraControlDeviceTest {
     }
 
     @Rule
-    public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest();
+    public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest(
+            new CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+    );
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private CameraUseCaseAdapter mCamera;
     private UseCase mBoundUseCase;

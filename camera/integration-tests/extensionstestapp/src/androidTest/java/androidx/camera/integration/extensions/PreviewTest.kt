@@ -19,8 +19,10 @@ package androidx.camera.integration.extensions
 import android.Manifest
 import android.content.Context
 import android.content.Intent
+import androidx.camera.camera2.Camera2Config
 import androidx.camera.integration.extensions.util.ExtensionsTestUtil
 import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.camera.testing.waitForIdle
 import androidx.test.core.app.ActivityScenario
@@ -48,7 +50,9 @@ private const val BASIC_SAMPLE_PACKAGE = "androidx.camera.integration.extensions
 class PreviewTest(private val cameraId: String, private val extensionMode: Int) {
 
     @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTest()
+    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
+        PreTestCameraIdList(Camera2Config.defaultConfig())
+    )
 
     @get:Rule
     val storagePermissionRule =
