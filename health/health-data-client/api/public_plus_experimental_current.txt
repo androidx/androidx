@@ -1,4 +1,12 @@
 // Signature format: 4.0
+package androidx.health.data.client {
+
+  public interface HealthDataClient {
+    method public suspend Object? insertRecords(java.util.List<? extends androidx.health.data.client.records.Record> records, kotlin.coroutines.Continuation<? super androidx.health.data.client.response.InsertRecordsResponse> p);
+  }
+
+}
+
 package androidx.health.data.client.metadata {
 
   public final class DataOrigin {
@@ -159,6 +167,48 @@ package androidx.health.data.client.records {
     field public static final androidx.health.data.client.records.OvulationTestResults INSTANCE;
     field public static final String NEGATIVE = "negative";
     field public static final String POSITIVE = "positive";
+  }
+
+  public interface Record {
+    method public androidx.health.data.client.metadata.Metadata getMetadata();
+    property public abstract androidx.health.data.client.metadata.Metadata metadata;
+  }
+
+  public final class Steps implements androidx.health.data.client.records.Record {
+    ctor public Steps(long count, java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, optional androidx.health.data.client.metadata.Metadata metadata);
+    method public long getCount();
+    method public java.time.Instant getEndTime();
+    method public java.time.ZoneOffset? getEndZoneOffset();
+    method public androidx.health.data.client.metadata.Metadata getMetadata();
+    method public java.time.Instant getStartTime();
+    method public java.time.ZoneOffset? getStartZoneOffset();
+    property public final long count;
+    property public java.time.Instant endTime;
+    property public java.time.ZoneOffset? endZoneOffset;
+    property public androidx.health.data.client.metadata.Metadata metadata;
+    property public java.time.Instant startTime;
+    property public java.time.ZoneOffset? startZoneOffset;
+  }
+
+  public final class Weight implements androidx.health.data.client.records.Record {
+    ctor public Weight(double weightKg, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.data.client.metadata.Metadata metadata);
+    method public androidx.health.data.client.metadata.Metadata getMetadata();
+    method public java.time.Instant getTime();
+    method public double getWeightKg();
+    method public java.time.ZoneOffset? getZoneOffset();
+    property public androidx.health.data.client.metadata.Metadata metadata;
+    property public java.time.Instant time;
+    property public final double weightKg;
+    property public java.time.ZoneOffset? zoneOffset;
+  }
+
+}
+
+package androidx.health.data.client.response {
+
+  public final class InsertRecordsResponse {
+    method public java.util.List<java.lang.String> getRecordUidsList();
+    property public final java.util.List<java.lang.String> recordUidsList;
   }
 
 }

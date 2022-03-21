@@ -15,7 +15,6 @@
  */
 package androidx.health.data.client.records
 
-import androidx.annotation.RestrictTo
 import androidx.health.data.client.aggregate.LongAggregateMetric
 import androidx.health.data.client.metadata.Metadata
 import java.time.Instant
@@ -30,7 +29,6 @@ import java.time.ZoneOffset
  * of the values together for a period of time calculates the total number of steps during that
  * period.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class Steps(
     /** Count. Required field. Valid range: 1-1000000. */
     public val count: Long,
@@ -64,9 +62,10 @@ public class Steps(
         return result
     }
 
-    companion object {
+    internal companion object {
         /** Metric identifier to retrieve total steps count from [AggregateDataRow]. */
         @JvmStatic
-        val STEPS_COUNT_TOTAL: LongAggregateMetric = LongAggregateMetric("Steps", "total", "count")
+        internal val STEPS_COUNT_TOTAL: LongAggregateMetric =
+            LongAggregateMetric("Steps", "total", "count")
     }
 }

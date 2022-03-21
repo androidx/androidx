@@ -36,7 +36,7 @@ import androidx.health.data.client.records.Record
 import androidx.health.data.client.request.ChangesTokenRequest
 import androidx.health.data.client.request.ReadRecordsRequest
 import androidx.health.data.client.response.ChangesResponse
-import androidx.health.data.client.response.InsertRecordResponse
+import androidx.health.data.client.response.InsertRecordsResponse
 import androidx.health.data.client.response.ReadRecordResponse
 import androidx.health.data.client.response.ReadRecordsResponse
 import androidx.health.data.client.time.TimeRangeFilter
@@ -62,9 +62,9 @@ class HealthDataClientImpl(
             .toSet()
     }
 
-    override suspend fun insertRecords(records: List<Record>): InsertRecordResponse {
+    override suspend fun insertRecords(records: List<Record>): InsertRecordsResponse {
         val uidList = delegate.insertData(records.map { it.toProto() }).await()
-        return InsertRecordResponse(recordUidsList = uidList)
+        return InsertRecordsResponse(recordUidsList = uidList)
     }
 
     override suspend fun updateRecords(records: List<Record>) {

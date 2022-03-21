@@ -15,11 +15,10 @@
  */
 package androidx.health.data.client.records
 
-import androidx.annotation.RestrictTo
 import androidx.health.data.client.metadata.Metadata
 
 /** Common interface shared by readable or writable records. */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-interface Record {
-    val metadata: Metadata
+public interface Record {
+    /** Set of common metadata associated with the written record. */
+    public val metadata: Metadata
 }

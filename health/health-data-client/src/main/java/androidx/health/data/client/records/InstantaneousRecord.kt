@@ -15,17 +15,21 @@
  */
 package androidx.health.data.client.records
 
-import androidx.annotation.RestrictTo
 import java.time.Instant
 import java.time.ZoneOffset
 
-/** Common interface that records happenned at an instantaneous time inherits. */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-interface InstantaneousRecord : Record {
-    val time: Instant
+/**
+ * A record that contains an instantaneous measurement.
+ *
+ * @see IntervalRecord for records with measurement of a time interval.
+ */
+@PublishedApi
+internal interface InstantaneousRecord : Record {
+    /** Time the record happened. */
+    public val time: Instant
     /**
-     * User experienced zoneoffset at [time], or null if unknown. Providing these will help history
+     * User experienced zone offset at [time], or null if unknown. Providing these will help history
      * aggregations results stay consistent should user travel.
      */
-    val zoneOffset: ZoneOffset?
+    public val zoneOffset: ZoneOffset?
 }
