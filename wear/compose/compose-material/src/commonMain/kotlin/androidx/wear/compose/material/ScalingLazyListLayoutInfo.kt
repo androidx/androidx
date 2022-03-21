@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.IntSize
  *
  * Use [ScalingLazyListState.layoutInfo] to retrieve this
  */
-interface ScalingLazyListLayoutInfo {
+public sealed interface ScalingLazyListLayoutInfo {
     /**
      * The list of [ScalingLazyListItemInfo] representing all the currently visible items.
      */

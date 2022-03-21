@@ -20,7 +20,7 @@ package androidx.wear.compose.material
  *
  * @see ScalingLazyListLayoutInfo
  */
-interface ScalingLazyListItemInfo {
+public sealed interface ScalingLazyListItemInfo {
     /**
      * The index of the item in the list.
      */
