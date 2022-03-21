@@ -22,6 +22,7 @@ import static androidx.camera.view.CameraController.OutputSize.UNASSIGNED_ASPECT
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Matrix;
 import android.hardware.camera2.CaptureResult;
 import android.os.Build;
 import android.util.Size;
@@ -44,6 +45,7 @@ import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraUnavailableException;
+import androidx.camera.core.ExperimentalAnalyzer;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageAnalysis;
@@ -119,6 +121,23 @@ public abstract class CameraController {
     // Auto focus is 1/6 of the area.
     private static final float AF_SIZE = 1.0f / 6.0f;
     private static final float AE_SIZE = AF_SIZE * 1.5f;
+
+    /**
+     * {@link ImageAnalysis.Analyzer} option for returning {@link PreviewView} coordinates.
+     *
+     * <p>When the {@link ImageAnalysis.Analyzer} is configured with this option, it will receive a
+     * {@link Matrix} that will receive a value that represents the transformation from camera
+     * sensor to the {@link PreviewView}, which can be used for highlighting detected result in
+     * {@link PreviewView}. For example, laying over a bounding box on top of the detected face.
+     *
+     * <p>Note this option only works if the {@link ImageAnalysis.Analyzer} is set via
+     * {@link CameraController#setImageAnalysisAnalyzer}. It will not be effective when used with
+     * camera-core directly.
+     *
+     * @see ImageAnalysis.Analyzer
+     */
+    @ExperimentalAnalyzer
+    public static final int COORDINATE_SYSTEM_VIEW_REFERENCED = 1;
 
     /**
      * States for tap-to-focus feature.
@@ -829,6 +848,10 @@ public abstract class CameraController {
      * <p>Setting an analyzer function replaces any previous analyzer. Only one analyzer can be
      * set at any time.
      *
+     * <p> If the {@link ImageAnalysis.Analyzer#getTargetResolutionOverride()} returns a non-null
+     * value, calling this method will reconfigure the camera which might cause additional
+     * latency. To avoid this, set the value before controller is bound to the lifecycle.
+     *
      * @param executor The executor in which the
      *                 {@link ImageAnalysis.Analyzer#analyze(ImageProxy)} will be run.
      * @param analyzer of the images.
@@ -844,6 +867,7 @@ public abstract class CameraController {
         mAnalysisExecutor = executor;
         mAnalysisAnalyzer = analyzer;
         mImageAnalysis.setAnalyzer(executor, analyzer);
+        restartCameraIfAnalyzerHasResolution(analyzer);
     }
 
     /**
@@ -851,14 +875,30 @@ public abstract class CameraController {
      *
      * <p>This will stop data from streaming to the {@link ImageAnalysis}.
      *
+     * <p> If the current {@link ImageAnalysis.Analyzer#getTargetResolutionOverride()} returns
+     * non-null value, calling this method will reconfigure the camera which might cause additional
+     * latency. To avoid this, call this method when the lifecycle is not active.
+     *
      * @see ImageAnalysis#clearAnalyzer().
      */
     @MainThread
     public void clearImageAnalysisAnalyzer() {
         checkMainThread();
+        ImageAnalysis.Analyzer oldAnalyzer = mAnalysisAnalyzer;
         mAnalysisExecutor = null;
         mAnalysisAnalyzer = null;
         mImageAnalysis.clearAnalyzer();
+        restartCameraIfAnalyzerHasResolution(oldAnalyzer);
+    }
+
+    @OptIn(markerClass = ExperimentalAnalyzer.class)
+    private void restartCameraIfAnalyzerHasResolution(ImageAnalysis.Analyzer analyzer) {
+        if (analyzer != null && analyzer.getTargetResolutionOverride() != null) {
+            // Rebind ImageAnalysis to reconfigure target resolution.
+            unbindImageAnalysisAndRecreate(mImageAnalysis.getBackpressureStrategy(),
+                    mImageAnalysis.getImageQueueDepth());
+            startCameraAndTrackStates();
+        }
     }
 
     /**
@@ -1035,12 +1075,20 @@ public abstract class CameraController {
         }
     }
 
-    @OptIn(markerClass = TransformExperimental.class)
+    @OptIn(markerClass = {TransformExperimental.class, ExperimentalAnalyzer.class})
     @MainThread
     void updatePreviewViewTransform(@Nullable OutputTransform outputTransform) {
         checkMainThread();
-        // TODO(b/198984186): use the value to provide transformed coordinates for MLKit
-        // integration.
+        if (mAnalysisAnalyzer == null) {
+            return;
+        }
+        if (outputTransform == null) {
+            mAnalysisAnalyzer.updateTransform(null);
+
+        } else if (mAnalysisAnalyzer.getTargetCoordinateSystem()
+                == COORDINATE_SYSTEM_VIEW_REFERENCED) {
+            mAnalysisAnalyzer.updateTransform(outputTransform.getMatrix());
+        }
     }
 
     // -----------------

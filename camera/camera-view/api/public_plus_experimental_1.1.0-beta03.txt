@@ -49,6 +49,7 @@ package androidx.camera.view {
     method @MainThread @androidx.camera.view.video.ExperimentalVideo public void stopRecording();
     method @MainThread public void takePicture(androidx.camera.core.ImageCapture.OutputFileOptions, java.util.concurrent.Executor, androidx.camera.core.ImageCapture.OnImageSavedCallback);
     method @MainThread public void takePicture(java.util.concurrent.Executor, androidx.camera.core.ImageCapture.OnImageCapturedCallback);
+    field @androidx.camera.core.ExperimentalAnalyzer public static final int COORDINATE_SYSTEM_VIEW_REFERENCED = 1; // 0x1
     field public static final int IMAGE_ANALYSIS = 2; // 0x2
     field public static final int IMAGE_CAPTURE = 1; // 0x1
     field public static final int TAP_TO_FOCUS_FAILED = 4; // 0x4

@@ -13,23 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.camera.mlkit.vision;
 
-import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
+package androidx.camera.core;
+
+import static java.lang.annotation.RetentionPolicy.CLASS;
+
+import androidx.annotation.RequiresOptIn;
+
+import java.lang.annotation.Retention;
 
 /**
- * A wrapper around MLKit's Detector.
- *
- * TODO(b/198984186): implement this class.
- * TODO(b/198984186): throw exception if the type == segmentation and the matrix is not identity.
- *
- * @param <T> the type of the detected result. For {@code BarcodeScanner}, it is {@code List
- *            <Barcode>}.
- * @hide
+ * Denotes that the annotated API uses the experimental {@link ImageAnalysis.Analyzer}
+ * methods which allow additional features like overriding {@link ImageAnalysis} configuration and
+ * coordinates transformation.
  */
-@RequiresApi(21)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class MlKitDetector<T> {
-
+@Retention(CLASS)
+@RequiresOptIn
+public @interface ExperimentalAnalyzer {
 }
