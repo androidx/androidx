@@ -422,6 +422,29 @@ src/sample/optin/RegressionTestJava192562926.java:52: Error: This declaration is
         check(*input).expect(expected)
     }
 
+    /**
+     * Regression test for b/219525415 where the @OptIn annotation did not target packages.
+     */
+    @Test
+    fun regressionTestJava219525415() {
+        val input = arrayOf(
+            SAMPLE_FOO_PACKAGE_INFO,
+            SAMPLE_BAR_PACKAGE_INFO,
+            javaSample("sample.optin.AnnotatedJavaClass"),
+            javaSample("sample.optin.ExperimentalJavaAnnotation"),
+            javaSample("sample.optin.bar.RegressionTestJava219525415"),
+            javaSample("sample.optin.foo.AnnotatedJavaPackage")
+        )
+
+        /* ktlint-disable max-line-length */
+        val expected = """
+No warnings.
+        """.trimIndent()
+        /* ktlint-enable max-line-length */
+
+        check(*input).expect(expected)
+    }
+
     /* ktlint-disable max-line-length */
     companion object {
         /**
@@ -432,7 +455,7 @@ src/sample/optin/RegressionTestJava192562926.java:52: Error: This declaration is
          */
         val ANDROIDX_REQUIRES_OPT_IN_KT: TestFile = kotlin(
             """
-            package androidx.annotation;
+            package androidx.annotation
 
             import kotlin.annotation.Retention
             import kotlin.annotation.Target
@@ -458,7 +481,7 @@ src/sample/optin/RegressionTestJava192562926.java:52: Error: This declaration is
          */
         val ANDROIDX_OPT_IN_KT: TestFile = kotlin(
             """
-            package androidx.annotation;
+            package androidx.annotation
 
             import kotlin.annotation.Retention
             import kotlin.annotation.Target
@@ -490,6 +513,7 @@ src/sample/optin/RegressionTestJava192562926.java:52: Error: This declaration is
          * from source code. This is generated from a single-class JAR using toBase64gzip(File).
          *
          * To re-generate this:
+         * (if linux). alias pbcopy='xclip -selection clipboard'
          * 1. ./gradlew :annotation:annotation-experimental-lint-integration-tests:assemble
          * 2. mkdir -p temp/sample/optin/foo/
          * 3. cp ../../out/androidx/annotation/annotation-experimental-lint-integration-tests/build/intermediates/javac/debug/classes/sample/optin/foo/package-info.class temp/sample/optin/foo/
@@ -500,6 +524,16 @@ src/sample/optin/RegressionTestJava192562926.java:52: Error: This declaration is
         val SAMPLE_FOO_PACKAGE_INFO: TestFile = base64gzip(
             "libs/sample.optin.foo.package-info.jar",
             "UEsDBBQACAgIABRYjVIAAAAAAAAAAAAAAAAJAAQATUVUQS1JTkYv/soAAAMAUEsHCAAAAAACAAAAAAAAAFBLAwQUAAgICAAUWI1SAAAAAAAAAAAAAAAAFAAAAE1FVEEtSU5GL01BTklGRVNULk1G803My0xLLS7RDUstKs7Mz7NSMNQz4OVyLkpNLElN0XWqBAoARfRMFDT8ixKTc1IVnPOLCvKLEkuAijV5uXi5AFBLBwiVBramQAAAAEIAAABQSwMECgAACAAAOVeNUgAAAAAAAAAAAAAAAAcAAABzYW1wbGUvUEsDBAoAAAgAADlXjVIAAAAAAAAAAAAAAAANAAAAc2FtcGxlL29wdGluL1BLAwQKAAAIAAA7V41SAAAAAAAAAAAAAAAAEQAAAHNhbXBsZS9vcHRpbi9mb28vUEsDBBQACAgIADtXjVIAAAAAAAAAAAAAAAAjAAAAc2FtcGxlL29wdGluL2Zvby9wYWNrYWdlLWluZm8uY2xhc3NVjcEOwUAYhGeLFicuLuIBHNiLm5MDCZFIeIJts222tv9u2m3j2Rw8gIcSiwPmMHOYbzL3x/UGYIFehChCl6F/MnWZyI3SkmFoRXIWmZwpSs08F41gGB9rcqqQW2pUpWItV0TGCacMVQzTfSUKqyU31ini64uVpYfJCb3z8y+7ZJj8oakx/PeOYfA65FpQxg9xLhM3AhgCfBSg9fY2Oj5D34TAE1BLBwjeUT3SpAAAANAAAABQSwECFAAUAAgICAAUWI1SAAAAAAIAAAAAAAAACQAEAAAAAAAAAAAAAAAAAAAATUVUQS1JTkYv/soAAFBLAQIUABQACAgIABRYjVKVBramQAAAAEIAAAAUAAAAAAAAAAAAAAAAAD0AAABNRVRBLUlORi9NQU5JRkVTVC5NRlBLAQIKAAoAAAgAADlXjVIAAAAAAAAAAAAAAAAHAAAAAAAAAAAAAAAAAL8AAABzYW1wbGUvUEsBAgoACgAACAAAOVeNUgAAAAAAAAAAAAAAAA0AAAAAAAAAAAAAAAAA5AAAAHNhbXBsZS9vcHRpbi9QSwECCgAKAAAIAAA7V41SAAAAAAAAAAAAAAAAEQAAAAAAAAAAAAAAAAAPAQAAc2FtcGxlL29wdGluL2Zvby9QSwECFAAUAAgICAA7V41S3lE90qQAAADQAAAAIwAAAAAAAAAAAAAAAAA+AQAAc2FtcGxlL29wdGluL2Zvby9wYWNrYWdlLWluZm8uY2xhc3NQSwUGAAAAAAYABgB9AQAAMwIAAAAA"
+        )
+
+        /**
+         * [TestFile] containing the package-level annotation for the sample.optin.bar package.
+         *
+         * See [SAMPLE_FOO_PACKAGE_INFO] for details on how to re-generate this data.
+         */
+        val SAMPLE_BAR_PACKAGE_INFO: TestFile = base64gzip(
+            "libs/sample.optin.bar.package-info.jar",
+            "UEsDBBQACAgIAEZucVQAAAAAAAAAAAAAAAAJAAQATUVUQS1JTkYv/soAAAMAUEsHCAAAAAACAAAAAAAAAFBLAwQUAAgICABGbnFUAAAAAAAAAAAAAAAAFAAAAE1FVEEtSU5GL01BTklGRVNULk1G803My0xLLS7RDUstKs7Mz7NSMNQz4OVyLkpNLElN0XWqBAoARfQMjRQ03PPz03NSFTzzkvU0ebl4uQBQSwcIy/5xeDsAAAA8AAAAUEsDBAoAAAgAAC5bcVQAAAAAAAAAAAAAAAAHAAAAc2FtcGxlL1BLAwQKAAAIAAAuW3FUAAAAAAAAAAAAAAAADQAAAHNhbXBsZS9vcHRpbi9QSwMECgAACAAALltxVAAAAAAAAAAAAAAAABEAAABzYW1wbGUvb3B0aW4vYmFyL1BLAwQUAAgICAA1bnFUAAAAAAAAAAAAAAAAIwAAAHNhbXBsZS9vcHRpbi9iYXIvcGFja2FnZS1pbmZvLmNsYXNzVU5LagJBEH1tPhMVgtm4CTlAFrE32WUVxIBBEHSZVc1MZeixp7rpacWzZZED5FBiqxCTgqqCep96P7uvbwDP6GfoZugp9JZuHQp+M5YV7jwVK6r4ycinG9W0IYX7xVqiaXgqG9Oa3PKriIsUjZM2oTOSMjhTbjX93vXcx6m8KPQbCisOY0tt4j7OWmq8Ze18NKInW88hGUsk+55enX2T8uEfNaeg/0ZTGBzCaUtS6XlecxGHgEIHp+rg4jgvcZX2bUKuU2cfUAVu9lBLBwjs0mNTygAAAAQBAABQSwECFAAUAAgICABGbnFUAAAAAAIAAAAAAAAACQAEAAAAAAAAAAAAAAAAAAAATUVUQS1JTkYv/soAAFBLAQIUABQACAgIAEZucVTL/nF4OwAAADwAAAAUAAAAAAAAAAAAAAAAAD0AAABNRVRBLUlORi9NQU5JRkVTVC5NRlBLAQIKAAoAAAgAAC5bcVQAAAAAAAAAAAAAAAAHAAAAAAAAAAAAAAAAALoAAABzYW1wbGUvUEsBAgoACgAACAAALltxVAAAAAAAAAAAAAAAAA0AAAAAAAAAAAAAAAAA3wAAAHNhbXBsZS9vcHRpbi9QSwECCgAKAAAIAAAuW3FUAAAAAAAAAAAAAAAAEQAAAAAAAAAAAAAAAAAKAQAAc2FtcGxlL29wdGluL2Jhci9QSwECFAAUAAgICAA1bnFU7NJjU8oAAAAEAQAAIwAAAAAAAAAAAAAAAAA5AQAAc2FtcGxlL29wdGluL2Jhci9wYWNrYWdlLWluZm8uY2xhc3NQSwUGAAAAAAYABgB9AQAAVAIAAAAA"
         )
     }
     /* ktlint-enable max-line-length */
