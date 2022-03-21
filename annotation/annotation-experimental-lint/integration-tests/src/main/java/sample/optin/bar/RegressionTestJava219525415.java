@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,21 @@
  * limitations under the License.
  */
 
-package sample.optin;
+package sample.optin.bar;
+
+import sample.optin.AnnotatedJavaClass;
 
 /**
- * Class which is experimental.
+ * Regression test for b/219525415 where the @OptIn annotation did not target packages.
  */
-@ExperimentalJavaAnnotation
-public class AnnotatedJavaClass {
-    public static final int FIELD_STATIC = -1;
+@SuppressWarnings("unused")
+public class RegressionTestJava219525415 {
 
-    public static int methodStatic() {
-        return -1;
-    }
-
-    public final int field = -1;
-
-    public int method() {
-        return -1;
+    /**
+     * Safe usage of class-level @RequiresOptIn due to package-level opt-in.
+     */
+    int safeClassRequiresOptIn() {
+        AnnotatedJavaClass experimentalObject = new AnnotatedJavaClass();
+        return experimentalObject.method();
     }
 }

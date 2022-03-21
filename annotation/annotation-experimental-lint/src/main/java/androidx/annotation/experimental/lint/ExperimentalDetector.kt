@@ -844,7 +844,7 @@ private fun PsiPackage.isAnnotatedWithOptInOf(
 ): Boolean = optInFqNames.any { optInFqName ->
     annotations.any { annotation ->
         annotation.hasQualifiedName(optInFqName) &&
-            ((annotation as? UAnnotation)?.hasMatchingAttributeValueClass(
+            ((annotation.toUElement() as? UAnnotation)?.hasMatchingAttributeValueClass(
                 "markerClass",
                 annotationFqName,
             ) ?: false)
