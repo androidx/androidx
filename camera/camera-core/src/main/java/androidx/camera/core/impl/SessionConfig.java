@@ -20,9 +20,11 @@ import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraDevice.StateCallback;
 import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.params.InputConfiguration;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 import androidx.camera.core.internal.compat.workaround.SurfaceSorter;
@@ -58,6 +60,13 @@ public final class SessionConfig {
     private final CaptureConfig mRepeatingCaptureConfig;
 
     /**
+     * Immutable class to store an input configuration that is used to create a reprocessable
+     * capture session.
+     */
+    @Nullable
+    private InputConfiguration mInputConfiguration;
+
+    /**
      * Private constructor for a SessionConfig.
      *
      * <p>In practice, the {@link SessionConfig.BaseBuilder} will be used to construct a
@@ -67,6 +76,8 @@ public final class SessionConfig {
      * @param deviceStateCallbacks   The state callbacks for a {@link CameraDevice}.
      * @param sessionStateCallbacks  The state callbacks for a {@link CameraCaptureSession}.
      * @param repeatingCaptureConfig The configuration for building the {@link CaptureRequest}.
+     * @param inputConfiguration     The input configuration to create a reprocessable capture
+     *                               session.
      */
     SessionConfig(
             List<DeferrableSurface> surfaces,
@@ -74,7 +85,8 @@ public final class SessionConfig {
             List<CameraCaptureSession.StateCallback> sessionStateCallbacks,
             List<CameraCaptureCallback> singleCameraCaptureCallbacks,
             List<ErrorListener> errorListeners,
-            CaptureConfig repeatingCaptureConfig) {
+            CaptureConfig repeatingCaptureConfig,
+            @Nullable InputConfiguration inputConfiguration) {
         mSurfaces = surfaces;
         mDeviceStateCallbacks = Collections.unmodifiableList(deviceStateCallbacks);
         mSessionStateCallbacks = Collections.unmodifiableList(sessionStateCallbacks);
@@ -82,6 +94,7 @@ public final class SessionConfig {
                 Collections.unmodifiableList(singleCameraCaptureCallbacks);
         mErrorListeners = Collections.unmodifiableList(errorListeners);
         mRepeatingCaptureConfig = repeatingCaptureConfig;
+        mInputConfiguration = inputConfiguration;
     }
 
     /** Returns an instance of a session configuration with minimal configurations. */
@@ -93,7 +106,13 @@ public final class SessionConfig {
                 new ArrayList<CameraCaptureSession.StateCallback>(0),
                 new ArrayList<CameraCaptureCallback>(0),
                 new ArrayList<>(0),
-                new CaptureConfig.Builder().build());
+                new CaptureConfig.Builder().build(),
+                /* inputConfiguration = */null);
+    }
+
+    @Nullable
+    public InputConfiguration getInputConfiguration() {
+        return mInputConfiguration;
     }
 
     @NonNull
@@ -197,6 +216,7 @@ public final class SessionConfig {
         final List<CameraCaptureSession.StateCallback> mSessionStateCallbacks = new ArrayList<>();
         final List<ErrorListener> mErrorListeners = new ArrayList<>();
         final List<CameraCaptureCallback> mSingleCameraCaptureCallbacks = new ArrayList<>();
+        @Nullable InputConfiguration mInputConfiguration;
     }
 
     /**
@@ -222,6 +242,15 @@ public final class SessionConfig {
             // Unpack the configuration into this builder
             unpacker.unpack(config, builder);
             return builder;
+        }
+
+        /**
+         * Set the input configuration for reprocessable capture session.
+         *
+         * @param inputConfiguration The input configuration.
+         */
+        public void setInputConfiguration(@Nullable InputConfiguration inputConfiguration) {
+            mInputConfiguration = inputConfiguration;
         }
 
         /**
@@ -393,7 +422,8 @@ public final class SessionConfig {
                     mSessionStateCallbacks,
                     mSingleCameraCaptureCallbacks,
                     mErrorListeners,
-                    mCaptureConfigBuilder.build());
+                    mCaptureConfigBuilder.build(),
+                    mInputConfiguration);
         }
     }
 
@@ -446,6 +476,11 @@ public final class SessionConfig {
 
             mErrorListeners.addAll(sessionConfig.getErrorListeners());
 
+            // Check input configuration for reprocessable capture session.
+            if (sessionConfig.getInputConfiguration() != null) {
+                mInputConfiguration = sessionConfig.getInputConfiguration();
+            }
+
             // Check surfaces
             mSurfaces.addAll(sessionConfig.getSurfaces());
 
@@ -496,7 +531,8 @@ public final class SessionConfig {
                     mSessionStateCallbacks,
                     mSingleCameraCaptureCallbacks,
                     mErrorListeners,
-                    mCaptureConfigBuilder.build());
+                    mCaptureConfigBuilder.build(),
+                    mInputConfiguration);
         }
 
         private int selectTemplateType(int type1, int type2) {
