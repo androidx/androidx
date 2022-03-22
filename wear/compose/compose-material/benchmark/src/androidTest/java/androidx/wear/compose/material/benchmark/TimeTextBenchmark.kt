@@ -27,7 +27,6 @@ import androidx.compose.testutils.benchmark.benchmarkFirstMeasure
 import androidx.compose.testutils.benchmark.benchmarkLayoutPerf
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.TimeText
@@ -82,7 +81,6 @@ class TimeTextBenchmark {
 }
 
 internal class TimeTextTestCase : LayeredComposeTestCase() {
-    @OptIn(ExperimentalWearMaterialApi::class)
     @Composable
     override fun MeasuredContent() {
         TimeText(

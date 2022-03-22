@@ -20,19 +20,16 @@ import android.text.format.DateFormat
 import androidx.compose.runtime.Composable
 import androidx.wear.compose.foundation.CurvedTextStyle
 import androidx.wear.compose.foundation.basicCurvedText
-import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.TimeText
 import androidx.wear.compose.material.TimeTextDefaults
 import java.util.Locale
 
-@OptIn(ExperimentalWearMaterialApi::class)
 @Composable
 fun TimeTextClockOnly() {
     TimeText()
 }
 
-@OptIn(ExperimentalWearMaterialApi::class)
 @Composable
 fun TimeTextWithLeadingText() {
     val textStyle = TimeTextDefaults.timeTextStyle(color = AlternatePrimaryColor1)
@@ -52,7 +49,6 @@ fun TimeTextWithLeadingText() {
     )
 }
 
-@OptIn(ExperimentalWearMaterialApi::class)
 @Composable
 fun TimeTextWithLocalisedFormat() {
     TimeText(
