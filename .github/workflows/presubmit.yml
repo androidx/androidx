@@ -155,12 +155,12 @@ jobs:
         if: ${{ steps.check-ci-config.outputs.enabled == 'true' }}
         uses: actions/upload-artifact@v2
         with:
-          name: artifacts_${{ inputs.project-name }}
+          name: artifacts_${{ matrix.project }}
           path: ~/dist
       - name: "Upload daemon logs"
         continue-on-error: true
         if: failure()
         uses: actions/upload-artifact@v2
         with:
-          name: gradle-daemon-logs_${{ inputs.project-name }}
+          name: gradle-daemon-logs_${{ matrix.project }}
           path: ~/.gradle/daemon
