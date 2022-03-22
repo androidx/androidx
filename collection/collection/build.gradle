@@ -50,6 +50,7 @@ kotlin {
             dependencies {
                 implementation(libs.kotlinTestJunit)
                 implementation(libs.truth)
+                implementation(project(":internal-testutils-truth"))
             }
         }
     }

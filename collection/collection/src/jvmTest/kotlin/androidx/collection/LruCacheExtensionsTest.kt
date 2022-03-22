@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,21 +20,24 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-class LruCacheTest {
+internal class LruCacheExtensionsTest {
     private data class TestData(val x: String = "bla")
 
-    @Test fun size() {
+    @Test
+    fun size() {
         val cache = lruCache<String, TestData>(200, { k, (x) -> k.length * x.length })
         cache.put("long", TestData())
         assertEquals(cache.size(), 12)
     }
 
-    @Test fun create() {
+    @Test
+    fun create() {
         val cache = lruCache<String, TestData>(200, create = { key -> TestData("$key foo") })
         assertEquals(cache.get("kung"), TestData("kung foo"))
     }
 
-    @Test fun onEntryRemoved() {
+    @Test
+    fun onEntryRemoved() {
         var wasCalled = false
 
         val cache = lruCache<String, TestData>(

@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,22 +24,25 @@ import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-class LongSparseArrayTest {
-    @Test fun sizeProperty() {
+internal class LongSparseArrayExtensionsTest {
+    @Test
+    fun sizeProperty() {
         val array = LongSparseArray<String>()
         assertEquals(0, array.size)
         array.put(1L, "one")
         assertEquals(1, array.size)
     }
 
-    @Test fun containsOperator() {
+    @Test
+    fun containsOperator() {
         val array = LongSparseArray<String>()
         assertFalse(1L in array)
         array.put(1L, "one")
         assertTrue(1L in array)
     }
 
-    @Test fun containsOperatorWithValue() {
+    @Test
+    fun containsOperatorWithValue() {
         val array = LongSparseArray<String>()
 
         array.put(1L, "one")
@@ -49,13 +52,15 @@ class LongSparseArrayTest {
         assertTrue(2L in array)
     }
 
-    @Test fun setOperator() {
+    @Test
+    fun setOperator() {
         val array = LongSparseArray<String>()
         array[1L] = "one"
         assertEquals("one", array.get(1L))
     }
 
-    @Test fun plusOperator() {
+    @Test
+    fun plusOperator() {
         val first = LongSparseArray<String>().apply { put(1L, "one") }
         val second = LongSparseArray<String>().apply { put(2L, "two") }
         val combined = first + second
@@ -66,7 +71,8 @@ class LongSparseArrayTest {
         assertEquals("two", combined.valueAt(1))
     }
 
-    @Test fun getOrDefault() {
+    @Test
+    fun getOrDefault() {
         val array = LongSparseArray<Any>()
         val default = Any()
         assertSame(default, array.getOrDefault(1L, default))
@@ -74,7 +80,8 @@ class LongSparseArrayTest {
         assertEquals("one", array.getOrDefault(1L, default))
     }
 
-    @Test fun getOrElse() {
+    @Test
+    fun getOrElse() {
         val array = LongSparseArray<Any>()
         val default = Any()
         assertSame(default, array.getOrElse(1L) { default })
@@ -82,14 +89,16 @@ class LongSparseArrayTest {
         assertEquals("one", array.getOrElse(1L) { fail() })
     }
 
-    @Test fun isNotEmpty() {
+    @Test
+    fun isNotEmpty() {
         val array = LongSparseArray<String>()
         assertFalse(array.isNotEmpty())
         array.put(1L, "one")
         assertTrue(array.isNotEmpty())
     }
 
-    @Test fun forEach() {
+    @Test
+    fun forEach() {
         val array = LongSparseArray<String>()
         array.forEach { _, _ -> fail() }
 
@@ -107,7 +116,8 @@ class LongSparseArrayTest {
         assertThat(values).containsExactly("one", "two", "six")
     }
 
-    @Test fun keyIterator() {
+    @Test
+    fun keyIterator() {
         val array = LongSparseArray<String>()
         assertFalse(array.keyIterator().hasNext())
 
@@ -125,7 +135,8 @@ class LongSparseArrayTest {
         assertFalse(iterator.hasNext())
     }
 
-    @Test fun valueIterator() {
+    @Test
+    fun valueIterator() {
         val array = LongSparseArray<String>()
         assertFalse(array.valueIterator().hasNext())
 

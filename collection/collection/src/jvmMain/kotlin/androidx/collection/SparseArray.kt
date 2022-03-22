@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,8 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-@file:Suppress("NOTHING_TO_INLINE") // Aliases to public API.
 
 package androidx.collection
 
@@ -24,9 +22,11 @@ import kotlin.DeprecationLevel.HIDDEN
 public inline val <T> SparseArrayCompat<T>.size: Int get() = size()
 
 /** Returns true if the collection contains [key]. */
+@Suppress("NOTHING_TO_INLINE")
 public inline operator fun <T> SparseArrayCompat<T>.contains(key: Int): Boolean = containsKey(key)
 
 /** Allows the use of the index operator for storing values in the collection. */
+@Suppress("NOTHING_TO_INLINE")
 public inline operator fun <T> SparseArrayCompat<T>.set(key: Int, value: T): Unit = put(key, value)
 
 /** Creates a new collection by adding or replacing entries from [other]. */
@@ -40,6 +40,7 @@ public operator fun <T> SparseArrayCompat<T>.plus(
 }
 
 /** Return the value corresponding to [key], or [defaultValue] when not present. */
+@Suppress("NOTHING_TO_INLINE")
 public inline fun <T> SparseArrayCompat<T>.getOrDefault(key: Int, defaultValue: T): T =
     get(key, defaultValue)
 
@@ -48,6 +49,7 @@ public inline fun <T> SparseArrayCompat<T>.getOrElse(key: Int, defaultValue: () 
     get(key) ?: defaultValue()
 
 /** Return true when the collection contains elements. */
+@Suppress("NOTHING_TO_INLINE")
 public inline fun <T> SparseArrayCompat<T>.isNotEmpty(): Boolean = !isEmpty
 
 /** Removes the entry for [key] only if it is mapped to [value]. */
