@@ -26,16 +26,18 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Quirk denotes that the encoder should create new input surface for every encoding instead of
- * using {@link MediaCodec#createPersistentInputSurface()}.
- *
- * <p>{@link MediaCodec#createPersistentInputSurface()} is introduced on API 23, which creates a
- * reusable surface for multiple encodings and is the suggested approach. So for devices with API
- * 21 and 22, a new surface has to be created for every encoding instead.
- *
- * <p>As describe in b/202798966, there is a device that has API 23+, but the recorded video is
- * abnormal if using {@link MediaCodec#createPersistentInputSurface()}. Creating a new surface
- * for new recording resolve the issue, hence this quirk is also applied to the problematic devices.
+ * <p>QuirkSummary
+ *     Bug Id: b/202798966
+ *     Description: Quirk denotes that the encoder should create new input surface for every
+ *                  encoding instead of using {@link MediaCodec#createPersistentInputSurface()}.
+ *                  , which creates a reusable surface for multiple encodings and is the
+ *                  suggested approach after API 23. So for devices with API 21 and 22, a new
+ *                  surface has to be created for every encoding instead. In addition there are
+ *                  devices that has API 23+, but the recorded video is abnormal if using
+ *                  {@link MediaCodec#createPersistentInputSurface()}. Creating a new surface for
+ *                  new recording resolve the issue, hence this quirk is also applied to the
+ *                  problematic devices.
+ *     Device(s): All API 21 and 22 devices, Model SM-N9208, Model SM-G920V
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class EncoderNotUsePersistentInputSurfaceQuirk implements Quirk {
