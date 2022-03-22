@@ -109,6 +109,14 @@ public class MacrobenchmarkScope(
     }
 
     private fun startActivityImpl(uri: String) {
+        val ignoredUniqueNames = if (!launchWithClearTask) {
+            emptyList()
+        } else {
+            // ignore existing names, as we expect a new window
+            getFrameStats().map { it.uniqueName }
+        }
+        val preLaunchTimestampNs = System.nanoTime()
+
         val cmd = "am start -W \"$uri\""
         Log.d(TAG, "Starting activity with command: $cmd")
 
@@ -131,23 +139,48 @@ public class MacrobenchmarkScope(
             throw IllegalStateException(result.stderr)
         }
 
-        // `am start -W` doesn't wait for renderthread pre API 29, we stick a conservative
-        // extra wait in to ensure the launch has fully rendered.
+        // `am start -W` doesn't reliably wait for process to complete and renderthread to produce
+        // a new frame (b/226179160), so we use `dumpsys gfxinfo <package> framestats` to determine
+        // when the next frame is produced.
+        var lastFrameStats: List<FrameStatsResult> = emptyList()
+        repeat(100) {
+            lastFrameStats = getFrameStats()
+            if (lastFrameStats
+                .filter { it.uniqueName !in ignoredUniqueNames }
+                .any {
+                    val lastFrameTimestampNs = if (Build.VERSION.SDK_INT >= 29) {
+                        it.lastLaunchNs
+                    } else {
+                        it.lastFrameNs
+                    } ?: Long.MIN_VALUE
+                    lastFrameTimestampNs > preLaunchTimestampNs
+                }) {
+                return // success, launch observed!
+            }
 
-        // On newer platform versions, `start -W` does not necessarily wait for the process to be
-        // alive. So we need to check for that irrespective of `launchWithClearTask`.
-        // b/218668335
-        if (Build.VERSION.SDK_INT < 29 || !Shell.isPackageAlive(packageName)) {
-            trace("sleeping to ensure am start completed") {
-                Thread.sleep(250) // conservative number, determined empirically
-                // Wait for up to an additional 1 second.
-                var retryCount = 0
-                while (!Shell.isPackageAlive(packageName) && retryCount < 10) {
-                    retryCount += 1
-                    Thread.sleep(100) // Wait for a little longer until package is alive
-                }
+            trace("wait for $packageName to draw") {
+                // Note - sleep must not be long enough to miss activity initial draw in 120 frame
+                // internal ring buffer of `dumpsys gfxinfo <pkg> framestats`.
+                Thread.sleep(100)
             }
         }
+        throw IllegalStateException("Unable to confirm activity launch completion $lastFrameStats" +
+            " Please report a bug with the output of" +
+            " `adb shell dumpsys gfxinfo $packageName framestats`")
+    }
+
+    /**
+     * Uses `dumpsys gfxinfo <pkg> framestats` to detect the initial timestamp of the most recently
+     * completed (fully rendered) activity launch frame.
+     */
+    internal fun getFrameStats(): List<FrameStatsResult> {
+        val frameStatsOutput = trace("dumpsys gfxinfo framestats") {
+            // we use framestats here because it gives us not just frame counts, but actual
+            // timestamps for new activity starts. Frame counts would mostly work, but would have
+            // false positives if some window of the app is still animating/rendering.
+            Shell.executeCommand("dumpsys gfxinfo $packageName framestats")
+        }
+        return FrameStatsResult.parse(frameStatsOutput)
     }
 
     /**
