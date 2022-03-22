@@ -31,7 +31,6 @@ dependencies {
     api(project(path: ':glance:glance'))
 
     implementation(libs.kotlinStdlib)
-    implementation(project(path: ':glance:glance-appwidget'))
     implementation(project(path: ':compose:runtime:runtime'))
     implementation('androidx.core:core-ktx:1.7.0')
 }
