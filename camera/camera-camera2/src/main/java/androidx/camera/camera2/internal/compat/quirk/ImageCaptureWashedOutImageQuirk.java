@@ -31,9 +31,12 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Quirk that prevents from getting washed out image while taking picture with flash ON/AUTO mode.
- *
- * <p>See b/176399765 and b/181966663.
+ * <p>QuirkSummary
+ *     Bug Id: 176399765, 181966663
+ *     Description: Quirk that prevents from getting washed out image while taking picture with
+ *                  flash ON/AUTO mode.
+ *     Device(s): Galaxy S7, Galaxy S7+
+ *     @see UseTorchAsFlashQuirk
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ImageCaptureWashedOutImageQuirk implements UseTorchAsFlashQuirk {
