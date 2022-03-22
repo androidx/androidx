@@ -18,6 +18,11 @@ package androidx.collection {
     method public java.util.Collection<V!> values();
   }
 
+  public final class ArrayMapKt {
+    method public static inline <K, V> androidx.collection.ArrayMap<K,V> arrayMapOf();
+    method public static <K, V> androidx.collection.ArrayMap<K,V> arrayMapOf(kotlin.Pair<? extends K,? extends V>... pairs);
+  }
+
   public final class ArraySet<E> implements java.util.Collection<E> java.util.Set<E> {
     ctor public ArraySet();
     ctor public ArraySet(int);
@@ -43,6 +48,11 @@ package androidx.collection {
     method public Object![] toArray();
     method public <T> T![] toArray(T![]);
     method public E! valueAt(int);
+  }
+
+  public final class ArraySetKt {
+    method public static inline <T> androidx.collection.ArraySet<T> arraySetOf();
+    method public static <T> androidx.collection.ArraySet<T> arraySetOf(T?... values);
   }
 
   public final class CircularArray<E> {
@@ -146,6 +156,10 @@ package androidx.collection {
     method public void trimToSize(int maxSize);
   }
 
+  public final class LruCacheKt {
+    method public static inline <K, V> androidx.collection.LruCache<K,V> lruCache(int maxSize, optional kotlin.jvm.functions.Function2<? super K,? super V,java.lang.Integer> sizeOf, optional kotlin.jvm.functions.Function1<? super K,? extends V> create, optional kotlin.jvm.functions.Function4<? super java.lang.Boolean,? super K,? super V,? super V,kotlin.Unit> onEntryRemoved);
+  }
+
   public class SimpleArrayMap<K, V> {
     ctor public SimpleArrayMap(optional int capacity);
     ctor public SimpleArrayMap();
@@ -201,6 +215,20 @@ package androidx.collection {
     method public int size();
     method public E! valueAt(int index);
     property public final boolean isEmpty;
+  }
+
+  public final class SparseArrayKt {
+    method public static inline operator <T> boolean contains(androidx.collection.SparseArrayCompat<T>, int key);
+    method public static inline <T> void forEach(androidx.collection.SparseArrayCompat<T>, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,kotlin.Unit> action);
+    method public static inline <T> T! getOrDefault(androidx.collection.SparseArrayCompat<T>, int key, T? defaultValue);
+    method public static inline <T> T! getOrElse(androidx.collection.SparseArrayCompat<T>, int key, kotlin.jvm.functions.Function0<? extends T> defaultValue);
+    method public static inline <T> int getSize(androidx.collection.SparseArrayCompat<T>);
+    method public static inline <T> boolean isNotEmpty(androidx.collection.SparseArrayCompat<T>);
+    method public static <T> kotlin.collections.IntIterator keyIterator(androidx.collection.SparseArrayCompat<T>);
+    method public static operator <T> androidx.collection.SparseArrayCompat<T> plus(androidx.collection.SparseArrayCompat<T>, androidx.collection.SparseArrayCompat<T> other);
+    method @Deprecated public static <T> boolean remove(androidx.collection.SparseArrayCompat<T>, int key, T? value);
+    method public static inline operator <T> void set(androidx.collection.SparseArrayCompat<T>, int key, T? value);
+    method public static <T> java.util.Iterator<T> valueIterator(androidx.collection.SparseArrayCompat<T>);
   }
 
 }
