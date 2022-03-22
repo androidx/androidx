@@ -13,12 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.health.platform.client.service;
+package androidx.health.data.client.permission
 
-import androidx.health.platform.client.response.AggregateDataResponse;
-import androidx.health.platform.client.error.ErrorStatus;
+import androidx.annotation.IntDef
+import androidx.annotation.RestrictTo
 
-oneway interface IAggregateDataCallback {
-  void onSuccess(in AggregateDataResponse response) = 0;
-  void onError(in ErrorStatus status) = 1;
+/** Type of access to health data: read or write. */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+public object AccessTypes {
+    const val READ = 1
+    const val WRITE = 2
 }
+
+/**
+ * Type of access to health data: read or write.
+ *
+ * @suppress
+ */
+@Retention(AnnotationRetention.SOURCE)
+@IntDef(
+    value =
+        [
+            AccessTypes.READ,
+            AccessTypes.WRITE,
+        ]
+)
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+annotation class AccessType
