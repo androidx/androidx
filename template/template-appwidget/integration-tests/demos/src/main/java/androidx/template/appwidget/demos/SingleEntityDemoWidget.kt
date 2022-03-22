@@ -17,6 +17,7 @@
 package androidx.template.appwidget.demos
 
 import android.content.Context
+import androidx.compose.runtime.Composable
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.glance.GlanceId
@@ -24,17 +25,53 @@ import androidx.glance.ImageProvider
 import androidx.glance.action.ActionParameters
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
+import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.state.updateAppWidgetState
-import androidx.template.appwidget.GlanceTemplateAppWidget
-import androidx.template.template.SingleEntityTemplate
+import androidx.glance.currentState
+import androidx.template.appwidget.SingleEntityTemplate
+import androidx.template.template.SingleEntityTemplateData
 import androidx.template.template.TemplateImageWithDescription
 import androidx.template.template.TemplateText
 import androidx.template.template.TemplateTextButton
 import androidx.template.template.TemplateText.Type
 
-class SingleEntityDemoWidget : GlanceTemplateAppWidget(SingleEntityInputWidgetTemplate)
+/**
+ * Demo app widget using [SingleEntityTemplate] to define layout.
+ */
+class SingleEntityDemoWidget : GlanceAppWidget() {
+    override val sizeMode = SizeMode.Exact
+
+    @Composable
+    override fun Content() {
+        SingleEntityTemplate(
+            SingleEntityTemplateData(
+                header = TemplateText("Single Entity Demo", Type.Title),
+                headerIcon = TemplateImageWithDescription(
+                    ImageProvider(R.drawable.compose),
+                    "Header icon"
+                ),
+                text1 = TemplateText(
+                    getTitle(currentState<Preferences>()[ToggleKey] == true), Type.Title
+                ),
+                text2 = TemplateText("Subtitle", Type.Label),
+                text3 = TemplateText(
+                    "Body Lorem ipsum dolor sit amet, consectetur adipiscing elit",
+                    Type.Body
+                ),
+                button = TemplateTextButton(
+                    actionRunCallback<SEButtonAction>(),
+                    "Toggle title"
+                ),
+                image = TemplateImageWithDescription(
+                    ImageProvider(R.drawable.compose),
+                    "Compose image"
+                )
+            )
+        )
+    }
+}
 
 class SingleEntityWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = SingleEntityDemoWidget()
@@ -48,32 +85,5 @@ class SEButtonAction : ActionCallback {
 }
 
 private val ToggleKey = booleanPreferencesKey("title_toggled_key")
-
-/** A [SingleEntityTemplate] implementation that sets the title given widget state */
-private object SingleEntityInputWidgetTemplate : SingleEntityTemplate() {
-    override fun getData(state: Any?): Data = createData((state as Preferences)[ToggleKey] == true)
-}
-
-private fun createData(toggled: Boolean) = SingleEntityTemplate.Data(
-    header = TemplateText("Single Entity Demo", Type.Title),
-    headerIcon = TemplateImageWithDescription(
-        ImageProvider(R.drawable.compose),
-        "Header icon"
-    ),
-    text1 = TemplateText(getTitle(toggled), Type.Title),
-    text2 = TemplateText("Subtitle", Type.Label),
-    text3 = TemplateText(
-        "Body Lorem ipsum dolor sit amet, consectetur adipiscing elit",
-        Type.Body
-    ),
-    button = TemplateTextButton(
-        actionRunCallback<SEButtonAction>(),
-        "Toggle title"
-    ),
-    image = TemplateImageWithDescription(
-        ImageProvider(R.drawable.compose),
-        "Compose image"
-    )
-)
 
 private fun getTitle(toggled: Boolean) = if (toggled) "Title2" else "Title1"

@@ -1,15 +1,13 @@
 // Signature format: 4.0
 package androidx.template.template {
 
-  public abstract class FreeformTemplate extends androidx.template.template.GlanceTemplate<androidx.template.template.FreeformTemplate.Data> {
-    ctor public FreeformTemplate();
-    method @androidx.compose.runtime.Composable public void WidgetLayoutCollapsed();
-    method @androidx.compose.runtime.Composable public void WidgetLayoutHorizontal();
-    method @androidx.compose.runtime.Composable public void WidgetLayoutVertical();
+  public final class CompositionLocalsKt {
+    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.template.template.TemplateMode> getLocalTemplateMode();
+    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.template.template.TemplateMode> LocalTemplateMode;
   }
 
-  public static final class FreeformTemplate.Data {
-    ctor public FreeformTemplate.Data(androidx.glance.unit.ColorProvider backgroundColor, androidx.template.template.TemplateImageWithDescription headerIcon, androidx.template.template.TemplateImageButton? actionIcon, optional androidx.template.template.TemplateText? header, optional androidx.template.template.TemplateText? title, optional androidx.template.template.TemplateText? subtitle, optional androidx.glance.ImageProvider? backgroundImage);
+  public final class FreeformTemplateData {
+    ctor public FreeformTemplateData(androidx.glance.unit.ColorProvider backgroundColor, androidx.template.template.TemplateImageWithDescription headerIcon, androidx.template.template.TemplateImageButton? actionIcon, optional androidx.template.template.TemplateText? header, optional androidx.template.template.TemplateText? title, optional androidx.template.template.TemplateText? subtitle, optional androidx.glance.ImageProvider? backgroundImage);
     method public androidx.template.template.TemplateImageButton? getActionIcon();
     method public androidx.glance.unit.ColorProvider getBackgroundColor();
     method public androidx.glance.ImageProvider? getBackgroundImage();
@@ -26,15 +24,8 @@ package androidx.template.template {
     property public final androidx.template.template.TemplateText? title;
   }
 
-  public abstract class GalleryTemplate extends androidx.template.template.GlanceTemplate<androidx.template.template.GalleryTemplate.Data> {
-    ctor public GalleryTemplate();
-    method @androidx.compose.runtime.Composable public void WidgetLayoutCollapsed();
-    method @androidx.compose.runtime.Composable public void WidgetLayoutHorizontal();
-    method @androidx.compose.runtime.Composable public void WidgetLayoutVertical();
-  }
-
-  public static final class GalleryTemplate.Data {
-    ctor public GalleryTemplate.Data(String header, String title, String headline, androidx.template.template.TemplateImageWithDescription image, androidx.template.template.TemplateImageWithDescription logo, androidx.glance.unit.ColorProvider backgroundColor);
+  public final class GalleryTemplateData {
+    ctor public GalleryTemplateData(String header, String title, String headline, androidx.template.template.TemplateImageWithDescription image, androidx.template.template.TemplateImageWithDescription logo, androidx.glance.unit.ColorProvider backgroundColor);
     method public androidx.glance.unit.ColorProvider getBackgroundColor();
     method public String getHeader();
     method public String getHeadline();
@@ -49,42 +40,24 @@ package androidx.template.template {
     property public final String title;
   }
 
-  public abstract class GlanceTemplate<T> {
-    ctor public GlanceTemplate();
-    method @androidx.compose.runtime.Composable public abstract void WidgetLayoutCollapsed();
-    method @androidx.compose.runtime.Composable public abstract void WidgetLayoutHorizontal();
-    method @androidx.compose.runtime.Composable public abstract void WidgetLayoutVertical();
-    method public abstract T! getData(Object? state);
-  }
-
-  public final class GlanceTemplateKt {
-  }
-
-  public abstract class ListTemplate extends androidx.template.template.GlanceTemplate<androidx.template.template.ListTemplate.Data> {
-    ctor public ListTemplate();
-    method @androidx.compose.runtime.Composable public void WidgetLayoutCollapsed();
-    method @androidx.compose.runtime.Composable public void WidgetLayoutHorizontal();
-    method @androidx.compose.runtime.Composable public void WidgetLayoutVertical();
-  }
-
-  public static final class ListTemplate.Data {
-    ctor public ListTemplate.Data(androidx.template.template.TemplateImageWithDescription headerIcon, optional java.util.List<androidx.template.template.ListTemplate.ListItem> listContent, optional androidx.template.template.TemplateText? header, optional androidx.template.template.TemplateText? title, optional androidx.template.template.TemplateTextButton? button, optional androidx.glance.unit.ColorProvider? backgroundColor);
+  public final class ListTemplateData {
+    ctor public ListTemplateData(androidx.template.template.TemplateImageWithDescription headerIcon, optional java.util.List<androidx.template.template.ListTemplateItem> listContent, optional androidx.template.template.TemplateText? header, optional androidx.template.template.TemplateText? title, optional androidx.template.template.TemplateTextButton? button, optional androidx.glance.unit.ColorProvider? backgroundColor);
     method public androidx.glance.unit.ColorProvider? getBackgroundColor();
     method public androidx.template.template.TemplateTextButton? getButton();
     method public androidx.template.template.TemplateText? getHeader();
     method public androidx.template.template.TemplateImageWithDescription getHeaderIcon();
-    method public java.util.List<androidx.template.template.ListTemplate.ListItem> getListContent();
+    method public java.util.List<androidx.template.template.ListTemplateItem> getListContent();
     method public androidx.template.template.TemplateText? getTitle();
     property public final androidx.glance.unit.ColorProvider? backgroundColor;
     property public final androidx.template.template.TemplateTextButton? button;
     property public final androidx.template.template.TemplateText? header;
     property public final androidx.template.template.TemplateImageWithDescription headerIcon;
-    property public final java.util.List<androidx.template.template.ListTemplate.ListItem> listContent;
+    property public final java.util.List<androidx.template.template.ListTemplateItem> listContent;
     property public final androidx.template.template.TemplateText? title;
   }
 
-  public static final class ListTemplate.ListItem {
-    ctor public ListTemplate.ListItem(androidx.template.template.TemplateText title, androidx.template.template.TemplateText? body, androidx.glance.action.Action? action, androidx.template.template.TemplateImageWithDescription? image, androidx.template.template.TemplateButton? button);
+  public final class ListTemplateItem {
+    ctor public ListTemplateItem(androidx.template.template.TemplateText title, androidx.template.template.TemplateText? body, androidx.glance.action.Action? action, androidx.template.template.TemplateImageWithDescription? image, androidx.template.template.TemplateButton? button);
     method public androidx.glance.action.Action? getAction();
     method public androidx.template.template.TemplateText? getBody();
     method public androidx.template.template.TemplateButton? getButton();
@@ -97,15 +70,8 @@ package androidx.template.template {
     property public final androidx.template.template.TemplateText title;
   }
 
-  public abstract class SingleEntityTemplate extends androidx.template.template.GlanceTemplate<androidx.template.template.SingleEntityTemplate.Data> {
-    ctor public SingleEntityTemplate();
-    method @androidx.compose.runtime.Composable public void WidgetLayoutCollapsed();
-    method @androidx.compose.runtime.Composable public void WidgetLayoutHorizontal();
-    method @androidx.compose.runtime.Composable public void WidgetLayoutVertical();
-  }
-
-  public static final class SingleEntityTemplate.Data {
-    ctor public SingleEntityTemplate.Data(optional boolean displayHeader, optional androidx.template.template.TemplateImageWithDescription? headerIcon, optional androidx.template.template.TemplateText? header, optional androidx.template.template.TemplateText? text1, optional androidx.template.template.TemplateText? text2, optional androidx.template.template.TemplateText? text3, optional androidx.template.template.TemplateButton? button, optional androidx.template.template.TemplateImageWithDescription? image);
+  public final class SingleEntityTemplateData {
+    ctor public SingleEntityTemplateData(optional boolean displayHeader, optional androidx.template.template.TemplateImageWithDescription? headerIcon, optional androidx.template.template.TemplateText? header, optional androidx.template.template.TemplateText? text1, optional androidx.template.template.TemplateText? text2, optional androidx.template.template.TemplateText? text3, optional androidx.template.template.TemplateButton? button, optional androidx.template.template.TemplateImageWithDescription? image);
     method public androidx.template.template.TemplateButton? getButton();
     method public boolean getDisplayHeader();
     method public androidx.template.template.TemplateText? getHeader();
@@ -145,6 +111,12 @@ package androidx.template.template {
     property public final androidx.glance.ImageProvider image;
   }
 
+  public enum TemplateMode {
+    enum_constant public static final androidx.template.template.TemplateMode Collapsed;
+    enum_constant public static final androidx.template.template.TemplateMode Horizontal;
+    enum_constant public static final androidx.template.template.TemplateMode Vertical;
+  }
+
   public final class TemplateText {
     ctor public TemplateText(String text, androidx.template.template.TemplateText.Type type);
     method public String getText();
@@ -164,11 +136,6 @@ package androidx.template.template {
     ctor public TemplateTextButton(androidx.glance.action.Action action, String text);
     method public String getText();
     property public final String text;
-  }
-
-  public final class TemplateTranslator {
-    ctor public TemplateTranslator();
-    method @androidx.compose.runtime.Composable public void TemplateContent(androidx.template.template.GlanceTemplate<?> template);
   }
 
 }
