@@ -43,6 +43,7 @@ import androidx.camera.camera2.internal.compat.workaround.TargetAspectRatio;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.Logger;
+import androidx.camera.core.impl.AttachedSurfaceInfo;
 import androidx.camera.core.impl.ImageFormatConstants;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.SurfaceCombination;
@@ -198,23 +199,27 @@ final class SupportedSurfaceCombination {
     /**
      * Finds the suggested resolutions of the newly added UseCaseConfig.
      *
-     * @param existingSurfaces the existing surfaces.
+     * @param existingSurfaces  the existing surfaces.
      * @param newUseCaseConfigs newly added UseCaseConfig.
      * @return the suggested resolutions, which is a mapping from UseCaseConfig to the suggested
      * resolution.
      * @throws IllegalArgumentException if the suggested solution for newUseCaseConfigs cannot be
-     * found. This may be due to no available output size or no available surface combination.
+     *                                  found. This may be due to no available output size or no
+     *                                  available surface combination.
      */
     @NonNull
     Map<UseCaseConfig<?>, Size> getSuggestedResolutions(
-            @NonNull List<SurfaceConfig> existingSurfaces,
+            @NonNull List<AttachedSurfaceInfo> existingSurfaces,
             @NonNull List<UseCaseConfig<?>> newUseCaseConfigs) {
-       // Refresh Preview Size based on current display configurations.
+        // Refresh Preview Size based on current display configurations.
         refreshPreviewSize();
+        List<SurfaceConfig> surfaceConfigs = new ArrayList<>();
+        for (AttachedSurfaceInfo scc : existingSurfaces) {
+            surfaceConfigs.add(scc.getSurfaceConfig());
+        }
 
         // Use the small size (640x480) for new use cases to check whether there is any possible
         // supported combination first
-        List<SurfaceConfig> surfaceConfigs = new ArrayList<>(existingSurfaces);
         for (UseCaseConfig<?> useCaseConfig : newUseCaseConfigs) {
             surfaceConfigs.add(
                     transformSurfaceConfig(useCaseConfig.getInputFormat(),
@@ -248,7 +253,10 @@ final class SupportedSurfaceCombination {
         // Transform use cases to SurfaceConfig list and find the first (best) workable combination
         for (List<Size> possibleSizeList : allPossibleSizeArrangements) {
             // Attach SurfaceConfig of original use cases since it will impact the new use cases
-            List<SurfaceConfig> surfaceConfigList = new ArrayList<>(existingSurfaces);
+            List<SurfaceConfig> surfaceConfigList = new ArrayList<>();
+            for (AttachedSurfaceInfo sc : existingSurfaces) {
+                surfaceConfigList.add(sc.getSurfaceConfig());
+            }
 
             // Attach SurfaceConfig of new use cases
             for (int i = 0; i < possibleSizeList.size(); i++) {
