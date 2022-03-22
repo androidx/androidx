@@ -84,6 +84,41 @@ internal class ConsumerAdapter(
         }
     }
 
+    @CheckResult
+    fun <T : Any> createSubscriptionNoActivity(
+        obj: Any,
+        clazz: KClass<T>,
+        addMethodName: String,
+        removeMethodName: String,
+        consumer: (T) -> Unit
+    ): Subscription {
+        val javaConsumer = buildConsumer(clazz, consumer)
+        obj.javaClass.getMethod(addMethodName, unsafeConsumerClass())
+            .invoke(obj, javaConsumer)
+        val removeMethod = obj.javaClass.getMethod(removeMethodName, unsafeConsumerClass())
+        return object : Subscription {
+            override fun dispose() {
+                removeMethod.invoke(obj, javaConsumer)
+            }
+        }
+    }
+
+    /**
+     * Similar to {@link #createSubscription} but without needing to provide
+     * a {@code removeMethodName} due to it being handled on the extensions side
+     */
+    fun <T : Any> createConsumer(
+        obj: Any,
+        clazz: KClass<T>,
+        addMethodName: String,
+        activity: Activity,
+        consumer: (T) -> Unit
+    ) {
+        val javaConsumer = buildConsumer(clazz, consumer)
+        obj.javaClass.getMethod(addMethodName, Activity::class.java, unsafeConsumerClass())
+            .invoke(obj, activity, javaConsumer)
+        }
+
     private class ConsumerHandler<T : Any>(
         private val clazz: KClass<T>,
         private val consumer: (T) -> Unit
