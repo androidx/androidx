@@ -20,8 +20,7 @@ import androidx.room.androidx.room.integration.kotlintestapp.vo.Email
 import androidx.room.androidx.room.integration.kotlintestapp.vo.User
 import androidx.room.integration.kotlintestapp.test.TestDatabaseTest
 import androidx.test.filters.MediumTest
-import org.hamcrest.CoreMatchers
-import org.hamcrest.MatcherAssert
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
 @MediumTest
@@ -45,8 +44,6 @@ class UsersDaoTest : TestDatabaseTest() {
         expectedList.add(User(USER_3.userId, USER_3.email, null))
         expectedList.add(User(USER_4.userId, USER_4.email, null))
 
-        MatcherAssert.assertThat(
-            database.usersDao().getUsers(), CoreMatchers.`is`<List<User>>(expectedList)
-        )
+        assertThat(database.usersDao().getUsers()).containsExactlyElementsIn(expectedList)
     }
 }
