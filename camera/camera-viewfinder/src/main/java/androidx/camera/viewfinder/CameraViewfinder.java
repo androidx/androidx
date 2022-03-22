@@ -22,6 +22,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.display.DisplayManager;
 import android.os.Build;
 import android.os.Handler;
@@ -39,7 +40,6 @@ import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
 import androidx.camera.viewfinder.internal.quirk.DeviceQuirks;
 import androidx.camera.viewfinder.internal.quirk.SurfaceViewNotCroppedByParentQuirk;
@@ -53,16 +53,12 @@ import androidx.core.view.ViewCompat;
 import com.google.common.util.concurrent.ListenableFuture;
 
 /**
- * Base view finder that displays the camera feed for Camera2 and CameraX.
+ * Base viewfinder widget that can display the camera feed for Camera2.
  *
- * <p> This class manages the viewfinder {@link Surface}'s lifecycle. It internally uses either a
- * {@link TextureView} or {@link SurfaceView} to display the camera feed, and applies required
- * transformations on them to correctly display the viewfinder, this involves correcting their
- * aspect ratio, scale and rotation.
- *
- * @hide
+ * <p> It internally uses either a {@link TextureView} or {@link SurfaceView} to display the
+ * camera feed, and applies required transformations on them to correctly display the viewfinder,
+ * this involves correcting their aspect ratio, scale and rotation.
  */
-@RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class CameraViewfinder extends FrameLayout {
 
@@ -76,6 +72,7 @@ public final class CameraViewfinder extends FrameLayout {
     @NonNull
     final ViewfinderTransformation mViewfinderTransformation = new ViewfinderTransformation();
 
+    @SuppressWarnings("WeakerAccess")
     @NonNull
     private final DisplayRotationListener mDisplayRotationListener = new DisplayRotationListener();
 
@@ -84,8 +81,13 @@ public final class CameraViewfinder extends FrameLayout {
 
     @NonNull ImplementationMode mImplementationMode = DEFAULT_IMPL_MODE;
 
+    // Synthetic access
+    @SuppressWarnings("WeakerAccess")
     @Nullable
     ViewfinderImplementation mImplementation;
+
+    // Synthetic access
+    @SuppressWarnings("WeakerAccess")
     @Nullable
     ViewfinderSurfaceRequest mCurrentSurfaceRequest;
 
@@ -122,7 +124,6 @@ public final class CameraViewfinder extends FrameLayout {
                             CameraViewfinder.this, mViewfinderTransformation);
 
             mImplementation.onSurfaceRequested(surfaceRequest);
-
 
             Display display = getDisplay();
             if (display != null) {
@@ -190,11 +191,23 @@ public final class CameraViewfinder extends FrameLayout {
     /**
      * Sets the {@link ImplementationMode} for the {@link CameraViewfinder}.
      *
+     * <p> This value can also be set in the layout XML file via the {@code app:implementationMode}
+     * attribute.
+     *
      * <p> {@link CameraViewfinder} displays the viewfinder with a {@link TextureView} when the
      * mode is {@link ImplementationMode#COMPATIBLE}, and tries to use a {@link SurfaceView} if
      * it is {@link ImplementationMode#PERFORMANCE} when possible, which depends on the device's
      * attributes (e.g. API level). If not set, the default mode is
      * {@link ImplementationMode#PERFORMANCE}.
+     *
+     * <p> This method should be called after {@link CameraViewfinder} is inflated and before
+     * {@link CameraViewfinder#requestSurfaceAsync(ViewfinderSurfaceRequest)}. If a new
+     * {@link ImplementationMode} is set, the
+     * {@link CameraViewfinder#requestSurfaceAsync(ViewfinderSurfaceRequest)} needs to be called
+     * again to make it effective.
+     *
+     * @param implementationMode The {@link ImplementationMode} to apply to the viewfinder.
+     * @attr name app:implementationMode
      */
     @UiThread
     public void setImplementationMode(@NonNull final ImplementationMode implementationMode) {
@@ -225,7 +238,12 @@ public final class CameraViewfinder extends FrameLayout {
      *
      * <p> The default value is {@link ScaleType#FILL_CENTER}.
      *
-     * @param scaleType A {@link ScaleType} to apply to the viewfinder.
+     * <p> This method should be called after {@link CameraViewfinder} is inflated and can be
+     * called before or after
+     * {@link CameraViewfinder#requestSurfaceAsync(ViewfinderSurfaceRequest)}. The
+     * {@link ScaleType} to set will be effective immediately after the method is called.
+     *
+     * @param scaleType The {@link ScaleType} to apply to the viewfinder.
      * @attr name app:scaleType
      */
     @UiThread
@@ -250,10 +268,40 @@ public final class CameraViewfinder extends FrameLayout {
     }
 
     /**
-     * Request surface asynchronously.
+     * Requests surface by sending a {@link ViewfinderSurfaceRequest}.
      *
-     * @param surfaceRequest surface request.
-     * @return surface.
+     * <p> Only one request can be handled at the same time. If requesting a surface with
+     * the same {@link ViewfinderSurfaceRequest}, the previous requested surface will be returned.
+     * If requesting a surface with a new {@link ViewfinderSurfaceRequest}, the previous
+     * requested surface will be released and a new surface will be requested.
+     *
+     * <p> The result is a {@link ListenableFuture} of {@link Surface}, which provides the
+     * functionality to attach listeners and propagate exceptions.
+     *
+     * <pre>
+     * ViewfinderSurfaceRequest request = new ViewfinderSurfaceRequest(
+     *     new Size(width, height), cameraManager.getCameraCharacteristics(cameraId));
+     *
+     * ListenableFuture<Surface> surfaceListenableFuture =
+     *     mCameraViewFinder.requestSurfaceAsync(request);
+     *
+     * Futures.addCallback(surfaceListenableFuture, new FutureCallback<Surface>() {
+     *     {@literal @}Override
+     *     public void onSuccess({@literal @}Nullable Surface surface) {
+     *         if (surface != null) {
+     *             createCaptureSession(surface);
+     *         }
+     *     }
+     *
+     *     {@literal @}Override
+     *     public void onFailure(Throwable t) {}
+     * }, ContextCompat.getMainExecutor(getContext()));
+     * </pre>
+     *
+     * @param surfaceRequest The {@link ViewfinderSurfaceRequest} to get a surface.
+     * @return The requested surface.
+     *
+     * @see ViewfinderSurfaceRequest
      */
     @UiThread
     @NonNull
@@ -402,11 +450,16 @@ public final class CameraViewfinder extends FrameLayout {
     public enum ImplementationMode {
 
         /**
-         * Use a {@link SurfaceView} for the viewfinder when possible. If the device
-         * doesn't support {@link SurfaceView}, {@link CameraViewfinder} will fall back to use a
-         * {@link TextureView} instead.
+         * Use a {@link SurfaceView} for the viewfinder when possible. A SurfaceView has somewhat
+         * lower latency and less performance and power overhead than a TextureView. Use this
          *
-         * <p>{@link CameraViewfinder} falls back to {@link TextureView} when the API level is 24.
+         * If the device doesn't support {@link SurfaceView}, {@link CameraViewfinder} will fall
+         * back to use a {@link TextureView} instead.
+         *
+         * <p>{@link CameraViewfinder} falls back to {@link TextureView} when the API level is 24 or
+         * lower, the camera hardware support level is
+         * {@link CameraCharacteristics#INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY}.
+         *
          */
         PERFORMANCE(0),
 

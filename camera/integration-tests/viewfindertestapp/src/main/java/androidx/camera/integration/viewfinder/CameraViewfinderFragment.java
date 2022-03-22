@@ -96,7 +96,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Fragment for {@link CameraViewfinder}.
  */
-public class CameraViewFinderFragment extends Fragment
+public class CameraViewfinderFragment extends Fragment
         implements View.OnClickListener, ActivityCompat.OnRequestPermissionsResultCallback {
 
     /**
@@ -413,12 +413,12 @@ public class CameraViewFinderFragment extends Fragment
     }
 
     /**
-     * Returns {@link CameraViewFinderFragment} instance.
-     * @return {@link CameraViewFinderFragment}.
+     * Returns {@link CameraViewfinderFragment} instance.
+     * @return {@link CameraViewfinderFragment}.
      */
     @NonNull
-    public static CameraViewFinderFragment newInstance() {
-        return new CameraViewFinderFragment();
+    public static CameraViewfinderFragment newInstance() {
+        return new CameraViewfinderFragment();
     }
 
     @Nullable
@@ -593,12 +593,7 @@ public class CameraViewFinderFragment extends Fragment
 
                 @OptIn(markerClass = ExperimentalViewfinder.class)
                 ViewfinderSurfaceRequest viewfinderSurfaceRequest = new ViewfinderSurfaceRequest(
-                        mViewfinderSize,
-                        characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)
-                                == CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
-                        facing == CameraCharacteristics.LENS_FACING_FRONT,
-                        mSensorOrientation);
-
+                        mViewfinderSize, characteristics);
                 mViewfinderSurfaceRequest = viewfinderSurfaceRequest;
                 return;
             }

@@ -18,8 +18,8 @@ package androidx.camera.viewfinder
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.hardware.camera2.CameraManager
 import android.util.Size
-import android.view.Display
 import android.view.Surface
 import androidx.camera.viewfinder.CameraViewfinder.ImplementationMode.COMPATIBLE
 import androidx.camera.viewfinder.CameraViewfinder.ImplementationMode.PERFORMANCE
@@ -40,6 +40,7 @@ import com.google.common.truth.Truth
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.atomic.AtomicReference
 import org.junit.After
+import org.junit.Assume
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -65,19 +66,20 @@ class CameraViewfinderBitmapTest {
     private val mInstrumentation = InstrumentationRegistry.getInstrumentation()
     private lateinit var mSurfaceRequest: ViewfinderSurfaceRequest
     private lateinit var mContext: Context
-    private lateinit var mDisplay: Display
 
     @Before
     fun setUp() {
         CoreAppTestUtil.prepareDeviceUI(mInstrumentation)
         mContext = ApplicationProvider.getApplicationContext()
 
-        mSurfaceRequest = ViewfinderSurfaceRequest(
-            ANY_SIZE,
-            /*isLegacyDevice=*/true,
-            /*isFrontCamera=*/true,
-            /*sensorOrientation=*/0
-        )
+        val cameraManager = ApplicationProvider.getApplicationContext<Context>().getSystemService(
+            Context.CAMERA_SERVICE
+        ) as CameraManager
+        val cameraIds = cameraManager.cameraIdList
+        Assume.assumeTrue("No cameras found on device.", cameraIds.isNotEmpty())
+        val cameraId = cameraIds[0]
+        val characteristics = cameraManager.getCameraCharacteristics(cameraId)
+        mSurfaceRequest = ViewfinderSurfaceRequest(ANY_SIZE, characteristics)
     }
 
     @After
