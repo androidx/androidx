@@ -17,11 +17,19 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#FFFFFFFF"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <Button
+        android:id="@+id/switch_area"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Switch Area"
+        android:visibility="invisible"/>
 
     <androidx.camera.viewfinder.CameraViewfinder
         android:id="@+id/view_finder"
-        app:scaleType="fillCenter"
+        app:scaleType="fitCenter"
         app:implementationMode="performance"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>

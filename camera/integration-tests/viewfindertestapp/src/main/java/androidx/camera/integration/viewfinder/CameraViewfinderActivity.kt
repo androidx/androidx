@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,27 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.camera.integration.viewfinder;
 
-import android.os.Bundle;
+package androidx.camera.integration.viewfinder
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.camera.viewfinder.CameraViewfinder;
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 
 /**
  * Activity for {@link CameraViewfinder}.
  */
-public class CameraActivity extends AppCompatActivity {
+class CameraViewfinderActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_camera);
+        setContentView(R.layout.activity_camera)
         if (null == savedInstanceState) {
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.container, new CameraViewfinderFragment())
-                    .commit();
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.container, CameraViewfinderFoldableFragment())
+                .commit()
         }
     }
 }
