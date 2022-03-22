@@ -45,6 +45,18 @@ class UpdateMethodProcessorTest : ShortcutMethodProcessorTest<UpdateMethod>(Upda
     }
 
     @Test
+    fun defaultConflict() {
+        singleShortcutMethod(
+            """
+                @Update
+                abstract public void foo(User user);
+                """
+        ) { shortcut, _ ->
+            assertThat(shortcut.onConflictStrategy, `is`(OnConflictStrategy.NONE))
+        }
+    }
+
+    @Test
     fun goodConflict() {
         singleShortcutMethod(
             """

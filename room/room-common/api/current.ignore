@@ -55,6 +55,8 @@ ChangedValue: androidx.room.Index#orders():
     Method androidx.room.Index.orders has changed value from {} to nothing
 ChangedValue: androidx.room.Insert#entity():
     Method androidx.room.Insert.entity has changed value from java.lang.Object.class to java.lang.Object
+ChangedValue: androidx.room.Insert#onConflict():
+    Method androidx.room.Insert.onConflict has changed value from androidx.room.OnConflictStrategy.ABORT to androidx.room.OnConflictStrategy.NONE
 ChangedValue: androidx.room.RawQuery#observedEntities():
     Method androidx.room.RawQuery.observedEntities has changed value from {} to nothing
 ChangedValue: androidx.room.Relation#associateBy():
@@ -69,3 +71,5 @@ ChangedValue: androidx.room.TypeConverters#value():
     Method androidx.room.TypeConverters.value has changed value from {} to nothing
 ChangedValue: androidx.room.Update#entity():
     Method androidx.room.Update.entity has changed value from java.lang.Object.class to java.lang.Object
+ChangedValue: androidx.room.Update#onConflict():
+    Method androidx.room.Update.onConflict has changed value from androidx.room.OnConflictStrategy.ABORT to androidx.room.OnConflictStrategy.NONE

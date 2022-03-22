@@ -64,9 +64,22 @@ class EntityUpdateAdapterWriter private constructor(
                     addAnnotation(Override::class.java)
                     addModifiers(PUBLIC)
                     returns(ClassName.get("java.lang", "String"))
-                    val query = "UPDATE OR $onConflict `$tableName` SET " +
-                        pojo.columnNames.joinToString(",") { "`$it` = ?" } + " WHERE " +
-                        primaryKeyFields.columnNames.joinToString(" AND ") { "`$it` = ?" }
+                    val pojoCols = pojo.columnNames.joinToString(",") {
+                        "`$it` = ?"
+                    }
+                    val pkFieldsCols = primaryKeyFields.columnNames.joinToString(" AND ") {
+                        "`$it` = ?"
+                    }
+                    val query = buildString {
+                        if (onConflict.isNotEmpty()) {
+                            append("UPDATE OR $onConflict `$tableName` SET")
+                        } else {
+                            append("UPDATE `$tableName` SET")
+                        }
+                        append(" $pojoCols")
+                        append(" WHERE")
+                        append(" $pkFieldsCols")
+                    }
                     addStatement("return $S", query)
                 }.build()
             )

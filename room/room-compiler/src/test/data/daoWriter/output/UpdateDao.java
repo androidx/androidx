@@ -26,6 +26,8 @@ public final class UpdateDao_Impl implements UpdateDao {
 
   private final EntityDeletionOrUpdateAdapter<User> __updateAdapterOfUser;
 
+  private final EntityDeletionOrUpdateAdapter<User> __updateAdapterOfUser_1;
+
   private final EntityDeletionOrUpdateAdapter<MultiPKeyEntity> __updateAdapterOfMultiPKeyEntity;
 
   private final EntityDeletionOrUpdateAdapter<Book> __updateAdapterOfBook;
@@ -37,6 +39,29 @@ public final class UpdateDao_Impl implements UpdateDao {
   public UpdateDao_Impl(RoomDatabase __db) {
     this.__db = __db;
     this.__updateAdapterOfUser = new EntityDeletionOrUpdateAdapter<User>(__db) {
+      @Override
+      public String createQuery() {
+        return "UPDATE `User` SET `uid` = ?,`name` = ?,`lastName` = ?,`ageColumn` = ? WHERE `uid` = ?";
+      }
+
+      @Override
+      public void bind(SupportSQLiteStatement stmt, User value) {
+        stmt.bindLong(1, value.uid);
+        if (value.name == null) {
+          stmt.bindNull(2);
+        } else {
+          stmt.bindString(2, value.name);
+        }
+        if (value.getLastName() == null) {
+          stmt.bindNull(3);
+        } else {
+          stmt.bindString(3, value.getLastName());
+        }
+        stmt.bindLong(4, value.age);
+        stmt.bindLong(5, value.uid);
+      }
+    };
+    this.__updateAdapterOfUser_1 = new EntityDeletionOrUpdateAdapter<User>(__db) {
       @Override
       public String createQuery() {
         return "UPDATE OR ABORT `User` SET `uid` = ?,`name` = ?,`lastName` = ?,`ageColumn` = ? WHERE `uid` = ?";
@@ -62,7 +87,7 @@ public final class UpdateDao_Impl implements UpdateDao {
     this.__updateAdapterOfMultiPKeyEntity = new EntityDeletionOrUpdateAdapter<MultiPKeyEntity>(__db) {
       @Override
       public String createQuery() {
-        return "UPDATE OR ABORT `MultiPKeyEntity` SET `name` = ?,`lastName` = ? WHERE `name` = ? AND `lastName` = ?";
+        return "UPDATE `MultiPKeyEntity` SET `name` = ?,`lastName` = ? WHERE `name` = ? AND `lastName` = ?";
       }
 
       @Override
@@ -92,7 +117,7 @@ public final class UpdateDao_Impl implements UpdateDao {
     this.__updateAdapterOfBook = new EntityDeletionOrUpdateAdapter<Book>(__db) {
       @Override
       public String createQuery() {
-        return "UPDATE OR ABORT `Book` SET `bookId` = ?,`uid` = ? WHERE `bookId` = ?";
+        return "UPDATE `Book` SET `bookId` = ?,`uid` = ? WHERE `bookId` = ?";
       }
 
       @Override
@@ -149,6 +174,19 @@ public final class UpdateDao_Impl implements UpdateDao {
     __db.beginTransaction();
     try {
       __updateAdapterOfUser.handleMultiple(users);
+      __db.setTransactionSuccessful();
+    } finally {
+      __db.endTransaction();
+    }
+  }
+
+  @Override
+  public void updateTwoUsers(final User user1, final User user2) {
+    __db.assertNotSuspendingTransaction();
+    __db.beginTransaction();
+    try {
+      __updateAdapterOfUser_1.handle(user1);
+      __updateAdapterOfUser_1.handle(user2);
       __db.setTransactionSuccessful();
     } finally {
       __db.endTransaction();
