@@ -32,6 +32,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.hardware.display.DisplayManager;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -87,8 +88,10 @@ import androidx.camera.core.UseCaseGroup;
 import androidx.camera.core.ViewPort;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.lifecycle.ProcessCameraProvider;
+import androidx.camera.video.FileOutputOptions;
 import androidx.camera.video.MediaStoreOutputOptions;
 import androidx.camera.video.OutputOptions;
+import androidx.camera.video.PendingRecording;
 import androidx.camera.video.Quality;
 import androidx.camera.video.QualitySelector;
 import androidx.camera.video.Recorder;
@@ -96,6 +99,8 @@ import androidx.camera.video.Recording;
 import androidx.camera.video.RecordingStats;
 import androidx.camera.video.VideoCapture;
 import androidx.camera.video.VideoRecordEvent;
+import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
+import androidx.camera.video.internal.compat.quirk.MediaStoreVideoCannotWrite;
 import androidx.core.content.ContextCompat;
 import androidx.core.math.MathUtils;
 import androidx.core.util.Consumer;
@@ -375,9 +380,17 @@ public class CameraXActivity extends AppCompatActivity {
             switch (state) {
                 case IDLE:
                     createDefaultVideoFolderIfNotExist();
-                    // Use MediaStoreOutputOptions for public share media storage.
-                    mActiveRecording = getVideoCapture().getOutput()
-                            .prepareRecording(this, getNewVideoOutputMediaStoreOptions())
+                    final PendingRecording pendingRecording;
+                    if (DeviceQuirks.get(MediaStoreVideoCannotWrite.class) != null) {
+                        // Use FileOutputOption for devices in MediaStoreVideoCannotWrite Quirk.
+                        pendingRecording = getVideoCapture().getOutput().prepareRecording(
+                                this, getNewVideoFileOutputOptions());
+                    } else {
+                        // Use MediaStoreOutputOptions for public share media storage.
+                        pendingRecording = getVideoCapture().getOutput().prepareRecording(
+                                this, getNewVideoOutputMediaStoreOptions());
+                    }
+                    mActiveRecording = pendingRecording
                             .withAudioEnabled()
                             .start(ContextCompat.getMainExecutor(CameraXActivity.this),
                                     mVideoRecordEventListener);
@@ -483,6 +496,14 @@ public class CameraXActivity extends AppCompatActivity {
                                 getApplicationContext().getContentResolver(),
                                 uri
                         );
+                    } else if (outputOptions instanceof FileOutputOptions) {
+                        videoFilePath = ((FileOutputOptions) outputOptions).getFile().getPath();
+                        MediaScannerConnection.scanFile(this,
+                                new String[] { videoFilePath }, null,
+                                (path, uri1) -> {
+                                    Log.i(TAG, "Scanned " + path + " -> uri= " + uri1);
+                                });
+                        msg = "Saved file " + videoFilePath;
                     } else {
                         throw new AssertionError("Unknown or unsupported OutputOptions type: "
                                 + outputOptions.getClass().getSimpleName());
@@ -519,6 +540,17 @@ public class CameraXActivity extends AppCompatActivity {
                 MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
                 .setContentValues(contentValues)
                 .build();
+    }
+
+    @NonNull
+    private FileOutputOptions getNewVideoFileOutputOptions() {
+        String videoFileName = "video_" + System.currentTimeMillis() + ".mp4";
+        File videoFolder = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_MOVIES);
+        if (!videoFolder.exists() && !videoFolder.mkdirs()) {
+            Log.e(TAG, "Failed to create directory: " + videoFolder);
+        }
+        return new FileOutputOptions.Builder(new File(videoFolder, videoFileName)).build();
     }
 
     private void updateRecordingStats(@NonNull RecordingStats stats) {

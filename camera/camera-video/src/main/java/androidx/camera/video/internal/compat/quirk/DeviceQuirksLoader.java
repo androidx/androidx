@@ -65,6 +65,9 @@ public class DeviceQuirksLoader {
         if (ExcludeStretchedVideoQualityQuirk.load()) {
             quirks.add(new ExcludeStretchedVideoQualityQuirk());
         }
+        if (MediaStoreVideoCannotWrite.load()) {
+            quirks.add(new MediaStoreVideoCannotWrite());
+        }
 
         return quirks;
     }

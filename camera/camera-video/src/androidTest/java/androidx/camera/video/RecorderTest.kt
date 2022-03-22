@@ -50,6 +50,7 @@ import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_RECORDER_ERROR
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_SOURCE_INACTIVE
 import androidx.camera.video.internal.compat.quirk.DeactivateEncoderSurfaceBeforeStopEncoderQuirk
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks
+import androidx.camera.video.internal.compat.quirk.MediaStoreVideoCannotWrite
 import androidx.camera.video.internal.encoder.InvalidConfigException
 import androidx.core.util.Consumer
 import androidx.test.core.app.ApplicationProvider
@@ -258,6 +259,10 @@ class RecorderTest {
 
     @Test
     fun canRecordToMediaStore() {
+        assumeTrue(
+            "Ignore the test since the MediaStore.Video has compatibility issues.",
+            DeviceQuirks.get(MediaStoreVideoCannotWrite::class.java) == null
+        )
         invokeSurfaceRequest()
         val statusSemaphore = Semaphore(0)
         val finalizeSemaphore = Semaphore(0)
