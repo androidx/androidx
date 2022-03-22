@@ -26,6 +26,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -58,7 +59,6 @@ import androidx.car.app.activity.renderer.IRendererService;
 import androidx.car.app.activity.renderer.surface.LegacySurfacePackage;
 import androidx.car.app.activity.renderer.surface.SurfaceControlCallback;
 import androidx.car.app.serialization.Bundleable;
-import androidx.car.app.serialization.BundlerException;
 import androidx.core.graphics.Insets;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.Lifecycle;
@@ -66,6 +66,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -87,7 +88,8 @@ public class CarAppActivityTest {
     private final RenderServiceDelegate mRenderServiceDelegate =
             new RenderServiceDelegate(mRenderService);
 
-    private void setupCarAppActivityForTesting() {
+    @Before
+    public void setup() {
         try {
             Application app = ApplicationProvider.getApplicationContext();
 
@@ -119,270 +121,243 @@ public class CarAppActivityTest {
 
     @Test
     public void testRendererInitialization() {
-        setupCarAppActivityForTesting();
-        try (ActivityScenario<CarAppActivity> scenario = ActivityScenario.launch(
-                CarAppActivity.class)) {
-            scenario.onActivity(activity -> {
-                try {
-                    verify(mRenderService, times(1)).initialize(
-                            mRenderServiceDelegate.getCarAppActivity(),
-                            mFakeCarAppServiceComponent, activity.getDisplayId());
-                    verify(mRenderService, times(1)).onNewIntent(activity.getIntent(),
-                            mFakeCarAppServiceComponent, activity.getDisplayId());
-                } catch (RemoteException e) {
-                    fail(Log.getStackTraceString(e));
-                }
-            });
-        }
+        runOnActivity((scenario, activity) -> {
+            verify(mRenderService, times(1)).initialize(
+                    mRenderServiceDelegate.getCarAppActivity(),
+                    mFakeCarAppServiceComponent, activity.getDisplayId());
+            verify(mRenderService, times(1)).onNewIntent(activity.getIntent(),
+                    mFakeCarAppServiceComponent, activity.getDisplayId());
+
+        });
     }
 
     @Test
     public void testActivityLifecycleCallbacks() {
-        setupCarAppActivityForTesting();
-        try (ActivityScenario<CarAppActivity> scenario = ActivityScenario.launch(
-                CarAppActivity.class)) {
-            scenario.onActivity(activity -> {
-                IRendererCallback callback = mock(IRendererCallback.class);
-                try {
-                    mRenderServiceDelegate.getCarAppActivity().registerRendererCallback(callback);
-                    // Last observed event is reported as soon as callback is set.
-                    verify(callback, times(1)).onResume();
-                    // Verify lifecycle events are reported to registered callback.
-                    scenario.moveToState(Lifecycle.State.STARTED);
-                    verify(callback, times(1)).onPause();
-                    scenario.moveToState(Lifecycle.State.RESUMED);
-                    verify(callback, times(2)).onResume();
-                    scenario.moveToState(Lifecycle.State.CREATED);
-                    verify(callback, times(1)).onStop();
-                    scenario.moveToState(Lifecycle.State.CREATED);
-                    verify(callback, times(1)).onStop();
-                    scenario.moveToState(Lifecycle.State.DESTROYED);
-                    verify(callback, times(1)).onDestroyed();
-                } catch (RemoteException e) {
-                    fail(Log.getStackTraceString(e));
-                }
-            });
-        }
+        runOnActivity((scenario, activity) -> {
+            IRendererCallback callback = mock(IRendererCallback.class);
+            mRenderServiceDelegate.getCarAppActivity().registerRendererCallback(callback);
+            // Last observed event is reported as soon as callback is set.
+            verify(callback, times(1)).onResume();
+            // Verify lifecycle events are reported to registered callback.
+            scenario.moveToState(Lifecycle.State.STARTED);
+            verify(callback, times(1)).onPause();
+            scenario.moveToState(Lifecycle.State.RESUMED);
+            verify(callback, times(2)).onResume();
+            scenario.moveToState(Lifecycle.State.CREATED);
+            verify(callback, times(1)).onStop();
+            scenario.moveToState(Lifecycle.State.CREATED);
+            verify(callback, times(1)).onStop();
+            scenario.moveToState(Lifecycle.State.DESTROYED);
+            verify(callback, times(1)).onDestroyed();
+
+        });
     }
 
     @Test
     public void testOnServiceConnectionError() {
-        setupCarAppActivityForTesting();
-        try (ActivityScenario<CarAppActivity> scenario = ActivityScenario.launch(
-                CarAppActivity.class)) {
-            scenario.onActivity(activity -> {
-                try {
-                    IRendererCallback callback = mock(IRendererCallback.class);
-                    mRenderServiceDelegate.getCarAppActivity().registerRendererCallback(callback);
-                    // Last observed event is reported as soon as callback is set.
-                    verify(callback, times(1)).onResume();
+        runOnActivity((scenario, activity) -> {
+            IRendererCallback callback = mock(IRendererCallback.class);
+            mRenderServiceDelegate.getCarAppActivity().registerRendererCallback(callback);
+            // Last observed event is reported as soon as callback is set.
+            verify(callback, times(1)).onResume();
 
-                    // Add a test-specific lifecycle callback to activity.
-                    ActivityLifecycleCallbacks activityCallback = mock(
-                            ActivityLifecycleCallbacks.class);
-                    activity.registerActivityLifecycleCallbacks(activityCallback);
-                    // Report service connection error.
-                    CarAppViewModel viewModel =
-                            new ViewModelProvider(activity).get(CarAppViewModel.class);
-                    viewModel.onError(ErrorHandler.ErrorType.HOST_ERROR);
+            // Add a test-specific lifecycle callback to activity.
+            ActivityLifecycleCallbacks activityCallback = mock(
+                    ActivityLifecycleCallbacks.class);
+            activity.registerActivityLifecycleCallbacks(activityCallback);
+            // Report service connection error.
+            CarAppViewModel viewModel =
+                    new ViewModelProvider(activity).get(CarAppViewModel.class);
+            viewModel.onError(ErrorHandler.ErrorType.HOST_ERROR);
 
-                    assertThat(activity.isFinishing()).isEqualTo(false);
+            assertThat(activity.isFinishing()).isEqualTo(false);
 
-                    // After service connection error has been reported, test that lifecycle
-                    // events are no longer reported to host lifecycle listener.
-                    scenario.moveToState(Lifecycle.State.STARTED);
-                    verify(activityCallback, times(1)).onActivityPaused(activity);
-                    verify(callback, times(0)).onPause();
-                } catch (RemoteException e) {
-                    fail(Log.getStackTraceString(e));
-                }
-            });
-        }
+            // After service connection error has been reported, test that lifecycle
+            // events are no longer reported to host lifecycle listener.
+            scenario.moveToState(Lifecycle.State.STARTED);
+            verify(activityCallback, times(1)).onActivityPaused(activity);
+            verify(callback, times(0)).onPause();
+
+        });
     }
 
     @Test
     public void testOnBackPressed() {
-        setupCarAppActivityForTesting();
-        try (ActivityScenario<CarAppActivity> scenario = ActivityScenario.launch(
-                CarAppActivity.class)) {
-            scenario.onActivity(activity -> {
-                try {
-                    IRendererCallback callback = mock(IRendererCallback.class);
-                    mRenderServiceDelegate.getCarAppActivity().registerRendererCallback(callback);
-                    activity.onBackPressed();
-                    verify(callback, times(1)).onBackPressed();
-                } catch (RemoteException e) {
-                    fail(Log.getStackTraceString(e));
-                }
-            });
-        }
+        runOnActivity((scenario, activity) -> {
+            IRendererCallback callback = mock(IRendererCallback.class);
+            mRenderServiceDelegate.getCarAppActivity().registerRendererCallback(callback);
+            activity.onBackPressed();
+            verify(callback, times(1)).onBackPressed();
+
+        });
     }
 
     @Test
     public void testUnbindOnDestroy() {
-        setupCarAppActivityForTesting();
-        try (ActivityScenario<CarAppActivity> scenario = ActivityScenario.launch(
-                CarAppActivity.class)) {
-            scenario.onActivity(activity -> {
-                try {
-                    ServiceConnectionManager serviceConnectionManager =
-                            activity.mViewModel.getServiceConnectionManager();
-                    ServiceConnection serviceConnection =
-                            spy(serviceConnectionManager.getServiceConnection());
-                    serviceConnectionManager.setServiceConnection(serviceConnection);
+        runOnActivity((scenario, activity) -> {
+            ServiceConnectionManager serviceConnectionManager =
+                    activity.mViewModel.getServiceConnectionManager();
+            ServiceConnection serviceConnection =
+                    spy(serviceConnectionManager.getServiceConnection());
+            serviceConnectionManager.setServiceConnection(serviceConnection);
 
-                    // Destroy activity to force unbind.
-                    scenario.moveToState(Lifecycle.State.DESTROYED);
+            // Destroy activity to force unbind.
+            scenario.moveToState(Lifecycle.State.DESTROYED);
 
-                    // Verify Activity onDestroy even is reported to renderer.
-                    verify(mRenderService, times(1)).terminate(
-                            mFakeCarAppServiceComponent);
-                    // Verify service connection is closed.
-                    verify(serviceConnection, times(1)).onServiceDisconnected(
-                            mRendererComponent);
-                    assertThat(serviceConnectionManager.isBound()).isFalse();
-                } catch (RemoteException e) {
-                    fail(Log.getStackTraceString(e));
-                }
-            });
-        }
+            // Verify Activity onDestroy even is reported to renderer.
+            verify(mRenderService, times(1)).terminate(
+                    mFakeCarAppServiceComponent);
+            // Verify service connection is closed.
+            verify(serviceConnection, times(1)).onServiceDisconnected(
+                    mRendererComponent);
+            assertThat(serviceConnectionManager.isBound()).isFalse();
+
+        });
     }
 
     @Test
     public void testLegacySurfacePackageEvents() {
-        setupCarAppActivityForTesting();
-        try (ActivityScenario<CarAppActivity> scenario = ActivityScenario.launch(
-                CarAppActivity.class)) {
-            scenario.onActivity(activity -> {
-                try {
-                    SurfaceControlCallback callback = mock(SurfaceControlCallback.class);
-                    IRendererCallback rendererCallback = mock(IRendererCallback.class);
+        runOnActivity((scenario, activity) -> {
+            SurfaceControlCallback callback = mock(SurfaceControlCallback.class);
+            IRendererCallback rendererCallback = mock(IRendererCallback.class);
 
-                    ICarAppActivity carAppActivity = mRenderServiceDelegate.getCarAppActivity();
-                    carAppActivity.setSurfacePackage(
-                            Bundleable.create(new LegacySurfacePackage(callback)));
-                    carAppActivity.registerRendererCallback(rendererCallback);
+            ICarAppActivity carAppActivity = mRenderServiceDelegate.getCarAppActivity();
+            carAppActivity.setSurfacePackage(
+                    Bundleable.create(new LegacySurfacePackage(callback)));
+            carAppActivity.registerRendererCallback(rendererCallback);
 
-                    // Verify back events on the activity are sent to host.
-                    activity.onBackPressed();
-                    verify(rendererCallback, times(1)).onBackPressed();
+            // Verify back events on the activity are sent to host.
+            activity.onBackPressed();
+            verify(rendererCallback, times(1)).onBackPressed();
 
-                    // Verify focus request sent to host.
-                    activity.mSurfaceView.clearFocus();
-                    verify(callback, times(1)).onWindowFocusChanged(false, false);
-                    activity.mSurfaceView.requestFocus();
-                    verify(callback, times(1)).onWindowFocusChanged(true, false);
+            // Verify focus request sent to host.
+            activity.mSurfaceView.clearFocus();
+            verify(callback, times(1)).onWindowFocusChanged(false, false);
+            activity.mSurfaceView.requestFocus();
+            verify(callback, times(1)).onWindowFocusChanged(true, false);
 
-                    long downTime = SystemClock.uptimeMillis();
-                    long eventTime = SystemClock.uptimeMillis();
-                    int action = MotionEvent.ACTION_UP;
-                    int x = 50;
-                    int y = 50;
-                    int metaState = 0;
-                    MotionEvent event = MotionEvent.obtain(downTime, eventTime, action, x, y,
-                            metaState);
-                    activity.mSurfaceView.dispatchTouchEvent(event);
-                    ArgumentCaptor<MotionEvent> argument = ArgumentCaptor.forClass(
-                            MotionEvent.class);
-                    verify(callback, times(1)).onTouchEvent(argument.capture());
-                    // Compare string representations as equals in MotionEvent checks for same
-                    // object.
-                    assertThat(argument.getValue().toString()).isEqualTo(event.toString());
-                } catch (RemoteException | BundlerException e) {
-                    fail(Log.getStackTraceString(e));
-                }
-            });
-        }
+            long downTime = SystemClock.uptimeMillis();
+            long eventTime = SystemClock.uptimeMillis();
+            int action = MotionEvent.ACTION_UP;
+            int x = 50;
+            int y = 50;
+            int metaState = 0;
+            MotionEvent event = MotionEvent.obtain(downTime, eventTime, action, x, y,
+                    metaState);
+            activity.mSurfaceView.dispatchTouchEvent(event);
+            ArgumentCaptor<MotionEvent> argument = ArgumentCaptor.forClass(
+                    MotionEvent.class);
+            verify(callback, times(1)).onTouchEvent(argument.capture());
+            // Compare string representations as equals in MotionEvent checks for same
+            // object.
+            assertThat(argument.getValue().toString()).isEqualTo(event.toString());
+        });
     }
 
     @Test
     public void testKeyboardInputWithoutStartInput() {
-        setupCarAppActivityForTesting();
-        try (ActivityScenario<CarAppActivity> scenario = ActivityScenario.launch(
-                CarAppActivity.class)) {
-            scenario.onActivity(activity -> {
-                try {
-                    EditorInfo editorInfo = new EditorInfo();
-                    IRendererCallback callback = mock(IRendererCallback.class);
-                    IProxyInputConnection inputConnection = mock(IProxyInputConnection.class);
-                    when(callback.onCreateInputConnection(any())).thenReturn(inputConnection);
-                    when(inputConnection.getEditorInfo()).thenReturn(editorInfo);
+        runOnActivity((scenario, activity) -> {
+            EditorInfo editorInfo = new EditorInfo();
+            IRendererCallback callback = mock(IRendererCallback.class);
+            IProxyInputConnection inputConnection = mock(IProxyInputConnection.class);
+            when(callback.onCreateInputConnection(any())).thenReturn(inputConnection);
+            when(inputConnection.getEditorInfo()).thenReturn(editorInfo);
 
-                    mRenderServiceDelegate.getCarAppActivity().registerRendererCallback(callback);
-                    // Create input connection without first calling ICarAppActivity#startInput().
-                    InputConnection remoteProxyInputConnection =
-                            activity.mSurfaceView.onCreateInputConnection(editorInfo);
+            mRenderServiceDelegate.getCarAppActivity().registerRendererCallback(callback);
+            // Create input connection without first calling ICarAppActivity#startInput().
+            InputConnection remoteProxyInputConnection =
+                    activity.mSurfaceView.onCreateInputConnection(editorInfo);
 
-                    assertThat(remoteProxyInputConnection).isNull();
-                } catch (RemoteException e) {
-                    fail(Log.getStackTraceString(e));
-                }
-            });
-        }
+            assertThat(remoteProxyInputConnection).isNull();
+
+        });
     }
 
     @Test
     public void testKeyboardInput() {
-        setupCarAppActivityForTesting();
-        try (ActivityScenario<CarAppActivity> scenario = ActivityScenario.launch(
-                CarAppActivity.class)) {
-            scenario.onActivity(activity -> {
-                try {
-                    EditorInfo editorInfo = new EditorInfo();
-                    IRendererCallback callback = mock(IRendererCallback.class);
-                    IProxyInputConnection inputConnection = mock(IProxyInputConnection.class);
-                    when(callback.onCreateInputConnection(any())).thenReturn(inputConnection);
-                    when(inputConnection.getEditorInfo()).thenReturn(editorInfo);
+        runOnActivity((scenario, activity) -> {
+            EditorInfo editorInfo = new EditorInfo();
+            IRendererCallback callback = mock(IRendererCallback.class);
+            IProxyInputConnection inputConnection = mock(IProxyInputConnection.class);
+            when(callback.onCreateInputConnection(any())).thenReturn(inputConnection);
+            when(inputConnection.getEditorInfo()).thenReturn(editorInfo);
 
-                    mRenderServiceDelegate.getCarAppActivity().registerRendererCallback(callback);
-                    mRenderServiceDelegate.getCarAppActivity().onStartInput();
-                    InputConnection remoteProxyInputConnection =
-                            activity.mSurfaceView.onCreateInputConnection(editorInfo);
+            mRenderServiceDelegate.getCarAppActivity().registerRendererCallback(callback);
+            mRenderServiceDelegate.getCarAppActivity().onStartInput();
+            InputConnection remoteProxyInputConnection =
+                    activity.mSurfaceView.onCreateInputConnection(editorInfo);
 
-                    assertThat(remoteProxyInputConnection).isNotNull();
+            assertThat(remoteProxyInputConnection).isNotNull();
 
-                    // Verify input events re proxied to host.
-                    KeyEvent event = new KeyEvent(ACTION_UP, KEYCODE_R);
-                    remoteProxyInputConnection.sendKeyEvent(event);
-                    verify(inputConnection, times(1)).sendKeyEvent(event);
-                } catch (RemoteException e) {
-                    fail(Log.getStackTraceString(e));
-                }
-            });
-        }
+            // Verify input events re proxied to host.
+            KeyEvent event = new KeyEvent(ACTION_UP, KEYCODE_R);
+            remoteProxyInputConnection.sendKeyEvent(event);
+            verify(inputConnection, times(1)).sendKeyEvent(event);
+
+        });
     }
 
     @Test
     public void testWindowInsetsHandledRemotelyWhenHostIsCapable() {
-        setupCarAppActivityForTesting();
+        runOnActivity((scenario, activity) -> {
+            IInsetsListener insetsListener = mock(IInsetsListener.class);
+            mRenderServiceDelegate.getCarAppActivity().setInsetsListener(insetsListener);
+            View activityContainer = activity.mActivityContainerView;
+            View localContentContainer = activity.mLocalContentContainerView;
+            Insets systemWindowInsets = Insets.of(10, 20, 30, 40);
+            WindowInsets windowInsets = new WindowInsetsCompat.Builder()
+                    .setInsets(WindowInsetsCompat.Type.systemBars(), systemWindowInsets)
+                    .build()
+                    .toWindowInsets();
+            activityContainer.onApplyWindowInsets(windowInsets);
+
+            // Verify that the host is notified and insets are not handled locally
+            verify(insetsListener).onInsetsChanged(
+                    eq(systemWindowInsets.toPlatformInsets()));
+            assertThat(activityContainer.getPaddingBottom()).isEqualTo(0);
+            assertThat(activityContainer.getPaddingTop()).isEqualTo(0);
+            assertThat(activityContainer.getPaddingLeft()).isEqualTo(0);
+            assertThat(activityContainer.getPaddingRight()).isEqualTo(0);
+            assertThat(localContentContainer.getPaddingBottom()).isEqualTo(40);
+            assertThat(localContentContainer.getPaddingTop()).isEqualTo(20);
+            assertThat(localContentContainer.getPaddingLeft()).isEqualTo(10);
+            assertThat(localContentContainer.getPaddingRight()).isEqualTo(30);
+        });
+    }
+
+    @Test
+    public void testServiceNotTerminatedWhenConfigurationChanges() {
+        runOnActivity((scenario, activity) -> {
+            System.out.println("before");
+            scenario.recreate();
+            System.out.println("after");
+            verify(mRenderService, never()).terminate(mFakeCarAppServiceComponent);
+        });
+    }
+
+    @Test
+    public void testServiceTerminatedWhenActivityDiesWithoutConfigChange() {
+        runOnActivity((scenario, activity) -> {
+            System.out.println("before");
+            scenario.moveToState(Lifecycle.State.DESTROYED);
+            System.out.println("after");
+            verify(mRenderService, times(1)).terminate(mFakeCarAppServiceComponent);
+        });
+    }
+
+    interface CarActivityAction {
+        void accept(ActivityScenario<CarAppActivity> scenario, CarAppActivity activity)
+                throws Exception;
+    }
+
+    private void runOnActivity(CarActivityAction block) {
         try (ActivityScenario<CarAppActivity> scenario = ActivityScenario.launch(
                 CarAppActivity.class)) {
             scenario.onActivity(activity -> {
                 try {
-                    IInsetsListener insetsListener = mock(IInsetsListener.class);
-                    mRenderServiceDelegate.getCarAppActivity().setInsetsListener(insetsListener);
-                    View activityContainer = activity.mActivityContainerView;
-                    View localContentContainer = activity.mLocalContentContainerView;
-                    Insets systemWindowInsets = Insets.of(10, 20, 30, 40);
-                    WindowInsets windowInsets = new WindowInsetsCompat.Builder()
-                            .setInsets(WindowInsetsCompat.Type.systemBars(), systemWindowInsets)
-                            .build()
-                            .toWindowInsets();
-                    activityContainer.onApplyWindowInsets(windowInsets);
-
-                    // Verify that the host is notified and insets are not handled locally
-                    verify(insetsListener).onInsetsChanged(
-                            eq(systemWindowInsets.toPlatformInsets()));
-                    assertThat(activityContainer.getPaddingBottom()).isEqualTo(0);
-                    assertThat(activityContainer.getPaddingTop()).isEqualTo(0);
-                    assertThat(activityContainer.getPaddingLeft()).isEqualTo(0);
-                    assertThat(activityContainer.getPaddingRight()).isEqualTo(0);
-                    assertThat(localContentContainer.getPaddingBottom()).isEqualTo(40);
-                    assertThat(localContentContainer.getPaddingTop()).isEqualTo(20);
-                    assertThat(localContentContainer.getPaddingLeft()).isEqualTo(10);
-                    assertThat(localContentContainer.getPaddingRight()).isEqualTo(30);
-                } catch (RemoteException ex) {
-                    fail(Log.getStackTraceString(ex));
+                    block.accept(scenario, activity);
+                } catch (Exception e) {
+                    fail(Log.getStackTraceString(e));
                 }
             });
         }
