@@ -202,9 +202,8 @@ public final class CameraViewfinder extends FrameLayout {
      *
      * <p> This method should be called after {@link CameraViewfinder} is inflated and before
      * {@link CameraViewfinder#requestSurfaceAsync(ViewfinderSurfaceRequest)}. If a new
-     * {@link ImplementationMode} is set, the
-     * {@link CameraViewfinder#requestSurfaceAsync(ViewfinderSurfaceRequest)} needs to be called
-     * again to make it effective.
+     * {@link ImplementationMode} is set, the capture session needs to be recreated and new
+     * surface request needs to be sent to make it effective.
      *
      * @param implementationMode The {@link ImplementationMode} to apply to the viewfinder.
      * @attr name app:implementationMode
