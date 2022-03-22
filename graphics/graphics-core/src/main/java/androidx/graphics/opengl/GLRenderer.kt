@@ -92,6 +92,10 @@ class GLRenderer(
      *
      * Additionally if this flag is false, all pending requests to render will be processed
      * before the [RenderTarget] is detached.
+     *
+     * Note the detach operation will only occur if the GLRenderer is started, that is if
+     * [isRunning] returns true. Otherwise this is a no-op. GLRenderer will automatically detach all
+     * [RenderTarget] instances as part of its teardown process.
      */
     @JvmOverloads
     fun detach(
@@ -152,6 +156,9 @@ class GLRenderer(
      * If there is already a queued request to render into the provided surface with
      * the specified token, this request is ignored.
      *
+     * Note the render operation will only occur if the GLRenderer is started, that is if
+     * [isRunning] returns true. Otherwise this is a no-op.
+     *
      * @param target RenderTarget to be re-rendered
      * @param onRenderComplete Optional callback invoked on the backing thread after the frame has
      * been rendered.
@@ -175,6 +182,9 @@ class GLRenderer(
      * [RenderCallback.onSurfaceCreated] and invoke it again with the updated dimensions.
      * An optional callback is invoked on the backing thread after the resize operation
      * is complete.
+     *
+     * Note the resize operation will only occur if the GLRenderer is started, that is if
+     * [isRunning] returns true. Otherwise this is a no-op.
      *
      * @param target RenderTarget to be resized
      * @param width Updated width of the corresponding surface
@@ -204,6 +214,9 @@ class GLRenderer(
      * Stop the corresponding GL thread. This destroys all EGLSurfaces as well
      * as any other EGL dependencies. All queued requests that have not been processed
      * yet are cancelled.
+     *
+     * Note the stop operation will only occur if the GLRenderer was previously started, that is
+     * [isRunning] returns true. Otherwise this is a no-op.
      *
      * @param cancelPending If true all pending requests and cancelled and the backing thread is
      * torn down immediately. If false, all pending requests are processed first before tearing
@@ -235,7 +248,9 @@ class GLRenderer(
 
     /**
      * Add an [EglContextCallback] to receive callbacks for construction and
-     * destruction of EGL dependencies
+     * destruction of EGL dependencies.
+     *
+     * These callbacks are invoked on the backing thread.
      */
     fun registerEglContextCallback(callback: EglContextCallback) {
         mEglContextCallback.add(callback)
@@ -244,7 +259,9 @@ class GLRenderer(
 
     /**
      * Remove [EglContextCallback] to no longer receive callbacks for construction and
-     * destruction of EGL dependencies
+     * destruction of EGL dependencies.
+     *
+     * These callbacks are invoked on the backing thread
      */
     fun unregisterEglContextCallback(callback: EglContextCallback) {
         mEglContextCallback.remove(callback)
@@ -587,6 +604,10 @@ class GLRenderer(
          * This consumes an optional callback that is invoked on the backing thread when
          * the rendering is completed.
          *
+         * Note the render operation will only occur if the RenderTarget is attached, that is
+         * [isAttached] returns true. If the [RenderTarget] is detached or the [GLRenderer] that
+         * created this RenderTarget is stopped, this is a no-op.
+         *
          * @param onRenderComplete Optional callback called on the backing thread when
          * rendering is finished
          */
@@ -609,6 +630,10 @@ class GLRenderer(
          * and invoke it again with the updated dimensions.
          * An optional callback is invoked on the backing thread after the resize operation
          * is complete
+         *
+         * Note the resize operation will only occur if the RenderTarget is attached, that is
+         * [isAttached] returns true. If the [RenderTarget] is detached or the [GLRenderer] that
+         * created this RenderTarget is stopped, this is a no-op.
          *
          * @param width New target width to resize the RenderTarget
          * @param height New target height to resize the RenderTarget
@@ -636,6 +661,10 @@ class GLRenderer(
          * before the [RenderTarget] is detached.
          *
          * This is a convenience method around [GLRenderer.detach]
+         *
+         * Note the detach operation will only occur if the RenderTarget is attached, that is
+         * [isAttached] returns true. If the [RenderTarget] is detached or the [GLRenderer] that
+         * created this RenderTarget is stopped, this is a no-op.
          */
         @JvmOverloads
         fun detach(cancelPending: Boolean, onDetachComplete: ((RenderTarget) -> Unit)? = null) {
