@@ -18,8 +18,12 @@ package androidx.camera.viewfinder;
 
 import android.annotation.SuppressLint;
 import android.graphics.SurfaceTexture;
+import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraMetadata;
 import android.util.Size;
 import android.view.Surface;
+import android.view.SurfaceView;
+import android.view.TextureView;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -47,14 +51,18 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * A completable, single-use request of a {@link Surface}.
+ * The request to get a {@link Surface} to display camera feed.
  *
- * <p>Contains requirements for surface characteristics along with methods for completing the
- * request and listening for request cancellation.
+ * <p> This request contains requirements for the surface resolution and camera
+ * device information from {@link CameraCharacteristics}.
  *
- * @hide
+ * <p> Calling {@link CameraViewfinder#requestSurfaceAsync(ViewfinderSurfaceRequest)} with this
+ * request will send the request to the surface provider, which is either a {@link TextureView} or
+ * {@link SurfaceView} and get a {@link ListenableFuture} of {@link Surface}.
+ *
+ * <p> Calling {@link ViewfinderSurfaceRequest#markSurfaceSafeToRelease()} will notify the
+ * surface provider that the surface is not needed and related resources can be released.
  */
-@RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ViewfinderSurfaceRequest {
 
@@ -74,20 +82,44 @@ public class ViewfinderSurfaceRequest {
     final ListenableFuture<Surface> mSurfaceFuture;
 
     /**
+     * Creates a new surface request with surface resolution and camera characteristics.
+     *
+     * <p>The resolution given here will be the default resolution of the Surface returned by
+     * {@link CameraViewfinder#requestSurfaceAsync(ViewfinderSurfaceRequest)}, which can then be
+     * passed to the camera API to set the camera viewfinder resolution.
+     *
+     * @param resolution The requested surface resolution.
+     * @param cameraCharacteristics The {@link CameraCharacteristics} to get device information
+     *                              e.g. hardware level, lens facing, sensor orientation, etc,.
+     */
+    public ViewfinderSurfaceRequest(
+            @NonNull Size resolution,
+            @NonNull CameraCharacteristics cameraCharacteristics) {
+        this(resolution,
+                cameraCharacteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)
+                        == CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
+                cameraCharacteristics.get(CameraCharacteristics.LENS_FACING)
+                        == CameraCharacteristics.LENS_FACING_FRONT,
+                cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION));
+    }
+
+    /**
      * Creates a new surface request with surface resolution, view display and camera device
      * information.
      *
-     * @param resolution requested surface resolution.
-     * @param isLegacyDevice hardware level is legacy or not.
-     * @param isFrontCamera camera is front facing or not.
-     * @param sensorOrientation camera sensor orientation.
+     * @param resolution The requested surface resolution. It is the output surface size
+     *                   the camera is configured with, instead of {@link CameraViewfinder}
+     *                   view size.
+     * {@link CameraViewfinder} view
+     * @param isLegacyDevice The device hardware level is legacy or not.
+     * @param isFrontCamera The camera is front facing or not.
+     * @param sensorOrientation THe camera sensor orientation.
      */
-    public ViewfinderSurfaceRequest(
+    private ViewfinderSurfaceRequest(
             @NonNull Size resolution,
             boolean isLegacyDevice,
             boolean isFrontCamera,
             int sensorOrientation) {
-        super();
         mResolution = resolution;
         mIsLegacyDevice = isLegacyDevice;
         mIsFrontCamera = isFrontCamera;
@@ -243,7 +275,7 @@ public class ViewfinderSurfaceRequest {
     /**
      * Returns the status of camera lens facing.
      *
-     * @return true if front camera, otherwise false.
+     * @return True if front camera, otherwise false.
      */
     public boolean isFrontCamera() {
         return mIsFrontCamera;
@@ -252,7 +284,7 @@ public class ViewfinderSurfaceRequest {
     /**
      * Returns the status of camera hardware level.
      *
-     * @return true if legacy device, otherwise false.
+     * @return True if legacy device, otherwise false.
      */
     public boolean isLegacyDevice() {
         return mIsLegacyDevice;
@@ -260,6 +292,9 @@ public class ViewfinderSurfaceRequest {
 
     /**
      * Closes the viewfinder surface to mark it as safe to release.
+     *
+     * <p> This method should be called by the user when the requested surface is not needed and
+     * related resources can be released.
      */
     public void markSurfaceSafeToRelease() {
         mInternalViewfinderSurface.close();

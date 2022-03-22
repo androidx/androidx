@@ -78,5 +78,4 @@ androidx {
     mavenGroup = LibraryGroups.CAMERA
     inceptionYear = "2022"
     description = "Standalone Viewfinder for Camera2 and CameraX"
-    runApiTasks = new RunApiTasks.No("Unreleased library.")
 }

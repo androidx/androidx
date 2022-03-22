@@ -15,11 +15,14 @@
  */
 package androidx.camera.viewfinder
 
+import android.content.Context
 import android.graphics.SurfaceTexture
+import android.hardware.camera2.CameraManager
 import android.os.Build
 import android.util.Size
 import android.view.TextureView
 import android.widget.FrameLayout
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -29,6 +32,7 @@ import com.google.common.truth.Truth
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 import org.junit.After
+import org.junit.Assume
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -44,13 +48,15 @@ class TextureViewImplementationTest {
     private val surfaceRequest: ViewfinderSurfaceRequest
         get() {
             if (_surfaceRequest == null) {
+                val cameraManager = ApplicationProvider.getApplicationContext<Context>()
+                    .getSystemService(Context.CAMERA_SERVICE
+                ) as CameraManager
+                val cameraIds = cameraManager.cameraIdList
+                Assume.assumeTrue("No cameras found on device.", cameraIds.isNotEmpty())
+                val cameraId = cameraIds[0]
+                val characteristics = cameraManager.getCameraCharacteristics(cameraId)
                 _surfaceRequest =
-                    ViewfinderSurfaceRequest(
-                        ANY_SIZE,
-                        /*isLegacyDevice=*/true,
-                        /*isFrontCamera=*/true,
-                        /*sensorOrientation=*/0
-                    )
+                    ViewfinderSurfaceRequest(ANY_SIZE, characteristics)
             }
             return _surfaceRequest!!
         }
@@ -60,9 +66,7 @@ class TextureViewImplementationTest {
         val mContext = InstrumentationRegistry.getInstrumentation().targetContext
         surfaceTexture = SurfaceTexture(0)
         parent = FrameLayout(mContext)
-        implementation = TextureViewImplementation(parent!!,
-            ViewfinderTransformation()
-        )
+        implementation = TextureViewImplementation(parent!!, ViewfinderTransformation())
     }
 
     @After
