@@ -2154,6 +2154,28 @@ class PojoProcessorTest {
         }
     }
 
+    @Test
+    fun embedded_nullability() {
+        listOf(
+            TestData.SomeEmbeddedVals::class.java.canonicalName!!
+        ).forEach {
+            runProcessorTest { invocation ->
+                val result = PojoProcessor.createFor(
+                    context = invocation.context,
+                    element = invocation.processingEnv.requireTypeElement(it),
+                    bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
+                    parent = null
+                ).process()
+
+                val embeddedFields = result.embeddedFields
+
+                assertThat(embeddedFields.size, `is`(2))
+                assertThat(embeddedFields[0].nonNull, `is`(true))
+                assertThat(embeddedFields[1].nonNull, `is`(false))
+            }
+        }
+    }
+
     private fun singleRun(
         code: String,
         vararg sources: Source,
@@ -2229,6 +2251,18 @@ class PojoProcessorTest {
             val lastName: String = "",
             var number: Int = 0,
             var bit: Boolean
+        )
+
+        data class AllNullableVals(
+            val name: String?,
+            val number: Int?,
+            val bit: Boolean?
+        )
+
+        data class SomeEmbeddedVals(
+            val id: String,
+            @Embedded(prefix = "non_nullable_") val nonNullableVal: AllNullableVals,
+            @Embedded(prefix = "nullable_") val nullableVal: AllNullableVals?
         )
     }
 }
