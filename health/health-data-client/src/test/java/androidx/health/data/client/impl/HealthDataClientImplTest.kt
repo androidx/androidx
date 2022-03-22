@@ -23,12 +23,16 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.os.Looper
 import androidx.health.data.client.HealthDataClient
+import androidx.health.data.client.metadata.Device
+import androidx.health.data.client.metadata.Metadata
 import androidx.health.data.client.records.ActiveEnergyBurned
 import androidx.health.data.client.records.Nutrition
 import androidx.health.data.client.records.Steps
 import androidx.health.data.client.records.Weight
 import androidx.health.data.client.request.ChangesTokenRequest
 import androidx.health.data.client.request.ReadRecordsRequest
+import androidx.health.data.client.response.ReadRecordResponse
+import androidx.health.data.client.response.ReadRecordsResponse
 import androidx.health.data.client.time.TimeRangeFilter
 import androidx.health.platform.client.impl.ServiceBackedHealthDataClient
 import androidx.health.platform.client.impl.error.errorCodeExceptionMap
@@ -36,6 +40,12 @@ import androidx.health.platform.client.impl.ipc.ClientConfiguration
 import androidx.health.platform.client.impl.ipc.internal.ConnectionManager
 import androidx.health.platform.client.impl.testing.FakeHealthDataService
 import androidx.health.platform.client.proto.DataProto
+import androidx.health.platform.client.proto.RequestProto
+import androidx.health.platform.client.proto.ResponseProto
+import androidx.health.platform.client.proto.TimeProto
+import androidx.health.platform.client.response.InsertDataResponse
+import androidx.health.platform.client.response.ReadDataRangeResponse
+import androidx.health.platform.client.response.ReadDataResponse
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.intent.Intents
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -120,7 +130,7 @@ class HealthDataClientImplTest {
     @Test(timeout = 60000L)
     fun apiMethods_hasError_throwsException() = runTest {
         for (error in errorCodeExceptionMap) {
-            fakeAhpServiceStub.setErrorCode(error.key)
+            fakeAhpServiceStub.errorCode = error.key
             val responseList = mutableListOf<Deferred<Any>>()
             for (method in API_METHOD_LIST) {
                 responseList.add(
@@ -137,6 +147,7 @@ class HealthDataClientImplTest {
 
     @Test(timeout = 10000L)
     fun insertRecords_steps() = runTest {
+        fakeAhpServiceStub.insertDataResponse = InsertDataResponse(listOf("0"))
         val deferred = async {
             healthDataClient.insertRecords(
                 listOf(
@@ -156,7 +167,7 @@ class HealthDataClientImplTest {
 
         val response = deferred.await()
         assertThat(response.recordUidsList).containsExactly("0")
-        assertThat(fakeAhpServiceStub.dataStore.toList())
+        assertThat(fakeAhpServiceStub.lastUpsertDataRequest?.dataPoints)
             .containsExactly(
                 DataProto.DataPoint.newBuilder()
                     .setStartTimeMillis(1234L)
@@ -169,6 +180,7 @@ class HealthDataClientImplTest {
 
     @Test(timeout = 10000L)
     fun insertRecords_weight() = runTest {
+        fakeAhpServiceStub.insertDataResponse = InsertDataResponse(listOf("0"))
         val deferred = async {
             healthDataClient.insertRecords(
                 listOf(
@@ -186,7 +198,7 @@ class HealthDataClientImplTest {
 
         val response = deferred.await()
         assertThat(response.recordUidsList).containsExactly("0")
-        assertThat(fakeAhpServiceStub.dataStore.toList())
+        assertThat(fakeAhpServiceStub.lastUpsertDataRequest?.dataPoints)
             .containsExactly(
                 DataProto.DataPoint.newBuilder()
                     .setInstantTimeMillis(1234L)
@@ -198,12 +210,13 @@ class HealthDataClientImplTest {
 
     @Test(timeout = 10000L)
     fun insertRecords_nutrition() = runTest {
+        fakeAhpServiceStub.insertDataResponse = InsertDataResponse(listOf("0"))
         val deferred = async {
             healthDataClient.insertRecords(
                 listOf(
                     Nutrition(
-                        vitaminE = 10.0,
-                        vitaminC = 20.0,
+                        vitaminEGrams = 10.0,
+                        vitaminCGrams = 20.0,
                         startTime = Instant.ofEpochMilli(1234L),
                         startZoneOffset = null,
                         endTime = Instant.ofEpochMilli(5678L),
@@ -218,7 +231,7 @@ class HealthDataClientImplTest {
 
         val response = deferred.await()
         assertThat(response.recordUidsList).containsExactly("0")
-        assertThat(fakeAhpServiceStub.dataStore.toList())
+        assertThat(fakeAhpServiceStub.lastUpsertDataRequest?.dataPoints)
             .containsExactly(
                 DataProto.DataPoint.newBuilder()
                     .setStartTimeMillis(1234L)
@@ -227,6 +240,122 @@ class HealthDataClientImplTest {
                     .putValues("vitaminE", DataProto.Value.newBuilder().setDoubleVal(10.0).build())
                     .setDataType(DataProto.DataType.newBuilder().setName("Nutrition"))
                     .build()
+            )
+    }
+
+    @Test(timeout = 10000L)
+    fun readRecordById_steps() = runTest {
+        fakeAhpServiceStub.readDataResponse =
+            ReadDataResponse(
+                ResponseProto.ReadDataResponse.newBuilder()
+                    .setDataPoint(
+                        DataProto.DataPoint.newBuilder()
+                            .setUid("testUid")
+                            .setStartTimeMillis(1234L)
+                            .setEndTimeMillis(5678L)
+                            .putValues(
+                                "count",
+                                DataProto.Value.newBuilder().setLongVal(100).build()
+                            )
+                            .setDataType(DataProto.DataType.newBuilder().setName("Steps"))
+                    )
+                    .build()
+            )
+        val deferred = async {
+            healthDataClient.readRecord(
+                Steps::class,
+                uid = "testUid",
+            )
+        }
+
+        advanceUntilIdle()
+        waitForMainLooperIdle()
+
+        val response: ReadRecordResponse<Steps> = deferred.await()
+        assertThat(fakeAhpServiceStub.lastReadDataRequest?.proto)
+            .isEqualTo(
+                RequestProto.ReadDataRequest.newBuilder()
+                    .setDataTypeIdPair(
+                        RequestProto.DataTypeIdPair.newBuilder()
+                            .setDataType(DataProto.DataType.newBuilder().setName("Steps"))
+                            .setId("testUid")
+                    )
+                    .build()
+            )
+        assertThat(response.record)
+            .isEqualTo(
+                Steps(
+                    count = 100,
+                    startTime = Instant.ofEpochMilli(1234L),
+                    startZoneOffset = null,
+                    endTime = Instant.ofEpochMilli(5678L),
+                    endZoneOffset = null,
+                    metadata =
+                        Metadata(
+                            uid = "testUid",
+                            device = Device(),
+                        )
+                )
+            )
+    }
+
+    @Test(timeout = 10000L)
+    fun readRecords_steps() = runTest {
+        fakeAhpServiceStub.readDataRangeResponse =
+            ReadDataRangeResponse(
+                ResponseProto.ReadDataRangeResponse.newBuilder()
+                    .addDataPoint(
+                        DataProto.DataPoint.newBuilder()
+                            .setUid("testUid")
+                            .setStartTimeMillis(1234L)
+                            .setEndTimeMillis(5678L)
+                            .putValues(
+                                "count",
+                                DataProto.Value.newBuilder().setLongVal(100).build()
+                            )
+                            .setDataType(DataProto.DataType.newBuilder().setName("Steps"))
+                    )
+                    .setPageToken("nextPageToken")
+                    .build()
+            )
+        val deferred = async {
+            healthDataClient.readRecords(
+                ReadRecordsRequest(
+                    Steps::class,
+                    timeRangeFilter = TimeRangeFilter.exact(endTime = Instant.ofEpochMilli(7890L)),
+                    limit = 10
+                )
+            )
+        }
+
+        advanceUntilIdle()
+        waitForMainLooperIdle()
+
+        val response: ReadRecordsResponse<Steps> = deferred.await()
+        assertThat(fakeAhpServiceStub.lastReadDataRangeRequest?.proto)
+            .isEqualTo(
+                RequestProto.ReadDataRangeRequest.newBuilder()
+                    .setTimeSpec(TimeProto.TimeSpec.newBuilder().setEndTimeEpochMs(7890L))
+                    .setDataType(DataProto.DataType.newBuilder().setName("Steps"))
+                    .setAscOrdering(true)
+                    .setLimit(10)
+                    .build()
+            )
+        assertThat(response.pageToken).isEqualTo("nextPageToken")
+        assertThat(response.records)
+            .containsExactly(
+                Steps(
+                    count = 100,
+                    startTime = Instant.ofEpochMilli(1234L),
+                    startZoneOffset = null,
+                    endTime = Instant.ofEpochMilli(5678L),
+                    endZoneOffset = null,
+                    metadata =
+                        Metadata(
+                            uid = "testUid",
+                            device = Device(),
+                        )
+                )
             )
     }
 

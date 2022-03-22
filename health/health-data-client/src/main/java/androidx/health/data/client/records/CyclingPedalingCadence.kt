@@ -27,7 +27,7 @@ import java.time.ZoneOffset
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class CyclingPedalingCadence(
     /** Cycling revolutions per minute. Required field. Valid range: 0-10000. */
-    public val rpm: Double,
+    public val revolutionsPerMinute: Double,
     override val time: Instant,
     override val zoneOffset: ZoneOffset?,
     override val metadata: Metadata = Metadata.EMPTY,
@@ -36,7 +36,7 @@ public class CyclingPedalingCadence(
         if (this === other) return true
         if (other !is CyclingPedalingCadence) return false
 
-        if (rpm != other.rpm) return false
+        if (revolutionsPerMinute != other.revolutionsPerMinute) return false
         if (time != other.time) return false
         if (zoneOffset != other.zoneOffset) return false
         if (metadata != other.metadata) return false
@@ -46,7 +46,7 @@ public class CyclingPedalingCadence(
 
     override fun hashCode(): Int {
         var result = 0
-        result = 31 * result + rpm.hashCode()
+        result = 31 * result + revolutionsPerMinute.hashCode()
         result = 31 * result + time.hashCode()
         result = 31 * result + (zoneOffset?.hashCode() ?: 0)
         result = 31 * result + metadata.hashCode()

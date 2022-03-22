@@ -27,7 +27,7 @@ import java.time.ZoneOffset
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class BasalMetabolicRate(
     /** Basal metabolic rate, in kilocalories. Required field. Valid range: 0-10000. */
-    public val bmr: Double,
+    public val kcalPerDay: Double,
     override val time: Instant,
     override val zoneOffset: ZoneOffset?,
     override val metadata: Metadata = Metadata.EMPTY,
@@ -36,7 +36,7 @@ public class BasalMetabolicRate(
         if (this === other) return true
         if (other !is BasalMetabolicRate) return false
 
-        if (bmr != other.bmr) return false
+        if (kcalPerDay != other.kcalPerDay) return false
         if (time != other.time) return false
         if (zoneOffset != other.zoneOffset) return false
         if (metadata != other.metadata) return false
@@ -46,7 +46,7 @@ public class BasalMetabolicRate(
 
     override fun hashCode(): Int {
         var result = 0
-        result = 31 * result + bmr.hashCode()
+        result = 31 * result + kcalPerDay.hashCode()
         result = 31 * result + time.hashCode()
         result = 31 * result + (zoneOffset?.hashCode() ?: 0)
         result = 31 * result + metadata.hashCode()

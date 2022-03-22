@@ -27,7 +27,7 @@ import java.time.ZoneOffset
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class HeartRateVariabilityDifferentialIndex(
     /** Heart rate variability in milliseconds. Required field. */
-    public val heartRateVariability: Double,
+    public val heartRateVariabilityMillis: Double,
     override val time: Instant,
     override val zoneOffset: ZoneOffset?,
     override val metadata: Metadata = Metadata.EMPTY,
@@ -36,7 +36,7 @@ public class HeartRateVariabilityDifferentialIndex(
         if (this === other) return true
         if (other !is HeartRateVariabilityDifferentialIndex) return false
 
-        if (heartRateVariability != other.heartRateVariability) return false
+        if (heartRateVariabilityMillis != other.heartRateVariabilityMillis) return false
         if (time != other.time) return false
         if (zoneOffset != other.zoneOffset) return false
         if (metadata != other.metadata) return false
@@ -46,7 +46,7 @@ public class HeartRateVariabilityDifferentialIndex(
 
     override fun hashCode(): Int {
         var result = 0
-        result = 31 * result + heartRateVariability.hashCode()
+        result = 31 * result + heartRateVariabilityMillis.hashCode()
         result = 31 * result + time.hashCode()
         result = 31 * result + (zoneOffset?.hashCode() ?: 0)
         result = 31 * result + metadata.hashCode()

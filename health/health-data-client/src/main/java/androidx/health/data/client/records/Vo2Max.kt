@@ -24,7 +24,7 @@ import java.time.ZoneOffset
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class Vo2Max(
     /** Maximal aerobic capacity (VO2 max) in milliliters. Required field. Valid range: 0-100. */
-    public val vo2: Double,
+    public val vo2MillilitersPerMinuteKilogram: Double,
     /** VO2 max measurement method. Optional field. Allowed values: [Vo2MaxMeasurementMethod]. */
     @property:Vo2MaxMeasurementMethod public val measurementMethod: String? = null,
     override val time: Instant,
@@ -35,7 +35,7 @@ public class Vo2Max(
         if (this === other) return true
         if (other !is Vo2Max) return false
 
-        if (vo2 != other.vo2) return false
+        if (vo2MillilitersPerMinuteKilogram != other.vo2MillilitersPerMinuteKilogram) return false
         if (measurementMethod != other.measurementMethod) return false
         if (time != other.time) return false
         if (zoneOffset != other.zoneOffset) return false
@@ -46,7 +46,7 @@ public class Vo2Max(
 
     override fun hashCode(): Int {
         var result = 0
-        result = 31 * result + vo2.hashCode()
+        result = 31 * result + vo2MillilitersPerMinuteKilogram.hashCode()
         result = 31 * result + measurementMethod.hashCode()
         result = 31 * result + time.hashCode()
         result = 31 * result + (zoneOffset?.hashCode() ?: 0)

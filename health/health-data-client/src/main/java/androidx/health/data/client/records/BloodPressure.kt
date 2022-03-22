@@ -31,12 +31,12 @@ public class BloodPressure(
      * Systolic blood pressure measurement, in millimetres of mercury (mmHg). Required field. Valid
      * range: 20-200.
      */
-    public val systolic: Double,
+    public val systolicMillimetersOfMercury: Double,
     /**
      * Diastolic blood pressure measurement, in millimetres of mercury (mmHg). Required field. Valid
      * range: 10-180.
      */
-    public val diastolic: Double,
+    public val diastolicMillimetersOfMercury: Double,
     /**
      * The user's body position when the measurement was taken. Optional field. Allowed values:
      * [BodyPosition].
@@ -55,8 +55,8 @@ public class BloodPressure(
         if (this === other) return true
         if (other !is BloodPressure) return false
 
-        if (systolic != other.systolic) return false
-        if (diastolic != other.diastolic) return false
+        if (systolicMillimetersOfMercury != other.systolicMillimetersOfMercury) return false
+        if (diastolicMillimetersOfMercury != other.diastolicMillimetersOfMercury) return false
         if (bodyPosition != other.bodyPosition) return false
         if (measurementLocation != other.measurementLocation) return false
         if (time != other.time) return false
@@ -68,8 +68,8 @@ public class BloodPressure(
 
     override fun hashCode(): Int {
         var result = 0
-        result = 31 * result + systolic.hashCode()
-        result = 31 * result + diastolic.hashCode()
+        result = 31 * result + systolicMillimetersOfMercury.hashCode()
+        result = 31 * result + diastolicMillimetersOfMercury.hashCode()
         result = 31 * result + bodyPosition.hashCode()
         result = 31 * result + measurementLocation.hashCode()
         result = 31 * result + time.hashCode()

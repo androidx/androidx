@@ -27,7 +27,7 @@ import java.time.ZoneOffset
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class RestingHeartRate(
     /** Heart beats per minute. Required field. Validation range: 1-300. */
-    public val bpm: Long,
+    public val beatsPerMinute: Long,
     override val time: Instant,
     override val zoneOffset: ZoneOffset?,
     override val metadata: Metadata = Metadata.EMPTY,
@@ -36,7 +36,7 @@ public class RestingHeartRate(
         if (this === other) return true
         if (other !is RestingHeartRate) return false
 
-        if (bpm != other.bpm) return false
+        if (beatsPerMinute != other.beatsPerMinute) return false
         if (time != other.time) return false
         if (zoneOffset != other.zoneOffset) return false
         if (metadata != other.metadata) return false
@@ -46,7 +46,7 @@ public class RestingHeartRate(
 
     override fun hashCode(): Int {
         var result = 0
-        result = 31 * result + bpm.hashCode()
+        result = 31 * result + beatsPerMinute.hashCode()
         result = 31 * result + time.hashCode()
         result = 31 * result + (zoneOffset?.hashCode() ?: 0)
         result = 31 * result + metadata.hashCode()

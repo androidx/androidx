@@ -22,8 +22,8 @@ import java.time.ZoneOffset
 
 /**
  * Captures the number of wheelchair pushes done since the last reading. Each push is only reported
- * once so data points shouldn't have overlapping time. The start time of each data point should
- * represent the start of the interval in which pushes were made.
+ * once so records shouldn't have overlapping time. The start time of each record should represent
+ * the start of the interval in which pushes were made.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class WheelchairPushes(

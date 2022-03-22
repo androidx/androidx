@@ -107,7 +107,7 @@ class AllRecordsConverterTest {
     fun testBasalMetabolicRate() {
         val data =
             BasalMetabolicRate(
-                bmr = 1.0,
+                kcalPerDay = 1.0,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
@@ -120,7 +120,7 @@ class AllRecordsConverterTest {
     fun testBloodGlucose() {
         val data =
             BloodGlucose(
-                level = 1.0,
+                levelMillimolesPerLiter = 1.0,
                 specimenSource = null,
                 mealType = null,
                 relationToMeal = null,
@@ -136,8 +136,8 @@ class AllRecordsConverterTest {
     fun testBloodPressure() {
         val data =
             BloodPressure(
-                systolic = 20.0,
-                diastolic = 10.0,
+                systolicMillimetersOfMercury = 20.0,
+                diastolicMillimetersOfMercury = 10.0,
                 bodyPosition = null,
                 measurementLocation = null,
                 time = START_TIME,
@@ -165,7 +165,7 @@ class AllRecordsConverterTest {
     fun testBodyTemperature() {
         val data =
             BodyTemperature(
-                temperature = 1.0,
+                temperatureDegreesCelsius = 1.0,
                 measurementLocation = null,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
@@ -221,7 +221,7 @@ class AllRecordsConverterTest {
     fun testCyclingPedalingCadence() {
         val data =
             CyclingPedalingCadence(
-                rpm = 1.0,
+                revolutionsPerMinute = 1.0,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
@@ -234,7 +234,7 @@ class AllRecordsConverterTest {
     fun testHeartRate() {
         val data =
             HeartRate(
-                bpm = 1,
+                beatsPerMinute = 1,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
@@ -273,7 +273,7 @@ class AllRecordsConverterTest {
     fun testHeartRateVariabilityDifferentialIndex() {
         val data =
             HeartRateVariabilityDifferentialIndex(
-                heartRateVariability = 1.0,
+                heartRateVariabilityMillis = 1.0,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
@@ -286,7 +286,7 @@ class AllRecordsConverterTest {
     fun testHeartRateVariabilityRmssd() {
         val data =
             HeartRateVariabilityRmssd(
-                heartRateVariability = 1.0,
+                heartRateVariabilityMillis = 1.0,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
@@ -299,7 +299,7 @@ class AllRecordsConverterTest {
     fun testHeartRateVariabilityS() {
         val data =
             HeartRateVariabilityS(
-                heartRateVariability = 1.0,
+                heartRateVariabilityMillis = 1.0,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
@@ -312,7 +312,7 @@ class AllRecordsConverterTest {
     fun testHeartRateVariabilitySd2() {
         val data =
             HeartRateVariabilitySd2(
-                heartRateVariability = 1.0,
+                heartRateVariabilityMillis = 1.0,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
@@ -325,7 +325,7 @@ class AllRecordsConverterTest {
     fun testHeartRateVariabilitySdann() {
         val data =
             HeartRateVariabilitySdann(
-                heartRateVariability = 1.0,
+                heartRateVariabilityMillis = 1.0,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
@@ -338,7 +338,7 @@ class AllRecordsConverterTest {
     fun testHeartRateVariabilitySdnnIndex() {
         val data =
             HeartRateVariabilitySdnnIndex(
-                heartRateVariability = 1.0,
+                heartRateVariabilityMillis = 1.0,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
@@ -351,7 +351,7 @@ class AllRecordsConverterTest {
     fun testHeartRateVariabilitySdnn() {
         val data =
             HeartRateVariabilitySdnn(
-                heartRateVariability = 1.0,
+                heartRateVariabilityMillis = 1.0,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
@@ -364,7 +364,7 @@ class AllRecordsConverterTest {
     fun testHeartRateVariabilitySdsd() {
         val data =
             HeartRateVariabilitySdsd(
-                heartRateVariability = 1.0,
+                heartRateVariabilityMillis = 1.0,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
@@ -377,7 +377,7 @@ class AllRecordsConverterTest {
     fun testHeartRateVariabilityTinn() {
         val data =
             HeartRateVariabilityTinn(
-                heartRateVariability = 1.0,
+                heartRateVariabilityMillis = 1.0,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
@@ -468,7 +468,7 @@ class AllRecordsConverterTest {
     fun testRestingHeartRate() {
         val data =
             RestingHeartRate(
-                bpm = 1,
+                beatsPerMinute = 1,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
@@ -494,7 +494,7 @@ class AllRecordsConverterTest {
     fun testSpeed() {
         val data =
             Speed(
-                speed = 1.0,
+                speedMetersPerSecond = 1.0,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
@@ -520,7 +520,7 @@ class AllRecordsConverterTest {
     fun testVo2Max() {
         val data =
             Vo2Max(
-                vo2 = 1.0,
+                vo2MillilitersPerMinuteKilogram = 1.0,
                 measurementMethod = null,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
@@ -560,7 +560,7 @@ class AllRecordsConverterTest {
     fun testActiveEnergyBurned() {
         val data =
             ActiveEnergyBurned(
-                energy = 1.0,
+                energyKcal = 1.0,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
                 endTime = END_TIME,
@@ -667,7 +667,7 @@ class AllRecordsConverterTest {
     fun testHydration() {
         val data =
             Hydration(
-                volume = 1.0,
+                volumeLiters = 1.0,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
                 endTime = END_TIME,
@@ -682,48 +682,48 @@ class AllRecordsConverterTest {
     fun testNutrition() {
         val data =
             Nutrition(
-                biotin = 1.0,
-                caffeine = 1.0,
-                calcium = 1.0,
-                calories = 1.0,
-                caloriesFromFat = 1.0,
-                chloride = 1.0,
-                cholesterol = 1.0,
-                chromium = 1.0,
-                copper = 1.0,
-                dietaryFiber = 1.0,
-                folate = 1.0,
-                folicAcid = 1.0,
-                iodine = 1.0,
-                iron = 1.0,
-                magnesium = 1.0,
-                manganese = 1.0,
-                molybdenum = 1.0,
-                monounsaturatedFat = 1.0,
-                niacin = 1.0,
-                pantothenicAcid = 1.0,
-                phosphorus = 1.0,
-                polyunsaturatedFat = 1.0,
-                potassium = 1.0,
-                protein = 1.0,
-                riboflavin = 1.0,
-                saturatedFat = 1.0,
-                selenium = 1.0,
-                sodium = 1.0,
-                sugar = 1.0,
-                thiamin = 1.0,
-                totalCarbohydrate = 1.0,
-                totalFat = 1.0,
-                transFat = 1.0,
-                unsaturatedFat = 1.0,
-                vitaminA = 1.0,
-                vitaminB12 = 1.0,
-                vitaminB6 = 1.0,
-                vitaminC = 1.0,
-                vitaminD = 1.0,
-                vitaminE = 1.0,
-                vitaminK = 1.0,
-                zinc = 1.0,
+                biotinGrams = 1.0,
+                caffeineGrams = 1.0,
+                calciumGrams = 1.0,
+                kcal = 1.0,
+                kcalFromFat = 1.0,
+                chlorideGrams = 1.0,
+                cholesterolGrams = 1.0,
+                chromiumGrams = 1.0,
+                copperGrams = 1.0,
+                dietaryFiberGrams = 1.0,
+                folateGrams = 1.0,
+                folicAcidGrams = 1.0,
+                iodineGrams = 1.0,
+                ironGrams = 1.0,
+                magnesiumGrams = 1.0,
+                manganeseGrams = 1.0,
+                molybdenumGrams = 1.0,
+                monounsaturatedFatGrams = 1.0,
+                niacinGrams = 1.0,
+                pantothenicAcidGrams = 1.0,
+                phosphorusGrams = 1.0,
+                polyunsaturatedFatGrams = 1.0,
+                potassiumGrams = 1.0,
+                proteinGrams = 1.0,
+                riboflavinGrams = 1.0,
+                saturatedFatGrams = 1.0,
+                seleniumGrams = 1.0,
+                sodiumGrams = 1.0,
+                sugarGrams = 1.0,
+                thiaminGrams = 1.0,
+                totalCarbohydrateGrams = 1.0,
+                totalFatGrams = 1.0,
+                transFatGrams = 1.0,
+                unsaturatedFatGrams = 1.0,
+                vitaminAGrams = 1.0,
+                vitaminB12Grams = 1.0,
+                vitaminB6Grams = 1.0,
+                vitaminCGrams = 1.0,
+                vitaminDGrams = 1.0,
+                vitaminEGrams = 1.0,
+                vitaminKGrams = 1.0,
+                zincGrams = 1.0,
                 mealType = null,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
@@ -816,7 +816,7 @@ class AllRecordsConverterTest {
     fun testTotalEnergyBurned() {
         val data =
             TotalEnergyBurned(
-                energy = 1.0,
+                energyKcal = 1.0,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
                 endTime = END_TIME,
