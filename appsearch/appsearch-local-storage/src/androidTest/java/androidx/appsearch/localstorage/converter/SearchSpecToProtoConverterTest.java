@@ -125,7 +125,7 @@ public class SearchSpecToProtoConverterTest {
         assertThat(resultSpecProto.getNumPerPage()).isEqualTo(123);
         assertThat(resultSpecProto.getSnippetSpec().getNumToSnippet()).isEqualTo(234);
         assertThat(resultSpecProto.getSnippetSpec().getNumMatchesPerProperty()).isEqualTo(345);
-        assertThat(resultSpecProto.getSnippetSpec().getMaxWindowBytes()).isEqualTo(456);
+        assertThat(resultSpecProto.getSnippetSpec().getMaxWindowUtf32Length()).isEqualTo(456);
     }
 
     @Test
