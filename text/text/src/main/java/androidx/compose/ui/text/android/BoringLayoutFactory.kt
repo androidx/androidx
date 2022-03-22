@@ -18,9 +18,13 @@ package androidx.compose.ui.text.android
 import android.text.BoringLayout
 import android.text.BoringLayout.Metrics
 import android.text.Layout.Alignment
+import android.text.StaticLayout
 import android.text.TextDirectionHeuristic
 import android.text.TextPaint
 import android.text.TextUtils.TruncateAt
+import androidx.annotation.DoNotInline
+import androidx.annotation.RequiresApi
+import androidx.core.os.BuildCompat
 
 /**
  * Factory Class for BoringLayout
@@ -28,7 +32,7 @@ import android.text.TextUtils.TruncateAt
 @OptIn(InternalPlatformTextApi::class)
 internal object BoringLayoutFactory {
     /**
-     * Try to lay out text by BoringLayout with provided paint and text direction.
+     * Try to layout text by BoringLayout with provided paint and text direction.
      *
      * @param text the text to analyze.
      * @param paint TextPaint which carries text style parameters such as size, weight, font e.g.
@@ -36,15 +40,16 @@ internal object BoringLayoutFactory {
      * @return null if not boring; the width, ascent, and descent in a BoringLayout.Metrics
      * object.
      */
+    @androidx.annotation.OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
     fun measure(
         text: CharSequence,
-        paint: TextPaint?,
+        paint: TextPaint,
         textDir: TextDirectionHeuristic
     ): Metrics? {
-        return if (!textDir.isRtl(text, 0, text.length)) {
-            BoringLayout.isBoring(text, paint, null /* metrics */)
+        return if (BuildCompat.isAtLeastT()) {
+            BoringLayoutFactory33.isBoring(text, paint, textDir)
         } else {
-            null
+            BoringLayoutFactoryDefault.isBoring(text, paint, textDir)
         }
     }
 
@@ -58,23 +63,33 @@ internal object BoringLayoutFactory {
      * @param alignment To which edge the text is aligned.
      * @param includePadding Whether to add extra space beyond font ascent and descent (which is
      * needed to avoid clipping in some languages, such as Arabic and Kannada). Default is true.
+     * @param useFallbackLineSpacing Sets Android TextView#setFallbackLineSpacing. This value should
+     * be set to true in most cases and it is the default on platform; otherwise tall scripts such
+     * as Burmese or Tibetan result in clippings on top and bottom sometimes making the text
+     * not-readable.
      * @param ellipsize The ellipsize option specifying how the overflowed text is handled.
      * @param ellipsizedWidth The width where the exceeding text will be ellipsized, in pixel.
+     *
+     * @see BoringLayout.isFallbackLineSpacingEnabled
+     * @see StaticLayout.Builder.setUseLineSpacingFromFallbacks
      **/
+    @androidx.annotation.OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
     fun create(
         text: CharSequence,
         paint: TextPaint,
         width: Int,
         metrics: Metrics,
         alignment: Alignment = Alignment.ALIGN_NORMAL,
-        includePadding: Boolean = true,
+        includePadding: Boolean = LayoutCompat.DEFAULT_INCLUDE_PADDING,
+        useFallbackLineSpacing: Boolean = LayoutCompat.DEFAULT_FALLBACK_LINE_SPACING,
         ellipsize: TruncateAt? = null,
-        ellipsizedWidth: Int = width
+        ellipsizedWidth: Int = width,
     ): BoringLayout {
         require(width >= 0)
         require(ellipsizedWidth >= 0)
-        return if (ellipsize == null) {
-            BoringLayout(
+
+        return if (BuildCompat.isAtLeastT()) {
+            BoringLayoutFactory33.create(
                 text,
                 paint,
                 width,
@@ -82,10 +97,13 @@ internal object BoringLayoutFactory {
                 LayoutCompat.DEFAULT_LINESPACING_MULTIPLIER,
                 LayoutCompat.DEFAULT_LINESPACING_EXTRA,
                 metrics,
-                includePadding
+                includePadding,
+                useFallbackLineSpacing,
+                ellipsize,
+                ellipsizedWidth
             )
         } else {
-            BoringLayout(
+            BoringLayoutFactoryDefault.create(
                 text,
                 paint,
                 width,
@@ -98,5 +116,108 @@ internal object BoringLayoutFactory {
                 ellipsizedWidth
             )
         }
+    }
+
+    /**
+     * Returns whether fallbackLineSpacing is enabled for the given layout.
+     */
+    @androidx.annotation.OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
+    fun isFallbackLineSpacingEnabled(layout: BoringLayout): Boolean {
+        return if (BuildCompat.isAtLeastT()) {
+            BoringLayoutFactory33.isFallbackLineSpacingEnabled(layout)
+        } else {
+            return false
+        }
+    }
+}
+
+@RequiresApi(33)
+@OptIn(InternalPlatformTextApi::class)
+private object BoringLayoutFactory33 {
+
+    @JvmStatic
+    @DoNotInline
+    fun isBoring(text: CharSequence, paint: TextPaint, textDir: TextDirectionHeuristic): Metrics? {
+        return BoringLayout.isBoring(
+            text,
+            paint,
+            textDir,
+            LayoutCompat.DEFAULT_FALLBACK_LINE_SPACING,
+            null /* metrics */
+        )
+    }
+
+    @JvmStatic
+    @DoNotInline
+    fun create(
+        text: CharSequence,
+        paint: TextPaint,
+        width: Int,
+        alignment: Alignment,
+        lineSpacingMultiplier: Float,
+        lineSpacingExtra: Float,
+        metrics: Metrics,
+        includePadding: Boolean,
+        useFallbackLineSpacing: Boolean,
+        ellipsize: TruncateAt? = null,
+        ellipsizedWidth: Int = width
+    ): BoringLayout {
+        return BoringLayoutConstructor33.create(
+            text,
+            paint,
+            width,
+            alignment,
+            lineSpacingMultiplier,
+            lineSpacingExtra,
+            metrics,
+            includePadding,
+            ellipsize,
+            ellipsizedWidth,
+            useFallbackLineSpacing
+        )
+    }
+
+    fun isFallbackLineSpacingEnabled(layout: BoringLayout): Boolean {
+        return layout.isFallbackLineSpacingEnabled
+    }
+}
+
+private object BoringLayoutFactoryDefault {
+    @JvmStatic
+    @DoNotInline
+    fun isBoring(text: CharSequence, paint: TextPaint, textDir: TextDirectionHeuristic): Metrics? {
+        return if (!textDir.isRtl(text, 0, text.length)) {
+            return BoringLayout.isBoring(text, paint, null /* metrics */)
+        } else {
+            null
+        }
+    }
+
+    @JvmStatic
+    @DoNotInline
+    fun create(
+        text: CharSequence,
+        paint: TextPaint,
+        width: Int,
+        alignment: Alignment,
+        lineSpacingMultiplier: Float,
+        lineSpacingExtra: Float,
+        metrics: Metrics,
+        includePadding: Boolean,
+        ellipsize: TruncateAt? = null,
+        ellipsizedWidth: Int = width
+    ): BoringLayout {
+        return BoringLayout(
+            text,
+            paint,
+            width,
+            alignment,
+            lineSpacingMultiplier,
+            lineSpacingExtra,
+            metrics,
+            includePadding,
+            ellipsize,
+            ellipsizedWidth
+        )
     }
 }

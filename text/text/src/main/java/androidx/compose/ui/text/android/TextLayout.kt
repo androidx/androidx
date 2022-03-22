@@ -17,9 +17,10 @@ package androidx.compose.ui.text.android
 
 import android.graphics.Canvas
 import android.graphics.Path
-import android.os.Build
+import android.text.BoringLayout
 import android.text.Layout
 import android.text.Spanned
+import android.text.StaticLayout
 import android.text.TextDirectionHeuristic
 import android.text.TextDirectionHeuristics
 import android.text.TextPaint
@@ -68,7 +69,11 @@ import kotlin.math.min
  * @param lineSpacingMultiplier the multiplier to be applied to each line of the text.
  * @param lineSpacingExtra the extra height to be added to each line of the text.
  * @param includePadding defines whether the extra space to be applied beyond font ascent and
- * descent,
+ * descent
+ * @param fallbackLineSpacing Sets Android TextView#setFallbackLineSpacing. This value should
+ * be set to true in most cases and it is the default on platform; otherwise tall scripts such
+ * as Burmese or Tibetan result in clippings on top and bottom sometimes making the text
+ * not-readable.
  * @param maxLines the maximum number of lines to be laid out.
  * @param breakStrategy the strategy to be used for line breaking
  * @param hyphenationFrequency set the frequency to control the amount of automatic hyphenation
@@ -81,7 +86,9 @@ import kotlin.math.min
  * element in the array is applied to the corresponding line. For lines past the last element in
  * array, the last element repeats.
  * @param layoutIntrinsics previously calculated [LayoutIntrinsics] for this text
+ *
  * @see StaticLayoutFactory
+ * @see BoringLayoutFactory
  *
  * @suppress
  */
@@ -174,6 +181,7 @@ class TextLayout constructor(
                 metrics = boringMetrics,
                 alignment = frameworkAlignment,
                 includePadding = includePadding,
+                useFallbackLineSpacing = fallbackLineSpacing,
                 ellipsize = ellipsize,
                 ellipsizedWidth = widthInt
             )
@@ -433,7 +441,14 @@ class TextLayout constructor(
     }
 
     internal fun isFallbackLinespacingApplied(): Boolean {
-        return fallbackLineSpacing && !isBoringLayout && Build.VERSION.SDK_INT >= 28
+        return if (isBoringLayout) {
+            BoringLayoutFactory.isFallbackLineSpacingEnabled(layout as BoringLayout)
+        } else {
+            StaticLayoutFactory.isFallbackLineSpacingEnabled(
+                layout as StaticLayout,
+                fallbackLineSpacing
+            )
+        }
     }
 }
 
