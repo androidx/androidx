@@ -24,6 +24,7 @@ import android.os.Build;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.SynchronizedCaptureSessionOpener.SynchronizedSessionFeature;
 import androidx.camera.camera2.internal.compat.CameraCaptureSessionCompat;
@@ -60,6 +61,24 @@ interface SynchronizedCaptureSession {
 
     @NonNull
     StateCallback getStateCallback();
+
+    /**
+     * Get the input Surface associated with a reprocessable capture session.
+     *
+     * <p> It is only supported from API 23. Each reprocessable capture session has an input
+     * {@link Surface} where the reprocess capture requests get the input images from, rather
+     * than the camera device. The application can create a {@link android.media.ImageWriter
+     * ImageWriter} with this input {@link Surface} and use it to provide input images for
+     * reprocess capture requests. When the reprocessable capture session is closed, the input
+     * {@link Surface} is abandoned and becomes invalid.</p>
+     *
+     * @return The {@link Surface} where reprocessing capture requests get the input images from. If
+     *         this is not a reprocess capture session, {@code null} will be returned.
+     *
+     * @see CameraCaptureSession#getInputSurface()
+     */
+    @Nullable
+    Surface getInputSurface();
 
     /**
      * Get a {@link ListenableFuture} which indicate the progress of specific task on this
