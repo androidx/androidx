@@ -1001,8 +1001,7 @@ final class Camera2CameraImpl implements CameraInternal {
 
             // If camera is interrupted currently, force open the camera right now regardless of the
             // camera availability.
-            if (enabled && (mState == InternalState.PENDING_OPEN
-                    || mState == InternalState.REOPENING)) {
+            if (enabled && mState == InternalState.PENDING_OPEN) {
                 tryForceOpenCameraDevice(/*fromScheduledCameraReopen*/false);
             }
         });
