@@ -54,7 +54,6 @@ import androidx.wear.compose.material.CircularProgressIndicator
 import androidx.wear.compose.material.CompactButton
 import androidx.wear.compose.material.CompactChip
 import androidx.wear.compose.material.curvedText
-import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.InlineSlider
 import androidx.wear.compose.material.ListHeader
 import androidx.wear.compose.material.MaterialTheme
@@ -86,7 +85,6 @@ private val PROGRESS_INDICATOR_INDETERMINATE = "progress-indicator-indeterminate
 
 class BaselineActivity : ComponentActivity() {
 
-    @OptIn(ExperimentalWearMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

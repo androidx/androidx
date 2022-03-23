@@ -75,7 +75,6 @@ import androidx.wear.compose.material.TimeTextDefaults.timeFormat
  * @param textLinearSeparator a separator slot which is used only on Square screens
  * @param textCurvedSeparator a separator slot which is used only on Round screens
  */
-@ExperimentalWearMaterialApi
 @Composable
 public fun TimeText(
     modifier: Modifier = Modifier,
@@ -136,7 +135,6 @@ public fun TimeText(
 /**
  * Contains the default values used by [TimeText]
  */
-@ExperimentalWearMaterialApi
 public object TimeTextDefaults {
 
     private val Padding = 4.dp
@@ -240,7 +238,6 @@ public object TimeTextDefaults {
 /**
  *  An interface which is responsible for retrieving a formatted time.
  */
-@ExperimentalWearMaterialApi
 public interface TimeSource {
 
     /**
@@ -251,5 +248,4 @@ public interface TimeSource {
         @Composable get
 }
 
-@ExperimentalWearMaterialApi
 internal expect class DefaultTimeSource(timeFormat: String) : TimeSource

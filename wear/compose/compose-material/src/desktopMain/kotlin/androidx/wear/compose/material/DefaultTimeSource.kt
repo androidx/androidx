@@ -18,7 +18,6 @@ package androidx.wear.compose.material
 
 import androidx.compose.runtime.Composable
 
-@ExperimentalWearMaterialApi
 internal actual class DefaultTimeSource actual constructor(timeFormat: String) : TimeSource {
 
     override val currentTime: String
