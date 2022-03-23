@@ -25,6 +25,12 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import java.nio.ByteBuffer
+import java.util.concurrent.Semaphore
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.atomic.AtomicReference
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
@@ -45,12 +51,6 @@ import org.mockito.Mockito.never
 import org.mockito.Mockito.timeout
 import org.mockito.Mockito.verify
 import org.mockito.invocation.InvocationOnMock
-import java.nio.ByteBuffer
-import java.util.concurrent.Semaphore
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.atomic.AtomicLong
-import java.util.concurrent.atomic.AtomicReference
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
@@ -65,7 +65,7 @@ class AudioEncoderTest {
         private const val CHANNEL_COUNT = 1
     }
 
-    private lateinit var encoder: Encoder
+    private lateinit var encoder: EncoderImpl
     private lateinit var encoderCallback: EncoderCallback
     private lateinit var fakeAudioLoop: FakeAudioLoop
 
@@ -295,7 +295,7 @@ class AudioEncoderTest {
         verify(encoderCallback, timeout(5000L)).onEncodePaused()
 
         // Save all values before clear invocations
-        var startCaptor = ArgumentCaptor.forClass(EncodedData::class.java)
+        val startCaptor = ArgumentCaptor.forClass(EncodedData::class.java)
         verify(encoderCallback, atLeastOnce()).onEncodedData(startCaptor.capture())
         dataList.addAll(startCaptor.allValues)
         clearInvocations(encoderCallback)
@@ -307,6 +307,26 @@ class AudioEncoderTest {
 
         // Assert.
         verifyDataInChronologicalOrder(dataList)
+    }
+
+    @Test
+    fun stopEncoder_reachStopTime() {
+        // Arrange.
+        fakeAudioLoop.start()
+
+        // Act.
+        encoder.start()
+        verify(encoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
+
+        val stopTimeUs = TimeUnit.NANOSECONDS.toMicros(System.nanoTime())
+
+        encoder.stop()
+        verify(encoderCallback, timeout(5000L)).onEncodeStop()
+
+        // Assert.
+        // If the last data timestamp is null, it means the encoding is probably stopped because of timeout.
+        assertThat(encoder.mLastDataStopTimestamp).isNotNull()
+        assertThat(encoder.mLastDataStopTimestamp).isAtLeast(stopTimeUs)
     }
 
     @Test
