@@ -133,7 +133,6 @@ public open class NavController(
      * Activity/Fragment - if the Activity is not `RESUMED`, no entry will be `RESUMED`, no matter
      * what the transition state is.
      */
-    @NavControllerVisibleEntries
     public val visibleEntries: StateFlow<List<NavBackStackEntry>> =
         _visibleEntries.asStateFlow()
 
