@@ -30,6 +30,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.wear.compose.foundation.ArcPaddingValues
+import androidx.wear.compose.foundation.CurvedAlignment
 import androidx.wear.compose.foundation.CurvedLayout
 import androidx.wear.compose.foundation.CurvedTextStyle
 import androidx.wear.compose.foundation.basicCurvedText
@@ -74,7 +75,7 @@ fun CurvedRowAndColumn() {
         curvedComposable {
             Box(modifier = Modifier.size(20.dp).background(Color.Red))
         }
-        curvedColumn {
+        curvedColumn(angularAlignment = CurvedAlignment.Angular.End) {
             repeat(3) {
                 curvedRow {
                     curvedComposable {
