@@ -79,7 +79,11 @@ class ImageAppWidget : GlanceAppWidget() {
 }
 
 class ChangeImageAction : ActionCallback {
-    override suspend fun onRun(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
+    override suspend fun onAction(
+        context: Context,
+        glanceId: GlanceId,
+        parameters: ActionParameters
+    ) {
         updateAppWidgetState(context, glanceId) { state ->
             val value = when (state[ImageAppWidget.ImageTypeKey]) {
                 "Crop" -> "Fill Bounds"

@@ -96,7 +96,11 @@ class ListDemoWidgetReceiver : GlanceAppWidgetReceiver() {
 }
 
 class ListButtonAction : ActionCallback {
-    override suspend fun onRun(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
+    override suspend fun onAction(
+        context: Context,
+        glanceId: GlanceId,
+        parameters: ActionParameters
+    ) {
         updateAppWidgetState(context, glanceId) { prefs ->
             var count = prefs[CountKey] ?: 0
             if (count >= MAX_ITEMS) {
@@ -112,7 +116,11 @@ class ListButtonAction : ActionCallback {
 }
 
 class ListTemplateItemAction : ActionCallback {
-    override suspend fun onRun(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
+    override suspend fun onAction(
+        context: Context,
+        glanceId: GlanceId,
+        parameters: ActionParameters
+    ) {
         updateAppWidgetState(context, glanceId) {
             it[ItemClickedKey] = parameters[ClickedKey] ?: -1
         }

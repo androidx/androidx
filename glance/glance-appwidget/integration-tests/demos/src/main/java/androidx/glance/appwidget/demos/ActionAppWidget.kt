@@ -219,7 +219,11 @@ private fun SendBroadcastActions() {
  * Action to update the [SelectedItemKey] value whenever users clicks on text
  */
 class UpdateAction : ActionCallback {
-    override suspend fun onRun(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
+    override suspend fun onAction(
+        context: Context,
+        glanceId: GlanceId,
+        parameters: ActionParameters
+    ) {
         updateAppWidgetState(context, glanceId) { state ->
             state[SelectedItemKey] = parameters[SelectedItemKey.toParametersKey()] ?: 0
         }

@@ -163,7 +163,11 @@ private fun ContentItem(
 }
 
 class ResponsiveAction : ActionCallback {
-    override suspend fun onRun(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
+    override suspend fun onAction(
+        context: Context,
+        glanceId: GlanceId,
+        parameters: ActionParameters
+    ) {
         Handler(context.mainLooper).post {
             Toast.makeText(
                 context,

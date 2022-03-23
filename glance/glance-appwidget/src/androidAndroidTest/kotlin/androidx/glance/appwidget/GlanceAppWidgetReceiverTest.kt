@@ -793,7 +793,7 @@ class GlanceAppWidgetReceiverTest {
 private val testKey = intPreferencesKey("testKey")
 
 internal class CallbackTest : ActionCallback {
-    override suspend fun onRun(
+    override suspend fun onAction(
         context: Context,
         glanceId: GlanceId,
         parameters: ActionParameters
@@ -833,7 +833,7 @@ private fun BoxRowBox(modifier: GlanceModifier, text: String) {
 }
 
 internal class CompoundButtonActionTest : ActionCallback {
-    override suspend fun onRun(
+    override suspend fun onAction(
         context: Context,
         glanceId: GlanceId,
         parameters: ActionParameters
