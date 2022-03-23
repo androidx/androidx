@@ -49,6 +49,7 @@ import androidx.camera.video.internal.compat.quirk.AudioEncoderIgnoresInputTimes
 import androidx.camera.video.internal.compat.quirk.CameraUseInconsistentTimebaseQuirk;
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.video.internal.compat.quirk.EncoderNotUsePersistentInputSurfaceQuirk;
+import androidx.camera.video.internal.compat.quirk.VideoEncoderSuspendDoesNotIncludeSuspendTimeQuirk;
 import androidx.camera.video.internal.workaround.CorrectVideoTimeByTimebase;
 import androidx.camera.video.internal.workaround.EncoderFinder;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
@@ -333,6 +334,10 @@ public class EncoderImpl implements Encoder {
                             AudioEncoderIgnoresInputTimestampQuirk.class) != null) {
                         // Do nothing. Since we keep handling audio data in the codec after
                         // paused, we don't have to resume the codec and the input source.
+                    } else if (mIsVideoEncoder && DeviceQuirks.get(
+                            VideoEncoderSuspendDoesNotIncludeSuspendTimeQuirk.class) != null) {
+                        // Do nothing. Since we don't pause the codec when paused, we don't have
+                        // to resume the codec.
                     } else {
                         setMediaCodecPaused(false);
                         if (mEncoderInput instanceof ByteBufferInput) {
@@ -1183,6 +1188,9 @@ public class EncoderImpl implements Encoder {
                     if (!mIsVideoEncoder && DeviceQuirks.get(
                             AudioEncoderIgnoresInputTimestampQuirk.class) != null) {
                         // Do nothing, which means keep handling audio data in the codec.
+                    } else if (mIsVideoEncoder && DeviceQuirks.get(
+                            VideoEncoderSuspendDoesNotIncludeSuspendTimeQuirk.class) != null) {
+                        // Do nothing, which means don't pause the codec.
                     } else {
                         if (mEncoderInput instanceof ByteBufferInput) {
                             ((ByteBufferInput) mEncoderInput).setActive(false);

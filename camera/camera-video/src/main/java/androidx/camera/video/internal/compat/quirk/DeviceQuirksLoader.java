@@ -71,6 +71,9 @@ public class DeviceQuirksLoader {
         if (AudioEncoderIgnoresInputTimestampQuirk.load()) {
             quirks.add(new AudioEncoderIgnoresInputTimestampQuirk());
         }
+        if (VideoEncoderSuspendDoesNotIncludeSuspendTimeQuirk.load()) {
+            quirks.add(new VideoEncoderSuspendDoesNotIncludeSuspendTimeQuirk());
+        }
 
         return quirks;
     }
