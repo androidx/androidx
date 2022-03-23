@@ -328,7 +328,7 @@ class VideoEncoderTest {
         videoEncoder.start()
         verify(videoEncoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
 
-        val stopTimeUs = TimeUnit.MILLISECONDS.toMicros(SystemClock.uptimeMillis())
+        val stopTimeUs = TimeUnit.NANOSECONDS.toMicros(System.nanoTime())
 
         videoEncoder.stopSafely()
         verify(videoEncoderCallback, timeout(5000L)).onEncodeStop()
