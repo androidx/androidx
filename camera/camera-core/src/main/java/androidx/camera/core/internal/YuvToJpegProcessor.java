@@ -35,8 +35,10 @@ import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.ImageProxyBundle;
 import androidx.camera.core.impl.utils.ExifData;
 import androidx.camera.core.impl.utils.ExifOutputStream;
+import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.internal.compat.ImageWriterCompat;
 import androidx.camera.core.internal.utils.ImageUtil;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -75,6 +77,11 @@ public class YuvToJpegProcessor implements CaptureProcessor {
     private ImageWriter mImageWriter;
     @GuardedBy("mLock")
     private Rect mImageRect = UNINITIALIZED_RECT;
+
+    @GuardedBy("mLock")
+    CallbackToFutureAdapter.Completer<Void> mCloseCompleter;
+    @GuardedBy("mLock")
+    private ListenableFuture<Void> mCloseFuture;
 
     public YuvToJpegProcessor(@IntRange(from = 0, to = 100) int quality, int maxImages) {
         mQuality = quality;
@@ -217,6 +224,13 @@ public class YuvToJpegProcessor implements CaptureProcessor {
             if (shouldCloseImageWriter) {
                 imageWriter.close();
                 Logger.d(TAG, "Closed after completion of last image processed.");
+
+                synchronized (mLock) {
+                    if (mCloseCompleter != null) {
+                        // Notify listeners of close
+                        mCloseCompleter.set(null);
+                    }
+                }
             }
         }
     }
@@ -236,11 +250,44 @@ public class YuvToJpegProcessor implements CaptureProcessor {
                 if (mProcessingImages == 0 && mImageWriter != null) {
                     Logger.d(TAG, "No processing in progress. Closing immediately.");
                     mImageWriter.close();
+
+                    if (mCloseCompleter != null) {
+                        mCloseCompleter.set(null);
+                    }
                 } else {
                     Logger.d(TAG, "close() called while processing. Will close after completion.");
                 }
             }
         }
+    }
+
+    /**
+     * Returns a future that will complete when the YuvToJpegProcessor is actually closed.
+     *
+     * @return A future that signals when the YuvToJpegProcessor is actually closed
+     * (after all processing). Cancelling this future has no effect.
+     */
+    @NonNull
+    public ListenableFuture<Void> getCloseFuture() {
+        ListenableFuture<Void> closeFuture;
+        synchronized (mLock) {
+            if (mClosed && mProcessingImages == 0) {
+                // Everything should be closed. Return immediate future.
+                closeFuture = Futures.immediateFuture(null);
+            } else {
+                if (mCloseFuture == null) {
+                    mCloseFuture = CallbackToFutureAdapter.getFuture(completer -> {
+                        // Should already be locked, but lock again to satisfy linter.
+                        synchronized (mLock) {
+                            mCloseCompleter = completer;
+                        }
+                        return "YuvToJpegProcessor-close";
+                    });
+                }
+                closeFuture = Futures.nonCancellationPropagating(mCloseFuture);
+            }
+        }
+        return closeFuture;
     }
 
     @Override

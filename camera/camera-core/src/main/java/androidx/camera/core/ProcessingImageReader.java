@@ -178,6 +178,9 @@ class ProcessingImageReader implements ImageReaderProxy {
 
     private final List<Integer> mCaptureIdList = new ArrayList<>();
 
+    private ListenableFuture<List<ImageProxy>> mSettableImageProxyFutureList =
+            Futures.immediateFuture(new ArrayList<>());
+
     ProcessingImageReader(@NonNull Builder builder) {
         if (builder.mInputImageReader.getMaxImages()
                 < builder.mCaptureBundle.getCaptureStages().size()) {
@@ -245,6 +248,7 @@ class ProcessingImageReader implements ImageReaderProxy {
             // ImageReaderProxys and associated ImageProxy. Let the processing complete before
             // closing them.
             if (!mProcessing) {
+                cancelSettableImageProxyBundleFutureList();
                 mInputImageReader.close();
                 mSettableImageProxyBundle.close();
                 mOutputImageReader.close();
@@ -351,6 +355,12 @@ class ProcessingImageReader implements ImageReaderProxy {
     /** Sets a CaptureBundle */
     public void setCaptureBundle(@NonNull CaptureBundle captureBundle) {
         synchronized (mLock) {
+            if (mClosed) {
+                return;
+            }
+
+            cancelSettableImageProxyBundleFutureList();
+
             if (captureBundle.getCaptureStages() != null) {
                 if (mInputImageReader.getMaxImages() < captureBundle.getCaptureStages().size()) {
                     throw new IllegalArgumentException(
@@ -370,6 +380,16 @@ class ProcessingImageReader implements ImageReaderProxy {
             mTagBundleKey = Integer.toString(captureBundle.hashCode());
             mSettableImageProxyBundle = new SettableImageProxyBundle(mCaptureIdList, mTagBundleKey);
             setupSettableImageProxyBundleCallbacks();
+        }
+    }
+
+    private void cancelSettableImageProxyBundleFutureList() {
+        synchronized (mLock) {
+            if (!mSettableImageProxyFutureList.isDone()) {
+                mSettableImageProxyFutureList.cancel(true);
+            }
+
+            mSettableImageProxyBundle.reset();
         }
     }
 
@@ -393,6 +413,9 @@ class ProcessingImageReader implements ImageReaderProxy {
         for (Integer id : mCaptureIdList) {
             futureList.add(mSettableImageProxyBundle.getImageProxy(id));
         }
+
+        mSettableImageProxyFutureList = Futures.allAsList(futureList);
+
         Futures.addCallback(Futures.allAsList(futureList), mCaptureStageReadyCallback,
                 mPostProcessExecutor);
     }
