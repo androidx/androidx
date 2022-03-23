@@ -48,8 +48,6 @@ import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onChild
-import androidx.compose.ui.test.onChildAt
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onRoot
@@ -96,7 +94,7 @@ class ChipBehaviourTest {
             }
         }
 
-        rule.onNodeWithTag("test-item").onChildAt(0).assertHasClickAction()
+        rule.onNodeWithTag("test-item").assertHasClickAction()
     }
 
     @Test
@@ -112,7 +110,7 @@ class ChipBehaviourTest {
             }
         }
 
-        rule.onNodeWithTag("test-item").onChildAt(0).assertHasClickAction()
+        rule.onNodeWithTag("test-item").assertHasClickAction()
     }
 
     @Test
@@ -128,7 +126,7 @@ class ChipBehaviourTest {
             }
         }
 
-        rule.onNodeWithTag("test-item").onChildAt(0).assertIsEnabled()
+        rule.onNodeWithTag("test-item").assertIsEnabled()
     }
 
     @Test
@@ -144,7 +142,7 @@ class ChipBehaviourTest {
             }
         }
 
-        rule.onNodeWithTag("test-item").onChildAt(0).assertIsNotEnabled()
+        rule.onNodeWithTag("test-item").assertIsNotEnabled()
     }
 
     @Test
@@ -162,7 +160,7 @@ class ChipBehaviourTest {
             }
         }
 
-        rule.onNodeWithTag("test-item").onChildAt(0).performClick()
+        rule.onNodeWithTag("test-item").performClick()
 
         rule.runOnIdle {
             assertEquals(true, clicked)
@@ -184,7 +182,7 @@ class ChipBehaviourTest {
             }
         }
 
-        rule.onNodeWithTag("test-item").onChildAt(0).performClick()
+        rule.onNodeWithTag("test-item").performClick()
 
         rule.runOnIdle {
             assertEquals(false, clicked)
@@ -204,7 +202,7 @@ class ChipBehaviourTest {
             }
         }
 
-        rule.onNodeWithTag("test-item").onChildAt(0)
+        rule.onNodeWithTag("test-item")
             .assert(
                 SemanticsMatcher.expectValue(
                     SemanticsProperties.Role,
@@ -563,7 +561,6 @@ class ChipColorTest {
         }
 
         rule.onNodeWithTag("test-item")
-            .onChild() // skip the 'outer' surface
             .captureToImage()
             .assertContainsColor(overrideColor, 50.0f)
     }
@@ -585,7 +582,6 @@ class ChipColorTest {
         }
 
         rule.onNodeWithTag("test-item")
-            .onChild() // skip the 'outer' surface
             .captureToImage()
             .assertContainsColor(overrideColor, 50.0f)
     }

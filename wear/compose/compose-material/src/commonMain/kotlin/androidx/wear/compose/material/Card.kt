@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -111,20 +112,12 @@ public fun Card(
     Box(
         modifier = modifier
             .fillMaxWidth()
+            .height(IntrinsicSize.Min)
             .clip(shape = shape)
-    ) {
-        // TODO: Due to b/178201337 the paint() modifier on the box doesn't make a call to draw the
-        //  box contents. As a result we need to have stacked boxes to enable us to paint the
-        //  background
-        val painterModifier =
-            Modifier
-                .matchParentSize()
-                .paint(
-                    painter = backgroundPainter,
-                    contentScale = ContentScale.Crop
-                )
-
-        val contentBoxModifier = Modifier
+            .paint(
+                painter = backgroundPainter,
+                contentScale = ContentScale.Crop
+            )
             .clickable(
                 enabled = enabled,
                 onClick = onClick,
@@ -133,20 +126,12 @@ public fun Card(
                 interactionSource = interactionSource,
             )
             .padding(contentPadding)
-
-        Box(
-            modifier = painterModifier
-        )
+    ) {
         CompositionLocalProvider(
             LocalContentColor provides contentColor,
-            LocalTextStyle provides MaterialTheme.typography.button
-        ) {
-            Box(
-                modifier = contentBoxModifier,
-            ) {
-                content()
-            }
-        }
+            LocalTextStyle provides MaterialTheme.typography.button,
+            content = content
+        )
     }
 }
 

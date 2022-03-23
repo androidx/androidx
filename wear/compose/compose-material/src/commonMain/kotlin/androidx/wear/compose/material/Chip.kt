@@ -111,19 +111,9 @@ public fun Chip(
         modifier = modifier
             .height(ChipDefaults.Height)
             .clip(shape = shape)
-    ) {
-        // TODO: Due to b/178201337 the paint() modifier on the box doesn't make a call to draw the
-        //  box contents. As a result we need to have stacked boxes to enable us to paint the
-        //  background
-        val painterModifier =
-            Modifier
-                .paint(
-                    painter = colors.background(enabled = enabled).value,
-                    contentScale = ContentScale.Crop
-                )
-                .fillMaxSize()
-
-        val contentBoxModifier = Modifier
+            .paint(painter = colors.background(enabled = enabled).value,
+                contentScale = ContentScale.Crop
+            )
             .clickable(
                 enabled = enabled,
                 onClick = onClick,
@@ -133,20 +123,13 @@ public fun Chip(
             )
             .fillMaxSize()
             .padding(contentPadding)
-
-        Box(
-            modifier = painterModifier
-        ) { }
-        Box(
-            modifier = contentBoxModifier
-        ) {
-            CompositionLocalProvider(
-                LocalContentColor provides colors.contentColor(enabled = enabled).value,
-                LocalTextStyle provides MaterialTheme.typography.button,
-                LocalContentAlpha provides colors.contentColor(enabled = enabled).value.alpha,
-                content = content
-            )
-        }
+    ) {
+        CompositionLocalProvider(
+            LocalContentColor provides colors.contentColor(enabled = enabled).value,
+            LocalTextStyle provides MaterialTheme.typography.button,
+            LocalContentAlpha provides colors.contentColor(enabled = enabled).value.alpha,
+            content = content
+        )
     }
 }
 
