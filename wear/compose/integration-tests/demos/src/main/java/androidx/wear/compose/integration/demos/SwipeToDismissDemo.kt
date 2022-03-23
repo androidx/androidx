@@ -73,7 +73,7 @@ fun SwipeToDismissDemo(
             // What to show behind the content whilst swiping.
             when (demoState.value) {
                 SwipeDismissDemoState.List -> {
-                    DisplayDemoList(SwipeToDismissDemos, null, {}, {})
+                    DisplayDemoList(SwipeToDismissDemos, {})
                 }
                 SwipeDismissDemoState.Detail -> {
                     SwipeToDismissOptionsList()
