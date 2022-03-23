@@ -32,7 +32,6 @@ import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onChildAt
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.text.TextStyle
@@ -72,7 +71,7 @@ public class CardBehaviourTest {
             }
         }
 
-        rule.onNodeWithTag(TEST_TAG).onChildAt(0).assertHasClickAction()
+        rule.onNodeWithTag(TEST_TAG).assertHasClickAction()
     }
 
     @Test
@@ -87,7 +86,7 @@ public class CardBehaviourTest {
             }
         }
 
-        rule.onNodeWithTag(TEST_TAG).onChildAt(0).assertHasClickAction()
+        rule.onNodeWithTag(TEST_TAG).assertHasClickAction()
     }
 
     @Test
@@ -102,7 +101,7 @@ public class CardBehaviourTest {
             }
         }
 
-        rule.onNodeWithTag(TEST_TAG).onChildAt(0).assertIsEnabled()
+        rule.onNodeWithTag(TEST_TAG).assertIsEnabled()
     }
 
     @Test
@@ -117,7 +116,7 @@ public class CardBehaviourTest {
             }
         }
 
-        rule.onNodeWithTag(TEST_TAG).onChildAt(0).assertIsNotEnabled()
+        rule.onNodeWithTag(TEST_TAG).assertIsNotEnabled()
     }
 
     @Test
@@ -134,7 +133,7 @@ public class CardBehaviourTest {
             }
         }
 
-        rule.onNodeWithTag(TEST_TAG).onChildAt(0).performClick()
+        rule.onNodeWithTag(TEST_TAG).performClick()
 
         rule.runOnIdle {
             assertEquals(true, clicked)
@@ -155,7 +154,7 @@ public class CardBehaviourTest {
             }
         }
 
-        rule.onNodeWithTag(TEST_TAG).onChildAt(0).performClick()
+        rule.onNodeWithTag(TEST_TAG).performClick()
 
         rule.runOnIdle {
             assertEquals(false, clicked)
@@ -175,7 +174,7 @@ public class CardBehaviourTest {
             }
         }
 
-        rule.onNodeWithTag(TEST_TAG).onChildAt(0)
+        rule.onNodeWithTag(TEST_TAG)
             .assert(
                 SemanticsMatcher.expectValue(
                     SemanticsProperties.Role,
