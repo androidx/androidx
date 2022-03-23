@@ -18,6 +18,7 @@ package android.support.wearable.complications;
 
 import android.annotation.SuppressLint;
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
 import android.os.BadParcelableException;
@@ -262,6 +263,7 @@ public final class ComplicationData implements Parcelable, Serializable {
     private static final String FIELD_TIMELINE_END_TIME = "TIMELINE_END_TIME";
     private static final String FIELD_TIMELINE_ENTRIES = "TIMELINE";
     private static final String FIELD_PLACEHOLDER_TYPE = "PLACEHOLDER_TYPE";
+    private static final String FIELD_DATA_SOURCE = "FIELD_DATA_SOURCE";
 
     // Originally it was planned to support both content and image content descriptions.
     private static final String FIELD_CONTENT_DESCRIPTION = "IMAGE_CONTENT_DESCRIPTION";
@@ -293,7 +295,8 @@ public final class ComplicationData implements Parcelable, Serializable {
                     FIELD_ICON,
                     FIELD_ICON_BURN_IN_PROTECTION,
                     FIELD_TAP_ACTION,
-                    FIELD_CONTENT_DESCRIPTION
+                    FIELD_CONTENT_DESCRIPTION,
+                    FIELD_DATA_SOURCE
             }, // SHORT_TEXT
             {
                     FIELD_LONG_TITLE,
@@ -303,7 +306,8 @@ public final class ComplicationData implements Parcelable, Serializable {
                     FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
                     FIELD_IMAGE_STYLE,
                     FIELD_TAP_ACTION,
-                    FIELD_CONTENT_DESCRIPTION
+                    FIELD_CONTENT_DESCRIPTION,
+                    FIELD_DATA_SOURCE
             }, // LONG_TEXT
             {
                     FIELD_SHORT_TEXT,
@@ -312,26 +316,30 @@ public final class ComplicationData implements Parcelable, Serializable {
                     FIELD_ICON_BURN_IN_PROTECTION,
                     FIELD_TAP_ACTION,
                     FIELD_CONTENT_DESCRIPTION,
+                    FIELD_DATA_SOURCE
             }, // RANGED_VALUE
             {
                     FIELD_TAP_ACTION,
                     FIELD_ICON_BURN_IN_PROTECTION,
-                    FIELD_CONTENT_DESCRIPTION
+                    FIELD_CONTENT_DESCRIPTION,
+                    FIELD_DATA_SOURCE
             }, // ICON
             {
                     FIELD_TAP_ACTION,
                     FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
-                    FIELD_CONTENT_DESCRIPTION
+                    FIELD_CONTENT_DESCRIPTION,
+                    FIELD_DATA_SOURCE
             }, // SMALL_IMAGE
             {
-                    FIELD_TAP_ACTION, FIELD_CONTENT_DESCRIPTION
+                    FIELD_TAP_ACTION, FIELD_CONTENT_DESCRIPTION, FIELD_DATA_SOURCE
             }, // LARGE_IMAGE
             {
                     FIELD_SHORT_TEXT,
                     FIELD_SHORT_TITLE,
                     FIELD_ICON,
                     FIELD_ICON_BURN_IN_PROTECTION,
-                    FIELD_CONTENT_DESCRIPTION
+                    FIELD_CONTENT_DESCRIPTION,
+                    FIELD_DATA_SOURCE
             }, // TYPE_NO_PERMISSION
             {  // TYPE_NO_DATA
                     FIELD_CONTENT_DESCRIPTION,
@@ -349,7 +357,8 @@ public final class ComplicationData implements Parcelable, Serializable {
                     FIELD_SMALL_IMAGE,
                     FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
                     FIELD_TAP_ACTION,
-                    FIELD_VALUE
+                    FIELD_VALUE,
+                    FIELD_DATA_SOURCE
             }
     };
 
@@ -402,7 +411,7 @@ public final class ComplicationData implements Parcelable, Serializable {
 
     @RequiresApi(api = Build.VERSION_CODES.P)
     private static class SerializedForm implements Serializable {
-        private static final int VERSION_NUMBER = 4;
+        private static final int VERSION_NUMBER = 5;
 
         @NonNull
         ComplicationData mComplicationData;
@@ -474,6 +483,15 @@ public final class ComplicationData implements Parcelable, Serializable {
             if (isFieldValidForType(FIELD_PLACEHOLDER_TYPE, type)) {
                 oos.writeInt(mComplicationData.getPlaceholderType());
             }
+            if (isFieldValidForType(FIELD_DATA_SOURCE, type)) {
+                ComponentName componentName = mComplicationData.getDataSource();
+                if (componentName == null) {
+                    oos.writeUTF("");
+                } else {
+                    oos.writeUTF(componentName.flattenToString());
+                }
+            }
+
             // TapAction unfortunately can't be serialized, instead we record if we've lost it.
             oos.writeBoolean(mComplicationData.hasTapAction()
                     || mComplicationData.getTapActionLostDueToSerialization());
@@ -558,6 +576,15 @@ public final class ComplicationData implements Parcelable, Serializable {
                 int placeholderType = ois.readInt();
                 if (placeholderType != 0) {
                     fields.putInt(FIELD_PLACEHOLDER_TYPE, placeholderType);
+                }
+            }
+            if (isFieldValidForType(FIELD_DATA_SOURCE, type)) {
+                String componentName = ois.readUTF();
+                if (componentName.isEmpty()) {
+                    fields.remove(FIELD_DATA_SOURCE);
+                } else {
+                    fields.putParcelable(
+                            FIELD_DATA_SOURCE, ComponentName.unflattenFromString(componentName));
                 }
             }
             if (ois.readBoolean()) {
@@ -722,6 +749,24 @@ public final class ComplicationData implements Parcelable, Serializable {
                     FIELD_TIMELINE_ENTRIES,
                     timelineEntries.stream().map(e -> e.mFields).toArray(Parcelable[]::new));
         }
+    }
+
+    /**
+     * Sets the {@link ComponentName} of the ComplicationDataSourceService that provided this
+     * ComplicationData.
+     */
+    public void setDataSource(@Nullable ComponentName provider) {
+        mFields.putParcelable(FIELD_DATA_SOURCE, provider);
+    }
+
+    /**
+     * Gets the {@link ComponentName} of the ComplicationDataSourceService that provided this
+     * ComplicationData.
+     */
+    @Nullable
+    @SuppressWarnings("deprecation")  // The safer alternative is not available on Wear OS yet.
+    public ComponentName getDataSource() {
+        return (ComponentName) mFields.getParcelable(FIELD_DATA_SOURCE);
     }
 
     /**
@@ -1661,6 +1706,19 @@ public final class ComplicationData implements Parcelable, Serializable {
         @NonNull
         public Builder setPlaceholderType(@ComplicationType int placeholderType) {
             putIntField(FIELD_PLACEHOLDER_TYPE, placeholderType);
+            return this;
+        }
+
+        /**
+         * Sets the {@link ComponentName} of the ComplicationDataSourceService that provided this
+         * ComplicationData. Generally this field should be set and is only nullable for backwards
+         * compatibility.
+         *
+         * <p>Returns this Builder to allow chaining.
+         */
+        @NonNull
+        public Builder setDataSource(@Nullable ComponentName provider) {
+            putOrRemoveField(FIELD_DATA_SOURCE, provider);
             return this;
         }
 
