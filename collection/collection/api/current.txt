@@ -196,7 +196,7 @@ package androidx.collection {
     method public boolean containsValue(E? value);
     method @Deprecated public void delete(int key);
     method public operator E? get(int key);
-    method public operator E! get(int key, E? defaultValue);
+    method public E! get(int key, E? defaultValue);
     method public final boolean getIsEmpty();
     method public int indexOfKey(int key);
     method public int indexOfValue(E? value);

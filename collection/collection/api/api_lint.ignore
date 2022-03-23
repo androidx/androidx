@@ -9,6 +9,10 @@ ArrayReturn: androidx.collection.ArraySet#toArray(T[]) parameter #0:
     Method parameter should be Collection<T> (or subclass) instead of raw array; was `T[]`
 
 
+KotlinOperator: androidx.collection.SparseArrayCompat#get(int, E):
+    Note that adding the `operator` keyword would allow calling this method using operator syntax
+
+
 NoClone: androidx.collection.LongSparseArray#clone():
     Provide an explicit copy constructor instead of implementing `clone()`
 NoClone: androidx.collection.SparseArrayCompat#clone():
