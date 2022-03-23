@@ -80,6 +80,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -864,10 +865,11 @@ public abstract class CameraController {
         if (mAnalysisAnalyzer == analyzer && mAnalysisExecutor == executor) {
             return;
         }
+        ImageAnalysis.Analyzer oldAnalyzer = mAnalysisAnalyzer;
         mAnalysisExecutor = executor;
         mAnalysisAnalyzer = analyzer;
         mImageAnalysis.setAnalyzer(executor, analyzer);
-        restartCameraIfAnalyzerHasResolution(analyzer);
+        restartCameraIfAnalyzerResolutionChanged(oldAnalyzer, analyzer);
     }
 
     /**
@@ -888,12 +890,18 @@ public abstract class CameraController {
         mAnalysisExecutor = null;
         mAnalysisAnalyzer = null;
         mImageAnalysis.clearAnalyzer();
-        restartCameraIfAnalyzerHasResolution(oldAnalyzer);
+        restartCameraIfAnalyzerResolutionChanged(oldAnalyzer, null);
     }
 
     @OptIn(markerClass = ExperimentalAnalyzer.class)
-    private void restartCameraIfAnalyzerHasResolution(ImageAnalysis.Analyzer analyzer) {
-        if (analyzer != null && analyzer.getTargetResolutionOverride() != null) {
+    private void restartCameraIfAnalyzerResolutionChanged(
+            @Nullable ImageAnalysis.Analyzer oldAnalyzer,
+            @Nullable ImageAnalysis.Analyzer newAnalyzer) {
+        Size oldResolution = oldAnalyzer == null ? null :
+                oldAnalyzer.getTargetResolutionOverride();
+        Size newResolution = newAnalyzer == null ? null :
+                newAnalyzer.getTargetResolutionOverride();
+        if (!Objects.equals(oldResolution, newResolution)) {
             // Rebind ImageAnalysis to reconfigure target resolution.
             unbindImageAnalysisAndRecreate(mImageAnalysis.getBackpressureStrategy(),
                     mImageAnalysis.getImageQueueDepth());

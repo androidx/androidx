@@ -83,24 +83,54 @@ public class CameraControllerTest {
     }
 
     @Test
-    fun setAnalyzerWithResolution_imageAnalysisIsRecreated() {
-        // Arrange.
+    fun setAnalyzerWithNewResolutionOverride_imageAnalysisIsRecreated() {
+        // Arrange: record the original ImageAnalysis
         val originalImageAnalysis = controller.mImageAnalysis
-        val targetResolution = Size(1, 1)
-        val analyzer = object : ImageAnalysis.Analyzer {
+        // Act: set a Analyzer with overridden size.
+        controller.setImageAnalysisAnalyzer(mainThreadExecutor(), createAnalyzer(Size(1, 1)))
+        // Assert: the ImageAnalysis has be recreated.
+        assertThat(controller.mImageAnalysis).isNotEqualTo(originalImageAnalysis)
+        val newImageAnalysis = controller.mImageAnalysis
+        // Act: set a Analyzer with a different overridden size.
+        controller.setImageAnalysisAnalyzer(mainThreadExecutor(), createAnalyzer(Size(1, 2)))
+        // Assert: the ImageAnalysis has be recreated, again.
+        assertThat(controller.mImageAnalysis).isNotEqualTo(newImageAnalysis)
+    }
+
+    @Test
+    fun clearAnalyzerWithResolutionOverride_imageAnalysisIsRecreated() {
+        // Arrange: set a Analyzer with resolution and record the ImageAnalysis.
+        controller.setImageAnalysisAnalyzer(mainThreadExecutor(), createAnalyzer(Size(1, 1)))
+        val originalImageAnalysis = controller.mImageAnalysis
+        // Act: clear Analyzer
+        controller.clearImageAnalysisAnalyzer()
+        // Assert: the ImageAnalysis has been recreated.
+        assertThat(controller.mImageAnalysis).isNotEqualTo(originalImageAnalysis)
+    }
+
+    @Test
+    fun setAnalyzerWithNoOverride_imageAnalysisIsNotRecreated() {
+        // Arrange: record the original ImageAnalysis
+        val originalImageAnalysis = controller.mImageAnalysis
+        // Act: setAnalyzer with no resolution.
+        controller.setImageAnalysisAnalyzer(mainThreadExecutor(), createAnalyzer(null))
+        // Assert: the ImageAnalysis is the same.
+        assertThat(controller.mImageAnalysis).isEqualTo(originalImageAnalysis)
+    }
+
+    /**
+     * Creates a [ImageAnalysis.Analyzer] with the given resolution override.
+     */
+    private fun createAnalyzer(size: Size?): ImageAnalysis.Analyzer {
+        return object : ImageAnalysis.Analyzer {
             override fun analyze(image: ImageProxy) {
                 // no-op
             }
 
-            override fun getTargetResolutionOverride(): Size {
-                return targetResolution
+            override fun getTargetResolutionOverride(): Size? {
+                return size
             }
         }
-        // Act.
-        controller.setImageAnalysisAnalyzer(mainThreadExecutor(), analyzer)
-
-        // Assert.
-        assertThat(controller.mImageAnalysis).isNotEqualTo(originalImageAnalysis)
     }
 
     @Test
