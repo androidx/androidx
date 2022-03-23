@@ -389,6 +389,34 @@ public class ComplicationDataSourceInfo(
         }
     }
 
+    override fun toString(): String =
+        "ComplicationDataSourceInfo(appName=$appName, name=$name, type=$type" +
+            ", icon=$icon, componentName=$componentName)"
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as ComplicationDataSourceInfo
+
+        if (appName != other.appName) return false
+        if (name != other.name) return false
+        if (type != other.type) return false
+        if (icon != other.icon) return false
+        if (componentName != other.componentName) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = appName.hashCode()
+        result = 31 * result + name.hashCode()
+        result = 31 * result + type.hashCode()
+        result = 31 * result + icon.hashCode()
+        result = 31 * result + componentName.hashCode()
+        return result
+    }
+
     /**
      * Converts this value to [WireComplicationProviderInfo] object used for serialization.
      *
