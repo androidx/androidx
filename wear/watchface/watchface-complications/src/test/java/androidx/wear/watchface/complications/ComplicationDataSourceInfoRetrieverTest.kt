@@ -165,6 +165,10 @@ public class ComplicationDataSourceInfoRetrieverTest {
             componentName = null
         )
         assertThat(complicationDataSourceInfo.componentName).isNull()
+        assertThat(complicationDataSourceInfo.toString()).isEqualTo(
+            "ComplicationDataSourceInfo(appName=appName, name=name, type=SHORT_TEXT" +
+                ", icon=Icon(typ=URI uri=icon), componentName=null)"
+        )
     }
 
     @org.junit.Test
