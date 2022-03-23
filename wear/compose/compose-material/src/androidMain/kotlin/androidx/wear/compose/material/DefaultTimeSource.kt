@@ -34,7 +34,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import java.util.Calendar
 
-@ExperimentalWearMaterialApi
 internal actual class DefaultTimeSource actual constructor(timeFormat: String) : TimeSource {
     private val _timeFormat = timeFormat
 

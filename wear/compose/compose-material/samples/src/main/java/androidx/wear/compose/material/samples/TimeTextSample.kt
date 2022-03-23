@@ -20,15 +20,13 @@ import android.text.format.DateFormat
 import androidx.annotation.Sampled
 import androidx.compose.runtime.Composable
 import androidx.wear.compose.foundation.CurvedTextStyle
-import androidx.wear.compose.material.curvedText
-import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.TimeText
 import androidx.wear.compose.material.TimeTextDefaults
+import androidx.wear.compose.material.curvedText
 import java.util.Locale
 
-@OptIn(ExperimentalWearMaterialApi::class)
 @Sampled
 @Composable
 fun TimeTextWithStatus() {
@@ -50,7 +48,6 @@ fun TimeTextWithStatus() {
     )
 }
 
-@OptIn(ExperimentalWearMaterialApi::class)
 @Sampled
 @Composable
 fun TimeTextWithFullDateAndTimeFormat() {

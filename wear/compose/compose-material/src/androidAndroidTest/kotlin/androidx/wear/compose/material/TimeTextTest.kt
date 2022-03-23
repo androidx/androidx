@@ -38,7 +38,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 
-@ExperimentalWearMaterialApi
 class TimeTextTest {
     @get:Rule
     val rule = createComposeRule()
@@ -525,7 +524,6 @@ class TimeTextTest {
     }
 }
 
-@ExperimentalWearMaterialApi
 class TimeSourceTest {
     @get:Rule
     val rule = createComposeRule()
