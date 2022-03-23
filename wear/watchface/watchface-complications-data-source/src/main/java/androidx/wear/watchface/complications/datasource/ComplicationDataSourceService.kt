@@ -184,6 +184,9 @@ public class ComplicationRequest(
  * Multiple complication data sources in the same APK are supported but in android R there's a
  * soft limit of 100 data sources per APK. Above that the companion watchface editor won't
  * support this complication data source app.
+ *
+ * There's no need to call setDataSource for any the ComplicationData Builders because the system
+ * will append this value on your behalf.
  */
 public abstract class ComplicationDataSourceService : Service() {
     private var wrapper: IComplicationProviderWrapper? = null

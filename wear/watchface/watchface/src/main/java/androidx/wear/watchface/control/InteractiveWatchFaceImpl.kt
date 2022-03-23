@@ -44,8 +44,9 @@ internal class InteractiveWatchFaceImpl(
     override fun getApiVersion() = IInteractiveWatchFace.API_VERSION
 
     override fun sendTouchEvent(xPos: Int, yPos: Int, tapType: Int) {
+        val engineCopy = engine ?: return
         WatchFaceService.awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
-            engine!!,
+            engineCopy,
             "InteractiveWatchFaceImpl.sendTouchEvent"
         ) { watchFaceImpl ->
             watchFaceImpl.onTapCommand(
@@ -78,7 +79,7 @@ internal class InteractiveWatchFaceImpl(
         return WatchFaceService.awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
             engine,
             "InteractiveWatchFaceImpl.getContentDescriptionLabels"
-        ) { engine!!.contentDescriptionLabels }
+        ) { engine?.contentDescriptionLabels }
     }
 
     @RequiresApi(Build.VERSION_CODES.O_MR1)
@@ -143,11 +144,11 @@ internal class InteractiveWatchFaceImpl(
             "InteractiveWatchFaceImpl.updateWatchfaceInstance"
         ) {
             if (instanceId != newInstanceId) {
-                engine!!.updateInstance(newInstanceId)
+                engine?.updateInstance(newInstanceId)
                 InteractiveInstanceManager.renameInstance(instanceId, newInstanceId)
                 instanceId = newInstanceId
             }
-            engine!!.setUserStyle(userStyle)
+            engine?.setUserStyle(userStyle)
         }
     }
 
