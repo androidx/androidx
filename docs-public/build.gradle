@@ -104,7 +104,7 @@ dependencies {
     docs("androidx.core:core-animation:1.0.0-alpha02")
     docs("androidx.core:core-animation-testing:1.0.0-alpha02")
     docs("androidx.core:core:1.8.0-alpha06")
-    docs("androidx.core:core-ktx:1.8.0-alpha05")
+    docs("androidx.core:core-ktx:1.8.0-alpha06")
     docs("androidx.core:core-splashscreen:1.0.0-beta02")
     docs("androidx.cursoradapter:cursoradapter:1.0.0")
     docs("androidx.customview:customview:1.2.0-alpha01")
