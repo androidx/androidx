@@ -22,7 +22,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.InlineSlider
+import androidx.wear.compose.material.InlineSliderDefaults
 
 @Sampled
 @Composable
@@ -31,6 +33,8 @@ fun InlineSliderSample() {
     InlineSlider(
         value = value,
         onValueChange = { value = it },
+        increaseIcon = { Icon(InlineSliderDefaults.Increase, "Increase") },
+        decreaseIcon = { Icon(InlineSliderDefaults.Decrease, "Decrease") },
         valueRange = 3f..6f,
         steps = 5,
         segmented = false
@@ -44,6 +48,8 @@ fun InlineSliderSegmentedSample() {
     InlineSlider(
         value = value,
         onValueChange = { value = it },
+        increaseIcon = { Icon(InlineSliderDefaults.Increase, "Increase") },
+        decreaseIcon = { Icon(InlineSliderDefaults.Decrease, "Decrease") },
         valueRange = 1f..4f,
         steps = 7,
         segmented = true
@@ -57,6 +63,8 @@ fun InlineSliderWithIntegerSample() {
     InlineSlider(
         value = value,
         onValueChange = { value = it },
+        increaseIcon = { Icon(InlineSliderDefaults.Increase, "Increase") },
+        decreaseIcon = { Icon(InlineSliderDefaults.Decrease, "Decrease") },
         valueProgression = 0..10,
         segmented = false
     )

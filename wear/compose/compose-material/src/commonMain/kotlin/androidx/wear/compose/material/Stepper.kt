@@ -39,6 +39,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.RangeDefaults.calculateCurrentStepValue
 import androidx.wear.compose.material.RangeDefaults.snapValueToStep
@@ -79,8 +80,8 @@ public fun Stepper(
     steps: Int,
     modifier: Modifier = Modifier,
     valueRange: ClosedFloatingPointRange<Float> = 0f..(steps + 1).toFloat(),
-    decreaseIcon: @Composable () -> Unit = { StepperDefaults.DecreaseIcon() },
-    increaseIcon: @Composable () -> Unit = { StepperDefaults.IncreaseIcon() },
+    decreaseIcon: @Composable () -> Unit,
+    increaseIcon: @Composable () -> Unit,
     backgroundColor: Color = MaterialTheme.colors.background,
     contentColor: Color = contentColorFor(backgroundColor),
     iconTintColor: Color = contentColor,
@@ -174,8 +175,8 @@ public fun Stepper(
     onValueChange: (Int) -> Unit,
     modifier: Modifier = Modifier,
     valueProgression: IntProgression,
-    decreaseIcon: @Composable () -> Unit = { StepperDefaults.DecreaseIcon() },
-    increaseIcon: @Composable () -> Unit = { StepperDefaults.IncreaseIcon() },
+    decreaseIcon: @Composable () -> Unit,
+    increaseIcon: @Composable () -> Unit,
     backgroundColor: Color = MaterialTheme.colors.background,
     contentColor: Color = contentColorFor(backgroundColor),
     iconTintColor: Color = contentColor,
@@ -222,26 +223,18 @@ private fun ColumnScope.FullScreenButton(
 /**
  * Defaults used by stepper
  */
-private object StepperDefaults {
-    const val ButtonWeight = 0.35f
-    const val ContentWeight = 0.3f
-    val BorderPadding = 8.dp
+public object StepperDefaults {
+    internal const val ButtonWeight = 0.35f
+    internal const val ContentWeight = 0.3f
+    internal val BorderPadding = 22.dp
 
-    @Composable
-    fun DecreaseIcon() {
-        Icon(
-            imageVector = RangeIcons.Minus,
-            contentDescription = "Decrease", // TODO(b/204187777) i18n
-            modifier = Modifier.padding(14.dp)
-        )
-    }
+    /**
+     * Decrease [ImageVector]
+     */
+    public val Decrease = RangeIcons.Minus
 
-    @Composable
-    fun IncreaseIcon() {
-        Icon(
-            imageVector = Icons.Filled.Add,
-            contentDescription = "Increase", // TODO(b/204187777) i18n
-            modifier = Modifier.padding(14.dp)
-        )
-    }
+    /**
+     * Increase [ImageVector]
+     */
+    public val Increase = Icons.Filled.Add
 }

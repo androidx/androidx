@@ -31,7 +31,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.HorizontalPageIndicator
-import androidx.wear.compose.material.InlineSlider
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.PageIndicatorState
 
@@ -56,9 +55,10 @@ fun CustomizedHorizontalPageIndicator() {
     }
 
     Box(modifier = Modifier.fillMaxSize().padding(6.dp)) {
-        InlineSlider(
+        DefaultInlineSlider(
             modifier = Modifier.align(Alignment.Center),
             value = selectedPage,
+            segmented = true,
             valueProgression = 0 until maxPages,
             onValueChange = { selectedPage = it }
         )

@@ -43,6 +43,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -98,8 +99,8 @@ public fun InlineSlider(
     enabled: Boolean = true,
     valueRange: ClosedFloatingPointRange<Float> = 0f..(steps + 1).toFloat(),
     segmented: Boolean = steps <= 8,
-    decreaseIcon: @Composable () -> Unit = { InlineSliderDefaults.DecreaseIcon() },
-    increaseIcon: @Composable () -> Unit = { InlineSliderDefaults.IncreaseIcon() },
+    decreaseIcon: @Composable () -> Unit,
+    increaseIcon: @Composable () -> Unit,
     colors: InlineSliderColors = InlineSliderDefaults.colors(),
 ) {
     require(steps >= 0) { "steps should be >= 0" }
@@ -234,8 +235,8 @@ public fun InlineSlider(
     enabled: Boolean = true,
     valueProgression: IntProgression,
     segmented: Boolean = valueProgression.stepsNumber() <= 8,
-    decreaseIcon: @Composable () -> Unit = { InlineSliderDefaults.DecreaseIcon() },
-    increaseIcon: @Composable () -> Unit = { InlineSliderDefaults.IncreaseIcon() },
+    decreaseIcon: @Composable () -> Unit,
+    increaseIcon: @Composable () -> Unit,
     colors: InlineSliderColors = InlineSliderDefaults.colors(),
 ) {
     InlineSlider(
@@ -342,21 +343,15 @@ public object InlineSliderDefaults {
         disabledUnselectedBarColor = disabledUnselectedBarColor
     )
 
-    @Composable
-    internal fun DecreaseIcon() {
-        Icon(
-            imageVector = RangeIcons.Minus,
-            contentDescription = "Decrease" // TODO(b/204187777) i18n
-        )
-    }
+    /**
+     * Decrease [ImageVector]
+     */
+    public val Decrease = RangeIcons.Minus
 
-    @Composable
-    internal fun IncreaseIcon() {
-        Icon(
-            imageVector = Icons.Filled.Add,
-            contentDescription = "Increase" // TODO(b/204187777) i18n
-        )
-    }
+    /**
+     * Increase [ImageVector]
+     */
+    public val Increase = Icons.Filled.Add
 }
 
 @Immutable
