@@ -63,7 +63,7 @@ public interface CurvedAlignment {
              * Put the child at the angular start of the layout of the container, within the
              * available space
              */
-            val Start = Angular(1f)
+            val Start = Angular(0f)
 
             /**
              * Put the child in the middle point of the available space.
@@ -74,7 +74,7 @@ public interface CurvedAlignment {
              * Put the child at the angular end of the layout of the container, within the available
              * space
              */
-            val End = Angular(0f)
+            val End = Angular(1f)
 
             /**
              * Align the child in a custom position, 0 means Start, 1 means End

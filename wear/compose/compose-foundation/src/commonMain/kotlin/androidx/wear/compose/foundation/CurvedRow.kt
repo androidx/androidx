@@ -48,7 +48,7 @@ internal class CurvedRowChild(
 ) : ContainerChild(!clockwise, contentBuilder) {
 
     override fun doEstimateThickness(maxRadius: Float) =
-        children.maxOf { it.estimateThickness(maxRadius) }
+        children.maxOfOrNull { it.estimateThickness(maxRadius) } ?: 0f
 
     override fun doRadialPosition(
         parentOuterRadius: Float,

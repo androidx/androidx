@@ -60,14 +60,14 @@ internal class CurvedColumnChild(
     ): PartialLayoutInfo {
         // position children
         var outerRadius = parentOuterRadius
-        var maxSweep = childrenInLayoutOrder.maxOf { node ->
+        var maxSweep = childrenInLayoutOrder.maxOfOrNull { node ->
             node.radialPosition(
                 outerRadius,
                 node.estimatedThickness
             )
             outerRadius -= node.estimatedThickness
             node.sweepRadians
-        }
+        } ?: 0f
 
         return PartialLayoutInfo(
             maxSweep,
