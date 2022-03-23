@@ -19,7 +19,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.annotation.RestrictTo
-import androidx.health.data.client.HealthDataService.DEFAULT_PROVIDER_PACKAGE_NAME
+import androidx.health.data.client.HealthDataClient.Companion.DEFAULT_PROVIDER_PACKAGE_NAME
 import androidx.health.data.client.impl.converters.permission.toJetpackPermission
 import androidx.health.data.client.impl.converters.permission.toProtoPermission
 import androidx.health.platform.client.permission.Permission as ProtoPermission

@@ -2,7 +2,19 @@
 package androidx.health.data.client {
 
   public interface HealthDataClient {
+    method public default static androidx.health.data.client.HealthDataClient getOrCreate(android.content.Context context, optional java.util.List<java.lang.String> packageNames);
+    method public default static androidx.health.data.client.HealthDataClient getOrCreate(android.content.Context context);
     method public suspend Object? insertRecords(java.util.List<? extends androidx.health.data.client.records.Record> records, kotlin.coroutines.Continuation<? super androidx.health.data.client.response.InsertRecordsResponse> p);
+    method public default static boolean isAvailable(android.content.Context context, optional java.util.List<java.lang.String> packageNames);
+    method public default static boolean isAvailable(android.content.Context context);
+    field public static final androidx.health.data.client.HealthDataClient.Companion Companion;
+  }
+
+  public static final class HealthDataClient.Companion {
+    method public androidx.health.data.client.HealthDataClient getOrCreate(android.content.Context context, optional java.util.List<java.lang.String> packageNames);
+    method public androidx.health.data.client.HealthDataClient getOrCreate(android.content.Context context);
+    method public boolean isAvailable(android.content.Context context, optional java.util.List<java.lang.String> packageNames);
+    method public boolean isAvailable(android.content.Context context);
   }
 
 }
