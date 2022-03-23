@@ -15,9 +15,14 @@
  */
 package androidx.health.data.client
 
+import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.annotation.RestrictTo
 import androidx.health.data.client.aggregate.AggregateDataRow
 import androidx.health.data.client.aggregate.AggregateMetric
+import androidx.health.data.client.impl.HealthDataClientImpl
 import androidx.health.data.client.metadata.DataOrigin
 import androidx.health.data.client.permission.Permission
 import androidx.health.data.client.records.Record
@@ -28,6 +33,7 @@ import androidx.health.data.client.response.InsertRecordsResponse
 import androidx.health.data.client.response.ReadRecordResponse
 import androidx.health.data.client.response.ReadRecordsResponse
 import androidx.health.data.client.time.TimeRangeFilter
+import androidx.health.platform.client.HealthDataService
 import java.lang.IllegalStateException
 import kotlin.reflect.KClass
 
@@ -201,4 +207,71 @@ interface HealthDataClient {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     suspend fun getChanges(changesToken: String): ChangesResponse
+
+    companion object {
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        internal const val DEFAULT_PROVIDER_PACKAGE_NAME = "com.google.android.apps.healthdata"
+
+        /**
+         * Determines whether an implementation of [HealthDataClient] is available on this device at
+         * the moment.
+         *
+         * @param packageNames optional package provider to choose implementation from
+         * @return whether the api is available
+         */
+        @JvmOverloads
+        @JvmStatic
+        public fun isAvailable(
+            context: Context,
+            packageNames: List<String> = listOf(DEFAULT_PROVIDER_PACKAGE_NAME),
+        ): Boolean {
+            if (!isSdkVersionSufficient()) {
+                return false
+            }
+            return packageNames.any { isPackageInstalled(context.packageManager, it) }
+        }
+
+        /**
+         * Retrieves an IPC-backed [HealthDataClient] instance binding to an available
+         * implementation.
+         *
+         * @param packageNames optional package provider to choose implementation from
+         * @return instance of [HealthDataClient] ready for issuing requests
+         * @throws UnsupportedOperationException if service not available due to SDK version too low
+         * @throws IllegalStateException if service not available due to not installed
+         *
+         * @see isAvailable
+         */
+        @JvmOverloads
+        @JvmStatic
+        public fun getOrCreate(
+            context: Context,
+            packageNames: List<String> = listOf(DEFAULT_PROVIDER_PACKAGE_NAME),
+        ): HealthDataClient {
+            if (!isSdkVersionSufficient()) {
+                throw UnsupportedOperationException("SDK version too low")
+            }
+            if (!isAvailable(context, packageNames)) {
+                throw IllegalStateException("Service not available")
+            }
+            val enabledPackage =
+                packageNames.first { isPackageInstalled(context.packageManager, it) }
+            return HealthDataClientImpl(HealthDataService.getClient(context, enabledPackage))
+        }
+
+        @ChecksSdkIntAtLeast
+        internal fun isSdkVersionSufficient() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
+
+        internal fun isPackageInstalled(
+            packageManager: PackageManager,
+            packageName: String
+        ): Boolean {
+            return try {
+                @Suppress("Deprecation") // getApplicationInfo deprecated in T
+                return packageManager.getApplicationInfo(packageName, /* flags= */ 0).enabled
+            } catch (e: PackageManager.NameNotFoundException) {
+                false
+            }
+        }
+    }
 }

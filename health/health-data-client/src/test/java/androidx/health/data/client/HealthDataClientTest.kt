@@ -47,34 +47,34 @@ class HealthDataServiceTest {
     fun noBackingImplementation_unavailable() {
         val packageManager = context.packageManager
         Shadows.shadowOf(packageManager).removePackage(PROVIDER_PACKAGE_NAME)
-        assertThat(HealthDataService.isAvailable(context, listOf(PROVIDER_PACKAGE_NAME))).isFalse()
+        assertThat(HealthDataClient.isAvailable(context, listOf(PROVIDER_PACKAGE_NAME))).isFalse()
         assertThrows(IllegalStateException::class.java) {
-            HealthDataService.getClient(context, listOf(PROVIDER_PACKAGE_NAME))
+            HealthDataClient.getOrCreate(context, listOf(PROVIDER_PACKAGE_NAME))
         }
     }
 
     @Test
     fun backingImplementation_notEnabled_unavailable() {
         installPackage(context, PROVIDER_PACKAGE_NAME, enabled = false)
-        assertThat(HealthDataService.isAvailable(context, listOf(PROVIDER_PACKAGE_NAME))).isFalse()
+        assertThat(HealthDataClient.isAvailable(context, listOf(PROVIDER_PACKAGE_NAME))).isFalse()
         assertThrows(IllegalStateException::class.java) {
-            HealthDataService.getClient(context, listOf(PROVIDER_PACKAGE_NAME))
+            HealthDataClient.getOrCreate(context, listOf(PROVIDER_PACKAGE_NAME))
         }
     }
 
     @Test
     fun backingImplementation_enabled_isAvailable() {
         installPackage(context, PROVIDER_PACKAGE_NAME, enabled = true)
-        assertThat(HealthDataService.isAvailable(context, listOf(PROVIDER_PACKAGE_NAME))).isTrue()
-        HealthDataService.getClient(context, listOf(PROVIDER_PACKAGE_NAME))
+        assertThat(HealthDataClient.isAvailable(context, listOf(PROVIDER_PACKAGE_NAME))).isTrue()
+        HealthDataClient.getOrCreate(context, listOf(PROVIDER_PACKAGE_NAME))
     }
 
     @Test
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     fun sdkVersionTooOld_unavailable() {
-        assertThat(HealthDataService.isAvailable(context, listOf(PROVIDER_PACKAGE_NAME))).isFalse()
+        assertThat(HealthDataClient.isAvailable(context, listOf(PROVIDER_PACKAGE_NAME))).isFalse()
         assertThrows(UnsupportedOperationException::class.java) {
-            HealthDataService.getClient(context, listOf(PROVIDER_PACKAGE_NAME))
+            HealthDataClient.getOrCreate(context, listOf(PROVIDER_PACKAGE_NAME))
         }
     }
 
