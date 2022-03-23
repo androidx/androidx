@@ -33,6 +33,7 @@ import android.view.Surface;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCapture.CaptureMode;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.ViewPort;
@@ -595,7 +596,9 @@ public class CameraUseCaseAdapterTest {
             private final UseCaseConfigFactory mUseCaseConfigFactory = new UseCaseConfigFactory() {
                 @Nullable
                 @Override
-                public Config getConfig(@NonNull CaptureType captureType) {
+                public Config getConfig(
+                        @NonNull CaptureType captureType,
+                        @CaptureMode int captureMode) {
                     return null;
                 }
             };
@@ -651,7 +654,9 @@ public class CameraUseCaseAdapterTest {
         private final UseCaseConfigFactory mUseCaseConfigFactory = new UseCaseConfigFactory() {
             @Nullable
             @Override
-            public Config getConfig(@NonNull CaptureType captureType) {
+            public Config getConfig(
+                    @NonNull CaptureType captureType,
+                    @CaptureMode int captureMode) {
                 return null;
             }
         };

@@ -22,6 +22,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.camera.core.ImageCapture;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.UseCaseConfig;
@@ -71,7 +72,9 @@ public class FakeUseCase extends UseCase {
     @Override
     public UseCaseConfig<?> getDefaultConfig(boolean applyDefaultConfig,
             @NonNull UseCaseConfigFactory factory) {
-        Config config = factory.getConfig(UseCaseConfigFactory.CaptureType.PREVIEW);
+        Config config = factory.getConfig(
+                UseCaseConfigFactory.CaptureType.PREVIEW,
+                ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY);
         return config == null ? null : getUseCaseConfigBuilder(config).getUseCaseConfig();
     }
 
