@@ -18,6 +18,7 @@ package androidx.benchmark.macro
 
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import androidx.benchmark.Shell
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -161,5 +162,33 @@ class MacrobenchmarkScopeTest {
             )
         )
         assertTrue(device.hasObject(By.text("UpdatedText")))
+    }
+
+    @Test
+    fun getFrameStats() {
+        val scope = MacrobenchmarkScope(
+            Packages.TEST, // self-instrumenting macrobench, so don't kill the process!
+            launchWithClearTask = false
+        )
+        // check that hot startup is detected by packageLatestActivityLaunchNs
+        scope.pressHome()
+        scope.startActivityAndWait(ConfigurableActivity.createIntent("InitialText"))
+        val initialFrameStats = scope.getFrameStats()
+            .sortedBy { it.lastFrameNs }
+            .first()
+        assertTrue(initialFrameStats.uniqueName.contains("ConfigurableActivity"))
+
+        scope.pressHome()
+        scope.startActivityAndWait(ConfigurableActivity.createIntent("InitialText"))
+        val secondFrameStats = scope.getFrameStats()
+            .sortedBy { it.lastFrameNs }
+            .first()
+        assertTrue(secondFrameStats.uniqueName.contains("ConfigurableActivity"))
+
+        assertTrue(secondFrameStats.lastFrameNs!! > initialFrameStats.lastFrameNs!!)
+        if (Build.VERSION.SDK_INT >= 29) {
+            // data not trustworthy before API 29
+            assertTrue(secondFrameStats.lastLaunchNs!! > initialFrameStats.lastLaunchNs!!)
+        }
     }
 }
