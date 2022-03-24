@@ -78,9 +78,9 @@ AsyncSuffixFuture: androidx.media2.session.MediaSession#setCustomLayout(androidx
 
 
 BadFuture: androidx.media2.session.RemoteSessionPlayer#adjustVolume(int):
-    Use ListenableFuture (library), or a combination of Consumer<T>, Executor, and CancellationSignal (platform) instead of java.util.concurrent.Future (method androidx.media2.session.RemoteSessionPlayer.adjustVolume(int))
+    Use ListenableFuture (library), or a combination of OutcomeReceiver<R,E>, Executor, and CancellationSignal (platform) instead of java.util.concurrent.Future (method androidx.media2.session.RemoteSessionPlayer.adjustVolume(int))
 BadFuture: androidx.media2.session.RemoteSessionPlayer#setVolume(int):
-    Use ListenableFuture (library), or a combination of Consumer<T>, Executor, and CancellationSignal (platform) instead of java.util.concurrent.Future (method androidx.media2.session.RemoteSessionPlayer.setVolume(int))
+    Use ListenableFuture (library), or a combination of OutcomeReceiver<R,E>, Executor, and CancellationSignal (platform) instead of java.util.concurrent.Future (method androidx.media2.session.RemoteSessionPlayer.setVolume(int))
 
 
 BuilderSetStyle: androidx.media2.session.SessionCommandGroup.Builder#removeCommand(androidx.media2.session.SessionCommand):
