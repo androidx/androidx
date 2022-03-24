@@ -28,7 +28,8 @@ import java.util.Set;
  * Contains information about a schema change detected by an {@link ObserverCallback}.
  *
  * <p>This object will be sent when a schema type having a name matching an observer's schema
- * type filters has been added, updated, or removed.
+ * filters (as determined by {@link ObserverSpec#getFilterSchemas}) has been added, updated, or
+ * removed.
  *
  * <p>Note that schema changes may cause documents to be migrated or removed. When this happens,
  * individual document updates will NOT be dispatched via {@link DocumentChangeInfo}. The only

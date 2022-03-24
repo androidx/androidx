@@ -33,6 +33,9 @@ import java.util.Set;
  * <p>Changes are grouped by package, database, schema type and namespace. Each unique
  * combination of these items will generate a unique {@link DocumentChangeInfo}.
  *
+ * <p>Notifications are only sent for documents whose schema type matches an observer's schema
+ * filters (as determined by {@link ObserverSpec#getFilterSchemas}).
+ *
  * <p>Note that document changes that happen during schema migration from calling
  * {@link androidx.appsearch.app.AppSearchSession#setSchemaAsync} are not reported via this class.
  * Such changes are reported through {@link SchemaChangeInfo}.
