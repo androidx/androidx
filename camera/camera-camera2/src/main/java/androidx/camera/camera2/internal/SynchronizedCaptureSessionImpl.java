@@ -39,9 +39,7 @@ import androidx.camera.core.impl.utils.futures.Futures;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -81,17 +79,16 @@ class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl 
     private final ForceCloseCaptureSession mForceCloseSessionQuirk;
 
     SynchronizedCaptureSessionImpl(
-            @NonNull Set<String> enabledFeature,
+            @NonNull Quirks cameraQuirks,
+            @NonNull Quirks deviceQuirks,
             @NonNull CaptureSessionRepository repository,
             @NonNull @CameraExecutor Executor executor,
             @NonNull ScheduledExecutorService scheduledExecutorService,
             @NonNull Handler compatHandler) {
         super(repository, executor, scheduledExecutorService, compatHandler);
-        mCloseSurfaceQuirk = new ForceCloseDeferrableSurface(new Quirks(new ArrayList<>()),
-                new Quirks(new ArrayList<>()));
-        mWaitForOtherSessionCompleteQuirk = new WaitForRepeatingRequestStart(
-                new Quirks(new ArrayList<>()));
-        mForceCloseSessionQuirk = new ForceCloseCaptureSession(new Quirks(new ArrayList<>()));
+        mCloseSurfaceQuirk = new ForceCloseDeferrableSurface(cameraQuirks, deviceQuirks);
+        mWaitForOtherSessionCompleteQuirk = new WaitForRepeatingRequestStart(cameraQuirks);
+        mForceCloseSessionQuirk = new ForceCloseCaptureSession(deviceQuirks);
     }
 
     @NonNull

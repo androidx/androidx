@@ -40,6 +40,7 @@ import androidx.camera.camera2.internal.compat.ApiCompat;
 import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
+import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.core.CameraState;
 import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.Logger;
@@ -227,7 +228,7 @@ final class Camera2CameraImpl implements CameraInternal {
         }
         mCaptureSessionOpenerBuilder = new SynchronizedCaptureSessionOpener.Builder(mExecutor,
                 mScheduledExecutorService, schedulerHandler, mCaptureSessionRepository,
-                mCameraInfoInternal.getSupportedHardwareLevel());
+                cameraInfoImpl.getCameraQuirks(), DeviceQuirks.getAll());
 
         mCameraAvailability = new CameraAvailability(cameraId);
 
