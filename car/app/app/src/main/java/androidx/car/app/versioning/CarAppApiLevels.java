@@ -35,6 +35,12 @@ import java.io.InputStreamReader;
  */
 public final class CarAppApiLevels {
     /**
+     * API level 5.
+     */
+    @CarAppApiLevel
+    public static final int LEVEL_5 = 5;
+
+    /**
      * API level 4.
      */
     @CarAppApiLevel
@@ -112,7 +118,7 @@ public final class CarAppApiLevels {
 
 
             int apiLevel = Integer.parseInt(line);
-            if (apiLevel < LEVEL_1 || apiLevel > LEVEL_4) {
+            if (apiLevel < LEVEL_1 || apiLevel > LEVEL_5) {
                 throw new IllegalStateException("Unrecognized Car API level: " + line);
             }
             return apiLevel;
