@@ -20,6 +20,8 @@ public final class WriterDao_Impl implements WriterDao {
 
     private final EntityInsertionAdapter<User> __insertionAdapterOfUser_1;
 
+    private final EntityInsertionAdapter<User> __insertionAdapterOfUser_2;
+
     private final EntityInsertionAdapter<Book> __insertionAdapterOfBook;
 
     public WriterDao_Impl(RoomDatabase __db) {
@@ -27,7 +29,7 @@ public final class WriterDao_Impl implements WriterDao {
         this.__insertionAdapterOfUser = new EntityInsertionAdapter<User>(__db) {
             @Override
             public String createQuery() {
-                return "INSERT INTO `User` (`uid`,`name`,`lastName`,`ageColumn`) VALUES (?,?,?,?)";
+                return "INSERT OR ABORT INTO `User` (`uid`,`name`,`lastName`,`ageColumn`) VALUES (?,?,?,?)";
             }
 
             @Override
@@ -68,10 +70,32 @@ public final class WriterDao_Impl implements WriterDao {
                 stmt.bindLong(4, value.age);
             }
         };
+        this.__insertionAdapterOfUser_2 = new EntityInsertionAdapter<User>(__db) {
+            @Override
+            public String createQuery() {
+                return "INSERT INTO `User` (`uid`,`name`,`lastName`,`ageColumn`) VALUES (?,?,?,?)";
+            }
+
+            @Override
+            public void bind(SupportSQLiteStatement stmt, User value) {
+                stmt.bindLong(1, value.uid);
+                if (value.name == null) {
+                    stmt.bindNull(2);
+                } else {
+                    stmt.bindString(2, value.name);
+                }
+                if (value.getLastName() == null) {
+                    stmt.bindNull(3);
+                } else {
+                    stmt.bindString(3, value.getLastName());
+                }
+                stmt.bindLong(4, value.age);
+            }
+        };
         this.__insertionAdapterOfBook = new EntityInsertionAdapter<Book>(__db) {
             @Override
             public String createQuery() {
-                return "INSERT INTO `Book` (`bookId`,`uid`) VALUES (?,?)";
+                return "INSERT OR ABORT INTO `Book` (`bookId`,`uid`) VALUES (?,?)";
             }
 
             @Override
@@ -113,6 +137,19 @@ public final class WriterDao_Impl implements WriterDao {
         __db.beginTransaction();
         try {
             __insertionAdapterOfUser_1.insert(users);
+            __db.setTransactionSuccessful();
+        } finally {
+            __db.endTransaction();
+        }
+    }
+
+    @Override
+    public void insertTwoUsers(final User userOne, final User userTwo) {
+        __db.assertNotSuspendingTransaction();
+        __db.beginTransaction();
+        try {
+            __insertionAdapterOfUser_2.insert(userOne);
+            __insertionAdapterOfUser_2.insert(userTwo);
             __db.setTransactionSuccessful();
         } finally {
             __db.endTransaction();

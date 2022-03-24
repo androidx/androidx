@@ -41,7 +41,7 @@ public final class UpdateDao_Impl implements UpdateDao {
     this.__updateAdapterOfUser = new EntityDeletionOrUpdateAdapter<User>(__db) {
       @Override
       public String createQuery() {
-        return "UPDATE `User` SET `uid` = ?,`name` = ?,`lastName` = ?,`ageColumn` = ? WHERE `uid` = ?";
+        return "UPDATE OR ABORT `User` SET `uid` = ?,`name` = ?,`lastName` = ?,`ageColumn` = ? WHERE `uid` = ?";
       }
 
       @Override
@@ -64,7 +64,7 @@ public final class UpdateDao_Impl implements UpdateDao {
     this.__updateAdapterOfUser_1 = new EntityDeletionOrUpdateAdapter<User>(__db) {
       @Override
       public String createQuery() {
-        return "UPDATE OR ABORT `User` SET `uid` = ?,`name` = ?,`lastName` = ?,`ageColumn` = ? WHERE `uid` = ?";
+        return "UPDATE `User` SET `uid` = ?,`name` = ?,`lastName` = ?,`ageColumn` = ? WHERE `uid` = ?";
       }
 
       @Override
@@ -87,7 +87,7 @@ public final class UpdateDao_Impl implements UpdateDao {
     this.__updateAdapterOfMultiPKeyEntity = new EntityDeletionOrUpdateAdapter<MultiPKeyEntity>(__db) {
       @Override
       public String createQuery() {
-        return "UPDATE `MultiPKeyEntity` SET `name` = ?,`lastName` = ? WHERE `name` = ? AND `lastName` = ?";
+        return "UPDATE OR ABORT `MultiPKeyEntity` SET `name` = ?,`lastName` = ? WHERE `name` = ? AND `lastName` = ?";
       }
 
       @Override
@@ -117,7 +117,7 @@ public final class UpdateDao_Impl implements UpdateDao {
     this.__updateAdapterOfBook = new EntityDeletionOrUpdateAdapter<Book>(__db) {
       @Override
       public String createQuery() {
-        return "UPDATE `Book` SET `bookId` = ?,`uid` = ? WHERE `bookId` = ?";
+        return "UPDATE OR ABORT `Book` SET `bookId` = ?,`uid` = ? WHERE `bookId` = ?";
       }
 
       @Override
@@ -181,12 +181,12 @@ public final class UpdateDao_Impl implements UpdateDao {
   }
 
   @Override
-  public void updateTwoUsers(final User user1, final User user2) {
+  public void updateTwoUsers(final User userOne, final User userTwo) {
     __db.assertNotSuspendingTransaction();
     __db.beginTransaction();
     try {
-      __updateAdapterOfUser_1.handle(user1);
-      __updateAdapterOfUser_1.handle(user2);
+      __updateAdapterOfUser_1.handle(userOne);
+      __updateAdapterOfUser_1.handle(userTwo);
       __db.setTransactionSuccessful();
     } finally {
       __db.endTransaction();

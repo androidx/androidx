@@ -357,7 +357,7 @@ class InsertionMethodProcessorTest {
                 abstract public void foo(User user);
                 """
         ) { insertion, _ ->
-            assertThat(insertion.onConflict, `is`(OnConflictStrategy.NONE))
+            assertThat(insertion.onConflict, `is`(OnConflictStrategy.ABORT))
         }
     }
 

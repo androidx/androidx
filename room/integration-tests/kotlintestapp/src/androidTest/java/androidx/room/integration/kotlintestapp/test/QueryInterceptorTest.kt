@@ -103,7 +103,7 @@ class QueryInterceptorTest {
         )
 
         assertQueryLogged(
-            "INSERT INTO `queryInterceptorTestDatabase` (`id`,`description`) " +
+            "INSERT OR ABORT INTO `queryInterceptorTestDatabase` (`id`,`description`) " +
                 "VALUES (?,?)",
             listOf("Insert", "Inserted a placeholder query")
         )
@@ -130,7 +130,7 @@ class QueryInterceptorTest {
         )
 
         assertQueryLogged(
-            "UPDATE `queryInterceptorTestDatabase` SET `id` " +
+            "UPDATE OR ABORT `queryInterceptorTestDatabase` SET `id` " +
                 "= ?,`description` = ? " +
                 "WHERE `id` = ?",
             listOf("Insert", "Updated the placeholder query", "Insert")
@@ -205,7 +205,7 @@ class QueryInterceptorTest {
         )
 
         assertQueryLogged(
-            "INSERT INTO `queryInterceptorTestDatabase` (`id`,`description`) " +
+            "INSERT OR ABORT INTO `queryInterceptorTestDatabase` (`id`,`description`) " +
                 "VALUES (?,?)",
             listOf("Insert", "Inserted a placeholder query")
         )

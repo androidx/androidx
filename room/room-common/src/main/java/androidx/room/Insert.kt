@@ -103,12 +103,12 @@ public annotation class Insert(
     /**
      * What to do if a conflict happens.
      *
-     * Use [OnConflictStrategy.ABORT] to roll back the transaction on conflict.
+     * Use [OnConflictStrategy.ABORT] (default) to roll back the transaction on conflict.
      * Use [OnConflictStrategy.REPLACE] to replace the existing rows with the new rows.
      * Use [OnConflictStrategy.IGNORE] to keep the existing rows.
      *
-     * @return How to handle conflicts. Defaults to [OnConflictStrategy.NONE].
+     * @return How to handle conflicts. Defaults to [OnConflictStrategy.ABORT].
      */
     @get:OnConflictStrategy
-    val onConflict: Int = OnConflictStrategy.NONE
+    val onConflict: Int = OnConflictStrategy.ABORT
 )
