@@ -23,6 +23,7 @@ import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -82,91 +83,76 @@ private fun DisplayDemo(
     onNavigateTo: (Demo) -> Unit,
     onNavigateBack: () -> Unit
 ) {
-    when (demo) {
-        is ActivityDemo<*> -> {
-            /* should never get here as activity demos are not added to the backstack*/
-        }
-        is ComposableDemo -> {
-            SwipeToDismissBox(
-                state = swipeDismissStateWithNavigation(onNavigateBack),
-                hasBackground = parentDemo != null,
-                backgroundKey = parentDemo?.title ?: SwipeToDismissKeys.Background,
-                contentKey = demo.title,
-            ) { isBackground ->
-                if (isBackground) {
-                    if (parentDemo != null) {
-                        DisplayDemo(parentDemo, null, onNavigateTo, onNavigateBack)
-                    }
-                } else {
-                    demo.content(onNavigateBack)
-                }
-            }
-        }
-        is DemoCategory -> {
-            DisplayDemoList(demo, parentDemo, onNavigateTo, onNavigateBack)
-        }
-    }
-}
-
-@Composable
-internal fun DisplayDemoList(
-    category: DemoCategory,
-    parentDemo: Demo?,
-    onNavigateTo: (Demo) -> Unit,
-    onNavigateBack: () -> Unit
-) {
     SwipeToDismissBox(
         state = swipeDismissStateWithNavigation(onNavigateBack),
         hasBackground = parentDemo != null,
         backgroundKey = parentDemo?.title ?: SwipeToDismissKeys.Background,
-        contentKey = category.title,
+        contentKey = demo.title,
     ) { isBackground ->
         if (isBackground) {
             if (parentDemo != null) {
                 DisplayDemo(parentDemo, null, onNavigateTo, onNavigateBack)
             }
         } else {
-            ScalingLazyColumnWithRSB(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxWidth().testTag(DemoListTag),
-            ) {
-                item {
-                    ListHeader {
-                        Text(
-                            text = category.title,
-                            style = MaterialTheme.typography.caption1,
-                            color = Color.White,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
+            when (demo) {
+                is ActivityDemo<*> -> {
+                    /* should never get here as activity demos are not added to the backstack*/
                 }
-                category.demos.forEach { demo ->
-                    item {
-                        Chip(
-                            onClick = { onNavigateTo(demo) },
-                            colors = ChipDefaults.secondaryChipColors(),
-                            label = {
-                                Text(
-                                    text = demo.title,
-                                    modifier = Modifier.align(Alignment.Center)
-                                )
-                            },
-                            modifier = Modifier.fillMaxWidth()
+                is ComposableDemo -> {
+                    demo.content(onNavigateBack)
+                }
+                is DemoCategory -> {
+                    DisplayDemoList(demo, onNavigateTo)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+internal fun BoxScope.DisplayDemoList(
+    category: DemoCategory,
+    onNavigateTo: (Demo) -> Unit,
+) {
+    ScalingLazyColumnWithRSB(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxWidth().testTag(DemoListTag),
+    ) {
+        item {
+            ListHeader {
+                Text(
+                    text = category.title,
+                    style = MaterialTheme.typography.caption1,
+                    color = Color.White,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+        category.demos.forEach { demo ->
+            item {
+                Chip(
+                    onClick = { onNavigateTo(demo) },
+                    colors = ChipDefaults.secondaryChipColors(),
+                    label = {
+                        Text(
+                            text = demo.title,
+                            modifier = Modifier.align(Alignment.Center)
                         )
-                    }
-                    if (demo.description != null) {
-                        item {
-                            CompositionLocalProvider(
-                                LocalTextStyle provides MaterialTheme.typography.caption3
-                            ) {
-                                Text(
-                                    text = demo.description,
-                                    modifier = Modifier.fillMaxWidth().align(Alignment.Center),
-                                    textAlign = TextAlign.Center
-                                )
-                            }
-                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+            if (demo.description != null) {
+                item {
+                    CompositionLocalProvider(
+                        LocalTextStyle provides MaterialTheme.typography.caption3
+                    ) {
+                        Text(
+                            text = demo.description,
+                            modifier = Modifier.fillMaxWidth().align(Alignment.Center),
+                            textAlign = TextAlign.Center
+                        )
                     }
                 }
             }
