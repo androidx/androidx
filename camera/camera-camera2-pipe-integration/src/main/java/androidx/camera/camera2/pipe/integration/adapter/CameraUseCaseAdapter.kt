@@ -72,7 +72,10 @@ class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
      * Returns the configuration for the given capture type, or `null` if the
      * configuration cannot be produced.
      */
-    override fun getConfig(captureType: UseCaseConfigFactory.CaptureType): Config? {
+    override fun getConfig(
+        captureType: UseCaseConfigFactory.CaptureType,
+        captureMode: Int
+    ): Config? {
         debug { "Creating config for $captureType" }
 
         // TODO: quirks for ImageCapture are not ready for the UseCaseConfigFactory. Will need to

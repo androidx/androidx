@@ -469,7 +469,9 @@ public final class Preview extends UseCase {
     @Nullable
     public UseCaseConfig<?> getDefaultConfig(boolean applyDefaultConfig,
             @NonNull UseCaseConfigFactory factory) {
-        Config captureConfig = factory.getConfig(UseCaseConfigFactory.CaptureType.PREVIEW);
+        Config captureConfig = factory.getConfig(
+                UseCaseConfigFactory.CaptureType.PREVIEW,
+                ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY);
 
         if (applyDefaultConfig) {
             captureConfig = Config.mergeConfigs(captureConfig, DEFAULT_CONFIG.getConfig());

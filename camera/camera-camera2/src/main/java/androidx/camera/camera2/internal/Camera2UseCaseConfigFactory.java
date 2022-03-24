@@ -29,6 +29,8 @@ import android.hardware.camera2.CameraDevice;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.workaround.PreviewPixelHDRnet;
+import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCapture.CaptureMode;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.MutableOptionsBundle;
@@ -54,12 +56,19 @@ public final class Camera2UseCaseConfigFactory implements UseCaseConfigFactory {
      */
     @NonNull
     @Override
-    public Config getConfig(@NonNull CaptureType captureType) {
+    public Config getConfig(
+            @NonNull CaptureType captureType,
+            @CaptureMode int captureMode) {
         final MutableOptionsBundle mutableConfig = MutableOptionsBundle.create();
 
         SessionConfig.Builder sessionBuilder = new SessionConfig.Builder();
         switch (captureType) {
             case IMAGE_CAPTURE:
+                sessionBuilder.setTemplateType(
+                        captureMode == ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG
+                                ? CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG :
+                                CameraDevice.TEMPLATE_PREVIEW);
+                break;
             case PREVIEW:
             case IMAGE_ANALYSIS:
                 sessionBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
@@ -83,7 +92,10 @@ public final class Camera2UseCaseConfigFactory implements UseCaseConfigFactory {
 
         switch (captureType) {
             case IMAGE_CAPTURE:
-                captureBuilder.setTemplateType(CameraDevice.TEMPLATE_STILL_CAPTURE);
+                captureBuilder.setTemplateType(
+                        captureMode == ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG
+                                ? CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG :
+                        CameraDevice.TEMPLATE_STILL_CAPTURE);
                 break;
             case PREVIEW:
             case IMAGE_ANALYSIS:
