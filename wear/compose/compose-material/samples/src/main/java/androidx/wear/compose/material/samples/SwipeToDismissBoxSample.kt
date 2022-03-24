@@ -48,14 +48,9 @@ fun SimpleSwipeToDismissBox(
     navigateBack: () -> Unit
 ) {
     val state = rememberSwipeToDismissBoxState()
-    LaunchedEffect(state.currentValue) {
-        if (state.currentValue == SwipeToDismissValue.Dismissed) {
-            state.snapTo(SwipeToDismissValue.Default)
-            navigateBack()
-        }
-    }
     SwipeToDismissBox(
         state = state,
+        onDismissed = navigateBack
     ) { isBackground ->
         if (isBackground) {
             Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colors.secondaryVariant))
