@@ -16,6 +16,7 @@
 
 package androidx.inspection.gradle
 
+import com.android.build.api.variant.Variant
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
@@ -86,13 +87,12 @@ abstract class GenerateInspectionPlatformVersionTask : DefaultTask() {
     }
 }
 
-@ExperimentalStdlibApi
-@Suppress("DEPRECATION") // BaseVariant
 fun Project.registerGenerateInspectionPlatformVersionTask(
-    variant: com.android.build.gradle.api.BaseVariant
+    variant: Variant
 ): TaskProvider<GenerateInspectionPlatformVersionTask> {
     val name = variant.taskName("generateInspectionPlatformVersion")
     return tasks.register(name, GenerateInspectionPlatformVersionTask::class.java) { task ->
+        @Suppress("UnstableApiUsage")
         task.compileClasspath = variant.compileConfiguration.incoming.artifactView { artifact ->
             artifact.attributes {
                 it.attribute(Attribute.of("artifactType", String::class.java), "android-classes")

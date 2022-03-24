@@ -16,6 +16,8 @@
 
 package androidx.inspection.gradle
 
+import com.android.build.api.variant.AndroidComponentsExtension
+import com.android.build.api.variant.Variant
 import com.android.build.gradle.LibraryExtension
 import com.google.protobuf.gradle.GenerateProtoTask
 import com.google.protobuf.gradle.ProtobufConvention
@@ -32,6 +34,7 @@ import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.getPlugin
 import java.io.File
+import org.gradle.api.GradleException
 
 /**
  * A plugin which, when present, ensures that intermediate inspector
@@ -39,9 +42,6 @@ import java.io.File
  */
 @Suppress("SyntheticAccessor")
 class InspectionPlugin : Plugin<Project> {
-    // project.register* are marked with @ExperimentalStdlibApi, because they use experimental
-    // string.capitalize call.
-    @OptIn(ExperimentalStdlibApi::class)
     override fun apply(project: Project) {
         var foundLibraryPlugin = false
         var foundReleaseVariant = false
@@ -63,7 +63,10 @@ class InspectionPlugin : Plugin<Project> {
             foundLibraryPlugin = true
             val libExtension = project.extensions.getByType(LibraryExtension::class.java)
             includeMetaInfServices(libExtension)
-            libExtension.libraryVariants.all { variant ->
+            val componentsExtension =
+                project.extensions.findByType(AndroidComponentsExtension::class.java)
+                    ?: throw GradleException("android plugin must be used")
+            componentsExtension.onVariants { variant: Variant ->
                 if (variant.name == "release") {
                     foundReleaseVariant = true
                     val unzip = project.registerUnzipTask(variant)
