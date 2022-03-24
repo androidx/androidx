@@ -97,7 +97,7 @@ public open class SparseArrayCompat<E> public constructor(
      * Gets the Object mapped from the specified [key], or [defaultValue] if no such mapping
      * has been made.
      */
-    public open operator fun get(key: Int, defaultValue: E): E {
+    public open fun get(key: Int, defaultValue: E): E {
         return internalGet(key, defaultValue)
     }
 
