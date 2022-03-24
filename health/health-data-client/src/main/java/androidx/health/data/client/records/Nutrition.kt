@@ -24,89 +24,89 @@ import java.time.ZoneOffset
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class Nutrition(
     /** Biotin in grams. Optional field. Valid range: 0-100. */
-    public val biotin: Double = 0.0,
+    public val biotinGrams: Double = 0.0,
     /** Caffeine in grams. Optional field. Valid range: 0-100. */
-    public val caffeine: Double = 0.0,
+    public val caffeineGrams: Double = 0.0,
     /** Calcium in grams. Optional field. Valid range: 0-100. */
-    public val calcium: Double = 0.0,
+    public val calciumGrams: Double = 0.0,
     /** Calories in kilocalories. Optional field. Valid range: 0-100000. */
-    public val calories: Double = 0.0,
+    public val kcal: Double = 0.0,
     /** Calories from fat in kilocalories. Optional field. Valid range: 0-100000. */
-    public val caloriesFromFat: Double = 0.0,
+    public val kcalFromFat: Double = 0.0,
     /** Chloride in grams. Optional field. Valid range: 0-100. */
-    public val chloride: Double = 0.0,
+    public val chlorideGrams: Double = 0.0,
     /** Cholesterol in grams. Optional field. Valid range: 0-100. */
-    public val cholesterol: Double = 0.0,
+    public val cholesterolGrams: Double = 0.0,
     /** Chromium in grams. Optional field. Valid range: 0-100. */
-    public val chromium: Double = 0.0,
+    public val chromiumGrams: Double = 0.0,
     /** Copper in grams. Optional field. Valid range: 0-100. */
-    public val copper: Double = 0.0,
+    public val copperGrams: Double = 0.0,
     /** Dietary fiber in grams. Optional field. Valid range: 0-100000. */
-    public val dietaryFiber: Double = 0.0,
+    public val dietaryFiberGrams: Double = 0.0,
     /** Folate in grams. Optional field. Valid range: 0-100. */
-    public val folate: Double = 0.0,
+    public val folateGrams: Double = 0.0,
     /** Folic acid in grams. Optional field. Valid range: 0-100. */
-    public val folicAcid: Double = 0.0,
+    public val folicAcidGrams: Double = 0.0,
     /** Iodine in grams. Optional field. Valid range: 0-100. */
-    public val iodine: Double = 0.0,
+    public val iodineGrams: Double = 0.0,
     /** Iron in grams. Optional field. Valid range: 0-100. */
-    public val iron: Double = 0.0,
+    public val ironGrams: Double = 0.0,
     /** Magnesium in grams. Optional field. Valid range: 0-100. */
-    public val magnesium: Double = 0.0,
+    public val magnesiumGrams: Double = 0.0,
     /** Manganese in grams. Optional field. Valid range: 0-100. */
-    public val manganese: Double = 0.0,
+    public val manganeseGrams: Double = 0.0,
     /** Molybdenum in grams. Optional field. Valid range: 0-100. */
-    public val molybdenum: Double = 0.0,
+    public val molybdenumGrams: Double = 0.0,
     /** Monounsaturated fat in grams. Optional field. Valid range: 0-100000. */
-    public val monounsaturatedFat: Double = 0.0,
+    public val monounsaturatedFatGrams: Double = 0.0,
     /** Niacin in grams. Optional field. Valid range: 0-100. */
-    public val niacin: Double = 0.0,
+    public val niacinGrams: Double = 0.0,
     /** Pantothenic acid in grams. Optional field. Valid range: 0-100. */
-    public val pantothenicAcid: Double = 0.0,
+    public val pantothenicAcidGrams: Double = 0.0,
     /** Phosphorus in grams. Optional field. Valid range: 0-100. */
-    public val phosphorus: Double = 0.0,
+    public val phosphorusGrams: Double = 0.0,
     /** Polyunsaturated fat in grams. Optional field. Valid range: 0-100000. */
-    public val polyunsaturatedFat: Double = 0.0,
+    public val polyunsaturatedFatGrams: Double = 0.0,
     /** Potassium in grams. Optional field. Valid range: 0-100. */
-    public val potassium: Double = 0.0,
+    public val potassiumGrams: Double = 0.0,
     /** Protein in grams. Optional field. Valid range: 0-100000. */
-    public val protein: Double = 0.0,
+    public val proteinGrams: Double = 0.0,
     /** Riboflavin in grams. Optional field. Valid range: 0-100. */
-    public val riboflavin: Double = 0.0,
+    public val riboflavinGrams: Double = 0.0,
     /** Saturated fat in grams. Optional field. Valid range: 0-100000. */
-    public val saturatedFat: Double = 0.0,
+    public val saturatedFatGrams: Double = 0.0,
     /** Selenium in grams. Optional field. Valid range: 0-100. */
-    public val selenium: Double = 0.0,
+    public val seleniumGrams: Double = 0.0,
     /** Sodium in grams. Optional field. Valid range: 0-100. */
-    public val sodium: Double = 0.0,
+    public val sodiumGrams: Double = 0.0,
     /** Sugar in grams. Optional field. Valid range: 0-100000. */
-    public val sugar: Double = 0.0,
+    public val sugarGrams: Double = 0.0,
     /** Thiamin in grams. Optional field. Valid range: 0-100. */
-    public val thiamin: Double = 0.0,
+    public val thiaminGrams: Double = 0.0,
     /** Total carbohydrate in grams. Optional field. Valid range: 0-100000. */
-    public val totalCarbohydrate: Double = 0.0,
+    public val totalCarbohydrateGrams: Double = 0.0,
     /** Total fat in grams. Optional field. Valid range: 0-100000. */
-    public val totalFat: Double = 0.0,
+    public val totalFatGrams: Double = 0.0,
     /** Trans fat in grams. Optional field. Valid range: 0-100000. */
-    public val transFat: Double = 0.0,
+    public val transFatGrams: Double = 0.0,
     /** Unsaturated fat in grams. Optional field. Valid range: 0-100000. */
-    public val unsaturatedFat: Double = 0.0,
+    public val unsaturatedFatGrams: Double = 0.0,
     /** Vitamin A in grams. Optional field. Valid range: 0-100. */
-    public val vitaminA: Double = 0.0,
+    public val vitaminAGrams: Double = 0.0,
     /** Vitamin B12 in grams. Optional field. Valid range: 0-100. */
-    public val vitaminB12: Double = 0.0,
+    public val vitaminB12Grams: Double = 0.0,
     /** Vitamin B6 in grams. Optional field. Valid range: 0-100. */
-    public val vitaminB6: Double = 0.0,
+    public val vitaminB6Grams: Double = 0.0,
     /** Vitamin C in grams. Optional field. Valid range: 0-100. */
-    public val vitaminC: Double = 0.0,
+    public val vitaminCGrams: Double = 0.0,
     /** Vitamin D in grams. Optional field. Valid range: 0-100. */
-    public val vitaminD: Double = 0.0,
+    public val vitaminDGrams: Double = 0.0,
     /** Vitamin E in grams. Optional field. Valid range: 0-100. */
-    public val vitaminE: Double = 0.0,
+    public val vitaminEGrams: Double = 0.0,
     /** Vitamin K in grams. Optional field. Valid range: 0-100. */
-    public val vitaminK: Double = 0.0,
+    public val vitaminKGrams: Double = 0.0,
     /** Zinc in grams. Optional field. Valid range: 0-100. */
-    public val zinc: Double = 0.0,
+    public val zincGrams: Double = 0.0,
     /**
      * Type of meal related to the nutrients consumed. Optional, enum field. Allowed values:
      * [MealType].
@@ -122,48 +122,48 @@ public class Nutrition(
         if (this === other) return true
         if (other !is Nutrition) return false
 
-        if (biotin != other.biotin) return false
-        if (caffeine != other.caffeine) return false
-        if (calcium != other.calcium) return false
-        if (calories != other.calories) return false
-        if (caloriesFromFat != other.caloriesFromFat) return false
-        if (chloride != other.chloride) return false
-        if (cholesterol != other.cholesterol) return false
-        if (chromium != other.chromium) return false
-        if (copper != other.copper) return false
-        if (dietaryFiber != other.dietaryFiber) return false
-        if (folate != other.folate) return false
-        if (folicAcid != other.folicAcid) return false
-        if (iodine != other.iodine) return false
-        if (iron != other.iron) return false
-        if (magnesium != other.magnesium) return false
-        if (manganese != other.manganese) return false
-        if (molybdenum != other.molybdenum) return false
-        if (monounsaturatedFat != other.monounsaturatedFat) return false
-        if (niacin != other.niacin) return false
-        if (pantothenicAcid != other.pantothenicAcid) return false
-        if (phosphorus != other.phosphorus) return false
-        if (polyunsaturatedFat != other.polyunsaturatedFat) return false
-        if (potassium != other.potassium) return false
-        if (protein != other.protein) return false
-        if (riboflavin != other.riboflavin) return false
-        if (saturatedFat != other.saturatedFat) return false
-        if (selenium != other.selenium) return false
-        if (sodium != other.sodium) return false
-        if (sugar != other.sugar) return false
-        if (thiamin != other.thiamin) return false
-        if (totalCarbohydrate != other.totalCarbohydrate) return false
-        if (totalFat != other.totalFat) return false
-        if (transFat != other.transFat) return false
-        if (unsaturatedFat != other.unsaturatedFat) return false
-        if (vitaminA != other.vitaminA) return false
-        if (vitaminB12 != other.vitaminB12) return false
-        if (vitaminB6 != other.vitaminB6) return false
-        if (vitaminC != other.vitaminC) return false
-        if (vitaminD != other.vitaminD) return false
-        if (vitaminE != other.vitaminE) return false
-        if (vitaminK != other.vitaminK) return false
-        if (zinc != other.zinc) return false
+        if (biotinGrams != other.biotinGrams) return false
+        if (caffeineGrams != other.caffeineGrams) return false
+        if (calciumGrams != other.calciumGrams) return false
+        if (kcal != other.kcal) return false
+        if (kcalFromFat != other.kcalFromFat) return false
+        if (chlorideGrams != other.chlorideGrams) return false
+        if (cholesterolGrams != other.cholesterolGrams) return false
+        if (chromiumGrams != other.chromiumGrams) return false
+        if (copperGrams != other.copperGrams) return false
+        if (dietaryFiberGrams != other.dietaryFiberGrams) return false
+        if (folateGrams != other.folateGrams) return false
+        if (folicAcidGrams != other.folicAcidGrams) return false
+        if (iodineGrams != other.iodineGrams) return false
+        if (ironGrams != other.ironGrams) return false
+        if (magnesiumGrams != other.magnesiumGrams) return false
+        if (manganeseGrams != other.manganeseGrams) return false
+        if (molybdenumGrams != other.molybdenumGrams) return false
+        if (monounsaturatedFatGrams != other.monounsaturatedFatGrams) return false
+        if (niacinGrams != other.niacinGrams) return false
+        if (pantothenicAcidGrams != other.pantothenicAcidGrams) return false
+        if (phosphorusGrams != other.phosphorusGrams) return false
+        if (polyunsaturatedFatGrams != other.polyunsaturatedFatGrams) return false
+        if (potassiumGrams != other.potassiumGrams) return false
+        if (proteinGrams != other.proteinGrams) return false
+        if (riboflavinGrams != other.riboflavinGrams) return false
+        if (saturatedFatGrams != other.saturatedFatGrams) return false
+        if (seleniumGrams != other.seleniumGrams) return false
+        if (sodiumGrams != other.sodiumGrams) return false
+        if (sugarGrams != other.sugarGrams) return false
+        if (thiaminGrams != other.thiaminGrams) return false
+        if (totalCarbohydrateGrams != other.totalCarbohydrateGrams) return false
+        if (totalFatGrams != other.totalFatGrams) return false
+        if (transFatGrams != other.transFatGrams) return false
+        if (unsaturatedFatGrams != other.unsaturatedFatGrams) return false
+        if (vitaminAGrams != other.vitaminAGrams) return false
+        if (vitaminB12Grams != other.vitaminB12Grams) return false
+        if (vitaminB6Grams != other.vitaminB6Grams) return false
+        if (vitaminCGrams != other.vitaminCGrams) return false
+        if (vitaminDGrams != other.vitaminDGrams) return false
+        if (vitaminEGrams != other.vitaminEGrams) return false
+        if (vitaminKGrams != other.vitaminKGrams) return false
+        if (zincGrams != other.zincGrams) return false
         if (mealType != other.mealType) return false
         if (startTime != other.startTime) return false
         if (startZoneOffset != other.startZoneOffset) return false
@@ -176,48 +176,48 @@ public class Nutrition(
 
     override fun hashCode(): Int {
         var result = 0
-        result = 31 * result + biotin.hashCode()
-        result = 31 * result + caffeine.hashCode()
-        result = 31 * result + calcium.hashCode()
-        result = 31 * result + calories.hashCode()
-        result = 31 * result + caloriesFromFat.hashCode()
-        result = 31 * result + chloride.hashCode()
-        result = 31 * result + cholesterol.hashCode()
-        result = 31 * result + chromium.hashCode()
-        result = 31 * result + copper.hashCode()
-        result = 31 * result + dietaryFiber.hashCode()
-        result = 31 * result + folate.hashCode()
-        result = 31 * result + folicAcid.hashCode()
-        result = 31 * result + iodine.hashCode()
-        result = 31 * result + iron.hashCode()
-        result = 31 * result + magnesium.hashCode()
-        result = 31 * result + manganese.hashCode()
-        result = 31 * result + molybdenum.hashCode()
-        result = 31 * result + monounsaturatedFat.hashCode()
-        result = 31 * result + niacin.hashCode()
-        result = 31 * result + pantothenicAcid.hashCode()
-        result = 31 * result + phosphorus.hashCode()
-        result = 31 * result + polyunsaturatedFat.hashCode()
-        result = 31 * result + potassium.hashCode()
-        result = 31 * result + protein.hashCode()
-        result = 31 * result + riboflavin.hashCode()
-        result = 31 * result + saturatedFat.hashCode()
-        result = 31 * result + selenium.hashCode()
-        result = 31 * result + sodium.hashCode()
-        result = 31 * result + sugar.hashCode()
-        result = 31 * result + thiamin.hashCode()
-        result = 31 * result + totalCarbohydrate.hashCode()
-        result = 31 * result + totalFat.hashCode()
-        result = 31 * result + transFat.hashCode()
-        result = 31 * result + unsaturatedFat.hashCode()
-        result = 31 * result + vitaminA.hashCode()
-        result = 31 * result + vitaminB12.hashCode()
-        result = 31 * result + vitaminB6.hashCode()
-        result = 31 * result + vitaminC.hashCode()
-        result = 31 * result + vitaminD.hashCode()
-        result = 31 * result + vitaminE.hashCode()
-        result = 31 * result + vitaminK.hashCode()
-        result = 31 * result + zinc.hashCode()
+        result = 31 * result + biotinGrams.hashCode()
+        result = 31 * result + caffeineGrams.hashCode()
+        result = 31 * result + calciumGrams.hashCode()
+        result = 31 * result + kcal.hashCode()
+        result = 31 * result + kcalFromFat.hashCode()
+        result = 31 * result + chlorideGrams.hashCode()
+        result = 31 * result + cholesterolGrams.hashCode()
+        result = 31 * result + chromiumGrams.hashCode()
+        result = 31 * result + copperGrams.hashCode()
+        result = 31 * result + dietaryFiberGrams.hashCode()
+        result = 31 * result + folateGrams.hashCode()
+        result = 31 * result + folicAcidGrams.hashCode()
+        result = 31 * result + iodineGrams.hashCode()
+        result = 31 * result + ironGrams.hashCode()
+        result = 31 * result + magnesiumGrams.hashCode()
+        result = 31 * result + manganeseGrams.hashCode()
+        result = 31 * result + molybdenumGrams.hashCode()
+        result = 31 * result + monounsaturatedFatGrams.hashCode()
+        result = 31 * result + niacinGrams.hashCode()
+        result = 31 * result + pantothenicAcidGrams.hashCode()
+        result = 31 * result + phosphorusGrams.hashCode()
+        result = 31 * result + polyunsaturatedFatGrams.hashCode()
+        result = 31 * result + potassiumGrams.hashCode()
+        result = 31 * result + proteinGrams.hashCode()
+        result = 31 * result + riboflavinGrams.hashCode()
+        result = 31 * result + saturatedFatGrams.hashCode()
+        result = 31 * result + seleniumGrams.hashCode()
+        result = 31 * result + sodiumGrams.hashCode()
+        result = 31 * result + sugarGrams.hashCode()
+        result = 31 * result + thiaminGrams.hashCode()
+        result = 31 * result + totalCarbohydrateGrams.hashCode()
+        result = 31 * result + totalFatGrams.hashCode()
+        result = 31 * result + transFatGrams.hashCode()
+        result = 31 * result + unsaturatedFatGrams.hashCode()
+        result = 31 * result + vitaminAGrams.hashCode()
+        result = 31 * result + vitaminB12Grams.hashCode()
+        result = 31 * result + vitaminB6Grams.hashCode()
+        result = 31 * result + vitaminCGrams.hashCode()
+        result = 31 * result + vitaminDGrams.hashCode()
+        result = 31 * result + vitaminEGrams.hashCode()
+        result = 31 * result + vitaminKGrams.hashCode()
+        result = 31 * result + zincGrams.hashCode()
         result = 31 * result + mealType.hashCode()
         result = 31 * result + (startZoneOffset?.hashCode() ?: 0)
         result = 31 * result + endTime.hashCode()

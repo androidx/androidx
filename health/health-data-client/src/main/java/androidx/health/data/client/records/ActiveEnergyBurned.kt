@@ -28,7 +28,7 @@ import java.time.ZoneOffset
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ActiveEnergyBurned(
     /** Energy in kilocalories. Required field. Valid range: 0-1000000. */
-    public val energy: Double,
+    public val energyKcal: Double,
     override val startTime: Instant,
     override val startZoneOffset: ZoneOffset?,
     override val endTime: Instant,
@@ -39,7 +39,7 @@ public class ActiveEnergyBurned(
         if (this === other) return true
         if (other !is ActiveEnergyBurned) return false
 
-        if (energy != other.energy) return false
+        if (energyKcal != other.energyKcal) return false
         if (startTime != other.startTime) return false
         if (startZoneOffset != other.startZoneOffset) return false
         if (endTime != other.endTime) return false
@@ -51,7 +51,7 @@ public class ActiveEnergyBurned(
 
     override fun hashCode(): Int {
         var result = 0
-        result = 31 * result + energy.hashCode()
+        result = 31 * result + energyKcal.hashCode()
         result = 31 * result + (startZoneOffset?.hashCode() ?: 0)
         result = 31 * result + endTime.hashCode()
         result = 31 * result + (endZoneOffset?.hashCode() ?: 0)

@@ -76,13 +76,13 @@ fun Record.toProto(): DataProto.DataPoint {
         is BasalMetabolicRate ->
             instantaneousProto()
                 .setDataType(protoDataType("BasalMetabolicRate"))
-                .apply { putValues("bmr", doubleVal(bmr)) }
+                .apply { putValues("bmr", doubleVal(kcalPerDay)) }
                 .build()
         is BloodGlucose ->
             instantaneousProto()
                 .setDataType(protoDataType("BloodGlucose"))
                 .apply {
-                    putValues("level", doubleVal(level))
+                    putValues("level", doubleVal(levelMillimolesPerLiter))
                     specimenSource?.let { putValues("specimenSource", enumVal(it)) }
                     mealType?.let { putValues("mealType", enumVal(it)) }
                     relationToMeal?.let { putValues("relationToMeal", enumVal(it)) }
@@ -92,8 +92,8 @@ fun Record.toProto(): DataProto.DataPoint {
             instantaneousProto()
                 .setDataType(protoDataType("BloodPressure"))
                 .apply {
-                    putValues("systolic", doubleVal(systolic))
-                    putValues("diastolic", doubleVal(diastolic))
+                    putValues("systolic", doubleVal(systolicMillimetersOfMercury))
+                    putValues("diastolic", doubleVal(diastolicMillimetersOfMercury))
                     bodyPosition?.let { putValues("bodyPosition", enumVal(it)) }
                     measurementLocation?.let { putValues("measurementLocation", enumVal(it)) }
                 }
@@ -107,7 +107,7 @@ fun Record.toProto(): DataProto.DataPoint {
             instantaneousProto()
                 .setDataType(protoDataType("BodyTemperature"))
                 .apply {
-                    putValues("temperature", doubleVal(temperature))
+                    putValues("temperature", doubleVal(temperatureDegreesCelsius))
                     measurementLocation?.let { putValues("measurementLocation", enumVal(it)) }
                 }
                 .build()
@@ -136,12 +136,12 @@ fun Record.toProto(): DataProto.DataPoint {
         is CyclingPedalingCadence ->
             instantaneousProto()
                 .setDataType(protoDataType("CyclingPedalingCadence"))
-                .apply { putValues("rpm", doubleVal(rpm)) }
+                .apply { putValues("rpm", doubleVal(revolutionsPerMinute)) }
                 .build()
         is HeartRate ->
             instantaneousProto()
                 .setDataType(protoDataType("HeartRate"))
-                .apply { putValues("bpm", longVal(bpm)) }
+                .apply { putValues("bpm", longVal(beatsPerMinute)) }
                 .build()
         is Height ->
             instantaneousProto()
@@ -156,47 +156,47 @@ fun Record.toProto(): DataProto.DataPoint {
         is HeartRateVariabilityDifferentialIndex ->
             instantaneousProto()
                 .setDataType(protoDataType("HeartRateVariabilityDifferentialIndex"))
-                .apply { putValues("heartRateVariability", doubleVal(heartRateVariability)) }
+                .apply { putValues("heartRateVariability", doubleVal(heartRateVariabilityMillis)) }
                 .build()
         is HeartRateVariabilityRmssd ->
             instantaneousProto()
                 .setDataType(protoDataType("HeartRateVariabilityRmssd"))
-                .apply { putValues("heartRateVariability", doubleVal(heartRateVariability)) }
+                .apply { putValues("heartRateVariability", doubleVal(heartRateVariabilityMillis)) }
                 .build()
         is HeartRateVariabilityS ->
             instantaneousProto()
                 .setDataType(protoDataType("HeartRateVariabilityS"))
-                .apply { putValues("heartRateVariability", doubleVal(heartRateVariability)) }
+                .apply { putValues("heartRateVariability", doubleVal(heartRateVariabilityMillis)) }
                 .build()
         is HeartRateVariabilitySd2 ->
             instantaneousProto()
                 .setDataType(protoDataType("HeartRateVariabilitySd2"))
-                .apply { putValues("heartRateVariability", doubleVal(heartRateVariability)) }
+                .apply { putValues("heartRateVariability", doubleVal(heartRateVariabilityMillis)) }
                 .build()
         is HeartRateVariabilitySdann ->
             instantaneousProto()
                 .setDataType(protoDataType("HeartRateVariabilitySdann"))
-                .apply { putValues("heartRateVariability", doubleVal(heartRateVariability)) }
+                .apply { putValues("heartRateVariability", doubleVal(heartRateVariabilityMillis)) }
                 .build()
         is HeartRateVariabilitySdnnIndex ->
             instantaneousProto()
                 .setDataType(protoDataType("HeartRateVariabilitySdnnIndex"))
-                .apply { putValues("heartRateVariability", doubleVal(heartRateVariability)) }
+                .apply { putValues("heartRateVariability", doubleVal(heartRateVariabilityMillis)) }
                 .build()
         is HeartRateVariabilitySdnn ->
             instantaneousProto()
                 .setDataType(protoDataType("HeartRateVariabilitySdnn"))
-                .apply { putValues("heartRateVariability", doubleVal(heartRateVariability)) }
+                .apply { putValues("heartRateVariability", doubleVal(heartRateVariabilityMillis)) }
                 .build()
         is HeartRateVariabilitySdsd ->
             instantaneousProto()
                 .setDataType(protoDataType("HeartRateVariabilitySdsd"))
-                .apply { putValues("heartRateVariability", doubleVal(heartRateVariability)) }
+                .apply { putValues("heartRateVariability", doubleVal(heartRateVariabilityMillis)) }
                 .build()
         is HeartRateVariabilityTinn ->
             instantaneousProto()
                 .setDataType(protoDataType("HeartRateVariabilityTinn"))
-                .apply { putValues("heartRateVariability", doubleVal(heartRateVariability)) }
+                .apply { putValues("heartRateVariability", doubleVal(heartRateVariabilityMillis)) }
                 .build()
         is LeanBodyMass ->
             instantaneousProto()
@@ -231,7 +231,7 @@ fun Record.toProto(): DataProto.DataPoint {
         is RestingHeartRate ->
             instantaneousProto()
                 .setDataType(protoDataType("RestingHeartRate"))
-                .apply { putValues("bpm", longVal(bpm)) }
+                .apply { putValues("bpm", longVal(beatsPerMinute)) }
                 .build()
         is SexualActivity ->
             instantaneousProto()
@@ -241,7 +241,7 @@ fun Record.toProto(): DataProto.DataPoint {
         is Speed ->
             instantaneousProto()
                 .setDataType(protoDataType("Speed"))
-                .apply { putValues("speed", doubleVal(speed)) }
+                .apply { putValues("speed", doubleVal(speedMetersPerSecond)) }
                 .build()
         is StepsCadence ->
             instantaneousProto()
@@ -252,7 +252,7 @@ fun Record.toProto(): DataProto.DataPoint {
             instantaneousProto()
                 .setDataType(protoDataType("Vo2Max"))
                 .apply {
-                    putValues("vo2", doubleVal(vo2))
+                    putValues("vo2", doubleVal(vo2MillilitersPerMinuteKilogram))
                     measurementMethod?.let { putValues("measurementMethod", enumVal(it)) }
                 }
                 .build()
@@ -269,7 +269,7 @@ fun Record.toProto(): DataProto.DataPoint {
         is ActiveEnergyBurned ->
             intervalProto()
                 .setDataType(protoDataType("ActiveEnergyBurned"))
-                .apply { putValues("energy", doubleVal(energy)) }
+                .apply { putValues("energy", doubleVal(energyKcal)) }
                 .build()
         is ActivityEvent ->
             intervalProto()
@@ -312,137 +312,137 @@ fun Record.toProto(): DataProto.DataPoint {
         is Hydration ->
             intervalProto()
                 .setDataType(protoDataType("Hydration"))
-                .apply { putValues("volume", doubleVal(volume)) }
+                .apply { putValues("volume", doubleVal(volumeLiters)) }
                 .build()
         is Nutrition ->
             intervalProto()
                 .setDataType(protoDataType("Nutrition"))
                 .apply {
-                    if (biotin > 0) {
-                        putValues("biotin", doubleVal(biotin))
+                    if (biotinGrams > 0) {
+                        putValues("biotin", doubleVal(biotinGrams))
                     }
-                    if (caffeine > 0) {
-                        putValues("caffeine", doubleVal(caffeine))
+                    if (caffeineGrams > 0) {
+                        putValues("caffeine", doubleVal(caffeineGrams))
                     }
-                    if (calcium > 0) {
-                        putValues("calcium", doubleVal(calcium))
+                    if (calciumGrams > 0) {
+                        putValues("calcium", doubleVal(calciumGrams))
                     }
-                    if (calories > 0) {
-                        putValues("calories", doubleVal(calories))
+                    if (kcal > 0) {
+                        putValues("calories", doubleVal(kcal))
                     }
-                    if (caloriesFromFat > 0) {
-                        putValues("caloriesFromFat", doubleVal(caloriesFromFat))
+                    if (kcalFromFat > 0) {
+                        putValues("caloriesFromFat", doubleVal(kcalFromFat))
                     }
-                    if (chloride > 0) {
-                        putValues("chloride", doubleVal(chloride))
+                    if (chlorideGrams > 0) {
+                        putValues("chloride", doubleVal(chlorideGrams))
                     }
-                    if (cholesterol > 0) {
-                        putValues("cholesterol", doubleVal(cholesterol))
+                    if (cholesterolGrams > 0) {
+                        putValues("cholesterol", doubleVal(cholesterolGrams))
                     }
-                    if (chromium > 0) {
-                        putValues("chromium", doubleVal(chromium))
+                    if (chromiumGrams > 0) {
+                        putValues("chromium", doubleVal(chromiumGrams))
                     }
-                    if (copper > 0) {
-                        putValues("copper", doubleVal(copper))
+                    if (copperGrams > 0) {
+                        putValues("copper", doubleVal(copperGrams))
                     }
-                    if (dietaryFiber > 0) {
-                        putValues("dietaryFiber", doubleVal(dietaryFiber))
+                    if (dietaryFiberGrams > 0) {
+                        putValues("dietaryFiber", doubleVal(dietaryFiberGrams))
                     }
-                    if (folate > 0) {
-                        putValues("folate", doubleVal(folate))
+                    if (folateGrams > 0) {
+                        putValues("folate", doubleVal(folateGrams))
                     }
-                    if (folicAcid > 0) {
-                        putValues("folicAcid", doubleVal(folicAcid))
+                    if (folicAcidGrams > 0) {
+                        putValues("folicAcid", doubleVal(folicAcidGrams))
                     }
-                    if (iodine > 0) {
-                        putValues("iodine", doubleVal(iodine))
+                    if (iodineGrams > 0) {
+                        putValues("iodine", doubleVal(iodineGrams))
                     }
-                    if (iron > 0) {
-                        putValues("iron", doubleVal(iron))
+                    if (ironGrams > 0) {
+                        putValues("iron", doubleVal(ironGrams))
                     }
-                    if (magnesium > 0) {
-                        putValues("magnesium", doubleVal(magnesium))
+                    if (magnesiumGrams > 0) {
+                        putValues("magnesium", doubleVal(magnesiumGrams))
                     }
-                    if (manganese > 0) {
-                        putValues("manganese", doubleVal(manganese))
+                    if (manganeseGrams > 0) {
+                        putValues("manganese", doubleVal(manganeseGrams))
                     }
-                    if (molybdenum > 0) {
-                        putValues("molybdenum", doubleVal(molybdenum))
+                    if (molybdenumGrams > 0) {
+                        putValues("molybdenum", doubleVal(molybdenumGrams))
                     }
-                    if (monounsaturatedFat > 0) {
-                        putValues("monounsaturatedFat", doubleVal(monounsaturatedFat))
+                    if (monounsaturatedFatGrams > 0) {
+                        putValues("monounsaturatedFat", doubleVal(monounsaturatedFatGrams))
                     }
-                    if (niacin > 0) {
-                        putValues("niacin", doubleVal(niacin))
+                    if (niacinGrams > 0) {
+                        putValues("niacin", doubleVal(niacinGrams))
                     }
-                    if (pantothenicAcid > 0) {
-                        putValues("pantothenicAcid", doubleVal(pantothenicAcid))
+                    if (pantothenicAcidGrams > 0) {
+                        putValues("pantothenicAcid", doubleVal(pantothenicAcidGrams))
                     }
-                    if (phosphorus > 0) {
-                        putValues("phosphorus", doubleVal(phosphorus))
+                    if (phosphorusGrams > 0) {
+                        putValues("phosphorus", doubleVal(phosphorusGrams))
                     }
-                    if (polyunsaturatedFat > 0) {
-                        putValues("polyunsaturatedFat", doubleVal(polyunsaturatedFat))
+                    if (polyunsaturatedFatGrams > 0) {
+                        putValues("polyunsaturatedFat", doubleVal(polyunsaturatedFatGrams))
                     }
-                    if (potassium > 0) {
-                        putValues("potassium", doubleVal(potassium))
+                    if (potassiumGrams > 0) {
+                        putValues("potassium", doubleVal(potassiumGrams))
                     }
-                    if (protein > 0) {
-                        putValues("protein", doubleVal(protein))
+                    if (proteinGrams > 0) {
+                        putValues("protein", doubleVal(proteinGrams))
                     }
-                    if (riboflavin > 0) {
-                        putValues("riboflavin", doubleVal(riboflavin))
+                    if (riboflavinGrams > 0) {
+                        putValues("riboflavin", doubleVal(riboflavinGrams))
                     }
-                    if (saturatedFat > 0) {
-                        putValues("saturatedFat", doubleVal(saturatedFat))
+                    if (saturatedFatGrams > 0) {
+                        putValues("saturatedFat", doubleVal(saturatedFatGrams))
                     }
-                    if (selenium > 0) {
-                        putValues("selenium", doubleVal(selenium))
+                    if (seleniumGrams > 0) {
+                        putValues("selenium", doubleVal(seleniumGrams))
                     }
-                    if (sodium > 0) {
-                        putValues("sodium", doubleVal(sodium))
+                    if (sodiumGrams > 0) {
+                        putValues("sodium", doubleVal(sodiumGrams))
                     }
-                    if (sugar > 0) {
-                        putValues("sugar", doubleVal(sugar))
+                    if (sugarGrams > 0) {
+                        putValues("sugar", doubleVal(sugarGrams))
                     }
-                    if (thiamin > 0) {
-                        putValues("thiamin", doubleVal(thiamin))
+                    if (thiaminGrams > 0) {
+                        putValues("thiamin", doubleVal(thiaminGrams))
                     }
-                    if (totalCarbohydrate > 0) {
-                        putValues("totalCarbohydrate", doubleVal(totalCarbohydrate))
+                    if (totalCarbohydrateGrams > 0) {
+                        putValues("totalCarbohydrate", doubleVal(totalCarbohydrateGrams))
                     }
-                    if (totalFat > 0) {
-                        putValues("totalFat", doubleVal(totalFat))
+                    if (totalFatGrams > 0) {
+                        putValues("totalFat", doubleVal(totalFatGrams))
                     }
-                    if (transFat > 0) {
-                        putValues("transFat", doubleVal(transFat))
+                    if (transFatGrams > 0) {
+                        putValues("transFat", doubleVal(transFatGrams))
                     }
-                    if (unsaturatedFat > 0) {
-                        putValues("unsaturatedFat", doubleVal(unsaturatedFat))
+                    if (unsaturatedFatGrams > 0) {
+                        putValues("unsaturatedFat", doubleVal(unsaturatedFatGrams))
                     }
-                    if (vitaminA > 0) {
-                        putValues("vitaminA", doubleVal(vitaminA))
+                    if (vitaminAGrams > 0) {
+                        putValues("vitaminA", doubleVal(vitaminAGrams))
                     }
-                    if (vitaminB12 > 0) {
-                        putValues("vitaminB12", doubleVal(vitaminB12))
+                    if (vitaminB12Grams > 0) {
+                        putValues("vitaminB12", doubleVal(vitaminB12Grams))
                     }
-                    if (vitaminB6 > 0) {
-                        putValues("vitaminB6", doubleVal(vitaminB6))
+                    if (vitaminB6Grams > 0) {
+                        putValues("vitaminB6", doubleVal(vitaminB6Grams))
                     }
-                    if (vitaminC > 0) {
-                        putValues("vitaminC", doubleVal(vitaminC))
+                    if (vitaminCGrams > 0) {
+                        putValues("vitaminC", doubleVal(vitaminCGrams))
                     }
-                    if (vitaminD > 0) {
-                        putValues("vitaminD", doubleVal(vitaminD))
+                    if (vitaminDGrams > 0) {
+                        putValues("vitaminD", doubleVal(vitaminDGrams))
                     }
-                    if (vitaminE > 0) {
-                        putValues("vitaminE", doubleVal(vitaminE))
+                    if (vitaminEGrams > 0) {
+                        putValues("vitaminE", doubleVal(vitaminEGrams))
                     }
-                    if (vitaminK > 0) {
-                        putValues("vitaminK", doubleVal(vitaminK))
+                    if (vitaminKGrams > 0) {
+                        putValues("vitaminK", doubleVal(vitaminKGrams))
                     }
-                    if (zinc > 0) {
-                        putValues("zinc", doubleVal(zinc))
+                    if (zincGrams > 0) {
+                        putValues("zinc", doubleVal(zincGrams))
                     }
                     mealType?.let { putValues("mealType", enumVal(it)) }
                 }
@@ -483,7 +483,7 @@ fun Record.toProto(): DataProto.DataPoint {
         is TotalEnergyBurned ->
             intervalProto()
                 .setDataType(protoDataType("TotalEnergyBurned"))
-                .apply { putValues("energy", doubleVal(energy)) }
+                .apply { putValues("energy", doubleVal(energyKcal)) }
                 .build()
         is WheelchairPushes ->
             intervalProto()

@@ -28,7 +28,7 @@ import java.time.ZoneOffset
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class Speed(
     /** Speed in meters per second. Required field. Valid range: 0-1000000. */
-    public val speed: Double,
+    public val speedMetersPerSecond: Double,
     override val time: Instant,
     override val zoneOffset: ZoneOffset?,
     override val metadata: Metadata = Metadata.EMPTY,
@@ -37,7 +37,7 @@ public class Speed(
         if (this === other) return true
         if (other !is Speed) return false
 
-        if (speed != other.speed) return false
+        if (speedMetersPerSecond != other.speedMetersPerSecond) return false
         if (time != other.time) return false
         if (zoneOffset != other.zoneOffset) return false
         if (metadata != other.metadata) return false
@@ -47,7 +47,7 @@ public class Speed(
 
     override fun hashCode(): Int {
         var result = 0
-        result = 31 * result + speed.hashCode()
+        result = 31 * result + speedMetersPerSecond.hashCode()
         result = 31 * result + time.hashCode()
         result = 31 * result + (zoneOffset?.hashCode() ?: 0)
         result = 31 * result + metadata.hashCode()

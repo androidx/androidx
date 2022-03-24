@@ -20,8 +20,8 @@ import androidx.health.data.client.records.Record
 import kotlin.reflect.KClass
 
 /**
- * Class to represent a permission which consists of a [KClass] representing a data type and a
- * [AccessTypes] enum representing an access type.
+ * Class to represent a permission which consists of a [KClass] representing a data type and an
+ * access type.
  *
  * @property recordType type of [Record] the permission gives access for
  * @property accessType whether read or write access

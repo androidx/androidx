@@ -27,7 +27,7 @@ import java.time.ZoneOffset
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class BodyTemperature(
     /** Temperature in degrees Celsius. Required field. Valid range: 0-100. */
-    public val temperature: Double,
+    public val temperatureDegreesCelsius: Double,
     /**
      * Where on the user's body the temperature measurement was taken from. Optional field. Allowed
      * values: [BodyTemperatureMeasurementLocation].
@@ -41,7 +41,7 @@ public class BodyTemperature(
         if (this === other) return true
         if (other !is BodyTemperature) return false
 
-        if (temperature != other.temperature) return false
+        if (temperatureDegreesCelsius != other.temperatureDegreesCelsius) return false
         if (measurementLocation != other.measurementLocation) return false
         if (time != other.time) return false
         if (zoneOffset != other.zoneOffset) return false
@@ -52,7 +52,7 @@ public class BodyTemperature(
 
     override fun hashCode(): Int {
         var result = 0
-        result = 31 * result + temperature.hashCode()
+        result = 31 * result + temperatureDegreesCelsius.hashCode()
         result = 31 * result + measurementLocation.hashCode()
         result = 31 * result + time.hashCode()
         result = 31 * result + (zoneOffset?.hashCode() ?: 0)
