@@ -27,18 +27,15 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.camera.camera2.internal.SynchronizedCaptureSessionOpener.SynchronizedSessionFeature;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.params.SessionConfigurationCompat;
 import androidx.camera.camera2.internal.compat.workaround.ForceCloseCaptureSession;
 import androidx.camera.camera2.internal.compat.workaround.ForceCloseDeferrableSurface;
+import androidx.camera.camera2.internal.compat.workaround.WaitForRepeatingRequestStart;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.Quirks;
-import androidx.camera.core.impl.utils.executor.CameraXExecutors;
-import androidx.camera.core.impl.utils.futures.FutureChain;
 import androidx.camera.core.impl.utils.futures.Futures;
-import androidx.concurrent.futures.CallbackToFutureAdapter;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -71,12 +68,6 @@ class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl 
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     private final Object mObjectLock = new Object();
-    @NonNull
-    private final Set<String> mEnabledFeature;
-    @NonNull
-    private final ListenableFuture<Void> mStartStreamingFuture;
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    CallbackToFutureAdapter.Completer<Void> mStartStreamingCompleter;
 
     @Nullable
     @GuardedBy("mObjectLock")
@@ -85,11 +76,8 @@ class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl 
     @GuardedBy("mObjectLock")
     ListenableFuture<Void> mOpeningCaptureSession;
 
-    /** Whether the capture session has submitted the repeating request. */
-    @GuardedBy("mObjectLock")
-    private boolean mHasSubmittedRepeating;
-
     private final ForceCloseDeferrableSurface mCloseSurfaceQuirk;
+    private final WaitForRepeatingRequestStart mWaitForOtherSessionCompleteQuirk;
     private final ForceCloseCaptureSession mForceCloseSessionQuirk;
 
     SynchronizedCaptureSessionImpl(
@@ -101,21 +89,9 @@ class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl 
         super(repository, executor, scheduledExecutorService, compatHandler);
         mCloseSurfaceQuirk = new ForceCloseDeferrableSurface(new Quirks(new ArrayList<>()),
                 new Quirks(new ArrayList<>()));
+        mWaitForOtherSessionCompleteQuirk = new WaitForRepeatingRequestStart(
+                new Quirks(new ArrayList<>()));
         mForceCloseSessionQuirk = new ForceCloseCaptureSession(new Quirks(new ArrayList<>()));
-        mEnabledFeature = enabledFeature;
-
-        if (enabledFeature.contains(SynchronizedCaptureSessionOpener.FEATURE_WAIT_FOR_REQUEST)) {
-            mStartStreamingFuture = CallbackToFutureAdapter.getFuture(completer -> {
-                // Opening and releasing the capture session quickly and constantly is a problem for
-                // LEGACY devices. See: b/146773463. It needs to check all the releasing capture
-                // sessions are ready for opening next capture session.
-                mStartStreamingCompleter = completer;
-                return "StartStreamingFuture[session=" + SynchronizedCaptureSessionImpl.this
-                        + "]";
-            });
-        } else {
-            mStartStreamingFuture = Futures.immediateFuture(null);
-        }
     }
 
     @NonNull
@@ -124,16 +100,10 @@ class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl 
             @NonNull SessionConfigurationCompat sessionConfigurationCompat,
             @NonNull List<DeferrableSurface> deferrableSurfaces) {
         synchronized (mObjectLock) {
-            List<ListenableFuture<Void>> futureList =
-                    getBlockerFuture(SynchronizedCaptureSessionOpener.FEATURE_WAIT_FOR_REQUEST,
-                            mCaptureSessionRepository.getClosingCaptureSession());
-
-            mOpeningCaptureSession =
-                    FutureChain.from(Futures.successfulAsList(futureList)).transformAsync(
-                            v -> super.openCaptureSession(cameraDevice,
-                                    sessionConfigurationCompat, deferrableSurfaces),
-                            CameraXExecutors.directExecutor());
-
+            mOpeningCaptureSession = mWaitForOtherSessionCompleteQuirk.openCaptureSession(
+                    cameraDevice, sessionConfigurationCompat, deferrableSurfaces,
+                    mCaptureSessionRepository.getClosingCaptureSession(),
+                    super::openCaptureSession);
             return Futures.nonCancellationPropagating(mOpeningCaptureSession);
         }
     }
@@ -141,17 +111,7 @@ class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl 
     @NonNull
     @Override
     public ListenableFuture<Void> getOpeningBlocker() {
-        return Futures.nonCancellationPropagating(mStartStreamingFuture);
-    }
-
-    private List<ListenableFuture<Void>> getBlockerFuture(
-            @SynchronizedSessionFeature @NonNull String feature,
-            List<SynchronizedCaptureSession> sessions) {
-        List<ListenableFuture<Void>> futureList = new ArrayList<>();
-        for (SynchronizedCaptureSession session : sessions) {
-            futureList.add(session.getOpeningBlocker());
-        }
-        return futureList;
+        return mWaitForOtherSessionCompleteQuirk.getStartStreamFuture();
     }
 
     @NonNull
@@ -160,8 +120,7 @@ class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl 
             @NonNull List<DeferrableSurface> deferrableSurfaces, long timeout) {
         synchronized (mObjectLock) {
             mDeferrableSurfaces = deferrableSurfaces;
-            return Futures.nonCancellationPropagating(
-                    super.startWithDeferrableSurface(deferrableSurfaces, timeout));
+            return super.startWithDeferrableSurface(deferrableSurfaces, timeout);
         }
     }
 
@@ -180,17 +139,8 @@ class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl 
     @Override
     public int setSingleRepeatingRequest(@NonNull CaptureRequest request,
             @NonNull CameraCaptureSession.CaptureCallback listener) throws CameraAccessException {
-        if (mEnabledFeature.contains(SynchronizedCaptureSessionOpener.FEATURE_WAIT_FOR_REQUEST)) {
-            synchronized (mObjectLock) {
-                mHasSubmittedRepeating = true;
-                CameraCaptureSession.CaptureCallback comboCaptureCallback =
-                        Camera2CaptureCallbacks.createComboCallback(mCaptureCallback, listener);
-
-                return super.setSingleRepeatingRequest(request, comboCaptureCallback);
-            }
-        } else {
-            return super.setSingleRepeatingRequest(request, listener);
-        }
+        return mWaitForOtherSessionCompleteQuirk.setSingleRepeatingRequest(
+                request, listener, super::setSingleRepeatingRequest);
     }
 
     @Override
@@ -205,17 +155,8 @@ class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl 
     @Override
     public void close() {
         debugLog("Session call close()");
-        if (mEnabledFeature.contains(SynchronizedCaptureSessionOpener.FEATURE_WAIT_FOR_REQUEST)) {
-            synchronized (mObjectLock) {
-                if (!mHasSubmittedRepeating) {
-                    // If the release() is called before any repeating requests have been issued,
-                    // then the startStreamingFuture should be cancelled.
-                    mStartStreamingFuture.cancel(true);
-                }
-            }
-        }
-
-        mStartStreamingFuture.addListener(() -> {
+        mWaitForOtherSessionCompleteQuirk.onSessionEnd();
+        mWaitForOtherSessionCompleteQuirk.getStartStreamFuture().addListener(() -> {
             // Checks the capture session is ready before closing. See: b/146773463.
             debugLog("Session call super.close()");
             super.close();
@@ -234,25 +175,4 @@ class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl 
     void debugLog(String message) {
         Logger.d(TAG, "[" + SynchronizedCaptureSessionImpl.this + "] " + message);
     }
-
-    private final CameraCaptureSession.CaptureCallback mCaptureCallback =
-            new CameraCaptureSession.CaptureCallback() {
-                @Override
-                public void onCaptureStarted(@NonNull CameraCaptureSession session,
-                        @NonNull CaptureRequest request, long timestamp, long frameNumber) {
-                    if (mStartStreamingCompleter != null) {
-                        mStartStreamingCompleter.set(null);
-                        mStartStreamingCompleter = null;
-                    }
-                }
-
-                @Override
-                public void onCaptureSequenceAborted(@NonNull CameraCaptureSession session,
-                        int sequenceId) {
-                    if (mStartStreamingCompleter != null) {
-                        mStartStreamingCompleter.setCancelled();
-                        mStartStreamingCompleter = null;
-                    }
-                }
-            };
 }
