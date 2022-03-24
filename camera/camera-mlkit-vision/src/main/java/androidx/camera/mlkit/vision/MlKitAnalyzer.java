@@ -18,6 +18,9 @@ package androidx.camera.mlkit.vision;
 import static androidx.camera.core.ImageAnalysis.COORDINATE_SYSTEM_ORIGINAL;
 
 import static com.google.android.gms.common.internal.Preconditions.checkArgument;
+import static com.google.mlkit.vision.interfaces.Detector.TYPE_BARCODE_SCANNING;
+import static com.google.mlkit.vision.interfaces.Detector.TYPE_SEGMENTATION;
+import static com.google.mlkit.vision.interfaces.Detector.TYPE_TEXT_RECOGNITION;
 
 import android.graphics.Matrix;
 import android.media.Image;
@@ -81,6 +84,8 @@ public class MlKitAnalyzer implements ImageAnalysis.Analyzer {
 
     private static final String TAG = "MlKitAnalyzer";
 
+    private static final Size DEFAULT_SIZE = new Size(480, 360);
+
     @NonNull
     private final List<Detector<?>> mDetectors;
     private final int mTargetCoordinateSystem;
@@ -118,7 +123,7 @@ public class MlKitAnalyzer implements ImageAnalysis.Analyzer {
             @NonNull Consumer<Result> consumer) {
         if (targetCoordinateSystem != COORDINATE_SYSTEM_ORIGINAL) {
             for (Detector<?> detector : detectors) {
-                checkArgument(detector.getDetectorType() != Detector.TYPE_SEGMENTATION,
+                checkArgument(detector.getDetectorType() != TYPE_SEGMENTATION,
                         "Segmentation only works with COORDINATE_SYSTEM_ORIGINAL");
             }
         }
@@ -212,8 +217,31 @@ public class MlKitAnalyzer implements ImageAnalysis.Analyzer {
     @NonNull
     @Override
     public final Size getTargetResolutionOverride() {
-        // TODO(b/181556771): customize size based on the Detector type.
-        return new Size(480, 360);
+        Size size = DEFAULT_SIZE;
+        for (Detector<?> detector : mDetectors) {
+            Size detectorSize = getTargetResolution(detector.getDetectorType());
+            if (detectorSize.getHeight() * detectorSize.getWidth()
+                    > size.getWidth() * size.getHeight()) {
+                size = detectorSize;
+            }
+        }
+        return size;
+    }
+
+    /**
+     * Gets the recommended resolution for the given {@link Detector} type.
+     *
+     * <p> The resolution can be found on MLKit's DAC page.
+     */
+    @NonNull
+    private Size getTargetResolution(int detectorType) {
+        switch (detectorType) {
+            case TYPE_BARCODE_SCANNING:
+            case TYPE_TEXT_RECOGNITION:
+                return new Size(1280, 720);
+            default:
+                return DEFAULT_SIZE;
+        }
     }
 
     /**

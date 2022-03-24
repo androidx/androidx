@@ -20,6 +20,7 @@ import android.graphics.Matrix
 import android.graphics.Rect
 import android.media.Image
 import android.os.Build
+import android.util.Size
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor
@@ -29,6 +30,7 @@ import androidx.camera.view.CameraController.COORDINATE_SYSTEM_VIEW_REFERENCED
 import com.google.common.truth.Truth.assertThat
 import com.google.mlkit.vision.interfaces.Detector
 import com.google.mlkit.vision.interfaces.Detector.TYPE_BARCODE_SCANNING
+import com.google.mlkit.vision.interfaces.Detector.TYPE_FACE_DETECTION
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
@@ -49,6 +51,19 @@ class MlKitAnalyzerTest {
         private const val TIMESTAMP = 100L
         private const val ROTATION_DEGREES = 180
         private val CROP_RECT = Rect(0, 0, 640, 480)
+    }
+
+    @Test
+    fun createAnalyzerWith2Detectors_overridesWithHigherResolution() {
+        val barcodeScanner = FakeDetector(RETURN_VALUE, null, TYPE_BARCODE_SCANNING)
+        val faceDetector = FakeDetector(RETURN_VALUE, null, TYPE_FACE_DETECTION)
+        val mlKitAnalyzer = MlKitAnalyzer(
+            listOf(barcodeScanner, faceDetector),
+            ImageAnalysis.COORDINATE_SYSTEM_ORIGINAL,
+            directExecutor()
+        ) {}
+
+        assertThat(mlKitAnalyzer.targetResolutionOverride).isEqualTo(Size(1280, 720))
     }
 
     @Test
