@@ -24,7 +24,7 @@ import java.time.ZoneOffset
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class Hydration(
     /** Volume of water in liters. Required field. Valid range: 0-100. */
-    public val volume: Double,
+    public val volumeLiters: Double,
     override val startTime: Instant,
     override val startZoneOffset: ZoneOffset?,
     override val endTime: Instant,
@@ -35,7 +35,7 @@ public class Hydration(
         if (this === other) return true
         if (other !is Hydration) return false
 
-        if (volume != other.volume) return false
+        if (volumeLiters != other.volumeLiters) return false
         if (startTime != other.startTime) return false
         if (startZoneOffset != other.startZoneOffset) return false
         if (endTime != other.endTime) return false
@@ -47,7 +47,7 @@ public class Hydration(
 
     override fun hashCode(): Int {
         var result = 0
-        result = 31 * result + volume.hashCode()
+        result = 31 * result + volumeLiters.hashCode()
         result = 31 * result + (startZoneOffset?.hashCode() ?: 0)
         result = 31 * result + endTime.hashCode()
         result = 31 * result + (endZoneOffset?.hashCode() ?: 0)

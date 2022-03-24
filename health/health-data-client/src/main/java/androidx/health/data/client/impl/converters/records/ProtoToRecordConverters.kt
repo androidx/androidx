@@ -75,14 +75,14 @@ fun toRecord(proto: DataProto.DataPoint): Record {
         when (dataType.name) {
             "BasalMetabolicRate" ->
                 BasalMetabolicRate(
-                    bmr = getDouble("bmr"),
+                    kcalPerDay = getDouble("bmr"),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
             "BloodGlucose" ->
                 BloodGlucose(
-                    level = getDouble("level"),
+                    levelMillimolesPerLiter = getDouble("level"),
                     specimenSource = getEnum("specimenSource"),
                     mealType = getEnum("mealType"),
                     relationToMeal = getEnum("relationToMeal"),
@@ -92,8 +92,8 @@ fun toRecord(proto: DataProto.DataPoint): Record {
                 )
             "BloodPressure" ->
                 BloodPressure(
-                    systolic = getDouble("systolic"),
-                    diastolic = getDouble("diastolic"),
+                    systolicMillimetersOfMercury = getDouble("systolic"),
+                    diastolicMillimetersOfMercury = getDouble("diastolic"),
                     bodyPosition = getEnum("bodyPosition"),
                     measurementLocation = getEnum("measurementLocation"),
                     time = time,
@@ -109,7 +109,7 @@ fun toRecord(proto: DataProto.DataPoint): Record {
                 )
             "BodyTemperature" ->
                 BodyTemperature(
-                    temperature = getDouble("temperature"),
+                    temperatureDegreesCelsius = getDouble("temperature"),
                     measurementLocation = getEnum("measurementLocation"),
                     time = time,
                     zoneOffset = zoneOffset,
@@ -141,14 +141,14 @@ fun toRecord(proto: DataProto.DataPoint): Record {
                 )
             "CyclingPedalingCadence" ->
                 CyclingPedalingCadence(
-                    rpm = getDouble("rpm"),
+                    revolutionsPerMinute = getDouble("rpm"),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
             "HeartRate" ->
                 HeartRate(
-                    bpm = getLong("bpm"),
+                    beatsPerMinute = getLong("bpm"),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
@@ -169,63 +169,63 @@ fun toRecord(proto: DataProto.DataPoint): Record {
                 )
             "HeartRateVariabilityDifferentialIndex" ->
                 HeartRateVariabilityDifferentialIndex(
-                    heartRateVariability = getDouble("heartRateVariability"),
+                    heartRateVariabilityMillis = getDouble("heartRateVariability"),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
             "HeartRateVariabilityRmssd" ->
                 HeartRateVariabilityRmssd(
-                    heartRateVariability = getDouble("heartRateVariability"),
+                    heartRateVariabilityMillis = getDouble("heartRateVariability"),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
             "HeartRateVariabilityS" ->
                 HeartRateVariabilityS(
-                    heartRateVariability = getDouble("heartRateVariability"),
+                    heartRateVariabilityMillis = getDouble("heartRateVariability"),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
             "HeartRateVariabilitySd2" ->
                 HeartRateVariabilitySd2(
-                    heartRateVariability = getDouble("heartRateVariability"),
+                    heartRateVariabilityMillis = getDouble("heartRateVariability"),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
             "HeartRateVariabilitySdann" ->
                 HeartRateVariabilitySdann(
-                    heartRateVariability = getDouble("heartRateVariability"),
+                    heartRateVariabilityMillis = getDouble("heartRateVariability"),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
             "HeartRateVariabilitySdnnIndex" ->
                 HeartRateVariabilitySdnnIndex(
-                    heartRateVariability = getDouble("heartRateVariability"),
+                    heartRateVariabilityMillis = getDouble("heartRateVariability"),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
             "HeartRateVariabilitySdnn" ->
                 HeartRateVariabilitySdnn(
-                    heartRateVariability = getDouble("heartRateVariability"),
+                    heartRateVariabilityMillis = getDouble("heartRateVariability"),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
             "HeartRateVariabilitySdsd" ->
                 HeartRateVariabilitySdsd(
-                    heartRateVariability = getDouble("heartRateVariability"),
+                    heartRateVariabilityMillis = getDouble("heartRateVariability"),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
             "HeartRateVariabilityTinn" ->
                 HeartRateVariabilityTinn(
-                    heartRateVariability = getDouble("heartRateVariability"),
+                    heartRateVariabilityMillis = getDouble("heartRateVariability"),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
@@ -274,7 +274,7 @@ fun toRecord(proto: DataProto.DataPoint): Record {
                 )
             "RestingHeartRate" ->
                 RestingHeartRate(
-                    bpm = getLong("bpm"),
+                    beatsPerMinute = getLong("bpm"),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
@@ -288,7 +288,7 @@ fun toRecord(proto: DataProto.DataPoint): Record {
                 )
             "Speed" ->
                 Speed(
-                    speed = getDouble("speed"),
+                    speedMetersPerSecond = getDouble("speed"),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
@@ -302,7 +302,7 @@ fun toRecord(proto: DataProto.DataPoint): Record {
                 )
             "Vo2Max" ->
                 Vo2Max(
-                    vo2 = getDouble("vo2"),
+                    vo2MillilitersPerMinuteKilogram = getDouble("vo2"),
                     measurementMethod = getEnum("measurementMethod"),
                     time = time,
                     zoneOffset = zoneOffset,
@@ -324,7 +324,7 @@ fun toRecord(proto: DataProto.DataPoint): Record {
                 )
             "ActiveEnergyBurned" ->
                 ActiveEnergyBurned(
-                    energy = getDouble("energy"),
+                    energyKcal = getDouble("energy"),
                     startTime = startTime,
                     startZoneOffset = startZoneOffset,
                     endTime = endTime,
@@ -389,7 +389,7 @@ fun toRecord(proto: DataProto.DataPoint): Record {
                 )
             "Hydration" ->
                 Hydration(
-                    volume = getDouble("volume"),
+                    volumeLiters = getDouble("volume"),
                     startTime = startTime,
                     startZoneOffset = startZoneOffset,
                     endTime = endTime,
@@ -398,48 +398,48 @@ fun toRecord(proto: DataProto.DataPoint): Record {
                 )
             "Nutrition" ->
                 Nutrition(
-                    biotin = getDouble("biotin"),
-                    caffeine = getDouble("caffeine"),
-                    calcium = getDouble("calcium"),
-                    calories = getDouble("calories"),
-                    caloriesFromFat = getDouble("caloriesFromFat"),
-                    chloride = getDouble("chloride"),
-                    cholesterol = getDouble("cholesterol"),
-                    chromium = getDouble("chromium"),
-                    copper = getDouble("copper"),
-                    dietaryFiber = getDouble("dietaryFiber"),
-                    folate = getDouble("folate"),
-                    folicAcid = getDouble("folicAcid"),
-                    iodine = getDouble("iodine"),
-                    iron = getDouble("iron"),
-                    magnesium = getDouble("magnesium"),
-                    manganese = getDouble("manganese"),
-                    molybdenum = getDouble("molybdenum"),
-                    monounsaturatedFat = getDouble("monounsaturatedFat"),
-                    niacin = getDouble("niacin"),
-                    pantothenicAcid = getDouble("pantothenicAcid"),
-                    phosphorus = getDouble("phosphorus"),
-                    polyunsaturatedFat = getDouble("polyunsaturatedFat"),
-                    potassium = getDouble("potassium"),
-                    protein = getDouble("protein"),
-                    riboflavin = getDouble("riboflavin"),
-                    saturatedFat = getDouble("saturatedFat"),
-                    selenium = getDouble("selenium"),
-                    sodium = getDouble("sodium"),
-                    sugar = getDouble("sugar"),
-                    thiamin = getDouble("thiamin"),
-                    totalCarbohydrate = getDouble("totalCarbohydrate"),
-                    totalFat = getDouble("totalFat"),
-                    transFat = getDouble("transFat"),
-                    unsaturatedFat = getDouble("unsaturatedFat"),
-                    vitaminA = getDouble("vitaminA"),
-                    vitaminB12 = getDouble("vitaminB12"),
-                    vitaminB6 = getDouble("vitaminB6"),
-                    vitaminC = getDouble("vitaminC"),
-                    vitaminD = getDouble("vitaminD"),
-                    vitaminE = getDouble("vitaminE"),
-                    vitaminK = getDouble("vitaminK"),
-                    zinc = getDouble("zinc"),
+                    biotinGrams = getDouble("biotin"),
+                    caffeineGrams = getDouble("caffeine"),
+                    calciumGrams = getDouble("calcium"),
+                    kcal = getDouble("calories"),
+                    kcalFromFat = getDouble("caloriesFromFat"),
+                    chlorideGrams = getDouble("chloride"),
+                    cholesterolGrams = getDouble("cholesterol"),
+                    chromiumGrams = getDouble("chromium"),
+                    copperGrams = getDouble("copper"),
+                    dietaryFiberGrams = getDouble("dietaryFiber"),
+                    folateGrams = getDouble("folate"),
+                    folicAcidGrams = getDouble("folicAcid"),
+                    iodineGrams = getDouble("iodine"),
+                    ironGrams = getDouble("iron"),
+                    magnesiumGrams = getDouble("magnesium"),
+                    manganeseGrams = getDouble("manganese"),
+                    molybdenumGrams = getDouble("molybdenum"),
+                    monounsaturatedFatGrams = getDouble("monounsaturatedFat"),
+                    niacinGrams = getDouble("niacin"),
+                    pantothenicAcidGrams = getDouble("pantothenicAcid"),
+                    phosphorusGrams = getDouble("phosphorus"),
+                    polyunsaturatedFatGrams = getDouble("polyunsaturatedFat"),
+                    potassiumGrams = getDouble("potassium"),
+                    proteinGrams = getDouble("protein"),
+                    riboflavinGrams = getDouble("riboflavin"),
+                    saturatedFatGrams = getDouble("saturatedFat"),
+                    seleniumGrams = getDouble("selenium"),
+                    sodiumGrams = getDouble("sodium"),
+                    sugarGrams = getDouble("sugar"),
+                    thiaminGrams = getDouble("thiamin"),
+                    totalCarbohydrateGrams = getDouble("totalCarbohydrate"),
+                    totalFatGrams = getDouble("totalFat"),
+                    transFatGrams = getDouble("transFat"),
+                    unsaturatedFatGrams = getDouble("unsaturatedFat"),
+                    vitaminAGrams = getDouble("vitaminA"),
+                    vitaminB12Grams = getDouble("vitaminB12"),
+                    vitaminB6Grams = getDouble("vitaminB6"),
+                    vitaminCGrams = getDouble("vitaminC"),
+                    vitaminDGrams = getDouble("vitaminD"),
+                    vitaminEGrams = getDouble("vitaminE"),
+                    vitaminKGrams = getDouble("vitaminK"),
+                    zincGrams = getDouble("zinc"),
                     mealType = getEnum("mealType"),
                     startTime = startTime,
                     startZoneOffset = startZoneOffset,
@@ -496,7 +496,7 @@ fun toRecord(proto: DataProto.DataPoint): Record {
                 )
             "TotalEnergyBurned" ->
                 TotalEnergyBurned(
-                    energy = getDouble("energy"),
+                    energyKcal = getDouble("energy"),
                     startTime = startTime,
                     startZoneOffset = startZoneOffset,
                     endTime = endTime,

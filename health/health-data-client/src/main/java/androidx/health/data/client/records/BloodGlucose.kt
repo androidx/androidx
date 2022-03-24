@@ -30,7 +30,7 @@ public class BloodGlucose(
      * Blood glucose level or concentration, in millimoles per liter (mmol/L), where 1 mmol/L = 18
      * mg/dL. Required field. Valid range: 0-50.
      */
-    public val level: Double,
+    public val levelMillimolesPerLiter: Double,
     /**
      * Type of body fluid used to measure the blood glucose. Optional, enum field. Allowed values:
      * [SpecimenSource].
@@ -54,7 +54,7 @@ public class BloodGlucose(
         if (this === other) return true
         if (other !is BloodGlucose) return false
 
-        if (level != other.level) return false
+        if (levelMillimolesPerLiter != other.levelMillimolesPerLiter) return false
         if (specimenSource != other.specimenSource) return false
         if (mealType != other.mealType) return false
         if (relationToMeal != other.relationToMeal) return false
@@ -67,7 +67,7 @@ public class BloodGlucose(
 
     override fun hashCode(): Int {
         var result = 0
-        result = 31 * result + level.hashCode()
+        result = 31 * result + levelMillimolesPerLiter.hashCode()
         result = 31 * result + specimenSource.hashCode()
         result = 31 * result + mealType.hashCode()
         result = 31 * result + relationToMeal.hashCode()

@@ -56,7 +56,7 @@ interface HealthDataClient {
      * [records] is executed in a transaction - if one fails, none is inserted.
      *
      * @param records List of records to insert
-     * @return List of unique identifiers in the order of inserted records. nn
+     * @return List of unique identifiers in the order of inserted records.
      * @throws RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
      * @throws IOException For any disk I/O issues.

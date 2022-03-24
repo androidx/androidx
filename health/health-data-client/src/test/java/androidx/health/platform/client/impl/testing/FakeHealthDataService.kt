@@ -17,10 +17,8 @@ package androidx.health.platform.client.impl.testing
 
 import androidx.annotation.RestrictTo
 import androidx.health.platform.client.error.ErrorCode
-import androidx.health.platform.client.error.ErrorCode.Companion.INVALID_UID
 import androidx.health.platform.client.error.ErrorStatus
 import androidx.health.platform.client.permission.Permission
-import androidx.health.platform.client.proto.DataProto
 import androidx.health.platform.client.proto.ResponseProto
 import androidx.health.platform.client.request.AggregateDataRequest
 import androidx.health.platform.client.request.DeleteDataRangeRequest
@@ -53,14 +51,21 @@ import androidx.health.platform.client.service.IUpdateDataCallback
 /** Fake {@link IHealthDataService} implementation for unit testing. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class FakeHealthDataService : IHealthDataService.Stub() {
-    private val readDataResponseMap: MutableMap<ReadDataRequest, ReadDataResponse> = mutableMapOf()
-    private val readDataRangeResponseMap: MutableMap<ReadDataRangeRequest, ReadDataRangeResponse> =
-        mutableMapOf()
-    private val grantedPermissions: MutableSet<Permission> = mutableSetOf()
-    @ErrorCode private var errorCode: Int? = null
+    /** Change this state to control permission responses. Not thread safe */
+    val grantedPermissions: MutableSet<Permission> = mutableSetOf()
 
-    val dataStore = mutableListOf<DataProto.DataPoint>()
-    private var nextDataUid = 0
+    /** State retaining last requested parameters. */
+    var lastUpsertDataRequest: UpsertDataRequest? = null
+    var lastReadDataRequest: ReadDataRequest? = null
+    var lastReadDataRangeRequest: ReadDataRangeRequest? = null
+
+    /** State for returned responses. */
+    var insertDataResponse: InsertDataResponse? = null
+    var readDataResponse: ReadDataResponse? = null
+    var readDataRangeResponse: ReadDataRangeResponse? = null
+
+    /** Set this to control error responses. Not thread safe. */
+    @ErrorCode var errorCode: Int? = null
 
     override fun getApiVersion(): Int {
         return 42
@@ -97,17 +102,12 @@ class FakeHealthDataService : IHealthDataService.Stub() {
         request: UpsertDataRequest,
         callback: IInsertDataCallback,
     ) {
+        lastUpsertDataRequest = request
         errorCode?.let {
             callback.onError(ErrorStatus.create(it, "" + it))
             return@insertData
         }
-        val uidList = mutableListOf<String>()
-        for (point in request.dataPoints) {
-            dataStore.add(point)
-            uidList.add("$nextDataUid")
-            nextDataUid++
-        }
-        callback.onSuccess(InsertDataResponse(uidList))
+        callback.onSuccess(insertDataResponse)
     }
 
     override fun updateData(
@@ -151,16 +151,12 @@ class FakeHealthDataService : IHealthDataService.Stub() {
         request: ReadDataRequest,
         callback: IReadDataCallback,
     ) {
+        lastReadDataRequest = request
         errorCode?.let {
             callback.onError(ErrorStatus.create(it, "" + it))
             return@readData
         }
-        val readDataResponse: ReadDataResponse? = readDataResponseMap[request]
-        if (readDataResponse == null) {
-            callback.onError(ErrorStatus.create(INVALID_UID, "Invalid uid"))
-            return
-        }
-        callback.onSuccess(readDataResponse)
+        callback.onSuccess(checkNotNull(readDataResponse))
     }
 
     override fun readDataRange(
@@ -168,16 +164,12 @@ class FakeHealthDataService : IHealthDataService.Stub() {
         request: ReadDataRangeRequest,
         callback: IReadDataRangeCallback,
     ) {
+        lastReadDataRangeRequest = request
         errorCode?.let {
             callback.onError(ErrorStatus.create(it, "" + it))
             return@readDataRange
         }
-        val readDataRangeResponse: ReadDataRangeResponse? = readDataRangeResponseMap[request]
-        if (readDataRangeResponse == null) {
-            callback.onError(ErrorStatus.create(INVALID_UID, "Invalid uids"))
-            return
-        }
-        callback.onSuccess(readDataRangeResponse)
+        callback.onSuccess(checkNotNull(readDataRangeResponse))
     }
 
     override fun aggregate(
@@ -220,27 +212,5 @@ class FakeHealthDataService : IHealthDataService.Stub() {
         callback.onSuccess(
             GetChangesResponse(ResponseProto.GetChangesResponse.getDefaultInstance())
         )
-    }
-
-    fun setReadDataResponse(
-        request: ReadDataRequest,
-        response: ReadDataResponse,
-    ) {
-        readDataResponseMap[request] = response
-    }
-
-    fun setReadDataRangeResponse(
-        request: ReadDataRangeRequest,
-        response: ReadDataRangeResponse,
-    ) {
-        readDataRangeResponseMap[request] = response
-    }
-
-    fun setErrorCode(@ErrorCode errorCode: Int) {
-        this.errorCode = errorCode
-    }
-
-    fun resetErrorCode() {
-        errorCode = null
     }
 }
