@@ -74,7 +74,7 @@ dependencies {
 }
 
 project.ext {
-    latestCarAppApiLevel = "4"
+    latestCarAppApiLevel = "5"
 }
 
 android {
