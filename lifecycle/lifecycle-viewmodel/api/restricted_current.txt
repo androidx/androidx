@@ -93,7 +93,7 @@ package androidx.lifecycle {
 
 package androidx.lifecycle.viewmodel {
 
-  public abstract sealed class CreationExtras {
+  public abstract class CreationExtras {
     method public abstract operator <T> T? get(androidx.lifecycle.viewmodel.CreationExtras.Key<T> key);
   }
 
