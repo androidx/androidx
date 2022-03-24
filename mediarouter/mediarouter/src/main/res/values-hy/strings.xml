@@ -25,7 +25,7 @@
     <string name="mr_chooser_title" msgid="1419936397646839840">"Ընտրեք սարք"</string>
     <string name="mr_chooser_searching" msgid="6114250663023140921">"Սարքերի որոնում"</string>
     <string name="mr_controller_disconnect" msgid="7812275474138309497">"Անջատել"</string>
-    <string name="mr_controller_stop_casting" msgid="804210341192624074">"Դադարեցնել հեռարձակումը"</string>
+    <string name="mr_controller_stop_casting" msgid="804210341192624074">"Կանգնեցնել հեռարձակումը"</string>
     <string name="mr_controller_close_description" msgid="5684434439232634509">"Փակել"</string>
     <string name="mr_controller_play" msgid="1253345086594430054">"Նվագարկել"</string>
     <string name="mr_controller_pause" msgid="747801650871398383">"Դադարեցնել"</string>
