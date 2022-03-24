@@ -23,7 +23,7 @@ package androidx.lifecycle.viewmodel
  * It allows making `Factory` implementations stateless, which makes an injection of factories
  * easier because  don't require all information be available at construction time.
  */
-public sealed class CreationExtras {
+public abstract class CreationExtras internal constructor() {
     internal val map: MutableMap<Key<*>, Any?> = mutableMapOf()
 
     /**
