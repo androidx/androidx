@@ -633,9 +633,7 @@ public final class CaptureSessionTest {
         assertThat(captureSession.getState()).isEqualTo(State.OPENED);
 
         SynchronizedCaptureSession syncCaptureSession = captureSession.mSynchronizedCaptureSession;
-        assertFutureCompletes(syncCaptureSession.getSynchronizedBlocker(
-                SynchronizedCaptureSessionOpener.FEATURE_WAIT_FOR_REQUEST), 5,
-                TimeUnit.SECONDS);
+        assertFutureCompletes(syncCaptureSession.getOpeningBlocker(), 5, TimeUnit.SECONDS);
 
         verify(mTestParameters0.mCamera2CaptureCallback, timeout(3000).atLeastOnce())
                 .onCaptureStarted(any(CameraCaptureSession.class), any(CaptureRequest.class),

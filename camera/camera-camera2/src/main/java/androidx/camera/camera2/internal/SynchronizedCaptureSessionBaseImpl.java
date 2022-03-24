@@ -29,7 +29,6 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.camera.camera2.internal.SynchronizedCaptureSessionOpener.SynchronizedSessionFeature;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.CameraCaptureSessionCompat;
 import androidx.camera.camera2.internal.compat.CameraDeviceCompat;
@@ -127,8 +126,7 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
 
     @NonNull
     @Override
-    public ListenableFuture<Void> getSynchronizedBlocker(
-            @SynchronizedSessionFeature @NonNull String feature) {
+    public ListenableFuture<Void> getOpeningBlocker() {
         return Futures.immediateFuture(null);
     }
 

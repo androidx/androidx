@@ -82,9 +82,6 @@ class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl 
     @Nullable
     @GuardedBy("mObjectLock")
     ListenableFuture<Void> mOpeningCaptureSession;
-    @Nullable
-    @GuardedBy("mObjectLock")
-    ListenableFuture<List<Surface>> mStartingSurface;
 
     /** Whether the capture session has submitted the repeating request. */
     @GuardedBy("mObjectLock")
@@ -135,16 +132,8 @@ class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl 
 
     @NonNull
     @Override
-    public ListenableFuture<Void> getSynchronizedBlocker(
-            @SynchronizedSessionFeature @NonNull String feature) {
-        switch (feature) {
-            case SynchronizedCaptureSessionOpener.FEATURE_WAIT_FOR_REQUEST:
-                // Returns the future which is completed once the session starts streaming
-                // frames.
-                return Futures.nonCancellationPropagating(mStartStreamingFuture);
-            default:
-                return super.getSynchronizedBlocker(feature);
-        }
+    public ListenableFuture<Void> getOpeningBlocker() {
+        return Futures.nonCancellationPropagating(mStartStreamingFuture);
     }
 
     private List<ListenableFuture<Void>> getBlockerFuture(
@@ -152,7 +141,7 @@ class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl 
             List<SynchronizedCaptureSession> sessions) {
         List<ListenableFuture<Void>> futureList = new ArrayList<>();
         for (SynchronizedCaptureSession session : sessions) {
-            futureList.add(session.getSynchronizedBlocker(feature));
+            futureList.add(session.getOpeningBlocker());
         }
         return futureList;
     }
@@ -173,13 +162,8 @@ class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl 
         synchronized (mObjectLock) {
             if (isCameraCaptureSessionOpen()) {
                 closeConfiguredDeferrableSurfaces();
-            } else {
-                if (mOpeningCaptureSession != null) {
-                    mOpeningCaptureSession.cancel(true);
-                }
-                if (mStartingSurface != null) {
-                    mStartingSurface.cancel(true);
-                }
+            } else if (mOpeningCaptureSession != null) {
+                mOpeningCaptureSession.cancel(true);
             }
             return super.stop();
         }
