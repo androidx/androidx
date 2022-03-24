@@ -1,0 +1,9 @@
+// Signature format: 4.0
+package androidx.template.wear.tiles {
+
+  public final class SingleEntityTemplateLayoutsKt {
+    method @androidx.compose.runtime.Composable public static void SingleEntityTemplate(androidx.template.template.SingleEntityTemplateData data);
+  }
+
+}
+
