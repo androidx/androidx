@@ -13,24 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.savedstate
 
-package androidx.savedstate;
-
-
-import androidx.annotation.NonNull;
-import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LifecycleOwner
 
 /**
- * A scope that owns {@link SavedStateRegistry}
+ * A scope that owns [SavedStateRegistry]
  *
  * @see ViewTreeSavedStateRegistryOwner
  */
-public interface SavedStateRegistryOwner extends LifecycleOwner {
+interface SavedStateRegistryOwner : LifecycleOwner {
     /**
-     * Returns owned {@link SavedStateRegistry}
-     *
-     * @return a {@link SavedStateRegistry}
+     * The [SavedStateRegistry] owned by this SavedStateRegistryOwner
      */
-    @NonNull
-    SavedStateRegistry getSavedStateRegistry();
+    val savedStateRegistry: SavedStateRegistry
 }
