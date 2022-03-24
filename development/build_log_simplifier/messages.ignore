@@ -199,6 +199,18 @@ w: \$SUPPORT/compose/ui/ui/src/commonMain/kotlin/androidx/compose/ui/node/DepthS
 w: \$SUPPORT/compose/ui/ui/src/commonMain/kotlin/androidx/compose/ui/node/DepthSortedSet\.kt: \([0-9]+, [0-9]+\): The corresponding parameter in the supertype 'Comparator' is named 'b'\. This may cause problems when calling this function with named arguments\.
 # > Task :benchmark:benchmark-common:runErrorProne
 \^
+symbol:   class OnBackInvokedCallback
+location: package android\.view
+import android\.view\.OnBackInvokedDispatcher;
+symbol:   class OnBackInvokedDispatcher
+private OnBackInvokedCallback mOnBackInvokedCallback;
+location: class OnBackPressedDispatcher
+private OnBackInvokedDispatcher mInvokedDispatcher;
+public void setOnBackPressedInvoker\(@NonNull OnBackInvokedDispatcher invoker\) \{
+OnBackInvokedDispatcher onBackInvokedDispatcher,
+location: class Api[0-9]+Impl
+OnBackInvokedCallback onBackInvokedCallback, int priority
+OnBackInvokedCallback onBackInvokedCallback
 public abstract void jvmDelete\(T t\);
 public abstract void jvmInsert\(@org\.jetbrains\.annotations\.NotNull\(\)
 public abstract java\.util\.List<androidx\.room\.androidx\.room\.integration\.kotlintestapp\.test\.JvmNameInDaoTest\.JvmNameEntity> jvmQuery\(\);
@@ -401,6 +413,8 @@ Found an unresolved type in androidx\.paging\.LivePagedListBuilder\$setFetchExec
 # > Task :compose:ui:ui-graphics:ui-graphics-benchmark:processReleaseAndroidTestManifest
 \$SUPPORT/compose/ui/ui\-graphics/benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :docs-public:doclavaDocs
+\$OUT_DIR/androidx/docs\-public/build/srcs/androidx/activity/OnBackPressedDispatcher\.java:[0-9]+: error: cannot find symbol
+import android\.view\.OnBackInvokedCallback;
 \$OUT_DIR\/androidx\/docs\-public\/build\/srcs\/androidx\/work\/impl\/WorkManagerImpl\.java\:[0-9]+\: error\: cannot find symbol
 import static android\.app\.PendingIntent\.FLAG_MUTABLE\;
 # > Task :docs-public:dackkaDocs
