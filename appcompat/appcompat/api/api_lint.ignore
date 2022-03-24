@@ -14,7 +14,7 @@ ArrayReturn: androidx.appcompat.app.AlertDialog.Builder#setSingleChoiceItems(Cha
 
 
 BadFuture: androidx.appcompat.widget.AppCompatTextView#setTextFuture(java.util.concurrent.Future<androidx.core.text.PrecomputedTextCompat>) parameter #0:
-    Use ListenableFuture (library), or a combination of Consumer<T>, Executor, and CancellationSignal (platform) instead of java.util.concurrent.Future (parameter future in androidx.appcompat.widget.AppCompatTextView.setTextFuture(java.util.concurrent.Future<androidx.core.text.PrecomputedTextCompat> future))
+    Use ListenableFuture (library), or a combination of OutcomeReceiver<R,E>, Executor, and CancellationSignal (platform) instead of java.util.concurrent.Future (parameter future in androidx.appcompat.widget.AppCompatTextView.setTextFuture(java.util.concurrent.Future<androidx.core.text.PrecomputedTextCompat> future))
 
 
 BuilderSetStyle: androidx.appcompat.app.AlertDialog.Builder#create():
@@ -419,22 +419,10 @@ MissingNullability: androidx.appcompat.app.AppCompatDelegate#setContentView(andr
     Missing nullability on parameter `v` in method `setContentView`
 MissingNullability: androidx.appcompat.app.AppCompatDelegate#setContentView(android.view.View, android.view.ViewGroup.LayoutParams) parameter #1:
     Missing nullability on parameter `lp` in method `setContentView`
-MissingNullability: androidx.appcompat.app.AppCompatDialog#AppCompatDialog(android.content.Context) parameter #0:
-    Missing nullability on parameter `context` in method `AppCompatDialog`
-MissingNullability: androidx.appcompat.app.AppCompatDialog#AppCompatDialog(android.content.Context, boolean, android.content.DialogInterface.OnCancelListener) parameter #0:
-    Missing nullability on parameter `context` in method `AppCompatDialog`
-MissingNullability: androidx.appcompat.app.AppCompatDialog#AppCompatDialog(android.content.Context, boolean, android.content.DialogInterface.OnCancelListener) parameter #2:
-    Missing nullability on parameter `cancelListener` in method `AppCompatDialog`
-MissingNullability: androidx.appcompat.app.AppCompatDialog#AppCompatDialog(android.content.Context, int) parameter #0:
-    Missing nullability on parameter `context` in method `AppCompatDialog`
-MissingNullability: androidx.appcompat.app.AppCompatDialog#addContentView(android.view.View, android.view.ViewGroup.LayoutParams) parameter #0:
-    Missing nullability on parameter `view` in method `addContentView`
 MissingNullability: androidx.appcompat.app.AppCompatDialog#addContentView(android.view.View, android.view.ViewGroup.LayoutParams) parameter #1:
     Missing nullability on parameter `params` in method `addContentView`
 MissingNullability: androidx.appcompat.app.AppCompatDialog#dispatchKeyEvent(android.view.KeyEvent) parameter #0:
     Missing nullability on parameter `event` in method `dispatchKeyEvent`
-MissingNullability: androidx.appcompat.app.AppCompatDialog#getDelegate():
-    Missing nullability on method `getDelegate` return
 MissingNullability: androidx.appcompat.app.AppCompatDialog#getSupportActionBar():
     Missing nullability on method `getSupportActionBar` return
 MissingNullability: androidx.appcompat.app.AppCompatDialog#onCreate(android.os.Bundle) parameter #0:
@@ -445,10 +433,6 @@ MissingNullability: androidx.appcompat.app.AppCompatDialog#onSupportActionModeSt
     Missing nullability on parameter `mode` in method `onSupportActionModeStarted`
 MissingNullability: androidx.appcompat.app.AppCompatDialog#onWindowStartingSupportActionMode(androidx.appcompat.view.ActionMode.Callback) parameter #0:
     Missing nullability on parameter `callback` in method `onWindowStartingSupportActionMode`
-MissingNullability: androidx.appcompat.app.AppCompatDialog#setContentView(android.view.View) parameter #0:
-    Missing nullability on parameter `view` in method `setContentView`
-MissingNullability: androidx.appcompat.app.AppCompatDialog#setContentView(android.view.View, android.view.ViewGroup.LayoutParams) parameter #0:
-    Missing nullability on parameter `view` in method `setContentView`
 MissingNullability: androidx.appcompat.app.AppCompatDialog#setContentView(android.view.View, android.view.ViewGroup.LayoutParams) parameter #1:
     Missing nullability on parameter `params` in method `setContentView`
 MissingNullability: androidx.appcompat.app.AppCompatDialog#setTitle(CharSequence) parameter #0:

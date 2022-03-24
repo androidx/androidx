@@ -2582,7 +2582,7 @@ MissingNullability: androidx.leanback.widget.ListRowPresenter#getHoverCardPresen
 MissingNullability: androidx.leanback.widget.ListRowPresenter#getRecycledPoolSize(androidx.leanback.widget.Presenter) parameter #0:
     Missing nullability on parameter `presenter` in method `getRecycledPoolSize`
 MissingNullability: androidx.leanback.widget.ListRowPresenter#initializeRowViewHolder(androidx.leanback.widget.RowPresenter.ViewHolder) parameter #0:
-    Missing nullability on parameter `holder` in method `initializeRowViewHolder`
+    Missing nullability on parameter `vh` in method `initializeRowViewHolder`
 MissingNullability: androidx.leanback.widget.ListRowPresenter#isUsingOutlineClipping(android.content.Context) parameter #0:
     Missing nullability on parameter `context` in method `isUsingOutlineClipping`
 MissingNullability: androidx.leanback.widget.ListRowPresenter#isUsingZOrder(android.content.Context) parameter #0:

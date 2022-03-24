@@ -35,14 +35,14 @@ ArrayReturn: androidx.sqlite.db.SupportSQLiteQueryBuilder#selection(String, Obje
     Method parameter should be Collection<Object> (or subclass) instead of raw array; was `java.lang.Object[]`
 
 
+BuilderSetStyle: androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder#allowDataLossOnRecovery(boolean):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder.allowDataLossOnRecovery(boolean)
 BuilderSetStyle: androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder#callback(androidx.sqlite.db.SupportSQLiteOpenHelper.Callback):
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder.callback(androidx.sqlite.db.SupportSQLiteOpenHelper.Callback)
 BuilderSetStyle: androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder#name(String):
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder.name(String)
 BuilderSetStyle: androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder#noBackupDirectory(boolean):
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder.noBackupDirectory(boolean)
-BuilderSetStyle: androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder#allowDataLossOnRecovery(boolean):
-    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder.allowDataLossOnRecovery(boolean)
 BuilderSetStyle: androidx.sqlite.db.SupportSQLiteQueryBuilder#builder(String):
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.sqlite.db.SupportSQLiteQueryBuilder.builder(String)
 BuilderSetStyle: androidx.sqlite.db.SupportSQLiteQueryBuilder#columns(String[]):
