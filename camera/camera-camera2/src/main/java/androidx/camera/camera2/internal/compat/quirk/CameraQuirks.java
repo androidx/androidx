@@ -76,6 +76,15 @@ public class CameraQuirks {
         if (AfRegionFlipHorizontallyQuirk.load(cameraCharacteristicsCompat)) {
             quirks.add(new AfRegionFlipHorizontallyQuirk());
         }
+        if (ConfigureSurfaceToSecondarySessionFailQuirk.load(cameraCharacteristicsCompat)) {
+            quirks.add(new ConfigureSurfaceToSecondarySessionFailQuirk());
+        }
+        if (PreviewOrientationIncorrectQuirk.load(cameraCharacteristicsCompat)) {
+            quirks.add(new PreviewOrientationIncorrectQuirk());
+        }
+        if (CaptureSessionStuckQuirk.load(cameraCharacteristicsCompat)) {
+            quirks.add(new CaptureSessionStuckQuirk());
+        }
 
         return new Quirks(quirks);
     }
