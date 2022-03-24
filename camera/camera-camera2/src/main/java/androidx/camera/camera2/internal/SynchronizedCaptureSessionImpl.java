@@ -31,6 +31,7 @@ import androidx.camera.camera2.internal.SynchronizedCaptureSessionOpener.Synchro
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.params.SessionConfigurationCompat;
 import androidx.camera.camera2.internal.compat.workaround.ForceCloseCaptureSession;
+import androidx.camera.camera2.internal.compat.workaround.ForceCloseDeferrableSurface;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.Quirks;
@@ -88,6 +89,7 @@ class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl 
     @GuardedBy("mObjectLock")
     private boolean mHasSubmittedRepeating;
 
+    private final ForceCloseDeferrableSurface mCloseSurfaceQuirk;
     private final ForceCloseCaptureSession mForceCloseSessionQuirk;
 
     SynchronizedCaptureSessionImpl(
@@ -97,6 +99,8 @@ class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl 
             @NonNull ScheduledExecutorService scheduledExecutorService,
             @NonNull Handler compatHandler) {
         super(repository, executor, scheduledExecutorService, compatHandler);
+        mCloseSurfaceQuirk = new ForceCloseDeferrableSurface(new Quirks(new ArrayList<>()),
+                new Quirks(new ArrayList<>()));
         mForceCloseSessionQuirk = new ForceCloseCaptureSession(new Quirks(new ArrayList<>()));
         mEnabledFeature = enabledFeature;
 
@@ -165,7 +169,7 @@ class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl 
     public boolean stop() {
         synchronized (mObjectLock) {
             if (isCameraCaptureSessionOpen()) {
-                closeConfiguredDeferrableSurfaces();
+                mCloseSurfaceQuirk.onSessionEnd(mDeferrableSurfaces);
             } else if (mOpeningCaptureSession != null) {
                 mOpeningCaptureSession.cancel(true);
             }
@@ -218,31 +222,11 @@ class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl 
         }, getExecutor());
     }
 
-    void closeConfiguredDeferrableSurfaces() {
-        synchronized (mObjectLock) {
-            if (mDeferrableSurfaces == null) {
-                debugLog("deferrableSurface == null, maybe forceClose, skip close");
-                return;
-            }
-
-            if (mEnabledFeature.contains(
-                    SynchronizedCaptureSessionOpener.FEATURE_DEFERRABLE_SURFACE_CLOSE)) {
-                // Do not close for non-LEGACY devices. Reusing {@link DeferrableSurface} is only a
-                // problem for LEGACY devices. See: b/135050586.
-                // Another problem is the behavior of TextureView below API 23. It releases {@link
-                // SurfaceTexture}. Hence, request to close and recreate {@link DeferrableSurface}.
-                // See: b/145725334.
-                for (DeferrableSurface deferrableSurface : mDeferrableSurfaces) {
-                    deferrableSurface.close();
-                }
-                debugLog("deferrableSurface closed");
-            }
-        }
-    }
-
     @Override
     public void onClosed(@NonNull SynchronizedCaptureSession session) {
-        closeConfiguredDeferrableSurfaces();
+        synchronized (mObjectLock) {
+            mCloseSurfaceQuirk.onSessionEnd(mDeferrableSurfaces);
+        }
         debugLog("onClosed()");
         super.onClosed(session);
     }
