@@ -120,5 +120,7 @@
         <activity
             android:name=".GetVariationsHeaderActivity"
             android:exported="true" />
+        <activity android:name=".RequestedWithHeaderActivity"
+            android:exported="true" />
     </application>
 </manifest>

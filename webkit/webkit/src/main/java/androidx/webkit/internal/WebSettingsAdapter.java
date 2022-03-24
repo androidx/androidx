@@ -127,4 +127,20 @@ public class WebSettingsAdapter {
     public boolean isAlgorithmicDarkeningAllowed() {
         return mBoundaryInterface.isAlgorithmicDarkeningAllowed();
     }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#setRequestedWithHeaderMode(android.webkit.WebSettings, int)}
+     */
+    public void setRequestedWithHeaderMode(int requestedWithHeaderMode) {
+        mBoundaryInterface.setRequestedWithHeaderMode(requestedWithHeaderMode);
+    }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#getRequestedWithHeaderMode(android.webkit.WebSettings)}
+     */
+    public int getRequestedWithHeaderMode() {
+        return mBoundaryInterface.getRequestedWithHeaderMode();
+    }
 }

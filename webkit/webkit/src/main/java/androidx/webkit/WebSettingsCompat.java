@@ -622,6 +622,101 @@ public class WebSettingsCompat {
         }
     }
 
+    /**
+     * In this mode the WebView will not add an X-Requested-With header on HTTP
+     * requests automatically.
+     *
+     * @see #setRequestedWithHeaderMode(WebSettings, int)
+     * @see ServiceWorkerWebSettingsCompat#setRequestedWithHeaderMode(int)
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static final int REQUESTED_WITH_HEADER_MODE_NO_HEADER =
+            WebSettingsBoundaryInterface.RequestedWithHeaderMode.NO_HEADER;
+    /**
+     * In this mode the WebView automatically add an X-Requested-With header to outgoing
+     * requests, if the application or the loaded webpage has not already set a header value.
+     * The value of this automatically added header will be the package name of the app.
+     *
+     * This is the default mode.
+     *
+     * @see #setRequestedWithHeaderMode(WebSettings, int)
+     * @see ServiceWorkerWebSettingsCompat#setRequestedWithHeaderMode(int)
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static final int REQUESTED_WITH_HEADER_MODE_APP_PACKAGE_NAME =
+            WebSettingsBoundaryInterface.RequestedWithHeaderMode.APP_PACKAGE_NAME;
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @IntDef(value = {
+            REQUESTED_WITH_HEADER_MODE_NO_HEADER,
+            REQUESTED_WITH_HEADER_MODE_APP_PACKAGE_NAME
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    @Target({ElementType.PARAMETER, ElementType.METHOD})
+    public @interface RequestedWithHeaderMode {}
+
+    /**
+     * Sets how the WebView will set the X-Requested-With header on requests.
+     *
+     * If you are calling this method, you may also want to call
+     * {@link ServiceWorkerWebSettingsCompat#setRequestedWithHeaderMode(int)} with the same
+     * parameter value to configure ServiceWorker requests.
+     *
+     * The default behavior may vary depending on the WebView implementation.
+     *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#REQUESTED_WITH_HEADER_CONTROL}.
+     *
+     * @param requestedWithHeaderMode The {@code REQUESTED_WITH_HEADER_MODE to use}
+     * @see ServiceWorkerWebSettingsCompat#setRequestedWithHeaderMode(int)
+     * @see #getRequestedWithHeaderMode(WebSettings)
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RequiresFeature(name = WebViewFeature.REQUESTED_WITH_HEADER_CONTROL,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    public static void setRequestedWithHeaderMode(@NonNull WebSettings settings,
+            @RequestedWithHeaderMode int requestedWithHeaderMode) {
+        WebViewFeatureInternal feature = WebViewFeatureInternal.REQUESTED_WITH_HEADER_CONTROL;
+        if (feature.isSupportedByWebView()) {
+            getAdapter(settings).setRequestedWithHeaderMode(requestedWithHeaderMode);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Gets how the WebView will set the X-Requested-With header on HTTP requests.
+     *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#REQUESTED_WITH_HEADER_CONTROL}.
+     *
+     * @return the currently configured {@code REQUESTED_WITH_HEADER_MODE}
+     * @see #setRequestedWithHeaderMode(WebSettings, int)
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RequiresFeature(name = WebViewFeature.REQUESTED_WITH_HEADER_CONTROL,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @RequestedWithHeaderMode
+    public static int getRequestedWithHeaderMode(@NonNull WebSettings settings) {
+        WebViewFeatureInternal feature = WebViewFeatureInternal.REQUESTED_WITH_HEADER_CONTROL;
+        if (feature.isSupportedByWebView()) {
+            return getAdapter(settings).getRequestedWithHeaderMode();
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
     private static WebSettingsAdapter getAdapter(WebSettings settings) {
         return WebViewGlueCommunicator.getCompatConverter().convertSettings(settings);
     }

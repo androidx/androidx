@@ -421,6 +421,16 @@ public enum WebViewFeatureInternal implements ConditionallySupportedFeature {
      */
     GET_VARIATIONS_HEADER(WebViewFeature.GET_VARIATIONS_HEADER, Features.GET_VARIATIONS_HEADER),
 
+    /**
+     * This feature covers
+     * {@link androidx.webkit.WebSettingsCompat#setRequestedWithHeaderMode(WebSettings, int)},
+     * {@link androidx.webkit.WebSettingsCompat#getRequestedWithHeaderMode(WebSettings)},
+     * {@link androidx.webkit.ServiceWorkerWebSettingsCompat#setRequestedWithHeaderMode(int)},
+     * and {@link androidx.webkit.ServiceWorkerWebSettingsCompat#getRequestedWithHeaderMode()}
+     */
+    REQUESTED_WITH_HEADER_CONTROL(WebViewFeature.REQUESTED_WITH_HEADER_CONTROL,
+            Features.REQUESTED_WITH_HEADER_CONTROL),
+
     ;  // This semicolon ends the enum. Add new features with a trailing comma above this line.
 
     private static final int NOT_SUPPORTED_BY_FRAMEWORK = -1;

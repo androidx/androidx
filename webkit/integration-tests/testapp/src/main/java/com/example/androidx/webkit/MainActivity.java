@@ -75,6 +75,9 @@ public class MainActivity extends AppCompatActivity {
                 new MenuListView.MenuItem(
                         getResources().getString(R.string.variations_header_activity_title),
                         new Intent(activityContext, GetVariationsHeaderActivity.class)),
+                new MenuListView.MenuItem(
+                        getResources().getString(R.string.requested_with_activity_title),
+                        new Intent(activityContext, RequestedWithHeaderActivity.class)),
 
         };
         listView.setItems(menuItems);
