@@ -48,6 +48,7 @@ import android.content.ContentValues;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.Rect;
+import android.hardware.camera2.TotalCaptureResult;
 import android.location.Location;
 import android.media.Image;
 import android.media.ImageReader;
@@ -198,6 +199,15 @@ public final class ImageCapture extends UseCase {
      * reduced.
      */
     public static final int CAPTURE_MODE_MINIMIZE_LATENCY = 1;
+    /**
+     * Optimizes capture pipeline to prioritize latency over image quality. When the capture
+     * mode is set to ZERO_SHUTTER_LAG, the latency between the shutter button is clicked and the
+     * picture is recorded is minimized.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public static final int CAPTURE_MODE_ZERO_SHUTTER_LAG = 2;
 
     /**
      * Auto flash. The flash will be used according to the camera system's determination when taking
@@ -516,7 +526,9 @@ public final class ImageCapture extends UseCase {
     @Nullable
     public UseCaseConfig<?> getDefaultConfig(boolean applyDefaultConfig,
             @NonNull UseCaseConfigFactory factory) {
-        Config captureConfig = factory.getConfig(UseCaseConfigFactory.CaptureType.IMAGE_CAPTURE);
+        Config captureConfig = factory.getConfig(
+                UseCaseConfigFactory.CaptureType.IMAGE_CAPTURE,
+                getCaptureMode());
 
         if (applyDefaultConfig) {
             captureConfig = Config.mergeConfigs(captureConfig, DEFAULT_CONFIG.getConfig());
@@ -1090,7 +1102,8 @@ public final class ImageCapture extends UseCase {
 
         mImageCaptureRequestProcessor.sendRequest(new ImageCaptureRequest(
                 getRelativeRotation(attachedCamera), jpegQuality, mCropAspectRatio,
-                getViewPortCropRect(), mSensorToBufferTransformMatrix, callbackExecutor, callback));
+                getViewPortCropRect(), mSensorToBufferTransformMatrix, callbackExecutor,
+                callback, /*totalCaptureResult*/null));
     }
 
     private void lockFlashMode() {
@@ -1639,7 +1652,8 @@ public final class ImageCapture extends UseCase {
      *
      * @hide
      */
-    @IntDef({CAPTURE_MODE_MAXIMIZE_QUALITY, CAPTURE_MODE_MINIMIZE_LATENCY})
+    @IntDef({CAPTURE_MODE_MAXIMIZE_QUALITY, CAPTURE_MODE_MINIMIZE_LATENCY,
+            CAPTURE_MODE_ZERO_SHUTTER_LAG})
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(Scope.LIBRARY_GROUP)
     public @interface CaptureMode {
@@ -2075,11 +2089,23 @@ public final class ImageCapture extends UseCase {
         @NonNull
         private final Matrix mSensorToBufferTransformMatrix;
 
+        @Nullable
+        final TotalCaptureResult mTotalCaptureResult;
+
         /**
+         *
          * @param rotationDegrees The degrees to rotate the image buffer from sensor
          *                        coordinates into the final output coordinate space.
-         * @param targetRatio     The aspect ratio of the image in final output coordinate space.
-         *                        This must be a non-negative, non-zero value.
+         * @param jpegQuality The requested output JPEG image compression quality. The value must
+         *                    be in range [1..100] which larger is higher quality.
+         * @param targetRatio The aspect ratio of the image in final output coordinate space.
+         *                    This must be a non-negative, non-zero value.
+         * @param viewPortCropRect The cropped rect of the field of view.
+         * @param sensorToBufferTransformMatrix The sensor to buffer transform matrix.
+         * @param executor The {@link Executor} which will be used for the listener.
+         * @param callback The {@link OnImageCapturedCallback} for the quest.
+         * @param totalCaptureResult The {@link TotalCaptureResult} used for reprocessable
+         *                           capture request.
          * @throws IllegalArgumentException If targetRatio is not a valid value.
          */
         ImageCaptureRequest(
@@ -2089,7 +2115,8 @@ public final class ImageCapture extends UseCase {
                 @Nullable Rect viewPortCropRect,
                 @NonNull Matrix sensorToBufferTransformMatrix,
                 @NonNull Executor executor,
-                @NonNull OnImageCapturedCallback callback) {
+                @NonNull OnImageCapturedCallback callback,
+                @Nullable TotalCaptureResult totalCaptureResult) {
             mRotationDegrees = rotationDegrees;
             mJpegQuality = jpegQuality;
             if (targetRatio != null) {
@@ -2102,6 +2129,7 @@ public final class ImageCapture extends UseCase {
             mSensorToBufferTransformMatrix = sensorToBufferTransformMatrix;
             mListenerExecutor = executor;
             mCallback = callback;
+            mTotalCaptureResult = totalCaptureResult;
         }
 
         void dispatchImage(final ImageProxy image) {

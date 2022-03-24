@@ -383,9 +383,13 @@ class PreviewProcessorTimestampTest(
         private val timestampListener: TimestampListener
     ) :
         UseCaseConfigFactory {
-        override fun getConfig(captureType: UseCaseConfigFactory.CaptureType): Config? {
+        override fun getConfig(
+            captureType: UseCaseConfigFactory.CaptureType,
+            captureMode: Int
+        ): Config? {
             // Retrieves the config from the default ExtensionsUseCaseConfigFactory
-            val mutableOptionsBundle = useCaseConfigFactory.getConfig(captureType)?.let {
+            val mutableOptionsBundle = useCaseConfigFactory.getConfig(
+                captureType, captureMode)?.let {
                 MutableOptionsBundle.from(it)
             } ?: throw AssertionFailedError("Can not retrieve config for capture type $captureType")
 
