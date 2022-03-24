@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-beta03" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-beta03)" variant="all" version="7.1.0-beta03">
+<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
         id="NewApi"
@@ -135,50 +135,6 @@
 
     <issue
         id="ClassVerificationFailure"
-        message="This call references a method added in API level 18; however, the containing class androidx.core.os.BundleKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    putBinder(key, value)"
-        errorLine2="                    ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/os/Bundle.kt"
-            line="93"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.os.BundleKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    putSize(key, value)"
-        errorLine2="                    ~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/os/Bundle.kt"
-            line="95"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.os.BundleKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    putSizeF(key, value)"
-        errorLine2="                    ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/os/Bundle.kt"
-            line="97"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.content.res.TypedArrayKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    return getFont(index)!!"
-        errorLine2="           ~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/res/TypedArray.kt"
-            line="146"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
         message="This call references a method added in API level 17; however, the containing class androidx.core.view.ViewKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    @Px start: Int = paddingStart,"
         errorLine2="                     ~~~~~~~~~~~~">
@@ -228,7 +184,7 @@
         errorLine2="                     ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewGroup.kt"
-            line="137"
+            line="158"
             column="22"/>
     </issue>
 
@@ -239,7 +195,7 @@
         errorLine2="                   ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewGroup.kt"
-            line="139"
+            line="160"
             column="20"/>
     </issue>
 
@@ -250,7 +206,7 @@
         errorLine2="    ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewGroup.kt"
-            line="142"
+            line="163"
             column="5"/>
     </issue>
 
@@ -261,7 +217,7 @@
         errorLine2="    ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewGroup.kt"
-            line="144"
+            line="165"
             column="5"/>
     </issue>
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
+<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
         id="MissingTestSizeAnnotation"
@@ -8,7 +8,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/draganddrop/DropHelperTest.java"
-            line="115"
+            line="119"
             column="17"/>
     </issue>
 
@@ -19,7 +19,40 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/draganddrop/DropHelperTest.java"
-            line="131"
+            line="135"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="MissingTestSizeAnnotation"
+        message="Missing test size annotation"
+        errorLine1="    public void testDropHelper_acceptDragsWithLocalState_default_hasNoHighlight() throws Exception {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/draganddrop/DropHelperTest.java"
+            line="156"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="MissingTestSizeAnnotation"
+        message="Missing test size annotation"
+        errorLine1="    public void testDropHelper_acceptDragsWithLocalState_false_hasNoHighlight() throws Exception {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/draganddrop/DropHelperTest.java"
+            line="173"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="MissingTestSizeAnnotation"
+        message="Missing test size annotation"
+        errorLine1="    public void testDropHelper_acceptDragsWithLocalState_true_hasHighlight() throws Exception {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/draganddrop/DropHelperTest.java"
+            line="191"
             column="17"/>
     </issue>
 
@@ -30,7 +63,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/draganddrop/DropHelperTest.java"
-            line="152"
+            line="210"
             column="17"/>
     </issue>
 
@@ -41,7 +74,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/draganddrop/DropHelperTest.java"
-            line="168"
+            line="226"
             column="17"/>
     </issue>
 
@@ -52,7 +85,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/draganddrop/DropHelperTest.java"
-            line="183"
+            line="241"
             column="17"/>
     </issue>
 
@@ -63,7 +96,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/draganddrop/DropHelperTest.java"
-            line="217"
+            line="275"
             column="17"/>
     </issue>
 
@@ -74,7 +107,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/draganddrop/DropHelperTest.java"
-            line="243"
+            line="301"
             column="17"/>
     </issue>
 
@@ -85,7 +118,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/draganddrop/DropHelperTest.java"
-            line="267"
+            line="325"
             column="17"/>
     </issue>
 
@@ -96,7 +129,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/draganddrop/DropHelperTest.java"
-            line="287"
+            line="345"
             column="17"/>
     </issue>
 
@@ -107,51 +140,18 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/draganddrop/DropHelperTest.java"
-            line="308"
+            line="366"
             column="17"/>
     </issue>
 
     <issue
         id="MissingTestSizeAnnotation"
         message="Missing test size annotation"
-        errorLine1="    public void testDropHelper_drop_editText_insertsText() throws Exception {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    public void testDropHelper_nonEditText_drop_callsListener() throws Exception {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/draganddrop/DropHelperTest.java"
-            line="338"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="MissingTestSizeAnnotation"
-        message="Missing test size annotation"
-        errorLine1="    public void testDropHelper_drop_editText_handlesUri() throws Exception {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/draganddrop/DropHelperTest.java"
-            line="370"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="MissingTestSizeAnnotation"
-        message="Missing test size annotation"
-        errorLine1="    public void testDropHelper_drop_appCompatEditText_insertsText() throws Exception {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/draganddrop/DropHelperTest.java"
-            line="401"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="MissingTestSizeAnnotation"
-        message="Missing test size annotation"
-        errorLine1="    public void testDropHelper_drop_appCompatEditText_handlesUri() throws Exception {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/draganddrop/DropHelperTest.java"
-            line="432"
+            line="397"
             column="17"/>
     </issue>
 
