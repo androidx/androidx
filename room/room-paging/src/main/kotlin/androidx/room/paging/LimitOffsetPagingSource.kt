@@ -27,6 +27,7 @@ import androidx.room.getQueryDispatcher
 import androidx.room.paging.util.ThreadSafeInvalidationObserver
 import androidx.room.paging.util.getLimit
 import androidx.room.paging.util.getOffset
+import androidx.room.paging.util.getClippedRefreshKey
 import androidx.room.withTransaction
 import androidx.sqlite.db.SupportSQLiteQuery
 import kotlinx.coroutines.withContext
@@ -191,21 +192,8 @@ abstract class LimitOffsetPagingSource<Value : Any>(
     @NonNull
     protected abstract fun convertRows(cursor: Cursor): List<Value>
 
-    /**
-     *  It is unknown whether anchorPosition represents the item at the top of the screen or item at
-     *  the bottom of the screen. To ensure the number of items loaded is enough to fill up the
-     *  screen, half of loadSize is loaded before the anchorPosition and the other half is
-     *  loaded after the anchorPosition -- anchorPosition becomes the middle item.
-     *
-     *  To prevent a negative key, key = 0 when the number of items available before anchorPosition
-     *  is less than the requested amount of initialLoadSize / 2.
-     */
     override fun getRefreshKey(state: PagingState<Int, Value>): Int? {
-        val initialLoadSize = state.config.initialLoadSize
-        return when {
-            state.anchorPosition == null -> null
-            else -> maxOf(0, state.anchorPosition!! - (initialLoadSize / 2))
-        }
+        return state.getClippedRefreshKey()
     }
 
     override val jumpingSupported: Boolean
