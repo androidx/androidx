@@ -52,15 +52,12 @@ import kotlin.math.sin
  * Wear Material [SwipeToDismissBox] that handles the swipe-to-dismiss gesture. Takes a single
  * slot for the background (only displayed during the swipe gesture) and the foreground content.
  *
- * Example of a simple SwipeToDismissBox with a different color displayed behind the content:
- * @sample androidx.wear.compose.material.samples.SimpleSwipeToDismissBox
+ * Example of a SwipeToDismissBox with stateful composables:
+ * @sample androidx.wear.compose.material.samples.StatefulSwipeToDismissBox
  *
  * For more information, see the
  * [Swipe to dismiss](https://developer.android.com/training/wearables/components/swipe-to-dismiss)
  * guide.
- *
- * Example of a SwipeToDismissBox with stateful composables:
- * @sample androidx.wear.compose.material.samples.StatefulSwipeToDismissBox
  *
  * @param state State containing information about ongoing swipe or animation.
  * @param modifier Optional [Modifier] for this component.
@@ -194,6 +191,68 @@ public fun SwipeToDismissBox(
             }
         }
     }
+}
+
+/**
+ * Wear Material [SwipeToDismissBox] that handles the swipe-to-dismiss gesture.
+ * This overload takes an [onDismissed] parameter which is used to execute a command when the
+ * swipe to dismiss has completed, such as navigating to another screen.
+ *
+ * Example of a simple SwipeToDismissBox:
+ * @sample androidx.wear.compose.material.samples.SimpleSwipeToDismissBox
+ *
+ * For more information, see the
+ * [Swipe to dismiss](https://developer.android.com/training/wearables/components/swipe-to-dismiss)
+ * guide.
+ *
+ * @param state State containing information about ongoing swipe or animation.
+ * @param onDismissed Executes when the swipe to dismiss has completed.
+ * @param modifier Optional [Modifier] for this component.
+ * @param backgroundScrimColor Color for background scrim
+ * @param contentScrimColor Optional [Color] used for the scrim over the
+ * content composable during the swipe gesture.
+ * @param backgroundKey Optional [key] which identifies the content currently composed in
+ * the [content] block when isBackground == true. Provide the backgroundKey if your background
+ * content will be displayed as a foreground after the swipe animation ends
+ * (as is common when [SwipeToDismissBox] is used for the navigation). This allows
+ * remembered state to be correctly moved between background and foreground.
+ * @Param contentKey Optional [key] which identifies the content currently composed in the
+ * [content] block when isBackground == false. See [backgroundKey].
+ * @Param hasBackground Optional [Boolean] used to indicate if the content has no background,
+ * in which case the swipe gesture is disabled (since there is no parent destination).
+ * @param content Slot for content, with the isBackground parameter enabling content to be
+ * displayed behind the foreground content - the background is normally hidden,
+ * is shown behind a scrim during the swipe gesture,
+ * and is shown without scrim once the finger passes the swipe-to-dismiss threshold.
+ */
+@Composable
+public fun SwipeToDismissBox(
+    state: SwipeToDismissBoxState,
+    onDismissed: () -> Unit,
+    modifier: Modifier = Modifier,
+    backgroundScrimColor: Color = MaterialTheme.colors.background,
+    contentScrimColor: Color = contentColorFor(backgroundScrimColor),
+    backgroundKey: Any = SwipeToDismissKeys.Background,
+    contentKey: Any = SwipeToDismissKeys.Content,
+    hasBackground: Boolean = true,
+    content: @Composable BoxScope.(isBackground: Boolean) -> Unit
+) {
+    LaunchedEffect(state.currentValue) {
+        if (state.currentValue == SwipeToDismissValue.Dismissed) {
+            state.snapTo(SwipeToDismissValue.Default)
+            onDismissed()
+        }
+    }
+    SwipeToDismissBox(
+        state = state,
+        modifier = modifier,
+        backgroundScrimColor = backgroundScrimColor,
+        contentScrimColor = contentScrimColor,
+        backgroundKey = backgroundKey,
+        contentKey = contentKey,
+        hasBackground = hasBackground,
+        content = content
+    )
 }
 
 @Stable

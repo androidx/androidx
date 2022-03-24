@@ -251,6 +251,27 @@ class SwipeToDismissBoxTest {
     fun displays_content_during_swipe() =
         verifyPartialSwipe(expectedMessage = CONTENT_MESSAGE)
 
+    @Test
+    fun calls_ondismissed_after_swipe_when_supplied() {
+        var dismissed = false
+        rule.setContentWithTheme {
+            val state = rememberSwipeToDismissBoxState()
+            SwipeToDismissBox(
+                state = state,
+                onDismissed = { dismissed = true },
+                modifier = Modifier.testTag(TEST_TAG),
+            ) {
+                Text(CONTENT_MESSAGE, color = MaterialTheme.colors.onPrimary)
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput({ swipeRight() })
+
+        rule.runOnIdle {
+            assertEquals(true, dismissed)
+        }
+    }
+
     private fun verifySwipe(gesture: TouchInjectionScope.() -> Unit, expectedToDismiss: Boolean) {
         var dismissed = false
         rule.setContentWithTheme {
@@ -299,7 +320,7 @@ class SwipeToDismissBoxTest {
     }
 
     @Composable
-    fun messageContent() {
+    private fun messageContent() {
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
