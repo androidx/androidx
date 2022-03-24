@@ -233,6 +233,7 @@ dependencies {
     docs(project(":room:room-migration"))
     docs(project(":room:room-paging"))
     docs(project(":room:room-paging-guava"))
+    docs(project(":room:room-paging-rxjava2"))
     docs(project(":room:room-paging-rxjava3"))
     docs(project(":room:room-runtime"))
     docs(project(":room:room-rxjava2"))
