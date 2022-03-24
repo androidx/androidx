@@ -23,10 +23,8 @@ import android.text.SpannableString;
 import android.text.Spanned;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.OptIn;
 import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarColor;
@@ -128,7 +126,6 @@ public abstract class RoutingDemoModels {
      * Returns the action strip that contains a "bug report" button and "stop navigation" button.
      */
     @NonNull
-    @OptIn(markerClass = ExperimentalCarApi.class)
     public static ActionStrip getActionStrip(
             @NonNull CarContext carContext, @NonNull OnClickListener onStopNavigation) {
         return new ActionStrip.Builder()

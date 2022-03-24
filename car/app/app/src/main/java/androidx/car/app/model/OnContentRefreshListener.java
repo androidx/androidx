@@ -15,11 +15,10 @@
  */
 
 package androidx.car.app.model;
-
-import androidx.car.app.annotations.ExperimentalCarApi;
+import androidx.car.app.annotations.RequiresCarApi;
 
 /** A listener of content refresh requests */
-@ExperimentalCarApi
+@RequiresCarApi(5)
 public interface OnContentRefreshListener {
     /** Notifies that the user has requested a refresh of the currently displayed content. */
     void onContentRefreshRequested();

@@ -21,14 +21,14 @@ import android.annotation.SuppressLint;
 import androidx.annotation.NonNull;
 import androidx.car.app.OnDoneCallback;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
+import androidx.car.app.annotations.RequiresCarApi;
 
 /**
  * A host-side delegate for sending
  * {@link androidx.car.app.model.OnContentRefreshListener} events to the car app.
  */
-@ExperimentalCarApi
 @CarProtocol
+@RequiresCarApi(5)
 public interface OnContentRefreshDelegate {
     /**
      * Notifies that a content refresh has been requested by the user.

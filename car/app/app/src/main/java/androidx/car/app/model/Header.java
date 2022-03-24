@@ -25,7 +25,6 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarTextConstraints;
 import androidx.car.app.utils.CollectionUtils;
@@ -38,7 +37,6 @@ import java.util.Objects;
 /**
  * A component that holds onto data associated with a template's header.
  */
-@ExperimentalCarApi
 @RequiresCarApi(5)
 @CarProtocol
 public final class Header {

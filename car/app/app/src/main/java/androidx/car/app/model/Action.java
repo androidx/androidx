@@ -32,11 +32,9 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.CarContext;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.lifecycle.LifecycleOwner;
@@ -88,7 +86,6 @@ public final class Action {
      * @hide
      */
     @RestrictTo(LIBRARY)
-    @OptIn(markerClass = ExperimentalCarApi.class)
     @IntDef(
             flag = true,
             value = {
@@ -140,7 +137,6 @@ public final class Action {
      * Indicates that this action will not fade in/out inside an {@link ActionStrip}.
      */
     @RequiresCarApi(5)
-    @ExperimentalCarApi
     public static final int FLAG_IS_PERSISTENT = 1 << 1;
 
     /**
