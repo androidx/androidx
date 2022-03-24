@@ -21,6 +21,12 @@ BuilderSetStyle: androidx.camera.core.FocusMeteringAction.Builder#disableAutoCan
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.camera.core.FocusMeteringAction.Builder.disableAutoCancel()
 
 
+GenericCallbacks: androidx.camera.core.ImageCapture.OnImageCapturedCallback:
+    ImageCapture.OnImageCapturedCallback can be replaced with OutcomeReceiver<R,E> (platform) or suspend fun / ListenableFuture (AndroidX).
+GenericCallbacks: androidx.camera.core.ImageCapture.OnImageSavedCallback:
+    ImageCapture.OnImageSavedCallback can be replaced with OutcomeReceiver<R,E> (platform) or suspend fun / ListenableFuture (AndroidX).
+
+
 MissingGetterMatchingBuilder: androidx.camera.core.CameraSelector.Builder#addCameraFilter(androidx.camera.core.CameraFilter):
     androidx.camera.core.CameraSelector does not declare a `getCameraFilters()` method matching method androidx.camera.core.CameraSelector.Builder.addCameraFilter(androidx.camera.core.CameraFilter)
 MissingGetterMatchingBuilder: androidx.camera.core.FocusMeteringAction.Builder#addPoint(androidx.camera.core.MeteringPoint):

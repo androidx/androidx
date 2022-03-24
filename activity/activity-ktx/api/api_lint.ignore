@@ -1,6 +1,4 @@
 // Baseline format: 1.0
-MissingNullability: androidx.activity.ActivityViewModelLazyKt#viewModels(androidx.activity.ComponentActivity, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory>):
-    Missing nullability on method `viewModels` return
 MissingNullability: androidx.activity.ActivityViewModelLazyKt#viewModels(androidx.activity.ComponentActivity, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.viewmodel.CreationExtras>, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory>):
     Missing nullability on method `viewModels` return
 

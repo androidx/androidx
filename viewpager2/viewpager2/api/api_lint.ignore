@@ -9,5 +9,3 @@ MissingNullability: androidx.viewpager2.widget.ViewPager2#onRestoreInstanceState
     Missing nullability on parameter `state` in method `onRestoreInstanceState`
 MissingNullability: androidx.viewpager2.widget.ViewPager2#onViewAdded(android.view.View) parameter #0:
     Missing nullability on parameter `child` in method `onViewAdded`
-MissingNullability: androidx.viewpager2.widget.ViewPager2#performAccessibilityAction(int, android.os.Bundle) parameter #1:
-    Missing nullability on parameter `arguments` in method `performAccessibilityAction`
