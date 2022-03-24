@@ -849,6 +849,9 @@ class NavHostTest {
         // Now navigate to a second destination in the outer NavHost
         composeTestRule.runOnIdle {
             navController.navigate(second)
+        }
+
+        composeTestRule.runOnIdle {
             innerLifecycleOwner.currentState = Lifecycle.State.DESTROYED
         }
 
