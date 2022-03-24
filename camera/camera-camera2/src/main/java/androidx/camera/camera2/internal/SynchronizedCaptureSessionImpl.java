@@ -30,8 +30,10 @@ import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.SynchronizedCaptureSessionOpener.SynchronizedSessionFeature;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.params.SessionConfigurationCompat;
+import androidx.camera.camera2.internal.compat.workaround.ForceCloseCaptureSession;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.DeferrableSurface;
+import androidx.camera.core.impl.Quirks;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureChain;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -40,7 +42,6 @@ import androidx.concurrent.futures.CallbackToFutureAdapter;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
@@ -87,6 +88,8 @@ class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl 
     @GuardedBy("mObjectLock")
     private boolean mHasSubmittedRepeating;
 
+    private final ForceCloseCaptureSession mForceCloseSessionQuirk;
+
     SynchronizedCaptureSessionImpl(
             @NonNull Set<String> enabledFeature,
             @NonNull CaptureSessionRepository repository,
@@ -94,6 +97,7 @@ class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl 
             @NonNull ScheduledExecutorService scheduledExecutorService,
             @NonNull Handler compatHandler) {
         super(repository, executor, scheduledExecutorService, compatHandler);
+        mForceCloseSessionQuirk = new ForceCloseCaptureSession(new Quirks(new ArrayList<>()));
         mEnabledFeature = enabledFeature;
 
         if (enabledFeature.contains(SynchronizedCaptureSessionOpener.FEATURE_WAIT_FOR_REQUEST)) {
@@ -188,45 +192,10 @@ class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl 
     @Override
     public void onConfigured(@NonNull SynchronizedCaptureSession session) {
         debugLog("Session onConfigured()");
-        if (mEnabledFeature.contains(SynchronizedCaptureSessionOpener.FEATURE_FORCE_CLOSE)) {
-            Set<SynchronizedCaptureSession> staleCreatingSessions = new LinkedHashSet<>();
-            for (SynchronizedCaptureSession s :
-                    mCaptureSessionRepository.getCreatingCaptureSessions()) {
-                // Collect the sessions that started configuring before the current session. The
-                // current session and the session that starts configure after the current session
-                // are not included since they don't need to be closed.
-                if (s == session) {
-                    break;
-                }
-                staleCreatingSessions.add(s);
-            }
-            // Once the CaptureSession is configured, the stale CaptureSessions should not have
-            // chance to complete the configuration flow. Force change to configure fail since
-            // the configureFail will treat the CaptureSession is closed. More detail please see
-            // b/158540776.
-            forceOnConfigureFailed(staleCreatingSessions);
-        }
-
-        super.onConfigured(session);
-
-        // Once the new CameraCaptureSession is created, all the previous opened
-        // CameraCaptureSession can be treated as closed (more detail in b/144817309),
-        // trigger its associated StateCallback#onClosed callback to finish the
-        // session close flow.
-        if (mEnabledFeature.contains(SynchronizedCaptureSessionOpener.FEATURE_FORCE_CLOSE)) {
-            Set<SynchronizedCaptureSession> openedSessions = new LinkedHashSet<>();
-            for (SynchronizedCaptureSession s : mCaptureSessionRepository.getCaptureSessions()) {
-
-                // The entrySet keys of the LinkedHashMap should be insertion-ordered, so we
-                // get the previous capture sessions by iterate it from the beginning.
-                if (s == session) {
-                    break;
-                }
-                openedSessions.add(s);
-            }
-
-            forceOnClosed(openedSessions);
-        }
+        mForceCloseSessionQuirk.onSessionConfigured(session,
+                mCaptureSessionRepository.getCreatingCaptureSessions(),
+                mCaptureSessionRepository.getCaptureSessions(),
+                super::onConfigured);
     }
 
     @Override
@@ -276,18 +245,6 @@ class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl 
         closeConfiguredDeferrableSurfaces();
         debugLog("onClosed()");
         super.onClosed(session);
-    }
-
-    static void forceOnClosed(@NonNull Set<SynchronizedCaptureSession> sessions) {
-        for (SynchronizedCaptureSession session : sessions) {
-            session.getStateCallback().onClosed(session);
-        }
-    }
-
-    private void forceOnConfigureFailed(@NonNull Set<SynchronizedCaptureSession> sessions) {
-        for (SynchronizedCaptureSession session : sessions) {
-            session.getStateCallback().onConfigureFailed(session);
-        }
     }
 
     void debugLog(String message) {
