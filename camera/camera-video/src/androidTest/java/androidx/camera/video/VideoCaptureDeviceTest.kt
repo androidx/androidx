@@ -30,20 +30,32 @@ import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.GLUtil
+import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
-import androidx.test.platform.app.InstrumentationRegistry
+import androidx.testutils.fail
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.Executors
-import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.dropWhile
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.getAndUpdate
+import kotlinx.coroutines.flow.last
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.After
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
@@ -62,7 +74,6 @@ class VideoCaptureDeviceTest {
         CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
     )
 
-    private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
@@ -81,36 +92,43 @@ class VideoCaptureDeviceTest {
     }
 
     @After
-    fun tearDown() {
-        if (this::cameraUseCaseAdapter.isInitialized) {
-            instrumentation.runOnMainSync {
+    fun tearDown(): Unit = runBlocking {
+        if (::cameraUseCaseAdapter.isInitialized) {
+            withContext(Dispatchers.Main) {
                 cameraUseCaseAdapter.apply {
                     removeUseCases(useCases)
                 }
             }
         }
-        CameraXUtil.shutdown().get(10, TimeUnit.SECONDS)
+
+        val timeout = 10.seconds
+        withTimeoutOrNull(timeout) {
+            CameraXUtil.shutdown().await() ?: "Shutdown succeeded."
+        } ?: fail("Timed out waiting for CameraX to shutdown. Waited $timeout.")
     }
 
     @Test
-    fun addUseCases_canReceiveFrame() = runBlocking {
+    fun addUseCases_canReceiveFrame(): Unit = runBlocking {
         // Arrange.
         val videoOutput = TestVideoOutput()
         val videoCapture = VideoCapture.withOutput(videoOutput)
 
         // Act.
-        instrumentation.runOnMainSync {
+        withContext(Dispatchers.Main) {
             cameraUseCaseAdapter.addUseCases(listOf(videoCapture))
         }
 
         // Assert.
         val surfaceRequest = videoOutput.nextSurfaceRequest(5, TimeUnit.SECONDS)
-        val frameUpdateSemaphore = surfaceRequest.provideUpdatingSurface()
-        assertThat(frameUpdateSemaphore.tryAcquire(5, 10, TimeUnit.SECONDS)).isTrue()
+        val frameCountFlow = surfaceRequest.provideUpdatingSurface()
+        val timeout = 10.seconds
+        withTimeoutOrNull(timeout) {
+            frameCountFlow.takeWhile { frameCount -> frameCount <= 5 }.last()
+        } ?: fail("Timed out waiting for `frameCount >= 5`. Waited $timeout.")
     }
 
     @Test
-    fun changeStreamState_canReceiveFrame() = runBlocking {
+    fun changeStreamState_canReceiveFrame(): Unit = runBlocking {
         // Arrange.
         val videoOutput =
             TestVideoOutput(
@@ -122,15 +140,21 @@ class VideoCaptureDeviceTest {
         val videoCapture = VideoCapture.withOutput(videoOutput)
 
         // Act.
-        instrumentation.runOnMainSync {
+        withContext(Dispatchers.Main) {
             cameraUseCaseAdapter.addUseCases(listOf(videoCapture))
         }
 
         // Assert.
         val surfaceRequest = videoOutput.nextSurfaceRequest(5, TimeUnit.SECONDS)
-        val frameUpdateSemaphore = surfaceRequest.provideUpdatingSurface()
+        val frameCountFlow = surfaceRequest.provideUpdatingSurface()
         // No frame should be updated by INACTIVE state
-        assertThat(frameUpdateSemaphore.tryAcquire(1, 2, TimeUnit.SECONDS)).isFalse()
+        val expectedTimeout = 2.seconds
+        withTimeoutOrNull(expectedTimeout) {
+            // assertThat should never run since timeout should occur, but if it does,
+            // we'll get a nicer error message.
+            assertThat(frameCountFlow.dropWhile { frameCount -> frameCount < 1 }
+                .first()).isAtMost(0)
+        }
 
         // Act.
         videoOutput.setStreamInfo(
@@ -141,11 +165,14 @@ class VideoCaptureDeviceTest {
         )
 
         // Assert.
-        assertThat(frameUpdateSemaphore.tryAcquire(5, 10, TimeUnit.SECONDS)).isTrue()
+        val timeout = 10.seconds
+        withTimeoutOrNull(timeout) {
+            frameCountFlow.take(5).last()
+        } ?: fail("Timed out waiting for 5 frame updates. Waited $timeout.")
     }
 
     @Test
-    fun addUseCases_setSupportedQuality_getCorrectResolution() {
+    fun addUseCases_setSupportedQuality_getCorrectResolution() = runBlocking {
         assumeTrue(QualitySelector.getSupportedQualities(cameraInfo).isNotEmpty())
         // Cuttlefish API 29 has inconsistent resolution issue. See b/184015059.
         assumeFalse(Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 29)
@@ -165,7 +192,7 @@ class VideoCaptureDeviceTest {
             if (!cameraUseCaseAdapter.isUseCasesCombinationSupported(videoCapture)) {
                 return@loop
             }
-            instrumentation.runOnMainSync {
+            withContext(Dispatchers.Main) {
                 cameraUseCaseAdapter.addUseCases(listOf(videoCapture))
             }
 
@@ -175,7 +202,7 @@ class VideoCaptureDeviceTest {
                 .that(surfaceRequest.resolution).isEqualTo(targetResolution)
 
             // Cleanup.
-            instrumentation.runOnMainSync {
+            withContext(Dispatchers.Main) {
                 cameraUseCaseAdapter.apply {
                     removeUseCases(listOf(videoCapture))
                 }
@@ -184,7 +211,7 @@ class VideoCaptureDeviceTest {
     }
 
     @Test
-    fun addUseCases_setQualityWithRotation_getCorrectResolution() {
+    fun addUseCases_setQualityWithRotation_getCorrectResolution() = runBlocking {
         assumeTrue(QualitySelector.getSupportedQualities(cameraInfo).isNotEmpty())
         // Cuttlefish API 29 has inconsistent resolution issue. See b/184015059.
         assumeFalse(Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 29)
@@ -203,7 +230,7 @@ class VideoCaptureDeviceTest {
             val videoCapture = VideoCapture.withOutput(videoOutput)
 
             // Act.
-            instrumentation.runOnMainSync {
+            withContext(Dispatchers.Main) {
                 cameraUseCaseAdapter.addUseCases(listOf(videoCapture))
             }
 
@@ -213,7 +240,7 @@ class VideoCaptureDeviceTest {
                 .that(surfaceRequest.resolution).isEqualTo(targetResolution)
 
             // Cleanup.
-            instrumentation.runOnMainSync {
+            withContext(Dispatchers.Main) {
                 cameraUseCaseAdapter.apply {
                     removeUseCases(listOf(videoCapture))
                 }
@@ -222,24 +249,28 @@ class VideoCaptureDeviceTest {
     }
 
     @Test
-    fun useCaseCanBeReused() = runBlocking {
+    fun useCaseCanBeReused(): Unit = runBlocking {
         // Arrange.
         val videoOutput = TestVideoOutput()
         val videoCapture = VideoCapture.withOutput(videoOutput)
 
         // Act.
-        instrumentation.runOnMainSync {
+        withContext(Dispatchers.Main) {
             cameraUseCaseAdapter.addUseCases(listOf(videoCapture))
         }
 
         // Assert.
         var surfaceRequest = videoOutput.nextSurfaceRequest(5, TimeUnit.SECONDS)
-        var frameUpdateSemaphore = surfaceRequest.provideUpdatingSurface()
-        assertThat(frameUpdateSemaphore.tryAcquire(5, 10, TimeUnit.SECONDS)).isTrue()
+        var frameCountFlow = surfaceRequest.provideUpdatingSurface()
+
+        val timeout = 10.seconds
+        withTimeoutOrNull(timeout) {
+            frameCountFlow.takeWhile { frameCount -> frameCount <= 5 }.last()
+        } ?: fail("Timed out waiting for `frameCount >= 5`. Waited $timeout.")
 
         // Act.
         // Reuse use case
-        instrumentation.runOnMainSync {
+        withContext(Dispatchers.Main) {
             cameraUseCaseAdapter.apply {
                 removeUseCases(listOf(videoCapture))
             }
@@ -248,8 +279,10 @@ class VideoCaptureDeviceTest {
 
         // Assert.
         surfaceRequest = videoOutput.nextSurfaceRequest(5, TimeUnit.SECONDS)
-        frameUpdateSemaphore = surfaceRequest.provideUpdatingSurface()
-        assertThat(frameUpdateSemaphore.tryAcquire(5, 10, TimeUnit.SECONDS)).isTrue()
+        frameCountFlow = surfaceRequest.provideUpdatingSurface()
+        withTimeoutOrNull(timeout) {
+            frameCountFlow.takeWhile { frameCount -> frameCount <= 5 }.last()
+        } ?: fail("Timed out waiting for `frameCount >= 5`. Waited $timeout.")
     }
 
     private class TestVideoOutput(
@@ -284,9 +317,9 @@ class VideoCaptureDeviceTest {
         fun setMediaSpec(mediaSpec: MediaSpec) = mediaSpecObservable.setState(mediaSpec)
     }
 
-    private suspend fun SurfaceRequest.provideUpdatingSurface(): Semaphore {
+    private suspend fun SurfaceRequest.provideUpdatingSurface(): StateFlow<Int> {
         var isReleased = false
-        val frameUpdateSemaphore = Semaphore(0)
+        val frameCountFlow = MutableStateFlow(0)
         val executor = Executors.newFixedThreadPool(1)
 
         val surfaceTexture = withContext(executor.asCoroutineDispatcher()) {
@@ -295,7 +328,7 @@ class VideoCaptureDeviceTest {
                 detachFromGLContext()
                 attachToGLContext(GLUtil.getTexIdFromGLContext())
                 setOnFrameAvailableListener {
-                    frameUpdateSemaphore.release()
+                    frameCountFlow.getAndUpdate { frameCount -> frameCount + 1 }
                     executor.execute {
                         if (!isReleased) {
                             updateTexImage()
@@ -313,6 +346,6 @@ class VideoCaptureDeviceTest {
             isReleased = true
         }
 
-        return frameUpdateSemaphore
+        return frameCountFlow.asStateFlow()
     }
 }
