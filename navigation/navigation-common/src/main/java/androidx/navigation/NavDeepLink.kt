@@ -54,6 +54,7 @@ public class NavDeepLink internal constructor(
         patternFinalRegex?.let { Pattern.compile(it, Pattern.CASE_INSENSITIVE) }
     }
     private var isParameterizedQuery = false
+    private var isSingleQueryParamValueOnly = false
 
     private var mimeTypeFinalRegex: String? = null
     private val mimeTypePattern by lazy {
@@ -185,7 +186,16 @@ public class NavDeepLink internal constructor(
             for (paramName in paramArgMap.keys) {
                 var argMatcher: Matcher? = null
                 val storedParam = paramArgMap[paramName]
-                val inputParams = deepLink.getQueryParameter(paramName)
+                var inputParams = deepLink.getQueryParameter(paramName)
+                if (isSingleQueryParamValueOnly) {
+                    // If the deep link contains a single query param with no value,
+                    // we will treat everything after the '?' as the input parameter
+                    val deepLinkString = deepLink.toString()
+                    val argValue = deepLinkString.substringAfter('?')
+                    if (argValue != deepLinkString) {
+                        inputParams = argValue
+                    }
+                }
                 if (inputParams != null) {
                     // Match the input arguments with the saved regex
                     argMatcher = Pattern.compile(
@@ -441,7 +451,8 @@ public class NavDeepLink internal constructor(
                 }
                 for (paramName in parameterizedUri.queryParameterNames) {
                     val argRegex = StringBuilder()
-                    val queryParam = parameterizedUri.getQueryParameter(paramName) as String
+                    val queryParam = parameterizedUri.getQueryParameter(paramName)
+                        ?: paramName.apply { isSingleQueryParamValueOnly = true }
                     matcher = fillInPattern.matcher(queryParam)
                     var appendPos = 0
                     val param = ParamQuery()
