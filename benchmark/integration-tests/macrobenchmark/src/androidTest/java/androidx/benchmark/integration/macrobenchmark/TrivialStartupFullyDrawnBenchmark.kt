@@ -55,9 +55,11 @@ class TrivialStartupFullyDrawnBenchmark {
         packageName = TARGET_PACKAGE_NAME,
         metrics = getStartupMetrics(),
         startupMode = startupMode,
-        iterations = 1
+        iterations = 1,
+        setupBlock = {
+            pressHome()
+        }
     ) {
-        pressHome()
         startActivityAndWait(Intent().apply {
             setPackage(TARGET_PACKAGE_NAME)
             action = "androidx.benchmark.integration.macrobenchmark.target" +
