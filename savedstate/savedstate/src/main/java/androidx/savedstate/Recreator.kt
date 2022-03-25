@@ -13,101 +13,84 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.savedstate
 
-package androidx.savedstate;
+import android.os.Bundle
+import androidx.core.os.bundleOf
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.savedstate.SavedStateRegistry.AutoRecreated
 
+internal class Recreator(
+    private val owner: SavedStateRegistryOwner
+) : LifecycleEventObserver {
 
-import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleEventObserver;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.savedstate.SavedStateRegistry.AutoRecreated;
-
-import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
-
-final class Recreator implements LifecycleEventObserver {
-
-    static final String CLASSES_KEY = "classes_to_restore";
-    static final String COMPONENT_KEY = "androidx.savedstate.Restarter";
-
-    private final SavedStateRegistryOwner mOwner;
-
-    Recreator(SavedStateRegistryOwner owner) {
-        mOwner = owner;
-    }
-
-    @Override
-    public void onStateChanged(@NonNull LifecycleOwner source, @NonNull Lifecycle.Event event) {
+    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         if (event != Lifecycle.Event.ON_CREATE) {
-            throw new AssertionError("Next event must be ON_CREATE");
+            throw AssertionError("Next event must be ON_CREATE")
         }
-        source.getLifecycle().removeObserver(this);
-        Bundle bundle = mOwner.getSavedStateRegistry()
-                .consumeRestoredStateForKey(COMPONENT_KEY);
-        if (bundle == null) {
-            return;
-        }
-        ArrayList<String> classes = bundle.getStringArrayList(CLASSES_KEY);
-        if (classes == null) {
-            throw new IllegalStateException("Bundle with restored state for the component \""
-                    + COMPONENT_KEY + "\" must contain list of strings by the key \""
-                    + CLASSES_KEY + "\"");
-        }
-        for (String className : classes) {
-            reflectiveNew(className);
+        source.lifecycle.removeObserver(this)
+        val bundle: Bundle = owner.savedStateRegistry
+            .consumeRestoredStateForKey(COMPONENT_KEY) ?: return
+        val classes: MutableList<String> = bundle.getStringArrayList(CLASSES_KEY)
+            ?: throw IllegalStateException(
+                "Bundle with restored state for the component " +
+                    "\"$COMPONENT_KEY\" must contain list of strings by the key " +
+                    "\"$CLASSES_KEY\""
+            )
+        for (className: String in classes) {
+            reflectiveNew(className)
         }
     }
 
-    private void reflectiveNew(String className) {
-        Class<? extends AutoRecreated> clazz;
-        try {
-            clazz = Class.forName(className, false,
-                    Recreator.class.getClassLoader()).asSubclass(AutoRecreated.class);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException("Class " + className + " wasn't found", e);
-        }
-
-        Constructor<? extends AutoRecreated> constructor;
-        try {
-            constructor = clazz.getDeclaredConstructor();
-        } catch (NoSuchMethodException e) {
-            throw new IllegalStateException("Class" + clazz.getSimpleName() + " must have "
-                    + "default constructor in order to be automatically recreated", e);
-        }
-        constructor.setAccessible(true);
-
-        AutoRecreated newInstance;
-        try {
-            newInstance = constructor.newInstance();
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to instantiate " + className, e);
-        }
-        newInstance.onRecreated(mOwner);
+    private fun reflectiveNew(className: String) {
+        val clazz: Class<out AutoRecreated> =
+            try {
+                Class.forName(className, false, Recreator::class.java.classLoader)
+                    .asSubclass(AutoRecreated::class.java)
+            } catch (e: ClassNotFoundException) {
+                throw RuntimeException("Class $className wasn't found", e)
+            }
+        val constructor =
+            try {
+                clazz.getDeclaredConstructor()
+            } catch (e: NoSuchMethodException) {
+                throw IllegalStateException(
+                    "Class ${clazz.simpleName} must have " +
+                        "default constructor in order to be automatically recreated", e
+                )
+            }
+        constructor.isAccessible = true
+        val newInstance: AutoRecreated =
+            try {
+                constructor.newInstance()
+            } catch (e: Exception) {
+                throw RuntimeException("Failed to instantiate $className", e)
+            }
+        newInstance.onRecreated(owner)
     }
 
-    static final class SavedStateProvider implements SavedStateRegistry.SavedStateProvider {
-        @SuppressWarnings("WeakerAccess") // synthetic access
-        final Set<String> mClasses = new HashSet<>();
+    internal class SavedStateProvider(registry: SavedStateRegistry) :
+        SavedStateRegistry.SavedStateProvider {
 
-        SavedStateProvider(final SavedStateRegistry registry) {
-            registry.registerSavedStateProvider(COMPONENT_KEY, this);
+        private val classes: MutableSet<String> = mutableSetOf()
+
+        init {
+            registry.registerSavedStateProvider(COMPONENT_KEY, this)
         }
 
-        @NonNull
-        @Override
-        public Bundle saveState() {
-            Bundle bundle = new Bundle();
-            bundle.putStringArrayList(CLASSES_KEY, new ArrayList<>(mClasses));
-            return bundle;
+        override fun saveState(): Bundle {
+            return bundleOf(CLASSES_KEY to ArrayList(classes))
         }
 
-        void add(String className) {
-            mClasses.add(className);
+        fun add(className: String) {
+            classes.add(className)
         }
+    }
+
+    companion object {
+        const val CLASSES_KEY = "classes_to_restore"
+        const val COMPONENT_KEY = "androidx.savedstate.Restarter"
     }
 }
