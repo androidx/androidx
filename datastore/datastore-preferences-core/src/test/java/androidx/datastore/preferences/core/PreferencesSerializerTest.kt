@@ -189,4 +189,23 @@ class PreferencesSerializerTest {
             }
         }
     }
+
+    @Test
+    fun testWriteAndReadByteArray() = runTest {
+        val byteArrayKey = byteArrayPreferencesKey("byteArray")
+
+        val prefs = preferencesOf(
+            byteArrayKey to byteArrayOf(1, 2, 3, 4)
+        )
+
+        testFile.outputStream().use {
+            preferencesSerializer.writeTo(prefs, it)
+        }
+
+        val readPrefs = testFile.inputStream().use {
+            preferencesSerializer.readFrom(it)
+        }
+
+        assertEquals(prefs, readPrefs)
+    }
 }
