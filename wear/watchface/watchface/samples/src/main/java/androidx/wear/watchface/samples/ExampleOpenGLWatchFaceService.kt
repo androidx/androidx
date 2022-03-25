@@ -170,6 +170,7 @@ open class ExampleOpenGLWatchFaceService : WatchFaceService() {
         )
 }
 
+@Suppress("Deprecation")
 class ExampleOpenGLRenderer(
     surfaceHolder: SurfaceHolder,
     private val currentUserStyleRepository: CurrentUserStyleRepository,

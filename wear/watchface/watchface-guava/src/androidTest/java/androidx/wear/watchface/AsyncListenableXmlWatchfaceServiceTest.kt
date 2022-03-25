@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.watchface.test
+package androidx.wear.watchface
 
 import android.content.Context
 import android.graphics.Rect
@@ -22,14 +22,6 @@ import android.view.SurfaceHolder
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.wear.watchface.CanvasComplicationFactory
-import androidx.wear.watchface.ComplicationSlotInflationFactory
-import androidx.wear.watchface.ComplicationSlotsManager
-import androidx.wear.watchface.ListenableWatchFaceService
-import androidx.wear.watchface.MutableWatchState
-import androidx.wear.watchface.WatchFace
-import androidx.wear.watchface.WatchFaceType
-import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.guava.test.R

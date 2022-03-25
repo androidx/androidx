@@ -258,6 +258,7 @@ public class TestHeadlessWatchFaceService : WatchFaceService() {
         currentUserStyleRepository: CurrentUserStyleRepository
     ) = WatchFace(
         WatchFaceType.ANALOG,
+        @Suppress("deprecation")
         object : Renderer.CanvasRenderer(
             surfaceHolder,
             currentUserStyleRepository,
@@ -2266,6 +2267,7 @@ public class EditorSessionTest {
             WatchFaceImpl(
                 WatchFace(
                     WatchFaceType.DIGITAL,
+                    @Suppress("deprecation")
                     object : Renderer.CanvasRenderer(
                         mockSurfaceHolder,
                         currentUserStyleRepository,

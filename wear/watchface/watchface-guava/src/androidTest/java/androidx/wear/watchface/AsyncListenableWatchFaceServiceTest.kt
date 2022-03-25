@@ -14,21 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.wear.watchface.test
+package androidx.wear.watchface
 
 import android.graphics.Canvas
 import android.graphics.Rect
 import android.view.SurfaceHolder
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.wear.watchface.CanvasType
-import androidx.wear.watchface.ComplicationSlotsManager
-import androidx.wear.watchface.ListenableWatchFaceService
-import androidx.wear.watchface.MutableWatchState
-import androidx.wear.watchface.Renderer
-import androidx.wear.watchface.WatchFace
-import androidx.wear.watchface.WatchFaceType
-import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
 import com.google.common.truth.Truth.assertThat
@@ -45,6 +37,7 @@ import java.util.concurrent.TimeUnit
 
 private val REFERENCE_PREVIEW_TIME = Instant.ofEpochMilli(123456L)
 
+@Suppress("Deprecation")
 internal class FakeRenderer(
     surfaceHolder: SurfaceHolder,
     watchState: WatchState,

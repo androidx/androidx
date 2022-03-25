@@ -215,6 +215,7 @@ open class ExampleHierarchicalStyleWatchFaceService : WatchFaceService() {
         currentUserStyleRepository: CurrentUserStyleRepository
     ) = WatchFace(
         WatchFaceType.ANALOG,
+        @Suppress("Deprecation")
         object : Renderer.CanvasRenderer(
             surfaceHolder,
             currentUserStyleRepository,

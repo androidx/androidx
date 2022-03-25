@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.watchface.test
+package androidx.wear.watchface
 
 import android.app.Service
 import android.content.Context
@@ -51,6 +51,7 @@ internal const val TIMEOUT_MILLIS = 1000L
  * Test shim to allow us to connect to WatchFaceControlService from a test and to optionally
  * override the reported API version.
  */
+@RequiresApi(Build.VERSION_CODES.O_MR1)
 public class WatchFaceControlTestService : Service() {
     public companion object {
         /**
@@ -79,6 +80,7 @@ public class WatchFaceControlTestService : Service() {
 }
 
 /** Base class for the various async tests. */
+@RequiresApi(Build.VERSION_CODES.O_MR1)
 public open class WatchFaceControlClientServiceTest {
     val context = ApplicationProvider.getApplicationContext<Context>()
     val handler = Handler(Looper.getMainLooper())
