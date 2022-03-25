@@ -36,7 +36,6 @@ public annotation class OnConflictStrategy {
          * OnConflict strategy constant used by default when no other strategy is set. The
          * runtime behavior is the same as when [ABORT] strategy is applied. *The transaction
          * is rolled back.*
-         *
          */
         public const val NONE: Int = 0
         /**
