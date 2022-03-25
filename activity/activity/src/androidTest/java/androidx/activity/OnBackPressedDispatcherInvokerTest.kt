@@ -17,8 +17,8 @@
 package androidx.activity
 
 import android.os.Build
-import android.view.OnBackInvokedCallback
-import android.view.OnBackInvokedDispatcher
+import android.window.OnBackInvokedCallback
+import android.window.OnBackInvokedDispatcher
 import androidx.annotation.RequiresApi
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress

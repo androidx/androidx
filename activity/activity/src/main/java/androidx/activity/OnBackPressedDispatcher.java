@@ -18,8 +18,8 @@ package androidx.activity;
 
 import android.annotation.SuppressLint;
 import android.os.Build;
-import android.view.OnBackInvokedCallback;
-import android.view.OnBackInvokedDispatcher;
+import android.window.OnBackInvokedCallback;
+import android.window.OnBackInvokedDispatcher;
 
 import androidx.annotation.DoNotInline;
 import androidx.annotation.MainThread;

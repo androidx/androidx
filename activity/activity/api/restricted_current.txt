@@ -64,7 +64,7 @@ package androidx.activity {
     method @MainThread public void addCallback(androidx.lifecycle.LifecycleOwner, androidx.activity.OnBackPressedCallback);
     method @MainThread public boolean hasEnabledCallbacks();
     method @MainThread public void onBackPressed();
-    method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public void setOnBackPressedInvoker(android.view.OnBackInvokedDispatcher);
+    method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public void setOnBackPressedInvoker(android.window.OnBackInvokedDispatcher);
   }
 
   public interface OnBackPressedDispatcherOwner extends androidx.lifecycle.LifecycleOwner {
