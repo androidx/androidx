@@ -46,6 +46,8 @@
   <string name="try_anyway_action_title">Try Anyway</string>
   <string name="yes_action_title">Yes</string>
   <string name="no_action_title">No</string>
+  <string name="disable_all_rows">Disable All Rows</string>
+  <string name="enable_all_rows">Enable All Rows</string>
 
   <!-- Toast Messages -->
   <string name="bug_reported_toast_msg">Bug reported!</string>
@@ -351,6 +353,9 @@
   <string name="option_1_title">Option 1</string>
   <string name="option_2_title">Option 2</string>
   <string name="option_3_title">Option 3</string>
+  <string name="option_row_radio_title">Row with Radio Button</string>
+  <string name="option_row_radio_icon_title">Row with Radio Button and Icon</string>
+  <string name="option_row_radio_icon_colored_text_title">Row with Radio Button and Icon and Colored Text</string>
   <string name="some_additional_text">Some additional text</string>
   <string name="sample_additional_list">Sample selectable list</string>
 
@@ -361,10 +366,16 @@
   <string name="task_step_of_text">Click to go forward</string>
   <string name="toggle_test_title">Toggle test</string>
   <string name="toggle_test_text">Stateful changes are allowed</string>
+  <string name="toggle_test_first_toggle_title">Enable Toggle Test</string>
+  <string name="toggle_test_first_toggle_text">Check this one to enable the toggle test</string>
+  <string name="toggle_test_second_toggle_title">Toggle test</string>
+  <string name="toggle_test_second_toggle_text">Stateful changes are allowed</string>
   <string name="image_test_title">Image test</string>
   <string name="image_test_text">Image changes are allowed</string>
   <string name="additional_data_title">Additional Data</string>
   <string name="additional_data_text">Updates allowed on back operations.</string>
+  <string name="toggle_test_enabled">Toggle Test Enabled</string>
+  <string name="toggle_test_disabled">Toggle Test Disabled</string>
 
   <!-- StartScreen -->
   <string name="misc_templates_demos_title">Misc Templates Demos</string>
