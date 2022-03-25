@@ -324,8 +324,6 @@ This build uses unsafe internal compiler arguments\:
 This mode is not recommended for production use\,
 as no stability\/compatibility guarantees are given on
 compiler or generated code\. Use it at your own risk\!
-# > Task :compose:ui:ui-util:compileReleaseKotlin
-\-XXLanguage\:\+InlineClasses
 # > Task :docs-public:lintDebug
 Wrote HTML report to file://\$OUT_DIR/androidx/docs\-public/build/reports/lint\-results\-debug\.html
 # > Task :camera:camera-core:compileDebugJavaWithJavac

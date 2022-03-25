@@ -25,8 +25,8 @@ public interface CurvedAlignment {
      * How to lay down components when they are thinner than the container. This is analogue of
      * [Alignment.Vertical] in a [Row].
      */
-    @Suppress("INLINE_CLASS_DEPRECATED")
-    public inline class Radial internal constructor(internal val ratio: Float) {
+    @kotlin.jvm.JvmInline
+    public value class Radial internal constructor(internal val ratio: Float) {
         companion object {
             /**
              * Put the child closest to the center of the container, within the available space
@@ -56,8 +56,8 @@ public interface CurvedAlignment {
      * How to lay down components when they have a smaller sweep than their container. This is
      * analogue of [Alignment.Horizontal] in a [Column].
      */
-    @Suppress("INLINE_CLASS_DEPRECATED")
-    public inline class Angular internal constructor(internal val ratio: Float) {
+    @kotlin.jvm.JvmInline
+    public value class Angular internal constructor(internal val ratio: Float) {
         companion object {
             /**
              * Put the child at the angular start of the layout of the container, within the

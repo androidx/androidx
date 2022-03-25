@@ -46,8 +46,8 @@ import androidx.glance.unit.ColorProvider
  *                          Hello World!
  * ```
  */
-@Suppress("INLINE_CLASS_DEPRECATED")
-public inline class AnchorType private constructor(private val value: Int) {
+@JvmInline
+public value class AnchorType private constructor(private val value: Int) {
     public companion object {
         /**
          * Anchor at the start of the elements. This will cause elements added to a
@@ -74,8 +74,8 @@ public inline class AnchorType private constructor(private val value: Int) {
  * How to lay down components when they are thinner than the [CurvedRow]. Similar to vertical
  * alignment in a Row.
  */
-@Suppress("INLINE_CLASS_DEPRECATED")
-public inline class RadialAlignment private constructor(private val value: Int) {
+@JvmInline
+public value class RadialAlignment private constructor(private val value: Int) {
     companion object {
         /**
          * Put the child closest to the center of the [CurvedRow], within the available space

@@ -27,8 +27,8 @@ import androidx.compose.ui.layout.ContentScale
 /**
  * Possible combinations for vignette state.
  */
-@Suppress("INLINE_CLASS_DEPRECATED")
-public inline class VignettePosition constructor(private val key: Int) {
+@kotlin.jvm.JvmInline
+public value class VignettePosition constructor(private val key: Int) {
     internal fun drawTop(): Boolean {
         return when (key) {
             1 -> false

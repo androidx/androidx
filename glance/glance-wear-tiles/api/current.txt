@@ -79,8 +79,8 @@ package androidx.glance.wear.tiles.action {
 
 package androidx.glance.wear.tiles.curved {
 
-  public final inline class AnchorType {
-    ctor public AnchorType();
+  @kotlin.jvm.JvmInline public final value class AnchorType {
+    field public static final androidx.glance.wear.tiles.curved.AnchorType.Companion Companion;
   }
 
   public static final class AnchorType.Companion {
@@ -158,8 +158,8 @@ package androidx.glance.wear.tiles.curved {
     method public static androidx.glance.wear.tiles.curved.GlanceCurvedModifier thickness(androidx.glance.wear.tiles.curved.GlanceCurvedModifier, float thickness);
   }
 
-  public final inline class RadialAlignment {
-    ctor public RadialAlignment();
+  @kotlin.jvm.JvmInline public final value class RadialAlignment {
+    field public static final androidx.glance.wear.tiles.curved.RadialAlignment.Companion Companion;
   }
 
   public static final class RadialAlignment.Companion {
