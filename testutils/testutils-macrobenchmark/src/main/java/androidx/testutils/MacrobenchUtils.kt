@@ -80,9 +80,11 @@ fun MacrobenchmarkRule.measureStartup(
     metrics = getStartupMetrics(),
     compilationMode = compilationMode,
     iterations = iterations,
-    startupMode = startupMode
+    startupMode = startupMode,
+    setupBlock = {
+        pressHome()
+    }
 ) {
-    pressHome()
     val intent = Intent()
     intent.setPackage(packageName)
     setupIntent(intent)
