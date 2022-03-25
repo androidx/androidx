@@ -1295,6 +1295,8 @@ package androidx.car.app.navigation.model {
     method public androidx.car.app.model.CarColor? getRemainingDistanceColor();
     method public androidx.car.app.model.CarColor? getRemainingTimeColor();
     method public long getRemainingTimeSeconds();
+    method public androidx.car.app.model.CarIcon? getTripIcon();
+    method public androidx.car.app.model.CarText? getTripText();
     field public static final long REMAINING_TIME_UNKNOWN = -1L; // 0xffffffffffffffffL
   }
 
@@ -1306,6 +1308,8 @@ package androidx.car.app.navigation.model {
     method @RequiresApi(26) public androidx.car.app.navigation.model.TravelEstimate.Builder setRemainingTime(java.time.Duration);
     method public androidx.car.app.navigation.model.TravelEstimate.Builder setRemainingTimeColor(androidx.car.app.model.CarColor);
     method public androidx.car.app.navigation.model.TravelEstimate.Builder setRemainingTimeSeconds(@IntRange(from=0xffffffff) long);
+    method public androidx.car.app.navigation.model.TravelEstimate.Builder setTripIcon(androidx.car.app.model.CarIcon);
+    method public androidx.car.app.navigation.model.TravelEstimate.Builder setTripText(androidx.car.app.model.CarText);
   }
 
   @androidx.car.app.annotations.CarProtocol public final class Trip {
