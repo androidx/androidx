@@ -5,3 +5,17 @@ CallbackName: androidx.lifecycle.LifecycleEventObserver:
     Class should be named LifecycleEventCallback
 CallbackName: androidx.lifecycle.LifecycleObserver:
     Class should be named LifecycleCallback
+
+
+InvalidNullability: androidx.lifecycle.DefaultLifecycleObserver#onCreate(androidx.lifecycle.LifecycleOwner) parameter #0:
+    Invalid nullability on parameter `owner` in method `onCreate`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.lifecycle.DefaultLifecycleObserver#onDestroy(androidx.lifecycle.LifecycleOwner) parameter #0:
+    Invalid nullability on parameter `owner` in method `onDestroy`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.lifecycle.DefaultLifecycleObserver#onPause(androidx.lifecycle.LifecycleOwner) parameter #0:
+    Invalid nullability on parameter `owner` in method `onPause`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.lifecycle.DefaultLifecycleObserver#onResume(androidx.lifecycle.LifecycleOwner) parameter #0:
+    Invalid nullability on parameter `owner` in method `onResume`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.lifecycle.DefaultLifecycleObserver#onStart(androidx.lifecycle.LifecycleOwner) parameter #0:
+    Invalid nullability on parameter `owner` in method `onStart`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.lifecycle.DefaultLifecycleObserver#onStop(androidx.lifecycle.LifecycleOwner) parameter #0:
+    Invalid nullability on parameter `owner` in method `onStop`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
