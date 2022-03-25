@@ -779,7 +779,8 @@ internal class LazyColumnStateAdapter(
     private fun decimalLastItemIndex(): Float {
         if (state.layoutInfo.visibleItemsInfo.isEmpty()) return 0f
         val lastItem = state.layoutInfo.visibleItemsInfo.last()
-        val lastItemVisibleSize = state.layoutInfo.viewportEndOffset - lastItem.offset
+        val lastItemVisibleSize =
+            (state.layoutInfo.viewportEndOffset - lastItem.offset).coerceAtMost(lastItem.size)
         return lastItem.index.toFloat() +
             lastItemVisibleSize.toFloat() / lastItem.size.toFloat()
     }
