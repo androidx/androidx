@@ -34,9 +34,10 @@ package androidx.car.app {
     method @CallSuper public final android.os.IBinder onBind(android.content.Intent);
     method public abstract androidx.car.app.Session onCreateSession();
     method public final boolean onUnbind(android.content.Intent);
-    field public static final String CATEGORY_CHARGING_APP = "androidx.car.app.category.CHARGING";
+    field @Deprecated public static final String CATEGORY_CHARGING_APP = "androidx.car.app.category.CHARGING";
     field public static final String CATEGORY_NAVIGATION_APP = "androidx.car.app.category.NAVIGATION";
-    field public static final String CATEGORY_PARKING_APP = "androidx.car.app.category.PARKING";
+    field @Deprecated public static final String CATEGORY_PARKING_APP = "androidx.car.app.category.PARKING";
+    field public static final String CATEGORY_POI_APP = "androidx.car.app.category.POI";
     field @androidx.car.app.annotations.ExperimentalCarApi public static final String CATEGORY_SETTINGS_APP = "androidx.car.app.category.SETTINGS";
     field public static final String SERVICE_INTERFACE = "androidx.car.app.CarAppService";
   }
