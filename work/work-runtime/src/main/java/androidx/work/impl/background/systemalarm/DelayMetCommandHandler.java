@@ -92,6 +92,7 @@ public class DelayMetCommandHandler implements
     // should be accessed only from SerialTaskExecutor
     private int mCurrentState;
     private final Executor mSerialExecutor;
+    private final Executor mMainThreadExecutor;
 
     @Nullable private PowerManager.WakeLock mWakeLock;
     private boolean mHasConstraints;
@@ -108,6 +109,7 @@ public class DelayMetCommandHandler implements
         mWorkSpecId = workSpecId;
         Trackers trackers = dispatcher.getWorkManager().getTrackers();
         mSerialExecutor = dispatcher.getTaskExecutor().getSerialTaskExecutor();
+        mMainThreadExecutor = dispatcher.getTaskExecutor().getMainThreadExecutor();
         mWorkConstraintsTracker = new WorkConstraintsTrackerImpl(trackers, this);
         mHasConstraints = false;
         mCurrentState = STATE_INITIAL;
@@ -159,7 +161,7 @@ public class DelayMetCommandHandler implements
             // We need to reschedule the WorkSpec. WorkerWrapper may also call Scheduler.schedule()
             // but given that we will only consider WorkSpecs that are eligible that it safe.
             Intent reschedule = CommandHandler.createScheduleWorkIntent(mContext, mWorkSpecId);
-            mDispatcher.postOnMainThread(
+            mMainThreadExecutor.execute(
                     new SystemAlarmDispatcher.AddRunnable(mDispatcher, reschedule, mStartId));
         }
 
@@ -168,7 +170,7 @@ public class DelayMetCommandHandler implements
             // we might need to disable constraint proxies which were previously enabled for
             // this WorkSpec. Hence, trigger a constraints changed command.
             Intent intent = CommandHandler.createConstraintsChangedIntent(mContext);
-            mDispatcher.postOnMainThread(
+            mMainThreadExecutor.execute(
                     new SystemAlarmDispatcher.AddRunnable(mDispatcher, intent, mStartId));
         }
     }
@@ -228,7 +230,7 @@ public class DelayMetCommandHandler implements
                     TAG,
                     "Stopping work for WorkSpec " + mWorkSpecId);
             Intent stopWork = CommandHandler.createStopWorkIntent(mContext, mWorkSpecId);
-            mDispatcher.postOnMainThread(
+            mMainThreadExecutor.execute(
                     new SystemAlarmDispatcher.AddRunnable(mDispatcher, stopWork, mStartId));
             // There are cases where the work may not have been enqueued at all, and therefore
             // the processor is completely unaware of such a workSpecId in which case a
@@ -238,7 +240,7 @@ public class DelayMetCommandHandler implements
                 Logger.get().debug(TAG, "WorkSpec " + mWorkSpecId + " needs to be rescheduled");
                 Intent reschedule = CommandHandler.createScheduleWorkIntent(mContext,
                         mWorkSpecId);
-                mDispatcher.postOnMainThread(
+                mMainThreadExecutor.execute(
                         new SystemAlarmDispatcher.AddRunnable(mDispatcher, reschedule,
                                 mStartId));
             } else {

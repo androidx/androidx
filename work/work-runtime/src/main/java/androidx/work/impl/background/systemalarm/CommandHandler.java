@@ -237,7 +237,7 @@ public class CommandHandler implements ExecutionListener {
                 // Schedule an update for constraint proxies
                 // This in turn sets enables us to track changes in constraints
                 Intent constraintsUpdate = CommandHandler.createConstraintsChangedIntent(mContext);
-                dispatcher.postOnMainThread(
+                dispatcher.getTaskExecutor().getMainThreadExecutor().execute(
                         new SystemAlarmDispatcher.AddRunnable(
                                 dispatcher,
                                 constraintsUpdate,
