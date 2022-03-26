@@ -93,13 +93,24 @@ public abstract class CarAppService extends Service {
 
     /**
      * Used to declare that this app is a parking app in the manifest.
+     *
+     * @deprecated use {@link #CATEGORY_POI_APP} instead
      */
+    @Deprecated
     public static final String CATEGORY_PARKING_APP = "androidx.car.app.category.PARKING";
 
     /**
      * Used to declare that this app is a charging app in the manifest.
+     *
+     * @deprecated use {@link #CATEGORY_POI_APP} instead
      */
+    @Deprecated
     public static final String CATEGORY_CHARGING_APP = "androidx.car.app.category.CHARGING";
+
+    /**
+     * Used in the app manifest. It declares that this app finds points of interests (POI).
+     */
+    public static final String CATEGORY_POI_APP = "androidx.car.app.category.POI";
 
     /**
      * Used to declare that this app is a settings app in the manifest. This app can be used to
