@@ -20,14 +20,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.work.Logger;
+import androidx.work.RunnableScheduler;
 import androidx.work.WorkRequest;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Manages timers to enforce a time limit for processing {@link WorkRequest}.
@@ -41,30 +38,16 @@ public class WorkTimer {
 
     private static final String TAG = Logger.tagWithPrefix("WorkTimer");
 
-    private final ThreadFactory mBackgroundThreadFactory = new ThreadFactory() {
-
-        private int mThreadsCreated = 0;
-
-        @Override
-        public Thread newThread(@NonNull Runnable r) {
-            // Delegate to the default factory, but keep track of the current thread being used.
-            Thread thread = Executors.defaultThreadFactory().newThread(r);
-            thread.setName("WorkManager-WorkTimer-thread-" + mThreadsCreated);
-            mThreadsCreated++;
-            return thread;
-        }
-    };
-
-    private final ScheduledExecutorService mExecutorService;
+    final RunnableScheduler mRunnableScheduler;
     final Map<String, WorkTimerRunnable> mTimerMap;
     final Map<String, TimeLimitExceededListener> mListeners;
     final Object mLock;
 
-    public WorkTimer() {
+    public WorkTimer(@NonNull RunnableScheduler scheduler) {
         mTimerMap = new HashMap<>();
         mListeners = new HashMap<>();
         mLock = new Object();
-        mExecutorService = Executors.newSingleThreadScheduledExecutor(mBackgroundThreadFactory);
+        mRunnableScheduler = scheduler;
     }
 
     /**
@@ -89,7 +72,7 @@ public class WorkTimer {
             WorkTimerRunnable runnable = new WorkTimerRunnable(this, workSpecId);
             mTimerMap.put(workSpecId, runnable);
             mListeners.put(workSpecId, listener);
-            mExecutorService.schedule(runnable, processingTimeMillis, TimeUnit.MILLISECONDS);
+            mRunnableScheduler.scheduleWithDelay(processingTimeMillis, runnable);
         }
     }
 
@@ -108,18 +91,6 @@ public class WorkTimer {
         }
     }
 
-    /**
-     * This method needs to be idempotent. This could be called more than once, and therefore,
-     * this method should only perform cleanup when necessary.
-     */
-    public void onDestroy() {
-        if (!mExecutorService.isShutdown()) {
-            // Calling shutdown() waits for pending scheduled WorkTimerRunnable's which is not
-            // something we care about. Hence call shutdownNow().
-            mExecutorService.shutdownNow();
-        }
-    }
-
     @VisibleForTesting
     @NonNull
     public synchronized Map<String, WorkTimerRunnable> getTimerMap() {
@@ -130,12 +101,6 @@ public class WorkTimer {
     @NonNull
     public synchronized Map<String, TimeLimitExceededListener> getListeners() {
         return mListeners;
-    }
-
-    @VisibleForTesting
-    @NonNull
-    public ScheduledExecutorService getExecutorService() {
-        return mExecutorService;
     }
 
     /**

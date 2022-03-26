@@ -80,11 +80,10 @@ public class SystemAlarmDispatcher implements ExecutionListener {
             @NonNull Context context,
             @Nullable Processor processor,
             @Nullable WorkManagerImpl workManager) {
-
         mContext = context.getApplicationContext();
         mCommandHandler = new CommandHandler(mContext);
-        mWorkTimer = new WorkTimer();
         mWorkManager = workManager != null ? workManager : WorkManagerImpl.getInstance(context);
+        mWorkTimer = new WorkTimer(mWorkManager.getConfiguration().getRunnableScheduler());
         mProcessor = processor != null ? processor : mWorkManager.getProcessor();
         mTaskExecutor = mWorkManager.getWorkTaskExecutor();
         mProcessor.addExecutionListener(this);
@@ -101,7 +100,6 @@ public class SystemAlarmDispatcher implements ExecutionListener {
     void onDestroy() {
         Logger.get().debug(TAG, "Destroying SystemAlarmDispatcher");
         mProcessor.removeExecutionListener(this);
-        mWorkTimer.onDestroy();
         mCompletedListener = null;
     }
 

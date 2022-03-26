@@ -707,7 +707,6 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
     @Test
     public void tearDownTest() {
         mDispatcher.onDestroy();
-        assertThat(mDispatcher.getWorkTimer().getExecutorService().isShutdown(), is(true));
     }
 
     // Marking it public for mocking
