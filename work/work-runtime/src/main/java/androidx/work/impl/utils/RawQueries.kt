@@ -13,99 +13,60 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:JvmName("RawQueries")
 
-package androidx.work.impl.utils;
+package androidx.work.impl.utils
 
-import androidx.annotation.NonNull;
-import androidx.sqlite.db.SimpleSQLiteQuery;
-import androidx.sqlite.db.SupportSQLiteQuery;
-import androidx.work.WorkInfo;
-import androidx.work.WorkQuery;
-import androidx.work.impl.model.WorkTypeConverters;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import androidx.sqlite.db.SimpleSQLiteQuery
+import androidx.sqlite.db.SupportSQLiteQuery
+import androidx.work.WorkQuery
+import androidx.work.impl.model.WorkTypeConverters.stateToInt
 
 /**
- * A helper to build raw SQLite Queries.
+ * Converts a [WorkQuery] to a raw [SupportSQLiteQuery].
+ *
+ * @return a [SupportSQLiteQuery] instance
  */
-public final class RawQueries {
-    private RawQueries() {
-        // Does nothing
+fun WorkQuery.toRawQuery(): SupportSQLiteQuery {
+    val arguments = mutableListOf<Any>()
+    val builder = StringBuilder("SELECT * FROM workspec")
+    var conjunction = " WHERE"
+    if (states.isNotEmpty()) {
+        val stateIds = states.map { stateToInt(it!!) }
+        builder.append("$conjunction state IN (")
+        bindings(builder, stateIds.size)
+        builder.append(")")
+        arguments.addAll(stateIds)
+        conjunction = " AND"
     }
-
-    /**
-     * Converts a {@link WorkQuery} to a raw {@link SupportSQLiteQuery}.
-     *
-     * @param querySpec The instance of {@link WorkQuery}
-     * @return a {@link SupportSQLiteQuery} instance
-     */
-    @NonNull
-    public static SupportSQLiteQuery workQueryToRawQuery(@NonNull WorkQuery querySpec) {
-        List<Object> arguments = new ArrayList<>();
-        StringBuilder builder = new StringBuilder("SELECT * FROM workspec");
-        String conjunction = " WHERE";
-
-        List<WorkInfo.State> states = querySpec.getStates();
-        if (!states.isEmpty()) {
-            List<Integer> stateIds = new ArrayList<>(states.size());
-            for (WorkInfo.State state : states) {
-                stateIds.add(WorkTypeConverters.stateToInt(state));
-            }
-            builder.append(conjunction)
-                    .append(" state IN (");
-            bindings(builder, stateIds.size());
-            builder.append(")");
-            arguments.addAll(stateIds);
-            conjunction = " AND";
-        }
-
-        List<UUID> ids = querySpec.getIds();
-        if (!ids.isEmpty()) {
-            List<String> workSpecIds = new ArrayList<>(ids.size());
-            for (UUID id : ids) {
-                workSpecIds.add(id.toString());
-            }
-            builder.append(conjunction)
-                    .append(" id IN (");
-            bindings(builder, ids.size());
-            builder.append(")");
-            arguments.addAll(workSpecIds);
-            conjunction = " AND";
-        }
-
-        List<String> tags = querySpec.getTags();
-        if (!tags.isEmpty()) {
-            builder.append(conjunction)
-                    .append(" id IN (SELECT work_spec_id FROM worktag WHERE tag IN (");
-            bindings(builder, tags.size());
-            builder.append("))");
-            arguments.addAll(tags);
-            conjunction = " AND";
-        }
-
-        List<String> uniqueWorkNames = querySpec.getUniqueWorkNames();
-        if (!uniqueWorkNames.isEmpty()) {
-            builder.append(conjunction)
-                    .append(" id IN (SELECT work_spec_id FROM workname WHERE name IN (");
-            bindings(builder, uniqueWorkNames.size());
-            builder.append("))");
-            arguments.addAll(uniqueWorkNames);
-            conjunction = " AND";
-        }
-        builder.append(";");
-        return new SimpleSQLiteQuery(builder.toString(), arguments.toArray());
+    if (ids.isNotEmpty()) {
+        val workSpecIds = ids.map { it.toString() }
+        builder.append("$conjunction id IN (")
+        bindings(builder, ids.size)
+        builder.append(")")
+        arguments.addAll(workSpecIds)
+        conjunction = " AND"
     }
-
-    private static void bindings(@NonNull StringBuilder builder, int count) {
-        if (count <= 0) {
-            return;
-        }
-        builder.append("?");
-        for (int i = 1; i < count; i++) {
-            builder.append(",");
-            builder.append("?");
-        }
+    if (tags.isNotEmpty()) {
+        builder.append("$conjunction id IN (SELECT work_spec_id FROM worktag WHERE tag IN (")
+        bindings(builder, tags.size)
+        builder.append("))")
+        arguments.addAll(tags)
+        conjunction = " AND"
     }
+    if (uniqueWorkNames.isNotEmpty()) {
+        builder.append("$conjunction id IN (SELECT work_spec_id FROM workname WHERE name IN (")
+        bindings(builder, uniqueWorkNames.size)
+        builder.append("))")
+        arguments.addAll(uniqueWorkNames)
+    }
+    builder.append(";")
+    return SimpleSQLiteQuery(builder.toString(), arguments.toTypedArray())
+}
+
+private fun bindings(builder: StringBuilder, count: Int) {
+    if (count <= 0) {
+        return
+    }
+    builder.append((List(count) { "?" }.joinToString(",")))
 }
