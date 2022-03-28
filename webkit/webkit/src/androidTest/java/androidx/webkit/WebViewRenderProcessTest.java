@@ -101,10 +101,13 @@ public class WebViewRenderProcessTest {
     public void testGetWebViewRenderProcessPreO() throws Throwable {
         // It should not be possible to get a renderer pre-O
         WebView webView = WebViewOnUiThread.createWebView();
-        final WebViewRenderProcess renderer = startAndGetRenderProcess(webView).get();
-        Assert.assertNull(renderer);
-
-        WebViewOnUiThread.destroy(webView);
+        try {
+            final WebViewRenderProcess renderer = startAndGetRenderProcess(webView).get();
+            Assert.assertNull(renderer);
+        } finally {
+            // Destroy the WebView instance to avoid leaking state into other tests.
+            WebViewOnUiThread.destroy(webView);
+        }
     }
 
     @LargeTest
@@ -149,12 +152,15 @@ public class WebViewRenderProcessTest {
                 terminateRenderProcessOnUiThread(renderer));
 
         final WebView webView2 = WebViewOnUiThread.createWebView();
-        Assert.assertNotSame(
-                "After a renderer restart, the new renderer handle object should be different.",
-                renderer, startAndGetRenderProcess(webView2).get());
+        try {
+            Assert.assertNotSame(
+                    "After a renderer restart, the new renderer handle object should be different.",
+                    renderer, startAndGetRenderProcess(webView2).get());
 
-        // Ensure that we clean up webView2. webView has been destroyed by the WebViewClient
-        // installed by catchRenderProcessTermination
-        WebViewOnUiThread.destroy(webView2);
+        } finally {
+            // Ensure that we clean up webView2. webView has been destroyed by the WebViewClient
+            // installed by catchRenderProcessTermination
+            WebViewOnUiThread.destroy(webView2);
+        }
     }
 }
