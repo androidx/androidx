@@ -95,7 +95,7 @@ class CountTileService : GlanceTileService() {
 }
 
 class ClickAddAction : ActionCallback {
-    override suspend fun onRun(
+    override suspend fun onAction(
         context: Context,
         glanceId: GlanceId
     ) {
@@ -108,7 +108,7 @@ class ClickAddAction : ActionCallback {
 }
 
 class ClickMultiplyAction : ActionCallback {
-    override suspend fun onRun(
+    override suspend fun onAction(
         context: Context,
         glanceId: GlanceId
     ) {
@@ -121,7 +121,7 @@ class ClickMultiplyAction : ActionCallback {
 }
 
 class ClickDivideAction : ActionCallback {
-    override suspend fun onRun(
+    override suspend fun onAction(
         context: Context,
         glanceId: GlanceId
     ) {

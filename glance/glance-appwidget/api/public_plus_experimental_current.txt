@@ -163,7 +163,7 @@ package androidx.glance.appwidget {
 package androidx.glance.appwidget.action {
 
   public interface ActionCallback {
-    method public suspend Object? onRun(android.content.Context context, androidx.glance.GlanceId glanceId, androidx.glance.action.ActionParameters parameters, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
+    method public suspend Object? onAction(android.content.Context context, androidx.glance.GlanceId glanceId, androidx.glance.action.ActionParameters parameters, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
   }
 
   public final class ActionTrampolineKt {

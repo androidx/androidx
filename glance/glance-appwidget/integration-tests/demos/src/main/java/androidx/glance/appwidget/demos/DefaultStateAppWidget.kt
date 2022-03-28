@@ -71,7 +71,11 @@ class DefaultStateAppWidget : GlanceAppWidget() {
 }
 
 class ClickAction : ActionCallback {
-    override suspend fun onRun(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
+    override suspend fun onAction(
+        context: Context,
+        glanceId: GlanceId,
+        parameters: ActionParameters
+    ) {
         // Get the current state of the given widget and the value provided in the ActionParameters
         updateAppWidgetState(context, glanceId) { state ->
             state[CountClicksKey] = (state[CountClicksKey] ?: 0) + (parameters[ClickValueKey] ?: 0)

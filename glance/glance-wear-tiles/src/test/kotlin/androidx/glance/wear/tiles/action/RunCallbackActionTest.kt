@@ -50,7 +50,7 @@ class RunCallbackActionTest {
 }
 
 class TestCallback : ActionCallback {
-    override suspend fun onRun(
+    override suspend fun onAction(
         context: Context,
         glanceId: GlanceId
     ) {

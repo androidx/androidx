@@ -40,7 +40,11 @@ import androidx.template.template.TemplateText.Type
 private val PressedKey = booleanPreferencesKey("pressedKey")
 
 class ButtonAction : ActionCallback {
-    override suspend fun onRun(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
+    override suspend fun onAction(
+        context: Context,
+        glanceId: GlanceId,
+        parameters: ActionParameters
+    ) {
         // Toggle the "pressed" state
         updateAppWidgetState(context, glanceId) { state ->
             state[PressedKey] = state[PressedKey] != true

@@ -216,7 +216,11 @@ class ListClickDestinationActivity : ComponentActivity() {
 
 /** Work executed when [ScrollableAppWidget] list's item is clicked. */
 class LogItemClickAction : ActionCallback {
-    override suspend fun onRun(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
+    override suspend fun onAction(
+        context: Context,
+        glanceId: GlanceId,
+        parameters: ActionParameters
+    ) {
         Handler(context.mainLooper).post {
             Toast.makeText(
                 context,
@@ -228,7 +232,11 @@ class LogItemClickAction : ActionCallback {
 }
 
 class ListToggleAction : ActionCallback {
-    override suspend fun onRun(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
+    override suspend fun onAction(
+        context: Context,
+        glanceId: GlanceId,
+        parameters: ActionParameters
+    ) {
         updateAppWidgetState(context, glanceId) { state ->
             state[CheckboxKey] = parameters[ToggleableStateKey] ?: false
         }
