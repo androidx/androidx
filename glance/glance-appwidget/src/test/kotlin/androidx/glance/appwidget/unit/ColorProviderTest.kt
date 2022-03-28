@@ -26,6 +26,7 @@ import com.google.common.truth.Truth.assertThat
 import androidx.glance.appwidget.ColorSubject.Companion.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 import org.robolectric.RobolectricTestRunner
 import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
@@ -150,5 +151,23 @@ class ColorProviderTest {
                 fallback = R.color.my_checkbox_colors
             )
         }
+    }
+
+    @Test
+    fun resolveColorProvider_FixedColorProvider() {
+        assertThat(ColorProvider(Color.Blue).resolve(context)).isSameColorAs(Color.Blue)
+    }
+
+    @Test
+    fun resolveColorProvider_ResourceColorProvider() {
+        assertThat(ColorProvider(R.color.my_color).resolve(context))
+            .isSameColorAs(Color(0xFFEEEEEE))
+    }
+
+    @Test
+    @Config(qualifiers = "+night")
+    fun resolveColorProvider_DayNightColorProvider() {
+        assertThat(ColorProvider(Color.Blue, Color.Red).resolve(context))
+            .isSameColorAs(Color.Red)
     }
 }
