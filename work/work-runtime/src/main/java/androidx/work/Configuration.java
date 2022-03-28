@@ -17,6 +17,7 @@
 package androidx.work;
 
 import static androidx.work.impl.Scheduler.MAX_SCHEDULER_LIMIT;
+import static androidx.work.impl.utils.IdGeneratorKt.INITIAL_ID;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -29,7 +30,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.work.impl.DefaultRunnableScheduler;
 import androidx.work.impl.Scheduler;
-import androidx.work.impl.utils.IdGenerator;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -301,7 +301,7 @@ public final class Configuration {
          */
         public Builder() {
             mLoggingLevel = Log.INFO;
-            mMinJobSchedulerId = IdGenerator.INITIAL_ID;
+            mMinJobSchedulerId = INITIAL_ID;
             mMaxJobSchedulerId = Integer.MAX_VALUE;
             mMaxSchedulerLimit = MIN_SCHEDULER_LIMIT;
         }

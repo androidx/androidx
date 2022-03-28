@@ -66,6 +66,7 @@ import org.junit.runner.RunWith;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL)
@@ -79,6 +80,7 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
     private SystemJobScheduler mSystemJobScheduler;
     private WorkSpecDao mMockWorkSpecDao;
 
+    @SuppressWarnings("unchecked")
     @Before
     public void setUp() {
         Context context = ApplicationProvider.getApplicationContext();
@@ -98,6 +100,7 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
         when(workDatabase.systemIdInfoDao()).thenReturn(systemIdInfoDao);
         when(workDatabase.preferenceDao()).thenReturn(preferenceDao);
         when(workDatabase.workSpecDao()).thenReturn(mMockWorkSpecDao);
+        doCallRealMethod().when(workDatabase).runInTransaction(any(Callable.class));
         when(mWorkManager.getWorkDatabase()).thenReturn(workDatabase);
 
         doReturn(RESULT_SUCCESS).when(mJobScheduler).schedule(any(JobInfo.class));
