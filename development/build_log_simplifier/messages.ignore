@@ -199,6 +199,18 @@ w: \$SUPPORT/compose/ui/ui/src/commonMain/kotlin/androidx/compose/ui/node/DepthS
 w: \$SUPPORT/compose/ui/ui/src/commonMain/kotlin/androidx/compose/ui/node/DepthSortedSet\.kt: \([0-9]+, [0-9]+\): The corresponding parameter in the supertype 'Comparator' is named 'b'\. This may cause problems when calling this function with named arguments\.
 # > Task :benchmark:benchmark-common:runErrorProne
 \^
+symbol:   class OnBackInvokedCallback
+location: package android\.view
+import android\.view\.OnBackInvokedDispatcher;
+symbol:   class OnBackInvokedDispatcher
+private OnBackInvokedCallback mOnBackInvokedCallback;
+location: class OnBackPressedDispatcher
+private OnBackInvokedDispatcher mInvokedDispatcher;
+public void setOnBackPressedInvoker\(@NonNull OnBackInvokedDispatcher invoker\) \{
+OnBackInvokedDispatcher onBackInvokedDispatcher,
+location: class Api[0-9]+Impl
+OnBackInvokedCallback onBackInvokedCallback, int priority
+OnBackInvokedCallback onBackInvokedCallback
 public abstract void jvmDelete\(T t\);
 public abstract void jvmInsert\(@org\.jetbrains\.annotations\.NotNull\(\)
 public abstract java\.util\.List<androidx\.room\.androidx\.room\.integration\.kotlintestapp\.test\.JvmNameInDaoTest\.JvmNameEntity> jvmQuery\(\);
@@ -401,6 +413,8 @@ Found an unresolved type in androidx\.paging\.LivePagedListBuilder\$setFetchExec
 # > Task :compose:ui:ui-graphics:ui-graphics-benchmark:processReleaseAndroidTestManifest
 \$SUPPORT/compose/ui/ui\-graphics/benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :docs-public:doclavaDocs
+\$OUT_DIR/androidx/docs\-public/build/srcs/androidx/activity/OnBackPressedDispatcher\.java:[0-9]+: error: cannot find symbol
+import android\.view\.OnBackInvokedCallback;
 \$OUT_DIR\/androidx\/docs\-public\/build\/srcs\/androidx\/work\/impl\/WorkManagerImpl\.java\:[0-9]+\: error\: cannot find symbol
 import static android\.app\.PendingIntent\.FLAG_MUTABLE\;
 # > Task :docs-public:dackkaDocs
@@ -587,6 +601,17 @@ Information in locals\-table is invalid with respect to the stack map table\. Lo
 Info: Some warnings are typically a sign of using an outdated Java toolchain\. To fix, recompile the source with an updated toolchain\.
 # > Task :compose:ui:ui-inspection:buildCMakeRelWithDebInfo[arm64-v8a]
 C/C\+\+: ninja: warning: bad deps log signature or version; starting over
+# > Task :textclassifier:integration-tests:testapp:compileReleaseJavaWithJavac
+warning: unknown enum constant AnnotationTarget.CLASS
+warning: unknown enum constant AnnotationTarget.PROPERTY
+warning: unknown enum constant AnnotationTarget.LOCAL_VARIABLE
+warning: unknown enum constant AnnotationTarget.VALUE_PARAMETER
+warning: unknown enum constant AnnotationTarget.CONSTRUCTOR
+warning: unknown enum constant AnnotationTarget.FUNCTION
+warning: unknown enum constant AnnotationTarget.PROPERTY_GETTER
+warning: unknown enum constant AnnotationTarget.PROPERTY_SETTER
+warning: unknown enum constant AnnotationTarget.FILE
+warning: unknown enum constant AnnotationTarget.TYPEALIAS
 # > Task :room:integration-tests:room-testapp-kotlin:kspWithKspDebugAndroidTestKotlin
 w: \[ksp\] Using @JvmName annotation on a function or accessor that will be overridden by Room is not supported\. If this is important for your use case, please file a bug at https://issuetracker\.google\.com/issues/new\?component=[0-9]+ with details\. \- androidx\.room\.androidx\.room\.integration\.kotlintestapp\.test\.JvmNameInDaoTest\.JvmNameDb\.jvmDao\(\)
 w: \[ksp\] \$SUPPORT/room/integration\-tests/kotlintestapp/src/androidTest/java/androidx/room/integration/kotlintestapp/test/JvmNameInDaoTest\.kt:[0-9]+: Using @JvmName annotation on a function or accessor that will be overridden by Room is not supported\. If this is important for your use case, please file a bug at https://issuetracker\.google\.com/issues/new\?component=[0-9]+ with details\.
