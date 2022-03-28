@@ -612,7 +612,7 @@ public class WorkManagerImpl extends WorkManager {
         RawWorkInfoDao rawWorkInfoDao = mWorkDatabase.rawWorkInfoDao();
         LiveData<List<WorkSpec.WorkInfoPojo>> inputLiveData =
                 rawWorkInfoDao.getWorkInfoPojosLiveData(
-                        RawQueries.workQueryToRawQuery(workQuery));
+                        RawQueries.toRawQuery(workQuery));
         return LiveDataUtils.dedupedMappedLiveDataFor(
                 inputLiveData,
                 WorkSpec.WORK_INFO_MAPPER,
