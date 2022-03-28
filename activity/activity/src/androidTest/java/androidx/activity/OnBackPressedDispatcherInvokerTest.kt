@@ -49,7 +49,7 @@ class OnBackPressedDispatcherInvokerTest {
 
         val dispatcher = OnBackPressedDispatcher()
 
-        dispatcher.setOnBackPressedInvoker(invoker)
+        dispatcher.setOnBackInvokedDispatcher(invoker)
 
         val callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() { }
@@ -80,7 +80,7 @@ class OnBackPressedDispatcherInvokerTest {
 
         val dispatcher = OnBackPressedDispatcher()
 
-        dispatcher.setOnBackPressedInvoker(invoker)
+        dispatcher.setOnBackInvokedDispatcher(invoker)
 
         val callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() { }
@@ -131,7 +131,7 @@ class OnBackPressedDispatcherInvokerTest {
 
         val dispatcher = OnBackPressedDispatcher()
 
-        dispatcher.setOnBackPressedInvoker(invoker)
+        dispatcher.setOnBackInvokedDispatcher(invoker)
 
         dispatcher.addCallback(callback)
 
@@ -167,7 +167,7 @@ class OnBackPressedDispatcherInvokerTest {
         val dispatcher = OnBackPressedDispatcher()
         dispatcher.addCallback(callback)
 
-        dispatcher.setOnBackPressedInvoker(invoker)
+        dispatcher.setOnBackInvokedDispatcher(invoker)
 
         assertThat(registerCount).isEqualTo(1)
 
