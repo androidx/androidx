@@ -21,7 +21,6 @@ import android.graphics.Bitmap
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.glance.AndroidResourceImageProvider
@@ -58,9 +57,6 @@ import androidx.glance.text.TextStyle
 import androidx.glance.toEmittableText
 import androidx.glance.unit.ColorProvider
 import androidx.glance.unit.Dimension
-import androidx.glance.unit.FixedColorProvider
-import androidx.glance.unit.ResourceColorProvider
-import androidx.glance.unit.resolve
 import androidx.glance.wear.tiles.curved.AnchorType
 import androidx.glance.wear.tiles.curved.CurvedTextStyle
 import androidx.glance.wear.tiles.curved.EmittableCurvedRow
@@ -155,14 +151,7 @@ private fun BorderModifier.toProto(context: Context): ModifiersBuilders.Border =
         .setColor(argb(this.color.getColor(context)))
         .build()
 
-private fun ColorProvider.getColor(context: Context) = when (this) {
-    is FixedColorProvider -> color.toArgb()
-    is ResourceColorProvider -> resolve(context).toArgb()
-    else -> {
-        Log.e(GlanceWearTileTag, "Unsupported color provider: $this, set color to transparent")
-        Color.Transparent.toArgb()
-    }
-}
+private fun ColorProvider.getColor(context: Context) = resolve(context).toArgb()
 
 // TODO: handle parameters
 private fun StartActivityAction.toProto(context: Context): ActionBuilders.LaunchAction =
