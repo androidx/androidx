@@ -75,7 +75,8 @@ interface HealthDataClient {
      * @throws IOException For any disk I/O issues.
      * @throws IllegalStateException If service is not available.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY) suspend fun updateRecords(records: List<Record>)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    suspend fun updateRecords(records: List<Record>)
 
     /**
      * Deletes one or more [Record] by their identifiers. Deletion of multiple [Record] is executed
@@ -84,12 +85,13 @@ interface HealthDataClient {
      * @param recordType Which type of [Record] to delete, such as `Steps::class`
      * @param uidsList List of uids of [Record] to delete
      * @param clientIdsList List of client IDs of [Record] to delete
-     * @throws RemoteException For any IPC transportation failures.
+     * @throws RemoteException For any IPC transportation failures. Deleting by invalid identifiers
+     * such as a non-existing identifier or deleting the same record multiple times will result in
+     * IPC failure.
      * @throws SecurityException For requests with unpermitted access.
      * @throws IOException For any disk I/O issues.
      * @throws IllegalStateException If service is not available.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     suspend fun deleteRecords(
         recordType: KClass<out Record>,
         uidsList: List<String>,
@@ -258,7 +260,7 @@ interface HealthDataClient {
 
         internal fun isPackageInstalled(
             packageManager: PackageManager,
-            packageName: String
+            packageName: String,
         ): Boolean {
             return try {
                 @Suppress("Deprecation") // getApplicationInfo deprecated in T
