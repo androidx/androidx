@@ -18,6 +18,11 @@ package androidx.lifecycle.viewmodel.compose
 
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.referentialEqualityPolicy
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.snapshots.SnapshotMutableState
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.test.ext.junit.rules.ActivityScenarioRule
@@ -65,6 +70,101 @@ class SavedStateHandleSaverTest {
         }
 
         assertThat(array).isEqualTo(intArrayOf(1))
+    }
+
+    private data class CustomState(
+        val value: Int
+    ) {
+        companion object {
+            val Saver: Saver<CustomState, *> = Saver(
+                save = { it.value },
+                restore = { CustomState(it) }
+            )
+        }
+    }
+
+    @OptIn(SavedStateHandleSaveableApi::class)
+    @Test
+    fun mutableState_simpleRestore() {
+        var state: MutableState<CustomState>? = null
+        activityTestRuleScenario.scenario.onActivity { activity ->
+            activity.setContent {
+                val viewModel = viewModel<SavingTestViewModel>(activity)
+                state = viewModel.savedStateHandle.saveable(
+                    key = "key",
+                    stateSaver = CustomState.Saver
+                ) {
+                    mutableStateOf(CustomState(0))
+                }
+            }
+        }
+
+        assertThat(state?.value).isEqualTo(CustomState(0))
+
+        activityTestRuleScenario.scenario.onActivity {
+            state!!.value = CustomState(1)
+            // we null it to ensure recomposition happened
+            state = null
+        }
+
+        activityTestRuleScenario.scenario.recreate()
+
+        activityTestRuleScenario.scenario.onActivity { activity ->
+            activity.setContent {
+                val viewModel = viewModel<SavingTestViewModel>(activity)
+                state = viewModel.savedStateHandle.saveable(
+                    key = "key",
+                    stateSaver = CustomState.Saver
+                ) {
+                    mutableStateOf(CustomState(0))
+                }
+            }
+        }
+
+        assertThat(state?.value).isEqualTo(CustomState(1))
+    }
+
+    @OptIn(SavedStateHandleSaveableApi::class)
+    @Test
+    fun mutableState_restoreReferentialEqualityPolicy() {
+        var state: MutableState<CustomState>? = null
+        activityTestRuleScenario.scenario.onActivity { activity ->
+            activity.setContent {
+                val viewModel = viewModel<SavingTestViewModel>(activity)
+                state = viewModel.savedStateHandle.saveable(
+                    key = "key",
+                    stateSaver = CustomState.Saver
+                ) {
+                    mutableStateOf(CustomState(0), referentialEqualityPolicy())
+                }
+            }
+        }
+
+        assertThat(state?.value).isEqualTo(CustomState(0))
+
+        activityTestRuleScenario.scenario.onActivity {
+            state!!.value = CustomState(1)
+            // we null it to ensure recomposition happened
+            state = null
+        }
+
+        activityTestRuleScenario.scenario.recreate()
+
+        activityTestRuleScenario.scenario.onActivity { activity ->
+            activity.setContent {
+                val viewModel = viewModel<SavingTestViewModel>(activity)
+                state = viewModel.savedStateHandle.saveable(
+                    key = "key",
+                    stateSaver = CustomState.Saver
+                ) {
+                    mutableStateOf(CustomState(0), referentialEqualityPolicy())
+                }
+            }
+        }
+
+        assertThat(state?.value).isEqualTo(CustomState(1))
+        assertThat((state as SnapshotMutableState).policy)
+            .isEqualTo(referentialEqualityPolicy<CustomState>())
     }
 }
 
