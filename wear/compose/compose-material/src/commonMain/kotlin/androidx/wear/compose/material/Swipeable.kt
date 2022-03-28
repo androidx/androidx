@@ -50,16 +50,15 @@ import androidx.compose.ui.util.lerp
 import androidx.wear.compose.material.SwipeableDefaults.StandardResistanceFactor
 import androidx.wear.compose.material.SwipeableDefaults.VelocityThreshold
 import androidx.wear.compose.material.SwipeableDefaults.resistanceConfig
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.launch
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.sign
 import kotlin.math.sin
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.launch
 
 // TODO: temporary copy of Swipeable.kt from the compose-material package.
 // Don't forget to change it if the original is being changed.
@@ -385,7 +384,31 @@ open class SwipeableState<T>(
         }
     }
 
-    // performDrag omitted from Wear Compose copy of SwipeableState, not needed at this time.
+    /**
+     * Force [swipeable] to consume drag delta provided from outside of the regular [swipeable]
+     * gesture flow.
+     *
+     * Note: This method performs generic drag and it won't settle to any particular anchor,
+     * leaving swipeable in between anchors. When done dragging, [performFling] must be
+     * called as well to ensure swipeable will settle at the anchor.
+     *
+     * In general cases, [swipeable] drags by itself when being swiped. This method is to be
+     * used for nested scroll logic that wraps the [swipeable]. In nested scroll developer may
+     * want to force drag when the child scroll container reaches the bound.
+     *
+     * @param delta delta in pixels to drag by
+     *
+     * @return the amount of [delta] consumed
+     */
+    internal fun performDrag(delta: Float): Float {
+        val potentiallyConsumed = absoluteOffset.value + delta
+        val clamped = potentiallyConsumed.coerceIn(minBound, maxBound)
+        val deltaToConsume = clamped - absoluteOffset.value
+        if (abs(deltaToConsume) > 0) {
+            draggableState.dispatchRawDelta(deltaToConsume)
+        }
+        return deltaToConsume
+    }
 
     companion object {
         /**

@@ -36,6 +36,7 @@ import androidx.wear.compose.material.samples.CompactChipWithIconAndLabel
 import androidx.wear.compose.material.samples.ConfirmationDialogSample
 import androidx.wear.compose.material.samples.ConfirmationWithAnimation
 import androidx.wear.compose.material.samples.CurvedTextDemo
+import androidx.wear.compose.material.samples.EdgeSwipeForSwipeToDismiss
 import androidx.wear.compose.material.samples.FixedFontSize
 import androidx.wear.compose.material.samples.HorizontalPageIndicatorSample
 import androidx.wear.compose.material.samples.IndeterminateCircularProgressIndicator
@@ -53,8 +54,8 @@ import androidx.wear.compose.material.samples.SplitToggleChipWithCheckbox
 import androidx.wear.compose.material.samples.StatefulSwipeToDismissBox
 import androidx.wear.compose.material.samples.StepperSample
 import androidx.wear.compose.material.samples.StepperWithIntegerSample
-import androidx.wear.compose.material.samples.TimeTextWithStatus
 import androidx.wear.compose.material.samples.TimeTextWithFullDateAndTimeFormat
+import androidx.wear.compose.material.samples.TimeTextWithStatus
 import androidx.wear.compose.material.samples.TitleCardStandard
 import androidx.wear.compose.material.samples.TitleCardWithImage
 import androidx.wear.compose.material.samples.ToggleButtonWithIcon
@@ -69,21 +70,27 @@ internal val SwipeToDismissDemos =
             DemoCategory(
                 "Samples",
                 listOf(
-                    ComposableDemo("Simple") { navBack ->
-                        SimpleSwipeToDismissBox(navBack)
+                    ComposableDemo("Simple") { params ->
+                        SimpleSwipeToDismissBox(params.navigateBack)
                     },
                     ComposableDemo("Stateful") { StatefulSwipeToDismissBox() },
+                    ComposableDemo("Edge swipe") { params ->
+                        EdgeSwipeForSwipeToDismiss(params.navigateBack)
+                    },
                 )
             ),
             DemoCategory(
                 "Demos",
                 listOf(
-                    ComposableDemo("Demo") { navigateBack ->
+                    ComposableDemo("Demo") { params ->
                         val state = remember { mutableStateOf(SwipeDismissDemoState.List) }
-                        SwipeToDismissDemo(navigateBack = navigateBack, demoState = state)
+                        SwipeToDismissDemo(navigateBack = params.navigateBack, demoState = state)
                     },
-                    ComposableDemo("Stateful Demo") { navigateBack ->
-                        SwipeToDismissBoxWithState(navigateBack)
+                    ComposableDemo("Stateful Demo") { params ->
+                        SwipeToDismissBoxWithState(params.navigateBack)
+                    },
+                    ComposableDemo("EdgeSwipeToDismiss modifier") { params ->
+                        EdgeSwipeDemo(params.swipeToDismissBoxState)
                     },
                 )
             )
@@ -96,18 +103,10 @@ val WearMaterialDemos = DemoCategory(
         DemoCategory(
             "Picker",
             listOf(
-                ComposableDemo("Time HH:MM:SS") {
-                    TimePickerWithHoursMinutesSeconds()
-                },
-                ComposableDemo("Time 12 Hour") {
-                    TimePickerWith12HourClock()
-                },
-                ComposableDemo("Date Picker") {
-                    DatePicker()
-                },
-                ComposableDemo("Simple Picker") {
-                    SimplePicker()
-                },
+                ComposableDemo("Time HH:MM:SS") { TimePickerWithHoursMinutesSeconds() },
+                ComposableDemo("Time 12 Hour") { TimePickerWith12HourClock() },
+                ComposableDemo("Date Picker") { DatePicker() },
+                ComposableDemo("Simple Picker") { SimplePicker() },
             )
         ),
         DemoCategory(
@@ -153,9 +152,7 @@ val WearMaterialDemos = DemoCategory(
                 DemoCategory(
                     "Samples",
                     listOf(
-                        ComposableDemo("Stepper") {
-                            Centralize { StepperSample() }
-                        },
+                        ComposableDemo("Stepper") { Centralize { StepperSample() } },
                         ComposableDemo("Integer Stepper") {
                             Centralize { StepperWithIntegerSample() }
                         },
@@ -166,12 +163,8 @@ val WearMaterialDemos = DemoCategory(
                     listOf(
                         ComposableDemo("Simple stepper") { StepperDemo() },
                         ComposableDemo("Stepper with integer") { StepperWithIntegerDemo() },
-                        ComposableDemo("With scrollbar") {
-                            StepperWithScrollBarDemo()
-                        },
-                        ComposableDemo("With custom color") {
-                            StepperWithCustomColors()
-                        },
+                        ComposableDemo("With scrollbar") { StepperWithScrollBarDemo() },
+                        ComposableDemo("With custom color") { StepperWithCustomColors() },
                     )
                 )
             )
@@ -182,9 +175,7 @@ val WearMaterialDemos = DemoCategory(
                 DemoCategory(
                     "Samples",
                     listOf(
-                        ComposableDemo("Clock with Status") {
-                            TimeTextWithStatus()
-                        },
+                        ComposableDemo("Clock with Status") { TimeTextWithStatus() },
                         ComposableDemo("Clock with custom time format") {
                             TimeTextWithFullDateAndTimeFormat()
                         },
@@ -193,12 +184,8 @@ val WearMaterialDemos = DemoCategory(
                 DemoCategory(
                     "Demos",
                     listOf(
-                        ComposableDemo("Clock only") {
-                            TimeTextClockOnly()
-                        },
-                        ComposableDemo("Clock with leading text") {
-                            TimeTextWithLeadingText()
-                        },
+                        ComposableDemo("Clock only") { TimeTextClockOnly() },
+                        ComposableDemo("Clock with leading text") { TimeTextWithLeadingText() },
                         ComposableDemo("Clock with localised format") {
                             TimeTextWithLocalisedFormat()
                         },
@@ -212,40 +199,30 @@ val WearMaterialDemos = DemoCategory(
                 DemoCategory(
                     "Samples",
                     listOf(
-                        ComposableDemo("Alert Dialog") {
-                            AlertDialogSample()
-                        },
-                        ComposableDemo("Confirmation Dialog") {
-                            ConfirmationDialogSample()
-                        },
-                        ComposableDemo("Alert - Buttons") {
-                            AlertWithButtons()
-                        },
-                        ComposableDemo("Alert - Chips") {
-                            AlertWithChips()
-                        },
-                        ComposableDemo("Confirmation") {
-                            ConfirmationWithAnimation()
-                        },
+                        ComposableDemo("Alert Dialog") { AlertDialogSample() },
+                        ComposableDemo("Confirmation Dialog") { ConfirmationDialogSample() },
+                        ComposableDemo("Alert - Buttons") { AlertWithButtons() },
+                        ComposableDemo("Alert - Chips") { AlertWithChips() },
+                        ComposableDemo("Confirmation") { ConfirmationWithAnimation() },
                     )
                 ),
                 DemoCategory(
                     "Demos",
                     listOf(
-                        ComposableDemo("Power Off") { navBack ->
-                            DialogPowerOff(navBack)
+                        ComposableDemo("Power Off") { params ->
+                            DialogPowerOff(params.navigateBack)
                         },
-                        ComposableDemo("Access Location") { navBack ->
-                            DialogAccessLocation(navBack)
+                        ComposableDemo("Access Location") { params ->
+                            DialogAccessLocation(params.navigateBack)
                         },
-                        ComposableDemo("Grant Permission") { navBack ->
-                            DialogGrantPermission(navBack)
+                        ComposableDemo("Grant Permission") { params ->
+                            DialogGrantPermission(params.navigateBack)
                         },
-                        ComposableDemo("Long Chips") { navBack ->
-                            DialogLongChips(navBack)
+                        ComposableDemo("Long Chips") { params ->
+                            DialogLongChips(params.navigateBack)
                         },
-                        ComposableDemo("Confirmation") { navBack ->
-                            DialogSuccessConfirmation(navBack)
+                        ComposableDemo("Confirmation") { params ->
+                            DialogSuccessConfirmation(params.navigateBack)
                         },
                     )
                 )
@@ -416,9 +393,7 @@ val WearMaterialDemos = DemoCategory(
                         ComposableDemo("Custom angles") {
                             Centralize { ProgressWithCustomAngles() }
                         },
-                        ComposableDemo("Media controls") {
-                            Centralize { ProgressWithMedia() }
-                        },
+                        ComposableDemo("Media controls") { Centralize { ProgressWithMedia() } },
                         ComposableDemo("Transforming progress indicator") {
                             Centralize { TransformingCustomProgressIndicator() }
                         },
@@ -493,45 +468,31 @@ val WearMaterialDemos = DemoCategory(
         DemoCategory(
             "Scaffold",
             listOf(
-                ComposableDemo("Scaffold with Scrollbar") {
-                    SimpleScaffoldWithScrollIndicator()
-                },
+                ComposableDemo("Scaffold with Scrollbar") { SimpleScaffoldWithScrollIndicator() },
             )
         ),
         DemoCategory(
             "Position Indicator",
             listOf(
-                ComposableDemo("Hide when no scrollable") {
-                    HideWhenFullDemo()
-                },
+                ComposableDemo("Hide when no scrollable") { HideWhenFullDemo() },
                 ComposableDemo("Hide when no scrollable on ScalingLazyColumn") {
                     HideWhenFullSLCDemo()
                 },
-                ComposableDemo("Controllable PI") {
-                    ControllablePositionIndicator()
-                },
-                ComposableDemo("Shared PI") {
-                    SharedPositionIndicator()
-                }
+                ComposableDemo("Controllable PI") { ControllablePositionIndicator() },
+                ComposableDemo("Shared PI") { SharedPositionIndicator() }
             )
         ),
         ComposableDemo("Curved Text") { CurvedTextDemo() },
         DemoCategory(
             "Theme",
             listOf(
-                ComposableDemo("Fonts") {
-                    ThemeFonts()
-                },
-                ComposableDemo(title = "Fixed Font Size", description =
+                ComposableDemo("Fonts") { ThemeFonts() },
+                ComposableDemo(
+                    title = "Fixed Font Size",
+                    description =
                     "Display1 font size not impacted by changes to user font selection",
-                ) {
-                    Centralize {
-                        FixedFontSize()
-                    }
-                },
-                ComposableDemo("Colors") {
-                    ThemeColors()
-                },
+                ) { Centralize { FixedFontSize() } },
+                ComposableDemo("Colors") { ThemeColors() },
             )
         ),
     ),
