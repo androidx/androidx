@@ -101,7 +101,7 @@ public object ProgressIndicatorDefaults {
    * Default color for [LinearProgressIndicator].
    * [Material color specification](https://material.io/design/color/the-color-system.html#color-theme-creation)
    */
-  val Color = Color(0xFF6200EE)
+  private val Color = Color(0xFF6200EE)
 
   /**
    * Default ColorProvider for the progress indicator in [LinearProgressIndicator].
