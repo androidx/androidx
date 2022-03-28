@@ -78,7 +78,11 @@ class SingleEntityWidgetReceiver : GlanceAppWidgetReceiver() {
 }
 
 class SEButtonAction : ActionCallback {
-    override suspend fun onRun(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
+    override suspend fun onAction(
+        context: Context,
+        glanceId: GlanceId,
+        parameters: ActionParameters
+    ) {
         updateAppWidgetState(context, glanceId) { it[ToggleKey] = it[ToggleKey] != true }
         SingleEntityDemoWidget().update(context, glanceId)
     }

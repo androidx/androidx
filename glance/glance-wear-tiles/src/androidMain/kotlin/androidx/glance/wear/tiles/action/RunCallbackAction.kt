@@ -37,7 +37,7 @@ internal class RunCallbackAction(
             }
 
             val actionCallback = workClass.newInstance() as ActionCallback
-            actionCallback.onRun(context, glanceId)
+            actionCallback.onAction(context, glanceId)
         }
     }
 }
@@ -54,7 +54,7 @@ public interface ActionCallback {
      * @param context the calling context
      * @param glanceId the [GlanceId] that triggered this action
      */
-    suspend fun onRun(context: Context, glanceId: GlanceId)
+    suspend fun onAction(context: Context, glanceId: GlanceId)
 }
 
 /**

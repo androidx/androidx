@@ -202,7 +202,7 @@ class CompoundButtonAppWidget : GlanceAppWidget() {
 }
 
 class ToggleAction : ActionCallback {
-    override suspend fun onRun(
+    override suspend fun onAction(
         context: Context,
         glanceId: GlanceId,
         parameters: ActionParameters,
@@ -224,7 +224,7 @@ class ToggleAction : ActionCallback {
 private val EventTargetKey = ActionParameters.Key<String>("EventTarget")
 
 class RadioAction : ActionCallback {
-    override suspend fun onRun(
+    override suspend fun onAction(
         context: Context,
         glanceId: GlanceId,
         parameters: ActionParameters,
