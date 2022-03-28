@@ -133,7 +133,6 @@ public open class NavController(
      * Activity/Fragment - if the Activity is not `RESUMED`, no entry will be `RESUMED`, no matter
      * what the transition state is.
      */
-    @NavControllerVisibleEntries
     public val visibleEntries: StateFlow<List<NavBackStackEntry>> =
         _visibleEntries.asStateFlow()
 
@@ -999,14 +998,14 @@ public open class NavController(
         navigatorState.values.forEach { state ->
             entries += state.transitionsInProgress.value.filter { entry ->
                 !entries.contains(entry) &&
-                    !entry.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+                    !entry.maxLifecycle.isAtLeast(Lifecycle.State.STARTED)
             }
         }
         // Add any STARTED entries from the backQueue. This will include the topmost
         // non-FloatingWindow destination plus every FloatingWindow destination above it.
         entries += backQueue.filter { entry ->
             !entries.contains(entry) &&
-                entry.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+                entry.maxLifecycle.isAtLeast(Lifecycle.State.STARTED)
         }
         return entries.filter {
             it.destination !is NavGraph
