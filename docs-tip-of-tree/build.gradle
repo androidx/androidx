@@ -64,6 +64,7 @@ dependencies {
     samples(project(":compose:material:material-icons-core:material-icons-core-samples"))
     docs(project(":compose:material:material-ripple"))
     docs(project(":compose:material:material-window"))
+    samples(project(":compose:material:material-window:material-window-samples"))
     samples(project(":compose:material:material:material-samples"))
     docs(project(":compose:runtime:runtime"))
     docs(project(":compose:runtime:runtime-livedata"))
