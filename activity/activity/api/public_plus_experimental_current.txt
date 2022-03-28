@@ -240,6 +240,49 @@ package androidx.activity.result.contract {
     method public android.net.Uri? parseResult(int resultCode, android.content.Intent? intent);
   }
 
+  @RequiresApi(19) public static class ActivityResultContracts.PickMultipleVisualMedia extends androidx.activity.result.contract.ActivityResultContract<androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType,java.util.List<android.net.Uri>> {
+    ctor public ActivityResultContracts.PickMultipleVisualMedia(optional int maxItems);
+    method @CallSuper public android.content.Intent createIntent(android.content.Context context, androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType input);
+    method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<java.util.List<android.net.Uri>>? getSynchronousResult(android.content.Context context, androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType input);
+    method public final java.util.List<android.net.Uri> parseResult(int resultCode, android.content.Intent? intent);
+  }
+
+  public static class ActivityResultContracts.PickVisualMedia extends androidx.activity.result.contract.ActivityResultContract<androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType,android.net.Uri> {
+    ctor public ActivityResultContracts.PickVisualMedia();
+    method @CallSuper public android.content.Intent createIntent(android.content.Context context, androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType input);
+    method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<android.net.Uri>? getSynchronousResult(android.content.Context context, androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType input);
+    method public static final String? getVisualMimeType(androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType input);
+    method public static final boolean isPhotoPickerAvailable();
+    method public final android.net.Uri? parseResult(int resultCode, android.content.Intent? intent);
+    field public static final androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.Companion Companion;
+  }
+
+  public static final class ActivityResultContracts.PickVisualMedia.Companion {
+    method public String? getVisualMimeType(androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType input);
+    method public boolean isPhotoPickerAvailable();
+  }
+
+  public static final class ActivityResultContracts.PickVisualMedia.ImageAndVideo implements androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType {
+    field public static final androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageAndVideo INSTANCE;
+  }
+
+  public static final class ActivityResultContracts.PickVisualMedia.ImageOnly implements androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType {
+    field public static final androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly INSTANCE;
+  }
+
+  public static final class ActivityResultContracts.PickVisualMedia.SingleMimeType implements androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType {
+    ctor public ActivityResultContracts.PickVisualMedia.SingleMimeType(String mimeType);
+    method public String getMimeType();
+    property public final String mimeType;
+  }
+
+  public static final class ActivityResultContracts.PickVisualMedia.VideoOnly implements androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType {
+    field public static final androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VideoOnly INSTANCE;
+  }
+
+  public static sealed interface ActivityResultContracts.PickVisualMedia.VisualMediaType {
+  }
+
   public static final class ActivityResultContracts.RequestMultiplePermissions extends androidx.activity.result.contract.ActivityResultContract<java.lang.String[],java.util.Map<java.lang.String,java.lang.Boolean>> {
     ctor public ActivityResultContracts.RequestMultiplePermissions();
     method public android.content.Intent createIntent(android.content.Context context, String![] input);
