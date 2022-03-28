@@ -357,7 +357,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         super.onCreate(savedInstanceState);
         ReportFragment.injectIfNeededIn(this);
         if (BuildCompat.isAtLeastT()) {
-            mOnBackPressedDispatcher.setOnBackPressedInvoker(getOnBackInvokedDispatcher());
+            mOnBackPressedDispatcher.setOnBackInvokedDispatcher(getOnBackInvokedDispatcher());
         }
         if (mContentLayoutId != 0) {
             setContentView(mContentLayoutId);

@@ -79,7 +79,7 @@ public final class OnBackPressedDispatcher {
      * @param invoker the OnBackInvokedDispatcher to be set on this dispatcher
      */
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    public void setOnBackPressedInvoker(@NonNull OnBackInvokedDispatcher invoker) {
+    public void setOnBackInvokedDispatcher(@NonNull OnBackInvokedDispatcher invoker) {
         mInvokedDispatcher = invoker;
         updateBackInvokedCallbackState();
     }
