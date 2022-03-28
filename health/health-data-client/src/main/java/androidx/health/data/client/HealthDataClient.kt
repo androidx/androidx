@@ -26,6 +26,7 @@ import androidx.health.data.client.impl.HealthDataClientImpl
 import androidx.health.data.client.metadata.DataOrigin
 import androidx.health.data.client.permission.Permission
 import androidx.health.data.client.records.Record
+import androidx.health.data.client.request.AggregateRequest
 import androidx.health.data.client.request.ChangesTokenRequest
 import androidx.health.data.client.request.ReadRecordsRequest
 import androidx.health.data.client.response.ChangesResponse
@@ -145,28 +146,21 @@ interface HealthDataClient {
 
     /**
      * Reads [AggregateMetric]s according to requested read criteria: [Record]s from
-     * [dataOriginFilter] and within [timeRangeFilter]
+     * [dataOriginFilter] and within [timeRangeFilter].
      *
-     * @param aggregateMetrics The [AggregateMetric]s to aggregate
-     * @param timeRangeFilter The [TimeRangeFilter] to read from.
-     * @param dataOriginFilter List of [DataOrigin] to read from, or empty for no filter.
+     * @param request [AggregateRequest] object specifying [AggregateMetric]s to aggregate other
+     * filters.
      *
-     * @return a response containing a collection of [Record]s.
+     * @return a response containing a [AggregateDataRow].
      * @throws RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
      * @throws IOException For any disk I/O issues.
      * @throws IllegalStateException If service is not available.
      */
-    // TODO(b/219327548): Expand this to reuse readRecords time range filter and data origin
-    // filters.
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    suspend fun aggregate(
-        aggregateMetrics: Set<AggregateMetric>,
-        timeRangeFilter: TimeRangeFilter,
-        dataOriginFilter: List<DataOrigin>,
-    ): AggregateDataRow
+    suspend fun aggregate(request: AggregateRequest): AggregateDataRow
 
-    // TODO(b/219327548): Adds overload with groupBy that return a list
+    // TODO(b/221725298): Adds overload with groupBy that return a list
 
     /**
      * Retrieves a changes-token, representing a point in time in the underlying Android Health

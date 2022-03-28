@@ -19,7 +19,6 @@ import androidx.annotation.RestrictTo
 import androidx.health.platform.client.error.ErrorCode
 import androidx.health.platform.client.error.ErrorStatus
 import androidx.health.platform.client.permission.Permission
-import androidx.health.platform.client.proto.ResponseProto
 import androidx.health.platform.client.request.AggregateDataRequest
 import androidx.health.platform.client.request.DeleteDataRangeRequest
 import androidx.health.platform.client.request.DeleteDataRequest
@@ -58,11 +57,19 @@ class FakeHealthDataService : IHealthDataService.Stub() {
     var lastUpsertDataRequest: UpsertDataRequest? = null
     var lastReadDataRequest: ReadDataRequest? = null
     var lastReadDataRangeRequest: ReadDataRangeRequest? = null
+    var lastDeleteDataRequest: DeleteDataRequest? = null
+    var lastDeleteDataRangeRequest: DeleteDataRangeRequest? = null
+    var lastAggregateRequest: AggregateDataRequest? = null
+    var lastGetChangesTokenRequest: GetChangesTokenRequest? = null
+    var lastGetChangesRequest: GetChangesRequest? = null
 
     /** State for returned responses. */
     var insertDataResponse: InsertDataResponse? = null
     var readDataResponse: ReadDataResponse? = null
     var readDataRangeResponse: ReadDataRangeResponse? = null
+    var aggregateDataResponse: AggregateDataResponse? = null
+    var changesTokenResponse: GetChangesTokenResponse? = null
+    var changesResponse: GetChangesResponse? = null
 
     /** Set this to control error responses. Not thread safe. */
     @ErrorCode var errorCode: Int? = null
@@ -115,6 +122,7 @@ class FakeHealthDataService : IHealthDataService.Stub() {
         request: UpsertDataRequest,
         callback: IUpdateDataCallback,
     ) {
+        lastUpsertDataRequest = request
         errorCode?.let {
             callback.onError(ErrorStatus.create(it, "" + it))
             return@updateData
@@ -127,6 +135,7 @@ class FakeHealthDataService : IHealthDataService.Stub() {
         request: DeleteDataRequest,
         callback: IDeleteDataCallback,
     ) {
+        lastDeleteDataRequest = request
         errorCode?.let {
             callback.onError(ErrorStatus.create(it, "" + it))
             return@deleteData
@@ -139,6 +148,7 @@ class FakeHealthDataService : IHealthDataService.Stub() {
         request: DeleteDataRangeRequest,
         callback: IDeleteDataRangeCallback,
     ) {
+        lastDeleteDataRangeRequest = request
         errorCode?.let {
             callback.onError(ErrorStatus.create(it, "" + it))
             return@deleteDataRange
@@ -177,13 +187,12 @@ class FakeHealthDataService : IHealthDataService.Stub() {
         request: AggregateDataRequest,
         callback: IAggregateDataCallback,
     ) {
+        lastAggregateRequest = request
         errorCode?.let {
             callback.onError(ErrorStatus.create(it, "" + it))
             return@aggregate
         }
-        callback.onSuccess(
-            AggregateDataResponse(ResponseProto.AggregateDataResponse.getDefaultInstance())
-        )
+        callback.onSuccess(aggregateDataResponse)
     }
 
     override fun getChangesToken(
@@ -191,13 +200,12 @@ class FakeHealthDataService : IHealthDataService.Stub() {
         request: GetChangesTokenRequest,
         callback: IGetChangesTokenCallback,
     ) {
+        lastGetChangesTokenRequest = request
         errorCode?.let {
             callback.onError(ErrorStatus.create(it, "" + it))
             return@getChangesToken
         }
-        callback.onSuccess(
-            GetChangesTokenResponse(ResponseProto.GetChangesTokenResponse.getDefaultInstance())
-        )
+        callback.onSuccess(changesTokenResponse)
     }
 
     override fun getChanges(
@@ -205,12 +213,11 @@ class FakeHealthDataService : IHealthDataService.Stub() {
         request: GetChangesRequest,
         callback: IGetChangesCallback,
     ) {
+        lastGetChangesRequest = request
         errorCode?.let {
             callback.onError(ErrorStatus.create(it, "" + it))
             return@getChanges
         }
-        callback.onSuccess(
-            GetChangesResponse(ResponseProto.GetChangesResponse.getDefaultInstance())
-        )
+        callback.onSuccess(changesResponse)
     }
 }
