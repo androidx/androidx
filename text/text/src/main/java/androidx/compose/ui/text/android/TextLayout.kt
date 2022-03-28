@@ -427,9 +427,15 @@ class TextLayout constructor(
     }
 
     fun paint(canvas: Canvas) {
-        canvas.translate(0f, topPadding.toFloat())
+        if (topPadding != 0) {
+            canvas.translate(0f, topPadding.toFloat())
+        }
+
         layout.draw(canvas)
-        canvas.translate(0f, -1 * topPadding.toFloat())
+
+        if (topPadding != 0) {
+            canvas.translate(0f, -1 * topPadding.toFloat())
+        }
     }
 
     internal fun isFallbackLinespacingApplied(): Boolean {
