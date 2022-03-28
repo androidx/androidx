@@ -19,6 +19,7 @@ package androidx.wear.watchface
 import android.content.ComponentName
 import android.content.pm.PackageManager
 import android.content.res.Resources
+import android.content.res.TypedArray
 import android.content.res.XmlResourceParser
 import android.os.Bundle
 import androidx.annotation.RestrictTo
@@ -31,10 +32,12 @@ import org.xmlpull.v1.XmlPullParser
 import kotlin.jvm.Throws
 
 /** @hide */
+@OptIn(WatchFaceFlavorsExperimental::class)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class XmlSchemaAndComplicationSlotsDefinition(
     val schema: UserStyleSchema?,
-    val complicationSlots: List<ComplicationSlotStaticData>
+    val complicationSlots: List<ComplicationSlotStaticData>,
+    val flavors: UserStyleFlavors?
 ) {
     companion object {
         @Throws(PackageManager.NameNotFoundException::class)
@@ -53,6 +56,7 @@ public class XmlSchemaAndComplicationSlotsDefinition(
             }
 
             var schema: UserStyleSchema? = null
+            var flavors: UserStyleFlavors? = null
             val outerDepth = parser.depth
 
             type = parser.next()
@@ -70,6 +74,12 @@ public class XmlSchemaAndComplicationSlotsDefinition(
                                 ComplicationSlotStaticData.inflate(resources, parser)
                             )
                         }
+                        "UserStyleFlavors" -> {
+                            require(schema != null) {
+                                "A UserStyleFlavors node requires a previous UserStyleSchema node"
+                            }
+                            flavors = UserStyleFlavors.inflate(resources, parser, schema)
+                        }
                         else -> throw IllegalArgumentException(
                             "Unexpected node ${parser.name} at line ${parser.lineNumber}"
                         )
@@ -80,7 +90,7 @@ public class XmlSchemaAndComplicationSlotsDefinition(
 
             parser.close()
 
-            return XmlSchemaAndComplicationSlotsDefinition(schema, complicationSlots)
+            return XmlSchemaAndComplicationSlotsDefinition(schema, complicationSlots, flavors)
         }
     }
 
@@ -97,6 +107,102 @@ public class XmlSchemaAndComplicationSlotsDefinition(
         val screenReaderNameResourceId: Int?
     ) {
         companion object {
+            fun inflateDefaultComplicationDataSourcePolicy(
+                attributes: TypedArray,
+                primaryDataSourceAttr: Int,
+                primaryDataSourceDefaultTypeAttr: Int,
+                secondaryDataSourceAttr: Int,
+                secondaryDataSourceDefaultTypeAttr: Int,
+                systemDataSourceFallbackAttr: Int,
+                systemDataSourceFallbackDefaultTypeAttr: Int
+            ): DefaultComplicationDataSourcePolicy {
+                val primaryDataSource =
+                    attributes.getString(primaryDataSourceAttr)?.let {
+                        ComponentName.unflattenFromString(it)
+                    }
+                val primaryDataSourceDefaultType =
+                    if (attributes.hasValue(primaryDataSourceDefaultTypeAttr)) {
+                        ComplicationType.fromWireType(
+                            attributes.getInt(
+                                R.styleable.ComplicationSlot_primaryDataSourceDefaultType,
+                                0
+                            )
+                        )
+                    } else {
+                        null
+                    }
+                val secondaryDataSource =
+                    attributes.getString(secondaryDataSourceAttr)?.let {
+                        ComponentName.unflattenFromString(it)
+                    }
+
+                val secondaryDataSourceDefaultType =
+                    if (attributes.hasValue(secondaryDataSourceDefaultTypeAttr)) {
+                        ComplicationType.fromWireType(
+                            attributes.getInt(
+                                R.styleable.ComplicationSlot_secondaryDataSourceDefaultType,
+                                0
+                            )
+                        )
+                    } else {
+                        null
+                    }
+
+                require(attributes.hasValue(systemDataSourceFallbackAttr)) {
+                    "A ComplicationSlot must have a systemDataSourceFallback attribute"
+                }
+                val systemDataSourceFallback = attributes.getInt(systemDataSourceFallbackAttr, 0)
+                require(attributes.hasValue(systemDataSourceFallbackDefaultTypeAttr)) {
+                    "A ComplicationSlot must have a systemDataSourceFallbackDefaultType" +
+                        " attribute"
+                }
+                val systemDataSourceFallbackDefaultType = ComplicationType.fromWireType(
+                    attributes.getInt(systemDataSourceFallbackDefaultTypeAttr, 0))
+                return when {
+                    secondaryDataSource != null -> {
+                        require(primaryDataSource != null) {
+                            "If a secondaryDataSource is specified, a primaryDataSource must be too"
+                        }
+                        require(primaryDataSourceDefaultType != null) {
+                            "If a primaryDataSource is specified, a " +
+                                "primaryDataSourceDefaultType must be too"
+                        }
+                        require(secondaryDataSourceDefaultType != null) {
+                            "If a secondaryDataSource is specified, a " +
+                                "secondaryDataSourceDefaultType must be too"
+                        }
+                        DefaultComplicationDataSourcePolicy(
+                            primaryDataSource,
+                            primaryDataSourceDefaultType,
+                            secondaryDataSource,
+                            secondaryDataSourceDefaultType,
+                            systemDataSourceFallback,
+                            systemDataSourceFallbackDefaultType
+                        )
+                    }
+
+                    primaryDataSource != null -> {
+                        require(primaryDataSourceDefaultType != null) {
+                            "If a primaryDataSource is specified, a " +
+                                "primaryDataSourceDefaultType must be too"
+                        }
+                        DefaultComplicationDataSourcePolicy(
+                            primaryDataSource,
+                            primaryDataSourceDefaultType,
+                            systemDataSourceFallback,
+                            systemDataSourceFallbackDefaultType
+                        )
+                    }
+
+                    else -> {
+                        DefaultComplicationDataSourcePolicy(
+                            systemDataSourceFallback,
+                            systemDataSourceFallbackDefaultType
+                        )
+                    }
+                }
+            }
+
             fun inflate(
                 resources: Resources,
                 parser: XmlResourceParser
@@ -161,110 +267,16 @@ public class XmlSchemaAndComplicationSlotsDefinition(
                     supportedTypesList.add(ComplicationType.PHOTO_IMAGE)
                 }
 
-                val primaryDataSource =
-                    attributes.getString(R.styleable.ComplicationSlot_primaryDataSource)?.let {
-                        ComponentName.unflattenFromString(it)
-                    }
-                val primaryDataSourceDefaultType =
-                    if (attributes.hasValue(
-                            R.styleable.ComplicationSlot_primaryDataSourceDefaultType
-                        )
-                    ) {
-                        ComplicationType.fromWireType(
-                            attributes.getInt(
-                                R.styleable.ComplicationSlot_primaryDataSourceDefaultType,
-                                0
-                            )
-                        )
-                    } else {
-                        null
-                    }
-                val secondaryDataSource =
-                    attributes.getString(R.styleable.ComplicationSlot_secondaryDataSource)?.let {
-                        ComponentName.unflattenFromString(it)
-                    }
-
-                val secondaryDataSourceDefaultType =
-                    if (attributes.hasValue(
-                            R.styleable.ComplicationSlot_secondaryDataSourceDefaultType
-                        )
-                    ) {
-                        ComplicationType.fromWireType(
-                            attributes.getInt(
-                                R.styleable.ComplicationSlot_secondaryDataSourceDefaultType,
-                                0
-                            )
-                        )
-                    } else {
-                        null
-                    }
-
-                require(
-                    attributes.hasValue(R.styleable.ComplicationSlot_systemDataSourceFallback)
-                ) {
-                    "A ComplicationSlot must have a systemDataSourceFallback attribute"
-                }
-                val systemDataSourceFallback = attributes.getInt(
-                    R.styleable.ComplicationSlot_systemDataSourceFallback,
-                    0
-                )
-                require(
-                    attributes.hasValue(
+                val defaultComplicationDataSourcePolicy =
+                    inflateDefaultComplicationDataSourcePolicy(
+                        attributes,
+                        R.styleable.ComplicationSlot_primaryDataSource,
+                        R.styleable.ComplicationSlot_primaryDataSourceDefaultType,
+                        R.styleable.ComplicationSlot_secondaryDataSource,
+                        R.styleable.ComplicationSlot_secondaryDataSourceDefaultType,
+                        R.styleable.ComplicationSlot_systemDataSourceFallback,
                         R.styleable.ComplicationSlot_systemDataSourceFallbackDefaultType
                     )
-                ) {
-                    "A ComplicationSlot must have a systemDataSourceFallbackDefaultType" +
-                        " attribute"
-                }
-                val systemDataSourceFallbackDefaultType = ComplicationType.fromWireType(
-                    attributes.getInt(
-                        R.styleable.ComplicationSlot_systemDataSourceFallbackDefaultType,
-                        0
-                    )
-                )
-                val defaultComplicationDataSourcePolicy = when {
-                    secondaryDataSource != null -> {
-                        require(primaryDataSource != null) {
-                            "If a secondaryDataSource is specified, a primaryDataSource must be too"
-                        }
-                        require(primaryDataSourceDefaultType != null) {
-                            "If a primaryDataSource is specified, a " +
-                                "primaryDataSourceDefaultType must be too"
-                        }
-                        require(secondaryDataSourceDefaultType != null) {
-                            "If a secondaryDataSource is specified, a " +
-                                "secondaryDataSourceDefaultType must be too"
-                        }
-                        DefaultComplicationDataSourcePolicy(
-                            primaryDataSource,
-                            primaryDataSourceDefaultType,
-                            secondaryDataSource,
-                            secondaryDataSourceDefaultType,
-                            systemDataSourceFallback,
-                            systemDataSourceFallbackDefaultType
-                        )
-                    }
-
-                    primaryDataSource != null -> {
-                        require(primaryDataSourceDefaultType != null) {
-                            "If a primaryDataSource is specified, a " +
-                                "primaryDataSourceDefaultType must be too"
-                        }
-                        DefaultComplicationDataSourcePolicy(
-                            primaryDataSource,
-                            primaryDataSourceDefaultType,
-                            systemDataSourceFallback,
-                            systemDataSourceFallbackDefaultType
-                        )
-                    }
-
-                    else -> {
-                        DefaultComplicationDataSourcePolicy(
-                            systemDataSourceFallback,
-                            systemDataSourceFallbackDefaultType
-                        )
-                    }
-                }
 
                 val initiallyEnabled = attributes.getBoolean(
                     R.styleable.ComplicationSlot_initiallyEnabled,

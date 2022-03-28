@@ -20,6 +20,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.UiThread
 import androidx.wear.watchface.utility.TraceEvent
 import androidx.wear.watchface.IndentingPrintWriter
+import androidx.wear.watchface.WatchFaceFlavorsExperimental
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.control.data.ComplicationRenderParams
 import androidx.wear.watchface.control.data.WatchFaceRenderParams
@@ -110,6 +111,15 @@ internal class HeadlessWatchFaceImpl(
             "HeadlessWatchFaceImpl.computeUserStyleSchemaDigestHash"
         ) { watchFaceInitDetails ->
             watchFaceInitDetails.userStyleRepository.schema.getDigestHash()
+        }
+
+    @OptIn(WatchFaceFlavorsExperimental::class)
+    override fun getUserStyleFlavors() =
+        WatchFaceService.deferredWatchFaceAndComplicationManagerThenRunOnBinderThread(
+            engine,
+            "HeadlessWatchFaceImpl.getUserStyleFlavors"
+        ) { watchFaceInitDetails ->
+            watchFaceInitDetails.userStyleFlavors.toWireFormat()
         }
 
     override fun release() {

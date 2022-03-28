@@ -275,6 +275,24 @@ package androidx.wear.watchface {
     property public final int yPos;
   }
 
+  @androidx.wear.watchface.WatchFaceFlavorsExperimental public final class UserStyleFlavor {
+    ctor public UserStyleFlavor(String id, androidx.wear.watchface.style.UserStyleData style, java.util.Map<java.lang.Integer,androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy> complications);
+    ctor public UserStyleFlavor(String id, androidx.wear.watchface.style.UserStyle style, java.util.Map<java.lang.Integer,androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy> complications);
+    method public java.util.Map<java.lang.Integer,androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy> getComplications();
+    method public String getId();
+    method public androidx.wear.watchface.style.UserStyleData getStyle();
+    property public final java.util.Map<java.lang.Integer,androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy> complications;
+    property public final String id;
+    property public final androidx.wear.watchface.style.UserStyleData style;
+  }
+
+  @androidx.wear.watchface.WatchFaceFlavorsExperimental public final class UserStyleFlavors {
+    ctor public UserStyleFlavors(java.util.List<androidx.wear.watchface.UserStyleFlavor> flavors);
+    ctor public UserStyleFlavors();
+    method public java.util.List<androidx.wear.watchface.UserStyleFlavor> getFlavors();
+    property public final java.util.List<androidx.wear.watchface.UserStyleFlavor> flavors;
+  }
+
   public final class WatchFace {
     ctor public WatchFace(int watchFaceType, androidx.wear.watchface.Renderer renderer);
     method public androidx.wear.watchface.WatchFace.LegacyWatchFaceOverlayStyle getLegacyWatchFaceStyle();
@@ -328,12 +346,16 @@ package androidx.wear.watchface {
     method @UiThread public void onTapEvent(int tapType, androidx.wear.watchface.TapEvent tapEvent, androidx.wear.watchface.ComplicationSlot? complicationSlot);
   }
 
+  @kotlin.RequiresOptIn(message="This is an experimental API that may change or be removed without warning.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface WatchFaceFlavorsExperimental {
+  }
+
   public final class WatchFaceKt {
   }
 
   public abstract class WatchFaceService extends android.service.wallpaper.WallpaperService {
     ctor public WatchFaceService();
     method @WorkerThread protected androidx.wear.watchface.ComplicationSlotsManager createComplicationSlotsManager(androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository);
+    method @WorkerThread @androidx.wear.watchface.WatchFaceFlavorsExperimental protected androidx.wear.watchface.UserStyleFlavors createUserStyleFlavors(androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager);
     method @WorkerThread protected androidx.wear.watchface.style.UserStyleSchema createUserStyleSchema();
     method @WorkerThread protected abstract suspend Object? createWatchFace(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, kotlin.coroutines.Continuation<? super androidx.wear.watchface.WatchFace> p);
     method public final android.os.Handler getBackgroundThreadHandler();
