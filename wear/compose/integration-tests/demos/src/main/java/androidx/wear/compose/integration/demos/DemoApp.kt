@@ -83,8 +83,10 @@ private fun DisplayDemo(
     onNavigateTo: (Demo) -> Unit,
     onNavigateBack: () -> Unit
 ) {
+    val swipeToDismissState = swipeDismissStateWithNavigation(onNavigateBack)
+
     SwipeToDismissBox(
-        state = swipeDismissStateWithNavigation(onNavigateBack),
+        state = swipeToDismissState,
         hasBackground = parentDemo != null,
         backgroundKey = parentDemo?.title ?: SwipeToDismissKeys.Background,
         contentKey = demo.title,
@@ -99,7 +101,7 @@ private fun DisplayDemo(
                     /* should never get here as activity demos are not added to the backstack*/
                 }
                 is ComposableDemo -> {
-                    demo.content(onNavigateBack)
+                    demo.content(DemoParameters(onNavigateBack, swipeToDismissState))
                 }
                 is DemoCategory -> {
                     DisplayDemoList(demo, onNavigateTo)
@@ -185,10 +187,12 @@ fun Modifier.rsbScroll(
     flingBehavior: FlingBehavior,
     focusRequester: FocusRequester
 ): Modifier {
-    val channel = remember { Channel<TimestampedDelta>(
-        capacity = 10,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
-    ) }
+    val channel = remember {
+        Channel<TimestampedDelta>(
+            capacity = 10,
+            onBufferOverflow = BufferOverflow.DROP_OLDEST
+        )
+    }
 
     var lastTimeMillis = remember { 0L }
     var smoothSpeed = remember { 0f }
@@ -244,7 +248,6 @@ fun Modifier.rsbScroll(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ScalingLazyColumnWithRSB(
     modifier: Modifier = Modifier,
@@ -253,7 +256,8 @@ fun ScalingLazyColumnWithRSB(
     reverseLayout: Boolean = false,
     snap: Boolean = true,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
-    verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(space = 4.dp,
+    verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(
+        space = 4.dp,
         alignment = if (!reverseLayout) Alignment.Top else Alignment.Bottom
     ),
     content: ScalingLazyListScope.() -> Unit

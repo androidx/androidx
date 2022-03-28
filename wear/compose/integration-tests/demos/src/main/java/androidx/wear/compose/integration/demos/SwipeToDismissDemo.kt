@@ -16,12 +16,17 @@
 
 package androidx.wear.compose.integration.demos
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
@@ -29,13 +34,16 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
-import androidx.wear.compose.material.SwipeToDismissValue
 import androidx.wear.compose.material.SwipeToDismissBox
+import androidx.wear.compose.material.SwipeToDismissBoxState
+import androidx.wear.compose.material.SwipeToDismissValue
 import androidx.wear.compose.material.Text
+import androidx.wear.compose.material.edgeSwipeToDismiss
 import androidx.wear.compose.material.rememberSwipeToDismissBoxState
 
 /**
@@ -85,6 +93,35 @@ fun SwipeToDismissDemo(
                 SwipeDismissDemoState.Detail -> SwipeToDismissDetail()
             }
         }
+    }
+}
+
+@Composable
+fun EdgeSwipeDemo(swipeToDismissBoxState: SwipeToDismissBoxState) {
+    val colors = listOf(Color.Blue, Color.Red, Color.Green, Color.Cyan, Color.Magenta)
+    Box(modifier = Modifier.fillMaxSize()) {
+        LazyRow(
+            modifier = Modifier.border(4.dp, Color.DarkGray)
+                .fillMaxSize()
+                .edgeSwipeToDismiss(swipeToDismissBoxState),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            items(5) { index ->
+                Box(modifier = Modifier.fillMaxHeight().background(colors[index])) {
+                    Text(
+                        modifier = Modifier.padding(12.dp).align(Alignment.Center),
+                        text = "This is scrollable item #$index",
+                    )
+                }
+            }
+        }
+
+        Box(
+            modifier = Modifier
+                .fillMaxHeight()
+                .width(30.dp)
+                .background(Color.White.copy(alpha = 0.5f))
+        )
     }
 }
 

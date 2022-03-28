@@ -29,6 +29,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -38,22 +39,40 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.PointerInputScope
+import androidx.compose.ui.input.pointer.changedToUp
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.debugInspectorInfo
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.Velocity
+import androidx.compose.ui.unit.dp
 import kotlin.math.PI
 import kotlin.math.roundToInt
 import kotlin.math.sin
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.isActive
 
 /**
  * Wear Material [SwipeToDismissBox] that handles the swipe-to-dismiss gesture. Takes a single
  * slot for the background (only displayed during the swipe gesture) and the foreground content.
  *
- * Example of a SwipeToDismissBox with stateful composables:
+ * Example of a [SwipeToDismissBox] with stateful composables:
  * @sample androidx.wear.compose.material.samples.StatefulSwipeToDismissBox
+ *
+ * Example of using [Modifier.edgeSwipeToDismiss] with [SwipeToDismissBox]
+ * @sample androidx.wear.compose.material.samples.EdgeSwipeForSwipeToDismiss
  *
  * For more information, see the
  * [Swipe to dismiss](https://developer.android.com/training/wearables/components/swipe-to-dismiss)
@@ -131,32 +150,32 @@ public fun SwipeToDismissBox(
 
                 Modifiers(
                     contentForeground =
-                        Modifier.offset { IntOffset(squeezeMotion.contentOffset, 0) }
-                            .fillMaxSize()
-                            .scale(squeezeMotion.scale(dismissAnimatable.value))
-                            .then(
-                                if (isRound && squeezeMotion.contentOffset > 0) {
-                                    Modifier.clip(CircleShape)
-                                } else {
-                                    Modifier
-                                }
-                            )
-                            .alpha(1 - dismissAnimatable.value)
-                            .background(backgroundScrimColor),
+                    Modifier.offset { IntOffset(squeezeMotion.contentOffset, 0) }
+                        .fillMaxSize()
+                        .scale(squeezeMotion.scale(dismissAnimatable.value))
+                        .then(
+                            if (isRound && squeezeMotion.contentOffset > 0) {
+                                Modifier.clip(CircleShape)
+                            } else {
+                                Modifier
+                            }
+                        )
+                        .alpha(1 - dismissAnimatable.value)
+                        .background(backgroundScrimColor),
                     scrimForeground =
-                        Modifier.background(
-                            contentScrimColor.copy(alpha = squeezeMotion.contentScrimAlpha)
-                        ).fillMaxSize(),
+                    Modifier.background(
+                        contentScrimColor.copy(alpha = squeezeMotion.contentScrimAlpha)
+                    ).fillMaxSize(),
                     scrimBackground =
-                        Modifier.matchParentSize()
-                            .background(
-                                backgroundScrimColor
-                                    .copy(
-                                        alpha = squeezeMotion.backgroundScrimAlpha(
-                                            dismissAnimatable.value
-                                        )
+                    Modifier.matchParentSize()
+                        .background(
+                            backgroundScrimColor
+                                .copy(
+                                    alpha = squeezeMotion.backgroundScrimAlpha(
+                                        dismissAnimatable.value
                                     )
-                            )
+                                )
+                        )
                 )
             }
         }
@@ -200,6 +219,9 @@ public fun SwipeToDismissBox(
  *
  * Example of a simple SwipeToDismissBox:
  * @sample androidx.wear.compose.material.samples.SimpleSwipeToDismissBox
+ *
+ * Example of using [Modifier.edgeSwipeToDismiss] with [SwipeToDismissBox]
+ * @sample androidx.wear.compose.material.samples.EdgeSwipeForSwipeToDismiss
  *
  * For more information, see the
  * [Swipe to dismiss](https://developer.android.com/training/wearables/components/swipe-to-dismiss)
@@ -295,6 +317,11 @@ public class SwipeToDismissBoxState(
     val isAnimationRunning: Boolean
         get() = swipeableState.isAnimationRunning
 
+    internal fun edgeNestedScrollConnection(
+        edgeTouched: State<Boolean>
+    ): NestedScrollConnection =
+        swipeableState.edgeNestedScrollConnection(edgeTouched)
+
     suspend fun snapTo(targetValue: SwipeToDismissValue) = swipeableState.snapTo(targetValue)
 
     companion object {
@@ -313,6 +340,68 @@ public class SwipeToDismissBoxState(
                 )
             }
         )
+
+        private fun <T> SwipeableState<T>.edgeNestedScrollConnection(
+            edgeTouched: State<Boolean>
+        ): NestedScrollConnection =
+            object : NestedScrollConnection {
+                override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                    val delta = available.x
+                    // If edge was clicked - perform swipe drag and consume everything
+                    if (edgeTouched.value && delta > 0) {
+                        performDrag(delta)
+                        return available
+                    } else {
+                        // Swipe back if drag has started but swiped in a different direction
+                        return if (delta < 0 && source == NestedScrollSource.Drag) {
+                            performDrag(delta).toOffsetX()
+                        } else {
+                            Offset.Zero
+                        }
+                    }
+                }
+
+                override fun onPostScroll(
+                    consumed: Offset,
+                    available: Offset,
+                    source: NestedScrollSource
+                ): Offset {
+                    // If edge was touched and not all scroll was consumed, assume it was
+                    // consumed by the parent
+                    if (edgeTouched.value && available.x > 0) {
+                        return available
+                    } else {
+                        // Finish scroll if it wasn't an edge touch
+                        return if (source == NestedScrollSource.Drag) {
+                            performDrag(available.x).toOffsetX()
+                        } else {
+                            Offset.Zero
+                        }
+                    }
+                }
+
+                override suspend fun onPreFling(available: Velocity): Velocity {
+                    val toFling = available.x
+                    // Consumes fling by SwipeToDismiss
+                    return if (edgeTouched.value && toFling > 0 ||
+                        toFling < 0 && offset.value > minBound
+                    ) {
+                        performFling(velocity = toFling)
+                        available
+                    } else
+                        Velocity.Zero
+                }
+
+                override suspend fun onPostFling(
+                    consumed: Velocity,
+                    available: Velocity
+                ): Velocity {
+                    performFling(velocity = available.x)
+                    return available
+                }
+
+                private fun Float.toOffsetX(): Offset = Offset(this, 0f)
+            }
     }
 
     internal val swipeableState = SwipeableState(
@@ -387,6 +476,65 @@ public enum class SwipeToDismissValue {
      */
     Dismissed
 }
+
+/**
+ * Handles swipe to dismiss from the edge of the content. Swipe to the right is intercepted
+ * on the left edge which specified by [edgeWidth]. All other touch events continue to behave
+ * as expected - vertical scroll, click, long click, etc.
+ *
+ * Example of a modifier usage with SwipeToDismiss
+ * @sample androidx.wear.compose.material.samples.EdgeSwipeForSwipeToDismiss
+ *
+ * @param swipeToDismissBoxState A state of SwipeToDismissBox. Used to trigger swipe gestures
+ * on SwipeToDismissBox
+ * @param edgeWidth A width of edge, where swipe should be recognised
+ */
+public fun Modifier.edgeSwipeToDismiss(
+    swipeToDismissBoxState: SwipeToDismissBoxState,
+    edgeWidth: Dp = 30.dp
+): Modifier =
+    composed(
+        inspectorInfo = debugInspectorInfo {
+            name = "edgeSwipeToDismiss"
+            properties["swipeToDismissBoxState"] = swipeToDismissBoxState
+            properties["edgeWidth"] = edgeWidth
+        }
+    ) {
+        // Tracks whether a touch has landed on the edge area. Becomes false after finger
+        // touches a non-edge area after it was raised
+        val edgeTouched = remember { mutableStateOf(false) }
+        val nestedScrollConnection =
+            remember(swipeToDismissBoxState) {
+                swipeToDismissBoxState.edgeNestedScrollConnection(edgeTouched)
+            }
+
+        val nestedPointerInput: suspend PointerInputScope.() -> Unit = {
+            coroutineScope {
+                awaitPointerEventScope {
+                    var trackFirstTouch = true
+                    while (isActive) {
+                        awaitPointerEvent(PointerEventPass.Initial).changes.forEach { change ->
+                            // If it was a first touch and it hit an edge area, we
+                            // set edgeTouched to true.
+                            // trackFirstTouch is set to false as we don't handle
+                            // any other touches before the finger is lifted up
+                            if (trackFirstTouch) {
+                                edgeTouched.value = change.position.x < edgeWidth.toPx()
+                                trackFirstTouch = false
+                            }
+                            // When finger is up - reset trackFirstTouch to true
+                            if (change.changedToUp()) {
+                                trackFirstTouch = true
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        pointerInput(edgeWidth, nestedPointerInput)
+            .nestedScroll(nestedScrollConnection)
+    }
 
 /**
  * A class which is responsible for squeezing animation and all computations related to it
