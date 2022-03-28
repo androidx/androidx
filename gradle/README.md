@@ -58,3 +58,15 @@ either in buganizer or github:
 ```
 
 After doing this, you can then delete all the `verification-*-dryrun.*` files.
+
+### If that doesn't work.
+
+If the artifact is not signed, and does not get automatically added to
+verification-metadata.xml when you go through the above process, it's possible it's a
+dependency of a [detached configuration](https://docs.gradle.org/current/userguide/dependency_verification.html#sec:bootstrapping-verification).
+
+In this case, your best option may be to generate and add the checksum by hand, to at least
+protect against any future tampering with the current artifact file.  To do this, for an
+artifact file foo.tar.gz, run: `sha256 foo.tar.gz`.  This will generate a sha256 checksum that
+you can hand-add to verification-metadata.xml following the example of other entries.  For
+example, this is where the current checksum for kotlin-native-prebuilt-linux-x86_64 came from.
