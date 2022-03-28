@@ -333,8 +333,7 @@ public class Button implements LayoutElement {
                                     ? mTypographyName
                                     : getDefaultTypographyForSize(mSize);
                     content =
-                            new Text.Builder(mContext)
-                                    .setText(checkNotNull(mText))
+                            new Text.Builder(mContext, checkNotNull(mText))
                                     .setMaxLines(1)
                                     .setTypography(typographyName)
                                     .setColor(mButtonColors.getContentColor());

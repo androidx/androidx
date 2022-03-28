@@ -354,14 +354,13 @@ public class Chip implements LayoutElement {
             if (mType == NOT_SET) {
                 throw new IllegalStateException(
                         "No content set. Use setPrimaryTextContent or similar method to add"
-                                + " content");
+                            + " content");
             }
             if (mType == CUSTOM_CONTENT) {
                 return checkNotNull(mCustomContent);
             }
             Text mainTextElement =
-                    new Text.Builder(mContext)
-                            .setText(mPrimaryText)
+                    new Text.Builder(mContext, mPrimaryText)
                             .setTypography(mPrimaryTextTypography)
                             .setColor(mChipColors.getContentColor())
                             .setMaxLines(getCorrectMaxLines())
@@ -378,8 +377,7 @@ public class Chip implements LayoutElement {
 
             if (mLabelText != null) {
                 Text labelTextElement =
-                        new Text.Builder(mContext)
-                                .setText(mLabelText)
+                        new Text.Builder(mContext, mLabelText)
                                 .setTypography(Typography.TYPOGRAPHY_CAPTION2)
                                 .setColor(mChipColors.getSecondaryContentColor())
                                 .setMaxLines(1)
