@@ -38,8 +38,8 @@ import androidx.work.impl.WorkDatabaseVersions.VERSION_8
 import androidx.work.impl.WorkDatabaseVersions.VERSION_9
 import androidx.work.impl.model.WorkSpec
 import androidx.work.impl.model.WorkTypeConverters.StateIds.COMPLETED_STATES
-import androidx.work.impl.utils.IdGenerator
 import androidx.work.impl.utils.PreferenceUtils
+import androidx.work.impl.utils.migrateLegacyIdGenerator
 
 /**
  * Migration helpers for [androidx.work.impl.WorkDatabase].
@@ -248,6 +248,6 @@ internal class WorkMigration9To10(private val context: Context) : Migration(VERS
     override fun migrate(database: SupportSQLiteDatabase) {
         database.execSQL(PreferenceUtils.CREATE_PREFERENCE)
         PreferenceUtils.migrateLegacyPreferences(context, database)
-        IdGenerator.migrateLegacyIdGenerator(context, database)
+        migrateLegacyIdGenerator(context, database)
     }
 }

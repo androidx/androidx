@@ -48,6 +48,11 @@ android {
         androidTest.assets.srcDirs += files("$projectDir/src/schemas".toString())
     }
     namespace "androidx.work"
+    lintOptions {
+        // Too many Kotlin features require synthetic accessors - we want to rely on R8 to
+        // remove these accessors
+        disable("SyntheticAccessor")
+    }
 }
 
 dependencies {
