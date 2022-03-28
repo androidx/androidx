@@ -339,11 +339,18 @@ class ExportToFramework:
         You must always provide a sha of a submitted submitted git commit. If you abandon the CL
         pointed to by this sha, the next person syncing framework will be unable to find what CL it
         is synced to.
+
+        The previous content of the sha file, if any, is returned.
         """
         file_path = os.path.join(self._framework_appsearch_root, SHA_FILE_NAME)
+        old_sha = None
+        if os.path.isfile(file_path):
+          with open(file_path, 'r') as fh:
+              old_sha = fh.read().rstrip()
         with open(file_path, 'w') as fh:
             print(sha, file=fh)
         print('Wrote "%s"' % file_path)
+        return old_sha
 
 
 if __name__ == '__main__':
@@ -368,4 +375,10 @@ if __name__ == '__main__':
         sys.exit(1)
     exporter = ExportToFramework(source_dir, dest_dir)
     exporter.ExportCode()
-    exporter.WriteShaFile(sys.argv[2])
+
+    # Update the sha file
+    new_sha = sys.argv[2]
+    old_sha = exporter.WriteShaFile(new_sha)
+    if old_sha and old_sha != new_sha:
+      print('Command to diff old version to new version:')
+      print('  git log %s..%s -- appsearch/' % (old_sha, new_sha))
