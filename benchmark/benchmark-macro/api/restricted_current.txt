@@ -98,6 +98,11 @@ package androidx.benchmark.macro {
     ctor public PowerMetric();
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class PowerRail {
+    method public boolean hasMetrics(optional boolean throwOnMissingMetrics);
+    field public static final androidx.benchmark.macro.PowerRail INSTANCE;
+  }
+
   public enum StartupMode {
     enum_constant public static final androidx.benchmark.macro.StartupMode COLD;
     enum_constant public static final androidx.benchmark.macro.StartupMode HOT;
