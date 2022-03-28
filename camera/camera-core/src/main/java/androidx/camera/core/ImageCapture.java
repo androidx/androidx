@@ -325,6 +325,9 @@ public final class ImageCapture extends UseCase {
     @SuppressWarnings("WeakerAccess")
     ProcessingImageReader mProcessingImageReader;
 
+    private YuvToJpegProcessor mYuvToJpegProcessor;
+    private CaptureProcessorPipeline mCaptureProcessorPipeline;
+
     /** Callback used to match the {@link ImageProxy} with the {@link ImageInfo}. */
     private CameraCaptureCallback mMetadataMatchingCaptureCallback;
     private DeferrableSurface mDeferrableSurface;
@@ -361,12 +364,11 @@ public final class ImageCapture extends UseCase {
     }
 
     @UiThread
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @SuppressWarnings({"WeakerAccess", "FutureReturnValueIgnored"}) /* synthetic accessor */
     SessionConfig.Builder createPipeline(@NonNull String cameraId,
             @NonNull ImageCaptureConfig config, @NonNull Size resolution) {
         Threads.checkMainThread();
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
-        YuvToJpegProcessor softwareJpegProcessor = null;
 
         // Setup the ImageReader to do processing
         if (config.getImageReaderProxyProvider() != null) {
@@ -378,7 +380,6 @@ public final class ImageCapture extends UseCase {
             };
         } else if (mCaptureProcessor != null || mUseSoftwareJpeg) {
             // Capture processor set from configuration takes precedence over software JPEG.
-            CaptureProcessorPipeline captureProcessorPipeline = null;
             CaptureProcessor captureProcessor = mCaptureProcessor;
             int inputFormat = getImageFormat();
             int outputFormat = getImageFormat();
@@ -388,13 +389,13 @@ public final class ImageCapture extends UseCase {
                     Logger.i(TAG, "Using software JPEG encoder.");
 
                     if (mCaptureProcessor != null) {
-                        softwareJpegProcessor = new YuvToJpegProcessor(getJpegQualityInternal(),
+                        mYuvToJpegProcessor = new YuvToJpegProcessor(getJpegQualityInternal(),
                                 mMaxCaptureStages);
-                        captureProcessor = captureProcessorPipeline = new CaptureProcessorPipeline(
-                                mCaptureProcessor, mMaxCaptureStages, softwareJpegProcessor,
+                        captureProcessor = mCaptureProcessorPipeline = new CaptureProcessorPipeline(
+                                mCaptureProcessor, mMaxCaptureStages, mYuvToJpegProcessor,
                                 mExecutor);
                     } else {
-                        captureProcessor = softwareJpegProcessor =
+                        captureProcessor = mYuvToJpegProcessor =
                                 new YuvToJpegProcessor(getJpegQualityInternal(), mMaxCaptureStages);
                     }
 
@@ -415,19 +416,6 @@ public final class ImageCapture extends UseCase {
 
             mMetadataMatchingCaptureCallback = mProcessingImageReader.getCameraCaptureCallback();
             mImageReader = new SafeCloseImageReaderProxy(mProcessingImageReader);
-            if (softwareJpegProcessor != null) {
-                // Close the JPEG processor once ProcessingImageReader is done.
-                // Processor is assigned to an effectively final variable here for the lambda.
-                YuvToJpegProcessor processorToClose = softwareJpegProcessor;
-                CaptureProcessorPipeline captureProcessorPipelineToClose = captureProcessorPipeline;
-                mProcessingImageReader.getCloseFuture().addListener(() -> {
-                    // API check to satisfy linter
-                    if (Build.VERSION.SDK_INT >= 26) {
-                        processorToClose.close();
-                        captureProcessorPipelineToClose.close();
-                    }
-                }, CameraXExecutors.directExecutor());
-            }
         } else {
             MetadataImageReader metadataImageReader = new MetadataImageReader(resolution.getWidth(),
                     resolution.getHeight(), getImageFormat(), MAX_IMAGES);
@@ -439,9 +427,9 @@ public final class ImageCapture extends UseCase {
                     new CancellationException("Request is canceled."));
         }
 
-        final YuvToJpegProcessor finalSoftwareJpegProcessor = softwareJpegProcessor;
+        final YuvToJpegProcessor finalSoftwareJpegProcessor = mYuvToJpegProcessor;
         mImageCaptureRequestProcessor = new ImageCaptureRequestProcessor(MAX_IMAGES,
-                request -> takePictureInternal(request), softwareJpegProcessor == null ? null :
+                request -> takePictureInternal(request), finalSoftwareJpegProcessor == null ? null :
                 new ImageCaptureRequestProcessor.RequestProcessCallback() {
                     @Override
                     public void onPreProcessRequest(
@@ -479,6 +467,7 @@ public final class ImageCapture extends UseCase {
         sessionConfigBuilder.addNonRepeatingSurface(mDeferrableSurface);
 
         sessionConfigBuilder.addErrorListener((sessionConfig, error) -> {
+            closeProcessingImageReaderSafely();
             clearPipeline();
             // Ensure the attached camera has not changed before resetting.
             // TODO(b/143915543): Ensure this never gets called by a camera that is not attached
@@ -514,6 +503,66 @@ public final class ImageCapture extends UseCase {
         if (deferrableSurface != null) {
             deferrableSurface.close();
         }
+    }
+
+    private ListenableFuture<Void> closeProcessingImageReaderSafely() {
+        AtomicReference<CallbackToFutureAdapter.Completer<Void>> closeCompleterAtomicReference =
+                new AtomicReference<>();
+
+        if (mYuvToJpegProcessor == null && mCaptureProcessorPipeline == null
+                && mProcessingImageReader == null) {
+            return Futures.immediateFuture(null);
+        }
+
+        ListenableFuture<Void>  closeFuture = Futures.nonCancellationPropagating(
+                CallbackToFutureAdapter.getFuture(completer -> {
+                    closeCompleterAtomicReference.set(completer);
+                    return "ImageCapture-closeProcessingImageReaderSafely";
+                }));
+
+        ListenableFuture<Void> captureProcessorPipelineCloseFuture =
+                mCaptureProcessorPipeline != null ? mCaptureProcessorPipeline.getCloseFuture()
+                        : Futures.immediateFuture(null);
+
+        ListenableFuture<Void> yuvToJpegProcessorCloseFuture = Futures.immediateFuture(null);
+
+        if (Build.VERSION.SDK_INT >= 26 && mYuvToJpegProcessor != null) {
+            yuvToJpegProcessorCloseFuture = mYuvToJpegProcessor.getCloseFuture();
+        }
+
+        ListenableFuture<Void> processingImageReaderCloseFuture =
+                mProcessingImageReader != null ? mProcessingImageReader.getCloseFuture()
+                        : Futures.immediateFuture(null);
+
+        // Closes mCaptureProcessorPipeline first.
+        if (mCaptureProcessorPipeline != null) {
+            mCaptureProcessorPipeline.close();
+        }
+
+        // Closes YuvToJpegProcessor after mCaptureProcessorPipeline is closed.
+        captureProcessorPipelineCloseFuture.addListener(() -> {
+            if (Build.VERSION.SDK_INT >= 26 && mYuvToJpegProcessor != null) {
+                mYuvToJpegProcessor.close();
+            }
+        }, CameraXExecutors.directExecutor());
+
+        // Closes ProcessingImageReader after YuvToJpegProcessor is closed.
+        yuvToJpegProcessorCloseFuture.addListener(() -> {
+            if (mProcessingImageReader != null && mImageReader != null) {
+                mImageReader.safeClose();
+            }
+        }, CameraXExecutors.directExecutor());
+
+        // Completes the future completer after ProcessingImageReader is closed.
+        processingImageReaderCloseFuture.addListener(() -> {
+            closeCompleterAtomicReference.get().set(null);
+        }, CameraXExecutors.directExecutor());
+
+        mYuvToJpegProcessor = null;
+        mCaptureProcessorPipeline = null;
+        mProcessingImageReader = null;
+
+        return closeFuture;
     }
 
     /**
@@ -1464,10 +1513,17 @@ public final class ImageCapture extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public void onDetached() {
+        ListenableFuture<Void> closeFuture = closeProcessingImageReaderSafely();
+
         abortImageCaptureRequests();
         clearPipeline();
         mUseSoftwareJpeg = false;
-        mExecutor.shutdown();
+
+        // Shutdowns the executor after mProcessingImageReader is closed if
+        // mProcessingImageReader is used to processing the captured images.
+        ExecutorService executorService = mExecutor;
+        closeFuture.addListener(() -> executorService.shutdown(),
+                CameraXExecutors.directExecutor());
     }
 
     /**
