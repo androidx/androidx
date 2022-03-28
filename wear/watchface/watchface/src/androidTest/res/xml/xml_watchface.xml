@@ -28,6 +28,28 @@
                 app:displayName="Seconds"
                 app:id="seconds" />
         </ListUserStyleSetting>
+        <BooleanUserStyleSetting
+            app:affectedWatchFaceLayers="BASE"
+            app:defaultBoolean="false"
+            app:description="description"
+            app:displayName="displayName"
+            app:id="BooleanId"/>
+        <DoubleRangeUserStyleSetting
+            app:affectedWatchFaceLayers="BASE"
+            app:description="description"
+            app:displayName="displayName"
+            app:minDouble="-10.0"
+            app:maxDouble="10.0"
+            app:defaultDouble="7.0"
+            app:id="DoubleId"/>
+        <LongRangeUserStyleSetting
+            app:affectedWatchFaceLayers="BASE"
+            app:description="description"
+            app:displayName="displayName"
+            app:minLong="-20"
+            app:maxLong="20"
+            app:defaultLong="8"
+            app:id="LongId"/>
     </UserStyleSchema>
     <ComplicationSlot
         app:slotId="10"
@@ -51,4 +73,18 @@
         app:systemDataSourceFallbackDefaultType="LONG_TEXT">
         <ComplicationSlotBounds app:left="0.1" app:top="0.2" app:right="0.3" app:bottom="0.4"/>
     </ComplicationSlot>
+    <UserStyleFlavors>
+        <UserStyleFlavor app:id="flavor1">
+            <StyleOption app:id="TimeStyle" app:value="minimal"/>
+            <StyleOption app:id="BooleanId" app:value="true"/>
+            <StyleOption app:id="DoubleId" app:value="1.0"/>
+            <StyleOption app:id="LongId" app:value="2"/>
+            <ComplicationPolicy
+                app:slotId="10"
+                app:primaryDataSource="com.package/com.app"
+                app:primaryDataSourceDefaultType="SHORT_TEXT"
+                app:systemDataSourceFallback="DATA_SOURCE_DAY_AND_DATE"
+                app:systemDataSourceFallbackDefaultType="SHORT_TEXT"/>
+        </UserStyleFlavor>
+    </UserStyleFlavors>
 </XmlWatchFace>

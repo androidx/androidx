@@ -20,6 +20,7 @@ import androidx.wear.watchface.control.data.ComplicationRenderParams;
 import androidx.wear.watchface.control.data.WatchFaceRenderParams;
 import androidx.wear.watchface.data.IdAndComplicationStateWireFormat;
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat;
+import androidx.wear.watchface.style.data.UserStyleFlavorsWireFormat;
 
 /**
  * Interface for interacting with a stateless headless instance of a watch face.
@@ -29,12 +30,12 @@ import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat;
 interface IHeadlessWatchFace {
     // IMPORTANT NOTE: All methods must be given an explicit transaction id that must never change
     // in the future to remain binary backwards compatible.
-    // Next Id: 9
+    // Next Id: 10
 
     /**
      * API version number. This should be incremented every time a new method is added.
      */
-    const int API_VERSION = 2;
+    const int API_VERSION = 3;
 
     /**
      * Returns the version number for this API which the client can use to determine which methods
@@ -53,7 +54,7 @@ interface IHeadlessWatchFace {
 
     /**
       * Gets the current user style schema which SysUI & companion will use to construct the style
-      * configuration UI. Note this could change e.g. seasonally.
+      * configuration UI. It isn't intended to be changed within single app version.
       *
       * @since API version 1.
       */
@@ -106,4 +107,11 @@ interface IHeadlessWatchFace {
      * @since API version 2.
      */
     byte[] computeUserStyleSchemaDigestHash() = 8;
+
+    /**
+     * Gets the current user style flavors.
+     *
+     * @since API version 3.
+     */
+    UserStyleFlavorsWireFormat getUserStyleFlavors() = 9;
 }

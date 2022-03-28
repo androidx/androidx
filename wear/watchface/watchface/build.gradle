@@ -16,6 +16,7 @@
 
 import androidx.build.Publish
 import androidx.build.RunApiTasks
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -77,4 +78,11 @@ androidx {
     mavenGroup = LibraryGroups.WEAR_WATCHFACE
     inceptionYear = "2020"
     description = "Android Wear Watchface"
+}
+
+// Allow usage of Kotlin's @OptIn.
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
+    }
 }

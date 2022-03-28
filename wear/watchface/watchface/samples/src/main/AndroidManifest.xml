@@ -101,6 +101,9 @@
                 android:name=
                     "com.google.android.wearable.watchface.companionBuiltinConfigurationEnabled"
                 android:value="true" />
+            <meta-data
+                android:name="androidx.wear.watchface.FLAVORS_SUPPORTED"
+                android:value="true"/>
         </service>
 
         <service

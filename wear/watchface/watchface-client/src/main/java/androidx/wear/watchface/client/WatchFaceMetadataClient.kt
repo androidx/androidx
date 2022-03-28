@@ -42,8 +42,11 @@ import androidx.wear.watchface.control.data.GetComplicationSlotMetadataParams
 import androidx.wear.watchface.control.data.GetUserStyleSchemaParams
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.ComplicationSlotBoundsType
+import androidx.wear.watchface.UserStyleFlavors
+import androidx.wear.watchface.WatchFaceFlavorsExperimental
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.XmlSchemaAndComplicationSlotsDefinition
+import androidx.wear.watchface.control.data.GetUserStyleFlavorsParams
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay
@@ -226,6 +229,13 @@ public interface WatchFaceMetadataClient : AutoCloseable {
      */
     @Throws(WatchFaceException::class)
     public fun getComplicationSlotMetadataMap(): Map<Int, ComplicationSlotMetadata>
+
+    /**
+     * Returns the watch face's [UserStyleFlavors].
+     */
+    @Throws(WatchFaceException::class)
+    @WatchFaceFlavorsExperimental
+    public fun getUserStyleFlavors(): UserStyleFlavors
 }
 
 /**
@@ -397,6 +407,36 @@ internal class WatchFaceMetadataClientImpl internal constructor(
         }
     }
 
+    @OptIn(WatchFaceFlavorsExperimental::class)
+    override fun getUserStyleFlavors(): UserStyleFlavors {
+        return try {
+            if (service.apiVersion >= 5) {
+                UserStyleFlavors(
+                    service.getUserStyleFlavors(
+                        GetUserStyleFlavorsParams(watchFaceName)
+                    )
+                )
+            } else {
+                UserStyleFlavors()
+            }
+        } catch (e: DeadObjectException) {
+            throw WatchFaceMetadataClient.WatchFaceException(
+                e,
+                WatchFaceMetadataClient.WatchFaceException.WATCHFACE_DIED
+            )
+        } catch (e: TransactionTooLargeException) {
+            throw WatchFaceMetadataClient.WatchFaceException(
+                e,
+                WatchFaceMetadataClient.WatchFaceException.TRANSACTION_TOO_LARGE
+            )
+        } catch (e: RemoteException) {
+            throw WatchFaceMetadataClient.WatchFaceException(
+                e,
+                WatchFaceMetadataClient.WatchFaceException.UNKNOWN
+            )
+        }
+    }
+
     override fun close() = TraceEvent("WatchFaceMetadataClientImpl.close").use {
         closed = true
         if (headlessClientDelegate.isInitialized()) {
@@ -430,6 +470,10 @@ internal class XmlWatchFaceMetadataClientImpl(
                 )
             }
         )
+
+    @WatchFaceFlavorsExperimental
+    override fun getUserStyleFlavors() =
+        xmlSchemaAndComplicationSlotsDefinition.flavors ?: UserStyleFlavors()
 
     override fun close() {}
 }

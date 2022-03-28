@@ -76,3 +76,10 @@ androidx {
     inceptionYear = "2020"
     description = "Client library for controlling androidx watchfaces"
 }
+
+// Allow usage of Kotlin's @OptIn.
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
+    }
+}

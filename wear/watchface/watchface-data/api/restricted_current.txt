@@ -37,6 +37,14 @@ package androidx.wear.watchface.control.data {
     field public static final android.os.Parcelable.Creator<androidx.wear.watchface.control.data.GetComplicationSlotMetadataParams!>! CREATOR;
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class GetUserStyleFlavorsParams implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
+    ctor public GetUserStyleFlavorsParams(android.content.ComponentName);
+    method public int describeContents();
+    method public android.content.ComponentName getWatchFaceName();
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<androidx.wear.watchface.control.data.GetUserStyleFlavorsParams!>! CREATOR;
+  }
+
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class GetUserStyleSchemaParams implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
     ctor public GetUserStyleSchemaParams(android.content.ComponentName);
     method public int describeContents();
@@ -330,6 +338,24 @@ package androidx.wear.watchface.style.data {
     method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator<androidx.wear.watchface.style.data.OptionWireFormat!>! CREATOR;
     field @androidx.versionedparcelable.ParcelField(1) public byte[] mId;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class UserStyleFlavorWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
+    ctor public UserStyleFlavorWireFormat(String, androidx.wear.watchface.style.data.UserStyleWireFormat, java.util.Map<java.lang.Integer!,androidx.wear.watchface.complications.data.DefaultComplicationDataSourcePolicyWireFormat!>);
+    method public int describeContents();
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<androidx.wear.watchface.style.data.UserStyleFlavorWireFormat!>! CREATOR;
+    field @androidx.versionedparcelable.ParcelField(3) public java.util.Map<java.lang.Integer!,androidx.wear.watchface.complications.data.DefaultComplicationDataSourcePolicyWireFormat!> mComplications;
+    field @androidx.versionedparcelable.ParcelField(1) public String mId;
+    field @androidx.versionedparcelable.ParcelField(2) public androidx.wear.watchface.style.data.UserStyleWireFormat mStyle;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class UserStyleFlavorsWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
+    ctor public UserStyleFlavorsWireFormat(java.util.List<androidx.wear.watchface.style.data.UserStyleFlavorWireFormat!>);
+    method public int describeContents();
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<androidx.wear.watchface.style.data.UserStyleFlavorsWireFormat!>! CREATOR;
+    field @androidx.versionedparcelable.ParcelField(1) public java.util.List<androidx.wear.watchface.style.data.UserStyleFlavorWireFormat!> mFlavors;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class UserStyleSchemaWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {

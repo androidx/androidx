@@ -35,6 +35,7 @@ import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.control.data.CrashInfoParcel
 import androidx.wear.watchface.control.data.DefaultProviderPoliciesParams
 import androidx.wear.watchface.control.data.GetComplicationSlotMetadataParams
+import androidx.wear.watchface.control.data.GetUserStyleFlavorsParams
 import androidx.wear.watchface.control.data.GetUserStyleSchemaParams
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.IdTypeAndDefaultProviderPolicyWireFormat
@@ -42,6 +43,7 @@ import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanc
 import androidx.wear.watchface.data.ComplicationSlotMetadataWireFormat
 import androidx.wear.watchface.editor.EditorService
 import androidx.wear.watchface.runBlockingOnHandlerWithTracing
+import androidx.wear.watchface.style.data.UserStyleFlavorsWireFormat
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
 import java.io.FileDescriptor
 import java.io.PrintWriter
@@ -271,4 +273,30 @@ public open class IWatchFaceInstanceServiceStub(
     }
 
     override fun hasComplicationCache() = true
+
+    override fun getUserStyleFlavors(
+        params: GetUserStyleFlavorsParams
+    ): UserStyleFlavorsWireFormat? = TraceEvent(
+        "IWatchFaceInstanceServiceStub.getUserStyleFlavors"
+    ).use {
+        createHeadlessEngine(params.watchFaceName, context)?.let { engine ->
+            try {
+                engine.getUserStyleFlavorsWireFormat()
+            } catch (e: Exception) {
+                Log.e(TAG, "getUserStyleFlavors failed due to exception", e)
+                throw e
+            } finally {
+                try {
+                    engine.onDestroy()
+                } catch (e: Exception) {
+                    Log.e(
+                        TAG,
+                        "WatchfaceService.EngineWrapper.onDestroy failed due to exception",
+                        e
+                    )
+                    throw e
+                }
+            }
+        }
+    }
 }

@@ -19,15 +19,20 @@ package androidx.wear.watchface.client
 import android.graphics.Bitmap
 import android.graphics.drawable.Icon
 import android.os.Bundle
+import android.os.DeadObjectException
 import android.os.RemoteException
+import android.os.TransactionTooLargeException
 import android.support.wearable.watchface.SharedMemoryImage
 import androidx.annotation.AnyThread
+import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
 import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.utility.TraceEvent
 import androidx.wear.watchface.ComplicationSlot
 import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.RenderParameters
+import androidx.wear.watchface.UserStyleFlavors
+import androidx.wear.watchface.WatchFaceFlavorsExperimental
 import androidx.wear.watchface.control.IHeadlessWatchFace
 import androidx.wear.watchface.control.data.ComplicationRenderParams
 import androidx.wear.watchface.control.data.WatchFaceRenderParams
@@ -57,6 +62,52 @@ public interface HeadlessWatchFaceClient : AutoCloseable {
             )
     }
 
+    /**
+     * Why the remote watch face query failed.
+     * @hide
+     **/
+    @Retention(AnnotationRetention.SOURCE)
+    @WatchFaceFlavorsExperimental
+    @IntDef(
+        WatchFaceException.WATCHFACE_DIED,
+        WatchFaceException.TRANSACTION_TOO_LARGE,
+        WatchFaceException.UNKNOWN
+    )
+    annotation class WatchFaceExceptionReason
+
+    /**
+     * The watch face threw an exception while trying to service the request.
+     *
+     * @property reason The [WatchFaceExceptionReason] for the exception.
+     */
+    // TODO: b/227151490 Get rid of WatchFaceException duplication
+    @WatchFaceFlavorsExperimental
+    public class WatchFaceException(
+        e: Exception,
+        @WatchFaceExceptionReason val reason: Int
+    ) : Exception(e) {
+
+        companion object {
+            /**
+             * The watchface process died. Connecting again might work, but this isn't guaranteed.
+             */
+            const val WATCHFACE_DIED = 1
+
+            /**
+             * The watchface tried to send us too much data. Currently the limit on binder
+             * transactions is 1mb. See [TransactionTooLargeException] for more details.
+             */
+            const val TRANSACTION_TOO_LARGE = 2
+
+            /**
+             * The watch face threw an exception, typically during initialization. Depending on the
+             * nature of the problem this might be a transient issue or it might occur every time
+             * for that particular watch face.
+             */
+            const val UNKNOWN = 3
+        }
+    }
+
     /** The [Instant] to use when rendering previews. */
     @get:Throws(RemoteException::class)
     public val previewReferenceInstant: Instant
@@ -76,6 +127,11 @@ public interface HeadlessWatchFaceClient : AutoCloseable {
      */
     @Throws(RemoteException::class)
     public fun getUserStyleSchemaDigestHash(): ByteArray = ByteArray(0)
+
+    /** The watch face's [UserStyleFlavors] if any. */
+    @WatchFaceFlavorsExperimental
+    @Throws(WatchFaceException::class)
+    public fun getUserStyleFlavors(): UserStyleFlavors = UserStyleFlavors()
 
     /**
      * Map of [androidx.wear.watchface.ComplicationSlot] ids to [ComplicationSlotState] for each
@@ -109,7 +165,7 @@ public interface HeadlessWatchFaceClient : AutoCloseable {
         slotIdToComplicationData: Map<Int, ComplicationData>?
     ): Bitmap
 
-    /**c
+    /**
      * Renders the [androidx.wear.watchface.ComplicationSlot] to a shared memory backed [Bitmap]
      * with the given settings.
      *
@@ -196,6 +252,31 @@ internal class HeadlessWatchFaceClientImpl internal constructor(
             iHeadlessWatchFace.computeUserStyleSchemaDigestHash()
         } else {
             userStyleSchema.getDigestHash()
+        }
+
+    @OptIn(WatchFaceFlavorsExperimental::class)
+    override fun getUserStyleFlavors(): UserStyleFlavors =
+        try {
+            if (iHeadlessWatchFace.apiVersion >= 3) {
+                UserStyleFlavors(iHeadlessWatchFace.userStyleFlavors)
+            } else {
+                UserStyleFlavors()
+            }
+        } catch (e: DeadObjectException) {
+            throw WatchFaceMetadataClient.WatchFaceException(
+                e,
+                WatchFaceMetadataClient.WatchFaceException.WATCHFACE_DIED
+            )
+        } catch (e: TransactionTooLargeException) {
+            throw WatchFaceMetadataClient.WatchFaceException(
+                e,
+                WatchFaceMetadataClient.WatchFaceException.TRANSACTION_TOO_LARGE
+            )
+        } catch (e: RemoteException) {
+            throw WatchFaceMetadataClient.WatchFaceException(
+                e,
+                WatchFaceMetadataClient.WatchFaceException.UNKNOWN
+            )
         }
 
     override val complicationSlotsState: Map<Int, ComplicationSlotState>
