@@ -57,7 +57,7 @@ public class Text implements LayoutElement {
     public static final class Builder implements LayoutElement.Builder {
         @NonNull private final Context mContext;
         @NonNull private String mTextContent = "";
-        @NonNull private ColorProp mColor = argb(Colors.ON_PRIMARY);
+        @NonNull private ColorProp mColor = argb(Colors.DEFAULT.getOnPrimary());
         private @TypographyName int mTypographyName = TYPOGRAPHY_DISPLAY1;
         private boolean mItalic = false;
         private int mMaxLines = 1;
@@ -103,7 +103,10 @@ public class Text implements LayoutElement {
             return this;
         }
 
-        /** Sets the color for the {@link Text}. */
+        /**
+         * Sets the color for the {@link Text}. If not set, onPrimary color from the {@link
+         * Colors#DEFAULT} will be used.
+         */
         @NonNull
         public Builder setColor(@NonNull ColorProp color) {
             this.mColor = color;

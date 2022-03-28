@@ -29,6 +29,8 @@ package androidx.wear.tiles.material {
     ctor public ButtonColors(androidx.wear.tiles.ColorBuilders.ColorProp, androidx.wear.tiles.ColorBuilders.ColorProp);
     method public androidx.wear.tiles.ColorBuilders.ColorProp getBackgroundColor();
     method public androidx.wear.tiles.ColorBuilders.ColorProp getContentColor();
+    method public static androidx.wear.tiles.material.ButtonColors primaryButtonColors(androidx.wear.tiles.material.Colors);
+    method public static androidx.wear.tiles.material.ButtonColors secondaryButtonColors(androidx.wear.tiles.material.Colors);
   }
 
   public class ButtonDefaults {
@@ -75,15 +77,17 @@ package androidx.wear.tiles.material {
     method public androidx.wear.tiles.ColorBuilders.ColorProp getContentColor();
     method public androidx.wear.tiles.ColorBuilders.ColorProp getIconTintColor();
     method public androidx.wear.tiles.ColorBuilders.ColorProp getSecondaryContentColor();
+    method public static androidx.wear.tiles.material.ChipColors primaryChipColors(androidx.wear.tiles.material.Colors);
+    method public static androidx.wear.tiles.material.ChipColors secondaryChipColors(androidx.wear.tiles.material.Colors);
   }
 
   public class ChipDefaults {
-    field public static final androidx.wear.tiles.material.ChipColors COMPACT_PRIMARY;
-    field public static final androidx.wear.tiles.material.ChipColors COMPACT_SECONDARY;
-    field public static final androidx.wear.tiles.material.ChipColors PRIMARY;
-    field public static final androidx.wear.tiles.material.ChipColors SECONDARY;
-    field public static final androidx.wear.tiles.material.ChipColors TITLE_PRIMARY;
-    field public static final androidx.wear.tiles.material.ChipColors TITLE_SECONDARY;
+    field public static final androidx.wear.tiles.material.ChipColors COMPACT_PRIMARY_COLORS;
+    field public static final androidx.wear.tiles.material.ChipColors COMPACT_SECONDARY_COLORS;
+    field public static final androidx.wear.tiles.material.ChipColors PRIMARY_COLORS;
+    field public static final androidx.wear.tiles.material.ChipColors SECONDARY_COLORS;
+    field public static final androidx.wear.tiles.material.ChipColors TITLE_PRIMARY_COLORS;
+    field public static final androidx.wear.tiles.material.ChipColors TITLE_SECONDARY_COLORS;
   }
 
   public class CircularProgressIndicator implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
@@ -107,6 +111,15 @@ package androidx.wear.tiles.material {
     method public androidx.wear.tiles.material.CircularProgressIndicator.Builder setStrokeWidth(@Dimension(unit=androidx.annotation.Dimension.DP) float);
   }
 
+  public class Colors {
+    ctor public Colors(@ColorInt int, @ColorInt int, @ColorInt int, @ColorInt int);
+    method @ColorInt public int getOnPrimary();
+    method @ColorInt public int getOnSurface();
+    method @ColorInt public int getPrimary();
+    method @ColorInt public int getSurface();
+    field public static final androidx.wear.tiles.material.Colors DEFAULT;
+  }
+
   public class CompactChip implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
     method public androidx.wear.tiles.material.ChipColors getChipColors();
     method public androidx.wear.tiles.ModifiersBuilders.Clickable getClickable();
@@ -124,10 +137,12 @@ package androidx.wear.tiles.material {
     ctor public ProgressIndicatorColors(@ColorInt int, @ColorInt int);
     method public androidx.wear.tiles.ColorBuilders.ColorProp getIndicatorColor();
     method public androidx.wear.tiles.ColorBuilders.ColorProp getTrackColor();
+    method public static androidx.wear.tiles.material.ProgressIndicatorColors primaryProgressIndicatorColors(androidx.wear.tiles.material.Colors);
+    method public static androidx.wear.tiles.material.ProgressIndicatorColors secondaryProgressIndicatorColors(androidx.wear.tiles.material.Colors);
   }
 
   public class ProgressIndicatorDefaults {
-    field public static final androidx.wear.tiles.material.ProgressIndicatorColors DEFAULT_COLOR;
+    field public static final androidx.wear.tiles.material.ProgressIndicatorColors DEFAULT_COLORS;
     field public static final androidx.wear.tiles.DimensionBuilders.DpProp DEFAULT_STROKE_WIDTH;
     field public static final float GAP_END_ANGLE = 156.1f;
     field public static final float GAP_START_ANGLE = -156.1f;

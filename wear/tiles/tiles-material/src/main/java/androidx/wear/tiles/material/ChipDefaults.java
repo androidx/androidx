@@ -108,30 +108,31 @@ public class ChipDefaults {
     public static final DpProp ICON_SIZE = dp(24);
 
     /** The recommended colors for a primary {@link Chip}. */
-    @NonNull
-    public static final ChipColors PRIMARY = new ChipColors(Colors.PRIMARY, Colors.ON_PRIMARY);
+    @NonNull public static final ChipColors PRIMARY_COLORS =
+            ChipColors.primaryChipColors(Colors.DEFAULT);
 
     /** The recommended colors for a secondary {@link Chip}. */
     @NonNull
-    public static final ChipColors SECONDARY = new ChipColors(Colors.SURFACE, Colors.ON_SURFACE);
+    public static final ChipColors SECONDARY_COLORS =
+            ChipColors.secondaryChipColors(Colors.DEFAULT);
 
     /** The recommended colors for a primary {@link CompactChip}. */
     @NonNull
-    public static final ChipColors COMPACT_PRIMARY =
-            new ChipColors(Colors.PRIMARY, Colors.ON_PRIMARY);
+    public static final ChipColors COMPACT_PRIMARY_COLORS =
+            ChipColors.primaryChipColors(Colors.DEFAULT);
 
     /** The recommended colors for a secondary {@link CompactChip}. */
     @NonNull
-    public static final ChipColors COMPACT_SECONDARY =
-            new ChipColors(Colors.SURFACE, Colors.ON_SURFACE);
+    public static final ChipColors COMPACT_SECONDARY_COLORS =
+            ChipColors.secondaryChipColors(Colors.DEFAULT);
 
     /** The recommended colors for a primary {@link TitleChip}. */
     @NonNull
-    public static final ChipColors TITLE_PRIMARY =
-            new ChipColors(Colors.PRIMARY, Colors.ON_PRIMARY);
+    public static final ChipColors TITLE_PRIMARY_COLORS =
+            ChipColors.primaryChipColors(Colors.DEFAULT);
 
     /** The recommended colors for a secondary {@link TitleChip}. */
     @NonNull
-    public static final ChipColors TITLE_SECONDARY =
-            new ChipColors(Colors.SURFACE, Colors.ON_SURFACE);
+    public static final ChipColors TITLE_SECONDARY_COLORS =
+            ChipColors.secondaryChipColors(Colors.DEFAULT);
 }

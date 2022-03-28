@@ -25,9 +25,9 @@ import androidx.wear.tiles.ColorBuilders.ColorProp;
 /**
  * Represents the background and content colors used in a chip Tiles component.
  *
- * <p>See {@link ChipDefaults#PRIMARY} for the default colors used in a primary styled {@link Chip}.
- * See {@link ChipDefaults#SECONDARY} for the default colors used in a secondary styled {@link
- * Chip}.
+ * <p>See {@link ChipDefaults#PRIMARY_COLORS} for the default colors used in a primary styled {@link
+ * Chip}. See {@link ChipDefaults#SECONDARY_COLORS} for the default colors used in a secondary
+ * styled {@link Chip}.
  */
 public class ChipColors {
     @NonNull private final ColorProp mBackgroundColor;
@@ -104,6 +104,24 @@ public class ChipColors {
         mIconTintColor = contentColor;
         mContentColor = contentColor;
         mSecondaryContentColor = contentColor;
+    }
+
+    /**
+     * Returns a {@link ChipColors} object, using the current Primary colors from the given {@link
+     * Colors}.
+     */
+    @NonNull
+    public static ChipColors primaryChipColors(@NonNull Colors colors) {
+        return new ChipColors(colors.getPrimary(), colors.getOnPrimary());
+    }
+
+    /**
+     * Returns a {@link ChipColors} object, using the current Surface colors from the given {@link
+     * Colors}.
+     */
+    @NonNull
+    public static ChipColors secondaryChipColors(@NonNull Colors colors) {
+        return new ChipColors(colors.getSurface(), colors.getOnSurface());
     }
 
     /** The background color to be used on a chip Tiles components. */

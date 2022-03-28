@@ -24,7 +24,7 @@ import static androidx.wear.tiles.material.ChipDefaults.DEFAULT_MARGIN_PERCENT;
 import static androidx.wear.tiles.material.ChipDefaults.HORIZONTAL_PADDING;
 import static androidx.wear.tiles.material.ChipDefaults.ICON_SIZE;
 import static androidx.wear.tiles.material.ChipDefaults.ICON_SPACER_WIDTH;
-import static androidx.wear.tiles.material.ChipDefaults.PRIMARY;
+import static androidx.wear.tiles.material.ChipDefaults.PRIMARY_COLORS;
 import static androidx.wear.tiles.material.Helper.checkNotNull;
 import static androidx.wear.tiles.material.Helper.radiusOf;
 
@@ -72,7 +72,7 @@ import java.util.List;
  * dependent with the recommended margin being applied.
  *
  * <p>The recommended set of {@link ChipColors} styles can be obtained from {@link ChipDefaults}.,
- * e.g. {@link ChipDefaults#PRIMARY} to get a color scheme for a primary {@link Chip}.
+ * e.g. {@link ChipDefaults#PRIMARY_COLORS} to get a color scheme for a primary {@link Chip}.
  */
 public class Chip implements LayoutElement {
     @NonNull private final Box mElement;
@@ -104,7 +104,7 @@ public class Chip implements LayoutElement {
         @NonNull private CharSequence mContentDescription = "";
         @NonNull private ContainerDimension mWidth;
         @NonNull private DpProp mHeight = DEFAULT_HEIGHT;
-        @NonNull private ChipColors mChipColors = PRIMARY;
+        @NonNull private ChipColors mChipColors = PRIMARY_COLORS;
         @ChipType private int mType = NOT_SET;
         @HorizontalAlignment private int mHorizontalAlign = HORIZONTAL_ALIGN_START;
         @TypographyName private int mPrimaryTextTypography;
@@ -271,7 +271,7 @@ public class Chip implements LayoutElement {
          * will be used for the background of the button, {@link ChipColors#getContentColor()} for
          * main text, {@link ChipColors#getSecondaryContentColor()} for label text and {@link
          * ChipColors#getIconTintColor()} will be used as tint color for the icon itself. If not
-         * set, {@link ChipDefaults#PRIMARY} will be used.
+         * set, {@link ChipDefaults#PRIMARY_COLORS} will be used.
          */
         @NonNull
         public Builder setChipColors(@NonNull ChipColors chipColors) {

@@ -57,6 +57,24 @@ public class ButtonColors {
         mContentColor = contentColor;
     }
 
+    /**
+     * Returns a {@link ButtonColors} object, using the current Primary colors from the given {@link
+     * Colors}.
+     */
+    @NonNull
+    public static ButtonColors primaryButtonColors(@NonNull Colors colors) {
+        return new ButtonColors(colors.getPrimary(), colors.getOnPrimary());
+    }
+
+    /**
+     * Returns a {@link ButtonColors} object, using the current Surface colors from the given {@link
+     * Colors}.
+     */
+    @NonNull
+    public static ButtonColors secondaryButtonColors(@NonNull Colors colors) {
+        return new ButtonColors(colors.getSurface(), colors.getOnSurface());
+    }
+
     /** The background color to be used on a button Tiles components. */
     @NonNull
     public ColorProp getBackgroundColor() {

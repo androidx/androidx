@@ -17,20 +17,107 @@
 package androidx.wear.tiles.material;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 
 /**
- * Contains the default color values used by all Tiles Components.
+ * Represent the container for default color scheme in your Tile, that can be used to create color
+ * objects for all Material components.
  *
- * @hide
+ * <p>See {@link #DEFAULT} for default color scheme.
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
 public class Colors {
-    private Colors() {}
 
-    @ColorInt public static final int PRIMARY = 0xFFAECBFA;
-    @ColorInt public static final int ON_PRIMARY = 0xFF202124;
-    @ColorInt public static final int SURFACE = 0xFF202124;
-    @ColorInt public static final int ON_SURFACE = 0xFFFFFFFF;
+    /**
+     * The default color used for primary elements (i.e. background color).
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @ColorInt
+    public static final int PRIMARY = 0xFFAECBFA;
+
+    /**
+     * The default color used on primary elements (i.e. content color).
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @ColorInt
+    public static final int ON_PRIMARY = 0xFF202124;
+
+    /**
+     * The default color used for secondary elements (i.e. background color).
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @ColorInt
+    public static final int SURFACE = 0xFF202124;
+
+    /**
+     * The default color used on secondary elements (i.e. content color).
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @ColorInt
+    public static final int ON_SURFACE = 0xFFFFFFFF;
+
+    /** The default color scheme to be used in Tiles Material components. */
+    @NonNull
+    public static final Colors DEFAULT = new Colors(PRIMARY, ON_PRIMARY, SURFACE, ON_SURFACE);
+
+    private @ColorInt final int mPrimary;
+    private @ColorInt final int mOnPrimary;
+    private @ColorInt final int mSurface;
+    private @ColorInt final int mOnSurface;
+
+    /**
+     * Constructor for {@link Colors} object.
+     *
+     * @param primary The background color to be used for primary components. Should be in ARGB
+     *     format.
+     * @param onPrimary The content color or tint color to be used for primary components. Should be
+     *     in ARGB format.
+     * @param surface The background color to be used for secondary components. Should be in ARGB
+     *     format.
+     * @param onSurface The content color or tint color to be used for secondary components. Should
+     *     be in ARGB format.
+     */
+    public Colors(
+            @ColorInt int primary,
+            @ColorInt int onPrimary,
+            @ColorInt int surface,
+            @ColorInt int onSurface) {
+        this.mPrimary = primary;
+        this.mOnPrimary = onPrimary;
+        this.mSurface = surface;
+        this.mOnSurface = onSurface;
+    }
+
+    /** The primary color to be used on components. */
+    @ColorInt
+    public int getPrimary() {
+        return mPrimary;
+    }
+
+    /** The onPrimary color to be used on components. */
+    @ColorInt
+    public int getOnPrimary() {
+        return mOnPrimary;
+    }
+
+    /** The surface color to be used on components. */
+    @ColorInt
+    public int getSurface() {
+        return mSurface;
+    }
+
+    /** The onSurface color to be used on components. */
+    @ColorInt
+    public int getOnSurface() {
+        return mOnSurface;
+    }
 }

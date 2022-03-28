@@ -17,8 +17,6 @@
 package androidx.wear.tiles.material;
 
 import static androidx.wear.tiles.DimensionBuilders.dp;
-import static androidx.wear.tiles.material.Colors.PRIMARY;
-import static androidx.wear.tiles.material.Colors.SURFACE;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
@@ -43,8 +41,8 @@ public class ProgressIndicatorDefaults {
 
     /** The recommended colors for {@link CircularProgressIndicator}. */
     @NonNull
-    public static final ProgressIndicatorColors DEFAULT_COLOR =
-            new ProgressIndicatorColors(PRIMARY, SURFACE);
+    public static final ProgressIndicatorColors DEFAULT_COLORS =
+            ProgressIndicatorColors.primaryProgressIndicatorColors(Colors.DEFAULT);
 
     static final float DEFAULT_GAP_LENGTH = 47.8f;
 

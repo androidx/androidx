@@ -25,7 +25,7 @@ import androidx.wear.tiles.ColorBuilders.ColorProp;
 /**
  * Represents the indicator and track colors used in a progress indicator Tiles component.
  *
- * <p>See {@link ProgressIndicatorDefaults#DEFAULT_COLOR} for the default colors used in a {@link
+ * <p>See {@link ProgressIndicatorDefaults#DEFAULT_COLORS} for the default colors used in a {@link
  * CircularProgressIndicator}.
  */
 public class ProgressIndicatorColors {
@@ -57,6 +57,24 @@ public class ProgressIndicatorColors {
     public ProgressIndicatorColors(@ColorInt int indicatorColor, @ColorInt int trackColor) {
         this.mIndicatorColor = argb(indicatorColor);
         this.mTrackColor = argb(trackColor);
+    }
+
+    /**
+     * Returns a {@link ProgressIndicatorColors} object, using the current Primary colors from the
+     * given {@link Colors}.
+     */
+    @NonNull
+    public static ProgressIndicatorColors primaryProgressIndicatorColors(@NonNull Colors colors) {
+        return new ProgressIndicatorColors(colors.getPrimary(), colors.getOnPrimary());
+    }
+
+    /**
+     * Returns a {@link ProgressIndicatorColors} object, using the current Surface colors from the
+     * given {@link Colors}.
+     */
+    @NonNull
+    public static ProgressIndicatorColors secondaryProgressIndicatorColors(@NonNull Colors colors) {
+        return new ProgressIndicatorColors(colors.getSurface(), colors.getOnSurface());
     }
 
     /** The indicator color to be used for a progress indicator Tiles component. */
