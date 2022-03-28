@@ -23,10 +23,13 @@ import androidx.annotation.RequiresApi;
 import androidx.camera.video.Quality;
 
 /**
- * Bug Id: 218841498
- * Description: The mp4v-es video encoder crashes on Positivo Twist 2 Pro. It only crashes while
- * processing the SD resolution, others work fine.
- * Device(s): Positivo Twist 2 Pro (twist 2 pro)
+ * <p>QuirkSummary
+ *     Bug Id: 218841498
+ *     Description: The Quirk denotes the devices may crash while using the specific
+ *                  {@link Quality} option for video recording. The mp4v-es video encoder crashes
+ *                  on Positivo Twist 2 Pro. It only crashes while processing the SD resolution,
+ *                  others work fine.
+ *     Device(s): Positivo Twist 2 Pro (twist 2 pro)
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class VideoEncoderCrashQuirk implements VideoQualityQuirk {
