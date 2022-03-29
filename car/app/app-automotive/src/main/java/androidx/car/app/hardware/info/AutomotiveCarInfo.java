@@ -416,10 +416,6 @@ public class AutomotiveCarInfo implements CarInfo {
         @Override
         public void onCarPropertyResponses(
                 @NonNull List<CarPropertyResponse<?>> carPropertyResponses) {
-            if (carPropertyResponses.size() != 1
-                    || carPropertyResponses.get(0).getPropertyId() != TOLL_CARD_STATUS_ID) {
-                throw new IllegalArgumentException("Response size is not the same as requested.");
-            }
             mExecutor.execute(() -> {
                 CarPropertyResponse<?> response = carPropertyResponses.get(0);
                 CarValue<Integer> tollValue = getCarValue(response, (Integer) response.getValue());
@@ -447,9 +443,6 @@ public class AutomotiveCarInfo implements CarInfo {
         @Override
         public void onCarPropertyResponses(
                 @NonNull List<CarPropertyResponse<?>> carPropertyResponses) {
-            if (carPropertyResponses.size() != 3) {
-                throw new IllegalArgumentException("Response size is not the same as requested.");
-            }
             mExecutor.execute(() -> {
                 CarValue<Float> rawSpeedValue = CarValue.UNIMPLEMENTED_FLOAT;
                 CarValue<Float> displaySpeedValue = CarValue.UNIMPLEMENTED_FLOAT;
@@ -506,9 +499,6 @@ public class AutomotiveCarInfo implements CarInfo {
         @OptIn(markerClass = ExperimentalCarApi.class)
         public void onCarPropertyResponses(
                 @NonNull List<CarPropertyResponse<?>> carPropertyResponses) {
-            if (carPropertyResponses.size() != 2) {
-                throw new IllegalArgumentException("Response size is not the same as requested.");
-            }
             mExecutor.execute(() -> {
                 CarValue<Boolean> evChargePortOpenValue = CarValue.UNIMPLEMENTED_BOOLEAN;
                 CarValue<Boolean> evChargePortConnectedValue = CarValue.UNIMPLEMENTED_BOOLEAN;
@@ -566,9 +556,6 @@ public class AutomotiveCarInfo implements CarInfo {
         @Override
         public void onCarPropertyResponses(
                 @NonNull List<CarPropertyResponse<?>> carPropertyResponses) {
-            if (carPropertyResponses.size() != 2) {
-                throw new IllegalArgumentException("Response size is not the same as requested.");
-            }
             mExecutor.execute(() -> {
                 CarValue<Float> odometerValue = CarValue.UNIMPLEMENTED_FLOAT;
                 CarValue<Integer> distanceDisplayUnitValue = CarValue.UNIMPLEMENTED_INTEGER;
@@ -642,9 +629,6 @@ public class AutomotiveCarInfo implements CarInfo {
         @Override
         public void onCarPropertyResponses(
                 @NonNull List<CarPropertyResponse<?>> carPropertyResponses) {
-            if (carPropertyResponses.size() != 6) {
-                throw new IllegalArgumentException("Response size is not the same as requested.");
-            }
             mExecutor.execute(() -> {
                 CarValue<Float> batteryPercentValue = CarValue.UNIMPLEMENTED_FLOAT;
                 CarValue<Float> fuelPercentValue = CarValue.UNIMPLEMENTED_FLOAT;
