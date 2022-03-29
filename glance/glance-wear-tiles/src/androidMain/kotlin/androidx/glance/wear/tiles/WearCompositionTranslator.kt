@@ -31,6 +31,7 @@ import androidx.glance.EmittableButton
 import androidx.glance.EmittableImage
 import androidx.glance.GlanceModifier
 import androidx.glance.VisibilityModifier
+import androidx.glance.action.Action
 import androidx.glance.action.ActionModifier
 import androidx.glance.wear.tiles.action.RunCallbackAction
 import androidx.glance.action.StartActivityAction
@@ -58,12 +59,14 @@ import androidx.glance.toEmittableText
 import androidx.glance.unit.ColorProvider
 import androidx.glance.unit.Dimension
 import androidx.glance.wear.tiles.curved.AnchorType
+import androidx.glance.wear.tiles.curved.ActionCurvedModifier
 import androidx.glance.wear.tiles.curved.CurvedTextStyle
 import androidx.glance.wear.tiles.curved.EmittableCurvedChild
 import androidx.glance.wear.tiles.curved.EmittableCurvedLine
 import androidx.glance.wear.tiles.curved.EmittableCurvedRow
 import androidx.glance.wear.tiles.curved.EmittableCurvedSpacer
 import androidx.glance.wear.tiles.curved.EmittableCurvedText
+import androidx.glance.wear.tiles.curved.GlanceCurvedModifier
 import androidx.glance.wear.tiles.curved.RadialAlignment
 import androidx.glance.wear.tiles.curved.SweepAngleModifier
 import androidx.glance.wear.tiles.curved.ThicknessModifier
@@ -182,16 +185,16 @@ private fun StartActivityAction.toProto(context: Context): ActionBuilders.Launch
         )
         .build()
 
-private fun ActionModifier.toProto(context: Context): ModifiersBuilders.Clickable {
+private fun Action.toClickable(context: Context): ModifiersBuilders.Clickable {
     val builder = ModifiersBuilders.Clickable.Builder()
 
-    when (val action = this.action) {
+    when (this) {
         is StartActivityAction -> {
-            builder.setOnClick(action.toProto(context))
+            builder.setOnClick(toProto(context))
         }
         is RunCallbackAction -> {
             builder.setOnClick(ActionBuilders.LoadAction.Builder().build())
-                .setId(action.callbackClass.canonicalName!!)
+                .setId(callbackClass.canonicalName!!)
         }
         else -> {
             Log.e(GlanceWearTileTag, "Unknown Action $this, skipped")
@@ -200,6 +203,12 @@ private fun ActionModifier.toProto(context: Context): ModifiersBuilders.Clickabl
 
     return builder.build()
 }
+
+private fun ActionModifier.toProto(context: Context): ModifiersBuilders.Clickable =
+    this.action.toClickable(context)
+
+private fun ActionCurvedModifier.toProto(context: Context): ModifiersBuilders.Clickable =
+    this.action.toClickable(context)
 
 private fun Dimension.toContainerDimension(): DimensionBuilders.ContainerDimension =
     when (this) {
@@ -602,6 +611,8 @@ private fun translateEmittableCurvedText(
         arcTextBuilder.setFontStyle(translateTextStyle(context, it))
     }
 
+    arcTextBuilder.setModifiers(translateCurvedModifiers(context, element.curvedModifier))
+
     return arcTextBuilder.build()
 }
 
@@ -617,10 +628,12 @@ private fun translateEmittableCurvedLine(
         .setLength(degrees(sweepAngleDegrees))
         .setThickness(dp(thickness.value))
         .setColor(argb(element.color.getColor(context)))
+        .setModifiers(translateCurvedModifiers(context, element.curvedModifier))
         .build()
 }
 
 private fun translateEmittableCurvedSpacer(
+    context: Context,
     element: EmittableCurvedSpacer
 ): LayoutElementBuilders.ArcLayoutElement {
     var sweepAngleDegrees =
@@ -630,6 +643,7 @@ private fun translateEmittableCurvedSpacer(
     return LayoutElementBuilders.ArcSpacer.Builder()
         .setLength(degrees(sweepAngleDegrees))
         .setThickness(dp(thickness.value))
+        .setModifiers(translateCurvedModifiers(context, element.curvedModifier))
         .build()
 }
 
@@ -642,6 +656,19 @@ private fun translateEmittableElementInArc(
     .setContent(translateComposition(context, resourceBuilder, element))
     .setRotateContents(rotateContent)
     .build()
+
+private fun translateCurvedModifiers(
+    context: Context,
+    curvedModifier: GlanceCurvedModifier
+): ModifiersBuilders.ArcModifiers =
+    curvedModifier.foldIn(ModifiersBuilders.ArcModifiers.Builder()) { builder, element ->
+       when (element) {
+           is ActionCurvedModifier -> builder.setClickable(element.toProto(context))
+           is ThicknessModifier -> builder /* Skip for now, handled elsewhere. */
+           is SweepAngleModifier -> builder /* Skip for now, handled elsewhere. */
+           else -> throw IllegalArgumentException("Unknown curved modifier type")
+       }
+    }.build()
 
 private fun translateModifiers(
     context: Context,
@@ -687,7 +714,7 @@ private fun translateCurvedCompositionInArc(
     return when (element) {
         is EmittableCurvedText -> translateEmittableCurvedText(context, element)
         is EmittableCurvedLine -> translateEmittableCurvedLine(context, element)
-        is EmittableCurvedSpacer -> translateEmittableCurvedSpacer(element)
+        is EmittableCurvedSpacer -> translateEmittableCurvedSpacer(context, element)
         else -> throw IllegalArgumentException(
             "Unknown curved Element: $element"
         )

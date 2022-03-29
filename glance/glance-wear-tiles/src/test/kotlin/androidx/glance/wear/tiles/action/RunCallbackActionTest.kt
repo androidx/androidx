@@ -22,6 +22,10 @@ import androidx.glance.GlanceModifier
 import androidx.glance.action.ActionModifier
 import androidx.glance.action.clickable
 import androidx.glance.findModifier
+import androidx.glance.wear.tiles.curved.ActionCurvedModifier
+import androidx.glance.wear.tiles.curved.GlanceCurvedModifier
+import androidx.glance.wear.tiles.curved.clickable
+import androidx.glance.wear.tiles.curved.findModifier
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
 import org.junit.Before
@@ -42,14 +46,21 @@ class RunCallbackActionTest {
     }
 
     @Test
-    fun testUpdate() {
+    fun testUpdateInGlanceModifer() {
         val modifiers = GlanceModifier.clickable(actionRunCallback<TestCallback>())
         val modifier = checkNotNull(modifiers.findModifier<ActionModifier>())
         assertIs<RunCallbackAction>(modifier.action)
     }
+
+    @Test
+    fun testUpdateInGlanceCurvedModifier() {
+        val modifiers = GlanceCurvedModifier.clickable(actionRunCallback<TestCallback>())
+        val modifier = checkNotNull(modifiers.findModifier<ActionCurvedModifier>())
+        assertIs<RunCallbackAction>(modifier.action)
+    }
 }
 
-class TestCallback : ActionCallback {
+private class TestCallback : ActionCallback {
     override suspend fun onAction(
         context: Context,
         glanceId: GlanceId
