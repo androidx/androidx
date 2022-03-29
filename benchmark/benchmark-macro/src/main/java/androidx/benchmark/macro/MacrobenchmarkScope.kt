@@ -123,20 +123,32 @@ public class MacrobenchmarkScope(
         // executeShellScript used to access stderr, and avoid need to escape special chars like `;`
         val result = Shell.executeScriptWithStderr(cmd)
 
-        // Check for errors
-        result.stdout
+        val outputLines = result.stdout
             .split("\n")
             .map { it.trim() }
-            .forEach {
-                if (it.startsWith("Error:")) {
-                    throw IllegalStateException(it)
-                }
+
+        // Check for errors
+        outputLines.forEach {
+            if (it.startsWith("Error:")) {
+                throw IllegalStateException(it)
             }
+        }
+
         if (result.stderr.contains("java.lang.SecurityException")) {
             throw SecurityException(result.stderr)
         }
         if (result.stderr.isNotEmpty()) {
             throw IllegalStateException(result.stderr)
+        }
+
+        Log.d(TAG, "Result: ${result.stdout}")
+
+        if (outputLines.any { it.startsWith("Warning: Activity not started") }) {
+            // Intent was sent to running activity, which may not produce a new frame.
+            // Since we can't be sure, simply sleep and hope launch has completed.
+            Log.d(TAG, "Unable to safely detect Activity launch, waiting 2s")
+            Thread.sleep(2000)
+            return
         }
 
         // `am start -W` doesn't reliably wait for process to complete and renderthread to produce
@@ -174,13 +186,16 @@ public class MacrobenchmarkScope(
      * completed (fully rendered) activity launch frame.
      */
     internal fun getFrameStats(): List<FrameStatsResult> {
-        val frameStatsOutput = trace("dumpsys gfxinfo framestats") {
-            // we use framestats here because it gives us not just frame counts, but actual
-            // timestamps for new activity starts. Frame counts would mostly work, but would have
-            // false positives if some window of the app is still animating/rendering.
-            Shell.executeCommand("dumpsys gfxinfo $packageName framestats")
+        // iterate through each subprocess, since UI may not be in primary process
+        return Shell.getRunningProcessesForPackage(packageName).flatMap { processName ->
+            val frameStatsOutput = trace("dumpsys gfxinfo framestats") {
+                // we use framestats here because it gives us not just frame counts, but actual
+                // timestamps for new activity starts. Frame counts would mostly work, but would
+                // have false positives if some window of the app is still animating/rendering.
+                Shell.executeCommand("dumpsys gfxinfo $processName framestats")
+            }
+            FrameStatsResult.parse(frameStatsOutput)
         }
-        return FrameStatsResult.parse(frameStatsOutput)
     }
 
     /**
