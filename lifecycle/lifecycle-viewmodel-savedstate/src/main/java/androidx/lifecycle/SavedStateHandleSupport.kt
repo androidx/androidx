@@ -22,10 +22,13 @@ import android.os.Bundle
 import androidx.annotation.MainThread
 import androidx.lifecycle.ViewModelProvider.NewInstanceFactory.Companion.VIEW_MODEL_KEY
 import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryOwner
 
 private const val VIEWMODEL_KEY = "androidx.lifecycle.internal.SavedStateHandlesVM"
+private const val SAVED_STATE_KEY = "androidx.lifecycle.internal.SavedStateHandlesProvider"
 
 /**
  * Enables the support of [SavedStateHandle] in a component.
@@ -44,15 +47,13 @@ fun <T> T.enableSavedStateHandles()
         currentState == Lifecycle.State.INITIALIZED || currentState == Lifecycle.State.CREATED
     )
 
-    // make sure that SavedStateHandlesVM is created.
-    ViewModelProvider(this, object : ViewModelProvider.Factory {
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            @Suppress("UNCHECKED_CAST")
-            return SavedStateHandlesVM() as T
-        }
-    })[VIEWMODEL_KEY, SavedStateHandlesVM::class.java]
-
-    savedStateRegistry.runOnNextRecreation(SavedStateHandleAttacher::class.java)
+    // Add the SavedStateProvider used to save SavedStateHandles
+    // if we haven't already registered the provider
+    if (savedStateRegistry.getSavedStateProvider(SAVED_STATE_KEY) == null) {
+        val provider = SavedStateHandlesProvider(savedStateRegistry, this)
+        savedStateRegistry.registerSavedStateProvider(SAVED_STATE_KEY, provider)
+        savedStateRegistry.runOnNextRecreation(SavedStateHandleAttacher::class.java)
+    }
 }
 
 private fun createSavedStateHandle(
@@ -61,22 +62,20 @@ private fun createSavedStateHandle(
     key: String,
     defaultArgs: Bundle?
 ): SavedStateHandle {
-    val vm = viewModelStoreOwner.savedStateHandlesVM
-    val savedStateRegistry = savedStateRegistryOwner.savedStateRegistry
-    val handle = SavedStateHandle.createHandle(
-        savedStateRegistry.consumeRestoredStateForKey(key), defaultArgs
-    )
-    val controller = SavedStateHandleController(key, handle)
-    controller.attachToLifecycle(savedStateRegistry, savedStateRegistryOwner.lifecycle)
-    vm.controllers.add(controller)
-
-    return handle
+    val provider = savedStateRegistryOwner.savedStateHandlesProvider
+    val viewModel = viewModelStoreOwner.savedStateHandlesVM
+    // If we already have a reference to a previously created SavedStateHandle
+    // for a given key stored in our ViewModel, use that. Otherwise, create
+    // a new SavedStateHandle, providing it any restored state we might have saved
+    return viewModel.handles[key] ?: SavedStateHandle.createHandle(
+        provider.consumeRestoredStateForKey(key), defaultArgs
+    ).also { viewModel.handles[key] = it }
 }
 
 /**
  * Creates `SavedStateHandle` that can be used in your ViewModels
  *
- * This function requires `this.installSavedStateHandleSupport()` call during the component
+ * This function requires [enableSavedStateHandles] call during the component
  * initialization. Latest versions of androidx components like `ComponentActivity`, `Fragment`,
  * `NavBackStackEntry` makes this call automatically.
  *
@@ -106,39 +105,94 @@ public fun CreationExtras.createSavedStateHandle(): SavedStateHandle {
     )
 }
 
-internal object ThrowingFactory : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        throw IllegalStateException(
-            "enableSavedStateHandles() wasn't called " +
-                "prior to createSavedStateHandle() call"
-        )
-    }
-}
-
 internal val ViewModelStoreOwner.savedStateHandlesVM: SavedStateHandlesVM
-    get() =
-        ViewModelProvider(this, ThrowingFactory)[VIEWMODEL_KEY, SavedStateHandlesVM::class.java]
+    get() = ViewModelProvider(this, viewModelFactory {
+        initializer { SavedStateHandlesVM() }
+    })[VIEWMODEL_KEY, SavedStateHandlesVM::class.java]
+
+internal val SavedStateRegistryOwner.savedStateHandlesProvider: SavedStateHandlesProvider
+    get() = savedStateRegistry.getSavedStateProvider(SAVED_STATE_KEY) as? SavedStateHandlesProvider
+        ?: throw IllegalStateException("enableSavedStateHandles() wasn't called " +
+            "prior to createSavedStateHandle() call")
 
 internal class SavedStateHandlesVM : ViewModel() {
-    val controllers = mutableListOf<SavedStateHandleController>()
+    val handles = mutableMapOf<String, SavedStateHandle>()
+}
+
+/**
+ * This single SavedStateProvider is responsible for saving the state of every
+ * SavedStateHandle associated with the SavedState/ViewModel pair.
+ */
+internal class SavedStateHandlesProvider(
+    private val savedStateRegistry: SavedStateRegistry,
+    viewModelStoreOwner: ViewModelStoreOwner
+) : SavedStateRegistry.SavedStateProvider {
+    private var restored = false
+    private var restoredState: Bundle? = null
+
+    private val viewModel by lazy {
+        viewModelStoreOwner.savedStateHandlesVM
+    }
+
+    override fun saveState(): Bundle {
+        return Bundle().apply {
+            // Ensure that even if ViewModels aren't recreated after process death and recreation
+            // that we keep their state until they are recreated
+            if (restoredState != null) {
+                putAll(restoredState)
+            }
+            // But if we do have ViewModels, prefer their state over what we may
+            // have restored
+            viewModel.handles.forEach { (key, handle) ->
+                val savedState = handle.savedStateProvider().saveState()
+                if (savedState != Bundle.EMPTY) {
+                    putBundle(key, savedState)
+                }
+            }
+        }.also {
+            // After we've saved the state, allow restoring a second time
+            restored = false
+        }
+    }
+
+    /**
+     * Restore the state from the SavedStateRegistry if it hasn't already been restored.
+     */
+    fun performRestore() {
+        if (!restored) {
+            restoredState = savedStateRegistry.consumeRestoredStateForKey(SAVED_STATE_KEY)
+            restored = true
+            // Grab a reference to the ViewModel for later usage when we saveState()
+            // This ensures that even if saveState() is called after the Lifecycle is
+            // DESTROYED, we can still save the state
+            viewModel
+        }
+    }
+
+    /**
+     * Restore the state associated with a particular SavedStateHandle, identified by its [key]
+     */
+    fun consumeRestoredStateForKey(key: String): Bundle? {
+        performRestore()
+        return restoredState?.getBundle(key).also {
+            restoredState?.remove(key)
+            if (restoredState?.isEmpty == true) {
+                restoredState = null
+            }
+        }
+    }
 }
 
 // it reconnects existent SavedStateHandles to SavedStateRegistryOwner when it is recreated
 internal class SavedStateHandleAttacher : SavedStateRegistry.AutoRecreated {
     override fun onRecreated(owner: SavedStateRegistryOwner) {
-        if (owner !is ViewModelStoreOwner) {
-            throw java.lang.IllegalStateException(
-                "Internal error: SavedStateHandleAttacher should be registered only on components" +
-                    "that implement ViewModelStoreOwner"
-            )
-        }
-        val viewModelStore = (owner as ViewModelStoreOwner).viewModelStore
-        // if savedStateHandlesVM wasn't created previously, we shouldn't trigger a creation of it
-        if (!viewModelStore.keys().contains(VIEWMODEL_KEY)) return
-        owner.savedStateHandlesVM.controllers.forEach {
-            it.attachToLifecycle(owner.savedStateRegistry, owner.lifecycle)
-        }
-        owner.savedStateRegistry.runOnNextRecreation(SavedStateHandleAttacher::class.java)
+        // if SavedStateHandlesProvider wasn't added previously, there's nothing for us to do
+        val provider = owner.savedStateRegistry
+            .getSavedStateProvider(SAVED_STATE_KEY) as? SavedStateHandlesProvider ?: return
+        // onRecreated() is called after the Lifecycle reaches CREATED, so we
+        // eagerly restore the state as part of this call to ensure it consumed
+        // even if no ViewModels are actually created during this cycle of the Lifecycle
+        provider.performRestore()
     }
 }
 

@@ -34,7 +34,7 @@ android {
 dependencies {
     api("androidx.annotation:annotation:1.0.0")
     api("androidx.core:core-ktx:1.2.0")
-    api("androidx.savedstate:savedstate:1.0.0")
+    api(projectOrArtifact(":savedstate:savedstate"))
     api(projectOrArtifact(":lifecycle:lifecycle-livedata-core"))
     api(projectOrArtifact(":lifecycle:lifecycle-viewmodel"))
     api(libs.kotlinStdlib)

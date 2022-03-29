@@ -3,6 +3,7 @@ package androidx.savedstate {
 
   public final class SavedStateRegistry {
     method @MainThread public android.os.Bundle? consumeRestoredStateForKey(String);
+    method public androidx.savedstate.SavedStateRegistry.SavedStateProvider? getSavedStateProvider(String);
     method @MainThread public boolean isRestored();
     method @MainThread public void registerSavedStateProvider(String, androidx.savedstate.SavedStateRegistry.SavedStateProvider);
     method @MainThread public void runOnNextRecreation(Class<? extends androidx.savedstate.SavedStateRegistry.AutoRecreated>);
