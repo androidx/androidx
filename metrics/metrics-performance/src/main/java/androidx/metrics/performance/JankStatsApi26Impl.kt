@@ -29,6 +29,6 @@ internal open class JankStatsApi26Impl(
 ) : JankStatsApi24Impl(jankStats, view, window) {
 
     override fun getFrameStartTime(frameMetrics: FrameMetrics): Long {
-        return frameMetrics.getMetric(FrameMetrics.VSYNC_TIMESTAMP)
+        return frameMetrics.getMetric(FrameMetrics.INTENDED_VSYNC_TIMESTAMP)
     }
 }

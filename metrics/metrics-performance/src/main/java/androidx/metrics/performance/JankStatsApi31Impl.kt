@@ -39,8 +39,9 @@ internal class JankStatsApi31Impl(
             frameMetrics.getMetric(FrameMetrics.LAYOUT_MEASURE_DURATION) +
             frameMetrics.getMetric(FrameMetrics.DRAW_DURATION) +
             frameMetrics.getMetric(FrameMetrics.SYNC_DURATION)
+        prevEnd = startTime + uiDuration
         val frameStates =
-            metricsStateHolder.state?.getIntervalStates(startTime, startTime + uiDuration)
+            metricsStateHolder.state?.getIntervalStates(startTime, prevEnd)
                 ?: emptyList()
         val isJank = uiDuration > expectedDuration
         val cpuDuration = uiDuration +
