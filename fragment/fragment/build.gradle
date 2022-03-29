@@ -33,7 +33,7 @@ dependencies {
     api(projectOrArtifact(":lifecycle:lifecycle-livedata-core"))
     api(projectOrArtifact(":lifecycle:lifecycle-viewmodel"))
     api(projectOrArtifact(":lifecycle:lifecycle-viewmodel-savedstate"))
-    api("androidx.savedstate:savedstate:1.2.0-alpha01")
+    api(projectOrArtifact(":savedstate:savedstate"))
     api("androidx.annotation:annotation-experimental:1.0.0")
     api(libs.kotlinStdlib)
 

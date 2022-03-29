@@ -304,6 +304,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
             }
         });
         mSavedStateRegistryController.performAttach();
+        enableSavedStateHandles(this);
 
         if (19 <= SDK_INT && SDK_INT <= 23) {
             getLifecycle().addObserver(new ImmLeaksCleaner(this));
@@ -349,7 +350,6 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     @SuppressLint("ClassVerificationFailure") // TODO: b/225057132
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        enableSavedStateHandles(this);
         // Restore the Saved State first so that it is available to
         // OnContextAvailableListener instances
         mSavedStateRegistryController.performRestore(savedInstanceState);

@@ -319,6 +319,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         @Override
         void onPreAttached() {
             mSavedStateRegistryController.performAttach();
+            enableSavedStateHandles(Fragment.this);
         }
     };
 
@@ -3079,7 +3080,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
                 }
             });
         }
-        enableSavedStateHandles(this);
         mSavedStateRegistryController.performRestore(savedInstanceState);
         onCreate(savedInstanceState);
         mIsCreated = true;

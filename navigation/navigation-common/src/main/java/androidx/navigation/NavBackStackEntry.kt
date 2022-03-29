@@ -172,11 +172,6 @@ public class NavBackStackEntry private constructor(
         if (!savedStateRegistryAttached) {
             savedStateRegistryController.performAttach()
             savedStateRegistryAttached = true
-            // This is where we want to make this call, but because enableSavedStateHandles()
-            // currently requires access the ViewModels (b/215406268), we need to only make it
-            // if the ViewModelStore has been set. This means that the NavController needs to call
-            // setViewModelStore() before setting the graph to ensure that SavedStateHandles will
-            // be available from this entry.
             if (viewModelStoreProvider != null) {
                 enableSavedStateHandles()
             }

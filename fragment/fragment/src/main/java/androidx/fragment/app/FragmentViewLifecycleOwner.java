@@ -69,6 +69,7 @@ class FragmentViewLifecycleOwner implements HasDefaultViewModelProviderFactory,
         if (mLifecycleRegistry == null) {
             mLifecycleRegistry = new LifecycleRegistry(this);
             mSavedStateRegistryController = SavedStateRegistryController.create(this);
+            mSavedStateRegistryController.performAttach();
             enableSavedStateHandles(this);
         }
     }

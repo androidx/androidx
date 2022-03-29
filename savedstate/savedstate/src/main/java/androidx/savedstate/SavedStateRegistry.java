@@ -114,6 +114,28 @@ public final class SavedStateRegistry {
     }
 
     /**
+     * Get a previously registered {@link SavedStateProvider}.
+     *
+     * @param key The key used to register the {@link SavedStateProvider} when it was registered
+     *            with {@link #registerSavedStateProvider(String, SavedStateProvider)}.
+     * @return The {@link SavedStateProvider} previously registered with
+     * {@link #registerSavedStateProvider(String, SavedStateProvider)} or null if no provider
+     * has been registered with the given key.
+     * @see #registerSavedStateProvider(String, SavedStateProvider)
+     */
+    @Nullable
+    public SavedStateProvider getSavedStateProvider(@NonNull String key) {
+        SavedStateProvider provider = null;
+        for (Map.Entry<String, SavedStateProvider> entry : mComponents) {
+            if (entry.getKey().equals(key)) {
+                provider = entry.getValue();
+                break;
+            }
+        }
+        return provider;
+    }
+
+    /**
      * Unregisters a component previously registered by the given {@code key}
      *
      * @param key a key with which a component was previously registered.
