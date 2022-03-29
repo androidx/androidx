@@ -16,6 +16,4 @@
 <manifest package="androidx.core" xmlns:android="http://schemas.android.com/apk/res/android">
     <application
         android:appComponentFactory="androidx.core.app.CoreComponentFactory" />
-    <permission android:name="${applicationId}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"/>
-    <uses-permission android:name="${applicationId}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"/>
 </manifest>
