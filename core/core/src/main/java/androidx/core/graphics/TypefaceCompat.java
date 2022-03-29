@@ -338,7 +338,7 @@ public class TypefaceCompat {
         if (context == null) {
             throw new IllegalArgumentException("Context cannot be null");
         }
-        Preconditions.checkArgumentInRange(weight, 0, 1000, "weight");
+        Preconditions.checkArgumentInRange(weight, 1, 1000, "weight");
         if (family == null) {
             family = Typeface.DEFAULT;
         }

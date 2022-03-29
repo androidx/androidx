@@ -45,6 +45,7 @@ import androidx.core.provider.FontRequest;
 import androidx.core.provider.FontsContractCompat;
 import androidx.core.provider.MockFontProvider;
 import androidx.core.test.R;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
@@ -534,11 +535,12 @@ public class TypefaceCompatTest {
     }
 
     @Test
-    public void testTypeFaceCompatCreateWithExactStyle() {
+    @SdkSuppress(minSdkVersion = 18) // API 14-20 backport fails on 17
+    public void testTypeFaceCompatCreateWithExactStyle_upright() {
         final Typeface family = ResourcesCompat.getFont(mContext, R.font.weighttestfont);
         assertNotNull(family);
 
-        final int[] weights = new int[]{0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000};
+        final int[] weights = new int[]{1, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000};
         final float[] widths = new float[weights.length];
         final boolean[] italics = new boolean[weights.length];
 
@@ -558,6 +560,47 @@ public class TypefaceCompatTest {
                 .containsExactly(98, 98, 98, 106, 106, 106, 106, 115, 115, 115, 115);
         Truth.assertThat(italics).asList()
                 .doesNotContain(true);
+    }
+
+    @Test
+    @SdkSuppress(maxSdkVersion = 16) // API 14-20 backport fails on 17
+    public void testTypeFaceCompatCreateWithExactStyle_upright_api14_to_16() {
+        final Typeface family = ResourcesCompat.getFont(mContext, R.font.weighttestfont);
+        assertNotNull(family);
+
+        final int[] weights = new int[]{1, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000};
+        final float[] widths = new float[weights.length];
+        final boolean[] italics = new boolean[weights.length];
+
+        Paint p = new Paint();
+        p.setTextSize(120);
+
+        // Normal font style
+        for (int i = 0, size = weights.length; i < size; i++) {
+            final int weight = weights[i];
+            final Typeface t = TypefaceCompat.create(mContext, family, weight, false);
+            p.setTypeface(t);
+            widths[i] = p.measureText("W");
+            italics[i] = t.isItalic();
+        }
+
+        Truth.assertThat(widths).usingTolerance(0.1)
+                .containsExactly(98, 98, 98, 106, 106, 106, 106, 115, 115, 115, 115);
+        Truth.assertThat(italics).asList()
+                .doesNotContain(true);
+    }
+
+
+    @Test
+    @SdkSuppress(minSdkVersion = 18) // API 14-20 backport is too flakey for CI
+    public void testTypeFaceCompatCreateWithExactStyle_italic() {
+        final Typeface family = ResourcesCompat.getFont(mContext, R.font.weighttestfont);
+        final int[] weights = new int[]{1, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000};
+        final float[] widths = new float[weights.length];
+        final boolean[] italics = new boolean[weights.length];
+
+        Paint p = new Paint();
+        p.setTextSize(120);
 
         // Italic font style
         for (int i = 0, size = weights.length; i < size; i++) {
@@ -572,11 +615,43 @@ public class TypefaceCompatTest {
                 .containsExactly(97, 97, 97, 104, 104, 104, 104, 110, 110, 110, 110);
         Truth.assertThat(italics).asList()
                 .doesNotContain(false);
+    }
 
+    @Test
+    @SdkSuppress(maxSdkVersion = 16) // API 14-20 backport is too flakey for CI
+    public void testTypeFaceCompatCreateWithExactStyle_italic_api14_to_16() {
+        final Typeface family = ResourcesCompat.getFont(mContext, R.font.weighttestfont);
+        final int[] weights = new int[]{1, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000};
+        final float[] widths = new float[weights.length];
+        final boolean[] italics = new boolean[weights.length];
+
+        Paint p = new Paint();
+        p.setTextSize(120);
+
+        // Italic font style
+        for (int i = 0, size = weights.length; i < size; i++) {
+            final int weight = weights[i];
+            final Typeface t = TypefaceCompat.create(mContext, family, weight, true);
+            p.setTypeface(t);
+            widths[i] = p.measureText("W");
+            italics[i] = t.isItalic();
+        }
+
+        Truth.assertThat(widths).usingTolerance(0.1)
+                .containsExactly(97, 97, 97, 104, 104, 104, 104, 110, 110, 110, 110);
+        Truth.assertThat(italics).asList()
+                .doesNotContain(false);
+    }
+
+    @Test
+    public void testTypeFaceCompatCreateWithExactStyle_fallbackFamily() {
         // Fallback family
         final Typeface defaultTypeface = TypefaceCompat.create(mContext, null, 400, false);
         assertNotNull(defaultTypeface);
+    }
 
+    @Test
+    public void testTypeFaceCompatCreateWithExactStyle_preconditions() {
         // Preconditions
         try {
             TypefaceCompat.create(null, null, 400, false);
@@ -591,7 +666,7 @@ public class TypefaceCompatTest {
             fail("Expected IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             Truth.assertThat(expected).hasMessageThat()
-                    .isEqualTo("weight is out of range of [0, 1000] (too low)");
+                    .isEqualTo("weight is out of range of [1, 1000] (too low)");
         }
 
         try {
@@ -599,7 +674,7 @@ public class TypefaceCompatTest {
             fail("Expected IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             Truth.assertThat(expected).hasMessageThat()
-                    .isEqualTo("weight is out of range of [0, 1000] (too high)");
+                    .isEqualTo("weight is out of range of [1, 1000] (too high)");
         }
     }
 }

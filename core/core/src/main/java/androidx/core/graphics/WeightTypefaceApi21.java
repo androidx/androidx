@@ -86,10 +86,6 @@ final class WeightTypefaceApi21 {
      * Returns true if all the necessary methods were found.
      */
     private static boolean isPrivateApiAvailable() {
-        if (sNativeInstance == null) {
-            Log.w(TAG, "Unable to collect necessary private methods. "
-                    + "Fallback to legacy implementation.");
-        }
         return sNativeInstance != null;
     }
 
@@ -146,6 +142,7 @@ final class WeightTypefaceApi21 {
         }
     }
 
+    @SuppressLint("BanUncheckedReflection")
     @SuppressWarnings("ConstantConditions")
     private static long nativeCreateFromTypefaceWithExactStyle(long nativeInstance, int weight,
             boolean italic) {
@@ -162,6 +159,7 @@ final class WeightTypefaceApi21 {
         }
     }
 
+    @SuppressLint("BanUncheckedReflection")
     @SuppressWarnings("ConstantConditions")
     private static long nativeCreateWeightAlias(long nativeInstance, int weight) {
         try {

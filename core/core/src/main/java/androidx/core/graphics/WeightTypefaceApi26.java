@@ -48,18 +48,15 @@ final class WeightTypefaceApi26 {
     private static final String NATIVE_INSTANCE_FIELD = "native_instance";
     private static final String NATIVE_CREATE_FROM_TYPEFACE_WITH_EXACT_STYLE_METHOD =
             "nativeCreateFromTypefaceWithExactStyle";
-    private static final String WEIGHT_FIELD = "mWeight";
 
     private static final Field sNativeInstance;
     private static final Method sNativeCreateFromTypefaceWithExactStyle;
     private static final Constructor<Typeface> sConstructor;
-    private static final Field sWeight;
 
     static {
         Field nativeInstance;
         Method nativeCreateFromTypefaceWithExactStyle;
         Constructor<Typeface> constructor;
-        Field weight;
         try {
             nativeInstance = Typeface.class.getDeclaredField(NATIVE_INSTANCE_FIELD);
             nativeCreateFromTypefaceWithExactStyle = Typeface.class
@@ -68,29 +65,21 @@ final class WeightTypefaceApi26 {
             nativeCreateFromTypefaceWithExactStyle.setAccessible(true);
             constructor = Typeface.class.getDeclaredConstructor(long.class);
             constructor.setAccessible(true);
-            weight = Typeface.class.getDeclaredField(WEIGHT_FIELD);
-            weight.setAccessible(true);
         } catch (NoSuchFieldException | NoSuchMethodException e) {
             Log.e(TAG, e.getClass().getName(), e);
             nativeInstance = null;
             nativeCreateFromTypefaceWithExactStyle = null;
             constructor = null;
-            weight = null;
         }
         sNativeInstance = nativeInstance;
         sNativeCreateFromTypefaceWithExactStyle = nativeCreateFromTypefaceWithExactStyle;
         sConstructor = constructor;
-        sWeight = weight;
     }
 
     /**
      * Returns true if all the necessary methods were found.
      */
     private static boolean isPrivateApiAvailable() {
-        if (sNativeInstance == null) {
-            Log.w(TAG, "Unable to collect necessary private methods. "
-                    + "Fallback to legacy implementation.");
-        }
         return sNativeInstance != null;
     }
 
@@ -142,6 +131,7 @@ final class WeightTypefaceApi26 {
         }
     }
 
+    @SuppressLint("BanUncheckedReflection")
     @SuppressWarnings("ConstantConditions")
     private static long nativeCreateFromTypefaceWithExactStyle(long nativeInstance, int weight,
             boolean italic) {

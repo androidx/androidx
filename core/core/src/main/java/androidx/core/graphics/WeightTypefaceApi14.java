@@ -61,10 +61,6 @@ final class WeightTypefaceApi14 {
      * Returns true if all the necessary methods were found.
      */
     private static boolean isPrivateApiAvailable() {
-        if (sNativeInstance == null) {
-            Log.w(TAG, "Unable to collect necessary private methods. "
-                    + "Fallback to legacy implementation.");
-        }
         return sNativeInstance != null;
     }
 
@@ -104,11 +100,30 @@ final class WeightTypefaceApi14 {
 
             typeface = getBestFontFromFamily(compat, context, base, weight, italic);
             if (typeface == null) {
-                typeface = base;
+                typeface = platformTypefaceCreate(base, weight, italic);
             }
             innerCache.put(key, typeface);
         }
         return typeface;
+    }
+
+    private static Typeface platformTypefaceCreate(Typeface base, int weight, boolean italic) {
+        boolean isBold = weight >= 600;
+        int style = 0;
+        if (!isBold && !italic) {
+            // !bold && !italic
+            style = Typeface.NORMAL;
+        } else if (!isBold) {
+            // !bold && italic
+            style = Typeface.ITALIC;
+        } else if (!italic) {
+            // bold && !italic
+            style = Typeface.BOLD;
+        } else {
+            // bold && italic
+            style = Typeface.BOLD_ITALIC;
+        }
+        return Typeface.create(base, style);
     }
 
     /**
