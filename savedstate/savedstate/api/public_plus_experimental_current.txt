@@ -19,11 +19,17 @@ package androidx.savedstate {
   }
 
   public final class SavedStateRegistryController {
-    method public static androidx.savedstate.SavedStateRegistryController create(androidx.savedstate.SavedStateRegistryOwner);
+    method public static androidx.savedstate.SavedStateRegistryController create(androidx.savedstate.SavedStateRegistryOwner owner);
     method public androidx.savedstate.SavedStateRegistry getSavedStateRegistry();
     method @MainThread public void performAttach();
-    method @MainThread public void performRestore(android.os.Bundle?);
-    method @MainThread public void performSave(android.os.Bundle);
+    method @MainThread public void performRestore(android.os.Bundle? savedState);
+    method @MainThread public void performSave(android.os.Bundle outBundle);
+    property public final androidx.savedstate.SavedStateRegistry savedStateRegistry;
+    field public static final androidx.savedstate.SavedStateRegistryController.Companion Companion;
+  }
+
+  public static final class SavedStateRegistryController.Companion {
+    method public androidx.savedstate.SavedStateRegistryController create(androidx.savedstate.SavedStateRegistryOwner owner);
   }
 
   public interface SavedStateRegistryOwner extends androidx.lifecycle.LifecycleOwner {
