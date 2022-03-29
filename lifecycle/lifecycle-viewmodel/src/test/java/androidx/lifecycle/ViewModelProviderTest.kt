@@ -112,7 +112,7 @@ class ViewModelProviderTest {
     }
 
     @Test
-    fun testDefaultCreationExtras() {
+    fun testDefaultCreationExtrasWithMutableExtras() {
         val owner = ViewModelStoreOwnerWithCreationExtras()
         val wasCalled = BooleanArray(1)
         val testFactory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
@@ -128,6 +128,34 @@ class ViewModelProviderTest {
                 assertThat(key).isEqualTo("customKey")
                 assertThat(mutableExtras[TEST_KEY]).isEqualTo(TEST_VALUE)
                 assertThat(mutableExtras[mutableKey]).isEqualTo(mutableValue)
+                wasCalled[0] = true
+                @Suppress("UNCHECKED_CAST")
+                return ViewModel1() as T
+            }
+        }
+        ViewModelProvider(owner, testFactory)["customKey", ViewModel1::class.java]
+        assertThat(wasCalled[0]).isTrue()
+        wasCalled[0] = false
+        ViewModelProvider(object : ViewModelStoreOwnerWithCreationExtras() {
+            override fun getDefaultViewModelProviderFactory(): ViewModelProvider.Factory {
+                return testFactory
+            }
+        })["customKey", ViewModel1::class.java]
+        assertThat(wasCalled[0]).isTrue()
+    }
+
+    @Test
+    fun testDefaultCreationExtras() {
+        val owner = ViewModelStoreOwnerWithCreationExtras()
+        val wasCalled = BooleanArray(1)
+        val testFactory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(
+                modelClass: Class<T>,
+                extras: CreationExtras
+            ): T {
+                val key = extras[ViewModelProvider.NewInstanceFactory.VIEW_MODEL_KEY]
+                assertThat(key).isEqualTo("customKey")
+                assertThat(extras[TEST_KEY]).isEqualTo(TEST_VALUE)
                 wasCalled[0] = true
                 @Suppress("UNCHECKED_CAST")
                 return ViewModel1() as T
