@@ -34,13 +34,13 @@ fun TimeTextClockOnly() {
 fun TimeTextWithLeadingText() {
     val textStyle = TimeTextDefaults.timeTextStyle(color = AlternatePrimaryColor1)
     TimeText(
-        leadingLinearContent = {
+        startLinearContent = {
             Text(
                 text = "ETA 12:48",
                 style = textStyle
             )
         },
-        leadingCurvedContent = {
+        startCurvedContent = {
             basicCurvedText(
                 text = "ETA 12:48",
                 style = CurvedTextStyle(textStyle)
