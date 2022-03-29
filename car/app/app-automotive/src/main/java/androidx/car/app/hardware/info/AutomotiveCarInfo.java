@@ -349,7 +349,7 @@ public class AutomotiveCarInfo implements CarInfo {
                         List<Integer> evConnectorsInCarValue = new ArrayList<>();
                         for (Integer connectorType : evConnectorsInVehicle) {
                             evConnectorsInCarValue.add(
-                                    PropertyUtils.covertEvConnectorType(connectorType));
+                                    PropertyUtils.convertEvConnectorType(connectorType));
                         }
                         evConnector = getCarValue(value, evConnectorsInCarValue);
                     }
@@ -465,7 +465,7 @@ public class AutomotiveCarInfo implements CarInfo {
                         case SPEED_DISPLAY_UNIT_ID:
                             Integer speedUnit = null;
                             if (response.getValue() != null) {
-                                speedUnit = PropertyUtils.covertSpeedUnit(
+                                speedUnit = PropertyUtils.convertSpeedUnit(
                                         (Integer) response.getValue());
                             }
                             displayUnitValue = getCarValue(response, speedUnit);
@@ -588,7 +588,7 @@ public class AutomotiveCarInfo implements CarInfo {
                         case DISTANCE_DISPLAY_UNITS:
                             Integer displayUnit = null;
                             if (response.getValue() != null) {
-                                displayUnit = PropertyUtils.covertDistanceUnit(
+                                displayUnit = PropertyUtils.convertDistanceUnit(
                                         (Integer) response.getValue());
                             }
                             distanceDisplayUnitValue = new CarValue<>(displayUnit,
@@ -689,7 +689,7 @@ public class AutomotiveCarInfo implements CarInfo {
                         case DISTANCE_DISPLAY_UNITS:
                             Integer displayUnit = null;
                             if (response.getValue() != null) {
-                                displayUnit = PropertyUtils.covertDistanceUnit(
+                                displayUnit = PropertyUtils.convertDistanceUnit(
                                         (Integer) response.getValue());
                             }
                             distanceDisplayUnitValue = new CarValue<>(displayUnit,
@@ -698,7 +698,7 @@ public class AutomotiveCarInfo implements CarInfo {
                         case FUEL_VOLUME_DISPLAY_UNITS:
                             Integer volumeUnit = null;
                             if (response.getValue() != null) {
-                                volumeUnit = PropertyUtils.covertVolumeUnit(
+                                volumeUnit = PropertyUtils.convertVolumeUnit(
                                         (Integer) response.getValue());
                             }
                             fuelVolumeDisplayUnitValue =
