@@ -44,12 +44,11 @@ android {
     defaultConfig {
         externalNativeBuild {
             cmake {
-                cppFlags "-std=c++17"
                 arguments "-DCMAKE_VERBOSE_MAKEFILE=ON"
                 targets "icing"
             }
         }
-	multiDexEnabled true
+        multiDexEnabled true
     }
     externalNativeBuild {
         cmake {
