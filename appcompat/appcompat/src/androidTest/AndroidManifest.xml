@@ -308,6 +308,10 @@
             android:theme="@style/Theme.CustomInflater"/>
 
         <activity
+            android:name="androidx.appcompat.app.NoThemeAppCompatActivity"
+            android:theme="@android:style/Theme.Holo.NoActionBar"/>
+
+        <activity
             android:name="androidx.appcompat.widget.ToolbarTestActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar"/>
 
