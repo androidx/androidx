@@ -2376,12 +2376,15 @@ public class Toolbar extends ViewGroup implements MenuHost {
     }
 
     private void onCreateMenu() {
+        Menu menu = getMenu();
         ArrayList<MenuItem> oldMenuItemList = getCurrentMenuItems();
-        mMenuHostHelper.onCreateMenu(getMenu(), getMenuInflater());
+        mMenuHostHelper.onCreateMenu(menu, getMenuInflater());
 
         ArrayList<MenuItem> newMenuItemList = getCurrentMenuItems();
         newMenuItemList.removeAll(oldMenuItemList);
         mProvidedMenuItems = newMenuItemList;
+
+        mMenuHostHelper.onPrepareMenu(menu);
     }
 
     @Override
