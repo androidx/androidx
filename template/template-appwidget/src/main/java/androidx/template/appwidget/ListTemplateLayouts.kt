@@ -92,26 +92,25 @@ private fun WidgetLayoutVertical(data: ListTemplateData) {
             AppWidgetTemplateHeader(data.headerIcon, header)
             Spacer(modifier = GlanceModifier.height(16.dp))
         }
-        data.title?.let { title ->
-            Text(title.text, style = TextStyle(fontSize = 20.sp))
-            Spacer(modifier = GlanceModifier.height(16.dp))
-        }
-        data.button?.let { button ->
-            Button(text = button.text, onClick = button.action)
-        }
         LazyColumn {
             itemsIndexed(data.listContent) { _, item ->
                 // TODO: Extract and allow override
-                var itemModifier = GlanceModifier.fillMaxWidth()
+                var itemModifier = GlanceModifier.fillMaxWidth().height(64.dp)
                 item.action?.let { action -> itemModifier = itemModifier.clickable(action) }
                 Row(modifier = itemModifier) {
+                    item.image?.let { image ->
+                        Image(provider = image.image,
+                              contentDescription = image.description,
+                              modifier = GlanceModifier.width(64.dp))
+                    }
+                    Spacer(modifier = GlanceModifier.width(16.dp))
                     Column(modifier = GlanceModifier.defaultWeight()) {
-                        Text(item.title.text, style = TextStyle(fontSize = 18.sp))
+                        Text(item.title.text, style = TextStyle(fontSize = 18.sp), maxLines = 2)
                         item.body?.let { body -> Text(body.text) }
                     }
-                    item.image?.let { image ->
-                        Spacer(modifier = GlanceModifier.width(16.dp))
-                        Image(provider = image.image, contentDescription = image.description)
+                    item.button?.let { button ->
+                      Spacer(modifier = GlanceModifier.width(16.dp))
+                      AppWidgetTemplateButton(button)
                     }
                 }
             }
@@ -121,19 +120,7 @@ private fun WidgetLayoutVertical(data: ListTemplateData) {
 
 @Composable
 private fun WidgetLayoutHorizontal(data: ListTemplateData) {
-    Column(modifier = createTopLevelModifier(data.backgroundColor)) {
-        data.header?.let { header ->
-            AppWidgetTemplateHeader(data.headerIcon, header)
-            Spacer(modifier = GlanceModifier.height(16.dp))
-        }
-        data.title?.let { title ->
-            Text(title.text, style = TextStyle(fontSize = 20.sp))
-            Spacer(modifier = GlanceModifier.height(16.dp))
-        }
-        data.button?.let { button ->
-            Button(text = button.text, onClick = button.action)
-        }
-    }
+   WidgetLayoutVertical(data)
 }
 
 private fun createTopLevelModifier(backgroundColor: ColorProvider?): GlanceModifier {
