@@ -102,6 +102,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -1437,6 +1438,7 @@ class WatchFaceControlClientTest {
         assertTrue(service.hasComplicationDataCache())
     }
 
+    @Ignore // b/225230182
     @RequiresApi(Build.VERSION_CODES.O_MR1)
     @Test
     fun interactiveAndHeadlessOpenGlWatchFaceInstances() {
