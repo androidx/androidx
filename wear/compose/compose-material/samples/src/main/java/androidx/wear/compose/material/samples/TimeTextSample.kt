@@ -33,13 +33,13 @@ fun TimeTextWithStatus() {
     val leadingTextStyle = TimeTextDefaults.timeTextStyle(color = MaterialTheme.colors.primary)
 
     TimeText(
-        leadingLinearContent = {
+        startLinearContent = {
             Text(
                 text = "ETA 12:48",
                 style = leadingTextStyle
             )
         },
-        leadingCurvedContent = {
+        startCurvedContent = {
             curvedText(
                 text = "ETA 12:48",
                 style = CurvedTextStyle(leadingTextStyle)
