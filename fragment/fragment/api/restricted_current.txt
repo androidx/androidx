@@ -137,7 +137,7 @@ package androidx.fragment.app {
     method public void setEnterTransition(Object?);
     method public void setExitSharedElementCallback(androidx.core.app.SharedElementCallback?);
     method public void setExitTransition(Object?);
-    method public void setHasOptionsMenu(boolean);
+    method @Deprecated public void setHasOptionsMenu(boolean);
     method public void setInitialSavedState(androidx.fragment.app.Fragment.SavedState?);
     method public void setMenuVisibility(boolean);
     method public void setReenterTransition(Object?);
