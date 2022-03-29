@@ -30,6 +30,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
+import androidx.test.filters.FlakyTest
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.atan2
@@ -311,9 +312,11 @@ class CurvedLayoutTest {
     }
 
     @Test
+    @FlakyTest(bugId = 227314580)
     fun showing_child_works() = visibility_change_test_setup(true)
 
     @Test
+    @FlakyTest(bugId = 227314580)
     fun hiding_child_works() = visibility_change_test_setup(false)
 }
 
