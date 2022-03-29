@@ -27,6 +27,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.dp
 import org.junit.Assert.assertEquals
 import androidx.compose.ui.unit.sp
+import androidx.test.filters.FlakyTest
 import org.junit.Rule
 import org.junit.Test
 
@@ -35,6 +36,7 @@ class BasicCurvedTextTest {
     val rule = createComposeRule()
 
     @Test
+    @FlakyTest(bugId = 227338558)
     fun modifying_curved_text_forces_curved_row_remeasure() {
         val counters = Counters()
         val text = mutableStateOf("Initial")
