@@ -25,7 +25,7 @@ repositories {
 
 dependencies {
     implementation "com.gradle:gradle-enterprise-gradle-plugin:3.8.1"
-    implementation "com.gradle:common-custom-user-data-gradle-plugin:1.6.3"
+    implementation "com.gradle:common-custom-user-data-gradle-plugin:1.6.5"
     testImplementation "junit:junit:4.13"
     testImplementation "com.google.truth:truth:1.1.3"
 }
