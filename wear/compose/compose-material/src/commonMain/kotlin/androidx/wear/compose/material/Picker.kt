@@ -189,14 +189,14 @@ public class PickerState constructor(
     val repeatItems: Boolean = true
 ) : ScrollableState {
     init {
-        require(initialNumberOfOptions > 0) { "The picker should have at least one item." }
+        verifyNumberOfOptions(initialNumberOfOptions)
     }
 
     private var _numberOfOptions by mutableStateOf(initialNumberOfOptions)
     var numberOfOptions
         get() = _numberOfOptions
         set(newNumberOfOptions) {
-            require(newNumberOfOptions > 0) { "The picker should have at least one item." }
+            verifyNumberOfOptions(newNumberOfOptions)
             optionsOffset = ((selectedOption.coerceAtMost(newNumberOfOptions - 1) -
                 scalingLazyListState.centerItemIndex % newNumberOfOptions) + newNumberOfOptions) %
                     newNumberOfOptions
@@ -280,6 +280,14 @@ public class PickerState constructor(
 
     override val isScrollInProgress: Boolean
         get() = scalingLazyListState.isScrollInProgress
+
+    private fun verifyNumberOfOptions(numberOfOptions: Int) {
+        require(numberOfOptions > 0) { "The picker should have at least one item." }
+        require(numberOfOptions < LARGE_NUMBER_OF_ITEMS / 3) {
+            // Set an upper limit to ensure there are at least 3 repeats of all the options
+            "The picker should have at most ${LARGE_NUMBER_OF_ITEMS / 3} items"
+        }
+    }
 }
 
 /**
