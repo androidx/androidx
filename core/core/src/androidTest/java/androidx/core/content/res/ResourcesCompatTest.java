@@ -44,6 +44,7 @@ import androidx.core.provider.MockFontProvider;
 import androidx.core.test.R;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.FlakyTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
@@ -380,6 +381,15 @@ public class ResourcesCompatTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 29)
+    public void testGetFont_xmlFile_sync_29_hasRightWeight() {
+        Typeface font = ResourcesCompat.getFont(mContext, R.font.samplexmlfont_medium);
+
+        assertNotNull(font);
+        assertEquals(500, font.getWeight());
+    }
+
+    @Test
     public void testGetFont_xmlFile_async() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
         final FontCallback callback = new FontCallback(latch);
@@ -390,6 +400,20 @@ public class ResourcesCompatTest {
 
         assertNotNull(callback.mTypeface);
         assertNotSame(Typeface.DEFAULT, callback.mTypeface);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 29)
+    public void testGetFont_xmlFile_async_29_hasRightWeight() throws InterruptedException {
+        final CountDownLatch latch = new CountDownLatch(1);
+        final FontCallback callback = new FontCallback(latch);
+
+        ResourcesCompat.getFont(mContext, R.font.samplexmlfont_medium, callback, null);
+
+        assertTrue(latch.await(5L, TimeUnit.SECONDS));
+
+        assertNotNull(callback.mTypeface);
+        assertEquals(500, callback.mTypeface.getWeight());
     }
 
     @Test(expected = Resources.NotFoundException.class)
