@@ -1237,8 +1237,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
     @Override
     public void invalidateOptionsMenu() {
-        final ActionBar ab = getSupportActionBar();
-        if (ab != null && ab.invalidateOptionsMenu()) return;
+        if (peekSupportActionBar() == null || getSupportActionBar().invalidateOptionsMenu()) return;
 
         invalidatePanelMenu(FEATURE_OPTIONS_PANEL);
     }
