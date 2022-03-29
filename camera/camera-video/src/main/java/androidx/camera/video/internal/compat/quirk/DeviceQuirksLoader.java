@@ -68,6 +68,12 @@ public class DeviceQuirksLoader {
         if (MediaStoreVideoCannotWrite.load()) {
             quirks.add(new MediaStoreVideoCannotWrite());
         }
+        if (AudioEncoderIgnoresInputTimestampQuirk.load()) {
+            quirks.add(new AudioEncoderIgnoresInputTimestampQuirk());
+        }
+        if (VideoEncoderSuspendDoesNotIncludeSuspendTimeQuirk.load()) {
+            quirks.add(new VideoEncoderSuspendDoesNotIncludeSuspendTimeQuirk());
+        }
 
         return quirks;
     }

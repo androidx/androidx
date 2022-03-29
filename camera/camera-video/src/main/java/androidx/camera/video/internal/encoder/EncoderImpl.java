@@ -45,9 +45,11 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.video.internal.DebugUtils;
+import androidx.camera.video.internal.compat.quirk.AudioEncoderIgnoresInputTimestampQuirk;
 import androidx.camera.video.internal.compat.quirk.CameraUseInconsistentTimebaseQuirk;
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.video.internal.compat.quirk.EncoderNotUsePersistentInputSurfaceQuirk;
+import androidx.camera.video.internal.compat.quirk.VideoEncoderSuspendDoesNotIncludeSuspendTimeQuirk;
 import androidx.camera.video.internal.workaround.CorrectVideoTimeByTimebase;
 import androidx.camera.video.internal.workaround.EncoderFinder;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
@@ -328,9 +330,19 @@ public class EncoderImpl implements Encoder {
                             (resumeTimeUs - pauseTimeUs))
                     );
 
-                    setMediaCodecPaused(false);
-                    if (mEncoderInput instanceof ByteBufferInput) {
-                        ((ByteBufferInput) mEncoderInput).setActive(true);
+                    if (!mIsVideoEncoder && DeviceQuirks.get(
+                            AudioEncoderIgnoresInputTimestampQuirk.class) != null) {
+                        // Do nothing. Since we keep handling audio data in the codec after
+                        // paused, we don't have to resume the codec and the input source.
+                    } else if (mIsVideoEncoder && DeviceQuirks.get(
+                            VideoEncoderSuspendDoesNotIncludeSuspendTimeQuirk.class) != null) {
+                        // Do nothing. Since we don't pause the codec when paused, we don't have
+                        // to resume the codec.
+                    } else {
+                        setMediaCodecPaused(false);
+                        if (mEncoderInput instanceof ByteBufferInput) {
+                            ((ByteBufferInput) mEncoderInput).setActive(true);
+                        }
                     }
                     // If this is a video encoder, then request a key frame in order to complete
                     // the resume process as soon as possible in MediaCodec.Callback
@@ -1169,14 +1181,22 @@ public class EncoderImpl implements Encoder {
                 }
                 executor.execute(encoderCallback::onEncodePaused);
 
-                // It has to ensure the current state is PAUSED state and then stop the input
-                // source. This is because start() will resume input source and could be called
-                // before the output buffer reach pause range.
+                // We must ensure that the current state is PAUSED before we stop the input
+                // source and pause the codec. This is because start() may be called before the
+                // output buffer reaches the pause range.
                 if (mState == PAUSED) {
-                    if (mEncoderInput instanceof ByteBufferInput) {
-                        ((ByteBufferInput) mEncoderInput).setActive(false);
+                    if (!mIsVideoEncoder && DeviceQuirks.get(
+                            AudioEncoderIgnoresInputTimestampQuirk.class) != null) {
+                        // Do nothing, which means keep handling audio data in the codec.
+                    } else if (mIsVideoEncoder && DeviceQuirks.get(
+                            VideoEncoderSuspendDoesNotIncludeSuspendTimeQuirk.class) != null) {
+                        // Do nothing, which means don't pause the codec.
+                    } else {
+                        if (mEncoderInput instanceof ByteBufferInput) {
+                            ((ByteBufferInput) mEncoderInput).setActive(false);
+                        }
+                        setMediaCodecPaused(true);
                     }
-                    setMediaCodecPaused(true);
                 }
 
                 // An encoding session could be pause/resume for multiple times. So a later pause
