@@ -1146,6 +1146,13 @@ public class SwitchCompat extends CompoundButton implements EmojiCompatConfigura
     }
 
     /**
+     * @return the current thumb position as a decimal value between 0 (off) and 1 (on).
+     */
+    protected final float getThumbPosition() {
+        return mThumbPosition;
+    }
+
+    /**
      * Sets the thumb position as a decimal value between 0 (off) and 1 (on).
      *
      * @param position new position between [0,1]
