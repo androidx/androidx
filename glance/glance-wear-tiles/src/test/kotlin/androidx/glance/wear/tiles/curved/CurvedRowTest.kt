@@ -23,8 +23,10 @@ import androidx.glance.GlanceModifier
 import androidx.glance.findModifier
 import androidx.glance.layout.PaddingModifier
 import androidx.glance.layout.padding
+import androidx.glance.text.EmittableText
 import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
+import androidx.glance.text.Text
 import androidx.glance.unit.ColorProvider
 import androidx.glance.wear.tiles.runTestingComposition
 import com.google.common.truth.Truth.assertThat
@@ -91,21 +93,99 @@ class CurvedRowTest {
     fun createComposableArcText() = fakeCoroutineScope.runTest {
         val root = runTestingComposition {
             CurvedRow {
-                CurvedText(
+                curvedText(
                     text = "Hello World",
-                    modifier = GlanceModifier.padding(5.dp),
-                    textStyle = CurvedTextStyle(color = ColorProvider(Color.Gray), fontSize = 24.sp)
+                    curvedModifier = GlanceCurvedModifier,
+                    style = CurvedTextStyle(color = ColorProvider(Color.Gray), fontSize = 24.sp)
                 )
             }
         }
 
         val arc = assertIs<EmittableCurvedRow>(root.children[0])
-        val arcText = assertIs<EmittableCurvedText>(arc.children[0])
+        val arcText = assertIs<EmittableCurvedText>(arc.children.first())
 
         assertThat(arcText.text).isEqualTo("Hello World")
-        assertThat(arcText.modifier.findModifier<PaddingModifier>()).isNotNull()
-        assertThat(arcText.textStyle).isNotNull()
-        assertThat(arcText.textStyle!!.fontSize).isEqualTo(24.sp)
-        assertThat(arcText.textStyle!!.color).isEqualTo(ColorProvider(Color.Gray))
+        assertThat(arcText.style).isNotNull()
+        assertThat(arcText.style!!.fontSize).isEqualTo(24.sp)
+        assertThat(arcText.style!!.color).isEqualTo(ColorProvider(Color.Gray))
+    }
+
+    @Test
+    fun createCurvedRow() = fakeCoroutineScope.runTest {
+        val root = runTestingComposition {
+            CurvedRow {
+                curvedComposable(true) {
+                    Text(text = "hello1")
+                    Text(text = "hello2")
+                }
+
+                curvedComposable(false) {
+                    Text(text = "hello3")
+                }
+
+                curvedText(text = "hello4")
+            }
+        }
+
+        val curvedRow = assertIs<EmittableCurvedRow>(root.children[0])
+
+        val curvedChild0 = assertIs<EmittableCurvedChild>(curvedRow.children[0])
+        var text = assertIs<EmittableText>(curvedChild0.children.first())
+        assertThat(text.text).isEqualTo("hello1")
+        text = assertIs<EmittableText>(curvedChild0.children[1])
+        assertThat(text.text).isEqualTo("hello2")
+
+        val curvedChild1 = assertIs<EmittableCurvedChild>(curvedRow.children[1])
+        text = assertIs<EmittableText>(curvedChild1.children.first())
+        assertThat(text.text).isEqualTo("hello3")
+
+        var curvedText = assertIs<EmittableCurvedText>(curvedRow.children[2])
+        assertThat(curvedText.text).isEqualTo("hello4")
+    }
+
+    @Test
+    fun createComposableCurvedLine() = fakeCoroutineScope.runTest {
+        val root = runTestingComposition {
+            CurvedRow {
+                curvedLine(
+                    color = ColorProvider(Color.Red),
+                    curvedModifier =
+                        GlanceCurvedModifier.sweepAngleDegrees(90f).thickness(10.dp)
+                )
+            }
+        }
+
+        val row = assertIs<EmittableCurvedRow>(root.children[0])
+        val line = assertIs<EmittableCurvedLine>(row.children[0])
+
+        assertThat(line.color).isEqualTo(ColorProvider(Color.Red))
+        val sweepAngleModifier = line.curvedModifier.findModifier<SweepAngleModifier>()
+        assertThat(sweepAngleModifier).isNotNull()
+        assertThat(sweepAngleModifier!!.degrees).isEqualTo(90f)
+        val thicknessModifier = line.curvedModifier.findModifier<ThicknessModifier>()
+        assertThat(thicknessModifier).isNotNull()
+        assertThat(thicknessModifier!!.thickness).isEqualTo(10.dp)
+    }
+
+    @Test
+    fun createComposableCurvedSpacer() = fakeCoroutineScope.runTest {
+        val root = runTestingComposition {
+            CurvedRow {
+                curvedSpacer(
+                    curvedModifier =
+                    GlanceCurvedModifier.sweepAngleDegrees(60f).thickness(6.dp)
+                )
+            }
+        }
+
+        val row = assertIs<EmittableCurvedRow>(root.children[0])
+        val spacer = assertIs<EmittableCurvedSpacer>(row.children[0])
+
+        val sweepAngleModifier = spacer.curvedModifier.findModifier<SweepAngleModifier>()
+        assertThat(sweepAngleModifier).isNotNull()
+        assertThat(sweepAngleModifier!!.degrees).isEqualTo(60f)
+        val thicknessModifier = spacer.curvedModifier.findModifier<ThicknessModifier>()
+        assertThat(thicknessModifier).isNotNull()
+        assertThat(thicknessModifier!!.thickness).isEqualTo(6.dp)
     }
 }

@@ -92,13 +92,29 @@ package androidx.glance.wear.tiles.curved {
     property public final int Start;
   }
 
-  public final class CurvedRowKt {
-    method @androidx.compose.runtime.Composable public static void CurvedRow(optional androidx.glance.GlanceModifier modifier, optional float anchorDegrees, optional int anchorType, optional int radialAlignment, kotlin.jvm.functions.Function1<? super androidx.glance.wear.tiles.curved.CurvedRowScope,kotlin.Unit> content);
+  public final class CombinedGlanceCurvedModifier implements androidx.glance.wear.tiles.curved.GlanceCurvedModifier {
+    ctor public CombinedGlanceCurvedModifier(androidx.glance.wear.tiles.curved.GlanceCurvedModifier outer, androidx.glance.wear.tiles.curved.GlanceCurvedModifier inner);
+    method public boolean all(kotlin.jvm.functions.Function1<? super androidx.glance.wear.tiles.curved.GlanceCurvedModifier.Element,java.lang.Boolean> predicate);
+    method public boolean any(kotlin.jvm.functions.Function1<? super androidx.glance.wear.tiles.curved.GlanceCurvedModifier.Element,java.lang.Boolean> predicate);
+    method public <R> R! foldIn(R? initial, kotlin.jvm.functions.Function2<? super R,? super androidx.glance.wear.tiles.curved.GlanceCurvedModifier.Element,? extends R> operation);
+    method public <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.glance.wear.tiles.curved.GlanceCurvedModifier.Element,? super R,? extends R> operation);
   }
 
-  public final class CurvedRowScope {
-    ctor public CurvedRowScope();
-    method @androidx.compose.runtime.Composable public void CurvedText(String text, optional androidx.glance.GlanceModifier modifier, optional androidx.glance.wear.tiles.curved.CurvedTextStyle? textStyle);
+  @androidx.glance.wear.tiles.curved.CurvedScopeMarker public interface CurvedChildScope {
+  }
+
+  public final class CurvedRowKt {
+    method @androidx.compose.runtime.Composable public static void CurvedRow(optional androidx.glance.GlanceModifier modifier, optional float anchorDegrees, optional int anchorType, optional int radialAlignment, kotlin.jvm.functions.Function1<? super androidx.glance.wear.tiles.curved.CurvedScope,kotlin.Unit> content);
+  }
+
+  @androidx.glance.wear.tiles.curved.CurvedScopeMarker public interface CurvedScope {
+    method public void curvedComposable(optional boolean rotateContent, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method public void curvedLine(androidx.glance.unit.ColorProvider color, optional androidx.glance.wear.tiles.curved.GlanceCurvedModifier curvedModifier);
+    method public void curvedSpacer(optional androidx.glance.wear.tiles.curved.GlanceCurvedModifier curvedModifier);
+    method public void curvedText(String text, optional androidx.glance.wear.tiles.curved.GlanceCurvedModifier curvedModifier, optional androidx.glance.wear.tiles.curved.CurvedTextStyle? style);
+  }
+
+  @kotlin.DslMarker public @interface CurvedScopeMarker {
   }
 
   @androidx.compose.runtime.Immutable public final class CurvedTextStyle {
@@ -111,6 +127,34 @@ package androidx.glance.wear.tiles.curved {
     property public final androidx.compose.ui.unit.TextUnit? fontSize;
     property public final androidx.glance.text.FontStyle? fontStyle;
     property public final androidx.glance.text.FontWeight? fontWeight;
+  }
+
+  @androidx.compose.runtime.Stable public interface GlanceCurvedModifier {
+    method public boolean all(kotlin.jvm.functions.Function1<? super androidx.glance.wear.tiles.curved.GlanceCurvedModifier.Element,java.lang.Boolean> predicate);
+    method public boolean any(kotlin.jvm.functions.Function1<? super androidx.glance.wear.tiles.curved.GlanceCurvedModifier.Element,java.lang.Boolean> predicate);
+    method public <R> R! foldIn(R? initial, kotlin.jvm.functions.Function2<? super R,? super androidx.glance.wear.tiles.curved.GlanceCurvedModifier.Element,? extends R> operation);
+    method public <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.glance.wear.tiles.curved.GlanceCurvedModifier.Element,? super R,? extends R> operation);
+    method public default infix androidx.glance.wear.tiles.curved.GlanceCurvedModifier then(androidx.glance.wear.tiles.curved.GlanceCurvedModifier other);
+    field public static final androidx.glance.wear.tiles.curved.GlanceCurvedModifier.Companion Companion;
+  }
+
+  public static final class GlanceCurvedModifier.Companion implements androidx.glance.wear.tiles.curved.GlanceCurvedModifier {
+    method public boolean all(kotlin.jvm.functions.Function1<? super androidx.glance.wear.tiles.curved.GlanceCurvedModifier.Element,java.lang.Boolean> predicate);
+    method public boolean any(kotlin.jvm.functions.Function1<? super androidx.glance.wear.tiles.curved.GlanceCurvedModifier.Element,java.lang.Boolean> predicate);
+    method public <R> R! foldIn(R? initial, kotlin.jvm.functions.Function2<? super R,? super androidx.glance.wear.tiles.curved.GlanceCurvedModifier.Element,? extends R> operation);
+    method public <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.glance.wear.tiles.curved.GlanceCurvedModifier.Element,? super R,? extends R> operation);
+  }
+
+  public static interface GlanceCurvedModifier.Element extends androidx.glance.wear.tiles.curved.GlanceCurvedModifier {
+    method public default boolean all(kotlin.jvm.functions.Function1<? super androidx.glance.wear.tiles.curved.GlanceCurvedModifier.Element,java.lang.Boolean> predicate);
+    method public default boolean any(kotlin.jvm.functions.Function1<? super androidx.glance.wear.tiles.curved.GlanceCurvedModifier.Element,java.lang.Boolean> predicate);
+    method public default <R> R! foldIn(R? initial, kotlin.jvm.functions.Function2<? super R,? super androidx.glance.wear.tiles.curved.GlanceCurvedModifier.Element,? extends R> operation);
+    method public default <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.glance.wear.tiles.curved.GlanceCurvedModifier.Element,? super R,? extends R> operation);
+  }
+
+  public final class GlanceCurvedModifierKt {
+    method public static androidx.glance.wear.tiles.curved.GlanceCurvedModifier sweepAngleDegrees(androidx.glance.wear.tiles.curved.GlanceCurvedModifier, float degrees);
+    method public static androidx.glance.wear.tiles.curved.GlanceCurvedModifier thickness(androidx.glance.wear.tiles.curved.GlanceCurvedModifier, float thickness);
   }
 
   public final inline class RadialAlignment {

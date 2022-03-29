@@ -54,7 +54,10 @@ import androidx.glance.unit.ColorProvider
 import androidx.glance.wear.tiles.curved.AnchorType
 import androidx.glance.wear.tiles.curved.CurvedRow
 import androidx.glance.wear.tiles.curved.CurvedTextStyle
+import androidx.glance.wear.tiles.curved.GlanceCurvedModifier
 import androidx.glance.wear.tiles.curved.RadialAlignment
+import androidx.glance.wear.tiles.curved.sweepAngleDegrees
+import androidx.glance.wear.tiles.curved.thickness
 import androidx.glance.wear.tiles.test.R
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.wear.tiles.ActionBuilders
@@ -452,7 +455,7 @@ class WearCompositionTranslatorTest {
             )
 
             CurvedRow {
-                CurvedText(text = "Hello World", textStyle = style)
+                curvedText(text = "Hello World", style = style)
             }
         }.layout
 
@@ -466,6 +469,46 @@ class WearCompositionTranslatorTest {
         assertThat(innerArcText.fontStyle!!.size!!.value).isEqualTo(16f)
         assertThat(innerArcText.fontStyle!!.italic!!.value).isTrue()
         assertThat(innerArcText.fontStyle!!.weight!!.value).isEqualTo(FONT_WEIGHT_BOLD)
+    }
+
+    @Test
+    fun canTranslateCurvedLine() = fakeCoroutineScope.runTest {
+        val content = runAndTranslate {
+            CurvedRow {
+                curvedLine(
+                    color = ColorProvider(Color(0x11223344)),
+                    curvedModifier =
+                    GlanceCurvedModifier.sweepAngleDegrees(90f).thickness(10.dp)
+                )
+            }
+        }.layout
+
+        val innerArc = (content as LayoutElementBuilders.Box).contents[0]
+            as LayoutElementBuilders.Arc
+        val innerArcLine = innerArc.contents[0] as LayoutElementBuilders.ArcLine
+
+        assertThat(innerArcLine.color!!.argb).isEqualTo(0x11223344)
+        assertThat(innerArcLine.length!!.value).isEqualTo(90f)
+        assertThat(innerArcLine.thickness!!.value).isEqualTo(10f)
+    }
+
+    @Test
+    fun canTranslateCurvedSpacer() = fakeCoroutineScope.runTest {
+        val content = runAndTranslate {
+            CurvedRow {
+                curvedSpacer(
+                    curvedModifier =
+                    GlanceCurvedModifier.sweepAngleDegrees(60f).thickness(6.dp)
+                )
+            }
+        }.layout
+
+        val innerArc = (content as LayoutElementBuilders.Box).contents[0]
+            as LayoutElementBuilders.Arc
+        val innerArcSpacer = innerArc.contents[0] as LayoutElementBuilders.ArcSpacer
+
+        assertThat(innerArcSpacer.length!!.value).isEqualTo(60f)
+        assertThat(innerArcSpacer.thickness!!.value).isEqualTo(6f)
     }
 
     @Test
@@ -486,7 +529,9 @@ class WearCompositionTranslatorTest {
     fun otherElementInArcInflatesInArcAdapter() = fakeCoroutineScope.runTest {
         val content = runAndTranslate {
             CurvedRow {
-                Box {}
+                curvedComposable(false) {
+                    Box {}
+                }
             }
         }.layout
 
