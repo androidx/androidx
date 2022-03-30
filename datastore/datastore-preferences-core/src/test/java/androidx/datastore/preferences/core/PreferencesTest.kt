@@ -183,6 +183,48 @@ class PreferencesTest {
     }
 
     @Test
+    fun testByteArray() {
+        val byteArrayKey = byteArrayPreferencesKey("byte_array_key")
+        val byteArray = byteArrayOf(1, 2, 3, 4)
+
+        val prefs = preferencesOf(byteArrayKey to byteArray)
+
+        assertTrue { byteArrayKey in prefs }
+        assertTrue(byteArray.contentEquals(prefs[byteArrayKey]))
+    }
+
+    @Test
+    fun testByteArrayNotSet() {
+        val byteArrayKey = byteArrayPreferencesKey("byte_array_key")
+        assertNull(emptyPreferences()[byteArrayKey])
+    }
+
+    @Test
+    fun testModifyingOriginalByteArrayDoesntModifyInternalState() {
+        val byteArrayKey = byteArrayPreferencesKey("byte_array_key")
+        val byteArray = byteArrayOf(1, 2, 3, 4)
+        val prefs = preferencesOf(byteArrayKey to byteArray)
+
+        byteArray[0] = 5 // modify the array passed into preferences
+
+        assertTrue(byteArrayOf(5, 2, 3, 4).contentEquals(byteArray))
+        assertTrue(byteArrayOf(1, 2, 3, 4).contentEquals(prefs[byteArrayKey]))
+    }
+
+    @Test
+    fun testModifyingReturnedByteArrayDoesntModifyInternalState() {
+        val byteArrayKey = byteArrayPreferencesKey("byte_array_key")
+        val byteArray = byteArrayOf(1, 2, 3, 4)
+        val prefs = preferencesOf(byteArrayKey to byteArray)
+
+        val readPrefs = prefs[byteArrayKey]!!
+        readPrefs[0] = 5
+
+        assertTrue(byteArrayOf(5, 2, 3, 4).contentEquals(readPrefs))
+        assertTrue(byteArrayOf(1, 2, 3, 4).contentEquals(prefs[byteArrayKey]))
+    }
+
+    @Test
     @Suppress("UNUSED_VARIABLE")
     fun testWrongTypeThrowsClassCastException() {
         val stringKey = stringPreferencesKey("string_key")
@@ -328,6 +370,64 @@ class PreferencesTest {
     }
 
     @Test
+    fun testEqualsByteArrayAndOther() {
+        val byteArrayKey =
+            byteArrayPreferencesKey("byte_array")
+        val intKey = intPreferencesKey("int_key")
+
+        val prefs1 = preferencesOf(byteArrayKey to byteArrayOf(1, 2, 3), intKey to 1)
+        val prefs2 = preferencesOf(byteArrayKey to byteArrayOf(1, 2, 3), intKey to 1)
+
+        assertEquals(prefs1, prefs2)
+    }
+
+    @Test
+    fun testNotEqualsByteArrayAndOther() {
+        val byteArrayKey =
+            byteArrayPreferencesKey("byte_array")
+        val intKey = intPreferencesKey("int_key")
+
+        val prefs1 = preferencesOf(byteArrayKey to byteArrayOf(1, 2, 3), intKey to 1)
+        val prefs2 = preferencesOf(byteArrayKey to byteArrayOf(1, 2, 4), intKey to 1)
+
+        assertNotEquals(prefs1, prefs2)
+    }
+
+    @Test
+    fun testEqualsSameByteArrays() {
+        val byteArrayKey =
+            byteArrayPreferencesKey("byte_array")
+
+        val prefs1 = preferencesOf(byteArrayKey to byteArrayOf(1, 2, 3))
+        val prefs2 = preferencesOf(byteArrayKey to byteArrayOf(1, 2, 3))
+
+        assertEquals(prefs1, prefs2)
+    }
+
+    @Test
+    fun testNotEqualsDifferentByteArrays() {
+        val byteArrayKey =
+            byteArrayPreferencesKey("byte_array")
+
+        val prefs1 = preferencesOf(byteArrayKey to byteArrayOf(1, 2, 3))
+        val prefs2 = preferencesOf(byteArrayKey to byteArrayOf(1, 2, 4))
+
+        assertNotEquals(prefs1, prefs2)
+    }
+
+    @Test
+    fun testByteArrayCreatesHashCodeBasedOnContents() {
+        val byteArrayKey = byteArrayPreferencesKey("byte_array_key")
+
+        val prefs = preferencesOf(byteArrayKey to byteArrayOf(1, 2, 3, 4))
+        val prefs2 = preferencesOf(byteArrayKey to byteArrayOf(1, 2, 3, 4))
+        val prefs3 = preferencesOf(byteArrayKey to byteArrayOf(1, 2, 3, 5))
+
+        assertEquals(prefs.hashCode(), prefs2.hashCode())
+        assertNotEquals(prefs.hashCode(), prefs3.hashCode())
+    }
+
+    @Test
     fun testToPreferences_retainsAllKeys() {
         val intKey1 = intPreferencesKey("int_key1")
         val intKey2 = intPreferencesKey("int_key2")
@@ -389,6 +489,7 @@ class PreferencesTest {
         val stringSetKey =
             stringSetPreferencesKey("string_set_key")
         val longKey = longPreferencesKey("long_key")
+        val byteArrayKey = byteArrayPreferencesKey("byte_array_key")
 
         val prefs = preferencesOf(
             intKey to 123,
@@ -396,7 +497,8 @@ class PreferencesTest {
             floatKey to 3.14f,
             stringKey to "abc",
             stringSetKey to setOf("1", "2", "3"),
-            longKey to 10000000000L
+            longKey to 10000000000L,
+            byteArrayKey to byteArrayOf(1, 2, 3, 4)
         )
 
         assertEquals(
@@ -407,7 +509,8 @@ class PreferencesTest {
               float_key = 3.14,
               string_key = abc,
               string_set_key = [1, 2, 3],
-              long_key = 10000000000
+              long_key = 10000000000,
+              byte_array_key = [1, 2, 3, 4]
             }
             """.trimIndent(),
             prefs.toString()
