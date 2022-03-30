@@ -34,15 +34,16 @@ import kotlin.math.sqrt
 /**
  * Component that allows normal composables to be part of a [CurvedLayout].
  *
+ * @param modifier The [CurvedModifier] to apply to this curved composable.
  * @param radialAlignment How to align this component if it's thinner than the container.
  * @param content The composable(s) that will be wrapped and laid out as part of the parent
  * container. This has a [BoxScope], since it's wrapped inside a Box.
  */
 public fun CurvedScope.curvedComposable(
-    // TODO: move to modifiers.
+    modifier: CurvedModifier = CurvedModifier,
     radialAlignment: CurvedAlignment.Radial = CurvedAlignment.Radial.Center,
     content: @Composable BoxScope.() -> Unit
-) = add(CurvedComposableChild(reverseLayout, radialAlignment, content))
+) = add(CurvedComposableChild(reverseLayout, radialAlignment, content), modifier)
 
 internal class CurvedComposableChild(
     val reverseLayout: Boolean,
