@@ -682,6 +682,7 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
     }
 }
 
+@Suppress("Deprecation")
 class ExampleDigitalWatchCanvasRenderer(
     surfaceHolder: SurfaceHolder,
     private val context: Context,

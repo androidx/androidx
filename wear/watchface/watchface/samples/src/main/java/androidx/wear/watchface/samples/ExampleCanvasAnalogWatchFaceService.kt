@@ -381,6 +381,7 @@ open class ExampleCanvasAnalogWatchFaceService : WatchFaceService() {
         )
 }
 
+@Suppress("Deprecation")
 class ExampleAnalogWatchCanvasRenderer(
     surfaceHolder: SurfaceHolder,
     private val context: Context,

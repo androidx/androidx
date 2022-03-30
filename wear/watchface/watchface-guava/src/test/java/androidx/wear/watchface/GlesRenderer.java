@@ -26,6 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import java.time.ZonedDateTime;
 
 // This class tests that a Java class extending ListenableGlesRenderer can successfully be compiled.
+@SuppressWarnings("deprecation")
 public class GlesRenderer extends ListenableGlesRenderer {
 
     public GlesRenderer(

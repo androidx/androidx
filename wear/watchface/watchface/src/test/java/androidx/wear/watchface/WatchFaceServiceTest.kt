@@ -3831,51 +3831,77 @@ public class WatchFaceServiceTest {
     @RequiresApi(Build.VERSION_CODES.O_MR1)
     public fun assetLifeCycle_CanvasRenderer() {
         val eventLog = ArrayList<String>()
+        var renderer: Renderer
+
+        class TestSharedAssets : Renderer.SharedAssets {
+            override fun onDestroy() {
+                eventLog.add("SharedAssets onDestroy")
+            }
+        }
 
         testWatchFaceService = TestWatchFaceService(
             WatchFaceType.DIGITAL,
             emptyList(),
             { _, currentUserStyleRepository, watchState ->
-                renderer = object : TestRenderer(
+                renderer = object : Renderer.CanvasRenderer2<TestSharedAssets>(
                     surfaceHolder,
                     currentUserStyleRepository,
                     watchState,
-                    INTERACTIVE_UPDATE_RATE_MS
+                    CanvasType.HARDWARE,
+                    INTERACTIVE_UPDATE_RATE_MS,
+                    clearWithBackgroundTintBeforeRenderingHighlightLayer = false
                 ) {
                     init {
-                        eventLog.add("TestRenderer created")
+                        eventLog.add(watchState.watchFaceInstanceId.value + " TestRenderer created")
                     }
 
-                    override suspend fun createSharedAssets(): SharedAssets? {
+                    override suspend fun createSharedAssets(): TestSharedAssets {
                         eventLog.add("createAssets")
-                        return object : SharedAssets {
-                            override fun onDestroy() {
-                                eventLog.add("SharedAssets onDestroy")
-                            }
-                        }
+                        return TestSharedAssets()
+                    }
+
+                    override fun render(
+                        canvas: Canvas,
+                        bounds: Rect,
+                        zonedDateTime: ZonedDateTime,
+                        sharedAssets: TestSharedAssets
+                    ) {
+                        eventLog.add(watchState.watchFaceInstanceId.value + " render")
+                    }
+
+                    override fun renderHighlightLayer(
+                        canvas: Canvas,
+                        bounds: Rect,
+                        zonedDateTime: ZonedDateTime,
+                        sharedAssets: TestSharedAssets
+                    ) {
+                        // NOP
                     }
 
                     override fun onDestroy() {
                         super.onDestroy()
-                        eventLog.add("TestRenderer onDestroy")
+                        eventLog.add(
+                            watchState.watchFaceInstanceId.value + " TestRenderer onDestroy"
+                        )
                     }
                 }
                 renderer
             },
             UserStyleSchema(emptyList()),
-            watchState,
+            null,
             handler,
             null,
             false,
             null,
-            choreographer
+            choreographer,
+            forceIsVisible = true
         )
 
         InteractiveInstanceManager
             .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
                 InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
                     WallpaperInteractiveWatchFaceInstanceParams(
-                        "TestID",
+                        SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive",
                         DeviceConfig(
                             false,
                             false,
@@ -3916,7 +3942,7 @@ public class WatchFaceServiceTest {
                 DeviceConfig(false, false, 100, 200),
                 100,
                 100,
-                null
+                SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Headless"
             )
         )
 
@@ -3924,11 +3950,14 @@ public class WatchFaceServiceTest {
         engineWrapper.onDestroy()
 
         assertThat(eventLog).containsExactly(
-            "TestRenderer created",
+            SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive TestRenderer created",
             "createAssets",
-            "TestRenderer created",
-            "TestRenderer onDestroy",
-            "TestRenderer onDestroy",
+            SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive render",
+            SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive render",
+            SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Headless TestRenderer created",
+            SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Headless render",
+            SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Headless TestRenderer onDestroy",
+            SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive TestRenderer onDestroy",
             "SharedAssets onDestroy"
         )
     }
@@ -3937,58 +3966,71 @@ public class WatchFaceServiceTest {
     @RequiresApi(Build.VERSION_CODES.O_MR1)
     public fun assetLifeCycle_GlesRenderer() {
         val eventLog = ArrayList<String>()
-        var renderer: Renderer.GlesRenderer
+        var renderer: Renderer
+
+        class TestSharedAssets : Renderer.SharedAssets {
+            override fun onDestroy() {
+                eventLog.add("SharedAssets onDestroy")
+            }
+        }
 
         testWatchFaceService = TestWatchFaceService(
             WatchFaceType.DIGITAL,
             emptyList(),
             { _, currentUserStyleRepository, watchState ->
-                renderer = object : Renderer.GlesRenderer(
+                renderer = object : Renderer.GlesRenderer2<TestSharedAssets>(
                     surfaceHolder,
                     currentUserStyleRepository,
                     watchState,
                     INTERACTIVE_UPDATE_RATE_MS
                 ) {
                     init {
-                        eventLog.add("TestRenderer created")
+                        eventLog.add(watchState.watchFaceInstanceId.value + " TestRenderer created")
                     }
 
-                    override suspend fun createSharedAssets(): SharedAssets? {
+                    override suspend fun createSharedAssets(): TestSharedAssets {
                         eventLog.add("createAssets")
-                        return object : SharedAssets {
-                            override fun onDestroy() {
-                                eventLog.add("SharedAssets onDestroy")
-                            }
-                        }
+                        return TestSharedAssets()
                     }
 
                     override fun onDestroy() {
                         super.onDestroy()
-                        eventLog.add("TestRenderer onDestroy")
+                        eventLog.add(
+                            watchState.watchFaceInstanceId.value + " TestRenderer onDestroy"
+                        )
                     }
 
-                    override fun render(zonedDateTime: ZonedDateTime) {
+                    override fun render(
+                        zonedDateTime: ZonedDateTime,
+                        sharedAssets: TestSharedAssets
+                    ) {
+                        eventLog.add(watchState.watchFaceInstanceId.value + " render")
                     }
 
-                    override fun renderHighlightLayer(zonedDateTime: ZonedDateTime) {
+                    override fun renderHighlightLayer(
+                        zonedDateTime: ZonedDateTime,
+                        sharedAssets: TestSharedAssets
+                    ) {
+                        // NOP
                     }
                 }
                 renderer
             },
             UserStyleSchema(emptyList()),
-            watchState,
+            null,
             handler,
             null,
             false,
             null,
-            choreographer
+            choreographer,
+            forceIsVisible = true
         )
 
         InteractiveInstanceManager
             .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
                 InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
                     WallpaperInteractiveWatchFaceInstanceParams(
-                        "TestID",
+                        SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive",
                         DeviceConfig(
                             false,
                             false,
@@ -4029,7 +4071,7 @@ public class WatchFaceServiceTest {
                 DeviceConfig(false, false, 100, 200),
                 100,
                 100,
-                null
+                SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Headless"
             )
         )
 
@@ -4037,11 +4079,14 @@ public class WatchFaceServiceTest {
         engineWrapper.onDestroy()
 
         assertThat(eventLog).containsExactly(
-            "TestRenderer created",
+            SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive TestRenderer created",
             "createAssets",
-            "TestRenderer created",
-            "TestRenderer onDestroy",
-            "TestRenderer onDestroy",
+            SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive render",
+            SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive render",
+            SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Headless TestRenderer created",
+            SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Headless render",
+            SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Headless TestRenderer onDestroy",
+            SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive TestRenderer onDestroy",
             "SharedAssets onDestroy"
         )
     }

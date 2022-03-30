@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.watchface.test
+package androidx.wear.watchface
 
 import android.content.Context
 import android.graphics.Canvas
@@ -24,13 +24,6 @@ import android.view.SurfaceHolder
 import androidx.annotation.RequiresApi
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.wear.watchface.CanvasType
-import androidx.wear.watchface.ComplicationSlotsManager
-import androidx.wear.watchface.ListenableCanvasRenderer
-import androidx.wear.watchface.WatchFace
-import androidx.wear.watchface.WatchFaceService
-import androidx.wear.watchface.WatchFaceType
-import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.client.DeviceConfig
 import androidx.wear.watchface.client.WatchUiState
 import androidx.wear.watchface.style.CurrentUserStyleRepository
@@ -68,6 +61,7 @@ internal class TestAsyncCanvasRenderInitWatchFaceService(
         currentUserStyleRepository: CurrentUserStyleRepository
     ) = WatchFace(
         WatchFaceType.DIGITAL,
+        @Suppress("Deprecation")
         object : ListenableCanvasRenderer(
             surfaceHolder,
             currentUserStyleRepository,
@@ -92,7 +86,7 @@ internal class TestAsyncCanvasRenderInitWatchFaceService(
                 bounds: Rect,
                 zonedDateTime: ZonedDateTime
             ) {
-                TODO("Not yet implemented")
+                // NOP
             }
         }
     ).setSystemTimeProvider(object : WatchFace.SystemTimeProvider {

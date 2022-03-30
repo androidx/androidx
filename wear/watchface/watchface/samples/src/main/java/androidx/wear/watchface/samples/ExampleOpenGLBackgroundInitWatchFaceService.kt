@@ -231,8 +231,12 @@ internal class MainThreadRenderer(
     watchState: WatchState,
     private val resources: Resources,
     private val colorStyleSetting: UserStyleSetting.ListUserStyleSetting,
-) : Renderer.GlesRenderer(surfaceHolder, currentUserStyleRepository, watchState, FRAME_PERIOD_MS) {
-
+) : Renderer.GlesRenderer2<ExampleSharedAssets>(
+    surfaceHolder,
+    currentUserStyleRepository,
+    watchState,
+    FRAME_PERIOD_MS
+) {
     private val projectionMatrix = FloatArray(16)
     private val viewMatrix = FloatArray(16).apply {
         Matrix.setLookAtM(
@@ -272,18 +276,17 @@ internal class MainThreadRenderer(
         )
     }
 
-    override fun render(zonedDateTime: ZonedDateTime) {
+    override fun render(zonedDateTime: ZonedDateTime, sharedAssets: ExampleSharedAssets) {
         checkGLError("renders")
         GLES20.glClearColor(0f, 1f, 0f, 1f)
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
 
-        val myAssets = sharedAssets.value!! as ExampleSharedAssets
-        myAssets.triangleTextureProgram.bindProgramAndAttribs()
+        sharedAssets.triangleTextureProgram.bindProgramAndAttribs()
         GLES20.glBindTexture(
             GLES20.GL_TEXTURE_2D,
             when (currentUserStyleRepository.userStyle.value[colorStyleSetting]!!.toString()) {
-                "yellow_style" -> myAssets.yellowWatchBodyTexture
-                "blue_style" -> myAssets.blueWatchBodyTexture
+                "yellow_style" -> sharedAssets.yellowWatchBodyTexture
+                "blue_style" -> sharedAssets.blueWatchBodyTexture
                 else -> throw UnsupportedOperationException()
             }
         )
@@ -292,10 +295,10 @@ internal class MainThreadRenderer(
         GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ZERO)
 
         Matrix.multiplyMM(vpMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
-        myAssets.backgroundQuad.draw(vpMatrix)
+        sharedAssets.backgroundQuad.draw(vpMatrix)
 
         GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA)
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, myAssets.watchHandTexture)
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, sharedAssets.watchHandTexture)
 
         val hours = (zonedDateTime.hour % 12).toFloat()
         val minutes = zonedDateTime.minute.toFloat()
@@ -306,24 +309,27 @@ internal class MainThreadRenderer(
         Matrix.setRotateM(handPositionMatrix, 0, secondsRot, 0f, 0f, 1f)
         Matrix.multiplyMM(handViewMatrix, 0, viewMatrix, 0, handPositionMatrix, 0)
         Matrix.multiplyMM(vpMatrix, 0, projectionMatrix, 0, handViewMatrix, 0)
-        myAssets.secondHandQuad.draw(vpMatrix)
+        sharedAssets.secondHandQuad.draw(vpMatrix)
 
         val minuteRot = (minutes + seconds / 60.0f) / 60.0f * 360.0f
         Matrix.setRotateM(handPositionMatrix, 0, minuteRot, 0f, 0f, 1f)
         Matrix.multiplyMM(handViewMatrix, 0, viewMatrix, 0, handPositionMatrix, 0)
         Matrix.multiplyMM(vpMatrix, 0, projectionMatrix, 0, handViewMatrix, 0)
-        myAssets.minuteHandQuad.draw(vpMatrix)
+        sharedAssets.minuteHandQuad.draw(vpMatrix)
 
         val hourRot = (hours + minutes / 60.0f + seconds / 3600.0f) / 12.0f * 360.0f
         Matrix.setRotateM(handPositionMatrix, 0, hourRot, 0f, 0f, 1f)
         Matrix.multiplyMM(handViewMatrix, 0, viewMatrix, 0, handPositionMatrix, 0)
         Matrix.multiplyMM(vpMatrix, 0, projectionMatrix, 0, handViewMatrix, 0)
-        myAssets.hourHandQuad.draw(vpMatrix)
+        sharedAssets.hourHandQuad.draw(vpMatrix)
 
-        myAssets.triangleTextureProgram.unbindAttribs()
+        sharedAssets.triangleTextureProgram.unbindAttribs()
     }
 
-    override fun renderHighlightLayer(zonedDateTime: ZonedDateTime) {
+    override fun renderHighlightLayer(
+        zonedDateTime: ZonedDateTime,
+        sharedAssets: ExampleSharedAssets
+    ) {
         val highlightLayer = renderParameters.highlightLayer!!
         GLES20.glClearColor(
             Color.red(highlightLayer.backgroundTint).toFloat() / 256.0f,

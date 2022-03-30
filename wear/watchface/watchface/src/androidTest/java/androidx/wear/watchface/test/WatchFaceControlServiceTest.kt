@@ -81,6 +81,7 @@ internal class AsyncInitWithUiThreadTaskWatchFace : WatchFaceService() {
     ): WatchFace = withContext(mainThreadCoroutineScope.coroutineContext) {
         WatchFace(
             WatchFaceType.DIGITAL,
+            @Suppress("deprecation")
             object : Renderer.CanvasRenderer(
                 surfaceHolder,
                 currentUserStyleRepository,

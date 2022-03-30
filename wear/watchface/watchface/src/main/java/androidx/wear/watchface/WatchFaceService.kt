@@ -518,6 +518,15 @@ public abstract class WatchFaceService : WallpaperService() {
     /** This is open for testing. */
     internal open fun getUiThreadHandlerImpl(): Handler = Handler(Looper.getMainLooper())
 
+    /**
+     * Override to force the watchface to be regarded as being visible. This must not be used in
+     * production code or significant battery life regressions may occur.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    open fun forceIsVisibleForTesting() = false
+
     /* Interface for setting the main thread priority. This exists for testing. */
     internal interface MainThreadPriorityDelegate {
         fun setNormalPriority()
@@ -1043,7 +1052,7 @@ public abstract class WatchFaceService : WallpaperService() {
         internal var deferredSurfaceHolder = CompletableDeferred<SurfaceHolder>()
 
         internal val mutableWatchState = getMutableWatchState().apply {
-            isVisible.value = this@EngineWrapper.isVisible
+            isVisible.value = this@EngineWrapper.isVisible || forceIsVisibleForTesting()
             // Watch faces with the old [onSetBinder] init flow don't know whether the system
             // is ambient until they have received a background action wallpaper command.
             // That's supposed to get sent very quickly, but in case it doesn't we initially
@@ -2098,7 +2107,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 }
             }
 
-            mutableWatchState.isVisible.value = visible
+            mutableWatchState.isVisible.value = visible || forceIsVisibleForTesting()
             wslFlow.pendingVisibilityChanged = null
 
             getWatchFaceImplOrNull()?.onVisibility(visible)
