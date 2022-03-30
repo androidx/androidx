@@ -17,7 +17,6 @@
 package androidx.work.impl.background.gcm;
 
 
-import android.content.Context;
 import android.os.PowerManager;
 
 import androidx.annotation.MainThread;
@@ -51,19 +50,16 @@ public class WorkManagerGcmDispatcher {
     private static final long AWAIT_TIME_IN_MINUTES = 10;
     private static final long AWAIT_TIME_IN_MILLISECONDS = AWAIT_TIME_IN_MINUTES * 60 * 1000;
 
-    private final Context mContext;
     private final WorkTimer mWorkTimer;
 
     // Synthetic access
     WorkManagerImpl mWorkManagerImpl;
 
-
-    public WorkManagerGcmDispatcher(@NonNull Context context, @NonNull WorkTimer workTimer) {
-        mContext = context.getApplicationContext();
-        mWorkTimer = workTimer;
-        mWorkManagerImpl = WorkManagerImpl.getInstance(context);
+    public WorkManagerGcmDispatcher(
+            @NonNull WorkManagerImpl workManager, @NonNull WorkTimer timer) {
+        mWorkManagerImpl = workManager;
+        mWorkTimer = timer;
     }
-
 
     /**
      * Handles {@link WorkManagerGcmService#onInitializeTasks()}.
@@ -104,7 +100,8 @@ public class WorkManagerGcmDispatcher {
         Processor processor = mWorkManagerImpl.getProcessor();
         processor.addExecutionListener(listener);
         String wakeLockTag = "WorkGcm-onRunTask (" + workSpecId + ")";
-        PowerManager.WakeLock wakeLock = WakeLocks.newWakeLock(mContext, wakeLockTag);
+        PowerManager.WakeLock wakeLock = WakeLocks.newWakeLock(
+                mWorkManagerImpl.getApplicationContext(), wakeLockTag);
         mWorkManagerImpl.startWork(workSpecId);
         mWorkTimer.startTimer(workSpecId, AWAIT_TIME_IN_MILLISECONDS, timeLimitExceededListener);
 
@@ -146,13 +143,6 @@ public class WorkManagerGcmDispatcher {
                     return reschedule(workSpecId);
             }
         }
-    }
-
-    /**
-     * Cleans up resources when the {@link WorkManagerGcmDispatcher} is no longer in use.
-     */
-    public void onDestroy() {
-        mWorkTimer.onDestroy();
     }
 
     private int reschedule(@NonNull final String workSpecId) {
