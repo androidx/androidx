@@ -62,6 +62,8 @@ public class StepperScreenshotTest {
             Stepper(
                 modifier = Modifier.testTag(TEST_TAG),
                 value = 2f,
+                increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
+                decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
                 steps = 3,
                 onValueChange = {}
             ) {}
@@ -107,6 +109,8 @@ public class StepperScreenshotTest {
                 modifier = Modifier.testTag(TEST_TAG),
                 value = 2f,
                 steps = 3,
+                increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
+                decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
                 onValueChange = {}
             ) {
                 Chip(
@@ -131,6 +135,8 @@ public class StepperScreenshotTest {
                 value = 2f,
                 steps = 3,
                 onValueChange = {},
+                increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
+                decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
                 backgroundColor = Color.Green,
                 contentColor = Color.Yellow,
                 iconTintColor = Color.Magenta,

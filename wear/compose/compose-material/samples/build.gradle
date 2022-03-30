@@ -35,6 +35,7 @@ dependencies {
     implementation(project(":compose:runtime:runtime"))
     implementation(project(":compose:ui:ui"))
     implementation(project(":compose:ui:ui-text"))
+    implementation(project(":compose:material:material-icons-core"))
     implementation(project(":wear:compose:compose-material"))
     implementation(project(":wear:compose:compose-foundation"))
 

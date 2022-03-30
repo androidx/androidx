@@ -25,12 +25,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.test.assertContentDescriptionContains
 import androidx.compose.ui.test.assertRangeInfoEquals
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onChild
+import androidx.compose.ui.test.onChildAt
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performTouchInput
@@ -53,6 +56,8 @@ public class StepperTest {
                 value = 1f,
                 onValueChange = {},
                 steps = 5,
+                increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
+                decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
                 modifier = Modifier.testTag(TEST_TAG)
             ) {}
         }
@@ -107,7 +112,13 @@ public class StepperTest {
     @Test(expected = IllegalArgumentException::class)
     public fun throws_when_steps_negative() {
         rule.setContent {
-            Stepper(value = 0f, onValueChange = {}, steps = -1) {}
+            Stepper(
+                value = 0f,
+                onValueChange = {},
+                increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
+                decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
+                steps = -1
+            ) {}
         }
     }
 
@@ -224,13 +235,14 @@ public class StepperTest {
                 value = 0f,
                 steps = 5,
                 onValueChange = { },
+                increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
                 decreaseIcon = {
                     Icon(
                         modifier = Modifier.testTag(iconTag),
                         imageVector = Icons.Default.Star,
                         contentDescription = ""
                     )
-                }
+                },
             ) {}
         }
         val unclippedBoundsInRoot = rule.onRoot().getUnclippedBoundsInRoot()
@@ -260,7 +272,8 @@ public class StepperTest {
                         imageVector = Icons.Default.Star,
                         contentDescription = ""
                     )
-                }
+                },
+                decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
             ) {}
         }
         rule.waitForIdle()
@@ -278,6 +291,8 @@ public class StepperTest {
                 modifier = Modifier.testTag(TEST_TAG),
                 value = 0f,
                 steps = 5,
+                increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
+                decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
                 onValueChange = { },
             ) {
                 Text("Testing", modifier = Modifier.testTag(contentTag).fillMaxHeight())
@@ -296,7 +311,53 @@ public class StepperTest {
             )
     }
 
-    private val BorderVerticalMargin = 8.dp
+    @Test
+    public fun sets_custom_description_for_increase_icon() {
+        val testContentDescription = "testContentDescription"
+
+        rule.setContentWithTheme {
+            Stepper(
+                modifier = Modifier.testTag(TEST_TAG),
+                value = 0f,
+                steps = 5,
+                increaseIcon = { Icon(StepperDefaults.Increase, testContentDescription) },
+                decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
+                onValueChange = { },
+            ) {}
+        }
+
+        rule.waitForIdle()
+        rule.onNodeWithTag(TEST_TAG, true)
+            // 0 is the index of increase button, 1 - decrease button, content is empty
+            .onChildAt(0)
+            .onChild()
+            .assertContentDescriptionContains(testContentDescription)
+    }
+
+    @Test
+    public fun sets_custom_description_for_decrease_icon() {
+        val testContentDescription = "testContentDescription"
+
+        rule.setContentWithTheme {
+            Stepper(
+                modifier = Modifier.testTag(TEST_TAG),
+                value = 0f,
+                steps = 5,
+                increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
+                decreaseIcon = { Icon(StepperDefaults.Decrease, testContentDescription) },
+                onValueChange = { },
+            ) {}
+        }
+
+        rule.waitForIdle()
+        rule.onNodeWithTag(TEST_TAG, true)
+            // 0 is the index of increase button, 1 - decrease button, content is empty
+            .onChildAt(1)
+            .onChild()
+            .assertContentDescriptionContains(testContentDescription)
+    }
+
+    private val BorderVerticalMargin = 22.dp
     private val VerticalMargin = 8.dp
     private val ButtonWeight = .35f
     private val DefaultIconHeight = 24.dp
@@ -314,6 +375,8 @@ public class IntegerStepperTest {
                 value = 1,
                 onValueChange = {},
                 valueProgression = 0..5,
+                increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
+                decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
                 modifier = Modifier.testTag(TEST_TAG)
             ) {}
         }
@@ -328,6 +391,8 @@ public class IntegerStepperTest {
                 value = 1,
                 onValueChange = {},
                 valueProgression = 0..10,
+                increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
+                decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
                 modifier = Modifier.testTag(TEST_TAG)
             ) {}
         }
@@ -430,6 +495,8 @@ private fun ComposeContentTestRule.initDefaultStepper(
             onValueChange = { state.value = it },
             valueRange = valueRange,
             steps = steps,
+            increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
+            decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
             modifier = Modifier.testTag(TEST_TAG)
         ) {}
     }
@@ -465,6 +532,8 @@ private fun ComposeContentTestRule.initDefaultStepper(
             value = state.value,
             onValueChange = { state.value = it },
             valueProgression = valueProgression,
+            increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
+            decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
             modifier = Modifier.testTag(TEST_TAG)
         ) {}
     }

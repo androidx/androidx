@@ -36,7 +36,6 @@ import androidx.wear.compose.material.ButtonDefaults
 import androidx.wear.compose.material.CircularProgressIndicator
 import androidx.wear.compose.material.CompactChip
 import androidx.wear.compose.material.Icon
-import androidx.wear.compose.material.InlineSlider
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
 import kotlinx.coroutines.coroutineScope
@@ -66,7 +65,7 @@ public fun ProgressWithCustomAngles() {
         ) {
             item { Text("Start Angle:$startAngle") }
             item {
-                InlineSlider(
+                DefaultInlineSlider(
                     value = startAngle,
                     onValueChange = { startAngle = it },
                     steps = 15,
@@ -75,7 +74,7 @@ public fun ProgressWithCustomAngles() {
             }
             item { Text("End Angle:$endAngle") }
             item {
-                InlineSlider(
+                DefaultInlineSlider(
                     value = endAngle,
                     onValueChange = { endAngle = it },
                     steps = 15,
@@ -84,7 +83,7 @@ public fun ProgressWithCustomAngles() {
             }
             item { Text("Progress:$progress") }
             item {
-                InlineSlider(
+                DefaultInlineSlider(
                     value = progress,
                     onValueChange = { progress = it },
                     steps = 4,
