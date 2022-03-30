@@ -27,6 +27,9 @@ import androidx.lifecycle.Lifecycle
  */
 class SavedStateRegistryController private constructor(private val owner: SavedStateRegistryOwner) {
 
+    /**
+     * The [SavedStateRegistry] owned by this controller
+     */
     val savedStateRegistry: SavedStateRegistry = SavedStateRegistry()
 
     private var attached = false
