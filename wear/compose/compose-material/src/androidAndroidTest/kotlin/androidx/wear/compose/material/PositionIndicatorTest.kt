@@ -22,6 +22,7 @@ import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredSize
@@ -44,7 +45,6 @@ import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -145,7 +145,6 @@ public class PositionIndicatorTest {
     }
 
     @Test
-    @Ignore("Offsets not being handled correctly due to b/198751807")
     fun scalingLazyColumnNotLargeEnoughToScrollSwapVerticalAlignmentGivesCorrectPositionAndSize() {
         lateinit var state: ScalingLazyListState
         lateinit var positionIndicatorState: PositionIndicatorState
@@ -189,6 +188,32 @@ public class PositionIndicatorTest {
 
     @Test
     fun scrollableScalingLazyColumnGivesCorrectPositionAndSize() {
+        scrollableScalingLazyColumnPositionAndSize(
+            autoCentering = true,
+            contentPadding = PaddingValues(0.dp)
+        )
+    }
+
+    @Test
+    fun scrollableScalingLazyColumnGivesCorrectPositionAndSizeWithContentPadding() {
+        scrollableScalingLazyColumnPositionAndSize(
+            autoCentering = true,
+            contentPadding = PaddingValues(50.dp)
+        )
+    }
+
+    @Test
+    fun scrollableScalingLazyColumnGivesCorrectPositionAndSizeWithContentPaddingNoAutoCenter() {
+        scrollableScalingLazyColumnPositionAndSize(
+            autoCentering = false,
+            contentPadding = PaddingValues(50.dp)
+        )
+    }
+
+    private fun scrollableScalingLazyColumnPositionAndSize(
+        autoCentering: Boolean,
+        contentPadding: PaddingValues
+    ) {
         lateinit var state: ScalingLazyListState
         lateinit var positionIndicatorState: PositionIndicatorState
         var viewPortHeight = 0
@@ -205,6 +230,8 @@ public class PositionIndicatorTest {
                         itemSizeDp * 3f + itemSpacingDp * 2f
                     ),
                 scalingParams = ScalingLazyColumnDefaults.scalingParams(edgeScale = 1.0f),
+                autoCentering = autoCentering,
+                contentPadding = contentPadding
             ) {
                 items(5) {
                     Box(Modifier.requiredSize(itemSizeDp))
@@ -452,7 +479,6 @@ public class PositionIndicatorTest {
     }
 
     @Test
-    @Ignore("Offsets not being handled correctly due to b/198751807")
     fun lazyColumnNotLargeEnoughToScrollSwapVerticalAlignmentGivesCorrectPositionAndSize() {
         lateinit var state: LazyListState
         lateinit var positionIndicatorState: PositionIndicatorState
