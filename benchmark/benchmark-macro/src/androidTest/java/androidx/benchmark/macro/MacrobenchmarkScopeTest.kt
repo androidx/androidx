@@ -164,13 +164,12 @@ class MacrobenchmarkScopeTest {
         assertTrue(device.hasObject(By.text("UpdatedText")))
     }
 
-    @Test
-    fun getFrameStats() {
+    private fun validateLaunchAndFrameStats(pressHome: Boolean) {
         val scope = MacrobenchmarkScope(
             Packages.TEST, // self-instrumenting macrobench, so don't kill the process!
             launchWithClearTask = false
         )
-        // check that hot startup is detected by packageLatestActivityLaunchNs
+        // check that initial launch (home -> activity) is detected
         scope.pressHome()
         scope.startActivityAndWait(ConfigurableActivity.createIntent("InitialText"))
         val initialFrameStats = scope.getFrameStats()
@@ -178,17 +177,31 @@ class MacrobenchmarkScopeTest {
             .first()
         assertTrue(initialFrameStats.uniqueName.contains("ConfigurableActivity"))
 
-        scope.pressHome()
+        if (pressHome) {
+            scope.pressHome()
+        }
+
+        // check that hot startup is detected
         scope.startActivityAndWait(ConfigurableActivity.createIntent("InitialText"))
         val secondFrameStats = scope.getFrameStats()
             .sortedBy { it.lastFrameNs }
             .first()
         assertTrue(secondFrameStats.uniqueName.contains("ConfigurableActivity"))
 
-        assertTrue(secondFrameStats.lastFrameNs!! > initialFrameStats.lastFrameNs!!)
-        if (Build.VERSION.SDK_INT >= 29) {
-            // data not trustworthy before API 29
-            assertTrue(secondFrameStats.lastLaunchNs!! > initialFrameStats.lastLaunchNs!!)
+        if (pressHome) {
+            assertTrue(secondFrameStats.lastFrameNs!! > initialFrameStats.lastFrameNs!!)
+            if (Build.VERSION.SDK_INT >= 29) {
+                // data not trustworthy before API 29
+                assertTrue(secondFrameStats.lastLaunchNs!! > initialFrameStats.lastLaunchNs!!)
+            }
         }
     }
+
+    /** Tests getFrameStats after launch which resumes app */
+    @Test
+    fun getFrameStats_home() = validateLaunchAndFrameStats(pressHome = true)
+
+    /** Tests getFrameStats after launch which does nothing, as Activity already visible */
+    @Test
+    fun getFrameStats_noop() = validateLaunchAndFrameStats(pressHome = false)
 }

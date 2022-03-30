@@ -40,7 +40,7 @@ class ShellTest {
     @Before
     @After
     fun setup() {
-        if (Build.VERSION.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT >= 23) {
             // ensure we don't leak background processes
             Shell.terminateProcessesAndWait(
                 KILL_WAIT_POLL_PERIOD_MS,
@@ -334,6 +334,13 @@ class ShellTest {
 
         assertFalse(backgroundProcess1.isAlive())
         assertFalse(backgroundProcess2.isAlive())
+    }
+
+    @SdkSuppress(minSdkVersion = 21)
+    @Test
+    fun getRunningSubPackages() {
+        assertEquals(emptyList(), Shell.getRunningProcessesForPackage("not.a.real.packagename"))
+        assertEquals(listOf(Packages.TEST), Shell.getRunningProcessesForPackage(Packages.TEST))
     }
 
     @RequiresApi(21)
