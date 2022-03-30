@@ -3,15 +3,17 @@ on:
   workflow_dispatch:
   push: #remove this before merging, we cannot trigger workflow dispatch outside the main branch
 jobs:
-  update-prebuilts:  
-    - name: "Checkout androidx repo"
-      uses: actions/checkout@v2
-    - name: "Set environment variables"
-      shell: bash
-      run: development/update_playground.sh
-    - name: "see if anything changed"
-      shell: bash
-      run: |
-        set -x
-        git status
+  update-prebuilts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout androidx repo"
+        uses: actions/checkout@v2
+      - name: "Set environment variables"
+        shell: bash
+        run: development/update_playground.sh
+      - name: "see if anything changed"
+        shell: bash
+        run: |
+          set -x
+          git status
           
