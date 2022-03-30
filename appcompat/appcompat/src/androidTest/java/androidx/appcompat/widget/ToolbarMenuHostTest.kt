@@ -93,6 +93,36 @@ class ToolbarMenuHostTest {
     }
 
     @Test
+    fun providedOnPrepareMenu() {
+        with(ActivityScenario.launch(ToolbarTestActivity::class.java)) {
+            var menuPrepared: Boolean
+            val toolbar: Toolbar = withActivity {
+                findViewById(androidx.appcompat.test.R.id.toolbar)
+            }
+
+            withActivity {
+                toolbar.addMenuProvider(object : MenuProvider {
+                    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                        menuInflater.inflate(R.menu.example_menu, menu)
+                    }
+
+                    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                        return true
+                    }
+
+                    override fun onPrepareMenu(menu: Menu) {
+                        menuPrepared = true
+                    }
+                })
+            }
+
+            menuPrepared = false
+            toolbar.invalidateMenu()
+            assertThat(menuPrepared).isTrue()
+        }
+    }
+
+    @Test
     fun providedMenuItemSelected() {
         with(ActivityScenario.launch(ToolbarTestActivity::class.java)) {
             var itemSelectedId: Int? = null
