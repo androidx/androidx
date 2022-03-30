@@ -47,9 +47,6 @@ gbash::init_google "$@"
 #
 # Each directory's spelling must match the library's directory in
 # frameworks/support.
-#
-# This list should match, or be a subset of, the list of libraries defined in
-# https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:buildSrc/src/main/kotlin/androidx/build/docs/AndroidXDocsPlugin.kt;l=568
 readonly javaLibraryDirs=(
   "activity"
   "annotation"
@@ -64,6 +61,8 @@ readonly javaLibraryDirs=(
   "navigation"
   "paging"
   "vectordrawable"
+  "viewpager"
+  "viewpager2"
   "wear"
   "window"
 )
@@ -82,6 +81,8 @@ readonly kotlinLibraryDirs=(
   "navigation"
   "paging"
   "vectordrawable"
+  "viewpager"
+  "viewpager2"
   "wear"
   "window"
 )
