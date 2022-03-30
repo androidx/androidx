@@ -462,7 +462,9 @@ package androidx.wear.compose.material {
 
   public final class SwipeToDismissBoxDefaults {
     method public androidx.compose.animation.core.SpringSpec<java.lang.Float> getAnimationSpec();
+    method public float getEdgeWidth();
     property public final androidx.compose.animation.core.SpringSpec<java.lang.Float> AnimationSpec;
+    property public final float EdgeWidth;
     field public static final androidx.wear.compose.material.SwipeToDismissBoxDefaults INSTANCE;
   }
 

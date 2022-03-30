@@ -444,6 +444,12 @@ public object SwipeToDismissBoxDefaults {
      */
     @OptIn(ExperimentalWearMaterialApi::class)
     public val AnimationSpec = SwipeableDefaults.AnimationSpec
+
+    /**
+     * The default width of the area which might trigger a swipe
+     * with [edgeSwipeToDismiss] modifier
+     */
+    public val EdgeWidth = 30.dp
 }
 
 public enum class SwipeToDismissKeys {
@@ -478,9 +484,14 @@ public enum class SwipeToDismissValue {
 }
 
 /**
- * Handles swipe to dismiss from the edge of the content. Swipe to the right is intercepted
- * on the left edge which specified by [edgeWidth]. All other touch events continue to behave
- * as expected - vertical scroll, click, long click, etc.
+ * Limits swipe to dismiss to be active from the edge of the viewport only. Used when the center
+ * of the screen needs to be able to handle horizontal paging, such as 2-d scrolling a Map
+ * or swiping horizontally between pages. Swipe to the right is intercepted on the left
+ * part of the viewport with width specified by [edgeWidth], with other touch events
+ * ignored - vertical scroll, click, long click, etc.
+ *
+ * Currently Edge swipe, like swipe to dismiss, is only supported on the left part of the viewport
+ * regardless of layout direction as content is swiped away from left to right.
  *
  * Example of a modifier usage with SwipeToDismiss
  * @sample androidx.wear.compose.material.samples.EdgeSwipeForSwipeToDismiss
@@ -491,7 +502,7 @@ public enum class SwipeToDismissValue {
  */
 public fun Modifier.edgeSwipeToDismiss(
     swipeToDismissBoxState: SwipeToDismissBoxState,
-    edgeWidth: Dp = 30.dp
+    edgeWidth: Dp = SwipeToDismissBoxDefaults.EdgeWidth
 ): Modifier =
     composed(
         inspectorInfo = debugInspectorInfo {
