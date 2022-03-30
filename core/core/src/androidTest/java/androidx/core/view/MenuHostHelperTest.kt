@@ -54,8 +54,8 @@ class MenuHostHelperTest {
         with(ActivityScenario.launch(TestActivity::class.java)) {
             val toolbar = Toolbar(context)
             val menuHost = TestMenuHost(toolbar.menu, withActivity { menuInflater })
+            var menuPrepared: Boolean
 
-            var menuPrepared = false
             menuHost.addMenuProvider(object : MenuProvider {
                 override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                     menuInflater.inflate(R.menu.example_menu, menu)
@@ -70,6 +70,7 @@ class MenuHostHelperTest {
                 }
             })
 
+            menuPrepared = false
             menuHost.onPrepareMenu(toolbar.menu)
             assertThat(menuPrepared).isTrue()
         }
