@@ -13,24 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-syntax = "proto2";
+package androidx.health.platform.client.impl
 
-package androidx.health.platform.client.proto;
+import androidx.health.platform.client.changes.ChangesEvent
+import androidx.health.platform.client.proto.ChangeProto
+import androidx.health.platform.client.service.IOnChangesListener
 
-import "data.proto";
-
-option java_package = "androidx.health.platform.client.proto";
-option java_outer_classname = "ChangeProto";
-
-message DataChange {
-  reserved 3;  // delete_characteristic_type
-  oneof change {
-    DataPoint upsert_data_point = 1;
-    string delete_uid = 2;
-  }
-}
-
-message ChangesEvent {
-  optional string next_changes_token = 1;
-  repeated DataChange changes = 2;
+internal class OnChangesListenerProxy(private val listener: (ChangeProto.ChangesEvent) -> Unit) :
+    IOnChangesListener.Stub() {
+    override fun onChanges(changesEvent: ChangesEvent) {
+        listener.invoke(changesEvent.proto)
+    }
 }

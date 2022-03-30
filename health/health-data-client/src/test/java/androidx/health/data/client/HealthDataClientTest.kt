@@ -34,7 +34,7 @@ import org.robolectric.annotation.Config
 private const val PROVIDER_PACKAGE_NAME = "com.example.fake.provider"
 
 @RunWith(AndroidJUnit4::class)
-class HealthDataServiceTest {
+class HealthDataClientTest {
 
     private lateinit var context: Context
 

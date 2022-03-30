@@ -27,8 +27,8 @@ import java.time.ZoneOffset
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class SexualActivity(
     /**
-     * Whether protection was used during sexual activity. Optional field. Allowed values: [
-     * SexualActivityProtection].
+     * Whether protection was used during sexual activity. Optional field. Allowed values:
+     * [SexualActivityProtection].
      */
     @property:SexualActivityProtection public val protectionUsed: String? = null,
     override val time: Instant,
