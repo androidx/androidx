@@ -906,7 +906,7 @@ public class AutomotiveCarInfoTest {
     }
 
     @Test
-    public void getEnergyLevel_FewerResponsesThanRequests() throws InterruptedException {
+    public void getEnergyLevel_SuccessfulPartialResponses() throws InterruptedException {
         // Add "INFO_EV_BATTERY_CAPACITY" and "INFO_FUEL_CAPACITY" to the request.
         mGetPropertyRequests.add(GetPropertyRequest.create(INFO_EV_BATTERY_CAPACITY));
         mGetPropertyRequests.add(GetPropertyRequest.create(INFO_FUEL_CAPACITY));
@@ -928,7 +928,11 @@ public class AutomotiveCarInfoTest {
         when(mPropertyManager.submitGetPropertyRequest(
                 eq(mGetPropertyRequests), any())).thenReturn(future);
 
-        OnCarDataAvailableListener<EnergyLevel> listener = (data) -> {};
+        AtomicReference<EnergyLevel> loadedResult = new AtomicReference<>();
+        OnCarDataAvailableListener<EnergyLevel> listener = (data) -> {
+            loadedResult.set(data);
+            mCountDownLatch.countDown();
+        };
 
         mAutomotiveCarInfo.addEnergyLevelListener(mExecutor, listener);
 
@@ -946,6 +950,7 @@ public class AutomotiveCarInfoTest {
         verify(mPropertyManager, times(1)).submitRegisterListenerRequest(
                 eq(mPropertyIds), eq(DEFAULT_SAMPLE_RATE), captor.capture(), eq(mExecutor));
 
+        // Missing response for FUEL_VOLUME_DISPLAY_UNITS.
         mResponse.add(CarPropertyResponse.create(EV_BATTERY_LEVEL,
                 STATUS_SUCCESS, 1, evBatteryLevelValue));
         mResponse.add(CarPropertyResponse.create(FUEL_LEVEL,
@@ -957,8 +962,19 @@ public class AutomotiveCarInfoTest {
         mResponse.add(CarPropertyResponse.create(DISTANCE_DISPLAY_UNITS,
                 STATUS_SUCCESS, 1, meterDistanceUnit));
 
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () ->
-                captor.getValue().onCarPropertyResponses(mResponse));
-        assertThat(e).hasMessageThat().contains("Response size is not the same as requested.");
+        captor.getValue().onCarPropertyResponses(mResponse);
+        mCountDownLatch.await();
+
+        // The partial responses will be returned successfully.
+        EnergyLevel energyLevel = loadedResult.get();
+        assertThat(energyLevel.getBatteryPercent().getValue()).isEqualTo(
+                evBatteryLevelValue / evBatteryCapacity * 100);
+        assertThat(energyLevel.getFuelPercent().getValue()).isEqualTo(
+                fuelLevelValue / fuelCapacity * 100);
+        assertThat(energyLevel.getEnergyIsLow().getValue()).isEqualTo(
+                true);
+        assertThat(energyLevel.getRangeRemainingMeters().getValue()).isEqualTo(
+                5f);
+        assertThat(energyLevel.getDistanceDisplayUnit().getValue()).isEqualTo(2);
     }
 }
