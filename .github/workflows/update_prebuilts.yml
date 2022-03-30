@@ -16,4 +16,14 @@ jobs:
         run: |
           set -x
           git status
+          HAS_CHANGES=`git status --porcelain|wc -l`
+          echo "::set-output name=has_changes::$HAS_CHANGES"
+      - name: "we have changes"
+        shell: bash
+        if: ${{ steps.outputs.has_changes == 1 }}
+        run: echo "have changes"
+      - name: "we don't have changes"
+        shell: bash
+        if: ${{ steps.outputs.has_changes == 0 }}
+        run: echo "no changes"
           
