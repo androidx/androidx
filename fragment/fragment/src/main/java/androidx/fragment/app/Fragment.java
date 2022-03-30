@@ -1328,7 +1328,13 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * and related methods.
      *
      * @param hasMenu If true, the fragment has menu items to contribute.
+     *
+     * @deprecated This method is no longer needed when using a {@link MenuProvider} to provide
+     * a {@link Menu} to your activity, which replaces {@link #onCreateOptionsMenu} as the
+     * recommended way to provide a consistent, optionally {@link Lifecycle}-aware, and modular
+     * way to handle menu creation and item selection.
      */
+    @Deprecated
     public void setHasOptionsMenu(boolean hasMenu) {
         if (mHasMenu != hasMenu) {
             mHasMenu = hasMenu;
