@@ -28,11 +28,13 @@ import android.content.Context;
 
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.tiles.ColorBuilders.ColorProp;
 import androidx.wear.tiles.LayoutElementBuilders;
 import androidx.wear.tiles.LayoutElementBuilders.FontStyle;
+import androidx.wear.tiles.LayoutElementBuilders.FontWeight;
 import androidx.wear.tiles.LayoutElementBuilders.LayoutElement;
 import androidx.wear.tiles.LayoutElementBuilders.TextAlignment;
 import androidx.wear.tiles.LayoutElementBuilders.TextOverflow;
@@ -57,7 +59,7 @@ public class Text implements LayoutElement {
     public static final class Builder implements LayoutElement.Builder {
         @NonNull private final Context mContext;
         @NonNull private String mTextContent = "";
-        @NonNull private ColorProp mColor = argb(Colors.ON_PRIMARY);
+        @NonNull private ColorProp mColor = argb(Colors.DEFAULT.getOnPrimary());
         private @TypographyName int mTypographyName = TYPOGRAPHY_DISPLAY1;
         private boolean mItalic = false;
         private int mMaxLines = 1;
@@ -66,26 +68,22 @@ public class Text implements LayoutElement {
         @NonNull private Modifiers mModifiers = new Modifiers.Builder().build();
         private @TextOverflow int mOverflow = TEXT_OVERFLOW_ELLIPSIZE_END;
         private boolean mIsScalable = true;
+        @Nullable private Integer mCustomWeight = null;
 
         /**
          * Creates a builder for {@link Text}.
          *
          * @param context The application's context.
+         * @param text The text content for this component.
          */
-        public Builder(@NonNull Context context) {
+        public Builder(@NonNull Context context, @NonNull String text) {
             mContext = context;
-        }
-
-        /** Sets the text content for the {@link Text}. */
-        @NonNull
-        public Builder setText(@NonNull String text) {
-            this.mTextContent = text;
-            return this;
+            mTextContent = text;
         }
 
         /**
          * Sets the typography for the {@link Text}. If not set, {@link
-         * Typography#TYPOGRAPHY_TITLE1} will be used.
+         * Typography#TYPOGRAPHY_DISPLAY1} will be used.
          */
         @NonNull
         @SuppressWarnings("MissingGetterMatchingBuilder")
@@ -97,27 +95,33 @@ public class Text implements LayoutElement {
             return this;
         }
 
-        /** Sets whether the text size will change if user has changed default font style or not. */
+        /**
+         * Sets whether the text size will change if user has changed the default font size. If not
+         * set, true will be used.
+         */
         Builder setIsScalable(boolean isScalable) {
             this.mIsScalable = isScalable;
             return this;
         }
 
-        /** Sets the color for the {@link Text}. */
+        /**
+         * Sets the color for the {@link Text}. If not set, onPrimary color from the {@link
+         * Colors#DEFAULT} will be used.
+         */
         @NonNull
         public Builder setColor(@NonNull ColorProp color) {
             this.mColor = color;
             return this;
         }
 
-        /** Sets the text to be italic. */
+        /** Sets the text to be italic. If not set, false will be used. */
         @NonNull
         public Builder setItalic(boolean italic) {
             this.mItalic = italic;
             return this;
         }
 
-        /** Sets the text to be underlined. */
+        /** Sets the text to be underlined. If not set, false will be used. */
         @NonNull
         public Builder setUnderline(boolean underline) {
             this.mUnderline = underline;
@@ -160,19 +164,33 @@ public class Text implements LayoutElement {
             return this;
         }
 
+        /**
+         * Sets the weight of the font. If not set, default weight for the chosen Typography will be
+         * used.
+         */
+        @NonNull
+        public Builder setWeight(@FontWeight int weight) {
+            this.mCustomWeight = weight;
+            return this;
+        }
+
         /** Constructs and returns {@link Text} with the provided content and look. */
         @NonNull
         @Override
         public Text build() {
+            FontStyle.Builder fontStyleBuilder =
+                    getFontStyleBuilder(mTypographyName, mContext, mIsScalable)
+                            .setColor(mColor)
+                            .setItalic(mItalic)
+                            .setUnderline(mUnderline);
+            if (mCustomWeight != null) {
+                fontStyleBuilder.setWeight(mCustomWeight);
+            }
+
             LayoutElementBuilders.Text.Builder text =
                     new LayoutElementBuilders.Text.Builder()
                             .setText(mTextContent)
-                            .setFontStyle(
-                                    getFontStyleBuilder(mTypographyName, mContext, mIsScalable)
-                                            .setColor(mColor)
-                                            .setItalic(mItalic)
-                                            .setUnderline(mUnderline)
-                                            .build())
+                            .setFontStyle(fontStyleBuilder.build())
                             .setLineHeight(getLineHeightForTypography(mTypographyName))
                             .setMaxLines(mMaxLines)
                             .setMultilineAlignment(mMultilineAlignment)
@@ -206,7 +224,7 @@ public class Text implements LayoutElement {
     }
 
     /** Returns the max lines of text of this Text element. */
-    public float getMaxLines() {
+    public int getMaxLines() {
         return checkNotNull(mText.getMaxLines()).getValue();
     }
 
@@ -226,6 +244,12 @@ public class Text implements LayoutElement {
     @TextOverflow
     public int getOverflow() {
         return checkNotNull(mText.getOverflow()).getValue();
+    }
+
+    /** Returns the overflow of this Text element. */
+    @FontWeight
+    public int getWeight() {
+        return checkNotNull(checkNotNull(mText.getFontStyle()).getWeight()).getValue();
     }
 
     /** Returns whether the Text is in italic. */

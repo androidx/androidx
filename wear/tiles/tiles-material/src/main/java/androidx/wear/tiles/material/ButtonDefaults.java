@@ -18,10 +18,6 @@ package androidx.wear.tiles.material;
 
 import static androidx.annotation.Dimension.DP;
 import static androidx.wear.tiles.DimensionBuilders.dp;
-import static androidx.wear.tiles.material.Colors.ON_PRIMARY;
-import static androidx.wear.tiles.material.Colors.ON_SURFACE;
-import static androidx.wear.tiles.material.Colors.PRIMARY;
-import static androidx.wear.tiles.material.Colors.SURFACE;
 
 import androidx.annotation.Dimension;
 import androidx.annotation.NonNull;
@@ -54,10 +50,11 @@ public class ButtonDefaults {
 
     /** The recommended colors for a primary {@link Button}. */
     @NonNull
-    public static final ButtonColors PRIMARY_BUTTON_COLORS = new ButtonColors(PRIMARY, ON_PRIMARY);
+    public static final ButtonColors PRIMARY_BUTTON_COLORS =
+            ButtonColors.primaryButtonColors(Colors.DEFAULT);
 
     /** The recommended colors for a secondary {@link Button}. */
     @NonNull
     public static final ButtonColors SECONDARY_BUTTON_COLORS =
-            new ButtonColors(SURFACE, ON_SURFACE);
+            ButtonColors.secondaryButtonColors(Colors.DEFAULT);
 }

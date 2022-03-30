@@ -19,7 +19,7 @@ package androidx.wear.tiles.material;
 import static androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER;
 import static androidx.wear.tiles.material.ChipDefaults.COMPACT_HEIGHT;
 import static androidx.wear.tiles.material.ChipDefaults.COMPACT_HORIZONTAL_PADDING;
-import static androidx.wear.tiles.material.ChipDefaults.COMPACT_PRIMARY;
+import static androidx.wear.tiles.material.ChipDefaults.COMPACT_PRIMARY_COLORS;
 
 import android.content.Context;
 
@@ -40,7 +40,7 @@ import androidx.wear.tiles.proto.LayoutElementProto;
  * size.
  *
  * <p>The recommended set of {@link ChipColors} styles can be obtained from {@link ChipDefaults}.,
- * e.g. {@link ChipDefaults#COMPACT_PRIMARY} to get a color scheme for a primary {@link
+ * e.g. {@link ChipDefaults#COMPACT_PRIMARY_COLORS} to get a color scheme for a primary {@link
  * CompactChip}.
  */
 public class CompactChip implements LayoutElement {
@@ -56,7 +56,7 @@ public class CompactChip implements LayoutElement {
         @NonNull private final String mText;
         @NonNull private final Clickable mClickable;
         @NonNull private final DeviceParameters mDeviceParameters;
-        @NonNull private ChipColors mChipColors = COMPACT_PRIMARY;
+        @NonNull private ChipColors mChipColors = COMPACT_PRIMARY_COLORS;
 
         /**
          * Creates a builder for the {@link CompactChip} with associated action and the given text
@@ -83,7 +83,7 @@ public class CompactChip implements LayoutElement {
          * Sets the colors for the {@link CompactChip}. If set, {@link
          * ChipColors#getBackgroundColor()} will be used for the background of the button and {@link
          * ChipColors#getContentColor()} for the text. If not set, {@link
-         * ChipDefaults#COMPACT_PRIMARY} will be used.
+         * ChipDefaults#COMPACT_PRIMARY_COLORS} will be used.
          */
         @NonNull
         public Builder setChipColors(@NonNull ChipColors chipColors) {

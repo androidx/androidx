@@ -182,7 +182,7 @@ public class MultiSlotLayout implements LayoutElement {
                                 .setWidth(rowWidth);
 
                 boolean isFirst = true;
-                for (LayoutElement column : mSlotsContent) {
+                for (LayoutElement slot : mSlotsContent) {
                     if (!isFirst) {
                         rowBuilder.addContent(
                                 new Spacer.Builder().setWidth(mHorizontalSpacerWidth).build());
@@ -193,7 +193,7 @@ public class MultiSlotLayout implements LayoutElement {
                             new Box.Builder()
                                     .setWidth(expand())
                                     .setHeight(expand())
-                                    .addContent(column)
+                                    .addContent(slot)
                                     .build());
                 }
 
