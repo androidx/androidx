@@ -21,7 +21,7 @@ jobs:
           echo "::set-output name=has_changes::$HAS_CHANGES"
       - name: "we have changes"
         shell: bash
-        if: ${{ steps.check-for-changes.outputs.has_changes > 1 }}
+        if: ${{ steps.check-for-changes.outputs.has_changes >= 1 }}
         run: |
           set -x
           BRANCH_NAME="robot-update-prebuilts-${{ github.run_id }}-${{ github.run_number }}"
