@@ -13,6 +13,7 @@ jobs:
         run: development/update_playground.sh
       - name: "see if anything changed"
         shell: bash
+        id: "check-for-changes"
         run: |
           set -x
           git status
@@ -20,10 +21,10 @@ jobs:
           echo "::set-output name=has_changes::$HAS_CHANGES"
       - name: "we have changes"
         shell: bash
-        if: ${{ steps.outputs.has_changes == 1 }}
-        run: echo "have changes ${{ steps.outputs.has_changes }}"
+        if: ${{ steps.check-for-changes.outputs.has_changes == 1 }}
+        run: echo "have changes ${{ steps.check-for-changes.outputs.has_changes }}"
       - name: "we don't have changes"
         shell: bash
-        if: ${{ steps.outputs.has_changes == 0 }}
-        run: echo "no changes ${{ steps.outputs.has_changes }}"
+        if: ${{ steps.check-for-changes.outputs.has_changes == 0 }}
+        run: echo "no changes ${{ steps.check-for-changes.outputs.has_changes }}"
           
