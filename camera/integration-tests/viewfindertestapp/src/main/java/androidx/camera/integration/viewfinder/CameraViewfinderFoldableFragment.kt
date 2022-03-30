@@ -285,6 +285,8 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener,
         }
     }
 
+    @Deprecated("Deprecated in Java")
+    @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
