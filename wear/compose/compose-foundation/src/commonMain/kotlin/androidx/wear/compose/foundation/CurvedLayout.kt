@@ -232,8 +232,8 @@ internal abstract class CurvedChild() {
     /**
      * Initialize the Child to do a measure pass.
      *
-     * @param measurables: The measurables on the CurvedLayout, used to map to our nodes as we walk
-     * the tree.
+     * @param measurables: The measurables on the CurvedLayout, used to map to the compose-ui nodes
+     * we generated in [SubComposition] as we walk the tree.
      * @param index: The current index in the measurables array
      * @return The new index in the measurables array, taking into account how many items we
      * mapped.
@@ -254,10 +254,10 @@ internal abstract class CurvedChild() {
     /**
      * Compute our radial positioning relative to the parent.
      *
-     * Note that parentInnerRadius & parentOuterRadius are similar to min & max Constraints in
-     * compose, but for curved components is important to know absolute values of the possible,
-     * radius. Curved things draw very differently on radius 50 to 100 than on radius 300 to 350.
-     *
+     * Note that parentInnerRadius (which is parentOuterRadius - parentThickness) &
+     * parentOuterRadius are similar to min & max Constraints in compose, but for curved components
+     * is important to know absolute values of the possible radius. Curved things draw very
+     * differently on radius 50 to 100 than on radius 300 to 350.
      *
      * @param parentOuterRadius The outer radius of the space we have in the parent container
      * @param parentThickness The thickness of the space we have in the parent container

@@ -92,6 +92,13 @@ package androidx.wear.compose.foundation {
     property public final boolean reverseLayout;
   }
 
+  public final class CurvedSizeKt {
+    method public static androidx.wear.compose.foundation.CurvedModifier angularSize(androidx.wear.compose.foundation.CurvedModifier, float angularSizeDegrees);
+    method public static androidx.wear.compose.foundation.CurvedModifier radialSize(androidx.wear.compose.foundation.CurvedModifier, float radialSize);
+    method public static androidx.wear.compose.foundation.CurvedModifier size(androidx.wear.compose.foundation.CurvedModifier, float angularSizeDegrees, float radialSize);
+    method public static androidx.wear.compose.foundation.CurvedModifier sizeIn(androidx.wear.compose.foundation.CurvedModifier, optional float angularMinDegrees, optional float angularMaxDegrees, optional float radialSizeMin, optional float radialSizeMax);
+  }
+
   public final class CurvedTextStyle {
     ctor public CurvedTextStyle(optional long color, optional long fontSize, optional long background);
     ctor public CurvedTextStyle(androidx.compose.ui.text.TextStyle style);
