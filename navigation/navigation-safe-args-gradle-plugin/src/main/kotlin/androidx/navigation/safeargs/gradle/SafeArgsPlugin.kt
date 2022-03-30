@@ -30,9 +30,9 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderFactory
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import java.io.File
+import java.io.FileNotFoundException
 import java.util.Locale
 import javax.inject.Inject
-import org.jetbrains.kotlin.gradle.utils.property
 
 private const val PLUGIN_DIRNAME = "navigation-args"
 internal const val GENERATED_PATH = "generated/source/$PLUGIN_DIRNAME"
@@ -142,8 +142,13 @@ abstract class SafeArgsPlugin protected constructor(
         val mainSourceSet = sourceSets.find { it.name == "main" }
         val sourceSet = mainSourceSet ?: sourceSets[0]
         val manifest = sourceSet.manifestFile
-        val parsed = XmlSlurper(false, false).parse(manifest)
-        set(parsed.getProperty("@package").toString())
+        try {
+            val parsed = XmlSlurper(false, false).parse(manifest)
+            set(parsed.getProperty("@package").toString())
+        } catch (e: FileNotFoundException) {
+            // If manifest does not exist we should fall back to namespace
+            set("")
+        }
         disallowChanges()
         finalizeValueOnRead()
     }
