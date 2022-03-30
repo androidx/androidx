@@ -21,9 +21,9 @@ jobs:
       - name: "we have changes"
         shell: bash
         if: ${{ steps.outputs.has_changes == 1 }}
-        run: echo "have changes"
+        run: echo "have changes ${{ steps.outputs.has_changes }}"
       - name: "we don't have changes"
         shell: bash
         if: ${{ steps.outputs.has_changes == 0 }}
-        run: echo "no changes"
+        run: echo "no changes ${{ steps.outputs.has_changes }}"
           
