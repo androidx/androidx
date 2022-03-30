@@ -58,6 +58,8 @@ class CurvedLayoutTest {
         var coords: LayoutCoordinates? = null
         var anchorTypeState by mutableStateOf(initialAnchorType)
 
+        var capturedInfo = CapturedInfo()
+
         rule.setContent {
             CurvedLayout(
                 modifier = Modifier.size(200.dp)
@@ -66,7 +68,7 @@ class CurvedLayoutTest {
                 anchorType = anchorTypeState,
                 clockwise = clockwise
             ) {
-                curvedComposable {
+                curvedComposable(modifier = CurvedModifier.spy(capturedInfo)) {
                     Box(
                         modifier = Modifier
                             .size(40.dp)
@@ -88,6 +90,7 @@ class CurvedLayoutTest {
                 rowCoords!!,
                 coords!!
             )
+            checkSpy(dims, capturedInfo)
 
             // It's at the outer side of the CurvedRow,
             assertEquals(dims.rowRadius, dims.outerRadius, FLOAT_TOLERANCE)
@@ -215,19 +218,26 @@ class CurvedLayoutTest {
         var rowCoords: LayoutCoordinates? = null
         var smallBoxCoords: LayoutCoordinates? = null
         var bigBoxCoords: LayoutCoordinates? = null
+        var smallSpy = CapturedInfo()
+        var bigSpy = CapturedInfo()
         // We have a big box and a small box with the specified alignment
         rule.setContent {
             CurvedLayout(
                 modifier = Modifier.onGloballyPositioned { rowCoords = it }
             ) {
-                curvedComposable(radialAlignment = radialAlignment) {
+                curvedComposable(
+                    modifier = CurvedModifier.spy(smallSpy),
+                    radialAlignment = radialAlignment
+                ) {
                     Box(
                         modifier = Modifier
                             .size(30.dp)
                             .onGloballyPositioned { smallBoxCoords = it }
                     )
                 }
-                curvedComposable {
+                curvedComposable(
+                    modifier = CurvedModifier.spy(bigSpy),
+                ) {
                     Box(
                         modifier = Modifier
                             .size(45.dp)
@@ -243,12 +253,14 @@ class CurvedLayoutTest {
                 rowCoords!!,
                 bigBoxCoords!!
             )
+            checkSpy(bigBoxDimensions, bigSpy)
 
             val smallBoxDimensions = RadialDimensions(
                 clockwise = true,
                 rowCoords!!,
                 smallBoxCoords!!
             )
+            checkSpy(smallBoxDimensions, smallSpy)
 
             // There are one after another
             checkAngle(smallBoxDimensions.endAngle, bigBoxDimensions.startAngle)
@@ -328,6 +340,18 @@ fun checkAngle(expected: Float, actual: Float) {
     if (d > FLOAT_TOLERANCE) {
         fail("Angle is out of tolerance. Expected: $expected, actual: $actual")
     }
+}
+
+private fun checkSpy(dimensions: RadialDimensions, capturedInfo: CapturedInfo) =
+    checkCurvedLayoutInfo(dimensions.asCurvedLayoutInfo(), capturedInfo.lastLayoutInfo!!)
+
+private fun checkCurvedLayoutInfo(expected: CurvedLayoutInfo, actual: CurvedLayoutInfo) {
+    checkAngle(expected.sweepRadians.toDegrees(), actual.sweepRadians.toDegrees())
+    assertEquals(expected.outerRadius, actual.outerRadius, FLOAT_TOLERANCE)
+    assertEquals(expected.thickness, actual.thickness, FLOAT_TOLERANCE)
+    assertEquals(expected.centerOffset.x, actual.centerOffset.x, FLOAT_TOLERANCE)
+    assertEquals(expected.centerOffset.y, actual.centerOffset.y, FLOAT_TOLERANCE)
+    checkAngle(expected.startAngleRadians.toDegrees(), actual.startAngleRadians.toDegrees())
 }
 
 private fun Float.toRadians() = this * PI.toFloat() / 180f
@@ -411,7 +435,18 @@ private class RadialDimensions(
         }
     }
 
-    private fun toRadialCoordinates(coords: LayoutCoordinates, x: Float, y: Float): RadialPoint {
+    // TODO: When we finalize CurvedLayoutInfo's API, eliminate the RadialDimensions class and
+    // inline this function to directly convert between LayoutCoordinates and CurvedLayoutInfo.
+    fun asCurvedLayoutInfo() = CurvedLayoutInfo(
+        sweepRadians = sweep.toRadians(),
+        outerRadius = outerRadius,
+        thickness = outerRadius - innerRadius,
+        centerOffset = rowCenter,
+        measureRadius = (outerRadius + innerRadius) / 2,
+        startAngleRadians = startAngle.toRadians()
+    )
+
+    fun toRadialCoordinates(coords: LayoutCoordinates, x: Float, y: Float): RadialPoint {
         val vector = coords.localToRoot(Offset(x, y)) - rowCenter
         return RadialPoint(vector.getDistance(), atan2(vector.y, vector.x))
     }

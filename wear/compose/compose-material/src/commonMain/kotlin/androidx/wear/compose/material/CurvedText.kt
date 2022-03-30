@@ -24,13 +24,14 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.ArcPaddingValues
 import androidx.wear.compose.foundation.basicCurvedText
+import androidx.wear.compose.foundation.CurvedModifier
 import androidx.wear.compose.foundation.CurvedScope
 import androidx.wear.compose.foundation.CurvedTextStyle
 
 /**
  * CurvedText is a component allowing developers to easily write curved text following
  * the curvature a circle (usually at the edge of a circular screen).
- * CurvedText can be only created within the CurvedRow to ensure the best experience, like being
+ * CurvedText can be only created within the CurvedLayout to ensure the best experience, like being
  * able to specify to positioning.
  *
  * The default [style] uses the [LocalTextStyle] provided by the [MaterialTheme] / components,
@@ -59,6 +60,7 @@ import androidx.wear.compose.foundation.CurvedTextStyle
  * guide.
  *
  * @param text The text to display
+ * @param modifier The [CurvedModifier] to apply to this curved text.
  * @param color [Color] to apply to the text. If [Color.Unspecified], and [style] has no color set,
  * this will be [LocalContentColor].
  * @param fontSize The size of glyphs to use when painting the text. See [TextStyle.fontSize].
@@ -71,13 +73,14 @@ import androidx.wear.compose.foundation.CurvedTextStyle
  */
 public fun CurvedScope.curvedText(
     text: String,
+    modifier: CurvedModifier = CurvedModifier,
     color: Color = Color.Unspecified,
     background: Color = Color.Unspecified,
     fontSize: TextUnit = TextUnit.Unspecified,
     style: CurvedTextStyle? = null,
     clockwise: Boolean = true,
     contentArcPadding: ArcPaddingValues = ArcPaddingValues(0.dp),
-) = basicCurvedText(text, clockwise, contentArcPadding) {
+) = basicCurvedText(text, modifier, clockwise, contentArcPadding) {
     val baseStyle = style ?: CurvedTextStyle(LocalTextStyle.current)
     val textColor = color.takeOrElse {
         baseStyle.color.takeOrElse {

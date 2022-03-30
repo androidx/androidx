@@ -202,7 +202,7 @@ fun BasicCurvedTextDemo() {
             CurvedTextStyle(
                 fontSize = 18.sp
             ),
-            // TODO: Re-add when we implement modifiers.
+            // TODO: Re-add when we implement alignment modifiers.
             // modifier = Modifier.radialAlignment(RadialAlignment.Outer)
         )
         SeparatorBlock()
@@ -213,7 +213,7 @@ fun BasicCurvedTextDemo() {
             ),
             clockwise = false,
             contentArcPadding = ArcPaddingValues(angular = 5.dp),
-            // TODO: Re-add when we implement modifiers.
+            // TODO: Re-add when we implement alignment modifiers.
             // modifier = Modifier.radialAlignment(RadialAlignment.Inner)
         )
         SeparatorBlock()

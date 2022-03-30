@@ -29,6 +29,7 @@ import androidx.compose.ui.geometry.Offset
  * Example usage:
  * @sample androidx.wear.compose.foundation.samples.CurvedRowAndColumn
  *
+ * @param modifier The [CurvedModifier] to apply to this curved row.
  * @param radialAlignment Radial alignment specifies where to lay down children that are thinner
  * than the CurvedRow, either closer to the center (INNER), apart from the center (OUTER) or in the
  * middle point (CENTER). If unspecified, they can choose for themselves.
@@ -36,14 +37,15 @@ import androidx.compose.ui.geometry.Offset
  * counter-clockwise
  */
 public fun CurvedScope.curvedRow(
+    modifier: CurvedModifier = CurvedModifier,
     radialAlignment: CurvedAlignment.Radial? = null,
     clockwise: Boolean = true,
     contentBuilder: CurvedScope.() -> Unit
-) = add(CurvedRowChild(clockwise, radialAlignment, contentBuilder))
+) = add(CurvedRowChild(clockwise, radialAlignment, contentBuilder), modifier)
 
 internal class CurvedRowChild(
     clockwise: Boolean,
-    val radialAlignment: CurvedAlignment.Radial?,
+    val radialAlignment: CurvedAlignment.Radial? = null,
     contentBuilder: CurvedScope.() -> Unit
 ) : ContainerChild(!clockwise, contentBuilder) {
 
