@@ -21,7 +21,7 @@ import static androidx.wear.tiles.DimensionBuilders.dp;
 import static androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER;
 import static androidx.wear.tiles.material.ChipDefaults.TITLE_HEIGHT;
 import static androidx.wear.tiles.material.ChipDefaults.TITLE_HORIZONTAL_PADDING;
-import static androidx.wear.tiles.material.ChipDefaults.TITLE_PRIMARY;
+import static androidx.wear.tiles.material.ChipDefaults.TITLE_PRIMARY_COLORS;
 
 import android.content.Context;
 
@@ -44,7 +44,8 @@ import androidx.wear.tiles.proto.LayoutElementProto;
  * take one line of text of {@link Typography#TYPOGRAPHY_TITLE2} style.
  *
  * <p>The recommended set of {@link ChipColors} styles can be obtained from {@link ChipDefaults},
- * e.g. {@link ChipDefaults#TITLE_PRIMARY} to get a color scheme for a primary {@link TitleChip}.
+ * e.g. {@link ChipDefaults#TITLE_PRIMARY_COLORS} to get a color scheme for a primary {@link
+ * TitleChip}.
  */
 public class TitleChip implements LayoutElement {
     @NonNull private final Chip mElement;
@@ -59,7 +60,7 @@ public class TitleChip implements LayoutElement {
         @NonNull private final String mText;
         @NonNull private final Clickable mClickable;
         @NonNull private final DeviceParameters mDeviceParameters;
-        @NonNull private ChipColors mChipColors = TITLE_PRIMARY;
+        @NonNull private ChipColors mChipColors = TITLE_PRIMARY_COLORS;
         @HorizontalAlignment private int mHorizontalAlign = HORIZONTAL_ALIGN_CENTER;
 
         // Indicates that the width isn't set, so it will be automatically set by Chip.Builder
@@ -92,7 +93,7 @@ public class TitleChip implements LayoutElement {
          * Sets the colors for the {@link TitleChip}. If set, {@link
          * ChipColors#getBackgroundColor()} will be used for the background of the button and {@link
          * ChipColors#getContentColor()} for the text. If not set, {@link
-         * ChipDefaults#TITLE_PRIMARY} will be used.
+         * ChipDefaults#TITLE_PRIMARY_COLORS} will be used.
          */
         @NonNull
         public Builder setChipColors(@NonNull ChipColors chipColors) {

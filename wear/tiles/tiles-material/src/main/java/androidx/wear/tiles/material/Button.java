@@ -90,15 +90,12 @@ public class Button implements LayoutElement {
         @NonNull private CharSequence mContentDescription = "";
         @NonNull private DpProp mSize = DEFAULT_BUTTON_SIZE;
         @Nullable private String mText = null;
-        private @TypographyName int mTypographyName =
-                getDefaultTypographyForSize(DEFAULT_BUTTON_SIZE);
-        private boolean mIsTypographyNameSet = false;
+        @Nullable private Integer mTypographyName = null;
         @Nullable private String mIcon = null;
         @Nullable private DpProp mIconSize = null;
         @Nullable private String mImage = null;
         @NonNull private ButtonColors mButtonColors = PRIMARY_BUTTON_COLORS;
         @ButtonType private int mType = NOT_SET;
-        private boolean mDefaultSize = false;
 
         /**
          * Creates a builder for the {@link Button} from the given content. Custom content should be
@@ -148,7 +145,6 @@ public class Button implements LayoutElement {
             return this;
         }
 
-        // TODO(b/203078514): Add getting color from the current Theme (from XML).
         /**
          * Sets the colors for the {@link Button}. If set, {@link ButtonColors#getBackgroundColor()}
          * will be used for the background of the button. If not set, {@link
@@ -185,7 +181,6 @@ public class Button implements LayoutElement {
             resetContent();
             this.mIcon = resourceId;
             this.mType = ICON;
-            this.mDefaultSize = false;
             this.mIconSize = size;
             return this;
         }
@@ -204,7 +199,6 @@ public class Button implements LayoutElement {
             resetContent();
             this.mIcon = resourceId;
             this.mType = ICON;
-            this.mDefaultSize = true;
             return this;
         }
 
@@ -225,7 +219,6 @@ public class Button implements LayoutElement {
             resetContent();
             this.mText = text;
             this.mType = TEXT;
-            this.mDefaultSize = true;
             return this;
         }
 
@@ -243,9 +236,7 @@ public class Button implements LayoutElement {
             resetContent();
             this.mText = text;
             this.mTypographyName = typographyName;
-            this.mIsTypographyNameSet = true;
             this.mType = TEXT;
-            this.mDefaultSize = false;
             return this;
         }
 
@@ -263,13 +254,12 @@ public class Button implements LayoutElement {
             resetContent();
             this.mImage = resourceId;
             this.mType = IMAGE;
-            this.mDefaultSize = false;
             return this;
         }
 
         private void resetContent() {
             this.mText = null;
-            this.mIsTypographyNameSet = false;
+            this.mTypographyName = null;
             this.mIcon = null;
             this.mImage = null;
             this.mCustomContent = null;
@@ -319,9 +309,9 @@ public class Button implements LayoutElement {
                 case ICON:
                 {
                     DpProp iconSize =
-                            mDefaultSize
-                                    ? ButtonDefaults.recommendedIconSize(mSize)
-                                    : checkNotNull(mIconSize);
+                            mIconSize != null
+                                    ? mIconSize
+                                    : ButtonDefaults.recommendedIconSize(mSize);
                     content =
                             new Image.Builder()
                                     .setResourceId(checkNotNull(mIcon))
@@ -339,12 +329,11 @@ public class Button implements LayoutElement {
                 {
                     @TypographyName
                     int typographyName =
-                            mIsTypographyNameSet
+                            mTypographyName != null
                                     ? mTypographyName
                                     : getDefaultTypographyForSize(mSize);
                     content =
-                            new Text.Builder(mContext)
-                                    .setText(checkNotNull(mText))
+                            new Text.Builder(mContext, checkNotNull(mText))
                                     .setMaxLines(1)
                                     .setTypography(typographyName)
                                     .setColor(mButtonColors.getContentColor());

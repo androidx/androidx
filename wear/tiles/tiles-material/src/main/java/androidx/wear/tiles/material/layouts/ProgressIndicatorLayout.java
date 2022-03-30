@@ -19,6 +19,7 @@ package androidx.wear.tiles.material.layouts;
 import static androidx.wear.tiles.DimensionBuilders.dp;
 import static androidx.wear.tiles.DimensionBuilders.expand;
 import static androidx.wear.tiles.material.Helper.checkNotNull;
+import static androidx.wear.tiles.material.Helper.isRoundDevice;
 import static androidx.wear.tiles.material.ProgressIndicatorDefaults.DEFAULT_PADDING;
 import static androidx.wear.tiles.material.layouts.LayoutDefaults.PROGRESS_INDICATOR_LAYOUT_MARGIN_HORIZONTAL_ROUND_DP;
 import static androidx.wear.tiles.material.layouts.LayoutDefaults.PROGRESS_INDICATOR_LAYOUT_MARGIN_HORIZONTAL_SQUARE_DP;
@@ -27,7 +28,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.wear.tiles.DeviceParametersBuilders;
 import androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters;
 import androidx.wear.tiles.DimensionBuilders.DpProp;
 import androidx.wear.tiles.LayoutElementBuilders;
@@ -83,11 +83,6 @@ public class ProgressIndicatorLayout implements LayoutElement {
             return this;
         }
 
-        private boolean isRoundDevice() {
-            return mDeviceParameters.getScreenShape()
-                    == DeviceParametersBuilders.SCREEN_SHAPE_ROUND;
-        }
-
         /**
          * Constructs and returns {@link ProgressIndicatorLayout} with the provided content and
          * look.
@@ -102,7 +97,7 @@ public class ProgressIndicatorLayout implements LayoutElement {
                                     .getValue()
                             : 0;
             float horizontalPaddingDp =
-                    isRoundDevice()
+                    isRoundDevice(mDeviceParameters)
                             ? PROGRESS_INDICATOR_LAYOUT_MARGIN_HORIZONTAL_ROUND_DP
                             : PROGRESS_INDICATOR_LAYOUT_MARGIN_HORIZONTAL_SQUARE_DP;
             float indicatorWidth = 2 * (thicknessDp + DEFAULT_PADDING.getValue());
