@@ -126,3 +126,6 @@ It looks like you are a Googler running without remote build cache.*
 # Flaky printout from kapt
 WARNING: Illegal reflective access by org\.jetbrains\.kotlin\.kapt3\.util\.ModuleManipulationUtilsKt .* to constructor com\.sun\.tools\.javac\.util\.Context\(\)
 WARNING: Please consider reporting this to the maintainers of org\.jetbrains\.kotlin\.kapt3\.util\.ModuleManipulationUtilsKt
+# b/225244932
+Index data read correctly
+Could not read index from network cache: null
