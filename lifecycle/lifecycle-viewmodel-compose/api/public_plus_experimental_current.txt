@@ -13,6 +13,7 @@ package androidx.lifecycle.viewmodel.compose {
 
   public final class SavedStateHandleSaverKt {
     method @androidx.lifecycle.viewmodel.compose.SavedStateHandleSaveableApi public static <T> T saveable(androidx.lifecycle.SavedStateHandle, String key, optional androidx.compose.runtime.saveable.Saver<T,?> saver, kotlin.jvm.functions.Function0<? extends T> init);
+    method @androidx.lifecycle.viewmodel.compose.SavedStateHandleSaveableApi public static <T> androidx.compose.runtime.MutableState<T> saveable(androidx.lifecycle.SavedStateHandle, String key, androidx.compose.runtime.saveable.Saver<T,?> stateSaver, kotlin.jvm.functions.Function0<? extends androidx.compose.runtime.MutableState<T>> init);
   }
 
   public final class ViewModelKt {
