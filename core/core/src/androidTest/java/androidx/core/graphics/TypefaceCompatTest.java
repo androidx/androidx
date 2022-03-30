@@ -166,7 +166,8 @@ public class TypefaceCompatTest {
     }
 
     @Test
-    public void testCreateFromResourcesFamilyXml_resourceFont_asyncloading() throws Exception {
+    public void testCreateFromResourcesFamilyXml_resourceFont_NORMAL_asyncloading()
+            throws Exception {
         final Instrumentation inst = InstrumentationRegistry.getInstrumentation();
         CountDownLatch latch = new CountDownLatch(1);
         final FontCallback callback = new FontCallback(latch);
@@ -182,11 +183,15 @@ public class TypefaceCompatTest {
             }
         });
         assertTrue(latch.await(5L, TimeUnit.SECONDS));
-
         assertEquals(R.font.large_a, getSelectedFontResourceId(callback.mTypeface));
+    }
 
-        latch = new CountDownLatch(1);
+    @Test
+    public void testCreateFromResourcesFamilyXml_resourceFont_ITALIC_asyncloading()
+            throws Exception {
+        CountDownLatch latch = new CountDownLatch(1);
         final FontCallback callback2 = new FontCallback(latch);
+        final Instrumentation inst = InstrumentationRegistry.getInstrumentation();
         inst.runOnMainSync(new Runnable() {
             @Override
             public void run() {
@@ -199,9 +204,14 @@ public class TypefaceCompatTest {
         });
         assertTrue(latch.await(5L, TimeUnit.SECONDS));
         assertEquals(R.font.large_b, getSelectedFontResourceId(callback2.mTypeface));
+    }
 
-        latch = new CountDownLatch(1);
+    @Test
+    public void testCreateFromResourcesFamilyXml_resourceFont_BOLD_asyncloading()
+            throws Exception {
+        CountDownLatch latch = new CountDownLatch(1);
         final FontCallback callback3 = new FontCallback(latch);
+        final Instrumentation inst = InstrumentationRegistry.getInstrumentation();
         inst.runOnMainSync(new Runnable() {
             @Override
             public void run() {
@@ -214,9 +224,14 @@ public class TypefaceCompatTest {
         });
         assertTrue(latch.await(5L, TimeUnit.SECONDS));
         assertEquals(R.font.large_c, getSelectedFontResourceId(callback3.mTypeface));
+    }
 
-        latch = new CountDownLatch(1);
+    @Test
+    public void testCreateFromResourcesFamilyXml_resourceFont_BOLD_ITALIC_asyncloading()
+            throws Exception {
+        CountDownLatch latch = new CountDownLatch(1);
         final FontCallback callback4 = new FontCallback(latch);
+        final Instrumentation inst = InstrumentationRegistry.getInstrumentation();
         inst.runOnMainSync(new Runnable() {
             @Override
             public void run() {
