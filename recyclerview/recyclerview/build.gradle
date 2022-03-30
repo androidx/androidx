@@ -11,8 +11,7 @@ dependencies {
     api "androidx.core:core:1.7.0"
     implementation("androidx.collection:collection:1.0.0")
     api("androidx.customview:customview:1.0.0")
-    // TODO(b/211779215): Consider pinning this to a specific version
-    implementation project(":customview:customview-poolingcontainer")
+    implementation("androidx.customview:customview-poolingcontainer:1.0.0-alpha01")
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
