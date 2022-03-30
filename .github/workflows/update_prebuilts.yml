@@ -21,10 +21,14 @@ jobs:
           echo "::set-output name=has_changes::$HAS_CHANGES"
       - name: "we have changes"
         shell: bash
-        if: ${{ steps.check-for-changes.outputs.has_changes == 1 }}
-        run: echo "have changes ${{ steps.check-for-changes.outputs.has_changes }}"
-      - name: "we don't have changes"
-        shell: bash
-        if: ${{ steps.check-for-changes.outputs.has_changes == 0 }}
-        run: echo "no changes ${{ steps.check-for-changes.outputs.has_changes }}"
-          
+        if: ${{ steps.check-for-changes.outputs.has_changes > 1 }}
+        run: |
+          set -x
+          BRANCH_NAME="robot-update-prebuilts-${{ github.run_id }}-${{ github.run_number }}"
+          git config user.email "${{ github.event.head_commit.author.email }}"
+          git config user.name "${{ github.event.head_commit.author.name }}"
+          git checkout -b $BRANCH_NAME
+          git add playground-common/playground.properties
+          git commit -m "Update Prebuilts for Playground \
+            Bug: n/a \
+            Test: CI"
