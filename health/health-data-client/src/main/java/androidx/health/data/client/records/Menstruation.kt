@@ -27,7 +27,7 @@ import java.time.ZoneOffset
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class Menstruation(
     /**
-     * How heavy the user's menstrual flow was. Optional field. Allowed values: [ MenstruationFlow].
+     * How heavy the user's menstrual flow was. Optional field. Allowed values: [MenstruationFlow].
      */
     @property:MenstruationFlow public val flow: String? = null,
     override val time: Instant,

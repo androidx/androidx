@@ -17,7 +17,6 @@ package androidx.health.data.client.impl
 
 import androidx.health.data.client.HealthDataClient
 import androidx.health.data.client.aggregate.AggregateDataRow
-import androidx.health.data.client.aggregate.AggregateMetric
 import androidx.health.data.client.impl.converters.datatype.toDataTypeIdPairProtoList
 import androidx.health.data.client.impl.converters.datatype.toDataTypeName
 import androidx.health.data.client.impl.converters.permission.toJetpackPermission
@@ -33,6 +32,7 @@ import androidx.health.data.client.impl.converters.time.toProto
 import androidx.health.data.client.metadata.DataOrigin
 import androidx.health.data.client.permission.Permission
 import androidx.health.data.client.records.Record
+import androidx.health.data.client.request.AggregateRequest
 import androidx.health.data.client.request.ChangesTokenRequest
 import androidx.health.data.client.request.ReadRecordsRequest
 import androidx.health.data.client.response.ChangesResponse
@@ -142,25 +142,21 @@ class HealthDataClientImpl(
         return toReadRecordsResponse(proto)
     }
 
-    override suspend fun aggregate(
-        aggregateMetrics: Set<AggregateMetric>,
-        timeRangeFilter: TimeRangeFilter,
-        dataOriginFilter: List<DataOrigin>
-    ): AggregateDataRow {
+    override suspend fun aggregate(request: AggregateRequest): AggregateDataRow {
         val responseProto =
             delegate
                 .aggregate(
                     RequestProto.AggregateDataRequest.newBuilder()
-                        .setTimeSpec(timeRangeFilter.toProto())
+                        .setTimeSpec(request.timeRangeFilter.toProto())
                         .addAllDataOrigin(
-                            dataOriginFilter.map {
+                            request.dataOriginFilter.map {
                                 DataProto.DataOrigin.newBuilder()
                                     .setApplicationId(it.packageName)
                                     .build()
                             }
                         )
                         .addAllMetricSpec(
-                            aggregateMetrics.map {
+                            request.metrics.map {
                                 RequestProto.AggregateMetricSpec.newBuilder()
                                     .setDataTypeName(it.dataTypeName)
                                     .setAggregationType(it.aggregationSuffix)

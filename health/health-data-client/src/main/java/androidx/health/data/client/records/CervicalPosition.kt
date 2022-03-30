@@ -31,8 +31,7 @@ public class CervicalPosition(
      */
     @property:CervicalPositionValue public val position: String? = null,
     /**
-     * How open or dilated the user's cervix is. Optional field. Allowed values: [
-     * CervicalDilation].
+     * How open or dilated the user's cervix is. Optional field. Allowed values: [CervicalDilation].
      */
     @property:CervicalDilation public val dilation: String? = null,
     /** How firm the user's cervix is. Optional field. Allowed values: [CervicalFirmness]. */
