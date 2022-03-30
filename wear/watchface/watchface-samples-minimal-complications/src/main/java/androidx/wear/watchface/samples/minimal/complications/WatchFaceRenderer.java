@@ -45,6 +45,7 @@ import androidx.wear.watchface.style.CurrentUserStyleRepository;
 import java.time.ZonedDateTime;
 import java.util.concurrent.TimeUnit;
 
+@SuppressWarnings("deprecation")
 class WatchFaceRenderer extends Renderer.CanvasRenderer {
 
     private static final long UPDATE_DELAY_MILLIS = TimeUnit.SECONDS.toMillis(1);

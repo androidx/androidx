@@ -153,6 +153,11 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
             )
         }
 
+        inner class MySharedAssets : Renderer.SharedAssets {
+            override fun onDestroy() {
+            }
+        }
+
         override suspend fun createWatchFace(
             surfaceHolder: SurfaceHolder,
             watchState: WatchState,
@@ -160,12 +165,13 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
             currentUserStyleRepository: CurrentUserStyleRepository
         ) = WatchFace(
             WatchFaceType.ANALOG,
-            object : Renderer.CanvasRenderer(
+            object : Renderer.CanvasRenderer2<MySharedAssets>(
                 surfaceHolder,
                 currentUserStyleRepository,
                 watchState,
                 CanvasType.HARDWARE,
-                /* interactiveUpdateRateMillis */ 16,
+                interactiveDrawModeUpdateDelayMillis = 16,
+                clearWithBackgroundTintBeforeRenderingHighlightLayer = true
             ) {
                 init {
                     // Listen for user style changes.
@@ -180,7 +186,8 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                 override fun render(
                     canvas: Canvas,
                     bounds: Rect,
-                    zonedDateTime: ZonedDateTime
+                    zonedDateTime: ZonedDateTime,
+                    sharedAssets: MySharedAssets
                 ) {
                     // ...
                 }
@@ -188,11 +195,17 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                 override fun renderHighlightLayer(
                     canvas: Canvas,
                     bounds: Rect,
-                    zonedDateTime: ZonedDateTime
+                    zonedDateTime: ZonedDateTime,
+                    sharedAssets: MySharedAssets
                 ) {
                     canvas.drawColor(renderParameters.highlightLayer!!.backgroundTint)
 
                     // ...
+                }
+
+                override suspend fun createSharedAssets(): MySharedAssets {
+                    // Insert resource loading here.
+                    return MySharedAssets()
                 }
             }
         )

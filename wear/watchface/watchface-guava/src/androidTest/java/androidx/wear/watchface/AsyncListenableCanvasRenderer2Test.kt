@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.wear.watchface.test
+package androidx.wear.watchface
 
 import android.content.Context
+import android.graphics.Canvas
+import android.graphics.Rect
 import android.os.Build
 import android.view.SurfaceHolder
 import androidx.annotation.RequiresApi
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.wear.watchface.ComplicationSlotsManager
-import androidx.wear.watchface.ListenableGlesRenderer
-import androidx.wear.watchface.WatchFace
-import androidx.wear.watchface.WatchFaceService
-import androidx.wear.watchface.WatchFaceType
-import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.client.DeviceConfig
 import androidx.wear.watchface.client.WatchUiState
 import androidx.wear.watchface.style.CurrentUserStyleRepository
@@ -37,25 +33,34 @@ import com.google.common.util.concurrent.SettableFuture
 import kotlinx.coroutines.async
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
-internal class TestAsyncGlesRenderInitWatchFaceService(
+public class TestSharedAssets : Renderer.SharedAssets {
+    override fun onDestroy() {
+    }
+}
+
+internal class TestAsyncCanvasRenderWithSharedAssetsTestWatchFaceService(
     testContext: Context,
     private var surfaceHolderOverride: SurfaceHolder,
-    private var onUiThreadGlSurfaceCreatedFuture: ListenableFuture<Unit>,
-    private var onBackgroundThreadGlContextFuture: ListenableFuture<Unit>
+    private var initFuture: ListenableFuture<Unit>,
+    private var sharedAssetsFuture: ListenableFuture<TestSharedAssets>
 ) : WatchFaceService() {
+
     val lock = Any()
-    val onUiThreadGlSurfaceCreatedFutureLatch = CountDownLatch(1)
-    val onBackgroundThreadGlContextFutureLatch = CountDownLatch(1)
-    val renderLatch = CountDownLatch(1)
+    val initFutureLatch = CountDownLatch(1)
+    val sharedAssetsFutureLatch = CountDownLatch(1)
     var hasRendered = false
+    lateinit var sharedAssetsPassedToRenderer: Renderer.SharedAssets
 
     init {
         attachBaseContext(testContext)
     }
+
+    override fun forceIsVisibleForTesting() = true
 
     override fun getWallpaperSurfaceHolderOverride() = surfaceHolderOverride
 
@@ -66,54 +71,67 @@ internal class TestAsyncGlesRenderInitWatchFaceService(
         currentUserStyleRepository: CurrentUserStyleRepository
     ) = WatchFace(
         WatchFaceType.DIGITAL,
-        object : ListenableGlesRenderer(
+        object : ListenableCanvasRenderer2<TestSharedAssets>(
             surfaceHolder,
             currentUserStyleRepository,
             watchState,
+            CanvasType.HARDWARE,
             16
         ) {
-            override fun onUiThreadGlSurfaceCreatedFuture(
-                width: Int,
-                height: Int
-            ): ListenableFuture<Unit> {
-                onUiThreadGlSurfaceCreatedFutureLatch.countDown()
-                return onUiThreadGlSurfaceCreatedFuture
+            override fun initFuture(): ListenableFuture<Unit> {
+                initFutureLatch.countDown()
+                return initFuture
             }
 
-            override fun onBackgroundThreadGlContextCreatedFuture(): ListenableFuture<Unit> {
-                onBackgroundThreadGlContextFutureLatch.countDown()
-                return onBackgroundThreadGlContextFuture
+            override fun createSharedAssetsFuture(): ListenableFuture<TestSharedAssets> {
+                sharedAssetsFutureLatch.countDown()
+                return sharedAssetsFuture
             }
 
-            override fun render(zonedDateTime: ZonedDateTime) {
-                // GLES rendering is complicated and not strictly necessary for our test.
+            override fun render(
+                canvas: Canvas,
+                bounds: Rect,
+                zonedDateTime: ZonedDateTime,
+                sharedAssets: TestSharedAssets
+            ) {
+                // Actually rendering something isn't required.
                 synchronized(lock) {
                     hasRendered = true
+                    sharedAssetsPassedToRenderer = sharedAssets
                 }
-                renderLatch.countDown()
             }
 
-            override fun renderHighlightLayer(zonedDateTime: ZonedDateTime) {
-                TODO("Not yet implemented")
+            override fun renderHighlightLayer(
+                canvas: Canvas,
+                bounds: Rect,
+                zonedDateTime: ZonedDateTime,
+                sharedAssets: TestSharedAssets
+            ) {
+                // NOP
             }
         }
-    )
+    ).setSystemTimeProvider(object : WatchFace.SystemTimeProvider {
+        override fun getSystemTimeMillis() = 123456789L
+
+        override fun getSystemTimeZoneId() = ZoneId.of("UTC")
+    })
 }
 
 @MediumTest
 @RequiresApi(Build.VERSION_CODES.O_MR1)
 @RunWith(AndroidJUnit4::class)
-public class AsyncListenableGlesRendererTest : WatchFaceControlClientServiceTest() {
-
+public class AsyncListenableCanvasRenderer2Test :
+    WatchFaceControlClientServiceTest() {
     @Test
     public fun asyncTest() {
-        val onUiThreadGlSurfaceCreatedFuture = SettableFuture.create<Unit>()
-        val onBackgroundThreadGlContextFuture = SettableFuture.create<Unit>()
-        val watchFaceService = TestAsyncGlesRenderInitWatchFaceService(
+        val testSharedAssets = TestSharedAssets()
+        val initFuture = SettableFuture.create<Unit>()
+        val sharedAssetsFuture = SettableFuture.create<TestSharedAssets>()
+        val watchFaceService = TestAsyncCanvasRenderWithSharedAssetsTestWatchFaceService(
             context,
-            glSurfaceHolder,
-            onUiThreadGlSurfaceCreatedFuture,
-            onBackgroundThreadGlContextFuture
+            surfaceHolder,
+            initFuture,
+            sharedAssetsFuture
         )
 
         val deferredClient = handlerCoroutineScope.async {
@@ -136,40 +154,33 @@ public class AsyncListenableGlesRendererTest : WatchFaceControlClientServiceTest
         }
 
         val client = awaitWithTimeout(deferredClient)
+
         try {
             assertThat(
-                watchFaceService.onBackgroundThreadGlContextFutureLatch.await(
+                watchFaceService.sharedAssetsFutureLatch.await(
                     TIMEOUT_MILLIS,
                     TimeUnit.MILLISECONDS
                 )
             ).isTrue()
+            sharedAssetsFuture.set(testSharedAssets)
+
+            assertThat(
+                watchFaceService.initFutureLatch.await(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)
+            ).isTrue()
+
             synchronized(watchFaceService.lock) {
                 assertThat(watchFaceService.hasRendered).isFalse()
             }
-            onBackgroundThreadGlContextFuture.set(Unit)
 
-            assertThat(
-                watchFaceService.onUiThreadGlSurfaceCreatedFutureLatch.await(
-                    TIMEOUT_MILLIS,
-                    TimeUnit.MILLISECONDS
-                )
-            ).isTrue()
-            synchronized(watchFaceService.lock) {
-                assertThat(watchFaceService.hasRendered).isFalse()
-            }
-            onUiThreadGlSurfaceCreatedFuture.set(Unit)
+            initFuture.set(Unit)
 
-            assertThat(
-                watchFaceService.renderLatch.await(
-                    TIMEOUT_MILLIS,
-                    TimeUnit.MILLISECONDS
-                )
-            ).isTrue()
+            assertThat(renderLatch.await(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)).isTrue()
+            assertThat(watchFaceService.sharedAssetsPassedToRenderer).isEqualTo(testSharedAssets)
         } finally {
             // Make sure we don't deadlock in case of a timeout which aborts the test mid way
-            // leaving these futures incomplete.
-            onBackgroundThreadGlContextFuture.set(Unit)
-            onUiThreadGlSurfaceCreatedFuture.set(Unit)
+            // leaving this future incomplete.
+            initFuture.set(Unit)
+            sharedAssetsFuture.set(testSharedAssets)
             client.close()
         }
     }

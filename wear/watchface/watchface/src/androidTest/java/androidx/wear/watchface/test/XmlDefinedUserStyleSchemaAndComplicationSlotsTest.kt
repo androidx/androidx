@@ -134,6 +134,7 @@ class TestXmlWatchFaceService(
         currentUserStyleRepository: CurrentUserStyleRepository
     ) = WatchFace(
         WatchFaceType.DIGITAL,
+        @Suppress("deprecation")
         object : Renderer.CanvasRenderer(
             surfaceHolder,
             currentUserStyleRepository,

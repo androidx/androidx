@@ -22,6 +22,7 @@ import androidx.annotation.IntRange
 import androidx.annotation.Px
 import androidx.annotation.UiThread
 import androidx.annotation.WorkerThread
+import androidx.wear.watchface.Renderer.SharedAssets
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.SettableFuture
@@ -50,6 +51,8 @@ internal val EGL_SURFACE_ATTRIB_LIST = intArrayOf(EGL14.EGL_NONE)
  * [ListenableFuture]-based compatibility wrapper around [Renderer.GlesRenderer]'s suspending
  * methods.
  */
+@Deprecated(message = "Use ListenableGlesRenderer2 instead")
+@Suppress("Deprecation")
 public abstract class ListenableGlesRenderer
 @Throws(GlesException::class) @JvmOverloads constructor(
     surfaceHolder: SurfaceHolder,
@@ -121,6 +124,7 @@ public abstract class ListenableGlesRenderer
      * @return A ListenableFuture<Unit> which is resolved when background thread work has
      * completed. Rendering will be blocked until this has resolved.
      */
+    @Suppress("AsyncSuffixFuture") // This is the guava wrapper for a suspend function
     protected open fun onBackgroundThreadGlContextCreatedFuture(): ListenableFuture<Unit> {
         return SettableFuture.create<Unit>().apply {
             set(Unit)
@@ -148,8 +152,9 @@ public abstract class ListenableGlesRenderer
      * Rendering will be blocked until this has resolved.
      */
     @UiThread
+    @Suppress("AsyncSuffixFuture") // This is the guava wrapper for a suspend function
     protected open fun
-    onUiThreadGlSurfaceCreatedFuture(@Px width: Int, @Px height: Int): ListenableFuture<Unit> {
+        onUiThreadGlSurfaceCreatedFuture(@Px width: Int, @Px height: Int): ListenableFuture<Unit> {
         return SettableFuture.create<Unit>().apply {
             set(Unit)
         }
@@ -163,4 +168,158 @@ public abstract class ListenableGlesRenderer
                 { runnable -> runnable.run() }
             )
         }
+}
+
+/**
+ * [ListenableFuture]-based compatibility wrapper around [Renderer.GlesRenderer]'s suspending
+ * methods.
+ */
+public abstract class ListenableGlesRenderer2<SharedAssetsT>
+@Throws(GlesException::class) @JvmOverloads constructor(
+    surfaceHolder: SurfaceHolder,
+    currentUserStyleRepository: CurrentUserStyleRepository,
+    watchState: WatchState,
+    @IntRange(from = 0, to = 60000)
+    interactiveDrawModeUpdateDelayMillis: Long,
+    eglConfigAttribList: IntArray = EGL_CONFIG_ATTRIB_LIST,
+    eglSurfaceAttribList: IntArray = EGL_SURFACE_ATTRIB_LIST
+) : Renderer.GlesRenderer2<SharedAssetsT>(
+    surfaceHolder,
+    currentUserStyleRepository,
+    watchState,
+    interactiveDrawModeUpdateDelayMillis,
+    eglConfigAttribList,
+    eglSurfaceAttribList
+) where SharedAssetsT : SharedAssets {
+    /**
+     * Inside of a [Mutex] this function sets the GL context associated with the
+     * [WatchFaceService.getBackgroundThreadHandler]'s looper thread as the current one,
+     * executes [runnable] and finally unsets the GL context.
+     *
+     * Access to the GL context this way is necessary because GL contexts are not shared
+     * between renderers and there can be multiple watch face instances existing concurrently
+     * (e.g. headless and interactive, potentially from different watch faces if an APK
+     * contains more than one [WatchFaceService]).
+     *
+     * NB this function is called by the library before running
+     * [runBackgroundThreadGlCommands] so there's no need to use this directly in client
+     * code unless you need to make GL calls outside of those methods.
+     *
+     * @throws [IllegalStateException] if the calls to [EGL14.eglMakeCurrent] fails
+     */
+    @WorkerThread
+    public fun runBackgroundThreadGlCommands(runnable: Runnable) {
+        runBlocking {
+            runBackgroundThreadGlCommands {
+                runnable.run()
+            }
+        }
+    }
+
+    /**
+     * Inside of a [Mutex] this function sets the UiThread GL context as the current
+     * one, executes [runnable] and finally unsets the GL context.
+     *
+     * Access to the GL context this way is necessary because GL contexts are not shared
+     * between renderers and there can be multiple watch face instances existing concurrently
+     * (e.g. headless and interactive, potentially from different watch faces if an APK
+     * contains more than one [WatchFaceService]).
+     *
+     * @throws [IllegalStateException] if the calls to [EGL14.eglMakeCurrent] fails
+     */
+    @UiThread
+    public fun runUiThreadGlCommands(runnable: Runnable) {
+        runBlocking {
+            runUiThreadGlCommands {
+                runnable.run()
+            }
+        }
+    }
+
+    /**
+     * Called once a background thread when a new GL context is created on the background
+     * thread, before any subsequent calls to [render]. Note this function is called inside a
+     * lambda passed to [runBackgroundThreadGlCommands] which has synchronized access to the
+     * GL context. Note cancellation of the returned future is not supported.
+     *
+     * @return A ListenableFuture<Unit> which is resolved when background thread work has
+     * completed. Rendering will be blocked until this has resolved.
+     */
+    @Suppress("AsyncSuffixFuture") // This is the guava wrapper for a suspend function
+    protected open fun onBackgroundThreadGlContextCreatedFuture(): ListenableFuture<Unit> {
+        return SettableFuture.create<Unit>().apply {
+            set(Unit)
+        }
+    }
+
+    final override suspend fun onBackgroundThreadGlContextCreated(): Unit =
+        suspendCancellableCoroutine {
+            val future = onBackgroundThreadGlContextCreatedFuture()
+            future.addListener(
+                { it.resume(future.get()) },
+                { runnable -> runnable.run() }
+            )
+        }
+
+    /**
+     * Called when a new GL surface is created on the UiThread, before any subsequent calls
+     * to [render] and in response to [SurfaceHolder.Callback.surfaceChanged]. Note this function
+     * is called inside a lambda passed to [Renderer.GlesRenderer.runUiThreadGlCommands] which
+     * has synchronized access to the GL context.  Note cancellation of the returned future is not
+     * supported.
+     *
+     * @param width width of surface in pixels
+     * @param height height of surface in pixels
+     * @return A ListenableFuture<Unit> which is resolved when UI thread work has completed.
+     * Rendering will be blocked until this has resolved.
+     */
+    @UiThread
+    @Suppress("AsyncSuffixFuture") // This is the guava wrapper for a suspend function
+    protected open fun
+        onUiThreadGlSurfaceCreatedFuture(@Px width: Int, @Px height: Int): ListenableFuture<Unit> {
+        return SettableFuture.create<Unit>().apply {
+            set(Unit)
+        }
+    }
+
+    final override suspend fun onUiThreadGlSurfaceCreated(@Px width: Int, @Px height: Int): Unit =
+        suspendCancellableCoroutine {
+            val future = onUiThreadGlSurfaceCreatedFuture(width, height)
+            future.addListener(
+                { it.resume(future.get()) },
+                { runnable -> runnable.run() }
+            )
+        }
+
+    /**
+     * When editing multiple [WatchFaceService] instances and hence Renderers can exist
+     * concurrently (e.g. a headless instance and an interactive instance) and using
+     * [SharedAssets] allows memory to be saved by sharing immutable data (e.g. Bitmaps,
+     * shaders, etc...) between them.
+     *
+     * To take advantage of SharedAssets, override this method. The constructed SharedAssets are
+     * passed into the [render] as an argument (NB you'll have to cast this to your type).
+     * It is safe to make GLES calls within this method.
+     *
+     * When all instances using SharedAssets have been closed, [SharedAssets.onDestroy] will be
+     * called.
+     *
+     * Note that while SharedAssets are constructed on a background thread, they'll typically be
+     * used on the main thread and subsequently destroyed there. The watch face library
+     * constructs shared GLES contexts to allow resource sharing between threads.
+     *
+     * @return A [ListenableFuture] for the [SharedAssetsT] that will be passed into [render] and
+     * [renderHighlightLayer]
+     */
+    @WorkerThread
+    @Suppress("AsyncSuffixFuture") // This is the guava wrapper for a suspend function
+    public abstract fun createSharedAssetsFuture(): ListenableFuture<SharedAssetsT>
+
+    final override suspend fun createSharedAssets(): SharedAssetsT = suspendCancellableCoroutine {
+        val future = createSharedAssetsFuture()
+        future.addListener(
+            { it.resume(future.get()) },
+            { runnable -> runnable.run() }
+        )
+    }
 }
