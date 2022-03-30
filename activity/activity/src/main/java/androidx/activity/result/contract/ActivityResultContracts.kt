@@ -28,6 +28,7 @@ import android.provider.DocumentsContract
 import android.provider.MediaStore
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts.GetMultipleContents.Companion.getClipDataUris
 import androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult.Companion.ACTION_INTENT_SENDER_REQUEST
 import androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult.Companion.EXTRA_SEND_INTENT_EXCEPTION
@@ -603,8 +604,7 @@ class ActivityResultContracts private constructor() {
      * An [ActivityResultContract] to use the photo picker through [MediaStore.ACTION_PICK_IMAGES]
      * when available, and else rely on ACTION_OPEN_DOCUMENT.
      *
-     * The input is the mime type to filter by, e.g. `PickVisualMedia.ImageOnly`,
-     * `PickVisualMedia.ImageAndVideo`, `PickVisualMedia.SingleMimeType("image/gif")`.
+     * The input is a [PickVisualMediaRequest].
      *
      * The output is a `Uri` when the user has selected a media or `null` when the user hasn't
      * selected any item. Keep in mind that `Uri` returned by the photo picker isn't writable.
@@ -612,7 +612,7 @@ class ActivityResultContracts private constructor() {
      * This can be extended to override [createIntent] if you wish to pass additional
      * extras to the Intent created by `super.createIntent()`.
      */
-    open class PickVisualMedia : ActivityResultContract<PickVisualMedia.VisualMediaType, Uri?>() {
+    open class PickVisualMedia : ActivityResultContract<PickVisualMediaRequest, Uri?>() {
         companion object {
             @JvmStatic
             fun isPhotoPickerAvailable(): Boolean {
@@ -638,18 +638,18 @@ class ActivityResultContracts private constructor() {
         class SingleMimeType(val mimeType: String) : VisualMediaType
 
         @CallSuper
-        override fun createIntent(context: Context, input: VisualMediaType): Intent {
+        override fun createIntent(context: Context, input: PickVisualMediaRequest): Intent {
             // Check if Photo Picker is available on the device
             return if (isPhotoPickerAvailable()) {
                 Intent(MediaStore.ACTION_PICK_IMAGES).apply {
-                    type = getVisualMimeType(input)
+                    type = getVisualMimeType(input.mediaType)
                 }
             } else {
                 // For older devices running KitKat and higher and devices running Android 12
                 // and 13 without the SDK extension that includes the Photo Picker, rely on the
                 // ACTION_OPEN_DOCUMENT intent
                 Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-                    type = getVisualMimeType(input)
+                    type = getVisualMimeType(input.mediaType)
 
                     if (type == null) {
                         // ACTION_OPEN_DOCUMENT requires to set this parameter when launching the
@@ -663,7 +663,7 @@ class ActivityResultContracts private constructor() {
 
         final override fun getSynchronousResult(
             context: Context,
-            input: VisualMediaType
+            input: PickVisualMediaRequest
         ): SynchronousResult<Uri?>? = null
 
         final override fun parseResult(resultCode: Int, intent: Intent?): Uri? {
@@ -679,8 +679,7 @@ class ActivityResultContracts private constructor() {
      * using the photo picker to return. Keep in mind that this parameter isn't supported on devices
      * when the photo picker isn't available.
      *
-     * The input is the mime type to filter by, e.g. `PickVisualMedia.ImageOnly`,
-     * `PickVisualMedia.ImageAndVideo`, `PickVisualMedia.SingleMimeType("image/gif")`.
+     * The input is a [PickVisualMediaRequest].
      *
      * The output is a list `Uri` of the selected media. It can be empty if the user hasn't selected
      * any items. Keep in mind that `Uri` returned by the photo picker aren't writable.
@@ -691,7 +690,7 @@ class ActivityResultContracts private constructor() {
     @RequiresApi(19)
     open class PickMultipleVisualMedia(
         private val maxItems: Int = getMaxItems()
-    ) : ActivityResultContract<PickVisualMedia.VisualMediaType, List<@JvmSuppressWildcards Uri>>() {
+    ) : ActivityResultContract<PickVisualMediaRequest, List<@JvmSuppressWildcards Uri>>() {
 
         init {
             require(maxItems > 1) {
@@ -700,14 +699,11 @@ class ActivityResultContracts private constructor() {
         }
 
         @CallSuper
-        override fun createIntent(
-            context: Context,
-            input: PickVisualMedia.VisualMediaType
-        ): Intent {
+        override fun createIntent(context: Context, input: PickVisualMediaRequest): Intent {
             // Check to see if the photo picker is available
             return if (PickVisualMedia.isPhotoPickerAvailable()) {
                 Intent(MediaStore.ACTION_PICK_IMAGES).apply {
-                    type = PickVisualMedia.getVisualMimeType(input)
+                    type = PickVisualMedia.getVisualMimeType(input.mediaType)
 
                     require(maxItems <= MediaStore.getPickImagesMaxLimit()) {
                         "Max items must be less or equals MediaStore.getPickImagesMaxLimit()"
@@ -720,7 +716,7 @@ class ActivityResultContracts private constructor() {
                 // and 13 without the SDK extension that includes the Photo Picker, rely on the
                 // ACTION_OPEN_DOCUMENT intent
                 Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-                    type = PickVisualMedia.getVisualMimeType(input)
+                    type = PickVisualMedia.getVisualMimeType(input.mediaType)
                     putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
 
                     if (type == null) {
@@ -735,7 +731,7 @@ class ActivityResultContracts private constructor() {
 
         final override fun getSynchronousResult(
             context: Context,
-            input: PickVisualMedia.VisualMediaType
+            input: PickVisualMediaRequest
         ): SynchronousResult<List<@JvmSuppressWildcards Uri>>? = null
 
         final override fun parseResult(resultCode: Int, intent: Intent?): List<Uri> {
