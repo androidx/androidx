@@ -30,6 +30,7 @@ import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.PositionIndicator
 import androidx.wear.compose.material.Stepper
+import androidx.wear.compose.material.StepperDefaults
 import androidx.wear.compose.material.Text
 
 @Composable
@@ -39,6 +40,8 @@ fun StepperDemo() {
         value = value,
         onValueChange = { value = it },
         valueRange = 1f..4f,
+        increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
+        decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
         steps = 2
     ) { Text("Value: $value") }
 }
@@ -49,6 +52,8 @@ fun StepperWithIntegerDemo() {
     Stepper(
         value = value,
         onValueChange = { value = it },
+        increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
+        decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
         valueProgression = 1..10
     ) { Text("Value: $value") }
 }
@@ -60,9 +65,9 @@ fun StepperWithScrollBarDemo() {
 
     Stepper(
         value = valueState.value,
-        onValueChange = {
-            valueState.value = it
-        },
+        onValueChange = { valueState.value = it },
+        increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
+        decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
         valueRange = range,
         steps = 9
     ) {
@@ -97,10 +102,10 @@ fun StepperWithCustomColors() {
 
     Stepper(
         value = valueState.value,
-        onValueChange = {
-            valueState.value = it
-        },
+        onValueChange = { valueState.value = it },
         valueRange = range,
+        increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
+        decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
         steps = 9,
         contentColor = AlternatePrimaryColor2,
     ) {

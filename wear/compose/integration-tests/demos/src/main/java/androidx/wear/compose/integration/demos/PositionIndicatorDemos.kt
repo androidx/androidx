@@ -43,7 +43,6 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.Chip
-import androidx.wear.compose.material.InlineSlider
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.PositionIndicator
 import androidx.wear.compose.material.PositionIndicatorAlignment
@@ -145,14 +144,14 @@ fun ControllablePositionIndicator() {
             ) {
                 Column {
                     Text("Position")
-                    InlineSlider(
+                    DefaultInlineSlider(
                         modifier = Modifier.height(40.dp),
                         value = position.value,
                         valueRange = 0f..1f,
                         steps = 9,
                         onValueChange = { position.value = it })
                     Text("Size")
-                    InlineSlider(
+                    DefaultInlineSlider(
                         modifier = Modifier.height(40.dp),
                         value = size.value,
                         valueRange = 0f..1f,
@@ -169,10 +168,12 @@ fun ControllablePositionIndicator() {
                         ToggleButton(
                             checked = reverseDirection,
                             onCheckedChange = { reverseDirection = !reverseDirection }
-                        ) { Text(
-                            text = "Rev Dir",
-                            textAlign = TextAlign.Center
-                        ) }
+                        ) {
+                            Text(
+                                text = "Rev Dir",
+                                textAlign = TextAlign.Center
+                            )
+                        }
                     }
                 }
             }

@@ -30,7 +30,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.HorizontalPageIndicator
+import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.InlineSlider
+import androidx.wear.compose.material.InlineSliderDefaults
 import androidx.wear.compose.material.PageIndicatorState
 
 @Sampled
@@ -57,6 +59,8 @@ fun HorizontalPageIndicatorSample() {
         InlineSlider(
             modifier = Modifier.align(Alignment.Center),
             value = selectedPage,
+            increaseIcon = { Icon(InlineSliderDefaults.Increase, "Increase") },
+            decreaseIcon = { Icon(InlineSliderDefaults.Decrease, "Decrease") },
             valueProgression = 0 until maxPages,
             onValueChange = { selectedPage = it }
         )

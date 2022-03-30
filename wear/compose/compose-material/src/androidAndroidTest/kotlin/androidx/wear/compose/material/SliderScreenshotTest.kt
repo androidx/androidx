@@ -57,6 +57,8 @@ class SliderScreenshotTest {
                 modifier = Modifier.testTag(TEST_TAG),
                 value = 2f,
                 segmented = false,
+                increaseIcon = { Icon(InlineSliderDefaults.Increase, "Increase") },
+                decreaseIcon = { Icon(InlineSliderDefaults.Decrease, "Decrease") },
                 onValueChange = { },
                 valueRange = 1f..4f,
                 steps = 2
@@ -75,6 +77,8 @@ class SliderScreenshotTest {
                 modifier = Modifier.testTag(TEST_TAG),
                 value = 2f,
                 segmented = true,
+                increaseIcon = { Icon(InlineSliderDefaults.Increase, "Increase") },
+                decreaseIcon = { Icon(InlineSliderDefaults.Decrease, "Decrease") },
                 onValueChange = { },
                 valueRange = 1f..4f,
                 steps = 2
@@ -93,6 +97,8 @@ class SliderScreenshotTest {
                 modifier = Modifier.testTag(TEST_TAG),
                 value = 2f,
                 segmented = true,
+                increaseIcon = { Icon(InlineSliderDefaults.Increase, "Increase") },
+                decreaseIcon = { Icon(InlineSliderDefaults.Decrease, "Decrease") },
                 colors = InlineSliderDefaults.colors(
                     backgroundColor = Color.Green,
                     spacerColor = Color.Yellow,
@@ -151,6 +157,8 @@ class SliderScreenshotTest {
                 value = 2f,
                 enabled = false,
                 segmented = true,
+                increaseIcon = { Icon(InlineSliderDefaults.Increase, "Increase") },
+                decreaseIcon = { Icon(InlineSliderDefaults.Decrease, "Decrease") },
                 colors = InlineSliderDefaults.colors(
                     backgroundColor = Color.Green,
                     spacerColor = Color.Yellow,

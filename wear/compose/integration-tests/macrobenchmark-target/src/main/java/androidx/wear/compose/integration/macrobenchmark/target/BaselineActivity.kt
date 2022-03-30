@@ -16,14 +16,13 @@
 
 package androidx.wear.compose.integration.macrobenchmark.target
 
-import androidx.activity.ComponentActivity
 import android.os.Bundle
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.wear.compose.foundation.CurvedLayout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -43,8 +42,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.wear.compose.foundation.ArcPaddingValues
-import androidx.wear.compose.foundation.basicCurvedText
+import androidx.wear.compose.foundation.CurvedLayout
 import androidx.wear.compose.foundation.CurvedTextStyle
+import androidx.wear.compose.foundation.basicCurvedText
 import androidx.wear.compose.material.AppCard
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.Card
@@ -53,8 +53,9 @@ import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.CircularProgressIndicator
 import androidx.wear.compose.material.CompactButton
 import androidx.wear.compose.material.CompactChip
-import androidx.wear.compose.material.curvedText
+import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.InlineSlider
+import androidx.wear.compose.material.InlineSliderDefaults
 import androidx.wear.compose.material.ListHeader
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Picker
@@ -62,6 +63,7 @@ import androidx.wear.compose.material.PositionIndicator
 import androidx.wear.compose.material.Scaffold
 import androidx.wear.compose.material.SplitToggleChip
 import androidx.wear.compose.material.Stepper
+import androidx.wear.compose.material.StepperDefaults
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.TimeText
 import androidx.wear.compose.material.TitleCard
@@ -69,9 +71,10 @@ import androidx.wear.compose.material.ToggleButton
 import androidx.wear.compose.material.ToggleChip
 import androidx.wear.compose.material.Vignette
 import androidx.wear.compose.material.VignettePosition
-import androidx.wear.compose.material.rememberPickerState
+import androidx.wear.compose.material.curvedText
 import androidx.wear.compose.material.dialog.Alert
 import androidx.wear.compose.material.dialog.Confirmation
+import androidx.wear.compose.material.rememberPickerState
 import androidx.wear.compose.navigation.SwipeDismissableNavHost
 import androidx.wear.compose.navigation.composable
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
@@ -148,6 +151,8 @@ class BaselineActivity : ComponentActivity() {
                             Stepper(
                                 value = value,
                                 onValueChange = { value = it },
+                                increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
+                                decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
                                 valueRange = 1f..4f,
                                 steps = 7
                             ) { Text("Value: $value") }
@@ -277,6 +282,8 @@ fun Sliders() {
     InlineSlider(
         value = value,
         onValueChange = { value = it },
+        increaseIcon = { Icon(InlineSliderDefaults.Increase, "Increase") },
+        decreaseIcon = { Icon(InlineSliderDefaults.Decrease, "Decrease") },
         valueRange = 3f..6f,
         steps = 5,
         segmented = false
@@ -291,5 +298,5 @@ fun Steppers(navController: NavHostController) {
         colors = ChipDefaults.primaryChipColors(),
         label = { Text(STEPPER) },
         modifier = Modifier.semantics { contentDescription = STEPPER },
-        )
+    )
 }

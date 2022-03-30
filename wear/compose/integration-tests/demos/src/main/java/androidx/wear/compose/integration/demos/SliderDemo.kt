@@ -32,7 +32,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.InlineSlider
+import androidx.wear.compose.material.InlineSliderColors
 import androidx.wear.compose.material.InlineSliderDefaults
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.ToggleChip
@@ -54,7 +56,7 @@ fun InlineSliderDemo() {
     ) {
         item { Text("No segments, value = $valueWithoutSegments") }
         item {
-            InlineSlider(
+            DefaultInlineSlider(
                 value = valueWithoutSegments,
                 enabled = enabled,
                 valueRange = 1f..100f,
@@ -63,7 +65,7 @@ fun InlineSliderDemo() {
         }
         item { Text("With segments, value = $valueWithSegments") }
         item {
-            InlineSlider(
+            DefaultInlineSlider(
                 value = valueWithSegments,
                 enabled = enabled,
                 onValueChange = { valueWithSegments = it },
@@ -98,7 +100,7 @@ fun InlineSliderWithIntegersDemo() {
     ) {
         item { Text("No segments, value = $valueWithoutSegments") }
         item {
-            InlineSlider(
+            DefaultInlineSlider(
                 value = valueWithoutSegments,
                 valueProgression = IntProgression.fromClosedRange(0, 15, 3),
                 segmented = false,
@@ -106,7 +108,7 @@ fun InlineSliderWithIntegersDemo() {
         }
         item { Text("With segments, value = $valueWithSegments") }
         item {
-            InlineSlider(
+            DefaultInlineSlider(
                 value = valueWithSegments,
                 onValueChange = { valueWithSegments = it },
                 valueProgression = IntProgression.fromClosedRange(110, 220, 5),
@@ -130,7 +132,7 @@ fun InlineSliderCustomColorsDemo() {
         contentAlignment = Alignment.Center,
         modifier = Modifier.fillMaxSize()
     ) {
-        InlineSlider(
+        DefaultInlineSlider(
             value = value,
             onValueChange = { value = it },
             valueRange = 3f..6f,
@@ -159,7 +161,7 @@ fun InlineSliderSegmented() {
     ) {
         Text("Num of segments ${numberOfSegments.toInt()}")
 
-        InlineSlider(
+        DefaultInlineSlider(
             value = numberOfSegments,
             valueRange = 0f..30f,
             onValueChange = { numberOfSegments = it },
@@ -168,7 +170,7 @@ fun InlineSliderSegmented() {
 
         Text("Progress: $progress/20")
 
-        InlineSlider(
+        DefaultInlineSlider(
             value = progress,
             onValueChange = { progress = it },
             valueRange = 1f..20f,
@@ -176,4 +178,56 @@ fun InlineSliderSegmented() {
             steps = numberOfSegments.toInt()
         )
     }
+}
+
+@Composable
+fun DefaultInlineSlider(
+    value: Float,
+    onValueChange: (Float) -> Unit,
+    steps: Int,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    valueRange: ClosedFloatingPointRange<Float> = 0f..(steps + 1).toFloat(),
+    segmented: Boolean = steps <= 8,
+    decreaseIcon: @Composable () -> Unit = { Icon(InlineSliderDefaults.Decrease, "Decrease") },
+    increaseIcon: @Composable () -> Unit = { Icon(InlineSliderDefaults.Increase, "Increase") },
+    colors: InlineSliderColors = InlineSliderDefaults.colors(),
+) {
+    InlineSlider(
+        value = value,
+        onValueChange = onValueChange,
+        increaseIcon = increaseIcon,
+        decreaseIcon = decreaseIcon,
+        valueRange = valueRange,
+        segmented = segmented,
+        modifier = modifier,
+        enabled = enabled,
+        colors = colors,
+        steps = steps
+    )
+}
+
+@Composable
+fun DefaultInlineSlider(
+    value: Int,
+    onValueChange: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    valueProgression: IntProgression,
+    segmented: Boolean,
+    decreaseIcon: @Composable () -> Unit = { Icon(InlineSliderDefaults.Decrease, "Decrease") },
+    increaseIcon: @Composable () -> Unit = { Icon(InlineSliderDefaults.Increase, "Increase") },
+    colors: InlineSliderColors = InlineSliderDefaults.colors(),
+) {
+    InlineSlider(
+        value = value,
+        onValueChange = onValueChange,
+        increaseIcon = increaseIcon,
+        decreaseIcon = decreaseIcon,
+        valueProgression = valueProgression,
+        segmented = segmented,
+        modifier = modifier,
+        enabled = enabled,
+        colors = colors,
+    )
 }
