@@ -347,7 +347,6 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
      * call {@link #setContentView(int)} for you.
      */
     @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
-    @SuppressLint("ClassVerificationFailure") // TODO: b/225057132
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         // Restore the Saved State first so that it is available to
