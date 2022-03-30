@@ -329,7 +329,7 @@ package androidx.wear.compose.material {
   }
 
   public final class ScaffoldKt {
-    method @androidx.compose.runtime.Composable public static void Scaffold(optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? vignette, optional kotlin.jvm.functions.Function0<kotlin.Unit>? positionIndicator, optional kotlin.jvm.functions.Function0<kotlin.Unit>? timeText, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void Scaffold(optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? vignette, optional kotlin.jvm.functions.Function0<kotlin.Unit>? positionIndicator, optional kotlin.jvm.functions.Function0<kotlin.Unit>? pageIndicator, optional kotlin.jvm.functions.Function0<kotlin.Unit>? timeText, kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
 
   public final class ScalingLazyColumnDefaults {
