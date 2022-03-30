@@ -17,16 +17,29 @@
 package androidx.lifecycle.viewmodel.compose
 
 import android.os.Bundle
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.SnapshotMutationPolicy
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.autoSaver
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.SaverScope
+import androidx.compose.runtime.snapshots.SnapshotMutableState
 import androidx.core.os.bundleOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.SavedStateHandle.Companion.validateValue
 
 /**
- * Inter-opt between [SavedStateHandle] and [rememberSaveable] so that any state holder that is
- * being saved via [rememberSaveable] can also be saved with [SavedStateHandle].
+ * Inter-opt between [SavedStateHandle] and [Saver] so that any state holder that is
+ * being saved via [rememberSaveable] with a custom [Saver] can also be saved with
+ * [SavedStateHandle].
+ *
+ * The returned state [T] should be the only way that a value is saved or restored from the
+ * [SavedStateHandle] with the given [key].
+ *
+ * Using the same key again with another [SavedStateHandle] method is not supported, as values
+ * won't cross-set or communicate updates.
+ *
+ * @sample androidx.lifecycle.viewmodel.compose.samples.SnapshotStateViewModel
  */
 @SavedStateHandleSaveableApi
 fun <T : Any> SavedStateHandle.saveable(
@@ -47,4 +60,54 @@ fun <T : Any> SavedStateHandle.saveable(
         })
     }
     return value
+}
+
+/**
+ * Inter-opt between [SavedStateHandle] and [Saver] so that any state holder that is
+ * being saved via [rememberSaveable] with a custom [Saver] can also be saved with
+ * [SavedStateHandle].
+ *
+ * The returned [MutableState] should be the only way that a value is saved or restored from the
+ * [SavedStateHandle] with the given [key].
+ *
+ * Using the same key again with another [SavedStateHandle] method is not supported, as values
+ * won't cross-set or communicate updates.
+ *
+ * Use this overload if you remember a mutable state with a type which can't be stored in the
+ * Bundle so you have to provide a custom saver object.
+ *
+ * @sample androidx.lifecycle.viewmodel.compose.samples.SnapshotStateViewModel
+ */
+@SavedStateHandleSaveableApi
+fun <T> SavedStateHandle.saveable(
+    key: String,
+    stateSaver: Saver<T, out Any>,
+    init: () -> MutableState<T>
+): MutableState<T> = saveable(
+    saver = mutableStateSaver(stateSaver),
+    key = key,
+    init = init
+)
+
+/**
+ * Copied from RememberSaveable.kt
+ */
+@Suppress("UNCHECKED_CAST")
+private fun <T> mutableStateSaver(inner: Saver<T, out Any>) = with(inner as Saver<T, Any>) {
+    Saver<MutableState<T>, MutableState<Any?>>(
+        save = { state ->
+            require(state is SnapshotMutableState<T>) {
+                "If you use a custom MutableState implementation you have to write a custom " +
+                    "Saver and pass it as a saver param to rememberSaveable()"
+            }
+            mutableStateOf(save(state.value), state.policy as SnapshotMutationPolicy<Any?>)
+        },
+        restore = @Suppress("UNCHECKED_CAST") {
+            require(it is SnapshotMutableState<Any?>)
+            mutableStateOf(
+                if (it.value != null) restore(it.value!!) else null,
+                it.policy as SnapshotMutationPolicy<T?>
+            ) as MutableState<T>
+        }
+    )
 }
