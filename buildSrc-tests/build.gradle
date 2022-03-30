@@ -32,6 +32,10 @@ dependencies {
     implementation(project.files(new File(BuildServerConfigurationKt.getRootOutDirectory(project), "buildSrc/public/build/libs/public.jar")))
     implementation("com.googlecode.json-simple:json-simple:1.1")
     implementation(libs.gson)
+    implementation(libs.dom4j) {
+        // Optional dependency where Ivy fails to parse the POM file.
+        exclude(group:"net.java.dev.msv", module:"xsdlib")
+    }
 }
 
 // Also do style checking of the buildSrc project from within this project
