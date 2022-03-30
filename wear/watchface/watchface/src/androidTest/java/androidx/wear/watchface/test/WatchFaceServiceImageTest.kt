@@ -37,6 +37,7 @@ import android.view.SurfaceHolder
 import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
@@ -545,6 +546,7 @@ public class WatchFaceServiceImageTest {
 
     @SuppressLint("NewApi")
     @Test
+    @FlakyTest(bugId = 227456150)
     public fun testPlaceholderComplications() {
         val latch = CountDownLatch(1)
         handler.post(this::initCanvasWatchFace)
