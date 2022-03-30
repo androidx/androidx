@@ -238,14 +238,22 @@ public class CameraExtensionsActivity extends AppCompatActivity
                             Uri outputUri = outputFileResults.getSavedUri();
 
                             if (mDeleteCapturedImage) {
-                                if (outputUri != null) {
-                                    getContentResolver().delete(outputUri, null, null);
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                                    try {
+                                        getContentResolver().delete(outputUri, null, null);
+                                    } catch (RuntimeException e) {
+                                        Log.w(TAG, "Failed to delete uri: " + outputUri);
+                                    }
                                 } else {
-                                    saveFile.deleteOnExit();
+                                    if (!saveFile.delete()) {
+                                        Log.w(TAG, "Failed to delete file: " + saveFile);
+                                    }
                                 }
                             } else {
                                 // Trigger MediaScanner to scan the file
-                                if (outputUri == null) {
+                                // The output Uri is already inserted into media store if the
+                                // device API level is equal to or larger than Android Q(29)."
+                                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
                                     Intent intent = new Intent(
                                             Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
                                     intent.setData(Uri.fromFile(saveFile));
