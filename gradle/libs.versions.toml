@@ -73,6 +73,7 @@ dexmakerMockito = { module = "com.linkedin.dexmaker:dexmaker-mockito", version.r
 dexmakerMockitoInline = { module = "com.linkedin.dexmaker:dexmaker-mockito-inline", version.ref = "dexmaker" }
 dexMemberList = { module = "com.jakewharton.dex:dex-member-list", version = "4.1.1" }
 dokkaGradlePluginz = { module = "org.jetbrains.dokka:dokka-android-gradle-plugin", version = "0.9.17-g014" }
+dom4j = { module = "org.dom4j:dom4j", version = "2.1.3" }
 espressoContrib = { module = "androidx.test.espresso:espresso-contrib", version.ref = "espresso" }
 espressoCore = { module = "androidx.test.espresso:espresso-core", version.ref = "espresso" }
 espressoIdlingNet = { module = "androidx.test.espresso.idling:idling-net", version.ref = "espresso" }

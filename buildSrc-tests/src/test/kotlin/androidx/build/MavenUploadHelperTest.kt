@@ -27,8 +27,7 @@ class MavenUploadHelperTest {
     @Test
     fun testSortPomDependencies() {
         /* ktlint-disable max-line-length */
-        val pom = """
-<?xml version="1.0" encoding="UTF-8"?>
+        val pom = """<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <!-- This module was also published with a richer model, Gradle metadata,  -->
   <!-- which should be used instead. Do not delete the following line which  -->
@@ -79,13 +78,11 @@ class MavenUploadHelperTest {
       <scope>compile</scope>
     </dependency>
   </dependencies>
-</project>
-        """
+</project>"""
 
         // Expect that elements in <dependencies> are sorted alphabetically.
-        val expected = """
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        val expected = """<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <!-- This module was also published with a richer model, Gradle metadata,  -->
   <!-- which should be used instead. Do not delete the following line which  -->
   <!-- is to indicate to Gradle or any Gradle module metadata file consumer  -->
@@ -124,19 +121,18 @@ class MavenUploadHelperTest {
     </dependency>
     <dependency>
       <groupId>org.jetbrains.kotlin</groupId>
-      <artifactId>kotlin-stdlib-common</artifactId>
+      <artifactId>kotlin-stdlib</artifactId>
       <version>1.6.10</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.jetbrains.kotlin</groupId>
-      <artifactId>kotlin-stdlib</artifactId>
+      <artifactId>kotlin-stdlib-common</artifactId>
       <version>1.6.10</version>
       <scope>compile</scope>
     </dependency>
   </dependencies>
-</project>
-        """
+</project>"""
         /* ktlint-enable max-line-length */
 
         val actual = sortPomDependencies(pom)
