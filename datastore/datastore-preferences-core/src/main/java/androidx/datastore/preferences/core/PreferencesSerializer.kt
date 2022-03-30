@@ -22,6 +22,7 @@ import androidx.datastore.preferences.PreferencesProto.Value
 import androidx.datastore.preferences.PreferencesProto.StringSet
 import androidx.datastore.core.Serializer
 import androidx.datastore.preferences.PreferencesMapCompat
+import androidx.datastore.preferences.protobuf.ByteString
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
@@ -79,6 +80,7 @@ internal object PreferencesSerializer : Serializer<Preferences> {
                 Value.newBuilder().setStringSet(
                     StringSet.newBuilder().addAllStrings(value as Set<String>)
                 ).build()
+            is ByteArray -> Value.newBuilder().setBytes(ByteString.copyFrom(value)).build()
             else -> throw IllegalStateException(
                 "PreferencesSerializer does not support type: ${value.javaClass.name}"
             )
@@ -102,6 +104,8 @@ internal object PreferencesSerializer : Serializer<Preferences> {
             Value.ValueCase.STRING_SET ->
                 mutablePreferences[stringSetPreferencesKey(name)] =
                     value.stringSet.stringsList.toSet()
+            Value.ValueCase.BYTES ->
+                mutablePreferences[byteArrayPreferencesKey(name)] = value.bytes.toByteArray()
             Value.ValueCase.VALUE_NOT_SET ->
                 throw CorruptionException("Value not set.")
             null -> throw CorruptionException("Value case is null.")
