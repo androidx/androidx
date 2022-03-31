@@ -107,7 +107,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -274,7 +273,7 @@ public final class Recorder implements VideoOutput {
                     + "data was received.");
     private static final int PENDING = 1;
     private static final int NOT_PENDING = 0;
-    private static final long SOURCE_NON_STREAMING_TIMEOUT = 1000L;
+    private static final long SOURCE_NON_STREAMING_TIMEOUT_MS = 1000L;
     @VisibleForTesting
     static final EncoderFactory DEFAULT_ENCODER_FACTORY = EncoderImpl::new;
 
@@ -311,11 +310,7 @@ public final class Recorder implements VideoOutput {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     RecordingRecord mPendingRecordingRecord = null;
     @GuardedBy("mLock")
-    private SourceState mSourceState = SourceState.INACTIVE;
-    @GuardedBy("mLock")
     private long mLastGeneratedRecordingId = 0L;
-    @GuardedBy("mLock")
-    private CallbackToFutureAdapter.Completer<Void> mSourceNonStreamingCompleter = null;
     //--------------------------------------------------------------------------------------------//
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -336,7 +331,9 @@ public final class Recorder implements VideoOutput {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     SurfaceRequest mSurfaceRequest;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    Surface mSurface = null;
+    Surface mLatestSurface = null;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    Surface mActiveSurface = null;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     MediaMuxer mMediaMuxer = null;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -354,7 +351,8 @@ public final class Recorder implements VideoOutput {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     AudioState mAudioState = AudioState.INITIALIZING;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    @NonNull Uri mOutputUri = Uri.EMPTY;
+    @NonNull
+    Uri mOutputUri = Uri.EMPTY;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     long mRecordingBytes = 0L;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -376,6 +374,9 @@ public final class Recorder implements VideoOutput {
     Throwable mAudioErrorCause = null;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     boolean mIsAudioSourceSilenced = false;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    SourceState mSourceState = SourceState.INACTIVE;
+    private ScheduledFuture<?> mSourceNonStreamingTimeout = null;
     //--------------------------------------------------------------------------------------------//
 
     Recorder(@Nullable Executor executor, @NonNull MediaSpec mediaSpec,
@@ -452,71 +453,7 @@ public final class Recorder implements VideoOutput {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     public void onSourceStateChanged(@NonNull SourceState newState) {
-        RecordingRecord pendingRecordingToFinalize = null;
-        synchronized (mLock) {
-            SourceState oldState = mSourceState;
-            mSourceState = newState;
-            if (oldState != newState) {
-                Logger.d(TAG, "Video source has transitioned to state: " + newState);
-            } else {
-                Logger.d(TAG, "Video source transitions to the same state: " + newState);
-                return;
-            }
-            if (oldState == SourceState.ACTIVE_STREAMING) {
-                if (newState == SourceState.INACTIVE) {
-                    switch (mState) {
-                        case PENDING_RECORDING:
-                            // Fall-through
-                        case PENDING_PAUSED:
-                            // Immediately finalize pending recording since it never started.
-                            pendingRecordingToFinalize = mPendingRecordingRecord;
-                            mPendingRecordingRecord = null;
-                            restoreNonPendingState(); // Equivalent to setState(mNonPendingState)
-                            break;
-                        case PAUSED:
-                            // Fall-through
-                        case RECORDING:
-                            setState(State.STOPPING);
-                            RecordingRecord finalActiveRecordingRecord = mActiveRecordingRecord;
-                            mSequentialExecutor.execute(
-                                    () -> stopInternal(finalActiveRecordingRecord, null,
-                                            ERROR_SOURCE_INACTIVE, null));
-                            break;
-                        case STOPPING:
-                            // Fall-through
-                        case RESETTING:
-                            synchronized (mLock) {
-                                if (mSourceNonStreamingCompleter != null) {
-                                    mSourceNonStreamingCompleter.set(null);
-                                    mSourceNonStreamingCompleter = null;
-                                }
-                            }
-                            break;
-                        case INITIALIZING:
-                            // Fall-through
-                        case IDLING:
-                            break;
-                        case ERROR:
-                            // In an error state, the recording will already be finalized. Nothing
-                            // needs to be done.
-                            break;
-                    }
-                } else if (newState == SourceState.ACTIVE_NON_STREAMING) {
-                    // We are expecting the source to transition to NON_STREAMING state.
-                    synchronized (mLock) {
-                        if (mSourceNonStreamingCompleter != null) {
-                            mSourceNonStreamingCompleter.set(null);
-                            mSourceNonStreamingCompleter = null;
-                        }
-                    }
-                }
-            }
-        }
-
-        if (pendingRecordingToFinalize != null) {
-            finalizePendingRecording(pendingRecordingToFinalize, ERROR_SOURCE_INACTIVE,
-                    PENDING_RECORDING_ERROR_CAUSE_SOURCE_INACTIVE);
-        }
+        mSequentialExecutor.execute(() -> onSourceStateChangedInternal(newState));
     }
 
     /**
@@ -693,70 +630,65 @@ public final class Recorder implements VideoOutput {
         long recordingId;
         synchronized (mLock) {
             recordingId = ++mLastGeneratedRecordingId;
-            if (mSourceState == SourceState.INACTIVE) {
-                error = ERROR_SOURCE_INACTIVE;
-                errorCause = PENDING_RECORDING_ERROR_CAUSE_SOURCE_INACTIVE;
-            } else {
-                switch (mState) {
-                    case PAUSED:
-                        // Fall-through
-                    case RECORDING:
-                        alreadyInProgressRecording = mActiveRecordingRecord;
-                        break;
-                    case PENDING_PAUSED:
-                        // Fall-through
-                    case PENDING_RECORDING:
-                        // There is already a recording pending that hasn't been stopped.
-                        alreadyInProgressRecording =
-                                Preconditions.checkNotNull(mPendingRecordingRecord);
-                        break;
-                    case RESETTING:
-                        // Fall-through
-                    case STOPPING:
-                        // Fall-through
-                    case INITIALIZING:
-                        // Fall-through
-                    case ERROR:
-                        // Fall-through
-                    case IDLING:
+            switch (mState) {
+                case PAUSED:
+                    // Fall-through
+                case RECORDING:
+                    alreadyInProgressRecording = mActiveRecordingRecord;
+                    break;
+                case PENDING_PAUSED:
+                    // Fall-through
+                case PENDING_RECORDING:
+                    // There is already a recording pending that hasn't been stopped.
+                    alreadyInProgressRecording =
+                            Preconditions.checkNotNull(mPendingRecordingRecord);
+                    break;
+                case RESETTING:
+                    // Fall-through
+                case STOPPING:
+                    // Fall-through
+                case INITIALIZING:
+                    // Fall-through
+                case ERROR:
+                    // Fall-through
+                case IDLING:
+                    if (mState == State.IDLING) {
+                        Preconditions.checkState(
+                                mActiveRecordingRecord == null
+                                        && mPendingRecordingRecord == null,
+                                "Expected recorder to be idle but a recording is either "
+                                        + "pending or in progress.");
+                    }
+                    try {
+                        RecordingRecord recordingRecord = RecordingRecord.from(pendingRecording,
+                                recordingId);
+                        recordingRecord.initializeRecording(
+                                pendingRecording.getApplicationContext());
+                        mPendingRecordingRecord = recordingRecord;
                         if (mState == State.IDLING) {
-                            Preconditions.checkState(
-                                    mActiveRecordingRecord == null
-                                            && mPendingRecordingRecord == null,
-                                    "Expected recorder to be idle but a recording is either "
-                                            + "pending or in progress.");
+                            setState(State.PENDING_RECORDING);
+                            mSequentialExecutor.execute(this::tryServicePendingRecording);
+                        } else if (mState == State.ERROR) {
+                            setState(State.PENDING_RECORDING);
+                            // Retry initialization.
+                            mSequentialExecutor.execute(() -> {
+                                if (mSurfaceRequest == null) {
+                                    throw new AssertionError(
+                                            "surface request is required to retry "
+                                                    + "initialization.");
+                                }
+                                initializeInternal(mSurfaceRequest);
+                            });
+                        } else {
+                            setState(State.PENDING_RECORDING);
+                            // The recording will automatically start once the initialization
+                            // completes.
                         }
-                        try {
-                            RecordingRecord recordingRecord = RecordingRecord.from(pendingRecording,
-                                    recordingId);
-                            recordingRecord.initializeRecording(
-                                    pendingRecording.getApplicationContext());
-                            mPendingRecordingRecord = recordingRecord;
-                            if (mState == State.IDLING) {
-                                setState(State.PENDING_RECORDING);
-                                mSequentialExecutor.execute(this::tryServicePendingRecording);
-                            } else if (mState == State.ERROR) {
-                                setState(State.PENDING_RECORDING);
-                                // Retry initialization.
-                                mSequentialExecutor.execute(() -> {
-                                    if (mSurfaceRequest == null) {
-                                        throw new AssertionError(
-                                                "surface request is required to retry "
-                                                        + "initialization.");
-                                    }
-                                    initializeInternal(mSurfaceRequest);
-                                });
-                            } else {
-                                setState(State.PENDING_RECORDING);
-                                // The recording will automatically start once the initialization
-                                // completes.
-                            }
-                        } catch (IOException e) {
-                            error = ERROR_INVALID_OUTPUT_OPTIONS;
-                            errorCause = e;
-                        }
-                        break;
-                }
+                    } catch (IOException e) {
+                        error = ERROR_INVALID_OUTPUT_OPTIONS;
+                        errorCause = e;
+                    }
+                    break;
             }
         }
 
@@ -941,6 +873,38 @@ public final class Recorder implements VideoOutput {
                         cause));
     }
 
+    @ExecutedBy("mSequentialExecutor")
+    void onSourceStateChangedInternal(@NonNull SourceState newState) {
+        SourceState oldState = mSourceState;
+        mSourceState = newState;
+        if (oldState != newState) {
+            Logger.d(TAG, "Video source has transitioned to state: " + newState);
+        } else {
+            Logger.d(TAG, "Video source transitions to the same state: " + newState);
+            return;
+        }
+
+        if (newState == SourceState.INACTIVE) {
+            if (mActiveSurface == null) {
+                // If we're inactive and have no active surface, we'll reset the encoder directly.
+                // Otherwise, we'll wait for the active surface's surface request listener to
+                // reset the encoder.
+                reset(ERROR_SOURCE_INACTIVE, null);
+                setLatestSurface(null);
+            } else if (mInProgressRecording != null) {
+                // Stop any in progress recording with "source inactive" error
+                onInProgressRecordingInternalError(mInProgressRecording, ERROR_SOURCE_INACTIVE,
+                        null);
+            }
+        } else if (newState == SourceState.ACTIVE_NON_STREAMING) {
+            // We are expecting the source to transition to NON_STREAMING state.
+            if (mSourceNonStreamingTimeout != null && mSourceNonStreamingTimeout.cancel(false)
+                    && mVideoEncoder != null) {
+                notifyEncoderSourceStopped(mVideoEncoder);
+            }
+        }
+    }
+
     /**
      * Resets the state on the sequential executor for a new recording.
      *
@@ -951,7 +915,7 @@ public final class Recorder implements VideoOutput {
      * recording's onRecordingFinalized() to actually release resources.
      */
     @ExecutedBy("mSequentialExecutor")
-    void reset() {
+    void reset(@VideoRecordError int errorCode, @Nullable Throwable errorCause) {
         boolean shouldReset = false;
         boolean shouldStop = false;
         synchronized (mLock) {
@@ -999,15 +963,17 @@ public final class Recorder implements VideoOutput {
         if (shouldReset) {
             resetInternal();
         } else if (shouldStop) {
-            stopInternal(mInProgressRecording, null, ERROR_NONE, null);
+            stopInternal(mInProgressRecording, null, errorCode, errorCause);
         }
     }
 
     @ExecutedBy("mSequentialExecutor")
     private void initializeInternal(@NonNull SurfaceRequest surfaceRequest) {
-        if (mSurface != null) {
+        if (mLatestSurface != null) {
             // There's a valid surface. Provide it directly.
-            surfaceRequest.provideSurface(mSurface, mSequentialExecutor, this::onSurfaceClosed);
+            mActiveSurface = mLatestSurface;
+            surfaceRequest.provideSurface(mLatestSurface, mSequentialExecutor,
+                    this::onSurfaceRequestComplete);
             onInitialized();
         } else {
             surfaceRequest.setTransformationInfoListener(mSequentialExecutor,
@@ -1035,6 +1001,9 @@ public final class Recorder implements VideoOutput {
     @ExecutedBy("mSequentialExecutor")
     private void onInitialized() {
         RecordingRecord recordingToStart = null;
+        RecordingRecord pendingRecordingToFinalize = null;
+        @VideoRecordError int error = ERROR_NONE;
+        Throwable errorCause = null;
         boolean startRecordingPaused = false;
         synchronized (mLock) {
             switch (mState) {
@@ -1066,7 +1035,20 @@ public final class Recorder implements VideoOutput {
                     startRecordingPaused = true;
                     // Fall through
                 case PENDING_RECORDING:
-                    recordingToStart = makePendingRecordingActiveLocked(mState);
+                    if (mActiveRecordingRecord != null) {
+                        // Active recording is still finalizing. Pending recording will be
+                        // serviced in onRecordingFinalized().
+                        break;
+                    }
+                    if (mSourceState == SourceState.INACTIVE) {
+                        pendingRecordingToFinalize = mPendingRecordingRecord;
+                        mPendingRecordingRecord = null;
+                        restoreNonPendingState(); // Equivalent to setState(mNonPendingState)
+                        error = ERROR_SOURCE_INACTIVE;
+                        errorCause = PENDING_RECORDING_ERROR_CAUSE_SOURCE_INACTIVE;
+                    } else {
+                        recordingToStart = makePendingRecordingActiveLocked(mState);
+                    }
                     break;
             }
         }
@@ -1074,6 +1056,8 @@ public final class Recorder implements VideoOutput {
         if (recordingToStart != null) {
             // Start new active recording inline on sequential executor (but unlocked).
             startRecording(recordingToStart, startRecordingPaused);
+        } else if (pendingRecordingToFinalize != null) {
+            finalizePendingRecording(pendingRecordingToFinalize, error, errorCause);
         }
     }
 
@@ -1372,16 +1356,18 @@ public final class Recorder implements VideoOutput {
     @ExecutedBy("mSequentialExecutor")
     private void onEncoderSurfaceUpdated(@NonNull Surface surface,
             @NonNull SurfaceRequest surfaceRequest) {
-        if (mSurface != surface) {
-            Surface currentSurface = mSurface;
-            setSurface(surface);
+        if (mLatestSurface != surface) {
+            Surface currentSurface = mLatestSurface;
+            setLatestSurface(surface);
             if (currentSurface == null) {
                 // Provide the surface to the first surface request.
-                surfaceRequest.provideSurface(surface, mSequentialExecutor, this::onSurfaceClosed);
+                mActiveSurface = surface;
+                surfaceRequest.provideSurface(surface, mSequentialExecutor,
+                        this::onSurfaceRequestComplete);
                 onInitialized();
             } else {
                 // Encoder updates the surface while there's already an active surface.
-                // setSurface() will update the StreamInfo with the new stream ID, which will
+                // setLatestSurface() will update the StreamInfo with the new stream ID, which will
                 // trigger VideoCapture to send a new surface request.
             }
         } else {
@@ -1390,16 +1376,39 @@ public final class Recorder implements VideoOutput {
     }
 
     @ExecutedBy("mSequentialExecutor")
-    private void onSurfaceClosed(@NonNull SurfaceRequest.Result result) {
-        Logger.d(TAG,  "Surface closed: " + result.getSurface().hashCode());
+    private void onSurfaceRequestComplete(@NonNull SurfaceRequest.Result result) {
+        Logger.d(TAG, "Surface closed: " + result.getSurface().hashCode());
         Surface resultSurface = result.getSurface();
-        // The latest surface will be released by the encoder when encoder is released.
-        if (mSurface != resultSurface) {
-            resultSurface.release();
+        if (resultSurface == mActiveSurface) {
+            if (mSourceNonStreamingTimeout != null && mSourceNonStreamingTimeout.cancel(false)
+                    && mVideoEncoder != null) {
+                notifyEncoderSourceStopped(mVideoEncoder);
+            }
+
+            boolean needsReset = false;
+            if (mSourceState == SourceState.INACTIVE) {
+                Logger.d(TAG, "Latest active surface no longer in use and source state is "
+                        + "INACTIVE. Resetting recorder...");
+                needsReset = true;
+            } else if (mActiveSurface == mLatestSurface) {
+                Logger.w(TAG, "Source has stopped producing frames into active surface, yet "
+                        + "source state is still active. Stopping any in-progress recordings and "
+                        + "resetting encoders in case a new surface is required.");
+
+                needsReset = true;
+            }
+
+            // Null out the active surface. This will allow a source change to INACTIVE to reset
+            // the encoder if this surface was not the latest surface.
+            mActiveSurface = null;
+
+            if (needsReset) {
+                reset(ERROR_SOURCE_INACTIVE, null);
+                setLatestSurface(null);
+            }
         } else {
-            // Reset the Recorder when the latest surface is terminated.
-            reset();
-            setSurface(null);
+            // If the surface isn't the active surface, it also can't be the latest surface
+            resultSurface.release();
         }
     }
 
@@ -1886,38 +1895,33 @@ public final class Recorder implements VideoOutput {
                 mPendingFirstVideoData.close();
                 mPendingFirstVideoData = null;
             }
-            ListenableFuture<Void> sourceNonStreamingFuture;
-            CallbackToFutureAdapter.Completer<Void> sourceNonStreamingCompleter;
-            synchronized (mLock) {
-                if (mSourceState == SourceState.ACTIVE_STREAMING) {
-                    // As b/197047288, if the source is still active, wait for the source to
-                    // become inactive before notifying the encoder the source has stopped.
-                    AtomicReference<CallbackToFutureAdapter.Completer<Void>> completerAtomicRef =
-                            new AtomicReference<>();
-                    sourceNonStreamingFuture =
-                            CallbackToFutureAdapter.getFuture(completer -> {
-                                synchronized (mLock) {
-                                    completerAtomicRef.set(completer);
-                                    mSourceNonStreamingCompleter = completer;
-                                }
-                                return "sourceInactive";
-                            });
-                    sourceNonStreamingCompleter =
-                            Preconditions.checkNotNull(completerAtomicRef.get());
-                } else {
-                    sourceNonStreamingFuture = Futures.immediateFuture(null);
-                    sourceNonStreamingCompleter = null;
-                }
-            }
 
-            if (sourceNonStreamingCompleter != null) {
-                ScheduledFuture<?> timeoutFuture = CameraXExecutors.mainThreadExecutor().schedule(
-                        () -> mSequentialExecutor.execute(
-                                () -> sourceNonStreamingCompleter.setException(new TimeoutException(
-                                        "The source didn't become non-streaming."))),
-                        SOURCE_NON_STREAMING_TIMEOUT, TimeUnit.MILLISECONDS);
-                sourceNonStreamingFuture.addListener(() -> timeoutFuture.cancel(true),
-                        mSequentialExecutor);
+            if (mSourceState != SourceState.ACTIVE_NON_STREAMING) {
+                // As b/197047288, if the source is still ACTIVE, we will wait for the source to
+                // become non-streaming before notifying the encoder the source has stopped.
+                // Similarly, if the source is already INACTIVE, we won't know that the source
+                // has stopped until the surface request callback, so we'll wait for that.
+                // In both cases, we set a timeout to ensure the source is always signalled on
+                // devices that require it and to act as a flag that we need to signal the source
+                // stopped.
+                Encoder finalVideoEncoder = mVideoEncoder;
+                mSourceNonStreamingTimeout = CameraXExecutors.mainThreadExecutor().schedule(
+                        () -> mSequentialExecutor.execute(() -> {
+                            Logger.d(TAG, "The source didn't become non-streaming "
+                                    + "before timeout. Waited " + SOURCE_NON_STREAMING_TIMEOUT_MS
+                                    + "ms");
+                            if (DeviceQuirks.get(
+                                    DeactivateEncoderSurfaceBeforeStopEncoderQuirk.class)
+                                    != null) {
+                                // Even in the case of timeout, we tell the encoder the source has
+                                // stopped because devices with this quirk require that the codec
+                                // produce a new surface.
+                                notifyEncoderSourceStopped(finalVideoEncoder);
+                            }
+                        }), SOURCE_NON_STREAMING_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+            } else {
+                // Source is already non-streaming. Signal source is stopped right away.
+                notifyEncoderSourceStopped(mVideoEncoder);
             }
 
             // Stop the encoder. This will tell the encoder to stop encoding new data. We'll notify
@@ -1929,45 +1933,31 @@ public final class Recorder implements VideoOutput {
             } else {
                 mVideoEncoder.stop(explicitlyStopTime);
             }
+        }
+    }
 
-            Futures.addCallback(sourceNonStreamingFuture, new FutureCallback<Void>() {
-                @Override
-                public void onSuccess(@Nullable Void result) {
-                    if (mVideoEncoder instanceof EncoderImpl) {
-                        ((EncoderImpl) mVideoEncoder).signalSourceStopped();
-                    }
-                }
-
-                @Override
-                public void onFailure(Throwable t) {
-                    Logger.d(TAG, "The source didn't become non-streaming with error.", t);
-                    if (DeviceQuirks.get(DeactivateEncoderSurfaceBeforeStopEncoderQuirk.class)
-                            != null) {
-                        // Even in the case of error, we tell the encoder the source has stopped
-                        // because devices with this quirk require that the codec produce a new
-                        // surface.
-                        if (mVideoEncoder instanceof EncoderImpl) {
-                            ((EncoderImpl) mVideoEncoder).signalSourceStopped();
-                        }
-                    }
-                }
-            }, mSequentialExecutor);
+    private static void notifyEncoderSourceStopped(@NonNull Encoder encoder) {
+        if (encoder instanceof EncoderImpl) {
+            ((EncoderImpl) encoder).signalSourceStopped();
         }
     }
 
     @ExecutedBy("mSequentialExecutor")
     private void resetInternal() {
         if (mAudioEncoder != null) {
+            Logger.d(TAG, "Releasing audio encoder.");
             mAudioEncoder.release();
             mAudioEncoder = null;
             mAudioOutputConfig = null;
         }
         if (mVideoEncoder != null) {
+            Logger.d(TAG, "Releasing video encoder.");
             mVideoEncoder.release();
             mVideoEncoder = null;
             mVideoOutputConfig = null;
         }
         if (mAudioSource != null) {
+            Logger.d(TAG, "Releasing audio source.");
             mAudioSource.release();
             mAudioSource = null;
         }
@@ -2022,7 +2012,8 @@ public final class Recorder implements VideoOutput {
             throw new AssertionError("Attempted to finalize in-progress recording, but no "
                     + "recording is in progress.");
         }
-        int errorToSend = error;
+
+        @VideoRecordError int errorToSend = error;
         if (mMediaMuxer != null) {
             try {
                 mMediaMuxer.stop();
@@ -2097,6 +2088,9 @@ public final class Recorder implements VideoOutput {
         boolean needsReset = false;
         boolean startRecordingPaused = false;
         RecordingRecord recordingToStart = null;
+        RecordingRecord pendingRecordingToFinalize = null;
+        @VideoRecordError int error = ERROR_NONE;
+        Throwable errorCause = null;
         synchronized (mLock) {
             if (mActiveRecordingRecord != finalizedRecording) {
                 throw new AssertionError("Active recording did not match finalized recording on "
@@ -2128,7 +2122,13 @@ public final class Recorder implements VideoOutput {
                     startRecordingPaused = true;
                     // Fall-through
                 case PENDING_RECORDING:
-                    if (mShouldWaitForNewSurface) {
+                    if (mSourceState == SourceState.INACTIVE) {
+                        pendingRecordingToFinalize = mPendingRecordingRecord;
+                        mPendingRecordingRecord = null;
+                        setState(State.INITIALIZING);
+                        error = ERROR_SOURCE_INACTIVE;
+                        errorCause = PENDING_RECORDING_ERROR_CAUSE_SOURCE_INACTIVE;
+                    } else if (mShouldWaitForNewSurface) {
                         // If the encoder doesn't use persistent input surface, reset the
                         // non-pending state to INITIALIZING to wait for a surface update.
                         updateNonPendingState(State.INITIALIZING);
@@ -2158,6 +2158,8 @@ public final class Recorder implements VideoOutput {
                         + " is waiting for a new surface request.");
             }
             startRecording(recordingToStart, startRecordingPaused);
+        } else if (pendingRecordingToFinalize != null) {
+            finalizePendingRecording(pendingRecordingToFinalize, error, errorCause);
         }
     }
 
@@ -2210,6 +2212,9 @@ public final class Recorder implements VideoOutput {
     void tryServicePendingRecording() {
         boolean startRecordingPaused = false;
         RecordingRecord recordingToStart = null;
+        RecordingRecord pendingRecordingToFinalize = null;
+        @VideoRecordError int error = ERROR_NONE;
+        Throwable errorCause = null;
         synchronized (mLock) {
             switch (mState) {
                 case PENDING_PAUSED:
@@ -2221,7 +2226,15 @@ public final class Recorder implements VideoOutput {
                         // serviced in onRecordingFinalized().
                         break;
                     }
-                    recordingToStart = makePendingRecordingActiveLocked(mState);
+                    if (mSourceState == SourceState.INACTIVE) {
+                        pendingRecordingToFinalize = mPendingRecordingRecord;
+                        mPendingRecordingRecord = null;
+                        restoreNonPendingState(); // Equivalent to setState(mNonPendingState)
+                        error = ERROR_SOURCE_INACTIVE;
+                        errorCause = PENDING_RECORDING_ERROR_CAUSE_SOURCE_INACTIVE;
+                    } else {
+                        recordingToStart = makePendingRecordingActiveLocked(mState);
+                    }
                     break;
                 case INITIALIZING:
                     // Fall-through
@@ -2243,6 +2256,8 @@ public final class Recorder implements VideoOutput {
         if (recordingToStart != null) {
             // Start new active recording inline on sequential executor (but unlocked).
             startRecording(recordingToStart, startRecordingPaused);
+        } else if (pendingRecordingToFinalize != null) {
+            finalizePendingRecording(pendingRecordingToFinalize, error, errorCause);
         }
     }
 
@@ -2376,11 +2391,11 @@ public final class Recorder implements VideoOutput {
     }
 
     @ExecutedBy("mSequentialExecutor")
-    private void setSurface(@Nullable Surface surface) {
-        if (mSurface == surface) {
+    private void setLatestSurface(@Nullable Surface surface) {
+        if (mLatestSurface == surface) {
             return;
         }
-        mSurface = surface;
+        mLatestSurface = surface;
         synchronized (mLock) {
             setStreamId(surface != null ? surface.hashCode() : StreamInfo.STREAM_ID_ANY);
         }
@@ -2676,9 +2691,18 @@ public final class Recorder implements VideoOutput {
                     "Attempted to update event listener with event from incorrect recording "
                             + "[Recording: " + event.getOutputOptions() + ", Expected: "
                             + getOutputOptions() + "]");
+            String message = "Sending VideoRecordEvent " + event.getClass().getSimpleName();
+            if (event instanceof VideoRecordEvent.Finalize) {
+                VideoRecordEvent.Finalize finalizeEvent = (VideoRecordEvent.Finalize) event;
+                if (finalizeEvent.hasError()) {
+                    message += String.format(" [error: %s]",
+                            VideoRecordEvent.Finalize.errorToString(
+                                    finalizeEvent.getError()));
+                }
+            }
+            Logger.d(TAG, message);
             if (getCallbackExecutor() != null && getEventListener() != null) {
                 try {
-                    Logger.d(TAG, "Sent VideoRecordEvent " + event.getClass());
                     getCallbackExecutor().execute(() -> getEventListener().accept(event));
                 } catch (RejectedExecutionException e) {
                     Logger.e(TAG, "The callback executor is invalid.", e);
