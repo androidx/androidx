@@ -38,8 +38,8 @@ import kotlin.math.min
 /**
  * Specifies how components will be laid down with respect to the anchor.
  */
-@Suppress("INLINE_CLASS_DEPRECATED")
-public inline class AnchorType internal constructor(internal val ratio: Float) {
+@kotlin.jvm.JvmInline
+public value class AnchorType internal constructor(internal val ratio: Float) {
     companion object {
         /**
          * Start the content of the [CurvedLayout] on the anchor

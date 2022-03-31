@@ -185,8 +185,8 @@ package androidx.glance.layout {
     property public final androidx.glance.layout.Alignment TopStart;
   }
 
-  public static final inline class Alignment.Horizontal {
-    ctor public Alignment.Horizontal();
+  @kotlin.jvm.JvmInline public static final value class Alignment.Horizontal {
+    field public static final androidx.glance.layout.Alignment.Horizontal.Companion Companion;
   }
 
   public static final class Alignment.Horizontal.Companion {
@@ -198,8 +198,8 @@ package androidx.glance.layout {
     property public final int Start;
   }
 
-  public static final inline class Alignment.Vertical {
-    ctor public Alignment.Vertical();
+  @kotlin.jvm.JvmInline public static final value class Alignment.Vertical {
+    field public static final androidx.glance.layout.Alignment.Vertical.Companion Companion;
   }
 
   public static final class Alignment.Vertical.Companion {
@@ -223,8 +223,9 @@ package androidx.glance.layout {
     method public androidx.glance.GlanceModifier defaultWeight(androidx.glance.GlanceModifier);
   }
 
-  public final inline class ContentScale {
-    ctor public ContentScale();
+  @kotlin.jvm.JvmInline public final value class ContentScale {
+    ctor public ContentScale(int value);
+    field public static final androidx.glance.layout.ContentScale.Companion Companion;
   }
 
   public static final class ContentScale.Companion {
@@ -295,8 +296,8 @@ package androidx.glance.state {
 
 package androidx.glance.text {
 
-  public final inline class FontStyle {
-    ctor public FontStyle();
+  @kotlin.jvm.JvmInline public final value class FontStyle {
+    field public static final androidx.glance.text.FontStyle.Companion Companion;
   }
 
   public static final class FontStyle.Companion {
@@ -307,10 +308,10 @@ package androidx.glance.text {
     property public final int Normal;
   }
 
-  public final inline class FontWeight {
-    ctor public FontWeight();
+  @kotlin.jvm.JvmInline public final value class FontWeight {
     method public int getValue();
     property public final int value;
+    field public static final androidx.glance.text.FontWeight.Companion Companion;
   }
 
   public static final class FontWeight.Companion {
@@ -322,8 +323,8 @@ package androidx.glance.text {
     property public final int Normal;
   }
 
-  public final inline class TextAlign {
-    ctor public TextAlign();
+  @kotlin.jvm.JvmInline public final value class TextAlign {
+    field public static final androidx.glance.text.TextAlign.Companion Companion;
   }
 
   public static final class TextAlign.Companion {
@@ -340,10 +341,10 @@ package androidx.glance.text {
     property public final int Start;
   }
 
-  public final inline class TextDecoration {
-    ctor public TextDecoration();
+  @kotlin.jvm.JvmInline public final value class TextDecoration {
     method @androidx.compose.runtime.Stable public operator boolean contains(int other);
     method @androidx.compose.runtime.Stable public operator int plus(int decoration);
+    field public static final androidx.glance.text.TextDecoration.Companion Companion;
   }
 
   public static final class TextDecoration.Companion {

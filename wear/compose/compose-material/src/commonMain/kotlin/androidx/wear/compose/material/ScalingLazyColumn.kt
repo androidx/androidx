@@ -174,9 +174,9 @@ public inline fun <T> ScalingLazyListScope.itemsIndexed(
     itemContent(it, items[it])
 }
 
-@Suppress("INLINE_CLASS_DEPRECATED")
 @Immutable
-public inline class ScalingLazyListAnchorType internal constructor(internal val type: Int) {
+@kotlin.jvm.JvmInline
+public value class ScalingLazyListAnchorType internal constructor(internal val type: Int) {
 
     companion object {
         /**

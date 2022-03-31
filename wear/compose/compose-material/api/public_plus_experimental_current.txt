@@ -259,8 +259,8 @@ package androidx.wear.compose.material {
     property public final androidx.compose.runtime.saveable.Saver<androidx.wear.compose.material.PickerState,java.lang.Object> Saver;
   }
 
-  public final inline class PositionIndicatorAlignment {
-    ctor public PositionIndicatorAlignment();
+  @kotlin.jvm.JvmInline public final value class PositionIndicatorAlignment {
+    field public static final androidx.wear.compose.material.PositionIndicatorAlignment.Companion Companion;
   }
 
   public static final class PositionIndicatorAlignment.Companion {
@@ -289,8 +289,8 @@ package androidx.wear.compose.material {
     property public abstract float positionFraction;
   }
 
-  public final inline class PositionIndicatorVisibility {
-    ctor public PositionIndicatorVisibility();
+  @kotlin.jvm.JvmInline public final value class PositionIndicatorVisibility {
+    field public static final androidx.wear.compose.material.PositionIndicatorVisibility.Companion Companion;
   }
 
   public static final class PositionIndicatorVisibility.Companion {
@@ -353,8 +353,8 @@ package androidx.wear.compose.material {
   public final class ScalingLazyColumnMeasureKt {
   }
 
-  @androidx.compose.runtime.Immutable public final inline class ScalingLazyListAnchorType {
-    ctor public ScalingLazyListAnchorType();
+  @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class ScalingLazyListAnchorType {
+    field public static final androidx.wear.compose.material.ScalingLazyListAnchorType.Companion Companion;
   }
 
   public static final class ScalingLazyListAnchorType.Companion {
@@ -710,8 +710,9 @@ package androidx.wear.compose.material {
     method @androidx.compose.runtime.Composable public static void Vignette(int vignettePosition, optional androidx.compose.ui.Modifier modifier);
   }
 
-  public final inline class VignettePosition {
-    ctor public VignettePosition();
+  @kotlin.jvm.JvmInline public final value class VignettePosition {
+    ctor public VignettePosition(int key);
+    field public static final androidx.wear.compose.material.VignettePosition.Companion Companion;
   }
 
   public static final class VignettePosition.Companion {

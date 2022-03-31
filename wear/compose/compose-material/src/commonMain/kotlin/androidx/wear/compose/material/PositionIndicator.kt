@@ -69,8 +69,8 @@ import kotlinx.coroutines.launch
  * Enum used by adapters to specify if the Position Indicator needs to be shown, hidden,
  * or hidden after a small delay.
  */
-@Suppress("INLINE_CLASS_DEPRECATED")
-public inline class PositionIndicatorVisibility internal constructor(internal val value: Int) {
+@kotlin.jvm.JvmInline
+public value class PositionIndicatorVisibility internal constructor(internal val value: Int) {
     companion object {
         /**
          * Show the Position Indicator.
@@ -222,8 +222,8 @@ public fun PositionIndicator(
 /**
  * Specifies where in the screen the Position indicator will be.
  */
-@Suppress("INLINE_CLASS_DEPRECATED")
-inline class PositionIndicatorAlignment internal constructor(internal val pos: Int) {
+@kotlin.jvm.JvmInline
+value class PositionIndicatorAlignment internal constructor(internal val pos: Int) {
     companion object {
         /**
          * Position the indicator at the end of the layout (at the right for LTR and left for RTL)

@@ -26,8 +26,8 @@ public class Alignment(public val horizontal: Horizontal, public val vertical: V
      * Specifies how a parent should lay its children out horizontally, if the child has a width
      * smaller than the parent.
      */
-    @Suppress("INLINE_CLASS_DEPRECATED")
-    public inline class Horizontal private constructor(private val value: Int) {
+    @JvmInline
+    public value class Horizontal private constructor(private val value: Int) {
         public companion object {
             public val Start: Horizontal = Horizontal(0)
             public val CenterHorizontally: Horizontal = Horizontal(1)
@@ -39,8 +39,8 @@ public class Alignment(public val horizontal: Horizontal, public val vertical: V
      * Specifies how a parent should lay its children out vertically, if the child has a height
      * smaller than the parent.
      */
-    @Suppress("INLINE_CLASS_DEPRECATED")
-    public inline class Vertical private constructor(private val value: Int) {
+    @JvmInline
+    public value class Vertical private constructor(private val value: Int) {
         public companion object {
             public val Top: Vertical = Vertical(0)
             public val CenterVertically: Vertical = Vertical(1)
