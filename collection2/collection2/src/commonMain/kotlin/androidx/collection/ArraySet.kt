@@ -49,18 +49,18 @@ class ArraySet<E>
     /**
      * Create a new ArraySet with the elements from the given ArraySet.
      */
-    constructor(set: ArraySet<out E>?) : this(0) {
-        if (set != null) {
-            addAll(set)
+    constructor(arraySet: ArraySet<out E>?) : this(0) {
+        if (arraySet != null) {
+            addAll(arraySet)
         }
     }
 
     /**
      * Create a new ArraySet with the elements from the given [Collection].
      */
-    constructor(set: Collection<E>?) : this(0) {
-        if (set != null) {
-            addAll(set)
+    constructor(c: Collection<E>?) : this(0) {
+        if (c != null) {
+            addAll(c)
         }
     }
 
@@ -69,9 +69,9 @@ class ArraySet<E>
      */
     // Suppress this lint error.  In general, we want APIs to use collections instead of
     // arrays, but that means we need to have ways to build collections from arrays
-    constructor(@Suppress("ArrayReturn") set: Array<E>?) : this(0) {
-        if (set != null) {
-            addAll(set)
+    constructor(@Suppress("ArrayReturn") array: Array<E>?) : this(0) {
+        if (array != null) {
+            addAll(array)
         }
     }
 
