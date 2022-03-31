@@ -128,7 +128,6 @@ internal class LayoutConfiguration private constructor(
         /**
          * Create a new, empty, [LayoutConfiguration].
          */
-        @VisibleForTesting
         internal fun create(context: Context, appWidgetId: Int) =
             LayoutConfiguration(
                 context,

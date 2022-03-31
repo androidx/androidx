@@ -81,6 +81,9 @@ package androidx.glance.appwidget {
   public final class GlanceAppWidgetReceiverKt {
   }
 
+  public final class GlanceRemoteViewsKt {
+  }
+
   public final class ImageProvidersKt {
     method public static androidx.glance.ImageProvider ImageProvider(android.net.Uri uri);
   }
