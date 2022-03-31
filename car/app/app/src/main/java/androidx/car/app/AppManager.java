@@ -34,7 +34,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.managers.Manager;
 import androidx.car.app.model.Alert;
@@ -150,7 +149,6 @@ public class AppManager implements Manager {
      * @throws NullPointerException if {@code alert} is {@code null}
      */
     @RequiresCarApi(5)
-    @ExperimentalCarApi
     public void showAlert(@NonNull Alert alert) {
         requireNonNull(alert);
 
@@ -179,7 +177,6 @@ public class AppManager implements Manager {
      * @throws HostException        if the remote call fails
      */
     @RequiresCarApi(5)
-    @ExperimentalCarApi
     public void dismissAlert(int alertId) {
         mHostDispatcher.dispatch(
                 CarContext.APP_SERVICE,

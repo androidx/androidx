@@ -27,7 +27,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.SurfaceCallback;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
@@ -37,7 +36,6 @@ import java.util.Objects;
 /**
  * A component that holds onto controls associated with an app-provided provided map tile.
  */
-@ExperimentalCarApi
 @RequiresCarApi(5)
 @CarProtocol
 public final class MapController {

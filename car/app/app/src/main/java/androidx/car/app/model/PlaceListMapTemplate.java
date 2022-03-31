@@ -27,10 +27,9 @@ import android.annotation.SuppressLint;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.car.app.Screen;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
+import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarTextConstraints;
 
 import java.util.Collections;
@@ -80,7 +79,6 @@ public final class PlaceListMapTemplate implements Template {
     private final Place mAnchor;
     @Keep
     @Nullable
-    @ExperimentalCarApi
     private final OnContentRefreshDelegate mOnContentRefreshDelegate;
 
     public boolean isCurrentLocationEnabled() {
@@ -155,7 +153,7 @@ public final class PlaceListMapTemplate implements Template {
      * @see Builder#setOnContentRefreshListener
      */
     @Nullable
-    @ExperimentalCarApi
+    @RequiresCarApi(5)
     public OnContentRefreshDelegate getOnContentRefreshDelegate() {
         return mOnContentRefreshDelegate;
     }
@@ -166,7 +164,6 @@ public final class PlaceListMapTemplate implements Template {
         return "PlaceListMapTemplate";
     }
 
-    @OptIn(markerClass = ExperimentalCarApi.class) // OnContentRefreshDelegate
     @Override
     public int hashCode() {
         return Objects.hash(
@@ -174,7 +171,6 @@ public final class PlaceListMapTemplate implements Template {
                     mAnchor, mOnContentRefreshDelegate == null);
     }
 
-    @OptIn(markerClass = ExperimentalCarApi.class) // OnContentRefreshDelegate
     @Override
     public boolean equals(@Nullable Object other) {
         if (this == other) {
@@ -196,7 +192,6 @@ public final class PlaceListMapTemplate implements Template {
                 otherTemplate.mOnContentRefreshDelegate == null);
     }
 
-    @OptIn(markerClass = ExperimentalCarApi.class) // OnContentRefreshDelegate
     PlaceListMapTemplate(Builder builder) {
         mShowCurrentLocation = builder.mShowCurrentLocation;
         mIsLoading = builder.mIsLoading;
@@ -209,7 +204,6 @@ public final class PlaceListMapTemplate implements Template {
     }
 
     /** Constructs an empty instance, used by serialization code. */
-    @OptIn(markerClass = ExperimentalCarApi.class) // OnContentRefreshDelegate
     private PlaceListMapTemplate() {
         mShowCurrentLocation = false;
         mIsLoading = false;
@@ -236,7 +230,7 @@ public final class PlaceListMapTemplate implements Template {
         @Nullable
         Place mAnchor;
         @Nullable
-        @ExperimentalCarApi
+        @RequiresCarApi(5)
         OnContentRefreshDelegate mOnContentRefreshDelegate;
 
         /**
@@ -425,7 +419,7 @@ public final class PlaceListMapTemplate implements Template {
          */
         @NonNull
         @SuppressLint({"MissingGetterMatchingBuilder", "ExecutorRegistration"})
-        @ExperimentalCarApi
+        @RequiresCarApi(5)
         public Builder setOnContentRefreshListener(
                 @NonNull OnContentRefreshListener onContentRefreshListener) {
             mOnContentRefreshDelegate =

@@ -21,14 +21,12 @@ import android.annotation.SuppressLint;
 import androidx.annotation.NonNull;
 import androidx.car.app.OnDoneCallback;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 
 /**
  * A host-side interface for reporting cancel events to clients.
  */
 @CarProtocol
-@ExperimentalCarApi
 @RequiresCarApi(5)
 public interface AlertCallbackDelegate {
 
