@@ -172,7 +172,7 @@ package androidx.collection {
     method public V? replace(K? key, V? value);
     method public boolean replace(K? key, V? oldValue, V? newValue);
     method public V! setValueAt(int index, V? value);
-    method protected final void set_size(int _size);
+    method protected final void set_size(int);
     method public int size();
     method public V! valueAt(int index);
     property protected final int _size;

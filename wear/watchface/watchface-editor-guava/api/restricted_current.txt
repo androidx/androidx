@@ -18,9 +18,9 @@ package androidx.wear.watchface.editor {
     method public boolean isCommitChangesOnClose();
     method @UiThread public static com.google.common.util.concurrent.ListenableFuture<androidx.wear.watchface.editor.ListenableEditorSession> listenableCreateOnWatchEditorSession(androidx.activity.ComponentActivity activity);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.wear.watchface.editor.ChosenComplicationDataSource> listenableOpenComplicationDataSourceChooser(int complicationSlotId);
-    method public suspend Object? openComplicationDataSourceChooser(int complicationSlotId, kotlin.coroutines.Continuation<? super androidx.wear.watchface.editor.ChosenComplicationDataSource> p);
+    method public suspend Object? openComplicationDataSourceChooser(int complicationSlotId, kotlin.coroutines.Continuation<? super androidx.wear.watchface.editor.ChosenComplicationDataSource>);
     method public android.graphics.Bitmap renderWatchFaceToBitmap(androidx.wear.watchface.RenderParameters renderParameters, java.time.Instant instant, java.util.Map<java.lang.Integer,? extends androidx.wear.watchface.complications.data.ComplicationData>? slotIdToComplicationData);
-    method public void setCommitChangesOnClose(boolean commitChangesOnClose);
+    method public void setCommitChangesOnClose(boolean);
     property public Integer? backgroundComplicationSlotId;
     property public boolean commitChangesOnClose;
     property public kotlinx.coroutines.flow.StateFlow<java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationSlotState>> complicationSlotsState;

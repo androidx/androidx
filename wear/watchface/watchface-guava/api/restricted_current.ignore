@@ -1,3 +1,13 @@
 // Baseline format: 1.0
 ChangedThrows: androidx.wear.watchface.ListenableGlesRenderer#ListenableGlesRenderer(android.view.SurfaceHolder, androidx.wear.watchface.style.CurrentUserStyleRepository, androidx.wear.watchface.WatchState, long, int[], int[]):
     Constructor androidx.wear.watchface.ListenableGlesRenderer added thrown exception androidx.wear.watchface.Renderer.GlesRenderer.GlesException
+
+
+ParameterNameChange: androidx.wear.watchface.ListenableCanvasRenderer#init(kotlin.coroutines.Continuation<? super kotlin.Unit>) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.wear.watchface.ListenableCanvasRenderer.init
+ParameterNameChange: androidx.wear.watchface.ListenableGlesRenderer#onBackgroundThreadGlContextCreated(kotlin.coroutines.Continuation<? super kotlin.Unit>) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.wear.watchface.ListenableGlesRenderer.onBackgroundThreadGlContextCreated
+ParameterNameChange: androidx.wear.watchface.ListenableGlesRenderer#onUiThreadGlSurfaceCreated(int, int, kotlin.coroutines.Continuation<? super kotlin.Unit>) parameter #2:
+    Attempted to remove parameter name from parameter arg3 in androidx.wear.watchface.ListenableGlesRenderer.onUiThreadGlSurfaceCreated
+ParameterNameChange: androidx.wear.watchface.ListenableWatchFaceService#createWatchFace(android.view.SurfaceHolder, androidx.wear.watchface.WatchState, androidx.wear.watchface.ComplicationSlotsManager, androidx.wear.watchface.style.CurrentUserStyleRepository, kotlin.coroutines.Continuation<? super androidx.wear.watchface.WatchFace>) parameter #4:
+    Attempted to remove parameter name from parameter arg5 in androidx.wear.watchface.ListenableWatchFaceService.createWatchFace

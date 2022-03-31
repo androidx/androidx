@@ -282,12 +282,12 @@ package androidx.glance.layout {
 package androidx.glance.state {
 
   public interface GlanceStateDefinition<T> {
-    method public suspend Object? getDataStore(android.content.Context context, String fileKey, kotlin.coroutines.Continuation<? super androidx.datastore.core.DataStore<T>> p);
+    method public suspend Object? getDataStore(android.content.Context context, String fileKey, kotlin.coroutines.Continuation<? super androidx.datastore.core.DataStore<T>>);
     method public java.io.File getLocation(android.content.Context context, String fileKey);
   }
 
   public final class PreferencesGlanceStateDefinition implements androidx.glance.state.GlanceStateDefinition<androidx.datastore.preferences.core.Preferences> {
-    method public suspend Object? getDataStore(android.content.Context context, String fileKey, kotlin.coroutines.Continuation<? super androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences>> p);
+    method public suspend Object? getDataStore(android.content.Context context, String fileKey, kotlin.coroutines.Continuation<? super androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences>>);
     method public java.io.File getLocation(android.content.Context context, String fileKey);
     field public static final androidx.glance.state.PreferencesGlanceStateDefinition INSTANCE;
   }

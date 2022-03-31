@@ -1,0 +1,13 @@
+// Baseline format: 1.0
+ParameterNameChange: androidx.navigation.ActivityNavigatorDestinationBuilder#setAction(String) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.navigation.ActivityNavigatorDestinationBuilder.setAction
+ParameterNameChange: androidx.navigation.ActivityNavigatorDestinationBuilder#setActivityClass(kotlin.reflect.KClass<? extends android.app.Activity>) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.navigation.ActivityNavigatorDestinationBuilder.setActivityClass
+ParameterNameChange: androidx.navigation.ActivityNavigatorDestinationBuilder#setData(android.net.Uri) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.navigation.ActivityNavigatorDestinationBuilder.setData
+ParameterNameChange: androidx.navigation.ActivityNavigatorDestinationBuilder#setDataPattern(String) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.navigation.ActivityNavigatorDestinationBuilder.setDataPattern
+ParameterNameChange: androidx.navigation.ActivityNavigatorDestinationBuilder#setTargetPackage(String) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.navigation.ActivityNavigatorDestinationBuilder.setTargetPackage
+ParameterNameChange: androidx.navigation.NavController#setGraph(androidx.navigation.NavGraph) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.navigation.NavController.setGraph

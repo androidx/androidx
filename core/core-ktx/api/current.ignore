@@ -1,0 +1,7 @@
+// Baseline format: 1.0
+ParameterNameChange: androidx.core.view.ViewKt#setGone(android.view.View, boolean) parameter #1:
+    Attempted to remove parameter name from parameter arg2 in androidx.core.view.ViewKt.setGone
+ParameterNameChange: androidx.core.view.ViewKt#setInvisible(android.view.View, boolean) parameter #1:
+    Attempted to remove parameter name from parameter arg2 in androidx.core.view.ViewKt.setInvisible
+ParameterNameChange: androidx.core.view.ViewKt#setVisible(android.view.View, boolean) parameter #1:
+    Attempted to remove parameter name from parameter arg2 in androidx.core.view.ViewKt.setVisible

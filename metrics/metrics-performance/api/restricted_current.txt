@@ -29,8 +29,8 @@ package androidx.metrics.performance {
     method @UiThread public static androidx.metrics.performance.JankStats createAndTrack(android.view.Window window, java.util.concurrent.Executor executor, androidx.metrics.performance.JankStats.OnFrameListener frameListener);
     method public float getJankHeuristicMultiplier();
     method public boolean isTrackingEnabled();
-    method public void setJankHeuristicMultiplier(float value);
-    method @UiThread public void setTrackingEnabled(boolean value);
+    method public void setJankHeuristicMultiplier(float);
+    method @UiThread public void setTrackingEnabled(boolean);
     property public final boolean isTrackingEnabled;
     property public final float jankHeuristicMultiplier;
     field public static final androidx.metrics.performance.JankStats.Companion Companion;
