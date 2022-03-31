@@ -126,6 +126,7 @@ package androidx.navigation {
     property public final androidx.navigation.NavDestination destination;
     property public final String id;
     property public final androidx.lifecycle.SavedStateHandle savedStateHandle;
+    property public androidx.savedstate.SavedStateRegistry savedStateRegistry;
   }
 
   public final class NavDeepLink {

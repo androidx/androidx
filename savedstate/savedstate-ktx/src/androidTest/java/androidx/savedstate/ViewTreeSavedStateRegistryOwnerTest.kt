@@ -119,8 +119,7 @@ class ViewTreeSavedStateRegistryOwnerTest {
             throw UnsupportedOperationException("not a real SavedStateRegistryOwner")
         }
 
-        override fun getSavedStateRegistry(): SavedStateRegistry {
-            throw UnsupportedOperationException("not a real SavedStateRegistryOwner")
-        }
+        override val savedStateRegistry: SavedStateRegistry
+            get() = throw UnsupportedOperationException("not a real SavedStateRegistryOwner")
     }
 }

@@ -233,7 +233,8 @@ private class FakeSavedStateRegistryOwner : SavedStateRegistryOwner {
     val savedStateRegistryController = SavedStateRegistryController.create(this)
 
     override fun getLifecycle() = lifecycleRegistry
-    override fun getSavedStateRegistry() = savedStateRegistryController.savedStateRegistry
+    override val savedStateRegistry: SavedStateRegistry
+        get() = savedStateRegistryController.savedStateRegistry
 }
 
 private fun bundleOf(key: String, value: Int): Bundle {
