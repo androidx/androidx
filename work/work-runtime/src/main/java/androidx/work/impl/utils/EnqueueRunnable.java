@@ -53,7 +53,6 @@ import androidx.work.impl.model.DependencyDao;
 import androidx.work.impl.model.WorkName;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
-import androidx.work.impl.model.WorkTag;
 import androidx.work.impl.workers.ConstraintTrackingWorker;
 
 import java.util.ArrayList;
@@ -329,10 +328,7 @@ public class EnqueueRunnable implements Runnable {
                 }
             }
 
-            for (String tag : work.getTags()) {
-                workDatabase.workTagDao().insert(new WorkTag(tag, work.getStringId()));
-            }
-
+            workDatabase.workTagDao().insertTags(work);
             if (isNamed) {
                 workDatabase.workNameDao().insert(new WorkName(name, work.getStringId()));
             }
