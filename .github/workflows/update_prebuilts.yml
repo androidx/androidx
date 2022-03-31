@@ -1,3 +1,6 @@
+# This workflow creates a new PR with the updated build ids for Playground prebuilts.
+# To run it, navigate to https://github.com/androidx/androidx/actions/workflows/update_prebuilts.yml
+# and click "Run workflow"
 name: Update Prebuilts
 on:
   workflow_dispatch:
@@ -61,5 +64,6 @@ jobs:
                 context.payload?.inputs?.comment || '',
                 'Bug: n/a',
                 'Test: CI',
-                ].join('\n')
+                ].join('\n'),
+              maintainer_can_modify: true
             });
