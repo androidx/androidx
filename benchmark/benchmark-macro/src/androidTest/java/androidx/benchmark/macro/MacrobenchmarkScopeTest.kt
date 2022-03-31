@@ -19,6 +19,7 @@ package androidx.benchmark.macro
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
+import androidx.benchmark.DeviceInfo
 import androidx.benchmark.Shell
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -32,6 +33,7 @@ import kotlin.test.assertTrue
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.fail
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -100,6 +102,9 @@ class MacrobenchmarkScopeTest {
         val intent = Intent()
         intent.setPackage(Packages.TARGET)
         intent.action = "${Packages.TARGET}.NOT_EXPORTED_ACTIVITY"
+
+        // Workaround b/227512788 - isSessionRooted isn't reliable below API 24 on rooted devices
+        assumeTrue(Build.VERSION.SDK_INT > 23 || !DeviceInfo.isRooted)
 
         if (Shell.isSessionRooted()) {
             // while device and adb session are both rooted, doesn't throw
