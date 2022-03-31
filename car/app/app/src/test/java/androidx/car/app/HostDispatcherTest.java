@@ -92,6 +92,12 @@ public class HostDispatcherTest {
                     public void dismissAlert(int alertId) throws RemoteException {
                         mMockAppHost.dismissAlert(alertId);
                     }
+
+                    @Override
+                    public Bundleable openMicrophone(Bundleable openMicrophoneRequest)
+                            throws RemoteException {
+                        return mMockAppHost.openMicrophone(openMicrophoneRequest);
+                    }
                 };
 
         mNavigationHost = new INavigationHost.Stub() {
