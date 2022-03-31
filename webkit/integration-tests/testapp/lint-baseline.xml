@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
+<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
         id="BanSynchronizedMethods"
@@ -37,12 +37,12 @@
     <issue
         id="ClassVerificationFailure"
         message="This call references a method added in API level 21; however, the containing class com.example.androidx.webkit.AssetLoaderAjaxActivity.MyWebViewClient is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mUriIdlingResource.beginLoad(request.getUrl().toString());"
-        errorLine2="                                                     ~~~~~~">
+        errorLine1="            mUriIdlingResource.beginLoad(request.getUrl().toString());"
+        errorLine2="                                                 ~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/AssetLoaderAjaxActivity.java"
-            line="57"
-            column="54"/>
+            line="56"
+            column="50"/>
     </issue>
 
     <issue
@@ -52,19 +52,19 @@
         errorLine2="                                                                                       ~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/AssetLoaderAjaxActivity.java"
-            line="59"
+            line="57"
             column="88"/>
     </issue>
 
     <issue
         id="ClassVerificationFailure"
         message="This call references a method added in API level 21; however, the containing class com.example.androidx.webkit.AssetLoaderAjaxActivity.MyWebViewClient is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mUriIdlingResource.endLoad(request.getUrl().toString());"
-        errorLine2="                                                   ~~~~~~">
+        errorLine1="            mUriIdlingResource.endLoad(request.getUrl().toString());"
+        errorLine2="                                               ~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/AssetLoaderAjaxActivity.java"
-            line="61"
-            column="52"/>
+            line="58"
+            column="48"/>
     </issue>
 
     <issue
@@ -158,23 +158,12 @@
     <issue
         id="SyntheticAccessor"
         message="Access to `private` field `mUriIdlingResource` of class `AssetLoaderAjaxActivity` requires synthetic accessor"
-        errorLine1="            if (mUriIdlingResource != null) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~">
+        errorLine1="            mUriIdlingResource.beginLoad(request.getUrl().toString());"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/AssetLoaderAjaxActivity.java"
             line="56"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mUriIdlingResource` of class `AssetLoaderAjaxActivity` requires synthetic accessor"
-        errorLine1="                mUriIdlingResource.beginLoad(request.getUrl().toString());"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/webkit/AssetLoaderAjaxActivity.java"
-            line="57"
-            column="17"/>
+            column="13"/>
     </issue>
 
     <issue
@@ -184,85 +173,52 @@
         errorLine2="                                           ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/AssetLoaderAjaxActivity.java"
-            line="59"
+            line="57"
             column="44"/>
     </issue>
 
     <issue
         id="SyntheticAccessor"
         message="Access to `private` field `mUriIdlingResource` of class `AssetLoaderAjaxActivity` requires synthetic accessor"
-        errorLine1="            if (mUriIdlingResource != null) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~">
+        errorLine1="            mUriIdlingResource.endLoad(request.getUrl().toString());"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/AssetLoaderAjaxActivity.java"
-            line="60"
-            column="17"/>
+            line="58"
+            column="13"/>
     </issue>
 
     <issue
         id="SyntheticAccessor"
         message="Access to `private` field `mUriIdlingResource` of class `AssetLoaderAjaxActivity` requires synthetic accessor"
-        errorLine1="                mUriIdlingResource.endLoad(request.getUrl().toString());"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~">
+        errorLine1="            mUriIdlingResource.beginLoad(url);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/AssetLoaderAjaxActivity.java"
-            line="61"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mUriIdlingResource` of class `AssetLoaderAjaxActivity` requires synthetic accessor"
-        errorLine1="            if (mUriIdlingResource != null) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/webkit/AssetLoaderAjaxActivity.java"
-            line="69"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mUriIdlingResource` of class `AssetLoaderAjaxActivity` requires synthetic accessor"
-        errorLine1="                mUriIdlingResource.beginLoad(request);"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/webkit/AssetLoaderAjaxActivity.java"
-            line="70"
-            column="17"/>
+            line="65"
+            column="13"/>
     </issue>
 
     <issue
         id="SyntheticAccessor"
         message="Access to `private` field `mAssetLoader` of class `AssetLoaderAjaxActivity` requires synthetic accessor"
-        errorLine1="            WebResourceResponse response = mAssetLoader.shouldInterceptRequest(Uri.parse(request));"
+        errorLine1="            WebResourceResponse response = mAssetLoader.shouldInterceptRequest(Uri.parse(url));"
         errorLine2="                                           ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/AssetLoaderAjaxActivity.java"
-            line="72"
+            line="66"
             column="44"/>
     </issue>
 
     <issue
         id="SyntheticAccessor"
         message="Access to `private` field `mUriIdlingResource` of class `AssetLoaderAjaxActivity` requires synthetic accessor"
-        errorLine1="            if (mUriIdlingResource != null) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~">
+        errorLine1="            mUriIdlingResource.endLoad(url);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/AssetLoaderAjaxActivity.java"
-            line="73"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mUriIdlingResource` of class `AssetLoaderAjaxActivity` requires synthetic accessor"
-        errorLine1="                mUriIdlingResource.endLoad(request);"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/webkit/AssetLoaderAjaxActivity.java"
-            line="74"
-            column="17"/>
+            line="67"
+            column="13"/>
     </issue>
 
     <issue
@@ -272,7 +228,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/AssetLoaderAjaxActivity.java"
-            line="109"
+            line="103"
             column="35"/>
     </issue>
 
@@ -290,7 +246,7 @@
     <issue
         id="SyntheticAccessor"
         message="Access to `private` field `mAssetLoader` of class `AssetLoaderInternalStorageActivity` requires synthetic accessor"
-        errorLine1="            return mAssetLoader.shouldInterceptRequest(Uri.parse(request));"
+        errorLine1="            return mAssetLoader.shouldInterceptRequest(Uri.parse(url));"
         errorLine2="                   ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/AssetLoaderInternalStorageActivity.java"
@@ -334,7 +290,7 @@
     <issue
         id="SyntheticAccessor"
         message="Access to `private` field `mAssetLoader` of class `AssetLoaderSimpleActivity` requires synthetic accessor"
-        errorLine1="            return mAssetLoader.shouldInterceptRequest(Uri.parse(request));"
+        errorLine1="            return mAssetLoader.shouldInterceptRequest(Uri.parse(url));"
         errorLine2="                   ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/AssetLoaderSimpleActivity.java"
@@ -597,7 +553,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
@@ -608,7 +564,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
@@ -619,18 +575,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected void onActivityResult(int requestCode, int resultCode, Intent data) {"
-        errorLine2="                                                                     ~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/webkit/CustomInterstitialActivity.java"
-            line="65"
-            column="70"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
@@ -641,7 +586,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
@@ -652,7 +597,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
@@ -663,7 +608,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
@@ -674,7 +619,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
@@ -685,7 +630,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public MenuListView(Context context) {"
         errorLine2="                        ~~~~~~~">
         <location
@@ -696,7 +641,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public MenuListView(Context context, AttributeSet attrs) {"
         errorLine2="                        ~~~~~~~">
         <location
@@ -707,7 +652,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public MenuListView(Context context, AttributeSet attrs) {"
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
@@ -718,7 +663,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public MenuListView(Context context, AttributeSet attrs, int defStyleAttr) {"
         errorLine2="                        ~~~~~~~">
         <location
@@ -729,7 +674,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public MenuListView(Context context, AttributeSet attrs, int defStyleAttr) {"
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
@@ -740,7 +685,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public MenuListView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {"
         errorLine2="                        ~~~~~~~">
         <location
@@ -751,7 +696,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public MenuListView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {"
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
@@ -762,7 +707,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="        public MenuItem(String name, Intent intentToLaunch) {"
         errorLine2="                        ~~~~~~">
         <location
@@ -773,7 +718,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="        public MenuItem(String name, Intent intentToLaunch) {"
         errorLine2="                                     ~~~~~~">
         <location
@@ -784,7 +729,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="        public void start(Context activityContext) {"
         errorLine2="                          ~~~~~~~">
         <location
@@ -795,7 +740,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void setItems(MenuItem[] items) {"
         errorLine2="                         ~~~~~~~~~~">
         <location
@@ -806,7 +751,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
@@ -817,7 +762,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
@@ -828,7 +773,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
@@ -839,7 +784,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public Proxy(int port, ProxyRequestCallback callback) {"
         errorLine2="                           ~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -850,7 +795,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="        public static RendererTerminatedDialogFragment newInstance() {"
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -861,7 +806,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="        public Dialog onCreateDialog(Bundle savedInstanceState) {"
         errorLine2="               ~~~~~~">
         <location
@@ -872,7 +817,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="        public Dialog onCreateDialog(Bundle savedInstanceState) {"
         errorLine2="                                     ~~~~~~">
         <location
@@ -883,7 +828,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="        public static RendererUnresponsiveDialogFragment newInstance() {"
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -894,7 +839,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="        public Dialog onCreateDialog(Bundle savedInstanceState) {"
         errorLine2="               ~~~~~~">
         <location
@@ -905,7 +850,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="        public Dialog onCreateDialog(Bundle savedInstanceState) {"
         errorLine2="                                     ~~~~~~">
         <location
@@ -916,7 +861,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
@@ -927,7 +872,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
@@ -938,7 +883,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static void appendWebViewVersionToTitle(Activity activity) {"
         errorLine2="                                                   ~~~~~~~~">
         <location
@@ -949,7 +894,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static TextView showMessageInActivity(Activity activity,"
         errorLine2="                  ~~~~~~~~">
         <location
@@ -960,7 +905,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static TextView showMessageInActivity(Activity activity,"
         errorLine2="                                                 ~~~~~~~~">
         <location

@@ -1,16 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.3.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha02)" variant="all" version="7.3.0-alpha02">
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 21 (current min is 16): `getCapabilities`"
-        errorLine1="                AudioCapabilities.getCapabilities(mContext), new AudioProcessor[0]);"
-        errorLine2="                                  ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"
-            line="436"
-            column="35"/>
-    </issue>
+<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
         id="NewApi"

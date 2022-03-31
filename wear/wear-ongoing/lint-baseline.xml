@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
+<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
         id="NewApi"
@@ -8,7 +8,7 @@
         errorLine2="                                                               ~~~~~">
         <location
             file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"
-            line="64"
+            line="65"
             column="64"/>
     </issue>
 
@@ -19,7 +19,7 @@
         errorLine2="                                                                     ~~~~~">
         <location
             file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"
-            line="90"
+            line="92"
             column="70"/>
     </issue>
 
@@ -30,7 +30,7 @@
         errorLine2="                                                               ~~~~~">
         <location
             file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"
-            line="91"
+            line="93"
             column="64"/>
     </issue>
 
@@ -41,7 +41,7 @@
         errorLine2="                                                                     ~~~~~">
         <location
             file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"
-            line="127"
+            line="131"
             column="70"/>
     </issue>
 
@@ -52,7 +52,7 @@
         errorLine2="                                                               ~~~~~">
         <location
             file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"
-            line="128"
+            line="132"
             column="64"/>
     </issue>
 
@@ -63,7 +63,7 @@
         errorLine2="                                                                     ~~~~~">
         <location
             file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"
-            line="212"
+            line="218"
             column="70"/>
     </issue>
 
@@ -74,7 +74,7 @@
         errorLine2="                                                               ~~~~~">
         <location
             file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"
-            line="213"
+            line="219"
             column="64"/>
     </issue>
 
@@ -85,7 +85,7 @@
         errorLine2="                                                                     ~~~~~">
         <location
             file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"
-            line="248"
+            line="255"
             column="70"/>
     </issue>
 
@@ -96,7 +96,7 @@
         errorLine2="                                                               ~~~~~">
         <location
             file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"
-            line="249"
+            line="256"
             column="64"/>
     </issue>
 
@@ -107,7 +107,7 @@
         errorLine2="                                                               ~~~~~">
         <location
             file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"
-            line="276"
+            line="283"
             column="64"/>
     </issue>
 
@@ -118,7 +118,7 @@
         errorLine2="                                                                        ~~~~~">
         <location
             file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"
-            line="309"
+            line="316"
             column="73"/>
     </issue>
 
@@ -129,7 +129,7 @@
         errorLine2="                                                                  ~~~~~">
         <location
             file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"
-            line="310"
+            line="317"
             column="67"/>
     </issue>
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
+<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
         id="NewApi"
@@ -52,7 +52,7 @@
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationAction.java"
-            line="254"
+            line="257"
             column="47"/>
     </issue>
 
@@ -63,7 +63,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationActions.java"
-            line="484"
+            line="494"
             column="31"/>
     </issue>
 
@@ -85,7 +85,7 @@
         errorLine2="                                  ~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="236"
+            line="239"
             column="35"/>
     </issue>
 
@@ -96,7 +96,7 @@
         errorLine2="                                  ~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextSelection.java"
-            line="192"
+            line="194"
             column="35"/>
     </issue>
 
@@ -118,7 +118,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationAction.java"
-            line="223"
+            line="226"
             column="16"/>
     </issue>
 
@@ -129,7 +129,7 @@
         errorLine2="                 ~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationAction.java"
-            line="224"
+            line="227"
             column="18"/>
     </issue>
 
@@ -140,7 +140,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationAction.java"
-            line="228"
+            line="231"
             column="18"/>
     </issue>
 
@@ -151,7 +151,7 @@
         errorLine2="                 ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationAction.java"
-            line="229"
+            line="232"
             column="18"/>
     </issue>
 
@@ -162,7 +162,7 @@
         errorLine2="                 ~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationAction.java"
-            line="230"
+            line="233"
             column="18"/>
     </issue>
 
@@ -173,7 +173,7 @@
         errorLine2="                 ~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationAction.java"
-            line="231"
+            line="234"
             column="18"/>
     </issue>
 
@@ -184,7 +184,7 @@
         errorLine2="                                                                 ~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationAction.java"
-            line="254"
+            line="257"
             column="66"/>
     </issue>
 
@@ -195,7 +195,7 @@
         errorLine2="                                           ~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationAction.java"
-            line="256"
+            line="259"
             column="44"/>
     </issue>
 
@@ -206,7 +206,7 @@
         errorLine2="                                                           ~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationAction.java"
-            line="259"
+            line="262"
             column="60"/>
     </issue>
 
@@ -217,7 +217,7 @@
         errorLine2="                                                       ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationAction.java"
-            line="260"
+            line="263"
             column="56"/>
     </issue>
 
@@ -228,7 +228,7 @@
         errorLine2="                                                 ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationAction.java"
-            line="261"
+            line="264"
             column="50"/>
     </issue>
 
@@ -239,7 +239,7 @@
         errorLine2="                                              ~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationAction.java"
-            line="262"
+            line="265"
             column="47"/>
     </issue>
 
@@ -250,7 +250,7 @@
         errorLine2="                                                             ~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationActions.java"
-            line="115"
+            line="118"
             column="62"/>
     </issue>
 
@@ -261,7 +261,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationActions.java"
-            line="115"
+            line="118"
             column="37"/>
     </issue>
 
@@ -272,7 +272,7 @@
         errorLine2="                         ~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationActions.java"
-            line="116"
+            line="119"
             column="26"/>
     </issue>
 
@@ -283,7 +283,7 @@
         errorLine2="                         ~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationActions.java"
-            line="117"
+            line="120"
             column="26"/>
     </issue>
 
@@ -294,7 +294,7 @@
         errorLine2="                                            ~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationActions.java"
-            line="117"
+            line="120"
             column="45"/>
     </issue>
 
@@ -305,7 +305,7 @@
         errorLine2="                                    ~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationActions.java"
-            line="118"
+            line="121"
             column="37"/>
     </issue>
 
@@ -316,7 +316,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationActions.java"
-            line="123"
+            line="126"
             column="16"/>
     </issue>
 
@@ -327,7 +327,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationActions.java"
-            line="124"
+            line="127"
             column="46"/>
     </issue>
 
@@ -338,7 +338,7 @@
         errorLine2="                         ~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationActions.java"
-            line="125"
+            line="128"
             column="26"/>
     </issue>
 
@@ -349,7 +349,7 @@
         errorLine2="                         ~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationActions.java"
-            line="126"
+            line="129"
             column="26"/>
     </issue>
 
@@ -360,7 +360,7 @@
         errorLine2="                                            ~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationActions.java"
-            line="126"
+            line="129"
             column="45"/>
     </issue>
 
@@ -371,7 +371,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationActions.java"
-            line="243"
+            line="246"
             column="20"/>
     </issue>
 
@@ -382,7 +382,7 @@
         errorLine2="                     ~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationActions.java"
-            line="245"
+            line="248"
             column="22"/>
     </issue>
 
@@ -393,7 +393,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationActions.java"
-            line="246"
+            line="249"
             column="22"/>
     </issue>
 
@@ -404,7 +404,7 @@
         errorLine2="                     ~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationActions.java"
-            line="247"
+            line="250"
             column="22"/>
     </issue>
 
@@ -415,7 +415,7 @@
         errorLine2="                     ~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationActions.java"
-            line="248"
+            line="251"
             column="22"/>
     </issue>
 
@@ -426,7 +426,7 @@
         errorLine2="                                                     ~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationActions.java"
-            line="259"
+            line="262"
             column="54"/>
     </issue>
 
@@ -437,7 +437,7 @@
         errorLine2="                                     ~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationActions.java"
-            line="260"
+            line="263"
             column="38"/>
     </issue>
 
@@ -448,7 +448,7 @@
         errorLine2="                                                                                ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationActions.java"
-            line="261"
+            line="264"
             column="81"/>
     </issue>
 
@@ -459,7 +459,7 @@
         errorLine2="                                       ~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationActions.java"
-            line="262"
+            line="265"
             column="40"/>
     </issue>
 
@@ -470,7 +470,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationActions.java"
-            line="456"
+            line="466"
             column="21"/>
     </issue>
 
@@ -481,7 +481,7 @@
         errorLine2="                                      ~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationActions.java"
-            line="457"
+            line="467"
             column="39"/>
     </issue>
 
@@ -492,7 +492,7 @@
         errorLine2="                             ~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationActions.java"
-            line="458"
+            line="468"
             column="30"/>
     </issue>
 
@@ -503,7 +503,7 @@
         errorLine2="                             ~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationActions.java"
-            line="459"
+            line="469"
             column="30"/>
     </issue>
 
@@ -514,7 +514,7 @@
         errorLine2="                                                ~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationActions.java"
-            line="459"
+            line="469"
             column="49"/>
     </issue>
 
@@ -525,7 +525,7 @@
         errorLine2="                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationActions.java"
-            line="460"
+            line="470"
             column="22"/>
     </issue>
 
@@ -536,7 +536,7 @@
         errorLine2="                     ~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationActions.java"
-            line="461"
+            line="471"
             column="22"/>
     </issue>
 
@@ -547,7 +547,7 @@
         errorLine2="                     ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationActions.java"
-            line="462"
+            line="472"
             column="22"/>
     </issue>
 
@@ -558,7 +558,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationActions.java"
-            line="467"
+            line="477"
             column="25"/>
     </issue>
 
@@ -569,7 +569,7 @@
         errorLine2="                           ~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationActions.java"
-            line="470"
+            line="480"
             column="28"/>
     </issue>
 
@@ -580,7 +580,7 @@
         errorLine2="                                              ~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationActions.java"
-            line="481"
+            line="491"
             column="47"/>
     </issue>
 
@@ -591,7 +591,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationActions.java"
-            line="481"
+            line="491"
             column="29"/>
     </issue>
 
@@ -602,7 +602,7 @@
         errorLine2="                             ~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationActions.java"
-            line="482"
+            line="492"
             column="30"/>
     </issue>
 
@@ -613,7 +613,7 @@
         errorLine2="                             ~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationActions.java"
-            line="483"
+            line="493"
             column="30"/>
     </issue>
 
@@ -624,7 +624,7 @@
         errorLine2="                                                ~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationActions.java"
-            line="483"
+            line="493"
             column="49"/>
     </issue>
 
@@ -635,7 +635,7 @@
         errorLine2="                                      ~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationActions.java"
-            line="484"
+            line="494"
             column="39"/>
     </issue>
 
@@ -646,7 +646,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationActions.java"
-            line="485"
+            line="495"
             column="48"/>
     </issue>
 
@@ -657,7 +657,7 @@
         errorLine2="                                       ~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationActions.java"
-            line="486"
+            line="496"
             column="40"/>
     </issue>
 
@@ -668,7 +668,7 @@
         errorLine2="                                                                             ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/ConversationActions.java"
-            line="488"
+            line="498"
             column="78"/>
     </issue>
 
@@ -877,7 +877,7 @@
         errorLine2="                                            ~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="227"
+            line="230"
             column="45"/>
     </issue>
 
@@ -888,7 +888,7 @@
         errorLine2="                                             ~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="230"
+            line="233"
             column="46"/>
     </issue>
 
@@ -899,7 +899,7 @@
         errorLine2="                                                   ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="233"
+            line="236"
             column="52"/>
     </issue>
 
@@ -910,7 +910,7 @@
         errorLine2="                                               ~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="235"
+            line="238"
             column="48"/>
     </issue>
 
@@ -921,7 +921,7 @@
         errorLine2="                                                             ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="236"
+            line="239"
             column="62"/>
     </issue>
 
@@ -932,7 +932,7 @@
         errorLine2="                                                            ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="240"
+            line="243"
             column="61"/>
     </issue>
 
@@ -943,7 +943,7 @@
         errorLine2="                                   ~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="245"
+            line="248"
             column="36"/>
     </issue>
 
@@ -954,7 +954,7 @@
         errorLine2="                                                             ~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="246"
+            line="249"
             column="62"/>
     </issue>
 
@@ -965,7 +965,7 @@
         errorLine2="                                           ~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="266"
+            line="269"
             column="44"/>
     </issue>
 
@@ -976,7 +976,7 @@
         errorLine2="                                           ~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="267"
+            line="270"
             column="44"/>
     </issue>
 
@@ -987,7 +987,7 @@
         errorLine2="                                               ~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="270"
+            line="273"
             column="48"/>
     </issue>
 
@@ -998,7 +998,7 @@
         errorLine2="                                                ~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="271"
+            line="274"
             column="49"/>
     </issue>
 
@@ -1009,7 +1009,7 @@
         errorLine2="                                                                          ~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="277"
+            line="280"
             column="75"/>
     </issue>
 
@@ -1020,7 +1020,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="292"
+            line="295"
             column="17"/>
     </issue>
 
@@ -1031,7 +1031,7 @@
         errorLine2="                         ~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="293"
+            line="296"
             column="26"/>
     </issue>
 
@@ -1042,7 +1042,7 @@
         errorLine2="                    ~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="296"
+            line="299"
             column="21"/>
     </issue>
 
@@ -1053,7 +1053,7 @@
         errorLine2="                    ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="302"
+            line="305"
             column="21"/>
     </issue>
 
@@ -1064,7 +1064,7 @@
         errorLine2="                        ~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="308"
+            line="311"
             column="25"/>
     </issue>
 
@@ -1075,7 +1075,7 @@
         errorLine2="                    ~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="314"
+            line="317"
             column="21"/>
     </issue>
 
@@ -1086,7 +1086,7 @@
         errorLine2="                     ~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="315"
+            line="318"
             column="22"/>
     </issue>
 
@@ -1097,7 +1097,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="316"
+            line="319"
             column="22"/>
     </issue>
 
@@ -1108,7 +1108,7 @@
         errorLine2="                       ~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="328"
+            line="331"
             column="24"/>
     </issue>
 
@@ -1119,7 +1119,7 @@
         errorLine2="                            ~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="513"
+            line="519"
             column="29"/>
     </issue>
 
@@ -1130,7 +1130,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="513"
+            line="519"
             column="48"/>
     </issue>
 
@@ -1141,7 +1141,7 @@
         errorLine2="                                                                        ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="513"
+            line="519"
             column="73"/>
     </issue>
 
@@ -1152,7 +1152,7 @@
         errorLine2="                                                                                ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="514"
+            line="520"
             column="81"/>
     </issue>
 
@@ -1163,7 +1163,7 @@
         errorLine2="                                                                          ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="515"
+            line="521"
             column="75"/>
     </issue>
 
@@ -1174,7 +1174,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="522"
+            line="528"
             column="20"/>
     </issue>
 
@@ -1185,7 +1185,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="524"
+            line="530"
             column="22"/>
     </issue>
 
@@ -1196,7 +1196,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="525"
+            line="531"
             column="22"/>
     </issue>
 
@@ -1207,7 +1207,7 @@
         errorLine2="                     ~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="526"
+            line="532"
             column="22"/>
     </issue>
 
@@ -1218,7 +1218,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassificationContext.java"
-            line="163"
+            line="170"
             column="16"/>
     </issue>
 
@@ -1229,7 +1229,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassificationContext.java"
-            line="164"
+            line="171"
             column="44"/>
     </issue>
 
@@ -1240,7 +1240,7 @@
         errorLine2="                                                                            ~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassificationContext.java"
-            line="164"
+            line="171"
             column="77"/>
     </issue>
 
@@ -1251,7 +1251,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassificationManager.java"
-            line="128"
+            line="131"
             column="35"/>
     </issue>
 
@@ -1262,7 +1262,7 @@
         errorLine2="                                                                               ~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassifier.java"
-            line="393"
+            line="399"
             column="80"/>
     </issue>
 
@@ -1273,7 +1273,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassifier.java"
-            line="402"
+            line="408"
             column="22"/>
     </issue>
 
@@ -1284,7 +1284,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassifier.java"
-            line="407"
+            line="413"
             column="20"/>
     </issue>
 
@@ -1295,7 +1295,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassifier.java"
-            line="408"
+            line="414"
             column="22"/>
     </issue>
 
@@ -1306,7 +1306,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassifier.java"
-            line="409"
+            line="415"
             column="22"/>
     </issue>
 
@@ -1317,7 +1317,7 @@
         errorLine2="                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassifier.java"
-            line="410"
+            line="416"
             column="22"/>
     </issue>
 
@@ -1328,7 +1328,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassifier.java"
-            line="411"
+            line="417"
             column="22"/>
     </issue>
 
@@ -1339,7 +1339,7 @@
         errorLine2="                     ~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassifier.java"
-            line="412"
+            line="418"
             column="22"/>
     </issue>
 
@@ -1350,7 +1350,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextLinks.java"
-            line="522"
+            line="535"
             column="20"/>
     </issue>
 
@@ -1361,7 +1361,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextLinks.java"
-            line="523"
+            line="536"
             column="22"/>
     </issue>
 
@@ -1372,7 +1372,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextLinks.java"
-            line="524"
+            line="537"
             column="22"/>
     </issue>
 
@@ -1383,7 +1383,7 @@
         errorLine2="                     ~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextLinks.java"
-            line="525"
+            line="538"
             column="22"/>
     </issue>
 
@@ -1394,7 +1394,7 @@
         errorLine2="                                                         ~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextLinks.java"
-            line="534"
+            line="547"
             column="58"/>
     </issue>
 
@@ -1405,7 +1405,7 @@
         errorLine2="                                                                          ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextLinks.java"
-            line="535"
+            line="548"
             column="75"/>
     </issue>
 
@@ -1416,7 +1416,7 @@
         errorLine2="                                                                             ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextLinks.java"
-            line="537"
+            line="550"
             column="78"/>
     </issue>
 
@@ -1427,7 +1427,7 @@
         errorLine2="                                                           ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextLinks.java"
-            line="755"
+            line="782"
             column="60"/>
     </issue>
 
@@ -1438,7 +1438,7 @@
         errorLine2="                                                        ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextLinks.java"
-            line="757"
+            line="784"
             column="57"/>
     </issue>
 
@@ -1449,7 +1449,7 @@
         errorLine2="                                                                                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextLinks.java"
-            line="845"
+            line="875"
             column="86"/>
     </issue>
 
@@ -1460,7 +1460,7 @@
         errorLine2="                                 ~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextLinks.java"
-            line="848"
+            line="878"
             column="34"/>
     </issue>
 
@@ -1471,7 +1471,7 @@
         errorLine2="                                                  ~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextLinks.java"
-            line="848"
+            line="878"
             column="51"/>
     </issue>
 
@@ -1482,7 +1482,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextLinks.java"
-            line="860"
+            line="890"
             column="17"/>
     </issue>
 
@@ -1493,7 +1493,7 @@
         errorLine2="                    ~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextLinks.java"
-            line="862"
+            line="892"
             column="21"/>
     </issue>
 
@@ -1504,7 +1504,7 @@
         errorLine2="                       ~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextLinks.java"
-            line="867"
+            line="897"
             column="24"/>
     </issue>
 
@@ -1515,7 +1515,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextSelection.java"
-            line="183"
+            line="185"
             column="31"/>
     </issue>
 
@@ -1526,7 +1526,7 @@
         errorLine2="                                                                      ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextSelection.java"
-            line="183"
+            line="185"
             column="71"/>
     </issue>
 
@@ -1537,7 +1537,7 @@
         errorLine2="                                        ~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextSelection.java"
-            line="186"
+            line="188"
             column="41"/>
     </issue>
 
@@ -1548,7 +1548,7 @@
         errorLine2="                                              ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextSelection.java"
-            line="189"
+            line="191"
             column="47"/>
     </issue>
 
@@ -1559,7 +1559,7 @@
         errorLine2="                                          ~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextSelection.java"
-            line="191"
+            line="193"
             column="43"/>
     </issue>
 
@@ -1570,7 +1570,7 @@
         errorLine2="                                                        ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextSelection.java"
-            line="192"
+            line="194"
             column="57"/>
     </issue>
 
@@ -1581,7 +1581,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextSelection.java"
-            line="207"
+            line="209"
             column="17"/>
     </issue>
 
@@ -1592,7 +1592,7 @@
         errorLine2="                    ~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextSelection.java"
-            line="211"
+            line="213"
             column="21"/>
     </issue>
 
@@ -1603,7 +1603,7 @@
         errorLine2="                    ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextSelection.java"
-            line="217"
+            line="219"
             column="21"/>
     </issue>
 
@@ -1614,7 +1614,7 @@
         errorLine2="                       ~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextSelection.java"
-            line="219"
+            line="221"
             column="24"/>
     </issue>
 
@@ -1625,7 +1625,7 @@
         errorLine2="                            ~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextSelection.java"
-            line="375"
+            line="380"
             column="29"/>
     </issue>
 
@@ -1636,7 +1636,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextSelection.java"
-            line="375"
+            line="380"
             column="48"/>
     </issue>
 
@@ -1647,7 +1647,7 @@
         errorLine2="                                                                        ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextSelection.java"
-            line="375"
+            line="380"
             column="73"/>
     </issue>
 
@@ -1658,7 +1658,7 @@
         errorLine2="                                                                          ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextSelection.java"
-            line="376"
+            line="381"
             column="75"/>
     </issue>
 
@@ -1669,7 +1669,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextSelection.java"
-            line="387"
+            line="392"
             column="20"/>
     </issue>
 
@@ -1680,7 +1680,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextSelection.java"
-            line="389"
+            line="394"
             column="22"/>
     </issue>
 
@@ -1691,7 +1691,7 @@
         errorLine2="                     ~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextSelection.java"
-            line="390"
+            line="395"
             column="22"/>
     </issue>
 
@@ -1708,161 +1708,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public float getConfidenceScore(@EntityType String entity) {"
-        errorLine2="                                                ~~~~~~">
-        <location
-            file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="140"
-            column="49"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public Builder setText(@Nullable CharSequence text) {"
-        errorLine2="               ~~~~~~~">
-        <location
-            file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="357"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public Builder setEntityType("
-        errorLine2="               ~~~~~~~">
-        <location
-            file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="371"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public static Request createFromBundle(@NonNull Bundle bundle) {"
-        errorLine2="                      ~~~~~~~">
-        <location
-            file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="658"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public Builder setWidgetVersion(@Nullable String widgetVersion) {"
-        errorLine2="               ~~~~~~~">
-        <location
-            file="src/main/java/androidx/textclassifier/TextClassificationContext.java"
-            line="113"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static TextClassificationManager of(@NonNull Context context) {"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/textclassifier/TextClassificationManager.java"
-            line="61"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public Collection&lt;String> resolveTypes("
-        errorLine2="               ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/textclassifier/TextClassifier.java"
-            line="300"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            public Builder setIncludedTypes(@Nullable Collection&lt;String> includedTypes) {"
-        errorLine2="                   ~~~~~~~">
-        <location
-            file="src/main/java/androidx/textclassifier/TextClassifier.java"
-            line="442"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            public Builder setExcludedTypes(@Nullable Collection&lt;String> excludedTypes) {"
-        errorLine2="                   ~~~~~~~">
-        <location
-            file="src/main/java/androidx/textclassifier/TextClassifier.java"
-            line="450"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            public Builder setHints(@Nullable Collection&lt;String> hints) {"
-        errorLine2="                   ~~~~~~~">
-        <location
-            file="src/main/java/androidx/textclassifier/TextClassifier.java"
-            line="462"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            public Builder includeTypesFromTextClassifier(boolean includeTypesFromTextClassifier) {"
-        errorLine2="                   ~~~~~~~">
-        <location
-            file="src/main/java/androidx/textclassifier/TextClassifier.java"
-            line="471"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="                @EntityType String entityType) {"
-        errorLine2="                            ~~~~~~">
-        <location
-            file="src/main/java/androidx/textclassifier/TextLinks.java"
-            line="286"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        TextLinkSpan createSpan(@NonNull TextLinkSpanData textLinkSpanData);"
-        errorLine2="        ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/textclassifier/TextLinks.java"
-            line="548"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public float getConfidenceScore(@EntityType String entity) {"
-        errorLine2="                                                ~~~~~~">
-        <location
-            file="src/main/java/androidx/textclassifier/TextSelection.java"
-            line="107"
-            column="49"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static ToolbarController getInstance(TextView textView) {"
         errorLine2="                  ~~~~~~~~~~~~~~~~~">
         <location
@@ -1873,7 +1719,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static ToolbarController getInstance(TextView textView) {"
         errorLine2="                                                ~~~~~~~~">
         <location
@@ -1884,7 +1730,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void show(List&lt;RemoteActionCompat> actions, int start, int end) {"
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
