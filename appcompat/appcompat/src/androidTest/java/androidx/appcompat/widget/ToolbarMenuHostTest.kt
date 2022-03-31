@@ -117,7 +117,7 @@ class ToolbarMenuHostTest {
             }
 
             menuPrepared = false
-            toolbar.invalidateMenu()
+            withActivity { toolbar.invalidateMenu() }
             assertThat(menuPrepared).isTrue()
         }
     }
