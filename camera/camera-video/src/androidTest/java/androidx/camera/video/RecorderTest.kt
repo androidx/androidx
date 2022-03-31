@@ -235,7 +235,7 @@ class RecorderTest {
                 .start(CameraXExecutors.directExecutor(), videoRecordEventListener)
 
         val inOrder = inOrder(videoRecordEventListener)
-        inOrder.verify(videoRecordEventListener, timeout(1000L))
+        inOrder.verify(videoRecordEventListener, timeout(5000L))
             .accept(any(VideoRecordEvent.Start::class.java))
         inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
             .accept(any(VideoRecordEvent.Status::class.java))
@@ -323,7 +323,7 @@ class RecorderTest {
         pfd.close()
 
         val inOrder = inOrder(videoRecordEventListener)
-        inOrder.verify(videoRecordEventListener, timeout(1000L))
+        inOrder.verify(videoRecordEventListener, timeout(5000L))
             .accept(any(VideoRecordEvent.Start::class.java))
         inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
             .accept(any(VideoRecordEvent.Status::class.java))
@@ -395,12 +395,12 @@ class RecorderTest {
         recording.pause()
 
         val inOrder = inOrder(videoRecordEventListener)
-        inOrder.verify(videoRecordEventListener, timeout(1000L))
+        inOrder.verify(videoRecordEventListener, timeout(5000L))
             .accept(any(VideoRecordEvent.Pause::class.java))
 
         recording.resume()
 
-        inOrder.verify(videoRecordEventListener, timeout(1000L))
+        inOrder.verify(videoRecordEventListener, timeout(5000L))
             .accept(any(VideoRecordEvent.Resume::class.java))
         // Check there are data being encoded after resuming.
         inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
@@ -435,10 +435,10 @@ class RecorderTest {
 
         val inOrder = inOrder(videoRecordEventListener)
 
-        inOrder.verify(videoRecordEventListener, timeout(1000L))
+        inOrder.verify(videoRecordEventListener, timeout(5000L))
             .accept(any(VideoRecordEvent.Start::class.java))
 
-        inOrder.verify(videoRecordEventListener, timeout(1000L))
+        inOrder.verify(videoRecordEventListener, timeout(5000L))
             .accept(any(VideoRecordEvent.Pause::class.java))
 
         recording.stopSafely()
@@ -460,7 +460,7 @@ class RecorderTest {
                 .withAudioEnabled()
                 .start(CameraXExecutors.directExecutor(), videoRecordEventListener)
 
-        inOrder.verify(videoRecordEventListener, timeout(1000L))
+        inOrder.verify(videoRecordEventListener, timeout(5000L))
             .accept(any(VideoRecordEvent.Start::class.java))
 
         inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
@@ -469,13 +469,13 @@ class RecorderTest {
         // Pause
         recording.pause()
 
-        verify(videoRecordEventListener, timeout(1000L))
+        verify(videoRecordEventListener, timeout(5000L))
             .accept(any(VideoRecordEvent.Pause::class.java))
 
         // Resume
         recording.resume()
 
-        inOrder.verify(videoRecordEventListener, timeout(1000L))
+        inOrder.verify(videoRecordEventListener, timeout(5000L))
             .accept(any(VideoRecordEvent.Resume::class.java))
 
         inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
@@ -547,7 +547,7 @@ class RecorderTest {
         recorder.streamInfo.addObserver(CameraXExecutors.directExecutor(), streamInfoObserver)
 
         // Recorder should start in INACTIVE stream state before any recordings
-        inOrder.verify(streamInfoObserver, timeout(1000L)).onNewData(
+        inOrder.verify(streamInfoObserver, timeout(5000L)).onNewData(
             argThat {
                 it!!.streamState == StreamInfo.StreamState.INACTIVE
             }
@@ -559,7 +559,7 @@ class RecorderTest {
                 .withAudioEnabled()
                 .start(CameraXExecutors.directExecutor(), videoRecordEventListener)
         // Starting recording should move Recorder to ACTIVE stream state
-        inOrder.verify(streamInfoObserver, timeout(1000L)).onNewData(
+        inOrder.verify(streamInfoObserver, timeout(5000L)).onNewData(
             argThat {
                 it!!.streamState == StreamInfo.StreamState.ACTIVE
             }
@@ -611,7 +611,7 @@ class RecorderTest {
         invokeSurfaceRequest()
 
         val inOrder = inOrder(videoRecordEventListener)
-        inOrder.verify(videoRecordEventListener, timeout(1000L))
+        inOrder.verify(videoRecordEventListener, timeout(5000L))
             .accept(any(VideoRecordEvent.Start::class.java))
         inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
             .accept(any(VideoRecordEvent.Status::class.java))
@@ -665,9 +665,9 @@ class RecorderTest {
         invokeSurfaceRequest()
 
         val inOrder = inOrder(videoRecordEventListener)
-        inOrder.verify(videoRecordEventListener, timeout(1000L))
+        inOrder.verify(videoRecordEventListener, timeout(5000L))
             .accept(any(VideoRecordEvent.Start::class.java))
-        inOrder.verify(videoRecordEventListener, timeout(1000L))
+        inOrder.verify(videoRecordEventListener, timeout(5000L))
             .accept(any(VideoRecordEvent.Pause::class.java))
 
         recording.stopSafely()
@@ -689,13 +689,13 @@ class RecorderTest {
                 .start(CameraXExecutors.directExecutor(), videoRecordEventListener)
 
         val inOrder = inOrder(videoRecordEventListener)
-        inOrder.verify(videoRecordEventListener, timeout(1000L))
+        inOrder.verify(videoRecordEventListener, timeout(5000L))
             .accept(any(VideoRecordEvent.Start::class.java))
         inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
             .accept(any(VideoRecordEvent.Status::class.java))
 
         recording.pause()
-        inOrder.verify(videoRecordEventListener, timeout(1000L))
+        inOrder.verify(videoRecordEventListener, timeout(5000L))
             .accept(any(VideoRecordEvent.Pause::class.java))
 
         recording.pause()
@@ -726,7 +726,7 @@ class RecorderTest {
                 .start(CameraXExecutors.directExecutor(), videoRecordEventListener)
 
         val inOrder = inOrder(videoRecordEventListener)
-        inOrder.verify(videoRecordEventListener, timeout(1000L))
+        inOrder.verify(videoRecordEventListener, timeout(5000L))
             .accept(any(VideoRecordEvent.Start::class.java))
         inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
             .accept(any(VideoRecordEvent.Status::class.java))
@@ -751,7 +751,7 @@ class RecorderTest {
                 .start(CameraXExecutors.directExecutor(), videoRecordEventListener)
 
         val inOrder = inOrder(videoRecordEventListener)
-        inOrder.verify(videoRecordEventListener, timeout(1000L))
+        inOrder.verify(videoRecordEventListener, timeout(5000L))
             .accept(any(VideoRecordEvent.Start::class.java))
         inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
             .accept(any(VideoRecordEvent.Status::class.java))
@@ -786,7 +786,7 @@ class RecorderTest {
                 .start(CameraXExecutors.directExecutor(), videoRecordEventListener)
 
         val inOrder = inOrder(videoRecordEventListener)
-        inOrder.verify(videoRecordEventListener, timeout(1000L))
+        inOrder.verify(videoRecordEventListener, timeout(5000L))
             .accept(any(VideoRecordEvent.Start::class.java))
         inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
             .accept(any(VideoRecordEvent.Status::class.java))
@@ -831,7 +831,7 @@ class RecorderTest {
             recorder.prepareRecording(context, FileOutputOptions.Builder(file).build())
         pendingRecording.start(CameraXExecutors.directExecutor(), videoRecordEventListener).use {
             invokeSurfaceRequest()
-            inOrder.verify(videoRecordEventListener, timeout(1000L))
+            inOrder.verify(videoRecordEventListener, timeout(5000L))
                 .accept(any(VideoRecordEvent.Start::class.java))
             inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
                 .accept(any(VideoRecordEvent.Status::class.java))
@@ -855,7 +855,7 @@ class RecorderTest {
                 .start(CameraXExecutors.directExecutor(), videoRecordEventListener)
 
         val inOrder = inOrder(videoRecordEventListener)
-        inOrder.verify(videoRecordEventListener, timeout(1000L))
+        inOrder.verify(videoRecordEventListener, timeout(5000L))
             .accept(any(VideoRecordEvent.Start::class.java))
         inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
             .accept(any(VideoRecordEvent.Status::class.java))
@@ -885,7 +885,7 @@ class RecorderTest {
 
         // First ensure the recording gets some status events
         invokeSurfaceRequest()
-        inOrder.verify(videoRecordEventListener, timeout(1000L))
+        inOrder.verify(videoRecordEventListener, timeout(5000L))
             .accept(any(VideoRecordEvent.Start::class.java))
         inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
             .accept(any(VideoRecordEvent.Status::class.java))
@@ -917,7 +917,7 @@ class RecorderTest {
                 .start(CameraXExecutors.directExecutor(), videoRecordEventListener)
 
         val inOrder = inOrder(videoRecordEventListener)
-        inOrder.verify(videoRecordEventListener, timeout(1000L))
+        inOrder.verify(videoRecordEventListener, timeout(5000L))
             .accept(any(VideoRecordEvent.Start::class.java))
         inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
             .accept(any(VideoRecordEvent.Status::class.java))
@@ -970,7 +970,7 @@ class RecorderTest {
                 .start(CameraXExecutors.directExecutor(), videoRecordEventListener)
 
         val inOrder = inOrder(videoRecordEventListener)
-        inOrder.verify(videoRecordEventListener, timeout(1000L))
+        inOrder.verify(videoRecordEventListener, timeout(5000L))
             .accept(any(VideoRecordEvent.Start::class.java))
         inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
             .accept(any(VideoRecordEvent.Status::class.java))

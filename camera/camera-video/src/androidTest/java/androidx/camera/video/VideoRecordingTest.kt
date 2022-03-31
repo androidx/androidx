@@ -327,7 +327,7 @@ class VideoRecordingTest(
             .start(CameraXExecutors.directExecutor(), mockListener).use {
 
                 // Verify.
-                verify(mockListener, timeout(1000L))
+                verify(mockListener, timeout(5000L))
                     .accept(any(VideoRecordEvent.Finalize::class.java))
                 verifyNoMoreInteractions(mockListener)
                 val captor = ArgumentCaptor.forClass(VideoRecordEvent::class.java)
@@ -435,7 +435,7 @@ class VideoRecordingTest(
             .withAudioEnabled()
             .start(CameraXExecutors.directExecutor(), mockListener).use { activeRecording ->
 
-                inOrder.verify(mockListener, timeout(1000L))
+                inOrder.verify(mockListener, timeout(5000L))
                     .accept(any(VideoRecordEvent.Start::class.java))
                 inOrder.verify(mockListener, timeout(15000L).atLeast(5))
                     .accept(any(VideoRecordEvent.Status::class.java))
@@ -452,7 +452,7 @@ class VideoRecordingTest(
             .withAudioEnabled()
             .start(CameraXExecutors.directExecutor(), mockListener).use { activeRecording ->
 
-                inOrder.verify(mockListener, timeout(1000L))
+                inOrder.verify(mockListener, timeout(5000L))
                     .accept(any(VideoRecordEvent.Start::class.java))
                 inOrder.verify(mockListener, timeout(15000L).atLeast(5))
                     .accept(any(VideoRecordEvent.Status::class.java))
@@ -469,7 +469,7 @@ class VideoRecordingTest(
             .withAudioEnabled()
             .start(CameraXExecutors.directExecutor(), mockListener).use { activeRecording ->
 
-                inOrder.verify(mockListener, timeout(1000L))
+                inOrder.verify(mockListener, timeout(5000L))
                     .accept(any(VideoRecordEvent.Start::class.java))
                 inOrder.verify(mockListener, timeout(15000L).atLeast(5))
                     .accept(any(VideoRecordEvent.Status::class.java))
@@ -508,7 +508,7 @@ class VideoRecordingTest(
             .withAudioEnabled()
             .start(CameraXExecutors.directExecutor(), mockListener).use { activeRecording1 ->
 
-                inOrder.verify(mockListener, timeout(1000L))
+                inOrder.verify(mockListener, timeout(5000L))
                     .accept(any(VideoRecordEvent.Start::class.java))
 
                 inOrder.verify(mockListener, timeout(15000L).atLeast(5))
@@ -527,10 +527,10 @@ class VideoRecordingTest(
 
                 activeRecording2.pause()
 
-                inOrder.verify(mockListener, timeout(1000L))
+                inOrder.verify(mockListener, timeout(5000L))
                     .accept(any(VideoRecordEvent.Start::class.java))
 
-                inOrder.verify(mockListener, timeout(1000L))
+                inOrder.verify(mockListener, timeout(5000L))
                     .accept(any(VideoRecordEvent.Pause::class.java))
 
                 activeRecording2.stop()
@@ -555,7 +555,7 @@ class VideoRecordingTest(
         try {
             videoCapture.output.prepareRecording(context, FileOutputOptions.Builder(file1).build())
                 .start(CameraXExecutors.directExecutor(), mockListener).use {
-                    inOrder.verify(mockListener, timeout(1000L))
+                    inOrder.verify(mockListener, timeout(5000L))
                         .accept(any(VideoRecordEvent.Start::class.java))
                     inOrder.verify(mockListener, timeout(15000L).atLeast(5))
                         .accept(any(VideoRecordEvent.Status::class.java))
@@ -565,7 +565,7 @@ class VideoRecordingTest(
                 .start(CameraXExecutors.directExecutor(), mockListener).use {
                     inOrder.verify(mockListener, timeout(5000L))
                         .accept(any(VideoRecordEvent.Finalize::class.java))
-                    inOrder.verify(mockListener, timeout(1000L))
+                    inOrder.verify(mockListener, timeout(5000L))
                         .accept(any(VideoRecordEvent.Start::class.java))
                     inOrder.verify(mockListener, timeout(15000L).atLeast(5))
                         .accept(any(VideoRecordEvent.Status::class.java))
@@ -601,7 +601,7 @@ class VideoRecordingTest(
             videoCapture.output.prepareRecording(context, FileOutputOptions.Builder(file1).build())
                 .withAudioEnabled()
                 .start(CameraXExecutors.directExecutor(), mockListener).use {
-                    inOrder.verify(mockListener, timeout(1000L))
+                    inOrder.verify(mockListener, timeout(5000L))
                         .accept(any(VideoRecordEvent.Start::class.java))
                     inOrder.verify(mockListener, timeout(15000L).atLeast(5))
                         .accept(any(VideoRecordEvent.Status::class.java))
@@ -612,7 +612,7 @@ class VideoRecordingTest(
                 .start(CameraXExecutors.directExecutor(), mockListener).use {
                     inOrder.verify(mockListener, timeout(5000L))
                         .accept(any(VideoRecordEvent.Finalize::class.java))
-                    inOrder.verify(mockListener, timeout(1000L))
+                    inOrder.verify(mockListener, timeout(5000L))
                         .accept(any(VideoRecordEvent.Start::class.java))
                     inOrder.verify(mockListener, timeout(15000L).atLeast(5))
                         .accept(any(VideoRecordEvent.Status::class.java))
@@ -632,7 +632,7 @@ class VideoRecordingTest(
                 .start(CameraXExecutors.directExecutor(), mockListener).use {
                     inOrder.verify(mockListener, timeout(5000L))
                         .accept(any(VideoRecordEvent.Finalize::class.java))
-                    inOrder.verify(mockListener, timeout(1000L))
+                    inOrder.verify(mockListener, timeout(5000L))
                         .accept(any(VideoRecordEvent.Start::class.java))
                     inOrder.verify(mockListener, timeout(15000L).atLeast(5))
                         .accept(any(VideoRecordEvent.Status::class.java))
