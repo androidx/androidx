@@ -21,8 +21,8 @@ import androidx.compose.runtime.Stable
 /**
  * Defines a horizontal line to be drawn on the text.
  */
-@Suppress("INLINE_CLASS_DEPRECATED")
-public inline class TextDecoration internal constructor(private val mask: Int) {
+@JvmInline
+public value class TextDecoration internal constructor(private val mask: Int) {
     public companion object {
         public val None: TextDecoration = TextDecoration(0x0)
 
