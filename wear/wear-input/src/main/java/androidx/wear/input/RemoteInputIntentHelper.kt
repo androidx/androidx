@@ -100,6 +100,7 @@ public class RemoteInputIntentHelper private constructor() {
          * @return The array of [RemoteInput] previously added with [putRemoteInputsExtra] or null
          * which means no user input required.
          */
+        @Suppress("DEPRECATION")
         @JvmStatic
         @Nullable
         public fun getRemoteInputsExtra(intent: Intent): List<RemoteInput>? =

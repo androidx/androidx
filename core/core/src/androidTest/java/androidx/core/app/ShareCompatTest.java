@@ -38,7 +38,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-
+@SuppressWarnings("deprecation")
 @RunWith(AndroidJUnit4.class)
 @MediumTest
 public class ShareCompatTest extends BaseInstrumentationTestCase<TestActivity> {
@@ -54,6 +54,7 @@ public class ShareCompatTest extends BaseInstrumentationTestCase<TestActivity> {
         super(TestActivity.class);
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void testBuilder() {
         Activity activity = mActivityTestRule.getActivity();
@@ -71,6 +72,7 @@ public class ShareCompatTest extends BaseInstrumentationTestCase<TestActivity> {
                 activity.getComponentName());
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void testBuilderWithoutActivity() {
         Context context = mActivityTestRule.getActivity().getApplicationContext();
@@ -86,6 +88,7 @@ public class ShareCompatTest extends BaseInstrumentationTestCase<TestActivity> {
         assertNull(intent.getParcelableExtra(ShareCompat.EXTRA_CALLING_ACTIVITY_INTEROP));
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void testBuilderWithWrappedActivity() {
         Activity activity = mActivityTestRule.getActivity();
@@ -104,6 +107,7 @@ public class ShareCompatTest extends BaseInstrumentationTestCase<TestActivity> {
                 activity.getComponentName());
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     @SdkSuppress(minSdkVersion = 16)
     public void testBuilderSingleStreamUri() {

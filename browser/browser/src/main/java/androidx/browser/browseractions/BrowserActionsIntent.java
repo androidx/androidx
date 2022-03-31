@@ -390,7 +390,7 @@ public class BrowserActionsIntent {
         return pm.queryIntentActivities(intent, PackageManager.MATCH_ALL);
     }
 
-    @SuppressWarnings("NullAway") // TODO: b/141869398
+    @SuppressWarnings({"NullAway", "deprecation"}) // TODO: b/141869398
     private static void openFallbackBrowserActionsMenu(Context context, Intent intent) {
         Uri uri = intent.getData();
         ArrayList<Bundle> bundles = intent.getParcelableArrayListExtra(EXTRA_MENU_ITEMS);

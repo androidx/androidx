@@ -184,6 +184,7 @@ class NavDeepLinkBuilderTest {
         assertThat(ids).asList().containsExactly(R.id.nav_root, R.id.second_test)
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun generateExplicitStartDestinationWithArgs() {
         val deepLinkBuilder = NavDeepLinkBuilder(targetContext)
@@ -204,6 +205,7 @@ class NavDeepLinkBuilderTest {
         assertThat(args).containsExactly("arg1", "arg2").inOrder()
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun generateExplicitNavRootWithArgs() {
         val deepLinkBuilder = NavDeepLinkBuilder(targetContext)

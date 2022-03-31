@@ -258,6 +258,7 @@ class ActivityResultContracts private constructor() {
             input: Void?
         ): SynchronousResult<Bitmap?>? = null
 
+        @Suppress("DEPRECATION")
         final override fun parseResult(resultCode: Int, intent: Intent?): Bitmap? {
             return intent.takeIf { resultCode == Activity.RESULT_OK }?.getParcelableExtra("data")
         }
@@ -318,6 +319,7 @@ class ActivityResultContracts private constructor() {
             input: Uri
         ): SynchronousResult<Bitmap?>? = null
 
+        @Suppress("DEPRECATION")
         final override fun parseResult(resultCode: Int, intent: Intent?): Bitmap? {
             return intent.takeIf { resultCode == Activity.RESULT_OK }?.getParcelableExtra("data")
         }

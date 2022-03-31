@@ -172,6 +172,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
 
     private final ActivityResultRegistry mActivityResultRegistry = new ActivityResultRegistry() {
 
+        @SuppressWarnings("deprecation")
         @Override
         public <I, O> void onLaunch(
                 final int requestCode,

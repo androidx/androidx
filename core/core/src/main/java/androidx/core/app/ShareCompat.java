@@ -196,7 +196,7 @@ public final class ShareCompat {
      * @param intent Intent that was launched to share content
      * @return ComponentName of the calling activity
      */
-    @SuppressWarnings("WeakerAccess")
+    @SuppressWarnings({"WeakerAccess", "deprecation"})
     @Nullable
     static ComponentName getCallingActivity(@NonNull Intent intent) {
         ComponentName result = intent.getParcelableExtra(EXTRA_CALLING_ACTIVITY);
@@ -882,6 +882,7 @@ public final class ShareCompat {
          * @return A URI referring to a data stream to be shared or null if one was not supplied
          * @see Intent#EXTRA_STREAM
          */
+        @SuppressWarnings("deprecation")
         @Nullable
         public Uri getStream() {
             return mIntent.getParcelableExtra(Intent.EXTRA_STREAM);
@@ -896,6 +897,7 @@ public final class ShareCompat {
          * @see Intent#EXTRA_STREAM
          * @see Intent#ACTION_SEND_MULTIPLE
          */
+        @SuppressWarnings("deprecation")
         @Nullable
         public Uri getStream(int index) {
             if (mStreams == null && isMultipleShare()) {
@@ -918,6 +920,7 @@ public final class ShareCompat {
          *
          * @return Count of text items contained within the Intent
          */
+        @SuppressWarnings("deprecation")
         public int getStreamCount() {
             if (mStreams == null && isMultipleShare()) {
                 mStreams = mIntent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);

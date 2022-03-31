@@ -253,6 +253,7 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
         });
     }
 
+    @SuppressWarnings("deprecation")
     @MainThread
     private void handleNotify(@NonNull Intent intent) {
         int notificationId = intent.getIntExtra(KEY_NOTIFICATION_ID, 0);
