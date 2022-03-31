@@ -150,6 +150,7 @@ public class MediaButtonReceiver extends BroadcastReceiver {
             mMediaBrowser = mediaBrowser;
         }
 
+        @SuppressWarnings("deprecation")
         @Override
         public void onConnected() {
             MediaControllerCompat mediaController = new MediaControllerCompat(mContext,
@@ -186,6 +187,7 @@ public class MediaButtonReceiver extends BroadcastReceiver {
      * @param intent The intent to parse.
      * @return The extracted {@link KeyEvent} if found, or null.
      */
+    @SuppressWarnings("deprecation")
     public static KeyEvent handleIntent(MediaSessionCompat mediaSessionCompat, Intent intent) {
         if (mediaSessionCompat == null || intent == null
                 || !Intent.ACTION_MEDIA_BUTTON.equals(intent.getAction())

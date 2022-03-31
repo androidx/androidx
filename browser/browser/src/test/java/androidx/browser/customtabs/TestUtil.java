@@ -55,6 +55,7 @@ public class TestUtil {
         return PendingIntent.getBroadcast(mock(Context.class), 0, new Intent(), 0);
     }
 
+    @SuppressWarnings("deprecation")
     public static void assertIntentHasSession(@NonNull Intent intent,
             @NonNull CustomTabsSession session) {
         assertEquals(session.getBinder(), intent.getExtras().getBinder(

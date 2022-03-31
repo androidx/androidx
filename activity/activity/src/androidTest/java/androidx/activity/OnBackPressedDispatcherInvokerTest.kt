@@ -38,7 +38,7 @@ class OnBackPressedDispatcherInvokerTest {
         var registerCount = 0
         var unregisterCount = 0
         val invoker = object : OnBackInvokedDispatcher {
-            override fun registerOnBackInvokedCallback(p0: OnBackInvokedCallback, p1: Int) {
+            override fun registerOnBackInvokedCallback(p0: Int, p1: OnBackInvokedCallback) {
                 registerCount++
             }
 
@@ -69,7 +69,7 @@ class OnBackPressedDispatcherInvokerTest {
         var registerCount = 0
         var unregisterCount = 0
         val invoker = object : OnBackInvokedDispatcher {
-            override fun registerOnBackInvokedCallback(p0: OnBackInvokedCallback, p1: Int) {
+            override fun registerOnBackInvokedCallback(p0: Int, p1: OnBackInvokedCallback) {
                 registerCount++
             }
 
@@ -116,7 +116,7 @@ class OnBackPressedDispatcherInvokerTest {
         var registerCount = 0
         var unregisterCount = 0
         val invoker = object : OnBackInvokedDispatcher {
-            override fun registerOnBackInvokedCallback(p0: OnBackInvokedCallback, p1: Int) {
+            override fun registerOnBackInvokedCallback(p0: Int, p1: OnBackInvokedCallback) {
                 registerCount++
             }
 
@@ -151,7 +151,7 @@ class OnBackPressedDispatcherInvokerTest {
         var registerCount = 0
         var unregisterCount = 0
         val invoker = object : OnBackInvokedDispatcher {
-            override fun registerOnBackInvokedCallback(p0: OnBackInvokedCallback, p1: Int) {
+            override fun registerOnBackInvokedCallback(p0: Int, p1: OnBackInvokedCallback) {
                 registerCount++
             }
 

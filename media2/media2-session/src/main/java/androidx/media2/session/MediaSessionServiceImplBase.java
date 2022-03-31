@@ -150,6 +150,7 @@ class MediaSessionServiceImplBase implements MediaSessionServiceImpl {
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent == null || intent.getAction() == null) {

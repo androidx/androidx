@@ -91,8 +91,8 @@ public final class OnBackPressedDispatcher {
             if (shouldBeRegistered && !mBackInvokedCallbackRegistered) {
                 Api33Impl.registerOnBackInvokedCallback(
                         mInvokedDispatcher,
-                        mOnBackInvokedCallback,
-                        OnBackInvokedDispatcher.PRIORITY_OVERLAY
+                        OnBackInvokedDispatcher.PRIORITY_OVERLAY,
+                        mOnBackInvokedCallback
                 );
                 mBackInvokedCallbackRegistered = true;
             } else if (!shouldBeRegistered && mBackInvokedCallbackRegistered) {
@@ -331,10 +331,10 @@ public final class OnBackPressedDispatcher {
 
         @DoNotInline
         static void registerOnBackInvokedCallback(
-                OnBackInvokedDispatcher onBackInvokedDispatcher,
-                OnBackInvokedCallback onBackInvokedCallback, int priority
+                OnBackInvokedDispatcher onBackInvokedDispatcher, int priority,
+                OnBackInvokedCallback onBackInvokedCallback
         ) {
-            onBackInvokedDispatcher.registerOnBackInvokedCallback(onBackInvokedCallback, priority);
+            onBackInvokedDispatcher.registerOnBackInvokedCallback(priority, onBackInvokedCallback);
         }
 
         @DoNotInline

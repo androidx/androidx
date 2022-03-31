@@ -89,7 +89,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "deprecation"})
 @RunWith(AndroidJUnit4.class)
 public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestActivity> {
 

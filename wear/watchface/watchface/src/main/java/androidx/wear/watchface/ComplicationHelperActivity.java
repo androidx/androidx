@@ -183,6 +183,7 @@ public final class ComplicationHelperActivity extends FragmentActivity
         }
 
         @Override
+        @SuppressWarnings("deprecation")
         public void launchComplicationDeniedActivity() {
             Intent complicationDeniedIntent =
                     mActivity.getIntent().getParcelableExtra(
@@ -222,6 +223,7 @@ public final class ComplicationHelperActivity extends FragmentActivity
         start(true);
     }
 
+    @SuppressWarnings("deprecation")
     void start(boolean shouldShowRequestPermissionRationale) {
         if (shouldShowRequestPermissionRationale
                 && mDelegate.shouldShowRequestPermissionRationale()) {

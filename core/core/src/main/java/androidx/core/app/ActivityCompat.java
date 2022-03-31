@@ -336,6 +336,7 @@ public class ActivityCompat extends ContextCompat {
      * <p>Note that this is <em>not</em> a security feature -- you can not trust the
      * referrer information, applications can spoof it.</p>
      */
+    @SuppressWarnings("deprecation")
     @Nullable
     public static Uri getReferrer(@NonNull Activity activity) {
         if (Build.VERSION.SDK_INT >= 22) {

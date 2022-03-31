@@ -68,7 +68,7 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
 
     // Management of observer callbacks.
     @GuardedBy("mObserverCallbacksLocked")
-    private final Map<ObserverCallback, android.app.appsearch.observer.AppSearchObserverCallback>
+    private final Map<ObserverCallback, android.app.appsearch.observer.ObserverCallback>
             mObserverCallbacksLocked = new ArrayMap<>();
 
     GlobalSearchSessionImpl(
@@ -183,11 +183,11 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
         }
 
         synchronized (mObserverCallbacksLocked) {
-            android.app.appsearch.observer.AppSearchObserverCallback frameworkCallback =
+            android.app.appsearch.observer.ObserverCallback frameworkCallback =
                     mObserverCallbacksLocked.get(observer);
             if (frameworkCallback == null) {
                 // No stub is associated with this package and observer, so we must create one.
-                frameworkCallback = new android.app.appsearch.observer.AppSearchObserverCallback() {
+                frameworkCallback = new android.app.appsearch.observer.ObserverCallback() {
                     @Override
                     public void onSchemaChanged(
                             @NonNull android.app.appsearch.observer.SchemaChangeInfo
@@ -213,7 +213,7 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
             // Regardless of whether this stub was fresh or not, we have to register it again
             // because the user might be supplying a different spec.
             try {
-                mPlatformSession.addObserver(
+                mPlatformSession.registerObserverCallback(
                         targetPackageName,
                         ObserverSpecToPlatformConverter.toPlatformObserverSpec(spec),
                         executor,
@@ -245,7 +245,7 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
                             + " is not supported on this AppSearch implementation");
         }
 
-        android.app.appsearch.observer.AppSearchObserverCallback frameworkCallback;
+        android.app.appsearch.observer.ObserverCallback frameworkCallback;
         synchronized (mObserverCallbacksLocked) {
             frameworkCallback = mObserverCallbacksLocked.get(observer);
             if (frameworkCallback == null) {
@@ -253,7 +253,7 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
             }
 
             try {
-                mPlatformSession.removeObserver(targetPackageName, frameworkCallback);
+                mPlatformSession.unregisterObserverCallback(targetPackageName, frameworkCallback);
             } catch (android.app.appsearch.exceptions.AppSearchException e) {
                 throw new AppSearchException((int) e.getResultCode(), e.getMessage(), e.getCause());
             }
