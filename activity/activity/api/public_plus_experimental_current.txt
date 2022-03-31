@@ -164,6 +164,21 @@ package androidx.activity.result {
     method public androidx.activity.result.IntentSenderRequest.Builder setFlags(int, int);
   }
 
+  public final class PickVisualMediaRequest {
+    method public androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType getMediaType();
+    property public final androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType mediaType;
+  }
+
+  public static final class PickVisualMediaRequest.Builder {
+    ctor public PickVisualMediaRequest.Builder();
+    method public androidx.activity.result.PickVisualMediaRequest build();
+    method public androidx.activity.result.PickVisualMediaRequest.Builder setMediaType(androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType mediaType);
+  }
+
+  public final class PickVisualMediaRequestKt {
+    method public static androidx.activity.result.PickVisualMediaRequest PickVisualMediaRequest(optional androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType mediaType);
+  }
+
 }
 
 package androidx.activity.result.contract {
@@ -240,17 +255,17 @@ package androidx.activity.result.contract {
     method public android.net.Uri? parseResult(int resultCode, android.content.Intent? intent);
   }
 
-  @RequiresApi(19) public static class ActivityResultContracts.PickMultipleVisualMedia extends androidx.activity.result.contract.ActivityResultContract<androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType,java.util.List<android.net.Uri>> {
+  @RequiresApi(19) public static class ActivityResultContracts.PickMultipleVisualMedia extends androidx.activity.result.contract.ActivityResultContract<androidx.activity.result.PickVisualMediaRequest,java.util.List<android.net.Uri>> {
     ctor public ActivityResultContracts.PickMultipleVisualMedia(optional int maxItems);
-    method @CallSuper public android.content.Intent createIntent(android.content.Context context, androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType input);
-    method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<java.util.List<android.net.Uri>>? getSynchronousResult(android.content.Context context, androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType input);
+    method @CallSuper public android.content.Intent createIntent(android.content.Context context, androidx.activity.result.PickVisualMediaRequest input);
+    method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<java.util.List<android.net.Uri>>? getSynchronousResult(android.content.Context context, androidx.activity.result.PickVisualMediaRequest input);
     method public final java.util.List<android.net.Uri> parseResult(int resultCode, android.content.Intent? intent);
   }
 
-  public static class ActivityResultContracts.PickVisualMedia extends androidx.activity.result.contract.ActivityResultContract<androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType,android.net.Uri> {
+  public static class ActivityResultContracts.PickVisualMedia extends androidx.activity.result.contract.ActivityResultContract<androidx.activity.result.PickVisualMediaRequest,android.net.Uri> {
     ctor public ActivityResultContracts.PickVisualMedia();
-    method @CallSuper public android.content.Intent createIntent(android.content.Context context, androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType input);
-    method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<android.net.Uri>? getSynchronousResult(android.content.Context context, androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType input);
+    method @CallSuper public android.content.Intent createIntent(android.content.Context context, androidx.activity.result.PickVisualMediaRequest input);
+    method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<android.net.Uri>? getSynchronousResult(android.content.Context context, androidx.activity.result.PickVisualMediaRequest input);
     method public static final String? getVisualMimeType(androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType input);
     method public static final boolean isPhotoPickerAvailable();
     method public final android.net.Uri? parseResult(int resultCode, android.content.Intent? intent);

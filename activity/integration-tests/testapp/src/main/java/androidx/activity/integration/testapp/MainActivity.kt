@@ -36,6 +36,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.CaptureVideo
 import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
@@ -46,7 +47,6 @@ import androidx.activity.result.contract.ActivityResultContracts.PickMultipleVis
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.activity.result.contract.ActivityResultContracts.TakePicture
 import androidx.activity.result.contract.ActivityResultContracts.TakePicturePreview
-import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType
 import androidx.activity.result.launch
 import androidx.activity.result.registerForActivityResult
 import androidx.core.content.FileProvider
@@ -80,9 +80,9 @@ class MainActivity : ComponentActivity() {
         toast("Got image: $uri")
     }
 
-    lateinit var pickVisualMedia: ActivityResultLauncher<VisualMediaType>
+    lateinit var pickVisualMedia: ActivityResultLauncher<PickVisualMediaRequest>
 
-    lateinit var pickMultipleVisualMedia: ActivityResultLauncher<VisualMediaType>
+    lateinit var pickMultipleVisualMedia: ActivityResultLauncher<PickVisualMediaRequest>
 
     lateinit var createDocument: ActivityResultLauncher<String>
 
@@ -147,13 +147,19 @@ class MainActivity : ComponentActivity() {
                 }
                 if (android.os.Build.VERSION.SDK_INT >= 19) {
                     button("Pick an image (w/ photo picker)") {
-                        pickVisualMedia.launch(PickVisualMedia.ImageOnly)
+                        pickVisualMedia.launch(
+                            PickVisualMediaRequest(PickVisualMedia.ImageOnly)
+                        )
                     }
                     button("Pick a GIF (w/ photo picker)") {
-                        pickVisualMedia.launch(PickVisualMedia.SingleMimeType("image/gif"))
+                        pickVisualMedia.launch(
+                            PickVisualMediaRequest(PickVisualMedia.SingleMimeType("image/gif"))
+                        )
                     }
                     button("Pick 5 visual media max (w/ photo picker)") {
-                        pickMultipleVisualMedia.launch(PickVisualMedia.ImageAndVideo)
+                        pickMultipleVisualMedia.launch(
+                            PickVisualMediaRequest(PickVisualMedia.ImageAndVideo)
+                        )
                     }
                     button("Create document") {
                         createDocument.launch("Temp")
