@@ -2,6 +2,7 @@
 package androidx.health.data.client {
 
   public interface HealthDataClient {
+    method public suspend Object? deleteRecords(kotlin.reflect.KClass<? extends androidx.health.data.client.records.Record> recordType, java.util.List<java.lang.String> uidsList, java.util.List<java.lang.String> clientIdsList, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
     method public default static androidx.health.data.client.HealthDataClient getOrCreate(android.content.Context context, optional java.util.List<java.lang.String> packageNames);
     method public default static androidx.health.data.client.HealthDataClient getOrCreate(android.content.Context context);
     method public suspend Object? insertRecords(java.util.List<? extends androidx.health.data.client.records.Record> records, kotlin.coroutines.Continuation<? super androidx.health.data.client.response.InsertRecordsResponse> p);

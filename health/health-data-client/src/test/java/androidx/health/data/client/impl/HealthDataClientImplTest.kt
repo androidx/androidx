@@ -301,10 +301,10 @@ class HealthDataClientImplTest {
                     endTime = Instant.ofEpochMilli(5678L),
                     endZoneOffset = null,
                     metadata =
-                        Metadata(
-                            uid = "testUid",
-                            device = Device(),
-                        )
+                    Metadata(
+                        uid = "testUid",
+                        device = Device(),
+                    )
                 )
             )
     }
@@ -361,10 +361,10 @@ class HealthDataClientImplTest {
                     endTime = Instant.ofEpochMilli(5678L),
                     endZoneOffset = null,
                     metadata =
-                        Metadata(
-                            uid = "testUid",
-                            device = Device(),
-                        )
+                    Metadata(
+                        uid = "testUid",
+                        device = Device(),
+                    )
                 )
             )
     }
@@ -377,10 +377,8 @@ class HealthDataClientImplTest {
                 timeRangeFilter = TimeRangeFilter.exact(endTime = Instant.ofEpochMilli(7890L)),
             )
         }
-
         advanceUntilIdle()
         waitForMainLooperIdle()
-
         deferred.await()
         assertThat(fakeAhpServiceStub.lastDeleteDataRangeRequest?.proto)
             .isEqualTo(
@@ -544,6 +542,27 @@ class HealthDataClientImplTest {
                     .setChangesToken("steps_changes_token")
                     .build()
             )
+    }
+
+    @Test(timeout = 10000L)
+    fun deleteRecordsById_steps() = runTest {
+        val deferred = async {
+            healthDataClient.deleteRecords(Steps::class, listOf("myUid"), listOf("myClientId"))
+        }
+
+        advanceUntilIdle()
+        waitForMainLooperIdle()
+        deferred.await()
+
+        val stepsTypeProto = DataProto.DataType.newBuilder().setName("Steps")
+        assertThat(fakeAhpServiceStub.lastDeleteDataRequest?.clientIds).containsExactly(
+            RequestProto.DataTypeIdPair.newBuilder()
+                .setDataType(stepsTypeProto).setId("myClientId").build()
+        )
+        assertThat(fakeAhpServiceStub.lastDeleteDataRequest?.uids).containsExactly(
+            RequestProto.DataTypeIdPair.newBuilder()
+                .setDataType(stepsTypeProto).setId("myUid").build()
+        )
     }
 
     private fun waitForMainLooperIdle() {
