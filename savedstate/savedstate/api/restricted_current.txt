@@ -2,19 +2,22 @@
 package androidx.savedstate {
 
   public final class SavedStateRegistry {
-    method @MainThread public android.os.Bundle? consumeRestoredStateForKey(String);
-    method public androidx.savedstate.SavedStateRegistry.SavedStateProvider? getSavedStateProvider(String);
+    method @MainThread public android.os.Bundle? consumeRestoredStateForKey(String key);
+    method public androidx.savedstate.SavedStateRegistry.SavedStateProvider? getSavedStateProvider(String key);
     method @MainThread public boolean isRestored();
-    method @MainThread public void registerSavedStateProvider(String, androidx.savedstate.SavedStateRegistry.SavedStateProvider);
-    method @MainThread public void runOnNextRecreation(Class<? extends androidx.savedstate.SavedStateRegistry.AutoRecreated>);
-    method @MainThread public void unregisterSavedStateProvider(String);
+    method @MainThread public void performAttach(androidx.lifecycle.Lifecycle lifecycle);
+    method @MainThread public void performRestore(android.os.Bundle? savedState);
+    method @MainThread public void registerSavedStateProvider(String key, androidx.savedstate.SavedStateRegistry.SavedStateProvider provider);
+    method @MainThread public void runOnNextRecreation(Class<? extends androidx.savedstate.SavedStateRegistry.AutoRecreated> clazz);
+    method @MainThread public void unregisterSavedStateProvider(String key);
+    property @MainThread public final boolean isRestored;
   }
 
   public static interface SavedStateRegistry.AutoRecreated {
-    method public void onRecreated(androidx.savedstate.SavedStateRegistryOwner);
+    method public void onRecreated(androidx.savedstate.SavedStateRegistryOwner owner);
   }
 
-  public static interface SavedStateRegistry.SavedStateProvider {
+  public static fun interface SavedStateRegistry.SavedStateProvider {
     method public android.os.Bundle saveState();
   }
 
