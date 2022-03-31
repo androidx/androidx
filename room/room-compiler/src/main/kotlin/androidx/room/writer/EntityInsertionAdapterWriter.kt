@@ -76,7 +76,11 @@ class EntityInsertionAdapterWriter private constructor(
                     addModifiers(PUBLIC)
                     returns(ClassName.get("java.lang", "String"))
                     val query = buildString {
-                        append("INSERT OR $onConflict INTO `$tableName`")
+                        if (onConflict.isNotEmpty()) {
+                            append("INSERT OR $onConflict INTO `$tableName`")
+                        } else {
+                            append("INSERT INTO `$tableName`")
+                        }
                         append(" (${pojo.columnNames.joinToString(",") { "`$it`" }})")
                         append(" VALUES (")
                         append(

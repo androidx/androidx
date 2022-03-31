@@ -23,6 +23,7 @@ import androidx.annotation.IntDef
 @Retention(AnnotationRetention.BINARY)
 @Suppress("DEPRECATION")
 @IntDef(
+    OnConflictStrategy.NONE,
     OnConflictStrategy.REPLACE,
     OnConflictStrategy.ROLLBACK,
     OnConflictStrategy.ABORT,
@@ -31,6 +32,13 @@ import androidx.annotation.IntDef
 )
 public annotation class OnConflictStrategy {
     public companion object {
+        /**
+         * OnConflict strategy constant used by default when no other strategy is set. Using it
+         * prevents Room from generating ON CONFLICT clause. It may be useful when there is a need
+         * to use ON CONFLICT clause within a trigger. The runtime behavior is the same as
+         * when [ABORT] strategy is applied. *The transaction is rolled back.*
+         */
+        public const val NONE: Int = 0
         /**
          * OnConflict strategy constant to replace the old data and continue the transaction.
          *
