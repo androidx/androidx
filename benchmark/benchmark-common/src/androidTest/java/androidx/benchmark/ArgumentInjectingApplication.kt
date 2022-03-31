@@ -50,7 +50,7 @@ class ArgumentInjectingApplication : Application() {
             putString(
                 "androidx.benchmark.suppressErrors",
                 "ACTIVITY-MISSING,CODE-COVERAGE,DEBUGGABLE,EMULATOR,LOW-BATTERY,UNLOCKED," +
-                    "UNSUSTAINED-ACTIVITY-MISSING"
+                    "UNSUSTAINED-ACTIVITY-MISSING,ENG-BUILD"
             )
             // TODO: consider moving default directory to files dir.
             putString(
