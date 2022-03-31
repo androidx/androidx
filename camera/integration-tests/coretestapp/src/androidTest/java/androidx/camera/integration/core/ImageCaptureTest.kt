@@ -41,26 +41,37 @@ import androidx.camera.camera2.interop.ExperimentalCamera2Interop
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.Camera
+import androidx.camera.core.CameraFilter
+import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
+import androidx.camera.core.Preview
 import androidx.camera.core.UseCaseGroup
 import androidx.camera.core.ViewPort
+import androidx.camera.core.impl.CameraConfig
 import androidx.camera.core.impl.CaptureBundle
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.CaptureProcessor
 import androidx.camera.core.impl.CaptureStage
+import androidx.camera.core.impl.Config
+import androidx.camera.core.impl.ExtendedCameraConfigProviderStore
+import androidx.camera.core.impl.Identifier
 import androidx.camera.core.impl.ImageCaptureConfig
 import androidx.camera.core.impl.ImageOutputConfig
 import androidx.camera.core.impl.ImageProxyBundle
+import androidx.camera.core.impl.MutableOptionsBundle
+import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.utils.CameraOrientationUtil
 import androidx.camera.core.impl.utils.Exif
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.SurfaceTextureProvider
 import androidx.camera.testing.fakes.FakeCaptureStage
 import androidx.camera.testing.fakes.FakeLifecycleOwner
+import androidx.camera.testing.fakes.FakeSessionProcessor
 import androidx.core.content.ContextCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
@@ -1401,6 +1412,141 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         // Check the output format is correct.
         assertThat(imageProperties.format).isEqualTo(ImageFormat.JPEG)
         simpleCaptureProcessor.close()
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 29)
+    fun returnJpegImage_whenSessionProcessorIsSet_outputFormantYuv() = runBlocking {
+        skipTestOnCameraPipeConfig()
+
+        val builder = ImageCapture.Builder()
+        val sessionProcessor = FakeSessionProcessor(
+            inputFormatPreview = null, // null means using the same output surface
+            inputFormatCapture = ImageFormat.YUV_420_888
+        )
+
+        val imageCapture = builder
+            .setSessionProcessorEnabled(true)
+            .setSupportedResolutions(
+                listOf(android.util.Pair(ImageFormat.YUV_420_888, arrayOf(Size(640, 480)))))
+            .build()
+
+        val preview = Preview.Builder().build()
+
+        var camera: Camera
+        withContext(Dispatchers.Main) {
+            preview.setSurfaceProvider(SurfaceTextureProvider.createSurfaceTextureProvider())
+            val cameraSelector =
+                getCameraSelectorWithSessionProcessor(BACK_SELECTOR, sessionProcessor)
+            camera = cameraProvider.bindToLifecycle(
+                fakeLifecycleOwner, cameraSelector, imageCapture, preview)
+        }
+
+        val callback = FakeImageCaptureCallback(capturesCount = 1)
+        imageCapture.takePicture(mainExecutor, callback)
+
+        // Wait for the signal that the image has been captured.
+        callback.awaitCapturesAndAssert(capturedImagesCount = 1)
+
+        val imageProperties = callback.results.first()
+
+        // Check the output image rotation degrees value is correct.
+        assertThat(imageProperties.rotationDegrees).isEqualTo(
+            camera.cameraInfo.getSensorRotationDegrees(imageCapture.targetRotation)
+        )
+        // Check the output format is correct.
+        assertThat(imageProperties.format).isEqualTo(ImageFormat.JPEG)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 29)
+    fun returnJpegImage_whenSessionProcessorIsSet_outputFormantJpeg() = runBlocking {
+        assumeFalse(
+            "Cuttlefish does not correctly handle Jpeg exif. Unable to test.",
+            Build.MODEL.contains("Cuttlefish")
+        )
+        skipTestOnCameraPipeConfig()
+
+        val builder = ImageCapture.Builder()
+        val sessionProcessor = FakeSessionProcessor(
+            inputFormatPreview = null, // null means using the same output surface
+            inputFormatCapture = null
+        )
+
+        val imageCapture = builder
+            .setSessionProcessorEnabled(true)
+            .setSupportedResolutions(
+                listOf(android.util.Pair(ImageFormat.JPEG, arrayOf(Size(640, 480)))))
+            .build()
+
+        val preview = Preview.Builder().build()
+
+        var camera: Camera
+        withContext(Dispatchers.Main) {
+            preview.setSurfaceProvider(SurfaceTextureProvider.createSurfaceTextureProvider())
+            val cameraSelector =
+                getCameraSelectorWithSessionProcessor(BACK_SELECTOR, sessionProcessor)
+            camera = cameraProvider.bindToLifecycle(
+                fakeLifecycleOwner, cameraSelector, imageCapture, preview)
+        }
+
+        val callback = FakeImageCaptureCallback(capturesCount = 1)
+        imageCapture.takePicture(mainExecutor, callback)
+
+        // Wait for the signal that the image has been captured.
+        callback.awaitCapturesAndAssert(capturedImagesCount = 1)
+
+        val imageProperties = callback.results.first()
+
+        // Check the output image rotation degrees value is correct.
+        assertThat(imageProperties.rotationDegrees).isEqualTo(
+            camera.cameraInfo.getSensorRotationDegrees(imageCapture.targetRotation)
+        )
+        // Check the output format is correct.
+        assertThat(imageProperties.format).isEqualTo(ImageFormat.JPEG)
+    }
+
+    private fun getCameraSelectorWithSessionProcessor(
+        cameraSelector: CameraSelector,
+        sessionProcessor: SessionProcessor
+    ): CameraSelector {
+        val identifier = Identifier.create("idStr")
+        ExtendedCameraConfigProviderStore.addConfig(identifier) { _, _ ->
+            object : CameraConfig {
+                override fun getConfig(): Config {
+                    return MutableOptionsBundle.create()
+                }
+
+                override fun getCompatibilityId(): Identifier {
+                    return Identifier.create(0)
+                }
+
+                override fun getSessionProcessor(
+                    valueIfMissing: SessionProcessor?
+                ): SessionProcessor? {
+                    return sessionProcessor
+                }
+
+                override fun getSessionProcessor(): SessionProcessor {
+                    return sessionProcessor
+                }
+            }
+        }
+
+        val builder = CameraSelector.Builder.fromSelector(cameraSelector)
+        builder.addCameraFilter(object : CameraFilter {
+            override fun filter(cameraInfos: MutableList<CameraInfo>): MutableList<CameraInfo> {
+                val newCameraInfos = mutableListOf<CameraInfo>()
+                newCameraInfos.addAll(cameraInfos)
+                return newCameraInfos
+            }
+
+            override fun getIdentifier(): Identifier {
+                return identifier
+            }
+        })
+
+        return builder.build()
     }
 
     // Output JPEG format image when setting a CaptureProcessor is only enabled for devices that
