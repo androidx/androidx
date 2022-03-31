@@ -388,6 +388,13 @@ public enum WebViewFeatureInternal implements ConditionallySupportedFeature {
 
     /**
      * This feature covers
+     * {@link androidx.webkit.WebSettingsCompat#setAlgorithmicDarkeningAllowed(WebSettings, boolean)} and
+     * {@link androidx.webkit.WebSettingsCompat#isAlgorithmicDarkeningAllowed(WebSettings)}.
+     */
+    ALGORITHMIC_DARKENING(WebViewFeature.ALGORITHMIC_DARKENING, Features.ALGORITHMIC_DARKENING),
+
+    /**
+     * This feature covers
      * {@link androidx.webkit.WebViewCompat#setWebMessageListener(android.webkit.WebView,
      * androidx.webkit.WebViewCompat.WebMessageListener, String, String[])} and
      * {@link androidx.webkit.WebViewCompat#removeWebMessageListener()}

@@ -26,5 +26,9 @@
                  android:usesCleartextTraffic="true">
 
         <activity android:name="androidx.webkit.WebViewTestActivity"/>
+        <activity android:name="androidx.webkit.WebViewDarkThemeTestActivity"
+             android:theme="@android:style/Theme"/>
+        <activity android:name="androidx.webkit.WebViewLightThemeTestActivity"
+             android:theme="@android:style/Theme.Light"/>
     </application>
 </manifest>
