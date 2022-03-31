@@ -227,9 +227,8 @@ public class NavBackStackEntry private constructor(
         return extras
     }
 
-    public override fun getSavedStateRegistry(): SavedStateRegistry {
-        return savedStateRegistryController.savedStateRegistry
-    }
+    override val savedStateRegistry: SavedStateRegistry
+        get() = savedStateRegistryController.savedStateRegistry
 
     /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

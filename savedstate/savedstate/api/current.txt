@@ -34,6 +34,7 @@ package androidx.savedstate {
 
   public interface SavedStateRegistryOwner extends androidx.lifecycle.LifecycleOwner {
     method public androidx.savedstate.SavedStateRegistry getSavedStateRegistry();
+    property public abstract androidx.savedstate.SavedStateRegistry savedStateRegistry;
   }
 
   public final class ViewTreeSavedStateRegistryOwner {
