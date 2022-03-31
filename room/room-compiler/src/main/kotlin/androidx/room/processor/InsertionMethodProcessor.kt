@@ -40,7 +40,7 @@ class InsertionMethodProcessor(
 
         val onConflict = annotation?.value?.onConflict ?: OnConflictProcessor.INVALID_ON_CONFLICT
         context.checker.check(
-            onConflict in OnConflictStrategy.REPLACE..OnConflictStrategy.IGNORE,
+            onConflict in OnConflictStrategy.NONE..OnConflictStrategy.IGNORE,
             executableElement, ProcessorErrors.INVALID_ON_CONFLICT_VALUE
         )
 

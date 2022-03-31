@@ -29,6 +29,8 @@ abstract interface UpdateDao {
     void updateUsers(User user1, List<User> others);
     @Update
     void updateArrayOfUsers(User[] users);
+    @Update(onConflict=OnConflictStrategy.NONE)
+    void updateTwoUsers(User userOne, User userTwo);
 
     @Update
     int updateUserAndReturnCount(User user);
