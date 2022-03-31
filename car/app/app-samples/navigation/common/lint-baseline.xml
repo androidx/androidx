@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
+<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
         id="ClassVerificationFailure"
@@ -8,7 +8,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/app/sample/navigation/common/car/NavigationCarAppService.java"
-            line="102"
+            line="103"
             column="21"/>
     </issue>
 
@@ -19,7 +19,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/app/sample/navigation/common/car/NavigationCarAppService.java"
-            line="103"
+            line="104"
             column="33"/>
     </issue>
 
@@ -30,7 +30,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/app/sample/navigation/common/nav/NavigationService.java"
-            line="449"
+            line="461"
             column="17"/>
     </issue>
 
@@ -41,7 +41,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/app/sample/navigation/common/nav/NavigationService.java"
-            line="450"
+            line="462"
             column="26"/>
     </issue>
 
@@ -52,7 +52,7 @@
         errorLine2="                         ~~~~~">
         <location
             file="src/main/java/androidx/car/app/sample/navigation/common/nav/NavigationService.java"
-            line="451"
+            line="463"
             column="26"/>
     </issue>
 
@@ -63,7 +63,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/app/sample/navigation/common/nav/NavigationService.java"
-            line="464"
+            line="476"
             column="38"/>
     </issue>
 
@@ -74,7 +74,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/app/sample/navigation/common/nav/NavigationService.java"
-            line="469"
+            line="481"
             column="26"/>
     </issue>
 
@@ -85,7 +85,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/app/sample/navigation/common/nav/NavigationService.java"
-            line="486"
+            line="498"
             column="26"/>
     </issue>
 
@@ -96,7 +96,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/app/sample/navigation/common/nav/NavigationService.java"
-            line="502"
+            line="514"
             column="21"/>
     </issue>
 
@@ -107,7 +107,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/app/sample/navigation/common/nav/NavigationService.java"
-            line="503"
+            line="515"
             column="34"/>
     </issue>
 

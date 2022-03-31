@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
+<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
         id="MissingLeanbackLauncher"
         message="Expecting an activity to have `android.intent.category.LEANBACK_LAUNCHER` intent filter"
-        errorLine1="&lt;manifest package=&quot;androidx.leanback.preference&quot;/>"
+        errorLine1="&lt;manifest />"
         errorLine2=" ~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
@@ -15,7 +15,7 @@
     <issue
         id="ImpliedTouchscreenHardware"
         message="Hardware feature `android.hardware.touchscreen` not explicitly marked as optional "
-        errorLine1="&lt;manifest package=&quot;androidx.leanback.preference&quot;/>"
+        errorLine1="&lt;manifest />"
         errorLine2=" ~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
@@ -26,7 +26,7 @@
     <issue
         id="MissingLeanbackSupport"
         message="Expecting `&lt;uses-feature android:name=&quot;android.software.leanback&quot; android:required=&quot;false&quot; />` tag"
-        errorLine1="&lt;manifest package=&quot;androidx.leanback.preference&quot;/>"
+        errorLine1="&lt;manifest />"
         errorLine2=" ~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
@@ -36,62 +36,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public RecyclerView onCreateRecyclerView(LayoutInflater inflater, ViewGroup parent,"
-        errorLine2="           ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/BaseLeanbackPreferenceFragment.java"
-            line="41"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public RecyclerView onCreateRecyclerView(LayoutInflater inflater, ViewGroup parent,"
-        errorLine2="                                             ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/BaseLeanbackPreferenceFragment.java"
-            line="41"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public RecyclerView onCreateRecyclerView(LayoutInflater inflater, ViewGroup parent,"
-        errorLine2="                                                                      ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/BaseLeanbackPreferenceFragment.java"
-            line="41"
-            column="71"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            Bundle savedInstanceState) {"
-        errorLine2="            ~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/BaseLeanbackPreferenceFragment.java"
-            line="42"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Fragment getCallbackFragment() {"
-        errorLine2="           ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/BaseLeanbackPreferenceFragment.java"
-            line="57"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public RecyclerView onCreateRecyclerView(LayoutInflater inflater, ViewGroup parent,"
         errorLine2="           ~~~~~~~~~~~~">
         <location
@@ -102,7 +47,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public RecyclerView onCreateRecyclerView(LayoutInflater inflater, ViewGroup parent,"
         errorLine2="                                             ~~~~~~~~~~~~~~">
         <location
@@ -113,7 +58,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public RecyclerView onCreateRecyclerView(LayoutInflater inflater, ViewGroup parent,"
         errorLine2="                                                                      ~~~~~~~~~">
         <location
@@ -124,7 +69,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="            Bundle savedInstanceState) {"
         errorLine2="            ~~~~~~">
         <location
@@ -135,7 +80,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public Fragment getCallbackFragment() {"
         errorLine2="           ~~~~~~~~">
         <location
@@ -146,7 +91,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static LeanbackEditTextPreferenceDialogFragmentCompat newInstance(String key) {"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -157,7 +102,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static LeanbackEditTextPreferenceDialogFragmentCompat newInstance(String key) {"
         errorLine2="                                                                             ~~~~~~">
         <location
@@ -168,7 +113,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void onCreate(Bundle savedInstanceState) {"
         errorLine2="                         ~~~~~~">
         <location
@@ -179,7 +124,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,"
         errorLine2="           ~~~~">
         <location
@@ -190,7 +135,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,"
         errorLine2="                                                               ~~~~~~~~~">
         <location
@@ -201,7 +146,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="            Bundle savedInstanceState) {"
         errorLine2="            ~~~~~~">
         <location
@@ -212,326 +157,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static LeanbackListPreferenceDialogFragment newInstanceSingle(String key) {"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragment.java"
-            line="69"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static LeanbackListPreferenceDialogFragment newInstanceSingle(String key) {"
-        errorLine2="                                                                         ~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragment.java"
-            line="69"
-            column="74"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static LeanbackListPreferenceDialogFragment newInstanceMulti(String key) {"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragment.java"
-            line="80"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static LeanbackListPreferenceDialogFragment newInstanceMulti(String key) {"
-        errorLine2="                                                                        ~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragment.java"
-            line="80"
-            column="73"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onCreate(Bundle savedInstanceState) {"
-        errorLine2="                         ~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragment.java"
-            line="92"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onSaveInstanceState(Bundle outState) {"
-        errorLine2="                                    ~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragment.java"
-            line="135"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public @Nullable View onCreateView(LayoutInflater inflater, ViewGroup container,"
-        errorLine2="                                       ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragment.java"
-            line="151"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public @Nullable View onCreateView(LayoutInflater inflater, ViewGroup container,"
-        errorLine2="                                                                ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragment.java"
-            line="151"
-            column="65"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            Bundle savedInstanceState) {"
-        errorLine2="            ~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragment.java"
-            line="152"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public RecyclerView.Adapter onCreateAdapter() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragment.java"
-            line="189"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public AdapterSingle(CharSequence[] entries, CharSequence[] entryValues,"
-        errorLine2="                             ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragment.java"
-            line="211"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public AdapterSingle(CharSequence[] entries, CharSequence[] entryValues,"
-        errorLine2="                                                     ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragment.java"
-            line="211"
-            column="54"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="                CharSequence selectedValue) {"
-        errorLine2="                ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragment.java"
-            line="212"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {"
-        errorLine2="               ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragment.java"
-            line="219"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {"
-        errorLine2="                                             ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragment.java"
-            line="219"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void onBindViewHolder(ViewHolder holder, int position) {"
-        errorLine2="                                     ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragment.java"
-            line="227"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void onItemClick(ViewHolder viewHolder) {"
-        errorLine2="                                ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragment.java"
-            line="239"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public AdapterMulti(CharSequence[] entries, CharSequence[] entryValues,"
-        errorLine2="                            ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragment.java"
-            line="272"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public AdapterMulti(CharSequence[] entries, CharSequence[] entryValues,"
-        errorLine2="                                                    ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragment.java"
-            line="272"
-            column="53"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="                Set&lt;String> initialSelections) {"
-        errorLine2="                ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragment.java"
-            line="273"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {"
-        errorLine2="               ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragment.java"
-            line="280"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {"
-        errorLine2="                                             ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragment.java"
-            line="280"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void onBindViewHolder(ViewHolder holder, int position) {"
-        errorLine2="                                     ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragment.java"
-            line="288"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void onItemClick(ViewHolder viewHolder) {"
-        errorLine2="                                ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragment.java"
-            line="300"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            void onItemClick(ViewHolder viewHolder);"
-        errorLine2="                             ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragment.java"
-            line="339"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public Checkable getWidgetView() {"
-        errorLine2="               ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragment.java"
-            line="356"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public TextView getTitleView() {"
-        errorLine2="               ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragment.java"
-            line="360"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public ViewGroup getContainer() {"
-        errorLine2="               ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragment.java"
-            line="364"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void onClick(View v) {"
-        errorLine2="                            ~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragment.java"
-            line="369"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static LeanbackListPreferenceDialogFragmentCompat newInstanceSingle(String key) {"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -542,7 +168,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static LeanbackListPreferenceDialogFragmentCompat newInstanceSingle(String key) {"
         errorLine2="                                                                               ~~~~~~">
         <location
@@ -553,7 +179,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static LeanbackListPreferenceDialogFragmentCompat newInstanceMulti(String key) {"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -564,7 +190,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static LeanbackListPreferenceDialogFragmentCompat newInstanceMulti(String key) {"
         errorLine2="                                                                              ~~~~~~">
         <location
@@ -575,7 +201,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void onCreate(Bundle savedInstanceState) {"
         errorLine2="                         ~~~~~~">
         <location
@@ -586,7 +212,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,"
         errorLine2="           ~~~~">
         <location
@@ -597,7 +223,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,"
         errorLine2="                                                               ~~~~~~~~~">
         <location
@@ -608,7 +234,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="            Bundle savedInstanceState) {"
         errorLine2="            ~~~~~~">
         <location
@@ -619,7 +245,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="        public Checkable getWidgetView() {"
         errorLine2="               ~~~~~~~~~">
         <location
@@ -630,7 +256,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="        public TextView getTitleView() {"
         errorLine2="               ~~~~~~~~">
         <location
@@ -641,7 +267,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="        public ViewGroup getContainer() {"
         errorLine2="               ~~~~~~~~~">
         <location
@@ -652,40 +278,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void onClick(View v) {"
-        errorLine2="                            ~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragmentCompat.java"
-            line="364"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onCreate(Bundle savedInstanceState) {"
-        errorLine2="                         ~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackPreferenceDialogFragment.java"
-            line="39"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public DialogPreference getPreference() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackPreferenceDialogFragment.java"
-            line="49"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void onCreate(Bundle savedInstanceState) {"
         errorLine2="                         ~~~~~~">
         <location
@@ -696,7 +289,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public DialogPreference getPreference() {"
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
@@ -707,84 +300,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public View onCreateView(LayoutInflater inflater, ViewGroup container,"
-        errorLine2="           ~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackPreferenceFragment.java"
-            line="48"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public View onCreateView(LayoutInflater inflater, ViewGroup container,"
-        errorLine2="                             ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackPreferenceFragment.java"
-            line="48"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public View onCreateView(LayoutInflater inflater, ViewGroup container,"
-        errorLine2="                                                      ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackPreferenceFragment.java"
-            line="48"
-            column="55"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            Bundle savedInstanceState) {"
-        errorLine2="            ~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackPreferenceFragment.java"
-            line="49"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onViewCreated(View view, Bundle savedInstanceState) {"
-        errorLine2="                              ~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackPreferenceFragment.java"
-            line="63"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onViewCreated(View view, Bundle savedInstanceState) {"
-        errorLine2="                                         ~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackPreferenceFragment.java"
-            line="63"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setTitle(CharSequence title) {"
-        errorLine2="                         ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackPreferenceFragment.java"
-            line="72"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,"
         errorLine2="           ~~~~">
         <location
@@ -795,7 +311,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,"
         errorLine2="                                                               ~~~~~~~~~">
         <location
@@ -806,7 +322,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="            Bundle savedInstanceState) {"
         errorLine2="            ~~~~~~">
         <location
@@ -817,7 +333,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {"
         errorLine2="                                                  ~~~~~~">
         <location
@@ -828,7 +344,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void setTitle(CharSequence title) {"
         errorLine2="                         ~~~~~~~~~~~~">
         <location
@@ -839,128 +355,18 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static void addTransitions(Fragment f) {"
         errorLine2="                                      ~~~~~~~~">
         <location
             file="api21/androidx/leanback/preference/LeanbackPreferenceFragmentTransitionHelperApi21.java"
-            line="38"
+            line="36"
             column="39"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public View onCreateView(LayoutInflater inflater, ViewGroup container,"
-        errorLine2="           ~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackSettingsFragment.java"
-            line="68"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public View onCreateView(LayoutInflater inflater, ViewGroup container,"
-        errorLine2="                             ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackSettingsFragment.java"
-            line="68"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public View onCreateView(LayoutInflater inflater, ViewGroup container,"
-        errorLine2="                                                      ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackSettingsFragment.java"
-            line="68"
-            column="55"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            Bundle savedInstanceState) {"
-        errorLine2="            ~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackSettingsFragment.java"
-            line="69"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onViewCreated(View view, Bundle savedInstanceState) {"
-        errorLine2="                              ~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackSettingsFragment.java"
-            line="76"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onViewCreated(View view, Bundle savedInstanceState) {"
-        errorLine2="                                         ~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackSettingsFragment.java"
-            line="76"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean onPreferenceDisplayDialog(@NonNull PreferenceFragment caller, Preference pref) {"
-        errorLine2="                                                                                 ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackSettingsFragment.java"
-            line="103"
-            column="82"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public @Nullable View onCreateView(LayoutInflater inflater, ViewGroup container,"
-        errorLine2="                                           ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackSettingsFragment.java"
-            line="203"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public @Nullable View onCreateView(LayoutInflater inflater, ViewGroup container,"
-        errorLine2="                                                                    ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackSettingsFragment.java"
-            line="203"
-            column="69"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="                Bundle savedInstanceState) {"
-        errorLine2="                ~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/preference/LeanbackSettingsFragment.java"
-            line="204"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,"
         errorLine2="           ~~~~">
         <location
@@ -971,7 +377,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,"
         errorLine2="                                                               ~~~~~~~~~">
         <location
@@ -982,7 +388,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="            Bundle savedInstanceState) {"
         errorLine2="            ~~~~~~">
         <location
@@ -993,7 +399,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {"
         errorLine2="                                                  ~~~~~~">
         <location
@@ -1004,7 +410,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="            Preference pref) {"
         errorLine2="            ~~~~~~~~~~">
         <location
@@ -1015,7 +421,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public LeanbackSettingsRootView(Context context) {"
         errorLine2="                                    ~~~~~~~">
         <location
@@ -1026,7 +432,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public LeanbackSettingsRootView(Context context, AttributeSet attrs) {"
         errorLine2="                                    ~~~~~~~">
         <location
@@ -1037,7 +443,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public LeanbackSettingsRootView(Context context, AttributeSet attrs) {"
         errorLine2="                                                     ~~~~~~~~~~~~">
         <location
@@ -1048,7 +454,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public LeanbackSettingsRootView(Context context, AttributeSet attrs, int defStyleAttr) {"
         errorLine2="                                    ~~~~~~~">
         <location
@@ -1059,7 +465,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public LeanbackSettingsRootView(Context context, AttributeSet attrs, int defStyleAttr) {"
         errorLine2="                                                     ~~~~~~~~~~~~">
         <location
@@ -1070,7 +476,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void setOnBackKeyListener(OnKeyListener backKeyListener) {"
         errorLine2="                                     ~~~~~~~~~~~~~">
         <location
@@ -1081,90 +487,79 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public OutlineOnlyWithChildrenFrameLayout(Context context) {"
         errorLine2="                                              ~~~~~~~">
         <location
             file="api21/androidx/leanback/preference/internal/OutlineOnlyWithChildrenFrameLayout.java"
-            line="44"
+            line="42"
             column="47"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public OutlineOnlyWithChildrenFrameLayout(Context context, AttributeSet attrs) {"
         errorLine2="                                              ~~~~~~~">
         <location
             file="api21/androidx/leanback/preference/internal/OutlineOnlyWithChildrenFrameLayout.java"
-            line="48"
+            line="46"
             column="47"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public OutlineOnlyWithChildrenFrameLayout(Context context, AttributeSet attrs) {"
         errorLine2="                                                               ~~~~~~~~~~~~">
         <location
             file="api21/androidx/leanback/preference/internal/OutlineOnlyWithChildrenFrameLayout.java"
-            line="48"
+            line="46"
             column="64"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public OutlineOnlyWithChildrenFrameLayout(Context context, AttributeSet attrs,"
         errorLine2="                                              ~~~~~~~">
         <location
             file="api21/androidx/leanback/preference/internal/OutlineOnlyWithChildrenFrameLayout.java"
-            line="52"
+            line="50"
             column="47"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public OutlineOnlyWithChildrenFrameLayout(Context context, AttributeSet attrs,"
         errorLine2="                                                               ~~~~~~~~~~~~">
         <location
             file="api21/androidx/leanback/preference/internal/OutlineOnlyWithChildrenFrameLayout.java"
-            line="52"
+            line="50"
             column="64"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public OutlineOnlyWithChildrenFrameLayout(Context context, AttributeSet attrs,"
         errorLine2="                                              ~~~~~~~">
         <location
             file="api21/androidx/leanback/preference/internal/OutlineOnlyWithChildrenFrameLayout.java"
-            line="57"
+            line="55"
             column="47"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public OutlineOnlyWithChildrenFrameLayout(Context context, AttributeSet attrs,"
         errorLine2="                                                               ~~~~~~~~~~~~">
         <location
             file="api21/androidx/leanback/preference/internal/OutlineOnlyWithChildrenFrameLayout.java"
-            line="57"
+            line="55"
             column="64"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setOutlineProvider(ViewOutlineProvider provider) {"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="api21/androidx/leanback/preference/internal/OutlineOnlyWithChildrenFrameLayout.java"
-            line="69"
-            column="36"/>
     </issue>
 
 </issues>

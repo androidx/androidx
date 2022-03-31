@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
+<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
         id="SyntheticAccessor"
@@ -91,7 +91,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
@@ -102,18 +102,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean onCreateOptionsMenu(Menu menu) {"
-        errorLine2="                                       ~~~~">
-        <location
-            file="src/main/java/com/example/android/support/content/demos/ContentPagerDemoActivity.java"
-            line="77"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public boolean onOptionsItemSelected(MenuItem item) {"
         errorLine2="                                         ~~~~~~~~">
         <location
@@ -124,7 +113,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public Cursor query(Uri uri, String[] projection, String selection,"
         errorLine2="           ~~~~~~">
         <location
@@ -135,7 +124,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public Cursor query(Uri uri, String[] projection, String selection,"
         errorLine2="                        ~~~">
         <location
@@ -146,7 +135,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public Cursor query(Uri uri, String[] projection, String selection,"
         errorLine2="                                 ~~~~~~~~">
         <location
@@ -157,7 +146,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public Cursor query(Uri uri, String[] projection, String selection,"
         errorLine2="                                                      ~~~~~~">
         <location
@@ -168,7 +157,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="            String[] selectionArgs, String sortOrder) {"
         errorLine2="            ~~~~~~~~">
         <location
@@ -179,7 +168,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="            String[] selectionArgs, String sortOrder) {"
         errorLine2="                                    ~~~~~~">
         <location
@@ -190,7 +179,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public int delete(Uri uri, String selection, String[] selectionArgs) {"
         errorLine2="                      ~~~">
         <location
@@ -201,7 +190,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public int delete(Uri uri, String selection, String[] selectionArgs) {"
         errorLine2="                               ~~~~~~">
         <location
@@ -212,7 +201,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public int delete(Uri uri, String selection, String[] selectionArgs) {"
         errorLine2="                                                 ~~~~~~~~">
         <location
@@ -223,7 +212,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public String getType(Uri uri) {"
         errorLine2="           ~~~~~~">
         <location
@@ -234,7 +223,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public String getType(Uri uri) {"
         errorLine2="                          ~~~">
         <location
@@ -245,7 +234,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public Uri insert(Uri uri, ContentValues values) {"
         errorLine2="           ~~~">
         <location
@@ -256,7 +245,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public Uri insert(Uri uri, ContentValues values) {"
         errorLine2="                      ~~~">
         <location
@@ -267,7 +256,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public Uri insert(Uri uri, ContentValues values) {"
         errorLine2="                               ~~~~~~~~~~~~~">
         <location
@@ -278,7 +267,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public int update(Uri uri, ContentValues values, String selection,"
         errorLine2="                      ~~~">
         <location
@@ -289,7 +278,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public int update(Uri uri, ContentValues values, String selection,"
         errorLine2="                               ~~~~~~~~~~~~~">
         <location
@@ -300,7 +289,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public int update(Uri uri, ContentValues values, String selection,"
         errorLine2="                                                     ~~~~~~">
         <location
@@ -311,7 +300,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="            String[] selectionArgs) {"
         errorLine2="            ~~~~~~~~">
         <location

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
+<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void executeOnDiskIO(Runnable runnable) {"
         errorLine2="                                ~~~~~~~~">
         <location
@@ -14,7 +14,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void postToMainThread(Runnable runnable) {"
         errorLine2="                                 ~~~~~~~~">
         <location
@@ -25,7 +25,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void executeOnDiskIO(Runnable runnable) {"
         errorLine2="                                ~~~~~~~~">
         <location
@@ -36,7 +36,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void postToMainThread(Runnable runnable) {"
         errorLine2="                                 ~~~~~~~~">
         <location

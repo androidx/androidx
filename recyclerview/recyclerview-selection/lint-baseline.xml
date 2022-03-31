@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
+<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
         id="BanSynchronizedMethods"
@@ -54,17 +54,6 @@
             file="src/main/java/androidx/recyclerview/selection/OperationMonitor.java"
             line="115"
             column="5"/>
-    </issue>
-
-    <issue
-        id="LambdaLast"
-        message="Functional interface parameters (such as parameter 1, &quot;keys&quot;, in androidx.recyclerview.selection.DefaultSelectionTracker.setItemsSelected) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
-        errorLine1="    public boolean setItemsSelected(@NonNull Iterable&lt;K> keys, boolean selected) {"
-        errorLine2="                                                               ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/recyclerview/selection/DefaultSelectionTracker.java"
-            line="141"
-            column="64"/>
     </issue>
 
     <issue

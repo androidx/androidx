@@ -1,49 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.work.integration.testapp.ForegroundWorker is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        val channel = NotificationChannel(id, name, NotificationManager.IMPORTANCE_LOW)"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/integration/testapp/ForegroundWorker.kt"
-            line="91"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.work.integration.testapp.ForegroundWorker is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        channel.description = description"
-        errorLine2="                ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/integration/testapp/ForegroundWorker.kt"
-            line="92"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.work.integration.testapp.ForegroundWorker is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        channel.lockscreenVisibility = Notification.VISIBILITY_PRIVATE"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/integration/testapp/ForegroundWorker.kt"
-            line="93"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.work.integration.testapp.ForegroundWorker is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        notificationManager.createNotificationChannel(channel)"
-        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/integration/testapp/ForegroundWorker.kt"
-            line="94"
-            column="29"/>
-    </issue>
+<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
         id="ClassVerificationFailure"
@@ -245,7 +201,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void onCreate(final Bundle savedInstanceState) {"
         errorLine2="                                  ~~~~~~">
         <location
@@ -256,7 +212,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public String mProcessedFilePath;"
         errorLine2="           ~~~~~~">
         <location
@@ -267,7 +223,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public Bitmap mImage;"
         errorLine2="           ~~~~~~">
         <location
@@ -278,7 +234,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    void insert(Image image);"
         errorLine2="                ~~~~~">
         <location
@@ -289,7 +245,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    List&lt;Image> getImages();"
         errorLine2="    ~~~~~~~~~~~">
         <location
@@ -300,7 +256,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    int setProcessed(String originalAssetName, String processedFilePath);"
         errorLine2="                     ~~~~~~">
         <location
@@ -311,7 +267,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    int setProcessed(String originalAssetName, String processedFilePath);"
         errorLine2="                                               ~~~~~~">
         <location
@@ -322,7 +278,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    LiveData&lt;List&lt;Image>> getImagesLiveData();"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -333,7 +289,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
@@ -344,18 +300,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected void onActivityResult(int requestCode, int resultCode, Intent data) {"
-        errorLine2="                                                                     ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/integration/testapp/imageprocessing/ImageProcessingActivity.java"
-            line="93"
-            column="70"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {"
         errorLine2="           ~~~~~~~~~~">
         <location
@@ -366,7 +311,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {"
         errorLine2="                                         ~~~~~~~~~">
         <location
@@ -377,7 +322,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void onBindViewHolder(ViewHolder holder, int position) {"
         errorLine2="                                 ~~~~~~~~~~">
         <location
@@ -388,7 +333,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void onViewRecycled(ViewHolder holder) {"
         errorLine2="                               ~~~~~~~~~~">
         <location
@@ -399,7 +344,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
@@ -410,7 +355,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static String TAG = &quot;RecursiveWorker&quot;;"
         errorLine2="                  ~~~~~~">
         <location
@@ -421,7 +366,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static TestDatabase getInstance(Context context) {"
         errorLine2="                  ~~~~~~~~~~~~">
         <location
@@ -432,7 +377,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static TestDatabase getInstance(Context context) {"
         errorLine2="                                           ~~~~~~~">
         <location
@@ -443,7 +388,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public abstract WordCountDao getWordCountDao();"
         errorLine2="                    ~~~~~~~~~~~~">
         <location
@@ -454,7 +399,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public abstract ImageDao getImageDao();"
         errorLine2="                    ~~~~~~~~">
         <location
@@ -465,7 +410,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static OneTimeWorkRequest.Builder create(String inputFile) {"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -476,7 +421,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static OneTimeWorkRequest.Builder create(String inputFile) {"
         errorLine2="                                                    ~~~~~~">
         <location
@@ -487,7 +432,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static OneTimeWorkRequest.Builder create(String message) {"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -498,7 +443,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static OneTimeWorkRequest.Builder create(String message) {"
         errorLine2="                                                    ~~~~~~">
         <location
@@ -509,7 +454,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    void insertWordCount(WordCount wordCount);"
         errorLine2="                         ~~~~~~~~~">
         <location
@@ -520,7 +465,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    LiveData&lt;List&lt;WordCount>> getWordCounts();"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location

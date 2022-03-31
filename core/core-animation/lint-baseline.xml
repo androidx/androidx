@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
+<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
         id="ResourceType"
@@ -9,83 +9,6 @@
         <location
             file="src/main/java/androidx/core/animation/AccelerateInterpolator.java"
             line="71"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
-        errorLine1="                        Object value = convertBack(mGetter.invoke(target));"
-        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"
-            line="895"
-            column="52"/>
-    </issue>
-
-    <issue
-        id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
-        errorLine1="                Object value = convertBack(mGetter.invoke(target));"
-        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"
-            line="941"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
-        errorLine1="                mSetter.invoke(target, mTmpValueArray);"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"
-            line="1012"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
-        errorLine1="                mSetter.invoke(target, mTmpValueArray);"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"
-            line="1242"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
-        errorLine1="                    mSetter.invoke(target, mTmpValueArray);"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"
-            line="1341"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
-        errorLine1="                    mSetter.invoke(target, boxedValues);"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"
-            line="1386"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
-        errorLine1="                    mSetter.invoke(target, boxedValues);"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"
-            line="1486"
             column="21"/>
     </issue>
 
@@ -373,6 +296,83 @@
             file="src/main/java/androidx/core/animation/PathInterpolator.java"
             line="129"
             column="45"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling `Method.invoke` without an SDK check"
+        errorLine1="                        Object value = convertBack(mGetter.invoke(target));"
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"
+            line="895"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling `Method.invoke` without an SDK check"
+        errorLine1="                Object value = convertBack(mGetter.invoke(target));"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"
+            line="941"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling `Method.invoke` without an SDK check"
+        errorLine1="                mSetter.invoke(target, mTmpValueArray);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"
+            line="1012"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling `Method.invoke` without an SDK check"
+        errorLine1="                mSetter.invoke(target, mTmpValueArray);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"
+            line="1242"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling `Method.invoke` without an SDK check"
+        errorLine1="                    mSetter.invoke(target, mTmpValueArray);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"
+            line="1341"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling `Method.invoke` without an SDK check"
+        errorLine1="                    mSetter.invoke(target, boxedValues);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"
+            line="1386"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling `Method.invoke` without an SDK check"
+        errorLine1="                    mSetter.invoke(target, boxedValues);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"
+            line="1486"
+            column="21"/>
     </issue>
 
     <issue
