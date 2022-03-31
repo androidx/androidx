@@ -33,9 +33,10 @@ import kotlin.math.ceil
  */
 @InternalPlatformTextApi
 class LineHeightSpan(
-    val lineHeight: Int,
-    private val applyToFirstLine: Boolean = false
+    val lineHeight: Float,
+    val applyToFirstLine: Boolean = false
 ) : android.text.style.LineHeightSpan {
+
     override fun chooseHeight(
         text: CharSequence,
         start: Int,
@@ -53,8 +54,11 @@ class LineHeightSpan(
         if (currentHeight <= 0) {
             return
         }
-        val ratio = this.lineHeight * 1.0f / currentHeight
+        // TODO changes here might be wrong: ceiling line height before ratio would cause
+        //  discrepancies because of ~roundings in between.
+        val ceiledLineHeight = ceil(this.lineHeight).toInt()
+        val ratio = ceiledLineHeight * 1.0f / currentHeight
         fontMetricsInt.descent = ceil(fontMetricsInt.descent * ratio.toDouble()).toInt()
-        fontMetricsInt.ascent = fontMetricsInt.descent - this.lineHeight
+        fontMetricsInt.ascent = fontMetricsInt.descent - ceiledLineHeight
     }
 }
