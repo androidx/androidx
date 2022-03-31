@@ -19,6 +19,7 @@ package androidx.glance.wear.tiles.curved
 import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.unit.Dp
+import androidx.glance.action.Action
 
 /**
  * An ordered, immutable, collection of modifier element that works with curved components in the
@@ -165,6 +166,9 @@ inline fun <reified T> GlanceCurvedModifier.extractModifier(): Pair<T?, GlanceCu
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public data class SweepAngleModifier(public val degrees: Float) : GlanceCurvedModifier.Element
 
+/**
+ * Sets the sweep angle of the curved element, in degrees
+ */
 public fun GlanceCurvedModifier.sweepAngleDegrees(degrees: Float) =
     this.then(SweepAngleModifier(degrees))
 
@@ -172,5 +176,18 @@ public fun GlanceCurvedModifier.sweepAngleDegrees(degrees: Float) =
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public data class ThicknessModifier(public val thickness: Dp) : GlanceCurvedModifier.Element
 
+/**
+ * Sets the thickness of the curved element, in [Dp]
+ */
 public fun GlanceCurvedModifier.thickness(thickness: Dp) =
     this.then(ThicknessModifier(thickness))
+
+/** @suppress **/
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public data class ActionCurvedModifier(public val action: Action) : GlanceCurvedModifier.Element
+
+/**
+ * Apply an [Action], to be executed in response to a user click
+ */
+public fun GlanceCurvedModifier.clickable(onClick: Action): GlanceCurvedModifier =
+    this.then(ActionCurvedModifier(onClick))

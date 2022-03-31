@@ -153,6 +153,7 @@ package androidx.glance.wear.tiles.curved {
   }
 
   public final class GlanceCurvedModifierKt {
+    method public static androidx.glance.wear.tiles.curved.GlanceCurvedModifier clickable(androidx.glance.wear.tiles.curved.GlanceCurvedModifier, androidx.glance.action.Action onClick);
     method public static androidx.glance.wear.tiles.curved.GlanceCurvedModifier sweepAngleDegrees(androidx.glance.wear.tiles.curved.GlanceCurvedModifier, float degrees);
     method public static androidx.glance.wear.tiles.curved.GlanceCurvedModifier thickness(androidx.glance.wear.tiles.curved.GlanceCurvedModifier, float thickness);
   }

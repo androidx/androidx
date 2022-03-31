@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.glance.Button
+import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.ImageProvider
@@ -51,11 +52,14 @@ import androidx.glance.text.TextAlign
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
+import androidx.glance.wear.tiles.action.ActionCallback
+import androidx.glance.wear.tiles.action.actionRunCallback
 import androidx.glance.wear.tiles.curved.AnchorType
 import androidx.glance.wear.tiles.curved.CurvedRow
 import androidx.glance.wear.tiles.curved.CurvedTextStyle
 import androidx.glance.wear.tiles.curved.GlanceCurvedModifier
 import androidx.glance.wear.tiles.curved.RadialAlignment
+import androidx.glance.wear.tiles.curved.clickable
 import androidx.glance.wear.tiles.curved.sweepAngleDegrees
 import androidx.glance.wear.tiles.curved.thickness
 import androidx.glance.wear.tiles.test.R
@@ -70,6 +74,7 @@ import androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_END
 import androidx.wear.tiles.LayoutElementBuilders.VERTICAL_ALIGN_BOTTOM
 import androidx.wear.tiles.LayoutElementBuilders.VERTICAL_ALIGN_CENTER
 import androidx.wear.tiles.LayoutElementBuilders.VERTICAL_ALIGN_TOP
+import androidx.wear.tiles.ModifiersBuilders
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
@@ -512,6 +517,42 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
+    fun canTranslateActionOnCurvedElement() = fakeCoroutineScope.runTest {
+        val content = runAndTranslate {
+            CurvedRow {
+                curvedText(
+                    text = "hello",
+                    curvedModifier = GlanceCurvedModifier.clickable(
+                        actionStartActivity(TestActivity::class.java)
+                    )
+                )
+                curvedLine(
+                    color = ColorProvider(Color(0x11223344)),
+                    curvedModifier =
+                    GlanceCurvedModifier.sweepAngleDegrees(60f).thickness(10.dp)
+                        .clickable(actionRunCallback<TestCallback>())
+
+                )
+            }
+        }.layout
+
+        val arc = (content as LayoutElementBuilders.Box).contents[0] as LayoutElementBuilders.Arc
+        val arcText = arc.contents[0] as LayoutElementBuilders.ArcText
+        val arcLine = arc.contents[1] as LayoutElementBuilders.ArcLine
+
+        val launchAction = arcText.modifiers!!.clickable!!.onClick as ActionBuilders.LaunchAction
+        assertThat(launchAction.androidActivity).isNotNull()
+        assertThat(launchAction.androidActivity!!.packageName)
+            .isEqualTo(getApplicationContext<Context>().packageName)
+        assertThat(launchAction.androidActivity!!.className)
+            .isEqualTo(TestActivity::class.qualifiedName)
+
+        val arcLineClickable = arcLine.modifiers!!.clickable as ModifiersBuilders.Clickable
+        assertThat(arcLineClickable.onClick as ActionBuilders.LoadAction).isNotNull()
+        assertThat(arcLineClickable.id).isEqualTo(TestCallback::class.java.canonicalName)
+    }
+
+    @Test
     fun canTranslateAndroidLayoutElement() = fakeCoroutineScope.runTest {
         val providedLayoutElement =
             LayoutElementBuilders.Text.Builder().setText("Android Layout Element").build()
@@ -711,3 +752,12 @@ class WearCompositionTranslatorTest {
 }
 
 private class TestActivity : Activity()
+
+private class TestCallback : ActionCallback {
+    override suspend fun onAction(
+        context: Context,
+        glanceId: GlanceId
+    ) {
+        // Nothing
+    }
+}

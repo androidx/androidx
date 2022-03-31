@@ -207,14 +207,14 @@ interface CurvedScope {
      * A text element which will draw curved text. This is only valid as a direct descendant of a
      * [CurvedRow]
      *
-     * Note: The length/thickness from curvedModifier is ignored by CurvedText, its size is measured
+     * Note: The sweepAngle/thickness from curvedModifier is ignored by CurvedText, its size is measured
      * with the set text and text style
      *
      * @param text The text to render.
      * @param curvedModifier [GlanceCurvedModifier] to apply to this layout element.
      * @param style The style to use for the Text.
      */
-    // TODO(b/227327952) Make CurvedText accepts length/thickness in CurveModifier
+    // TODO(b/227327952) Make CurvedText accepts sweepAngle/thickness in CurveModifier
     fun curvedText(
         text: String,
         curvedModifier: GlanceCurvedModifier = GlanceCurvedModifier,
