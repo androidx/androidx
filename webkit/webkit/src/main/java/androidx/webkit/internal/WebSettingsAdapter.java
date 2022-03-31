@@ -113,4 +113,18 @@ public class WebSettingsAdapter {
     public int getForceDarkStrategy() {
         return mBoundaryInterface.getForceDarkBehavior();
     }
+
+    /**
+     * Adapter method for {@link androidx.webkit.WebSettingsCompat#setAlgorithmicDarkeningAllowed}.
+     */
+    public void setAlgorithmicDarkeningAllowed(boolean allow) {
+        mBoundaryInterface.setAlgorithmicDarkeningAllowed(allow);
+    }
+
+    /**
+     * Adapter method for {@link androidx.webkit.WebSettingsCompat#isAlgorithmicDarkeningAllowed}.
+     */
+    public boolean isAlgorithmicDarkeningAllowed() {
+        return mBoundaryInterface.isAlgorithmicDarkeningAllowed();
+    }
 }
