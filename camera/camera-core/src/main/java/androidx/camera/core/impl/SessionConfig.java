@@ -363,6 +363,22 @@ public final class SessionConfig {
             }
         }
 
+        /**
+         * Removes a previously added {@link CameraCaptureCallback} callback for single and/or
+         * repeating requests.
+         * @param cameraCaptureCallback The callback to remove.
+         * @return {@code true} if the callback was successfully removed. {@code false} if the
+         * callback wasn't present in this builder.
+         */
+        public boolean removeCameraCaptureCallback(
+                @NonNull CameraCaptureCallback cameraCaptureCallback) {
+            boolean removedFromRepeating =
+                    mCaptureConfigBuilder.removeCameraCaptureCallback(cameraCaptureCallback);
+            boolean removedFromSingle =
+                    mSingleCameraCaptureCallbacks.remove(cameraCaptureCallback);
+            return removedFromRepeating || removedFromSingle;
+        }
+
         /** Obtain all {@link CameraCaptureCallback} callbacks for single requests. */
         @NonNull
         public List<CameraCaptureCallback> getSingleCameraCaptureCallbacks() {

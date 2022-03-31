@@ -495,6 +495,52 @@ public class SessionConfigTest {
                 .containsExactly(callback0, callback1);
     }
 
+    @Test
+    public void removeCameraCaptureCallback_returnsFalseIfNotAdded() {
+        CameraCaptureCallback mockCallback = mock(CameraCaptureCallback.class);
+        SessionConfig.Builder builder = new SessionConfig.Builder();
+
+        assertThat(builder.removeCameraCaptureCallback(mockCallback)).isFalse();
+    }
+
+    @Test
+    public void canAddAndRemoveCameraCaptureCallback_withBuilder() {
+        // Arrange.
+        CameraCaptureCallback mockRepeatingCallback = mock(CameraCaptureCallback.class);
+        CameraCaptureCallback mockSingleCallback = mock(CameraCaptureCallback.class);
+        SessionConfig.Builder builder = new SessionConfig.Builder();
+
+        // Act.
+        builder.addRepeatingCameraCaptureCallback(mockRepeatingCallback);
+        builder.addCameraCaptureCallback(mockSingleCallback);
+        SessionConfig sessionConfigWithCallbacks = builder.build();
+
+        // Assert.
+        assertThat(sessionConfigWithCallbacks.getSingleCameraCaptureCallbacks()).contains(
+                mockSingleCallback);
+        assertThat(sessionConfigWithCallbacks.getSingleCameraCaptureCallbacks()).contains(
+                mockSingleCallback);
+
+        // Act.
+        boolean removedSingle = builder.removeCameraCaptureCallback(mockSingleCallback);
+        SessionConfig sessionConfigWithoutSingleCallback = builder.build();
+
+        // Assert.
+        assertThat(removedSingle).isTrue();
+        assertThat(sessionConfigWithoutSingleCallback.getSingleCameraCaptureCallbacks())
+                .doesNotContain(mockSingleCallback);
+
+        // Act.
+        boolean removedRepeating = builder.removeCameraCaptureCallback(mockRepeatingCallback);
+        SessionConfig sessionConfigWithoutCallbacks = builder.build();
+
+        // Assert.
+        assertThat(removedRepeating).isTrue();
+        assertThat(
+                sessionConfigWithoutCallbacks.getRepeatingCameraCaptureCallbacks()).doesNotContain(
+                mockRepeatingCallback);
+    }
+
     @Test(expected = UnsupportedOperationException.class)
     public void singleCameraCaptureCallbacks_areImmutable() {
         SessionConfig.Builder builder = new SessionConfig.Builder();
