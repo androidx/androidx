@@ -661,6 +661,7 @@ class ActivityResultContracts private constructor() {
             }
         }
 
+        @Suppress("InvalidNullability")
         final override fun getSynchronousResult(
             context: Context,
             input: VisualMediaType
@@ -733,6 +734,7 @@ class ActivityResultContracts private constructor() {
             }
         }
 
+        @Suppress("InvalidNullability")
         final override fun getSynchronousResult(
             context: Context,
             input: PickVisualMedia.VisualMediaType
