@@ -24,7 +24,6 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.car.app.utils.CollectionUtils;
@@ -37,7 +36,6 @@ import java.util.Objects;
  * Represents an alert with an optional icon, subtitle and actions.
  */
 @CarProtocol
-@ExperimentalCarApi
 @RequiresCarApi(5)
 public final class Alert {
 

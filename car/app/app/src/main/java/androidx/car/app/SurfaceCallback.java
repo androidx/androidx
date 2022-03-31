@@ -20,7 +20,6 @@ import android.graphics.Rect;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 
 /** A callback for changes on the {@link SurfaceContainer} and its attributes. */
@@ -143,7 +142,6 @@ public interface SurfaceCallback {
      * @param y y coordinate of the click in pixels
      */
     @RequiresCarApi(5)
-    @ExperimentalCarApi
     default void onClick(float x, float y) {
     }
 }

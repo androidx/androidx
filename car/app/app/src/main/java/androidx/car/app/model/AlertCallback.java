@@ -21,7 +21,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 
 import java.lang.annotation.Retention;
@@ -29,7 +28,6 @@ import java.lang.annotation.RetentionPolicy;
 
 /** A listener of dismiss events. */
 @CarProtocol
-@ExperimentalCarApi
 @RequiresCarApi(5)
 public interface AlertCallback {
 

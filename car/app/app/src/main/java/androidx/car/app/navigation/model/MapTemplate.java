@@ -27,7 +27,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.Screen;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
@@ -56,7 +55,6 @@ import java.util.Objects;
  *       spans) of each row between the previous and new {@link Pane}s have not changed.
  * </ul>
  */
-@ExperimentalCarApi
 @RequiresCarApi(5)
 @CarProtocol
 public final class MapTemplate implements Template {
