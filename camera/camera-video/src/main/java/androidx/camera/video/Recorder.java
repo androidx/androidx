@@ -159,17 +159,23 @@ public final class Recorder implements VideoOutput {
 
     enum State {
         /**
-         * The Recorder is being initialized.
+         * The Recorder is being configured.
          *
          * <p>The Recorder will reach this state whenever it is waiting for a surface request.
          */
-        INITIALIZING,
+        CONFIGURING,
         /**
-         * The Recorder is being initialized and a recording is waiting for being run.
+         * There's a recording waiting for being started.
+         *
+         * <p>The Recorder will reach this state whenever a recording can not be serviced
+         * immediately.
          */
         PENDING_RECORDING,
         /**
-         * The Recorder is being initialized and a recording is waiting for being paused.
+         * There's a recording waiting for being paused.
+         *
+         * <p>The Recorder will reach this state whenever a recording can not be serviced
+         * immediately.
          */
         PENDING_PAUSED,
         /**
@@ -237,7 +243,7 @@ public final class Recorder implements VideoOutput {
      */
     private static final Set<State> VALID_NON_PENDING_STATES_WHILE_PENDING =
             Collections.unmodifiableSet(EnumSet.of(
-                    State.INITIALIZING, // Waiting for camera before starting recording.
+                    State.CONFIGURING, // Waiting for camera before starting recording.
                     State.IDLING, // Waiting for sequential executor to start pending recording.
                     State.RESETTING, // Waiting for camera/encoders to reset before starting.
                     State.STOPPING, // Waiting for previous recording to finalize before starting.
@@ -295,12 +301,14 @@ public final class Recorder implements VideoOutput {
     private final EncoderFactory mVideoEncoderFactory;
     private final EncoderFactory mAudioEncoderFactory;
     private final Object mLock = new Object();
+    private final boolean mEncoderNotUsePersistentInputSurface = DeviceQuirks.get(
+            EncoderNotUsePersistentInputSurfaceQuirk.class) != null;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     //                          Members only accessed when holding mLock                          //
     ////////////////////////////////////////////////////////////////////////////////////////////////
     @GuardedBy("mLock")
-    private State mState = State.INITIALIZING;
+    private State mState = State.CONFIGURING;
     // Tracks the underlying state when in a PENDING_* state. When not in a PENDING_* state, this
     // should be null.
     @GuardedBy("mLock")
@@ -324,7 +332,6 @@ public final class Recorder implements VideoOutput {
     //                      Members only accessed on mSequentialExecutor                          //
     ////////////////////////////////////////////////////////////////////////////////////////////////
     private RecordingRecord mInProgressRecording = null;
-    private boolean mShouldWaitForNewSurface;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     boolean mInProgressRecordingStopping = false;
     private SurfaceRequest.TransformationInfo mSurfaceTransformationInfo = null;
@@ -336,7 +343,7 @@ public final class Recorder implements VideoOutput {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     Integer mVideoTrackIndex = null;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    SurfaceRequest mSurfaceRequest;
+    SurfaceRequest mLatestSurfaceRequest;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     Surface mLatestSurface = null;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -392,6 +399,8 @@ public final class Recorder implements VideoOutput {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     SourceState mSourceState = SourceState.INACTIVE;
     private ScheduledFuture<?> mSourceNonStreamingTimeout = null;
+    // The Recorder has to be reset first before being configured again.
+    private boolean mNeedsReset = false;
     //--------------------------------------------------------------------------------------------//
 
     Recorder(@Nullable Executor executor, @NonNull MediaSpec mediaSpec,
@@ -413,39 +422,11 @@ public final class Recorder implements VideoOutput {
         synchronized (mLock) {
             Logger.d(TAG, "Surface is requested in state: " + mState + ", Current surface: "
                     + mStreamId);
-            switch (mState) {
-                case STOPPING:
-                    // Fall-through
-                case RESETTING:
-                    // Fall-through
-                case PENDING_RECORDING:
-                    // Fall-through
-                case PENDING_PAUSED:
-                    // Fall-through
-                case INITIALIZING:
-                    mSequentialExecutor.execute(
-                            () -> initializeInternal(mSurfaceRequest = request));
-                    break;
-                case IDLING:
-                    // Fall-through
-                case RECORDING:
-                    // Fall-through
-                case PAUSED:
-                    throw new IllegalStateException("Surface was requested when the Recorder had "
-                            + "been initialized with state " + mState);
-                case ERROR:
-                    Logger.w(TAG, "Surface was requested when the Recorder had encountered error.");
-                    setState(State.INITIALIZING);
-                    mSequentialExecutor.execute(() -> {
-                        if (mSurfaceRequest != null) {
-                            // If the surface request is already complete, this is a no-op.
-                            mSurfaceRequest.willNotProvideSurface();
-                        }
-                        initializeInternal(mSurfaceRequest = request);
-                    });
-                    break;
+            if (mState == State.ERROR) {
+                setState(State.CONFIGURING);
             }
         }
+        mSequentialExecutor.execute(() -> onSurfaceRequestedInternal(request));
     }
 
     /** @hide */
@@ -662,7 +643,7 @@ public final class Recorder implements VideoOutput {
                     // Fall-through
                 case STOPPING:
                     // Fall-through
-                case INITIALIZING:
+                case CONFIGURING:
                     // Fall-through
                 case ERROR:
                     // Fall-through
@@ -687,12 +668,12 @@ public final class Recorder implements VideoOutput {
                             setState(State.PENDING_RECORDING);
                             // Retry initialization.
                             mSequentialExecutor.execute(() -> {
-                                if (mSurfaceRequest == null) {
+                                if (mLatestSurfaceRequest == null) {
                                     throw new AssertionError(
                                             "surface request is required to retry "
                                                     + "initialization.");
                                 }
-                                initializeInternal(mSurfaceRequest);
+                                configureInternal(mLatestSurfaceRequest);
                             });
                         } else {
                             setState(State.PENDING_RECORDING);
@@ -740,7 +721,7 @@ public final class Recorder implements VideoOutput {
                     // The recording will automatically pause once the initialization completes.
                     setState(State.PENDING_PAUSED);
                     break;
-                case INITIALIZING:
+                case CONFIGURING:
                     // Fall-through
                 case IDLING:
                     throw new IllegalStateException("Called pause() from invalid state: " + mState);
@@ -784,7 +765,7 @@ public final class Recorder implements VideoOutput {
                     // The recording will automatically start once the initialization completes.
                     setState(State.PENDING_RECORDING);
                     break;
-                case INITIALIZING:
+                case CONFIGURING:
                     // Should not be able to resume when initializing. Should be in a PENDING state.
                     // Fall-through
                 case IDLING:
@@ -846,7 +827,7 @@ public final class Recorder implements VideoOutput {
                     Preconditions.checkState(isSameRecording(activeRecording,
                             mActiveRecordingRecord));
                     break;
-                case INITIALIZING:
+                case CONFIGURING:
                     // Fall-through
                 case IDLING:
                     throw new IllegalStateException("Calling stop() while idling or initializing "
@@ -889,6 +870,20 @@ public final class Recorder implements VideoOutput {
     }
 
     @ExecutedBy("mSequentialExecutor")
+    private void onSurfaceRequestedInternal(@NonNull SurfaceRequest request) {
+        if (mLatestSurfaceRequest != null && !mLatestSurfaceRequest.isServiced()) {
+            mLatestSurfaceRequest.willNotProvideSurface();
+        }
+        // Cache the surface request. If the Recorder has to be reset first, the Recorder will be
+        // configured after it's reset in the surface request complete callback. Otherwise,
+        // configure the Recorder directly.
+        mLatestSurfaceRequest = request;
+        if (!mNeedsReset) {
+            configureInternal(mLatestSurfaceRequest);
+        }
+    }
+
+    @ExecutedBy("mSequentialExecutor")
     void onSourceStateChangedInternal(@NonNull SourceState newState) {
         SourceState oldState = mSourceState;
         mSourceState = newState;
@@ -904,12 +899,17 @@ public final class Recorder implements VideoOutput {
                 // If we're inactive and have no active surface, we'll reset the encoder directly.
                 // Otherwise, we'll wait for the active surface's surface request listener to
                 // reset the encoder.
-                reset(ERROR_SOURCE_INACTIVE, null);
-                setLatestSurface(null);
-            } else if (mInProgressRecording != null) {
-                // Stop any in progress recording with "source inactive" error
-                onInProgressRecordingInternalError(mInProgressRecording, ERROR_SOURCE_INACTIVE,
-                        null);
+                requestReset(ERROR_SOURCE_INACTIVE, null);
+            } else {
+                // The source becomes inactive, the incoming new surface request has to be cached
+                // and be serviced after the Recorder is reset when receiving the previous
+                // surface request complete callback.
+                mNeedsReset = true;
+                if (mInProgressRecording != null) {
+                    // Stop any in progress recording with "source inactive" error
+                    onInProgressRecordingInternalError(mInProgressRecording, ERROR_SOURCE_INACTIVE,
+                            null);
+                }
             }
         } else if (newState == SourceState.ACTIVE_NON_STREAMING) {
             // We are expecting the source to transition to NON_STREAMING state.
@@ -921,16 +921,16 @@ public final class Recorder implements VideoOutput {
     }
 
     /**
-     * Resets the state on the sequential executor for a new recording.
+     * Requests the Recorder to be reset.
      *
      * <p>If a recording is in progress, it will be stopped asynchronously and reset once it has
      * been finalized.
      *
-     * <p>If there is a recording in progress, reset() will stop the recording and rely on the
-     * recording's onRecordingFinalized() to actually release resources.
+     * <p>The Recorder is expected to be reset when there's no active surface. Otherwise, wait for
+     * the surface request complete callback first.
      */
     @ExecutedBy("mSequentialExecutor")
-    void reset(@VideoRecordError int errorCode, @Nullable Throwable errorCause) {
+    void requestReset(@VideoRecordError int errorCode, @Nullable Throwable errorCause) {
         boolean shouldReset = false;
         boolean shouldStop = false;
         synchronized (mLock) {
@@ -945,9 +945,8 @@ public final class Recorder implements VideoOutput {
                 case ERROR:
                     // Fall-through
                 case IDLING:
-                    setState(State.INITIALIZING);
                     // Fall-through
-                case INITIALIZING:
+                case CONFIGURING:
                     shouldReset = true;
                     break;
                 case PAUSED:
@@ -959,14 +958,13 @@ public final class Recorder implements VideoOutput {
                     }
                     // If there's an active recording, stop it first then release the resources
                     // at onRecordingFinalized().
-                    setState(State.RESETTING);
                     shouldStop = true;
-                    break;
+                    // Fall-through
                 case STOPPING:
                     // Already stopping. Set state to RESETTING so resources will be released once
                     // onRecordingFinalized() runs.
                     setState(State.RESETTING);
-                    // Fall-through
+                    break;
                 case RESETTING:
                     // No-Op, the Recorder is already being reset.
                     break;
@@ -976,20 +974,20 @@ public final class Recorder implements VideoOutput {
         // These calls must not be posted to the executor to ensure they are executed inline on
         // the sequential executor and the state changes above are correctly handled.
         if (shouldReset) {
-            resetInternal();
+            reset();
         } else if (shouldStop) {
             stopInternal(mInProgressRecording, null, errorCode, errorCause);
         }
     }
 
     @ExecutedBy("mSequentialExecutor")
-    private void initializeInternal(@NonNull SurfaceRequest surfaceRequest) {
+    private void configureInternal(@NonNull SurfaceRequest surfaceRequest) {
         if (mLatestSurface != null) {
             // There's a valid surface. Provide it directly.
             mActiveSurface = mLatestSurface;
             surfaceRequest.provideSurface(mLatestSurface, mSequentialExecutor,
                     this::onSurfaceRequestComplete);
-            onInitialized();
+            onConfigured();
         } else {
             surfaceRequest.setTransformationInfoListener(mSequentialExecutor,
                     (transformationInfo) -> mSurfaceTransformationInfo =
@@ -1014,7 +1012,7 @@ public final class Recorder implements VideoOutput {
     }
 
     @ExecutedBy("mSequentialExecutor")
-    private void onInitialized() {
+    private void onConfigured() {
         RecordingRecord recordingToStart = null;
         RecordingRecord pendingRecordingToFinalize = null;
         @VideoRecordError int error = ERROR_NONE;
@@ -1030,21 +1028,19 @@ public final class Recorder implements VideoOutput {
                     // Fall-through
                 case RESETTING:
                     throw new AssertionError(
-                            "Incorrectly invoke onInitialized() in state " + mState);
+                            "Incorrectly invoke onConfigured() in state " + mState);
                 case STOPPING:
-                    if (mShouldWaitForNewSurface) {
-                        mShouldWaitForNewSurface = false;
-                    } else {
-                        throw new AssertionError("Unexpectedly invoke onInitialized() in a "
+                    if (!mEncoderNotUsePersistentInputSurface) {
+                        throw new AssertionError("Unexpectedly invoke onConfigured() in a "
                                 + "STOPPING state when it's not waiting for a new surface.");
                     }
                     break;
-                case INITIALIZING:
+                case CONFIGURING:
                     setState(State.IDLING);
                     break;
                 case ERROR:
                     Logger.e(TAG,
-                            "onInitialized() was invoked when the Recorder had encountered error");
+                            "onConfigured() was invoked when the Recorder had encountered error");
                     break;
                 case PENDING_PAUSED:
                     startRecordingPaused = true;
@@ -1349,7 +1345,7 @@ public final class Recorder implements VideoOutput {
                                 // Fall-through
                             case PENDING_PAUSED:
                                 // Fall-through
-                            case INITIALIZING:
+                            case CONFIGURING:
                                 // Fall-through
                             case STOPPING:
                                 // Fall-through
@@ -1384,7 +1380,7 @@ public final class Recorder implements VideoOutput {
                 mActiveSurface = surface;
                 surfaceRequest.provideSurface(surface, mSequentialExecutor,
                         this::onSurfaceRequestComplete);
-                onInitialized();
+                onConfigured();
             } else {
                 // Encoder updates the surface while there's already an active surface.
                 // setLatestSurface() will update the StreamInfo with the new stream ID, which will
@@ -1423,8 +1419,7 @@ public final class Recorder implements VideoOutput {
             mActiveSurface = null;
 
             if (needsReset) {
-                reset(ERROR_SOURCE_INACTIVE, null);
-                setLatestSurface(null);
+                requestReset(ERROR_SOURCE_INACTIVE, null);
             }
         } else {
             // If the surface isn't the active surface, it also can't be the latest surface
@@ -1443,7 +1438,7 @@ public final class Recorder implements VideoOutput {
                     pendingRecordingToFinalize = mPendingRecordingRecord;
                     mPendingRecordingRecord = null;
                     // Fall-through
-                case INITIALIZING:
+                case CONFIGURING:
                     setStreamId(StreamInfo.STREAM_ID_ERROR);
                     setState(State.ERROR);
                     break;
@@ -1919,8 +1914,6 @@ public final class Recorder implements VideoOutput {
             @Nullable Throwable errorCause) {
         // Only stop recording if recording is in-progress and it is not already stopping.
         if (mInProgressRecording == recordingToStop && !mInProgressRecordingStopping) {
-            mShouldWaitForNewSurface = DeviceQuirks.get(
-                    EncoderNotUsePersistentInputSurfaceQuirk.class) != null;
             mInProgressRecordingStopping = true;
             mRecordingStopError = stopError;
             mRecordingStopErrorCause = errorCause;
@@ -1991,7 +1984,7 @@ public final class Recorder implements VideoOutput {
     }
 
     @ExecutedBy("mSequentialExecutor")
-    private void resetInternal() {
+    private void reset() {
         if (mAudioEncoder != null) {
             Logger.d(TAG, "Releasing audio encoder.");
             mAudioEncoder.release();
@@ -2003,6 +1996,7 @@ public final class Recorder implements VideoOutput {
             mVideoEncoder.release();
             mVideoEncoder = null;
             mVideoOutputConfig = null;
+            setLatestSurface(null);
         }
         if (mAudioSource != null) {
             Logger.d(TAG, "Releasing audio source.");
@@ -2011,6 +2005,43 @@ public final class Recorder implements VideoOutput {
         }
 
         setAudioState(AudioState.INITIALIZING);
+        onReset();
+    }
+
+    @ExecutedBy("mSequentialExecutor")
+    private void onReset() {
+        synchronized (mLock) {
+            switch (mState) {
+                case PENDING_PAUSED:
+                    // Fall-through
+                case PENDING_RECORDING:
+                    updateNonPendingState(State.CONFIGURING);
+                    break;
+                case ERROR:
+                    // Fall-through
+                case PAUSED:
+                    // Fall-through
+                case RECORDING:
+                    // Fall-through
+                case IDLING:
+                    // Fall-through
+                case RESETTING:
+                    // Fall-through
+                case STOPPING:
+                    setState(State.CONFIGURING);
+                    break;
+                case CONFIGURING:
+                    // No-op
+                    break;
+            }
+        }
+
+        mNeedsReset = false;
+
+        // If the latest surface request hasn't been serviced, use it to re-configure the Recorder.
+        if (mLatestSurfaceRequest != null && !mLatestSurfaceRequest.isServiced()) {
+            configureInternal(mLatestSurfaceRequest);
+        }
     }
 
     @ExecutedBy("mSequentialExecutor")
@@ -2137,6 +2168,7 @@ public final class Recorder implements VideoOutput {
     private void onRecordingFinalized(@NonNull RecordingRecord finalizedRecording) {
         boolean needsReset = false;
         boolean startRecordingPaused = false;
+        boolean needsConfigure = false;
         RecordingRecord recordingToStart = null;
         RecordingRecord pendingRecordingToFinalize = null;
         @VideoRecordError int error = ERROR_NONE;
@@ -2150,8 +2182,11 @@ public final class Recorder implements VideoOutput {
             mActiveRecordingRecord = null;
             switch (mState) {
                 case RESETTING:
-                    setState(State.INITIALIZING);
-                    needsReset = true;
+                    // If there's no active surface, reset the encoders. Otherwise, wait for the
+                    // surface request complete callback.
+                    if (mActiveSurface == null) {
+                        needsReset = true;
+                    }
                     break;
                 case PAUSED:
                     // Fall-through
@@ -2160,10 +2195,16 @@ public final class Recorder implements VideoOutput {
                     // likely finalized due to an error.
                     // Fall-through
                 case STOPPING:
-                    if (mShouldWaitForNewSurface) {
-                        // If the encoder doesn't use persistent input surface, reset the internal
-                        // state to INITIALIZING to wait for a surface update.
-                        setState(State.INITIALIZING);
+                    if (mEncoderNotUsePersistentInputSurface) {
+                        // If the encoder doesn't use persistent input surface, the active
+                        // surface will become invalid after a recording is finalized. If there's
+                        // an unserviced surface request, configure with it directly, wait for a
+                        // surface update.
+                        mActiveSurface = null;
+                        if (mLatestSurfaceRequest != null && !mLatestSurfaceRequest.isServiced()) {
+                            needsConfigure = true;
+                        }
+                        setState(State.CONFIGURING);
                     } else {
                         setState(State.IDLING);
                     }
@@ -2175,13 +2216,13 @@ public final class Recorder implements VideoOutput {
                     if (mSourceState == SourceState.INACTIVE) {
                         pendingRecordingToFinalize = mPendingRecordingRecord;
                         mPendingRecordingRecord = null;
-                        setState(State.INITIALIZING);
+                        setState(State.CONFIGURING);
                         error = ERROR_SOURCE_INACTIVE;
                         errorCause = PENDING_RECORDING_ERROR_CAUSE_SOURCE_INACTIVE;
-                    } else if (mShouldWaitForNewSurface) {
+                    } else if (mEncoderNotUsePersistentInputSurface) {
                         // If the encoder doesn't use persistent input surface, reset the
                         // non-pending state to INITIALIZING to wait for a surface update.
-                        updateNonPendingState(State.INITIALIZING);
+                        updateNonPendingState(State.CONFIGURING);
                     } else {
                         recordingToStart = makePendingRecordingActiveLocked(mState);
                     }
@@ -2189,8 +2230,10 @@ public final class Recorder implements VideoOutput {
                 case ERROR:
                     // Error state is non-recoverable. Nothing to do here.
                     break;
-                case INITIALIZING:
-                    // Fall-through
+                case CONFIGURING:
+                    // No-op, the Recorder has been reset before the recording is finalized. So
+                    // keep the state in CONFIGURING.
+                    break;
                 case IDLING:
                     throw new AssertionError("Unexpected state on finalize of recording: "
                             + mState);
@@ -2198,12 +2241,14 @@ public final class Recorder implements VideoOutput {
         }
 
         // Perform required actions from state changes inline on sequential executor but unlocked.
-        if (needsReset) {
-            resetInternal();
+        if (needsConfigure) {
+            configureInternal(mLatestSurfaceRequest);
+        } else if (needsReset) {
+            requestReset(error, errorCause);
         } else if (recordingToStart != null) {
             // A pending recording will only be started if we're not waiting for a new surface.
             // Otherwise the recording will be started after receiving a new surface request.
-            if (mShouldWaitForNewSurface) {
+            if (mEncoderNotUsePersistentInputSurface) {
                 throw new AssertionError("Attempt to start a pending recording while the Recorder"
                         + " is waiting for a new surface request.");
             }
@@ -2243,7 +2288,7 @@ public final class Recorder implements VideoOutput {
                                 + " not the active recording.");
                     }
                     break;
-                case INITIALIZING:
+                case CONFIGURING:
                     // Fall-through
                 case IDLING:
                     // Fall-through
@@ -2271,9 +2316,10 @@ public final class Recorder implements VideoOutput {
                     startRecordingPaused = true;
                     // Fall-through
                 case PENDING_RECORDING:
-                    if (mActiveRecordingRecord != null) {
-                        // Active recording is still finalizing. Pending recording will be
-                        // serviced in onRecordingFinalized().
+                    if (mActiveRecordingRecord != null || mNeedsReset) {
+                        // Active recording is still finalizing or the Recorder is expected to be
+                        // reset. Pending recording will be serviced in onRecordingFinalized() or
+                        // in onReset().
                         break;
                     }
                     if (mSourceState == SourceState.INACTIVE) {
@@ -2286,7 +2332,7 @@ public final class Recorder implements VideoOutput {
                         recordingToStart = makePendingRecordingActiveLocked(mState);
                     }
                     break;
-                case INITIALIZING:
+                case CONFIGURING:
                     // Fall-through
                 case IDLING:
                     // Fall-through
