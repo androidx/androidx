@@ -32,6 +32,7 @@ dependencies {
     // Build will complain without this manual declaration.
     compileOnly libs.kotlinStdlib
 
+    testImplementation(project(":car:app:app-projected"))
     testImplementation(libs.junit)
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)

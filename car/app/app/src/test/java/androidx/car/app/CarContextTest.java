@@ -124,6 +124,11 @@ public class CarContextTest {
                             @Override
                             public void dismissAlert(int alertId) {
                             }
+
+                            @Override
+                            public Bundleable openMicrophone(Bundleable openMicrophoneRequest) {
+                                return null;
+                            }
                         }.asBinder());
 
         TestStartCarAppStub startCarAppStub = new TestStartCarAppStub(mMockStartCarApp);

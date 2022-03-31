@@ -16,8 +16,8 @@
 
 package androidx.car.app;
 
-import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.ISurfaceCallback;
+import androidx.car.app.serialization.Bundleable;
 
 /** @hide */
 interface IAppHost {
@@ -38,4 +38,9 @@ interface IAppHost {
 
   /** Dismisses the alert if active. */
   void dismissAlert(int alertId) = 6;
+
+  /**
+   * Requests microphone input bytes.
+   */
+  Bundleable openMicrophone(in Bundleable openMicrophoneRequest) = 7;
 }

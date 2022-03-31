@@ -444,6 +444,48 @@ package androidx.car.app.managers {
 
 }
 
+package androidx.car.app.media {
+
+  @androidx.car.app.annotations.RequiresCarApi(5) public interface CarAudioCallback {
+    method public void onStopRecording();
+  }
+
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(5) public class CarAudioCallbackDelegate {
+    method public void onStopRecording();
+  }
+
+  @androidx.car.app.annotations.RequiresCarApi(5) public abstract class CarAudioRecord {
+    method @RequiresPermission(android.Manifest.permission.RECORD_AUDIO) public static androidx.car.app.media.CarAudioRecord create(androidx.car.app.CarContext);
+    method public int read(byte[], int, int);
+    method public void startRecording();
+    method public void stopRecording();
+    field public static final int AUDIO_CONTENT_BUFFER_SIZE = 512; // 0x200
+    field public static final String AUDIO_CONTENT_MIME = "audio/l16";
+    field public static final int AUDIO_CONTENT_SAMPLING_RATE = 16000; // 0x3e80
+  }
+
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(5) public final class OpenMicrophoneRequest {
+    method public androidx.car.app.media.CarAudioCallbackDelegate getCarAudioCallbackDelegate();
+  }
+
+  public static final class OpenMicrophoneRequest.Builder {
+    ctor public OpenMicrophoneRequest.Builder(androidx.car.app.media.CarAudioCallback);
+    method public androidx.car.app.media.OpenMicrophoneRequest build();
+  }
+
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(5) public final class OpenMicrophoneResponse {
+    method public androidx.car.app.media.CarAudioCallbackDelegate getCarAudioCallback();
+    method public java.io.InputStream getCarMicrophoneInputStream();
+  }
+
+  public static final class OpenMicrophoneResponse.Builder {
+    ctor public OpenMicrophoneResponse.Builder(androidx.car.app.media.CarAudioCallback);
+    method public androidx.car.app.media.OpenMicrophoneResponse build();
+    method public androidx.car.app.media.OpenMicrophoneResponse.Builder setCarMicrophoneDescriptor(android.os.ParcelFileDescriptor);
+  }
+
+}
+
 package androidx.car.app.model {
 
   @androidx.car.app.annotations.CarProtocol public final class Action {

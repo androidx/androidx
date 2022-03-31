@@ -25,6 +25,7 @@ import android.content.ComponentName;
 import android.content.Intent;
 
 import androidx.car.app.CarAppService;
+import androidx.car.app.media.CarAudioRecord;
 import androidx.car.app.notification.CarPendingIntent;
 import androidx.test.core.app.ApplicationProvider;
 
@@ -32,6 +33,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 
 /** Tests for {@link FakeHost}. */
 @RunWith(RobolectricTestRunner.class)
@@ -42,7 +46,7 @@ public class FakeHostTest {
 
     @Test
     public void performNotificationActionClick() {
-        ComponentName componentName = new ComponentName(mCarContext,  CarAppService.class);
+        ComponentName componentName = new ComponentName(mCarContext, CarAppService.class);
         Intent broadcast =
                 new Intent("foo").setComponent(componentName);
         shadowOf(mCarContext.getPackageManager()).addServiceIfNotPresent(componentName);
@@ -54,5 +58,20 @@ public class FakeHostTest {
         assertThat(mCarContext.getStartCarAppIntents().get(0).getComponent())
                 .isEqualTo(componentName);
         assertThat(mCarContext.getStartCarAppIntents().get(0).getAction()).isEqualTo("foo");
+    }
+
+    @Test
+    public void setMicrophoneInputData() {
+        byte[] arr = {'t', 'e', 's', 't'};
+        InputStream is = new ByteArrayInputStream(arr);
+        mCarContext.getFakeHost().setMicrophoneInputData(is);
+
+        CarAudioRecord car = CarAudioRecord.create(mCarContext);
+        car.startRecording();
+        byte[] out = new byte[4];
+        car.read(out, 0, 4);
+
+        assertThat(out).isEqualTo(arr);
+        car.stopRecording();
     }
 }
