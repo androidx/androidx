@@ -16,6 +16,8 @@
 package androidx.work
 
 import android.os.Build
+import androidx.annotation.NonNull
+import kotlin.reflect.KClass
 
 /**
  * A [WorkRequest] for non-repeating work.
@@ -94,3 +96,17 @@ class OneTimeWorkRequest internal constructor(builder: Builder) :
         }
     }
 }
+
+/**
+ * Creates a [OneTimeWorkRequest] with the given [ListenableWorker].
+ */
+public inline fun <reified W : ListenableWorker> OneTimeWorkRequestBuilder():
+    OneTimeWorkRequest.Builder = OneTimeWorkRequest.Builder(W::class.java)
+
+/**
+ * Sets an [InputMerger] on the [OneTimeWorkRequest.Builder].
+ */
+@Suppress("NOTHING_TO_INLINE")
+public inline fun OneTimeWorkRequest.Builder.setInputMerger(
+    @NonNull inputMerger: KClass<out InputMerger>
+): OneTimeWorkRequest.Builder = setInputMerger(inputMerger.java)

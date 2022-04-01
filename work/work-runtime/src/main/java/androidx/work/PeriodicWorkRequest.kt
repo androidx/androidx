@@ -189,3 +189,66 @@ class PeriodicWorkRequest internal constructor(
         const val MIN_PERIODIC_FLEX_MILLIS = 5 * 60 * 1000L // 5 minutes.
     }
 }
+
+/**
+ * Creates a [PeriodicWorkRequest.Builder] with a given [ListenableWorker].
+ *
+ * @param repeatInterval @see [androidx.work.PeriodicWorkRequest.Builder]
+ * @param repeatIntervalTimeUnit @see [androidx.work.PeriodicWorkRequest.Builder]
+ */
+public inline fun <reified W : ListenableWorker> PeriodicWorkRequestBuilder(
+    repeatInterval: Long,
+    repeatIntervalTimeUnit: TimeUnit
+): PeriodicWorkRequest.Builder {
+    return PeriodicWorkRequest.Builder(W::class.java, repeatInterval, repeatIntervalTimeUnit)
+}
+
+/**
+ * Creates a [PeriodicWorkRequest.Builder] with a given [ListenableWorker].
+ *
+ * @param repeatInterval @see [androidx.work.PeriodicWorkRequest.Builder]
+ */
+@RequiresApi(26)
+public inline fun <reified W : ListenableWorker> PeriodicWorkRequestBuilder(
+    repeatInterval: Duration
+): PeriodicWorkRequest.Builder {
+    return PeriodicWorkRequest.Builder(W::class.java, repeatInterval)
+}
+
+/**
+ * Creates a [PeriodicWorkRequest.Builder] with a given [ListenableWorker].
+ *
+ * @param repeatInterval @see [androidx.work.PeriodicWorkRequest.Builder]
+ * @param repeatIntervalTimeUnit @see [androidx.work.PeriodicWorkRequest.Builder]
+ * @param flexTimeInterval @see [androidx.work.PeriodicWorkRequest.Builder]
+ * @param flexTimeIntervalUnit @see [androidx.work.PeriodicWorkRequest.Builder]
+ */
+public inline fun <reified W : ListenableWorker> PeriodicWorkRequestBuilder(
+    repeatInterval: Long,
+    repeatIntervalTimeUnit: TimeUnit,
+    flexTimeInterval: Long,
+    flexTimeIntervalUnit: TimeUnit
+): PeriodicWorkRequest.Builder {
+
+    return PeriodicWorkRequest.Builder(
+        W::class.java,
+        repeatInterval,
+        repeatIntervalTimeUnit,
+        flexTimeInterval,
+        flexTimeIntervalUnit
+    )
+}
+
+/**
+ * Creates a [PeriodicWorkRequest.Builder] with a given [ListenableWorker].
+ *
+ * @param repeatInterval @see [androidx.work.PeriodicWorkRequest.Builder]
+ * @param flexTimeInterval @see [androidx.work.PeriodicWorkRequest.Builder]
+ */
+@RequiresApi(26)
+public inline fun <reified W : ListenableWorker> PeriodicWorkRequestBuilder(
+    repeatInterval: Duration,
+    flexTimeInterval: Duration
+): PeriodicWorkRequest.Builder {
+    return PeriodicWorkRequest.Builder(W::class.java, repeatInterval, flexTimeInterval)
+}
