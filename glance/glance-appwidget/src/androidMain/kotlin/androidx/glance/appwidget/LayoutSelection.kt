@@ -20,9 +20,12 @@ import android.os.Build
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RemoteViews
+import androidx.annotation.DoNotInline
 import androidx.annotation.IdRes
 import androidx.annotation.LayoutRes
+import androidx.annotation.RequiresApi
 import androidx.compose.ui.unit.dp
+import androidx.core.os.BuildCompat
 import androidx.glance.GlanceModifier
 import androidx.glance.findModifier
 import androidx.glance.layout.Alignment
@@ -167,6 +170,20 @@ internal fun createRootView(
     aliasIndex: Int
 ): RemoteViewsInfo {
     val context = translationContext.context
+    if (Build.VERSION.SDK_INT >= 33) {
+        return RemoteViewsInfo(
+            remoteViews = remoteViews(translationContext, FirstRootAlias).apply {
+                modifier.findModifier<WidthModifier>()?.let {
+                    applySimpleWidthModifier(context, this, it, R.id.rootView)
+                }
+                modifier.findModifier<HeightModifier>()?.let {
+                    applySimpleHeightModifier(context, this, it, R.id.rootView)
+                }
+                removeAllViews(R.id.rootView)
+            },
+            view = InsertedViewInfo(mainViewId = R.id.rootView)
+        )
+    }
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         require(aliasIndex < RootAliasCount) {
             "Index of the root view cannot be more than $RootAliasCount, " +
@@ -186,7 +203,10 @@ internal fun createRootView(
                     applySimpleHeightModifier(context, this, it, R.id.rootView)
                 }
             },
-            view = InsertedViewInfo(children = mapOf(0 to mapOf(sizeSelector to R.id.rootStubId)))
+            view = InsertedViewInfo(
+                mainViewId = R.id.rootView,
+                children = mapOf(0 to mapOf(sizeSelector to R.id.rootStubId)),
+            )
         )
     }
     require(RootAliasTypeCount * aliasIndex < RootAliasCount) {
@@ -235,6 +255,16 @@ private fun RemoteViews.insertViewInternal(
             "At most one view can be set as AppWidgetBackground."
         }
         android.R.id.background
+    }
+    if (Build.VERSION.SDK_INT >= 33) {
+        val viewId = specifiedViewId ?: translationContext.nextViewId()
+        val child = LayoutSelectionApi31Impl.remoteViews(
+            translationContext.context.packageName,
+            childLayout,
+            viewId,
+        )
+        addChildView(translationContext.parentContext.mainViewId, child, pos)
+        return InsertedViewInfo(mainViewId = viewId)
     }
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         val width = if (widthMod == Dimension.Expand) LayoutSize.Expand else LayoutSize.Wrap
@@ -294,7 +324,7 @@ internal fun RemoteViews.insertContainerView(
 ): InsertedViewInfo {
     val childLayout = generatedContainers[ContainerSelector(
         type,
-        numChildren,
+        if (Build.VERSION.SDK_INT >= 33) 0 else numChildren,
         horizontalAlignment,
         verticalAlignment
     )]
@@ -321,4 +351,14 @@ internal fun Dimension.resolveDimension(context: Context): Dimension {
         ViewGroup.LayoutParams.WRAP_CONTENT -> Dimension.Wrap
         else -> Dimension.Dp((sizePx / context.resources.displayMetrics.density).dp)
     }
+}
+
+@RequiresApi(Build.VERSION_CODES.S)
+private object LayoutSelectionApi31Impl {
+    @DoNotInline
+    fun remoteViews(
+        packageName: String,
+        @LayoutRes layoutId: Int,
+        viewId: Int
+    ) = RemoteViews(packageName, layoutId, viewId)
 }
