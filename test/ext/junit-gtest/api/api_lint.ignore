@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+InvalidNullability: androidx.test.ext.junitgtest.GtestRunner#filter(org.junit.runner.manipulation.Filter) parameter #0:
+    Invalid nullability on parameter `filter` in method `filter`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.test.ext.junitgtest.GtestRunner#run(org.junit.runner.notification.RunNotifier) parameter #0:
+    Invalid nullability on parameter `notifier` in method `run`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.

@@ -7,3 +7,7 @@ AsyncSuffixFuture: androidx.camera.view.CameraController#setLinearZoom(float):
     Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
 AsyncSuffixFuture: androidx.camera.view.CameraController#setZoomRatio(float):
     Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+
+
+InvalidNullability: androidx.camera.view.PreviewView#onTouchEvent(android.view.MotionEvent) parameter #0:
+    Invalid nullability on parameter `event` in method `onTouchEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.

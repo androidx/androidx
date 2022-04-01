@@ -1,0 +1,21 @@
+// Baseline format: 1.0
+InvalidNullability: androidx.glance.appwidget.GlanceAppWidgetReceiver#onAppWidgetOptionsChanged(android.content.Context, android.appwidget.AppWidgetManager, int, android.os.Bundle) parameter #0:
+    Invalid nullability on parameter `context` in method `onAppWidgetOptionsChanged`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.glance.appwidget.GlanceAppWidgetReceiver#onAppWidgetOptionsChanged(android.content.Context, android.appwidget.AppWidgetManager, int, android.os.Bundle) parameter #1:
+    Invalid nullability on parameter `appWidgetManager` in method `onAppWidgetOptionsChanged`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.glance.appwidget.GlanceAppWidgetReceiver#onAppWidgetOptionsChanged(android.content.Context, android.appwidget.AppWidgetManager, int, android.os.Bundle) parameter #3:
+    Invalid nullability on parameter `newOptions` in method `onAppWidgetOptionsChanged`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.glance.appwidget.GlanceAppWidgetReceiver#onDeleted(android.content.Context, int[]) parameter #0:
+    Invalid nullability on parameter `context` in method `onDeleted`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.glance.appwidget.GlanceAppWidgetReceiver#onDeleted(android.content.Context, int[]) parameter #1:
+    Invalid nullability on parameter `appWidgetIds` in method `onDeleted`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.glance.appwidget.GlanceAppWidgetReceiver#onReceive(android.content.Context, android.content.Intent) parameter #0:
+    Invalid nullability on parameter `context` in method `onReceive`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.glance.appwidget.GlanceAppWidgetReceiver#onReceive(android.content.Context, android.content.Intent) parameter #1:
+    Invalid nullability on parameter `intent` in method `onReceive`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.glance.appwidget.GlanceAppWidgetReceiver#onUpdate(android.content.Context, android.appwidget.AppWidgetManager, int[]) parameter #0:
+    Invalid nullability on parameter `context` in method `onUpdate`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.glance.appwidget.GlanceAppWidgetReceiver#onUpdate(android.content.Context, android.appwidget.AppWidgetManager, int[]) parameter #1:
+    Invalid nullability on parameter `appWidgetManager` in method `onUpdate`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.glance.appwidget.GlanceAppWidgetReceiver#onUpdate(android.content.Context, android.appwidget.AppWidgetManager, int[]) parameter #2:
+    Invalid nullability on parameter `appWidgetIds` in method `onUpdate`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.

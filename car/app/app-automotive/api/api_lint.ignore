@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+InvalidNullability: androidx.car.app.activity.CarAppActivity#onNewIntent(android.content.Intent) parameter #0:
+    Invalid nullability on parameter `intent` in method `onNewIntent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.

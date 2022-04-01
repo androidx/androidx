@@ -63,6 +63,22 @@ InternalField: androidx.preference.TwoStatePreference#mChecked:
     Internal field mChecked must not be exposed
 
 
+InvalidNullability: androidx.preference.DropDownPreference#setEntries(CharSequence[]) parameter #0:
+    Invalid nullability on parameter `entries` in method `setEntries`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.preference.PreferenceDialogFragment#onDismiss(android.content.DialogInterface) parameter #0:
+    Invalid nullability on parameter `dialog` in method `onDismiss`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.preference.PreferenceDialogFragment#onSaveInstanceState(android.os.Bundle) parameter #0:
+    Invalid nullability on parameter `outState` in method `onSaveInstanceState`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.preference.PreferenceDialogFragmentCompat#onClick(android.content.DialogInterface, int) parameter #0:
+    Invalid nullability on parameter `dialog` in method `onClick`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.preference.PreferenceFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #0:
+    Invalid nullability on parameter `inflater` in method `onCreateView`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.preference.PreferenceFragment#onSaveInstanceState(android.os.Bundle) parameter #0:
+    Invalid nullability on parameter `outState` in method `onSaveInstanceState`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.preference.PreferenceFragment#onViewCreated(android.view.View, android.os.Bundle) parameter #0:
+    Invalid nullability on parameter `view` in method `onViewCreated`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+
+
 MissingNullability: androidx.preference.EditTextPreference#onGetDefaultValue(android.content.res.TypedArray, int):
     Missing nullability on method `onGetDefaultValue` return
 MissingNullability: androidx.preference.EditTextPreference#onSetInitialValue(Object) parameter #0:

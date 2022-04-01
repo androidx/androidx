@@ -87,6 +87,12 @@ BuilderSetStyle: androidx.media2.session.SessionCommandGroup.Builder#removeComma
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.media2.session.SessionCommandGroup.Builder.removeCommand(androidx.media2.session.SessionCommand)
 
 
+InvalidNullability: androidx.media2.session.MediaSessionService#onBind(android.content.Intent):
+    Invalid nullability on method `onBind` return. Overrides of unannotated super method cannot be Nullable.
+InvalidNullability: androidx.media2.session.MediaSessionService#onBind(android.content.Intent) parameter #0:
+    Invalid nullability on parameter `intent` in method `onBind`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+
+
 MissingGetterMatchingBuilder: androidx.media2.session.MediaBrowser.Builder#setConnectionHints(android.os.Bundle):
     androidx.media2.session.MediaBrowser does not declare a `getConnectionHints()` method matching method androidx.media2.session.MediaBrowser.Builder.setConnectionHints(android.os.Bundle)
 MissingGetterMatchingBuilder: androidx.media2.session.MediaBrowser.Builder#setControllerCallback(java.util.concurrent.Executor, androidx.media2.session.MediaBrowser.BrowserCallback):

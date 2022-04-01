@@ -95,6 +95,20 @@ IntentName: androidx.browser.browseractions.BrowserActionsIntent#KEY_ACTION:
     Intent action constant name must be ACTION_FOO: KEY_ACTION
 
 
+InvalidNullability: androidx.browser.customtabs.CustomTabsServiceConnection#onServiceConnected(android.content.ComponentName, android.os.IBinder) parameter #0:
+    Invalid nullability on parameter `name` in method `onServiceConnected`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.browser.customtabs.CustomTabsServiceConnection#onServiceConnected(android.content.ComponentName, android.os.IBinder) parameter #1:
+    Invalid nullability on parameter `service` in method `onServiceConnected`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.browser.customtabs.PostMessageServiceConnection#onServiceConnected(android.content.ComponentName, android.os.IBinder) parameter #0:
+    Invalid nullability on parameter `name` in method `onServiceConnected`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.browser.customtabs.PostMessageServiceConnection#onServiceConnected(android.content.ComponentName, android.os.IBinder) parameter #1:
+    Invalid nullability on parameter `service` in method `onServiceConnected`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.browser.customtabs.PostMessageServiceConnection#onServiceDisconnected(android.content.ComponentName) parameter #0:
+    Invalid nullability on parameter `name` in method `onServiceDisconnected`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.browser.trusted.TrustedWebActivityService#onBind(android.content.Intent):
+    Invalid nullability on method `onBind` return. Overrides of unannotated super method cannot be Nullable.
+
+
 ListenerLast: androidx.browser.customtabs.CustomTabsClient#newSession(androidx.browser.customtabs.CustomTabsCallback, int) parameter #1:
     Listeners should always be at end of argument list (method `newSession`)
 

@@ -141,10 +141,28 @@ BadFuture: androidx.core.text.PrecomputedTextCompat#getTextFuture(CharSequence, 
     Use ListenableFuture (library), or a combination of OutcomeReceiver<R,E>, Executor, and CancellationSignal (platform) instead of java.util.concurrent.Future (method androidx.core.text.PrecomputedTextCompat.getTextFuture(CharSequence,androidx.core.text.PrecomputedTextCompat.Params,java.util.concurrent.Executor))
 
 
+BannedThrow: androidx.core.content.res.ResourcesCompat#getCachedFont(android.content.Context, int):
+    Methods must not throw unchecked exceptions
+BannedThrow: androidx.core.content.res.ResourcesCompat#getColor(android.content.res.Resources, int, android.content.res.Resources.Theme):
+    Methods must not throw unchecked exceptions
+BannedThrow: androidx.core.content.res.ResourcesCompat#getColorStateList(android.content.res.Resources, int, android.content.res.Resources.Theme):
+    Methods must not throw unchecked exceptions
+BannedThrow: androidx.core.content.res.ResourcesCompat#getDrawable(android.content.res.Resources, int, android.content.res.Resources.Theme):
+    Methods must not throw unchecked exceptions
+BannedThrow: androidx.core.content.res.ResourcesCompat#getDrawableForDensity(android.content.res.Resources, int, int, android.content.res.Resources.Theme):
+    Methods must not throw unchecked exceptions
+BannedThrow: androidx.core.content.res.ResourcesCompat#getFont(android.content.Context, int):
+    Methods must not throw unchecked exceptions
+BannedThrow: androidx.core.content.res.ResourcesCompat#getFont(android.content.Context, int, androidx.core.content.res.ResourcesCompat.FontCallback, android.os.Handler):
+    Methods must not throw unchecked exceptions
+BannedThrow: androidx.core.net.MailTo#parse(String):
+    Methods must not throw unchecked exceptions
+BannedThrow: androidx.core.net.MailTo#parse(android.net.Uri):
+    Methods must not throw unchecked exceptions
 BannedThrow: androidx.core.widget.TextViewCompat#setAutoSizeTextTypeUniformWithConfiguration(android.widget.TextView, int, int, int, int):
-    Methods must not mention RuntimeException subclasses in throws clauses (was `java.lang.IllegalArgumentException`)
+    Methods must not throw unchecked exceptions
 BannedThrow: androidx.core.widget.TextViewCompat#setAutoSizeTextTypeUniformWithPresetSizes(android.widget.TextView, int[], int):
-    Methods must not mention RuntimeException subclasses in throws clauses (was `java.lang.IllegalArgumentException`)
+    Methods must not throw unchecked exceptions
 
 
 BuilderSetStyle: androidx.core.app.NotificationCompat.Action.Builder#extend(androidx.core.app.NotificationCompat.Action.Extender):
@@ -225,6 +243,62 @@ GetterSetterNames: androidx.core.graphics.drawable.RoundedBitmapDrawable#setMipM
     Symmetric method for `hasMipMap` must be named `setHasMipMap`; was `setMipMap`
 GetterSetterNames: androidx.core.view.GestureDetectorCompat#setIsLongpressEnabled(boolean):
     Symmetric method for `isLongpressEnabled` must be named `setLongpressEnabled`; was `setIsLongpressEnabled`
+
+
+InvalidNullability: androidx.core.app.JobIntentService#onBind(android.content.Intent) parameter #0:
+    Invalid nullability on parameter `intent` in method `onBind`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.core.content.FileProvider#attachInfo(android.content.Context, android.content.pm.ProviderInfo) parameter #0:
+    Invalid nullability on parameter `context` in method `attachInfo`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.core.content.FileProvider#attachInfo(android.content.Context, android.content.pm.ProviderInfo) parameter #1:
+    Invalid nullability on parameter `info` in method `attachInfo`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.core.content.FileProvider#insert(android.net.Uri, android.content.ContentValues) parameter #1:
+    Invalid nullability on parameter `values` in method `insert`. Parameters of overrides cannot be NonNull if super parameter is Nullable.
+InvalidNullability: androidx.core.content.FileProvider#update(android.net.Uri, android.content.ContentValues, String, String[]) parameter #1:
+    Invalid nullability on parameter `values` in method `update`. Parameters of overrides cannot be NonNull if super parameter is Nullable.
+InvalidNullability: androidx.core.content.UnusedAppRestrictionsBackportService#onBind(android.content.Intent):
+    Invalid nullability on method `onBind` return. Overrides of unannotated super method cannot be Nullable.
+InvalidNullability: androidx.core.graphics.drawable.RoundedBitmapDrawable#onBoundsChange(android.graphics.Rect) parameter #0:
+    Invalid nullability on parameter `bounds` in method `onBoundsChange`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.core.location.LocationListenerCompat#onStatusChanged(String, int, android.os.Bundle) parameter #0:
+    Invalid nullability on parameter `provider` in method `onStatusChanged`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.core.view.OneShotPreDrawListener#onViewAttachedToWindow(android.view.View) parameter #0:
+    Invalid nullability on parameter `v` in method `onViewAttachedToWindow`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.core.view.OneShotPreDrawListener#onViewDetachedFromWindow(android.view.View) parameter #0:
+    Invalid nullability on parameter `v` in method `onViewDetachedFromWindow`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.core.widget.NestedScrollView#addView(android.view.View) parameter #0:
+    Invalid nullability on parameter `child` in method `addView`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.core.widget.NestedScrollView#draw(android.graphics.Canvas) parameter #0:
+    Invalid nullability on parameter `canvas` in method `draw`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.core.widget.NestedScrollView#measureChild(android.view.View, int, int) parameter #0:
+    Invalid nullability on parameter `child` in method `measureChild`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.core.widget.NestedScrollView#onGenericMotionEvent(android.view.MotionEvent) parameter #0:
+    Invalid nullability on parameter `event` in method `onGenericMotionEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.core.widget.NestedScrollView#onInterceptTouchEvent(android.view.MotionEvent) parameter #0:
+    Invalid nullability on parameter `ev` in method `onInterceptTouchEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.core.widget.NestedScrollView#onNestedFling(android.view.View, float, float, boolean) parameter #0:
+    Invalid nullability on parameter `target` in method `onNestedFling`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.core.widget.NestedScrollView#onNestedPreFling(android.view.View, float, float) parameter #0:
+    Invalid nullability on parameter `target` in method `onNestedPreFling`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.core.widget.NestedScrollView#onNestedPreScroll(android.view.View, int, int, int[]) parameter #0:
+    Invalid nullability on parameter `target` in method `onNestedPreScroll`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.core.widget.NestedScrollView#onNestedPreScroll(android.view.View, int, int, int[]) parameter #3:
+    Invalid nullability on parameter `consumed` in method `onNestedPreScroll`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.core.widget.NestedScrollView#onNestedScroll(android.view.View, int, int, int, int) parameter #0:
+    Invalid nullability on parameter `target` in method `onNestedScroll`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.core.widget.NestedScrollView#onNestedScrollAccepted(android.view.View, android.view.View, int) parameter #0:
+    Invalid nullability on parameter `child` in method `onNestedScrollAccepted`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.core.widget.NestedScrollView#onNestedScrollAccepted(android.view.View, android.view.View, int) parameter #1:
+    Invalid nullability on parameter `target` in method `onNestedScrollAccepted`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.core.widget.NestedScrollView#onStartNestedScroll(android.view.View, android.view.View, int) parameter #0:
+    Invalid nullability on parameter `child` in method `onStartNestedScroll`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.core.widget.NestedScrollView#onStartNestedScroll(android.view.View, android.view.View, int) parameter #1:
+    Invalid nullability on parameter `target` in method `onStartNestedScroll`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.core.widget.NestedScrollView#onStopNestedScroll(android.view.View) parameter #0:
+    Invalid nullability on parameter `target` in method `onStopNestedScroll`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.core.widget.NestedScrollView#onTouchEvent(android.view.MotionEvent) parameter #0:
+    Invalid nullability on parameter `ev` in method `onTouchEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.core.widget.NestedScrollView#requestChildRectangleOnScreen(android.view.View, android.graphics.Rect, boolean) parameter #0:
+    Invalid nullability on parameter `child` in method `requestChildRectangleOnScreen`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 
 
 KotlinOperator: androidx.core.os.LocaleListCompat#get(int):

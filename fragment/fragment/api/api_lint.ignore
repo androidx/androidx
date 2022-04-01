@@ -23,6 +23,40 @@ GetterSetterNames: androidx.fragment.app.Fragment#getAllowReturnTransitionOverla
     Symmetric method for `setAllowReturnTransitionOverlap` must be named `isAllowReturnTransitionOverlap`; was `getAllowReturnTransitionOverlap`
 
 
+InvalidNullability: androidx.fragment.app.DialogFragment#onCancel(android.content.DialogInterface) parameter #0:
+    Invalid nullability on parameter `dialog` in method `onCancel`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.fragment.app.DialogFragment#onDismiss(android.content.DialogInterface) parameter #0:
+    Invalid nullability on parameter `dialog` in method `onDismiss`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.fragment.app.Fragment#onCreateContextMenu(android.view.ContextMenu, android.view.View, android.view.ContextMenu.ContextMenuInfo) parameter #0:
+    Invalid nullability on parameter `menu` in method `onCreateContextMenu`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.fragment.app.Fragment#onCreateContextMenu(android.view.ContextMenu, android.view.View, android.view.ContextMenu.ContextMenuInfo) parameter #1:
+    Invalid nullability on parameter `v` in method `onCreateContextMenu`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.fragment.app.Fragment.SavedState#writeToParcel(android.os.Parcel, int) parameter #0:
+    Invalid nullability on parameter `dest` in method `writeToParcel`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.fragment.app.FragmentContainerView#addView(android.view.View, int, android.view.ViewGroup.LayoutParams) parameter #0:
+    Invalid nullability on parameter `child` in method `addView`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.fragment.app.FragmentContainerView#dispatchApplyWindowInsets(android.view.WindowInsets) parameter #0:
+    Invalid nullability on parameter `insets` in method `dispatchApplyWindowInsets`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.fragment.app.FragmentContainerView#dispatchDraw(android.graphics.Canvas) parameter #0:
+    Invalid nullability on parameter `canvas` in method `dispatchDraw`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.fragment.app.FragmentContainerView#drawChild(android.graphics.Canvas, android.view.View, long) parameter #0:
+    Invalid nullability on parameter `canvas` in method `drawChild`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.fragment.app.FragmentContainerView#drawChild(android.graphics.Canvas, android.view.View, long) parameter #1:
+    Invalid nullability on parameter `child` in method `drawChild`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.fragment.app.FragmentContainerView#endViewTransition(android.view.View) parameter #0:
+    Invalid nullability on parameter `view` in method `endViewTransition`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.fragment.app.FragmentContainerView#onApplyWindowInsets(android.view.WindowInsets) parameter #0:
+    Invalid nullability on parameter `insets` in method `onApplyWindowInsets`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.fragment.app.FragmentContainerView#removeView(android.view.View) parameter #0:
+    Invalid nullability on parameter `view` in method `removeView`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.fragment.app.FragmentContainerView#removeViewInLayout(android.view.View) parameter #0:
+    Invalid nullability on parameter `view` in method `removeViewInLayout`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.fragment.app.FragmentContainerView#setOnApplyWindowInsetsListener(android.view.View.OnApplyWindowInsetsListener) parameter #0:
+    Invalid nullability on parameter `listener` in method `setOnApplyWindowInsetsListener`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.fragment.app.FragmentContainerView#startViewTransition(android.view.View) parameter #0:
+    Invalid nullability on parameter `view` in method `startViewTransition`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+
+
 MissingNullability: androidx.fragment.app.Fragment#startActivity(android.content.Intent) parameter #0:
     Missing nullability on parameter `intent` in method `startActivity`
 MissingNullability: androidx.fragment.app.Fragment#startActivity(android.content.Intent, android.os.Bundle) parameter #0:
