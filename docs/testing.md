@@ -32,7 +32,7 @@ NOTE For best practices on writing libraries in a way that makes it easy for end
 users -- and library developers -- to write tests, see the
 [Testability](testability.md) guide.
 
-### What gets tested, and when
+### What gets tested, and when {#affected-module-detector}
 
 We use the
 [AffectedModuleDetector](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:buildSrc/private/src/main/kotlin/androidx/build/dependencyTracker/AffectedModuleDetector.kt)
@@ -50,9 +50,9 @@ Presubmit tests represent only a subset of the devices on which our tests run.
 The remaining devices are tested only in postsubmit. In postsubmit, all host and
 device tests are run for all modules.
 
-### Test annotations
+### Test annotations {#annotations}
 
-#### Test size and runners
+#### Test size and runners {#test-size}
 
 All device tests *should* be given a size annotation, which is one of:
 
@@ -72,7 +72,7 @@ Annotation    | Max duration
 `@MediumTest` | 1000ms
 `@LargeTest`  | 100000ms
 
-#### Disabling tests
+#### Disabling tests {#disabling-tests}
 
 To disable a device-side test in presubmit testing only -- but still have it run
 in postsubmit -- use the
@@ -85,7 +85,7 @@ JUnit's [`@Ignore`](http://junit.sourceforge.net/javadoc/org/junit/Ignore.html)
 annotation. Do *not* use Android's `@Suppress` annotation, which only works with
 Android test runners and will *not* work for host-side tests.
 
-#### Filtering devices
+#### Filtering devices {#filtering-devices}
 
 To restrict a test to a range of SDKs, use
 [`@SdkSuppress`](https://developer.android.com/reference/androidx/test/filters/SdkSuppress)
@@ -97,8 +97,8 @@ annotation also supports targeting a specific pre-release SDK with the
 // Target SDKs 17 through 19, inclusive
 @SdkSuppress(minSdkVersion = 17, maxSdkVersion = 19)
 
-// Target pre-release SDK R only
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.R, isCodeName = "R")
+// Target pre-release SDK T only
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU, codeName = "Tiramisu")
 ```
 
 You may also gate portions of test implementation code using `SDK_INT` or
@@ -112,7 +112,7 @@ displaying behavior that differs from a physical device, they are considering
 that a bug in Cuttlefish, so please file those bugs instead of only looking for
 a workaround.
 
-### Animations in tests
+### Animations in tests {#animations}
 
 Animations are disabled for tests by default. This helps avoid flakes due to
 timing and also makes tests faster.
@@ -121,7 +121,7 @@ In rare cases, like testing the animations themselves, you may want to enable
 animations for a particular test or test class. For those cases, you can use the
 [`AnimationDurationScaleRule`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:testutils/testutils-runtime/src/main/java/androidx/testutils/AnimationDurationScaleRule.kt).
 
-### Robolectric
+### Robolectric {#robolectric}
 
 Robolectric tests are supported in AndroidX; however, if you targeting a
 pre-release version of the Android SDK then you may see an error like
@@ -155,9 +155,12 @@ instead, open a normal app or create a blank project using the app wizard.
 
 NOTE You can reuse the emulator and system images from a "normal" installation
 of Android Studio by linking the `emulator` and `system_images` directories to a
-standard Android SDK path and restarting Android Studio: `cd
+standard Android SDK path and restarting Android Studio. **This is set up
+automatically by `studiow` on Google-managed devices with a standard Android SDK
+path.** In other cases, it may be set up manually with something like: `cd
 prebuilts/fullsdk-darwin ln -s ~/Library/Android/sdk/emulator emulator ln -s
-~/Library/Android/sdk/system-images system-images`
+~/Library/Android/sdk/system-images system-images` (substituting `fullsdk-linux`
+and your local SDK path as appropriate)
 
 ## Debugging with platform SDK sources {#sources}
 
