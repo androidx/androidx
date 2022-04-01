@@ -44,6 +44,7 @@ import org.junit.Test
 import androidx.window.extensions.layout.FoldingFeature as OEMFoldingFeature
 import androidx.window.extensions.layout.WindowLayoutInfo as OEMWindowLayoutInfo
 import java.util.function.Consumer as JavaConsumer
+import com.nhaarman.mockitokotlin2.times
 
 class ExtensionWindowLayoutInfoBackendTest {
 
@@ -145,6 +146,27 @@ class ExtensionWindowLayoutInfoBackendTest {
 
             val consumerCaptor = argumentCaptor<JavaConsumer<OEMWindowLayoutInfo>>()
             verify(component).addWindowLayoutInfoListener(eq(activity), consumerCaptor.capture())
+            verify(component).removeWindowLayoutInfoListener(consumerCaptor.firstValue)
+        }
+    }
+
+    @Test
+    public fun testExtensionWindowBackend_reRegisterCallback() {
+        val component = mock<WindowLayoutComponent>()
+
+        val backend = ExtensionWindowLayoutInfoBackend(component, consumerAdapter)
+
+        activityScenario.scenario.onActivity { activity ->
+            val consumer = TestConsumer<WindowLayoutInfo>()
+            backend.registerLayoutChangeCallback(activity, Runnable::run, consumer)
+            backend.unregisterLayoutChangeCallback(consumer)
+            backend.registerLayoutChangeCallback(activity, Runnable::run, consumer)
+
+            val consumerCaptor = argumentCaptor<JavaConsumer<OEMWindowLayoutInfo>>()
+            verify(component, times(2)).addWindowLayoutInfoListener(
+                eq(activity),
+                consumerCaptor.capture()
+            )
             verify(component).removeWindowLayoutInfoListener(consumerCaptor.firstValue)
         }
     }
