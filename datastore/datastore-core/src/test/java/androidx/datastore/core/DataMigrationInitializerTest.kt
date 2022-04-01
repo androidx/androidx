@@ -22,7 +22,6 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
@@ -108,9 +107,8 @@ class DataMigrationInitializerTest {
         assertThat(getData.await()).isEqualTo(5)
     }
 
-    @Suppress("DEPRECATION") // b/220884145
     @Test
-    fun testCleanupNotRunAfterFailedMigrate() = runBlockingTest {
+    fun testCleanupNotRunAfterFailedMigrate() = runTest {
         val continueMigration = CompletableDeferred<Byte>()
         val cleanUpFinished = CompletableDeferred<Unit>()
 
@@ -125,18 +123,17 @@ class DataMigrationInitializerTest {
             )
         )
 
-        val getData = async { store.data.first() }
+        val getData = async { assertThrows<IOException> { store.data.first() } }
 
         continueMigration.completeExceptionally(IOException("Failed migration"))
 
-        assertThrows<IOException> { getData.await() }
+        getData.await()
 
         assertThat(cleanUpFinished.isCompleted).isFalse()
     }
 
-    @Suppress("DEPRECATION") // b/220884145
     @Test
-    fun testCleanupNotRunAfterFailedUpdate() = runBlockingTest {
+    fun testCleanupNotRunAfterFailedUpdate() = runTest {
         val continueMigration = CompletableDeferred<Byte>()
         val cleanUpFinished = CompletableDeferred<Unit>()
 
@@ -153,11 +150,11 @@ class DataMigrationInitializerTest {
             serializer = serializer
         )
 
-        val getData = async { store.data.first() }
+        val getData = async { assertThrows<IOException> { store.data.first() } }
 
         continueMigration.complete(1)
 
-        assertThrows<IOException> { getData.await() }
+        getData.await()
 
         assertThat(cleanUpFinished.isCompleted).isFalse()
     }
