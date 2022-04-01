@@ -79,6 +79,7 @@ import androidx.viewpager.test.R;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -1131,7 +1132,7 @@ public abstract class BaseViewPagerTest<T extends Activity> {
 
     @Test
     @LargeTest
-    @FlakyTest(bugId = 179887413)
+    @Ignore("b/179887413")
     public void testPageScrollPositionChangesSwipe() {
         // Swipe one page to the left
         verifyScrollCallbacksToHigherPage(ViewPagerActions.wrap(swipeLeft()), 1);
