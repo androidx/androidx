@@ -1,4 +1,4 @@
-# Adding custom Lint checks
+# Adding custom lint checks
 
 [TOC]
 
@@ -16,7 +16,7 @@ writing and running lint checks, see the official
 
 ### Create a module
 
-If this is the first Lint rule for a library, you will need to create a module
+If this is the first lint rule for a library, you will need to create a module
 by doing the following:
 
 Include the project in the top-level `settings.gradle` file so that it shows up
@@ -57,7 +57,7 @@ androidx {
     type = LibraryType.LINT
     mavenVersion = LibraryVersions.MYLIBRARY
     mavenGroup = LibraryGroups.MYLIBRARY
-    inceptionYear = "2019"
+    inceptionYear = "2022"
     description = "Lint checks for MyLibrary"
 }
 ```
@@ -74,25 +74,32 @@ class provided by the tools team. Extend this class into your own
 
 ```kotlin
 class MyLibraryIssueRegistry : IssueRegistry() {
-    override val api = 11
     override val minApi = CURRENT_API
+    override val api = 13
     override val issues get() = listOf(MyLibraryDetector.ISSUE)
+    override val vendor = Vendor(
+        feedbackUrl = "https://issuetracker.google.com/issues/new?component=######",
+        identifier = "androidx.mylibrary",
+        vendorName = "Android Open Source Project",
+    )
 }
 ```
 
-The maximum version this Lint check will will work with is defined by `api =
-11`, where versions `0`-`11` correspond to Lint/Studio versions `3.0`-`3.11`.
+The maximum version this lint check will will work with is defined by `api =
+13`. Typically, this should track `CURRENT_API`.
 
-`minApi = CURRENT_API` sets the lowest version of Lint that this will work with.
+`minApi = CURRENT_API` sets the lowest version of the Lint tool that this will
+work with.
 
-`CURRENT_API` is defined by the Lint API version against which your project is
-compiled, as defined in the module's `build.gradle` file. Jetpack Lint modules
-should compile using the Lint API version referenced in
-[Dependencies.kt](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:buildSrc/public/src/main/kotlin/androidx/build/dependencies/Dependencies.kt;l=176).
+`CURRENT_API` is defined by the Lint tool API version against which your project
+is compiled, as defined in the module's `build.gradle` file. Jetpack lint check
+modules should compile using the Lint tool API version referenced in
+[libs.versions.toml](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:gradle/libs.versions.toml;l=8).
 
-We guarantee that our Lint checks work with the versions referenced by `minApi`
+We guarantee that our lint checks work with the versions referenced by `minApi`
 and `api` by running our tests with both versions. For newer versions of Android
-Studio (and consequently, Lint) the API variable will need to be updated.
+Studio (and consequently, the Lint tool) the API variable will need to be
+updated.
 
 The `IssueRegistry` requires a list of all of the issues to check. You must
 override the `IssueRegistry.getIssues()` method. Here, we override that method
@@ -100,14 +107,14 @@ with a Kotlin `get()` property delegate:
 
 [Example `IssueRegistry` Implementation](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:fragment/fragment-lint/src/main/java/androidx/fragment/lint/FragmentIssueRegistry.kt)
 
-There are 4 primary types of Lint checks:
+There are 4 primary types of lint checks:
 
 1.  Code - Applied to source code, ex. `.java` and `.kt` files
 1.  XML - Applied to XML resource files
 1.  Android Manifest - Applied to `AndroidManifest.xml`
 1.  Gradle - Applied to Gradle configuration files, ex. `build.gradle`
 
-It is also possible to apply Lint checks to compiled bytecode (`.class` files)
+It is also possible to apply lint checks to compiled bytecode (`.class` files)
 or binary resource files like images, but these are less common.
 
 ## PSI & UAST mapping
@@ -250,7 +257,7 @@ not available under `Tools`, you must enable it by adding the line
 
 ## Code detector
 
-These are Lint checks that will apply to source code files -- primarily Java and
+These are lint checks that will apply to source code files -- primarily Java and
 Kotlin, but can also be used for other similar file types. All code detectors
 that analyze Java or Kotlin files should implement the
 [SourceCodeScanner](https://cs.android.com/android-studio/platform/tools/base/+/mirror-goog-studio-master-dev:lint/libs/lint-api/src/main/java/com/android/tools/lint/detector/api/SourceCodeScanner.kt).
@@ -259,7 +266,7 @@ that analyze Java or Kotlin files should implement the
 
 #### Calls to specific methods
 
-##### getApplicableMethodNames
+##### `getApplicableMethodNames`
 
 This defines the list of methods where lint will call the visitMethodCall
 callback.
@@ -268,10 +275,10 @@ callback.
 override fun getApplicableMethodNames(): List<String>? = listOf(METHOD_NAMES)
 ```
 
-##### visitMethodCall
+##### `visitMethodCall`
 
-This defines the callback that Lint will call when it encounters a call to an
-applicable method.
+This defines the callback that the Lint tool will call when it encounters a call
+to an applicable method.
 
 ```kotlin
 override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {}
@@ -279,7 +286,7 @@ override fun visitMethodCall(context: JavaContext, node: UCallExpression, method
 
 #### Calls to specific class instantiations
 
-##### getApplicableConstructorTypes
+##### `getApplicableConstructorTypes`
 
 ```kotlin
 override fun getApplicableConstructorTypes(): List<String>? = listOf(CLASS_NAMES)
@@ -293,13 +300,13 @@ override fun visitConstructor(context: JavaContext, node: UCallExpression, metho
 
 #### Classes that extend given superclasses
 
-##### getApplicableSuperClasses
+##### `getApplicableSuperClasses`
 
 ```kotlin
 override fun applicableSuperClasses(): List<String>? = listOf(CLASS_NAMES)
 ```
 
-##### visitClass
+##### `visitClass`
 
 ```kotlin
 override fun visitClass(context: JavaContext, declaration: UClass) {}
@@ -322,12 +329,12 @@ files that are currently not open in studio.
 
 ### Method call analysis
 
-#### resolve()
+#### `resolve()`
 
 Resolves into a `UCallExpression` or `UMethod` to perform analysis requiring the
 method body or containing class.
 
-#### ReceiverType
+#### `receiverType`
 
 Each `UCallExpression` has a `receiverType` corresponding to the `PsiType` of
 the receiver of the method call.
@@ -381,10 +388,14 @@ java("""
 Since this class also depends on the `LifecycleOwner` class it is necessary to
 create another stub for this.
 
+NOTE `package-info.java` cannot be represented by a source stub and must be
+provided as bytecode. See [Updating bytecode](#tips-bytecode) for tips on using
+bytecode in lint tests.
+
 ## XML resource detector
 
-These are Lint rules that will apply to resource files including `anim`,
-`layout`, `values`, etc. Lint rules being applied to resource files should
+These are lint checks that will apply to resource files including `anim`,
+`layout`, `values`, etc. lint checks being applied to resource files should
 extend
 [`ResourceXmlDetector`](https://cs.android.com/android-studio/platform/tools/base/+/mirror-goog-studio-master-dev:lint/libs/lint-api/src/main/java/com/android/tools/lint/detector/api/ResourceXmlDetector.java).
 The `Detector` must define the issue it is going to detect, most commonly as a
@@ -418,7 +429,7 @@ getApplicableElements()
 visitElement(context: XmlContext, element: Element)
 ```
 
-#### appliesTo
+#### `appliesTo`
 
 This determines the
 [ResourceFolderType](https://cs.android.com/android-studio/platform/tools/base/+/mirror-goog-studio-master-dev:layoutlib-api/src/main/java/com/android/resources/ResourceFolderType.java)
@@ -430,19 +441,19 @@ override fun appliesTo(folderType: ResourceFolderType): Boolean {
 }
 ```
 
-#### getApplicableElements
+#### `getApplicableElements`
 
-This defines the list of elements where Lint will call your visitElement
-callback method when encountered.
+This defines the list of elements where the Lint tool will call your
+`visitElement` callback method when encountered.
 
 ```kotlin
 override fun getApplicableElements(): Collection<String>? = Collections.singleton(ELEMENT)
 ```
 
-#### visitElement
+#### `visitElement`
 
 This defines the behavior when an applicable element is found. Here you normally
-place the actions you want to take if a violation of the Lint check is found.
+place the actions you want to take if a violation of the lint check is found.
 
 ```kotlin
 override fun visitElement(context: XmlContext, element: Element) {
@@ -471,11 +482,11 @@ some other text.
 
 ### Testing
 
-You need tests for two things. First, you must test that the API Lint version is
-properly set. That is done with a simple `ApiLintVersionTest` class. It asserts
-the api version code set earlier in the `IssueRegistry()` class. This test
-intentionally fails in the IDE because different Lint API versions are used in
-the studio and command line.
+You need tests for two things. First, you must test that the Lint tool API
+version is properly set. That is done with a simple `ApiLintVersionTest` class.
+It asserts the API version code set earlier in the `IssueRegistry()` class. This
+test intentionally fails in the IDE because different Lint tool API versions are
+used in Studio and the command line.
 
 Example `ApiLintVersionTest`:
 
@@ -515,7 +526,7 @@ the set up, call `run()` which returns a
 [`TestLintResult`](https://cs.android.com/android-studio/platform/tools/base/+/mirror-goog-studio-master-dev:lint/libs/lint-tests/src/main/java/com/android/tools/lint/checks/infrastructure/TestLintResult.kt).
 `TestLintResult` provides methods for checking the outcome of the provided
 `TestLintTask`. `ExpectClean()` means the output is expected to be clean because
-the lint rule was followed. `Expect()` takes a string literal of the expected
+the lint check was followed. `Expect()` takes a string literal of the expected
 output of the `TestLintTask` and compares the actual result to the input string.
 If a quick fix was implemented, you can check that the fix is correct by calling
 `checkFix()` and providing the expected output file stub.
@@ -536,7 +547,7 @@ and define target scope in issues as `Scope.GRADLE_SCOPE`
 
 ### API surface
 
-#### checkDslPropertyAssignment
+#### `checkDslPropertyAssignment`
 
 Analyzes each DSL property assignment, providing the property and value strings.
 
@@ -558,14 +569,14 @@ the literal values in the gradle file. Any string values in the Gradle file will
 be quote enclosed in the value parameter. Any constant values cannot be resolved
 to their values.
 
-The cookie parameters should be used for reporting Lint errors. To report an
-issue on the value, use `context.getLocation(statementCookie)`.
+The cookie parameters should be used for reporting lint check errors. To report
+an issue on the value, use `context.getLocation(statementCookie)`.
 
-## Enabling Lint for a library
+## Enabling lint checks for a library
 
-Once the Lint module is implemented we need to enable it for the desired
+Once the lint module is implemented we need to enable it for the desired
 library. This can be done by adding a `lintPublish` rule to the `build.gradle`
-of the library the Lint check should apply to.
+of the library the lint check should apply to.
 
 ```
 lintPublish(project(':mylibrary:mylibrary-lint'))
@@ -586,16 +597,16 @@ androidx.mylibrary.lint.MyLibraryIssueRegistry
 
 ### Analyzing multiple different file types
 
-Sometimes it is necessary to implement multiple different scanners in a Lint
+Sometimes it is necessary to implement multiple different scanners in a lint
 detector. For example, the
 [Unused Resource](https://cs.android.com/android-studio/platform/tools/base/+/mirror-goog-studio-master-dev:lint/libs/lint-checks/src/main/java/com/android/tools/lint/checks/UnusedResourceDetector.java)
-Lint check implements an XML and SourceCodeScanner in order to determine if
+lint check implements an XML and SourceCodeScanner in order to determine if
 resources defined in XML files are ever references in the Java/Kotlin source
 code.
 
 #### File type iteration order
 
-The Lint system processes files in a predefined order:
+The Lint tool processes files in a predefined order:
 
 1.  Manifests
 1.  Android XML Resources (alphabetical by folder type)
@@ -616,7 +627,7 @@ using `context.driver.requestRepeat(detector, scope)`.
 contains most of the canonical names for Android core library classes, as well
 as XML tag names.
 
-### Updating bytecode and checksum in tests
+### Updating bytecode and checksum in tests {#tips-bytecode}
 
 When updating a file that is used in a lint test, the following error may appear
 when running tests:

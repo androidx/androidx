@@ -2,25 +2,29 @@
 
 [TOC]
 
+This page covers Jetpack's usage of Semantic Versioning and pre-release cycles,
+including the expectations at each cycle and criteria for moving to the next
+cycle or SemVer revision.
+
 ## Semantic versioning
 
-Artifacts follow strict semantic versioning. The version for a finalized release
-will follow the format `<major>.<minor>.<bugfix>` with an optional
-`-<alpha|beta|rc><nn>` suffix. Internal or nightly releases should use the
-`-SNAPSHOT` suffix to indicate that the release bits are subject to change.
-
-Also check out the [Versioning FAQ](faq.md#version).
+Artifacts follow strict [semantic versioning](http://semver.org) with an added
+inter-version sequence of pre-release revisions. The version for a finalized
+release will follow the format `<major>.<minor>.<bugfix>` with an optional
+`-<alpha|beta|rc><nn>` suffix. Internal or nightly releases (via
+[androidx.dev](http://androidx.dev)) should use the `-SNAPSHOT` suffix.
 
 ### Notation
 
 Major (`x.0.0`)
 :   An artifact's major version indicates a guaranteed forward-compatibility
-    window. For example, a developer could update an artifact versioned `2.0.0`
-    to `2.7.3` without taking any additional action.
+    window. The number is incremented only when introducing breaking API or
+    behavioral changes.
 
 Minor (`1.x.0`)
 :   Minor indicates compatible public API changes. This number is incremented
-    when APIs are added, including the addition of `@Deprecated` annotations.
+    when APIs are added, including the addition of
+    [`@Deprecated` annotations](api_guidelines.md#deprecation-and-removal).
     Binary compatibility must be preserved between minor version changes.
 
 Bugfix (`1.0.x`)
@@ -34,17 +38,13 @@ Alpha (`1.0.0-alphaXX`)
 :   Feature development and API stabilization phase.
 
 Beta (`1.0.0-betaXX`)
-:   Functional stabilization phase.
+:   Functional stabilization phase. Suitable for production use.
 
 RC (`1.0.0-rcXX`)
 :   Verification phase.
 
 Stable (no-suffix)
-:   Final releases are well-tested, both by internal tests and external clients,
-    and their API surface is reviewed and finalized. While APIs may be
-    deprecated in future versions and removed in subsequent major version bumps,
-    any APIs added at this stage should be considered semi-permanent as major
-    version bumps are [strongly discouraged](#major-implications).
+:   Recommended for production use.
 
 ### Major (`x.0.0`) {#major}
 
@@ -52,7 +52,8 @@ An artifact's major version indicates a guaranteed forward-compatibility window.
 For example, a developer could update an artifact versioned `2.0.0` to `2.7.3`
 without taking any additional action; however, updating from `2.7.3` to `3.0.0`
 may require a complete rewrite of their application or cause conflicts with
-their dependencies.
+their dependencies. Major version bumps are
+[strongly discouraged](#major-implications).
 
 #### When to increment {#major-when}
 
@@ -342,7 +343,7 @@ A few notes about version updates:
 1.  Update the version listed in `frameworks/support/libraryversions.toml`
 1.  If your library is a `beta` or `rc01` version, run `./gradlew
     <your-lib>:updateApi`. This will create an API txt file for the new version
-    of your library. For other versions, this step is not reqired
+    of your library. For other versions, this step is not required
 1.  Verify changes with `./gradlew checkApi verifyDependencyVersions`.
 1.  Commit these change as one commit.
 1.  Upload these changes to Gerrit for review.
@@ -352,14 +353,14 @@ An example of a version bump can be found here:
 
 ## `-ktx` Modules {#ktx}
 
-Kotlin Extension modules (`-ktx`) for regular Java modules follow the same
-requirements, but with one exception. They must match the version of the Java
-module that they extend.
+[Kotlin extension libraries](api_guidelines.md#module-ktx) (`-ktx`) follow the
+same versioning requirements as other libraries, but with one exception: they
+must match the version of the Java libraries that they extend.
 
-For example, let's say you are developing a java library
-`androidx.foo:foo-bar:1.1.0-alpha01` and you want to add a kotlin extension
-module `androidx.foo:foo-bar-ktx` module. Your new `androidx.foo:foo-bar-ktx`
-module will start at version `1.1.0-alpha01` instead of `1.0.0-alpha01`.
+For example, let's say you are developing a Java library
+`androidx.foo:foo-bar:1.1.0-alpha01` and you want to add a Kotlin extension
+library `androidx.foo:foo-bar-ktx`. Your new `androidx.foo:foo-bar-ktx` library
+will start at version `1.1.0-alpha01` instead of `1.0.0-alpha01`.
 
 If your `androidx.foo:foo-bar` module was in version `1.0.0-alpha06`, then the
-kotlin extension module would start in version `1.0.0-alpha06`.
+Kotlin extension module would start in version `1.0.0-alpha06`.
