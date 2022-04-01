@@ -39,15 +39,6 @@ function hashOutDir() {
 }
 hashOutDir
 
-# diagnostics to hopefully help us figure out b/188565660
-function zipKotlinMetadata() {
-  zipFile=kotlinMetadata.zip
-  echo "zipping kotlin metadata"
-  rm -f "$DIST_DIR/$zipFile"
-  (cd $OUT_DIR && find -name "*kotlin_module" | xargs zip -q -u "$DIST_DIR/$zipFile")
-  echo done zipping kotlin metadata
-}
-
 # If we encounter a failure in postsubmit, we try a few things to determine if the failure is
 # reproducible
 DIAGNOSE_ARG=""
@@ -62,7 +53,6 @@ if impl/build.sh $DIAGNOSE_ARG buildOnServer checkExternalLicenses listTaskOutpu
   echo build succeeded
   EXIT_VALUE=0
 else
-  zipKotlinMetadata
   echo build failed
   EXIT_VALUE=1
 fi
