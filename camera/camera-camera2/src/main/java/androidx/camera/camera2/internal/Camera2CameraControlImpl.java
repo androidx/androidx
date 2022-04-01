@@ -27,8 +27,10 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
+import android.os.Build;
 import android.util.ArrayMap;
 import android.util.Rational;
+import android.util.Size;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
@@ -124,6 +126,7 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
     private final ZoomControl mZoomControl;
     private final TorchControl mTorchControl;
     private final ExposureControl mExposureControl;
+    private final ZslControl mZslControl;
     private final Camera2CameraControl mCamera2CameraControl;
     private final Camera2CapturePipeline mCamera2CapturePipeline;
     @GuardedBy("mLock")
@@ -194,6 +197,11 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
                 this, scheduler, mExecutor, cameraQuirks);
         mZoomControl = new ZoomControl(this, mCameraCharacteristics, mExecutor);
         mTorchControl = new TorchControl(this, mCameraCharacteristics, mExecutor);
+        if (Build.VERSION.SDK_INT >= 23) {
+            mZslControl = new ZslControlImpl(mCameraCharacteristics);
+        } else {
+            mZslControl = new ZslControlNoOpImpl();
+        }
 
         // Workarounds
         mAeFpsRange = new AeFpsRange(cameraQuirks);
@@ -258,6 +266,11 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
     @NonNull
     public ExposureControl getExposureControl() {
         return mExposureControl;
+    }
+
+    @NonNull
+    public ZslControl getZslControl() {
+        return mZslControl;
     }
 
     @NonNull
@@ -368,6 +381,12 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
         // the flash mode is not completed. We need to store the future so that AE precapture can
         // wait for it.
         mFlashModeChangeSessionUpdateFuture = updateSessionConfigAsync();
+    }
+
+    @Override
+    public void addZslConfig(@NonNull Size resolution,
+            @NonNull SessionConfig.Builder sessionConfigBuilder) {
+        mZslControl.addZslConfig(resolution, sessionConfigBuilder);
     }
 
     /** {@inheritDoc} */

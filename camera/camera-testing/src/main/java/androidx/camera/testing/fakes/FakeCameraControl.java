@@ -20,6 +20,7 @@ import static androidx.camera.core.ImageCapture.FLASH_MODE_OFF;
 import static androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE;
 
 import android.graphics.Rect;
+import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -60,6 +61,8 @@ public final class FakeCameraControl implements CameraControlInternal {
     private MutableOptionsBundle mInteropConfig = MutableOptionsBundle.create();
     private final ArrayList<CallbackToFutureAdapter.Completer<Void>> mSubmittedCompleterList =
             new ArrayList<>();
+
+    private boolean mIsZslConfigAdded = false;
 
     public FakeCameraControl(@NonNull ControlUpdateCallback controlUpdateCallback) {
         mControlUpdateCallback = controlUpdateCallback;
@@ -124,6 +127,22 @@ public final class FakeCameraControl implements CameraControlInternal {
     public void setFlashMode(@ImageCapture.FlashMode int flashMode) {
         mFlashMode = flashMode;
         Logger.d(TAG, "setFlashMode(" + mFlashMode + ")");
+    }
+
+    @Override
+    public void addZslConfig(@NonNull Size resolution,
+            @NonNull SessionConfig.Builder sessionConfigBuilder) {
+        // Override if Zero-Shutter Lag needs to add config to session config.
+        mIsZslConfigAdded = true;
+    }
+
+    /**
+     * Check if {@link FakeCameraControl#addZslConfig(Size, SessionConfig.Builder)} is
+     * triggered. Only for testing purpose.
+     * @return
+     */
+    public boolean isZslConfigAdded() {
+        return mIsZslConfigAdded;
     }
 
     @Override

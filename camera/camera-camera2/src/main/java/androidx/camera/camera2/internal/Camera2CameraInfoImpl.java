@@ -16,6 +16,11 @@
 
 package androidx.camera.camera2.internal;
 
+import static android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_PRIVATE_REPROCESSING;
+import static android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_YUV_REPROCESSING;
+
+import static androidx.camera.camera2.internal.ZslUtil.isCapabilitySupported;
+
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraMetadata;
 import android.util.Pair;
@@ -346,6 +351,18 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
             return mCamera2CameraControlImpl.getFocusMeteringControl().isFocusMeteringSupported(
                     action);
         }
+    }
+
+    @Override
+    public boolean isYuvReprocessingSupported() {
+        return isCapabilitySupported(mCameraCharacteristicsCompat,
+                REQUEST_AVAILABLE_CAPABILITIES_YUV_REPROCESSING);
+    }
+
+    @Override
+    public boolean isPrivateReprocessingSupported() {
+        return isCapabilitySupported(mCameraCharacteristicsCompat,
+                REQUEST_AVAILABLE_CAPABILITIES_PRIVATE_REPROCESSING);
     }
 
     /** {@inheritDoc} */

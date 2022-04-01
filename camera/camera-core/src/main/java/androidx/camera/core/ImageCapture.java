@@ -48,7 +48,6 @@ import android.content.ContentValues;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.Rect;
-import android.hardware.camera2.TotalCaptureResult;
 import android.location.Location;
 import android.media.Image;
 import android.media.ImageReader;
@@ -330,7 +329,9 @@ public final class ImageCapture extends UseCase {
 
     /** Callback used to match the {@link ImageProxy} with the {@link ImageInfo}. */
     private CameraCaptureCallback mMetadataMatchingCaptureCallback;
+
     private DeferrableSurface mDeferrableSurface;
+
     private ImageCaptureRequestProcessor mImageCaptureRequestProcessor;
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
@@ -369,6 +370,10 @@ public final class ImageCapture extends UseCase {
             @NonNull ImageCaptureConfig config, @NonNull Size resolution) {
         Threads.checkMainThread();
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
+
+        if (Build.VERSION.SDK_INT >= 23 && getCaptureMode() == CAPTURE_MODE_ZERO_SHUTTER_LAG) {
+            getCameraControl().addZslConfig(resolution, sessionConfigBuilder);
+        }
 
         // Setup the ImageReader to do processing
         if (config.getImageReaderProxyProvider() != null) {
@@ -1152,7 +1157,7 @@ public final class ImageCapture extends UseCase {
         mImageCaptureRequestProcessor.sendRequest(new ImageCaptureRequest(
                 getRelativeRotation(attachedCamera), jpegQuality, mCropAspectRatio,
                 getViewPortCropRect(), mSensorToBufferTransformMatrix, callbackExecutor,
-                callback, /*totalCaptureResult*/null));
+                callback));
     }
 
     private void lockFlashMode() {
@@ -1208,6 +1213,7 @@ public final class ImageCapture extends UseCase {
             case CAPTURE_MODE_MAXIMIZE_QUALITY:
                 return JPEG_QUALITY_MAXIMIZE_QUALITY_MODE;
             case CAPTURE_MODE_MINIMIZE_LATENCY:
+            case CAPTURE_MODE_ZERO_SHUTTER_LAG:
                 return JPEG_QUALITY_MINIMIZE_LATENCY_MODE;
             default:
                 throw new IllegalStateException("CaptureMode " + mCaptureMode + " is invalid");
@@ -2145,9 +2151,6 @@ public final class ImageCapture extends UseCase {
         @NonNull
         private final Matrix mSensorToBufferTransformMatrix;
 
-        @Nullable
-        final TotalCaptureResult mTotalCaptureResult;
-
         /**
          *
          * @param rotationDegrees The degrees to rotate the image buffer from sensor
@@ -2160,8 +2163,6 @@ public final class ImageCapture extends UseCase {
          * @param sensorToBufferTransformMatrix The sensor to buffer transform matrix.
          * @param executor The {@link Executor} which will be used for the listener.
          * @param callback The {@link OnImageCapturedCallback} for the quest.
-         * @param totalCaptureResult The {@link TotalCaptureResult} used for reprocessable
-         *                           capture request.
          * @throws IllegalArgumentException If targetRatio is not a valid value.
          */
         ImageCaptureRequest(
@@ -2171,8 +2172,7 @@ public final class ImageCapture extends UseCase {
                 @Nullable Rect viewPortCropRect,
                 @NonNull Matrix sensorToBufferTransformMatrix,
                 @NonNull Executor executor,
-                @NonNull OnImageCapturedCallback callback,
-                @Nullable TotalCaptureResult totalCaptureResult) {
+                @NonNull OnImageCapturedCallback callback) {
             mRotationDegrees = rotationDegrees;
             mJpegQuality = jpegQuality;
             if (targetRatio != null) {
@@ -2185,7 +2185,6 @@ public final class ImageCapture extends UseCase {
             mSensorToBufferTransformMatrix = sensorToBufferTransformMatrix;
             mListenerExecutor = executor;
             mCallback = callback;
-            mTotalCaptureResult = totalCaptureResult;
         }
 
         void dispatchImage(final ImageProxy image) {
