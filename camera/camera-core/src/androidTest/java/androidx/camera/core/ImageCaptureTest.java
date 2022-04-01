@@ -398,8 +398,7 @@ public class ImageCaptureTest {
                         semaphore.release();
                         image.close();
                     }
-                },
-                /*totalCaptureResult*/null);
+                });
 
         // Act: dispatch a image that has been rotated in the HAL. After 90° rotation the buffer
         // becomes 4x6 and orientation is normal.

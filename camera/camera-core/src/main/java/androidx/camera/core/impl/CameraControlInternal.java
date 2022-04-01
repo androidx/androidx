@@ -19,6 +19,7 @@ package androidx.camera.core.impl;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_OFF;
 
 import android.graphics.Rect;
+import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -56,6 +57,15 @@ public interface CameraControlInternal extends CameraControl {
      * @param flashMode the {@link FlashMode}.
      */
     void setFlashMode(@FlashMode int flashMode);
+
+    /**
+     * Add zero-shutter lag config to {@link SessionConfig}.
+     * @param resolution surface resolution.
+     * @param sessionConfigBuilder session config builder.
+     */
+    void addZslConfig(
+            @NonNull Size resolution,
+            @NonNull SessionConfig.Builder sessionConfigBuilder);
 
     /**
      * Performs still capture requests with the desired capture mode.
@@ -117,6 +127,11 @@ public interface CameraControlInternal extends CameraControl {
 
         @Override
         public void setFlashMode(@FlashMode int flashMode) {
+        }
+
+        @Override
+        public void addZslConfig(@NonNull Size resolution,
+                @NonNull SessionConfig.Builder sessionConfigBuilder) {
         }
 
         @NonNull

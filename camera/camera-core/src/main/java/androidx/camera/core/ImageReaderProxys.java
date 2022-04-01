@@ -20,13 +20,17 @@ import android.media.ImageReader;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 import androidx.camera.core.impl.ImageReaderProxy;
 
 /**
  * Different implementations of {@link ImageReaderProxy}.
+ *
+ * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-final class ImageReaderProxys {
+public final class ImageReaderProxys {
 
     private ImageReaderProxys() {
     }
@@ -41,7 +45,7 @@ final class ImageReaderProxys {
      * @return new {@link ImageReaderProxy} instance
      */
     @NonNull
-    static ImageReaderProxy createIsolatedReader(
+    public static ImageReaderProxy createIsolatedReader(
             int width, int height, int format, int maxImages) {
         ImageReader imageReader = ImageReader.newInstance(width, height, format, maxImages);
         return new AndroidImageReaderProxy(imageReader);
