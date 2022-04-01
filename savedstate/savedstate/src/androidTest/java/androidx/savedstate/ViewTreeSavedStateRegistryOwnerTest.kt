@@ -14,44 +14,39 @@
  * limitations under the License.
  */
 
-package androidx.savedstate;
+package androidx.savedstate
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import android.view.View
+import android.view.ViewGroup
+import android.widget.FrameLayout
+import androidx.lifecycle.Lifecycle
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SmallTest
+import androidx.test.platform.app.InstrumentationRegistry
+import com.google.common.truth.Truth.assertWithMessage
+import org.junit.Test
+import org.junit.runner.RunWith
 
-import android.content.Context;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
-
-import androidx.annotation.NonNull;
-import androidx.lifecycle.Lifecycle;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
-import androidx.test.platform.app.InstrumentationRegistry;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-@RunWith(AndroidJUnit4.class)
+@RunWith(AndroidJUnit4::class)
 @SmallTest
-public class ViewTreeSavedStateRegistryOwnerTest {
-
+class ViewTreeSavedStateRegistryOwnerTest {
     /**
      * Tests that a direct set/get on a single view survives a round trip
      */
     @Test
-    public void setGetSameView() {
-        final View v = new View(InstrumentationRegistry.getInstrumentation().getContext());
-        final SavedStateRegistryOwner fakeOwner = new FakeOwner();
+    fun setGetSameView() {
+        val v = View(InstrumentationRegistry.getInstrumentation().context)
 
-        assertNull("initial SavedStateRegistryOwner expects null",
-                ViewTreeSavedStateRegistryOwner.get(v));
+        assertWithMessage("initial SavedStateRegistryOwner expects null")
+            .that(v.findViewTreeSavedStateRegistryOwner())
+            .isNull()
 
-        ViewTreeSavedStateRegistryOwner.set(v, fakeOwner);
+        val fakeOwner: SavedStateRegistryOwner = FakeSavedStateRegistryOwner()
+        v.setViewTreeSavedStateRegistryOwner(fakeOwner)
 
-        assertEquals("get the SavedStateRegistryOwner set directly", fakeOwner,
-                ViewTreeSavedStateRegistryOwner.get(v));
+        assertWithMessage("get the SavedStateRegistryOwner set directly")
+            .that(v.findViewTreeSavedStateRegistryOwner())
+            .isEqualTo(fakeOwner)
     }
 
     /**
@@ -59,25 +54,30 @@ public class ViewTreeSavedStateRegistryOwnerTest {
      * and other descendants
      */
     @Test
-    public void getAncestorOwner() {
-        final Context context = InstrumentationRegistry.getInstrumentation().getContext();
-        final ViewGroup root = new FrameLayout(context);
-        final ViewGroup parent = new FrameLayout(context);
-        final View child = new View(context);
-        root.addView(parent);
-        parent.addView(child);
+    fun getAncestorOwner() {
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val root: ViewGroup = FrameLayout(context)
+        val parent: ViewGroup = FrameLayout(context)
+        val child = View(context)
+        root.addView(parent)
+        parent.addView(child)
 
-        assertNull("initial SavedStateRegistryOwner expects null",
-                ViewTreeSavedStateRegistryOwner.get(child));
+        assertWithMessage("initial SavedStateRegistryOwner expects null")
+            .that(child.findViewTreeSavedStateRegistryOwner())
+            .isNull()
 
-        final SavedStateRegistryOwner fakeOwner = new FakeOwner();
-        ViewTreeSavedStateRegistryOwner.set(root, fakeOwner);
+        val fakeOwner: SavedStateRegistryOwner = FakeSavedStateRegistryOwner()
+        root.setViewTreeSavedStateRegistryOwner(fakeOwner)
 
-        assertEquals("root sees owner", fakeOwner, ViewTreeSavedStateRegistryOwner.get(root));
-        assertEquals("direct child sees owner", fakeOwner,
-                ViewTreeSavedStateRegistryOwner.get(parent));
-        assertEquals("grandchild sees owner", fakeOwner,
-                ViewTreeSavedStateRegistryOwner.get(child));
+        assertWithMessage("root sees owner")
+            .that(root.findViewTreeSavedStateRegistryOwner())
+            .isEqualTo(fakeOwner)
+        assertWithMessage("direct child sees owner")
+            .that(parent.findViewTreeSavedStateRegistryOwner())
+            .isEqualTo(fakeOwner)
+        assertWithMessage("grandchild sees owner")
+            .that(child.findViewTreeSavedStateRegistryOwner())
+            .isEqualTo(fakeOwner)
     }
 
     /**
@@ -85,41 +85,42 @@ public class ViewTreeSavedStateRegistryOwnerTest {
      * instead of the root value
      */
     @Test
-    public void shadowedOwner() {
-        final Context context = InstrumentationRegistry.getInstrumentation().getContext();
-        final ViewGroup root = new FrameLayout(context);
-        final ViewGroup parent = new FrameLayout(context);
-        final View child = new View(context);
-        root.addView(parent);
-        parent.addView(child);
+    fun shadowedOwner() {
+        val context =
+            InstrumentationRegistry.getInstrumentation().context
+        val root: ViewGroup = FrameLayout(context)
+        val parent: ViewGroup = FrameLayout(context)
+        val child = View(context)
+        root.addView(parent)
+        parent.addView(child)
 
-        assertNull("initial SavedStateRegistryOwner expects null",
-                ViewTreeSavedStateRegistryOwner.get(child));
+        assertWithMessage("initial SavedStateRegistryOwner expects null")
+            .that(child.findViewTreeSavedStateRegistryOwner())
+            .isNull()
 
-        final SavedStateRegistryOwner rootFakeOwner = new FakeOwner();
-        ViewTreeSavedStateRegistryOwner.set(root, rootFakeOwner);
+        val rootFakeOwner: SavedStateRegistryOwner = FakeSavedStateRegistryOwner()
+        root.setViewTreeSavedStateRegistryOwner(rootFakeOwner)
 
-        final SavedStateRegistryOwner parentFakeOwner = new FakeOwner();
-        ViewTreeSavedStateRegistryOwner.set(parent, parentFakeOwner);
+        val parentFakeOwner: SavedStateRegistryOwner = FakeSavedStateRegistryOwner()
+        parent.setViewTreeSavedStateRegistryOwner(parentFakeOwner)
 
-        assertEquals("root sees owner", rootFakeOwner, ViewTreeSavedStateRegistryOwner.get(root));
-        assertEquals("direct child sees owner", parentFakeOwner,
-                ViewTreeSavedStateRegistryOwner.get(parent));
-        assertEquals("grandchild sees owner", parentFakeOwner,
-                ViewTreeSavedStateRegistryOwner.get(child));
+        assertWithMessage("root sees owner")
+            .that(root.findViewTreeSavedStateRegistryOwner())
+            .isEqualTo(rootFakeOwner)
+        assertWithMessage("direct child sees owner")
+            .that(parent.findViewTreeSavedStateRegistryOwner())
+            .isEqualTo(parentFakeOwner)
+        assertWithMessage("grandchild sees owner")
+            .that(child.findViewTreeSavedStateRegistryOwner())
+            .isEqualTo(parentFakeOwner)
     }
 
-    static class FakeOwner implements SavedStateRegistryOwner {
-        @NonNull
-        @Override
-        public Lifecycle getLifecycle() {
-            throw new UnsupportedOperationException("not a real SavedStateRegistryOwner");
+    internal class FakeSavedStateRegistryOwner : SavedStateRegistryOwner {
+        override fun getLifecycle(): Lifecycle {
+            throw UnsupportedOperationException("not a real SavedStateRegistryOwner")
         }
 
-        @NonNull
-        @Override
-        public SavedStateRegistry getSavedStateRegistry() {
-            throw new UnsupportedOperationException("not a real SavedStateRegistryOwner");
-        }
+        override val savedStateRegistry: SavedStateRegistry
+            get() = throw UnsupportedOperationException("not a real SavedStateRegistryOwner")
     }
 }
