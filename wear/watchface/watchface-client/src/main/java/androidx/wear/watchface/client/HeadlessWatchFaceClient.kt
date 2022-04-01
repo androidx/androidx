@@ -80,7 +80,7 @@ public interface HeadlessWatchFaceClient : AutoCloseable {
      *
      * @property reason The [WatchFaceExceptionReason] for the exception.
      */
-    // TODO: b/227151490 Get rid of WatchFaceException duplication
+    // TODO(b/227151490): Get rid of WatchFaceException duplication
     @WatchFaceFlavorsExperimental
     public class WatchFaceException(
         e: Exception,
