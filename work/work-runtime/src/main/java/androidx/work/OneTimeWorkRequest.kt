@@ -13,106 +13,84 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.work
 
-package androidx.work;
-
-import android.os.Build;
-
-import androidx.annotation.NonNull;
-
-import java.util.ArrayList;
-import java.util.List;
+import android.os.Build
 
 /**
- * A {@link WorkRequest} for non-repeating work.
- * <p>
+ * A [WorkRequest] for non-repeating work.
+ *
  * OneTimeWorkRequests can be put in simple or complex graphs of work by using methods like
- * {@link WorkManager#beginWith(OneTimeWorkRequest)} or {@link WorkManager#beginWith(List)}.
+ * [WorkManager.beginWith] or [WorkManager.beginWith].
  */
-
-public final class OneTimeWorkRequest extends WorkRequest {
-
+class OneTimeWorkRequest internal constructor(builder: Builder) :
+    WorkRequest(builder.id, builder.workSpec, builder.tags) {
     /**
-     * Creates a {@link OneTimeWorkRequest} with defaults from a  {@link ListenableWorker} class
-     * name.
+     * Builder for [OneTimeWorkRequest]s.
      *
-     * @param workerClass An {@link ListenableWorker} class name
-     * @return A {@link OneTimeWorkRequest} constructed by using defaults in the {@link Builder}
+     * @param workerClass The [ListenableWorker] class to run for this work
      */
-    public static @NonNull OneTimeWorkRequest from(
-            @NonNull Class<? extends ListenableWorker> workerClass) {
-        return new OneTimeWorkRequest.Builder(workerClass).build();
-    }
+    class Builder(workerClass: Class<out ListenableWorker>) :
+        WorkRequest.Builder<Builder, OneTimeWorkRequest>(workerClass) {
 
-    /**
-     * Creates a list of {@link OneTimeWorkRequest}s with defaults from an array of
-     * {@link ListenableWorker} class names.
-     *
-     * @param workerClasses A list of {@link ListenableWorker} class names
-     * @return A list of {@link OneTimeWorkRequest} constructed by using defaults in the {@link
-     * Builder}
-     */
-    public static @NonNull List<OneTimeWorkRequest> from(
-            @NonNull List<Class<? extends ListenableWorker>> workerClasses) {
-        List<OneTimeWorkRequest> workList = new ArrayList<>(workerClasses.size());
-        for (Class<? extends ListenableWorker> workerClass : workerClasses) {
-            workList.add(new OneTimeWorkRequest.Builder(workerClass).build());
+        init {
+            workSpec.inputMergerClassName = OverwritingInputMerger::class.java.name
         }
-        return workList;
-    }
-
-    OneTimeWorkRequest(Builder builder) {
-        super(builder.mId, builder.mWorkSpec, builder.mTags);
-    }
-
-    /**
-     * Builder for {@link OneTimeWorkRequest}s.
-     */
-    public static final class Builder extends WorkRequest.Builder<Builder, OneTimeWorkRequest> {
 
         /**
-         * Creates a {@link OneTimeWorkRequest}.
+         * Specifies the [InputMerger] class name for this [OneTimeWorkRequest].
          *
-         * @param workerClass The {@link ListenableWorker} class to run for this work
-         */
-        public Builder(@NonNull Class<? extends ListenableWorker> workerClass) {
-            super(workerClass);
-            mWorkSpec.inputMergerClassName = OverwritingInputMerger.class.getName();
-        }
-
-        /**
-         * Specifies the {@link InputMerger} class name for this {@link OneTimeWorkRequest}.
-         * <p>
-         * Before workers run, they receive input {@link Data} from their parent workers, as well as
-         * anything specified directly to them via {@link WorkRequest.Builder#setInputData(Data)}.
+         * Before workers run, they receive input [Data] from their parent workers, as well as
+         * anything specified directly to them via [WorkRequest.Builder.setInputData].
          * An InputMerger takes all of these objects and converts them to a single merged
-         * {@link Data} to be used as the worker input.  The default InputMerger is
-         * {@link OverwritingInputMerger}.  This library also offers
-         * {@link ArrayCreatingInputMerger}; you can also specify your own.
+         * [Data] to be used as the worker input.  The default InputMerger is
+         * [OverwritingInputMerger].  This library also offers
+         * [ArrayCreatingInputMerger]; you can also specify your own.
          *
-         * @param inputMerger The class name of the {@link InputMerger} for this
-         *                    {@link OneTimeWorkRequest}
-         * @return The current {@link Builder}
+         * @param inputMerger The class name of the [InputMerger] for this
+         * [OneTimeWorkRequest]
+         * @return The current [Builder]
          */
-        public @NonNull Builder setInputMerger(@NonNull Class<? extends InputMerger> inputMerger) {
-            mWorkSpec.inputMergerClassName = inputMerger.getName();
-            return this;
+        fun setInputMerger(inputMerger: Class<out InputMerger>): Builder {
+            workSpec.inputMergerClassName = inputMerger.name
+            return this
         }
 
-        @Override
-        @NonNull OneTimeWorkRequest buildInternal() {
-            if (mBackoffCriteriaSet
-                    && Build.VERSION.SDK_INT >= 23
-                    && mWorkSpec.constraints.requiresDeviceIdle()) {
-                throw new IllegalArgumentException(
-                        "Cannot set backoff criteria on an idle mode job");
-            }
-            return new OneTimeWorkRequest(this);
+        override fun buildInternal(): OneTimeWorkRequest {
+            require(
+                !(backoffCriteriaSet && Build.VERSION.SDK_INT >= 23 &&
+                    workSpec.constraints.requiresDeviceIdle())
+            ) { "Cannot set backoff criteria on an idle mode job" }
+            return OneTimeWorkRequest(this)
         }
 
-        @Override
-        @NonNull Builder getThis() {
-            return this;
+        override val thisObject: Builder
+            get() = this
+    }
+
+    companion object {
+        /**
+         * Creates a [OneTimeWorkRequest] with defaults from a  [ListenableWorker] class
+         * name.
+         *
+         * @param workerClass An [ListenableWorker] class name
+         * @return A [OneTimeWorkRequest] constructed by using defaults in the [Builder]
+         */
+        @JvmStatic
+        fun from(workerClass: Class<out ListenableWorker>): OneTimeWorkRequest {
+            return Builder(workerClass).build()
+        }
+
+        /**
+         * Creates a list of [OneTimeWorkRequest]s with defaults from an array of
+         * [ListenableWorker] class names.
+         *
+         * @param workerClasses A list of [ListenableWorker] class names
+         * @return A list of [OneTimeWorkRequest] constructed by using defaults in the [ ]
+         */
+        @JvmStatic
+        fun from(workerClasses: List<Class<out ListenableWorker>>): List<OneTimeWorkRequest> {
+            return workerClasses.map { Builder(it).build() }
         }
     }
 }
