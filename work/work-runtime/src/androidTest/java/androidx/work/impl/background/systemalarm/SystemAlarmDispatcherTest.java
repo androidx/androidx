@@ -16,6 +16,8 @@
 
 package androidx.work.impl.background.systemalarm;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -23,6 +25,7 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -51,6 +54,7 @@ import androidx.work.WorkInfo;
 import androidx.work.impl.Processor;
 import androidx.work.impl.Scheduler;
 import androidx.work.impl.WorkManagerImpl;
+import androidx.work.impl.WorkRunId;
 import androidx.work.impl.constraints.NetworkState;
 import androidx.work.impl.constraints.trackers.BatteryNotLowTracker;
 import androidx.work.impl.constraints.trackers.ConstraintTracker;
@@ -236,7 +240,9 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
                 new SystemAlarmDispatcher.AddRunnable(mSpyDispatcher, intent, START_ID));
         mLatch.await(TEST_TIMEOUT, TimeUnit.SECONDS);
         assertThat(mLatch.getCount(), is(0L));
-        verify(mSpyProcessor, times(1)).startWork(workSpecId);
+        ArgumentCaptor<WorkRunId> captor = ArgumentCaptor.forClass(WorkRunId.class);
+        verify(mSpyProcessor, times(1)).startWork(captor.capture());
+        assertThat(captor.getValue().getWorkSpecId()).isEqualTo(workSpecId);
     }
 
     @Test
@@ -259,7 +265,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
                         CommandHandler.ACTION_DELAY_MET,
                         CommandHandler.ACTION_STOP_WORK,
                         CommandHandler.ACTION_EXECUTION_COMPLETED));
-        verify(mSpyProcessor, times(0)).startWork(workSpecId);
+        verify(mSpyProcessor, times(0)).startWork(any(WorkRunId.class));
     }
 
     @Test
@@ -285,8 +291,13 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         mLatch.await(TEST_TIMEOUT, TimeUnit.SECONDS);
 
         assertThat(mLatch.getCount(), is(0L));
-        verify(mSpyProcessor, times(1)).startWork(workSpecId);
-        verify(mWorkManager, times(1)).stopWork(workSpecId);
+        ArgumentCaptor<WorkRunId> captor = ArgumentCaptor.forClass(WorkRunId.class);
+        verify(mSpyProcessor, times(1)).startWork(captor.capture());
+        assertThat(captor.getValue().getWorkSpecId()).isEqualTo(workSpecId);
+
+        ArgumentCaptor<WorkRunId> captorStop = ArgumentCaptor.forClass(WorkRunId.class);
+        verify(mWorkManager, times(1)).stopWork(captorStop.capture());
+        assertThat(captorStop.getValue().getWorkSpecId()).isEqualTo(workSpecId);
     }
 
     @Test
@@ -310,8 +321,13 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         mLatch.await(TEST_TIMEOUT, TimeUnit.SECONDS);
 
         assertThat(mLatch.getCount(), is(0L));
-        verify(mSpyProcessor, times(1)).startWork(workSpecId);
-        verify(mWorkManager, times(1)).stopWork(workSpecId);
+        ArgumentCaptor<WorkRunId> captor = ArgumentCaptor.forClass(WorkRunId.class);
+        verify(mSpyProcessor, times(1)).startWork(captor.capture());
+        assertThat(captor.getValue().getWorkSpecId()).isEqualTo(workSpecId);
+
+        ArgumentCaptor<WorkRunId> captorStop = ArgumentCaptor.forClass(WorkRunId.class);
+        verify(mWorkManager, times(1)).stopWork(captorStop.capture());
+        assertThat(captorStop.getValue().getWorkSpecId()).isEqualTo(workSpecId);
     }
 
     @Test
@@ -329,7 +345,10 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         mLatch.await(TEST_TIMEOUT, TimeUnit.SECONDS);
 
         assertThat(mLatch.getCount(), is(0L));
-        verify(mSpyProcessor, times(1)).startWork(workSpecId);
+        ArgumentCaptor<WorkRunId> captor = ArgumentCaptor.forClass(WorkRunId.class);
+        verify(mSpyProcessor, times(1)).startWork(captor.capture());
+        assertThat(captor.getValue().getWorkSpecId()).isEqualTo(workSpecId);
+
         List<String> intentActions = mSpyDispatcher.getIntentActions();
         assertThat(intentActions,
                 IsIterableContainingInOrder.contains(
@@ -368,7 +387,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         mLatch.await(TEST_TIMEOUT, TimeUnit.SECONDS);
         assertThat(mLatch.getCount(), is(0L));
         // Should not call startWork, but schedule an alarm.
-        verify(mSpyProcessor, times(0)).startWork(workSpecId);
+        verify(mSpyProcessor, times(0)).startWork(any(WorkRunId.class));
     }
 
     @Test
@@ -404,7 +423,9 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
 
         mLatch.await(TEST_TIMEOUT, TimeUnit.SECONDS);
         assertThat(mLatch.getCount(), is(0L));
-        verify(mSpyProcessor, times(1)).startWork(workSpecId);
+        ArgumentCaptor<WorkRunId> captor = ArgumentCaptor.forClass(WorkRunId.class);
+        verify(mSpyProcessor, times(1)).startWork(captor.capture());
+        assertThat(captor.getValue().getWorkSpecId()).isEqualTo(workSpecId);
     }
 
     @Test

@@ -16,6 +16,8 @@
 
 package androidx.work.impl.background.greedy;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
@@ -34,6 +36,7 @@ import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManagerTest;
 import androidx.work.impl.Processor;
 import androidx.work.impl.WorkManagerImpl;
+import androidx.work.impl.WorkRunId;
 import androidx.work.impl.constraints.WorkConstraintsTracker;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
@@ -42,6 +45,7 @@ import androidx.work.worker.TestWorker;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 
 import java.util.Collections;
@@ -86,7 +90,9 @@ public class GreedySchedulerTest extends WorkManagerTest {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         WorkSpec workSpec = work.getWorkSpec();
         mGreedyScheduler.schedule(workSpec);
-        verify(mWorkManagerImpl).startWork(workSpec.id);
+        ArgumentCaptor<WorkRunId> captor = ArgumentCaptor.forClass(WorkRunId.class);
+        verify(mWorkManagerImpl).startWork(captor.capture());
+        assertThat(captor.getValue().getWorkSpecId()).isEqualTo(workSpec.id);
     }
 
     @Test
@@ -99,7 +105,9 @@ public class GreedySchedulerTest extends WorkManagerTest {
         // PeriodicWorkRequests are special because their periodStartTime is set to 0.
         // So the first invocation will always result in startWork(). Subsequent runs will
         // use `delayedStartWork()`.
-        verify(mWorkManagerImpl).startWork(periodicWork.getStringId());
+        ArgumentCaptor<WorkRunId> captor = ArgumentCaptor.forClass(WorkRunId.class);
+        verify(mWorkManagerImpl).startWork(captor.capture());
+        assertThat(captor.getValue().getWorkSpecId()).isEqualTo(periodicWork.getStringId());
     }
 
     @Test
@@ -141,14 +149,20 @@ public class GreedySchedulerTest extends WorkManagerTest {
     @SmallTest
     public void testGreedyScheduler_startsWorkWhenConstraintsMet() {
         mGreedyScheduler.onAllConstraintsMet(Collections.singletonList(TEST_ID));
-        verify(mWorkManagerImpl).startWork(TEST_ID);
+        ArgumentCaptor<WorkRunId> captor = ArgumentCaptor.forClass(WorkRunId.class);
+        verify(mWorkManagerImpl).startWork(captor.capture());
+        assertThat(captor.getValue().getWorkSpecId()).isEqualTo(TEST_ID);
     }
 
     @Test
     @SmallTest
     public void testGreedyScheduler_stopsWorkWhenConstraintsNotMet() {
+        // in order to stop the work, we should start it first.
+        mGreedyScheduler.onAllConstraintsMet(Collections.singletonList(TEST_ID));
         mGreedyScheduler.onAllConstraintsNotMet(Collections.singletonList(TEST_ID));
-        verify(mWorkManagerImpl).stopWork(TEST_ID);
+        ArgumentCaptor<WorkRunId> captor = ArgumentCaptor.forClass(WorkRunId.class);
+        verify(mWorkManagerImpl).stopWork(captor.capture());
+        assertThat(captor.getValue().getWorkSpecId()).isEqualTo(TEST_ID);
     }
 
     @Test

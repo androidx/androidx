@@ -31,6 +31,7 @@ import androidx.work.Logger;
 import androidx.work.impl.ExecutionListener;
 import androidx.work.impl.Processor;
 import androidx.work.impl.WorkManagerImpl;
+import androidx.work.impl.WorkRunIds;
 import androidx.work.impl.utils.SerialExecutor;
 import androidx.work.impl.utils.WakeLocks;
 import androidx.work.impl.utils.WorkTimer;
@@ -71,6 +72,8 @@ public class SystemAlarmDispatcher implements ExecutionListener {
     @Nullable
     private CommandsCompletedListener mCompletedListener;
 
+    private WorkRunIds mWorkRunIds;
+
     SystemAlarmDispatcher(@NonNull Context context) {
         this(context, null, null);
     }
@@ -81,7 +84,8 @@ public class SystemAlarmDispatcher implements ExecutionListener {
             @Nullable Processor processor,
             @Nullable WorkManagerImpl workManager) {
         mContext = context.getApplicationContext();
-        mCommandHandler = new CommandHandler(mContext);
+        mWorkRunIds = new WorkRunIds();
+        mCommandHandler = new CommandHandler(mContext, mWorkRunIds);
         mWorkManager = workManager != null ? workManager : WorkManagerImpl.getInstance(context);
         mWorkTimer = new WorkTimer(mWorkManager.getConfiguration().getRunnableScheduler());
         mProcessor = processor != null ? processor : mWorkManager.getProcessor();
