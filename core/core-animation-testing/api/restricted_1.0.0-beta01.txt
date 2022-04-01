@@ -1,0 +1,12 @@
+// Signature format: 4.0
+package androidx.core.animation {
+
+  public final class AnimatorTestRule implements org.junit.rules.TestRule {
+    ctor public AnimatorTestRule();
+    method public void advanceTimeBy(long);
+    method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement, org.junit.runner.Description);
+    method public long getCurrentTime();
+  }
+
+}
+
