@@ -13,17 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.work
 
-package androidx.work;
-
-import androidx.annotation.RequiresApi;
+import androidx.annotation.RequiresApi
 
 /**
- * An enumeration of various network types that can be used as {@link Constraints} for work.
+ * An enumeration of various network types that can be used as [Constraints] for work.
  */
-
-public enum NetworkType {
-
+enum class NetworkType {
     /**
      * A network is not required for this work.
      */
@@ -54,7 +51,7 @@ public enum NetworkType {
      * generally metered, but are currently unmetered.
      *
      * Note: This capability can be changed at any time. When it is removed,
-     * {@link ListenableWorker}s are responsible for stopping any data transfer that should not
+     * [ListenableWorker]s are responsible for stopping any data transfer that should not
      * occur on a metered network.
      */
     @RequiresApi(30)

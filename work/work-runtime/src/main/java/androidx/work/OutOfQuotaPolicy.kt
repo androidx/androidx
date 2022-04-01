@@ -13,14 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package androidx.work;
+package androidx.work
 
 /**
  * An enumeration of policies that help determine out of quota behavior for expedited jobs.
  */
-public enum OutOfQuotaPolicy {
-
+enum class OutOfQuotaPolicy {
     /**
      * When the app does not have any expedited job quota, the expedited work request will
      * fallback to a regular work request.
@@ -31,5 +29,5 @@ public enum OutOfQuotaPolicy {
      * When the app does not have any expedited job quota, the expedited work request will
      * be dropped and no work requests are enqueued.
      */
-    DROP_WORK_REQUEST;
+    DROP_WORK_REQUEST
 }

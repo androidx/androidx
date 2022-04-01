@@ -13,16 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package androidx.work;
+package androidx.work
 
 /**
  * An enumeration of the conflict resolution policies available to unique
- * {@link PeriodicWorkRequest}s in case of a collision.
+ * [PeriodicWorkRequest]s in case of a collision.
  */
-
-public enum ExistingPeriodicWorkPolicy {
-
+enum class ExistingPeriodicWorkPolicy {
     /**
      * If there is existing pending (uncompleted) work with the same unique name, cancel and delete
      * it.  Then, insert the newly-specified work.
