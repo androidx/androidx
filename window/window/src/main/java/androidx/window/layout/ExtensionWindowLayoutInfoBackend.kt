@@ -93,6 +93,8 @@ internal class ExtensionWindowLayoutInfoBackend(
             multicastListener.removeListener(callback)
             if (multicastListener.isEmpty()) {
                 consumerToToken.remove(multicastListener)?.dispose()
+                listenerToActivity.remove(callback)
+                activityToListeners.remove(activity)
             }
         }
     }
