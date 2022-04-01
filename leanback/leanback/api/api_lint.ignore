@@ -139,6 +139,16 @@ InternalField: androidx.leanback.widget.RowPresenter.ViewHolder#mColorDimmer:
     Internal field mColorDimmer must not be exposed
 
 
+InvalidNullability: androidx.leanback.app.BrandedFragment#onViewCreated(android.view.View, android.os.Bundle) parameter #0:
+    Invalid nullability on parameter `view` in method `onViewCreated`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.leanback.app.OnboardingFragment#onViewCreated(android.view.View, android.os.Bundle) parameter #0:
+    Invalid nullability on parameter `view` in method `onViewCreated`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.leanback.app.PlaybackFragment#onViewCreated(android.view.View, android.os.Bundle) parameter #0:
+    Invalid nullability on parameter `view` in method `onViewCreated`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.leanback.widget.GuidedActionEditText#onTouchEvent(android.view.MotionEvent) parameter #0:
+    Invalid nullability on parameter `event` in method `onTouchEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+
+
 KotlinOperator: androidx.leanback.widget.ObjectAdapter#get(int):
     Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
 KotlinOperator: androidx.leanback.widget.SparseArrayObjectAdapter#set(int, Object):

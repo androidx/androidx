@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+InvalidNullability: androidx.vectordrawable.graphics.drawable.SeekableAnimatedVectorDrawable#onBoundsChange(android.graphics.Rect) parameter #0:
+    Invalid nullability on parameter `bounds` in method `onBoundsChange`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.vectordrawable.graphics.drawable.SeekableAnimatedVectorDrawable#onStateChange(int[]) parameter #0:
+    Invalid nullability on parameter `state` in method `onStateChange`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.

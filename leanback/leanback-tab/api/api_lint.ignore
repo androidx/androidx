@@ -1,0 +1,7 @@
+// Baseline format: 1.0
+InvalidNullability: androidx.leanback.tab.LeanbackTabLayout#addFocusables(java.util.ArrayList<android.view.View>, int, int) parameter #0:
+    Invalid nullability on parameter `views` in method `addFocusables`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.leanback.tab.LeanbackViewPager#onInterceptTouchEvent(android.view.MotionEvent) parameter #0:
+    Invalid nullability on parameter `event` in method `onInterceptTouchEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.leanback.tab.LeanbackViewPager#onTouchEvent(android.view.MotionEvent) parameter #0:
+    Invalid nullability on parameter `event` in method `onTouchEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.

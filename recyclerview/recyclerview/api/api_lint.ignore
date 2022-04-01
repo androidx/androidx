@@ -18,9 +18,9 @@ ArrayReturn: androidx.recyclerview.widget.SortedList#replaceAll(T[], boolean) pa
 
 
 BannedThrow: androidx.recyclerview.widget.SnapHelper#attachToRecyclerView(androidx.recyclerview.widget.RecyclerView):
-    Methods must not mention RuntimeException subclasses in throws clauses (was `java.lang.IllegalStateException`)
+    Methods must not throw unchecked exceptions
 BannedThrow: androidx.recyclerview.widget.SortedList#get(int):
-    Methods must not mention RuntimeException subclasses in throws clauses (was `java.lang.IndexOutOfBoundsException`)
+    Methods must not throw unchecked exceptions
 
 
 CallbackMethodName: androidx.recyclerview.widget.AsyncListUtil.DataCallback#fillData(T[], int, int):
@@ -159,6 +159,36 @@ InternalField: androidx.recyclerview.widget.LinearSmoothScroller#mTargetVector:
     Internal field mTargetVector must not be exposed
 InternalField: androidx.recyclerview.widget.OrientationHelper#mLayoutManager:
     Internal field mLayoutManager must not be exposed
+
+
+InvalidNullability: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate.ItemDelegate#dispatchPopulateAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent) parameter #0:
+    Invalid nullability on parameter `host` in method `dispatchPopulateAccessibilityEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate.ItemDelegate#dispatchPopulateAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent) parameter #1:
+    Invalid nullability on parameter `event` in method `dispatchPopulateAccessibilityEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate.ItemDelegate#getAccessibilityNodeProvider(android.view.View):
+    Invalid nullability on method `getAccessibilityNodeProvider` return. Overrides of unannotated super method cannot be Nullable.
+InvalidNullability: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate.ItemDelegate#getAccessibilityNodeProvider(android.view.View) parameter #0:
+    Invalid nullability on parameter `host` in method `getAccessibilityNodeProvider`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate.ItemDelegate#onInitializeAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent) parameter #0:
+    Invalid nullability on parameter `host` in method `onInitializeAccessibilityEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate.ItemDelegate#onInitializeAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent) parameter #1:
+    Invalid nullability on parameter `event` in method `onInitializeAccessibilityEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate.ItemDelegate#onPopulateAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent) parameter #0:
+    Invalid nullability on parameter `host` in method `onPopulateAccessibilityEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate.ItemDelegate#onPopulateAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent) parameter #1:
+    Invalid nullability on parameter `event` in method `onPopulateAccessibilityEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate.ItemDelegate#onRequestSendAccessibilityEvent(android.view.ViewGroup, android.view.View, android.view.accessibility.AccessibilityEvent) parameter #0:
+    Invalid nullability on parameter `host` in method `onRequestSendAccessibilityEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate.ItemDelegate#onRequestSendAccessibilityEvent(android.view.ViewGroup, android.view.View, android.view.accessibility.AccessibilityEvent) parameter #1:
+    Invalid nullability on parameter `child` in method `onRequestSendAccessibilityEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate.ItemDelegate#onRequestSendAccessibilityEvent(android.view.ViewGroup, android.view.View, android.view.accessibility.AccessibilityEvent) parameter #2:
+    Invalid nullability on parameter `event` in method `onRequestSendAccessibilityEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate.ItemDelegate#sendAccessibilityEvent(android.view.View, int) parameter #0:
+    Invalid nullability on parameter `host` in method `sendAccessibilityEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate.ItemDelegate#sendAccessibilityEventUnchecked(android.view.View, android.view.accessibility.AccessibilityEvent) parameter #0:
+    Invalid nullability on parameter `host` in method `sendAccessibilityEventUnchecked`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate.ItemDelegate#sendAccessibilityEventUnchecked(android.view.View, android.view.accessibility.AccessibilityEvent) parameter #1:
+    Invalid nullability on parameter `event` in method `sendAccessibilityEventUnchecked`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 
 
 KotlinOperator: androidx.recyclerview.widget.RecyclerView.State#get(int):

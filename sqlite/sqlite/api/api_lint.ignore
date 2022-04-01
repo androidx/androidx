@@ -35,6 +35,14 @@ ArrayReturn: androidx.sqlite.db.SupportSQLiteQueryBuilder#selection(String, Obje
     Method parameter should be Collection<Object> (or subclass) instead of raw array; was `java.lang.Object[]`
 
 
+BannedThrow: androidx.sqlite.db.SupportSQLiteDatabase#execSQL(String):
+    Methods must not throw unchecked exceptions
+BannedThrow: androidx.sqlite.db.SupportSQLiteDatabase#execSQL(String, Object[]):
+    Methods must not throw unchecked exceptions
+BannedThrow: androidx.sqlite.db.SupportSQLiteDatabase#insert(String, int, android.content.ContentValues):
+    Methods must not throw unchecked exceptions
+
+
 BuilderSetStyle: androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder#allowDataLossOnRecovery(boolean):
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder.allowDataLossOnRecovery(boolean)
 BuilderSetStyle: androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder#callback(androidx.sqlite.db.SupportSQLiteOpenHelper.Callback):

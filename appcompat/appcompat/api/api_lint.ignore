@@ -49,6 +49,54 @@ GetterSetterNames: androidx.appcompat.widget.SwitchCompat#getSplitTrack():
     Symmetric method for `setSplitTrack` must be named `isSplitTrack`; was `getSplitTrack`
 
 
+InvalidNullability: androidx.appcompat.app.AppCompatActivity#onSupportActionModeFinished(androidx.appcompat.view.ActionMode) parameter #0:
+    Invalid nullability on parameter `mode` in method `onSupportActionModeFinished`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.appcompat.app.AppCompatActivity#onSupportActionModeStarted(androidx.appcompat.view.ActionMode) parameter #0:
+    Invalid nullability on parameter `mode` in method `onSupportActionModeStarted`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.appcompat.app.AppCompatActivity#onWindowStartingSupportActionMode(androidx.appcompat.view.ActionMode.Callback):
+    Invalid nullability on method `onWindowStartingSupportActionMode` return. Overrides of unannotated super method cannot be Nullable.
+InvalidNullability: androidx.appcompat.app.AppCompatActivity#onWindowStartingSupportActionMode(androidx.appcompat.view.ActionMode.Callback) parameter #0:
+    Invalid nullability on parameter `callback` in method `onWindowStartingSupportActionMode`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.appcompat.widget.AppCompatAutoCompleteTextView#getCustomSelectionActionModeCallback():
+    Invalid nullability on method `getCustomSelectionActionModeCallback` return. Overrides of unannotated super method cannot be Nullable.
+InvalidNullability: androidx.appcompat.widget.AppCompatButton#getCustomSelectionActionModeCallback():
+    Invalid nullability on method `getCustomSelectionActionModeCallback` return. Overrides of unannotated super method cannot be Nullable.
+InvalidNullability: androidx.appcompat.widget.AppCompatButton#setFilters(android.text.InputFilter[]) parameter #0:
+    Invalid nullability on parameter `filters` in method `setFilters`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.appcompat.widget.AppCompatCheckBox#setFilters(android.text.InputFilter[]) parameter #0:
+    Invalid nullability on parameter `filters` in method `setFilters`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.appcompat.widget.AppCompatCheckedTextView#getCustomSelectionActionModeCallback():
+    Invalid nullability on method `getCustomSelectionActionModeCallback` return. Overrides of unannotated super method cannot be Nullable.
+InvalidNullability: androidx.appcompat.widget.AppCompatCheckedTextView#onCreateInputConnection(android.view.inputmethod.EditorInfo):
+    Invalid nullability on method `onCreateInputConnection` return. Overrides of unannotated super method cannot be Nullable.
+InvalidNullability: androidx.appcompat.widget.AppCompatCheckedTextView#onCreateInputConnection(android.view.inputmethod.EditorInfo) parameter #0:
+    Invalid nullability on parameter `outAttrs` in method `onCreateInputConnection`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.appcompat.widget.AppCompatCheckedTextView#setTextAppearance(android.content.Context, int) parameter #0:
+    Invalid nullability on parameter `context` in method `setTextAppearance`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.appcompat.widget.AppCompatEditText#getCustomSelectionActionModeCallback():
+    Invalid nullability on method `getCustomSelectionActionModeCallback` return. Overrides of unannotated super method cannot be Nullable.
+InvalidNullability: androidx.appcompat.widget.AppCompatEditText#getText():
+    Invalid nullability on method `getText` return. Overrides of unannotated super method cannot be Nullable.
+InvalidNullability: androidx.appcompat.widget.AppCompatEditText#onCreateInputConnection(android.view.inputmethod.EditorInfo):
+    Invalid nullability on method `onCreateInputConnection` return. Overrides of unannotated super method cannot be Nullable.
+InvalidNullability: androidx.appcompat.widget.AppCompatEditText#onCreateInputConnection(android.view.inputmethod.EditorInfo) parameter #0:
+    Invalid nullability on parameter `outAttrs` in method `onCreateInputConnection`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.appcompat.widget.AppCompatRadioButton#setFilters(android.text.InputFilter[]) parameter #0:
+    Invalid nullability on parameter `filters` in method `setFilters`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.appcompat.widget.AppCompatTextView#getCustomSelectionActionModeCallback():
+    Invalid nullability on method `getCustomSelectionActionModeCallback` return. Overrides of unannotated super method cannot be Nullable.
+InvalidNullability: androidx.appcompat.widget.AppCompatTextView#setFilters(android.text.InputFilter[]) parameter #0:
+    Invalid nullability on parameter `filters` in method `setFilters`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.appcompat.widget.AppCompatToggleButton#setFilters(android.text.InputFilter[]) parameter #0:
+    Invalid nullability on parameter `filters` in method `setFilters`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.appcompat.widget.ListPopupWindow#getListView():
+    Invalid nullability on method `getListView` return. Overrides of unannotated super method cannot be Nullable.
+InvalidNullability: androidx.appcompat.widget.SwitchCompat#getCustomSelectionActionModeCallback():
+    Invalid nullability on method `getCustomSelectionActionModeCallback` return. Overrides of unannotated super method cannot be Nullable.
+InvalidNullability: androidx.appcompat.widget.SwitchCompat#setFilters(android.text.InputFilter[]) parameter #0:
+    Invalid nullability on parameter `filters` in method `setFilters`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+
+
 ListenerLast: androidx.appcompat.app.AlertDialog.Builder#setCursor(android.database.Cursor, android.content.DialogInterface.OnClickListener, String) parameter #2:
     Listeners should always be at end of argument list (method `setCursor`)
 
