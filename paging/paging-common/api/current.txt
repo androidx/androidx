@@ -88,7 +88,7 @@ package androidx.paging {
   }
 
   public final class ItemSnapshotList<T> extends kotlin.collections.AbstractList<T> {
-    ctor public ItemSnapshotList(@IntRange(from=0) int placeholdersBefore, @IntRange(from=0) int placeholdersAfter, java.util.List<? extends T> items);
+    ctor public ItemSnapshotList(@IntRange(from=0L) int placeholdersBefore, @IntRange(from=0L) int placeholdersAfter, java.util.List<? extends T> items);
     method public T? get(int index);
     method public java.util.List<T> getItems();
     method public int getPlaceholdersAfter();
@@ -244,10 +244,10 @@ package androidx.paging {
     ctor @Deprecated public PagedList.Config.Builder();
     method @Deprecated public androidx.paging.PagedList.Config build();
     method @Deprecated public androidx.paging.PagedList.Config.Builder setEnablePlaceholders(boolean enablePlaceholders);
-    method @Deprecated public androidx.paging.PagedList.Config.Builder setInitialLoadSizeHint(@IntRange(from=1) int initialLoadSizeHint);
-    method @Deprecated public androidx.paging.PagedList.Config.Builder setMaxSize(@IntRange(from=2) int maxSize);
-    method @Deprecated public androidx.paging.PagedList.Config.Builder setPageSize(@IntRange(from=1) int pageSize);
-    method @Deprecated public androidx.paging.PagedList.Config.Builder setPrefetchDistance(@IntRange(from=0) int prefetchDistance);
+    method @Deprecated public androidx.paging.PagedList.Config.Builder setInitialLoadSizeHint(@IntRange(from=1L) int initialLoadSizeHint);
+    method @Deprecated public androidx.paging.PagedList.Config.Builder setMaxSize(@IntRange(from=2L) int maxSize);
+    method @Deprecated public androidx.paging.PagedList.Config.Builder setPageSize(@IntRange(from=1L) int pageSize);
+    method @Deprecated public androidx.paging.PagedList.Config.Builder setPrefetchDistance(@IntRange(from=0L) int prefetchDistance);
   }
 
   public final class PagedListConfigKt {
@@ -266,11 +266,11 @@ package androidx.paging {
   }
 
   public final class PagingConfig {
-    ctor public PagingConfig(int pageSize, optional @IntRange(from=0) int prefetchDistance, optional boolean enablePlaceholders, optional @IntRange(from=1) int initialLoadSize, optional @IntRange(from=2) int maxSize, optional int jumpThreshold);
-    ctor public PagingConfig(int pageSize, optional @IntRange(from=0) int prefetchDistance, optional boolean enablePlaceholders, optional @IntRange(from=1) int initialLoadSize, optional @IntRange(from=2) int maxSize);
-    ctor public PagingConfig(int pageSize, optional @IntRange(from=0) int prefetchDistance, optional boolean enablePlaceholders, optional @IntRange(from=1) int initialLoadSize);
-    ctor public PagingConfig(int pageSize, optional @IntRange(from=0) int prefetchDistance, optional boolean enablePlaceholders);
-    ctor public PagingConfig(int pageSize, optional @IntRange(from=0) int prefetchDistance);
+    ctor public PagingConfig(int pageSize, optional @IntRange(from=0L) int prefetchDistance, optional boolean enablePlaceholders, optional @IntRange(from=1L) int initialLoadSize, optional @IntRange(from=2L) int maxSize, optional int jumpThreshold);
+    ctor public PagingConfig(int pageSize, optional @IntRange(from=0L) int prefetchDistance, optional boolean enablePlaceholders, optional @IntRange(from=1L) int initialLoadSize, optional @IntRange(from=2L) int maxSize);
+    ctor public PagingConfig(int pageSize, optional @IntRange(from=0L) int prefetchDistance, optional boolean enablePlaceholders, optional @IntRange(from=1L) int initialLoadSize);
+    ctor public PagingConfig(int pageSize, optional @IntRange(from=0L) int prefetchDistance, optional boolean enablePlaceholders);
+    ctor public PagingConfig(int pageSize, optional @IntRange(from=0L) int prefetchDistance);
     ctor public PagingConfig(int pageSize);
     field public static final androidx.paging.PagingConfig.Companion Companion;
     field public static final int MAX_SIZE_UNBOUNDED = 2147483647; // 0x7fffffff
@@ -327,7 +327,7 @@ package androidx.paging {
     method public boolean getKeyReuseSupported();
     method public abstract Key? getRefreshKey(androidx.paging.PagingState<Key,Value> state);
     method public final void invalidate();
-    method public abstract suspend Object? load(androidx.paging.PagingSource.LoadParams<Key> params, kotlin.coroutines.Continuation<? super androidx.paging.PagingSource.LoadResult<Key,Value>> p);
+    method public abstract suspend Object? load(androidx.paging.PagingSource.LoadParams<Key> params, kotlin.coroutines.Continuation<? super androidx.paging.PagingSource.LoadResult<Key,Value>>);
     method public final void registerInvalidatedCallback(kotlin.jvm.functions.Function0<kotlin.Unit> onInvalidatedCallback);
     method public final void unregisterInvalidatedCallback(kotlin.jvm.functions.Function0<kotlin.Unit> onInvalidatedCallback);
     property public final boolean invalid;
@@ -407,7 +407,7 @@ package androidx.paging {
   }
 
   public final class PagingState<Key, Value> {
-    ctor public PagingState(java.util.List<androidx.paging.PagingSource.LoadResult.Page<Key,Value>> pages, Integer? anchorPosition, androidx.paging.PagingConfig config, @IntRange(from=0) int leadingPlaceholderCount);
+    ctor public PagingState(java.util.List<androidx.paging.PagingSource.LoadResult.Page<Key,Value>> pages, Integer? anchorPosition, androidx.paging.PagingConfig config, @IntRange(from=0L) int leadingPlaceholderCount);
     method public Value? closestItemToPosition(int anchorPosition);
     method public androidx.paging.PagingSource.LoadResult.Page<Key,Value>? closestPageToPosition(int anchorPosition);
     method public Value? firstItemOrNull();

@@ -9,7 +9,7 @@ package androidx.wear.watchface.complications.data {
     method public final androidx.wear.watchface.complications.data.TimeRange getValidTimeRange();
     method public boolean hasPlaceholderFields();
     method public final boolean isTapActionLostDueToSerialization();
-    method public final void setTapActionLostDueToSerialization(boolean tapActionLostDueToSerialization);
+    method public final void setTapActionLostDueToSerialization(boolean);
     property public final android.content.ComponentName? dataSource;
     property public final android.app.PendingIntent? tapAction;
     property public final boolean tapActionLostDueToSerialization;

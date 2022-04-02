@@ -6,14 +6,14 @@ package androidx.datastore.core {
   }
 
   public interface DataMigration<T> {
-    method public suspend Object? cleanUp(kotlin.coroutines.Continuation<? super kotlin.Unit> p);
-    method public suspend Object? migrate(T? currentData, kotlin.coroutines.Continuation<? super T> p);
-    method public suspend Object? shouldMigrate(T? currentData, kotlin.coroutines.Continuation<? super java.lang.Boolean> p);
+    method public suspend Object? cleanUp(kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? migrate(T? currentData, kotlin.coroutines.Continuation<? super T>);
+    method public suspend Object? shouldMigrate(T? currentData, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
   }
 
   public interface DataStore<T> {
     method public kotlinx.coroutines.flow.Flow<T> getData();
-    method public suspend Object? updateData(kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super T>,?> transform, kotlin.coroutines.Continuation<? super T> p);
+    method public suspend Object? updateData(kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super T>,?> transform, kotlin.coroutines.Continuation<? super T>);
     property public abstract kotlinx.coroutines.flow.Flow<T> data;
   }
 
@@ -27,8 +27,8 @@ package androidx.datastore.core {
 
   public interface Serializer<T> {
     method public T! getDefaultValue();
-    method public suspend Object? readFrom(java.io.InputStream input, kotlin.coroutines.Continuation<? super T> p);
-    method public suspend Object? writeTo(T? t, java.io.OutputStream output, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
+    method public suspend Object? readFrom(java.io.InputStream input, kotlin.coroutines.Continuation<? super T>);
+    method public suspend Object? writeTo(T? t, java.io.OutputStream output, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public abstract T! defaultValue;
   }
 
@@ -38,7 +38,7 @@ package androidx.datastore.core.handlers {
 
   public final class ReplaceFileCorruptionHandler<T> {
     ctor public ReplaceFileCorruptionHandler(kotlin.jvm.functions.Function1<? super androidx.datastore.core.CorruptionException,? extends T> produceNewData);
-    method @kotlin.jvm.Throws(exceptionClasses=IOException::class) public suspend Object? handleCorruption(androidx.datastore.core.CorruptionException ex, kotlin.coroutines.Continuation<? super T> p) throws java.io.IOException;
+    method @kotlin.jvm.Throws(exceptionClasses=IOException::class) public suspend Object? handleCorruption(androidx.datastore.core.CorruptionException ex, kotlin.coroutines.Continuation<? super T>) throws java.io.IOException;
   }
 
 }

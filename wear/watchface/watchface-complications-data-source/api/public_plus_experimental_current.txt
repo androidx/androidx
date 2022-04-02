@@ -69,8 +69,8 @@ package androidx.wear.watchface.complications.datasource {
     ctor public TimeInterval(java.time.Instant start, java.time.Instant end);
     method public java.time.Instant getEnd();
     method public java.time.Instant getStart();
-    method public void setEnd(java.time.Instant end);
-    method public void setStart(java.time.Instant start);
+    method public void setEnd(java.time.Instant);
+    method public void setStart(java.time.Instant);
     property public final java.time.Instant end;
     property public final java.time.Instant start;
   }
@@ -79,8 +79,8 @@ package androidx.wear.watchface.complications.datasource {
     ctor public TimelineEntry(androidx.wear.watchface.complications.datasource.TimeInterval validity, androidx.wear.watchface.complications.data.ComplicationData complicationData);
     method public androidx.wear.watchface.complications.data.ComplicationData getComplicationData();
     method public androidx.wear.watchface.complications.datasource.TimeInterval getValidity();
-    method public void setComplicationData(androidx.wear.watchface.complications.data.ComplicationData complicationData);
-    method public void setValidity(androidx.wear.watchface.complications.datasource.TimeInterval validity);
+    method public void setComplicationData(androidx.wear.watchface.complications.data.ComplicationData);
+    method public void setValidity(androidx.wear.watchface.complications.datasource.TimeInterval);
     property public final androidx.wear.watchface.complications.data.ComplicationData complicationData;
     property public final androidx.wear.watchface.complications.datasource.TimeInterval validity;
   }

@@ -9,7 +9,7 @@ package androidx.lifecycle.testing {
     method public androidx.lifecycle.LifecycleRegistry getLifecycle();
     method public int getObserverCount();
     method public void handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event event);
-    method public void setCurrentState(androidx.lifecycle.Lifecycle.State value);
+    method public void setCurrentState(androidx.lifecycle.Lifecycle.State);
     property public final androidx.lifecycle.Lifecycle.State currentState;
     property public final int observerCount;
   }

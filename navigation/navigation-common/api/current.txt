@@ -17,10 +17,10 @@ package androidx.navigation {
     method public int getExit();
     method public int getPopEnter();
     method public int getPopExit();
-    method public void setEnter(int enter);
-    method public void setExit(int exit);
-    method public void setPopEnter(int popEnter);
-    method public void setPopExit(int popExit);
+    method public void setEnter(int);
+    method public void setExit(int);
+    method public void setPopEnter(int);
+    method public void setPopExit(int);
     property public final int enter;
     property public final int exit;
     property public final int popEnter;
@@ -50,8 +50,8 @@ package androidx.navigation {
     method public android.os.Bundle? getDefaultArguments();
     method public int getDestinationId();
     method public androidx.navigation.NavOptions? getNavOptions();
-    method public void setDefaultArguments(android.os.Bundle? defaultArguments);
-    method public void setNavOptions(androidx.navigation.NavOptions? navOptions);
+    method public void setDefaultArguments(android.os.Bundle?);
+    method public void setNavOptions(androidx.navigation.NavOptions?);
     property public final android.os.Bundle? defaultArguments;
     property public final int destinationId;
     property public final androidx.navigation.NavOptions? navOptions;
@@ -62,7 +62,7 @@ package androidx.navigation {
     method public java.util.Map<java.lang.String,java.lang.Object> getDefaultArguments();
     method public int getDestinationId();
     method public void navOptions(kotlin.jvm.functions.Function1<? super androidx.navigation.NavOptionsBuilder,kotlin.Unit> optionsBuilder);
-    method public void setDestinationId(int destinationId);
+    method public void setDestinationId(int);
     property public final java.util.Map<java.lang.String,java.lang.Object> defaultArguments;
     property public final int destinationId;
   }
@@ -105,9 +105,9 @@ package androidx.navigation {
     method public Object? getDefaultValue();
     method public boolean getNullable();
     method public androidx.navigation.NavType<?> getType();
-    method public void setDefaultValue(Object? value);
-    method public void setNullable(boolean value);
-    method public void setType(androidx.navigation.NavType<?> value);
+    method public void setDefaultValue(Object?);
+    method public void setNullable(boolean);
+    method public void setType(androidx.navigation.NavType<?>);
     property public final Object? defaultValue;
     property public final boolean nullable;
     property public final androidx.navigation.NavType<?> type;
@@ -156,9 +156,9 @@ package androidx.navigation {
     method public String? getAction();
     method public String? getMimeType();
     method public String? getUriPattern();
-    method public void setAction(String? p);
-    method public void setMimeType(String? mimeType);
-    method public void setUriPattern(String? uriPattern);
+    method public void setAction(String?);
+    method public void setMimeType(String?);
+    method public void setUriPattern(String?);
     property public final String? action;
     property public final String? mimeType;
     property public final String? uriPattern;
@@ -216,9 +216,9 @@ package androidx.navigation {
     method public final void putAction(@IdRes int actionId, androidx.navigation.NavAction action);
     method public final void removeAction(@IdRes int actionId);
     method public final void removeArgument(String argumentName);
-    method public final void setId(@IdRes int id);
-    method public final void setLabel(CharSequence? label);
-    method public final void setRoute(String? route);
+    method public final void setId(@IdRes int);
+    method public final void setLabel(CharSequence?);
+    method public final void setRoute(String?);
     property public final java.util.Map<java.lang.String,androidx.navigation.NavArgument> arguments;
     property @IdRes public final int id;
     property public final CharSequence? label;
@@ -250,7 +250,7 @@ package androidx.navigation {
     method public final CharSequence? getLabel();
     method protected final androidx.navigation.Navigator<? extends D> getNavigator();
     method public final String? getRoute();
-    method public final void setLabel(CharSequence? label);
+    method public final void setLabel(CharSequence?);
     property public final int id;
     property public final CharSequence? label;
     property protected final androidx.navigation.Navigator<? extends D> navigator;
@@ -371,9 +371,9 @@ package androidx.navigation {
     method public boolean getRestoreState();
     method public void popUpTo(@IdRes int id, optional kotlin.jvm.functions.Function1<? super androidx.navigation.PopUpToBuilder,kotlin.Unit> popUpToBuilder);
     method public void popUpTo(String route, optional kotlin.jvm.functions.Function1<? super androidx.navigation.PopUpToBuilder,kotlin.Unit> popUpToBuilder);
-    method public void setLaunchSingleTop(boolean launchSingleTop);
-    method @Deprecated public void setPopUpTo(int value);
-    method public void setRestoreState(boolean restoreState);
+    method public void setLaunchSingleTop(boolean);
+    method @Deprecated public void setPopUpTo(int);
+    method public void setRestoreState(boolean);
     property public final boolean launchSingleTop;
     property @Deprecated public final int popUpTo;
     property public final int popUpToId;
@@ -512,8 +512,8 @@ package androidx.navigation {
     ctor public PopUpToBuilder();
     method public boolean getInclusive();
     method public boolean getSaveState();
-    method public void setInclusive(boolean inclusive);
-    method public void setSaveState(boolean saveState);
+    method public void setInclusive(boolean);
+    method public void setSaveState(boolean);
     property public final boolean inclusive;
     property public final boolean saveState;
   }

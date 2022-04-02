@@ -1,0 +1,45 @@
+// Baseline format: 1.0
+ParameterNameChange: androidx.navigation.AnimBuilder#setEnter(int) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.navigation.AnimBuilder.setEnter
+ParameterNameChange: androidx.navigation.AnimBuilder#setExit(int) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.navigation.AnimBuilder.setExit
+ParameterNameChange: androidx.navigation.AnimBuilder#setPopEnter(int) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.navigation.AnimBuilder.setPopEnter
+ParameterNameChange: androidx.navigation.AnimBuilder#setPopExit(int) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.navigation.AnimBuilder.setPopExit
+ParameterNameChange: androidx.navigation.NavAction#setDefaultArguments(android.os.Bundle) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.navigation.NavAction.setDefaultArguments
+ParameterNameChange: androidx.navigation.NavAction#setNavOptions(androidx.navigation.NavOptions) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.navigation.NavAction.setNavOptions
+ParameterNameChange: androidx.navigation.NavActionBuilder#setDestinationId(int) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.navigation.NavActionBuilder.setDestinationId
+ParameterNameChange: androidx.navigation.NavArgumentBuilder#setDefaultValue(Object) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.navigation.NavArgumentBuilder.setDefaultValue
+ParameterNameChange: androidx.navigation.NavArgumentBuilder#setNullable(boolean) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.navigation.NavArgumentBuilder.setNullable
+ParameterNameChange: androidx.navigation.NavArgumentBuilder#setType(androidx.navigation.NavType<?>) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.navigation.NavArgumentBuilder.setType
+ParameterNameChange: androidx.navigation.NavDeepLinkDslBuilder#setAction(String) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.navigation.NavDeepLinkDslBuilder.setAction
+ParameterNameChange: androidx.navigation.NavDeepLinkDslBuilder#setMimeType(String) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.navigation.NavDeepLinkDslBuilder.setMimeType
+ParameterNameChange: androidx.navigation.NavDeepLinkDslBuilder#setUriPattern(String) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.navigation.NavDeepLinkDslBuilder.setUriPattern
+ParameterNameChange: androidx.navigation.NavDestination#setId(int) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.navigation.NavDestination.setId
+ParameterNameChange: androidx.navigation.NavDestination#setLabel(CharSequence) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.navigation.NavDestination.setLabel
+ParameterNameChange: androidx.navigation.NavDestination#setRoute(String) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.navigation.NavDestination.setRoute
+ParameterNameChange: androidx.navigation.NavDestinationBuilder#setLabel(CharSequence) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.navigation.NavDestinationBuilder.setLabel
+ParameterNameChange: androidx.navigation.NavOptionsBuilder#setLaunchSingleTop(boolean) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.navigation.NavOptionsBuilder.setLaunchSingleTop
+ParameterNameChange: androidx.navigation.NavOptionsBuilder#setPopUpTo(int) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.navigation.NavOptionsBuilder.setPopUpTo
+ParameterNameChange: androidx.navigation.NavOptionsBuilder#setRestoreState(boolean) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.navigation.NavOptionsBuilder.setRestoreState
+ParameterNameChange: androidx.navigation.PopUpToBuilder#setInclusive(boolean) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.navigation.PopUpToBuilder.setInclusive
+ParameterNameChange: androidx.navigation.PopUpToBuilder#setSaveState(boolean) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.navigation.PopUpToBuilder.setSaveState

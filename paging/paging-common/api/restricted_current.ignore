@@ -1,4 +1,8 @@
 // Baseline format: 1.0
+ParameterNameChange: androidx.paging.PagingSource#load(androidx.paging.PagingSource.LoadParams<Key>, kotlin.coroutines.Continuation<? super androidx.paging.PagingSource.LoadResult<Key,Value>>) parameter #1:
+    Attempted to remove parameter name from parameter arg2 in androidx.paging.PagingSource.load
+
+
 RemovedClass: androidx.paging.CancelableChannelFlowKt:
     Removed class androidx.paging.CancelableChannelFlowKt
 RemovedClass: androidx.paging.FlowExtKt:

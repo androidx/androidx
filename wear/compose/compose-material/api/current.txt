@@ -229,9 +229,9 @@ package androidx.wear.compose.material {
     method public boolean getRepeatItems();
     method public int getSelectedOption();
     method public boolean isScrollInProgress();
-    method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
-    method public suspend Object? scrollToOption(int index, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
-    method public void setNumberOfOptions(int newNumberOfOptions);
+    method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? scrollToOption(int index, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public void setNumberOfOptions(int);
     property public boolean isScrollInProgress;
     property public final int numberOfOptions;
     property public final boolean repeatItems;
@@ -387,14 +387,14 @@ package androidx.wear.compose.material {
 
   @androidx.compose.runtime.Stable public final class ScalingLazyListState implements androidx.compose.foundation.gestures.ScrollableState {
     ctor public ScalingLazyListState(optional int initialCenterItemIndex, optional int initialCenterItemScrollOffset);
-    method public suspend Object? animateScrollToItem(int index, optional int scrollOffset, optional kotlin.coroutines.Continuation<? super kotlin.Unit> p);
+    method public suspend Object? animateScrollToItem(int index, optional int scrollOffset, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public float dispatchRawDelta(float delta);
     method public int getCenterItemIndex();
     method public int getCenterItemScrollOffset();
     method public androidx.wear.compose.material.ScalingLazyListLayoutInfo getLayoutInfo();
     method public boolean isScrollInProgress();
-    method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
-    method public suspend Object? scrollToItem(int index, optional int scrollOffset, optional kotlin.coroutines.Continuation<? super kotlin.Unit> p);
+    method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? scrollToItem(int index, optional int scrollOffset, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public final int centerItemIndex;
     property public final int centerItemScrollOffset;
     property public boolean isScrollInProgress;
@@ -492,7 +492,7 @@ package androidx.wear.compose.material {
     method public androidx.wear.compose.material.SwipeToDismissValue getCurrentValue();
     method public androidx.wear.compose.material.SwipeToDismissValue getTargetValue();
     method public boolean isAnimationRunning();
-    method public suspend Object? snapTo(androidx.wear.compose.material.SwipeToDismissValue targetValue, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
+    method public suspend Object? snapTo(androidx.wear.compose.material.SwipeToDismissValue targetValue, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public final androidx.wear.compose.material.SwipeToDismissValue currentValue;
     property public final boolean isAnimationRunning;
     property public final androidx.wear.compose.material.SwipeToDismissValue targetValue;

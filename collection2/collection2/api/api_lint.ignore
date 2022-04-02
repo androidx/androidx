@@ -1,12 +1,4 @@
 // Baseline format: 1.0
-InvalidNullability: androidx.collection.ArrayMap#containsValue(Object) parameter #0:
-    Invalid nullability on parameter `value` in method `containsValue`. Parameters of overrides cannot be NonNull if super parameter is Nullable.
-InvalidNullability: androidx.collection.ArrayMap#get(Object) parameter #0:
-    Invalid nullability on parameter `key` in method `get`. Parameters of overrides cannot be NonNull if super parameter is Nullable.
-InvalidNullability: androidx.collection.ArrayMap#remove(Object) parameter #0:
-    Invalid nullability on parameter `key` in method `remove`. Parameters of overrides cannot be NonNull if super parameter is Nullable.
-
-
 KotlinOperator: androidx.collection.LongSparseArray#get(long, E):
     Note that adding the `operator` keyword would allow calling this method using operator syntax
 KotlinOperator: androidx.collection.LruCache#get(K):

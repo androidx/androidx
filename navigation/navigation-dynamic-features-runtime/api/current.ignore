@@ -1,0 +1,33 @@
+// Baseline format: 1.0
+ParameterNameChange: androidx.navigation.dynamicfeatures.DynamicActivityNavigator.Destination#setModuleName(String) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.navigation.dynamicfeatures.DynamicActivityNavigator.Destination.setModuleName
+ParameterNameChange: androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilder#setAction(String) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilder.setAction
+ParameterNameChange: androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilder#setActivityClassName(String) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilder.setActivityClassName
+ParameterNameChange: androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilder#setData(android.net.Uri) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilder.setData
+ParameterNameChange: androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilder#setDataPattern(String) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilder.setDataPattern
+ParameterNameChange: androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilder#setModuleName(String) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilder.setModuleName
+ParameterNameChange: androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilder#setTargetPackage(String) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilder.setTargetPackage
+ParameterNameChange: androidx.navigation.dynamicfeatures.DynamicGraphNavigator.DynamicNavGraph#setModuleName(String) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.navigation.dynamicfeatures.DynamicGraphNavigator.DynamicNavGraph.setModuleName
+ParameterNameChange: androidx.navigation.dynamicfeatures.DynamicGraphNavigator.DynamicNavGraph#setProgressDestination(int) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.navigation.dynamicfeatures.DynamicGraphNavigator.DynamicNavGraph.setProgressDestination
+ParameterNameChange: androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator.DynamicIncludeNavGraph#setGraphPackage(String) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator.DynamicIncludeNavGraph.setGraphPackage
+ParameterNameChange: androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator.DynamicIncludeNavGraph#setGraphResourceName(String) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator.DynamicIncludeNavGraph.setGraphResourceName
+ParameterNameChange: androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator.DynamicIncludeNavGraph#setModuleName(String) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator.DynamicIncludeNavGraph.setModuleName
+ParameterNameChange: androidx.navigation.dynamicfeatures.DynamicIncludeNavGraphBuilder#setGraphPackage(String) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.navigation.dynamicfeatures.DynamicIncludeNavGraphBuilder.setGraphPackage
+ParameterNameChange: androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder#setModuleName(String) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder.setModuleName
+ParameterNameChange: androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder#setProgressDestination(int) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder.setProgressDestination
+ParameterNameChange: androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder#setProgressDestinationRoute(String) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder.setProgressDestinationRoute

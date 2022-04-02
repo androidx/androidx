@@ -1,0 +1,11 @@
+// Baseline format: 1.0
+ParameterNameChange: androidx.work.CoroutineWorker#doWork(kotlin.coroutines.Continuation<? super androidx.work.ListenableWorker.Result>) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.work.CoroutineWorker.doWork
+ParameterNameChange: androidx.work.CoroutineWorker#getForegroundInfo(kotlin.coroutines.Continuation<? super androidx.work.ForegroundInfo>) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.work.CoroutineWorker.getForegroundInfo
+ParameterNameChange: androidx.work.CoroutineWorker#setForeground(androidx.work.ForegroundInfo, kotlin.coroutines.Continuation<? super kotlin.Unit>) parameter #1:
+    Attempted to remove parameter name from parameter arg2 in androidx.work.CoroutineWorker.setForeground
+ParameterNameChange: androidx.work.CoroutineWorker#setProgress(androidx.work.Data, kotlin.coroutines.Continuation<? super kotlin.Unit>) parameter #1:
+    Attempted to remove parameter name from parameter arg2 in androidx.work.CoroutineWorker.setProgress
+ParameterNameChange: androidx.work.OperationKt#await(androidx.work.Operation, kotlin.coroutines.Continuation<? super androidx.work.Operation.State.SUCCESS>) parameter #1:
+    Attempted to remove parameter name from parameter arg2 in androidx.work.OperationKt.await

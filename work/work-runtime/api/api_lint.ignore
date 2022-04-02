@@ -139,5 +139,23 @@ NullableCollection: androidx.work.Data#getStringArray(String):
     Return type of method androidx.work.Data.getStringArray(String) is a nullable collection (`java.lang.String[]`); must be non-null
 
 
+SetterReturnsThis: androidx.work.WorkRequest.Builder#addTag(String):
+    Methods must return the builder object (return type androidx.work.WorkRequest.Builder<B,W> instead of B): method androidx.work.WorkRequest.Builder.addTag(String)
+SetterReturnsThis: androidx.work.WorkRequest.Builder#setBackoffCriteria(androidx.work.BackoffPolicy, java.time.Duration):
+    Methods must return the builder object (return type androidx.work.WorkRequest.Builder<B,W> instead of B): method androidx.work.WorkRequest.Builder.setBackoffCriteria(androidx.work.BackoffPolicy,java.time.Duration)
+SetterReturnsThis: androidx.work.WorkRequest.Builder#setBackoffCriteria(androidx.work.BackoffPolicy, long, java.util.concurrent.TimeUnit):
+    Methods must return the builder object (return type androidx.work.WorkRequest.Builder<B,W> instead of B): method androidx.work.WorkRequest.Builder.setBackoffCriteria(androidx.work.BackoffPolicy,long,java.util.concurrent.TimeUnit)
+SetterReturnsThis: androidx.work.WorkRequest.Builder#setConstraints(androidx.work.Constraints):
+    Methods must return the builder object (return type androidx.work.WorkRequest.Builder<B,W> instead of B): method androidx.work.WorkRequest.Builder.setConstraints(androidx.work.Constraints)
+SetterReturnsThis: androidx.work.WorkRequest.Builder#setExpedited(androidx.work.OutOfQuotaPolicy):
+    Methods must return the builder object (return type androidx.work.WorkRequest.Builder<B,W> instead of B): method androidx.work.WorkRequest.Builder.setExpedited(androidx.work.OutOfQuotaPolicy)
+SetterReturnsThis: androidx.work.WorkRequest.Builder#setInitialDelay(java.time.Duration):
+    Methods must return the builder object (return type androidx.work.WorkRequest.Builder<B,W> instead of B): method androidx.work.WorkRequest.Builder.setInitialDelay(java.time.Duration)
+SetterReturnsThis: androidx.work.WorkRequest.Builder#setInitialDelay(long, java.util.concurrent.TimeUnit):
+    Methods must return the builder object (return type androidx.work.WorkRequest.Builder<B,W> instead of B): method androidx.work.WorkRequest.Builder.setInitialDelay(long,java.util.concurrent.TimeUnit)
+SetterReturnsThis: androidx.work.WorkRequest.Builder#setInputData(androidx.work.Data):
+    Methods must return the builder object (return type androidx.work.WorkRequest.Builder<B,W> instead of B): method androidx.work.WorkRequest.Builder.setInputData(androidx.work.Data)
+
+
 StaticFinalBuilder: androidx.work.WorkRequest.Builder:
     Builder must be final: androidx.work.WorkRequest.Builder

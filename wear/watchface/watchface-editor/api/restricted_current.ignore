@@ -1,0 +1,9 @@
+// Baseline format: 1.0
+ParameterNameChange: androidx.wear.watchface.editor.EditorSession#createOnWatchEditorSession(androidx.activity.ComponentActivity, kotlin.coroutines.Continuation<? super androidx.wear.watchface.editor.EditorSession>) parameter #1:
+    Attempted to remove parameter name from parameter arg2 in androidx.wear.watchface.editor.EditorSession.createOnWatchEditorSession
+ParameterNameChange: androidx.wear.watchface.editor.EditorSession#openComplicationDataSourceChooser(int, kotlin.coroutines.Continuation<? super androidx.wear.watchface.editor.ChosenComplicationDataSource>) parameter #1:
+    Attempted to remove parameter name from parameter arg2 in androidx.wear.watchface.editor.EditorSession.openComplicationDataSourceChooser
+ParameterNameChange: androidx.wear.watchface.editor.EditorSession#setCommitChangesOnClose(boolean) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.wear.watchface.editor.EditorSession.setCommitChangesOnClose
+ParameterNameChange: androidx.wear.watchface.editor.EditorSession.Companion#createOnWatchEditorSession(androidx.activity.ComponentActivity, kotlin.coroutines.Continuation<? super androidx.wear.watchface.editor.EditorSession>) parameter #1:
+    Attempted to remove parameter name from parameter arg2 in androidx.wear.watchface.editor.EditorSession.Companion.createOnWatchEditorSession

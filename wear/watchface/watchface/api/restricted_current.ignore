@@ -1,0 +1,23 @@
+// Baseline format: 1.0
+ParameterNameChange: androidx.wear.watchface.Renderer#setAdditionalContentDescriptionLabels(java.util.Collection<kotlin.Pair<java.lang.Integer,androidx.wear.watchface.ContentDescriptionLabel>>) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.wear.watchface.Renderer.setAdditionalContentDescriptionLabels
+ParameterNameChange: androidx.wear.watchface.Renderer#setInteractiveDrawModeUpdateDelayMillis(long) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.wear.watchface.Renderer.setInteractiveDrawModeUpdateDelayMillis
+ParameterNameChange: androidx.wear.watchface.Renderer.CanvasRenderer#init(kotlin.coroutines.Continuation<? super kotlin.Unit>) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.wear.watchface.Renderer.CanvasRenderer.init
+ParameterNameChange: androidx.wear.watchface.Renderer.GlesRenderer#onBackgroundThreadGlContextCreated(kotlin.coroutines.Continuation<? super kotlin.Unit>) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.wear.watchface.Renderer.GlesRenderer.onBackgroundThreadGlContextCreated
+ParameterNameChange: androidx.wear.watchface.Renderer.GlesRenderer#onUiThreadGlSurfaceCreated(int, int, kotlin.coroutines.Continuation<? super kotlin.Unit>) parameter #2:
+    Attempted to remove parameter name from parameter arg3 in androidx.wear.watchface.Renderer.GlesRenderer.onUiThreadGlSurfaceCreated
+ParameterNameChange: androidx.wear.watchface.Renderer.GlesRenderer#runBackgroundThreadGlCommands(kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?>, kotlin.coroutines.Continuation<? super kotlin.Unit>) parameter #1:
+    Attempted to remove parameter name from parameter arg2 in androidx.wear.watchface.Renderer.GlesRenderer.runBackgroundThreadGlCommands
+ParameterNameChange: androidx.wear.watchface.Renderer.GlesRenderer#runUiThreadGlCommands(kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?>, kotlin.coroutines.Continuation<? super kotlin.Unit>) parameter #1:
+    Attempted to remove parameter name from parameter arg2 in androidx.wear.watchface.Renderer.GlesRenderer.runUiThreadGlCommands
+ParameterNameChange: androidx.wear.watchface.Renderer.GlesRenderer#setEglConfig(android.opengl.EGLConfig) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.wear.watchface.Renderer.GlesRenderer.setEglConfig
+ParameterNameChange: androidx.wear.watchface.Renderer.GlesRenderer#setEglDisplay(android.opengl.EGLDisplay) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.wear.watchface.Renderer.GlesRenderer.setEglDisplay
+ParameterNameChange: androidx.wear.watchface.WatchFace#setWatchFaceType(int) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.wear.watchface.WatchFace.setWatchFaceType
+ParameterNameChange: androidx.wear.watchface.WatchFaceService#createWatchFace(android.view.SurfaceHolder, androidx.wear.watchface.WatchState, androidx.wear.watchface.ComplicationSlotsManager, androidx.wear.watchface.style.CurrentUserStyleRepository, kotlin.coroutines.Continuation<? super androidx.wear.watchface.WatchFace>) parameter #4:
+    Attempted to remove parameter name from parameter arg5 in androidx.wear.watchface.WatchFaceService.createWatchFace
