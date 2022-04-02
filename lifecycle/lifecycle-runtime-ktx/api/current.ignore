@@ -1,0 +1,35 @@
+// Baseline format: 1.0
+ParameterNameChange: androidx.lifecycle.PausingDispatcherKt#whenCreated(androidx.lifecycle.Lifecycle, kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super T>,?>, kotlin.coroutines.Continuation<? super T>) parameter #2:
+    Attempted to remove parameter name from parameter arg3 in androidx.lifecycle.PausingDispatcherKt.whenCreated
+ParameterNameChange: androidx.lifecycle.PausingDispatcherKt#whenCreated(androidx.lifecycle.LifecycleOwner, kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super T>,?>, kotlin.coroutines.Continuation<? super T>) parameter #2:
+    Attempted to remove parameter name from parameter arg3 in androidx.lifecycle.PausingDispatcherKt.whenCreated
+ParameterNameChange: androidx.lifecycle.PausingDispatcherKt#whenResumed(androidx.lifecycle.Lifecycle, kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super T>,?>, kotlin.coroutines.Continuation<? super T>) parameter #2:
+    Attempted to remove parameter name from parameter arg3 in androidx.lifecycle.PausingDispatcherKt.whenResumed
+ParameterNameChange: androidx.lifecycle.PausingDispatcherKt#whenResumed(androidx.lifecycle.LifecycleOwner, kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super T>,?>, kotlin.coroutines.Continuation<? super T>) parameter #2:
+    Attempted to remove parameter name from parameter arg3 in androidx.lifecycle.PausingDispatcherKt.whenResumed
+ParameterNameChange: androidx.lifecycle.PausingDispatcherKt#whenStarted(androidx.lifecycle.Lifecycle, kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super T>,?>, kotlin.coroutines.Continuation<? super T>) parameter #2:
+    Attempted to remove parameter name from parameter arg3 in androidx.lifecycle.PausingDispatcherKt.whenStarted
+ParameterNameChange: androidx.lifecycle.PausingDispatcherKt#whenStarted(androidx.lifecycle.LifecycleOwner, kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super T>,?>, kotlin.coroutines.Continuation<? super T>) parameter #2:
+    Attempted to remove parameter name from parameter arg3 in androidx.lifecycle.PausingDispatcherKt.whenStarted
+ParameterNameChange: androidx.lifecycle.PausingDispatcherKt#whenStateAtLeast(androidx.lifecycle.Lifecycle, androidx.lifecycle.Lifecycle.State, kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super T>,?>, kotlin.coroutines.Continuation<? super T>) parameter #3:
+    Attempted to remove parameter name from parameter arg4 in androidx.lifecycle.PausingDispatcherKt.whenStateAtLeast
+ParameterNameChange: androidx.lifecycle.RepeatOnLifecycleKt#repeatOnLifecycle(androidx.lifecycle.Lifecycle, androidx.lifecycle.Lifecycle.State, kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?>, kotlin.coroutines.Continuation<? super kotlin.Unit>) parameter #3:
+    Attempted to remove parameter name from parameter arg4 in androidx.lifecycle.RepeatOnLifecycleKt.repeatOnLifecycle
+ParameterNameChange: androidx.lifecycle.RepeatOnLifecycleKt#repeatOnLifecycle(androidx.lifecycle.LifecycleOwner, androidx.lifecycle.Lifecycle.State, kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?>, kotlin.coroutines.Continuation<? super kotlin.Unit>) parameter #3:
+    Attempted to remove parameter name from parameter arg4 in androidx.lifecycle.RepeatOnLifecycleKt.repeatOnLifecycle
+ParameterNameChange: androidx.lifecycle.WithLifecycleStateKt#withCreated(androidx.lifecycle.Lifecycle, kotlin.jvm.functions.Function0<? extends R>, kotlin.coroutines.Continuation<? super R>) parameter #2:
+    Attempted to remove parameter name from parameter arg3 in androidx.lifecycle.WithLifecycleStateKt.withCreated
+ParameterNameChange: androidx.lifecycle.WithLifecycleStateKt#withCreated(androidx.lifecycle.LifecycleOwner, kotlin.jvm.functions.Function0<? extends R>, kotlin.coroutines.Continuation<? super R>) parameter #2:
+    Attempted to remove parameter name from parameter arg3 in androidx.lifecycle.WithLifecycleStateKt.withCreated
+ParameterNameChange: androidx.lifecycle.WithLifecycleStateKt#withResumed(androidx.lifecycle.Lifecycle, kotlin.jvm.functions.Function0<? extends R>, kotlin.coroutines.Continuation<? super R>) parameter #2:
+    Attempted to remove parameter name from parameter arg3 in androidx.lifecycle.WithLifecycleStateKt.withResumed
+ParameterNameChange: androidx.lifecycle.WithLifecycleStateKt#withResumed(androidx.lifecycle.LifecycleOwner, kotlin.jvm.functions.Function0<? extends R>, kotlin.coroutines.Continuation<? super R>) parameter #2:
+    Attempted to remove parameter name from parameter arg3 in androidx.lifecycle.WithLifecycleStateKt.withResumed
+ParameterNameChange: androidx.lifecycle.WithLifecycleStateKt#withStarted(androidx.lifecycle.Lifecycle, kotlin.jvm.functions.Function0<? extends R>, kotlin.coroutines.Continuation<? super R>) parameter #2:
+    Attempted to remove parameter name from parameter arg3 in androidx.lifecycle.WithLifecycleStateKt.withStarted
+ParameterNameChange: androidx.lifecycle.WithLifecycleStateKt#withStarted(androidx.lifecycle.LifecycleOwner, kotlin.jvm.functions.Function0<? extends R>, kotlin.coroutines.Continuation<? super R>) parameter #2:
+    Attempted to remove parameter name from parameter arg3 in androidx.lifecycle.WithLifecycleStateKt.withStarted
+ParameterNameChange: androidx.lifecycle.WithLifecycleStateKt#withStateAtLeast(androidx.lifecycle.Lifecycle, androidx.lifecycle.Lifecycle.State, kotlin.jvm.functions.Function0<? extends R>, kotlin.coroutines.Continuation<? super R>) parameter #3:
+    Attempted to remove parameter name from parameter arg4 in androidx.lifecycle.WithLifecycleStateKt.withStateAtLeast
+ParameterNameChange: androidx.lifecycle.WithLifecycleStateKt#withStateAtLeast(androidx.lifecycle.LifecycleOwner, androidx.lifecycle.Lifecycle.State, kotlin.jvm.functions.Function0<? extends R>, kotlin.coroutines.Continuation<? super R>) parameter #3:
+    Attempted to remove parameter name from parameter arg4 in androidx.lifecycle.WithLifecycleStateKt.withStateAtLeast

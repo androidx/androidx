@@ -604,10 +604,10 @@ package androidx.core.view {
     method public static inline boolean isVisible(android.view.View);
     method public static inline Runnable postDelayed(android.view.View, long delayInMillis, kotlin.jvm.functions.Function0<kotlin.Unit> action);
     method @RequiresApi(16) public static inline Runnable postOnAnimationDelayed(android.view.View, long delayInMillis, kotlin.jvm.functions.Function0<kotlin.Unit> action);
-    method public static inline void setGone(android.view.View, boolean value);
-    method public static inline void setInvisible(android.view.View, boolean value);
+    method public static inline void setGone(android.view.View, boolean);
+    method public static inline void setInvisible(android.view.View, boolean);
     method public static inline void setPadding(android.view.View, @Px int size);
-    method public static inline void setVisible(android.view.View, boolean value);
+    method public static inline void setVisible(android.view.View, boolean);
     method public static inline void updateLayoutParams(android.view.View, kotlin.jvm.functions.Function1<? super android.view.ViewGroup.LayoutParams,kotlin.Unit> block);
     method public static inline <reified T extends android.view.ViewGroup.LayoutParams> void updateLayoutParams(android.view.View, kotlin.jvm.functions.Function1<? super T,? extends kotlin.Unit> block);
     method public static inline void updatePadding(android.view.View, optional @Px int left, optional @Px int top, optional @Px int right, optional @Px int bottom);

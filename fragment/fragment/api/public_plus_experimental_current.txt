@@ -464,7 +464,7 @@ package androidx.fragment.app.strictmode {
   public final class FragmentStrictMode {
     method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy getDefaultPolicy();
     method @VisibleForTesting public void onPolicyViolation(androidx.fragment.app.strictmode.Violation violation);
-    method public void setDefaultPolicy(androidx.fragment.app.strictmode.FragmentStrictMode.Policy defaultPolicy);
+    method public void setDefaultPolicy(androidx.fragment.app.strictmode.FragmentStrictMode.Policy);
     property public final androidx.fragment.app.strictmode.FragmentStrictMode.Policy defaultPolicy;
     field public static final androidx.fragment.app.strictmode.FragmentStrictMode INSTANCE;
   }

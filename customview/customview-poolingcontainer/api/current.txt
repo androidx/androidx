@@ -8,7 +8,7 @@ package androidx.customview.poolingcontainer {
     method public static boolean isPoolingContainer(android.view.View);
     method public static boolean isWithinPoolingContainer(android.view.View);
     method public static void removePoolingContainerListener(android.view.View, androidx.customview.poolingcontainer.PoolingContainerListener listener);
-    method public static void setPoolingContainer(android.view.View, boolean value);
+    method public static void setPoolingContainer(android.view.View, boolean);
   }
 
   public fun interface PoolingContainerListener {

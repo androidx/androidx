@@ -49,15 +49,15 @@ package androidx.paging.rxjava3 {
 
   public abstract class RxPagingSource<Key, Value> extends androidx.paging.PagingSource<Key,Value> {
     ctor public RxPagingSource();
-    method public final suspend Object? load(androidx.paging.PagingSource.LoadParams<Key> params, kotlin.coroutines.Continuation<? super androidx.paging.PagingSource.LoadResult<Key,Value>> p);
+    method public final suspend Object? load(androidx.paging.PagingSource.LoadParams<Key> params, kotlin.coroutines.Continuation<? super androidx.paging.PagingSource.LoadResult<Key,Value>>);
     method public abstract io.reactivex.rxjava3.core.Single<androidx.paging.PagingSource.LoadResult<Key,Value>> loadSingle(androidx.paging.PagingSource.LoadParams<Key> params);
   }
 
   @androidx.paging.ExperimentalPagingApi public abstract class RxRemoteMediator<Key, Value> extends androidx.paging.RemoteMediator<Key,Value> {
     ctor public RxRemoteMediator();
-    method public final suspend Object? initialize(kotlin.coroutines.Continuation<? super androidx.paging.RemoteMediator.InitializeAction> p);
+    method public final suspend Object? initialize(kotlin.coroutines.Continuation<? super androidx.paging.RemoteMediator.InitializeAction>);
     method public io.reactivex.rxjava3.core.Single<androidx.paging.RemoteMediator.InitializeAction> initializeSingle();
-    method public final suspend Object? load(androidx.paging.LoadType loadType, androidx.paging.PagingState<Key,Value> state, kotlin.coroutines.Continuation<? super androidx.paging.RemoteMediator.MediatorResult> p);
+    method public final suspend Object? load(androidx.paging.LoadType loadType, androidx.paging.PagingState<Key,Value> state, kotlin.coroutines.Continuation<? super androidx.paging.RemoteMediator.MediatorResult>);
     method public abstract io.reactivex.rxjava3.core.Single<androidx.paging.RemoteMediator.MediatorResult> loadSingle(androidx.paging.LoadType loadType, androidx.paging.PagingState<Key,Value> state);
   }
 

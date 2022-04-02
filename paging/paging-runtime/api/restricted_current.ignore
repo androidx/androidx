@@ -1,0 +1,7 @@
+// Baseline format: 1.0
+ParameterNameChange: androidx.paging.AsyncPagingDataDiffer#submitData(androidx.paging.PagingData<T>, kotlin.coroutines.Continuation<? super kotlin.Unit>) parameter #1:
+    Attempted to remove parameter name from parameter arg2 in androidx.paging.AsyncPagingDataDiffer.submitData
+ParameterNameChange: androidx.paging.LoadStateAdapter#setLoadState(androidx.paging.LoadState) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.paging.LoadStateAdapter.setLoadState
+ParameterNameChange: androidx.paging.PagingDataAdapter#submitData(androidx.paging.PagingData<T>, kotlin.coroutines.Continuation<? super kotlin.Unit>) parameter #1:
+    Attempted to remove parameter name from parameter arg2 in androidx.paging.PagingDataAdapter.submitData
