@@ -13,125 +13,75 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:JvmName("ProcessUtils")
 
-package androidx.work.impl.utils;
+package androidx.work.impl.utils
 
+import android.annotation.SuppressLint
+import android.app.ActivityManager
+import android.app.Application
+import android.content.Context
+import android.os.Build
+import android.os.Process
+import androidx.annotation.DoNotInline
+import androidx.annotation.RequiresApi
+import androidx.work.Configuration
+import androidx.work.Logger
+import androidx.work.WorkManager
 
-import static android.content.Context.ACTIVITY_SERVICE;
-import static android.os.Build.VERSION.SDK_INT;
-
-import android.annotation.SuppressLint;
-import android.app.ActivityManager;
-import android.app.Application;
-import android.content.Context;
-import android.content.pm.ApplicationInfo;
-import android.os.Process;
-import android.text.TextUtils;
-
-import androidx.annotation.DoNotInline;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
-import androidx.work.Configuration;
-import androidx.work.Logger;
-import androidx.work.WorkManager;
-
-import java.lang.reflect.Method;
-import java.util.List;
+private val TAG = Logger.tagWithPrefix("ProcessUtils")
 
 /**
- * @hide
+ * @return `true` when `WorkManager` is running in the configured app process.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class ProcessUtils {
-    private static final String TAG = Logger.tagWithPrefix("ProcessUtils");
-
-    private ProcessUtils() {
-        // Does nothing
+fun isDefaultProcess(context: Context, configuration: Configuration): Boolean {
+    val processName = getProcessName(context)
+    return if (!configuration.defaultProcessName.isNullOrEmpty()) {
+        processName == configuration.defaultProcessName
+    } else {
+        processName == context.applicationInfo.processName
     }
+}
 
-    /**
-     * @return {@code true} when {@link WorkManager} is running in the configured app process.
-     */
-    public static boolean isDefaultProcess(
-            @NonNull Context context,
-            @NonNull Configuration configuration) {
+/**
+ * @return The name of the active process.
+ */
+@SuppressLint("PrivateApi", "DiscouragedPrivateApi")
+private fun getProcessName(context: Context): String? {
+    if (Build.VERSION.SDK_INT >= 28) return Api28Impl.processName
 
-        String processName = getProcessName(context);
-
-        if (!TextUtils.isEmpty(configuration.getDefaultProcessName())) {
-            return TextUtils.equals(processName, configuration.getDefaultProcessName());
+    // Try using ActivityThread to determine the current process name.
+    try {
+        val activityThread = Class.forName(
+            "android.app.ActivityThread",
+            false,
+            WorkManager::class.java.classLoader
+        )
+        val packageName = if (Build.VERSION.SDK_INT >= 18) {
+            val currentProcessName = activityThread.getDeclaredMethod("currentProcessName")
+            currentProcessName.isAccessible = true
+            currentProcessName.invoke(null)!!
         } else {
-            ApplicationInfo info = context.getApplicationInfo();
-            return TextUtils.equals(processName, info.processName);
+            val getActivityThread = activityThread.getDeclaredMethod("currentActivityThread")
+            getActivityThread.isAccessible = true
+            val getProcessName = activityThread.getDeclaredMethod("getProcessName")
+            getProcessName.isAccessible = true
+            getProcessName.invoke(getActivityThread.invoke(null))!!
         }
+        if (packageName is String) return packageName
+    } catch (exception: Throwable) {
+        Logger.get().debug(TAG, "Unable to check ActivityThread for processName", exception)
     }
 
-    /**
-     * @return The name of the active process.
-     */
-    @Nullable
-    @SuppressLint({"PrivateApi", "DiscouragedPrivateApi"})
-    public static String getProcessName(@NonNull Context context) {
-        if (SDK_INT >= 28) {
-            return Api28Impl.getProcessName();
-        }
+    // Fallback to the most expensive way
+    val pid = Process.myPid()
+    val am = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+    return am.runningAppProcesses?.find { process -> process.pid == pid }?.processName
+}
 
-        // Try using ActivityThread to determine the current process name.
-        try {
-            Class<?> activityThread = Class.forName(
-                    "android.app.ActivityThread",
-                    false,
-                    ProcessUtils.class.getClassLoader());
-            final Object packageName;
-            if (SDK_INT >= 18) {
-                Method currentProcessName = activityThread.getDeclaredMethod("currentProcessName");
-                currentProcessName.setAccessible(true);
-                packageName = currentProcessName.invoke(null);
-            } else {
-                Method getActivityThread = activityThread.getDeclaredMethod(
-                        "currentActivityThread");
-                getActivityThread.setAccessible(true);
-                Method getProcessName = activityThread.getDeclaredMethod("getProcessName");
-                getProcessName.setAccessible(true);
-                packageName = getProcessName.invoke(getActivityThread.invoke(null));
-            }
-            if (packageName instanceof String) {
-                return (String) packageName;
-            }
-        } catch (Throwable exception) {
-            Logger.get().debug(TAG, "Unable to check ActivityThread for processName", exception);
-        }
-
-        // Fallback to the most expensive way
-        int pid = Process.myPid();
-        ActivityManager am =
-                (ActivityManager) context.getSystemService(ACTIVITY_SERVICE);
-
-        if (am != null) {
-            List<ActivityManager.RunningAppProcessInfo> processes = am.getRunningAppProcesses();
-            if (processes != null && !processes.isEmpty()) {
-                for (ActivityManager.RunningAppProcessInfo process : processes) {
-                    if (process.pid == pid) {
-                        return process.processName;
-                    }
-                }
-            }
-        }
-
-        return null;
-    }
-
-    @RequiresApi(28)
-    static class Api28Impl {
-        private Api28Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static String getProcessName() {
-            return Application.getProcessName();
-        }
-    }
+@RequiresApi(28)
+private object Api28Impl {
+    @get:DoNotInline
+    val processName: String
+        get() = Application.getProcessName()
 }
