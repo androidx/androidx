@@ -56,6 +56,8 @@ dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api("androidx.annotation:annotation-experimental:1.0.0")
     implementation("androidx.tracing:tracing-ktx:1.0.0")
+    implementation(projectOrArtifact(":tracing:tracing-perfetto"))
+    implementation(projectOrArtifact(":tracing:tracing-perfetto-binary"))
     implementation(libs.testMonitor)
     implementation(libs.wireRuntime)
 
@@ -89,4 +91,3 @@ afterEvaluate {
         it.dependsOn("generateReleaseProtos")
     }
 }
-

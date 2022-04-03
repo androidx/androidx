@@ -16,4 +16,17 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <application>
+        <receiver
+            android:name=".TracingReceiver"
+            android:directBootAware="false"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.DUMP">
+            <!-- Note: DUMP above highly limits who can call the receiver; Shell has DUMP perm. -->
+            <intent-filter>
+                <action android:name="androidx.tracing.perfetto.action.ENABLE_TRACING" />
+            </intent-filter>
+        </receiver>
+    </application>
 </manifest>
