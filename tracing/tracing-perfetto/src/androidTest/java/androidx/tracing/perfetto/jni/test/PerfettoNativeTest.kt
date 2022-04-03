@@ -19,22 +19,25 @@ package androidx.tracing.perfetto.jni.test
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.tracing.perfetto.jni.PerfettoNative
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class PerfettoNativeTest {
-
     companion object {
         init {
             PerfettoNative.loadLib()
         }
+        const val libraryVersion = "1.0.0-alpha01" // TODO: get using reflection
     }
 
     @Test
     fun testEvents() {
         PerfettoNative.nativeRegisterWithPerfetto()
+        assertThat(PerfettoNative.nativeVersion()).isEqualTo(libraryVersion)
+        assertThat(PerfettoNative.Metadata.version).isEqualTo(libraryVersion)
 
         PerfettoNative.nativeTraceEventBegin(123, "foo")
         PerfettoNative.nativeTraceEventBegin(321, "bar")

@@ -49,4 +49,10 @@ Java_androidx_tracing_perfetto_jni_PerfettoNative_nativeFlushEvents(
     tracing_perfetto::Flush();
     PERFETTO_LOG("Perfetto: Flush()");
 }
+JNIEXPORT jstring JNICALL
+Java_androidx_tracing_perfetto_jni_PerfettoNative_nativeVersion(
+        JNIEnv *env, __unused jclass clazz) {
+    PERFETTO_LOG("Perfetto: Version()");
+    return env->NewStringUTF(tracing_perfetto::Version());
+}
 } // extern "C"

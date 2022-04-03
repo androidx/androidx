@@ -39,5 +39,6 @@ dependencies {
     implementation(project(":profileinstaller:profileinstaller"))
     implementation(project(":recyclerview:recyclerview"))
     implementation(project(":tracing:tracing-ktx"))
+    implementation(project(":tracing:tracing-perfetto"))
     implementation(libs.material)
 }

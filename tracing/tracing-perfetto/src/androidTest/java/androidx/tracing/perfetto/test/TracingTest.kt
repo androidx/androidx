@@ -27,21 +27,24 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class TracingTest {
     @Test
-    fun test_endToEnd_noCrash() {
-        assertThat(Tracing.isTraceInProgress).isEqualTo(false)
+    fun test_endToEnd_binaryDependenciesPresent() {
+        assertThat(Tracing.isEnabled).isEqualTo(false)
+
+        // Note: no path to binary dependencies provided, so we are testing the case where the app
+        // directly depends on :tracing:tracing-perfetto-binary
+        Tracing.enable()
+        assertThat(Tracing.isEnabled).isEqualTo(true)
 
         Tracing.enable()
-        assertThat(Tracing.isTraceInProgress).isEqualTo(false)
-
-        Tracing.setTraceInProgress(true)
-        assertThat(Tracing.isTraceInProgress).isEqualTo(true)
+        assertThat(Tracing.isEnabled).isEqualTo(true)
 
         Tracing.traceEventStart(123, "foo")
         Tracing.traceEventStart(321, "bar")
         Tracing.traceEventEnd()
         Tracing.traceEventEnd()
 
-        Tracing.setTraceInProgress(false)
-        assertThat(Tracing.isTraceInProgress).isEqualTo(false)
+        Tracing.flushEvents()
+
+        // TODO(214562374): verify the content by getting it back from Perfetto
     }
 }

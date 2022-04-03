@@ -16,10 +16,24 @@
 package androidx.tracing.perfetto.jni
 
 internal object PerfettoNative {
-    fun loadLib() = System.loadLibrary("tracing_perfetto")
+    private const val libraryName = "tracing_perfetto"
+
+    // TODO: load from a file produced at build time
+    object Metadata {
+        const val version = "1.0.0-alpha01"
+        // TODO: add SHA / signature to verify binaries before loading
+    }
+
+    fun loadLib(path: String? = null) {
+        when (path) {
+            null -> System.loadLibrary(libraryName)
+            else -> System.load(path) // TODO: security
+        }
+    }
 
     external fun nativeRegisterWithPerfetto()
     external fun nativeTraceEventBegin(key: Int, traceInfo: String)
     external fun nativeTraceEventEnd()
     external fun nativeFlushEvents()
+    external fun nativeVersion(): String
 }
