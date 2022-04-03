@@ -13,233 +13,150 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.work.impl.workers
 
-package androidx.work.impl.workers;
-
-import android.content.Context;
-import android.text.TextUtils;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.VisibleForTesting;
-import androidx.work.ListenableWorker;
-import androidx.work.Logger;
-import androidx.work.Worker;
-import androidx.work.WorkerParameters;
-import androidx.work.impl.WorkDatabase;
-import androidx.work.impl.WorkManagerImpl;
-import androidx.work.impl.constraints.WorkConstraintsCallback;
-import androidx.work.impl.constraints.WorkConstraintsTrackerImpl;
-import androidx.work.impl.constraints.trackers.Trackers;
-import androidx.work.impl.model.WorkSpec;
-import androidx.work.impl.utils.futures.SettableFuture;
-import androidx.work.impl.utils.taskexecutor.TaskExecutor;
-
-import com.google.common.util.concurrent.ListenableFuture;
-
-import java.util.Collections;
-import java.util.List;
+import android.content.Context
+import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
+import androidx.work.ListenableWorker
+import androidx.work.ListenableWorker.Result
+import androidx.work.Logger
+import androidx.work.WorkerParameters
+import androidx.work.impl.WorkManagerImpl
+import androidx.work.impl.constraints.WorkConstraintsCallback
+import androidx.work.impl.constraints.WorkConstraintsTrackerImpl
+import androidx.work.impl.utils.futures.SettableFuture
+import com.google.common.util.concurrent.ListenableFuture
 
 /**
- * Is an implementation of a {@link Worker} that can delegate to a different {@link Worker}
- * when the constraints are met.
+ * Is an implementation of a [androidx.work.Worker] that can delegate to a different
+ * [androidx.work.Worker] when the constraints are met.
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class ConstraintTrackingWorker extends ListenableWorker implements WorkConstraintsCallback {
+class ConstraintTrackingWorker(
+    appContext: Context,
+    private val workerParameters: WorkerParameters
+) : ListenableWorker(appContext, workerParameters), WorkConstraintsCallback {
 
-    private static final String TAG = Logger.tagWithPrefix("ConstraintTrkngWrkr");
+    private val lock = Any()
+
+    // Marking this volatile as the delegated workers could switch threads.
+    @Volatile
+    private var areConstraintsUnmet: Boolean = false
+    private val future = SettableFuture.create<Result>()
 
     /**
-     * The {@code className} of the {@link Worker} to delegate to.
+     * @return The [androidx.work.Worker] used for delegated work
+     * @hide
      */
-    public static final String ARGUMENT_CLASS_NAME =
-            "androidx.work.impl.workers.ConstraintTrackingWorker.ARGUMENT_CLASS_NAME";
+    @get:VisibleForTesting
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    var delegate: ListenableWorker? = null
+        private set
 
-    private WorkerParameters mWorkerParameters;
-
-    // These are package-private to avoid synthetic accessor.
-    final Object mLock;
-    // Marking this volatile as the delegated workers could switch threads.
-    volatile boolean mAreConstraintsUnmet;
-    SettableFuture<Result> mFuture;
-
-    @Nullable private ListenableWorker mDelegate;
-
-    public ConstraintTrackingWorker(@NonNull Context appContext,
-            @NonNull WorkerParameters workerParams) {
-        super(appContext, workerParams);
-        mWorkerParameters = workerParams;
-        mLock = new Object();
-        mAreConstraintsUnmet = false;
-        mFuture = SettableFuture.create();
+    override fun startWork(): ListenableFuture<Result> {
+        backgroundExecutor.execute { setupAndRunConstraintTrackingWork() }
+        return future
     }
 
-    @NonNull
-    @Override
-    public ListenableFuture<Result> startWork() {
-        getBackgroundExecutor().execute(new Runnable() {
-            @Override
-            public void run() {
-                setupAndRunConstraintTrackingWork();
-            }
-        });
-        return mFuture;
-    }
+    private fun setupAndRunConstraintTrackingWork() {
+        if (future.isCancelled) return
 
-    // Package-private to avoid synthetic accessor.
-    void setupAndRunConstraintTrackingWork() {
-        String className = getInputData().getString(ARGUMENT_CLASS_NAME);
-        if (TextUtils.isEmpty(className)) {
-            Logger.get().error(TAG, "No worker to delegate to.");
-            setFutureFailed();
-            return;
+        val className = inputData.getString(ARGUMENT_CLASS_NAME)
+        val logger = Logger.get()
+        if (className.isNullOrEmpty()) {
+            logger.error(TAG, "No worker to delegate to.")
+            future.setFailed()
+            return
+        }
+        delegate = workerFactory.createWorkerWithDefaultFallback(
+            applicationContext, className, workerParameters
+        )
+        if (delegate == null) {
+            logger.debug(TAG, "No worker to delegate to.")
+            future.setFailed()
+            return
         }
 
-        mDelegate = getWorkerFactory().createWorkerWithDefaultFallback(
-                getApplicationContext(),
-                className,
-                mWorkerParameters);
-
-        if (mDelegate == null) {
-            Logger.get().debug(TAG, "No worker to delegate to.");
-            setFutureFailed();
-            return;
-        }
-
-        WorkDatabase workDatabase = getWorkDatabase();
-
+        val workManagerImpl = WorkManagerImpl.getInstance(applicationContext)
         // We need to know what the real constraints are for the delegate.
-        WorkSpec workSpec = workDatabase.workSpecDao().getWorkSpec(getId().toString());
+        val workSpec = workManagerImpl.workDatabase.workSpecDao().getWorkSpec(id.toString())
         if (workSpec == null) {
-            setFutureFailed();
-            return;
+            future.setFailed()
+            return
         }
-        WorkConstraintsTrackerImpl workConstraintsTracker =
-                new WorkConstraintsTrackerImpl(getTrackers(), this);
+        val workConstraintsTracker = WorkConstraintsTrackerImpl(workManagerImpl.trackers, this)
 
         // Start tracking
-        workConstraintsTracker.replace(Collections.singletonList(workSpec));
-
-        if (workConstraintsTracker.areAllConstraintsMet(getId().toString())) {
-            Logger.get().debug(TAG, "Constraints met for delegate " + className);
+        workConstraintsTracker.replace(listOf(workSpec))
+        if (workConstraintsTracker.areAllConstraintsMet(id.toString())) {
+            logger.debug(TAG, "Constraints met for delegate $className")
 
             // Wrapping the call to mDelegate#doWork() in a try catch, because
             // changes in constraints can cause the worker to throw RuntimeExceptions, and
             // that should cause a retry.
             try {
-                final ListenableFuture<Result> innerFuture = mDelegate.startWork();
-                innerFuture.addListener(new Runnable() {
-                    @Override
-                    public void run() {
-                        synchronized (mLock) {
-                            if (mAreConstraintsUnmet) {
-                                setFutureRetry();
-                            } else {
-                                mFuture.setFuture(innerFuture);
-                            }
+                val innerFuture = delegate!!.startWork()
+                innerFuture.addListener({
+                    synchronized(lock) {
+                        if (areConstraintsUnmet) {
+                            future.setRetry()
+                        } else {
+                            future.setFuture(innerFuture)
                         }
                     }
-                }, getBackgroundExecutor());
-            } catch (Throwable exception) {
-                Logger.get().debug(TAG, String.format(
-                        "Delegated worker %s threw exception in startWork.", className),
-                        exception);
-                synchronized (mLock) {
-                    if (mAreConstraintsUnmet) {
-                        Logger.get().debug(TAG, "Constraints were unmet, Retrying.");
-                        setFutureRetry();
+                }, backgroundExecutor)
+            } catch (exception: Throwable) {
+                logger.debug(
+                    TAG, "Delegated worker $className threw exception in startWork.", exception
+                )
+                synchronized(lock) {
+                    if (areConstraintsUnmet) {
+                        logger.debug(TAG, "Constraints were unmet, Retrying.")
+                        future.setRetry()
                     } else {
-                        setFutureFailed();
+                        future.setFailed()
                     }
                 }
             }
         } else {
-            Logger.get().debug(TAG, String.format(
-                    "Constraints not met for delegate %s. Requesting retry.", className));
-            setFutureRetry();
+            logger.debug(
+                TAG, "Constraints not met for delegate $className. Requesting retry."
+            )
+            future.setRetry()
         }
-
     }
 
-    // Package-private to avoid synthetic accessor.
-    void setFutureFailed() {
-        mFuture.set(Result.failure());
-    }
-
-    // Package-private to avoid synthetic accessor.
-    void setFutureRetry() {
-        mFuture.set(Result.retry());
-    }
-
-    @Override
-    public void onStopped() {
-        super.onStopped();
-        if (mDelegate != null && !mDelegate.isStopped()) {
+    override fun onStopped() {
+        super.onStopped()
+        val delegateInner = delegate
+        if (delegateInner != null && !delegateInner.isStopped) {
             // Stop is the method that sets the stopped and cancelled bits and invokes onStopped.
-            mDelegate.stop();
+            delegateInner.stop()
         }
     }
 
-    /**
-     * @return The instance of {@link WorkDatabase}
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @VisibleForTesting
-    @NonNull
-    public WorkDatabase getWorkDatabase() {
-        return WorkManagerImpl.getInstance(getApplicationContext()).getWorkDatabase();
-    }
-
-    /**
-     * @return The instance of {@link TaskExecutor}.
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @VisibleForTesting
-    @NonNull
-    @Override
-    public TaskExecutor getTaskExecutor() {
-        return WorkManagerImpl.getInstance(getApplicationContext()).getWorkTaskExecutor();
-    }
-
-    /**
-     * @return The instance of {@link Trackers}.
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @VisibleForTesting
-    @NonNull
-    public Trackers getTrackers() {
-        return WorkManagerImpl.getInstance(getApplicationContext()).getTrackers();
-    }
-
-    /**
-     * @return The {@link Worker} used for delegated work
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @VisibleForTesting
-    @Nullable
-    public ListenableWorker getDelegate() {
-        return mDelegate;
-    }
-
-    @Override
-    public void onAllConstraintsMet(@NonNull List<String> workSpecIds) {
+    override fun onAllConstraintsMet(workSpecIds: List<String>) {
         // WorkConstraintTracker notifies on the main thread. So we don't want to trampoline
         // between the background thread and the main thread in this case.
     }
 
-    @Override
-    public void onAllConstraintsNotMet(@NonNull List<String> workSpecIds) {
+    override fun onAllConstraintsNotMet(workSpecIds: List<String>) {
         // If at any point, constraints are not met mark it so we can retry the work.
-        Logger.get().debug(TAG, "Constraints changed for " + workSpecIds);
-        synchronized (mLock) {
-            mAreConstraintsUnmet = true;
-        }
+        Logger.get().debug(TAG, "Constraints changed for $workSpecIds")
+        synchronized(lock) { areConstraintsUnmet = true }
     }
 }
+
+private fun SettableFuture<Result>.setFailed() = set(Result.failure())
+private fun SettableFuture<Result>.setRetry() = set(Result.retry())
+
+private val TAG = Logger.tagWithPrefix("ConstraintTrkngWrkr")
+
+/**
+ * The `className` of the [androidx.work.Worker] to delegate to.
+ */
+internal const val ARGUMENT_CLASS_NAME =
+    "androidx.work.impl.workers.ConstraintTrackingWorker.ARGUMENT_CLASS_NAME"

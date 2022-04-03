@@ -13,31 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.work.impl.workers
 
-package androidx.work.impl.workers;
-
-import android.content.Context;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-import androidx.work.Worker;
-import androidx.work.WorkerParameters;
+import android.content.Context
+import androidx.work.Worker
+import androidx.work.WorkerParameters
 
 /**
- * A {@link Worker} that helps combine work continuations.
- *
- * @hide
+ * A [Worker] that helps combine work continuations.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class CombineContinuationsWorker extends Worker {
-
-    public CombineContinuationsWorker(@NonNull Context context,
-            @NonNull WorkerParameters workerParams) {
-        super(context, workerParams);
-    }
-
-    @Override
-    public @NonNull Result doWork() {
-        return Result.success(getInputData());
-    }
+internal class CombineContinuationsWorker(
+    context: Context,
+    workerParams: WorkerParameters
+) : Worker(context, workerParams) {
+    override fun doWork() = Result.success(inputData)
 }
