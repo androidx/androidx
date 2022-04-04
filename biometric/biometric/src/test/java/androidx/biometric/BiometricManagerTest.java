@@ -65,9 +65,14 @@ public class BiometricManagerTest {
     @Config(minSdk = Build.VERSION_CODES.Q)
     @RequiresApi(Build.VERSION_CODES.Q)
     public void testCanAuthenticate_ReturnsSuccess_WhenManagerReturnsSuccess_OnApi29AndAbove() {
+        final int authenticators = Authenticators.BIOMETRIC_WEAK;
         final android.hardware.biometrics.BiometricManager frameworkBiometricManager =
                 mock(android.hardware.biometrics.BiometricManager.class);
         when(frameworkBiometricManager.canAuthenticate()).thenReturn(BIOMETRIC_SUCCESS);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            when(frameworkBiometricManager.canAuthenticate(authenticators))
+                    .thenReturn(BIOMETRIC_SUCCESS);
+        }
         when(mFingerprintManager.isHardwareDetected()).thenReturn(false);
         when(mFingerprintManager.hasEnrolledFingerprints()).thenReturn(false);
 
@@ -80,17 +85,21 @@ public class BiometricManagerTest {
                         .setFingerprintHardwarePresent(true)
                         .build());
 
-        final int authenticators = Authenticators.BIOMETRIC_WEAK;
         assertThat(biometricManager.canAuthenticate(authenticators)).isEqualTo(BIOMETRIC_SUCCESS);
     }
 
     @Test
-    @Config(minSdk = Build.VERSION_CODES.Q, maxSdk = 29)
+    @Config(minSdk = Build.VERSION_CODES.Q)
     @RequiresApi(Build.VERSION_CODES.Q)
     public void testCanAuthenticate_ReturnsError_WhenManagerReturnsNoneEnrolled_OnApi29AndAbove() {
+        final int authenticators = Authenticators.BIOMETRIC_WEAK;
         final android.hardware.biometrics.BiometricManager frameworkBiometricManager =
                 mock(android.hardware.biometrics.BiometricManager.class);
         when(frameworkBiometricManager.canAuthenticate()).thenReturn(BIOMETRIC_ERROR_NONE_ENROLLED);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            when(frameworkBiometricManager.canAuthenticate(authenticators))
+                    .thenReturn(BIOMETRIC_ERROR_NONE_ENROLLED);
+        }
         when(mFingerprintManager.isHardwareDetected()).thenReturn(true);
         when(mFingerprintManager.hasEnrolledFingerprints()).thenReturn(true);
 
@@ -103,18 +112,22 @@ public class BiometricManagerTest {
                         .setFingerprintHardwarePresent(true)
                         .build());
 
-        final int authenticators = Authenticators.BIOMETRIC_WEAK;
         assertThat(biometricManager.canAuthenticate(authenticators))
                 .isEqualTo(BIOMETRIC_ERROR_NONE_ENROLLED);
     }
 
     @Test
-    @Config(minSdk = Build.VERSION_CODES.Q, maxSdk = 29)
+    @Config(minSdk = Build.VERSION_CODES.Q)
     @RequiresApi(Build.VERSION_CODES.Q)
     public void testCanAuthenticate_ReturnsError_WhenManagerReturnsNoHardware_OnApi29AndAbove() {
+        final int authenticators = Authenticators.BIOMETRIC_WEAK;
         final android.hardware.biometrics.BiometricManager frameworkBiometricManager =
                 mock(android.hardware.biometrics.BiometricManager.class);
         when(frameworkBiometricManager.canAuthenticate()).thenReturn(BIOMETRIC_ERROR_NO_HARDWARE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            when(frameworkBiometricManager.canAuthenticate(authenticators))
+                    .thenReturn(BIOMETRIC_ERROR_NO_HARDWARE);
+        }
         when(mFingerprintManager.isHardwareDetected()).thenReturn(true);
         when(mFingerprintManager.hasEnrolledFingerprints()).thenReturn(true);
 
@@ -127,7 +140,6 @@ public class BiometricManagerTest {
                         .setFingerprintHardwarePresent(true)
                         .build());
 
-        final int authenticators = Authenticators.BIOMETRIC_WEAK;
         assertThat(biometricManager.canAuthenticate(authenticators))
                 .isEqualTo(BIOMETRIC_ERROR_NO_HARDWARE);
     }
