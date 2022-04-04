@@ -16,6 +16,8 @@
 
 package androidx.work.impl.workers;
 
+import static androidx.work.impl.workers.ConstraintTrackingWorkerKt.ARGUMENT_CLASS_NAME;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -318,7 +320,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
                 .build();
 
         Data input = new Data.Builder()
-                .putString(ConstraintTrackingWorker.ARGUMENT_CLASS_NAME, delegateName)
+                .putString(ARGUMENT_CLASS_NAME, delegateName)
                 .putBoolean(TEST_ARGUMENT_NAME, true)
                 .build();
 
@@ -350,7 +352,6 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
                 is(CoreMatchers.<ListenableWorker>instanceOf(ConstraintTrackingWorker.class)));
         // mWorker is already a spy
         mWorker = (ConstraintTrackingWorker) worker;
-        when(mWorker.getWorkDatabase()).thenReturn(mDatabase);
     }
 
     private WorkerWrapper.Builder createWorkerWrapperBuilder() {
