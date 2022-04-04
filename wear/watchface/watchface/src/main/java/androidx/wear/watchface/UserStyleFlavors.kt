@@ -16,10 +16,11 @@
 
 package androidx.wear.watchface
 
-import android.content.res.Resources
 import android.content.res.XmlResourceParser
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
+import androidx.wear.watchface.complications.NAMESPACE_APP
+import androidx.wear.watchface.complications.hasValue
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleData
 import androidx.wear.watchface.style.UserStyleSchema
@@ -103,7 +104,6 @@ public class UserStyleFlavor(
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Throws(IOException::class, XmlPullParserException::class)
         fun inflate(
-            resources: Resources,
             parser: XmlResourceParser,
             schema: UserStyleSchema
         ): UserStyleFlavor {
@@ -111,8 +111,7 @@ public class UserStyleFlavor(
                 "Expected a UserStyleFlavor node"
             }
 
-            val flavorAttributes = resources.obtainAttributes(parser, R.styleable.UserStyleFlavor)
-            val flavorId = flavorAttributes.getString(R.styleable.UserStyleFlavor_id)
+            val flavorId = parser.getAttributeValue(NAMESPACE_APP, "id")
             require(flavorId != null) { "UserStyleFlavor must have an id" }
 
             val userStyle = schema.getDefaultUserStyle().toMutableUserStyle()
@@ -125,24 +124,21 @@ public class UserStyleFlavor(
                 if (type == XmlPullParser.START_TAG) {
                     when (parser.name) {
                         "StyleOption" -> {
-                            val attributes = resources.obtainAttributes(
-                                parser,
-                                R.styleable.StyleOption
-                            )
-                            val id = attributes.getString(R.styleable.StyleOption_id)
+                            val id = parser.getAttributeValue(NAMESPACE_APP, "id")
                             require(id != null) { "StyleOption must have an id" }
 
-                            require(attributes.hasValue(R.styleable.StyleOption_value)) {
+                            require(parser.hasValue("value")) {
                                 "value is required for BooleanOption"
                             }
-                            val value = attributes.getString(R.styleable.StyleOption_value)
+                            val value = parser.getAttributeValue(NAMESPACE_APP, "value")
 
                             val setting = schema[UserStyleSetting.Id(id)]
                             require(setting != null) { "no setting found for id $id" }
                             when (setting) {
                                 is UserStyleSetting.BooleanUserStyleSetting -> {
-                                    val booleanValue = attributes.getBoolean(
-                                        R.styleable.StyleOption_value,
+                                    val booleanValue = parser.getAttributeBooleanValue(
+                                        NAMESPACE_APP,
+                                        "value",
                                         true
                                     )
 
@@ -167,27 +163,16 @@ public class UserStyleFlavor(
                             }
                         }
                         "ComplicationPolicy" -> {
-                            val attributes = resources.obtainAttributes(
-                                parser,
-                                R.styleable.ComplicationPolicy
-                            )
-                            require(attributes.hasValue(R.styleable.ComplicationPolicy_slotId)) {
-                                "id is required for ComplicationPolicy"
+                            require(parser.hasValue("slotId")) {
+                                "slotId is required for ComplicationPolicy"
                             }
-                            val id = attributes.getInt(R.styleable.ComplicationPolicy_slotId, 0)
+                            val id = parser.getAttributeIntValue(NAMESPACE_APP, "slotId", 0)
 
                             val policy =
                                 XmlSchemaAndComplicationSlotsDefinition.ComplicationSlotStaticData
                                 .inflateDefaultComplicationDataSourcePolicy(
-                                    attributes,
-                                    R.styleable.ComplicationPolicy_primaryDataSource,
-                                    R.styleable.ComplicationPolicy_primaryDataSourceDefaultType,
-                                    R.styleable.ComplicationPolicy_secondaryDataSource,
-                                    R.styleable.ComplicationPolicy_secondaryDataSourceDefaultType,
-                                    R.styleable.ComplicationPolicy_systemDataSourceFallback,
-                                    R.styleable
-                                        .ComplicationPolicy_systemDataSourceFallbackDefaultType
-                                )
+                                    parser,
+                                    "ComplicationPolicy")
 
                             complications[id] = policy
                         }
@@ -256,7 +241,6 @@ public class UserStyleFlavors(public val flavors: List<UserStyleFlavor>) {
     companion object {
         @Throws(IOException::class, XmlPullParserException::class)
         fun inflate(
-            resources: Resources,
             parser: XmlResourceParser,
             schema: UserStyleSchema
         ): UserStyleFlavors {
@@ -273,7 +257,7 @@ public class UserStyleFlavors(public val flavors: List<UserStyleFlavor>) {
                 if (type == XmlPullParser.START_TAG) {
                     when (parser.name) {
                         "UserStyleFlavor" -> flavors.add(
-                            UserStyleFlavor.inflate(resources, parser, schema)
+                            UserStyleFlavor.inflate(parser, schema)
                         )
 
                         else -> throw IllegalArgumentException(

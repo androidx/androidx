@@ -20,7 +20,6 @@ import android.annotation.SuppressLint
 import android.content.ContentResolver
 import android.content.Context
 import android.content.res.Resources
-import android.content.res.TypedArray
 import android.content.res.XmlResourceParser
 import android.graphics.BitmapFactory
 import android.graphics.drawable.Icon
@@ -32,7 +31,10 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.StringRes
 import androidx.wear.watchface.complications.ComplicationSlotBounds
+import androidx.wear.watchface.complications.NAMESPACE_ANDROID
+import androidx.wear.watchface.complications.NAMESPACE_APP
 import androidx.wear.watchface.complications.data.ComplicationType
+import androidx.wear.watchface.complications.hasValue
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption
 import androidx.wear.watchface.style.data.BooleanOptionWireFormat
@@ -149,14 +151,9 @@ public sealed class UserStyleSetting private constructor(
 
             @SuppressLint("ResourceType")
             fun inflate(resources: Resources, parser: XmlResourceParser): WatchFaceEditorData {
-                val attributes = resources.obtainAttributes(
-                    parser,
-                    R.styleable.OnWatchEditorData
-                )
                 val icon = createIcon(
                     resources,
-                    attributes,
-                    R.styleable.OnWatchEditorData_android_icon
+                    parser
                 )
                 return WatchFaceEditorData(icon)
             }
@@ -311,23 +308,23 @@ public sealed class UserStyleSetting private constructor(
 
         internal fun createDisplayText(
             resources: Resources,
-            attributes: TypedArray,
-            attributeId: Int
+            parser: XmlResourceParser,
+            attributeId: String
         ): DisplayText {
-            val displayNameId = attributes.getResourceId(attributeId, -1)
+            val displayNameId = parser.getAttributeResourceValue(NAMESPACE_APP, attributeId, -1)
             return if (displayNameId != -1) {
                 DisplayText.ResourceDisplayText(resources, displayNameId)
             } else {
-                DisplayText.CharSequenceDisplayText(attributes.getString(attributeId) ?: "")
+                DisplayText.CharSequenceDisplayText(
+                    parser.getAttributeValue(NAMESPACE_APP, attributeId) ?: "")
             }
         }
 
         internal fun createIcon(
             resources: Resources,
-            attributes: TypedArray,
-            attributeId: Int
+            parser: XmlResourceParser
         ): Icon? {
-            val iconId = attributes.getResourceId(attributeId, -1)
+            val iconId = parser.getAttributeResourceValue(NAMESPACE_ANDROID, "icon", -1)
             return if (iconId != -1) {
                 Icon.createWithResource(resources.getResourcePackageName(iconId), iconId)
             } else {
@@ -702,46 +699,40 @@ public sealed class UserStyleSetting private constructor(
         internal companion object {
             @SuppressLint("ResourceType")
             fun inflate(resources: Resources, parser: XmlResourceParser): BooleanUserStyleSetting {
-                val attributes = resources.obtainAttributes(
-                    parser,
-                    R.styleable.BooleanUserStyleSetting
-                )
-                val id = attributes.getString(R.styleable.BooleanUserStyleSetting_id)
+                val id = parser.getAttributeValue(NAMESPACE_APP, "id")
                 require(id != null) { "BooleanUserStyleSetting must have an id" }
                 val displayName = createDisplayText(
                     resources,
-                    attributes,
-                    R.styleable.BooleanUserStyleSetting_displayName
+                    parser,
+                    "displayName"
                 )
                 val description = createDisplayText(
                     resources,
-                    attributes,
-                    R.styleable.BooleanUserStyleSetting_description
+                    parser,
+                    "description"
                 )
                 val icon = createIcon(
                     resources,
-                    attributes,
-                    R.styleable.BooleanUserStyleSetting_android_icon
+                    parser
                 )
-                require(
-                    attributes.hasValue(R.styleable.BooleanUserStyleSetting_defaultBoolean)
-                ) {
+                require(parser.hasValue("defaultBoolean")) {
                     "defaultBoolean is required for BooleanUserStyleSetting"
                 }
-                val defaultValue = attributes.getBoolean(
-                    R.styleable.BooleanUserStyleSetting_defaultBoolean,
+                val defaultValue = parser.getAttributeBooleanValue(
+                    NAMESPACE_APP,
+                    "defaultBoolean",
                     true
                 )
                 val affectsWatchFaceLayers = affectsWatchFaceLayersFlagsToSet(
-                    attributes.getInt(
-                        R.styleable.BooleanUserStyleSetting_affectedWatchFaceLayers,
+                    parser.getAttributeIntValue(
+                        NAMESPACE_APP,
+                        "affectedWatchFaceLayers",
                         0b111 // first 3 bits set
                     )
                 )
 
                 val watchFaceEditorData =
                     WatchFaceEditorData.inflateSingleOnWatchEditorData(resources, parser)
-                attributes.recycle()
 
                 return BooleanUserStyleSetting(
                     Id(id),
@@ -943,45 +934,37 @@ public sealed class UserStyleSetting private constructor(
             internal companion object {
                 @SuppressLint("ResourceType")
                 fun inflate(
-                    resources: Resources,
                     parser: XmlResourceParser
                 ): ComplicationSlotOverlay {
-                    val attributes = resources.obtainAttributes(
-                        parser,
-                        R.styleable.ComplicationSlotOverlay
-                    )
-                    require(
-                        attributes.hasValue(R.styleable.ComplicationSlotOverlay_complicationSlotId)
-                    ) {
+                    require(parser.hasValue("complicationSlotId")) {
                         "ComplicationSlotOverlay missing complicationSlotId"
                     }
-                    val complicationSlotId = attributes.getInteger(
-                        R.styleable.ComplicationSlotOverlay_complicationSlotId,
+                    val complicationSlotId = parser.getAttributeIntValue(
+                        NAMESPACE_APP,
+                        "complicationSlotId",
                         0
                     )
                     val enabled =
-                        if (attributes.hasValue(R.styleable.ComplicationSlotOverlay_enabled)) {
-                            attributes.getBoolean(
-                                R.styleable.ComplicationSlotOverlay_enabled,
+                        if (parser.hasValue("enabled")) {
+                            parser.getAttributeBooleanValue(
+                                NAMESPACE_APP,
+                                "enabled",
                                 true
                             )
                         } else {
                             null
                         }
                     val accessibilityTraversalIndex =
-                        if (attributes.hasValue(
-                                R.styleable.ComplicationSlotOverlay_accessibilityTraversalIndex
-                            )
-                        ) {
-                            attributes.getInteger(
-                                R.styleable.ComplicationSlotOverlay_accessibilityTraversalIndex,
+                        if (parser.hasValue("accessibilityTraversalIndex")) {
+                            parser.getAttributeIntValue(
+                                NAMESPACE_APP,
+                                "accessibilityTraversalIndex",
                                 0
                             )
                         } else {
                             null
                         }
-                    val bounds = ComplicationSlotBounds.inflate(resources, parser)
-                    attributes.recycle()
+                    val bounds = ComplicationSlotBounds.inflate(parser)
 
                     return ComplicationSlotOverlay(
                         complicationSlotId,
@@ -1156,34 +1139,31 @@ public sealed class UserStyleSetting private constructor(
                 resources: Resources,
                 parser: XmlResourceParser
             ): ComplicationSlotsUserStyleSetting {
-                val attributes = resources.obtainAttributes(
-                    parser,
-                    R.styleable.ComplicationSlotsUserStyleSetting
-                )
-                val id = attributes.getString(R.styleable.ComplicationSlotsUserStyleSetting_id)
+                val id = parser.getAttributeValue(NAMESPACE_APP, "id")
                 require(id != null) { "ComplicationSlotsUserStyleSetting must have an id" }
                 val displayName = createDisplayText(
                     resources,
-                    attributes,
-                    R.styleable.ComplicationSlotsUserStyleSetting_displayName
+                    parser,
+                    "displayName"
                 )
                 val description = createDisplayText(
                     resources,
-                    attributes,
-                    R.styleable.ComplicationSlotsUserStyleSetting_description
+                    parser,
+                    "description"
                 )
                 val icon = createIcon(
                     resources,
-                    attributes,
-                    R.styleable.ComplicationSlotsUserStyleSetting_android_icon
+                    parser
                 )
-                val defaultOptionIndex = attributes.getInteger(
-                    R.styleable.ComplicationSlotsUserStyleSetting_defaultOptionIndex,
+                val defaultOptionIndex = parser.getAttributeIntValue(
+                    NAMESPACE_APP,
+                    "defaultOptionIndex",
                     0
                 )
                 val affectsWatchFaceLayers = affectsWatchFaceLayersFlagsToSet(
-                    attributes.getInt(
-                        R.styleable.BooleanUserStyleSetting_affectedWatchFaceLayers,
+                    parser.getAttributeIntValue(
+                        NAMESPACE_APP,
+                        "affectedWatchFaceLayers",
                         0b111 // first 3 bits set
                     )
                 )
@@ -1218,7 +1198,6 @@ public sealed class UserStyleSetting private constructor(
                     }
                     type = parser.next()
                 } while (type != XmlPullParser.END_DOCUMENT && parser.depth > outerDepth)
-                attributes.recycle()
 
                 return ComplicationSlotsUserStyleSetting(
                     Id(id),
@@ -1404,21 +1383,16 @@ public sealed class UserStyleSetting private constructor(
                     resources: Resources,
                     parser: XmlResourceParser
                 ): ComplicationSlotsOption {
-                    val attributes = resources.obtainAttributes(
-                        parser,
-                        R.styleable.ComplicationSlotsOption
-                    )
-                    val id = attributes.getString(R.styleable.ComplicationSlotsOption_id)
+                    val id = parser.getAttributeValue(NAMESPACE_APP, "id")
                     require(id != null) { "ComplicationSlotsOption must have an id" }
                     val displayName = createDisplayText(
                         resources,
-                        attributes,
-                        R.styleable.ComplicationSlotsOption_displayName
+                        parser,
+                        "displayName"
                     )
                     val icon = createIcon(
                         resources,
-                        attributes,
-                        R.styleable.ComplicationSlotsOption_android_icon
+                        parser
                     )
 
                     var watchFaceEditorData: WatchFaceEditorData? = null
@@ -1429,7 +1403,7 @@ public sealed class UserStyleSetting private constructor(
                         if (type == XmlPullParser.START_TAG) {
                             when (parser.name) {
                                 "ComplicationSlotOverlay" -> complicationSlotOverlays.add(
-                                    ComplicationSlotOverlay.inflate(resources, parser)
+                                    ComplicationSlotOverlay.inflate(parser)
                                 )
 
                                 "OnWatchEditorData" -> {
@@ -1451,7 +1425,6 @@ public sealed class UserStyleSetting private constructor(
                         }
                         type = parser.next()
                     } while (type != XmlPullParser.END_DOCUMENT && parser.depth > outerDepth)
-                    attributes.recycle()
 
                     return ComplicationSlotsOption(
                         Id(id),
@@ -1497,56 +1470,45 @@ public sealed class UserStyleSetting private constructor(
                 resources: Resources,
                 parser: XmlResourceParser
             ): DoubleRangeUserStyleSetting {
-                val attributes = resources.obtainAttributes(
-                    parser,
-                    R.styleable.DoubleRangeUserStyleSetting
-                )
-                val id = attributes.getString(R.styleable.DoubleRangeUserStyleSetting_id)
+                val id = parser.getAttributeValue(NAMESPACE_APP, "id")
                 require(id != null) { "DoubleRangeUserStyleSetting must have an id" }
                 val displayName = createDisplayText(
                     resources,
-                    attributes,
-                    R.styleable.DoubleRangeUserStyleSetting_displayName
+                    parser,
+                    "displayName"
                 )
                 val description = createDisplayText(
                     resources,
-                    attributes,
-                    R.styleable.DoubleRangeUserStyleSetting_description
+                    parser,
+                    "description"
                 )
                 val icon = createIcon(
                     resources,
-                    attributes,
-                    R.styleable.DoubleRangeUserStyleSetting_android_icon
+                    parser
                 )
-                require(attributes.hasValue(R.styleable.DoubleRangeUserStyleSetting_maxDouble)) {
+                require(parser.hasValue("maxDouble")) {
                     "maxInteger is required for DoubleRangeUserStyleSetting"
                 }
-                require(attributes.hasValue(R.styleable.DoubleRangeUserStyleSetting_minDouble)) {
+                require(parser.hasValue("minDouble")) {
                     "minInteger is required for DoubleRangeUserStyleSetting"
                 }
-                require(
-                    attributes.hasValue(R.styleable.DoubleRangeUserStyleSetting_defaultDouble)
-                ) {
+                require(parser.hasValue("defaultDouble")) {
                     "defaultInteger is required for DoubleRangeUserStyleSetting"
                 }
-                val maxDouble = attributes.getString(
-                    R.styleable.DoubleRangeUserStyleSetting_maxDouble
-                )!!.toDouble()
-                val minDouble = attributes.getString(
-                    R.styleable.DoubleRangeUserStyleSetting_minDouble
-                )!!.toDouble()
-                val defaultDouble = attributes.getString(
-                    R.styleable.DoubleRangeUserStyleSetting_defaultDouble
-                )!!.toDouble()
+                val maxDouble = parser.getAttributeValue(NAMESPACE_APP, "maxDouble")!!.toDouble()
+                val minDouble = parser.getAttributeValue(NAMESPACE_APP, "minDouble")!!.toDouble()
+                val defaultDouble = parser.getAttributeValue(
+                    NAMESPACE_APP,
+                    "defaultDouble")!!.toDouble()
                 val affectsWatchFaceLayers = affectsWatchFaceLayersFlagsToSet(
-                    attributes.getInt(
-                        R.styleable.BooleanUserStyleSetting_affectedWatchFaceLayers,
+                    parser.getAttributeIntValue(
+                        NAMESPACE_APP,
+                        "affectedWatchFaceLayers",
                         0b111 // first 3 bits set
                     )
                 )
                 val watchFaceEditorData =
                     WatchFaceEditorData.inflateSingleOnWatchEditorData(resources, parser)
-                attributes.recycle()
 
                 return DoubleRangeUserStyleSetting(
                     Id(id),
@@ -1919,30 +1881,28 @@ public sealed class UserStyleSetting private constructor(
                 parser: XmlResourceParser,
                 idToSetting: Map<String, UserStyleSetting>
             ): ListUserStyleSetting {
-                val attributes =
-                    resources.obtainAttributes(parser, R.styleable.ListUserStyleSetting)
-                val id = attributes.getString(R.styleable.ListUserStyleSetting_id)
+                val id = parser.getAttributeValue(NAMESPACE_APP, "id")
                 require(id != null) { "ListUserStyleSetting must have an id" }
                 val displayName = createDisplayText(
                     resources,
-                    attributes,
-                    R.styleable.ListUserStyleSetting_displayName
+                    parser,
+                    "displayName"
                 )
                 val description = createDisplayText(
                     resources,
-                    attributes,
-                    R.styleable.ListUserStyleSetting_description
+                    parser,
+                    "description"
                 )
                 val icon = createIcon(
                     resources,
-                    attributes,
-                    R.styleable.ListUserStyleSetting_android_icon
+                    parser
                 )
                 val defaultOptionIndex =
-                    attributes.getInteger(R.styleable.ListUserStyleSetting_defaultOptionIndex, 0)
+                    parser.getAttributeIntValue(NAMESPACE_APP, "defaultOptionIndex", 0)
                 val affectsWatchFaceLayers = affectsWatchFaceLayersFlagsToSet(
-                    attributes.getInt(
-                        R.styleable.BooleanUserStyleSetting_affectedWatchFaceLayers,
+                    parser.getAttributeIntValue(
+                        NAMESPACE_APP,
+                        "affectedWatchFaceLayers",
                         0b111 // first 3 bits set
                     )
                 )
@@ -1976,7 +1936,6 @@ public sealed class UserStyleSetting private constructor(
                     }
                     type = parser.next()
                 } while (type != XmlPullParser.END_DOCUMENT && parser.depth > outerDepth)
-                attributes.recycle()
 
                 return ListUserStyleSetting(
                     Id(id),
@@ -2171,18 +2130,16 @@ public sealed class UserStyleSetting private constructor(
                     parser: XmlResourceParser,
                     idToSetting: Map<String, UserStyleSetting>
                 ): ListOption {
-                    val attributes = resources.obtainAttributes(parser, R.styleable.ListOption)
-                    val id = attributes.getString(R.styleable.ListOption_id)
+                    val id = parser.getAttributeValue(NAMESPACE_APP, "id")
                     require(id != null) { "ListOption must have an id" }
                     val displayName = createDisplayText(
                         resources,
-                        attributes,
-                        R.styleable.ListOption_displayName
+                        parser,
+                        "displayName"
                     )
                     val icon = createIcon(
                         resources,
-                        attributes,
-                        R.styleable.ListOption_android_icon
+                        parser
                     )
 
                     var watchFaceEditorData: WatchFaceEditorData? = null
@@ -2193,10 +2150,7 @@ public sealed class UserStyleSetting private constructor(
                         if (type == XmlPullParser.START_TAG) {
                             when (parser.name) {
                                 "ChildSetting" -> {
-                                    val childAttributes =
-                                        resources.obtainAttributes(parser, R.styleable.ChildSetting)
-                                    val childId =
-                                        childAttributes.getString(R.styleable.ChildSetting_id)
+                                    val childId = parser.getAttributeValue(NAMESPACE_APP, "id")
                                     require(childId != null) {
                                         "ChildSetting must have an id"
                                     }
@@ -2227,7 +2181,6 @@ public sealed class UserStyleSetting private constructor(
                         }
                         type = parser.next()
                     } while (type != XmlPullParser.END_DOCUMENT && parser.depth > outerDepth)
-                    attributes.recycle()
 
                     return ListOption(
                         Id(id),
@@ -2276,52 +2229,46 @@ public sealed class UserStyleSetting private constructor(
                 resources: Resources,
                 parser: XmlResourceParser
             ): LongRangeUserStyleSetting {
-                val attributes = resources.obtainAttributes(
-                    parser,
-                    R.styleable.LongRangeUserStyleSetting
-                )
-                val id = attributes.getString(R.styleable.LongRangeUserStyleSetting_id)
+                val id = parser.getAttributeValue(NAMESPACE_APP, "id")
                 require(id != null) { "LongRangeUserStyleSetting must have an id" }
                 val displayName = createDisplayText(
                     resources,
-                    attributes,
-                    R.styleable.LongRangeUserStyleSetting_displayName
+                    parser,
+                    "displayName"
                 )
                 val description = createDisplayText(
                     resources,
-                    attributes,
-                    R.styleable.LongRangeUserStyleSetting_description
+                    parser,
+                   "description"
                 )
                 val icon = createIcon(
                     resources,
-                    attributes,
-                    R.styleable.LongRangeUserStyleSetting_android_icon
+                    parser
                 )
-                require(attributes.hasValue(R.styleable.LongRangeUserStyleSetting_maxLong)) {
+                require(parser.hasValue("maxLong")) {
                     "maxLong is required for LongRangeUserStyleSetting"
                 }
-                require(attributes.hasValue(R.styleable.LongRangeUserStyleSetting_minLong)) {
+                require(parser.hasValue("minLong")) {
                     "minLong is required for LongRangeUserStyleSetting"
                 }
-                require(attributes.hasValue(R.styleable.LongRangeUserStyleSetting_defaultLong)) {
+                require(parser.hasValue("defaultLong")) {
                     "defaultLong is required for LongRangeUserStyleSetting"
                 }
                 val maxInteger =
-                    attributes.getString(R.styleable.LongRangeUserStyleSetting_maxLong)!!.toLong()
+                    parser.getAttributeValue(NAMESPACE_APP, "maxLong")!!.toLong()
                 val minInteger =
-                    attributes.getString(R.styleable.LongRangeUserStyleSetting_minLong)!!.toLong()
-                val defaultInteger = attributes.getString(
-                    R.styleable.LongRangeUserStyleSetting_defaultLong
-                )!!.toLong()
+                    parser.getAttributeValue(NAMESPACE_APP, "minLong")!!.toLong()
+                val defaultInteger =
+                    parser.getAttributeValue(NAMESPACE_APP, "defaultLong")!!.toLong()
                 val affectsWatchFaceLayers = affectsWatchFaceLayersFlagsToSet(
-                    attributes.getInt(
-                        R.styleable.BooleanUserStyleSetting_affectedWatchFaceLayers,
+                    parser.getAttributeIntValue(
+                        NAMESPACE_APP,
+                        "affectedWatchFaceLayers",
                         0b111 // first 3 bits set
                     )
                 )
                 val watchFaceEditorData =
                     WatchFaceEditorData.inflateSingleOnWatchEditorData(resources, parser)
-                attributes.recycle()
 
                 return LongRangeUserStyleSetting(
                     Id(id),
