@@ -126,6 +126,16 @@ MissingGetterMatchingBuilder: androidx.work.WorkRequest.Builder#setInitialDelay(
 MissingGetterMatchingBuilder: androidx.work.WorkRequest.Builder#setInputData(androidx.work.Data):
     W does not declare a `getInputData()` method matching method androidx.work.WorkRequest.Builder.setInputData(androidx.work.Data)
 
+MissingNullability: androidx.work.OneTimeWorkRequestKt#OneTimeWorkRequestBuilder():
+    Missing nullability on method `OneTimeWorkRequestBuilder` return
+MissingNullability: androidx.work.PeriodicWorkRequestKt#PeriodicWorkRequestBuilder(java.time.Duration):
+    Missing nullability on method `PeriodicWorkRequestBuilder` return
+MissingNullability: androidx.work.PeriodicWorkRequestKt#PeriodicWorkRequestBuilder(java.time.Duration, java.time.Duration):
+    Missing nullability on method `PeriodicWorkRequestBuilder` return
+MissingNullability: androidx.work.PeriodicWorkRequestKt#PeriodicWorkRequestBuilder(long, java.util.concurrent.TimeUnit):
+    Missing nullability on method `PeriodicWorkRequestBuilder` return
+MissingNullability: androidx.work.PeriodicWorkRequestKt#PeriodicWorkRequestBuilder(long, java.util.concurrent.TimeUnit, long, java.util.concurrent.TimeUnit):
+    Missing nullability on method `PeriodicWorkRequestBuilder` return
 
 NoByteOrShort: androidx.work.Data#getByte(String, byte):
     Should avoid odd sized primitives; use `int` instead of `byte` in method androidx.work.Data.getByte(String,byte)

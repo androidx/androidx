@@ -1,3 +1,27 @@
 // Baseline format: 1.0
 AddedAbstractMethod: androidx.work.WorkManager#getConfiguration():
     Added method androidx.work.WorkManager.getConfiguration()
+
+
+ChangedType: androidx.work.OneTimeWorkRequest#from(java.util.List<? extends java.lang.Class<? extends androidx.work.ListenableWorker>>):
+    Method androidx.work.OneTimeWorkRequest.from has changed return type from java.util.List<androidx.work.OneTimeWorkRequest!> to java.util.List<androidx.work.OneTimeWorkRequest>
+ChangedType: androidx.work.WorkRequest.Builder#addTag(String):
+    Method androidx.work.WorkRequest.Builder.addTag has changed return type from B (extends androidx.work.WorkRequest.Builder<?, ?>) to B (extends androidx.work.WorkRequest.Builder<B, ?>)
+ChangedType: androidx.work.WorkRequest.Builder#keepResultsForAtLeast(java.time.Duration):
+    Method androidx.work.WorkRequest.Builder.keepResultsForAtLeast has changed return type from B (extends androidx.work.WorkRequest.Builder<?, ?>) to B (extends androidx.work.WorkRequest.Builder<B, ?>)
+ChangedType: androidx.work.WorkRequest.Builder#keepResultsForAtLeast(long, java.util.concurrent.TimeUnit):
+    Method androidx.work.WorkRequest.Builder.keepResultsForAtLeast has changed return type from B (extends androidx.work.WorkRequest.Builder<?, ?>) to B (extends androidx.work.WorkRequest.Builder<B, ?>)
+ChangedType: androidx.work.WorkRequest.Builder#setBackoffCriteria(androidx.work.BackoffPolicy, java.time.Duration):
+    Method androidx.work.WorkRequest.Builder.setBackoffCriteria has changed return type from B (extends androidx.work.WorkRequest.Builder<?, ?>) to B (extends androidx.work.WorkRequest.Builder<B, ?>)
+ChangedType: androidx.work.WorkRequest.Builder#setBackoffCriteria(androidx.work.BackoffPolicy, long, java.util.concurrent.TimeUnit):
+    Method androidx.work.WorkRequest.Builder.setBackoffCriteria has changed return type from B (extends androidx.work.WorkRequest.Builder<?, ?>) to B (extends androidx.work.WorkRequest.Builder<B, ?>)
+ChangedType: androidx.work.WorkRequest.Builder#setConstraints(androidx.work.Constraints):
+    Method androidx.work.WorkRequest.Builder.setConstraints has changed return type from B (extends androidx.work.WorkRequest.Builder<?, ?>) to B (extends androidx.work.WorkRequest.Builder<B, ?>)
+ChangedType: androidx.work.WorkRequest.Builder#setExpedited(androidx.work.OutOfQuotaPolicy):
+    Method androidx.work.WorkRequest.Builder.setExpedited has changed return type from B (extends androidx.work.WorkRequest.Builder<?, ?>) to B (extends androidx.work.WorkRequest.Builder<B, ?>)
+ChangedType: androidx.work.WorkRequest.Builder#setInitialDelay(java.time.Duration):
+    Method androidx.work.WorkRequest.Builder.setInitialDelay has changed return type from B (extends androidx.work.WorkRequest.Builder<?, ?>) to B (extends androidx.work.WorkRequest.Builder<B, ?>)
+ChangedType: androidx.work.WorkRequest.Builder#setInitialDelay(long, java.util.concurrent.TimeUnit):
+    Method androidx.work.WorkRequest.Builder.setInitialDelay has changed return type from B (extends androidx.work.WorkRequest.Builder<?, ?>) to B (extends androidx.work.WorkRequest.Builder<B, ?>)
+ChangedType: androidx.work.WorkRequest.Builder#setInputData(androidx.work.Data):
+    Method androidx.work.WorkRequest.Builder.setInputData has changed return type from B (extends androidx.work.WorkRequest.Builder<?, ?>) to B (extends androidx.work.WorkRequest.Builder<B, ?>)

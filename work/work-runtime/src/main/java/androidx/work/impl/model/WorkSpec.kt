@@ -29,8 +29,8 @@ import androidx.work.Constraints
 import androidx.work.Data
 import androidx.work.Logger
 import androidx.work.OutOfQuotaPolicy
-import androidx.work.PeriodicWorkRequest.MIN_PERIODIC_FLEX_MILLIS
-import androidx.work.PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS
+import androidx.work.PeriodicWorkRequest.Companion.MIN_PERIODIC_FLEX_MILLIS
+import androidx.work.PeriodicWorkRequest.Companion.MIN_PERIODIC_INTERVAL_MILLIS
 import androidx.work.WorkInfo
 import androidx.work.WorkRequest
 import java.util.UUID

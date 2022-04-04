@@ -22,20 +22,8 @@ package androidx.work {
   public final class ListenableFutureKt {
   }
 
-  public final class OneTimeWorkRequestKt {
-    method public static inline <reified W extends androidx.work.ListenableWorker> androidx.work.OneTimeWorkRequest.Builder! OneTimeWorkRequestBuilder();
-    method public static inline androidx.work.OneTimeWorkRequest.Builder setInputMerger(androidx.work.OneTimeWorkRequest.Builder, kotlin.reflect.KClass<? extends androidx.work.InputMerger> inputMerger);
-  }
-
   public final class OperationKt {
     method public static suspend inline Object? await(androidx.work.Operation, kotlin.coroutines.Continuation<? super androidx.work.Operation.State.SUCCESS>);
-  }
-
-  public final class PeriodicWorkRequestKt {
-    method public static inline <reified W extends androidx.work.ListenableWorker> androidx.work.PeriodicWorkRequest.Builder! PeriodicWorkRequestBuilder(long repeatInterval, java.util.concurrent.TimeUnit repeatIntervalTimeUnit);
-    method @RequiresApi(26) public static inline <reified W extends androidx.work.ListenableWorker> androidx.work.PeriodicWorkRequest.Builder! PeriodicWorkRequestBuilder(java.time.Duration repeatInterval);
-    method public static inline <reified W extends androidx.work.ListenableWorker> androidx.work.PeriodicWorkRequest.Builder! PeriodicWorkRequestBuilder(long repeatInterval, java.util.concurrent.TimeUnit repeatIntervalTimeUnit, long flexTimeInterval, java.util.concurrent.TimeUnit flexTimeIntervalUnit);
-    method @RequiresApi(26) public static inline <reified W extends androidx.work.ListenableWorker> androidx.work.PeriodicWorkRequest.Builder! PeriodicWorkRequestBuilder(java.time.Duration repeatInterval, java.time.Duration flexTimeInterval);
   }
 
 }
