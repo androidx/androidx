@@ -17,7 +17,7 @@
 package androidx.car.app.model;
 
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_HEADER;
-import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_SIMPLE;
+import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_NAVIGATION;
 import static androidx.car.app.model.constraints.RowListConstraints.ROW_LIST_CONSTRAINTS_SIMPLE;
 
 import static java.util.Objects.requireNonNull;
@@ -368,18 +368,26 @@ public final class PlaceListMapTemplate implements Template {
          *
          * <p>Unless set with this method, the template will not have an action strip.
          *
+         * <p>The {@link Action} buttons in Map Based Template are automatically adjusted based
+         * on the screen size. On narrow width screen, icon {@link Action}s show by
+         * default. If no icon specify, showing title {@link Action}s instead. On wider width
+         * screen, title {@link Action}s show by default. If no title specify, showing icon
+         * {@link Action}s instead.
+         *
          * <h4>Requirements</h4>
          *
-         * This template allows up to 2 {@link Action}s in its {@link ActionStrip}. Of the 2 allowed
-         * {@link Action}s, one of them can contain a title as set via
-         * {@link Action.Builder#setTitle}. Otherwise, only {@link Action}s with icons are allowed.
+         * This template allows up to 4 {@link Action}s in its {@link ActionStrip}. Of the 4
+         * allowed {@link Action}s, it can either be a title {@link Action} as set via
+         * {@link Action.Builder#setTitle}, or a icon {@link Action} as set via
+         * {@link Action.Builder#setIcon}.
          *
          * @throws IllegalArgumentException if {@code actionStrip} does not meet the requirements
          * @throws NullPointerException     if {@code actionStrip} is {@code null}
          */
         @NonNull
         public Builder setActionStrip(@NonNull ActionStrip actionStrip) {
-            ACTIONS_CONSTRAINTS_SIMPLE.validateOrThrow(requireNonNull(actionStrip).getActions());
+            ACTIONS_CONSTRAINTS_NAVIGATION
+                    .validateOrThrow(requireNonNull(actionStrip).getActions());
             mActionStrip = actionStrip;
             return this;
         }

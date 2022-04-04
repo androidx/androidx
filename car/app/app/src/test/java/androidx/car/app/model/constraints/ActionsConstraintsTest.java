@@ -140,4 +140,46 @@ public class ActionsConstraintsTest {
                                 .build()
                                 .getActions()));
     }
+
+    @Test
+    public void validateNavigationActionConstraints() {
+        // same constraints with ACTIONS_CONSTRAINTS_NAVIGATION
+        ActionsConstraints navigationConstraints =
+                new ActionsConstraints.Builder()
+                        .setMaxActions(4)
+                        .setMaxCustomTitles(4)
+                        .setTitleTextConstraints(CarTextConstraints.TEXT_AND_ICON)
+                        .build();
+
+        CarIcon carIcon = TestUtils.getTestCarIcon(ApplicationProvider.getApplicationContext(),
+                "ic_test_1");
+        Action action1 = TestUtils.createAction("Title1", carIcon);
+        Action action2 = TestUtils.createAction("Title2", carIcon);
+        Action action3 = TestUtils.createAction("Title3", carIcon);
+        Action action4 = TestUtils.createAction("Title4", carIcon);
+        Action action5 = TestUtils.createAction("Title5", carIcon);
+
+        // Positive case: instance that fits 4 max actions, both can have title and icon
+        navigationConstraints.validateOrThrow(
+                new ActionStrip.Builder()
+                        .addAction(action1)
+                        .addAction(action2)
+                        .addAction(action3)
+                        .addAction(action4)
+                        .build()
+                        .getActions());
+
+        // Over Max Allowed Actions
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> navigationConstraints.validateOrThrow(
+                        new ActionStrip.Builder()
+                                .addAction(action1)
+                                .addAction(action2)
+                                .addAction(action3)
+                                .addAction(action4)
+                                .addAction(action5)
+                                .build()
+                                .getActions()));
+    }
 }
