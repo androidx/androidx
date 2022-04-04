@@ -15,13 +15,11 @@
  */
 package androidx.health.data.client.records
 
-import androidx.annotation.RestrictTo
 import androidx.health.data.client.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
 
 /** Captures the user's hip circumference in meters. */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class HipCircumference(
     /** Circumference in meters. Required field. Valid range: 0-10. */
     public val circumferenceMeters: Double,

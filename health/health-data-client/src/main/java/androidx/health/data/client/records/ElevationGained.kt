@@ -15,14 +15,12 @@
  */
 package androidx.health.data.client.records
 
-import androidx.annotation.RestrictTo
 import androidx.health.data.client.aggregate.DoubleAggregateMetric
 import androidx.health.data.client.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
 
 /** Captures the elevation gained by the user since the last reading. */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ElevationGained(
     /** Elevation in meters. Required field. Valid range: -1000000-1000000. */
     public val elevationMeters: Double,
@@ -56,10 +54,10 @@ public class ElevationGained(
         return result
     }
 
-    companion object {
+    internal companion object {
         /** Metric identifier to retrieve total elevation gained from [AggregateDataRow]. */
         @JvmStatic
-        val ELEVATION_TOTAL: DoubleAggregateMetric =
+        internal val ELEVATION_TOTAL: DoubleAggregateMetric =
             DoubleAggregateMetric("ElevationGained", "total", "elevation")
     }
 }

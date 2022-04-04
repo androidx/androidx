@@ -15,14 +15,12 @@
  */
 package androidx.health.data.client.records
 
-import androidx.annotation.RestrictTo
 import androidx.health.data.client.aggregate.DoubleAggregateMetric
 import androidx.health.data.client.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
 
 /** Captures the user's height in meters. */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class Height(
     /** Height in meters. Required field. Valid range: 0-3. */
     public val heightMeters: Double,
@@ -51,17 +49,20 @@ public class Height(
         return result
     }
 
-    companion object {
+    internal companion object {
         /** Metric identifier to retrieve average height from [AggregateDataRow]. */
         @JvmStatic
-        val HEIGHT_AVG: DoubleAggregateMetric = DoubleAggregateMetric("Height", "avg", "height")
+        internal val HEIGHT_AVG: DoubleAggregateMetric =
+            DoubleAggregateMetric("Height", "avg", "height")
 
         /** Metric identifier to retrieve minimum height from [AggregateDataRow]. */
         @JvmStatic
-        val HEIGHT_MIN: DoubleAggregateMetric = DoubleAggregateMetric("Height", "min", "height")
+        internal val HEIGHT_MIN: DoubleAggregateMetric =
+            DoubleAggregateMetric("Height", "min", "height")
 
         /** Metric identifier to retrieve maximum height from [AggregateDataRow]. */
         @JvmStatic
-        val HEIGHT_MAX: DoubleAggregateMetric = DoubleAggregateMetric("Height", "max", "height")
+        internal val HEIGHT_MAX: DoubleAggregateMetric =
+            DoubleAggregateMetric("Height", "max", "height")
     }
 }
