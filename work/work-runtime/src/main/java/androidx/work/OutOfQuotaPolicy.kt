@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,25 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package androidx.work;
+package androidx.work
 
 /**
- * An enumeration of the conflict resolution policies available to unique
- * {@link PeriodicWorkRequest}s in case of a collision.
+ * An enumeration of policies that help determine out of quota behavior for expedited jobs.
  */
-
-public enum ExistingPeriodicWorkPolicy {
+enum class OutOfQuotaPolicy {
+    /**
+     * When the app does not have any expedited job quota, the expedited work request will
+     * fallback to a regular work request.
+     */
+    RUN_AS_NON_EXPEDITED_WORK_REQUEST,
 
     /**
-     * If there is existing pending (uncompleted) work with the same unique name, cancel and delete
-     * it.  Then, insert the newly-specified work.
+     * When the app does not have any expedited job quota, the expedited work request will
+     * be dropped and no work requests are enqueued.
      */
-    REPLACE,
-
-    /**
-     * If there is existing pending (uncompleted) work with the same unique name, do nothing.
-     * Otherwise, insert the newly-specified work.
-     */
-    KEEP
+    DROP_WORK_REQUEST
 }
