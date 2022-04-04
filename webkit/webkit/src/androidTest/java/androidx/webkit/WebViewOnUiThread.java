@@ -49,7 +49,7 @@ import java.util.concurrent.Executor;
  * Modifications to this class should be reflected in that class as necessary. See
  * http://go/modifying-webview-cts.
  */
-public class WebViewOnUiThread {
+public class WebViewOnUiThread implements AutoCloseable{
     /**
      * The maximum time, in milliseconds (10 seconds) to wait for a load
      * to be triggered.
@@ -100,6 +100,11 @@ public class WebViewOnUiThread {
             mWebView.setWebViewClient(new WaitForLoadedClient(WebViewOnUiThread.this));
             mWebView.setWebChromeClient(new WaitForProgressClient(WebViewOnUiThread.this));
         });
+    }
+
+    @Override
+    public void close() throws Exception {
+        cleanUp();
     }
 
     private static class Holder {
