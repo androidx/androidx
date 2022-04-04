@@ -108,8 +108,8 @@ public class ChipDefaults {
     public static final DpProp ICON_SIZE = dp(24);
 
     /** The recommended colors for a primary {@link Chip}. */
-    @NonNull public static final ChipColors PRIMARY_COLORS =
-            ChipColors.primaryChipColors(Colors.DEFAULT);
+    @NonNull
+    public static final ChipColors PRIMARY_COLORS = ChipColors.primaryChipColors(Colors.DEFAULT);
 
     /** The recommended colors for a secondary {@link Chip}. */
     @NonNull
