@@ -92,4 +92,10 @@
     <string name="proxy_override_load_url">Load URL</string>
     <string name="proxy_override_load_bypass_url">Load bypass URL</string>
 
+    <!-- Requested With Header -->
+    <string name="requested_with_activity_title">X-Requested-With header</string>
+    <string name="requested_with_header_mode">Header Mode</string>
+    <string name="requested_with_no_header">No Header</string>
+    <string name="requested_with_app_package_name">App Package Name</string>
+
 </resources>
