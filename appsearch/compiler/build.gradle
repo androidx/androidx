@@ -31,7 +31,11 @@ dependencies {
 
     // For testing, add in the compiled classes from appsearch to get access to annotations.
     testImplementation fileTree(
-            dir: "${new File(project(":appsearch:appsearch").buildDir, "libJar")}",
+            dir: provider {
+                // Wrapping in a provider as a workaround as we access buildDir before this project is configured
+                // Replace with AGP API once it is added b/228109260
+                "${new File(project(":appsearch:appsearch").buildDir, "libJar")}"
+            },
             include : "*.jar"
     )
     testImplementation(libs.googleCompileTesting)

@@ -33,12 +33,19 @@ def prebuiltsRoot = new File(
 ).absolutePath
 def rootProjectRepositories
 
+apply from: "buildSrc/out.gradle"
+def (outDir, buildSrcOut) = init.getOutDir()
+
 getGradle().beforeProject {
     // Migrate to dependencyResolutionManagement.repositories when
     // https://github.com/gradle/gradle/issues/17295 is fixed
     if (it.path == ":") {
         repos.addMavenRepositories(it.repositories)
         rootProjectRepositories = it.repositories
+
+        // Set buildSrcOut and outDir extras on root project
+        it.ext.buildSrcOut = buildSrcOut
+        it.ext.outDir = outDir
     } else {
         // Performance optimization because it is more efficient to reuse
         // repositories from the root project than recreate identical ones
@@ -46,6 +53,8 @@ getGradle().beforeProject {
         it.repositories.addAll(rootProjectRepositories)
     }
     it.ext.prebuiltsRoot = prebuiltsRoot
+    // Expected out directory structure for :foo:bar is out/androidx/foo/bar
+    it.buildDir = new File(outDir, "androidx/${it.path.replace(":", "/")}/build")
 }
 
 apply(plugin: "com.gradle.enterprise")

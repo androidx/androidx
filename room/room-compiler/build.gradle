@@ -114,11 +114,19 @@ dependencies {
             include : "android.jar"
     ))
     testImplementation(fileTree(
-            dir: "${new File(project(":room:room-runtime").buildDir, "intermediates/runtime_library_classes_jar/release/")}",
+            dir: provider {
+                // Wrapping in a provider as we access buildDir before this project is configured
+                // Replace with AGP API once it is added b/228109260
+                "${new File(project(":room:room-runtime").buildDir, "intermediates/runtime_library_classes_jar/release/")}"
+            },
             include : "*.jar"
     ))
     testImplementation(fileTree(
-            dir: "${new File(project(":sqlite:sqlite").buildDir, "libJar")}",
+            dir: provider {
+                // Wrapping in a provider as we access buildDir before this project is configured
+                // Replace with AGP API once it is added b/228109260
+                "${new File(project(":sqlite:sqlite").buildDir, "libJar")}"
+            },
             include : "*.jar"
     ))
     testImplementation(project(":internal-testutils-common"))

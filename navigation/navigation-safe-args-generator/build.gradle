@@ -38,11 +38,19 @@ dependencies {
             include : "android.jar"
     ))
     testImplementation(fileTree(
-            dir: "${new File(project(":navigation:navigation-common").buildDir, "libJar")}",
+            dir: provider {
+                // Wrapping in a provider as a workaround as we access buildDir before this project is configured
+                // Replace with AGP API once it is added b/228109260
+                "${new File(project(":navigation:navigation-common").buildDir, "libJar")}"
+            },
             include : "*.jar"
     ))
     testImplementation(fileTree(
-            dir: "${new File(project(":lifecycle:lifecycle-viewmodel-savedstate").buildDir, "libJar")}",
+            dir: provider {
+                // Wrapping in a provider as a workaround as we access buildDir before this project is configured
+                // Replace with AGP API once it is added b/228109260
+                "${new File(project(":lifecycle:lifecycle-viewmodel-savedstate").buildDir, "libJar")}"
+            },
             include : "*.jar"
     ))
 }
