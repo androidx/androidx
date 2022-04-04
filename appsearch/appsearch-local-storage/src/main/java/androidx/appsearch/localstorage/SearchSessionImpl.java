@@ -40,6 +40,8 @@ import androidx.appsearch.app.RemoveByDocumentIdRequest;
 import androidx.appsearch.app.ReportUsageRequest;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
+import androidx.appsearch.app.SearchSuggestionResult;
+import androidx.appsearch.app.SearchSuggestionSpec;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.SetSchemaResponse;
 import androidx.appsearch.app.StorageInfo;
@@ -363,6 +365,22 @@ class SearchSessionImpl implements AppSearchSession {
                 queryExpression,
                 searchSpec,
                 mLogger);
+    }
+
+    @NonNull
+    @Override
+    public ListenableFuture<List<SearchSuggestionResult>> searchSuggestionAsync(
+            @NonNull String suggestionQueryExpression,
+            @NonNull SearchSuggestionSpec searchSuggestionSpec) {
+        Preconditions.checkNotNull(suggestionQueryExpression);
+        Preconditions.checkStringNotEmpty(suggestionQueryExpression);
+        Preconditions.checkNotNull(searchSuggestionSpec);
+        Preconditions.checkState(!mIsClosed, "AppSearchSession has already been closed");
+        return execute(() -> mAppSearchImpl.searchSuggestion(
+                mPackageName,
+                mDatabaseName,
+                suggestionQueryExpression,
+                searchSuggestionSpec));
     }
 
     @Override
