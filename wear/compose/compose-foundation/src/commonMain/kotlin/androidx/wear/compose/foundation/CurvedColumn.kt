@@ -32,24 +32,31 @@ import androidx.compose.ui.geometry.Offset
  * @sample androidx.wear.compose.foundation.samples.CurvedRowAndColumn
  *
  * @param modifier The [CurvedModifier] to apply to this curved column.
- * @param outsideIn Order to lay out components. The default (true) is to start form the outside and
- * go in, false is inside-out
- * @param angularAlignment Angular alignment specifies where to lay down children that are thiner
+ * @param radialDirection Order to lay out components, outside in or inside out. The default is to
+ * inherit from the containing [curvedColumn] or [CurvedLayout]
+ * @param angularAlignment Angular alignment specifies where to lay down children that are thinner
  * than the curved column, either at the (START) of the layout, at the (END), or (CENTER).
  * If unspecified or null, they can choose for themselves.
  */
 public fun CurvedScope.curvedColumn(
     modifier: CurvedModifier = CurvedModifier,
-    outsideIn: Boolean = true,
+    radialDirection: CurvedDirection.Radial? = null,
     angularAlignment: CurvedAlignment.Angular? = null,
     contentBuilder: CurvedScope.() -> Unit
-) = add(CurvedColumnChild(outsideIn, angularAlignment, contentBuilder), modifier)
+) = add(
+    CurvedColumnChild(
+        curvedLayoutDirection.copy(overrideRadial = radialDirection),
+        angularAlignment,
+        contentBuilder
+    ),
+    modifier
+)
 
 internal class CurvedColumnChild(
-    outsideIn: Boolean,
+    curvedLayoutDirection: CurvedLayoutDirection,
     private val angularAlignment: CurvedAlignment.Angular?,
     contentBuilder: CurvedScope.() -> Unit
-) : ContainerChild(!outsideIn, contentBuilder) {
+) : ContainerChild(curvedLayoutDirection, !curvedLayoutDirection.outsideIn(), contentBuilder) {
     override fun doEstimateThickness(maxRadius: Float): Float =
         maxRadius - children.fold(maxRadius) { currentMaxRadius, node ->
             currentMaxRadius - node.estimateThickness(currentMaxRadius)

@@ -33,21 +33,30 @@ import androidx.compose.ui.geometry.Offset
  * @param radialAlignment Radial alignment specifies where to lay down children that are thinner
  * than the CurvedRow, either closer to the center (INNER), apart from the center (OUTER) or in the
  * middle point (CENTER). If unspecified, they can choose for themselves.
- * @param clockwise Specify if the children are laid out clockwise (the default) or
- * counter-clockwise
+ * @param angularDirection Specify if the children are laid out clockwise or anti-clockwise,
+ * and if those needs to be reversed in a Rtl layout.
+ * If not specified, it will be inherited from the enclosing [curvedRow] or [CurvedLayout]
+ * See [CurvedDirection.Angular].
  */
 public fun CurvedScope.curvedRow(
     modifier: CurvedModifier = CurvedModifier,
     radialAlignment: CurvedAlignment.Radial? = null,
-    clockwise: Boolean = true,
+    angularDirection: CurvedDirection.Angular? = null,
     contentBuilder: CurvedScope.() -> Unit
-) = add(CurvedRowChild(clockwise, radialAlignment, contentBuilder), modifier)
+) = add(
+    CurvedRowChild(
+        curvedLayoutDirection.copy(overrideAngular = angularDirection),
+        radialAlignment,
+        contentBuilder
+    ),
+    modifier
+)
 
 internal class CurvedRowChild(
-    clockwise: Boolean,
+    curvedLayoutDirection: CurvedLayoutDirection,
     val radialAlignment: CurvedAlignment.Radial? = null,
     contentBuilder: CurvedScope.() -> Unit
-) : ContainerChild(!clockwise, contentBuilder) {
+) : ContainerChild(curvedLayoutDirection, !curvedLayoutDirection.clockwise(), contentBuilder) {
 
     override fun doEstimateThickness(maxRadius: Float) =
         children.maxOfOrNull { it.estimateThickness(maxRadius) } ?: 0f

@@ -24,10 +24,13 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.ArcPaddingValues
+import androidx.wear.compose.foundation.CurvedDirection
+import androidx.wear.compose.foundation.CurvedLayout
 import androidx.wear.compose.foundation.basicCurvedText
 import androidx.wear.compose.foundation.CurvedModifier
 import androidx.wear.compose.foundation.CurvedScope
 import androidx.wear.compose.foundation.CurvedTextStyle
+import androidx.wear.compose.foundation.curvedRow
 
 /**
  * CurvedText is a component allowing developers to easily write curved text following
@@ -57,7 +60,7 @@ import androidx.wear.compose.foundation.CurvedTextStyle
  * @sample androidx.wear.compose.material.samples.CurvedTextDemo
  *
  * For more information, see the
- * [Curved Text](https://developer.android.com/training/wearables/components/curved-text)
+ * [Curved Text](https://developer.android.com/training/wearables/compose/curved-text)
  * guide.
  *
  * @param text The text to display
@@ -67,8 +70,10 @@ import androidx.wear.compose.foundation.CurvedTextStyle
  * @param background The background color for the text.
  * @param fontSize The size of glyphs to use when painting the text. See [TextStyle.fontSize].
  * @param style Specified the style to use.
- * @param clockwise The direction the text follows (default is true). Usually text at the top of the
- * screen goes clockwise, and text at the bottom goes counterclockwise.
+ * @param angularDirection Specify if the text is laid out clockwise or anti-clockwise, and if
+ * those needs to be reversed in a Rtl layout.
+ * If not specified, it will be inherited from the enclosing [curvedRow] or [CurvedLayout]
+ * See [CurvedDirection.Angular].
  * @param contentArcPadding Allows to specify additional space along each "edge" of the content in
  * [Dp] see [ArcPaddingValues]
  * @param overflow How visual overflow should be handled.
@@ -80,10 +85,10 @@ public fun CurvedScope.curvedText(
     background: Color = Color.Unspecified,
     fontSize: TextUnit = TextUnit.Unspecified,
     style: CurvedTextStyle? = null,
-    clockwise: Boolean = true,
+    angularDirection: CurvedDirection.Angular? = null,
     contentArcPadding: ArcPaddingValues = ArcPaddingValues(0.dp),
     overflow: TextOverflow = TextOverflow.Clip,
-) = basicCurvedText(text, modifier, clockwise, contentArcPadding, overflow) {
+) = basicCurvedText(text, modifier, angularDirection, contentArcPadding, overflow) {
     val baseStyle = style ?: CurvedTextStyle(LocalTextStyle.current)
     val textColor = color.takeOrElse {
         baseStyle.color.takeOrElse {

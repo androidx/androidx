@@ -43,10 +43,14 @@ public fun CurvedScope.curvedComposable(
     modifier: CurvedModifier = CurvedModifier,
     radialAlignment: CurvedAlignment.Radial = CurvedAlignment.Radial.Center,
     content: @Composable BoxScope.() -> Unit
-) = add(CurvedComposableChild(reverseLayout, radialAlignment, content), modifier)
+) = add(CurvedComposableChild(
+    curvedLayoutDirection.clockwise(),
+    radialAlignment,
+    content
+), modifier)
 
 internal class CurvedComposableChild(
-    val reverseLayout: Boolean,
+    val clockwise: Boolean,
     val radialAlignment: CurvedAlignment.Radial,
     val content: @Composable BoxScope.() -> Unit
 ) : CurvedChild() {
@@ -113,7 +117,7 @@ internal class CurvedComposableChild(
         val positionX = (childCenterX - placeable.width / 2f).roundToInt()
         val positionY = (childCenterY - placeable.height / 2f).roundToInt()
 
-        val rotationAngle = centerAngle + if (reverseLayout) PI.toFloat() else 0f
+        val rotationAngle = centerAngle + if (clockwise) 0f else PI.toFloat()
 
         placeable.placeWithLayer(
             x = positionX,
