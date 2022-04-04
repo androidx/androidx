@@ -107,7 +107,7 @@ jobs:
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         working-directory: activity
-        run: ./gradlew -q :ktlintCheckFile ${{ steps.ktlint-file-args.outputs.ktlint-file-args }} ${{ needs.setup.outputs.gradlew_flags }}
+        run: ./../development/build_log_processor.sh ./gradlew -q :ktlintCheckFile ${{ steps.ktlint-file-args.outputs.ktlint-file-args }} ${{ needs.setup.outputs.gradlew_flags }} -Pandroidx.summarizeStderr
 
   build-modules:
     strategy:
