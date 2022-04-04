@@ -29,6 +29,7 @@ import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -69,6 +70,31 @@ public final class TimeDifferenceText implements TimeDependentText {
         mStyle = style;
         mShowNowText = showNowText;
         mMinimumUnit = minimumUnit;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TimeDifferenceText that = (TimeDifferenceText) o;
+        return mReferencePeriodStart == that.mReferencePeriodStart
+                && mReferencePeriodEnd == that.mReferencePeriodEnd && mStyle == that.mStyle
+                && mShowNowText == that.mShowNowText && mMinimumUnit == that.mMinimumUnit;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(mReferencePeriodStart, mReferencePeriodEnd, mStyle, mShowNowText,
+                mMinimumUnit);
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "TimeDifferenceText{mReferencePeriodStart=" + mReferencePeriodStart
+                + ", mReferencePeriodEnd=" + mReferencePeriodEnd
+                + ", mStyle=" + mStyle  + ", mShowNowText=" + mShowNowText
+                + ", mMinimumUnit=" + mMinimumUnit + '}';
     }
 
     private static class SerializedForm implements Serializable {
