@@ -220,17 +220,14 @@ package androidx.wear.tiles.material.layouts {
   }
 
   public class MultiSlotLayout implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method public java.util.List<androidx.wear.tiles.LayoutElementBuilders.LayoutElement!> getSlotContents();
   }
 
   public static final class MultiSlotLayout.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
-    ctor public MultiSlotLayout.Builder(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
+    ctor public MultiSlotLayout.Builder();
     method public androidx.wear.tiles.material.layouts.MultiSlotLayout.Builder addSlotContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.tiles.material.layouts.MultiSlotLayout build();
     method public androidx.wear.tiles.material.layouts.MultiSlotLayout.Builder setHorizontalSpacerWidth(@Dimension(unit=androidx.annotation.Dimension.DP) float);
-    method public androidx.wear.tiles.material.layouts.MultiSlotLayout.Builder setPrimaryChipContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
-    method public androidx.wear.tiles.material.layouts.MultiSlotLayout.Builder setPrimaryLabelTextContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
-    method public androidx.wear.tiles.material.layouts.MultiSlotLayout.Builder setSecondaryLabelTextContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
-    method public androidx.wear.tiles.material.layouts.MultiSlotLayout.Builder setVerticalSpacerHeight(@Dimension(unit=androidx.annotation.Dimension.DP) float);
   }
 
   public class PrimaryLayout implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
