@@ -16,27 +16,40 @@
 
 <resources>
     <style name="Glance.AppWidget.Box" parent=""/>
-    <style name="Glance.AppWidget.Button" parent=""/>
-    <style name="Glance.AppWidget.CheckBox" parent=""/>
-    <style name="Glance.AppWidget.CheckBoxBackport" parent=""/>
+
+    <style name="Base.Glance.AppWidget.Button" parent="">
+        <!--
+            For all buttons and compound buttons, we reset the foreground (ripple) set by the 
+            parent Glance.AppWidget theme, since buttons have ripple backgrounds by default.
+        -->
+        <item name="android:foreground">@null</item>
+    </style>
+
+    <style name="Glance.AppWidget.Button" parent="Base.Glance.AppWidget.Button"/>
+    <style name="Glance.AppWidget.CheckBox" parent="Base.Glance.AppWidget.Button"/>
+    <style name="Glance.AppWidget.CheckBoxBackport" parent="Base.Glance.AppWidget.Button"/>
     <style name="Glance.AppWidget.CheckBoxIcon" parent=""/>
     <style name="Glance.AppWidget.CheckBoxText" parent=""/>
+
     <style name="Glance.AppWidget.Column" parent=""/>
     <style name="Glance.AppWidget.List" parent=""/>
     <style name="Glance.AppWidget.Row" parent=""/>
-    <style name="Glance.AppWidget.Switch" parent=""/>
-    <style name="Glance.AppWidget.SwitchBackport" parent=""/>
+
+    <style name="Glance.AppWidget.Switch" parent="Base.Glance.AppWidget.Button"/>
+    <style name="Glance.AppWidget.SwitchBackport" parent="Base.Glance.AppWidget.Button"/>
     <style name="Glance.AppWidget.SwitchText" parent=""/>
     <style name="Glance.AppWidget.SwitchThumb" parent=""/>
     <style name="Glance.AppWidget.SwitchTrack" parent=""/>
+
     <style name="Glance.AppWidget.Text" parent=""/>
     <style name="Glance.AppWidget.LinearProgressIndicator"
            parent="@android:style/Widget.ProgressBar.Horizontal"/>
     <style name="Glance.AppWidget.CircularProgressIndicator" parent=""/>
     <style name="Glance.AppWidget.VerticalGrid" parent=""/>
-    <style name="Glance.AppWidget.RadioButton" parent="" />
-    <style name="Glance.AppWidget.RadioButtonIcon" parent="" />
-    <style name="Glance.AppWidget.RadioButtonText" parent="" />
+
+    <style name="Glance.AppWidget.RadioButton" parent="Base.Glance.AppWidget.Button"/>
+    <style name="Glance.AppWidget.RadioButtonIcon" parent=""/>
+    <style name="Glance.AppWidget.RadioButtonText" parent=""/>
 
     <style name="Base.Glance.AppWidget.Background" parent="">
         <item name="android:id">@android:id/background</item>
