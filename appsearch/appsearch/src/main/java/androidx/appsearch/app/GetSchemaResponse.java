@@ -199,7 +199,6 @@ public final class GetSchemaResponse {
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
             name = Features.ADD_PERMISSIONS_AND_GET_VISIBILITY)
     // @exportToFramework:endStrip()
-    @SetSchemaRequest.AppSearchSupportedPermission
     @NonNull
     @SuppressWarnings("deprecation")
     public Map<String, Set<Set<Integer>>> getRequiredPermissionsForSchemaTypeVisibility() {
