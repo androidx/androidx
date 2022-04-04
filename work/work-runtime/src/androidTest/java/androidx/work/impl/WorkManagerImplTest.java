@@ -29,6 +29,7 @@ import static androidx.work.WorkInfo.State.FAILED;
 import static androidx.work.WorkInfo.State.RUNNING;
 import static androidx.work.WorkInfo.State.SUCCEEDED;
 import static androidx.work.impl.model.WorkSpec.SCHEDULE_NOT_REQUESTED_YET;
+import static androidx.work.impl.workers.ConstraintTrackingWorkerKt.ARGUMENT_CLASS_NAME;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -104,6 +105,7 @@ import androidx.work.impl.utils.ForceStopRunnable;
 import androidx.work.impl.utils.PreferenceUtils;
 import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor;
 import androidx.work.impl.workers.ConstraintTrackingWorker;
+import androidx.work.impl.workers.ConstraintTrackingWorkerKt;
 import androidx.work.worker.InfiniteTestWorker;
 import androidx.work.worker.StopAwareWorker;
 import androidx.work.worker.TestWorker;
@@ -1793,7 +1795,7 @@ public class WorkManagerImplTest {
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(work.getStringId());
         assertThat(workSpec.workerClassName, is(ConstraintTrackingWorker.class.getName()));
         assertThat(workSpec.input.getString(
-                ConstraintTrackingWorker.ARGUMENT_CLASS_NAME),
+                        ConstraintTrackingWorkerKt.ARGUMENT_CLASS_NAME),
                 is(TestWorker.class.getName()));
     }
 
@@ -1811,8 +1813,7 @@ public class WorkManagerImplTest {
 
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(work.getStringId());
         assertThat(workSpec.workerClassName, is(ConstraintTrackingWorker.class.getName()));
-        assertThat(workSpec.input.getString(
-                ConstraintTrackingWorker.ARGUMENT_CLASS_NAME),
+        assertThat(workSpec.input.getString(ARGUMENT_CLASS_NAME),
                 is(TestWorker.class.getName()));
     }
 
@@ -1822,7 +1823,7 @@ public class WorkManagerImplTest {
     public void testEnqueueApi23To25_withConstraintTrackingWorker_expectsOriginalWorker()
             throws ExecutionException, InterruptedException {
         Data data = new Data.Builder()
-                .put(ConstraintTrackingWorker.ARGUMENT_CLASS_NAME, TestWorker.class.getName())
+                .put(ARGUMENT_CLASS_NAME, TestWorker.class.getName())
                 .build();
 
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(ConstraintTrackingWorker.class)
@@ -1835,8 +1836,7 @@ public class WorkManagerImplTest {
 
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(work.getStringId());
         assertThat(workSpec.workerClassName, is(ConstraintTrackingWorker.class.getName()));
-        assertThat(workSpec.input.getString(
-                ConstraintTrackingWorker.ARGUMENT_CLASS_NAME),
+        assertThat(workSpec.input.getString(ARGUMENT_CLASS_NAME),
                 is(TestWorker.class.getName()));
     }
 
