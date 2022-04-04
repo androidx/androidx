@@ -26,7 +26,6 @@ import androidx.health.connect.client.aggregate.AggregateDataRowGroupByPeriod
 import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.impl.HealthConnectClientImpl
 import androidx.health.connect.client.metadata.DataOrigin
-import androidx.health.connect.client.permission.Permission
 import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.request.AggregateGroupByDurationRequest
 import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
@@ -44,16 +43,9 @@ import kotlin.reflect.KClass
 
 /** Interface to access health and fitness records. */
 interface HealthConnectClient {
-    /**
-     * Returns a set of [Permission] granted by the user to this app, out of the input [permissions]
-     * set.
-     *
-     * @throws RemoteException For any IPC transportation failures.
-     * @throws IOException For any disk I/O issues.
-     * @throws IllegalStateException If service is not available.
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    suspend fun getGrantedPermissions(permissions: Set<Permission>): Set<Permission>
+
+    /** Access operations related to permissions. */
+    val permissionController: PermissionController
 
     /**
      * Inserts one or more [Record] and returns newly assigned

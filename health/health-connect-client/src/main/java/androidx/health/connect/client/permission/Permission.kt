@@ -15,32 +15,42 @@
  */
 package androidx.health.connect.client.permission
 
-import androidx.annotation.RestrictTo
 import androidx.health.connect.client.records.Record
 import kotlin.reflect.KClass
 
 /**
- * Class to represent a permission which consists of a [KClass] representing a data type and an
- * access type.
+ * A Permission either to read or write data associated with a [Record] type.
  *
- * @property recordType type of [Record] the permission gives access for
- * @property accessType whether read or write access
+ * @see androidx.health.connect.client.PermissionController
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-public class Permission(
+public class Permission
+internal constructor(
+    /** type of [Record] the permission gives access for. */
     internal val recordType: KClass<out Record>,
+    /** whether read or write access. */
     @property:AccessType internal val accessType: Int,
 ) {
     companion object {
         /**
-         * Creates a permission of the given [accessType] for record type [T].
+         * Creates permission to read provided [recordType], such as `Steps::class`.
          *
-         * @param T type of [Record]
-         * @param accessType whether read or write access
-         * @return Permission for given [accessType] for record type [T]
+         * @return Permission object to use with
+         * [androidx.health.connect.client.PermissionController].
          */
-        public inline fun <reified T : Record> create(@AccessType accessType: Int): Permission {
-            return Permission(T::class, accessType)
+        @JvmStatic
+        public fun createReadPermission(recordType: KClass<out Record>): Permission {
+            return Permission(recordType, AccessTypes.READ)
+        }
+
+        /**
+         * Creates permission to write provided [recordType], such as `Steps::class`.
+         *
+         * @return Permission object to use with
+         * [androidx.health.connect.client.PermissionController].
+         */
+        @JvmStatic
+        public fun createWritePermission(recordType: KClass<out Record>): Permission {
+            return Permission(recordType, AccessTypes.READ)
         }
     }
 

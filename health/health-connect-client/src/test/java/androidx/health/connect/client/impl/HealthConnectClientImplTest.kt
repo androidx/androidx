@@ -22,7 +22,6 @@ import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.os.Looper
-import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.aggregate.AggregateDataRow
 import androidx.health.connect.client.aggregate.AggregateDataRowGroupByDuration
 import androidx.health.connect.client.aggregate.AggregateDataRowGroupByPeriod
@@ -31,7 +30,6 @@ import androidx.health.connect.client.changes.UpsertionChange
 import androidx.health.connect.client.metadata.DataOrigin
 import androidx.health.connect.client.metadata.Device
 import androidx.health.connect.client.metadata.Metadata
-import androidx.health.connect.client.permission.AccessTypes
 import androidx.health.connect.client.permission.Permission
 import androidx.health.connect.client.records.ActiveCaloriesBurned
 import androidx.health.connect.client.records.Nutrition
@@ -86,8 +84,9 @@ import org.robolectric.Shadows
 private const val PROVIDER_PACKAGE_NAME = "com.google.fake.provider"
 
 private val API_METHOD_LIST =
-    listOf<suspend HealthConnectClient.() -> Unit>(
+    listOf<suspend HealthConnectClientImpl.() -> Unit>(
         { getGrantedPermissions(setOf()) },
+        { revokeAllPermissions() },
         { insertRecords(listOf()) },
         { updateRecords(listOf()) },
         { deleteRecords(ActiveCaloriesBurned::class, listOf(), listOf()) },
@@ -184,7 +183,7 @@ class HealthConnectClientImplTest {
     fun getGrantedPermissions_none() = runTest {
         val deferred = async {
             healthConnectClient.getGrantedPermissions(
-                setOf(Permission.create<Steps>(AccessTypes.READ))
+                setOf(Permission.createReadPermission(Steps::class))
             )
         }
 
@@ -207,7 +206,7 @@ class HealthConnectClientImplTest {
         )
         val deferred = async {
             healthConnectClient.getGrantedPermissions(
-                setOf(Permission.create<Steps>(AccessTypes.READ))
+                setOf(Permission.createReadPermission(Steps::class))
             )
         }
 
@@ -215,7 +214,7 @@ class HealthConnectClientImplTest {
         waitForMainLooperIdle()
 
         val response = deferred.await()
-        assertThat(response).containsExactly(Permission.create<Steps>(AccessTypes.READ))
+        assertThat(response).containsExactly(Permission.createReadPermission(Steps::class))
     }
 
     @Test
