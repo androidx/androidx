@@ -184,6 +184,7 @@
 
   <!-- MapTemplateDemoScreen -->
   <string name="map_template_pane_demo_title">Map Template with Pane Demo</string>
+  <string name="map_template_list_demo_title">Map Template with List Demo</string>
 
   <!-- NavigationNotificationsDemoScreen -->
   <string name="start_notification_title">Start Notification</string>
