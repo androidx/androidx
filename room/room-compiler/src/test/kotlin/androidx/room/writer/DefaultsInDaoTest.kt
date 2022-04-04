@@ -27,7 +27,8 @@ import createVerifierFromEntitiesAndViews
 import org.jetbrains.kotlin.config.JvmDefaultMode
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import org.junit.runners.Parameterized
+import org.junit.runners.Parameterized.Parameters
 
 /**
  * Tests that we generate the right calls for default method implementations.
@@ -37,10 +38,19 @@ import org.junit.runners.JUnit4
  *
  * For Java default method tests, we have DefaultDaoMethodsTest in TestApp.
  */
-@RunWith(JUnit4::class)
-class DefaultsInDaoTest {
+@RunWith(Parameterized::class)
+class DefaultsInDaoTest(
+    private val jvmDefaultMode: JvmDefaultMode
+) {
     @Test
     fun abstractDao() {
+        val defaultWithCompatibilityAnnotation =
+            if (jvmDefaultMode == JvmDefaultMode.ALL_COMPATIBILITY) {
+                "@JvmDefaultWithoutCompatibility"
+            } else {
+                ""
+            }
+
         val source = Source.kotlin(
             "Foo.kt",
             """
@@ -53,11 +63,12 @@ class DefaultsInDaoTest {
                 }
             }
 
+            $defaultWithCompatibilityAnnotation
             @Dao
             abstract class SubjectDao : BaseDao<User>
             """.trimIndent()
         )
-        compileInEachDefaultsMode(source) { _, generated ->
+        compileInEachDefaultsMode(source) { generated ->
             generated.contains("public void upsert(final User obj)")
             generated.contains("SubjectDao_Impl.super.upsert(")
             generated.doesNotContain("SubjectDao.super.upsert")
@@ -83,12 +94,12 @@ class DefaultsInDaoTest {
             interface SubjectDao : BaseDao<User>
             """.trimIndent()
         )
-        compileInEachDefaultsMode(source) { mode, generated ->
+        compileInEachDefaultsMode(source) { generated ->
             generated.contains("public void upsert(final User obj)")
-            if (mode == JvmDefaultMode.ALL_INCOMPATIBLE) {
-                generated.contains("SubjectDao.super.upsert(")
-            } else {
+            if (jvmDefaultMode == JvmDefaultMode.DISABLE) {
                 generated.contains("SubjectDao.DefaultImpls.upsert(SubjectDao_Impl.this")
+            } else {
+                generated.contains("SubjectDao.super.upsert(")
             }
 
             generated.doesNotContain("SubjectDao_Impl.super.upsert")
@@ -114,13 +125,13 @@ class DefaultsInDaoTest {
             interface SubjectDao : BaseDao<User>
             """.trimIndent()
         )
-        compileInEachDefaultsMode(source) { mode, generated ->
+        compileInEachDefaultsMode(source) { generated ->
             generated.contains("public Object upsert(final User obj, " +
                 "final Continuation<? super Unit> continuation)")
-            if (mode == JvmDefaultMode.ALL_INCOMPATIBLE) {
-                generated.contains("SubjectDao.super.upsert(")
-            } else {
+            if (jvmDefaultMode == JvmDefaultMode.DISABLE) {
                 generated.contains("SubjectDao.DefaultImpls.upsert(SubjectDao_Impl.this")
+            } else {
+                generated.contains("SubjectDao.super.upsert(")
             }
 
             generated.doesNotContain("SubjectDao_Impl.super.upsert")
@@ -130,41 +141,45 @@ class DefaultsInDaoTest {
 
     private fun compileInEachDefaultsMode(
         source: Source,
-        handler: (JvmDefaultMode, StringSubject) -> Unit
+        handler: (StringSubject) -> Unit
     ) {
-        listOf(
-            JvmDefaultMode.ENABLE,
-            JvmDefaultMode.ENABLE_WITH_DEFAULT_IMPLS,
-            JvmDefaultMode.ALL_INCOMPATIBLE
-        ).forEach { jvmDefaultMode ->
-            // TODO should run these with KSP as well. https://github.com/google/ksp/issues/627
-            runKaptTest(
-                sources = listOf(source, COMMON.COROUTINES_ROOM, COMMON.ROOM_DATABASE_KTX),
-                kotlincArguments = listOf("-Xjvm-default=${jvmDefaultMode.description}")
-            ) { invocation ->
-                invocation.roundEnv
-                    .getElementsAnnotatedWith(
-                        androidx.room.Dao::class.qualifiedName!!
-                    ).filterIsInstance<XTypeElement>()
-                    .forEach { dao ->
-                        val db = invocation.context.processingEnv
-                            .requireTypeElement(RoomTypeNames.ROOM_DB)
-                        val dbType = db.type
-                        val parser = DaoProcessor(
-                            baseContext = invocation.context,
-                            element = dao,
-                            dbType = dbType,
-                            dbVerifier = createVerifierFromEntitiesAndViews(invocation)
-                        )
-                        val parsedDao = parser.process()
-                        DaoWriter(parsedDao, db, invocation.processingEnv)
-                            .write(invocation.processingEnv)
-                        invocation.assertCompilationResult {
-                            val relativePath = parsedDao.implTypeName.simpleName() + ".java"
-                            handler(jvmDefaultMode, generatedSourceFileWithPath(relativePath))
-                        }
+        // TODO should run these with KSP as well. https://github.com/google/ksp/issues/627
+        runKaptTest(
+            sources = listOf(source, COMMON.COROUTINES_ROOM, COMMON.ROOM_DATABASE_KTX),
+            kotlincArguments = listOf("-Xjvm-default=${jvmDefaultMode.description}")
+        ) { invocation ->
+            invocation.roundEnv
+                .getElementsAnnotatedWith(
+                    androidx.room.Dao::class.qualifiedName!!
+                ).filterIsInstance<XTypeElement>()
+                .forEach { dao ->
+                    val db = invocation.context.processingEnv
+                        .requireTypeElement(RoomTypeNames.ROOM_DB)
+                    val dbType = db.type
+                    val parser = DaoProcessor(
+                        baseContext = invocation.context,
+                        element = dao,
+                        dbType = dbType,
+                        dbVerifier = createVerifierFromEntitiesAndViews(invocation)
+                    )
+                    val parsedDao = parser.process()
+                    DaoWriter(parsedDao, db, invocation.processingEnv)
+                        .write(invocation.processingEnv)
+                    invocation.assertCompilationResult {
+                        val relativePath = parsedDao.implTypeName.simpleName() + ".java"
+                        handler(generatedSourceFileWithPath(relativePath))
                     }
-            }
+                }
         }
+    }
+
+    companion object {
+        @JvmStatic
+        @Parameters(name = "jvmDefaultMode={0}")
+        fun modes() = listOf(
+            JvmDefaultMode.ALL_COMPATIBILITY,
+            JvmDefaultMode.ALL_INCOMPATIBLE,
+            JvmDefaultMode.DISABLE,
+        )
     }
 }
