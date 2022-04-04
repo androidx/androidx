@@ -109,10 +109,8 @@ package androidx.glance.appwidget {
 
   public final class ProgressIndicatorDefaults {
     method public androidx.glance.unit.ColorProvider getBackgroundColorProvider();
-    method public long getColor();
     method public androidx.glance.unit.ColorProvider getIndicatorColorProvider();
     property public final androidx.glance.unit.ColorProvider BackgroundColorProvider;
-    property public final long Color;
     property public final androidx.glance.unit.ColorProvider IndicatorColorProvider;
     field public static final androidx.glance.appwidget.ProgressIndicatorDefaults INSTANCE;
   }
