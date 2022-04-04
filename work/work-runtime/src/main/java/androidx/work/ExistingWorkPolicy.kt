@@ -13,19 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package androidx.work;
+package androidx.work
 
 /**
  * An enumeration of the conflict resolution policies available to unique
- * {@link OneTimeWorkRequest}s in case of a collision.
+ * [OneTimeWorkRequest]s in case of a collision.
  */
-
-public enum ExistingWorkPolicy {
-
+enum class ExistingWorkPolicy {
     /**
      * If there is existing pending (uncompleted) work with the same unique name, cancel and delete
-     * it.  Then, insert the newly-specified work.
+     * it. Then, insert the newly-specified work.
      */
     REPLACE,
 
@@ -39,10 +36,10 @@ public enum ExistingWorkPolicy {
      * If there is existing pending (uncompleted) work with the same unique name, append the
      * newly-specified work as a child of all the leaves of that work sequence.  Otherwise, insert
      * the newly-specified work as the start of a new sequence.
-     * <br/>
-     * <b>Note:</b> When using APPEND with failed or cancelled prerequisites, newly enqueued work
+     *
+     * **Note:** When using APPEND with failed or cancelled prerequisites, newly enqueued work
      * will also be marked as failed or cancelled respectively. Use
-     * {@link ExistingWorkPolicy#APPEND_OR_REPLACE} to create a new chain of work.
+     * [ExistingWorkPolicy.APPEND_OR_REPLACE] to create a new chain of work.
      */
     APPEND,
 
@@ -50,9 +47,9 @@ public enum ExistingWorkPolicy {
      * If there is existing pending (uncompleted) work with the same unique name, append the
      * newly-specified work as the child of all the leaves of that work sequence. Otherwise, insert
      * the newly-specified work as the start of a new sequence.
-     * <br/>
-     * <b>Note:</b> If there are failed or cancelled prerequisites, these prerequisites are
-     * <i>dropped</i> and the newly-specified work is the start of a new sequence.
+     *
+     * **Note:** If there are failed or cancelled prerequisites, these prerequisites are
+     * *dropped* and the newly-specified work is the start of a new sequence.
      */
-    APPEND_OR_REPLACE,
+    APPEND_OR_REPLACE
 }
