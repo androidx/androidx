@@ -14,7 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.health.services.client.impl.request;
+package androidx.health.services.client.impl;
 
-/** @hide */
-parcelable EventRequest;
+import androidx.health.services.client.impl.event.PassiveListenerEvent;
+
+/**
+ * Interface to get passive monitoring updates.
+ *
+ * @hide
+ */
+oneway interface IPassiveListenerCallback {
+    void onPassiveListenerEvent(in PassiveListenerEvent event) = 0;
+}

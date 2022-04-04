@@ -30,11 +30,11 @@ import com.google.protobuf.ByteString
 public object BundlesUtil {
 
     @JvmStatic
-    @Suppress("DEPRECATION")
     internal fun toProto(bundle: Bundle): DataProto.Bundle {
         val builder = DataProto.Bundle.newBuilder()
 
         for (key in bundle.keySet()) {
+            @Suppress("DEPRECATION")
             when (val value = bundle.get(key)) {
                 is Boolean -> builder.putBools(key, value)
                 is String -> builder.putStrings(key, value)
