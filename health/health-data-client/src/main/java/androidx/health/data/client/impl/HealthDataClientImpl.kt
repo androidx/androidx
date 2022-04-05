@@ -17,6 +17,9 @@ package androidx.health.data.client.impl
 
 import androidx.health.data.client.HealthDataClient
 import androidx.health.data.client.aggregate.AggregateDataRow
+import androidx.health.data.client.aggregate.AggregateDataRowGroupByDuration
+import androidx.health.data.client.impl.converters.aggregate.retrieveAggregateDataRow
+import androidx.health.data.client.impl.converters.aggregate.toAggregateDataRowGroupByDuration
 import androidx.health.data.client.impl.converters.datatype.toDataTypeIdPairProtoList
 import androidx.health.data.client.impl.converters.datatype.toDataTypeName
 import androidx.health.data.client.impl.converters.permission.toJetpackPermission
@@ -24,14 +27,14 @@ import androidx.health.data.client.impl.converters.permission.toProtoPermission
 import androidx.health.data.client.impl.converters.records.toProto
 import androidx.health.data.client.impl.converters.records.toRecord
 import androidx.health.data.client.impl.converters.request.toDeleteDataRangeRequestProto
+import androidx.health.data.client.impl.converters.request.toProto
 import androidx.health.data.client.impl.converters.request.toReadDataRangeRequestProto
 import androidx.health.data.client.impl.converters.request.toReadDataRequestProto
 import androidx.health.data.client.impl.converters.response.toChangesResponse
 import androidx.health.data.client.impl.converters.response.toReadRecordsResponse
-import androidx.health.data.client.impl.converters.time.toProto
-import androidx.health.data.client.metadata.DataOrigin
 import androidx.health.data.client.permission.Permission
 import androidx.health.data.client.records.Record
+import androidx.health.data.client.request.AggregateGroupByDurationRequest
 import androidx.health.data.client.request.AggregateRequest
 import androidx.health.data.client.request.ChangesTokenRequest
 import androidx.health.data.client.request.ReadRecordsRequest
@@ -74,7 +77,7 @@ class HealthDataClientImpl(
     override suspend fun deleteRecords(
         recordType: KClass<out Record>,
         uidsList: List<String>,
-        clientIdsList: List<String>
+        clientIdsList: List<String>,
     ) {
         delegate
             .deleteData(
@@ -86,7 +89,7 @@ class HealthDataClientImpl(
 
     override suspend fun deleteRecords(
         recordType: KClass<out Record>,
-        timeRangeFilter: TimeRangeFilter
+        timeRangeFilter: TimeRangeFilter,
     ) {
         delegate.deleteDataRange(toDeleteDataRangeRequestProto(recordType, timeRangeFilter)).await()
     }
@@ -94,7 +97,7 @@ class HealthDataClientImpl(
     @Suppress("UNCHECKED_CAST") // Safe to cast as the type should match
     override suspend fun <T : Record> readRecord(
         recordType: KClass<T>,
-        uid: String
+        uid: String,
     ): ReadRecordResponse<T> {
         val proto = delegate.readData(toReadDataRequestProto(recordType, uid)).await()
         return ReadRecordResponse(toRecord(proto) as T)
@@ -136,42 +139,21 @@ class HealthDataClientImpl(
     }
 
     override suspend fun <T : Record> readRecords(
-        request: ReadRecordsRequest<T>
+        request: ReadRecordsRequest<T>,
     ): ReadRecordsResponse<T> {
         val proto = delegate.readDataRange(toReadDataRangeRequestProto(request)).await()
         return toReadRecordsResponse(proto)
     }
 
     override suspend fun aggregate(request: AggregateRequest): AggregateDataRow {
-        val responseProto =
-            delegate
-                .aggregate(
-                    RequestProto.AggregateDataRequest.newBuilder()
-                        .setTimeSpec(request.timeRangeFilter.toProto())
-                        .addAllDataOrigin(
-                            request.dataOriginFilter.map {
-                                DataProto.DataOrigin.newBuilder()
-                                    .setApplicationId(it.packageName)
-                                    .build()
-                            }
-                        )
-                        .addAllMetricSpec(
-                            request.metrics.map {
-                                RequestProto.AggregateMetricSpec.newBuilder()
-                                    .setDataTypeName(it.dataTypeName)
-                                    .setAggregationType(it.aggregationSuffix)
-                                    .setFieldName(it.fieldName ?: "")
-                                    .build()
-                            }
-                        )
-                        .build()
-                )
-                .await()
-        val rowProto = responseProto.rowsList.first()
-        return AggregateDataRow(
-            longValues = rowProto.longValuesMap,
-            doubleValues = rowProto.doubleValuesMap,
-            dataOrigins = rowProto.dataOriginsList.map { DataOrigin(it.applicationId) }
-        )
+        val responseProto = delegate.aggregate(request.toProto()).await()
+        return responseProto.rowsList.first().retrieveAggregateDataRow()
+    }
+
+    override suspend fun aggregateGroupByDuration(
+        request: AggregateGroupByDurationRequest,
+    ): List<AggregateDataRowGroupByDuration> {
+        val responseProto = delegate.aggregate(request.toProto()).await()
+        return responseProto.rowsList.map { it.toAggregateDataRowGroupByDuration() }.toList()
     }
 }

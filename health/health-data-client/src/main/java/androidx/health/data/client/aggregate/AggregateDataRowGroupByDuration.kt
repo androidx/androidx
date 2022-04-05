@@ -16,16 +16,24 @@
 package androidx.health.data.client.aggregate
 
 import androidx.annotation.RestrictTo
+import java.time.Instant
+import java.time.ZoneOffset
 
 /**
- * A aggregate metric identifier with value of type [Long].
+ * Represents an aggregation result row.
  *
- * See [AggregateDataRow.getMetric].
+ * See [HealthDataClient.aggregateGroupByDuration]
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class LongAggregateMetric
+@SuppressWarnings("NewApi")
+class AggregateDataRowGroupByDuration
 internal constructor(
-    override val dataTypeName: String,
-    override val aggregationSuffix: String,
-    override val aggregateFieldName: String? = null
-) : AggregateMetric
+    public val data: AggregateDataRow,
+    public val startTime: Instant,
+    public val endTime: Instant,
+    public val zoneOffset: ZoneOffset,
+) {
+    init {
+        require(startTime.isBefore(endTime)) { "start time must be before end time" }
+    }
+}

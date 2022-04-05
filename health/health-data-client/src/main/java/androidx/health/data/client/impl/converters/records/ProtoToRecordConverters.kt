@@ -441,6 +441,7 @@ fun toRecord(proto: DataProto.DataPoint): Record {
                     vitaminKGrams = getDouble("vitaminK"),
                     zincGrams = getDouble("zinc"),
                     mealType = getEnum("mealType"),
+                    name = getString("name"),
                     startTime = startTime,
                     startZoneOffset = startZoneOffset,
                     endTime = endTime,

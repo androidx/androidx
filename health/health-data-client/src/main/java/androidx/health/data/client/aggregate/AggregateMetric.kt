@@ -25,14 +25,14 @@ interface AggregateMetric {
     /** Aggregation of the metric, for SDK internal use only. */
     val aggregationSuffix: String
     /** Optional field name of the metric, for SDK internal use only */
-    val fieldName: String?
+    val aggregateFieldName: String?
 }
 
 /** Serve for internal use to look up a metric value from metric value dictionary. */
 internal val AggregateMetric.metricKey: String
     get() {
-        return if (fieldName != null) {
-            "${dataTypeName}_${fieldName}_$aggregationSuffix"
+        return if (aggregateFieldName != null) {
+            "${dataTypeName}_${aggregateFieldName}_$aggregationSuffix"
         } else {
             "${dataTypeName}_$aggregationSuffix"
         }

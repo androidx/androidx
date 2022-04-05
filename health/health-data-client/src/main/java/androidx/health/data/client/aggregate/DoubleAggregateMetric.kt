@@ -27,5 +27,5 @@ class DoubleAggregateMetric
 internal constructor(
     override val dataTypeName: String,
     override val aggregationSuffix: String,
-    override val fieldName: String? = null
+    override val aggregateFieldName: String? = null
 ) : AggregateMetric
