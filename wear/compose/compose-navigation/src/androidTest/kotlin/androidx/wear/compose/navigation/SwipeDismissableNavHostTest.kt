@@ -260,6 +260,27 @@ class SwipeDismissableNavHostTest {
     }
 
     @Test
+    fun updates_lifecycle_after_popping_back_stack() {
+        lateinit var navController: NavHostController
+        rule.setContentWithTheme {
+            navController = rememberSwipeDismissableNavController()
+            SwipeDismissWithNavigation(navController)
+        }
+
+        rule.waitForIdle()
+        rule.onNodeWithText(START).performClick()
+
+        rule.runOnIdle {
+            navController.popBackStack()
+        }
+
+        rule.runOnIdle {
+            assertThat(navController.currentBackStackEntry?.lifecycle?.currentState)
+                .isEqualTo(Lifecycle.State.RESUMED)
+        }
+    }
+
+    @Test
     fun provides_access_to_current_backstack_entry_state() {
         lateinit var navController: NavHostController
         lateinit var backStackEntry: State<NavBackStackEntry?>
