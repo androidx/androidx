@@ -44,7 +44,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 
-@ExperimentalWearMaterialApi
 public class StepperTest {
     @get:Rule
     public val rule = createComposeRule()
@@ -363,7 +362,6 @@ public class StepperTest {
     private val DefaultIconHeight = 24.dp
 }
 
-@ExperimentalWearMaterialApi
 public class IntegerStepperTest {
     @get:Rule
     public val rule = createComposeRule()
