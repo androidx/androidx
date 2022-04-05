@@ -15,7 +15,6 @@
  */
 package androidx.health.data.client.records
 
-import androidx.annotation.RestrictTo
 import androidx.health.data.client.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
@@ -24,7 +23,6 @@ import java.time.ZoneOffset
  * Captures the body temperature of a user. Each record represents a single instantaneous body
  * temperature measurement.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class BodyTemperature(
     /** Temperature in degrees Celsius. Required field. Valid range: 0-100. */
     public val temperatureDegreesCelsius: Double,

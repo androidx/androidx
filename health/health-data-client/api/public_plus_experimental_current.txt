@@ -176,6 +176,90 @@ package androidx.health.data.client.records {
     field public static final String STANDING_UP = "standing_up";
   }
 
+  public final class BodyTemperature implements androidx.health.data.client.records.Record {
+    ctor public BodyTemperature(double temperatureDegreesCelsius, optional String? measurementLocation, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.data.client.metadata.Metadata metadata);
+    method public String? getMeasurementLocation();
+    method public androidx.health.data.client.metadata.Metadata getMetadata();
+    method public double getTemperatureDegreesCelsius();
+    method public java.time.Instant getTime();
+    method public java.time.ZoneOffset? getZoneOffset();
+    property public final String? measurementLocation;
+    property public androidx.health.data.client.metadata.Metadata metadata;
+    property public final double temperatureDegreesCelsius;
+    property public java.time.Instant time;
+    property public java.time.ZoneOffset? zoneOffset;
+  }
+
+  public final class BodyTemperatureMeasurementLocations {
+    field public static final String ARMPIT = "armpit";
+    field public static final String EAR = "ear";
+    field public static final String FINGER = "finger";
+    field public static final String FOREHEAD = "forehead";
+    field public static final androidx.health.data.client.records.BodyTemperatureMeasurementLocations INSTANCE;
+    field public static final String MOUTH = "mouth";
+    field public static final String RECTUM = "rectum";
+    field public static final String TEMPORAL_ARTERY = "temporal_artery";
+    field public static final String TOE = "toe";
+    field public static final String VAGINA = "vagina";
+    field public static final String WRIST = "wrist";
+  }
+
+  public final class Distance implements androidx.health.data.client.records.Record {
+    ctor public Distance(double distanceMeters, java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, optional androidx.health.data.client.metadata.Metadata metadata);
+    method public double getDistanceMeters();
+    method public java.time.Instant getEndTime();
+    method public java.time.ZoneOffset? getEndZoneOffset();
+    method public androidx.health.data.client.metadata.Metadata getMetadata();
+    method public java.time.Instant getStartTime();
+    method public java.time.ZoneOffset? getStartZoneOffset();
+    property public final double distanceMeters;
+    property public java.time.Instant endTime;
+    property public java.time.ZoneOffset? endZoneOffset;
+    property public androidx.health.data.client.metadata.Metadata metadata;
+    property public java.time.Instant startTime;
+    property public java.time.ZoneOffset? startZoneOffset;
+  }
+
+  public final class ElevationGained implements androidx.health.data.client.records.Record {
+    ctor public ElevationGained(double elevationMeters, java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, optional androidx.health.data.client.metadata.Metadata metadata);
+    method public double getElevationMeters();
+    method public java.time.Instant getEndTime();
+    method public java.time.ZoneOffset? getEndZoneOffset();
+    method public androidx.health.data.client.metadata.Metadata getMetadata();
+    method public java.time.Instant getStartTime();
+    method public java.time.ZoneOffset? getStartZoneOffset();
+    property public final double elevationMeters;
+    property public java.time.Instant endTime;
+    property public java.time.ZoneOffset? endZoneOffset;
+    property public androidx.health.data.client.metadata.Metadata metadata;
+    property public java.time.Instant startTime;
+    property public java.time.ZoneOffset? startZoneOffset;
+  }
+
+  public final class Height implements androidx.health.data.client.records.Record {
+    ctor public Height(double heightMeters, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.data.client.metadata.Metadata metadata);
+    method public double getHeightMeters();
+    method public androidx.health.data.client.metadata.Metadata getMetadata();
+    method public java.time.Instant getTime();
+    method public java.time.ZoneOffset? getZoneOffset();
+    property public final double heightMeters;
+    property public androidx.health.data.client.metadata.Metadata metadata;
+    property public java.time.Instant time;
+    property public java.time.ZoneOffset? zoneOffset;
+  }
+
+  public final class HipCircumference implements androidx.health.data.client.records.Record {
+    ctor public HipCircumference(double circumferenceMeters, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.data.client.metadata.Metadata metadata);
+    method public double getCircumferenceMeters();
+    method public androidx.health.data.client.metadata.Metadata getMetadata();
+    method public java.time.Instant getTime();
+    method public java.time.ZoneOffset? getZoneOffset();
+    property public final double circumferenceMeters;
+    property public androidx.health.data.client.metadata.Metadata metadata;
+    property public java.time.Instant time;
+    property public java.time.ZoneOffset? zoneOffset;
+  }
+
   public final class OvulationTestResults {
     field public static final androidx.health.data.client.records.OvulationTestResults INSTANCE;
     field public static final String NEGATIVE = "negative";

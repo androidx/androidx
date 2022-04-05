@@ -19,7 +19,6 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.StringDef
 
 /** Where on the user's body a temperature measurement was taken from. */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public object BodyTemperatureMeasurementLocations {
     const val ARMPIT = "armpit"
     const val FINGER = "finger"
