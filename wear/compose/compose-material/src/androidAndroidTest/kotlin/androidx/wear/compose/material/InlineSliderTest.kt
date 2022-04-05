@@ -41,7 +41,6 @@ import com.google.common.truth.Truth
 import org.junit.Rule
 import org.junit.Test
 
-@ExperimentalWearMaterialApi
 public class InlineSliderTest {
     @get:Rule
     public val rule = createComposeRule()
@@ -410,7 +409,6 @@ public class InlineSliderTest {
     private val DefaultIconWidth = 24.dp
 }
 
-@ExperimentalWearMaterialApi
 public class IntegerInlineSliderTest {
     @get:Rule
     public val rule = createComposeRule()
