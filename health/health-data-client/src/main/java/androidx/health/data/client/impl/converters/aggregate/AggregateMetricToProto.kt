@@ -13,19 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.health.data.client.aggregate
+package androidx.health.data.client.impl.converters.aggregate
 
-import androidx.annotation.RestrictTo
+import androidx.health.data.client.aggregate.AggregateMetric
+import androidx.health.platform.client.proto.RequestProto
 
-/**
- * A aggregate metric identifier with value of type [Long].
- *
- * See [AggregateDataRow.getMetric].
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-class LongAggregateMetric
-internal constructor(
-    override val dataTypeName: String,
-    override val aggregationSuffix: String,
-    override val aggregateFieldName: String? = null
-) : AggregateMetric
+fun AggregateMetric.toProto(): RequestProto.AggregateMetricSpec =
+    RequestProto.AggregateMetricSpec.newBuilder()
+        .setDataTypeName(dataTypeName)
+        .setAggregationType(aggregationSuffix)
+        .apply { aggregateFieldName?.let { fieldName = it } }
+        .build()

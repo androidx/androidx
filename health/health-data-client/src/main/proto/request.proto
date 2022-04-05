@@ -100,7 +100,7 @@ message AggregateDataRequest {
   optional TimeSpec time_spec = 1;
   repeated AggregateMetricSpec metric_spec = 2;
   repeated DataOrigin data_origin = 3;
-  // TODO(b/219339660): Add group by here
+  optional int64 slice_duration_millis = 4;
 }
 
 message GetChangesTokenRequest {
