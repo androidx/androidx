@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -155,6 +154,7 @@ public fun SwipeDismissableNavHost(
     val wearNavigator = navController.navigatorProvider.get<Navigator<out NavDestination>>(
         WearNavigator.NAME
     ) as? WearNavigator ?: return
+
     val backStack by wearNavigator.backStack.collectAsState()
     val transitionsInProgress by wearNavigator.transitionsInProgress.collectAsState()
     var initialContent by remember { mutableStateOf(true) }
@@ -182,9 +182,9 @@ public fun SwipeDismissableNavHost(
         // This effect marks the transitions completed when swipe animations finish,
         // so that the navigation backstack entries can go to Lifecycle.State.RESUMED.
         if (state.isAnimationRunning == false) {
-                transitionsInProgress.forEach { entry ->
-                    wearNavigator.onTransitionComplete(entry)
-                }
+            transitionsInProgress.forEach { entry ->
+                wearNavigator.onTransitionComplete(entry)
+            }
         }
     }
 
@@ -199,7 +199,7 @@ public fun SwipeDismissableNavHost(
         }
     )
 
-    SideEffect {
+    DisposableEffect(previous, current) {
         if (initialContent) {
             // There are no animations for showing the initial content, so mark transitions complete,
             // allowing the navigation backstack entry to go to Lifecycle.State.RESUMED.
@@ -207,6 +207,11 @@ public fun SwipeDismissableNavHost(
                 wearNavigator.onTransitionComplete(entry)
             }
             initialContent = false
+        }
+        onDispose {
+            transitionsInProgress.forEach { entry ->
+                wearNavigator.onTransitionComplete(entry)
+            }
         }
     }
 }
