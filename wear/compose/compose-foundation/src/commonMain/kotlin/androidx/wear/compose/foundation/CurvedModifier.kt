@@ -91,6 +91,8 @@ internal open class BaseCurvedChildWrapper(val wrapped: CurvedChild) : CurvedChi
         initializeMeasure(measurables, index)
     }
 
+    override fun computeParentData(): Any? = wrapped.computeParentData()
+
     override fun doEstimateThickness(maxRadius: Float) = wrapped.estimateThickness(maxRadius)
 
     override fun doRadialPosition(

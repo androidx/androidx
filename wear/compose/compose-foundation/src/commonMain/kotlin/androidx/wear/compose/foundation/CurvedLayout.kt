@@ -244,6 +244,12 @@ internal abstract class CurvedChild() {
     ): Int = index
 
     /**
+     * Compute the parent data required to give to the parent layout to properly size and position
+     * this element.
+     */
+    open fun computeParentData(): Any? = null
+
+    /**
      * Estimate the thickness of this component given the maximus radius it can take.
      */
     fun estimateThickness(maxRadius: Float): Float = doEstimateThickness(maxRadius)
