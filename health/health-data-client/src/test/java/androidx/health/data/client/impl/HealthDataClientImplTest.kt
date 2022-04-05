@@ -82,20 +82,21 @@ private val API_METHOD_LIST =
         { insertRecords(listOf()) },
         { updateRecords(listOf()) },
         { deleteRecords(ActiveEnergyBurned::class, listOf(), listOf()) },
-        { deleteRecords(ActiveEnergyBurned::class, TimeRangeFilter.empty()) },
+        { deleteRecords(ActiveEnergyBurned::class, TimeRangeFilter.none()) },
         { readRecord(Steps::class, "uid") },
         {
             readRecords(
                 ReadRecordsRequest(
-                    Steps::class,
-                    TimeRangeFilter.exact(Instant.ofEpochMilli(1234L), Instant.ofEpochMilli(1235L))
+                    recordType = Steps::class,
+                    timeRangeFilter = TimeRangeFilter.none(),
+                    limit = 1
                 )
             )
         },
-        { aggregate(AggregateRequest(setOf(), TimeRangeFilter.empty())) },
+        { aggregate(AggregateRequest(setOf(), TimeRangeFilter.none())) },
         {
             aggregateGroupByDuration(
-                AggregateGroupByDurationRequest(setOf(), TimeRangeFilter.empty(), Duration.ZERO)
+                AggregateGroupByDurationRequest(setOf(), TimeRangeFilter.none(), Duration.ZERO)
             )
         },
         { getChanges("token") },
@@ -340,7 +341,7 @@ class HealthDataClientImplTest {
             healthDataClient.readRecords(
                 ReadRecordsRequest(
                     Steps::class,
-                    timeRangeFilter = TimeRangeFilter.exact(endTime = Instant.ofEpochMilli(7890L)),
+                    timeRangeFilter = TimeRangeFilter.before(Instant.ofEpochMilli(7890L)),
                     limit = 10
                 )
             )
@@ -409,7 +410,7 @@ class HealthDataClientImplTest {
         val deferred = async {
             healthDataClient.deleteRecords(
                 Steps::class,
-                timeRangeFilter = TimeRangeFilter.exact(endTime = Instant.ofEpochMilli(7890L)),
+                timeRangeFilter = TimeRangeFilter.before(Instant.ofEpochMilli(7890L)),
             )
         }
 
@@ -479,7 +480,7 @@ class HealthDataClientImplTest {
             healthDataClient.aggregate(
                 AggregateRequest(
                     setOf(Steps.STEPS_COUNT_TOTAL),
-                    TimeRangeFilter.exact(startTime, endTime)
+                    TimeRangeFilter.between(startTime, endTime)
                 )
             )
         }
@@ -533,7 +534,7 @@ class HealthDataClientImplTest {
             healthDataClient.aggregate(
                 AggregateRequest(
                     setOf(STEPS_COUNT_TOTAL),
-                    TimeRangeFilter.exact(startTime, endTime)
+                    TimeRangeFilter.between(startTime, endTime)
                 )
             )
         }

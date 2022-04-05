@@ -37,7 +37,7 @@ private val METRIC_PROTO =
         .setAggregationType("total")
         .setFieldName("count")
 private val TIME_RANGE_FILTER =
-    TimeRangeFilter.exact(Instant.ofEpochMilli(123), Instant.ofEpochMilli(456))
+    TimeRangeFilter.between(Instant.ofEpochMilli(123), Instant.ofEpochMilli(456))
 private val DATA_ORIGIN_FILTER = listOf(DataOrigin("testAppName"))
 
 @RunWith(AndroidJUnit4::class)

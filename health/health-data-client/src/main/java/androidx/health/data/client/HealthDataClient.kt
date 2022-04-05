@@ -100,13 +100,9 @@ interface HealthDataClient {
     )
 
     /**
-     * Deletes one or more [Record] points of the given [recordType] in the given range
-     * (automatically filtered to [Record] belonging to this application). Deletion of multiple
-     * [Record] is executed in a transaction - if one fails, none is deleted.
-     *
-     * When a field is null in [TimeRangeFilter] then the filtered range is open-ended in that
-     * direction. Hence if all fields are null in [TimeRangeFilter] then all data of the requested
-     * [Record] type is deleted.
+     * Deletes any [Record] points of the given [recordType] in the given [timeRangeFilter]
+     * (automatically filtered to [Record] belonging to the calling application). Deletion of
+     * multiple [Record] is executed in a transaction - if one fails, none is deleted.
      *
      * @param recordType Which type of [Record] to delete, such as `Steps::class`
      * @param timeRangeFilter The [TimeRangeFilter] to delete from
@@ -115,7 +111,6 @@ interface HealthDataClient {
      * @throws IOException For any disk I/O issues.
      * @throws IllegalStateException If service is not available.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     suspend fun deleteRecords(recordType: KClass<out Record>, timeRangeFilter: TimeRangeFilter)
 
     /**
