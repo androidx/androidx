@@ -135,7 +135,8 @@ private fun summaryRecord(
     absolutePath: String,
     tsAbsolutePath: String
 ): String {
-    val relativePath = Outputs.relativePathFor(absolutePath)
+    // Link to a path with timestamp to prevent studio from caching the file
+    val relativePath = Outputs.relativePathFor(tsAbsolutePath)
         .replace("(", "\\(")
         .replace(")", "\\)")
 
@@ -144,6 +145,6 @@ private fun summaryRecord(
         Baseline profile [results](file://$relativePath)
 
         To copy the profile use:
-        adb pull "$tsAbsolutePath" .
+        adb pull "$absolutePath" .
     """.trimIndent()
 }
