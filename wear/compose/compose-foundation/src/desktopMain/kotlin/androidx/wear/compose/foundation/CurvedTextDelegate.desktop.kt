@@ -18,6 +18,7 @@ package androidx.wear.compose.foundation
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.text.style.TextOverflow
 
 internal actual class CurvedTextDelegate {
     actual var textWidth = 0f
@@ -34,7 +35,13 @@ internal actual class CurvedTextDelegate {
         throw java.lang.RuntimeException("Not implemented")
     }
 
-    actual fun DrawScope.doDraw(layoutInfo: CurvedLayoutInfo, color: Color, background: Color) {
+    actual fun DrawScope.doDraw(
+        layoutInfo: CurvedLayoutInfo,
+        parentSweepRadians: Float,
+        overflow: TextOverflow,
+        color: Color,
+        background: Color
+    ) {
         // TODO(b/194653251): Implement
         throw java.lang.RuntimeException("Not implemented")
     }

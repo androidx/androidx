@@ -19,6 +19,7 @@ package androidx.wear.compose.material
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -63,13 +64,14 @@ import androidx.wear.compose.foundation.CurvedTextStyle
  * @param modifier The [CurvedModifier] to apply to this curved text.
  * @param color [Color] to apply to the text. If [Color.Unspecified], and [style] has no color set,
  * this will be [LocalContentColor].
+ * @param background The background color for the text.
  * @param fontSize The size of glyphs to use when painting the text. See [TextStyle.fontSize].
  * @param style Specified the style to use.
- * @param background The background color for the text.
  * @param clockwise The direction the text follows (default is true). Usually text at the top of the
  * screen goes clockwise, and text at the bottom goes counterclockwise.
  * @param contentArcPadding Allows to specify additional space along each "edge" of the content in
  * [Dp] see [ArcPaddingValues]
+ * @param overflow How visual overflow should be handled.
  */
 public fun CurvedScope.curvedText(
     text: String,
@@ -80,7 +82,8 @@ public fun CurvedScope.curvedText(
     style: CurvedTextStyle? = null,
     clockwise: Boolean = true,
     contentArcPadding: ArcPaddingValues = ArcPaddingValues(0.dp),
-) = basicCurvedText(text, modifier, clockwise, contentArcPadding) {
+    overflow: TextOverflow = TextOverflow.Clip,
+) = basicCurvedText(text, modifier, clockwise, contentArcPadding, overflow) {
     val baseStyle = style ?: CurvedTextStyle(LocalTextStyle.current)
     val textColor = color.takeOrElse {
         baseStyle.color.takeOrElse {
