@@ -33,7 +33,7 @@ import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
-import androidx.savedstate.ViewTreeSavedStateRegistryOwner
+import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
@@ -68,7 +68,7 @@ public class ViewModelTest {
                 dialog.window?.decorView?.run {
                     // Specifically only set the LifecycleOwner and SavedStateRegistryOwner
                     ViewTreeLifecycleOwner.set(this, lifecycleOwner)
-                    ViewTreeSavedStateRegistryOwner.set(this, savedStateRegistryOwner)
+                    setViewTreeSavedStateRegistryOwner(savedStateRegistryOwner)
                 }
 
                 onDispose {
