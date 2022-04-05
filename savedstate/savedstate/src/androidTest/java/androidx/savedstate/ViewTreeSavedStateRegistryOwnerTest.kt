@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.savedstate
 
 import android.view.View
@@ -41,7 +42,7 @@ class ViewTreeSavedStateRegistryOwnerTest {
             .isNull()
 
         val fakeOwner: SavedStateRegistryOwner = FakeSavedStateRegistryOwner()
-        ViewTreeSavedStateRegistryOwner.set(v, fakeOwner)
+        v.setViewTreeSavedStateRegistryOwner(fakeOwner)
 
         assertWithMessage("get the SavedStateRegistryOwner set directly")
             .that(v.findViewTreeSavedStateRegistryOwner())
@@ -66,7 +67,7 @@ class ViewTreeSavedStateRegistryOwnerTest {
             .isNull()
 
         val fakeOwner: SavedStateRegistryOwner = FakeSavedStateRegistryOwner()
-        ViewTreeSavedStateRegistryOwner.set(root, fakeOwner)
+        root.setViewTreeSavedStateRegistryOwner(fakeOwner)
 
         assertWithMessage("root sees owner")
             .that(root.findViewTreeSavedStateRegistryOwner())
@@ -98,10 +99,10 @@ class ViewTreeSavedStateRegistryOwnerTest {
             .isNull()
 
         val rootFakeOwner: SavedStateRegistryOwner = FakeSavedStateRegistryOwner()
-        ViewTreeSavedStateRegistryOwner.set(root, rootFakeOwner)
+        root.setViewTreeSavedStateRegistryOwner(rootFakeOwner)
 
         val parentFakeOwner: SavedStateRegistryOwner = FakeSavedStateRegistryOwner()
-        ViewTreeSavedStateRegistryOwner.set(parent, parentFakeOwner)
+        parent.setViewTreeSavedStateRegistryOwner(parentFakeOwner)
 
         assertWithMessage("root sees owner")
             .that(root.findViewTreeSavedStateRegistryOwner())
