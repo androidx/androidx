@@ -337,9 +337,21 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
             return result;
         }
 
+        @NonNull
         @Override
+        @SuppressWarnings("unchecked")
         public <T> T[] toArray(@NonNull T[] array) {
-            return toArrayHelper(array, 0);
+            final int mySize = size();
+            if (array.length < mySize) {
+                array = (T[]) Array.newInstance(array.getClass().getComponentType(), mySize);
+            }
+            for (int i = 0; i < mySize; i++) {
+                array[i] = (T) keyAt(i);
+            }
+            if (array.length > mySize) {
+                array[mySize] = null;
+            }
+            return array;
         }
 
         @Override
@@ -460,9 +472,21 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
             return result;
         }
 
+        @NonNull
         @Override
+        @SuppressWarnings("unchecked")
         public <T> T[] toArray(@NonNull T[] array) {
-            return toArrayHelper(array, 1);
+            final int mySize = size();
+            if (array.length < mySize) {
+                array = (T[]) Array.newInstance(array.getClass().getComponentType(), mySize);
+            }
+            for (int i = 0; i < mySize; i++) {
+                array[i] = (T) valueAt(i);
+            }
+            if (array.length > mySize) {
+                array[mySize] = null;
+            }
+            return array;
         }
     }
 
@@ -589,23 +613,6 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
         public String toString() {
             return getKey() + "=" + getValue();
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    <T> T[] toArrayHelper(T[] array, int offset) {
-        final int N = size();
-        if (array.length < N) {
-            @SuppressWarnings("unchecked") T[] newArray
-                    = (T[]) Array.newInstance(array.getClass().getComponentType(), N);
-            array = newArray;
-        }
-        for (int i = 0; i < N; i++) {
-            array[i] = (T) array[(i << 1) + offset];
-        }
-        if (array.length > N) {
-            array[N] = null;
-        }
-        return array;
     }
 
     static <T> boolean equalsSetHelper(Set<T> set, Object object) {
