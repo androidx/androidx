@@ -804,6 +804,64 @@ class XTypeElementTest {
     }
 
     @Test
+    fun suspendOverride() {
+        val src = Source.kotlin(
+            "Foo.kt",
+            """
+            interface Base<T> {
+                suspend fun get(): T
+                suspend fun getAll(): List<T>
+                suspend fun putAll(input: List<T>)
+                suspend fun getAllWithDefault(): List<T>
+            }
+
+            interface DerivedInterface : Base<String> {
+                override suspend fun get(): String
+                override suspend fun getAll(): List<String>
+                override suspend fun putAll(input: List<String>)
+                override suspend fun getAllWithDefault(): List<String> {
+                    return emptyList()
+                }
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(sources = listOf(src)) { invocation ->
+            val base = invocation.processingEnv.requireTypeElement("DerivedInterface")
+            val methodNames = base.getAllMethods().toList().jvmNames()
+            assertThat(methodNames).containsExactly("get", "getAll", "putAll", "getAllWithDefault")
+        }
+    }
+
+    @Test
+    fun suspendOverride_abstractClass() {
+        val src = Source.kotlin(
+            "Foo.kt",
+            """
+            abstract class Base<T> {
+                abstract suspend fun get(): T
+                abstract suspend fun getAll(): List<T>
+                abstract suspend fun putAll(input: List<T>)
+            }
+
+            abstract class DerivedClass : Base<Int>() {
+                abstract override suspend fun get(): Int
+                abstract override suspend fun getAll(): List<Int>
+                override suspend fun putAll(input: List<Int>) {
+                }
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(sources = listOf(src)) { invocation ->
+            val base = invocation.processingEnv.requireTypeElement("DerivedClass")
+            val methodNamesCount =
+                base.getAllMethods().toList().jvmNames().groupingBy { it }.eachCount()
+            assertThat(methodNamesCount["get"]).isEqualTo(1)
+            assertThat(methodNamesCount["getAll"]).isEqualTo(1)
+            assertThat(methodNamesCount["putAll"]).isEqualTo(1)
+        }
+    }
+
+    @Test
     fun overrideMethodWithCovariantReturnType() {
         val src = Source.kotlin(
             "ParentWithExplicitOverride.kt",
