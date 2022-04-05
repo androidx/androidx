@@ -15,5 +15,12 @@
   -->
 
 <resources>
-    <style name="Glance.AppWidget.Theme" parent="android:Theme.DeviceDefault.DayNight" />
+    <style name="Glance.AppWidget.Theme" parent="android:Theme.DeviceDefault.DayNight">
+        <!--
+            The following line has the effect of displaying ripples for all clickable views.
+            This is reset in the widget styles for buttons since they display ripple backgrounds
+            by default.
+        -->
+        <item name="android:foreground">?android:attr/selectableItemBackground</item>
+    </style>
 </resources>
