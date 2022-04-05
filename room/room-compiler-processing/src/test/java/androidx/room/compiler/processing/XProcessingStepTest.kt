@@ -57,17 +57,14 @@ class XProcessingStepTest {
     fun xProcessingStep() {
         val annotatedElements = mutableMapOf<KClass<out Annotation>, String>()
         val processingStep = object : XProcessingStep {
-            @Deprecated(
-                "We're combining processOver() and this process() overload.",
-                replaceWith = ReplaceWith(
-                    "process(XProcessingEnv, Map<String, Set<XElement>>, Boolean)"
-                ),
-                level = DeprecationLevel.WARNING
-            )
             override fun process(
                 env: XProcessingEnv,
-                elementsByAnnotation: Map<String, Set<XElement>>
+                elementsByAnnotation: Map<String, Set<XElement>>,
+                isLastRound: Boolean
             ): Set<XTypeElement> {
+                if (isLastRound) {
+                    return emptySet()
+                }
                 elementsByAnnotation[OtherAnnotation::class.qualifiedName]
                     ?.filterIsInstance<XTypeElement>()
                     ?.forEach {
@@ -136,17 +133,14 @@ class XProcessingStepTest {
         val otherAnnotatedElements = mutableListOf<TypeName>()
         // create a scenario where we run multi-step processing so that we can test caching
         val processingStep = object : XProcessingStep {
-            @Deprecated(
-                "We're combining processOver() and this process() overload.",
-                replaceWith = ReplaceWith(
-                    "process(XProcessingEnv, Map<String, Set<XElement>>, Boolean)"
-                ),
-                level = DeprecationLevel.WARNING
-            )
             override fun process(
                 env: XProcessingEnv,
-                elementsByAnnotation: Map<String, Set<XElement>>
+                elementsByAnnotation: Map<String, Set<XElement>>,
+                isLastRound: Boolean
             ): Set<XTypeElement> {
+                if (isLastRound) {
+                    return emptySet()
+                }
                 // for each element annotated with Main annotation, create a class with Other
                 // annotation to trigger another round
                 elementsByAnnotation[MainAnnotation::class.qualifiedName]
@@ -214,17 +208,14 @@ class XProcessingStepTest {
         // create a scenario where we run multi-step processing so that we can test caching
         val processingStep = object : XProcessingStep {
             var roundCounter = 0
-            @Deprecated(
-                "We're combining processOver() and this process() overload.",
-                replaceWith = ReplaceWith(
-                    "process(XProcessingEnv, Map<String, Set<XElement>>, Boolean)"
-                ),
-                level = DeprecationLevel.WARNING
-            )
             override fun process(
                 env: XProcessingEnv,
-                elementsByAnnotation: Map<String, Set<XElement>>
+                elementsByAnnotation: Map<String, Set<XElement>>,
+                isLastRound: Boolean
             ): Set<XTypeElement> {
+                if (isLastRound) {
+                    return emptySet()
+                }
                 elementPerRound[roundCounter++] = listOf(
                     env.requireTypeElement("foo.bar.Main"),
                     env.requireTypeElement("foo.bar.Main")
@@ -315,17 +306,14 @@ class XProcessingStepTest {
         val processingEnvPerRound = mutableMapOf<Int, XProcessingEnv>()
         val processingStep = object : XProcessingStep {
             var roundCounter = 0
-            @Deprecated(
-                "We're combining processOver() and this process() overload.",
-                replaceWith = ReplaceWith(
-                    "process(XProcessingEnv, Map<String, Set<XElement>>, Boolean)"
-                ),
-                level = DeprecationLevel.WARNING
-            )
             override fun process(
                 env: XProcessingEnv,
-                elementsByAnnotation: Map<String, Set<XElement>>
+                elementsByAnnotation: Map<String, Set<XElement>>,
+                isLastRound: Boolean
             ): Set<XTypeElement> {
+                if (isLastRound) {
+                    return emptySet()
+                }
                 processingEnvPerRound[roundCounter++] = env
                 // trigger another round
                 elementsByAnnotation[MainAnnotation::class.qualifiedName]
@@ -400,17 +388,14 @@ class XProcessingStepTest {
         // create a scenario where we run multi-step processing so that we can test caching
         val processingStep = object : XProcessingStep {
             var roundCounter = 0
-            @Deprecated(
-                "We're combining processOver() and this process() overload.",
-                replaceWith = ReplaceWith(
-                    "process(XProcessingEnv, Map<String, Set<XElement>>, Boolean)"
-                ),
-                level = DeprecationLevel.WARNING
-            )
             override fun process(
                 env: XProcessingEnv,
-                elementsByAnnotation: Map<String, Set<XElement>>
+                elementsByAnnotation: Map<String, Set<XElement>>,
+                isLastRound: Boolean
             ): Set<XTypeElement> {
+                if (isLastRound) {
+                    return emptySet()
+                }
                 processingEnvPerRound[roundCounter++] = env
                 // trigger another round
                 elementsByAnnotation[MainAnnotation::class.qualifiedName]
@@ -498,34 +483,28 @@ class XProcessingStepTest {
         // create a scenario where we can test caching between steps
         val mainStep = object : XProcessingStep {
             override fun annotations(): Set<String> = setOf(MainAnnotation::class.qualifiedName!!)
-            @Deprecated(
-                "We're combining processOver() and this process() overload.",
-                replaceWith = ReplaceWith(
-                    "process(XProcessingEnv, Map<String, Set<XElement>>, Boolean)"
-                ),
-                level = DeprecationLevel.WARNING
-            )
             override fun process(
                 env: XProcessingEnv,
-                elementsByAnnotation: Map<String, Set<XElement>>
+                elementsByAnnotation: Map<String, Set<XElement>>,
+                isLastRound: Boolean
             ): Set<XTypeElement> {
+                if (isLastRound) {
+                    return emptySet()
+                }
                 elementsByStep[this] = env.requireTypeElement("foo.bar.Main")
                 return emptySet()
             }
         }
         val otherStep = object : XProcessingStep {
             override fun annotations(): Set<String> = setOf(OtherAnnotation::class.qualifiedName!!)
-            @Deprecated(
-                "We're combining processOver() and this process() overload.",
-                replaceWith = ReplaceWith(
-                    "process(XProcessingEnv, Map<String, Set<XElement>>, Boolean)"
-                ),
-                level = DeprecationLevel.WARNING
-            )
             override fun process(
                 env: XProcessingEnv,
-                elementsByAnnotation: Map<String, Set<XElement>>
+                elementsByAnnotation: Map<String, Set<XElement>>,
+                isLastRound: Boolean
             ): Set<XTypeElement> {
+                if (isLastRound) {
+                    return emptySet()
+                }
                 elementsByStep[this] = env.requireTypeElement("foo.bar.Main")
                 return emptySet()
             }
@@ -547,17 +526,14 @@ class XProcessingStepTest {
     @Test
     fun javacReturnsUnprocessed() {
         val processingStep = object : XProcessingStep {
-            @Deprecated(
-                "We're combining processOver() and this process() overload.",
-                replaceWith = ReplaceWith(
-                    "process(XProcessingEnv, Map<String, Set<XElement>>, Boolean)"
-                ),
-                level = DeprecationLevel.WARNING
-            )
             override fun process(
                 env: XProcessingEnv,
-                elementsByAnnotation: Map<String, Set<XElement>>
+                elementsByAnnotation: Map<String, Set<XElement>>,
+                isLastRound: Boolean
             ): Set<XElement> {
+                if (isLastRound) {
+                    return emptySet()
+                }
                 return elementsByAnnotation.values.flatten().toSet()
             }
             override fun annotations(): Set<String> {
@@ -596,17 +572,14 @@ class XProcessingStepTest {
         CompilationTestCapabilities.assumeKspIsEnabled()
         var returned: Set<XElement>? = null
         val processingStep = object : XProcessingStep {
-            @Deprecated(
-                "We're combining processOver() and this process() overload.",
-                replaceWith = ReplaceWith(
-                    "process(XProcessingEnv, Map<String, Set<XElement>>, Boolean)"
-                ),
-                level = DeprecationLevel.WARNING
-            )
             override fun process(
                 env: XProcessingEnv,
-                elementsByAnnotation: Map<String, Set<XElement>>
+                elementsByAnnotation: Map<String, Set<XElement>>,
+                isLastRound: Boolean
             ): Set<XElement> {
+                if (isLastRound) {
+                    return emptySet()
+                }
                 return elementsByAnnotation.values
                     .flatten()
                     .toSet()
@@ -691,17 +664,14 @@ class XProcessingStepTest {
         val elementsByStep = mutableMapOf<XProcessingStep, Collection<String>>()
         val mainStep = object : XProcessingStep {
             override fun annotations() = setOf(MainAnnotation::class.qualifiedName!!)
-            @Deprecated(
-                "We're combining processOver() and this process() overload.",
-                replaceWith = ReplaceWith(
-                    "process(XProcessingEnv, Map<String, Set<XElement>>, Boolean)"
-                ),
-                level = DeprecationLevel.WARNING
-            )
             override fun process(
                 env: XProcessingEnv,
-                elementsByAnnotation: Map<String, Set<XElement>>
+                elementsByAnnotation: Map<String, Set<XElement>>,
+                isLastRound: Boolean
             ): Set<XElement> {
+                if (isLastRound) {
+                    return emptySet()
+                }
                 elementsByStep[this] = elementsByAnnotation.values.flatten()
                     .map { (it as XTypeElement).qualifiedName }
                 return emptySet()
@@ -709,17 +679,14 @@ class XProcessingStepTest {
         }
         val otherStep = object : XProcessingStep {
             override fun annotations() = setOf(OtherAnnotation::class.qualifiedName!!)
-            @Deprecated(
-                "We're combining processOver() and this process() overload.",
-                replaceWith = ReplaceWith(
-                    "process(XProcessingEnv, Map<String, Set<XElement>>, Boolean)"
-                ),
-                level = DeprecationLevel.WARNING
-            )
             override fun process(
                 env: XProcessingEnv,
-                elementsByAnnotation: Map<String, Set<XElement>>
+                elementsByAnnotation: Map<String, Set<XElement>>,
+                isLastRound: Boolean
             ): Set<XElement> {
+                if (isLastRound) {
+                    return emptySet()
+                }
                 elementsByStep[this] = elementsByAnnotation.values.flatten()
                     .map { (it as XTypeElement).qualifiedName }
                 return emptySet()
@@ -762,17 +729,15 @@ class XProcessingStepTest {
         val mainStep = object : XProcessingStep {
             var round = 0
             override fun annotations() = setOf(MainAnnotation::class.qualifiedName!!)
-            @Deprecated(
-                "We're combining processOver() and this process() overload.",
-                replaceWith = ReplaceWith(
-                    "process(XProcessingEnv, Map<String, Set<XElement>>, Boolean)"
-                ),
-                level = DeprecationLevel.WARNING
-            )
             override fun process(
                 env: XProcessingEnv,
-                elementsByAnnotation: Map<String, Set<XElement>>
+                elementsByAnnotation: Map<String, Set<XElement>>,
+                isLastRound: Boolean
             ): Set<XElement> {
+                if (isLastRound) {
+                    invokedLifecycles.add("processOver")
+                    return emptySet()
+                }
                 invokedLifecycles.add("process")
                 stepsProcessed.add(this)
                 val deferredElements = if (round++ == 0) {
@@ -789,20 +754,6 @@ class XProcessingStepTest {
                     emptySet()
                 }
                 return deferredElements
-            }
-
-            @Deprecated(
-                "We're combining processOver() and the original process().",
-                replaceWith = ReplaceWith(
-                    "process(XProcessingEnv, Map<String, Set<XElement>>, Boolean)"
-                ),
-                level = DeprecationLevel.WARNING
-            )
-            override fun processOver(
-                env: XProcessingEnv,
-                elementsByAnnotation: Map<String, Set<XElement>>
-            ) {
-                invokedLifecycles.add("processOver")
             }
         }
         val invokedPostRound = mutableListOf<Boolean>()
@@ -878,17 +829,14 @@ class XProcessingStepTest {
         val genClassName = ClassName.get("foo.bar", "GeneratedType")
         val mainStep = object : XProcessingStep {
             override fun annotations() = setOf(MainAnnotation::class.qualifiedName!!)
-            @Deprecated(
-                "We're combining processOver() and this process() overload.",
-                replaceWith = ReplaceWith(
-                    "process(XProcessingEnv, Map<String, Set<XElement>>, Boolean)"
-                ),
-                level = DeprecationLevel.WARNING
-            )
             override fun process(
                 env: XProcessingEnv,
-                elementsByAnnotation: Map<String, Set<XElement>>
+                elementsByAnnotation: Map<String, Set<XElement>>,
+                isLastRound: Boolean
             ): Set<XElement> {
+                if (isLastRound) {
+                    return emptySet()
+                }
                 if (round++ == 0) {
                     // Generate the interface, should not be resolvable in 1st round
                     val spec = TypeSpec.interfaceBuilder(genClassName).build()
@@ -950,34 +898,28 @@ class XProcessingStepTest {
         val stepsProcessed = mutableListOf<XProcessingStep>()
         val mainStep = object : XProcessingStep {
             override fun annotations() = setOf(MainAnnotation::class.qualifiedName!!)
-            @Deprecated(
-                "We're combining processOver() and this process() overload.",
-                replaceWith = ReplaceWith(
-                    "process(XProcessingEnv, Map<String, Set<XElement>>, Boolean)"
-                ),
-                level = DeprecationLevel.WARNING
-            )
             override fun process(
                 env: XProcessingEnv,
-                elementsByAnnotation: Map<String, Set<XElement>>
+                elementsByAnnotation: Map<String, Set<XElement>>,
+                isLastRound: Boolean
             ): Set<XElement> {
+                if (isLastRound) {
+                    return emptySet()
+                }
                 stepsProcessed.add(this)
                 return emptySet()
             }
         }
         val otherStep = object : XProcessingStep {
             override fun annotations() = setOf(OtherAnnotation::class.qualifiedName!!)
-            @Deprecated(
-                "We're combining processOver() and this process() overload.",
-                replaceWith = ReplaceWith(
-                    "process(XProcessingEnv, Map<String, Set<XElement>>, Boolean)"
-                ),
-                level = DeprecationLevel.WARNING
-            )
             override fun process(
                 env: XProcessingEnv,
-                elementsByAnnotation: Map<String, Set<XElement>>
+                elementsByAnnotation: Map<String, Set<XElement>>,
+                isLastRound: Boolean
             ): Set<XElement> {
+                if (isLastRound) {
+                    return emptySet()
+                }
                 stepsProcessed.add(this)
                 return emptySet()
             }
@@ -1017,17 +959,14 @@ class XProcessingStepTest {
         val elementsByStep = mutableMapOf<XProcessingStep, Collection<String>>()
         val mainStep = object : XProcessingStep {
             override fun annotations() = setOf(MainAnnotation::class.qualifiedName!!)
-            @Deprecated(
-                "We're combining processOver() and this process() overload.",
-                replaceWith = ReplaceWith(
-                    "process(XProcessingEnv, Map<String, Set<XElement>>, Boolean)"
-                ),
-                level = DeprecationLevel.WARNING
-            )
             override fun process(
                 env: XProcessingEnv,
-                elementsByAnnotation: Map<String, Set<XElement>>
+                elementsByAnnotation: Map<String, Set<XElement>>,
+                isLastRound: Boolean
             ): Set<XElement> {
+                if (isLastRound) {
+                    return emptySet()
+                }
                 elementsByStep[this] = elementsByAnnotation.values.flatten()
                     .map { (it as XTypeElement).qualifiedName }
                 return emptySet()
@@ -1035,17 +974,14 @@ class XProcessingStepTest {
         }
         val otherStep = object : XProcessingStep {
             override fun annotations() = setOf(OtherAnnotation::class.qualifiedName!!)
-            @Deprecated(
-                "We're combining processOver() and this process() overload.",
-                replaceWith = ReplaceWith(
-                    "process(XProcessingEnv, Map<String, Set<XElement>>, Boolean)"
-                ),
-                level = DeprecationLevel.WARNING
-            )
             override fun process(
                 env: XProcessingEnv,
-                elementsByAnnotation: Map<String, Set<XElement>>
+                elementsByAnnotation: Map<String, Set<XElement>>,
+                isLastRound: Boolean
             ): Set<XElement> {
+                if (isLastRound) {
+                    return emptySet()
+                }
                 elementsByStep[this] = elementsByAnnotation.values.flatten()
                     .map { (it as XTypeElement).qualifiedName }
                 return emptySet()
@@ -1093,17 +1029,15 @@ class XProcessingStepTest {
         val mainStep = object : XProcessingStep {
             var round = 0
             override fun annotations() = setOf(MainAnnotation::class.qualifiedName!!)
-            @Deprecated(
-                "We're combining processOver() and this process() overload.",
-                replaceWith = ReplaceWith(
-                    "process(XProcessingEnv, Map<String, Set<XElement>>, Boolean)"
-                ),
-                level = DeprecationLevel.WARNING
-            )
             override fun process(
                 env: XProcessingEnv,
-                elementsByAnnotation: Map<String, Set<XElement>>
+                elementsByAnnotation: Map<String, Set<XElement>>,
+                isLastRound: Boolean
             ): Set<XElement> {
+                if (isLastRound) {
+                    invokedLifecycles.add("processOver")
+                    return emptySet()
+                }
                 invokedLifecycles.add("process")
                 stepsProcessed.add(this)
                 val deferredElements = if (round++ == 0) {
@@ -1120,20 +1054,6 @@ class XProcessingStepTest {
                     emptySet()
                 }
                 return deferredElements
-            }
-
-            @Deprecated(
-                "We're combining processOver() and the original process().",
-                replaceWith = ReplaceWith(
-                    "process(XProcessingEnv, Map<String, Set<XElement>>, Boolean)"
-                ),
-                level = DeprecationLevel.WARNING
-            )
-            override fun processOver(
-                env: XProcessingEnv,
-                elementsByAnnotation: Map<String, Set<XElement>>
-            ) {
-                invokedLifecycles.add("processOver")
             }
         }
         val invokedPostRound = mutableListOf<Boolean>()
@@ -1205,34 +1125,28 @@ class XProcessingStepTest {
         val stepsProcessed = mutableListOf<XProcessingStep>()
         val mainStep = object : XProcessingStep {
             override fun annotations() = setOf(MainAnnotation::class.qualifiedName!!)
-            @Deprecated(
-                "We're combining processOver() and this process() overload.",
-                replaceWith = ReplaceWith(
-                    "process(XProcessingEnv, Map<String, Set<XElement>>, Boolean)"
-                ),
-                level = DeprecationLevel.WARNING
-            )
             override fun process(
                 env: XProcessingEnv,
-                elementsByAnnotation: Map<String, Set<XElement>>
+                elementsByAnnotation: Map<String, Set<XElement>>,
+                isLastRound: Boolean
             ): Set<XElement> {
+                if (isLastRound) {
+                    return emptySet()
+                }
                 stepsProcessed.add(this)
                 return emptySet()
             }
         }
         val otherStep = object : XProcessingStep {
             override fun annotations() = setOf(OtherAnnotation::class.qualifiedName!!)
-            @Deprecated(
-                "We're combining processOver() and this process() overload.",
-                replaceWith = ReplaceWith(
-                    "process(XProcessingEnv, Map<String, Set<XElement>>, Boolean)"
-                ),
-                level = DeprecationLevel.WARNING
-            )
             override fun process(
                 env: XProcessingEnv,
-                elementsByAnnotation: Map<String, Set<XElement>>
+                elementsByAnnotation: Map<String, Set<XElement>>,
+                isLastRound: Boolean
             ): Set<XElement> {
+                if (isLastRound) {
+                    return emptySet()
+                }
                 stepsProcessed.add(this)
                 return emptySet()
             }
@@ -1297,17 +1211,14 @@ class XProcessingStepTest {
         val mainStep = object : XProcessingStep {
             var round = 0
             override fun annotations() = setOf(AnywhereAnnotation::class.qualifiedName!!)
-            @Deprecated(
-                "We're combining processOver() and this process() overload.",
-                replaceWith = ReplaceWith(
-                    "process(XProcessingEnv, Map<String, Set<XElement>>, Boolean)"
-                ),
-                level = DeprecationLevel.WARNING
-            )
             override fun process(
                 env: XProcessingEnv,
-                elementsByAnnotation: Map<String, Set<XElement>>
+                elementsByAnnotation: Map<String, Set<XElement>>,
+                isLastRound: Boolean
             ): Set<XElement> {
+                if (isLastRound) {
+                    return emptySet()
+                }
                 elementsByAnnotation.values.flatten().let {
                     assertRound(round, it)
                     roundReceivedElementsHashes.add(it.map { it.hashCode() }.toSet())
@@ -1356,17 +1267,14 @@ class XProcessingStepTest {
     fun javacDisableValidatingAnnotatedElements() {
         val processingStep = object : XProcessingStep {
             var round = 0
-            @Deprecated(
-                "We're combining processOver() and this process() overload.",
-                replaceWith = ReplaceWith(
-                    "process(XProcessingEnv, Map<String, Set<XElement>>, Boolean)"
-                ),
-                level = DeprecationLevel.WARNING
-            )
             override fun process(
                 env: XProcessingEnv,
-                elementsByAnnotation: Map<String, Set<XElement>>
+                elementsByAnnotation: Map<String, Set<XElement>>,
+                isLastRound: Boolean
             ): Set<XElement> {
+                if (isLastRound) {
+                    return emptySet()
+                }
                 if (round++ == 0) {
                     val className = ClassName.get("foo.bar", "ToBeGenerated")
                     val spec = TypeSpec.classBuilder(className).build()
@@ -1410,17 +1318,14 @@ class XProcessingStepTest {
         CompilationTestCapabilities.assumeKspIsEnabled()
         val processingStep = object : XProcessingStep {
             var round = 0
-            @Deprecated(
-                "We're combining processOver() and this process() overload.",
-                replaceWith = ReplaceWith(
-                    "process(XProcessingEnv, Map<String, Set<XElement>>, Boolean)"
-                ),
-                level = DeprecationLevel.WARNING
-            )
             override fun process(
                 env: XProcessingEnv,
-                elementsByAnnotation: Map<String, Set<XElement>>
+                elementsByAnnotation: Map<String, Set<XElement>>,
+                isLastRound: Boolean
             ): Set<XElement> {
+                if (isLastRound) {
+                    return emptySet()
+                }
                 if (round++ == 0) {
                     val className = ClassName.get("foo.bar", "ToBeGenerated")
                     val spec = TypeSpec.classBuilder(className).build()
@@ -1513,17 +1418,14 @@ class XProcessingStepTest {
         val mainStep = object : XProcessingStep {
             var round = 0
             override fun annotations() = setOf(AnywhereAnnotation::class.qualifiedName!!)
-            @Deprecated(
-                "We're combining processOver() and this process() overload.",
-                replaceWith = ReplaceWith(
-                    "process(XProcessingEnv, Map<String, Set<XElement>>, Boolean)"
-                ),
-                level = DeprecationLevel.WARNING
-            )
             override fun process(
                 env: XProcessingEnv,
-                elementsByAnnotation: Map<String, Set<XElement>>
+                elementsByAnnotation: Map<String, Set<XElement>>,
+                isLastRound: Boolean
             ): Set<XElement> {
+                if (isLastRound) {
+                    return emptySet()
+                }
                 elementsByAnnotation.values.flatten().let {
                     assertRound(round, it)
                     roundReceivedElementsHashes.add(it.map { it.hashCode() }.toSet())
