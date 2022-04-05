@@ -289,6 +289,7 @@ tasks.withType(KotlinCompile).configureEach {
 tasks.withType(Test).configureEach {
     it.systemProperty("androidx.room.compiler.processing.strict", "true")
     it.maxParallelForks(3)
+    it.maxHeapSize("512m")
 }
 
 androidx {
