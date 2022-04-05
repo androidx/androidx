@@ -51,10 +51,10 @@ val BASIC_COMPILATION_MODES = if (Build.VERSION.SDK_INT < 24) {
  * Default compilation modes to test for all AndroidX macrobenchmarks.
  *
  * Baseline profiles are only supported from Nougat (API 24),
- * currently through Android 11 (API 30)
+ * currently through Android 12 (API 31)
  */
 @Suppress("ConvertTwoComparisonsToRangeCheck") // lint doesn't understand range checks
-val COMPILATION_MODES = if (Build.VERSION.SDK_INT >= 24 && Build.VERSION.SDK_INT <= 30) {
+val COMPILATION_MODES = if (Build.VERSION.SDK_INT >= 24 && Build.VERSION.SDK_INT <= 31) {
     listOf(CompilationMode.Partial())
 } else {
     emptyList()
