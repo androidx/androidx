@@ -413,6 +413,7 @@ includeProject(":compose:material:material-icons-extended-sharp", [BuildType.COM
 includeProject(":compose:material:material-icons-extended-twotone", [BuildType.COMPOSE])
 includeProject(":compose:material:material-ripple", [BuildType.COMPOSE])
 includeProject(":compose:material:material-window", [BuildType.COMPOSE])
+includeProject(":compose:material:material-window:material-window-samples", "compose/material/material-window/samples", [BuildType.COMPOSE])
 includeProject(":compose:material:material:icons:generator", [BuildType.COMPOSE])
 includeProject(":compose:material:material:integration-tests:material-demos", [BuildType.COMPOSE])
 includeProject(":compose:material:material:integration-tests:material-catalog", [BuildType.COMPOSE])
