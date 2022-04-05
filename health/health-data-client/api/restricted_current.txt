@@ -3,6 +3,7 @@ package androidx.health.data.client {
 
   public interface HealthDataClient {
     method public suspend Object? deleteRecords(kotlin.reflect.KClass<? extends androidx.health.data.client.records.Record> recordType, java.util.List<java.lang.String> uidsList, java.util.List<java.lang.String> clientIdsList, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? deleteRecords(kotlin.reflect.KClass<? extends androidx.health.data.client.records.Record> recordType, androidx.health.data.client.time.TimeRangeFilter timeRangeFilter, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public default static androidx.health.data.client.HealthDataClient getOrCreate(android.content.Context context, optional java.util.List<java.lang.String> packageNames);
     method public default static androidx.health.data.client.HealthDataClient getOrCreate(android.content.Context context);
     method public suspend Object? insertRecords(java.util.List<? extends androidx.health.data.client.records.Record> records, kotlin.coroutines.Continuation<? super androidx.health.data.client.response.InsertRecordsResponse>);
@@ -324,6 +325,29 @@ package androidx.health.data.client.response {
   public final class InsertRecordsResponse {
     method public java.util.List<java.lang.String> getRecordUidsList();
     property public final java.util.List<java.lang.String> recordUidsList;
+  }
+
+}
+
+package androidx.health.data.client.time {
+
+  public final class TimeRangeFilter {
+    method public static androidx.health.data.client.time.TimeRangeFilter after(java.time.Instant startTime);
+    method public static androidx.health.data.client.time.TimeRangeFilter after(java.time.LocalDateTime startTime);
+    method public static androidx.health.data.client.time.TimeRangeFilter before(java.time.Instant endTime);
+    method public static androidx.health.data.client.time.TimeRangeFilter before(java.time.LocalDateTime endTime);
+    method public static androidx.health.data.client.time.TimeRangeFilter between(java.time.Instant startTime, java.time.Instant endTime);
+    method public static androidx.health.data.client.time.TimeRangeFilter between(java.time.LocalDateTime startTime, java.time.LocalDateTime endTime);
+    field public static final androidx.health.data.client.time.TimeRangeFilter.Companion Companion;
+  }
+
+  public static final class TimeRangeFilter.Companion {
+    method public androidx.health.data.client.time.TimeRangeFilter after(java.time.Instant startTime);
+    method public androidx.health.data.client.time.TimeRangeFilter after(java.time.LocalDateTime startTime);
+    method public androidx.health.data.client.time.TimeRangeFilter before(java.time.Instant endTime);
+    method public androidx.health.data.client.time.TimeRangeFilter before(java.time.LocalDateTime endTime);
+    method public androidx.health.data.client.time.TimeRangeFilter between(java.time.Instant startTime, java.time.Instant endTime);
+    method public androidx.health.data.client.time.TimeRangeFilter between(java.time.LocalDateTime startTime, java.time.LocalDateTime endTime);
   }
 
 }

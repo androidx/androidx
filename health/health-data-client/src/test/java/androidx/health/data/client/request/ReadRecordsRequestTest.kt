@@ -28,7 +28,7 @@ import org.junit.runner.RunWith
 class ReadRecordsRequestTest {
 
     private val closedTimeRange =
-        TimeRangeFilter.exact(Instant.ofEpochMilli(1234L), Instant.ofEpochMilli(1235L))
+        TimeRangeFilter.between(Instant.ofEpochMilli(1234L), Instant.ofEpochMilli(1235L))
 
     @Test
     fun limitAndSizeTogether_throws() {
@@ -36,7 +36,7 @@ class ReadRecordsRequestTest {
             assertThrows(IllegalArgumentException::class.java) {
                 ReadRecordsRequest(
                     recordType = Steps::class,
-                    timeRangeFilter = TimeRangeFilter.empty(),
+                    timeRangeFilter = TimeRangeFilter.none(),
                     limit = 10,
                     pageSize = 10
                 )
@@ -50,7 +50,7 @@ class ReadRecordsRequestTest {
             assertThrows(IllegalArgumentException::class.java) {
                 ReadRecordsRequest(
                     recordType = Steps::class,
-                    timeRangeFilter = TimeRangeFilter.empty()
+                    timeRangeFilter = TimeRangeFilter.none()
                 )
             }
         assertEquals(
@@ -63,7 +63,7 @@ class ReadRecordsRequestTest {
     fun openEndedTimeRange_withLimit_success() {
         ReadRecordsRequest(
             recordType = Steps::class,
-            timeRangeFilter = TimeRangeFilter.empty(),
+            timeRangeFilter = TimeRangeFilter.none(),
             limit = 10
         )
     }
@@ -72,7 +72,7 @@ class ReadRecordsRequestTest {
     fun openEndedTimeRange_withPageSize_success() {
         ReadRecordsRequest(
             recordType = Steps::class,
-            timeRangeFilter = TimeRangeFilter.empty(),
+            timeRangeFilter = TimeRangeFilter.none(),
             pageSize = 10
         )
     }
