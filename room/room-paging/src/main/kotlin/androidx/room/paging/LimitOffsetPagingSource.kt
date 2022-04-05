@@ -25,9 +25,9 @@ import androidx.room.RoomDatabase
 import androidx.room.RoomSQLiteQuery
 import androidx.room.getQueryDispatcher
 import androidx.room.paging.util.ThreadSafeInvalidationObserver
-import androidx.room.paging.util.getLimit
-import androidx.room.paging.util.getOffset
 import androidx.room.paging.util.getClippedRefreshKey
+import androidx.room.paging.util.queryDatabase
+import androidx.room.paging.util.queryItemCount
 import androidx.room.withTransaction
 import androidx.sqlite.db.SupportSQLiteQuery
 import kotlinx.coroutines.withContext
@@ -75,13 +75,7 @@ abstract class LimitOffsetPagingSource<Value : Any>(
             if (tempCount < 0) {
                 initialLoad(params)
             } else {
-                // otherwise, it is a subsequent load
-                val loadResult = loadFromDb(params, tempCount)
-                // manually check if database has been updated. If so, the observers's
-                // invalidation callback will invalidate this paging source
-                db.invalidationTracker.refreshVersionsSync()
-                @Suppress("UNCHECKED_CAST")
-                if (invalid) INVALID as LoadResult.Invalid<Int, Value> else loadResult
+                nonInitialLoad(params, tempCount)
             }
         }
     }
@@ -98,95 +92,22 @@ abstract class LimitOffsetPagingSource<Value : Any>(
      */
     private suspend fun initialLoad(params: LoadParams<Int>): LoadResult<Int, Value> {
         return db.withTransaction {
-            val tempCount = queryItemCount()
+            val tempCount = queryItemCount(sourceQuery, db)
             itemCount.set(tempCount)
-            loadFromDb(params, tempCount)
+            queryDatabase(params, sourceQuery, db, tempCount, ::convertRows)
         }
     }
 
-    private suspend fun loadFromDb(
+    private suspend fun nonInitialLoad(
         params: LoadParams<Int>,
-        itemCount: Int,
+        tempCount: Int,
     ): LoadResult<Int, Value> {
-        val key = params.key ?: 0
-        val limit: Int = getLimit(params, key)
-        val offset: Int = getOffset(params, key, itemCount)
-        return queryDatabase(offset, limit, itemCount)
-    }
-
-    /**
-     * calls RoomDatabase.query() to return a cursor and then calls convertRows() to extract and
-     * return list of data
-     *
-     * throws [IllegalArgumentException] from [CursorUtil] if column does not exist
-     *
-     * @param offset offset parameter for LIMIT/OFFSET query. Bounded within user-supplied offset
-     * if it is supplied
-     *
-     * @param limit limit parameter for LIMIT/OFFSET query. Bounded within user-supplied limit
-     * if it is supplied
-     */
-    private suspend fun queryDatabase(
-        offset: Int,
-        limit: Int,
-        itemCount: Int,
-    ): LoadResult<Int, Value> {
-        val limitOffsetQuery =
-            "SELECT * FROM ( ${sourceQuery.sql} ) LIMIT $limit OFFSET $offset"
-        val sqLiteQuery: RoomSQLiteQuery = RoomSQLiteQuery.acquire(
-            limitOffsetQuery,
-            sourceQuery.argCount
-        )
-        sqLiteQuery.copyArgumentsFrom(sourceQuery)
-        val cursor = db.query(sqLiteQuery)
-        val data: List<Value>
-        try {
-            data = convertRows(cursor)
-        } finally {
-            cursor.close()
-            sqLiteQuery.release()
-        }
-        val nextPosToLoad = offset + data.size
-        val nextKey =
-            if (data.isEmpty() || data.size < limit || nextPosToLoad >= itemCount) {
-                null
-            } else {
-                nextPosToLoad
-            }
-        val prevKey = if (offset <= 0 || data.isEmpty()) null else offset
-        return LoadResult.Page(
-            data = data,
-            prevKey = prevKey,
-            nextKey = nextKey,
-            itemsBefore = offset,
-            itemsAfter = maxOf(0, itemCount - nextPosToLoad)
-        )
-    }
-
-    /**
-     * returns count of requested items to calculate itemsAfter and itemsBefore for use in creating
-     * LoadResult.Page<>
-     *
-     * throws error when the column value is null, the column type is not an integral type,
-     * or the integer value is outside the range [Integer.MIN_VALUE, Integer.MAX_VALUE]
-     */
-    private fun queryItemCount(): Int {
-        val countQuery = "SELECT COUNT(*) FROM ( ${sourceQuery.sql} )"
-        val sqLiteQuery: RoomSQLiteQuery = RoomSQLiteQuery.acquire(
-            countQuery,
-            sourceQuery.argCount
-        )
-        sqLiteQuery.copyArgumentsFrom(sourceQuery)
-        val cursor: Cursor = db.query(sqLiteQuery)
-        try {
-            if (cursor.moveToFirst()) {
-                return cursor.getInt(0)
-            }
-            return 0
-        } finally {
-            cursor.close()
-            sqLiteQuery.release()
-        }
+        val loadResult = queryDatabase(params, sourceQuery, db, tempCount, ::convertRows)
+        // manually check if database has been updated. If so, the observers's
+        // invalidation callback will invalidate this paging source
+        db.invalidationTracker.refreshVersionsSync()
+        @Suppress("UNCHECKED_CAST")
+        return if (invalid) INVALID as LoadResult.Invalid<Int, Value> else loadResult
     }
 
     @NonNull
