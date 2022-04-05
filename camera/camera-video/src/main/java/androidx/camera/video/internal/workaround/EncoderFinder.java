@@ -30,8 +30,8 @@ import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.Logger;
 import androidx.camera.video.internal.DebugUtils;
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
-import androidx.camera.video.internal.compat.quirk.ExcludeKeyFrameRateInFindEncoderQuirk;
 import androidx.camera.video.internal.compat.quirk.MediaCodecInfoReportIncorrectInfoQuirk;
+import androidx.camera.video.internal.compat.quirk.MediaFormatMustNotUseFrameRateToFindEncoderQuirk;
 import androidx.camera.video.internal.encoder.InvalidConfigException;
 import androidx.core.util.Preconditions;
 
@@ -42,7 +42,7 @@ import java.io.IOException;
  *
  * <p>The workaround is to check the quirks to fix the selection of video encoder.
  *
- * @see ExcludeKeyFrameRateInFindEncoderQuirk
+ * @see MediaFormatMustNotUseFrameRateToFindEncoderQuirk
  * @see MediaCodecInfoReportIncorrectInfoQuirk
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
@@ -52,8 +52,8 @@ public class EncoderFinder {
     private final boolean mShouldRemoveKeyFrameRate;
 
     public EncoderFinder() {
-        final ExcludeKeyFrameRateInFindEncoderQuirk quirk =
-                DeviceQuirks.get(ExcludeKeyFrameRateInFindEncoderQuirk.class);
+        final MediaFormatMustNotUseFrameRateToFindEncoderQuirk quirk =
+                DeviceQuirks.get(MediaFormatMustNotUseFrameRateToFindEncoderQuirk.class);
 
         mShouldRemoveKeyFrameRate = (quirk != null);
     }

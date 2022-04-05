@@ -41,8 +41,8 @@ public class DeviceQuirksLoader {
         final List<Quirk> quirks = new ArrayList<>();
 
         // Load all video specific quirks
-        if (ExcludeKeyFrameRateInFindEncoderQuirk.load()) {
-            quirks.add(new ExcludeKeyFrameRateInFindEncoderQuirk());
+        if (MediaFormatMustNotUseFrameRateToFindEncoderQuirk.load()) {
+            quirks.add(new MediaFormatMustNotUseFrameRateToFindEncoderQuirk());
         }
         if (MediaCodecInfoReportIncorrectInfoQuirk.load()) {
             quirks.add(new MediaCodecInfoReportIncorrectInfoQuirk());
