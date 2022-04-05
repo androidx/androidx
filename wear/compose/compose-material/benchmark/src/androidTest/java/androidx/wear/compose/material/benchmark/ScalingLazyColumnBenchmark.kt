@@ -36,7 +36,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.ScalingLazyColumn
 import androidx.wear.compose.material.Text
@@ -93,7 +92,6 @@ internal class ScalingLazyColumnTestCase : LayeredComposeTestCase() {
     private var itemSizeDp: Dp = 10.dp
     private var defaultItemSpacingDp: Dp = 4.dp
 
-    @OptIn(ExperimentalWearMaterialApi::class)
     @Composable
     override fun MeasuredContent() {
         ScalingLazyColumn(
