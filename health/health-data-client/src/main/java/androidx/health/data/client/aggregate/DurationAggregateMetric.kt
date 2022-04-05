@@ -24,7 +24,9 @@ import androidx.annotation.RestrictTo
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class DurationAggregateMetric
-internal constructor(override val dataTypeName: String, override val aggregationSuffix: String) :
-    AggregateMetric {
-    override val fieldName: String? = null
+internal constructor(
+    override val dataTypeName: String,
+    override val aggregationSuffix: String,
+) : AggregateMetric {
+    override val aggregateFieldName: String? = null
 }

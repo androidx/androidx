@@ -19,17 +19,22 @@ import androidx.annotation.RestrictTo
 import androidx.health.data.client.aggregate.AggregateMetric
 import androidx.health.data.client.metadata.DataOrigin
 import androidx.health.data.client.time.TimeRangeFilter
+import java.time.Duration
 
 /**
- * Request object to read aggregations for given [AggregateMetric]s in Android Health Platform.
+ * Request object to read time bucketed aggregations for given [AggregateMetric]s in Android Health
+ * Platform.
  *
  * @property metrics Set of [AggregateMetric]s to aggregate, such as `Steps::STEPS_COUNT_TOTAL`.
  * @property timeRangeFilter The [TimeRangeFilter] to read from.
+ * @property timeRangeSlicer The bucket size of each returned aggregate row. [timeRangeFilter] will
+ * be sliced into several equal-sized time buckets (except for the last one).
  * @property dataOriginFilter List of [DataOrigin]s to read from, or empty for no filter.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class AggregateRequest(
+class AggregateGroupByDurationRequest(
     internal val metrics: Set<AggregateMetric>,
     internal val timeRangeFilter: TimeRangeFilter,
+    internal val timeRangeSlicer: Duration,
     internal val dataOriginFilter: List<DataOrigin> = emptyList(),
 )

@@ -32,7 +32,9 @@ import androidx.health.data.client.metadata.Metadata
 import androidx.health.data.client.records.ActiveEnergyBurned
 import androidx.health.data.client.records.Nutrition
 import androidx.health.data.client.records.Steps
+import androidx.health.data.client.records.Steps.Companion.STEPS_COUNT_TOTAL
 import androidx.health.data.client.records.Weight
+import androidx.health.data.client.request.AggregateGroupByDurationRequest
 import androidx.health.data.client.request.AggregateRequest
 import androidx.health.data.client.request.ChangesTokenRequest
 import androidx.health.data.client.request.ReadRecordsRequest
@@ -59,6 +61,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.intent.Intents
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
+import java.time.Duration
 import java.time.Instant
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.Deferred
@@ -90,6 +93,11 @@ private val API_METHOD_LIST =
             )
         },
         { aggregate(AggregateRequest(setOf(), TimeRangeFilter.empty())) },
+        {
+            aggregateGroupByDuration(
+                AggregateGroupByDurationRequest(setOf(), TimeRangeFilter.empty(), Duration.ZERO)
+            )
+        },
         { getChanges("token") },
         { getChangesToken(ChangesTokenRequest(recordTypes = setOf(Steps::class))) }
     )
@@ -301,10 +309,10 @@ class HealthDataClientImplTest {
                     endTime = Instant.ofEpochMilli(5678L),
                     endZoneOffset = null,
                     metadata =
-                    Metadata(
-                        uid = "testUid",
-                        device = Device(),
-                    )
+                        Metadata(
+                            uid = "testUid",
+                            device = Device(),
+                        )
                 )
             )
     }
@@ -361,24 +369,53 @@ class HealthDataClientImplTest {
                     endTime = Instant.ofEpochMilli(5678L),
                     endZoneOffset = null,
                     metadata =
-                    Metadata(
-                        uid = "testUid",
-                        device = Device(),
-                    )
+                        Metadata(
+                            uid = "testUid",
+                            device = Device(),
+                        )
                 )
             )
     }
 
     @Test(timeout = 10000L)
-    fun deleteRecords_steps() = runTest {
+    fun deleteRecordsById_steps() = runTest {
+        val deferred = async {
+            healthDataClient.deleteRecords(Steps::class, listOf("myUid"), listOf("myClientId"))
+        }
+
+        advanceUntilIdle()
+        waitForMainLooperIdle()
+        deferred.await()
+
+        val stepsTypeProto = DataProto.DataType.newBuilder().setName("Steps")
+        assertThat(fakeAhpServiceStub.lastDeleteDataRequest?.clientIds)
+            .containsExactly(
+                RequestProto.DataTypeIdPair.newBuilder()
+                    .setDataType(stepsTypeProto)
+                    .setId("myClientId")
+                    .build()
+            )
+        assertThat(fakeAhpServiceStub.lastDeleteDataRequest?.uids)
+            .containsExactly(
+                RequestProto.DataTypeIdPair.newBuilder()
+                    .setDataType(stepsTypeProto)
+                    .setId("myUid")
+                    .build()
+            )
+    }
+
+    @Test(timeout = 10000L)
+    fun deleteRecordsByRange_steps() = runTest {
         val deferred = async {
             healthDataClient.deleteRecords(
                 Steps::class,
                 timeRangeFilter = TimeRangeFilter.exact(endTime = Instant.ofEpochMilli(7890L)),
             )
         }
+
         advanceUntilIdle()
         waitForMainLooperIdle()
+
         deferred.await()
         assertThat(fakeAhpServiceStub.lastDeleteDataRangeRequest?.proto)
             .isEqualTo(
@@ -475,6 +512,59 @@ class HealthDataClientImplTest {
             )
     }
 
+    @Test
+    fun aggregateGroupByDuration_totalSteps() = runTest {
+        val dataOrigin = DataProto.DataOrigin.newBuilder().setApplicationId("id").build()
+        val aggregateDataRow =
+            DataProto.AggregateDataRow.newBuilder()
+                .setStartTimeEpochMs(1234)
+                .setEndTimeEpochMs(4567)
+                .setZoneOffsetSeconds(999)
+                .addDataOrigins(dataOrigin)
+                .putLongValues("Steps_count_total", 1000)
+                .build()
+        fakeAhpServiceStub.aggregateDataResponse =
+            AggregateDataResponse(
+                ResponseProto.AggregateDataResponse.newBuilder().addRows(aggregateDataRow).build()
+            )
+        val deferred = async {
+            val startTime = Instant.ofEpochMilli(1234)
+            val endTime = Instant.ofEpochMilli(4567)
+            healthDataClient.aggregate(
+                AggregateRequest(
+                    setOf(STEPS_COUNT_TOTAL),
+                    TimeRangeFilter.exact(startTime, endTime)
+                )
+            )
+        }
+
+        advanceUntilIdle()
+        waitForMainLooperIdle()
+
+        val response: AggregateDataRow = deferred.await()
+        assertThat(response.hasMetric(STEPS_COUNT_TOTAL)).isTrue()
+        assertThat(response.getMetric(STEPS_COUNT_TOTAL)).isEqualTo(1000)
+        assertThat(response.dataOrigins).contains(DataOrigin("id"))
+        assertThat(fakeAhpServiceStub.lastAggregateRequest?.proto)
+            .isEqualTo(
+                RequestProto.AggregateDataRequest.newBuilder()
+                    .setTimeSpec(
+                        TimeProto.TimeSpec.newBuilder()
+                            .setStartTimeEpochMs(1234)
+                            .setEndTimeEpochMs(4567)
+                            .build()
+                    )
+                    .addMetricSpec(
+                        RequestProto.AggregateMetricSpec.newBuilder()
+                            .setDataTypeName("Steps")
+                            .setAggregationType("total")
+                            .setFieldName("count")
+                            .build()
+                    )
+                    .build()
+            )
+    }
+
     @Test(timeout = 10000L)
     fun getChangesToken() = runTest {
         fakeAhpServiceStub.changesTokenResponse =
@@ -542,27 +632,6 @@ class HealthDataClientImplTest {
                     .setChangesToken("steps_changes_token")
                     .build()
             )
-    }
-
-    @Test(timeout = 10000L)
-    fun deleteRecordsById_steps() = runTest {
-        val deferred = async {
-            healthDataClient.deleteRecords(Steps::class, listOf("myUid"), listOf("myClientId"))
-        }
-
-        advanceUntilIdle()
-        waitForMainLooperIdle()
-        deferred.await()
-
-        val stepsTypeProto = DataProto.DataType.newBuilder().setName("Steps")
-        assertThat(fakeAhpServiceStub.lastDeleteDataRequest?.clientIds).containsExactly(
-            RequestProto.DataTypeIdPair.newBuilder()
-                .setDataType(stepsTypeProto).setId("myClientId").build()
-        )
-        assertThat(fakeAhpServiceStub.lastDeleteDataRequest?.uids).containsExactly(
-            RequestProto.DataTypeIdPair.newBuilder()
-                .setDataType(stepsTypeProto).setId("myUid").build()
-        )
     }
 
     private fun waitForMainLooperIdle() {

@@ -107,6 +107,8 @@ public class Nutrition(
     public val vitaminKGrams: Double = 0.0,
     /** Zinc in grams. Optional field. Valid range: 0-100. */
     public val zincGrams: Double = 0.0,
+    /** Name for food or drink, provided by the user. Optional field. */
+    public val name: String? = null,
     /**
      * Type of meal related to the nutrients consumed. Optional, enum field. Allowed values:
      * [MealType].
@@ -165,6 +167,7 @@ public class Nutrition(
         if (vitaminKGrams != other.vitaminKGrams) return false
         if (zincGrams != other.zincGrams) return false
         if (mealType != other.mealType) return false
+        if (name != other.name) return false
         if (startTime != other.startTime) return false
         if (startZoneOffset != other.startZoneOffset) return false
         if (endTime != other.endTime) return false
@@ -219,6 +222,7 @@ public class Nutrition(
         result = 31 * result + vitaminKGrams.hashCode()
         result = 31 * result + zincGrams.hashCode()
         result = 31 * result + mealType.hashCode()
+        result = 31 * result + name.hashCode()
         result = 31 * result + (startZoneOffset?.hashCode() ?: 0)
         result = 31 * result + endTime.hashCode()
         result = 31 * result + (endZoneOffset?.hashCode() ?: 0)

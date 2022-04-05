@@ -445,6 +445,7 @@ fun Record.toProto(): DataProto.DataPoint {
                         putValues("zinc", doubleVal(zincGrams))
                     }
                     mealType?.let { putValues("mealType", enumVal(it)) }
+                    name?.let { putValues("name", stringVal(it)) }
                 }
                 .build()
         is Repetitions ->

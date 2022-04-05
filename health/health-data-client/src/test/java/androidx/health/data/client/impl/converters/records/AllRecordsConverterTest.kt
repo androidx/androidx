@@ -725,6 +725,7 @@ class AllRecordsConverterTest {
                 vitaminKGrams = 1.0,
                 zincGrams = 1.0,
                 mealType = null,
+                name = null,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
                 endTime = END_TIME,
