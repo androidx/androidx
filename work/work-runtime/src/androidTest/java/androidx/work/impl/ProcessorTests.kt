@@ -105,24 +105,26 @@ class ProcessorTests : DatabaseTest() {
     @Test
     @MediumTest
     fun testInterruptNotInCriticalSection() {
-        val request = OneTimeWorkRequest.Builder(StopLatchWorker::class.java)
-            .build()
-        insertWork(request)
+        val request1 = OneTimeWorkRequest.Builder(StopLatchWorker::class.java).build()
+        val request2 = OneTimeWorkRequest.Builder(StopLatchWorker::class.java).build()
+        insertWork(request1)
+        insertWork(request2)
         var listenerCalled = false
         val listener = ExecutionListener { id, _ ->
             if (!listenerCalled) {
                 listenerCalled = true
-                assertEquals(request.workSpec.id, id)
+                assertEquals(request1.workSpec.id, id)
             }
         }
         processor.addExecutionListener(listener)
-        processor.startWork(request.workSpec.id)
+        val workRunId = WorkRunId(request1.workSpec.id)
+        processor.startWork(workRunId)
 
         val firstWorker = runBlocking { lastCreatedWorker.filterNotNull().first() }
         val blockedThread = Executors.newSingleThreadExecutor()
         blockedThread.execute {
             // gonna stall for 10 seconds
-            processor.stopWork(request.workSpec.id)
+            processor.stopWork(workRunId)
         }
         assertTrue((firstWorker as StopLatchWorker).awaitOnStopCall())
         // onStop call results in onExecuted. It happens on "main thread", which is instant
@@ -133,7 +135,7 @@ class ProcessorTests : DatabaseTest() {
         val executionFinished = CountDownLatch(1)
         processor.addExecutionListener { _, _ -> executionFinished.countDown() }
         // This would have previously failed trying to acquire a lock
-        processor.startWork(request.workSpec.id)
+        processor.startWork(WorkRunId(request2.workSpec.id))
         val secondWorker =
             runBlocking { lastCreatedWorker.filterNotNull().filter { it != firstWorker }.first() }
         (secondWorker as StopLatchWorker).countDown()

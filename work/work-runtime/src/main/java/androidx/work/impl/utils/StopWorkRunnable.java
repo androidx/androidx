@@ -20,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.work.Logger;
 import androidx.work.impl.WorkManagerImpl;
+import androidx.work.impl.WorkRunId;
 
 /**
  * A {@link Runnable} that requests {@link androidx.work.impl.Processor} to stop the work
@@ -31,12 +32,12 @@ public class StopWorkRunnable implements Runnable {
     private static final String TAG = Logger.tagWithPrefix("StopWorkRunnable");
 
     private final WorkManagerImpl mWorkManagerImpl;
-    private final String mWorkSpecId;
+    private final WorkRunId mWorkSpecId;
     private final boolean mStopInForeground;
 
     public StopWorkRunnable(
             @NonNull WorkManagerImpl workManagerImpl,
-            @NonNull String workSpecId,
+            @NonNull WorkRunId workSpecId,
             boolean stopInForeground) {
         mWorkManagerImpl = workManagerImpl;
         mWorkSpecId = workSpecId;
@@ -48,7 +49,7 @@ public class StopWorkRunnable implements Runnable {
         if (mStopInForeground) {
             isStopped = mWorkManagerImpl
                     .getProcessor()
-                    .stopForegroundWork(mWorkSpecId);
+                    .stopForegroundWork(mWorkSpecId.getWorkSpecId());
         } else {
             // This call is safe to make for foreground work because Processor ignores requests
             // to stop for foreground work.
@@ -59,7 +60,8 @@ public class StopWorkRunnable implements Runnable {
 
         Logger.get().debug(
                 TAG,
-                "StopWorkRunnable for " + mWorkSpecId + "; Processor.stopWork = " + isStopped);
+                "StopWorkRunnable for " + mWorkSpecId.getWorkSpecId() + "; Processor.stopWork = "
+                        + isStopped);
 
     }
 }
