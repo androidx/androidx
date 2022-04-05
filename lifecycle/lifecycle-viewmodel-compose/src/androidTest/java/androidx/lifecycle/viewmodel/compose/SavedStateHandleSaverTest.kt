@@ -166,6 +166,96 @@ class SavedStateHandleSaverTest {
         assertThat((state as SnapshotMutableState).policy)
             .isEqualTo(referentialEqualityPolicy<CustomState>())
     }
+
+    @OptIn(SavedStateHandleSaveableApi::class)
+    @Test
+    fun delegate_simpleRestore() {
+        var savedStateHandle: SavedStateHandle? = null
+        var array: IntArray? = null
+        activityTestRuleScenario.scenario.onActivity { activity ->
+            activity.setContent {
+                val viewModel = viewModel<SavingTestViewModel>(activity)
+                savedStateHandle = viewModel.savedStateHandle
+                val arrayProperty: IntArray by viewModel.savedStateHandle.saveable<IntArray> {
+                    intArrayOf(0)
+                }
+                array = arrayProperty
+            }
+        }
+
+        assertThat(array).isEqualTo(intArrayOf(0))
+        assertThat(savedStateHandle?.keys()).isEqualTo(setOf("arrayProperty"))
+
+        activityTestRuleScenario.scenario.onActivity {
+            array!![0] = 1
+            // we null both to ensure recomposition happened
+            array = null
+            savedStateHandle = null
+        }
+
+        activityTestRuleScenario.scenario.recreate()
+
+        activityTestRuleScenario.scenario.onActivity { activity ->
+            activity.setContent {
+                val viewModel = viewModel<SavingTestViewModel>(activity)
+                savedStateHandle = viewModel.savedStateHandle
+                val arrayProperty: IntArray by viewModel.savedStateHandle.saveable<IntArray> {
+                    intArrayOf(0)
+                }
+                array = arrayProperty
+            }
+        }
+
+        assertThat(array).isEqualTo(intArrayOf(1))
+        assertThat(savedStateHandle?.keys()).isEqualTo(setOf("arrayProperty"))
+    }
+
+    @OptIn(SavedStateHandleSaveableApi::class)
+    @Test
+    fun mutableState_delegate_simpleRestore() {
+        var savedStateHandle: SavedStateHandle? = null
+        var getCount: (() -> Int)? = null
+        var setCount: ((Int) -> Unit)? = null
+        activityTestRuleScenario.scenario.onActivity { activity ->
+            activity.setContent {
+                val viewModel = viewModel<SavingTestViewModel>(activity)
+                savedStateHandle = viewModel.savedStateHandle
+                var count by viewModel.savedStateHandle.saveable {
+                    mutableStateOf(0)
+                }
+                getCount = { count }
+                setCount = { count = it }
+            }
+        }
+
+        assertThat(getCount!!()).isEqualTo(0)
+        assertThat(savedStateHandle?.keys()).isEqualTo(setOf("count"))
+
+        activityTestRuleScenario.scenario.onActivity {
+            setCount!!(1)
+            // we null all to ensure recomposition happened
+            getCount = null
+            setCount = null
+            savedStateHandle = null
+        }
+
+        activityTestRuleScenario.scenario.recreate()
+
+        activityTestRuleScenario.scenario.onActivity { activity ->
+            activity.setContent {
+                val viewModel = viewModel<SavingTestViewModel>(activity)
+                savedStateHandle = viewModel.savedStateHandle
+                var count by viewModel.savedStateHandle.saveable {
+                    mutableStateOf(0)
+                }
+                getCount = { count }
+                setCount = { count = it }
+            }
+        }
+
+        assertThat(getCount!!()).isEqualTo(1)
+        assertThat(savedStateHandle?.keys()).isEqualTo(setOf("count"))
+    }
 }
 
 class SavingTestViewModel(val savedStateHandle: SavedStateHandle) : ViewModel()
