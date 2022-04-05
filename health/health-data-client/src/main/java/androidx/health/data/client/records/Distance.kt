@@ -15,7 +15,6 @@
  */
 package androidx.health.data.client.records
 
-import androidx.annotation.RestrictTo
 import androidx.health.data.client.aggregate.DoubleAggregateMetric
 import androidx.health.data.client.metadata.Metadata
 import java.time.Instant
@@ -25,9 +24,12 @@ import java.time.ZoneOffset
  * Captures distance travelled by the user since the last reading, in meters. The total distance
  * over an interval can be calculated by adding together all the values during the interval. The
  * start time of each record should represent the start of the interval in which the distance was
- * covered. The start time must be equal to or greater than the end time of the previous data point.
+ * covered.
+ *
+ * If break downs are preferred in scenario of a long workout, consider writing multiple distance
+ * records. The start time of each record should be equal to or greater than the end time of the
+ * previous record.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class Distance(
     /** Distance in meters. Required field. Valid range: 0-1000000. */
     public val distanceMeters: Double,
@@ -61,10 +63,10 @@ public class Distance(
         return result
     }
 
-    companion object {
+    internal companion object {
         /** Metric identifier to retrieve total distance from [AggregateDataRow]. */
         @JvmStatic
-        val DISTANCE_TOTAL: DoubleAggregateMetric =
+        internal val DISTANCE_TOTAL: DoubleAggregateMetric =
             DoubleAggregateMetric("Distance", "total", "distance")
     }
 }
