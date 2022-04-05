@@ -17,9 +17,17 @@
 
 package androidx.room.paging.util
 
+import android.database.Cursor
 import androidx.annotation.RestrictTo
 import androidx.paging.PagingSource
+import androidx.paging.PagingSource.LoadParams
+import androidx.paging.PagingSource.LoadParams.Prepend
+import androidx.paging.PagingSource.LoadParams.Append
+import androidx.paging.PagingSource.LoadParams.Refresh
+import androidx.paging.PagingSource.LoadResult
 import androidx.paging.PagingState
+import androidx.room.RoomDatabase
+import androidx.room.RoomSQLiteQuery
 
 /**
  * Calculates query limit based on LoadType.
@@ -27,9 +35,9 @@ import androidx.paging.PagingState
  * Prepend: If requested loadSize is larger than available number of items to prepend, it will
  * query with OFFSET = 0, LIMIT = prevKey
  */
-fun getLimit(params: PagingSource.LoadParams<Int>, key: Int): Int {
+fun getLimit(params: LoadParams<Int>, key: Int): Int {
     return when (params) {
-        is PagingSource.LoadParams.Prepend ->
+        is Prepend ->
             if (key < params.loadSize) {
                 key
             } else {
@@ -61,21 +69,109 @@ fun getLimit(params: PagingSource.LoadParams<Int>, key: Int): Int {
  * viewed item, hypothetically [getClippedRefreshKey] may return key = 60. If loadSize = 10, then items
  * 31-40 will be loaded.
  */
-fun getOffset(params: PagingSource.LoadParams<Int>, key: Int, itemCount: Int): Int {
+fun getOffset(params: LoadParams<Int>, key: Int, itemCount: Int): Int {
     return when (params) {
-        is PagingSource.LoadParams.Prepend ->
+        is Prepend ->
             if (key < params.loadSize) {
                 0
             } else {
                 key - params.loadSize
             }
-        is PagingSource.LoadParams.Append -> key
-        is PagingSource.LoadParams.Refresh ->
+        is Append -> key
+        is Refresh ->
             if (key >= itemCount) {
                 maxOf(0, itemCount - params.loadSize)
             } else {
                 key
             }
+    }
+}
+
+/**
+ * calls RoomDatabase.query() to return a cursor and then calls convertRows() to extract and
+ * return list of data
+ *
+ * throws [IllegalArgumentException] from CursorUtil if column does not exist
+ *
+ * @param params load params to calculate query limit and offset
+ *
+ * @param sourceQuery user provided [RoomSQLiteQuery] for database query
+ *
+ * @param db the [RoomDatabase] to query from
+ *
+ * @param itemCount the db row count, triggers a new PagingSource generation if itemCount changes,
+ * i.e. items are added / removed
+ *
+ * @param convertRows the function to iterate data with provided [Cursor] to return List<Value>
+ */
+fun <Value : Any> queryDatabase(
+    params: LoadParams<Int>,
+    sourceQuery: RoomSQLiteQuery,
+    db: RoomDatabase,
+    itemCount: Int,
+    convertRows: (Cursor) -> List<Value>,
+): LoadResult<Int, Value> {
+    val key = params.key ?: 0
+    val limit: Int = getLimit(params, key)
+    val offset: Int = getOffset(params, key, itemCount)
+    val limitOffsetQuery =
+        "SELECT * FROM ( ${sourceQuery.sql} ) LIMIT $limit OFFSET $offset"
+    val sqLiteQuery: RoomSQLiteQuery = RoomSQLiteQuery.acquire(
+        limitOffsetQuery,
+        sourceQuery.argCount
+    )
+    sqLiteQuery.copyArgumentsFrom(sourceQuery)
+    val cursor = db.query(sqLiteQuery)
+    val data: List<Value>
+    try {
+        data = convertRows(cursor)
+    } finally {
+        cursor.close()
+        sqLiteQuery.release()
+    }
+    val nextPosToLoad = offset + data.size
+    val nextKey =
+        if (data.isEmpty() || data.size < limit || nextPosToLoad >= itemCount) {
+            null
+        } else {
+            nextPosToLoad
+        }
+    val prevKey = if (offset <= 0 || data.isEmpty()) null else offset
+    return LoadResult.Page(
+        data = data,
+        prevKey = prevKey,
+        nextKey = nextKey,
+        itemsBefore = offset,
+        itemsAfter = maxOf(0, itemCount - nextPosToLoad)
+    )
+}
+
+/**
+ * returns count of requested items to calculate itemsAfter and itemsBefore for use in creating
+ * LoadResult.Page<>
+ *
+ * throws error when the column value is null, the column type is not an integral type,
+ * or the integer value is outside the range [Integer.MIN_VALUE, Integer.MAX_VALUE]
+ */
+fun queryItemCount(
+    sourceQuery: RoomSQLiteQuery,
+    db: RoomDatabase
+): Int {
+    val countQuery = "SELECT COUNT(*) FROM ( ${sourceQuery.sql} )"
+    val sqLiteQuery: RoomSQLiteQuery = RoomSQLiteQuery.acquire(
+        countQuery,
+        sourceQuery.argCount
+    )
+    sqLiteQuery.copyArgumentsFrom(sourceQuery)
+    val cursor: Cursor = db.query(sqLiteQuery)
+    try {
+        if (cursor.moveToFirst()) {
+            return cursor.getInt(0)
+        }
+        return 0
+    } finally {
+        cursor.close()
+        sqLiteQuery.release()
     }
 }
 
