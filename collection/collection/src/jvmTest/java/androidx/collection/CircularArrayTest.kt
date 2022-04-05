@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,132 +13,142 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.collection
 
-package androidx.collection;
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-
-@RunWith(JUnit4.class)
 public class CircularArrayTest {
-    private static final String ELEMENT_X = "x";
-    private static final String ELEMENT_Y = "y";
-    private static final String ELEMENT_Z = "z";
+    private val ELEMENT_X = "x"
+    private val ELEMENT_Y = "y"
+    private val ELEMENT_Z = "z"
 
-    @Test(expected = IllegalArgumentException.class)
-    public void creatingWithZeroCapacity() {
-        new CircularArray<String>(0);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void creatingWithOverCapacity() {
-        new CircularArray<String>(Integer.MAX_VALUE);
+    @Test
+    public fun creatingWithZeroCapacity() {
+        assertFailsWith<IllegalArgumentException> {
+            CircularArray<String>(0)
+        }
     }
 
     @Test
-    public void basicOperations() {
-        CircularArray<String> array = new CircularArray<>();
-
-        assertTrue(array.isEmpty());
-        assertEquals(0, array.size());
-        array.addFirst(ELEMENT_X);
-        array.addFirst(ELEMENT_Y);
-        array.addLast(ELEMENT_Z);
-        assertFalse(array.isEmpty());
-        assertEquals(3, array.size());
-
-        assertEquals(ELEMENT_Y, array.getFirst());
-        assertEquals(ELEMENT_Z, array.getLast());
-        assertEquals(ELEMENT_X, array.get(1));
-
-        assertEquals(ELEMENT_Y, array.popFirst());
-        assertEquals(ELEMENT_Z, array.popLast());
-        assertEquals(ELEMENT_X, array.getFirst());
-        assertEquals(ELEMENT_X, array.getLast());
-        assertEquals(ELEMENT_X, array.popFirst());
-        assertTrue(array.isEmpty());
-        assertEquals(0, array.size());
-    }
-
-    @Test(expected = ArrayIndexOutOfBoundsException.class)
-    public void overpoppingFromStart() {
-        CircularArray<String> array = new CircularArray<>();
-        array.addFirst(ELEMENT_X);
-        array.popFirst();
-        array.popFirst();
-    }
-
-    @Test(expected = ArrayIndexOutOfBoundsException.class)
-    public void overpoppingFromEnd() {
-        CircularArray<String> array = new CircularArray<>();
-        array.addFirst(ELEMENT_X);
-        array.popLast();
-        array.popLast();
+    public fun creatingWithOverCapacity() {
+        assertFailsWith<IllegalArgumentException> {
+            CircularArray<String>(Int.MAX_VALUE)
+        }
     }
 
     @Test
-    public void removeFromEitherEnd() {
-        CircularArray<String> array = new CircularArray<>();
-        array.addFirst(ELEMENT_X);
-        array.addFirst(ELEMENT_Y);
-        array.addLast(ELEMENT_Z);
+    public fun basicOperations() {
+        val array = CircularArray<String>()
+        assertTrue(array.isEmpty())
+        assertEquals(0, array.size())
+        array.addFirst(ELEMENT_X)
+        array.addFirst(ELEMENT_Y)
+        array.addLast(ELEMENT_Z)
+        assertFalse(array.isEmpty())
+        assertEquals(3, array.size())
+        assertEquals(ELEMENT_Y, array.first)
+        assertEquals(ELEMENT_Z, array.last)
+        assertEquals(ELEMENT_X, array[1])
+        assertEquals(ELEMENT_Y, array.popFirst())
+        assertEquals(ELEMENT_Z, array.popLast())
+        assertEquals(ELEMENT_X, array.first)
+        assertEquals(ELEMENT_X, array.last)
+        assertEquals(ELEMENT_X, array.popFirst())
+        assertTrue(array.isEmpty())
+        assertEquals(0, array.size())
+    }
+
+    @Test
+    public fun overpoppingFromStart() {
+        val array = CircularArray<String>()
+        array.addFirst(ELEMENT_X)
+        array.popFirst()
+        assertFailsWith<IndexOutOfBoundsException> {
+            array.popFirst()
+        }
+    }
+
+    @Test
+    public fun overpoppingFromEnd() {
+
+        val array = CircularArray<String>()
+        array.addFirst(ELEMENT_X)
+        array.popLast()
+        assertFailsWith<IndexOutOfBoundsException> {
+            array.popLast()
+        }
+    }
+
+    @Test
+    public fun removeFromEitherEnd() {
+        val array = CircularArray<String>()
+        array.addFirst(ELEMENT_X)
+        array.addFirst(ELEMENT_Y)
+        array.addLast(ELEMENT_Z)
 
         // These are no-ops.
-        array.removeFromStart(0);
-        array.removeFromStart(-1);
-        array.removeFromEnd(0);
-        array.removeFromEnd(-1);
-
-        array.removeFromStart(2);
-        assertEquals(ELEMENT_Z, array.getFirst());
-        array.removeFromEnd(1);
-        assertTrue(array.isEmpty());
-        assertEquals(0, array.size());
-    }
-
-    @Test(expected = ArrayIndexOutOfBoundsException.class)
-    public void overremovalFromStart() {
-        CircularArray<String> array = new CircularArray<>();
-        array.addFirst(ELEMENT_X);
-        array.addFirst(ELEMENT_Y);
-        array.addLast(ELEMENT_Z);
-        array.removeFromStart(4);
-    }
-
-    @Test(expected = ArrayIndexOutOfBoundsException.class)
-    public void overremovalFromEnd() {
-        CircularArray<String> array = new CircularArray<>();
-        array.addFirst(ELEMENT_X);
-        array.addFirst(ELEMENT_Y);
-        array.addLast(ELEMENT_Z);
-        array.removeFromEnd(4);
+        array.removeFromStart(0)
+        array.removeFromStart(-1)
+        array.removeFromEnd(0)
+        array.removeFromEnd(-1)
+        array.removeFromStart(2)
+        assertEquals(ELEMENT_Z, array.first)
+        array.removeFromEnd(1)
+        assertTrue(array.isEmpty())
+        assertEquals(0, array.size())
     }
 
     @Test
-    public void grow() {
-        CircularArray<String> array = new CircularArray<>(1);
-        final int expectedSize = 32768;
-        for (int i = 0; i < expectedSize; i++) {
-            array.addFirst("String " + i);
+    public fun overremovalFromStart() {
+
+        val array = CircularArray<String>()
+        array.addFirst(ELEMENT_X)
+        array.addFirst(ELEMENT_Y)
+        array.addLast(ELEMENT_Z)
+        assertFailsWith<IndexOutOfBoundsException> {
+            array.removeFromStart(4)
         }
-        assertEquals(expectedSize, array.size());
     }
 
-    @Test(expected = ArrayIndexOutOfBoundsException.class)
-    public void storeAndRetrieveNull() {
-        CircularArray<String> array = new CircularArray<>(1);
-        array.addFirst(null);
-        assertNull(array.popFirst());
-        array.addLast(null);
-        assertNull(array.popLast());
+    @Test
+    public fun overremovalFromEnd() {
+
+        val array = CircularArray<String>()
+        array.addFirst(ELEMENT_X)
+        array.addFirst(ELEMENT_Y)
+        array.addLast(ELEMENT_Z)
+        assertFailsWith<IndexOutOfBoundsException> {
+            array.removeFromEnd(4)
+        }
+    }
+
+    @Test
+    public fun grow() {
+        val array = CircularArray<String>(1)
+        val expectedSize = 32768
+        repeat(expectedSize) {
+            array.addFirst("String $it")
+        }
+        assertEquals(expectedSize, array.size())
+    }
+
+    @Test
+    public fun storeAndRetrieveNull() {
+
+        val array = CircularArray<String?>(1)
+        array.addFirst(null)
+        assertNull(array.popFirst())
+        array.addLast(null)
+        assertNull(array.popLast())
 
         // Collection is empty so this should throw.
-        array.popLast();
+        assertFailsWith<IndexOutOfBoundsException> {
+            array.popLast()
+        }
     }
 }
