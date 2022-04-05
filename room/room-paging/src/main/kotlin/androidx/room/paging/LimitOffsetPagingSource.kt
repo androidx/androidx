@@ -21,14 +21,13 @@ import androidx.annotation.NonNull
 import androidx.annotation.RestrictTo
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import androidx.room.InvalidationTracker
 import androidx.room.RoomDatabase
 import androidx.room.RoomSQLiteQuery
 import androidx.room.getQueryDispatcher
+import androidx.room.paging.util.ThreadSafeInvalidationObserver
 import androidx.room.withTransaction
 import androidx.sqlite.db.SupportSQLiteQuery
 import kotlinx.coroutines.withContext
-import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
@@ -60,16 +59,14 @@ abstract class LimitOffsetPagingSource<Value : Any>(
 
     internal val itemCount: AtomicInteger = AtomicInteger(-1)
 
-    private val observer = object : InvalidationTracker.Observer(tables) {
-        override fun onInvalidated(tables: MutableSet<String>) {
-            invalidate()
-        }
-    }
-    private val registeredObserver: AtomicBoolean = AtomicBoolean(false)
+    private val observer = ThreadSafeInvalidationObserver(
+        tables = tables,
+        onInvalidated = ::invalidate
+    )
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Value> {
         return withContext(db.getQueryDispatcher()) {
-            registerObserverIfNecessary()
+            observer.registerIfNecessary(db)
             val tempCount = itemCount.get()
             // if itemCount is < 0, then it is initial load
             if (tempCount < 0) {
@@ -240,12 +237,6 @@ abstract class LimitOffsetPagingSource<Value : Any>(
 
     @NonNull
     protected abstract fun convertRows(cursor: Cursor): List<Value>
-
-    private fun registerObserverIfNecessary() {
-        if (registeredObserver.compareAndSet(false, true)) {
-            db.invalidationTracker.addWeakObserver(observer)
-        }
-    }
 
     /**
      *  It is unknown whether anchorPosition represents the item at the top of the screen or item at
