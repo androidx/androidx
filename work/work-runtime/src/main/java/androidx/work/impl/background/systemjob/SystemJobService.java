@@ -37,6 +37,8 @@ import androidx.work.Logger;
 import androidx.work.WorkerParameters;
 import androidx.work.impl.ExecutionListener;
 import androidx.work.impl.WorkManagerImpl;
+import androidx.work.impl.WorkRunId;
+import androidx.work.impl.WorkRunIds;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -53,6 +55,7 @@ public class SystemJobService extends JobService implements ExecutionListener {
     private static final String TAG = Logger.tagWithPrefix("SystemJobService");
     private WorkManagerImpl mWorkManagerImpl;
     private final Map<String, JobParameters> mJobParameters = new HashMap<>();
+    private final WorkRunIds mWorkRunIds = new WorkRunIds();
 
     @Override
     public void onCreate() {
@@ -145,7 +148,7 @@ public class SystemJobService extends JobService implements ExecutionListener {
         // In such cases, we rely on SystemJobService to ask for a reschedule by calling
         // jobFinished(params, true) in onExecuted(...);
         // For more information look at b/123211993
-        mWorkManagerImpl.startWork(workSpecId, runtimeExtras);
+        mWorkManagerImpl.startWork(mWorkRunIds.workRunIdFor(workSpecId), runtimeExtras);
         return true;
     }
 
@@ -167,7 +170,10 @@ public class SystemJobService extends JobService implements ExecutionListener {
         synchronized (mJobParameters) {
             mJobParameters.remove(workSpecId);
         }
-        mWorkManagerImpl.stopWork(workSpecId);
+        WorkRunId runId = mWorkRunIds.remove(workSpecId);
+        if (runId != null) {
+            mWorkManagerImpl.stopWork(runId);
+        }
         return !mWorkManagerImpl.getProcessor().isCancelled(workSpecId);
     }
 
@@ -178,6 +184,7 @@ public class SystemJobService extends JobService implements ExecutionListener {
         synchronized (mJobParameters) {
             parameters = mJobParameters.remove(workSpecId);
         }
+        mWorkRunIds.remove(workSpecId);
         if (parameters != null) {
             jobFinished(parameters, needsReschedule);
         }

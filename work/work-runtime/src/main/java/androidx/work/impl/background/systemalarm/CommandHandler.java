@@ -28,6 +28,8 @@ import androidx.work.Logger;
 import androidx.work.impl.ExecutionListener;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
+import androidx.work.impl.WorkRunId;
+import androidx.work.impl.WorkRunIds;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
 
@@ -109,9 +111,11 @@ public class CommandHandler implements ExecutionListener {
     private final Context mContext;
     private final Map<String, ExecutionListener> mPendingDelayMet;
     private final Object mLock;
+    private final WorkRunIds mWorkRunIds;
 
-    CommandHandler(@NonNull Context context) {
+    CommandHandler(@NonNull Context context, @NonNull WorkRunIds workRunIds) {
         mContext = context;
+        mWorkRunIds = workRunIds;
         mPendingDelayMet = new HashMap<>();
         mLock = new Object();
     }
@@ -264,7 +268,8 @@ public class CommandHandler implements ExecutionListener {
             // If we are, then there is nothing for us to do.
             if (!mPendingDelayMet.containsKey(workSpecId)) {
                 DelayMetCommandHandler delayMetCommandHandler =
-                        new DelayMetCommandHandler(mContext, startId, workSpecId, dispatcher);
+                        new DelayMetCommandHandler(mContext, startId, workSpecId,
+                                dispatcher, mWorkRunIds);
                 mPendingDelayMet.put(workSpecId, delayMetCommandHandler);
                 delayMetCommandHandler.handleProcessWork();
             } else {
@@ -282,7 +287,10 @@ public class CommandHandler implements ExecutionListener {
         String workSpecId = extras.getString(KEY_WORKSPEC_ID);
         Logger.get().debug(TAG, "Handing stopWork work for " + workSpecId);
 
-        dispatcher.getWorkManager().stopWork(workSpecId);
+        WorkRunId runId = mWorkRunIds.remove(workSpecId);
+        if (runId != null) {
+            dispatcher.getWorkManager().stopWork(runId);
+        }
         Alarms.cancelAlarm(mContext, dispatcher.getWorkManager(), workSpecId);
 
         // Notify dispatcher, so it can clean up.
