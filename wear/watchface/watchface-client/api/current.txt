@@ -203,6 +203,22 @@ package androidx.wear.watchface.client {
     ctor public WatchFaceControlClient.ServiceStartFailureException(optional String message);
   }
 
+  public final class WatchFaceException extends java.lang.Exception {
+    ctor public WatchFaceException(Exception e, int reason);
+    method public int getReason();
+    property public final int reason;
+    field public static final androidx.wear.watchface.client.WatchFaceException.Companion Companion;
+    field public static final int TRANSACTION_TOO_LARGE = 2; // 0x2
+    field public static final int UNKNOWN = 3; // 0x3
+    field public static final int WATCHFACE_DIED = 1; // 0x1
+  }
+
+  public static final class WatchFaceException.Companion {
+  }
+
+  public final class WatchFaceExceptionKt {
+  }
+
   public final class WatchFaceId {
     ctor public WatchFaceId(String id);
     method public String getId();
@@ -210,8 +226,8 @@ package androidx.wear.watchface.client {
   }
 
   public interface WatchFaceMetadataClient extends java.lang.AutoCloseable {
-    method @kotlin.jvm.Throws(exceptionClasses=WatchFaceException::class) public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationSlotMetadata> getComplicationSlotMetadataMap() throws androidx.wear.watchface.client.WatchFaceMetadataClient.WatchFaceException;
-    method @kotlin.jvm.Throws(exceptionClasses=WatchFaceException::class) public androidx.wear.watchface.style.UserStyleSchema getUserStyleSchema() throws androidx.wear.watchface.client.WatchFaceMetadataClient.WatchFaceException;
+    method @kotlin.jvm.Throws(exceptionClasses=WatchFaceException::class) public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationSlotMetadata> getComplicationSlotMetadataMap() throws androidx.wear.watchface.client.WatchFaceException;
+    method @kotlin.jvm.Throws(exceptionClasses=WatchFaceException::class) public androidx.wear.watchface.style.UserStyleSchema getUserStyleSchema() throws androidx.wear.watchface.client.WatchFaceException;
     method public boolean isUserStyleSchemaStatic();
     property public abstract boolean isUserStyleSchemaStatic;
     field public static final androidx.wear.watchface.client.WatchFaceMetadataClient.Companion Companion;
@@ -227,19 +243,6 @@ package androidx.wear.watchface.client {
 
   public static final class WatchFaceMetadataClient.ServiceStartFailureException extends java.lang.Exception {
     ctor public WatchFaceMetadataClient.ServiceStartFailureException(optional String message);
-  }
-
-  public static final class WatchFaceMetadataClient.WatchFaceException extends java.lang.Exception {
-    ctor public WatchFaceMetadataClient.WatchFaceException(Exception e, int reason);
-    method public int getReason();
-    property public final int reason;
-    field public static final androidx.wear.watchface.client.WatchFaceMetadataClient.WatchFaceException.Companion Companion;
-    field public static final int TRANSACTION_TOO_LARGE = 2; // 0x2
-    field public static final int UNKNOWN = 3; // 0x3
-    field public static final int WATCHFACE_DIED = 1; // 0x1
-  }
-
-  public static final class WatchFaceMetadataClient.WatchFaceException.Companion {
   }
 
   public final class WatchUiState {
