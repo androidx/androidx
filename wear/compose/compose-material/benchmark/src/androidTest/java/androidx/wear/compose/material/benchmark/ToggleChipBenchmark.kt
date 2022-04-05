@@ -27,6 +27,7 @@ import androidx.compose.testutils.benchmark.benchmarkFirstMeasure
 import androidx.compose.testutils.benchmark.benchmarkLayoutPerf
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.SplitToggleChip
 import androidx.wear.compose.material.Text
@@ -87,7 +88,12 @@ internal class ToggleChipTestCase : LayeredComposeTestCase() {
             onCheckedChange = {},
             enabled = false,
             label = { Text("Label") },
-            toggleControl = { ToggleChipDefaults.CheckboxIcon(checked = true) },
+            toggleControl = {
+                Icon(
+                    imageVector = ToggleChipDefaults.checkboxIcon(checked = true),
+                    contentDescription = null
+                )
+            },
             onClick = {},
         )
     }
