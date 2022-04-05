@@ -22,6 +22,22 @@
 
 extern "C"
 JNIEXPORT jlong JNICALL
+Java_androidx_graphics_surface_SurfaceControlCompat_nCreate(JNIEnv *env, jobject thiz,
+                                                            jlong surfaceControl,
+                                                            jstring debug_name) {
+    if (android_get_device_api_level() >= 29) {
+        auto aSurfaceControl = reinterpret_cast<ASurfaceControl *>(surfaceControl);
+        auto debugName = env->GetStringUTFChars(debug_name, nullptr);
+        return reinterpret_cast<jlong>(ASurfaceControl_create(aSurfaceControl,
+                                                              debugName));
+
+    } else {
+        return 0;
+    }
+}
+
+extern "C"
+JNIEXPORT jlong JNICALL
 Java_androidx_graphics_surface_SurfaceControlCompat_nCreateFromWindow(JNIEnv *env, jobject thiz,
                                                                       jobject surface,
                                                                       jstring debug_name) {
