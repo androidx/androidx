@@ -56,8 +56,8 @@ jobs:
           gh pr create --base ${{ github.event.inputs.target-branch || 'androidx-main' }} \
             --title "Update prebuilts" \
             --body "This CL was created by the update_prebuilts workflow.
-                   ${{ github.event.inputs.comment || '' }}
-                   Bug: n/a
-                   Test: CI"
+            ${{ github.event.inputs.comment || '' }}
+            Bug: n/a
+            Test: CI"
         env:
           GITHUB_TOKEN: ${{ secrets.ANDROIDX_GITHUB_BOT_TOKEN }}
