@@ -17,18 +17,22 @@
 package androidx.wear.compose.integration.demos
 
 import androidx.wear.compose.foundation.samples.CurvedAndNormalText
+import androidx.wear.compose.foundation.samples.CurvedFixedSize
 import androidx.wear.compose.foundation.samples.CurvedRowAndColumn
 import androidx.wear.compose.foundation.samples.SimpleCurvedWorld
 
 val WearFoundationDemos = DemoCategory(
     "Foundation",
     listOf(
-        ComposableDemo("Curved Row") { CurvedWorldDemo() },
-        ComposableDemo("Curved Row and Column") { CurvedRowAndColumn() },
-        ComposableDemo("Simple") { SimpleCurvedWorld() },
-        ComposableDemo("Alignment") { CurvedRowAlignmentDemo() },
-        ComposableDemo("Curved Text") { BasicCurvedTextDemo() },
-        ComposableDemo("Curved and Normal Text") { CurvedAndNormalText() },
+        DemoCategory("CurvedLayout", listOf(
+            ComposableDemo("Curved Row") { CurvedWorldDemo() },
+            ComposableDemo("Curved Row and Column") { CurvedRowAndColumn() },
+            ComposableDemo("Simple") { SimpleCurvedWorld() },
+            ComposableDemo("Alignment") { CurvedRowAlignmentDemo() },
+            ComposableDemo("Curved Text") { BasicCurvedTextDemo() },
+            ComposableDemo("Curved and Normal Text") { CurvedAndNormalText() },
+            ComposableDemo("Fixed size") { CurvedFixedSize() },
+        )),
         ComposableDemo("Scrollable Column") { ScrollableColumnDemo() },
         ComposableDemo("Scrollable Row") { ScrollableRowDemo() },
         DemoCategory("Rotary Input", RotaryInputDemos),

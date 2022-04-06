@@ -17,10 +17,6 @@
 package androidx.wear.compose.foundation
 
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.layout.Measurable
-import androidx.compose.ui.layout.MeasureScope
-import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.sp
 import androidx.test.filters.FlakyTest
@@ -57,47 +53,5 @@ class BasicCurvedTextTest {
             // TODO(b/219885899): Investigate why we need the extra passes.
             assertEquals(CapturedInfo(2, 3, 3), capturedInfo)
         }
-    }
-}
-
-internal data class CapturedInfo(
-    var measuresCount: Int = 0,
-    var layoutsCount: Int = 0,
-    var drawCount: Int = 0
-) {
-    // Used in CurvedLayoutTest
-    var lastLayoutInfo: CurvedLayoutInfo? = null
-    fun reset() {
-        measuresCount = 0
-        layoutsCount = 0
-        drawCount = 0
-        lastLayoutInfo = null
-    }
-}
-
-internal fun CurvedModifier.spy(capturedInfo: CapturedInfo) =
-    this.then { wrapped -> SpyCurvedChildWrapper(capturedInfo, wrapped) }
-
-internal class SpyCurvedChildWrapper(private val capturedInfo: CapturedInfo, wrapped: CurvedChild) :
-    BaseCurvedChildWrapper(wrapped) {
-
-    override fun MeasureScope.initializeMeasure(
-        measurables: List<Measurable>,
-        index: Int
-    ): Int = with(wrapped) {
-        capturedInfo.measuresCount++
-        initializeMeasure(measurables, index)
-    }
-
-    override fun (Placeable.PlacementScope).placeIfNeeded() = with(wrapped) {
-        capturedInfo.lastLayoutInfo = layoutInfo
-        capturedInfo.layoutsCount++
-        placeIfNeeded()
-    }
-
-    override fun DrawScope.draw() = with(wrapped) {
-        capturedInfo.lastLayoutInfo = layoutInfo
-        capturedInfo.drawCount++
-        draw()
     }
 }
