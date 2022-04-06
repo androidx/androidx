@@ -37,7 +37,6 @@ import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
-import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
@@ -57,6 +56,9 @@ import androidx.camera.camera2.impl.CameraEventCallbacks;
 import androidx.camera.camera2.internal.CaptureSession.State;
 import androidx.camera.camera2.internal.compat.params.OutputConfigurationCompat;
 import androidx.camera.camera2.internal.compat.params.SessionConfigurationCompat;
+import androidx.camera.camera2.internal.compat.quirk.ConfigureSurfaceToSecondarySessionFailQuirk;
+import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks;
+import androidx.camera.camera2.internal.compat.quirk.PreviewOrientationIncorrectQuirk;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureCallbacks;
 import androidx.camera.core.impl.CameraCaptureResult;
@@ -64,6 +66,7 @@ import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImmediateSurface;
 import androidx.camera.core.impl.MutableOptionsBundle;
+import androidx.camera.core.impl.Quirks;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
@@ -90,6 +93,7 @@ import org.mockito.InOrder;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -163,7 +167,7 @@ public final class CaptureSessionTest {
 
         mCaptureSessionOpenerBuilder = new SynchronizedCaptureSessionOpener.Builder(mExecutor,
                 mScheduledExecutor, mHandler, mCaptureSessionRepository,
-                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL);
+                new Quirks(new ArrayList<>()), DeviceQuirks.getAll());
 
         mCameraDeviceHolder = CameraUtil.getCameraDevice(
                 mCaptureSessionRepository.getCameraStateCallback());
@@ -633,9 +637,7 @@ public final class CaptureSessionTest {
         assertThat(captureSession.getState()).isEqualTo(State.OPENED);
 
         SynchronizedCaptureSession syncCaptureSession = captureSession.mSynchronizedCaptureSession;
-        assertFutureCompletes(syncCaptureSession.getSynchronizedBlocker(
-                SynchronizedCaptureSessionOpener.FEATURE_WAIT_FOR_REQUEST), 5,
-                TimeUnit.SECONDS);
+        assertFutureCompletes(syncCaptureSession.getOpeningBlocker(), 5, TimeUnit.SECONDS);
 
         verify(mTestParameters0.mCamera2CaptureCallback, timeout(3000).atLeastOnce())
                 .onCaptureStarted(any(CameraCaptureSession.class), any(CaptureRequest.class),
@@ -646,7 +648,8 @@ public final class CaptureSessionTest {
     public void surfaceTerminationFutureIsCalledWhenSessionIsClose() throws InterruptedException {
         mCaptureSessionOpenerBuilder = new SynchronizedCaptureSessionOpener.Builder(mExecutor,
                 mScheduledExecutor, mHandler, mCaptureSessionRepository,
-                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
+                new Quirks(Arrays.asList(new PreviewOrientationIncorrectQuirk())),
+                DeviceQuirks.getAll());
 
         CaptureSession captureSession = createCaptureSession();
         captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
@@ -758,7 +761,8 @@ public final class CaptureSessionTest {
             throws ExecutionException, InterruptedException {
         mCaptureSessionOpenerBuilder = new SynchronizedCaptureSessionOpener.Builder(mExecutor,
                 mScheduledExecutor, mHandler, mCaptureSessionRepository,
-                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
+                new Quirks(Arrays.asList(new ConfigureSurfaceToSecondarySessionFailQuirk())),
+                DeviceQuirks.getAll());
 
         CaptureSession captureSession = createCaptureSession();
 

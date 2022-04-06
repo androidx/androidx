@@ -36,6 +36,7 @@ import android.util.Size
 import android.view.Surface
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.internal.compat.CameraManagerCompat
+import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks
 import androidx.camera.camera2.internal.util.RequestProcessorRequest
 import androidx.camera.camera2.interop.CaptureRequestOptions
 import androidx.camera.core.CameraInfo
@@ -171,7 +172,8 @@ class ProcessingCaptureSessionTest(
             executor as ScheduledExecutorService,
             handler,
             captureSessionRepository,
-            camera2CameraInfo.supportedHardwareLevel
+            camera2CameraInfo.cameraQuirks,
+            DeviceQuirks.getAll()
         )
 
         cameraDeviceHolder = CameraUtil.getCameraDevice(
