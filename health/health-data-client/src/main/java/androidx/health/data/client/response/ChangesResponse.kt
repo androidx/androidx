@@ -15,7 +15,6 @@
  */
 package androidx.health.data.client.response
 
-import androidx.annotation.RestrictTo
 import androidx.health.data.client.changes.Change
 
 /**
@@ -24,12 +23,13 @@ import androidx.health.data.client.changes.Change
  * If [changesTokenExpired] is true, clients need to generate a new one. This typically happens when
  * clients have not synced changelog for extended period of time.
  *
- * @property changes List of observed changes from Android Health Platform
- * @property nextChangesToken Changes-token to keep for future calls
- * @property hasMore Whether there are more changes available to be fetched again
+ * @property changes List of observed changes from Android Health Platform.
+ * @property nextChangesToken Changes-token to keep for future calls.
+ * @property hasMore Whether there are more changes available to be fetched again.
  * @property changesTokenExpired Whether requested Changes-Token has expired.
+ *
+ * @see [androidx.health.data.client.HealthDataClient.getChanges]
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 class ChangesResponse
 internal constructor(
     public val changes: List<Change>,

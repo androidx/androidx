@@ -15,16 +15,14 @@
  */
 package androidx.health.data.client.changes
 
-import androidx.annotation.RestrictTo
 import androidx.health.data.client.metadata.Metadata
 import androidx.health.data.client.records.Record
 
 /**
  * A [Change] with [Metadata.uid] of deleted [Record]. For privacy, only unique identifiers of the
  * deletion are returned. Clients holding copies of data should keep a copy of [Metadata.uid] along
- * with its contents, if they want to propagate deletions.
+ * with its contents, if deletion propagation is desired.
  *
- * @property deletedUid [Metadata.uid] of deleted [Record]
+ * @property deletedUid [Metadata.uid] of deleted [Record].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 class DeletionChange internal constructor(public val deletedUid: String) : Change

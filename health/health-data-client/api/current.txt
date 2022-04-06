@@ -4,6 +4,8 @@ package androidx.health.data.client {
   public interface HealthDataClient {
     method public suspend Object? deleteRecords(kotlin.reflect.KClass<? extends androidx.health.data.client.records.Record> recordType, java.util.List<java.lang.String> uidsList, java.util.List<java.lang.String> clientIdsList, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? deleteRecords(kotlin.reflect.KClass<? extends androidx.health.data.client.records.Record> recordType, androidx.health.data.client.time.TimeRangeFilter timeRangeFilter, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? getChanges(String changesToken, kotlin.coroutines.Continuation<? super androidx.health.data.client.response.ChangesResponse>);
+    method public suspend Object? getChangesToken(androidx.health.data.client.request.ChangesTokenRequest request, kotlin.coroutines.Continuation<? super java.lang.String>);
     method public default static androidx.health.data.client.HealthDataClient getOrCreate(android.content.Context context, optional java.util.List<java.lang.String> packageNames);
     method public default static androidx.health.data.client.HealthDataClient getOrCreate(android.content.Context context);
     method public suspend Object? insertRecords(java.util.List<? extends androidx.health.data.client.records.Record> records, kotlin.coroutines.Continuation<? super androidx.health.data.client.response.InsertRecordsResponse>);
@@ -17,6 +19,23 @@ package androidx.health.data.client {
     method public androidx.health.data.client.HealthDataClient getOrCreate(android.content.Context context);
     method public boolean isAvailable(android.content.Context context, optional java.util.List<java.lang.String> packageNames);
     method public boolean isAvailable(android.content.Context context);
+  }
+
+}
+
+package androidx.health.data.client.changes {
+
+  public interface Change {
+  }
+
+  public final class DeletionChange implements androidx.health.data.client.changes.Change {
+    method public String getDeletedUid();
+    property public final String deletedUid;
+  }
+
+  public final class UpsertionChange implements androidx.health.data.client.changes.Change {
+    method public androidx.health.data.client.records.Record getRecord();
+    property public final androidx.health.data.client.records.Record record;
   }
 
 }
@@ -302,7 +321,26 @@ package androidx.health.data.client.records {
 
 }
 
+package androidx.health.data.client.request {
+
+  public final class ChangesTokenRequest {
+    ctor public ChangesTokenRequest(java.util.Set<? extends kotlin.reflect.KClass<? extends androidx.health.data.client.records.Record>> recordTypes, optional java.util.Set<androidx.health.data.client.metadata.DataOrigin> dataOriginFilters);
+  }
+
+}
+
 package androidx.health.data.client.response {
+
+  public final class ChangesResponse {
+    method public java.util.List<androidx.health.data.client.changes.Change> getChanges();
+    method public boolean getChangesTokenExpired();
+    method public boolean getHasMore();
+    method public String getNextChangesToken();
+    property public final java.util.List<androidx.health.data.client.changes.Change> changes;
+    property public final boolean changesTokenExpired;
+    property public final boolean hasMore;
+    property public final String nextChangesToken;
+  }
 
   public final class InsertRecordsResponse {
     method public java.util.List<java.lang.String> getRecordUidsList();
