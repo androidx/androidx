@@ -21,8 +21,7 @@ import static androidx.camera.core.ImageProcessingUtil.rotateYUV;
 import static androidx.camera.testing.ImageProxyUtil.createYUV420ImagePlanes;
 
 import static com.google.common.truth.Truth.assertThat;
-
-import static java.lang.Math.abs;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -32,8 +31,12 @@ import android.graphics.ImageFormat;
 import android.graphics.PixelFormat;
 import android.media.ImageWriter;
 
+import androidx.annotation.IntRange;
+import androidx.annotation.NonNull;
 import androidx.camera.testing.fakes.FakeImageInfo;
 import androidx.camera.testing.fakes.FakeImageProxy;
+import androidx.core.math.MathUtils;
+import androidx.core.util.Preconditions;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
@@ -45,6 +48,7 @@ import org.junit.runner.RunWith;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 
 /**
  * Unit test for {@link ImageProcessingUtil}.
@@ -67,6 +71,10 @@ public class ImageProcessingUtilTest {
     private ByteBuffer mYRotatedBuffer;
     private ByteBuffer mURotatedBuffer;
     private ByteBuffer mVRotatedBuffer;
+    private static final int[] YUV_WHITE_STUDIO_SWING_BT601 = {/*y=*/235, /*u=*/128, /*v=*/128};
+    private static final int[] YUV_BLACK_STUDIO_SWING_BT601 = {/*y=*/16, /*u=*/128, /*v=*/128};
+    private static final int[] YUV_BLUE_STUDIO_SWING_BT601 = {/*y=*/16, /*u=*/240, /*v=*/128};
+    private static final int[] YUV_RED_STUDIO_SWING_BT601 = {/*y=*/16, /*u=*/128, /*v=*/240};
 
     private FakeImageProxy mYUVImageProxy;
     private SafeCloseImageReaderProxy mRGBImageReaderProxy;
@@ -140,27 +148,7 @@ public class ImageProcessingUtilTest {
         Bitmap bitmap = BitmapFactory.decodeByteArray(outputBytes, 0, outputBytes.length);
         assertThat(bitmap.getWidth()).isEqualTo(WIDTH);
         assertThat(bitmap.getHeight()).isEqualTo(HEIGHT);
-        assertBitmapColor(bitmap, Color.RED);
-    }
-
-    /**
-     * Asserts that the given {@link Bitmap} is almost the given color.
-     *
-     * <p>Loops through all the pixels and verify that they are the given color. A small error
-     * is allowed because JPEG is lossy.
-     */
-    private void assertBitmapColor(Bitmap bitmap, int color) {
-        for (int i = 0; i < bitmap.getWidth(); i++) {
-            for (int j = 0; j < bitmap.getHeight(); j++) {
-                int pixelColor = bitmap.getPixel(i, j);
-                // Compare the R, G and B of the pixel to the given color.
-                for (int shift = 16; shift > 0; shift -= 8) {
-                    int pixelRgb = (pixelColor >> shift) & 0xFF;
-                    int rgb = (color >> shift) & 0xFF;
-                    assertThat(abs(pixelRgb - rgb)).isLessThan(JPEG_ENCODE_ERROR_TOLERANCE);
-                }
-            }
-        }
+        assertBitmapColor(bitmap, Color.RED, JPEG_ENCODE_ERROR_TOLERANCE);
     }
 
     /**
@@ -171,7 +159,6 @@ public class ImageProcessingUtilTest {
         // Draw a solid color
         Canvas canvas = new Canvas(bitmap);
         canvas.drawColor(color);
-        canvas.save();
         // Encode to JPEG and return.
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
@@ -361,5 +348,158 @@ public class ImageProcessingUtilTest {
         assertThat(yuvImageProxy.getPlanes().length).isEqualTo(3);
         assertThat(yuvImageProxy.getWidth()).isEqualTo(HEIGHT);
         assertThat(yuvImageProxy.getHeight()).isEqualTo(WIDTH);
+    }
+
+    @Test
+    public void yuvToRGBUsesBT601FullSwing() {
+        // Check that studio swing YUV colors do not scale to full range RGB colors
+        // White
+        int referenceColorRgb = yuvBt601FullSwingToRGB(
+                YUV_WHITE_STUDIO_SWING_BT601[0],
+                YUV_WHITE_STUDIO_SWING_BT601[1],
+                YUV_WHITE_STUDIO_SWING_BT601[2]);
+        assertSolidYUVColorConvertedToRGBMatchesReferenceRGB(YUV_WHITE_STUDIO_SWING_BT601,
+                referenceColorRgb);
+
+        // Black
+        referenceColorRgb = yuvBt601FullSwingToRGB(
+                YUV_BLACK_STUDIO_SWING_BT601[0],
+                YUV_BLACK_STUDIO_SWING_BT601[1],
+                YUV_BLACK_STUDIO_SWING_BT601[2]);
+        assertSolidYUVColorConvertedToRGBMatchesReferenceRGB(YUV_BLACK_STUDIO_SWING_BT601,
+                referenceColorRgb);
+
+        // Blue
+        referenceColorRgb = yuvBt601FullSwingToRGB(
+                YUV_BLUE_STUDIO_SWING_BT601[0],
+                YUV_BLUE_STUDIO_SWING_BT601[1],
+                YUV_BLUE_STUDIO_SWING_BT601[2]);
+        assertSolidYUVColorConvertedToRGBMatchesReferenceRGB(YUV_BLUE_STUDIO_SWING_BT601,
+                referenceColorRgb);
+
+        // Red
+        referenceColorRgb = yuvBt601FullSwingToRGB(
+                YUV_RED_STUDIO_SWING_BT601[0],
+                YUV_RED_STUDIO_SWING_BT601[1],
+                YUV_RED_STUDIO_SWING_BT601[2]);
+        assertSolidYUVColorConvertedToRGBMatchesReferenceRGB(YUV_RED_STUDIO_SWING_BT601,
+                referenceColorRgb);
+    }
+
+    private void assertSolidYUVColorConvertedToRGBMatchesReferenceRGB(int[] yuvColor,
+            int referenceColorRgb) {
+        ImageProxy yuvImageProxy = createYuvImageProxyWithPlanes();
+
+        fillYuvImageProxyWithYUVColor(yuvImageProxy, yuvColor[0], yuvColor[1], yuvColor[2]);
+
+        try (ImageProxy rgbImageProxy = ImageProcessingUtil.convertYUVToRGB(
+                yuvImageProxy,
+                mRGBImageReaderProxy,
+                mRgbConvertedBuffer,
+                /*rotation=*/0,
+                /*onePixelShiftRequested=*/false)) {
+            assertRGBImageProxyColor(rgbImageProxy, referenceColorRgb);
+        }
+    }
+
+    private static void fillYuvImageProxyWithYUVColor(@NonNull ImageProxy imageProxy,
+            @IntRange(from = 0, to = 255) int y,
+            @IntRange(from = 0, to = 255) int u,
+            @IntRange(from = 0, to = 255) int v) {
+        Preconditions.checkArgumentInRange(y, 0, 255, "y");
+        Preconditions.checkArgumentInRange(u, 0, 255, "u");
+        Preconditions.checkArgumentInRange(v, 0, 255, "v");
+
+        // Fill in planes
+        // Y plane
+        fillPlane(imageProxy.getPlanes()[0], (byte) y);
+        // U plane
+        fillPlane(imageProxy.getPlanes()[1], (byte) u);
+        // V plane
+        fillPlane(imageProxy.getPlanes()[2], (byte) v);
+    }
+
+    private static void fillPlane(@NonNull ImageProxy.PlaneProxy plane, byte value) {
+        ByteBuffer buffer = plane.getBuffer();
+        int pixelStride = plane.getPixelStride();
+        // Ignore row stride here, we don't need to be efficient, so we'll fill the padding also.
+        buffer.rewind();
+        while (buffer.hasRemaining()) {
+            int nextPosition = Math.min(buffer.capacity(), buffer.position() + pixelStride);
+            buffer.put(value);
+            buffer.position(nextPosition);
+        }
+    }
+
+    @NonNull
+    private ImageProxy createYuvImageProxyWithPlanes() {
+        FakeImageProxy yuvImageProxy = new FakeImageProxy(new FakeImageInfo());
+        yuvImageProxy.setWidth(WIDTH);
+        yuvImageProxy.setHeight(HEIGHT);
+        yuvImageProxy.setFormat(ImageFormat.YUV_420_888);
+
+        yuvImageProxy.setPlanes(createYUV420ImagePlanes(
+                WIDTH,
+                HEIGHT,
+                PIXEL_STRIDE_Y,
+                PIXEL_STRIDE_UV,
+                /*flipUV=*/true,
+                /*incrementValue=*/false));
+
+        return yuvImageProxy;
+    }
+
+    private static void assertRGBImageProxyColor(ImageProxy rgbImageProxy,
+            int referenceColorRgb) {
+        // Convert to Bitmap
+        ImageProxy.PlaneProxy pixelPlane = Preconditions.checkNotNull(rgbImageProxy).getPlanes()[0];
+        IntBuffer rgbPixelBuf = pixelPlane.getBuffer().asIntBuffer();
+        int rgbBufLength = rgbPixelBuf.capacity();
+        int[] rgbPixelArray = new int[rgbBufLength];
+        rgbPixelBuf.get(rgbPixelArray);
+        Bitmap rgbBitmap = Bitmap.createBitmap(rgbPixelArray, 0,
+                pixelPlane.getRowStride() / pixelPlane.getPixelStride(),
+                WIDTH, HEIGHT, Bitmap.Config.ARGB_8888);
+
+        assertBitmapColor(rgbBitmap, referenceColorRgb, 0);
+    }
+
+    /**
+     * Asserts that the given {@link Bitmap} is almost the given color.
+     *
+     * <p>Loops through all the pixels and verify that they are the given color. The color is
+     * assumed to be correct if the difference between each pixel's color and the provided color
+     * is at most {@code perChannelTolerance}.
+     */
+    private static void assertBitmapColor(Bitmap bitmap, int color, int perChannelTolerance) {
+        for (int i = 0; i < bitmap.getWidth(); i++) {
+            for (int j = 0; j < bitmap.getHeight(); j++) {
+                int pixelColor = bitmap.getPixel(i, j);
+
+                // Compare the R, G and B of the pixel to the given color.
+                for (int shift = 16; shift > 0; shift -= 8) {
+                    int pixelRgb = (pixelColor >> shift) & 0xFF;
+                    int rgb = (color >> shift) & 0xFF;
+                    assertWithMessage(String.format("Color from bitmap (#%08X) does not match "
+                                    + "reference color (#%08X) at col %d, row %d [tolerance: %d]",
+                            pixelColor, color, i, j, perChannelTolerance)
+                    ).that((double) pixelRgb).isWithin(perChannelTolerance).of(rgb);
+                }
+            }
+        }
+    }
+
+    private static int yuvBt601FullSwingToRGB(
+            @IntRange(from = 0, to = 255) int y,
+            @IntRange(from = 0, to = 255) int u,
+            @IntRange(from = 0, to = 255) int v) {
+        // Shift u and v to the range [-128, 127]
+        int _u = u - 128;
+        int _v = v - 128;
+        int r = (int) MathUtils.clamp((y + 0.000000 * _u + 1.402000 * _v), 0, 255);
+        int g = (int) MathUtils.clamp((y - 0.344136 * _u - 0.714136 * _v), 0, 255);
+        int b = (int) MathUtils.clamp((y + 1.772000 * _u + 0.000000 * _v), 0, 255);
+
+        return Color.rgb(r, g, b);
     }
 }
