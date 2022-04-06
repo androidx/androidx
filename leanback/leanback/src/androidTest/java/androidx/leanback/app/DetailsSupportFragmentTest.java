@@ -430,6 +430,7 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
         navigateBetweenRowsAndVideoUsingDPADInternal(DetailsSupportFragmentWithVideo1.class);
     }
 
+    @FlakyTest(bugId = 228336699)
     @Test
     public void navigateBetweenRowsAndVideoUsingDPAD2() throws Throwable {
         navigateBetweenRowsAndVideoUsingDPADInternal(DetailsSupportFragmentWithVideo2.class);
