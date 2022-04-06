@@ -17,11 +17,11 @@
 package androidx.benchmark.integration.macrobenchmark
 
 import android.content.Intent
-import androidx.benchmark.Shell
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.EnergyMetric
 import androidx.benchmark.macro.ExperimentalMetricApi
 import androidx.benchmark.macro.PowerMetric
+import androidx.benchmark.macro.PowerRail
 import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.TotalEnergyMetric
 import androidx.benchmark.macro.TotalPowerMetric
@@ -45,7 +45,7 @@ class TrivialPowerBenchmark() {
 
     @Test
     fun measureEnergyPower() {
-        assumeTrue(hasRailMetrics())
+        assumeTrue(PowerRail.hasMetrics())
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
             metrics = listOf(PowerMetric(), EnergyMetric()),
@@ -64,7 +64,7 @@ class TrivialPowerBenchmark() {
 
     @Test
     fun measureEnergyPowerMultiple() {
-        assumeTrue(hasRailMetrics())
+        assumeTrue(PowerRail.hasMetrics())
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
             metrics = listOf(PowerMetric(), EnergyMetric()),
@@ -98,7 +98,7 @@ class TrivialPowerBenchmark() {
 
     @Test
     fun measureTotalEnergyPower() {
-        assumeTrue(hasRailMetrics())
+        assumeTrue(PowerRail.hasMetrics())
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
             metrics = listOf(TotalEnergyMetric(), TotalPowerMetric()),
@@ -117,7 +117,7 @@ class TrivialPowerBenchmark() {
 
     @Test
     fun measureTotalEnergyPowerMultiple() {
-        assumeTrue(hasRailMetrics())
+        assumeTrue(PowerRail.hasMetrics())
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
             metrics = listOf(TotalPowerMetric(), TotalEnergyMetric()),
@@ -147,25 +147,6 @@ class TrivialPowerBenchmark() {
                 }
             }
         }
-    }
-
-    private fun hasRailMetrics(): Boolean {
-        var commandHal2 = "dumpsys android.hardware.power.stats.IPowerStats/default delta"
-        var commandHal1 = "lshal debug android.hardware.power.stats@1.0::IPowerStats/default delta"
-        var resultHal2 = Shell.executeCommand(commandHal2)
-        var resultHal1 = Shell.executeCommand(commandHal1)
-        if ((resultHal2.isEmpty()) && (resultHal1.isEmpty())) {
-            throw UnsupportedOperationException("""
-                Rail metrics are not available on this device. To check a device for
-                power/energy measurement support, it must output something for one of
-                the following commands:
-
-                adb shell $commandHal2
-                adb shell $commandHal1
-
-                """.trimIndent())
-        }
-        return true
     }
 
     companion object {

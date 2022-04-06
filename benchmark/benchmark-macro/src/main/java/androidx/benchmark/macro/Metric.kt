@@ -21,6 +21,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.benchmark.Shell
+import androidx.benchmark.macro.PowerRail.hasMetrics
 import androidx.benchmark.macro.perfetto.AudioUnderrunQuery
 import androidx.benchmark.macro.perfetto.EnergyQuery
 import androidx.benchmark.macro.perfetto.FrameTimingQuery
@@ -382,7 +383,9 @@ public class EnergyMetric : Metric() {
         internal const val MEASURE_BLOCK_SECTION_NAME = "measureBlock"
     }
 
-    internal override fun configure(packageName: String) {}
+    internal override fun configure(packageName: String) {
+         hasMetrics(throwOnMissingMetrics = true)
+    }
 
     internal override fun start() {}
 
@@ -432,7 +435,9 @@ public class TotalEnergyMetric : Metric() {
         internal const val MEASURE_BLOCK_SECTION_NAME = "measureBlock"
     }
 
-    internal override fun configure(packageName: String) {}
+    internal override fun configure(packageName: String) {
+        hasMetrics(throwOnMissingMetrics = true)
+    }
 
     internal override fun start() {}
 
@@ -482,7 +487,9 @@ public class PowerMetric : Metric() {
         internal const val MEASURE_BLOCK_SECTION_NAME = "measureBlock"
     }
 
-    internal override fun configure(packageName: String) {}
+    internal override fun configure(packageName: String) {
+        hasMetrics(throwOnMissingMetrics = true)
+    }
 
     internal override fun start() {}
 
@@ -533,7 +540,9 @@ public class TotalPowerMetric : Metric() {
         internal const val MEASURE_BLOCK_SECTION_NAME = "measureBlock"
     }
 
-    internal override fun configure(packageName: String) {}
+    internal override fun configure(packageName: String) {
+        hasMetrics(throwOnMissingMetrics = true)
+    }
 
     internal override fun start() {}
 
