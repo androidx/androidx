@@ -15,19 +15,17 @@ on:
         required: false
         default: ''
         type: string
-  push: #remove this before merging, we cannot trigger workflow dispatch outside the main branch
+  push: # remove this before merging.
 jobs:
   update-prebuilts:
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout androidx repo"
         uses: actions/checkout@v2
-#         with:
-#           ref: ${{ github.event.inputs.target-branch || 'androidx-main' }}
       - name: "Set environment variables"
         shell: bash
         run: development/update_playground.sh
-      - name: "see if anything changed"
+      - name: "Check if anything changed"
         shell: bash
         id: "check-for-changes"
         run: |
@@ -35,7 +33,7 @@ jobs:
           git status
           HAS_CHANGES=`git status --porcelain|grep playground\.properties|wc -l`
           echo "::set-output name=has_changes::$HAS_CHANGES"
-      - name: "we have changes"
+      - name: "Create a commit"
         shell: bash
         id: "create-commit"
         if: ${{ steps.check-for-changes.outputs.has_changes >= 1 }}
@@ -48,11 +46,7 @@ jobs:
           git add playground-common/playground.properties
           git commit -m "Update Prebuilts" # PR body overrides this commit message
           git push origin $BRANCH_NAME
-          echo "::set-output name=branch-name::$BRANCH_NAME"
-      - name: Create Pull Request
-        if: ${{ steps.check-for-changes.outputs.has_changes >= 1 }}
-        run: |
-          set -x
+          # create pull request
           gh pr create --base ${{ github.event.inputs.target-branch || 'androidx-main' }} \
             --title "Update prebuilts" \
             --body "This CL was created by the update_prebuilts workflow.
