@@ -69,6 +69,7 @@ import androidx.wear.compose.material.TimeText
 import androidx.wear.compose.material.TitleCard
 import androidx.wear.compose.material.ToggleButton
 import androidx.wear.compose.material.ToggleChip
+import androidx.wear.compose.material.ToggleChipDefaults
 import androidx.wear.compose.material.Vignette
 import androidx.wear.compose.material.VignettePosition
 import androidx.wear.compose.material.curvedText
@@ -201,12 +202,29 @@ fun Chips() {
     ListHeader { Text("Chips") }
     Chip(onClick = {}, colors = ChipDefaults.primaryChipColors()) { Text("Chip") }
     CompactChip(onClick = {}, label = { Text("CompactChip") })
-    ToggleChip(true, onCheckedChange = {}, label = { Text("ToggleChip") })
+    ToggleChip(
+        checked = true,
+        onCheckedChange = {},
+        label = { Text("ToggleChip") },
+        toggleControl = {
+            Icon(
+                imageVector = ToggleChipDefaults.radioIcon(checked = false),
+                contentDescription = null
+            )
+        }
+    )
     SplitToggleChip(
         checked = true,
         onCheckedChange = {},
         label = { Text("SplitToggleChip") },
-        onClick = {})
+        onClick = {},
+        toggleControl = {
+            Icon(
+                imageVector = ToggleChipDefaults.radioIcon(checked = true),
+                contentDescription = null
+            )
+        }
+    )
 }
 
 @Composable

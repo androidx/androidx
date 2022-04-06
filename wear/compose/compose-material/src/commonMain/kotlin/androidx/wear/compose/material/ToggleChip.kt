@@ -92,13 +92,13 @@ import androidx.compose.ui.unit.dp
  * @param onCheckedChange Callback to be invoked when this buttons checked/selected status is
  * @param label A slot for providing the chip's main label. The contents are expected to be text
  * which is "start" aligned.
- * @param modifier Modifier to be applied to the chip
  * @param toggleControl A slot for providing the chip's toggle controls(s). The contents are
  * expected to be a horizontally and vertically centre aligned icon of size
- * [ToggleChipDefaults.IconSize]. Three built-in types of toggle control are supported and can be
- * obtained from [ToggleChipDefaults.SwitchIcon], [ToggleChipDefaults.RadioIcon] and
- * [ToggleChipDefaults.CheckboxIcon]. In order to correctly render when the Chip is not enabled the
+ * [ToggleChipDefaults.IconSize]. Three built-in types of toggle control are supported and
+ * [ImageVector]s can be obtained from [ToggleChipDefaults.switchIcon], [ToggleChipDefaults.radioIcon] and
+ * [ToggleChipDefaults.checkboxIcon]. In order to correctly render when the Chip is not enabled the
  * icon must set its alpha value to [LocalContentAlpha].
+ * @param modifier Modifier to be applied to the chip
  * @param appIcon An optional slot for providing an icon to indicate the purpose of the chip. The
  * contents are expected to be a horizontally and vertically centre aligned icon of size
  * [ToggleChipDefaults.IconSize]. In order to correctly render when the Chip is not enabled the
@@ -125,8 +125,8 @@ public fun ToggleChip(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     label: @Composable () -> Unit,
+    toggleControl: @Composable () -> Unit,
     modifier: Modifier = Modifier,
-    toggleControl: @Composable () -> Unit = { ToggleChipDefaults.CheckboxIcon(checked = checked) },
     appIcon: @Composable (() -> Unit)? = null,
     secondaryLabel: @Composable (() -> Unit)? = null,
     colors: ToggleChipColors = ToggleChipDefaults.toggleChipColors(),
@@ -268,13 +268,13 @@ public fun ToggleChip(
  * which is "start" aligned.
  * @param onClick Click listener called when the user clicks the main body of the chip, the area
  * behind the labels.
- * @param modifier Modifier to be applied to the chip
  * @param toggleControl A slot for providing the chip's toggle controls(s). The contents are
  * expected to be a horizontally and vertically centre aligned icon of size
- * [ToggleChipDefaults.IconSize]. Three built-in types of toggle control are supported and can be
- * obtained from [ToggleChipDefaults.SwitchIcon], [ToggleChipDefaults.RadioIcon] and
- * [ToggleChipDefaults.CheckboxIcon]. In order to correctly render when the Chip is not enabled the
+ * [ToggleChipDefaults.IconSize]. Three built-in types of toggle control are supported and
+ * [ImageVector]s can be obtained from [ToggleChipDefaults.switchIcon], [ToggleChipDefaults.radioIcon]
+ * and [ToggleChipDefaults.checkboxIcon]. In order to correctly render when the Chip is not enabled the
  * icon must set its alpha value to [LocalContentAlpha].
+ * @param modifier Modifier to be applied to the chip
  * @param secondaryLabel A slot for providing the chip's secondary label. The contents are expected
  * to be "start" or "center" aligned. label and secondaryLabel contents should be consistently
  * aligned.
@@ -302,8 +302,8 @@ public fun SplitToggleChip(
     onCheckedChange: (Boolean) -> Unit,
     label: @Composable () -> Unit,
     onClick: () -> Unit,
+    toggleControl: @Composable () -> Unit,
     modifier: Modifier = Modifier,
-    toggleControl: @Composable () -> Unit = { ToggleChipDefaults.CheckboxIcon(checked = checked) },
     secondaryLabel: @Composable (() -> Unit)? = null,
     colors: SplitToggleChipColors = ToggleChipDefaults.splitToggleChipColors(),
     enabled: Boolean = true,
@@ -710,6 +710,12 @@ public object ToggleChipDefaults {
         )
     }
 
+    /**
+     * The Wear Material UX recommended tint color to use for an unselected switch icon.
+     */
+    @Composable
+    public fun switchUncheckedIconColor() = MaterialTheme.colors.onSurface.copy(0.6f)
+
     private val ChipHorizontalPadding = 14.dp
     private val ChipVerticalPadding = 6.dp
 
@@ -724,35 +730,19 @@ public object ToggleChipDefaults {
     )
 
     /**
-     * Creates switch style toggle [Icon]s for use in the toggleControl slot of a [ToggleChip] or
-     * [SplitToggleChip].
+     * Creates switch style toggle [ImageVector]s for use in the toggleControl slot of a
+     * [ToggleChip] or [SplitToggleChip].
      * Depending on [checked] will return either an 'on' (checked) or 'off' (unchecked) switch icon.
      *
      * @param checked whether the [ToggleChip] or [SplitToggleChip] is currently 'on' (checked/true)
      * or 'off' (unchecked/false)
      */
-    @Composable
-    public fun SwitchIcon(
+    public fun switchIcon(
         checked: Boolean,
-    ) {
-        if (checked) {
-            Icon(
-                imageVector = SwitchOn,
-                contentDescription = "Switch selector",
-                modifier = Modifier.size(24.dp),
-            )
-        } else {
-            Icon(
-                imageVector = SwitchOff,
-                contentDescription = "Switch selector",
-                modifier = Modifier.size(24.dp),
-                tint = MaterialTheme.colors.onSurface.copy(0.6f)
-            )
-        }
-    }
+    ): ImageVector = if (checked) SwitchOn else SwitchOff
 
     /**
-     * Creates a radio button style toggle [Icon]s for use in the toggleControl slot of a
+     * Creates a radio button style toggle [ImageVector]s for use in the toggleControl slot of a
      * [ToggleChip] or [SplitToggleChip].
      * Depending on [checked] will return either an 'on' (checked) or 'off' (unchecked) radio button
      * icon.
@@ -760,32 +750,22 @@ public object ToggleChipDefaults {
      * @param checked whether the [ToggleChip] or [SplitToggleChip] is currently 'on' (checked/true)
      * or 'off' (unchecked/false)
      */
-    @Composable
-    public fun RadioIcon(checked: Boolean) {
-        Icon(
-            imageVector = if (checked) RadioOn else RadioOff,
-            contentDescription = "Radio selector",
-            modifier = Modifier.size(24.dp)
-        )
-    }
+    public fun radioIcon(
+        checked: Boolean,
+    ): ImageVector = if (checked) RadioOn else RadioOff
 
     /**
-     * Creates a checkbox style toggle [Icon]s for use in the toggleControl slot of a [ToggleChip]
-     * or [SplitToggleChip].
+     * Creates checkbox style toggle [ImageVector]s for use in the toggleControl slot of a
+     * [ToggleChip] or [SplitToggleChip].
      * Depending on [checked] will return either an 'on' (ticked/checked) or 'off'
-     * (unticked/unchecked) checkbox icon.
+     * (unticked/unchecked) checkbox image.
      *
      * @param checked whether the [ToggleChip] or [SplitToggleChip] is currently 'on' (checked/true)
      * or 'off' (unchecked/false)
      */
-    @Composable
-    public fun CheckboxIcon(checked: Boolean) {
-        Icon(
-            imageVector = if (checked) CheckboxOn else CheckboxOff,
-            contentDescription = "Checkbox selector",
-            modifier = Modifier.size(24.dp)
-        )
-    }
+    public fun checkboxIcon(
+        checked: Boolean,
+    ): ImageVector = if (checked) CheckboxOn else CheckboxOff
 
     /**
      * The default height applied for the [ToggleChip] or [SplitToggleChip].

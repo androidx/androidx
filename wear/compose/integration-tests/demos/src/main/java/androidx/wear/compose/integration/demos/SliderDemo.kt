@@ -79,7 +79,18 @@ fun InlineSliderDemo() {
                 checked = enabled,
                 onCheckedChange = { enabled = it },
                 label = { Text("Sliders enabled") },
-                toggleControl = { ToggleChipDefaults.SwitchIcon(checked = enabled) }
+                // For Switch  toggle controls the Wear Material UX guidance is to set the
+                // unselected toggle control color to ToggleChipDefaults.switchUncheckedIconColor()
+                // rather than the default.
+                colors = ToggleChipDefaults.toggleChipColors(
+                    uncheckedToggleControlTintColor = ToggleChipDefaults.switchUncheckedIconColor()
+                ),
+                toggleControl = {
+                    Icon(
+                        imageVector = ToggleChipDefaults.switchIcon(checked = enabled),
+                        contentDescription = if (enabled) "On" else "Off"
+                    )
+                }
             )
         }
     }

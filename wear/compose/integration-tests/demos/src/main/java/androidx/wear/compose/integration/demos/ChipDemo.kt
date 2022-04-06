@@ -48,6 +48,7 @@ import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipColors
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.CompactChip
+import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.ListHeader
 import androidx.wear.compose.material.LocalContentColor
 import androidx.wear.compose.material.MaterialTheme
@@ -329,8 +330,17 @@ fun AvatarChips() {
                 label = {
                     Text("Chips enabled")
                 },
+                // For Switch  toggle controls the Wear Material UX guidance is to set the
+                // unselected toggle control color to ToggleChipDefaults.switchUncheckedIconColor()
+                // rather than the default.
+                colors = ToggleChipDefaults.toggleChipColors(
+                    uncheckedToggleControlTintColor = ToggleChipDefaults.switchUncheckedIconColor()
+                ),
                 toggleControl = {
-                    ToggleChipDefaults.SwitchIcon(checked = enabled)
+                    Icon(
+                        imageVector = ToggleChipDefaults.switchIcon(checked = enabled),
+                        contentDescription = if (enabled) "On" else "Off"
+                    )
                 }
             )
         }
@@ -500,8 +510,17 @@ fun CustomChips() {
                 label = {
                     Text("Chips enabled")
                 },
+                // For Switch  toggle controls the Wear Material UX guidance is to set the
+                // unselected toggle control color to ToggleChipDefaults.switchUncheckedIconColor()
+                // rather than the default.
+                colors = ToggleChipDefaults.toggleChipColors(
+                    uncheckedToggleControlTintColor = ToggleChipDefaults.switchUncheckedIconColor()
+                ),
                 toggleControl = {
-                    ToggleChipDefaults.SwitchIcon(checked = enabled)
+                    Icon(
+                        imageVector = ToggleChipDefaults.switchIcon(checked = enabled),
+                        contentDescription = if (enabled) "On" else "Off"
+                    )
                 }
             )
         }
@@ -548,8 +567,17 @@ fun ImageBackgroundChips() {
                 label = {
                     Text("Chips enabled")
                 },
+                // For Switch  toggle controls the Wear Material UX guidance is to set the
+                // unselected toggle control color to ToggleChipDefaults.switchUncheckedIconColor()
+                // rather than the default.
+                colors = ToggleChipDefaults.toggleChipColors(
+                    uncheckedToggleControlTintColor = ToggleChipDefaults.switchUncheckedIconColor()
+                ),
                 toggleControl = {
-                    ToggleChipDefaults.SwitchIcon(checked = enabled)
+                    Icon(
+                        imageVector = ToggleChipDefaults.switchIcon(checked = enabled),
+                        contentDescription = if (enabled) "On" else "Off"
+                    )
                 }
             )
         }
@@ -597,8 +625,17 @@ private fun ChipCustomizer(
             label = {
                 Text("Chips enabled")
             },
+            // For Switch  toggle controls the Wear Material UX guidance is to set the
+            // unselected toggle control color to ToggleChipDefaults.switchUncheckedIconColor()
+            // rather than the default.
+            colors = ToggleChipDefaults.toggleChipColors(
+                uncheckedToggleControlTintColor = ToggleChipDefaults.switchUncheckedIconColor()
+            ),
             toggleControl = {
-                ToggleChipDefaults.SwitchIcon(checked = enabled)
+                Icon(
+                    imageVector = ToggleChipDefaults.switchIcon(checked = enabled),
+                    contentDescription = if (enabled) "On" else "Off"
+                )
             }
         )
     }

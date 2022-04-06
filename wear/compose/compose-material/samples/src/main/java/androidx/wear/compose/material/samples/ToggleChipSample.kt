@@ -47,8 +47,17 @@ fun ToggleChipWithIcon() {
             Text("With secondary label", maxLines = 1, overflow = TextOverflow.Ellipsis)
         },
         checked = checked,
+        // For Switch  toggle controls the Wear Material UX guidance is to set the
+        // unselected toggle control color to ToggleChipDefaults.switchUncheckedIconColor()
+        // rather than the default.
+        colors = ToggleChipDefaults.toggleChipColors(
+            uncheckedToggleControlTintColor = ToggleChipDefaults.switchUncheckedIconColor()
+        ),
         toggleControl = {
-            ToggleChipDefaults.SwitchIcon(checked = checked)
+            Icon(
+                imageVector = ToggleChipDefaults.switchIcon(checked = checked),
+                contentDescription = if (checked) "On" else "Off",
+            )
         },
         onCheckedChange = { checked = it },
         appIcon = {
@@ -70,7 +79,10 @@ fun SplitToggleChipWithCheckbox() {
         label = { Text("Split with CheckboxIcon") },
         checked = checked,
         toggleControl = {
-            ToggleChipDefaults.CheckboxIcon(checked = checked)
+            Icon(
+                imageVector = ToggleChipDefaults.checkboxIcon(checked = checked),
+                contentDescription = if (checked) "Checked" else "Unchecked"
+            )
         },
         onCheckedChange = { checked = it },
         onClick = {

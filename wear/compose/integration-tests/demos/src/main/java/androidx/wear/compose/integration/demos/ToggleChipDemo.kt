@@ -32,6 +32,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.ListHeader
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.ScalingLazyListState
@@ -82,7 +83,12 @@ fun ToggleChips(
                     label = { Text("CheckboxIcon") },
                     checked = checkBoxIconChecked,
                     toggleControl = {
-                        ToggleChipDefaults.CheckboxIcon(checked = checkBoxIconChecked)
+                        Icon(
+                            imageVector = ToggleChipDefaults.checkboxIcon(
+                                checked = checkBoxIconChecked
+                            ),
+                            contentDescription = if (checkBoxIconChecked) "Checked" else "Unchecked"
+                        )
                     },
                     onCheckedChange = { checkBoxIconChecked = it },
                     enabled = enabled,
@@ -94,8 +100,20 @@ fun ToggleChips(
                 ToggleChip(
                     label = { Text("SwitchIcon") },
                     checked = switchIconChecked,
+                    // For Switch  toggle controls the Wear Material UX guidance is to set the
+                    // unselected toggle control color to
+                    // ToggleChipDefaults.switchUncheckedIconColor() rather than the default.
+                    colors = ToggleChipDefaults.toggleChipColors(
+                        uncheckedToggleControlTintColor = ToggleChipDefaults
+                            .switchUncheckedIconColor()
+                    ),
                     toggleControl = {
-                        ToggleChipDefaults.SwitchIcon(checked = switchIconChecked)
+                        Icon(
+                            imageVector = ToggleChipDefaults.switchIcon(
+                                checked = switchIconChecked
+                            ),
+                            contentDescription = if (switchIconChecked) "On" else "Off"
+                        )
                     },
                     onCheckedChange = { switchIconChecked = it },
                     enabled = enabled,
@@ -110,7 +128,10 @@ fun ToggleChips(
                     },
                     checked = radioIconChecked,
                     toggleControl = {
-                        ToggleChipDefaults.RadioIcon(checked = radioIconChecked)
+                        Icon(
+                            imageVector = ToggleChipDefaults.radioIcon(checked = radioIconChecked),
+                            contentDescription = if (radioIconChecked) "Selected" else "Unselected"
+                        )
                     },
                     onCheckedChange = { radioIconChecked = it },
                     enabled = enabled,
@@ -132,7 +153,13 @@ fun ToggleChips(
                     },
                     checked = radioIconWithSecondaryChecked,
                     toggleControl = {
-                        ToggleChipDefaults.RadioIcon(checked = radioIconWithSecondaryChecked)
+                        Icon(
+                            imageVector = ToggleChipDefaults.radioIcon(
+                                checked = radioIconWithSecondaryChecked
+                            ),
+                            contentDescription = if (radioIconWithSecondaryChecked) "Selected"
+                            else "Unselected"
+                        )
                     },
                     onCheckedChange = { radioIconWithSecondaryChecked = it },
                     enabled = enabled,
@@ -153,9 +180,21 @@ fun ToggleChips(
                         Text("With secondary label", maxLines = 1, overflow = TextOverflow.Ellipsis)
                     },
                     checked = switchIconWithSecondaryChecked,
+                    // For Switch toggle controls the Wear Material UX guidance is to set the
+                    // unselected toggle control color to
+                    // ToggleChipDefaults.switchUncheckedIconColor() rather than the default.
+                    colors = ToggleChipDefaults.toggleChipColors(
+                        uncheckedToggleControlTintColor = ToggleChipDefaults
+                            .switchUncheckedIconColor()
+                    ),
                     toggleControl = {
-                        ToggleChipDefaults.SwitchIcon(checked = switchIconWithSecondaryChecked)
-                    },
+                        Icon(
+                            imageVector = ToggleChipDefaults.switchIcon(
+                                checked = switchIconWithSecondaryChecked
+                            ),
+                            contentDescription = if (switchIconWithSecondaryChecked) "On" else "Off"
+                        )
+                     },
                     onCheckedChange = { switchIconWithSecondaryChecked = it },
                     appIcon = { DemoIcon(R.drawable.ic_airplanemode_active_24px) },
                     enabled = enabled,
@@ -170,8 +209,20 @@ fun ToggleChips(
                         Text("With switchable icon", maxLines = 1, overflow = TextOverflow.Ellipsis)
                     },
                     checked = switchIconWithIconChecked,
+                    // For Switch  toggle controls the Wear Material UX guidance is to set the
+                    // unselected toggle control color to
+                    // ToggleChipDefaults.switchUncheckedIconColor() rather than the default.
+                    colors = ToggleChipDefaults.toggleChipColors(
+                        uncheckedToggleControlTintColor = ToggleChipDefaults
+                            .switchUncheckedIconColor()
+                    ),
                     toggleControl = {
-                        ToggleChipDefaults.SwitchIcon(checked = switchIconWithIconChecked)
+                        Icon(
+                            imageVector = ToggleChipDefaults.switchIcon(
+                                checked = switchIconWithIconChecked
+                            ),
+                            contentDescription = if (switchIconWithIconChecked) "On" else "Off"
+                        )
                     },
                     onCheckedChange = { switchIconWithIconChecked = it },
                     appIcon = {
@@ -198,7 +249,13 @@ fun ToggleChips(
                     label = { Text("Split with CheckboxIcon") },
                     checked = splitWithCheckboxIconChecked,
                     toggleControl = {
-                        ToggleChipDefaults.CheckboxIcon(checked = splitWithCheckboxIconChecked)
+                        Icon(
+                            imageVector = ToggleChipDefaults.checkboxIcon(
+                                checked = splitWithCheckboxIconChecked
+                            ),
+                            contentDescription = if (splitWithCheckboxIconChecked) "Checked"
+                            else "Unchecked"
+                        )
                     },
                     onCheckedChange = { splitWithCheckboxIconChecked = it },
                     onClick = {
@@ -216,8 +273,20 @@ fun ToggleChips(
                 SplitToggleChip(
                     label = { Text("Split with SwitchIcon") },
                     checked = splitWithSwitchIconChecked,
+                    // For Switch  toggle controls the Wear Material UX guidance is to set the
+                    // unselected toggle control color to
+                    // ToggleChipDefaults.switchUncheckedIconColor() rather than the default.
+                    colors = ToggleChipDefaults.splitToggleChipColors(
+                        uncheckedToggleControlTintColor = ToggleChipDefaults
+                            .switchUncheckedIconColor()
+                    ),
                     toggleControl = {
-                        ToggleChipDefaults.SwitchIcon(checked = splitWithSwitchIconChecked)
+                        Icon(
+                            imageVector = ToggleChipDefaults.switchIcon(
+                                checked = splitWithSwitchIconChecked
+                            ),
+                            contentDescription = if (splitWithSwitchIconChecked) "On" else "Off"
+                        )
                     },
                     onCheckedChange = { splitWithSwitchIconChecked = it },
                     onClick = {
@@ -236,7 +305,13 @@ fun ToggleChips(
                     label = { Text("Split with RadioIcon") },
                     checked = splitWithRadioIconChecked,
                     toggleControl = {
-                        ToggleChipDefaults.RadioIcon(checked = splitWithRadioIconChecked)
+                        Icon(
+                            imageVector = ToggleChipDefaults.radioIcon(
+                                checked = splitWithRadioIconChecked
+                            ),
+                            contentDescription = if (splitWithRadioIconChecked) "Selected"
+                            else "Unselected"
+                        )
                     },
                     onCheckedChange = { splitWithRadioIconChecked = it },
                     onClick = {
@@ -266,7 +341,12 @@ fun ToggleChips(
                     },
                     checked = splitWithCustomColorChecked,
                     toggleControl = {
-                        ToggleChipDefaults.SwitchIcon(checked = splitWithCustomColorChecked)
+                        Icon(
+                            imageVector = ToggleChipDefaults.switchIcon(
+                                checked = splitWithCustomColorChecked
+                            ),
+                            contentDescription = if (splitWithCustomColorChecked) "On" else "Off"
+                        )
                     },
                     onCheckedChange = { splitWithCustomColorChecked = it },
                     onClick = {
@@ -275,8 +355,13 @@ fun ToggleChips(
                             "Text was clicked", Toast.LENGTH_SHORT
                         ).show()
                     },
+                    // For Switch  toggle controls the Wear Material UX guidance is to set the
+                    // unselected toggle control color to
+                    // ToggleChipDefaults.switchUncheckedIconColor() rather than the default.
                     colors = ToggleChipDefaults.splitToggleChipColors(
-                        checkedToggleControlTintColor = AlternatePrimaryColor1
+                        checkedToggleControlTintColor = AlternatePrimaryColor1,
+                        uncheckedToggleControlTintColor = ToggleChipDefaults
+                            .switchUncheckedIconColor()
                     ),
                     enabled = enabled,
                 )
@@ -290,8 +375,20 @@ fun ToggleChips(
                     label = {
                         Text("Chips enabled")
                     },
+                    // For Switch  toggle controls the Wear Material UX guidance is to set the
+                    // unselected toggle control color to
+                    // ToggleChipDefaults.switchUncheckedIconColor() rather than the default.
+                    colors = ToggleChipDefaults.toggleChipColors(
+                        uncheckedToggleControlTintColor = ToggleChipDefaults
+                            .switchUncheckedIconColor()
+                    ),
                     toggleControl = {
-                        ToggleChipDefaults.SwitchIcon(checked = enabled)
+                        Icon(
+                            imageVector = ToggleChipDefaults.switchIcon(
+                                checked = enabled
+                            ),
+                            contentDescription = if (enabled) "On" else "Off"
+                        )
                     },
                 )
             }

@@ -37,11 +37,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.SplitToggleChip
 import androidx.wear.compose.material.SwipeToDismissBox
 import androidx.wear.compose.material.SwipeToDismissValue
 import androidx.wear.compose.material.Text
+import androidx.wear.compose.material.ToggleChipDefaults
 import androidx.wear.compose.material.edgeSwipeToDismiss
 import androidx.wear.compose.material.rememberSwipeToDismissBoxState
 
@@ -118,7 +120,15 @@ fun StatefulSwipeToDismissBox() {
                             label = { Text("Item details") },
                             modifier = Modifier.height(40.dp),
                             onCheckedChange = { v -> checked.value = v },
-                            onClick = { showMainScreen = false }
+                            onClick = { showMainScreen = false },
+                            toggleControl = {
+                                Icon(
+                                    imageVector = ToggleChipDefaults.checkboxIcon(
+                                        checked = checked.value
+                                    ),
+                                    contentDescription = null,
+                                )
+                            }
                         )
                     }
                 }
