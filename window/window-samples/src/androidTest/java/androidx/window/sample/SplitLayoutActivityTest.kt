@@ -159,37 +159,36 @@ class SplitLayoutActivityTest {
             val paddedWidth = width - paddingLeft - paddingRight
             val paddedHeight = height - paddingTop - paddingBottom
 
-            getFeaturePositionInViewRect(feature, this)?.let { bounds ->
-                if (feature.orientation == HORIZONTAL) { // Horizontal layout
-                    val topRect = Rect(
-                        paddingLeft, paddingTop,
-                        paddingLeft + paddedWidth, bounds.top
-                    )
-                    val bottomRect = Rect(
-                        paddingLeft, bounds.bottom,
-                        paddingLeft + paddedWidth, paddingTop + paddedHeight
-                    )
+            val featureBounds = adjustFeaturePositionOffset(feature, this)
+            if (feature.orientation == HORIZONTAL) { // Horizontal layout
+                val topRect = Rect(
+                    paddingLeft, paddingTop,
+                    paddingLeft + paddedWidth, featureBounds.top
+                )
+                val bottomRect = Rect(
+                    paddingLeft, featureBounds.bottom,
+                    paddingLeft + paddedWidth, paddingTop + paddedHeight
+                )
 
-                    if (measureAndCheckMinSize(topRect, startView) &&
-                        measureAndCheckMinSize(bottomRect, endView)
-                    ) {
-                        return true
-                    }
-                } else if (feature.orientation == VERTICAL) { // Vertical layout
-                    val leftRect = Rect(
-                        paddingLeft, paddingTop,
-                        bounds.left, paddingTop + paddedHeight
-                    )
-                    val rightRect = Rect(
-                        bounds.right, paddingTop,
-                        paddingLeft + paddedWidth, paddingTop + paddedHeight
-                    )
+                if (measureAndCheckMinSize(topRect, startView) &&
+                    measureAndCheckMinSize(bottomRect, endView)
+                ) {
+                    return true
+                }
+            } else if (feature.orientation == VERTICAL) { // Vertical layout
+                val leftRect = Rect(
+                    paddingLeft, paddingTop,
+                    featureBounds.left, paddingTop + paddedHeight
+                )
+                val rightRect = Rect(
+                    featureBounds.right, paddingTop,
+                    paddingLeft + paddedWidth, paddingTop + paddedHeight
+                )
 
-                    if (measureAndCheckMinSize(leftRect, startView) &&
-                        measureAndCheckMinSize(rightRect, endView)
-                    ) {
-                        return true
-                    }
+                if (measureAndCheckMinSize(leftRect, startView) &&
+                    measureAndCheckMinSize(rightRect, endView)
+                ) {
+                    return true
                 }
             }
         }
