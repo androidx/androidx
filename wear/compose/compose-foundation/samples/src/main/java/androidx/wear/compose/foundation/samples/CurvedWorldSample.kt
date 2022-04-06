@@ -32,11 +32,13 @@ import androidx.compose.ui.unit.sp
 import androidx.wear.compose.foundation.ArcPaddingValues
 import androidx.wear.compose.foundation.CurvedAlignment
 import androidx.wear.compose.foundation.CurvedLayout
+import androidx.wear.compose.foundation.CurvedModifier
 import androidx.wear.compose.foundation.CurvedTextStyle
 import androidx.wear.compose.foundation.basicCurvedText
 import androidx.wear.compose.foundation.curvedColumn
 import androidx.wear.compose.foundation.curvedComposable
 import androidx.wear.compose.foundation.curvedRow
+import androidx.wear.compose.foundation.size
 
 @Sampled
 @Composable
@@ -139,5 +141,36 @@ fun CurvedAndNormalText() {
                 )
             )
         }
+    }
+}
+
+@Sampled
+@Composable
+fun CurvedFixedSize() {
+    // Note the "gap" in the middle of the two curved texts has a specified size.
+    CurvedLayout(modifier = Modifier.fillMaxSize()) {
+        basicCurvedText(
+            "Fixed",
+            style = {
+                CurvedTextStyle(
+                    fontSize = 16.sp,
+                    color = Color.Black,
+                    background = Color.White
+                )
+            }
+        )
+        curvedRow(
+            modifier = CurvedModifier.size(angularSizeDegrees = 5f, radialSize = 30.dp),
+        ) { }
+        basicCurvedText(
+            "Gap",
+            style = {
+                CurvedTextStyle(
+                    fontSize = 16.sp,
+                    color = Color.Black,
+                    background = Color.White
+                )
+            }
+        )
     }
 }
