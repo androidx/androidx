@@ -22,6 +22,8 @@ jobs:
     steps:
       - name: "Checkout androidx repo"
         uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.inputs.target-branch || 'androidx-main' }}
       - name: "Set environment variables"
         shell: bash
         run: development/update_playground.sh
@@ -52,7 +54,10 @@ jobs:
         run: |
           set -x
           gh pr create --base ${{ github.event.inputs.target-branch || 'androidx-main' }} \
-            --title "test" \
-            --body "test body"
+            --title "Update prebuilts" \
+            --body "This CL was created by the update_prebuilts workflow \
+                   ${{ context.payload?.inputs?.comment || '' }} \
+                   Bug: n/a
+                   Test: CI"
         env:
           GITHUB_TOKEN: ${{ secrets.ANDROIDX_GITHUB_BOT_TOKEN }}
