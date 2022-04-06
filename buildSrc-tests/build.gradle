@@ -18,6 +18,7 @@
 // This project is stored outside of buildSrc/ so that waiting for these tests to complete doesn't delay the rest of the build
 
 import androidx.build.BuildServerConfigurationKt
+import androidx.build.SdkResourceGenerator
 
 plugins {
     id("AndroidXPlugin")
@@ -26,8 +27,6 @@ plugins {
 
 dependencies {
     implementation(gradleApi())
-    testImplementation(libs.junit)
-    testImplementation(libs.truth)
     implementation(project.files(new File(BuildServerConfigurationKt.getRootOutDirectory(project), "buildSrc/private/build/libs/private.jar")))
     implementation(project.files(new File(BuildServerConfigurationKt.getRootOutDirectory(project), "buildSrc/public/build/libs/public.jar")))
     implementation("com.googlecode.json-simple:json-simple:1.1")
@@ -36,7 +35,14 @@ dependencies {
         // Optional dependency where Ivy fails to parse the POM file.
         exclude(group:"net.java.dev.msv", module:"xsdlib")
     }
+
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
+    testImplementation(project(":internal-testutils-gradle-plugin"))
+    testImplementation(gradleTestKit())
 }
+
+SdkResourceGenerator.generateForHostTest(project)
 
 // Also do style checking of the buildSrc project from within this project
 // We run that from this project so that it doesn't block other projects while it runs
