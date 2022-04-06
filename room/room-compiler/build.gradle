@@ -289,7 +289,10 @@ tasks.withType(KotlinCompile).configureEach {
 tasks.withType(Test).configureEach {
     it.systemProperty("androidx.room.compiler.processing.strict", "true")
     it.maxParallelForks(3)
-    it.maxHeapSize("512m")
+    if (project.providers.environmentVariable("GITHUB_ACTIONS").present) {
+        // limit memory usage to avoid running out of memory in the docker container.
+        it.maxHeapSize("512m")
+    }
 }
 
 androidx {
