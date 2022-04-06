@@ -39,7 +39,7 @@ jobs:
         if: ${{ steps.check-for-changes.outputs.has_changes >= 1 }}
         run: |
           set -x
-          BRANCH_NAME="ci-workflow/update_prebuilts_${{ github.run_id }}_${{ github.run_number }}"
+          BRANCH_NAME="ci_workflow/update_prebuilts_${{ github.run_id }}_${{ github.run_number }}"
           git config user.email "bot@androidx.dev"
           git config user.name "AndroidX Github Bot"
           git checkout -b $BRANCH_NAME
@@ -53,4 +53,4 @@ jobs:
           set -x
           gh pr create --base ${{ github.event.inputs.target-branch || 'androidx-main' }} --fill
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.ANDROIDX_GITHUB_BOT_TOKEN }}
