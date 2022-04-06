@@ -22,8 +22,8 @@ jobs:
     steps:
       - name: "Checkout androidx repo"
         uses: actions/checkout@v2
-        with:
-          ref: ${{ github.event.inputs.target-branch || 'androidx-main' }}
+#         with:
+#           ref: ${{ github.event.inputs.target-branch || 'androidx-main' }}
       - name: "Set environment variables"
         shell: bash
         run: development/update_playground.sh
