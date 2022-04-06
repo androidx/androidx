@@ -35,7 +35,9 @@ import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import kotlin.math.PI
+import kotlin.math.cos
 import kotlin.math.min
+import kotlin.math.sin
 
 /**
  * Specifies how components will be laid down with respect to the anchor.
@@ -237,6 +239,21 @@ internal class CurvedLayoutInfo internal constructor(
     val startAngleRadians: Float
 ) {
     val innerRadius = outerRadius - thickness
+
+    /**
+     * Maps a point in the component, specified in radial coordinates, into the offset of the
+     * point in the [CurvedLayout].
+     *
+     * @param radialRatio The radial position of the point we want to specify, 0 being the
+     * innerRadius, 1 meaning outerRadius
+     * @param angleRatio The angle of the point we want to specify, 0 being the start of layout,
+     * 1 meaning the end.
+     */
+    fun computePointOffset(radialRatio: Float, angleRatio: Float) =
+        centerOffset + offsetFromDistanceAndAngle(
+            distance = outerRadius - thickness * (1f - radialRatio),
+            angle = startAngleRadians + angleRatio * sweepRadians
+        )
 }
 
 // Partially computed CurvedLayoutInfo
@@ -394,3 +411,5 @@ internal fun <T> Iterable<T>.sumOf(selector: (T) -> Float): Float = map(selector
 internal fun lerp(start: Float, stop: Float, fraction: Float): Float {
     return (1 - fraction) * start + fraction * stop
 }
+internal fun offsetFromDistanceAndAngle(distance: Float, angle: Float) =
+    Offset(distance * cos(angle), distance * sin(angle))

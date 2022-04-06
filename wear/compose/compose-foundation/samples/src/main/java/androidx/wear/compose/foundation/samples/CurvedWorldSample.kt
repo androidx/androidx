@@ -36,11 +36,14 @@ import androidx.wear.compose.foundation.CurvedDirection
 import androidx.wear.compose.foundation.CurvedLayout
 import androidx.wear.compose.foundation.CurvedModifier
 import androidx.wear.compose.foundation.CurvedTextStyle
+import androidx.wear.compose.foundation.angularGradientBackground
 import androidx.wear.compose.foundation.angularSize
+import androidx.wear.compose.foundation.background
 import androidx.wear.compose.foundation.basicCurvedText
 import androidx.wear.compose.foundation.curvedColumn
 import androidx.wear.compose.foundation.curvedComposable
 import androidx.wear.compose.foundation.curvedRow
+import androidx.wear.compose.foundation.radialGradientBackground
 import androidx.wear.compose.foundation.size
 import androidx.wear.compose.foundation.weight
 
@@ -151,30 +154,52 @@ fun CurvedAndNormalText() {
 @Sampled
 @Composable
 fun CurvedFixedSize() {
-    // Note the "gap" in the middle of the two curved texts has a specified size.
     CurvedLayout(modifier = Modifier.fillMaxSize()) {
         basicCurvedText(
-            "Fixed",
+            "Fixed Size",
             style = {
                 CurvedTextStyle(
                     fontSize = 16.sp,
-                    color = Color.Black,
-                    background = Color.White
+                    color = Color.Black
                 )
-            }
+            },
+            modifier = CurvedModifier
+                .background(Color.White)
+                .size(sweepDegrees = 45f, thickness = 40.dp),
         )
         curvedRow(
             modifier = CurvedModifier.size(sweepDegrees = 5f, thickness = 30.dp),
         ) { }
+    }
+}
+
+@Sampled
+@Composable
+fun CurvedBackground() {
+    CurvedLayout(modifier = Modifier.fillMaxSize()) {
         basicCurvedText(
-            "Gap",
+            "Radial",
             style = {
                 CurvedTextStyle(
                     fontSize = 16.sp,
-                    color = Color.Black,
-                    background = Color.White
+                    color = Color.Black
                 )
-            }
+            },
+            contentArcPadding = ArcPaddingValues(5.dp),
+            modifier = CurvedModifier
+                .radialGradientBackground(0f to Color.White, 1f to Color.Black)
+        )
+        basicCurvedText(
+            "Angular",
+            style = {
+                CurvedTextStyle(
+                    fontSize = 16.sp,
+                    color = Color.Black
+                )
+            },
+            contentArcPadding = ArcPaddingValues(5.dp),
+            modifier = CurvedModifier
+                .angularGradientBackground(0f to Color.White, 1f to Color.Black)
         )
     }
 }
