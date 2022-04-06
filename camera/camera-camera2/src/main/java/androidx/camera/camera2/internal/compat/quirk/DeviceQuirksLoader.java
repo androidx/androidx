@@ -71,6 +71,12 @@ public class DeviceQuirksLoader {
         if (RepeatingStreamConstraintForVideoRecordingQuirk.load()) {
             quirks.add(new RepeatingStreamConstraintForVideoRecordingQuirk());
         }
+        if (TextureViewIsClosedQuirk.load()) {
+            quirks.add(new TextureViewIsClosedQuirk());
+        }
+        if (CaptureSessionOnClosedNotCalledQuirk.load()) {
+            quirks.add(new CaptureSessionOnClosedNotCalledQuirk());
+        }
 
         return quirks;
     }

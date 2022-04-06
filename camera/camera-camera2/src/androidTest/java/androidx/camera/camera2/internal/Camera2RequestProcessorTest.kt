@@ -19,7 +19,6 @@ package androidx.camera.camera2.internal
 import android.content.Context
 import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
-import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CaptureRequest
@@ -30,6 +29,9 @@ import android.os.Looper
 import android.view.Surface
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.impl.Camera2CameraCaptureResultConverter
+import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat
+import androidx.camera.camera2.internal.compat.quirk.CameraQuirks
+import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks
 import androidx.camera.camera2.internal.util.RequestProcessorRequest
 import androidx.camera.camera2.interop.CaptureRequestOptions
 import androidx.camera.core.impl.CameraCaptureFailure
@@ -86,12 +88,13 @@ class Camera2RequestProcessorTest {
     private var numOfCapturedImages = 0
     private val previewImageRetrieved = CompletableDeferred<Unit>()
 
-    private fun getHardwareLevel(cameraId: String): Int {
+    private fun getCameraCharacteristic(cameraId: String): CameraCharacteristicsCompat {
         val cameraManager = ApplicationProvider.getApplicationContext<Context>()
             .getSystemService(Context.CAMERA_SERVICE) as CameraManager
 
-        return cameraManager.getCameraCharacteristics(cameraId)
-            .get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)!!
+        return CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
+            cameraManager.getCameraCharacteristics(cameraId)
+        )
     }
 
     @Before
@@ -104,7 +107,8 @@ class Camera2RequestProcessorTest {
             mainThreadExecutor as ScheduledExecutorService,
             handler,
             captureSessionRepository,
-            getHardwareLevel(CAMERA_ID)
+            CameraQuirks.get(CAMERA_ID, getCameraCharacteristic(CAMERA_ID)),
+            DeviceQuirks.getAll()
         )
 
         cameraDeviceHolder = CameraUtil.getCameraDevice(

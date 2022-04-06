@@ -26,7 +26,6 @@ import android.view.Surface;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.camera.camera2.internal.SynchronizedCaptureSessionOpener.SynchronizedSessionFeature;
 import androidx.camera.camera2.internal.compat.CameraCaptureSessionCompat;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -54,7 +53,7 @@ import java.util.concurrent.Executor;
  * @see SynchronizedCaptureSessionOpener
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-interface SynchronizedCaptureSession {
+public interface SynchronizedCaptureSession {
 
     @NonNull
     CameraDevice getDevice();
@@ -81,16 +80,11 @@ interface SynchronizedCaptureSession {
     Surface getInputSurface();
 
     /**
-     * Get a {@link ListenableFuture} which indicate the progress of specific task on this
-     * SynchronizedCaptureSession.
-     *
-     * @param feature the key to get the ListenableFuture. The key can be
-     *                {@link SynchronizedSessionFeature#FEATURE_WAIT_FOR_REQUEST}.
-     * @return the ListenableFuture which completes when the specific task is completed.
+     * Get a {@link ListenableFuture} which indicates the task should be finished before another
+     * {@link SynchronizedCaptureSession} to be opened.
      */
     @NonNull
-    ListenableFuture<Void> getSynchronizedBlocker(
-            @SynchronizedSessionFeature @NonNull String feature);
+    ListenableFuture<Void> getOpeningBlocker();
 
     /**
      * Return the {@link CameraCaptureSessionCompat} object which is used in this
@@ -324,7 +318,7 @@ interface SynchronizedCaptureSession {
 
         }
 
-        void onConfigureFailed(@NonNull SynchronizedCaptureSession session) {
+        public void onConfigureFailed(@NonNull SynchronizedCaptureSession session) {
 
         }
 
@@ -343,7 +337,7 @@ interface SynchronizedCaptureSession {
          * @param session the SynchronizedCaptureSession that is created by
          * {@link SynchronizedCaptureSessionImpl#openCaptureSession}
          */
-        void onClosed(@NonNull SynchronizedCaptureSession session) {
+        public void onClosed(@NonNull SynchronizedCaptureSession session) {
 
         }
 
