@@ -17,6 +17,7 @@
 package androidx.camera.video.internal.compat.quirk;
 
 import android.media.CamcorderProfile;
+import android.media.MediaCodec;
 import android.media.MediaRecorder.VideoEncoder;
 import android.os.Build;
 
@@ -24,21 +25,25 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.CamcorderProfileProvider;
 import androidx.camera.video.Quality;
-import androidx.camera.video.VideoCapabilities;
 
 /**
- * Quirk denotes that quality {@link VideoCapabilities} queried by {@link CamcorderProfileProvider}
- * does not work on video recording on device, and need to exclude it.
+ * Quirk where qualities reported as available by {@link CamcorderProfileProvider#hasProfile(int)}
+ * does not work on the device, and should not be used.
  *
- * <p>On Huawei Mate20 and Mate20 Pro, {@link CamcorderProfile} indicates it can support
- * resolutions 3840x2160 for {@link VideoEncoder#H264}, and it can create the video
- * encoder by the corresponding format. However, there is not any video frame output from Camera
- * . The CaptureSession is opened and configured, but something error in the HAL of these devices
- * . Hence use a quirk to exclude the problematic resolution quality. See b/202080832#comment8.
- *
+ * <p>QuirkSummary
+ *      Bug Id:      202080832
+ *      Description: On devices exhibiting this quirk, {@link CamcorderProfile} indicates it
+ *                   can support resolutions for a specific video encoder (e.g., 3840x2160 for
+ *                   {@link VideoEncoder#H264} on Huawei Mate 20), and it can create the video
+ *                   encoder by the corresponding format. However, the camera is unable to produce
+ *                   video frames when configured with a {@link MediaCodec} surface at the
+ *                   specified resolution. On these devices, the capture session is opened and
+ *                   configured, but an error occurs in the HAL. See b/202080832#comment8
+ *                   for details of this error.
+ *      Device(s):   Huawei Mate 20, Huawei Mate 20 Pro
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-public class VideoQualityNotSupportQuirk implements VideoQualityQuirk {
+public class ReportedVideoQualityNotSupportedQuirk implements VideoQualityQuirk {
     static boolean load() {
         return isHuaweiMate20() || isHuaweiMate20Pro();
     }
