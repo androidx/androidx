@@ -17,6 +17,8 @@ package androidx.benchmark {
   }
 
   public final class BenchmarkState {
+    ctor @androidx.benchmark.ExperimentalBenchmarkStateApi public BenchmarkState(optional Integer? warmupCount, optional Integer? repeatCount);
+    method @androidx.benchmark.ExperimentalBenchmarkStateApi public java.util.List<java.lang.Double> getMeasurementTimeNs();
     method public boolean keepRunning();
     method public void pauseTiming();
     method @androidx.benchmark.BenchmarkState.Companion.ExperimentalExternalReport public static void reportData(String className, String testName, @IntRange(from=0L) long totalRunTimeNs, java.util.List<java.lang.Long> dataNs, @IntRange(from=0L) int warmupIterations, @IntRange(from=0L) long thermalThrottleSleepSeconds, @IntRange(from=1L) int repeatIterations);
@@ -32,6 +34,9 @@ package androidx.benchmark {
   }
 
   public final class ConfigurationErrorKt {
+  }
+
+  @kotlin.RequiresOptIn public @interface ExperimentalBenchmarkStateApi {
   }
 
   public final class MetricNameUtilsKt {
