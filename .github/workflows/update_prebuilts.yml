@@ -15,7 +15,6 @@ on:
         required: false
         default: ''
         type: string
-  push: # remove this before merging.
 jobs:
   update-prebuilts:
     runs-on: ubuntu-latest
@@ -33,9 +32,9 @@ jobs:
           git status
           HAS_CHANGES=`git status --porcelain|grep playground\.properties|wc -l`
           echo "::set-output name=has_changes::$HAS_CHANGES"
-      - name: "Create a commit"
+      - name: "Create a PR"
         shell: bash
-        id: "create-commit"
+        id: "create-pr"
         if: ${{ steps.check-for-changes.outputs.has_changes >= 1 }}
         run: |
           set -x
