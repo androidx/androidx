@@ -18,7 +18,7 @@ on:
   push: #remove this before merging, we cannot trigger workflow dispatch outside the main branch
 jobs:
   update-prebuilts:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - name: "Checkout androidx repo"
         uses: actions/checkout@v2
@@ -40,7 +40,7 @@ jobs:
         run: |
           set -x
           BRANCH_NAME="ci_workflow/update_prebuilts_${{ github.run_id }}_${{ github.run_number }}"
-          git config user.email "bot@androidx.dev"
+          git config user.email "androidx-github-bot@google.com"
           git config user.name "AndroidX Github Bot"
           git checkout -b $BRANCH_NAME
           git add playground-common/playground.properties
