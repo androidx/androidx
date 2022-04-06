@@ -18,7 +18,7 @@ on:
   push: #remove this before merging, we cannot trigger workflow dispatch outside the main branch
 jobs:
   update-prebuilts:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
       - name: "Checkout androidx repo"
         uses: actions/checkout@v2
@@ -51,6 +51,8 @@ jobs:
         if: ${{ steps.check-for-changes.outputs.has_changes >= 1 }}
         run: |
           set -x
-          gh pr create --base ${{ github.event.inputs.target-branch || 'androidx-main' }} --fill
+          gh pr create --base ${{ github.event.inputs.target-branch || 'androidx-main' }} \
+            --title "test" \
+            --body "test body"
         env:
           GITHUB_TOKEN: ${{ secrets.ANDROIDX_GITHUB_BOT_TOKEN }}
