@@ -47,7 +47,7 @@ jobs:
           git push origin $BRANCH_NAME
           # create pull request
           gh pr create --base ${{ github.event.inputs.target-branch || 'androidx-main' }} \
-            --title "Update prebuilts" \
+            --title "[AndroidX Github Bot] Update playground snapshot ids" \
             --body "This CL was created by the update_prebuilts workflow.
             ${{ github.event.inputs.comment || '' }}
             Bug: n/a
