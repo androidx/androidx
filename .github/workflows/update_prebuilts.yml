@@ -49,21 +49,8 @@ jobs:
           echo "::set-output name=branch-name::$BRANCH_NAME"
       - name: Create Pull Request
         if: ${{ steps.check-for-changes.outputs.has_changes >= 1 }}
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const { repo, owner } = context.repo;
-            const result = await github.rest.pulls.create({
-              title: 'Update Prebuilts for Playground',
-              owner,
-              repo,
-              head: '${{ steps.create-commit.outputs.branch-name }}',
-              base: '${{ github.event.inputs.target-branch || 'androidx-main' }}',
-              body: [
-                'This workflow was triggered by ${{ github.event.sender.login }}.',
-                context.payload?.inputs?.comment || '',
-                'Bug: n/a',
-                'Test: CI',
-                ].join('\n'),
-              maintainer_can_modify: true
-            });
+        run: |
+          set -x
+          gh pr create --base ${{ github.event.inputs.target-branch || 'androidx-main' }} --fill
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
