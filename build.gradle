@@ -23,7 +23,5 @@ buildscript {
 }
 
 apply from: "buildSrc/dependencies.gradle"
-apply from: "buildSrc/out.gradle"
-init.chooseOutDir()
 
 apply plugin: AndroidXRootPlugin

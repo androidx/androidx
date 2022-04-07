@@ -39,7 +39,11 @@ dependencies {
     testImplementation(libs.googleCompileTesting)
     testImplementation(libs.hiltCore)
     testImplementation(fileTree(
-            dir: "${new File(project(":hilt:hilt-work").buildDir, "libJar")}",
+            dir: provider {
+                // Replace with AGP API once it is added b/228109260
+                // Wrapping in a provider as a workaround as we access buildDir before this project is configured
+                "${new File(project(":hilt:hilt-work").buildDir, "libJar")}"
+            },
             include : "*.jar"))
     testImplementation(fileTree(
             dir: "${SdkHelperKt.getSdkPath(project)}/platforms/$SupportConfig.COMPILE_SDK_VERSION/",
