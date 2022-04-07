@@ -27,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.wear.compose.foundation.AnchorType
@@ -35,9 +36,14 @@ import androidx.wear.compose.foundation.CurvedAlignment
 import androidx.wear.compose.foundation.basicCurvedText
 import androidx.wear.compose.foundation.curvedComposable
 import androidx.wear.compose.foundation.CurvedLayout
+import androidx.wear.compose.foundation.CurvedModifier
 import androidx.wear.compose.foundation.CurvedScope
 import androidx.wear.compose.foundation.CurvedTextStyle
+import androidx.wear.compose.foundation.curvedRow
+import androidx.wear.compose.foundation.sizeIn
+import androidx.wear.compose.foundation.weight
 import androidx.wear.compose.material.Text
+import androidx.wear.compose.material.curvedText
 
 @Composable
 fun CurvedWorldDemo() {
@@ -217,5 +223,21 @@ fun BasicCurvedTextDemo() {
             // modifier = Modifier.radialAlignment(RadialAlignment.Inner)
         )
         SeparatorBlock()
+    }
+}
+
+@Composable
+fun CurvedEllipsis() {
+    CurvedLayout {
+        curvedRow(modifier = CurvedModifier.sizeIn(angularMaxDegrees = 90f)) {
+            curvedText(
+                "This text too long to actually fit in the provided space",
+                modifier = CurvedModifier.weight(1f),
+                overflow = TextOverflow.Ellipsis
+            )
+            curvedText(
+                "10:00"
+            )
+        }
     }
 }

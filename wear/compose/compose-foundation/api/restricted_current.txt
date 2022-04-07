@@ -25,8 +25,8 @@ package androidx.wear.compose.foundation {
     method public static androidx.wear.compose.foundation.ArcPaddingValues ArcPaddingValues(optional float outer, optional float inner, optional float start, optional float end);
     method public static androidx.wear.compose.foundation.ArcPaddingValues ArcPaddingValues(float all);
     method public static androidx.wear.compose.foundation.ArcPaddingValues ArcPaddingValues(optional float radial, optional float angular);
-    method public static void basicCurvedText(androidx.wear.compose.foundation.CurvedScope, String text, optional androidx.wear.compose.foundation.CurvedModifier modifier, optional boolean clockwise, optional androidx.wear.compose.foundation.ArcPaddingValues contentArcPadding, optional kotlin.jvm.functions.Function0<androidx.wear.compose.foundation.CurvedTextStyle> style);
-    method public static void basicCurvedText(androidx.wear.compose.foundation.CurvedScope, String text, androidx.wear.compose.foundation.CurvedTextStyle style, optional androidx.wear.compose.foundation.CurvedModifier modifier, optional boolean clockwise, optional androidx.wear.compose.foundation.ArcPaddingValues contentArcPadding);
+    method public static void basicCurvedText(androidx.wear.compose.foundation.CurvedScope, String text, optional androidx.wear.compose.foundation.CurvedModifier modifier, optional boolean clockwise, optional androidx.wear.compose.foundation.ArcPaddingValues contentArcPadding, optional int overflow, optional kotlin.jvm.functions.Function0<androidx.wear.compose.foundation.CurvedTextStyle> style);
+    method public static void basicCurvedText(androidx.wear.compose.foundation.CurvedScope, String text, androidx.wear.compose.foundation.CurvedTextStyle style, optional androidx.wear.compose.foundation.CurvedModifier modifier, optional boolean clockwise, optional androidx.wear.compose.foundation.ArcPaddingValues contentArcPadding, optional int overflow);
   }
 
   public interface CurvedAlignment {

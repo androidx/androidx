@@ -16,6 +16,9 @@
 
 package androidx.wear.compose.foundation
 
+import android.text.StaticLayout
+import android.text.TextPaint
+import android.text.TextUtils
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -25,6 +28,8 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.text.style.TextOverflow
+import kotlin.math.roundToInt
 
 /**
  * Used to cache computations and objects with expensive construction (Android's Paint & Path)
@@ -128,7 +133,13 @@ internal actual class CurvedTextDelegate {
         }
     }
 
-    actual fun DrawScope.doDraw(layoutInfo: CurvedLayoutInfo, color: Color, background: Color) {
+    actual fun DrawScope.doDraw(
+        layoutInfo: CurvedLayoutInfo,
+        parentSweepRadians: Float,
+        overflow: TextOverflow,
+        color: Color,
+        background: Color
+    ) {
         updatePathsIfNeeded(layoutInfo)
 
         drawIntoCanvas { canvas ->
@@ -138,7 +149,44 @@ internal actual class CurvedTextDelegate {
             }
 
             paint.color = color.toArgb()
-            canvas.nativeCanvas.drawTextOnPath(text, textPath, 0f, 0f, paint)
+            val actualText = if (
+                layoutInfo.sweepRadians <= parentSweepRadians ||
+                overflow == TextOverflow.Visible
+            ) {
+                text
+            } else {
+                ellipsize(
+                    text, TextPaint(paint), overflow == TextOverflow.Ellipsis,
+                    (parentSweepRadians * layoutInfo.measureRadius).roundToInt()
+                )
+            }
+            canvas.nativeCanvas.drawTextOnPath(actualText, textPath, 0f, 0f, paint)
         }
+    }
+
+    private fun ellipsize(
+        text: String,
+        paint: TextPaint,
+        addEllipsis: Boolean,
+        ellipsizedWidth: Int,
+    ): String {
+        // Code reused from wear/wear/src/main/java/androidx/wear/widget/CurvedTextView.java
+        val layoutBuilder =
+            StaticLayout.Builder.obtain(text, 0, text.length, paint, ellipsizedWidth)
+        layoutBuilder.setEllipsize(if (addEllipsis) TextUtils.TruncateAt.END else null)
+        layoutBuilder.setMaxLines(1)
+        val layout = layoutBuilder.build()
+
+        // Cut text that it's too big when in TextOverFlow.Clip mode.
+        if (!addEllipsis) {
+            return text.substring(0, layout.getLineEnd(0))
+        }
+        val ellipsisCount = layout.getEllipsisCount(0)
+        if (ellipsisCount == 0) {
+            return text
+        }
+        val ellipsisStart = layout.getEllipsisStart(0)
+        // "\u2026" is unicode's ellipsis "..."
+        return text.replaceRange(ellipsisStart, ellipsisStart + ellipsisCount, "\u2026")
     }
 }
