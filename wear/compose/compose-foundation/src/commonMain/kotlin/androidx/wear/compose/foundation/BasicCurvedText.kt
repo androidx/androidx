@@ -18,10 +18,12 @@ package androidx.wear.compose.foundation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -121,6 +123,7 @@ internal class ArcPaddingValuesImpl(val outer: Dp, val inner: Dp, val start: Dp,
  * screen goes clockwise, and text at the bottom goes counterclockwise.
  * @param contentArcPadding Allows to specify additional space along each "edge" of the content in
  * [Dp] see [ArcPaddingValues]
+ * @param overflow How visual overflow should be handled.
  * @param style A @Composable factory to provide the style to use. This composable SHOULDN'T
  * generate any compose nodes.
  */
@@ -129,8 +132,9 @@ public fun CurvedScope.basicCurvedText(
     modifier: CurvedModifier = CurvedModifier,
     clockwise: Boolean = true,
     contentArcPadding: ArcPaddingValues = ArcPaddingValues(0.dp),
-    style: @Composable () -> CurvedTextStyle = { CurvedTextStyle() }
-) = add(CurvedTextChild(text, clockwise, contentArcPadding, style), modifier)
+    overflow: TextOverflow = TextOverflow.Clip,
+    style: @Composable () -> CurvedTextStyle = { CurvedTextStyle() },
+) = add(CurvedTextChild(text, clockwise, contentArcPadding, style, overflow), modifier)
 
 /**
  * [basicCurvedText] is a component allowing developers to easily write curved text following
@@ -141,12 +145,13 @@ public fun CurvedScope.basicCurvedText(
  * @sample androidx.wear.compose.foundation.samples.CurvedAndNormalText
  *
  * @param text The text to display
- * @param modifier The [CurvedModifier] to apply to this curved text.
  * @param style A style to use.
+ * @param modifier The [CurvedModifier] to apply to this curved text.
  * @param clockwise The direction the text follows (default is true). Usually text at the top of the
  * screen goes clockwise, and text at the bottom goes counterclockwise.
  * @param contentArcPadding Allows to specify additional space along each "edge" of the content in
  * [Dp] see [ArcPaddingValues]
+ * @param overflow How visual overflow should be handled.
  */
 public fun CurvedScope.basicCurvedText(
     text: String,
@@ -154,14 +159,16 @@ public fun CurvedScope.basicCurvedText(
     modifier: CurvedModifier = CurvedModifier,
     clockwise: Boolean = true,
     // TODO: reimplement as modifiers
-    contentArcPadding: ArcPaddingValues = ArcPaddingValues(0.dp)
-) = basicCurvedText(text, modifier, clockwise, contentArcPadding) { style }
+    contentArcPadding: ArcPaddingValues = ArcPaddingValues(0.dp),
+    overflow: TextOverflow = TextOverflow.Clip,
+) = basicCurvedText(text, modifier, clockwise, contentArcPadding, overflow) { style }
 
 internal class CurvedTextChild(
     val text: String,
     val clockwise: Boolean = true,
     val contentArcPadding: ArcPaddingValues = ArcPaddingValues(0.dp),
-    val style: @Composable () -> CurvedTextStyle = { CurvedTextStyle() }
+    val style: @Composable () -> CurvedTextStyle = { CurvedTextStyle() },
+    val overflow: TextOverflow
 ) : CurvedChild() {
     private val delegate: CurvedTextDelegate = CurvedTextDelegate()
     private lateinit var actualStyle: CurvedTextStyle
@@ -201,9 +208,26 @@ internal class CurvedTextChild(
         )
     }
 
+    private var parentSweepRadians: Float = 0f
+
+    override fun doAngularPosition(
+        parentStartAngleRadians: Float,
+        parentSweepRadians: Float,
+        centerOffset: Offset
+    ): Float {
+        this.parentSweepRadians = parentSweepRadians
+        return super.doAngularPosition(parentStartAngleRadians, parentSweepRadians, centerOffset)
+    }
+
     override fun DrawScope.draw() {
         with(delegate) {
-            doDraw(layoutInfo!!, actualStyle.color, actualStyle.background)
+            doDraw(
+                layoutInfo!!,
+                parentSweepRadians,
+                overflow,
+                actualStyle.color,
+                actualStyle.background
+            )
         }
     }
 }
@@ -227,5 +251,11 @@ internal expect class CurvedTextDelegate() {
         arcPaddingPx: ArcPaddingPx
     )
 
-    fun DrawScope.doDraw(layoutInfo: CurvedLayoutInfo, color: Color, background: Color)
+    fun DrawScope.doDraw(
+        layoutInfo: CurvedLayoutInfo,
+        parentSweepRadians: Float,
+        overflow: TextOverflow,
+        color: Color,
+        background: Color
+    )
 }

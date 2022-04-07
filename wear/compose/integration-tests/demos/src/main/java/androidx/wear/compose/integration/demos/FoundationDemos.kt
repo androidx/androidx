@@ -34,6 +34,7 @@ val WearFoundationDemos = DemoCategory(
             ComposableDemo("Curved and Normal Text") { CurvedAndNormalText() },
             ComposableDemo("Fixed size") { CurvedFixedSize() },
             ComposableDemo("Weights") { CurvedWeight() },
+            ComposableDemo("Ellipsis Demo") { CurvedEllipsis() },
         )),
         ComposableDemo("Scrollable Column") { ScrollableColumnDemo() },
         ComposableDemo("Scrollable Row") { ScrollableRowDemo() },
