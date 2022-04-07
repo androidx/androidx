@@ -43,7 +43,7 @@ jobs:
           git config user.name "AndroidX Github Bot"
           git checkout -b $BRANCH_NAME
           git add playground-common/playground.properties
-          git commit -m "Update Prebuilts" # PR body overrides this commit message
+          git commit -m "Update playground snapshot ids" # PR body overrides this commit message
           git push origin $BRANCH_NAME
           # create pull request
           gh pr create --base ${{ github.event.inputs.target-branch || 'androidx-main' }} \
