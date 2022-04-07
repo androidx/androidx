@@ -163,7 +163,7 @@ public class XmlSchemaAndComplicationSlotsDefinition(
                             "If a secondaryDataSource is specified, a primaryDataSource must be too"
                         }
                         require(primaryDataSourceDefaultType != null) {
-                            "If a primaryDataSource is specified, a " +
+                            "If a secondaryDataSource is specified, a " +
                                 "primaryDataSourceDefaultType must be too"
                         }
                         require(secondaryDataSourceDefaultType != null) {
@@ -318,7 +318,7 @@ public class XmlSchemaAndComplicationSlotsDefinition(
         }
 
         require(complicationSlotInflationFactory != null) {
-            "You must override WatchFaceService.getComplicationSlotDetailsFactory to provide " +
+            "You must override WatchFaceService.getComplicationSlotInflationFactory to provide " +
             "additional details needed to inflate ComplicationSlotsManager"
         }
 

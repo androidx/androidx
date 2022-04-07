@@ -378,7 +378,7 @@ public sealed class UserStyleSetting private constructor(
             option.write(dos)
         }
         dos.writeInt(defaultOptionIndex)
-        for (layer in affectedWatchFaceLayers) {
+        for (layer in affectedWatchFaceLayers.toSortedSet()) {
             dos.writeInt(layer.ordinal)
         }
         dos.close()

@@ -927,4 +927,32 @@ class DigestHashTest {
 
         assertThat(digestHash1).isNotEqualTo(digestHash2)
     }
+
+    @Test
+    public fun digestHashInsensitiveToLayersOrderChanges() {
+        val colorStyleSetting1 = ListUserStyleSetting(
+            UserStyleSetting.Id("color_style_setting"),
+            "Colors",
+            "Watchface colorization", /* icon = */
+            null,
+            listOf(redStyleOption),
+            listOf(WatchFaceLayer.BASE, WatchFaceLayer.COMPLICATIONS)
+        )
+        val colorStyleSetting2 = ListUserStyleSetting(
+            UserStyleSetting.Id("color_style_setting"),
+            "Colors",
+            "Watchface colorization", /* icon = */
+            null,
+            listOf(redStyleOption),
+            listOf(WatchFaceLayer.COMPLICATIONS, WatchFaceLayer.BASE)
+        )
+
+        val schema1 = UserStyleSchema(listOf(colorStyleSetting1))
+        val schema2 = UserStyleSchema(listOf(colorStyleSetting2))
+
+        val digestHash1 = schema1.getDigestHash()
+        val digestHash2 = schema2.getDigestHash()
+
+        assertThat(digestHash1).isEqualTo(digestHash2)
+    }
 }

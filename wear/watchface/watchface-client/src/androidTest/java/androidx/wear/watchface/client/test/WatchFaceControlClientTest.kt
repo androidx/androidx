@@ -1178,14 +1178,17 @@ class WatchFaceControlClientTest {
                                 androidx.wear.watchface.samples.CONFIGURABLE_DATA_SOURCE_PKG,
                                 androidx.wear.watchface.samples.CONFIGURABLE_DATA_SOURCE
                             ),
-                            SystemDataSources.DATA_SOURCE_DAY_OF_WEEK
+                            ComplicationType.SHORT_TEXT,
+                            SystemDataSources.DATA_SOURCE_DAY_OF_WEEK,
+                            ComplicationType.SHORT_TEXT
                         ),
                         ComplicationType.SHORT_TEXT
                     ),
                 EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID to
                     androidx.wear.watchface.client.DefaultComplicationDataSourcePolicyAndType(
                         DefaultComplicationDataSourcePolicy(
-                            SystemDataSources.DATA_SOURCE_STEP_COUNT
+                            SystemDataSources.DATA_SOURCE_STEP_COUNT,
+                            ComplicationType.SHORT_TEXT
                         ),
                         ComplicationType.SHORT_TEXT
                     )
@@ -1210,14 +1213,17 @@ class WatchFaceControlClientTest {
                                 androidx.wear.watchface.samples.CONFIGURABLE_DATA_SOURCE_PKG,
                                 androidx.wear.watchface.samples.CONFIGURABLE_DATA_SOURCE
                             ),
-                            SystemDataSources.DATA_SOURCE_DAY_OF_WEEK
+                            ComplicationType.SHORT_TEXT,
+                            SystemDataSources.DATA_SOURCE_DAY_OF_WEEK,
+                            ComplicationType.SHORT_TEXT
                         ),
                         ComplicationType.SHORT_TEXT
                     ),
                 EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID to
                     androidx.wear.watchface.client.DefaultComplicationDataSourcePolicyAndType(
                         DefaultComplicationDataSourcePolicy(
-                            SystemDataSources.DATA_SOURCE_STEP_COUNT
+                            SystemDataSources.DATA_SOURCE_STEP_COUNT,
+                            ComplicationType.SHORT_TEXT
                         ),
                         ComplicationType.SHORT_TEXT
                     )
@@ -1243,7 +1249,8 @@ class WatchFaceControlClientTest {
                 TestCrashingWatchFaceService.COMPLICATION_ID to
                     androidx.wear.watchface.client.DefaultComplicationDataSourcePolicyAndType(
                         DefaultComplicationDataSourcePolicy(
-                            SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET
+                            SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET,
+                            ComplicationType.LONG_TEXT
                         ),
                         ComplicationType.LONG_TEXT
                     )
