@@ -17,8 +17,14 @@ package androidx.work.impl
 
 // Impl note: it is **not** a data class on purpose.
 // Multiple schedulers can create `WorkRunId`-s for the same workSpecId, and `WorkRunId`
-// objects should be different. Processor class relies on that and stores WorkRunId with the same
-// workSpecId in the set.
+// objects should be different. If two schedulers request to start a work with the same
+// `workSpecId`, Processor dedups those requests. However, if the work is cancelled, both
+// of the schedules will request `Processor` to stop the work as well. That can lead to tricky race
+// when one scheduler quickly cancels the work and schedules it again, while another stalls
+// and tries to cancel the work afterwards. In this situation the freshly scheduled work shouldn't
+// be cancelled because the second scheduler tries to cancel already cancelled work.
+// So Processor class relies on WorkRunId-s being different and stores WorkRunId with the same
+// workSpecId in the set to differentiate between past and future run requests.
 class WorkRunId(val workSpecId: String)
 
 class WorkRunIds {
