@@ -59,16 +59,35 @@ internal class CurvedColumnChild(
         parentOuterRadius: Float,
         parentThickness: Float,
     ): PartialLayoutInfo {
+        // Compute space used by weighted children and space left
+        val weights = childrenInLayoutOrder.map { node ->
+            (node.computeParentData() as? CurvedScopeParentData)?.weight ?: 0f
+        }
+        val sumWeights = weights.sum()
+        val extraSpace = parentThickness - childrenInLayoutOrder.mapIndexed { ix, node ->
+            if (weights[ix] == 0f) {
+                node.estimatedThickness
+            } else {
+                0f
+            }
+        }.sum()
+
         // position children
         var outerRadius = parentOuterRadius
-        var maxSweep = childrenInLayoutOrder.maxOfOrNull { node ->
+        childrenInLayoutOrder.forEachIndexed { ix, node ->
+            val actualThickness = if (weights[ix] > 0f) {
+                    extraSpace * weights[ix] / sumWeights
+                } else {
+                    node.estimatedThickness
+                }
+
             node.radialPosition(
                 outerRadius,
-                node.estimatedThickness
+                actualThickness
             )
-            outerRadius -= node.estimatedThickness
-            node.sweepRadians
-        } ?: 0f
+            outerRadius -= actualThickness
+        }
+        var maxSweep = childrenInLayoutOrder.maxOfOrNull { it.sweepRadians } ?: 0f
 
         return PartialLayoutInfo(
             maxSweep,

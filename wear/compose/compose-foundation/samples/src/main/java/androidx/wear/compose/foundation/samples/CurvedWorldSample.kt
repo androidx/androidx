@@ -34,11 +34,13 @@ import androidx.wear.compose.foundation.CurvedAlignment
 import androidx.wear.compose.foundation.CurvedLayout
 import androidx.wear.compose.foundation.CurvedModifier
 import androidx.wear.compose.foundation.CurvedTextStyle
+import androidx.wear.compose.foundation.angularSize
 import androidx.wear.compose.foundation.basicCurvedText
 import androidx.wear.compose.foundation.curvedColumn
 import androidx.wear.compose.foundation.curvedComposable
 import androidx.wear.compose.foundation.curvedRow
 import androidx.wear.compose.foundation.size
+import androidx.wear.compose.foundation.weight
 
 @Sampled
 @Composable
@@ -172,5 +174,26 @@ fun CurvedFixedSize() {
                 )
             }
         )
+    }
+}
+
+@Sampled
+@Composable
+fun CurvedWeight() {
+    CurvedLayout(modifier = Modifier.fillMaxSize().background(Color.White)) {
+        // Evenly spread A, B & C in a 90 degree angle.
+        curvedRow(
+            modifier = CurvedModifier.angularSize(90f)
+        ) {
+            basicCurvedText("A")
+            curvedRow(
+                modifier = CurvedModifier.weight(1f),
+            ) { }
+            basicCurvedText("B")
+            curvedRow(
+                modifier = CurvedModifier.weight(1f),
+            ) { }
+            basicCurvedText("C")
+        }
     }
 }
