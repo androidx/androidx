@@ -24,16 +24,22 @@ import androidx.camera.core.impl.Quirk;
 
 /**
  * Quirk requiring that the frame rate is not set on the MediaFormat during codec selection.
- * <p>For API 21, before using
- * {@link android.media.MediaCodecList#findEncoderForFormat(MediaFormat)}, it needs to reset
- * frame rate config to null. But in the MediaCode.configure() phase on API 21, the MediaFormat
- * should include frame rate value.
  *
- * @see <a href="https://developer.android
- * .com/reference/android/media/MediaCodec#creation">MediaCodec's creation</a>
+ * <p>QuirkSummary
+ *      Bug Id:      174630237
+ *      Description: According to the documentation for
+ *                   {@link android.media.MediaCodecList#findEncoderForFormat(MediaFormat)}, on
+ *                   devices exhibiting this quirk, the {@link MediaFormat} argument must not
+ *                   contain {@link MediaFormat#KEY_FRAME_RATE}, so special care must be taken to
+ *                   remove this key before using the API to find the codec, but the frame rate
+ *                   key may still be required to configure the codec correctly.
+ *      Device(s):   All devices running Lollipop (API 21)
+ *
+ * @see <a href="https://developer.android.com/reference/android/media/MediaCodec#creation">
+ *     MediaCodec Creation</a>
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-public class ExcludeKeyFrameRateInFindEncoderQuirk implements Quirk {
+public class MediaFormatMustNotUseFrameRateToFindEncoderQuirk implements Quirk {
 
     static boolean load() {
         return Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP;
