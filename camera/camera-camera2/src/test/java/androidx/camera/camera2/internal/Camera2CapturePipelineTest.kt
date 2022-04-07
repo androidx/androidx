@@ -50,6 +50,7 @@ import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
+import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.CountDownLatch
@@ -57,8 +58,6 @@ import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertThrows
@@ -123,7 +122,8 @@ class Camera2CapturePipelineTest {
     @After
     fun tearDown() {
         runningRepeatingStream = null
-        executorService.shutdownNow()
+        fakeStillCaptureSurface.close()
+        executorService.shutdown()
     }
 
     @Test
@@ -153,7 +153,7 @@ class Camera2CapturePipelineTest {
 
         val pipeline = Camera2CapturePipeline.Pipeline(
             CameraDevice.TEMPLATE_PREVIEW,
-            Dispatchers.Default.asExecutor(),
+            executorService,
             cameraControl,
             false,
             OverrideAeModeForStillCapture(Quirks(emptyList())),
@@ -793,11 +793,13 @@ class Camera2CapturePipelineTest {
     private fun Camera2CameraControlImpl.waitForSessionConfig(
         checkResult: (sessionConfig: SessionConfig) -> Boolean = { true }
     ) {
+        var verifyCount = 0
         while (true) {
             immediateCompleteCapture.waitForSessionConfigUpdate()
             if (checkResult(sessionConfig)) {
                 return
             }
+            Truth.assertWithMessage("Verify over 5 times").that(++verifyCount).isLessThan(5)
         }
     }
 
@@ -900,7 +902,6 @@ class Camera2CapturePipelineTest {
         val characteristicsCompat = CameraCharacteristicsCompat
             .toCameraCharacteristicsCompat(characteristics)
         val cameraQuirk = quirks ?: CameraQuirks.get(cameraId, characteristicsCompat)
-        val executorService = Executors.newSingleThreadScheduledExecutor()
 
         return Camera2CameraControlImpl(
             characteristicsCompat,
@@ -951,7 +952,7 @@ class Camera2CapturePipelineTest {
             private val allResults: MutableList<List<CaptureConfig>> = mutableListOf()
             val waitingList = mutableListOf<Pair<CountDownLatch,
                     (captureRequests: List<CaptureConfig>) -> Boolean>>()
-            var updateSessionCountDown: CountDownLatch? = null
+            var updateSessionCountDown = CountDownLatch(1)
 
             fun verifyRequestResult(
                 timeout: Long = TimeUnit.SECONDS.toMillis(5),
@@ -971,15 +972,20 @@ class Camera2CapturePipelineTest {
             }
 
             fun waitForSessionConfigUpdate(timeout: Long = TimeUnit.SECONDS.toMillis(5)) {
-                if (updateSessionCountDown == null) {
-                    updateSessionCountDown = CountDownLatch(1)
-                }
-                assertTrue(updateSessionCountDown!!.await(timeout, TimeUnit.MILLISECONDS))
+                // No matter onCameraControlUpdateSessionConfig is called before or after
+                // the waitForSessionConfigUpdate call, the count down operation should be
+                // executed correctly on the updateSessionCountDown object
+                updateSessionCountDown.await(timeout, TimeUnit.MILLISECONDS)
+
+                // Reset count down latch here for next call of waitForSessionConfigUpdate
+                updateSessionCountDown = CountDownLatch(1)
             }
 
             override fun onCameraControlUpdateSessionConfig() {
-                updateSessionCountDown?.countDown()
-                updateSessionCountDown = null
+                // Only count down when count is still larger than 1
+                if (updateSessionCountDown.count > 0) {
+                    updateSessionCountDown.countDown()
+                }
             }
 
             override fun onCameraControlCaptureRequests(
