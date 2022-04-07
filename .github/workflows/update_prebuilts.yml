@@ -21,7 +21,7 @@ jobs:
     steps:
       - name: "Checkout androidx repo"
         uses: actions/checkout@v2
-      - name: "Set environment variables"
+      - name: "Run update prebuilt snapshot ids script"
         shell: bash
         run: development/update_playground.sh
       - name: "Check if anything changed"
