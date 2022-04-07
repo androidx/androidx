@@ -40,6 +40,13 @@ class SurfaceControlCompat internal constructor(
         }
     }
 
+    /**
+     * Callback interface for usage with addTransactionCompletedListener
+     */
+    interface TransactionCompletedListener {
+        fun onComplete(latchTime: Long, presentTime: Long)
+    }
+
     open class Transaction() {
         private var mNativeSurfaceTransaction: Long
 
@@ -48,6 +55,31 @@ class SurfaceControlCompat internal constructor(
             if (mNativeSurfaceTransaction == 0L) {
                 throw java.lang.IllegalArgumentException()
             }
+        }
+
+        /**
+         * Commits the updates accumulated in \a transaction.
+         *
+         * This is the equivalent of ASurfaceTransaction_apply.
+         *
+         * Note that the transaction is guaranteed to be applied atomically. The
+         * transactions which are applied on the same thread are als guaranteed to be applied
+         * in order.
+         */
+        fun commit() {
+            nTransactionApply(mNativeSurfaceTransaction)
+        }
+
+        // Suppression of PairedRegistration below is in order to match existing
+        // framework implementation of no remove method for listeners
+
+        /**
+         * Sets the callback that is invoked once the updates from this transaction are
+         * presented.
+         */
+        @Suppress("PairedRegistration")
+        fun addTransactionCompletedListener(listener: TransactionCompletedListener) {
+            nTransactionSetOnComplete(mNativeSurfaceTransaction, listener)
         }
 
         fun delete() {
@@ -63,6 +95,11 @@ class SurfaceControlCompat internal constructor(
 
         private external fun nTransactionCreate(): Long
         private external fun nTransactionDelete(surfaceTransaction: Long)
+        private external fun nTransactionApply(surfaceTransaction: Long)
+        private external fun nTransactionSetOnComplete(
+            surfaceTransaction: Long,
+            listener: TransactionCompletedListener
+        )
 
         companion object {
             init {

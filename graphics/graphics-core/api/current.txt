@@ -199,12 +199,18 @@ package androidx.graphics.surface {
 
   public static class SurfaceControlCompat.Transaction {
     ctor public SurfaceControlCompat.Transaction();
+    method public final void addTransactionCompletedListener(androidx.graphics.surface.SurfaceControlCompat.TransactionCompletedListener listener);
+    method public final void commit();
     method public final void delete();
     method public final void finalize();
     field public static final androidx.graphics.surface.SurfaceControlCompat.Transaction.Companion Companion;
   }
 
   public static final class SurfaceControlCompat.Transaction.Companion {
+  }
+
+  public static interface SurfaceControlCompat.TransactionCompletedListener {
+    method public void onComplete(long latchTime, long presentTime);
   }
 
 }
