@@ -156,9 +156,6 @@ class XExecutableElementTest {
                 fun withDefaultWithTypeArgs(param1: List<String>): String {
                     return param1.first()
                 }
-                private fun privateWithDefault(): String {
-                    return ""
-                }
             }
 
             interface Sub : Base
@@ -200,12 +197,6 @@ class XExecutableElementTest {
                 element.getMethodByJvmName("withDefaultWithTypeArgs").let { method ->
                     assertThat(method.hasKotlinDefaultImpl()).isTrue()
                 }
-                // private functions in interfaces don't appear in kapt stubs
-                if (invocation.isKsp && className == "Base") {
-                    element.getMethodByJvmName("privateWithDefault").let { method ->
-                        assertThat(method.hasKotlinDefaultImpl()).isFalse()
-                    }
-                }
             }
         }
     }
@@ -236,9 +227,6 @@ class XExecutableElementTest {
                 fun withDefaultWithParams(param1:T1, param2:T2) {}
                 fun withDefaultWithTypeArgs(param1: List<String>): String {
                     return param1.first()
-                }
-                private fun privateWithDefault(): String {
-                    return ""
                 }
             }
 
@@ -294,12 +282,6 @@ class XExecutableElementTest {
 
                 element.getMethodByJvmName("withDefaultWithTypeArgs").let { method ->
                     assertThat(method.hasKotlinDefaultImpl()).isTrue()
-                }
-                // private functions in interfaces don't appear in kapt stubs
-                if (invocation.isKsp && className == "Base") {
-                    element.getMethodByJvmName("privateWithDefault").let { method ->
-                        assertThat(method.hasKotlinDefaultImpl()).isFalse()
-                    }
                 }
             }
 
