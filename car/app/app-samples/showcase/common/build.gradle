@@ -28,7 +28,7 @@ android {
 
 dependencies {
     implementation(project(":car:app:app"))
-    implementation("com.squareup.leakcanary:leakcanary-android:2.7")
+    implementation(libs.leakcanary)
 
     implementation("androidx.core:core:1.7.0")
     implementation(project(":annotation:annotation-experimental"))
