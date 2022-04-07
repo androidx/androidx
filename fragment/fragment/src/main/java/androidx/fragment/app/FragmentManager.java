@@ -106,6 +106,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public abstract class FragmentManager implements FragmentResultOwner {
     static final String SAVED_STATE_TAG = "android:support:fragments";
     static final String FRAGMENT_MANAGER_STATE_TAG = "state";
+    static final String RESULT_NAME_PREFIX = "result_";
     private static boolean DEBUG = false;
 
     /** @hide */
@@ -2404,10 +2405,12 @@ public abstract class FragmentManager implements FragmentResultOwner {
             }
             fms.mBackStackStateKeys.addAll(mBackStackStates.keySet());
             fms.mBackStackStates.addAll(mBackStackStates.values());
-            fms.mResultKeys.addAll(mResults.keySet());
-            fms.mResults.addAll(mResults.values());
             fms.mLaunchedFragments = new ArrayList<>(mLaunchedFragments);
             bundle.putParcelable(FRAGMENT_MANAGER_STATE_TAG, fms);
+
+            for (String resultName : mResults.keySet()) {
+                bundle.putBundle(RESULT_NAME_PREFIX + resultName, mResults.get(resultName));
+            }
         }
 
         return bundle;
@@ -2436,6 +2439,18 @@ public abstract class FragmentManager implements FragmentResultOwner {
         // If there is no saved state at all, then there's nothing else to do
         if (state == null) return;
         Bundle bundle = (Bundle) state;
+
+        for (String bundleKey : bundle.keySet()) {
+            if (bundleKey.startsWith(RESULT_NAME_PREFIX)) {
+                Bundle savedResult = bundle.getBundle(bundleKey);
+                if (savedResult != null) {
+                    savedResult.setClassLoader(mHost.getContext().getClassLoader());
+                    String resultKey = bundleKey.substring(RESULT_NAME_PREFIX.length());
+                    mResults.put(resultKey, savedResult);
+                }
+            }
+        }
+
         FragmentManagerState fms = bundle.getParcelable(FRAGMENT_MANAGER_STATE_TAG);
         if (fms == null || fms.mSavedState == null) return;
 
@@ -2534,14 +2549,6 @@ public abstract class FragmentManager implements FragmentResultOwner {
             }
         }
 
-        ArrayList<String> savedResultKeys = fms.mResultKeys;
-        if (savedResultKeys != null) {
-            for (int i = 0; i < savedResultKeys.size(); i++) {
-                Bundle savedResult = fms.mResults.get(i);
-                savedResult.setClassLoader(mHost.getContext().getClassLoader());
-                mResults.put(savedResultKeys.get(i), savedResult);
-            }
-        }
         mLaunchedFragments = new ArrayDeque<>(fms.mLaunchedFragments);
     }
 
