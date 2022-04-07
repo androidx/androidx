@@ -58,35 +58,43 @@ internal data class CapturedInfo(
 internal const val FINE_FLOAT_TOLERANCE = 0.001f
 
 internal fun CapturedInfo.checkDimensions(
-    expectedAngleDegrees: Float,
-    expectedThicknessPx: Float
+    expectedAngleDegrees: Float? = null,
+    expectedThicknessPx: Float? = null
 ) {
-    Assert.assertEquals(
-        expectedAngleDegrees,
-        lastLayoutInfo!!.sweepRadians.toDegrees(),
-        FINE_FLOAT_TOLERANCE
-    )
-    Assert.assertEquals(
-        expectedThicknessPx,
-        lastLayoutInfo!!.thickness,
-        FINE_FLOAT_TOLERANCE
-    )
+    if (expectedAngleDegrees != null) {
+        Assert.assertEquals(
+            expectedAngleDegrees,
+            lastLayoutInfo!!.sweepRadians.toDegrees(),
+            FINE_FLOAT_TOLERANCE
+        )
+    }
+    if (expectedThicknessPx != null) {
+        Assert.assertEquals(
+            expectedThicknessPx,
+            lastLayoutInfo!!.thickness,
+            FINE_FLOAT_TOLERANCE
+        )
+    }
 }
 
 internal fun CapturedInfo.checkParentDimensions(
-    expectedAngleDegrees: Float,
-    expectedThicknessPx: Float,
+    expectedAngleDegrees: Float? = null,
+    expectedThicknessPx: Float? = null,
 ) {
-    Assert.assertEquals(
-        expectedAngleDegrees,
-        parentSweepRadians.toDegrees(),
-        FINE_FLOAT_TOLERANCE
-    )
-    Assert.assertEquals(
-        expectedThicknessPx,
-        parentThickness,
-        FINE_FLOAT_TOLERANCE
-    )
+    if (expectedAngleDegrees != null) {
+        Assert.assertEquals(
+            expectedAngleDegrees,
+            parentSweepRadians.toDegrees(),
+            FINE_FLOAT_TOLERANCE
+        )
+    }
+    if (expectedThicknessPx != null) {
+        Assert.assertEquals(
+            expectedThicknessPx,
+            parentThickness,
+            FINE_FLOAT_TOLERANCE
+        )
+    }
 }
 
 internal fun CapturedInfo.checkPositionOnParent(

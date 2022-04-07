@@ -83,6 +83,11 @@ package androidx.wear.compose.foundation {
   public final class CurvedModifierKt {
   }
 
+  public final class CurvedParentDataKt {
+    method public static androidx.wear.compose.foundation.CurvedModifier parentDataModifier(androidx.wear.compose.foundation.CurvedModifier, kotlin.jvm.functions.Function1<java.lang.Object,?> modifyParentData);
+    method public static androidx.wear.compose.foundation.CurvedModifier weight(androidx.wear.compose.foundation.CurvedModifier, float weight);
+  }
+
   public final class CurvedRowKt {
     method public static void curvedRow(androidx.wear.compose.foundation.CurvedScope, optional androidx.wear.compose.foundation.CurvedModifier modifier, optional androidx.wear.compose.foundation.CurvedAlignment.Radial? radialAlignment, optional boolean clockwise, kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.CurvedScope,kotlin.Unit> contentBuilder);
   }

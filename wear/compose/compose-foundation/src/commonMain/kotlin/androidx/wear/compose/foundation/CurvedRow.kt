@@ -86,14 +86,32 @@ internal class CurvedRowChild(
         parentSweepRadians: Float,
         centerOffset: Offset
     ): Float {
+        val weights = childrenInLayoutOrder.map { node ->
+            (node.computeParentData() as? CurvedScopeParentData)?.weight ?: 0f
+        }
+        val sumWeights = weights.sum()
+        val extraSpace = parentSweepRadians - childrenInLayoutOrder.mapIndexed { ix, node ->
+            if (weights[ix] == 0f) {
+                node.sweepRadians
+            } else {
+                0f
+            }
+        }.sum()
+
         var currentStartAngle = parentStartAngleRadians
-        childrenInLayoutOrder.forEach { node ->
+        childrenInLayoutOrder.forEachIndexed { ix, node ->
+            val actualSweep = if (weights[ix] > 0f) {
+                    extraSpace * weights[ix] / sumWeights
+                } else {
+                    node.sweepRadians
+                }
+
             node.angularPosition(
                 currentStartAngle,
-                node.sweepRadians,
+                actualSweep,
                 centerOffset
             )
-            currentStartAngle += node.sweepRadians
+            currentStartAngle += actualSweep
         }
         return parentStartAngleRadians
     }
