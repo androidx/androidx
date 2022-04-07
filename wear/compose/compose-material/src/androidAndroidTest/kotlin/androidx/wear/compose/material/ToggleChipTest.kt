@@ -97,7 +97,7 @@ class ToggleChipBehaviourTest {
             )
         }
 
-        rule.onNodeWithTag(TEST_TAG).onChildAt(0).assertHasClickAction()
+        rule.onNodeWithTag(TEST_TAG).assertHasClickAction()
     }
 
     @Test
@@ -130,7 +130,7 @@ class ToggleChipBehaviourTest {
             )
         }
 
-        rule.onNodeWithTag(TEST_TAG).onChildAt(0).assertHasClickAction()
+        rule.onNodeWithTag(TEST_TAG).assertHasClickAction()
     }
 
     @Test
@@ -209,7 +209,7 @@ class ToggleChipBehaviourTest {
             )
         }
 
-        rule.onNodeWithTag(TEST_TAG).onChildAt(0).assertIsEnabled()
+        rule.onNodeWithTag(TEST_TAG).assertIsEnabled()
     }
 
     @Test
@@ -242,7 +242,7 @@ class ToggleChipBehaviourTest {
             )
         }
 
-        rule.onNodeWithTag(TEST_TAG).onChildAt(0).assertIsNotEnabled()
+        rule.onNodeWithTag(TEST_TAG).assertIsNotEnabled()
     }
 
     @Test
@@ -274,7 +274,7 @@ class ToggleChipBehaviourTest {
             )
         }
 
-        rule.onNodeWithTag(TEST_TAG).onChildAt(0).assertIsOn()
+        rule.onNodeWithTag(TEST_TAG).assertIsOn()
     }
 
     @Test
@@ -305,7 +305,7 @@ class ToggleChipBehaviourTest {
             )
         }
 
-        rule.onNodeWithTag(TEST_TAG).onChildAt(0).assertIsOff()
+        rule.onNodeWithTag(TEST_TAG).assertIsOff()
     }
 
     @Test
@@ -340,7 +340,6 @@ class ToggleChipBehaviourTest {
 
         rule
             .onNodeWithTag(TEST_TAG)
-            .onChildAt(0)
             .assertIsOff()
             .performClick()
             .assertIsOn()
@@ -385,7 +384,6 @@ class ToggleChipBehaviourTest {
 
         rule
             .onNodeWithTag(TEST_TAG)
-            .onChildAt(0)
             .assertIsOn()
             .performClick()
             .assertIsOff()
@@ -430,7 +428,6 @@ class ToggleChipBehaviourTest {
 
         rule
             .onNodeWithTag(TEST_TAG)
-            .onChildAt(0)
             .assertIsOff()
             .performClick()
             .assertIsOff()
@@ -471,7 +468,7 @@ class ToggleChipBehaviourTest {
             )
         }
 
-        rule.onNodeWithTag(TEST_TAG).onChildAt(0)
+        rule.onNodeWithTag(TEST_TAG)
             .assert(
                 SemanticsMatcher.expectValue(
                     SemanticsProperties.Role,
