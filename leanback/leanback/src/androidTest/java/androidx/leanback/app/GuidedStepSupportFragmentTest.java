@@ -462,6 +462,7 @@ public class GuidedStepSupportFragmentTest extends GuidedStepSupportFragmentTest
         assertEquals(1000, actionCapture1.getValue().getId());
     }
 
+    @FlakyTest(bugId = 228337304)
     @Test
     public void tapEditTitle() throws Throwable {
         final String fragmentName = generateMethodTestName("first");
