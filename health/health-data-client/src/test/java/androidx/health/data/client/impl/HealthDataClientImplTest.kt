@@ -29,6 +29,8 @@ import androidx.health.data.client.changes.UpsertionChange
 import androidx.health.data.client.metadata.DataOrigin
 import androidx.health.data.client.metadata.Device
 import androidx.health.data.client.metadata.Metadata
+import androidx.health.data.client.permission.AccessTypes
+import androidx.health.data.client.permission.Permission
 import androidx.health.data.client.records.ActiveEnergyBurned
 import androidx.health.data.client.records.Nutrition
 import androidx.health.data.client.records.Steps
@@ -48,6 +50,7 @@ import androidx.health.platform.client.impl.ipc.internal.ConnectionManager
 import androidx.health.platform.client.impl.testing.FakeHealthDataService
 import androidx.health.platform.client.proto.ChangeProto
 import androidx.health.platform.client.proto.DataProto
+import androidx.health.platform.client.proto.PermissionProto
 import androidx.health.platform.client.proto.RequestProto
 import androidx.health.platform.client.proto.ResponseProto
 import androidx.health.platform.client.proto.TimeProto
@@ -87,9 +90,11 @@ private val API_METHOD_LIST =
         {
             readRecords(
                 ReadRecordsRequest(
-                    recordType = Steps::class,
-                    timeRangeFilter = TimeRangeFilter.none(),
-                    limit = 1
+                    Steps::class,
+                    TimeRangeFilter.between(
+                        Instant.ofEpochMilli(1234L),
+                        Instant.ofEpochMilli(1235L)
+                    )
                 )
             )
         },
@@ -162,6 +167,44 @@ class HealthDataClientImplTest {
                 response.await()
             }
         }
+    }
+
+    @Test
+    fun getGrantedPermissions_none() = runTest {
+        val deferred = async {
+            healthDataClient.getGrantedPermissions(
+                setOf(Permission.create<Steps>(AccessTypes.READ))
+            )
+        }
+
+        advanceUntilIdle()
+        waitForMainLooperIdle()
+
+        val response = deferred.await()
+        assertThat(response).isEmpty()
+    }
+
+    @Test
+    fun getGrantedPermissions_steps() = runTest {
+        fakeAhpServiceStub.addGrantedPermission(
+            androidx.health.platform.client.permission.Permission(
+                PermissionProto.Permission.newBuilder()
+                    .setDataType(DataProto.DataType.newBuilder().setName("Steps"))
+                    .setAccessType(PermissionProto.AccessType.ACCESS_TYPE_READ)
+                    .build()
+            )
+        )
+        val deferred = async {
+            healthDataClient.getGrantedPermissions(
+                setOf(Permission.create<Steps>(AccessTypes.READ))
+            )
+        }
+
+        advanceUntilIdle()
+        waitForMainLooperIdle()
+
+        val response = deferred.await()
+        assertThat(response).containsExactly(Permission.create<Steps>(AccessTypes.READ))
     }
 
     @Test(timeout = 10000L)
@@ -341,7 +384,7 @@ class HealthDataClientImplTest {
             healthDataClient.readRecords(
                 ReadRecordsRequest(
                     Steps::class,
-                    timeRangeFilter = TimeRangeFilter.before(Instant.ofEpochMilli(7890L)),
+                    timeRangeFilter = TimeRangeFilter.before(endTime = Instant.ofEpochMilli(7890L)),
                     limit = 10
                 )
             )
@@ -410,7 +453,7 @@ class HealthDataClientImplTest {
         val deferred = async {
             healthDataClient.deleteRecords(
                 Steps::class,
-                timeRangeFilter = TimeRangeFilter.before(Instant.ofEpochMilli(7890L)),
+                timeRangeFilter = TimeRangeFilter.before(endTime = Instant.ofEpochMilli(7890L)),
             )
         }
 
