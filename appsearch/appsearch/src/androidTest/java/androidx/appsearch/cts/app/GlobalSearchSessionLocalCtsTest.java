@@ -23,11 +23,8 @@ import static com.google.common.truth.Truth.assertThat;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
-import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSession;
-import androidx.appsearch.app.GenericDocument;
-import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.GlobalSearchSession;
 import androidx.appsearch.app.PutDocumentsRequest;
 import androidx.appsearch.app.SearchResult;
@@ -59,18 +56,6 @@ public class GlobalSearchSessionLocalCtsTest extends GlobalSearchSessionCtsTestB
         Context context = ApplicationProvider.getApplicationContext();
         return LocalStorage.createGlobalSearchSessionAsync(
                 new LocalStorage.GlobalSearchContext.Builder(context).build());
-    }
-
-    @Test
-    public void testGlobalGetById_jetpackMultiPackage() throws Exception {
-        // Can't global get document in different package in jetpack
-        AppSearchBatchResult<String, GenericDocument> fakePackage =
-                mGlobalSearchSession.getByDocumentIdAsync("fake", DB_NAME_1,
-                        new GetByDocumentIdRequest.Builder("namespace").addIds("id1")
-                                .build()).get();
-        assertThat(fakePackage.getFailures()).hasSize(1);
-        assertThat(fakePackage.getFailures().get("id1").getResultCode())
-                .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
     }
 
     // TODO(b/194207451) This test can be moved to CtsTestBase if customized logger is
