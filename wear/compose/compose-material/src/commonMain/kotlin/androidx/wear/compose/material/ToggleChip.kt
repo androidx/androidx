@@ -139,91 +139,75 @@ public fun ToggleChip(
         modifier = modifier
             .height(ToggleChipDefaults.Height)
             .clip(shape = shape)
+            .paint(painter = colors.background(enabled = enabled, checked = checked).value)
+            .toggleable(
+                enabled = enabled,
+                value = checked,
+                onValueChange = onCheckedChange,
+                role = Role.Checkbox,
+                indication = rememberRipple(),
+                interactionSource = interactionSource
+            )
+            .fillMaxSize()
     ) {
-        // TODO: Due to b/178201337 the paint() modifier on the box doesn't make a call to draw the
-        //  box contents. As a result we need to have stacked boxes to enable us to paint the
-        //  background
-        val painterModifier =
-            Modifier
-                .paint(
-                    painter = colors.background(enabled = enabled, checked = checked).value,
-                )
-
-        val contentBoxModifier =
-            Modifier
-                .toggleable(
-                    enabled = enabled,
-                    value = checked,
-                    onValueChange = onCheckedChange,
-                    role = Role.Checkbox,
-                    indication = rememberRipple(),
-                    interactionSource = interactionSource
-                )
+        Row(
+            modifier = Modifier
                 .fillMaxSize()
-
-        Box(
-            modifier = painterModifier
-        )
-        Box(
-            modifier = contentBoxModifier
+                .padding(contentPadding),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(contentPadding),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                if (appIcon != null) {
-                    Box(
-                        modifier = Modifier.wrapContentSize(align = Alignment.Center)
-                    ) {
-                        CompositionLocalProvider(
-                            LocalContentColor provides colors.contentColor(
-                                enabled = enabled,
-                                checked = checked
-                            ).value,
-                            LocalContentAlpha provides
-                                colors.contentColor(
-                                    enabled = enabled,
-                                    checked = checked
-                                ).value.alpha,
-                            content = appIcon
-                        )
-                    }
-                    Spacer(modifier = Modifier.size(ToggleChipDefaults.IconSpacing))
-                }
-                Labels(
-                    contentColor = colors.contentColor(enabled = enabled, checked = checked).value,
-                    secondaryContentColor = colors.secondaryContentColor(enabled = enabled,
-                        checked = checked).value,
-                    label = label,
-                    secondaryLabel = secondaryLabel,
-                )
+            if (appIcon != null) {
                 Box(
-                    modifier = Modifier
-                        .align(Alignment.CenterVertically)
-                        .width(36.dp)
-                        .wrapContentWidth(align = Alignment.End)
+                    modifier = Modifier.wrapContentSize(align = Alignment.Center)
                 ) {
-                    Spacer(
-                        modifier = Modifier.size(
-                            ToggleChipDefaults.ToggleControlSpacing
-                        )
-                    )
                     CompositionLocalProvider(
-                        LocalContentColor provides
-                            colors.toggleControlTintColor(
-                                enabled = enabled,
-                                checked = checked
-                            ).value,
+                        LocalContentColor provides colors.contentColor(
+                            enabled = enabled,
+                            checked = checked
+                        ).value,
                         LocalContentAlpha provides
-                            colors.toggleControlTintColor(
+                            colors.contentColor(
                                 enabled = enabled,
                                 checked = checked
                             ).value.alpha,
-                        content = toggleControl
+                        content = appIcon
                     )
                 }
+                Spacer(modifier = Modifier.size(ToggleChipDefaults.IconSpacing))
+            }
+            Labels(
+                contentColor = colors.contentColor(enabled = enabled, checked = checked).value,
+                secondaryContentColor = colors.secondaryContentColor(
+                    enabled = enabled,
+                    checked = checked
+                ).value,
+                label = label,
+                secondaryLabel = secondaryLabel,
+            )
+            Box(
+                modifier = Modifier
+                    .align(Alignment.CenterVertically)
+                    .width(36.dp)
+                    .wrapContentWidth(align = Alignment.End)
+            ) {
+                Spacer(
+                    modifier = Modifier.size(
+                        ToggleChipDefaults.ToggleControlSpacing
+                    )
+                )
+                CompositionLocalProvider(
+                    LocalContentColor provides
+                        colors.toggleControlTintColor(
+                            enabled = enabled,
+                            checked = checked
+                        ).value,
+                    LocalContentAlpha provides
+                        colors.toggleControlTintColor(
+                            enabled = enabled,
+                            checked = checked
+                        ).value.alpha,
+                    content = toggleControl
+                )
             }
         }
     }
