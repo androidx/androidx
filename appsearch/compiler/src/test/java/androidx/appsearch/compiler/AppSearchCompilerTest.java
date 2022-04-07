@@ -916,6 +916,30 @@ public class AppSearchCompilerTest {
         checkEqualsGolden("Gift.java");
     }
 
+
+    @Test
+    public void testNestedAutoValueDocument() throws IOException {
+        Compilation compilation = compile(
+                "import com.google.auto.value.AutoValue;\n"
+                        + "import com.google.auto.value.AutoValue.*;\n"
+                        + "class Outer {\n"
+                        + "  @Document\n"
+                        + "  @AutoValue\n"
+                        + "  public abstract static class Gift {\n"
+                        + "    @CopyAnnotations @Document.Id abstract String id();\n"
+                        + "    @CopyAnnotations @Document.Namespace abstract String namespace();\n"
+                        + "    @CopyAnnotations\n"
+                        + "    @Document.StringProperty abstract String property();\n"
+                        + "    public static Gift create(String id, String namespace, String"
+                        + "    property) {\n"
+                        + "      return new AutoValue_Outer_Gift(id, namespace, property);\n"
+                        + "    }\n"
+                        + "  }\n"
+                        + "}\n");
+        assertThat(compilation).succeededWithoutWarnings();
+        checkEqualsGolden("AutoValue_Outer_Gift.java");
+    }
+
     @Test
     public void testAutoValueDocument() throws IOException {
         Compilation compilation = compile(
@@ -933,9 +957,8 @@ public class AppSearchCompilerTest {
                         + "    return new AutoValue_Gift(id, namespace, property);\n"
                         + "  }\n"
                         + "}\n");
-
         assertThat(compilation).succeededWithoutWarnings();
-        checkEqualsGolden("Gift.java");
+        checkEqualsGolden("AutoValue_Gift.java");
     }
 
     @Test

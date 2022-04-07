@@ -82,7 +82,7 @@ class CodeGenerator {
      */
     private TypeSpec createClass() throws ProcessingException {
         // Gets the full name of target class.
-        String qualifiedName = mModel.getClassElement().getQualifiedName().toString();
+        String qualifiedName = mModel.getQualifiedDocumentClassName();
         String className = qualifiedName.substring(mOutputPackage.length() + 1);
         ClassName genClassName = mHelper.getDocumentClassFactoryForClass(mOutputPackage, className);
 
