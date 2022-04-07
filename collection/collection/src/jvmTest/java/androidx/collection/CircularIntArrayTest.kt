@@ -13,116 +13,121 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.collection
 
-package androidx.collection;
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-
-@RunWith(JUnit4.class)
 public class CircularIntArrayTest {
-    @Test(expected = IllegalArgumentException.class)
-    public void creatingWithZeroCapacity() {
-        new CircularIntArray(0);
-    }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void creatingWithOverCapacity() {
-        new CircularIntArray(Integer.MAX_VALUE);
+    @Test
+    public fun creatingWithZeroCapacity() {
+        assertFailsWith<IllegalArgumentException> {
+            CircularIntArray(0)
+        }
     }
 
     @Test
-    public void basicOperations() {
-        CircularIntArray array = new CircularIntArray();
-
-        assertTrue(array.isEmpty());
-        assertEquals(0, array.size());
-        array.addFirst(42);
-        array.addFirst(43);
-        array.addLast(-1);
-        assertFalse(array.isEmpty());
-        assertEquals(3, array.size());
-
-        assertEquals(43, array.getFirst());
-        assertEquals(-1, array.getLast());
-        assertEquals(42, array.get(1));
-
-        assertEquals(43, array.popFirst());
-        assertEquals(-1, array.popLast());
-        assertEquals(42, array.getFirst());
-        assertEquals(42, array.getLast());
-        assertEquals(42, array.popFirst());
-        assertTrue(array.isEmpty());
-        assertEquals(0, array.size());
-    }
-
-    @Test(expected = ArrayIndexOutOfBoundsException.class)
-    public void overpoppingFromStart() {
-        CircularIntArray array = new CircularIntArray();
-        array.addFirst(42);
-        array.popFirst();
-        array.popFirst();
-    }
-
-    @Test(expected = ArrayIndexOutOfBoundsException.class)
-    public void overpoppingFromEnd() {
-        CircularIntArray array = new CircularIntArray();
-        array.addFirst(42);
-        array.popLast();
-        array.popLast();
+    public fun creatingWithOverCapacity() {
+        assertFailsWith<IllegalArgumentException> {
+            CircularIntArray(Int.MAX_VALUE)
+        }
     }
 
     @Test
-    public void removeFromEitherEnd() {
-        CircularIntArray array = new CircularIntArray();
-        array.addFirst(42);
-        array.addFirst(43);
-        array.addLast(-1);
+    public fun basicOperations() {
+        val array = CircularIntArray()
+        assertTrue { array.isEmpty() }
+        assertEquals(0, array.size())
+        array.addFirst(42)
+        array.addFirst(43)
+        array.addLast(-1)
+        assertFalse(array.isEmpty())
+        assertEquals(3, array.size())
+        assertEquals(43, array.first)
+        assertEquals(-1, array.last)
+        assertEquals(42, array[1])
+        assertEquals(43, array.popFirst())
+        assertEquals(-1, array.popLast())
+        assertEquals(42, array.first)
+        assertEquals(42, array.last)
+        assertEquals(42, array.popFirst())
+        assertTrue { array.isEmpty() }
+        assertEquals(0, array.size())
+    }
+
+    @Test
+    public fun overpoppingFromStart() {
+        val array = CircularIntArray()
+        array.addFirst(42)
+        array.popFirst()
+        assertFailsWith<IndexOutOfBoundsException> {
+            array.popFirst()
+        }
+    }
+
+    @Test
+    public fun overpoppingFromEnd() {
+        val array = CircularIntArray()
+        array.addFirst(42)
+        array.popLast()
+        assertFailsWith<IndexOutOfBoundsException> {
+            array.popLast()
+        }
+    }
+
+    @Test
+    public fun removeFromEitherEnd() {
+        val array = CircularIntArray()
+        array.addFirst(42)
+        array.addFirst(43)
+        array.addLast(-1)
 
         // These are no-ops.
-        array.removeFromStart(0);
-        array.removeFromStart(-1);
-        array.removeFromEnd(0);
-        array.removeFromEnd(-1);
+        array.removeFromStart(0)
+        array.removeFromStart(-1)
+        array.removeFromEnd(0)
+        array.removeFromEnd(-1)
+        array.removeFromStart(2)
+        assertEquals(-1, array.first)
+        array.removeFromEnd(1)
+        assertTrue { array.isEmpty() }
 
-        array.removeFromStart(2);
-        assertEquals(-1, array.getFirst());
-        array.removeFromEnd(1);
-        assertTrue(array.isEmpty());
-        assertEquals(0, array.size());
-    }
-
-    @Test(expected = ArrayIndexOutOfBoundsException.class)
-    public void overremovalFromStart() {
-        CircularIntArray array = new CircularIntArray();
-        array.addFirst(42);
-        array.addFirst(43);
-        array.addLast(-1);
-        array.removeFromStart(4);
-    }
-
-    @Test(expected = ArrayIndexOutOfBoundsException.class)
-    public void overremovalFromEnd() {
-        CircularIntArray array = new CircularIntArray();
-        array.addFirst(42);
-        array.addFirst(43);
-        array.addLast(-1);
-        array.removeFromEnd(4);
+        assertEquals(0, array.size())
     }
 
     @Test
-    public void grow() {
-        CircularIntArray array = new CircularIntArray(1);
-        final int expectedSize = 32768;
-        for (int i = 0; i < expectedSize; i++) {
-            array.addFirst(i);
+    public fun overremovalFromStart() {
+        val array = CircularIntArray()
+        array.addFirst(42)
+        array.addFirst(43)
+        array.addLast(-1)
+        assertFailsWith<IndexOutOfBoundsException> {
+            array.removeFromStart(4)
         }
-        assertEquals(expectedSize, array.size());
     }
 
+    @Test
+    public fun overremovalFromEnd() {
+        val array = CircularIntArray()
+        array.addFirst(42)
+        array.addFirst(43)
+        array.addLast(-1)
+        assertFailsWith<IndexOutOfBoundsException> {
+            array.removeFromEnd(4)
+        }
+    }
+
+    @Test
+    public fun grow() {
+        val array = CircularIntArray(1)
+        val expectedSize = 32768
+        repeat(expectedSize) {
+            array.addFirst(it)
+        }
+        assertEquals(expectedSize, array.size())
+    }
 }
