@@ -45,8 +45,8 @@ limitations under the License.
     <string name="lb_playback_controls_shuffle_disable" msgid="6793109999253893369">"Адключыць перамешванне"</string>
     <string name="lb_playback_controls_high_quality_enable" msgid="3057698527166674705">"Уключыць высокую якасць"</string>
     <string name="lb_playback_controls_high_quality_disable" msgid="1209119371486219736">"Адключыць высокую якасць"</string>
-    <string name="lb_playback_controls_closed_captioning_enable" msgid="2346334170216706076">"Уключыць схаваныя цітры"</string>
-    <string name="lb_playback_controls_closed_captioning_disable" msgid="8691966842977635128">"Адключыць схаваныя цітры"</string>
+    <string name="lb_playback_controls_closed_captioning_enable" msgid="2346334170216706076">"Уключыць субцітры"</string>
+    <string name="lb_playback_controls_closed_captioning_disable" msgid="8691966842977635128">"Адключыць субцітры"</string>
     <string name="lb_playback_controls_picture_in_picture" msgid="5770668162543767702">"Перайсці ў рэжым \"Відарыс у відарысе\""</string>
     <string name="lb_playback_time_separator" msgid="1471121602610716654">"/"</string>
     <string name="lb_playback_controls_shown" msgid="8690223891515602822">"Элементы кіравання мультымедыя паказаны"</string>
