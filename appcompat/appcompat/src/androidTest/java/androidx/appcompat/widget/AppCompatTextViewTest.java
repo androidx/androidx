@@ -396,6 +396,18 @@ public class AppCompatTextViewTest
 
     @SdkSuppress(minSdkVersion = 21)
     @Test
+    public void testTextLocale_setInXml_singleLocale() {
+        final AppCompatTextView textView = mActivity.findViewById(
+                R.id.textview_textLocale_textView_singleLocale);
+        if (Build.VERSION.SDK_INT >= 24) {
+            assertEquals(LocaleList.forLanguageTags("zh-CN"), textView.getTextLocales());
+        } else {
+            assertEquals(Locale.forLanguageTag("zh-CN"), textView.getTextLocale());
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 21)
+    @Test
     public void testTextLocale_setInXmlByTextAppearance() {
         final AppCompatTextView textView = mActivity.findViewById(
                 R.id.textview_textLocale_textAppearance);
