@@ -389,6 +389,11 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
         mZslControl.addZslConfig(resolution, sessionConfigBuilder);
     }
 
+    @Override
+    public void setZslDisabled(boolean disabled) {
+        mZslControl.setZslDisabled(disabled);
+    }
+
     /** {@inheritDoc} */
     @Override
     @NonNull

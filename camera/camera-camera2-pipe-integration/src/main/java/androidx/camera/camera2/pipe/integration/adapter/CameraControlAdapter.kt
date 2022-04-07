@@ -156,6 +156,10 @@ class CameraControlAdapter @Inject constructor(
             evCompControl.updateAsync(exposure).asListenableFuture()
         )
 
+    override fun setZslDisabled(disabled: Boolean) {
+        // Override if Zero-Shutter Lag needs to be disabled or not.
+    }
+
     override fun addZslConfig(resolution: Size, sessionConfigBuilder: SessionConfig.Builder) {
         // Override if Zero-Shutter Lag needs to add config to session config.
     }
