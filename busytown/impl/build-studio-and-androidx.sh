@@ -18,14 +18,19 @@ if [[ $OSTYPE == darwin* ]]; then
   PREBUILT_JDK="darwin-x86"
 fi
 
-# resolve DIST_DIR
+# resolve dirs
+export OUT_DIR=$(pwd)/out
+
 if [ -z "$DIST_DIR" ]; then
-  DIST_DIR="$WORKING_DIR/out/dist"
+  DIST_DIR="$OUT_DIR/dist"
 fi
 mkdir -p "$DIST_DIR"
 
-export OUT_DIR=$(pwd)/out
 export DIST_DIR="$DIST_DIR"
+
+# resolve GRADLE_USER_HOME
+export GRADLE_USER_HOME="$DIST_DIR/gradle"
+mkdir -p "$GRADLE_USER_HOME"
 
 if [ "$STUDIO_DIR" == "" ]; then
   STUDIO_DIR="$WORKING_DIR"
@@ -88,6 +93,13 @@ function buildAndroidx() {
   "$LOG_PROCESSOR" $gw $properties -p frameworks/support $androidxArguments --profile \
     --dependency-verification=off # building against tip of tree of AGP that potentially pulls in new dependencies
   $SCRIPTS_DIR/impl/parse_profile_htmls.sh
+
+  # zip build scan
+  scanZip="$DIST_DIR/scan.zip"
+  rm -f "$scanZip"
+  cd "$GRADLE_USER_HOME/build-scan-data"
+  zip -q -r "$scanZip" .
+  cd -
 }
 
 buildAndroidx
