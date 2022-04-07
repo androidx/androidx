@@ -49,7 +49,7 @@ dependencies {
 
     implementation(project(":benchmark:benchmark-common"))
     implementation("androidx.profileinstaller:profileinstaller:1.0.3")
-    implementation("androidx.tracing:tracing-ktx:1.1.0-beta01")
+    implementation("androidx.tracing:tracing-ktx:1.1.0-rc01")
     implementation(libs.testCore)
     implementation(libs.testUiautomator)
 
