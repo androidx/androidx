@@ -24,6 +24,7 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
@@ -35,7 +36,13 @@ import androidx.webkit.WebViewAssetLoader;
  */
 public class AssetLoaderSimpleActivity extends AppCompatActivity {
 
-    private class MyWebViewClient extends WebViewClient {
+    private static class MyWebViewClient extends WebViewClient {
+        private final WebViewAssetLoader mAssetLoader;
+
+        MyWebViewClient(@NonNull WebViewAssetLoader assetLoader) {
+            mAssetLoader = assetLoader;
+        }
+
         @Override
         @SuppressWarnings("deprecation") // use the old one for compatibility with all API levels.
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -56,9 +63,6 @@ public class AssetLoaderSimpleActivity extends AppCompatActivity {
         }
     }
 
-    private WebViewAssetLoader mAssetLoader;
-    private WebView mWebView;
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,13 +71,15 @@ public class AssetLoaderSimpleActivity extends AppCompatActivity {
         setTitle(R.string.asset_loader_simple_activity_title);
         WebkitHelpers.appendWebViewVersionToTitle(this);
 
-        mWebView = findViewById(R.id.webview_asset_loader_webview);
-        mWebView.setWebViewClient(new MyWebViewClient());
+        WebView webView = findViewById(R.id.webview_asset_loader_webview);
 
         // Host application assets under http://appassets.androidplatform.net/assets/...
-        mAssetLoader = new WebViewAssetLoader.Builder()
+        WebViewAssetLoader assetLoader = new WebViewAssetLoader.Builder()
                 .addPathHandler("/assets/", new WebViewAssetLoader.AssetsPathHandler(this))
                 .build();
+
+        webView.setWebViewClient(new MyWebViewClient(assetLoader));
+
         Uri path = new Uri.Builder()
                 .scheme("https")
                 .authority(WebViewAssetLoader.DEFAULT_DOMAIN)
@@ -82,6 +88,6 @@ public class AssetLoaderSimpleActivity extends AppCompatActivity {
                 .appendPath("some_text.html")
                 .build();
 
-        mWebView.loadUrl(path.toString());
+        webView.loadUrl(path.toString());
     }
 }

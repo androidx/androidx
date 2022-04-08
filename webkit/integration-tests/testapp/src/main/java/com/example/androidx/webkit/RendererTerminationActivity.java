@@ -136,31 +136,50 @@ public class RendererTerminationActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Injected Javascript interface that provides a blocking call.
+     *
+     * Uses a lock to wait until the notify call arrives, which blocks the renderer.
+     */
     private class JSBlocker {
+
+        private final Object mLock = new Object();
+
         boolean mBlocked = false;
 
         JSBlocker() {
             updateButtonState(false);
         }
 
-        synchronized void unblock() {
-            mBlocked = false;
-            notify();
-            updateButtonState(false);
+        void unblock() {
+            synchronized (mLock) {
+                mBlocked = false;
+                mLock.notify();
+                updateButtonState(false);
+            }
         }
 
-        synchronized void beginBlocking() {
-            mBlocked = true;
-            mWebView.evaluateJavascript("__blocker__.block();", null);
-            updateButtonState(true);
+        void beginBlocking() {
+            synchronized (mLock) {
+                mBlocked = true;
+                evaluateBeginBlockingJavascript();
+                updateButtonState(true);
+            }
         }
 
         @JavascriptInterface
-        public synchronized void block() throws Exception {
-            while (mBlocked) {
-                wait();
+        public void block() throws Exception {
+            synchronized (mLock) {
+                while (mBlocked) {
+                    mLock.wait();
+                }
             }
         }
+    }
+
+    // Called from inside inner class to avoid synthetic accessors
+    void evaluateBeginBlockingJavascript() {
+        mWebView.evaluateJavascript("__blocker__.block();", null);
     }
 
     @SuppressWarnings("deprecation")
@@ -177,14 +196,14 @@ public class RendererTerminationActivity extends AppCompatActivity {
         mBlocker.unblock();
     }
 
-    private void terminateWebViewRenderer() {
+    void terminateWebViewRenderer() {
         if (WebViewFeature.isFeatureSupported(
                 WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE)) {
             WebViewCompat.getWebViewRenderProcess(mWebView).terminate();
         }
     }
 
-    private void updateButtonState(boolean isBlocked) {
+    void updateButtonState(boolean isBlocked) {
         mBlockButton.setEnabled(!isBlocked);
         mBlockTransientButton.setEnabled(!isBlocked);
         mUnblockButton.setEnabled(isBlocked);
@@ -193,7 +212,7 @@ public class RendererTerminationActivity extends AppCompatActivity {
     }
 
     @SuppressLint("SetJavaScriptEnabled")
-    private void recreateWebView() {
+    void recreateWebView() {
         FrameLayout layout = (FrameLayout) mWebView.getParent();
         LayoutParams params = mWebView.getLayoutParams();
         layout.removeView(mWebView);
@@ -203,6 +222,7 @@ public class RendererTerminationActivity extends AppCompatActivity {
         layout.addView(mWebView);
 
         mWebView.setWebViewClient(new WebViewClient() {
+            @SuppressLint("SyntheticAccessor")
             @Override
             public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
                 mWebView.destroy();
@@ -228,9 +248,10 @@ public class RendererTerminationActivity extends AppCompatActivity {
         if (WebViewFeature.isFeatureSupported(
                 WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE)) {
             WebViewCompat.setWebViewRenderProcessClient(mWebView, new WebViewRenderProcessClient() {
+                @SuppressLint("SyntheticAccessor")
                 @Override
                 public void onRenderProcessUnresponsive(
-                        WebView view, WebViewRenderProcess renderer) {
+                        @NonNull WebView view, @Nullable WebViewRenderProcess renderer) {
                     mStatus.setText("unresponsive");
                     DialogFragment dialog = (DialogFragment) getSupportFragmentManager()
                             .findFragmentByTag("dialog-unresponsive");
@@ -239,8 +260,10 @@ public class RendererTerminationActivity extends AppCompatActivity {
                         dialog.show(getSupportFragmentManager(), "dialog-unresponsive");
                     }
                 }
+                @SuppressLint("SyntheticAccessor")
                 @Override
-                public void onRenderProcessResponsive(WebView view, WebViewRenderProcess renderer) {
+                public void onRenderProcessResponsive(@NonNull WebView view,
+                        @Nullable WebViewRenderProcess renderer) {
                     mStatus.setText("responsive");
                     DialogFragment dialog = (DialogFragment) getSupportFragmentManager()
                             .findFragmentByTag("dialog-unresponsive");

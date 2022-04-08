@@ -35,6 +35,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
@@ -55,12 +56,12 @@ import java.util.HashSet;
 public class WebMessageListenerActivity extends AppCompatActivity {
     private TextView mTextView;
     private final Uri mExampleUri = new Uri.Builder()
-                                            .scheme("https")
-                                            .authority("example.com")
-                                            .appendPath("androidx_webkit")
-                                            .appendPath("example")
-                                            .appendPath("assets")
-                                            .build();
+            .scheme("https")
+            .authority("example.com")
+            .appendPath("androidx_webkit")
+            .appendPath("example")
+            .appendPath("assets")
+            .build();
     private Button mReplyProxyButton;
     private Button mPortButton;
 
@@ -74,7 +75,7 @@ public class WebMessageListenerActivity extends AppCompatActivity {
         @Override
         @RequiresApi(21)
         public WebResourceResponse shouldInterceptRequest(WebView view,
-                                            WebResourceRequest request) {
+                WebResourceRequest request) {
             return mAssetLoader.shouldInterceptRequest(request.getUrl());
         }
 
@@ -96,8 +97,9 @@ public class WebMessageListenerActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onPostMessage(WebView view, WebMessageCompat message, Uri sourceOrigin,
-                boolean isMainFrame, JavaScriptReplyProxy replyProxy) {
+        public void onPostMessage(@NonNull WebView view, @NonNull WebMessageCompat message,
+                @NonNull Uri sourceOrigin,
+                boolean isMainFrame, @NonNull JavaScriptReplyProxy replyProxy) {
             if (message.getData().equals("initialization")) {
                 mReplyProxy = replyProxy;
             }
@@ -115,8 +117,9 @@ public class WebMessageListenerActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onPostMessage(WebView view, WebMessageCompat message, Uri sourceOrigin,
-                boolean isMainFrame, JavaScriptReplyProxy replyProxy) {
+        public void onPostMessage(@NonNull WebView view, @NonNull WebMessageCompat message,
+                @NonNull Uri sourceOrigin,
+                boolean isMainFrame, @NonNull JavaScriptReplyProxy replyProxy) {
             if (message.getData().equals("send port")) {
                 mPort = message.getPorts()[0];
             }
@@ -131,8 +134,9 @@ public class WebMessageListenerActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onPostMessage(WebView view, WebMessageCompat message, Uri sourceOrigin,
-                boolean isMainFrame, JavaScriptReplyProxy replyProxy) {
+        public void onPostMessage(@NonNull WebView view, @NonNull WebMessageCompat message,
+                @NonNull Uri sourceOrigin,
+                boolean isMainFrame, @NonNull JavaScriptReplyProxy replyProxy) {
             Toast.makeText(mContext, "Toast: " + message.getData(), Toast.LENGTH_SHORT).show();
         }
     }
@@ -146,8 +150,9 @@ public class WebMessageListenerActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onPostMessage(WebView view, WebMessageCompat message, Uri sourceOrigin,
-                boolean isMainFrame, JavaScriptReplyProxy replyProxy) {
+        public void onPostMessage(@NonNull WebView view, @NonNull WebMessageCompat message,
+                @NonNull Uri sourceOrigin,
+                boolean isMainFrame, @NonNull JavaScriptReplyProxy replyProxy) {
             replyProxy.postMessage(message.getData());
             mCounter++;
             if (mCounter % 100 == 0) {
@@ -203,7 +208,7 @@ public class WebMessageListenerActivity extends AppCompatActivity {
                 Uri.withAppendedPath(mExampleUri, "www/web_message_listener.html").toString());
     }
 
-    private static CharSequence createNativeTitle() {
+    static CharSequence createNativeTitle() {
         final String title = "Native View";
         SpannableString ss = new SpannableString(title);
         ss.setSpan(new AbsoluteSizeSpan(55, true), 0, title.length(),
