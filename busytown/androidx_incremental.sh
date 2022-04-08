@@ -48,7 +48,7 @@ fi
 
 # Run Gradle
 EXIT_VALUE=0
-if impl/build.sh $DIAGNOSE_ARG buildOnServer checkExternalLicenses listTaskOutputs validateAllProperties \
+if impl/build.sh $DIAGNOSE_ARG buildOnServer checkExternalLicenses listTaskOutputs validateProperties \
     --profile "$@"; then
   echo build succeeded
   EXIT_VALUE=0
