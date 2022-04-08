@@ -44,13 +44,27 @@ public class ComplicationSlotBounds(
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     fun write(dos: DataOutputStream) {
-        for ((type, bounds) in perComplicationTypeBounds) {
+        perComplicationTypeBounds.keys.toSortedSet().forEach { type ->
+            val bounds = perComplicationTypeBounds[type]!!
             dos.writeInt(type.toWireComplicationType())
             dos.writeFloat(bounds.left)
             dos.writeFloat(bounds.right)
             dos.writeFloat(bounds.top)
             dos.writeFloat(bounds.bottom)
         }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as ComplicationSlotBounds
+
+        return perComplicationTypeBounds == other.perComplicationTypeBounds
+    }
+
+    override fun hashCode(): Int {
+        return perComplicationTypeBounds.toSortedMap().hashCode()
     }
 
     /**

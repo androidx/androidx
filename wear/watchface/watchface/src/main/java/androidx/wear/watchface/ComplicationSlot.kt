@@ -42,6 +42,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import java.time.Instant
 import java.time.ZonedDateTime
+import java.util.Objects
 
 /**
  * Interface for rendering complicationSlots onto a [Canvas]. These should be created by
@@ -903,5 +904,33 @@ public class ComplicationSlot internal constructor(
         }
         writer.println("bounds=[$bounds]")
         writer.decreaseIndent()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as ComplicationSlot
+
+        if (id != other.id) return false
+        if (accessibilityTraversalIndex != other.accessibilityTraversalIndex) return false
+        if (boundsType != other.boundsType) return false
+        if (complicationSlotBounds != other.complicationSlotBounds) return false
+        if (supportedTypes.size != other.supportedTypes.size ||
+            !supportedTypes.containsAll(other.supportedTypes)) return false
+        if (defaultDataSourcePolicy != other.defaultDataSourcePolicy) return false
+        if (initiallyEnabled != other.initiallyEnabled) return false
+        if (fixedComplicationDataSource != other.fixedComplicationDataSource) return false
+        if (nameResourceId != other.nameResourceId) return false
+        if (screenReaderNameResourceId != other.screenReaderNameResourceId) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return Objects.hash(id, accessibilityTraversalIndex, boundsType, complicationSlotBounds,
+            supportedTypes.sorted(),
+            defaultDataSourcePolicy, initiallyEnabled, fixedComplicationDataSource,
+            nameResourceId, screenReaderNameResourceId)
     }
 }
