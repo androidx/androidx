@@ -307,6 +307,10 @@ public fun ScalingLazyColumn(
                 if (reverseLayout) contentPadding.calculateBottomPadding().roundToPx()
                 else contentPadding.calculateTopPadding().roundToPx()
 
+            val afterContentPaddingInPx =
+                if (reverseLayout) contentPadding.calculateTopPadding().roundToPx()
+                else contentPadding.calculateBottomPadding().roundToPx()
+
             val itemScope =
                 ScalingLazyListItemScopeImpl(
                     density = density,
@@ -326,6 +330,7 @@ public fun ScalingLazyColumn(
             state.scalingParams.value = scalingParams
             state.extraPaddingPx.value = extraPaddingInPixels
             state.beforeContentPaddingPx.value = beforeContentPaddingInPx
+            state.afterContentPaddingPx.value = afterContentPaddingInPx
             state.viewportHeightPx.value = constraints.maxHeight
             state.gapBetweenItemsPx.value =
                 verticalArrangement.spacing.roundToPx()
@@ -358,7 +363,7 @@ public fun ScalingLazyColumn(
                 if (autoCentering) {
                     item {
                         Spacer(
-                            modifier = Modifier.height(state.topAutoCenteringPaddingPx.toDp())
+                            modifier = Modifier.height(state.topAutoCenteringItemSizePx.toDp())
                         )
                     }
                 }
@@ -366,7 +371,7 @@ public fun ScalingLazyColumn(
                 if (autoCentering) {
                     item {
                         Spacer(
-                            modifier = Modifier.height(state.bottomAutoCenteringPaddingPx.toDp())
+                            modifier = Modifier.height(state.bottomAutoCenteringItemSizePx.toDp())
                         )
                     }
                 }

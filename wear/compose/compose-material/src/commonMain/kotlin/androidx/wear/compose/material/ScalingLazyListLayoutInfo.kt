@@ -31,17 +31,19 @@ public sealed interface ScalingLazyListLayoutInfo {
     val visibleItemsInfo: List<ScalingLazyListItemInfo>
 
     /**
-     * The start offset of the layout's viewport. You can think of it as a minimum offset which
-     * would be visible. Usually it is 0, but it can be negative if a content padding was applied
-     * as the content displayed in the content padding area is still visible.
+     * The start offset of the layout's viewport in pixels. You can think of it as a minimum offset
+     * which would be visible. Usually it is 0, but it can be negative if non-zero
+     * [beforeContentPadding] was applied as the content displayed in the content padding area is
+     * still visible.
      *
      * You can use it to understand what items from [visibleItemsInfo] are fully visible.
      */
     val viewportStartOffset: Int
 
     /**
-     * The end offset of the layout's viewport. You can think of it as a maximum offset which
-     * would be visible. Usually it is a size of the lazy list container plus a content padding.
+     * The end offset of the layout's viewport in pixels. You can think of it as a maximum offset
+     * which would be visible. It is the size of the scaling lazy list layout minus
+     * [beforeContentPadding].
      *
      * You can use it to understand what items from [visibleItemsInfo] are fully visible.
      */
@@ -53,12 +55,13 @@ public sealed interface ScalingLazyListLayoutInfo {
     val totalItemsCount: Int
 
     /**
-     * The size of the viewport. It is the lazy list layout size including all the content paddings.
+     * The size of the viewport in pixels. It is the scaling lazy list layout size including all the
+     * content paddings.
      */
     val viewportSize: IntSize
 
     /**
-     * The orientation of the lazy list.
+     * The orientation of the scaling lazy list.
      */
     val orientation: Orientation
 
@@ -66,4 +69,32 @@ public sealed interface ScalingLazyListLayoutInfo {
      * True if the direction of scrolling and layout is reversed.
      */
     val reverseLayout: Boolean
+
+    /**
+     * The content padding in pixels applied before the first item in the direction of scrolling.
+     * For example it is a top content padding for ScalingLazyColumn with reverseLayout set to
+     * false.
+     */
+    val beforeContentPadding: Int
+
+    /**
+     * The content padding in pixels applied after the last item in the direction of scrolling.
+     * For example it is a bottom content padding for ScalingLazyColumn with reverseLayout set to
+     * false.
+     */
+    val afterContentPadding: Int
+
+    /**
+     * The auto centering padding in pixels applied before the first item in the direction of
+     * scrolling. For example it is a top auto centering padding for ScalingLazyColumn with
+     * reverseLayout set to false.
+     */
+    val beforeAutoCenteringPadding: Int
+
+    /**
+     * The auto centering padding in pixels applied after the last item in the direction of
+     * scrolling. For example it is a bottom auto centering padding for ScalingLazyColumn with
+     * reverseLayout set to false.
+     */
+    val afterAutoCenteringPadding: Int
 }
