@@ -113,6 +113,27 @@ class DialogFragmentTest {
 
     @UiThreadTest
     @Test
+    fun testDialogFragmentDismissNow() {
+        val fragment = TestDialogFragment()
+        fragment.show(activityTestRule.activity.supportFragmentManager, null)
+        activityTestRule.runOnUiThread {
+            activityTestRule.activity.supportFragmentManager.executePendingTransactions()
+        }
+
+        val dialog = fragment.dialog
+        assertWithMessage("Dialog was not being shown")
+            .that(dialog?.isShowing)
+            .isTrue()
+
+        fragment.dismissNow()
+
+        assertWithMessage("Dialog should be removed")
+            .that(dialog?.isShowing)
+            .isFalse()
+    }
+
+    @UiThreadTest
+    @Test
     fun testDialogFragmentDismissAllowingStateLoss() {
         val viewModelStore = ViewModelStore()
         val fc = activityTestRule.startupFragmentController(viewModelStore)
