@@ -73,6 +73,15 @@
         app:systemDataSourceFallbackDefaultType="LONG_TEXT">
         <ComplicationSlotBounds app:left="0.1" app:top="0.2" app:right="0.3" app:bottom="0.4"/>
     </ComplicationSlot>
+    <ComplicationSlot
+        app:slotId="30"
+        app:name="@string/complication_name_two"
+        app:boundsType="ROUND_RECT"
+        app:supportedTypes="SHORT_TEXT"
+        app:systemDataSourceFallback="NO_DATA_SOURCE"
+        app:systemDataSourceFallbackDefaultType="NOT_CONFIGURED">
+        <ComplicationSlotBounds app:left="0.1" app:top="0.2" app:right="0.3" app:bottom="0.4"/>
+    </ComplicationSlot>
     <UserStyleFlavors>
         <UserStyleFlavor app:id="flavor1">
             <StyleOption app:id="TimeStyle" app:value="minimal"/>

@@ -246,7 +246,7 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
 
             assertThat(
                 watchFaceImpl.complicationSlotsManager.complicationSlots.size
-            ).isEqualTo(2)
+            ).isEqualTo(3)
 
             val slotA = watchFaceImpl.complicationSlotsManager.complicationSlots[10]!!
             assertThat(slotA.boundsType).isEqualTo(ComplicationSlotBoundsType.ROUND_RECT)
@@ -306,9 +306,16 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
             assertThat(slotB.screenReaderNameResourceId)
                 .isEqualTo(R.string.complication_screen_reader_name_two)
 
-            assertThat(
-                watchFaceImpl.complicationSlotsManager.complicationSlots.size
-            ).isEqualTo(2)
+            val slotC = watchFaceImpl.complicationSlotsManager.complicationSlots[30]!!
+            assertThat(slotC.defaultDataSourcePolicy.primaryDataSource).isNull()
+            assertThat(slotC.defaultDataSourcePolicy.primaryDataSourceDefaultType).isNull()
+            assertThat(slotC.defaultDataSourcePolicy.secondaryDataSource).isNull()
+            assertThat(slotC.defaultDataSourcePolicy.secondaryDataSourceDefaultType).isNull()
+            assertThat(slotC.defaultDataSourcePolicy.systemDataSourceFallback).isEqualTo(
+                SystemDataSources.NO_DATA_SOURCE
+            )
+            assertThat(slotC.defaultDataSourcePolicy.systemDataSourceFallbackDefaultType)
+                .isEqualTo(ComplicationType.NOT_CONFIGURED)
 
             val watchFaceInitDetails = wrapper.watchFaceInitDetails.await()
             val flavors = watchFaceInitDetails.userStyleFlavors
