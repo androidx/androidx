@@ -40,4 +40,8 @@ dependencies {
     implementation(project(":recyclerview:recyclerview"))
     implementation(project(":tracing:tracing-ktx"))
     implementation(libs.material)
+
+    implementation(project(":work:work-runtime"))
+    implementation(project(":work:work-runtime-ktx"))
+    implementation(project(":room:room-runtime"))
 }

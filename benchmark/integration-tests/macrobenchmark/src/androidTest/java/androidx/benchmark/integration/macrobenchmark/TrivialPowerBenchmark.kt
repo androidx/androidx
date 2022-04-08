@@ -170,7 +170,7 @@ class TrivialPowerBenchmark() {
 
     companion object {
         private const val PACKAGE_NAME = "androidx.benchmark.integration.macrobenchmark.target"
-        private const val ACTION = "$PACKAGE_NAME.TRIVIAL_STARTUP_ACTIVITY"
+        private const val ACTION = "$PACKAGE_NAME.BACKGROUND_WORK_ACTIVITY"
         private const val DURATION_MS = 5000
     }
 }
