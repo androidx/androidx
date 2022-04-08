@@ -209,21 +209,11 @@ val WearMaterialDemos = DemoCategory(
                 DemoCategory(
                     "Demos",
                     listOf(
-                        ComposableDemo("Power Off") { params ->
-                            DialogPowerOff(params.navigateBack)
-                        },
-                        ComposableDemo("Access Location") { params ->
-                            DialogAccessLocation(params.navigateBack)
-                        },
-                        ComposableDemo("Grant Permission") { params ->
-                            DialogGrantPermission(params.navigateBack)
-                        },
-                        ComposableDemo("Long Chips") { params ->
-                            DialogLongChips(params.navigateBack)
-                        },
-                        ComposableDemo("Confirmation") { params ->
-                            DialogSuccessConfirmation(params.navigateBack)
-                        },
+                        ComposableDemo("Power Off") { DialogPowerOff() },
+                        ComposableDemo("Access Location") { DialogAccessLocation() },
+                        ComposableDemo("Grant Permission") { DialogGrantPermission() },
+                        ComposableDemo("Long Chips") { DialogLongChips() },
+                        ComposableDemo("Confirmation") { DialogSuccessConfirmation() },
                     )
                 )
             )

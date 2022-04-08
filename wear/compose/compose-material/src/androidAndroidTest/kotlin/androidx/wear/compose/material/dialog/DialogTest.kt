@@ -254,21 +254,20 @@ class DialogBehaviourTest {
                 ) {
                     Text("Start Screen")
                 }
-                if (showDialog) {
-                    Dialog(
-                        onDismissRequest = { showDialog = false },
-                    ) {
-                        Alert(
-                            title = {},
-                            negativeButton = {
-                                Button(onClick = {}, content = {})
-                            },
-                            positiveButton = {
-                                Button(onClick = {}, content = {})
-                            },
-                            content = { Text("Dialog", modifier = Modifier.testTag(TEST_TAG)) },
-                        )
-                    }
+                Dialog(
+                    showDialog = showDialog,
+                    onDismissRequest = { showDialog = false },
+                ) {
+                    Alert(
+                        title = {},
+                        negativeButton = {
+                            Button(onClick = {}, content = {})
+                        },
+                        positiveButton = {
+                            Button(onClick = {}, content = {})
+                        },
+                        content = { Text("Dialog", modifier = Modifier.testTag(TEST_TAG)) },
+                    )
                 }
             }
         }
@@ -289,17 +288,16 @@ class DialogBehaviourTest {
                 ) {
                     Text("Label")
                 }
-                if (showDialog) {
-                    Dialog(
-                        onDismissRequest = { showDialog = false },
-                    ) {
-                        Alert(
-                            icon = {},
-                            title = {},
-                            message = { Text("Text", modifier = Modifier.testTag(TEST_TAG)) },
-                            content = {},
-                        )
-                    }
+                Dialog(
+                    showDialog = showDialog,
+                    onDismissRequest = { showDialog = false },
+                ) {
+                    Alert(
+                        icon = {},
+                        title = {},
+                        message = { Text("Text", modifier = Modifier.testTag(TEST_TAG)) },
+                        content = {},
+                    )
                 }
             }
         }
@@ -320,16 +318,15 @@ class DialogBehaviourTest {
                 ) {
                     Text("Label")
                 }
-                if (showDialog) {
-                    Dialog(
-                        onDismissRequest = { showDialog = false },
-                    ) {
-                        Confirmation(
-                            onTimeout = { showDialog = false },
-                            icon = {},
-                            content = { Text("Dialog", modifier = Modifier.testTag(TEST_TAG)) },
-                        )
-                    }
+                Dialog(
+                    showDialog = showDialog,
+                    onDismissRequest = { showDialog = false },
+                ) {
+                    Confirmation(
+                        onTimeout = { showDialog = false },
+                        icon = {},
+                        content = { Text("Dialog", modifier = Modifier.testTag(TEST_TAG)) },
+                    )
                 }
             }
         }
@@ -350,17 +347,16 @@ class DialogBehaviourTest {
                 ) {
                     Chip(onClick = { showDialog = true }, label = { Text("Show") })
                 }
-                if (showDialog) {
-                    Dialog(
-                        onDismissRequest = { showDialog = false },
-                    ) {
-                        Alert(
-                            icon = {},
-                            title = {},
-                            message = { Text("Text", modifier = Modifier.testTag(TEST_TAG)) },
-                            content = {},
-                        )
-                    }
+                Dialog(
+                    showDialog = showDialog,
+                    onDismissRequest = { showDialog = false },
+                ) {
+                    Alert(
+                        icon = {},
+                        title = {},
+                        message = { Text("Text", modifier = Modifier.testTag(TEST_TAG)) },
+                        content = {},
+                    )
                 }
             }
         }
@@ -382,19 +378,16 @@ class DialogBehaviourTest {
                 ) {
                     Text(if (dismissed) dismissedText else "Label")
                 }
-                if (!dismissed) {
-                    Dialog(
-                        onDismissRequest = {
-                            dismissed = true
-                        },
-                    ) {
-                        Alert(
-                            icon = {},
-                            title = {},
-                            message = { Text("Text", modifier = Modifier.testTag(TEST_TAG)) },
-                            content = {},
-                        )
-                    }
+                Dialog(
+                    showDialog = !dismissed,
+                    onDismissRequest = { dismissed = true },
+                ) {
+                    Alert(
+                        icon = {},
+                        title = {},
+                        message = { Text("Text", modifier = Modifier.testTag(TEST_TAG)) },
+                        content = {},
+                    )
                 }
             }
         }

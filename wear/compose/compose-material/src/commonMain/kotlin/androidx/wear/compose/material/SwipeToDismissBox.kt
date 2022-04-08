@@ -227,9 +227,9 @@ public fun SwipeToDismissBox(
  * [Swipe to dismiss](https://developer.android.com/training/wearables/components/swipe-to-dismiss)
  * guide.
  *
- * @param state State containing information about ongoing swipe or animation.
  * @param onDismissed Executes when the swipe to dismiss has completed.
  * @param modifier Optional [Modifier] for this component.
+ * @param state State containing information about ongoing swipe or animation.
  * @param backgroundScrimColor Color for background scrim
  * @param contentScrimColor Optional [Color] used for the scrim over the
  * content composable during the swipe gesture.
@@ -249,9 +249,9 @@ public fun SwipeToDismissBox(
  */
 @Composable
 public fun SwipeToDismissBox(
-    state: SwipeToDismissBoxState,
     onDismissed: () -> Unit,
     modifier: Modifier = Modifier,
+    state: SwipeToDismissBoxState = rememberSwipeToDismissBoxState(),
     backgroundScrimColor: Color = MaterialTheme.colors.background,
     contentScrimColor: Color = contentColorFor(backgroundScrimColor),
     backgroundKey: Any = SwipeToDismissKeys.Background,
