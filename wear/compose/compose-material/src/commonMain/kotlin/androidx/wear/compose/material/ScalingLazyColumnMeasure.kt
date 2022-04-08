@@ -402,6 +402,10 @@ internal class DefaultScalingLazyListLayoutInfo(
     override val reverseLayout: Boolean,
     override val orientation: Orientation,
     override val viewportSize: IntSize,
+    override val beforeContentPadding: Int,
+    override val afterContentPadding: Int,
+    override val beforeAutoCenteringPadding: Int,
+    override val afterAutoCenteringPadding: Int,
     // Flag to indicate that we are ready for the second stage of initialization. Note that this
     // flag will be false once initialization is complete and initialized == true.
     internal val readyForInitialization: Boolean,

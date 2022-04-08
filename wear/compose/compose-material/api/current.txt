@@ -364,6 +364,10 @@ package androidx.wear.compose.material {
   }
 
   public sealed interface ScalingLazyListLayoutInfo {
+    method public int getAfterAutoCenteringPadding();
+    method public int getAfterContentPadding();
+    method public int getBeforeAutoCenteringPadding();
+    method public int getBeforeContentPadding();
     method public androidx.compose.foundation.gestures.Orientation getOrientation();
     method public boolean getReverseLayout();
     method public int getTotalItemsCount();
@@ -371,6 +375,10 @@ package androidx.wear.compose.material {
     method public long getViewportSize();
     method public int getViewportStartOffset();
     method public java.util.List<androidx.wear.compose.material.ScalingLazyListItemInfo> getVisibleItemsInfo();
+    property public abstract int afterAutoCenteringPadding;
+    property public abstract int afterContentPadding;
+    property public abstract int beforeAutoCenteringPadding;
+    property public abstract int beforeContentPadding;
     property public abstract androidx.compose.foundation.gestures.Orientation orientation;
     property public abstract boolean reverseLayout;
     property public abstract int totalItemsCount;

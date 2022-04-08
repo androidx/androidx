@@ -972,6 +972,10 @@ public class ScalingLazyListLayoutInfoTest {
             assertThat(state.layoutInfo.viewportStartOffset).isEqualTo(0)
             assertThat(state.layoutInfo.viewportEndOffset).isEqualTo(sizePx)
             assertThat(state.layoutInfo.viewportSize).isEqualTo(IntSize(sizePx, sizePx))
+            assertThat(state.layoutInfo.beforeContentPadding).isEqualTo(0)
+            assertThat(state.layoutInfo.afterContentPadding).isEqualTo(0)
+            assertThat(state.layoutInfo.beforeAutoCenteringPadding).isEqualTo(0)
+            assertThat(state.layoutInfo.afterAutoCenteringPadding).isEqualTo(0)
         }
     }
 
@@ -1002,22 +1006,30 @@ public class ScalingLazyListLayoutInfoTest {
             assertThat(state.layoutInfo.viewportStartOffset).isEqualTo(-startPaddingPx)
             assertThat(state.layoutInfo.viewportEndOffset).isEqualTo(sizePx - startPaddingPx)
             assertThat(state.layoutInfo.viewportSize).isEqualTo(IntSize(sizePx, sizePx))
+            assertThat(state.layoutInfo.beforeContentPadding).isEqualTo(10)
+            assertThat(state.layoutInfo.afterContentPadding).isEqualTo(15)
+            assertThat(state.layoutInfo.beforeAutoCenteringPadding).isEqualTo(0)
+            assertThat(state.layoutInfo.afterAutoCenteringPadding).isEqualTo(0)
         }
     }
 
     @Test
     fun viewportOffsetsAreCorrectWithAutoCentering() {
-        val sizePx = 45
-        val sizeDp = with(rule.density) { sizePx.toDp() }
+        val itemSizePx = 45
+        val itemSizeDp = with(rule.density) { itemSizePx.toDp() }
+        val viewPortSizePx = itemSizePx * 4
+        val viewPortSizeDp = with(rule.density) { viewPortSizePx.toDp() }
         lateinit var state: ScalingLazyListState
         rule.setContent {
             ScalingLazyColumn(
-                Modifier.requiredSize(sizeDp),
-                state = rememberScalingLazyListState().also { state = it },
+                Modifier.requiredSize(viewPortSizeDp),
+                state = rememberScalingLazyListState(
+                    initialCenterItemIndex = 0
+                ).also { state = it },
                 autoCentering = true
             ) {
-                items(4) {
-                    Box(Modifier.requiredSize(sizeDp))
+                items(7) {
+                    Box(Modifier.requiredSize(itemSizeDp))
                 }
             }
         }
@@ -1026,7 +1038,23 @@ public class ScalingLazyListLayoutInfoTest {
         rule.waitUntil { state.initialized.value }
         rule.runOnIdle {
             assertThat(state.layoutInfo.viewportStartOffset).isEqualTo(0)
-            assertThat(state.layoutInfo.viewportEndOffset).isEqualTo(sizePx)
+            assertThat(state.layoutInfo.viewportEndOffset).isEqualTo(viewPortSizePx)
+            assertThat(state.layoutInfo.beforeContentPadding).isEqualTo(0)
+            assertThat(state.layoutInfo.afterContentPadding).isEqualTo(0)
+            assertThat(state.layoutInfo.beforeAutoCenteringPadding).isGreaterThan(0)
+            assertThat(state.layoutInfo.afterAutoCenteringPadding).isEqualTo(0)
+
+            runBlocking {
+                state.scrollToItem(3)
+            }
+            assertThat(state.layoutInfo.beforeAutoCenteringPadding).isEqualTo(0)
+            assertThat(state.layoutInfo.afterAutoCenteringPadding).isEqualTo(0)
+
+            runBlocking {
+                state.scrollToItem(5)
+            }
+            assertThat(state.layoutInfo.beforeAutoCenteringPadding).isEqualTo(0)
+            assertThat(state.layoutInfo.afterAutoCenteringPadding).isGreaterThan(0)
         }
     }
 
