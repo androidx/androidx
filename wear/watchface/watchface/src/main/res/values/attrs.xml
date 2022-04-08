@@ -73,6 +73,7 @@
     <!-- Required. The default [ComplicationType] for the default complication data source.
     This is a subset of androidx.wear.watchface.complications.data.ComplicationType. -->
     <attr name="systemDataSourceFallbackDefaultType" format="enum">
+        <enum name="NOT_CONFIGURED" value="1" />
         <enum name="SHORT_TEXT" value="3" />
         <enum name="LONG_TEXT" value="4" />
         <enum name="RANGED_VALUE" value="5" />
