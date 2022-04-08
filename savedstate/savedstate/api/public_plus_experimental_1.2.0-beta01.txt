@@ -5,8 +5,6 @@ package androidx.savedstate {
     method @MainThread public android.os.Bundle? consumeRestoredStateForKey(String key);
     method public androidx.savedstate.SavedStateRegistry.SavedStateProvider? getSavedStateProvider(String key);
     method @MainThread public boolean isRestored();
-    method @MainThread public void performAttach(androidx.lifecycle.Lifecycle lifecycle);
-    method @MainThread public void performRestore(android.os.Bundle? savedState);
     method @MainThread public void registerSavedStateProvider(String key, androidx.savedstate.SavedStateRegistry.SavedStateProvider provider);
     method @MainThread public void runOnNextRecreation(Class<? extends androidx.savedstate.SavedStateRegistry.AutoRecreated> clazz);
     method @MainThread public void unregisterSavedStateProvider(String key);
