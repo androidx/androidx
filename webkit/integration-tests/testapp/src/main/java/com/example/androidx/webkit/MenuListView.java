@@ -22,6 +22,8 @@ import android.util.AttributeSet;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 /**
@@ -29,20 +31,21 @@ import androidx.annotation.RequiresApi;
  */
 public class MenuListView extends ListView {
     private final Context mContext;
-    public MenuListView(Context context) {
+    public MenuListView(@NonNull Context context) {
         super(context);
         mContext = context;
     }
-    public MenuListView(Context context, AttributeSet attrs) {
+    public MenuListView(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         mContext = context;
     }
-    public MenuListView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public MenuListView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         mContext = context;
     }
     @RequiresApi(21)
-    public MenuListView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public MenuListView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr,
+            int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         mContext = context;
     }
@@ -54,12 +57,13 @@ public class MenuListView extends ListView {
         private String mName;
         private Intent mIntent;
 
-        public MenuItem(String name, Intent intentToLaunch) {
+        public MenuItem(@NonNull String name, @NonNull Intent intentToLaunch) {
             mName = name;
             mIntent = intentToLaunch;
         }
 
         @Override
+        @NonNull
         public String toString() {
             return mName;
         }
@@ -71,7 +75,7 @@ public class MenuListView extends ListView {
          *
          * @param activityContext the Activity Context of the current Activity on the stack.
          */
-        public void start(Context activityContext) {
+        public void start(@NonNull Context activityContext) {
             activityContext.startActivity(mIntent);
         }
     }
@@ -79,7 +83,7 @@ public class MenuListView extends ListView {
     /**
      * Sets the menu items for this {@link MenuListView}.
      */
-    public void setItems(MenuItem[] items) {
+    public void setItems(@NonNull MenuItem[] items) {
         ArrayAdapter<MenuItem> featureArrayAdapter =
                 new ArrayAdapter<>(mContext, android.R.layout.simple_list_item_1, items);
         setAdapter(featureArrayAdapter);

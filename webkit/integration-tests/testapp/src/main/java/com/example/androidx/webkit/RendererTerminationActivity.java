@@ -32,6 +32,7 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -84,6 +85,7 @@ public class RendererTerminationActivity extends AppCompatActivity {
     /** A renderer terminated {@link DialogFragment}. */
     public static class RendererTerminatedDialogFragment extends DialogFragment {
         /** Creates a new RendererTerminatedDialogFragment instance. */
+        @NonNull
         public static RendererTerminatedDialogFragment newInstance() {
             RendererTerminatedDialogFragment dialog = new RendererTerminatedDialogFragment();
             dialog.setCancelable(false);
@@ -91,7 +93,8 @@ public class RendererTerminationActivity extends AppCompatActivity {
         }
 
         @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
+        @NonNull
+        public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
             View v = LayoutInflater.from(getActivity())
                     .inflate(R.layout.fragment_renderer_terminated, null);
             final Dialog dialog = new AlertDialog.Builder(getActivity())
@@ -108,6 +111,7 @@ public class RendererTerminationActivity extends AppCompatActivity {
     /** A renderer unresponsive {@link DialogFragment}. */
     public static class RendererUnresponsiveDialogFragment extends DialogFragment {
         /** Creates a new RendererUnresponsiveDialogFragment instance. */
+        @NonNull
         public static RendererUnresponsiveDialogFragment newInstance() {
             RendererUnresponsiveDialogFragment dialog = new RendererUnresponsiveDialogFragment();
             dialog.setCancelable(false);
@@ -115,7 +119,8 @@ public class RendererTerminationActivity extends AppCompatActivity {
         }
 
         @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
+        @NonNull
+        public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
             View v = LayoutInflater.from(getActivity())
                     .inflate(R.layout.fragment_renderer_unresponsive, null);
             final Dialog dialog = new AlertDialog.Builder(getActivity())

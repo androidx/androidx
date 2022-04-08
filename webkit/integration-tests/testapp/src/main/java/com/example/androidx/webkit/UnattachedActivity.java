@@ -20,6 +20,7 @@ import android.os.Bundle;
 import android.webkit.WebView;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.webkit.WebSettingsCompat;
 import androidx.webkit.WebViewFeature;
@@ -37,7 +38,7 @@ public class UnattachedActivity extends AppCompatActivity {
     private WebView mUnattachedWebView;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_unattached);
         setTitle(R.string.unattached_activity_title);

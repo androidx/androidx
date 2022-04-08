@@ -19,6 +19,7 @@ package com.example.androidx.webkit;
 import android.os.Bundle;
 import android.webkit.WebView;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.webkit.WebSettingsCompat;
 import androidx.webkit.WebViewFeature;
@@ -31,7 +32,7 @@ import androidx.webkit.WebViewFeature;
 public class SmallInterstitialActivity extends AppCompatActivity {
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_small_interstitial);
         setTitle(R.string.small_interstitial_activity_title);
