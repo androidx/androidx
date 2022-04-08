@@ -145,16 +145,16 @@ final class WeightTypefaceApi26 {
         }
     }
 
-    @NonNull
+    @Nullable
     private static Typeface create(long nativeInstance) {
         try {
             return sConstructor.newInstance(nativeInstance);
         } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
+            return null;
         } catch (InstantiationException e) {
-            throw new RuntimeException(e);
+            return null;
         } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
+            return null;
         }
     }
 

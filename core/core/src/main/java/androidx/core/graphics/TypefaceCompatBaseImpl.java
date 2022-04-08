@@ -242,7 +242,12 @@ class TypefaceCompatBaseImpl {
     @NonNull
     Typeface createWeightStyle(@NonNull Context context, @NonNull Typeface base,
             int weight, boolean italic) {
-        Typeface out = WeightTypefaceApi14.createWeightStyle(this, context, base, weight, italic);
+        Typeface out = null;
+        try {
+            out = WeightTypefaceApi14.createWeightStyle(this, context, base, weight, italic);
+        } catch (RuntimeException fallbackFailed) {
+            // ignore
+        }
         if (out == null) {
             out = base;
         }
