@@ -37,6 +37,8 @@ public final class PreviewConfig
             "camerax.core.preview.imageInfoProcessor", ImageInfoProcessor.class);
     public static final Option<CaptureProcessor> OPTION_PREVIEW_CAPTURE_PROCESSOR =
             Option.create("camerax.core.preview.captureProcessor", CaptureProcessor.class);
+    public static final Option<Boolean> OPTION_RGBA8888_SURFACE_REQUIRED =
+            Option.create("camerax.core.preview.isRgba8888SurfaceRequired", Boolean.class);
     private final OptionsBundle mConfig;
 
     /** Creates a new configuration instance. */
@@ -88,6 +90,12 @@ public final class PreviewConfig
         return retrieveOption(OPTION_PREVIEW_CAPTURE_PROCESSOR);
     }
 
+    /**
+     * Returns if the preview surface requires RGBA8888 format.
+     */
+    public boolean isRgba8888SurfaceRequired(boolean valueIfMissing) {
+        return retrieveOption(OPTION_RGBA8888_SURFACE_REQUIRED, valueIfMissing);
+    }
     /**
      * Retrieves the format of the image that is fed as input.
      *
