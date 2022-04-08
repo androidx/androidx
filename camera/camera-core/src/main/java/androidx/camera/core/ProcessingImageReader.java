@@ -144,7 +144,7 @@ class ProcessingImageReader implements ImageReaderProxy {
     boolean mProcessing = false;
 
     @GuardedBy("mLock")
-    final MetadataImageReader mInputImageReader;
+    final ImageReaderProxy mInputImageReader;
 
     @GuardedBy("mLock")
     final ImageReaderProxy mOutputImageReader;
@@ -403,7 +403,11 @@ class ProcessingImageReader implements ImageReaderProxy {
     @Nullable
     CameraCaptureCallback getCameraCaptureCallback() {
         synchronized (mLock) {
-            return mInputImageReader.getCameraCaptureCallback();
+            if (mInputImageReader instanceof MetadataImageReader) {
+                return ((MetadataImageReader) mInputImageReader).getCameraCaptureCallback();
+            } else {
+                return new CameraCaptureCallback() {};
+            }
         }
     }
 
@@ -454,7 +458,7 @@ class ProcessingImageReader implements ImageReaderProxy {
      */
     static final class Builder {
         @NonNull
-        protected final MetadataImageReader mInputImageReader;
+        protected final ImageReaderProxy mInputImageReader;
         @NonNull
         protected final CaptureBundle mCaptureBundle;
         @NonNull
@@ -473,7 +477,7 @@ class ProcessingImageReader implements ImageReaderProxy {
          * @param captureProcessor The {@link CaptureProcessor} to be invoked when the Images are
          *                         ready
          */
-        Builder(@NonNull MetadataImageReader imageReader, @NonNull CaptureBundle captureBundle,
+        Builder(@NonNull ImageReaderProxy imageReader, @NonNull CaptureBundle captureBundle,
                 @NonNull CaptureProcessor captureProcessor) {
             mInputImageReader = imageReader;
             mCaptureBundle = captureBundle;
