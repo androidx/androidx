@@ -47,6 +47,7 @@ ext {
 android {
     lintOptions {
         lintConfig = file("lint.xml")
+        baseline file("lint-baseline.xml")
     }
     sourceSets {
         // Allow compiling the WebView support library boundary interfaces from this project.

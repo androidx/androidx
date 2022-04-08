@@ -1,0 +1,1236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `android.os.Looper#isCurrentThread`"
+        errorLine1="                            messageHandlerThread.getLooper().isCurrentThread());"
+        errorLine2="                                                             ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/webkit/PostMessageTest.java"
+            line="314"
+            column="62"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `android.os.Looper#isCurrentThread`"
+        errorLine1="                    messageMainLooperFuture.set(Looper.getMainLooper().isCurrentThread());"
+        errorLine2="                                                                       ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/webkit/PostMessageTest.java"
+            line="348"
+            column="72"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 14): `android.webkit.SafeBrowsingResponse#showInterstitial`"
+        errorLine1="            getFrameworksImpl().showInterstitial(allowReporting);"
+        errorLine2="                                ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/SafeBrowsingResponseImpl.java"
+            line="84"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 14): `getFrameworksImpl`"
+        errorLine1="            getFrameworksImpl().showInterstitial(allowReporting);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/SafeBrowsingResponseImpl.java"
+            line="84"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 14): `android.webkit.SafeBrowsingResponse#proceed`"
+        errorLine1="            getFrameworksImpl().proceed(report);"
+        errorLine2="                                ~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/SafeBrowsingResponseImpl.java"
+            line="97"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 14): `getFrameworksImpl`"
+        errorLine1="            getFrameworksImpl().proceed(report);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/SafeBrowsingResponseImpl.java"
+            line="97"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 14): `android.webkit.SafeBrowsingResponse#backToSafety`"
+        errorLine1="            getFrameworksImpl().backToSafety(report);"
+        errorLine2="                                ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/SafeBrowsingResponseImpl.java"
+            line="110"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 14): `getFrameworksImpl`"
+        errorLine1="            getFrameworksImpl().backToSafety(report);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/SafeBrowsingResponseImpl.java"
+            line="110"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `android.webkit.WebResourceRequest#getUrl`"
+        errorLine1="                if (request.getUrl().toString().equals(INDEX_URL)) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/webkit/ServiceWorkerClientCompatTest.java"
+            line="95"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `android.webkit.WebResourceRequest#getUrl`"
+        errorLine1="                if (request.getUrl().toString().equals(SW_URL)) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/webkit/ServiceWorkerClientCompatTest.java"
+            line="112"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `android.webkit.WebResourceRequest#getUrl`"
+        errorLine1="        assertEquals(SW_URL, requests.get(0).getUrl().toString());"
+        errorLine2="                                             ~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/webkit/ServiceWorkerClientCompatTest.java"
+            line="173"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `android.webkit.WebResourceRequest#getUrl`"
+        errorLine1="        assertEquals(FETCH_URL, requests.get(1).getUrl().toString());"
+        errorLine2="                                                ~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/webkit/ServiceWorkerClientCompatTest.java"
+            line="174"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `android.webkit.ServiceWorkerController#getInstance`"
+        errorLine1="            mFrameworksImpl = ServiceWorkerController.getInstance();"
+        errorLine2="                                                      ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/ServiceWorkerControllerImpl.java"
+            line="44"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `android.webkit.ServiceWorkerController#getServiceWorkerWebSettings`"
+        errorLine1="                    mFrameworksImpl.getServiceWorkerWebSettings());"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/ServiceWorkerControllerImpl.java"
+            line="49"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `FrameworkServiceWorkerClient`"
+        errorLine1="            getFrameworksImpl().setServiceWorkerClient(new FrameworkServiceWorkerClient(client));"
+        errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/ServiceWorkerControllerImpl.java"
+            line="85"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `android.webkit.ServiceWorkerController#setServiceWorkerClient`"
+        errorLine1="            getFrameworksImpl().setServiceWorkerClient(new FrameworkServiceWorkerClient(client));"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/ServiceWorkerControllerImpl.java"
+            line="85"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `getFrameworksImpl`"
+        errorLine1="            getFrameworksImpl().setServiceWorkerClient(new FrameworkServiceWorkerClient(client));"
+        errorLine2="            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/ServiceWorkerControllerImpl.java"
+            line="85"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `createInvocationHandlerFor`"
+        errorLine1="                    BoundaryInterfaceReflectionUtil.createInvocationHandlerFor("
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/ServiceWorkerControllerImpl.java"
+            line="88"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `android.webkit.ServiceWorkerWebSettings#setCacheMode`"
+        errorLine1="            getFrameworksImpl().setCacheMode(mode);"
+        errorLine2="                                ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/ServiceWorkerWebSettingsImpl.java"
+            line="93"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `getFrameworksImpl`"
+        errorLine1="            getFrameworksImpl().setCacheMode(mode);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/ServiceWorkerWebSettingsImpl.java"
+            line="93"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `android.webkit.ServiceWorkerWebSettings#getCacheMode`"
+        errorLine1="            return getFrameworksImpl().getCacheMode();"
+        errorLine2="                                       ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/ServiceWorkerWebSettingsImpl.java"
+            line="105"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `getFrameworksImpl`"
+        errorLine1="            return getFrameworksImpl().getCacheMode();"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/ServiceWorkerWebSettingsImpl.java"
+            line="105"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `android.webkit.ServiceWorkerWebSettings#setAllowContentAccess`"
+        errorLine1="            getFrameworksImpl().setAllowContentAccess(allow);"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/ServiceWorkerWebSettingsImpl.java"
+            line="117"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `getFrameworksImpl`"
+        errorLine1="            getFrameworksImpl().setAllowContentAccess(allow);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/ServiceWorkerWebSettingsImpl.java"
+            line="117"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `android.webkit.ServiceWorkerWebSettings#getAllowContentAccess`"
+        errorLine1="            return getFrameworksImpl().getAllowContentAccess();"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/ServiceWorkerWebSettingsImpl.java"
+            line="129"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `getFrameworksImpl`"
+        errorLine1="            return getFrameworksImpl().getAllowContentAccess();"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/ServiceWorkerWebSettingsImpl.java"
+            line="129"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `android.webkit.ServiceWorkerWebSettings#setAllowFileAccess`"
+        errorLine1="            getFrameworksImpl().setAllowFileAccess(allow);"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/ServiceWorkerWebSettingsImpl.java"
+            line="141"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `getFrameworksImpl`"
+        errorLine1="            getFrameworksImpl().setAllowFileAccess(allow);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/ServiceWorkerWebSettingsImpl.java"
+            line="141"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `android.webkit.ServiceWorkerWebSettings#getAllowFileAccess`"
+        errorLine1="            return getFrameworksImpl().getAllowFileAccess();"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/ServiceWorkerWebSettingsImpl.java"
+            line="153"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `getFrameworksImpl`"
+        errorLine1="            return getFrameworksImpl().getAllowFileAccess();"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/ServiceWorkerWebSettingsImpl.java"
+            line="153"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `android.webkit.ServiceWorkerWebSettings#setBlockNetworkLoads`"
+        errorLine1="            getFrameworksImpl().setBlockNetworkLoads(flag);"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/ServiceWorkerWebSettingsImpl.java"
+            line="166"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `getFrameworksImpl`"
+        errorLine1="            getFrameworksImpl().setBlockNetworkLoads(flag);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/ServiceWorkerWebSettingsImpl.java"
+            line="166"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `android.webkit.ServiceWorkerWebSettings#getBlockNetworkLoads`"
+        errorLine1="            return getFrameworksImpl().getBlockNetworkLoads();"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/ServiceWorkerWebSettingsImpl.java"
+            line="179"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `getFrameworksImpl`"
+        errorLine1="            return getFrameworksImpl().getBlockNetworkLoads();"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/ServiceWorkerWebSettingsImpl.java"
+            line="179"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `android.webkit.TracingController#getInstance`"
+        errorLine1="            mFrameworksImpl = android.webkit.TracingController.getInstance();"
+        errorLine2="                                                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/TracingControllerImpl.java"
+            line="42"
+            column="64"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `android.webkit.TracingController#isTracing`"
+        errorLine1="            return getFrameworksImpl().isTracing();"
+        errorLine2="                                       ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/TracingControllerImpl.java"
+            line="72"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `getFrameworksImpl`"
+        errorLine1="            return getFrameworksImpl().isTracing();"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/TracingControllerImpl.java"
+            line="72"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `new android.webkit.TracingConfig.Builder`"
+        errorLine1="            android.webkit.TracingConfig config = new android.webkit.TracingConfig.Builder()"
+        errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/TracingControllerImpl.java"
+            line="89"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `android.webkit.TracingConfig.Builder#addCategories`"
+        errorLine1="                    .addCategories(tracingConfig.getPredefinedCategories())"
+        errorLine2="                     ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/TracingControllerImpl.java"
+            line="90"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `android.webkit.TracingConfig.Builder#addCategories`"
+        errorLine1="                    .addCategories(tracingConfig.getCustomIncludedCategories())"
+        errorLine2="                     ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/TracingControllerImpl.java"
+            line="91"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `android.webkit.TracingConfig.Builder#setTracingMode`"
+        errorLine1="                    .setTracingMode(tracingConfig.getTracingMode())"
+        errorLine2="                     ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/TracingControllerImpl.java"
+            line="92"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `android.webkit.TracingConfig.Builder#build`"
+        errorLine1="                    .build();"
+        errorLine2="                     ~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/TracingControllerImpl.java"
+            line="93"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `android.webkit.TracingController#start`"
+        errorLine1="            getFrameworksImpl().start(config);"
+        errorLine2="                                ~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/TracingControllerImpl.java"
+            line="94"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `getFrameworksImpl`"
+        errorLine1="            getFrameworksImpl().start(config);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/TracingControllerImpl.java"
+            line="94"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `android.webkit.TracingController#stop`"
+        errorLine1="            return getFrameworksImpl().stop(outputStream, executor);"
+        errorLine2="                                       ~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/TracingControllerImpl.java"
+            line="108"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `getFrameworksImpl`"
+        errorLine1="            return getFrameworksImpl().stop(outputStream, executor);"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/TracingControllerImpl.java"
+            line="108"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `android.webkit.WebMessagePort#postMessage`"
+        errorLine1="            getFrameworksImpl().postMessage(compatToFrameworkMessage(message));"
+        errorLine2="                                ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebMessagePortImpl.java"
+            line="76"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `compatToFrameworkMessage`"
+        errorLine1="            getFrameworksImpl().postMessage(compatToFrameworkMessage(message));"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebMessagePortImpl.java"
+            line="76"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `getFrameworksImpl`"
+        errorLine1="            getFrameworksImpl().postMessage(compatToFrameworkMessage(message));"
+        errorLine2="            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebMessagePortImpl.java"
+            line="76"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `createInvocationHandlerFor`"
+        errorLine1="                    BoundaryInterfaceReflectionUtil.createInvocationHandlerFor("
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebMessagePortImpl.java"
+            line="79"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `android.webkit.WebMessagePort#close`"
+        errorLine1="            getFrameworksImpl().close();"
+        errorLine2="                                ~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebMessagePortImpl.java"
+            line="90"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `getFrameworksImpl`"
+        errorLine1="            getFrameworksImpl().close();"
+        errorLine2="            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebMessagePortImpl.java"
+            line="90"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `android.webkit.WebMessagePort#setWebMessageCallback`"
+        errorLine1="            getFrameworksImpl().setWebMessageCallback(new WebMessagePort.WebMessageCallback() {"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebMessagePortImpl.java"
+            line="103"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `getFrameworksImpl`"
+        errorLine1="            getFrameworksImpl().setWebMessageCallback(new WebMessagePort.WebMessageCallback() {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebMessagePortImpl.java"
+            line="103"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Cast to `WebMessageCallback` requires API level 23 (current min is 14)"
+        errorLine1="            getFrameworksImpl().setWebMessageCallback(new WebMessagePort.WebMessageCallback() {"
+        errorLine2="                                                      ^">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebMessagePortImpl.java"
+            line="103"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 23 (current min is 14): `android.webkit.WebMessagePort.WebMessageCallback`"
+        errorLine1="            getFrameworksImpl().setWebMessageCallback(new WebMessagePort.WebMessageCallback() {"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebMessagePortImpl.java"
+            line="103"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `frameworkMessageToCompat`"
+        errorLine1="                            frameworkMessageToCompat(message));"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebMessagePortImpl.java"
+            line="107"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `createInvocationHandlerFor`"
+        errorLine1="                    BoundaryInterfaceReflectionUtil.createInvocationHandlerFor("
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebMessagePortImpl.java"
+            line="112"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `android.webkit.WebMessagePort#setWebMessageCallback`"
+        errorLine1="            getFrameworksImpl().setWebMessageCallback(new WebMessagePort.WebMessageCallback() {"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebMessagePortImpl.java"
+            line="124"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `getFrameworksImpl`"
+        errorLine1="            getFrameworksImpl().setWebMessageCallback(new WebMessagePort.WebMessageCallback() {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebMessagePortImpl.java"
+            line="124"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Cast to `WebMessageCallback` requires API level 23 (current min is 14)"
+        errorLine1="            getFrameworksImpl().setWebMessageCallback(new WebMessagePort.WebMessageCallback() {"
+        errorLine2="                                                      ^">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebMessagePortImpl.java"
+            line="124"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 23 (current min is 14): `android.webkit.WebMessagePort.WebMessageCallback`"
+        errorLine1="            getFrameworksImpl().setWebMessageCallback(new WebMessagePort.WebMessageCallback() {"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebMessagePortImpl.java"
+            line="124"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `frameworkMessageToCompat`"
+        errorLine1="                            frameworkMessageToCompat(message));"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebMessagePortImpl.java"
+            line="128"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `createInvocationHandlerFor`"
+        errorLine1="                    BoundaryInterfaceReflectionUtil.createInvocationHandlerFor("
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebMessagePortImpl.java"
+            line="133"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `android.webkit.WebResourceError#getErrorCode`"
+        errorLine1="            return getFrameworksImpl().getErrorCode();"
+        errorLine2="                                       ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebResourceErrorImpl.java"
+            line="82"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `getFrameworksImpl`"
+        errorLine1="            return getFrameworksImpl().getErrorCode();"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebResourceErrorImpl.java"
+            line="82"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `android.webkit.WebResourceError#getDescription`"
+        errorLine1="            return getFrameworksImpl().getDescription();"
+        errorLine2="                                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebResourceErrorImpl.java"
+            line="96"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `getFrameworksImpl`"
+        errorLine1="            return getFrameworksImpl().getDescription();"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebResourceErrorImpl.java"
+            line="96"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `android.webkit.WebResourceRequest#isRedirect`"
+        errorLine1="            return request.isRedirect();"
+        errorLine2="                           ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/WebResourceRequestCompat.java"
+            line="50"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `android.webkit.WebSettings#setOffscreenPreRaster`"
+        errorLine1="            settings.setOffscreenPreRaster(enabled);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/WebSettingsCompat.java"
+            line="65"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `android.webkit.WebSettings#getOffscreenPreRaster`"
+        errorLine1="            return settings.getOffscreenPreRaster();"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/WebSettingsCompat.java"
+            line="90"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 14): `android.webkit.WebSettings#setSafeBrowsingEnabled`"
+        errorLine1="            settings.setSafeBrowsingEnabled(enabled);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/WebSettingsCompat.java"
+            line="122"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 14): `android.webkit.WebSettings#getSafeBrowsingEnabled`"
+        errorLine1="            return settings.getSafeBrowsingEnabled();"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/WebSettingsCompat.java"
+            line="146"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `android.webkit.WebSettings#setDisabledActionModeMenuItems`"
+        errorLine1="            settings.setDisabledActionModeMenuItems(menuItems);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/WebSettingsCompat.java"
+            line="185"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `android.webkit.WebSettings#getDisabledActionModeMenuItems`"
+        errorLine1="            return settings.getDisabledActionModeMenuItems();"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/WebSettingsCompat.java"
+            line="210"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 14): `android.webkit.WebSettings#setForceDark`"
+        errorLine1="            settings.setForceDark(forceDarkMode);"
+        errorLine2="                     ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/WebSettingsCompat.java"
+            line="358"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 14): `android.webkit.WebSettings#getForceDark`"
+        errorLine1="            return settings.getForceDark();"
+        errorLine2="                            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/WebSettingsCompat.java"
+            line="387"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `android.webkit.WebResourceRequest#getUrl`"
+        errorLine1="                webViewClient.getLastShouldOverrideResourceRequest().getUrl().toString());"
+        errorLine2="                                                                     ~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/webkit/WebViewClientCompatTest.java"
+            line="168"
+            column="70"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `android.webkit.WebResourceRequest#isForMainFrame`"
+        errorLine1="        Assert.assertTrue(request.isForMainFrame());"
+        errorLine2="                                  ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/webkit/WebViewClientCompatTest.java"
+            line="172"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `android.webkit.WebResourceRequest#hasGesture`"
+        errorLine1="        Assert.assertFalse(request.hasGesture());"
+        errorLine2="                                   ~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/webkit/WebViewClientCompatTest.java"
+            line="174"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `android.webkit.WebResourceResponse#getStatusCode`"
+        errorLine1="        Assert.assertEquals(404, webViewClient.getOnReceivedHttpError().getStatusCode());"
+        errorLine2="                                                                        ~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/webkit/WebViewClientCompatTest.java"
+            line="256"
+            column="73"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `android.webkit.WebResourceRequest#getUrl`"
+        errorLine1="                    backToSafetyWebViewClient.getOnSafeBrowsingHitRequest().getUrl().toString());"
+        errorLine2="                                                                            ~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/webkit/WebViewClientCompatTest.java"
+            line="340"
+            column="77"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `android.webkit.WebResourceRequest#getUrl`"
+        errorLine1="                client.getOnSafeBrowsingHitRequest().getUrl().toString());"
+        errorLine2="                                                     ~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/webkit/WebViewClientCompatTest.java"
+            line="405"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `android.webkit.WebResourceRequest#isForMainFrame`"
+        errorLine1="        Assert.assertTrue(client.getOnSafeBrowsingHitRequest().isForMainFrame());"
+        errorLine2="                                                               ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/webkit/WebViewClientCompatTest.java"
+            line="406"
+            column="64"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `android.webkit.WebView#postVisualStateCallback`"
+        errorLine1="            webview.postVisualStateCallback(requestId,"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/WebViewCompat.java"
+            line="165"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Cast to `VisualStateCallback` requires API level 23 (current min is 14)"
+        errorLine1="                    new android.webkit.WebView.VisualStateCallback() {"
+        errorLine2="                    ^">
+        <location
+            file="src/main/java/androidx/webkit/WebViewCompat.java"
+            line="166"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 23 (current min is 14): `android.webkit.WebView.VisualStateCallback`"
+        errorLine1="                    new android.webkit.WebView.VisualStateCallback() {"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/WebViewCompat.java"
+            line="166"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `insertVisualStateCallback`"
+        errorLine1="            getProvider(webview).insertVisualStateCallback(requestId, callback);"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/WebViewCompat.java"
+            line="174"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 14): `android.webkit.WebView#startSafeBrowsing`"
+        errorLine1="            WebView.startSafeBrowsing(context, callback);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/WebViewCompat.java"
+            line="209"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 14): `android.webkit.WebView#setSafeBrowsingWhitelist`"
+        errorLine1="            WebView.setSafeBrowsingWhitelist(hostsList, callback);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/WebViewCompat.java"
+            line="259"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 14): `android.webkit.WebView#getSafeBrowsingPrivacyPolicyUrl`"
+        errorLine1="            return WebView.getSafeBrowsingPrivacyPolicyUrl();"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/WebViewCompat.java"
+            line="322"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `android.webkit.WebView#createWebMessageChannel`"
+        errorLine1="            return WebMessagePortImpl.portsToCompat(webview.createWebMessageChannel());"
+        errorLine2="                                                            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/WebViewCompat.java"
+            line="447"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `android.webkit.WebView#postWebMessage`"
+        errorLine1="            webview.postWebMessage("
+        errorLine2="                    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/WebViewCompat.java"
+            line="486"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `compatToFrameworkMessage`"
+        errorLine1="                    WebMessagePortImpl.compatToFrameworkMessage(message),"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/WebViewCompat.java"
+            line="487"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `postWebMessage`"
+        errorLine1="            getProvider(webview).postWebMessage(message, targetOrigin);"
+        errorLine2="                                 ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/WebViewCompat.java"
+            line="490"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 14): `android.webkit.WebView#getWebViewClient`"
+        errorLine1="            return webview.getWebViewClient();"
+        errorLine2="                           ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/WebViewCompat.java"
+            line="759"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 14): `android.webkit.WebView#getWebChromeClient`"
+        errorLine1="            return webview.getWebChromeClient();"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/WebViewCompat.java"
+            line="782"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 14): `android.webkit.WebView#getWebViewRenderProcess`"
+        errorLine1="            android.webkit.WebViewRenderProcess renderer = webview.getWebViewRenderProcess();"
+        errorLine2="                                                                   ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/WebViewCompat.java"
+            line="816"
+            column="68"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 14): `android.webkit.WebView#setWebViewRenderProcessClient`"
+        errorLine1="            webview.setWebViewRenderProcessClient(executor, webViewRenderProcessClient != null"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/WebViewCompat.java"
+            line="867"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 14): `WebViewRenderProcessClientFrameworkAdapter`"
+        errorLine1="                    ? new WebViewRenderProcessClientFrameworkAdapter(webViewRenderProcessClient)"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/WebViewCompat.java"
+            line="868"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `setWebViewRenderProcessClient`"
+        errorLine1="            getProvider(webview).setWebViewRenderProcessClient("
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/WebViewCompat.java"
+            line="871"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 14): `android.webkit.WebView#setWebViewRenderProcessClient`"
+        errorLine1="            webview.setWebViewRenderProcessClient(webViewRenderProcessClient != null"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/WebViewCompat.java"
+            line="905"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 14): `WebViewRenderProcessClientFrameworkAdapter`"
+        errorLine1="                    ? new WebViewRenderProcessClientFrameworkAdapter(webViewRenderProcessClient)"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/WebViewCompat.java"
+            line="906"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `setWebViewRenderProcessClient`"
+        errorLine1="            getProvider(webview).setWebViewRenderProcessClient(null, webViewRenderProcessClient);"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/WebViewCompat.java"
+            line="909"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 14): `android.webkit.WebView#getWebViewRenderProcessClient`"
+        errorLine1="                    webview.getWebViewRenderProcessClient();"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/WebViewCompat.java"
+            line="935"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 14): `getFrameworkRenderProcessClient`"
+        errorLine1="                .getFrameworkRenderProcessClient();"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/WebViewCompat.java"
+            line="941"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `getWebViewRenderProcessClient`"
+        errorLine1="            return getProvider(webview).getWebViewRenderProcessClient();"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/WebViewCompat.java"
+            line="943"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `android.os.Looper#isCurrentThread`"
+        errorLine1="                value -> startSafeBrowsingFuture.set(Looper.getMainLooper().isCurrentThread()));"
+        errorLine2="                                                                            ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/webkit/WebViewCompatTest.java"
+            line="163"
+            column="77"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 19 (current min is 14): `java.lang.AutoCloseable`"
+        errorLine1="public class WebViewOnUiThread implements AutoCloseable{"
+        errorLine2="                                          ~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/webkit/WebViewOnUiThread.java"
+            line="52"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `android.webkit.WebView#evaluateJavascript`"
+        errorLine1="        WebkitUtils.onMainThread(() -> mWebView.evaluateJavascript(script, result));"
+        errorLine2="                                                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/webkit/WebViewOnUiThread.java"
+            line="334"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `android.webkit.WebView#evaluateJavascript`"
+        errorLine1="            webView.evaluateJavascript(&quot;blocker.block();&quot;, null);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/webkit/WebViewRenderProcessClientTest.java"
+            line="116"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 14): `android.webkit.WebViewRenderProcess#terminate`"
+        errorLine1="            return renderer != null ? renderer.terminate() : false;"
+        errorLine2="                                               ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebViewRenderProcessImpl.java"
+            line="91"
+            column="48"/>
+    </issue>
+
+</issues>
