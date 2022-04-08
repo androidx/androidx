@@ -15,22 +15,40 @@
  */
 
 import androidx.build.Publish
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
 
 plugins {
     id("AndroidXPlugin")
-    id("kotlin")
+    id("org.jetbrains.kotlin.multiplatform")
 }
 
-dependencies {
-    api(libs.kotlinStdlib)
-    api(libs.kotlinCoroutinesCore)
-    api("androidx.annotation:annotation:1.1.0")
+kotlin {
+    jvm {
+        withJava()
+    }
 
-    testImplementation(libs.junit)
-    testImplementation(libs.kotlinCoroutinesTest)
-    testImplementation(libs.truth)
-    testImplementation(project(":internal-testutils-truth"))
+    sourceSets {
+        commonMain {
+        }
+        commonTest {
+        }
+
+        jvmMain {
+            dependencies {
+                api(libs.kotlinStdlib)
+                api(libs.kotlinCoroutinesCore)
+                api("androidx.annotation:annotation:1.1.0")
+            }
+        }
+        jvmTest {
+            dependencies {
+                implementation(libs.junit)
+                implementation(libs.kotlinCoroutinesTest)
+                implementation(libs.truth)
+                implementation(project(":internal-testutils-truth"))
+            }
+        }
+    }
 }
 
 androidx {
@@ -40,10 +58,11 @@ androidx {
     inceptionYear = "2020"
     description = "Android DataStore Core - contains the underlying store used by each serialization method"
     legacyDisableKotlinStrictApiMode = true
+    publishPlatforms = ["jvm"]
 }
 
 // Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
+tasks.withType(KotlinNativeCompile).configureEach {
     kotlinOptions {
         freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
     }
