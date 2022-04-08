@@ -19,11 +19,13 @@ import androidx.health.data.client.records.ActiveEnergyBurned
 import androidx.health.data.client.records.ActivityEvent
 import androidx.health.data.client.records.ActivityLap
 import androidx.health.data.client.records.ActivitySession
+import androidx.health.data.client.records.BasalBodyTemperature
 import androidx.health.data.client.records.BasalMetabolicRate
 import androidx.health.data.client.records.BloodGlucose
 import androidx.health.data.client.records.BloodPressure
 import androidx.health.data.client.records.BodyFat
 import androidx.health.data.client.records.BodyTemperature
+import androidx.health.data.client.records.BodyWaterMass
 import androidx.health.data.client.records.BoneMass
 import androidx.health.data.client.records.CervicalMucus
 import androidx.health.data.client.records.CervicalPosition
@@ -73,6 +75,14 @@ import java.lang.RuntimeException
 @SuppressWarnings("NewApi") // Safe to use with java8 desugar
 fun Record.toProto(): DataProto.DataPoint {
     return when (this) {
+        is BasalBodyTemperature ->
+            instantaneousProto()
+                .setDataType(protoDataType("BasalBodyTemperature"))
+                .apply {
+                    putValues("temperature", doubleVal(temperatureDegreesCelsius))
+                    measurementLocation?.let { putValues("measurementLocation", enumVal(it)) }
+                }
+                .build()
         is BasalMetabolicRate ->
             instantaneousProto()
                 .setDataType(protoDataType("BasalMetabolicRate"))
@@ -110,6 +120,11 @@ fun Record.toProto(): DataProto.DataPoint {
                     putValues("temperature", doubleVal(temperatureDegreesCelsius))
                     measurementLocation?.let { putValues("measurementLocation", enumVal(it)) }
                 }
+                .build()
+        is BodyWaterMass ->
+            instantaneousProto()
+                .setDataType(protoDataType("BodyWaterMass"))
+                .apply { putValues("mass", doubleVal(massKg)) }
                 .build()
         is BoneMass ->
             instantaneousProto()

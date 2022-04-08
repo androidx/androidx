@@ -24,11 +24,14 @@ import androidx.health.data.client.records.ActivityEventTypes
 import androidx.health.data.client.records.ActivityLap
 import androidx.health.data.client.records.ActivitySession
 import androidx.health.data.client.records.ActivityTypes
+import androidx.health.data.client.records.BasalBodyTemperature
 import androidx.health.data.client.records.BasalMetabolicRate
 import androidx.health.data.client.records.BloodGlucose
 import androidx.health.data.client.records.BloodPressure
 import androidx.health.data.client.records.BodyFat
 import androidx.health.data.client.records.BodyTemperature
+import androidx.health.data.client.records.BodyTemperatureMeasurementLocations
+import androidx.health.data.client.records.BodyWaterMass
 import androidx.health.data.client.records.BoneMass
 import androidx.health.data.client.records.CervicalMucus
 import androidx.health.data.client.records.CervicalMucusAmounts
@@ -101,8 +104,33 @@ private val TEST_METADATA =
         dataOrigin = DataOrigin(packageName = "appId")
     )
 
+// TODO(b/228314623): add tests which set optional fields
 @RunWith(AndroidJUnit4::class)
 class AllRecordsConverterTest {
+    @Test
+    fun testBasalBodyTemperature() {
+        val dataOnlyRequired =
+            BasalBodyTemperature(
+                temperatureDegreesCelsius = 1.0,
+                measurementLocation = null,
+                time = START_TIME,
+                zoneOffset = END_ZONE_OFFSET,
+                metadata = TEST_METADATA
+            )
+
+        val dataAllFields =
+            BasalBodyTemperature(
+                temperatureDegreesCelsius = 1.0,
+                measurementLocation = BodyTemperatureMeasurementLocations.ARMPIT,
+                time = START_TIME,
+                zoneOffset = END_ZONE_OFFSET,
+                metadata = TEST_METADATA
+            )
+
+        assertThat(toRecord(dataOnlyRequired.toProto())).isEqualTo(dataOnlyRequired)
+        assertThat(toRecord(dataAllFields.toProto())).isEqualTo(dataAllFields)
+    }
+
     @Test
     fun testBasalMetabolicRate() {
         val data =
@@ -167,6 +195,19 @@ class AllRecordsConverterTest {
             BodyTemperature(
                 temperatureDegreesCelsius = 1.0,
                 measurementLocation = null,
+                time = START_TIME,
+                zoneOffset = END_ZONE_OFFSET,
+                metadata = TEST_METADATA
+            )
+
+        assertThat(toRecord(data.toProto())).isEqualTo(data)
+    }
+
+    @Test
+    fun testBodyWaterMass() {
+        val data =
+            BodyWaterMass(
+                massKg = 1.0,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA

@@ -27,13 +27,6 @@ message ReadDataPointResponse {
   optional DataPoint data = 1;
 }
 
-message ReadAggregatedDataResponse {
-  repeated AggregateDataPoint statistical_data = 1;
-  repeated AggregateDataPoint count_data = 2;
-  repeated AggregateDataPoint cumulative_data = 3;
-  repeated AggregateDataPoint duration_data = 4;
-}
-
 message InsertDataResponse {
   repeated string data_point_uid = 1;
 }

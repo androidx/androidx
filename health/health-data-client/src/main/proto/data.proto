@@ -88,22 +88,6 @@ message AggregatedValue {
   map<string, Value> values = 1;
 }
 
-message AggregateDataPoint {
-  optional int64 start_time_epoch_ms = 1;
-  optional int64 end_time_epoch_ms = 2;
-  optional DataType data_type = 4;
-  optional AggregatedValue min_value = 5;
-  optional AggregatedValue max_value = 6;
-  optional AggregatedValue avg_value = 7;
-  optional AggregatedValue total_value = 8;
-  optional int32 count = 9 [default = 0];
-  optional int64 duration_millis = 13 [default = 0];
-  optional string start_local_date_time = 10;
-  optional string end_local_date_time = 11;
-  optional int32 zone_offset_seconds = 12;
-  repeated DataOrigin data_origins = 14;
-}
-
 message AggregateDataRow {
   optional int64 start_time_epoch_ms = 1;
   optional int64 end_time_epoch_ms = 2;

@@ -27,7 +27,12 @@ import androidx.health.platform.client.service.HealthDataServiceConstants.ACTION
 import androidx.health.platform.client.service.HealthDataServiceConstants.KEY_GRANTED_PERMISSIONS_JETPACK
 import androidx.health.platform.client.service.HealthDataServiceConstants.KEY_REQUESTED_PERMISSIONS_JETPACK
 
-/** An [ActivityResultContract] to request Health Data permissions. */
+/**
+ * An [ActivityResultContract] to request Health Data permissions.
+ *
+ * @param providerPackageName Optional provider package name for the backing implementation of
+ * choice.
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class HealthDataRequestPermissions(
     private val providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME,

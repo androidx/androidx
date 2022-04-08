@@ -33,7 +33,7 @@ import java.time.LocalDateTime
  * without knowing which time zone the user was at that time.
  */
 class TimeRangeFilter
-private constructor(
+internal constructor(
     internal val startTime: Instant? = null,
     internal val endTime: Instant? = null,
     internal val localStartTime: LocalDateTime? = null,
@@ -41,8 +41,8 @@ private constructor(
 ) {
     companion object {
         /**
-         * Creates a [TimeRangeFilter] for a time range within the [Instant] time range
-         * [startTime, endTime).
+         * Creates a [TimeRangeFilter] for a time range within the [Instant] time range [startTime,
+         * endTime).
          *
          * If user created a [Record] at 2pm(UTC+1), crossed a time zone and created a new [Record]
          * at 3pm(UTC). Filtering between 2pm(UTC) and 6pm(UTC) will include the record at 3pm(UTC)
@@ -62,8 +62,8 @@ private constructor(
         }
 
         /**
-         * Creates a [TimeRangeFilter] for a time range within the [LocalDateTime] range
-         * [startTime, endTime).
+         * Creates a [TimeRangeFilter] for a time range within the [LocalDateTime] range [startTime,
+         * endTime).
          *
          * @param startTime start time of the filter.
          * @param endTime end time of the filter.
@@ -75,7 +75,12 @@ private constructor(
         @JvmStatic
         fun between(startTime: LocalDateTime, endTime: LocalDateTime): TimeRangeFilter {
             require(startTime.isBefore(endTime)) { "end time needs be after start time" }
-            return TimeRangeFilter(localStartTime = startTime, localEndTime = endTime)
+            return TimeRangeFilter(
+                startTime = null,
+                endTime = null,
+                localStartTime = startTime,
+                localEndTime = endTime
+            )
         }
 
         /**
@@ -88,7 +93,7 @@ private constructor(
          * @see after for time range with open-ended [endTime]
          */
         @JvmStatic
-        fun before(endTime: Instant) = TimeRangeFilter(endTime = endTime)
+        fun before(endTime: Instant) = TimeRangeFilter(startTime = null, endTime = endTime)
 
         /**
          * Creates a [TimeRangeFilter] for a time range until the given [endTime].
@@ -100,7 +105,24 @@ private constructor(
          * @see after for time range with open-ended [endTime]
          */
         @JvmStatic
-        fun before(endTime: LocalDateTime) = TimeRangeFilter(localEndTime = endTime)
+        fun before(endTime: LocalDateTime) =
+            TimeRangeFilter(
+                startTime = null,
+                endTime = null,
+                localStartTime = null,
+                localEndTime = endTime
+            )
+
+        /**
+         * Creates a [TimeRangeFilter] for a time range after the given [startTime].
+         *
+         * @param startTime start time of the filter.
+         * @return a [TimeRangeFilter] for filtering [Record]s.
+         *
+         * @see between for closed-ended time range.
+         * @see after for time range with open-ended [startTime]
+         */
+        @JvmStatic fun after(startTime: Instant) = TimeRangeFilter(startTime = startTime)
 
         /**
          * Creates a [TimeRangeFilter] for a time range after the given [startTime].
@@ -112,24 +134,14 @@ private constructor(
          * @see after for time range with open-ended [startTime]
          */
         @JvmStatic
-        fun after(startTime: Instant) = TimeRangeFilter(startTime = startTime)
+        fun after(startTime: LocalDateTime) =
+            TimeRangeFilter(startTime = null, endTime = null, localStartTime = startTime)
 
         /**
-         * Creates a [TimeRangeFilter] for a time range after the given [startTime].
-         *
-         * @param startTime start time of the filter.
-         * @return a [TimeRangeFilter] for filtering [Record]s.
-         *
-         * @see between for closed-ended time range.
-         * @see after for time range with open-ended [startTime]
+         * Default [TimeRangeFilter] where neither start nor end time is specified, no [Record]s
+         * will be filtered.
          */
-        @JvmStatic
-        fun after(startTime: LocalDateTime) = TimeRangeFilter(localStartTime = startTime)
-
-        /** Default [TimeRangeFilter] where neither start nor end time is specified, no [Record]s
-         * will be filtered. */
-        @JvmStatic
-        internal fun none(): TimeRangeFilter = TimeRangeFilter()
+        @JvmStatic internal fun none(): TimeRangeFilter = TimeRangeFilter()
     }
 
     internal fun isOpenEnded(): Boolean =

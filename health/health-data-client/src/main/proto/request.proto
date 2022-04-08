@@ -40,21 +40,6 @@ message RequestContext {
   optional bool is_in_foreground = 4;
 }
 
-message AggregationSpec {
-  optional DataType data_type = 1;
-  optional bool sample_data_included = 2;
-  optional bool series_data_included = 3;
-  repeated DataOrigin data_origin = 4;
-}
-
-message ReadAggregatedDataRequest {
-  optional TimeSpec time_spec = 1;
-  repeated AggregationSpec statistical_aggregation_spec = 2;
-  repeated AggregationSpec count_aggregation_spec = 3;
-  repeated AggregationSpec cumulative_aggregation_spec = 4;
-  repeated AggregationSpec duration_aggregation_spec = 5;
-}
-
 message UpsertDataRequest {
   repeated DataPoint data_point = 1;
 }
