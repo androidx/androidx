@@ -19,11 +19,13 @@ import androidx.health.data.client.records.ActiveEnergyBurned
 import androidx.health.data.client.records.ActivityEvent
 import androidx.health.data.client.records.ActivityLap
 import androidx.health.data.client.records.ActivitySession
+import androidx.health.data.client.records.BasalBodyTemperature
 import androidx.health.data.client.records.BasalMetabolicRate
 import androidx.health.data.client.records.BloodGlucose
 import androidx.health.data.client.records.BloodPressure
 import androidx.health.data.client.records.BodyFat
 import androidx.health.data.client.records.BodyTemperature
+import androidx.health.data.client.records.BodyWaterMass
 import androidx.health.data.client.records.BoneMass
 import androidx.health.data.client.records.CervicalMucus
 import androidx.health.data.client.records.CervicalPosition
@@ -73,6 +75,14 @@ import java.lang.RuntimeException
 fun toRecord(proto: DataProto.DataPoint): Record {
     return with(proto) {
         when (dataType.name) {
+            "BasalBodyTemperature" ->
+                BasalBodyTemperature(
+                    temperatureDegreesCelsius = getDouble("temperature"),
+                    measurementLocation = getEnum("measurementLocation"),
+                    time = time,
+                    zoneOffset = zoneOffset,
+                    metadata = metadata
+                )
             "BasalMetabolicRate" ->
                 BasalMetabolicRate(
                     kcalPerDay = getDouble("bmr"),
@@ -111,6 +121,13 @@ fun toRecord(proto: DataProto.DataPoint): Record {
                 BodyTemperature(
                     temperatureDegreesCelsius = getDouble("temperature"),
                     measurementLocation = getEnum("measurementLocation"),
+                    time = time,
+                    zoneOffset = zoneOffset,
+                    metadata = metadata
+                )
+            "BodyWaterMass" ->
+                BodyWaterMass(
+                    massKg = getDouble("mass"),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata

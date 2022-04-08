@@ -19,11 +19,13 @@ import androidx.health.data.client.records.ActiveEnergyBurned
 import androidx.health.data.client.records.ActivityEvent
 import androidx.health.data.client.records.ActivityLap
 import androidx.health.data.client.records.ActivitySession
+import androidx.health.data.client.records.BasalBodyTemperature
 import androidx.health.data.client.records.BasalMetabolicRate
 import androidx.health.data.client.records.BloodGlucose
 import androidx.health.data.client.records.BloodPressure
 import androidx.health.data.client.records.BodyFat
 import androidx.health.data.client.records.BodyTemperature
+import androidx.health.data.client.records.BodyWaterMass
 import androidx.health.data.client.records.BoneMass
 import androidx.health.data.client.records.CervicalMucus
 import androidx.health.data.client.records.CervicalPosition
@@ -72,11 +74,13 @@ private val ALL_RECORDS_TYPES =
         ActivityEvent::class,
         ActivityLap::class,
         ActivitySession::class,
+        BasalBodyTemperature::class,
         BasalMetabolicRate::class,
         BloodGlucose::class,
         BloodPressure::class,
         BodyFat::class,
         BodyTemperature::class,
+        BodyWaterMass::class,
         BoneMass::class,
         CervicalMucus::class,
         CervicalPosition::class,

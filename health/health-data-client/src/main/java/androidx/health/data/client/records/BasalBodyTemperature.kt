@@ -16,29 +16,34 @@
 package androidx.health.data.client.records
 
 import androidx.annotation.RestrictTo
-import androidx.health.data.client.aggregate.DoubleAggregateMetric
 import androidx.health.data.client.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
 
 /**
- * Captures the user's speed in meters per second. The value represents the scalar magnitude of the
- * speed, so negative values should not occur. Each record represents a single instantaneous
- * measurement.
+ * Captures the body temperature of a user when at rest (for example, immediately after waking up).
+ * Can be used for checking the fertility window. Each data point represents a single instantaneous
+ * body temperature measurement.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class Speed(
-    /** Speed in meters per second. Required field. Valid range: 0-1000000. */
-    public val speedMetersPerSecond: Double,
+public class BasalBodyTemperature(
+    /** Temperature in degrees Celsius. Required field. Valid range: 0-100. */
+    public val temperatureDegreesCelsius: Double,
+    /**
+     * Where on the user's basal body the temperature measurement was taken from. Optional field.
+     * Allowed values: [BodyTemperatureMeasurementLocation].
+     */
+    @property:BodyTemperatureMeasurementLocation public val measurementLocation: String? = null,
     override val time: Instant,
     override val zoneOffset: ZoneOffset?,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : InstantaneousRecord {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is Speed) return false
+        if (other !is BasalBodyTemperature) return false
 
-        if (speedMetersPerSecond != other.speedMetersPerSecond) return false
+        if (temperatureDegreesCelsius != other.temperatureDegreesCelsius) return false
+        if (measurementLocation != other.measurementLocation) return false
         if (time != other.time) return false
         if (zoneOffset != other.zoneOffset) return false
         if (metadata != other.metadata) return false
@@ -48,24 +53,11 @@ public class Speed(
 
     override fun hashCode(): Int {
         var result = 0
-        result = 31 * result + speedMetersPerSecond.hashCode()
+        result = 31 * result + temperatureDegreesCelsius.hashCode()
+        result = 31 * result + measurementLocation.hashCode()
         result = 31 * result + time.hashCode()
         result = 31 * result + (zoneOffset?.hashCode() ?: 0)
         result = 31 * result + metadata.hashCode()
         return result
-    }
-
-    companion object {
-        /** Metric identifier to retrieve average speed from [AggregateDataRow]. */
-        @JvmStatic
-        val SPEED_AVG: DoubleAggregateMetric = DoubleAggregateMetric("Speed", "avg", "speed")
-
-        /** Metric identifier to retrieve minimum speed from [AggregateDataRow]. */
-        @JvmStatic
-        val SPEED_MIN: DoubleAggregateMetric = DoubleAggregateMetric("Speed", "min", "speed")
-
-        /** Metric identifier to retrieve maximum speed from [AggregateDataRow]. */
-        @JvmStatic
-        val SPEED_MAX: DoubleAggregateMetric = DoubleAggregateMetric("Speed", "max", "speed")
     }
 }
