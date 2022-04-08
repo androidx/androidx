@@ -25,79 +25,79 @@ import androidx.compose.ui.unit.dp
 /**
  * Specify the dimensions of the content to be restricted between the given bounds.
  *
- * @param angularMinDegrees the minimum angle (in degrees) for the content.
- * @param angularMaxDegrees the maximum angle (in degrees) for the content.
- * @param radialSizeMin the minimum radialSize (thickness) for the content.
- * @param radialSizeMax the maximum radialSize (thickness) for the content.
+ * @param minSweepDegrees the minimum angle (in degrees) for the content.
+ * @param maxSweepDegrees the maximum angle (in degrees) for the content.
+ * @param minThickness the minimum thickness (radial size) for the content.
+ * @param maxThickness the maximum thickness (radial size) for the content.
  */
 public fun CurvedModifier.sizeIn(
     /* @FloatRange(from = 0f, to = 360f) */
-    angularMinDegrees: Float = 0f,
+    minSweepDegrees: Float = 0f,
     /* @FloatRange(from = 0f, to = 360f) */
-    angularMaxDegrees: Float = 360f,
-    radialSizeMin: Dp = 0.dp,
-    radialSizeMax: Dp = Dp.Infinity,
+    maxSweepDegrees: Float = 360f,
+    minThickness: Dp = 0.dp,
+    maxThickness: Dp = Dp.Infinity,
 ) = this.then { child -> SizeWrapper(
     child,
-    angularMinDegrees = angularMinDegrees,
-    angularMaxDegrees = angularMaxDegrees,
-    thicknessMin = radialSizeMin,
-    thicknessMax = radialSizeMax
+    minSweepDegrees = minSweepDegrees,
+    maxSweepDegrees = maxSweepDegrees,
+    minThickness = minThickness,
+    maxThickness = maxThickness
 ) }
 
 /**
- * Specify the angular size and thickness for the content.
+ * Specify the dimensions (sweep and thickness) for the content.
  *
  * @sample androidx.wear.compose.foundation.samples.CurvedFixedSize
  *
- * @param angularSizeDegrees Indicates the angular size (sweep) of the content.
- * @param radialSize Indicates the radialSize (thickness) of the content.
+ * @param sweepDegrees Indicates the sweep (angular size) of the content.
+ * @param thickness Indicates the thickness (radial size) of the content.
  */
-public fun CurvedModifier.size(angularSizeDegrees: Float, radialSize: Dp) = sizeIn(
+public fun CurvedModifier.size(sweepDegrees: Float, thickness: Dp) = sizeIn(
     /* @FloatRange(from = 0f, to = 360f) */
-    angularMinDegrees = angularSizeDegrees,
+    minSweepDegrees = sweepDegrees,
     /* @FloatRange(from = 0f, to = 360f) */
-    angularMaxDegrees = angularSizeDegrees,
-    radialSizeMin = radialSize,
-    radialSizeMax = radialSize
+    maxSweepDegrees = sweepDegrees,
+    minThickness = thickness,
+    maxThickness = thickness
 )
 
 /**
- * Specify the angular size (sweep) for the content.
+ * Specify the sweep (angular size) for the content.
  *
- * @param angularSizeDegrees Indicates the angular size of the content.
+ * @param sweepDegrees Indicates the sweep (angular size) of the content.
  */
-public fun CurvedModifier.angularSize(angularSizeDegrees: Float) = sizeIn(
-    angularMinDegrees = angularSizeDegrees,
-    angularMaxDegrees = angularSizeDegrees
+public fun CurvedModifier.angularSize(sweepDegrees: Float) = sizeIn(
+    minSweepDegrees = sweepDegrees,
+    maxSweepDegrees = sweepDegrees
 )
 
 /**
  * Specify the radialSize (thickness) for the content.
  *
- * @param radialSize Indicates the thickness of the content.
+ * @param thickness Indicates the thickness of the content.
  */
-public fun CurvedModifier.radialSize(radialSize: Dp) = sizeIn(
-    radialSizeMin = radialSize,
-    radialSizeMax = radialSize
+public fun CurvedModifier.radialSize(thickness: Dp) = sizeIn(
+    minThickness = thickness,
+    maxThickness = thickness
 )
 
 internal class SizeWrapper(
     child: CurvedChild,
-    val angularMinDegrees: Float,
-    val angularMaxDegrees: Float,
-    val thicknessMin: Dp,
-    val thicknessMax: Dp,
+    val minSweepDegrees: Float,
+    val maxSweepDegrees: Float,
+    val minThickness: Dp,
+    val maxThickness: Dp,
 ) : BaseCurvedChildWrapper(child) {
-    private var thicknessMinPx = 0f
-    private var thicknessMaxPx = 0f
+    private var minThicknessPx = 0f
+    private var maxThicknessPx = 0f
 
     override fun MeasureScope.initializeMeasure(
         measurables: List<Measurable>,
         index: Int
     ): Int {
-        thicknessMinPx = thicknessMin.toPx()
-        thicknessMaxPx = thicknessMax.toPx()
+        minThicknessPx = minThickness.toPx()
+        maxThicknessPx = maxThickness.toPx()
         return with(wrapped) {
             // Call initializeMeasure on wrapper (while still having the MeasureScope scope)
             initializeMeasure(measurables, index)
@@ -105,7 +105,7 @@ internal class SizeWrapper(
     }
 
     override fun doEstimateThickness(maxRadius: Float) =
-        wrapped.estimateThickness(maxRadius).coerceIn(thicknessMinPx, thicknessMaxPx)
+        wrapped.estimateThickness(maxRadius).coerceIn(minThicknessPx, maxThicknessPx)
 
     override fun doRadialPosition(
         parentOuterRadius: Float,
@@ -117,8 +117,8 @@ internal class SizeWrapper(
         )
         return PartialLayoutInfo(
             partialLayoutInfo.sweepRadians.coerceIn(
-                angularMinDegrees.toRadians(),
-                angularMaxDegrees.toRadians()
+                minSweepDegrees.toRadians(),
+                maxSweepDegrees.toRadians()
             ),
             parentOuterRadius,
             thickness = estimatedThickness,

@@ -229,7 +229,7 @@ fun BasicCurvedTextDemo() {
 @Composable
 fun CurvedEllipsis() {
     CurvedLayout {
-        curvedRow(modifier = CurvedModifier.sizeIn(angularMaxDegrees = 90f)) {
+        curvedRow(modifier = CurvedModifier.sizeIn(maxSweepDegrees = 90f)) {
             curvedText(
                 "This text too long to actually fit in the provided space",
                 modifier = CurvedModifier.weight(1f),
