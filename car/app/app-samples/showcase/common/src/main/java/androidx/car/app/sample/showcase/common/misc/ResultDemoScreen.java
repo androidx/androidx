@@ -26,6 +26,7 @@ import androidx.car.app.Screen;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.MessageTemplate;
 import androidx.car.app.model.Template;
+import androidx.car.app.sample.showcase.common.R;
 
 /**
  * A screen to demo the use of {@link CarContext#setCarAppResult(int, android.content.Intent)}
@@ -40,16 +41,17 @@ public class ResultDemoScreen extends Screen {
     public Template onGetTemplate() {
         ComponentName callingComponent = getCarContext().getCallingComponent();
         if (callingComponent == null) {
-            return new MessageTemplate.Builder("This app was not started for result")
-                    .setTitle("Result demo")
+            return new MessageTemplate.Builder(
+                    getCarContext().getString(R.string.not_started_for_result_msg))
+                    .setTitle(getCarContext().getString(R.string.result_demo_title))
                     .setHeaderAction(Action.BACK)
                     .build();
         }
 
-        return new MessageTemplate.Builder("This app was called for result from "
-                + callingComponent.getPackageName() + ". Please select the"
-                + " result to send back to the caller")
-                .setTitle("Result demo")
+        return new MessageTemplate.Builder(
+                getCarContext().getString(R.string.started_for_result_msg,
+                        callingComponent.getPackageName()))
+                .setTitle(getCarContext().getString(R.string.result_demo_title))
                 .setHeaderAction(Action.BACK)
                 .addAction(new Action.Builder()
                         .setTitle("Okay (action = 'foo')")
@@ -60,7 +62,7 @@ public class ResultDemoScreen extends Screen {
                         })
                         .build())
                 .addAction(new Action.Builder()
-                        .setTitle("Cancel")
+                        .setTitle(getCarContext().getString(R.string.cancel_action_title))
                         .setOnClickListener(() -> {
                             getCarContext().setCarAppResult(Activity.RESULT_CANCELED, null);
                             getCarContext().finishCarApp();

@@ -32,6 +32,7 @@ import androidx.car.app.model.ListTemplate;
 import androidx.car.app.model.ParkedOnlyOnClickListener;
 import androidx.car.app.model.Row;
 import androidx.car.app.model.Template;
+import androidx.car.app.sample.showcase.common.R;
 import androidx.car.app.versioning.CarAppApiLevels;
 import androidx.lifecycle.DefaultLifecycleObserver;
 
@@ -55,9 +56,10 @@ public final class ListTemplateDemoScreen extends Screen implements DefaultLifec
         listBuilder.addItem(
                 new Row.Builder()
                         .setOnClickListener(
-                                ParkedOnlyOnClickListener.create(() -> onClick("Parked action")))
-                        .setTitle("Parked Only Title")
-                        .addText("More Parked only text.")
+                                ParkedOnlyOnClickListener.create(() -> onClick(
+                                        getCarContext().getString(R.string.parked_toast_msg))))
+                        .setTitle(getCarContext().getString(R.string.parked_only_title))
+                        .addText(getCarContext().getString(R.string.parked_only_text))
                         .build());
 
         // Some hosts may allow more items in the list than others, so create more.
@@ -69,7 +71,7 @@ public final class ListTemplateDemoScreen extends Screen implements DefaultLifec
 
             for (int i = 2; i <= listLimit; ++i) {
                 // For row text, set text variants that fit best in different screen sizes.
-                String secondTextStr = "Second line of text";
+                String secondTextStr = getCarContext().getString(R.string.second_line_text);
                 CarText secondText =
                         new CarText.Builder(
                                 "================= " + secondTextStr + " ================")
@@ -77,34 +79,38 @@ public final class ListTemplateDemoScreen extends Screen implements DefaultLifec
                                         + " ----------------------")
                                 .addVariant(secondTextStr)
                                 .build();
-                final String onClickText = "Clicked row: " + i;
+                final String onClickText = getCarContext().getString(R.string.clicked_row_prefix)
+                        + ": " + i;
                 listBuilder.addItem(
                         new Row.Builder()
                                 .setOnClickListener(() -> onClick(onClickText))
-                                .setTitle("Title " + i)
-                                .addText("First line of text")
+                                .setTitle(
+                                        getCarContext().getString(R.string.title_prefix) + " " + i)
+                                .addText(getCarContext().getString(R.string.first_line_text))
                                 .addText(secondText)
                                 .build());
             }
         }
 
+        Action settings = new Action.Builder()
+                .setTitle(getCarContext().getString(
+                        R.string.settings_action_title))
+                .setOnClickListener(
+                        () -> CarToast.makeText(
+                                        getCarContext(),
+                                        getCarContext().getString(
+                                                R.string.settings_toast_msg),
+                                        LENGTH_LONG)
+                                .show())
+                .build();
+
         return new ListTemplate.Builder()
                 .setSingleList(listBuilder.build())
-                .setTitle("List Template Demo")
+                .setTitle(getCarContext().getString(R.string.list_template_demo_title))
                 .setHeaderAction(BACK)
                 .setActionStrip(
                         new ActionStrip.Builder()
-                                .addAction(
-                                        new Action.Builder()
-                                                .setTitle("Settings")
-                                                .setOnClickListener(
-                                                        () ->
-                                                                CarToast.makeText(
-                                                                        getCarContext(),
-                                                                        "Clicked Settings",
-                                                                        LENGTH_LONG)
-                                                                        .show())
-                                                .build())
+                                .addAction(settings)
                                 .build())
                 .build();
     }

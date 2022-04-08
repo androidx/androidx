@@ -30,6 +30,7 @@ import androidx.car.app.model.ItemList;
 import androidx.car.app.model.ListTemplate;
 import androidx.car.app.model.Row;
 import androidx.car.app.model.Template;
+import androidx.car.app.sample.showcase.common.R;
 
 /** A simple screen that demonstrates how to use navigation notifications in a car app. */
 public final class NavigationNotificationsDemoScreen extends Screen {
@@ -48,7 +49,7 @@ public final class NavigationNotificationsDemoScreen extends Screen {
 
         listBuilder.addItem(
                 new Row.Builder()
-                        .setTitle("Start Notification")
+                        .setTitle(getCarContext().getString(R.string.start_notification_title))
                         .setOnClickListener(
                                 () -> {
                                     Context context = getCarContext();
@@ -65,7 +66,7 @@ public final class NavigationNotificationsDemoScreen extends Screen {
 
         listBuilder.addItem(
                 new Row.Builder()
-                        .setTitle("Stop Notification")
+                        .setTitle(getCarContext().getString(R.string.stop_notification_title))
                         .setOnClickListener(
                                 () ->
                                         getCarContext()
@@ -78,7 +79,7 @@ public final class NavigationNotificationsDemoScreen extends Screen {
 
         return new ListTemplate.Builder()
                 .setSingleList(listBuilder.build())
-                .setTitle("Navigation Notification Demo")
+                .setTitle(getCarContext().getString(R.string.nav_notification_demo_title))
                 .setHeaderAction(Action.BACK)
                 .build();
     }

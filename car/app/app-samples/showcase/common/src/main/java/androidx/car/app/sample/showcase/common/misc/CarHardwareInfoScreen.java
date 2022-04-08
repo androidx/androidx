@@ -33,6 +33,7 @@ import androidx.car.app.model.Pane;
 import androidx.car.app.model.PaneTemplate;
 import androidx.car.app.model.Row;
 import androidx.car.app.model.Template;
+import androidx.car.app.sample.showcase.common.R;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
@@ -124,25 +125,27 @@ public final class CarHardwareInfoScreen extends Screen {
         Pane.Builder paneBuilder = new Pane.Builder();
         if (allInfoAvailable()) {
             Row.Builder modelRowBuilder = new Row.Builder()
-                    .setTitle("Model Information");
+                    .setTitle(getCarContext().getString(R.string.model_info));
             if (!mHasModelPermission) {
-                modelRowBuilder.addText("No Model Permission.");
+                modelRowBuilder.addText(getCarContext().getString(R.string.no_model_permission));
             } else {
                 StringBuilder info = new StringBuilder();
                 if (mModel.getManufacturer().getStatus() != CarValue.STATUS_SUCCESS) {
-                    info.append("Manufacturer unavailable, ");
+                    info.append(getCarContext().getString(R.string.manufacturer_unavailable));
+                    info.append(", ");
                 } else {
                     info.append(mModel.getManufacturer().getValue());
                     info.append(", ");
                 }
                 if (mModel.getName().getStatus() != CarValue.STATUS_SUCCESS) {
-                    info.append("Model unavailable, ");
+                    info.append(getCarContext().getString(R.string.model_unavailable));
+                    info.append(", ");
                 } else {
                     info.append(mModel.getName().getValue());
                     info.append(", ");
                 }
                 if (mModel.getYear().getStatus() != CarValue.STATUS_SUCCESS) {
-                    info.append("Year unavailable");
+                    info.append(getCarContext().getString(R.string.year_unavailable));
                 } else {
                     info.append(mModel.getYear().getValue());
                 }
@@ -151,15 +154,19 @@ public final class CarHardwareInfoScreen extends Screen {
             paneBuilder.addRow(modelRowBuilder.build());
 
             Row.Builder energyProfileRowBuilder = new Row.Builder()
-                    .setTitle("Energy Profile");
+                    .setTitle(getCarContext().getString(R.string.energy_profile));
             if (!mHasEnergyProfilePermission) {
-                energyProfileRowBuilder.addText("No Energy Profile Permission.");
+                energyProfileRowBuilder.addText(getCarContext()
+                        .getString(R.string.no_energy_profile_permission));
             } else {
                 StringBuilder fuelInfo = new StringBuilder();
                 if (mEnergyProfile.getFuelTypes().getStatus() != CarValue.STATUS_SUCCESS) {
-                    fuelInfo.append("Fuel Types: Unavailable.");
+                    fuelInfo.append(getCarContext().getString(R.string.fuel_types));
+                    fuelInfo.append(": ");
+                    fuelInfo.append(getCarContext().getString(R.string.unavailable));
                 } else {
-                    fuelInfo.append("Fuel Types: ");
+                    fuelInfo.append(getCarContext().getString(R.string.fuel_types));
+                    fuelInfo.append(": ");
                     for (int fuelType : mEnergyProfile.getFuelTypes().getValue()) {
                         fuelInfo.append(fuelTypeAsString(fuelType));
                         fuelInfo.append(" ");
@@ -168,9 +175,13 @@ public final class CarHardwareInfoScreen extends Screen {
                 energyProfileRowBuilder.addText(fuelInfo);
                 StringBuilder evInfo = new StringBuilder();
                 if (mEnergyProfile.getEvConnectorTypes().getStatus() != CarValue.STATUS_SUCCESS) {
-                    evInfo.append(" EV Connector Types: Unavailable.");
+                    evInfo.append(" ");
+                    evInfo.append(getCarContext().getString(R.string.ev_connector_types));
+                    evInfo.append(": ");
+                    evInfo.append(getCarContext().getString(R.string.unavailable));
                 } else {
-                    evInfo.append("EV Connector Types: ");
+                    evInfo.append(getCarContext().getString(R.string.ev_connector_types));
+                    evInfo.append(": ");
                     for (int connectorType : mEnergyProfile.getEvConnectorTypes().getValue()) {
                         evInfo.append(evConnectorAsString(connectorType));
                         evInfo.append(" ");
@@ -184,7 +195,7 @@ public final class CarHardwareInfoScreen extends Screen {
         }
         return new PaneTemplate.Builder(paneBuilder.build())
                 .setHeaderAction(Action.BACK)
-                .setTitle("Car Hardware Information")
+                .setTitle(getCarContext().getString(R.string.car_hardware_info))
                 .build();
     }
 

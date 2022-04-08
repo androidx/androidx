@@ -48,7 +48,7 @@ public final class StartScreen extends Screen {
         ItemList.Builder listBuilder = new ItemList.Builder();
         listBuilder.addItem(
                 new Row.Builder()
-                        .setTitle("Selectable Lists Demo")
+                        .setTitle(getCarContext().getString(R.string.selectable_lists_demo_title))
                         .setOnClickListener(
                                 () ->
                                         getScreenManager()
@@ -58,7 +58,7 @@ public final class StartScreen extends Screen {
                         .build());
         listBuilder.addItem(
                 new Row.Builder()
-                        .setTitle("Task Restriction Demo")
+                        .setTitle(getCarContext().getString(R.string.task_restriction_demo_title))
                         .setOnClickListener(
                                 () ->
                                         getScreenManager()
@@ -75,7 +75,7 @@ public final class StartScreen extends Screen {
                                                 R.drawable.ic_map_white_48dp))
                                         .build(),
                                 Row.IMAGE_TYPE_ICON)
-                        .setTitle("Navigation Demos")
+                        .setTitle(getCarContext().getString(R.string.nav_demos_title))
                         .setOnClickListener(
                                 () -> getScreenManager()
                                         .push(new NavigationDemosScreen(getCarContext())))
@@ -90,7 +90,7 @@ public final class StartScreen extends Screen {
         int miscTemplateDemoScreenItemLimit = listLimit;
         listBuilder.addItem(
                 new Row.Builder()
-                        .setTitle("Misc Templates Demos")
+                        .setTitle(getCarContext().getString(R.string.misc_templates_demos_title))
                         .setOnClickListener(
                                 () ->
                                         getScreenManager()
@@ -102,7 +102,7 @@ public final class StartScreen extends Screen {
                         .build());
         listBuilder.addItem(
                 new Row.Builder()
-                        .setTitle("Text and Icons Demos")
+                        .setTitle(getCarContext().getString(R.string.text_icons_demo_title))
                         .setOnClickListener(
                                 () ->
                                         getScreenManager()
@@ -111,7 +111,7 @@ public final class StartScreen extends Screen {
                         .build());
         listBuilder.addItem(
                 new Row.Builder()
-                        .setTitle("Misc Demos")
+                        .setTitle(getCarContext().getString(R.string.misc_demo_title))
                         .setOnClickListener(
                                 () ->
                                         getScreenManager()
@@ -121,7 +121,7 @@ public final class StartScreen extends Screen {
                         .build());
         return new ListTemplate.Builder()
                 .setSingleList(listBuilder.build())
-                .setTitle("Showcase Demos")
+                .setTitle(getCarContext().getString(R.string.showcase_demos_title))
                 .setHeaderAction(Action.APP_ICON)
                 .build();
     }

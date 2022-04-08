@@ -91,18 +91,19 @@ public final class GridTemplateDemoScreen extends Screen implements DefaultLifec
                 // Grid item with an icon and a title.
                 return new GridItem.Builder()
                         .setImage(new CarIcon.Builder(mIcon).build(), GridItem.IMAGE_TYPE_ICON)
-                        .setTitle("Non-actionable")
+                        .setTitle(getCarContext().getString(R.string.non_actionable))
                         .build();
             case 1:
                 // Grid item with an icon, a title, onClickListener and no text.
                 return new GridItem.Builder()
                         .setImage(new CarIcon.Builder(mIcon).build(), GridItem.IMAGE_TYPE_ICON)
-                        .setTitle("Second Item")
+                        .setTitle(getCarContext().getString(R.string.second_item))
                         .setOnClickListener(
                                 () -> CarToast.makeText(
-                                        getCarContext(),
-                                        "Clicked second item",
-                                        LENGTH_SHORT)
+                                                getCarContext(),
+                                                getCarContext()
+                                                        .getString(R.string.second_item_toast_msg),
+                                                LENGTH_SHORT)
                                         .show())
                         .build();
             case 2:
@@ -110,15 +111,19 @@ public final class GridTemplateDemoScreen extends Screen implements DefaultLifec
                 // unchecked state.
                 return new GridItem.Builder()
                         .setImage(new CarIcon.Builder(mIcon).build(), GridItem.IMAGE_TYPE_ICON)
-                        .setTitle("Third Item")
-                        .setText(mThirdItemToggleState ? "Checked" : "Unchecked")
+                        .setTitle(getCarContext().getString(R.string.third_item))
+                        .setText(mThirdItemToggleState
+                                ? getCarContext().getString(R.string.checked_action_title)
+                                : getCarContext().getString(R.string.unchecked_action_title))
                         .setOnClickListener(
                                 () -> {
                                     mThirdItemToggleState = !mThirdItemToggleState;
                                     CarToast.makeText(
-                                            getCarContext(),
-                                            "Third item checked: " + mThirdItemToggleState,
-                                            LENGTH_SHORT)
+                                                    getCarContext(),
+                                                    getCarContext().getString(
+                                                            R.string.third_item_checked_toast_msg)
+                                                            + ": " + mThirdItemToggleState,
+                                                    LENGTH_SHORT)
                                             .show();
                                     invalidate();
                                 })
@@ -129,15 +134,19 @@ public final class GridTemplateDemoScreen extends Screen implements DefaultLifec
                 // update.
                 if (mIsFourthItemLoading) {
                     return new GridItem.Builder()
-                            .setTitle("Fourth")
-                            .setText(mFourthItemToggleState ? "On" : "Off")
+                            .setTitle(getCarContext().getString(R.string.fourth_item))
+                            .setText(mFourthItemToggleState
+                                    ? getCarContext().getString(R.string.on_action_title)
+                                    : getCarContext().getString(R.string.off_action_title))
                             .setLoading(true)
                             .build();
                 } else {
                     return new GridItem.Builder()
                             .setImage(new CarIcon.Builder(mImage).build())
-                            .setTitle("Fourth")
-                            .setText(mFourthItemToggleState ? "On" : "Off")
+                            .setTitle(getCarContext().getString(R.string.fourth_item))
+                            .setText(mFourthItemToggleState
+                                    ? getCarContext().getString(R.string.on_action_title)
+                                    : getCarContext().getString(R.string.off_action_title))
                             .setOnClickListener(this::triggerFourthItemLoading)
                             .build();
                 }
@@ -146,14 +155,17 @@ public final class GridTemplateDemoScreen extends Screen implements DefaultLifec
                 // state.
                 return new GridItem.Builder()
                         .setImage(new CarIcon.Builder(mImage).build(), GridItem.IMAGE_TYPE_LARGE)
-                        .setTitle("Fifth Item has a long title set")
+                        .setTitle(getCarContext().getString(R.string.fifth_item))
                         .setOnClickListener(
                                 () -> {
                                     mFifthItemToggleState = !mFifthItemToggleState;
                                     CarToast.makeText(
-                                            getCarContext(),
-                                            "Fifth item checked: " + mFifthItemToggleState,
-                                            LENGTH_SHORT)
+                                                    getCarContext(),
+                                                    getCarContext().getString(
+                                                            R.string.fifth_item_checked_toast_msg)
+                                                            + ": "
+                                                            + mFifthItemToggleState,
+                                                    LENGTH_SHORT)
                                             .show();
                                     invalidate();
                                 })
@@ -165,15 +177,15 @@ public final class GridTemplateDemoScreen extends Screen implements DefaultLifec
                         new GridItem.Builder()
                                 .setImage(new CarIcon.Builder(mIcon).build(),
                                         GridItem.IMAGE_TYPE_ICON)
-                                .setTitle("Sixth Item has a long title set")
-                                .setText("Sixth Item has a long text set")
+                                .setTitle(getCarContext().getString(R.string.sixth_item))
+                                .setText(getCarContext().getString(R.string.sixth_item))
                                 .setOnClickListener(
-                                        () ->
-                                                CarToast.makeText(
+                                        () -> CarToast.makeText(
                                                         getCarContext(),
-                                                        "Clicked sixth item",
+                                                        getCarContext().getString(
+                                                                R.string.sixth_item_toast_msg),
                                                         LENGTH_SHORT)
-                                                        .show())
+                                                .show())
                                 .build();
             default:
                 String titleText = (index + 1) + "th item";
@@ -186,9 +198,9 @@ public final class GridTemplateDemoScreen extends Screen implements DefaultLifec
                         .setOnClickListener(
                                 () ->
                                         CarToast.makeText(
-                                                getCarContext(),
-                                                toastText,
-                                                LENGTH_SHORT)
+                                                        getCarContext(),
+                                                        toastText,
+                                                        LENGTH_SHORT)
                                                 .show())
                         .build();
         }
@@ -211,23 +223,23 @@ public final class GridTemplateDemoScreen extends Screen implements DefaultLifec
             gridItemListBuilder.addItem(createGridItem(i));
         }
 
+        Action settings = new Action.Builder()
+                .setTitle(getCarContext().getString(
+                        R.string.settings_action_title))
+                .setOnClickListener(
+                        () -> CarToast.makeText(
+                                        getCarContext(),
+                                        getCarContext().getString(R.string.settings_toast_msg),
+                                        LENGTH_SHORT)
+                                .show())
+                .build();
         return new GridTemplate.Builder()
                 .setHeaderAction(Action.APP_ICON)
                 .setSingleList(gridItemListBuilder.build())
-                .setTitle("Grid Template Demo")
+                .setTitle(getCarContext().getString(R.string.grid_template_demo_title))
                 .setActionStrip(
                         new ActionStrip.Builder()
-                                .addAction(
-                                        new Action.Builder()
-                                                .setTitle("Settings")
-                                                .setOnClickListener(
-                                                        () ->
-                                                                CarToast.makeText(
-                                                                        getCarContext(),
-                                                                        "Clicked Settings",
-                                                                        LENGTH_SHORT)
-                                                                        .show())
-                                                .build())
+                                .addAction(settings)
                                 .build())
                 .setHeaderAction(BACK)
                 .build();

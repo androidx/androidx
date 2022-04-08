@@ -25,6 +25,7 @@ import androidx.car.app.model.ItemList;
 import androidx.car.app.model.ListTemplate;
 import androidx.car.app.model.Row;
 import androidx.car.app.model.Template;
+import androidx.car.app.sample.showcase.common.R;
 
 /** Creates a screen that shows different types of texts and icons. */
 public final class TextAndIconsDemosScreen extends Screen {
@@ -39,14 +40,15 @@ public final class TextAndIconsDemosScreen extends Screen {
 
         listBuilder.addItem(
                 new Row.Builder()
-                        .setTitle("Icons Demo")
+                        .setTitle(getCarContext().getString(R.string.icons_demo_title))
                         .setOnClickListener(
                                 () -> getScreenManager().push(new IconsDemoScreen(getCarContext())))
                         .build());
 
         listBuilder.addItem(
                 new Row.Builder()
-                        .setTitle("Content Provider Icons Demo")
+                        .setTitle(getCarContext().getString(
+                                R.string.content_provider_icons_demo_title))
                         .setOnClickListener(
                                 () ->
                                         getScreenManager()
@@ -57,14 +59,14 @@ public final class TextAndIconsDemosScreen extends Screen {
 
         listBuilder.addItem(
                 new Row.Builder()
-                        .setTitle("Rows with Text and Icons Demo")
+                        .setTitle(getCarContext().getString(R.string.row_text_icons_demo_title))
                         .setOnClickListener(
                                 () -> getScreenManager().push(new RowDemoScreen(getCarContext())))
                         .build());
 
         return new ListTemplate.Builder()
                 .setSingleList(listBuilder.build())
-                .setTitle("Text and Icons Demos")
+                .setTitle(getCarContext().getString(R.string.text_icons_demo_title))
                 .setHeaderAction(BACK)
                 .build();
     }

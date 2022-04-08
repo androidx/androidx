@@ -55,21 +55,33 @@ public final class SelectableListsDemoScreen extends Screen {
                                                                         .ic_fastfood_white_48dp))
                                                         .build(),
                                                 Row.IMAGE_TYPE_ICON)
-                                        .setTitle("Option 1")
-                                        .addText("Some additional text")
+                                        .setTitle(
+                                                getCarContext().getString(R.string.option_1_title))
+                                        .addText(getCarContext().getString(
+                                                R.string.some_additional_text))
                                         .build())
-                        .addItem(new Row.Builder().setTitle("Option 2").build())
-                        .addItem(new Row.Builder().setTitle("Option 3").build())
+                        .addItem(new Row.Builder().setTitle(
+                                getCarContext().getString(R.string.option_2_title)).build())
+                        .addItem(new Row.Builder().setTitle(
+                                getCarContext().getString(R.string.option_3_title)).build())
                         .setOnSelectedListener(this::onSelected)
                         .build();
         templateBuilder.addSectionedList(
-                SectionedItemList.create(radioList, "Sample selectable list"));
+                SectionedItemList.create(radioList,
+                        getCarContext().getString(R.string.sample_additional_list)));
 
-        return templateBuilder.setTitle("Selectable Lists Demo").setHeaderAction(BACK).build();
+        return templateBuilder
+                .setTitle(getCarContext().getString(R.string.selectable_lists_demo_title))
+                .setHeaderAction(
+                        BACK).build();
     }
 
     private void onSelected(int index) {
-        CarToast.makeText(getCarContext(), "Changed selection to index: " + index, LENGTH_LONG)
+        CarToast.makeText(getCarContext(),
+                        getCarContext()
+                                .getString(R.string.changes_selection_to_index_toast_msg_prefix)
+                                + ":"
+                                + " " + index, LENGTH_LONG)
                 .show();
     }
 }

@@ -64,11 +64,12 @@ public final class TaskRestrictionDemoScreen extends Screen {
                                             mIsBackOperation = true);
 
             return new MessageTemplate.Builder(
-                    "Task limit reached\nGoing forward will force stop the app")
+                    getCarContext().getString(R.string.task_limit_reached_msg))
                     .setHeaderAction(BACK)
                     .addAction(
                             new Action.Builder()
-                                    .setTitle("Try Anyway")
+                                    .setTitle(getCarContext().getString(
+                                            R.string.try_anyway_action_title))
                                     .setOnClickListener(onClickListener)
                                     .build())
                     .build();
@@ -76,21 +77,23 @@ public final class TaskRestrictionDemoScreen extends Screen {
 
         ItemList.Builder builder = new ItemList.Builder();
         builder.addItem(
-                new Row.Builder()
-                        .setTitle("Task step " + mStep + " of " + MAX_STEPS_ALLOWED)
-                        .addText("Click to go forward")
-                        .setOnClickListener(
-                                () ->
-                                        getScreenManager()
-                                                .pushForResult(
-                                                        new TaskRestrictionDemoScreen(
-                                                                mStep + 1, getCarContext()),
-                                                        result -> mIsBackOperation = true))
-                        .build())
+                        new Row.Builder()
+                                .setTitle(getCarContext().getString(R.string.task_step_of_title,
+                                        mStep,
+                                        MAX_STEPS_ALLOWED))
+                                .addText(getCarContext().getString(R.string.task_step_of_text))
+                                .setOnClickListener(
+                                        () ->
+                                                getScreenManager()
+                                                        .pushForResult(
+                                                                new TaskRestrictionDemoScreen(
+                                                                        mStep + 1, getCarContext()),
+                                                                result -> mIsBackOperation = true))
+                                .build())
                 .addItem(
                         new Row.Builder()
-                                .setTitle("Toggle test")
-                                .addText("Stateful changes are allowed")
+                                .setTitle(getCarContext().getString(R.string.toggle_test_title))
+                                .addText(getCarContext().getString(R.string.toggle_test_text))
                                 .setToggle(
                                         new Toggle.Builder(
                                                 checked -> {
@@ -102,8 +105,8 @@ public final class TaskRestrictionDemoScreen extends Screen {
                                 .build())
                 .addItem(
                         new Row.Builder()
-                                .setTitle("Image test")
-                                .addText("Image changes are allowed")
+                                .setTitle(getCarContext().getString(R.string.image_test_title))
+                                .addText(getCarContext().getString(R.string.image_test_text))
                                 .setImage(
                                         new CarIcon.Builder(
                                                 IconCompat.createWithResource(
@@ -124,20 +127,21 @@ public final class TaskRestrictionDemoScreen extends Screen {
         if (mIsBackOperation) {
             builder.addItem(
                     new Row.Builder()
-                            .setTitle("Additional Data")
-                            .addText("Updates allows on back operations.")
+                            .setTitle(getCarContext().getString(R.string.additional_data_title))
+                            .addText(getCarContext().getString(R.string.additional_data_text))
                             .build());
         }
 
         return new ListTemplate.Builder()
                 .setSingleList(builder.build())
-                .setTitle("Task Restriction Demo")
+                .setTitle(getCarContext().getString(R.string.task_restriction_demo_title))
                 .setHeaderAction(BACK)
                 .setActionStrip(
                         new ActionStrip.Builder()
                                 .addAction(
                                         new Action.Builder()
-                                                .setTitle("HOME")
+                                                .setTitle(getCarContext().getString(
+                                                        R.string.home_caps_action_title))
                                                 .setOnClickListener(
                                                         () -> getScreenManager().popToRoot())
                                                 .build())

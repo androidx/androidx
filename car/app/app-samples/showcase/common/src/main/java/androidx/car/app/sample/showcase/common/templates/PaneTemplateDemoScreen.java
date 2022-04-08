@@ -77,19 +77,19 @@ public final class PaneTemplateDemoScreen extends Screen implements DefaultLifec
             case 0:
                 // Row with a large image.
                 return new Row.Builder()
-                        .setTitle("Row with a large image and long text long text long text long "
-                                + "text long text")
-                        .addText("Text text text")
-                        .addText("Text text text")
+                        .setTitle(getCarContext().getString(R.string.first_row_title))
+                        .addText(getCarContext().getString(R.string.first_row_text))
+                        .addText(getCarContext().getString(R.string.first_row_text))
                         .setImage(new CarIcon.Builder(mRowLargeIcon).build())
                         .build();
             default:
                 return new Row.Builder()
-                        .setTitle("Row title " + (index + 1))
-                        .addText("Row text 1")
-                        .addText("Row text 2")
+                        .setTitle(
+                                getCarContext().getString(R.string.other_row_title_prefix) + (index
+                                        + 1))
+                        .addText(getCarContext().getString(R.string.other_row_text))
+                        .addText(getCarContext().getString(R.string.other_row_text))
                         .build();
-
         }
     }
 
@@ -114,13 +114,13 @@ public final class PaneTemplateDemoScreen extends Screen implements DefaultLifec
         paneBuilder.setImage(new CarIcon.Builder(mPaneImage).build());
 
         Action.Builder primaryActionBuilder = new Action.Builder()
-                .setTitle("Search")
+                .setTitle(getCarContext().getString(R.string.search_action_title))
                 .setBackgroundColor(CarColor.BLUE)
                 .setOnClickListener(
                         () -> CarToast.makeText(
-                                getCarContext(),
-                                "Search/Primary button pressed",
-                                LENGTH_SHORT)
+                                        getCarContext(),
+                                        getCarContext().getString(R.string.search_toast_msg),
+                                        LENGTH_SHORT)
                                 .show());
         if (getCarContext().getCarAppApiLevel() >= CarAppApiLevels.LEVEL_4) {
             primaryActionBuilder.setFlags(FLAG_PRIMARY);
@@ -130,12 +130,13 @@ public final class PaneTemplateDemoScreen extends Screen implements DefaultLifec
                 .addAction(primaryActionBuilder.build())
                 .addAction(
                         new Action.Builder()
-                                .setTitle("Options")
+                                .setTitle(getCarContext().getString(R.string.options_action_title))
                                 .setOnClickListener(
                                         () -> CarToast.makeText(
-                                                getCarContext(),
-                                                "Options button pressed",
-                                                LENGTH_SHORT)
+                                                        getCarContext(),
+                                                        getCarContext().getString(
+                                                                R.string.options_toast_msg),
+                                                        LENGTH_SHORT)
                                                 .show())
                                 .build());
 
@@ -143,23 +144,23 @@ public final class PaneTemplateDemoScreen extends Screen implements DefaultLifec
                 .setHeaderAction(Action.BACK)
                 .setActionStrip(
                         new ActionStrip.Builder()
-                                .addAction(
-                                        new Action.Builder()
-                                                .setTitle("Commute")
-                                                .setIcon(
-                                                        new CarIcon.Builder(mCommuteIcon)
-                                                                .setTint(CarColor.BLUE)
-                                                                .build())
-                                                .setOnClickListener(
-                                                        () -> CarToast.makeText(
+                                .addAction(new Action.Builder()
+                                        .setTitle(getCarContext().getString(
+                                                R.string.commute_action_title))
+                                        .setIcon(
+                                                new CarIcon.Builder(mCommuteIcon)
+                                                        .setTint(CarColor.BLUE)
+                                                        .build())
+                                        .setOnClickListener(
+                                                () -> CarToast.makeText(
                                                                 getCarContext(),
-                                                                "Commute button"
-                                                                        + " pressed",
+                                                                getCarContext().getString(
+                                                                        R.string.commute_toast_msg),
                                                                 LENGTH_SHORT)
-                                                                .show())
-                                                .build())
+                                                        .show())
+                                        .build())
                                 .build())
-                .setTitle("Pane Template Demo")
+                .setTitle(getCarContext().getString(R.string.pane_template_demo_title))
                 .build();
     }
 }

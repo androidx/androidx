@@ -55,10 +55,189 @@ public class SamplePlaces {
     private final List<PlaceInfo> mPlaces;
     private final Screen mDemoScreen;
 
+    private SamplePlaces(Screen demoScreen) {
+        mDemoScreen = demoScreen;
+
+        CarContext carContext = demoScreen.getCarContext();
+
+        mAnchorLocation = new Location("ShowcaseDemo");
+        mAnchorLocation.setLatitude(47.6204588);
+        mAnchorLocation.setLongitude(-122.1918818);
+
+        mPlaces = getSamplePlaces(carContext);
+    }
+
     /** Create an instance of {@link SamplePlaces}. */
     @NonNull
     public static SamplePlaces create(@NonNull Screen demoScreen) {
         return new SamplePlaces(demoScreen);
+    }
+
+    /**
+     * Returns the list of sample places.
+     *
+     * <p>We use a few Google locations around the Seattle area, using different types of markers to
+     * showcase those options. The "description" field of each place describes the type of marker
+     * itself.
+     */
+    private static List<PlaceInfo> getSamplePlaces(@NonNull CarContext carContext) {
+        List<PlaceInfo> places = new ArrayList<>();
+
+        Location location1 = new Location(SamplePlaces.class.getSimpleName());
+        location1.setLatitude(47.6696482);
+        location1.setLongitude(-122.19950278);
+        places.add(
+                new PlaceInfo(
+                        carContext.getString(R.string.location_1_title),
+                        carContext.getString(R.string.location_1_address),
+                        carContext.getString(R.string.location_1_description),
+                        carContext.getString(R.string.location_1_phone),
+                        location1,
+                        new PlaceMarker.Builder()
+                                .setIcon(
+                                        new CarIcon.Builder(
+                                                IconCompat.createWithResource(
+                                                        carContext,
+                                                        R.drawable.ic_commute_24px))
+                                                .setTint(CarColor.BLUE)
+                                                .build(),
+                                        PlaceMarker.TYPE_ICON)
+                                .build()));
+
+        Location location2 = new Location(SamplePlaces.class.getSimpleName());
+        location2.setLatitude(47.6204588);
+        location2.setLongitude(-122.1918818);
+        places.add(
+                new PlaceInfo(
+                        carContext.getString(R.string.location_2_title),
+                        carContext.getString(R.string.location_2_address),
+                        carContext.getString(R.string.location_2_description),
+                        carContext.getString(R.string.location_2_phone),
+                        location2,
+                        new PlaceMarker.Builder()
+                                .setIcon(
+                                        new CarIcon.Builder(
+                                                IconCompat.createWithResource(
+                                                        carContext, R.drawable.ic_520))
+                                                .build(),
+                                        PlaceMarker.TYPE_IMAGE)
+                                .build()));
+
+        Location location3 = new Location(SamplePlaces.class.getSimpleName());
+        location3.setLatitude(47.625567);
+        location3.setLongitude(-122.336427);
+        places.add(
+                new PlaceInfo(
+                        carContext.getString(R.string.location_3_title),
+                        carContext.getString(R.string.location_3_address),
+                        carContext.getString(R.string.location_3_description),
+                        carContext.getString(R.string.location_3_phone),
+                        location3,
+                        new PlaceMarker.Builder().setLabel("SLU").setColor(CarColor.RED).build()));
+
+        Location location4 = new Location(SamplePlaces.class.getSimpleName());
+        location4.setLatitude(47.6490374);
+        location4.setLongitude(-122.3527127);
+        places.add(
+                new PlaceInfo(
+                        carContext.getString(R.string.location_4_title),
+                        carContext.getString(R.string.location_4_address),
+                        carContext.getString(R.string.location_4_description),
+                        carContext.getString(R.string.location_4_phone),
+                        location4,
+                        new PlaceMarker.Builder()
+                                .setIcon(
+                                        new CarIcon.Builder(
+                                                IconCompat.createWithBitmap(
+                                                        BitmapFactory.decodeResource(
+                                                                carContext.getResources(),
+                                                                R.drawable.banana)))
+                                                .build(),
+                                        PlaceMarker.TYPE_IMAGE)
+                                .build()));
+
+        Location location5 = new Location(SamplePlaces.class.getSimpleName());
+        location5.setLatitude(37.422014);
+        location5.setLongitude(-122.084776);
+        SpannableString title5 = new SpannableString(" ");
+        title5.setSpan(CarIconSpan.create(new CarIcon.Builder(
+                        IconCompat.createWithBitmap(
+                                BitmapFactory.decodeResource(
+                                        carContext.getResources(),
+                                        R.drawable.ic_hi)))
+                        .build(), CarIconSpan.ALIGN_BOTTOM),
+                0,
+                1,
+                Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+        SpannableString description5 = new SpannableString(" ");
+        places.add(
+                new PlaceInfo(
+                        title5,
+                        carContext.getString(R.string.location_5_address),
+                        description5,
+                        carContext.getString(R.string.location_5_phone),
+                        location5,
+                        new PlaceMarker.Builder()
+                                .setIcon(
+                                        new CarIcon.Builder(
+                                                IconCompat.createWithBitmap(
+                                                        BitmapFactory.decodeResource(
+                                                                carContext.getResources(),
+                                                                R.drawable.test_image_square)))
+                                                .build(),
+                                        PlaceMarker.TYPE_IMAGE)
+                                .build()));
+
+        Location location6 = new Location(SamplePlaces.class.getSimpleName());
+        location6.setLatitude(47.6490374);
+        location6.setLongitude(-122.3527127);
+        places.add(
+                new PlaceInfo(
+                        carContext.getString(R.string.location_6_title),
+                        carContext.getString(R.string.location_6_address),
+                        carContext.getString(R.string.location_description_text_label),
+                        carContext.getString(R.string.location_phone_not_available),
+                        location6,
+                        new PlaceMarker.Builder().build()));
+
+        // Some hosts may display more items in the list than others, so create 3 more items.
+        Location location7 = new Location(SamplePlaces.class.getSimpleName());
+        location7.setLatitude(47.5496056);
+        location7.setLongitude(-122.2571713);
+        places.add(
+                new PlaceInfo(
+                        carContext.getString(R.string.location_7_title),
+                        carContext.getString(R.string.location_7_address),
+                        carContext.getString(R.string.location_description_text_label),
+                        carContext.getString(R.string.location_phone_not_available),
+                        location7,
+                        new PlaceMarker.Builder().build()));
+
+        Location location8 = new Location(SamplePlaces.class.getSimpleName());
+        location8.setLatitude(47.5911456);
+        location8.setLongitude(-122.2256602);
+        places.add(
+                new PlaceInfo(
+                        carContext.getString(R.string.location_8_title),
+                        carContext.getString(R.string.location_8_address),
+                        carContext.getString(R.string.location_description_text_label),
+                        carContext.getString(R.string.location_phone_not_available),
+                        location8,
+                        new PlaceMarker.Builder().build()));
+
+        Location location9 = new Location(SamplePlaces.class.getSimpleName());
+        location9.setLatitude(47.6785932);
+        location9.setLongitude(-122.2113821);
+        places.add(
+                new PlaceInfo(
+                        carContext.getString(R.string.location_9_title),
+                        carContext.getString(R.string.location_9_address),
+                        carContext.getString(R.string.location_description_text_label),
+                        carContext.getString(R.string.location_phone_not_available),
+                        location9,
+                        new PlaceMarker.Builder().build()));
+
+        return places;
     }
 
     /** Return the {@link ItemList} of the sample places. */
@@ -139,184 +318,5 @@ public class SamplePlaces {
         mDemoScreen
                 .getScreenManager()
                 .push(PlaceDetailsScreen.create(mDemoScreen.getCarContext(), place));
-    }
-
-    private SamplePlaces(Screen demoScreen) {
-        mDemoScreen = demoScreen;
-
-        CarContext carContext = demoScreen.getCarContext();
-
-        mAnchorLocation = new Location("ShowcaseDemo");
-        mAnchorLocation.setLatitude(47.6204588);
-        mAnchorLocation.setLongitude(-122.1918818);
-
-        mPlaces = getSamplePlaces(carContext);
-    }
-
-    /**
-     * Returns the list of sample places.
-     *
-     * <p>We use a few Google locations around the Seattle area, using different types of markers to
-     * showcase those options. The "description" field of each place describes the type of marker
-     * itself.
-     */
-    private static List<PlaceInfo> getSamplePlaces(@NonNull CarContext carContext) {
-        List<PlaceInfo> places = new ArrayList<>();
-
-        Location location1 = new Location(SamplePlaces.class.getSimpleName());
-        location1.setLatitude(47.6696482);
-        location1.setLongitude(-122.19950278);
-        places.add(
-                new PlaceInfo(
-                        "Google Kirkland",
-                        "747 6th St South, Kirkland, WA 98033",
-                        "Tinted resource vector",
-                        "+14257395600",
-                        location1,
-                        new PlaceMarker.Builder()
-                                .setIcon(
-                                        new CarIcon.Builder(
-                                                IconCompat.createWithResource(
-                                                        carContext,
-                                                        R.drawable.ic_commute_24px))
-                                                .setTint(CarColor.BLUE)
-                                                .build(),
-                                        PlaceMarker.TYPE_ICON)
-                                .build()));
-
-        Location location2 = new Location(SamplePlaces.class.getSimpleName());
-        location2.setLatitude(47.6204588);
-        location2.setLongitude(-122.1918818);
-        places.add(
-                new PlaceInfo(
-                        "Google Bellevue",
-                        "1120 112th Ave NE, Bellevue, WA 98004",
-                        "Image resource bitmap",
-                        "+14252301301",
-                        location2,
-                        new PlaceMarker.Builder()
-                                .setIcon(
-                                        new CarIcon.Builder(
-                                                IconCompat.createWithResource(
-                                                        carContext, R.drawable.ic_520))
-                                                .build(),
-                                        PlaceMarker.TYPE_IMAGE)
-                                .build()));
-
-        Location location3 = new Location(SamplePlaces.class.getSimpleName());
-        location3.setLatitude(47.625567);
-        location3.setLongitude(-122.336427);
-        places.add(
-                new PlaceInfo(
-                        "Google South Lake Union",
-                        "1021 Valley St, Seattle, WA 98109",
-                        "Colored text marker",
-                        "+12065311800",
-                        location3,
-                        new PlaceMarker.Builder().setLabel("SLU").setColor(CarColor.RED).build()));
-
-        Location location4 = new Location(SamplePlaces.class.getSimpleName());
-        location4.setLatitude(47.6490374);
-        location4.setLongitude(-122.3527127);
-        places.add(
-                new PlaceInfo(
-                        "Google Seattle",
-                        "601 N 34th St, Seattle, WA 98103",
-                        "Image bitmap",
-                        "+12068761800",
-                        location4,
-                        new PlaceMarker.Builder()
-                                .setIcon(
-                                        new CarIcon.Builder(
-                                                IconCompat.createWithBitmap(
-                                                        BitmapFactory.decodeResource(
-                                                                carContext.getResources(),
-                                                                R.drawable.banana)))
-                                                .build(),
-                                        PlaceMarker.TYPE_IMAGE)
-                                .build()));
-
-        Location location5 = new Location(SamplePlaces.class.getSimpleName());
-        location5.setLatitude(37.422014);
-        location5.setLongitude(-122.084776);
-        SpannableString title5 = new SpannableString(" ");
-        title5.setSpan(CarIconSpan.create(new CarIcon.Builder(
-                IconCompat.createWithBitmap(
-                        BitmapFactory.decodeResource(
-                                carContext.getResources(),
-                                R.drawable.ic_hi)))
-                .build(), CarIconSpan.ALIGN_BOTTOM),
-                0,
-                1,
-                Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-        SpannableString description5 = new SpannableString(" ");
-        places.add(
-                new PlaceInfo(
-                        title5,
-                        "1600 Amphitheatre Pkwy, Mountain View, CA 94043",
-                        description5,
-                        "+16502530000",
-                        location5,
-                        new PlaceMarker.Builder()
-                                .setIcon(
-                                        new CarIcon.Builder(
-                                                IconCompat.createWithBitmap(
-                                                        BitmapFactory.decodeResource(
-                                                                carContext.getResources(),
-                                                                R.drawable.test_image_square)))
-                                                .build(),
-                                        PlaceMarker.TYPE_IMAGE)
-                                .build()));
-
-        Location location6 = new Location(SamplePlaces.class.getSimpleName());
-        location6.setLatitude(47.6490374);
-        location6.setLongitude(-122.3527127);
-        places.add(
-                new PlaceInfo(
-                        "Google Bothell",
-                        "11831 North Creek Pkwy, Bothell, WA 98011",
-                        "Text label",
-                        "n/a",
-                        location6,
-                        new PlaceMarker.Builder().build()));
-
-        // Some hosts may display more items in the list than others, so create 3 more items.
-        Location location7 = new Location(SamplePlaces.class.getSimpleName());
-        location7.setLatitude(47.5496056);
-        location7.setLongitude(-122.2571713);
-        places.add(
-                new PlaceInfo(
-                        "Seward Park",
-                        "5900 Lake Washington Blvd S, Seattle, WA 98118",
-                        "Text label",
-                        "n/a",
-                        location7,
-                        new PlaceMarker.Builder().build()));
-
-        Location location8 = new Location(SamplePlaces.class.getSimpleName());
-        location8.setLatitude(47.5911456);
-        location8.setLongitude(-122.2256602);
-        places.add(
-                new PlaceInfo(
-                        "Luther Burbank Park",
-                        "2040 84th Ave SE, Mercer Island, WA 98040",
-                        "Text label",
-                        "n/a",
-                        location8,
-                        new PlaceMarker.Builder().build()));
-
-        Location location9 = new Location(SamplePlaces.class.getSimpleName());
-        location9.setLatitude(47.6785932);
-        location9.setLongitude(-122.2113821);
-        places.add(
-                new PlaceInfo(
-                        "Heritage Park",
-                        "111 Waverly Way, Kirkland, WA 98033",
-                        "Text label",
-                        "n/a",
-                        location9,
-                        new PlaceMarker.Builder().build()));
-
-        return places;
     }
 }

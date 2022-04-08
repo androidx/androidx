@@ -25,6 +25,7 @@ import androidx.car.app.model.ItemList;
 import androidx.car.app.model.ListTemplate;
 import androidx.car.app.model.Row;
 import androidx.car.app.model.Template;
+import androidx.car.app.sample.showcase.common.R;
 
 /**
  * A {@link Screen} that allows you to push deeper in the screen stack, or pop to previous marker,
@@ -48,17 +49,17 @@ public class PopToDemoScreen extends Screen {
         ItemList.Builder listBuilder = new ItemList.Builder();
         listBuilder.addItem(
                 new Row.Builder()
-                        .setTitle("Pop to root")
+                        .setTitle(getCarContext().getString(R.string.pop_to_root))
                         .setOnClickListener(() -> getScreenManager().popToRoot())
                         .build());
         listBuilder.addItem(
                 new Row.Builder()
-                        .setTitle("Pop to Misc Demo Marker")
+                        .setTitle(getCarContext().getString(R.string.pop_to_marker))
                         .setOnClickListener(() -> getScreenManager().popTo(MiscDemoScreen.MARKER))
                         .build());
         listBuilder.addItem(
                 new Row.Builder()
-                        .setTitle("Push further in stack")
+                        .setTitle(getCarContext().getString(R.string.push_stack))
                         .setOnClickListener(
                                 () ->
                                         getScreenManager()
@@ -69,7 +70,7 @@ public class PopToDemoScreen extends Screen {
 
         return new ListTemplate.Builder()
                 .setSingleList(listBuilder.build())
-                .setTitle("Pop To " + mId)
+                .setTitle(getCarContext().getString(R.string.pop_to_prefix) + mId)
                 .setHeaderAction(BACK)
                 .build();
     }

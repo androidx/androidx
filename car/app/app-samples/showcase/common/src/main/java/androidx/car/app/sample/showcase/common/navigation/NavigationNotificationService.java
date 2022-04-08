@@ -61,7 +61,7 @@ public final class NavigationNotificationService extends Service {
      * The number of notifications fired so far.
      *
      * <p>We use this number to post notifications with a repeating list of directions. See {@link
-     * #getDirectionInfo(int)} for details.
+     * #getDirectionInfo(Context, int)} for details.
      */
     int mNotificationCount = 0;
 
@@ -119,7 +119,7 @@ public final class NavigationNotificationService extends Service {
             Context context, int notificationCount) {
         NotificationCompat.Builder builder =
                 new NotificationCompat.Builder(context, NAV_NOTIFICATION_CHANNEL_ID);
-        DirectionInfo directionInfo = getDirectionInfo(notificationCount);
+        DirectionInfo directionInfo = getDirectionInfo(context, notificationCount);
 
         // Set an intent to open the car app. The app receives this intent when the user taps the
         // heads-up notification or the rail widget.
@@ -189,7 +189,7 @@ public final class NavigationNotificationService extends Service {
      * <p>There are 5 directions, repeating in order. For each direction, the alert will only show
      * once, but the distance will update on every count on the rail widget.
      */
-    private static DirectionInfo getDirectionInfo(int notificationCount) {
+    private static DirectionInfo getDirectionInfo(Context context, int notificationCount) {
         DecimalFormat formatter = new DecimalFormat("#.##");
         formatter.setRoundingMode(RoundingMode.DOWN);
         int repeatingCount = notificationCount % 35;
@@ -197,7 +197,7 @@ public final class NavigationNotificationService extends Service {
             // Distance decreases from 1km to 0.1km
             String distance = formatter.format((10 - repeatingCount) * 0.1) + "km";
             return new DirectionInfo(
-                    "Go Straight",
+                    context.getString(R.string.go_straight),
                     distance,
                     R.drawable.arrow_straight,
                     /* onlyAlertOnce= */ repeatingCount > 0);
@@ -205,7 +205,7 @@ public final class NavigationNotificationService extends Service {
             // Distance decreases from 5km to 0.5km
             String distance = formatter.format((20 - repeatingCount) * 0.5) + "km";
             return new DirectionInfo(
-                    "Turn Right",
+                    context.getString(R.string.turn_right),
                     distance,
                     R.drawable.arrow_right_turn,
                     /* onlyAlertOnce= */ repeatingCount > 10);
@@ -213,7 +213,7 @@ public final class NavigationNotificationService extends Service {
             // Distance decreases from 200m to 40m
             String distance = formatter.format((25 - repeatingCount) * 40) + "m";
             return new DirectionInfo(
-                    "Take 520",
+                    context.getString(R.string.take_520),
                     distance,
                     R.drawable.ic_520,
                     /* onlyAlertOnce= */ repeatingCount > 20);
@@ -221,7 +221,7 @@ public final class NavigationNotificationService extends Service {
             // Distance decreases from 1km to 0.1km
             String distance = formatter.format((35 - repeatingCount) * 0.1) + "km";
             return new DirectionInfo(
-                    "Gas Station",
+                    context.getString(R.string.gas_station),
                     distance,
                     R.drawable.ic_local_gas_station_white_48dp,
                     repeatingCount > 25);
