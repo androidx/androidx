@@ -58,7 +58,6 @@ import androidx.wear.compose.material.rememberScalingLazyListState
 fun AlertDialogSample() {
     Box {
         var showDialog by remember { mutableStateOf(false) }
-        // Launches the Alert Dialog by setting the value of showDialog.
         Column(
             modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
             verticalArrangement = Arrangement.Center,
@@ -67,50 +66,50 @@ fun AlertDialogSample() {
             Chip(
                 onClick = { showDialog = true },
                 label = { Text("Show dialog") },
+                colors = ChipDefaults.secondaryChipColors(),
             )
         }
-        if (showDialog) {
-            val scrollState = rememberScalingLazyListState()
-            Dialog(
-                onDismissRequest = { showDialog = false },
+        val scrollState = rememberScalingLazyListState()
+        Dialog(
+            showDialog = showDialog,
+            onDismissRequest = { showDialog = false },
+            scrollState = scrollState,
+        ) {
+            Alert(
                 scrollState = scrollState,
+                verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.Top),
+                contentPadding =
+                    PaddingValues(start = 10.dp, end = 10.dp, top = 24.dp, bottom = 52.dp),
+                icon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_airplanemode_active_24px),
+                        contentDescription = "airplane",
+                        modifier = Modifier.size(24.dp)
+                            .wrapContentSize(align = Alignment.Center),
+                    )
+                },
+                title = { Text(text = "Example Title Text", textAlign = TextAlign.Center) },
+                message = {
+                    Text(
+                        text = "Message content goes here",
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.body2
+                    )
+                },
             ) {
-                Alert(
-                    scrollState = scrollState,
-                    verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.Top),
-                    contentPadding =
-                        PaddingValues(start = 10.dp, end = 10.dp, top = 24.dp, bottom = 52.dp),
-                    icon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_airplanemode_active_24px),
-                            contentDescription = "airplane",
-                            modifier = Modifier.size(24.dp)
-                                .wrapContentSize(align = Alignment.Center),
-                        )
-                    },
-                    title = { Text(text = "Example Title Text", textAlign = TextAlign.Center) },
-                    message = {
-                        Text(
-                            text = "Message content goes here",
-                            textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.body2
-                        )
-                    },
-                ) {
-                    item {
-                        Chip(
-                            label = { Text("Primary") },
-                            onClick = { showDialog = false },
-                            colors = ChipDefaults.primaryChipColors(),
-                        )
-                    }
-                    item {
-                        Chip(
-                            label = { Text("Secondary") },
-                            onClick = { showDialog = false },
-                            colors = ChipDefaults.secondaryChipColors(),
-                        )
-                    }
+                item {
+                    Chip(
+                        label = { Text("Primary") },
+                        onClick = { showDialog = false },
+                        colors = ChipDefaults.primaryChipColors(),
+                    )
+                }
+                item {
+                    Chip(
+                        label = { Text("Secondary") },
+                        onClick = { showDialog = false },
+                        colors = ChipDefaults.secondaryChipColors(),
+                    )
                 }
             }
         }
@@ -131,40 +130,32 @@ fun ConfirmationDialogSample() {
             Chip(
                 onClick = { showDialog = true },
                 label = { Text("Show dialog") },
+                colors = ChipDefaults.secondaryChipColors(),
             )
         }
-        if (showDialog) {
-            Dialog(
-                onDismissRequest = { showDialog = false }
-            ) {
-                val animation =
-                    AnimatedImageVector.animatedVectorResource(R.drawable.open_on_phone_animation)
-                Confirmation(
-                    onTimeout = {
-                        showDialog = false
-                    },
-                    icon = {
-                        // Initially, animation is static and shown at the start position (atEnd = false).
-                        // Then, we use the EffectAPI to trigger a state change to atEnd = true,
-                        // which plays the animation from start to end.
-                        var atEnd by remember { mutableStateOf(false) }
-                        DisposableEffect(Unit) {
-                            atEnd = true
-                            onDispose {}
-                        }
-                        Image(
-                            painter = rememberAnimatedVectorPainter(animation, atEnd),
-                            contentDescription = "Open on phone",
-                            modifier = Modifier.size(48.dp)
-                        )
-                    },
-                    durationMillis = 3000,
-                ) {
-                    Text(
-                        text = "Open on phone",
-                        textAlign = TextAlign.Center
+        Dialog(showDialog = showDialog, onDismissRequest = { showDialog = false }) {
+            val animation =
+                AnimatedImageVector.animatedVectorResource(R.drawable.open_on_phone_animation)
+            Confirmation(
+                onTimeout = { showDialog = false },
+                icon = {
+                    // Initially, animation is static and shown at the start position (atEnd = false).
+                    // Then, we use the EffectAPI to trigger a state change to atEnd = true,
+                    // which plays the animation from start to end.
+                    var atEnd by remember { mutableStateOf(false) }
+                    DisposableEffect(Unit) {
+                        atEnd = true
+                        onDispose {}
+                    }
+                    Image(
+                        painter = rememberAnimatedVectorPainter(animation, atEnd),
+                        contentDescription = "Open on phone",
+                        modifier = Modifier.size(48.dp)
                     )
-                }
+                },
+                durationMillis = 3000,
+            ) {
+                Text(text = "Open on phone", textAlign = TextAlign.Center)
             }
         }
     }
