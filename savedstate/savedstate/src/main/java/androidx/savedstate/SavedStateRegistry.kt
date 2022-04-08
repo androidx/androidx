@@ -195,7 +195,7 @@ class SavedStateRegistry internal constructor() {
      * to a [Lifecycle].
      */
     @MainThread
-    fun performAttach(lifecycle: Lifecycle) {
+    internal fun performAttach(lifecycle: Lifecycle) {
         check(!attached) { "SavedStateRegistry was already attached." }
 
         lifecycle.addObserver(LifecycleEventObserver { _, event ->
@@ -213,7 +213,7 @@ class SavedStateRegistry internal constructor() {
      *
      */
     @MainThread
-    fun performRestore(savedState: Bundle?) {
+    internal fun performRestore(savedState: Bundle?) {
         check(attached) {
             ("You must call performAttach() before calling " +
                 "performRestore(Bundle).")
