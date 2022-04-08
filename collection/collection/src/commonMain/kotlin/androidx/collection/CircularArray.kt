@@ -16,6 +16,9 @@
 
 package androidx.collection
 
+import androidx.collection.CollectionPlatformUtils.createIndexOutOfBoundsException
+import kotlin.jvm.JvmOverloads
+
 /**
  * CircularArray is a generic circular array data structure that provides O(1) random read, O(1)
  * prepend and O(1) append. The CircularArray automatically grows its capacity when number of added
@@ -40,8 +43,8 @@ public class CircularArray<E>
 
         // If minCapacity isn't a power of 2, round up to the next highest
         // power of 2.
-        val arrayCapacity: Int = if (Integer.bitCount(minCapacity) != 1) {
-            Integer.highestOneBit(minCapacity - 1) shl 1
+        val arrayCapacity: Int = if (minCapacity.countOneBits() != 1) {
+            (minCapacity - 1).takeHighestOneBit() shl 1
         } else {
             minCapacity
         }
@@ -97,11 +100,11 @@ public class CircularArray<E>
      * Remove first element from front of the [CircularArray] and return it.
      *
      * @return The element removed.
-     * @throws ArrayIndexOutOfBoundsException if [CircularArray] is empty.
+     * @throws [ArrayIndexOutOfBoundsException] if [CircularArray] is empty (on jvm)
      */
     public fun popFirst(): E {
         if (head == tail) {
-            throw ArrayIndexOutOfBoundsException()
+            throw createIndexOutOfBoundsException()
         }
         val result = elements[head]
         elements[head] = null
@@ -115,11 +118,11 @@ public class CircularArray<E>
      * Remove last element from end of the [CircularArray] and return it.
      *
      * @return The element removed.
-     * @throws ArrayIndexOutOfBoundsException if [CircularArray] is empty.
+     * @throws [ArrayIndexOutOfBoundsException] if [CircularArray] is empty
      */
     public fun popLast(): E {
         if (head == tail) {
-            throw ArrayIndexOutOfBoundsException()
+            throw createIndexOutOfBoundsException()
         }
         val t = (tail - 1) and capacityBitmask
         val result = elements[t]
@@ -142,14 +145,14 @@ public class CircularArray<E>
      * is less than or equal to 0.
      *
      * @param count Number of elements to remove.
-     * @throws ArrayIndexOutOfBoundsException if [count] is larger than [size]
+     * @throws [ArrayIndexOutOfBoundsException] if [count] is larger than [size]
      */
     public fun removeFromStart(count: Int) {
         if (count <= 0) {
             return
         }
         if (count > size()) {
-            throw ArrayIndexOutOfBoundsException()
+            throw createIndexOutOfBoundsException()
         }
 
         var numOfElements = count
@@ -177,14 +180,14 @@ public class CircularArray<E>
      * is less than or equals to 0.
      *
      * @param count Number of elements to remove.
-     * @throws ArrayIndexOutOfBoundsException if [count] is larger than [size]
+     * @throws [ArrayIndexOutOfBoundsException] if [count] is larger than [size]
      */
     public fun removeFromEnd(count: Int) {
         if (count <= 0) {
             return
         }
         if (count > size()) {
-            throw ArrayIndexOutOfBoundsException()
+            throw createIndexOutOfBoundsException()
         }
 
         var numOfElements = count
@@ -213,12 +216,12 @@ public class CircularArray<E>
      * Get first element of the [CircularArray].
      *
      * @return The first element.
-     * @throws [ArrayIndexOutOfBoundsException] if [CircularArray] is empty.
+     * @throws [ArrayIndexOutOfBoundsException] if [CircularArray] is empty
      */
     public val first: E
         get() {
             if (head == tail) {
-                throw ArrayIndexOutOfBoundsException()
+                throw createIndexOutOfBoundsException()
             }
             return elements[head]!!
         }
@@ -227,12 +230,12 @@ public class CircularArray<E>
      * Get last element of the [CircularArray].
      *
      * @return The last element.
-     * @throws [ArrayIndexOutOfBoundsException] if [CircularArray] is empty.
+     * @throws [ArrayIndexOutOfBoundsException] if [CircularArray] is empty
      */
     public val last: E
         get() {
             if (head == tail) {
-                throw ArrayIndexOutOfBoundsException()
+                throw createIndexOutOfBoundsException()
             }
             return elements[tail - 1 and capacityBitmask]!!
         }
@@ -242,11 +245,11 @@ public class CircularArray<E>
      *
      * @param index The zero based element index in the [CircularArray].
      * @return The nth element.
-     * @throws [ArrayIndexOutOfBoundsException] if n < 0 or n >= size().
+     * @throws [ArrayIndexOutOfBoundsException] if n < 0 or n >= size()
      */
     public operator fun get(index: Int): E {
         if (index < 0 || index >= size()) {
-            throw ArrayIndexOutOfBoundsException()
+            throw createIndexOutOfBoundsException()
         }
         return elements[(head + index) and capacityBitmask]!!
     }
