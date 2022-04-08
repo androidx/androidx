@@ -24,30 +24,22 @@ import android.widget.ListView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
 /**
  * A {@link ListView} which serves as a menu of elements firing {@link Intent}s to other Activities.
+ *
+ * Not overriding {@link ListView#ListView(Context, AttributeSet, int, int)} since it only
+ * applies to API version 21, and we compile this apk for 19.
  */
 public class MenuListView extends ListView {
-    private final Context mContext;
     public MenuListView(@NonNull Context context) {
         super(context);
-        mContext = context;
     }
     public MenuListView(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-        mContext = context;
     }
     public MenuListView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        mContext = context;
-    }
-    @RequiresApi(21)
-    public MenuListView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr,
-            int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
-        mContext = context;
     }
 
     /**
@@ -84,10 +76,11 @@ public class MenuListView extends ListView {
      * Sets the menu items for this {@link MenuListView}.
      */
     public void setItems(@NonNull MenuItem[] items) {
+        final Context context = getContext();
         ArrayAdapter<MenuItem> featureArrayAdapter =
-                new ArrayAdapter<>(mContext, android.R.layout.simple_list_item_1, items);
+                new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, items);
         setAdapter(featureArrayAdapter);
         setOnItemClickListener((parent, view, position, id) ->
-                featureArrayAdapter.getItem(position).start(mContext));
+                featureArrayAdapter.getItem(position).start(context));
     }
 }

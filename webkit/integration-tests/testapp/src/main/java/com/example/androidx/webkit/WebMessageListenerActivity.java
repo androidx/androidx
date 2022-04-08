@@ -76,7 +76,7 @@ public class WebMessageListenerActivity extends AppCompatActivity {
         @RequiresApi(21)
         public WebResourceResponse shouldInterceptRequest(WebView view,
                 WebResourceRequest request) {
-            return mAssetLoader.shouldInterceptRequest(request.getUrl());
+            return mAssetLoader.shouldInterceptRequest(Api21Impl.getUrl(request));
         }
 
         @Override

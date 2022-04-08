@@ -62,9 +62,10 @@ public class AssetLoaderAjaxActivity extends AppCompatActivity {
         @RequiresApi(21)
         public WebResourceResponse shouldInterceptRequest(WebView view,
                                                           WebResourceRequest request) {
-            mUriIdlingResource.beginLoad(request.getUrl().toString());
-            WebResourceResponse response = mAssetLoader.shouldInterceptRequest(request.getUrl());
-            mUriIdlingResource.endLoad(request.getUrl().toString());
+            Uri url = Api21Impl.getUrl(request);
+            mUriIdlingResource.beginLoad(url.toString());
+            WebResourceResponse response = mAssetLoader.shouldInterceptRequest(url);
+            mUriIdlingResource.endLoad(url.toString());
             return response;
         }
 

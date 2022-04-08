@@ -63,7 +63,8 @@ public class WebMessageListenerMaliciousWebsiteActivity extends AppCompatActivit
         public WebResourceResponse shouldInterceptRequest(WebView view,
                 WebResourceRequest request) {
             for (WebViewAssetLoader loader : mAssetLoaders) {
-                WebResourceResponse response = loader.shouldInterceptRequest(request.getUrl());
+                WebResourceResponse response = loader.shouldInterceptRequest(
+                        Api21Impl.getUrl(request));
                 if (response != null) {
                     return response;
                 }
