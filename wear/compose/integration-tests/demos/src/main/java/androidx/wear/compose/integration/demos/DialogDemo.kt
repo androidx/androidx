@@ -38,7 +38,6 @@ import androidx.wear.compose.material.ButtonDefaults
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.MaterialTheme
-import androidx.wear.compose.material.ScalingLazyListState
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.dialog.Alert
 import androidx.wear.compose.material.dialog.Confirmation
@@ -46,9 +45,15 @@ import androidx.wear.compose.material.dialog.Dialog
 import androidx.wear.compose.material.rememberScalingLazyListState
 
 @Composable
-fun DialogPowerOff(navigateBack: () -> Unit) {
+fun DialogPowerOff() {
+    var showDialog by remember { mutableStateOf(false) }
     val scrollState = rememberScalingLazyListState()
-    DialogDemo(scrollState) {
+    LaunchScreen(onClick = { showDialog = true })
+    Dialog(
+        showDialog = showDialog,
+        onDismissRequest = { showDialog = false },
+        scrollState = scrollState,
+    ) {
         Alert(
             title = {
                 Text(
@@ -59,7 +64,7 @@ fun DialogPowerOff(navigateBack: () -> Unit) {
             },
             negativeButton = {
                 Button(
-                    onClick = navigateBack,
+                    onClick = { showDialog = false },
                     colors = ButtonDefaults.secondaryButtonColors()
                 ) {
                     DemoIcon(resourceId = R.drawable.ic_clear_24px, contentDescription = "No")
@@ -67,12 +72,13 @@ fun DialogPowerOff(navigateBack: () -> Unit) {
             },
             positiveButton = {
                 Button(
-                    onClick = navigateBack,
+                    onClick = { showDialog = false },
                     colors = ButtonDefaults.primaryButtonColors()
                 ) {
                     DemoIcon(resourceId = R.drawable.ic_check_24px, contentDescription = "Yes")
                 }
             },
+            scrollState = scrollState,
         ) {
             Text(
                 text = "Are you sure?",
@@ -85,9 +91,15 @@ fun DialogPowerOff(navigateBack: () -> Unit) {
 }
 
 @Composable
-fun DialogAccessLocation(navigateBack: () -> Unit) {
+fun DialogAccessLocation() {
+    var showDialog by remember { mutableStateOf(false) }
     val scrollState = rememberScalingLazyListState()
-    DialogDemo(scrollState) {
+    LaunchScreen(onClick = { showDialog = true })
+    Dialog(
+        showDialog = showDialog,
+        onDismissRequest = { showDialog = false },
+        scrollState = scrollState,
+    ) {
         Alert(
             scrollState = scrollState,
             icon = {
@@ -105,7 +117,7 @@ fun DialogAccessLocation(navigateBack: () -> Unit) {
             },
             negativeButton = {
                 Button(
-                    onClick = navigateBack,
+                    onClick = { showDialog = false },
                     colors = ButtonDefaults.secondaryButtonColors()
                 ) {
                     DemoIcon(resourceId = R.drawable.ic_clear_24px, contentDescription = "Cross")
@@ -113,7 +125,7 @@ fun DialogAccessLocation(navigateBack: () -> Unit) {
             },
             positiveButton = {
                 Button(
-                    onClick = navigateBack,
+                    onClick = { showDialog = false },
                     colors = ButtonDefaults.primaryButtonColors()
                 ) {
                     DemoIcon(resourceId = R.drawable.ic_check_24px, contentDescription = "Tick")
@@ -124,11 +136,15 @@ fun DialogAccessLocation(navigateBack: () -> Unit) {
 }
 
 @Composable
-fun DialogGrantPermission(
-    navigateBack: () -> Unit
-) {
+fun DialogGrantPermission() {
+    var showDialog by remember { mutableStateOf(false) }
     val scrollState = rememberScalingLazyListState()
-    DialogDemo(scrollState) {
+    LaunchScreen(onClick = { showDialog = true })
+    Dialog(
+        showDialog = showDialog,
+        onDismissRequest = { showDialog = false },
+        scrollState = scrollState,
+    ) {
         Alert(
             scrollState = scrollState,
             icon = {
@@ -150,7 +166,7 @@ fun DialogGrantPermission(
                         )
                     },
                     label = { Text("Settings") },
-                    onClick = navigateBack,
+                    onClick = { showDialog = false },
                     colors = ChipDefaults.secondaryChipColors(),
                     modifier = Modifier.width(124.dp),
                 )
@@ -160,9 +176,15 @@ fun DialogGrantPermission(
 }
 
 @Composable
-fun DialogLongChips(navigateBack: () -> Unit) {
+fun DialogLongChips() {
+    var showDialog by remember { mutableStateOf(false) }
     val scrollState = rememberScalingLazyListState()
-    DialogDemo(scrollState) {
+    LaunchScreen(onClick = { showDialog = true })
+    Dialog(
+        showDialog = showDialog,
+        onDismissRequest = { showDialog = false },
+        scrollState = scrollState,
+    ) {
         Alert(
             verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.Top),
             contentPadding = PaddingValues(start = 10.dp, end = 10.dp, top = 36.dp, bottom = 52.dp),
@@ -187,7 +209,7 @@ fun DialogLongChips(navigateBack: () -> Unit) {
                         DemoIcon(resourceId = R.drawable.ic_check_24px, contentDescription = "Tick")
                     },
                     label = { Text("Allow access") },
-                    onClick = navigateBack,
+                    onClick = { showDialog = false },
                     colors = ChipDefaults.primaryChipColors(),
                 )
             }
@@ -199,7 +221,7 @@ fun DialogLongChips(navigateBack: () -> Unit) {
                             contentDescription = "Cross")
                     },
                     label = { Text("Keep \"while app is in use\"") },
-                    onClick = navigateBack,
+                    onClick = { showDialog = false },
                     colors = ChipDefaults.secondaryChipColors(),
                 )
             }
@@ -208,10 +230,15 @@ fun DialogLongChips(navigateBack: () -> Unit) {
 }
 
 @Composable
-fun DialogSuccessConfirmation(navigateBack: () -> Unit) {
-    DialogDemo {
+fun DialogSuccessConfirmation() {
+    var showDialog by remember { mutableStateOf(false) }
+    LaunchScreen(onClick = { showDialog = true })
+    Dialog(
+        showDialog = showDialog,
+        onDismissRequest = { showDialog = false },
+    ) {
         Confirmation(
-            onTimeout = navigateBack,
+            onTimeout = { showDialog = false },
             icon = {
                 DemoIcon(
                     resourceId = R.drawable.ic_check_48px,
@@ -228,27 +255,16 @@ fun DialogSuccessConfirmation(navigateBack: () -> Unit) {
 }
 
 @Composable
-private fun DialogDemo(
-    scrollState: ScalingLazyListState? = null,
-    content: @Composable () -> Unit
-) {
-    var showDialog by remember { mutableStateOf(false) }
-    // Launches the Alert Dialog by setting the value of showDialog.
+private fun LaunchScreen(onClick: () -> Unit) {
     Column(
         modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Chip(
-            onClick = { showDialog = true },
+            onClick = onClick,
             label = { Text("Show dialog") },
-        )
-    }
-    if (showDialog) {
-        Dialog(
-            onDismissRequest = { showDialog = false },
-            scrollState = scrollState,
-            content = content
+            colors = ChipDefaults.secondaryChipColors(),
         )
     }
 }

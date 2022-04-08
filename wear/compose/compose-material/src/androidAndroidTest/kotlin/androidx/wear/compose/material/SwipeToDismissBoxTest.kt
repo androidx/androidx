@@ -259,9 +259,7 @@ class SwipeToDismissBoxTest {
     fun calls_ondismissed_after_swipe_when_supplied() {
         var dismissed = false
         rule.setContentWithTheme {
-            val state = rememberSwipeToDismissBoxState()
             SwipeToDismissBox(
-                state = state,
                 onDismissed = { dismissed = true },
                 modifier = Modifier.testTag(TEST_TAG),
             ) {
