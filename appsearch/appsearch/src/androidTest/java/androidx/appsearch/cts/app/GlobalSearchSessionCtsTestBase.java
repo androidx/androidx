@@ -175,6 +175,17 @@ public abstract class GlobalSearchSessionCtsTestBase {
     }
 
     @Test
+    public void testGlobalGetById_nonExistentPackage() throws Exception {
+        AppSearchBatchResult<String, GenericDocument> fakePackage =
+                mGlobalSearchSession.getByDocumentIdAsync("fake", DB_NAME_1,
+                        new GetByDocumentIdRequest.Builder("namespace").addIds("id1")
+                                .build()).get();
+        assertThat(fakePackage.getFailures()).hasSize(1);
+        assertThat(fakePackage.getFailures().get("id1").getResultCode())
+                .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
+    }
+
+    @Test
     public void testGlobalQuery_oneInstance() throws Exception {
         // Snapshot what documents may already exist on the device.
         SearchSpec exactSearchSpec = new SearchSpec.Builder()
