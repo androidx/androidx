@@ -29,7 +29,6 @@ import androidx.window.layout.WindowLayoutInfo
 import androidx.window.sample.infolog.InfoLogAdapter
 import androidx.window.sample.databinding.ActivityDisplayFeaturesNoConfigChangeBinding
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -84,7 +83,6 @@ class DisplayFeaturesNoConfigChangeActivity : AppCompatActivity() {
         // Add views that represent display features
         for (displayFeature in windowLayoutInfo.displayFeatures) {
             val lp = getLayoutParamsForFeatureInFrameLayout(displayFeature, rootLayout)
-                ?: continue
 
             // Make sure that zero-wide and zero-high features are still shown
             if (lp.width == 0) {
