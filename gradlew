@@ -302,6 +302,49 @@ for compact in "--ci" "--strict" "--clean" "--no-ci"; do
   fi
 done
 
+# check whether the user has requested profiling via yourkit
+yourkitArgPrefix="androidx.profile.yourkitAgentPath"
+yourkitAgentPath=""
+if [[ " ${@}" =~ " -P$yourkitArgPrefix" ]]; then
+  for arg in "$@"; do
+    if echo "$arg" | grep "${yourkitArgPrefix}=" >/dev/null; then
+      yourkitAgentPath="$(echo "$arg" | sed "s/-P${yourkitArgPrefix}=//")"
+    fi
+  done
+  if [ "$yourkitAgentPath" == "" ]; then
+    echo "Error: $yourkitArgPrefix must be set to the path of the YourKit Java agent" >&2
+    exit 1
+  fi
+  if [ ! -e "$yourkitAgentPath" ]; then
+    echo "Error: $yourkitAgentPath does not exist" >&2
+    exit 1
+  fi
+  # add the agent to the path
+  export _JAVA_OPTIONS="$_JAVA_OPTIONS -agentpath:$yourkitAgentPath"
+  # add arguments
+  set -- "$@" --no-daemon --rerun-tasks
+
+  # lots of blank lines because these messages are important
+  echo
+  echo
+  echo
+  echo
+  echo
+  # suggest --clean
+  if [ "$cleanCaches" == "false" ]; then
+    echo "When setting $yourkitArgPrefix you may also want to pass --clean"
+  fi
+  COLOR_YELLOW="\u001B[33m"
+  COLOR_CLEAR="\u001B[0m"
+
+  echo -e "${COLOR_YELLOW}Also be sure to start the YourKit user interface and connect to the appropriate Java process (probably the Gradle Daemon)${COLOR_CLEAR}"
+  echo
+  echo
+  echo
+  echo
+  echo
+fi
+
 if [[ " ${@} " =~ " --scan " ]]; then
   if [[ " ${@} " =~ " --offline " ]]; then
     echo "--scan incompatible with --offline"
