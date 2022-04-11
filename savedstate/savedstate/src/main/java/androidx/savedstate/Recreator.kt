@@ -16,7 +16,6 @@
 package androidx.savedstate
 
 import android.os.Bundle
-import androidx.core.os.bundleOf
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -81,7 +80,9 @@ internal class Recreator(
         }
 
         override fun saveState(): Bundle {
-            return bundleOf(CLASSES_KEY to ArrayList(classes))
+            return Bundle().apply {
+                putStringArrayList(CLASSES_KEY, ArrayList(classes))
+            }
         }
 
         fun add(className: String) {
