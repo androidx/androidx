@@ -1742,7 +1742,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
         override fun onResolutionUpdate(size: Size) {}
 
-        fun close() {
+        override fun close() {
             imageWriter?.close()
         }
     }
