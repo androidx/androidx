@@ -21,11 +21,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -191,7 +192,13 @@ fun SmallChips() {
             CompactChip(
                 onClick = {},
                 colors = chipColors(chipStyle),
-                label = { Text("Label") },
+                label = {
+                    Text(
+                        text = "Label",
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                },
                 enabled = enabled,
             )
         }
@@ -201,8 +208,11 @@ fun SmallChips() {
                 colors = chipColors(chipStyle),
                 label = {
                     Text(
-                        "Long label to show truncation which does not fit into 1 line",
-                        maxLines = 1, overflow = TextOverflow.Ellipsis
+                        text = "Long label to show truncation which does not fit into 1 line",
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
                     )
                 },
                 enabled = enabled,
@@ -215,7 +225,13 @@ fun SmallChips() {
                 label = {
                     Text("Label with icon", maxLines = 1, overflow = TextOverflow.Ellipsis)
                 },
-                icon = { DemoIcon(resourceId = R.drawable.ic_accessibility_24px) },
+                icon = {
+                    DemoIcon(
+                        resourceId = R.drawable.ic_accessibility_24px,
+                        modifier = Modifier.size(ChipDefaults.SmallIconSize)
+                            .wrapContentSize(align = Alignment.Center)
+                    )
+                 },
                 enabled = enabled,
             )
         }
@@ -230,7 +246,13 @@ fun SmallChips() {
                     )
                 },
                 enabled = enabled,
-                icon = { DemoIcon(resourceId = R.drawable.ic_accessibility_24px) },
+                icon = {
+                    DemoIcon(
+                        resourceId = R.drawable.ic_accessibility_24px,
+                        modifier = Modifier.size(ChipDefaults.SmallIconSize)
+                            .wrapContentSize(align = Alignment.Center)
+                    )
+                },
             )
         }
         item {
@@ -398,7 +420,12 @@ fun RtlChips() {
                             overflow = TextOverflow.Ellipsis
                         )
                     },
-                    icon = { DemoIcon(resourceId = R.drawable.ic_accessibility_24px) },
+                    icon = {
+                        DemoIcon(
+                            resourceId = R.drawable.ic_accessibility_24px,
+                            modifier = Modifier.size(ChipDefaults.SmallIconSize)
+                        )
+                    },
                 )
             }
             item {
@@ -463,13 +490,13 @@ fun CustomChips() {
                             Toast.LENGTH_LONG
                         ).show()
                     },
-                    colors = ChipDefaults.primaryChipColors(
+                    colors = ChipDefaults.secondaryChipColors(
                         contentColor = AlternatePrimaryColor2
                     ),
                     icon = {
                         DemoIcon(
                             resourceId = R.drawable.ic_accessibility_24px,
-                            modifier = Modifier.fillMaxSize()
+                            modifier = Modifier.size(ChipDefaults.IconSize)
                         )
                     },
                     enabled = enabled,
@@ -496,7 +523,7 @@ fun CustomChips() {
                     icon = {
                         DemoIcon(
                             resourceId = R.drawable.ic_accessibility_24px,
-                            modifier = Modifier.fillMaxSize()
+                            modifier = Modifier.size(ChipDefaults.IconSize)
                         )
                     },
                     enabled = enabled,

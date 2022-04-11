@@ -32,7 +32,9 @@ import androidx.wear.compose.material.samples.ChipWithIconAndLabels
 import androidx.wear.compose.material.samples.CircularProgressIndicatorFullscreenWithGap
 import androidx.wear.compose.material.samples.CircularProgressIndicatorWithAnimation
 import androidx.wear.compose.material.samples.CompactButtonWithIcon
+import androidx.wear.compose.material.samples.CompactChipWithIcon
 import androidx.wear.compose.material.samples.CompactChipWithIconAndLabel
+import androidx.wear.compose.material.samples.CompactChipWithLabel
 import androidx.wear.compose.material.samples.ConfirmationDialogSample
 import androidx.wear.compose.material.samples.ConfirmationWithAnimation
 import androidx.wear.compose.material.samples.CurvedTextDemo
@@ -262,6 +264,16 @@ val WearMaterialDemos = DemoCategory(
                         ComposableDemo("Compact Chip With Icon And Label") {
                             Centralize(Modifier.padding(horizontal = 10.dp)) {
                                 CompactChipWithIconAndLabel()
+                            }
+                        },
+                        ComposableDemo("Compact Chip With Label Only") {
+                            Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                CompactChipWithLabel()
+                            }
+                        },
+                        ComposableDemo("Compact Chip Icon Only") {
+                            Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                CompactChipWithIcon()
                             }
                         },
                     )
