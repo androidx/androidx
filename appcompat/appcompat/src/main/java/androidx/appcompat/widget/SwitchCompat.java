@@ -49,6 +49,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.annotation.DoNotInline;
+import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -1148,6 +1149,7 @@ public class SwitchCompat extends CompoundButton implements EmojiCompatConfigura
     /**
      * @return the current thumb position as a decimal value between 0 (off) and 1 (on).
      */
+    @FloatRange(from = 0.0, to = 1.0)
     protected final float getThumbPosition() {
         return mThumbPosition;
     }

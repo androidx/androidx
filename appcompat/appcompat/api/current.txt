@@ -895,7 +895,7 @@ package androidx.appcompat.widget {
     method @androidx.resourceinspection.annotation.Attribute("android:textOff") public CharSequence! getTextOff();
     method @androidx.resourceinspection.annotation.Attribute("android:textOn") public CharSequence! getTextOn();
     method @androidx.resourceinspection.annotation.Attribute("android:thumb") public android.graphics.drawable.Drawable! getThumbDrawable();
-    method protected final float getThumbPosition();
+    method @FloatRange(from=0.0, to=1.0) protected final float getThumbPosition();
     method @androidx.resourceinspection.annotation.Attribute("androidx.appcompat:thumbTextPadding") public int getThumbTextPadding();
     method @androidx.resourceinspection.annotation.Attribute("androidx.appcompat:thumbTint") public android.content.res.ColorStateList? getThumbTintList();
     method @androidx.resourceinspection.annotation.Attribute("androidx.appcompat:thumbTintMode") public android.graphics.PorterDuff.Mode? getThumbTintMode();
