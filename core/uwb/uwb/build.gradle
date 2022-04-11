@@ -24,7 +24,23 @@ plugins {
 
 dependencies {
     api(libs.kotlinStdlib)
-    // Add dependencies here
+    api("androidx.annotation:annotation:1.1.0")
+    api("androidx.core:core-ktx:1.2.0")
+    api(libs.kotlinCoroutinesAndroid)
+    implementation(libs.guavaAndroid)
+    implementation('com.google.android.gms:play-services-base:18.0.1')
+    implementation('org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.0')
+    implementation('com.google.android.gms:play-services-nearby:18.1.0', {
+        exclude group: "androidx.core"
+    })
+
+    androidTestImplementation(libs.kotlinStdlib)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.espressoCore)
 }
 
 androidx {
