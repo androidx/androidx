@@ -164,7 +164,7 @@ fun CurvedFixedSize() {
             }
         )
         curvedRow(
-            modifier = CurvedModifier.size(angularSizeDegrees = 5f, radialSize = 30.dp),
+            modifier = CurvedModifier.size(sweepDegrees = 5f, thickness = 30.dp),
         ) { }
         basicCurvedText(
             "Gap",
