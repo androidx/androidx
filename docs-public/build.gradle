@@ -4,10 +4,10 @@ plugins {
 }
 
 dependencies {
-    docs("androidx.activity:activity:1.5.0-alpha05")
-    docs("androidx.activity:activity-compose:1.5.0-alpha05")
-    samples("androidx.activity:activity-compose-samples:1.5.0-alpha05")
-    docs("androidx.activity:activity-ktx:1.5.0-alpha05")
+    docs("androidx.activity:activity:1.5.0-beta01")
+    docs("androidx.activity:activity-compose:1.5.0-beta01")
+    samples("androidx.activity:activity-compose-samples:1.5.0-beta01")
+    docs("androidx.activity:activity-ktx:1.5.0-beta01")
     docs("androidx.ads:ads-identifier:1.0.0-alpha04")
     docs("androidx.ads:ads-identifier-provider:1.0.0-alpha04")
     docs("androidx.annotation:annotation:1.4.0-alpha02")
