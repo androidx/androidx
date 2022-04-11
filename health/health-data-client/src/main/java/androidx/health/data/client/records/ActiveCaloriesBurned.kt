@@ -26,7 +26,7 @@ import java.time.ZoneOffset
  * so both the start and end times should be set.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class ActiveEnergyBurned(
+public class ActiveCaloriesBurned(
     /** Energy in kilocalories. Required field. Valid range: 0-1000000. */
     public val energyKcal: Double,
     override val startTime: Instant,
@@ -37,7 +37,7 @@ public class ActiveEnergyBurned(
 ) : IntervalRecord {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is ActiveEnergyBurned) return false
+        if (other !is ActiveCaloriesBurned) return false
 
         if (energyKcal != other.energyKcal) return false
         if (startTime != other.startTime) return false

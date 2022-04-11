@@ -15,7 +15,7 @@
  */
 package androidx.health.data.client.impl.converters.records
 
-import androidx.health.data.client.records.ActiveEnergyBurned
+import androidx.health.data.client.records.ActiveCaloriesBurned
 import androidx.health.data.client.records.ActivityEvent
 import androidx.health.data.client.records.ActivityLap
 import androidx.health.data.client.records.ActivitySession
@@ -63,7 +63,7 @@ import androidx.health.data.client.records.Speed
 import androidx.health.data.client.records.Steps
 import androidx.health.data.client.records.StepsCadence
 import androidx.health.data.client.records.SwimmingStrokes
-import androidx.health.data.client.records.TotalEnergyBurned
+import androidx.health.data.client.records.TotalCaloriesBurned
 import androidx.health.data.client.records.Vo2Max
 import androidx.health.data.client.records.WaistCircumference
 import androidx.health.data.client.records.Weight
@@ -281,9 +281,9 @@ fun Record.toProto(): DataProto.DataPoint {
                 .setDataType(protoDataType("Weight"))
                 .apply { putValues("weight", doubleVal(weightKg)) }
                 .build()
-        is ActiveEnergyBurned ->
+        is ActiveCaloriesBurned ->
             intervalProto()
-                .setDataType(protoDataType("ActiveEnergyBurned"))
+                .setDataType(protoDataType("ActiveCaloriesBurned"))
                 .apply { putValues("energy", doubleVal(energyKcal)) }
                 .build()
         is ActivityEvent ->
@@ -496,9 +496,9 @@ fun Record.toProto(): DataProto.DataPoint {
                     putValues("type", enumVal(type))
                 }
                 .build()
-        is TotalEnergyBurned ->
+        is TotalCaloriesBurned ->
             intervalProto()
-                .setDataType(protoDataType("TotalEnergyBurned"))
+                .setDataType(protoDataType("TotalCaloriesBurned"))
                 .apply { putValues("energy", doubleVal(energyKcal)) }
                 .build()
         is WheelchairPushes ->
