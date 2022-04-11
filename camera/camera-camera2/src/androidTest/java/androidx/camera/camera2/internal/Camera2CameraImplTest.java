@@ -161,9 +161,11 @@ public final class Camera2CameraImplTest {
                 CameraManagerCompat.from((Context) ApplicationProvider.getApplicationContext());
         Camera2CameraInfoImpl camera2CameraInfo = new Camera2CameraInfoImpl(
                 mCameraId, cameraManagerCompat);
-        mCamera2CameraImpl = new Camera2CameraImpl(cameraManagerCompat, mCameraId,
-                camera2CameraInfo,
-                mCameraStateRegistry, sCameraExecutor, sCameraHandler);
+        mCamera2CameraImpl = new Camera2CameraImpl(
+                cameraManagerCompat, mCameraId, camera2CameraInfo,
+                mCameraStateRegistry, sCameraExecutor, sCameraHandler,
+                DisplayInfoManager.getInstance(ApplicationProvider.getApplicationContext())
+        );
     }
 
     @After
