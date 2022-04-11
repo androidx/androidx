@@ -19,6 +19,7 @@ package androidx.wear.compose.foundation.samples
 import androidx.annotation.Sampled
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -31,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.wear.compose.foundation.ArcPaddingValues
 import androidx.wear.compose.foundation.CurvedAlignment
+import androidx.wear.compose.foundation.CurvedDirection
 import androidx.wear.compose.foundation.CurvedLayout
 import androidx.wear.compose.foundation.CurvedModifier
 import androidx.wear.compose.foundation.CurvedTextStyle
@@ -195,5 +197,37 @@ fun CurvedWeight() {
             ) { }
             basicCurvedText("C")
         }
+    }
+}
+
+@Sampled
+@Composable
+fun CurvedBottomLayout() {
+    CurvedLayout(
+        modifier = Modifier.fillMaxSize(),
+        anchor = 90f,
+        angularDirection = CurvedDirection.Angular.Reversed
+    ) {
+        basicCurvedText(
+            "Bottom",
+            style = {
+                CurvedTextStyle(
+                    fontSize = 16.sp,
+                    color = Color.Black,
+                    background = Color.White
+                )
+            }
+        )
+        curvedComposable { Spacer(modifier = Modifier.size(5.dp)) }
+        basicCurvedText(
+            "text",
+            style = {
+                CurvedTextStyle(
+                    fontSize = 16.sp,
+                    color = Color.Black,
+                    background = Color.White
+                )
+            }
+        )
     }
 }

@@ -24,25 +24,36 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.wear.compose.foundation.AnchorType
 import androidx.wear.compose.foundation.ArcPaddingValues
 import androidx.wear.compose.foundation.CurvedAlignment
-import androidx.wear.compose.foundation.basicCurvedText
-import androidx.wear.compose.foundation.curvedComposable
+import androidx.wear.compose.foundation.CurvedDirection
 import androidx.wear.compose.foundation.CurvedLayout
 import androidx.wear.compose.foundation.CurvedModifier
 import androidx.wear.compose.foundation.CurvedScope
 import androidx.wear.compose.foundation.CurvedTextStyle
+import androidx.wear.compose.foundation.basicCurvedText
+import androidx.wear.compose.foundation.curvedColumn
+import androidx.wear.compose.foundation.curvedComposable
 import androidx.wear.compose.foundation.curvedRow
 import androidx.wear.compose.foundation.sizeIn
 import androidx.wear.compose.foundation.weight
 import androidx.wear.compose.material.Text
+import androidx.wear.compose.material.ToggleButton
 import androidx.wear.compose.material.curvedText
 
 @Composable
@@ -94,7 +105,7 @@ fun CurvedWorldDemo() {
     CurvedLayout(
         anchor = 90F,
         anchorType = AnchorType.Start,
-        clockwise = false
+        angularDirection = CurvedDirection.Angular.Reversed
     ) {
         curvedComposable {
             Text(
@@ -108,7 +119,7 @@ fun CurvedWorldDemo() {
     CurvedLayout(
         anchor = 90F,
         anchorType = AnchorType.End,
-        clockwise = false
+        angularDirection = CurvedDirection.Angular.Reversed
     ) {
         curvedComposable {
             Text(
@@ -123,7 +134,7 @@ fun CurvedWorldDemo() {
         modifier = Modifier.padding(50.dp),
         anchor = 90f,
         anchorType = AnchorType.Center,
-        clockwise = false
+        angularDirection = CurvedDirection.Angular.Reversed
     ) {
         listOf("A", "B", "C").forEach {
             curvedComposable {
@@ -191,7 +202,7 @@ fun CurvedRowAlignmentDemo() {
     }
     CurvedLayout(
         anchor = 90f,
-        clockwise = false
+        angularDirection = CurvedDirection.Angular.Reversed
     ) {
         SeparatorBlock()
         RgbBlocks()
@@ -217,7 +228,7 @@ fun BasicCurvedTextDemo() {
             CurvedTextStyle(
                 fontSize = 24.sp
             ),
-            clockwise = false,
+            angularDirection = CurvedDirection.Angular.Reversed,
             contentArcPadding = ArcPaddingValues(angular = 5.dp),
             // TODO: Re-add when we implement alignment modifiers.
             // modifier = Modifier.radialAlignment(RadialAlignment.Inner)
@@ -238,6 +249,57 @@ fun CurvedEllipsis() {
             curvedText(
                 "10:00"
             )
+        }
+    }
+}
+
+@Composable
+fun CurvedLayoutDirection() {
+    var layoutDirection by remember { mutableStateOf(false) }
+    val actualLayoutDirection =
+        if (layoutDirection) LayoutDirection.Rtl
+        else LayoutDirection.Ltr
+    CompositionLocalProvider(LocalLayoutDirection provides actualLayoutDirection) {
+        Box(modifier = Modifier.background(Color.White)) {
+            Row(modifier = Modifier.align(Alignment.Center)) {
+                Text("LayoutDirection: ", style = TextStyle(color = Color.Black))
+                ToggleButton(
+                    checked = layoutDirection,
+                    onCheckedChange = { layoutDirection = !layoutDirection }
+                ) { Text(if (layoutDirection) "Rtl" else "Ltr") }
+            }
+            repeat(2) { topDown ->
+                CurvedLayout(
+                    anchor = listOf(270f, 90f)[topDown],
+                    angularDirection = listOf(
+                        CurvedDirection.Angular.Normal,
+                        CurvedDirection.Angular.Reversed
+                    )[topDown]
+                ) {
+                    basicCurvedText(
+                        "Before",
+                        CurvedTextStyle(
+                            fontSize = 24.sp
+                        ),
+                        contentArcPadding = ArcPaddingValues(angular = 5.dp),
+                    )
+                    curvedColumn {
+                        repeat(3) {
+                            basicCurvedText("#$it")
+                        }
+                    }
+                    curvedRow {
+                        basicCurvedText(
+                            "after",
+                            contentArcPadding = ArcPaddingValues(angular = 4.dp)
+                        )
+                        basicCurvedText(
+                            "end",
+                            contentArcPadding = ArcPaddingValues(angular = 4.dp)
+                        )
+                    }
+                }
+            }
         }
     }
 }

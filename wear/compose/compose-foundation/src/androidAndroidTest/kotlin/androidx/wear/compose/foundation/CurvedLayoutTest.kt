@@ -18,6 +18,7 @@ package androidx.wear.compose.foundation
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,9 +27,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.FlakyTest
 import kotlin.math.PI
@@ -51,7 +54,8 @@ class CurvedLayoutTest {
     private fun anchor_and_clockwise_test(
         anchor: Float,
         anchorType: AnchorType,
-        clockwise: Boolean,
+        angularDirection: CurvedDirection.Angular,
+        layoutDirection: LayoutDirection = LayoutDirection.Ltr,
         initialAnchorType: AnchorType = anchorType
     ) {
         var rowCoords: LayoutCoordinates? = null
@@ -61,27 +65,40 @@ class CurvedLayoutTest {
         var capturedInfo = CapturedInfo()
 
         rule.setContent {
-            CurvedLayout(
-                modifier = Modifier.size(200.dp)
-                    .onGloballyPositioned { rowCoords = it },
-                anchor = anchor,
-                anchorType = anchorTypeState,
-                clockwise = clockwise
-            ) {
-                curvedComposable(modifier = CurvedModifier.spy(capturedInfo)) {
-                    Box(
-                        modifier = Modifier
-                            .size(40.dp)
-                            .onGloballyPositioned { coords = it }
-                    )
+            CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
+                CurvedLayout(
+                    modifier = Modifier.size(200.dp)
+                        .onGloballyPositioned { rowCoords = it },
+                    anchor = anchor,
+                    anchorType = anchorTypeState,
+                    angularDirection = angularDirection
+                ) {
+                    curvedComposable(modifier = CurvedModifier.spy(capturedInfo)) {
+                        Box(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .onGloballyPositioned { coords = it }
+                        )
+                    }
                 }
-            }
 
-            if (anchorType != initialAnchorType) {
-                LaunchedEffect(true) {
-                    anchorTypeState = anchorType
+                if (anchorType != initialAnchorType) {
+                    LaunchedEffect(true) {
+                        anchorTypeState = anchorType
+                    }
                 }
             }
+        }
+
+        val isLtr = layoutDirection == LayoutDirection.Ltr
+        val clockwise = when (angularDirection) {
+            CurvedDirection.Angular.Normal -> isLtr
+            CurvedDirection.Angular.Reversed -> !isLtr
+            CurvedDirection.Angular.Clockwise -> true
+            CurvedDirection.Angular.CounterClockwise -> false
+            else -> throw java.lang.IllegalArgumentException(
+                "Illegal AngularDirection: $angularDirection"
+            )
         }
 
         rule.runOnIdle {
@@ -110,34 +127,34 @@ class CurvedLayoutTest {
 
     @Test
     fun correctly_uses_anchortype_start_clockwise() =
-        anchor_and_clockwise_test(0f, AnchorType.Start, true)
+        anchor_and_clockwise_test(0f, AnchorType.Start, CurvedDirection.Angular.Normal)
 
     @Test
     fun correctly_uses_anchortype_center_clockwise() =
-        anchor_and_clockwise_test(60f, AnchorType.Center, true)
+        anchor_and_clockwise_test(60f, AnchorType.Center, CurvedDirection.Angular.Normal)
 
     @Test
     fun correctly_uses_anchortype_end_clockwise() =
-        anchor_and_clockwise_test(120f, AnchorType.End, true)
+        anchor_and_clockwise_test(120f, AnchorType.End, CurvedDirection.Angular.Normal)
 
     @Test
     fun correctly_uses_anchortype_start_anticlockwise() =
-        anchor_and_clockwise_test(180f, AnchorType.Start, false)
+        anchor_and_clockwise_test(180f, AnchorType.Start, CurvedDirection.Angular.Reversed)
 
     @Test
     fun correctly_uses_anchortype_center_anticlockwise() =
-        anchor_and_clockwise_test(240f, AnchorType.Center, false)
+        anchor_and_clockwise_test(240f, AnchorType.Center, CurvedDirection.Angular.Reversed)
 
     @Test
     fun correctly_uses_anchortype_end_anticlockwise() =
-        anchor_and_clockwise_test(300f, AnchorType.End, false)
+        anchor_and_clockwise_test(300f, AnchorType.End, CurvedDirection.Angular.Reversed)
 
     @Test
     fun switched_anchortype_center_to_end_anticlockwise() =
         anchor_and_clockwise_test(
             0f,
             AnchorType.End,
-            false,
+            CurvedDirection.Angular.Reversed,
             initialAnchorType = AnchorType.Center
         )
 
@@ -146,7 +163,7 @@ class CurvedLayoutTest {
         anchor_and_clockwise_test(
             60f,
             AnchorType.Start,
-            false,
+            CurvedDirection.Angular.Reversed,
             initialAnchorType = AnchorType.Center
         )
 
@@ -155,7 +172,7 @@ class CurvedLayoutTest {
         anchor_and_clockwise_test(
             120f,
             AnchorType.Center,
-            false,
+            CurvedDirection.Angular.Reversed,
             initialAnchorType = AnchorType.End
         )
 
@@ -164,8 +181,48 @@ class CurvedLayoutTest {
         anchor_and_clockwise_test(
             180f,
             AnchorType.Start,
-            true,
+            CurvedDirection.Angular.Normal,
             initialAnchorType = AnchorType.End
+        )
+
+    @Test
+    fun switched_anchortype_end_to_center_rtl_anticlockwise() =
+        anchor_and_clockwise_test(
+            120f,
+            AnchorType.Center,
+            CurvedDirection.Angular.Reversed,
+            initialAnchorType = AnchorType.End,
+            layoutDirection = LayoutDirection.Rtl
+        )
+
+    @Test
+    fun switched_anchortype_end_to_start_rtl_clockwise() =
+        anchor_and_clockwise_test(
+            180f,
+            AnchorType.Start,
+            CurvedDirection.Angular.Normal,
+            initialAnchorType = AnchorType.End,
+            layoutDirection = LayoutDirection.Rtl
+        )
+
+    @Test
+    fun switched_anchortype_end_to_center_rtl_absoluteanticlockwise() =
+        anchor_and_clockwise_test(
+            120f,
+            AnchorType.Center,
+            CurvedDirection.Angular.CounterClockwise,
+            initialAnchorType = AnchorType.End,
+            layoutDirection = LayoutDirection.Rtl
+        )
+
+    @Test
+    fun switched_anchortype_end_to_start_rtl_absoluteclockwise() =
+        anchor_and_clockwise_test(
+            180f,
+            AnchorType.Start,
+            CurvedDirection.Angular.Clockwise,
+            initialAnchorType = AnchorType.End,
+            layoutDirection = LayoutDirection.Rtl
         )
 
     @Test

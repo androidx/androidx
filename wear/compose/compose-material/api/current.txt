@@ -133,7 +133,7 @@ package androidx.wear.compose.material {
   }
 
   public final class CurvedTextKt {
-    method public static void curvedText(androidx.wear.compose.foundation.CurvedScope, String text, optional androidx.wear.compose.foundation.CurvedModifier modifier, optional long color, optional long background, optional long fontSize, optional androidx.wear.compose.foundation.CurvedTextStyle? style, optional boolean clockwise, optional androidx.wear.compose.foundation.ArcPaddingValues contentArcPadding, optional int overflow);
+    method public static void curvedText(androidx.wear.compose.foundation.CurvedScope, String text, optional androidx.wear.compose.foundation.CurvedModifier modifier, optional long color, optional long background, optional long fontSize, optional androidx.wear.compose.foundation.CurvedTextStyle? style, optional androidx.wear.compose.foundation.CurvedDirection.Angular? angularDirection, optional androidx.wear.compose.foundation.ArcPaddingValues contentArcPadding, optional int overflow);
   }
 
   public final class DefaultTimeSourceKt {
