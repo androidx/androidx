@@ -35,6 +35,8 @@
         android:exported="true"
         android:permission="com.google.android.wearable.permission.BIND_WATCH_FACE_CONTROL">
       <meta-data android:name="androidx.wear.watchface.api_version" android:value="5" />
+      <meta-data android:name="androidx.wear.watchface.xml_version"
+          android:value="@integer/watch_face_xml_version" />
       <intent-filter>
         <action android:name="com.google.android.wearable.action.WATCH_FACE_CONTROL"/>
       </intent-filter>

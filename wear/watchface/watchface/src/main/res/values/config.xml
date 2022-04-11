@@ -17,4 +17,5 @@
 
 <resources>
     <bool name="watch_face_instance_service_enabled">false</bool>
+    <integer name="watch_face_xml_version">0</integer>
 </resources>
