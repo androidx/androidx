@@ -17,9 +17,11 @@
 package androidx.wear.compose.foundation
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -33,7 +35,6 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.test.filters.FlakyTest
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.atan2
@@ -381,12 +382,34 @@ class CurvedLayoutTest {
     }
 
     @Test
-    @FlakyTest(bugId = 227314580)
     fun showing_child_works() = visibility_change_test_setup(true)
 
     @Test
-    @FlakyTest(bugId = 227314580)
     fun hiding_child_works() = visibility_change_test_setup(false)
+
+    @Test
+    fun change_elements_on_side_effect_works() {
+        var num by mutableStateOf(0)
+        rule.setContent {
+            SideEffect {
+                num = 2
+            }
+
+            CurvedLayout(modifier = Modifier.fillMaxSize()) {
+                repeat(num) {
+                    curvedComposable() {
+                        Box(modifier = Modifier.size(20.dp).testTag("Node$it"))
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+
+        rule.onNodeWithTag("Node0").assertExists()
+        rule.onNodeWithTag("Node1").assertExists()
+        rule.onNodeWithTag("Node2").assertDoesNotExist()
+    }
 }
 
 internal const val TEST_TAG = "test-item"

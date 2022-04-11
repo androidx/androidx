@@ -35,6 +35,10 @@ public class CurvedScope internal constructor(
     internal fun add(node: CurvedChild, modifier: CurvedModifier) {
         nodes.add(modifier.wrap(node))
     }
+    internal fun initialize(contentBuilder: CurvedScope.() -> Unit) {
+        nodes.clear()
+        apply(contentBuilder)
+    }
 }
 
 /**
@@ -43,9 +47,9 @@ public class CurvedScope internal constructor(
 internal abstract class ContainerChild(
     curvedLayoutDirection: CurvedLayoutDirection,
     internal val reverseLayout: Boolean,
-    contentBuilder: CurvedScope.() -> Unit
+    private val contentBuilder: CurvedScope.() -> Unit
 ) : CurvedChild() {
-    private val curvedContainerScope = CurvedScope(curvedLayoutDirection).apply(contentBuilder)
+    private val curvedContainerScope = CurvedScope(curvedLayoutDirection)
     internal val children get() = curvedContainerScope.nodes
 
     internal val childrenInLayoutOrder get() = children.indices.map { ix ->
@@ -54,6 +58,9 @@ internal abstract class ContainerChild(
 
     @Composable
     override fun SubComposition() {
+        // Ensure we subscribe this composition to any state reads on contentBuilder,
+        // and we keep our internal tree in sync with compose's tree.
+        curvedContainerScope.initialize(contentBuilder)
         children.forEach {
             it.SubComposition()
         }
