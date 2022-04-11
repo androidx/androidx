@@ -15,7 +15,7 @@
  */
 package androidx.health.data.client.impl.converters.records
 
-import androidx.health.data.client.records.ActiveEnergyBurned
+import androidx.health.data.client.records.ActiveCaloriesBurned
 import androidx.health.data.client.records.ActivityEvent
 import androidx.health.data.client.records.ActivityLap
 import androidx.health.data.client.records.ActivitySession
@@ -63,7 +63,7 @@ import androidx.health.data.client.records.Speed
 import androidx.health.data.client.records.Steps
 import androidx.health.data.client.records.StepsCadence
 import androidx.health.data.client.records.SwimmingStrokes
-import androidx.health.data.client.records.TotalEnergyBurned
+import androidx.health.data.client.records.TotalCaloriesBurned
 import androidx.health.data.client.records.Vo2Max
 import androidx.health.data.client.records.WaistCircumference
 import androidx.health.data.client.records.Weight
@@ -339,8 +339,8 @@ fun toRecord(proto: DataProto.DataPoint): Record {
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
-            "ActiveEnergyBurned" ->
-                ActiveEnergyBurned(
+            "ActiveCaloriesBurned" ->
+                ActiveCaloriesBurned(
                     energyKcal = getDouble("energy"),
                     startTime = startTime,
                     startZoneOffset = startZoneOffset,
@@ -512,8 +512,8 @@ fun toRecord(proto: DataProto.DataPoint): Record {
                     endZoneOffset = endZoneOffset,
                     metadata = metadata
                 )
-            "TotalEnergyBurned" ->
-                TotalEnergyBurned(
+            "TotalCaloriesBurned" ->
+                TotalCaloriesBurned(
                     energyKcal = getDouble("energy"),
                     startTime = startTime,
                     startZoneOffset = startZoneOffset,

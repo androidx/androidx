@@ -26,7 +26,7 @@ import java.time.ZoneOffset
  * Each record represents the total kilocalories burned over a time interval.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class TotalEnergyBurned(
+public class TotalCaloriesBurned(
     /** Energy in kilocalories. Required field. Valid range: 0-1000000. */
     public val energyKcal: Double,
     override val startTime: Instant,
@@ -37,7 +37,7 @@ public class TotalEnergyBurned(
 ) : IntervalRecord {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is TotalEnergyBurned) return false
+        if (other !is TotalCaloriesBurned) return false
 
         if (energyKcal != other.energyKcal) return false
         if (startTime != other.startTime) return false

@@ -31,7 +31,7 @@ import androidx.health.data.client.metadata.Device
 import androidx.health.data.client.metadata.Metadata
 import androidx.health.data.client.permission.AccessTypes
 import androidx.health.data.client.permission.Permission
-import androidx.health.data.client.records.ActiveEnergyBurned
+import androidx.health.data.client.records.ActiveCaloriesBurned
 import androidx.health.data.client.records.Nutrition
 import androidx.health.data.client.records.Steps
 import androidx.health.data.client.records.Steps.Companion.STEPS_COUNT_TOTAL
@@ -84,8 +84,8 @@ private val API_METHOD_LIST =
         { getGrantedPermissions(setOf()) },
         { insertRecords(listOf()) },
         { updateRecords(listOf()) },
-        { deleteRecords(ActiveEnergyBurned::class, listOf(), listOf()) },
-        { deleteRecords(ActiveEnergyBurned::class, TimeRangeFilter.none()) },
+        { deleteRecords(ActiveCaloriesBurned::class, listOf(), listOf()) },
+        { deleteRecords(ActiveCaloriesBurned::class, TimeRangeFilter.none()) },
         { readRecord(Steps::class, "uid") },
         {
             readRecords(
@@ -151,7 +151,7 @@ class HealthDataClientImplTest {
         Intents.release()
     }
 
-    @Test(timeout = 60000L)
+    @Test
     fun apiMethods_hasError_throwsException() = runTest {
         for (error in errorCodeExceptionMap) {
             fakeAhpServiceStub.errorCode = error.key
@@ -207,7 +207,7 @@ class HealthDataClientImplTest {
         assertThat(response).containsExactly(Permission.create<Steps>(AccessTypes.READ))
     }
 
-    @Test(timeout = 10000L)
+    @Test
     fun insertRecords_steps() = runTest {
         fakeAhpServiceStub.insertDataResponse = InsertDataResponse(listOf("0"))
         val deferred = async {
@@ -240,7 +240,7 @@ class HealthDataClientImplTest {
             )
     }
 
-    @Test(timeout = 10000L)
+    @Test
     fun insertRecords_weight() = runTest {
         fakeAhpServiceStub.insertDataResponse = InsertDataResponse(listOf("0"))
         val deferred = async {
@@ -270,7 +270,7 @@ class HealthDataClientImplTest {
             )
     }
 
-    @Test(timeout = 10000L)
+    @Test
     fun insertRecords_nutrition() = runTest {
         fakeAhpServiceStub.insertDataResponse = InsertDataResponse(listOf("0"))
         val deferred = async {
@@ -305,7 +305,7 @@ class HealthDataClientImplTest {
             )
     }
 
-    @Test(timeout = 10000L)
+    @Test
     fun readRecordById_steps() = runTest {
         fakeAhpServiceStub.readDataResponse =
             ReadDataResponse(
@@ -361,7 +361,7 @@ class HealthDataClientImplTest {
             )
     }
 
-    @Test(timeout = 10000L)
+    @Test
     fun readRecords_steps() = runTest {
         fakeAhpServiceStub.readDataRangeResponse =
             ReadDataRangeResponse(
@@ -421,7 +421,7 @@ class HealthDataClientImplTest {
             )
     }
 
-    @Test(timeout = 10000L)
+    @Test
     fun deleteRecordsById_steps() = runTest {
         val deferred = async {
             healthDataClient.deleteRecords(Steps::class, listOf("myUid"), listOf("myClientId"))
@@ -448,7 +448,7 @@ class HealthDataClientImplTest {
             )
     }
 
-    @Test(timeout = 10000L)
+    @Test
     fun deleteRecordsByRange_steps() = runTest {
         val deferred = async {
             healthDataClient.deleteRecords(
@@ -470,7 +470,7 @@ class HealthDataClientImplTest {
             )
     }
 
-    @Test(timeout = 10000L)
+    @Test
     fun updateRecords_steps() = runTest {
         val deferred = async {
             healthDataClient.updateRecords(
@@ -503,7 +503,7 @@ class HealthDataClientImplTest {
             )
     }
 
-    @Test(timeout = 10000L)
+    @Test
     fun aggregate_totalSteps(): Unit = runTest {
         val dataOrigin = DataProto.DataOrigin.newBuilder().setApplicationId("id").build()
         val aggregateDataRow =
@@ -609,7 +609,7 @@ class HealthDataClientImplTest {
             )
     }
 
-    @Test(timeout = 10000L)
+    @Test
     fun getChangesToken() = runTest {
         fakeAhpServiceStub.changesTokenResponse =
             GetChangesTokenResponse(
@@ -634,7 +634,7 @@ class HealthDataClientImplTest {
             )
     }
 
-    @Test(timeout = 10000L)
+    @Test
     fun getChanges_steps() = runTest {
         fakeAhpServiceStub.changesResponse =
             GetChangesResponse(
