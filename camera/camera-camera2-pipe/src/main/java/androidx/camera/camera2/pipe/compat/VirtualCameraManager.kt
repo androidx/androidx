@@ -195,6 +195,7 @@ internal class VirtualCameraManager @Inject constructor(
         }
     }
 
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     private suspend fun readRequestQueue(requests: MutableList<CameraRequest>) {
         if (requests.isEmpty()) {
             requests.add(requestQueue.receive())

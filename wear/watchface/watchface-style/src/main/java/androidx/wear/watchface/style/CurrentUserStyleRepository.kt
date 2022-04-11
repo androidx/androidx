@@ -429,7 +429,7 @@ public class UserStyleSchema constructor(
     public val userStyleSettings: List<UserStyleSetting>
 ) {
     /** For use with hierarchical schemas, lists all the settings with no parent [Option]. */
-    @Suppress("EXPERIMENTAL_ANNOTATION_ON_WRONG_TARGET")
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @get:ExperimentalHierarchicalStyle
     @ExperimentalHierarchicalStyle
     public val rootUserStyleSettings by lazy {

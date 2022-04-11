@@ -35,7 +35,10 @@ class SparseArrayCompatKotlin : SparseArrayCompat<Int>() {
         return super.get(key, defaultValue)
     }
 
-    @Suppress("OverridingDeprecatedMember")
+    @Deprecated(
+        message = "Alias for remove(int).",
+        replaceWith = ReplaceWith("remove(key)"),
+    )
     override fun delete(key: Int) {
         @Suppress("DEPRECATION")
         super.delete(key)

@@ -258,7 +258,7 @@ public class BenchmarkStateTest {
     }
 
     @Suppress("DEPRECATION")
-    @UseExperimental(ExperimentalExternalReport::class)
+    @OptIn(ExperimentalExternalReport::class)
     @Test
     public fun reportResult() {
         BenchmarkState.reportData(

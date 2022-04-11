@@ -299,6 +299,12 @@ internal class WatchFaceControlClientImpl internal constructor(
         InteractiveWatchFaceClientImpl(it)
     }
 
+    @Deprecated(
+        "Creating a headless client without a watchface ID is deprecated",
+        ReplaceWith(
+            "[createHeadlessWatchFaceClient(String, ComponentName, DeviceConfig, Int, Int)]"
+        )
+    )
     override fun createHeadlessWatchFaceClient(
         watchFaceName: ComponentName,
         deviceConfig: DeviceConfig,
@@ -437,6 +443,7 @@ internal class WatchFaceControlClientImpl internal constructor(
         return EditorServiceClientImpl(service.editorService)
     }
 
+    @Deprecated("Use the WatchFaceMetadataClient instead.")
     @Suppress("DEPRECATION") // DefaultComplicationDataSourcePolicyAndType
     override fun getDefaultComplicationDataSourcePoliciesAndType(
         watchFaceName: ComponentName

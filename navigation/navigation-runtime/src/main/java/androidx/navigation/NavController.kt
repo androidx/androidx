@@ -1091,7 +1091,7 @@ public open class NavController(
                 backQueue.filter { currentEntry ->
                     // Necessary since CI builds against ToT, can be removed once
                     // androidx.collection is updated to >= 1.3.*
-                    @Suppress("UNNECESSARY_SAFE_CALL")
+                    @Suppress("UNNECESSARY_SAFE_CALL", "SAFE_CALL_WILL_CHANGE_NULLABILITY")
                     currentEntry.destination.id == newDestination?.id
                 }.forEach { entry ->
                     entry.destination = newDestination

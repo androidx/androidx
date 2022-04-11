@@ -47,7 +47,7 @@ class SynchronizedBenchmark {
     @Test
     fun synchronizedIncrementBenchmark() {
         benchmarkRule.measureRepeated {
-            synchronized(volatileInt) {
+            synchronized(this@SynchronizedBenchmark) {
                 volatileInt++
             }
         }

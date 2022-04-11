@@ -53,10 +53,16 @@ def preferencesProtoJarJarTask = tasks.register("exportJar", Jar) {
     archiveBaseName.set("export")
     dependsOn(protobuf.generateProtoTasks.all())
     dependsOn(compileKotlin)
-    from(files(compileKotlin.outputs.files))
+    from(files(compileKotlin.outputs.files)) {
+        exclude("**/caches-jvm/**")
+        exclude("**/last-build.bin")
+    }
 
     dependsOn(compileJava)
-    from(files(compileJava.destinationDirectory))
+    from(files(compileJava.destinationDirectory)) {
+        exclude("**/caches-jvm/**")
+        exclude("**/last-build.bin")
+    }
 
     // The proto-lite dependency includes .proto files, which are not used by datastore. When apps
     // depend on datastore as well as proto-lite directly, these files conflict since jarjar only
@@ -64,6 +70,8 @@ def preferencesProtoJarJarTask = tasks.register("exportJar", Jar) {
     from(zipTree(configurations.detachedConfiguration(
             dependencies.create(libs.protobufLite.get())).getSingleFile())) {
         exclude("**/*.proto")
+        exclude("**/caches-jvm/**")
+        exclude("**/last-build.bin")
     }
 }
 
