@@ -45,10 +45,42 @@ class SurfaceControlCompat internal constructor(
      * Callback interface for usage with addTransactionCompletedListener
      */
     interface TransactionCompletedListener {
-        fun onComplete(latchTime: Long, presentTime: Long)
+        /**
+         * Invoked when a frame including the updates in a transaction was presented.
+         *
+         * Buffers which are replaced or removed from the scene in the transaction invoking
+         * this callback may be reused after this point.
+         *
+         * @param latchTimeNanos Timestamp in nano seconds of when frame was latched by
+         * the framework.
+         *
+         * @param presentTimeNanos  System time in nano seconds of when callback is called.
+         */
+        fun onComplete(latchTimeNanos: Long, presentTimeNanos: Long)
     }
 
-    open class Transaction() {
+    /**
+     * Callback interface for usage with addTransactionCommittedListener
+     */
+    interface TransactionCommittedListener {
+        /**
+         * Invoked when the transaction has been committed in SurfaceFlinger. This is when
+         * the transaction is applied and the updates are ready to be presented.
+         * This will be invoked before the Transaction.onComplete callback.
+         *
+         * This callback does not mean buffers have been released! It simply means that any new
+         * transactions applied will not overwrite the transaction for which we are receiving
+         * a callback and instead will be included in the next frame.
+         *
+         * @param latchTimeNanos Timestamp in nano seconds of when frame was latched by
+         * the framework.
+         *
+         * @param presentTimeNanos System time in nano seconds of when callback is called.
+         */
+        fun onCommit(latchTimeNanos: Long, presentTimeNanos: Long)
+    }
+
+    class Transaction() {
         private var mNativeSurfaceTransaction: Long
 
         init {
@@ -89,17 +121,49 @@ class SurfaceControlCompat internal constructor(
         fun addTransactionCompletedListener(
             executor: Executor,
             listener: TransactionCompletedListener
-        ) {
+        ): Transaction {
             val listenerWrapper = object : TransactionCompletedListener {
-                override fun onComplete(latchTime: Long, presentTime: Long) {
-                    executor.execute { (listener::onComplete)(latchTime, presentTime) }
+                override fun onComplete(latchTimeNanos: Long, presentTimeNanos: Long) {
+                    executor.execute { (listener::onComplete)(latchTimeNanos, presentTimeNanos) }
                 }
             }
 
             nTransactionSetOnComplete(mNativeSurfaceTransaction, listenerWrapper)
+            return this
         }
 
-        fun delete() {
+        /**
+         * Sets the callback that is invoked once the updates from this transaction are
+         * applied and ready to be presented. This callback is invoked before the
+         * setOnCompleteListener callback.
+         *
+         * @param executor The executor that the callback should be invoked on.
+         * This value cannot be null. Callback and listener events are dispatched
+         * through this Executor, providing an easy way to control which thread is used.
+         *
+         * @param listener The callback that will be invoked when the transaction has
+         * been completed. This value cannot be null.
+         */
+        @RequiresApi(Build.VERSION_CODES.S)
+        @Suppress("PairedRegistration")
+        fun addTransactionCommittedListener(
+            executor: Executor,
+            listener: TransactionCommittedListener
+        ): Transaction {
+            val listenerWrapper = object : TransactionCommittedListener {
+                override fun onCommit(latchTimeNanos: Long, presentTimeNanos: Long) {
+                    executor.execute { (listener::onCommit)(latchTimeNanos, presentTimeNanos) }
+                }
+            }
+
+            nTransactionSetOnCommit(mNativeSurfaceTransaction, listenerWrapper)
+            return this
+        }
+
+        /**
+         * Destroys the \a transaction object.
+         */
+        fun close() {
             if (mNativeSurfaceTransaction != 0L) {
                 nTransactionDelete(mNativeSurfaceTransaction)
             }
@@ -107,7 +171,7 @@ class SurfaceControlCompat internal constructor(
         }
 
         fun finalize() {
-            delete()
+            close()
         }
 
         private external fun nTransactionCreate(): Long
@@ -116,6 +180,11 @@ class SurfaceControlCompat internal constructor(
         private external fun nTransactionSetOnComplete(
             surfaceTransaction: Long,
             listener: TransactionCompletedListener
+        )
+
+        private external fun nTransactionSetOnCommit(
+            surfaceTransaction: Long,
+            listener: TransactionCommittedListener
         )
 
         companion object {

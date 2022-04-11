@@ -103,24 +103,95 @@ class SurfaceControlCompatTest {
         var mPresentTime = -1L
         var mLatch = CountDownLatch(1)
 
-        override fun onComplete(latchTime: Long, presentTime: Long) {
+        override fun onComplete(latchTimeNanos: Long, presentTimeNanos: Long) {
             mCallbackTime = SystemClock.elapsedRealtime()
-            mLatchTime = latchTime
-            mPresentTime = presentTime
+            mLatchTime = latchTimeNanos
+            mPresentTime = presentTimeNanos
+            mLatch.countDown()
+        }
+    }
+
+    class TransactionOnCommitListener : SurfaceControlCompat.TransactionCommittedListener {
+        var mCallbackTime = -1L
+        var mLatchTime = -1L
+        var mPresentTime = -1L
+        var mLatch = CountDownLatch(1)
+
+        override fun onCommit(latchTimeNanos: Long, presentTimeNanos: Long) {
+            mCallbackTime = SystemClock.elapsedRealtime()
+            mLatchTime = latchTimeNanos
+            mPresentTime = presentTimeNanos
             mLatch.countDown()
         }
     }
 
     @Test
     fun testSurfaceTransactionOnCompleteCallback() {
-        val transaction = SurfaceControlCompat.Transaction()
         val listener = TransactionOnCompleteListener()
-        transaction.addTransactionCompletedListener(executor, listener)
-        transaction.commit()
+
+        SurfaceControlCompat.Transaction()
+            .addTransactionCompletedListener(executor, listener)
+            .commit()
 
         listener.mLatch.await(3, TimeUnit.SECONDS)
 
         assertEquals(0, listener.mLatch.count)
         assertTrue(listener.mCallbackTime > 0)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
+    @Test
+    fun testSurfaceTransactionOnCommitCallback() {
+        val listener = TransactionOnCommitListener()
+
+        SurfaceControlCompat.Transaction()
+            .addTransactionCommittedListener(executor, listener)
+            .commit()
+
+        listener.mLatch.await(3, TimeUnit.SECONDS)
+
+        assertEquals(0, listener.mLatch.count)
+        assertTrue(listener.mCallbackTime > 0)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
+    @Test
+    fun testSurfaceTransactionOnCommitCallback_multiple() {
+        val listener = TransactionOnCommitListener()
+        val listener2 = TransactionOnCommitListener()
+
+        SurfaceControlCompat.Transaction()
+            .addTransactionCommittedListener(executor, listener)
+            .addTransactionCommittedListener(executor, listener2)
+            .commit()
+
+        listener.mLatch.await(3, TimeUnit.SECONDS)
+        listener2.mLatch.await(3, TimeUnit.SECONDS)
+
+        assertEquals(0, listener.mLatch.count)
+        assertEquals(0, listener2.mLatch.count)
+
+        assertTrue(listener.mCallbackTime > 0)
+        assertTrue(listener2.mCallbackTime > 0)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
+    @Test
+    fun testSurfaceTransactionOnCommitCallbackAndOnCompleteCallback() {
+        val listener1 = TransactionOnCommitListener()
+        val listener2 = TransactionOnCompleteListener()
+
+        SurfaceControlCompat.Transaction()
+            .addTransactionCommittedListener(executor, listener1)
+            .addTransactionCompletedListener(executor, listener2)
+            .commit()
+
+        listener1.mLatch.await(3, TimeUnit.SECONDS)
+        listener2.mLatch.await(3, TimeUnit.SECONDS)
+
+        assertEquals(0, listener1.mLatch.count)
+        assertEquals(0, listener2.mLatch.count)
+        assertTrue(listener1.mCallbackTime > 0)
+        assertTrue(listener2.mCallbackTime > 0)
     }
 }
