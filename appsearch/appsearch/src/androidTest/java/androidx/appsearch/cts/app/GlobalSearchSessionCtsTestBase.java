@@ -178,6 +178,8 @@ public abstract class GlobalSearchSessionCtsTestBase {
     @Ignore("b/228838046")
     @Test
     public void testGlobalGetById_nonExistentPackage() throws Exception {
+        assumeTrue(mGlobalSearchSession.getFeatures().isFeatureSupported(
+                Features.GLOBAL_SEARCH_SESSION_GET_BY_ID));
         AppSearchBatchResult<String, GenericDocument> fakePackage =
                 mGlobalSearchSession.getByDocumentIdAsync("fake", DB_NAME_1,
                         new GetByDocumentIdRequest.Builder("namespace").addIds("id1")
