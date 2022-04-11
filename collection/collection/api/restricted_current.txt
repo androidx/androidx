@@ -187,7 +187,7 @@ package androidx.collection {
   }
 
   public class SparseArrayCompat<E> implements java.lang.Cloneable {
-    ctor public SparseArrayCompat(int initialCapacity);
+    ctor public SparseArrayCompat(optional int initialCapacity);
     ctor public SparseArrayCompat();
     method public void append(int key, E? value);
     method public void clear();
