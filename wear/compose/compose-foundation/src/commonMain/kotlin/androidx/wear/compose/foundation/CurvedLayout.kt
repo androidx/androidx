@@ -32,6 +32,8 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import kotlin.math.PI
 import kotlin.math.min
 
@@ -85,8 +87,9 @@ public value class AnchorType internal constructor(internal val ratio: Float) {
  * can choose their own radial Alignment. Alignment specifies where to lay down children that are
  * thiner than the CurvedRow, either closer to the center (INNER), apart from the center (OUTER) or
  * in the middle point (CENTER).
- * @param clockwise Specify if the children are laid out clockwise (the default) or
- * counter-clockwise
+ * @param angularDirection Specify the direction the children are laid on. See
+ * [CurvedDirection.Angular]. The default is [CurvedDirection.Angular.Normal], which is clockwise
+ * under a LtR layout and counter clockwise on a RtL layout.
  * @param contentBuilder Specifies the content of this layout, currently there are 4 available
  * elements defined in foundations for this DSL: the sub-layouts [curvedRow] and [curvedColumn],
  * [basicCurvedText] and [curvedComposable] (used to add normal composables to curved layouts)
@@ -98,13 +101,14 @@ public fun CurvedLayout(
     anchorType: AnchorType = AnchorType.Center,
     // TODO: reimplement as modifiers
     radialAlignment: CurvedAlignment.Radial? = null,
-    clockwise: Boolean = true,
+    angularDirection: CurvedDirection.Angular = CurvedDirection.Angular.Normal,
     contentBuilder: CurvedScope.() -> Unit
 ) {
+    val curvedLayoutDirection = initialCurvedLayoutDirection(angularDirection)
     // Note that all angles in the function are in radians, and the anchor parameter is in degrees
-    val curvedRowChild by remember {
+    val curvedRowChild by remember(curvedLayoutDirection) {
         derivedStateOf {
-            CurvedRowChild(clockwise, radialAlignment, contentBuilder)
+            CurvedRowChild(curvedLayoutDirection, radialAlignment, contentBuilder)
         }
     }
 
@@ -144,7 +148,8 @@ public fun CurvedLayout(
 
         // Apply anchor & anchorType
         var layoutAngleStart = anchor.toRadians() -
-            (if (clockwise) anchorType.ratio else 1f - anchorType.ratio) * totalSweep
+            (if (curvedLayoutDirection.clockwise()) anchorType.ratio else
+                1f - anchorType.ratio) * totalSweep
 
         curvedRowChild.angularPosition(layoutAngleStart, totalSweep, Offset(radius, radius))
 
@@ -153,6 +158,61 @@ public fun CurvedLayout(
             with(curvedRowChild) { placeIfNeeded() }
         }
     }
+}
+
+// TODO() For performance, to avoid class extra creation/destruction, we could implement this class
+//  as a bit field.
+internal class CurvedLayoutDirection(
+    private val radial: CurvedDirection.Radial,
+    private val angular: CurvedDirection.Angular,
+    private val layoutDirection: LayoutDirection
+) {
+    fun clockwise(): Boolean {
+        return when (angular) {
+            CurvedDirection.Angular.Reversed -> !isLtr()
+            CurvedDirection.Angular.Clockwise -> true
+            CurvedDirection.Angular.CounterClockwise -> false
+            // CurvedDirection.Angular.Clockwise
+            else -> isLtr()
+        }
+    }
+
+    fun outsideIn(): Boolean = radial == CurvedDirection.Radial.OutsideIn
+
+    fun isLtr(): Boolean = layoutDirection == LayoutDirection.Ltr
+
+    fun copy(
+        overrideRadial: CurvedDirection.Radial? = null,
+        overrideAngular: CurvedDirection.Angular? = null
+    ) = CurvedLayoutDirection(
+        overrideRadial ?: radial,
+        overrideAngular ?: angular,
+        layoutDirection
+    )
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        return (other is CurvedLayoutDirection) &&
+            radial == other.radial &&
+            angular == other.angular &&
+            layoutDirection == other.layoutDirection
+    }
+
+    override fun hashCode(): Int =
+        (radial.hashCode() * 31 + angular.hashCode()) * 31 + layoutDirection.hashCode()
+}
+
+@Composable
+internal fun initialCurvedLayoutDirection(angular: CurvedDirection.Angular): CurvedLayoutDirection {
+    val layoutDirection = LocalLayoutDirection.current
+    val radialDirection = when (angular) {
+        CurvedDirection.Angular.Normal, CurvedDirection.Angular.Clockwise ->
+            CurvedDirection.Radial.OutsideIn
+        CurvedDirection.Angular.Reversed, CurvedDirection.Angular.CounterClockwise ->
+            CurvedDirection.Radial.InsideOut
+        else -> throw RuntimeException("Unexpected CurvedDirection.Angular: $angular")
+    }
+    return CurvedLayoutDirection(radialDirection, angular, layoutDirection)
 }
 
 /**

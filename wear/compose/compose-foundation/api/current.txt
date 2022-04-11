@@ -25,8 +25,8 @@ package androidx.wear.compose.foundation {
     method public static androidx.wear.compose.foundation.ArcPaddingValues ArcPaddingValues(optional float outer, optional float inner, optional float start, optional float end);
     method public static androidx.wear.compose.foundation.ArcPaddingValues ArcPaddingValues(float all);
     method public static androidx.wear.compose.foundation.ArcPaddingValues ArcPaddingValues(optional float radial, optional float angular);
-    method public static void basicCurvedText(androidx.wear.compose.foundation.CurvedScope, String text, optional androidx.wear.compose.foundation.CurvedModifier modifier, optional boolean clockwise, optional androidx.wear.compose.foundation.ArcPaddingValues contentArcPadding, optional int overflow, optional kotlin.jvm.functions.Function0<androidx.wear.compose.foundation.CurvedTextStyle> style);
-    method public static void basicCurvedText(androidx.wear.compose.foundation.CurvedScope, String text, androidx.wear.compose.foundation.CurvedTextStyle style, optional androidx.wear.compose.foundation.CurvedModifier modifier, optional boolean clockwise, optional androidx.wear.compose.foundation.ArcPaddingValues contentArcPadding, optional int overflow);
+    method public static void basicCurvedText(androidx.wear.compose.foundation.CurvedScope, String text, optional androidx.wear.compose.foundation.CurvedModifier modifier, optional androidx.wear.compose.foundation.CurvedDirection.Angular? angularDirection, optional androidx.wear.compose.foundation.ArcPaddingValues contentArcPadding, optional int overflow, optional kotlin.jvm.functions.Function0<androidx.wear.compose.foundation.CurvedTextStyle> style);
+    method public static void basicCurvedText(androidx.wear.compose.foundation.CurvedScope, String text, androidx.wear.compose.foundation.CurvedTextStyle style, optional androidx.wear.compose.foundation.CurvedModifier modifier, optional androidx.wear.compose.foundation.CurvedDirection.Angular? angularDirection, optional androidx.wear.compose.foundation.ArcPaddingValues contentArcPadding, optional int overflow);
   }
 
   public interface CurvedAlignment {
@@ -61,15 +61,44 @@ package androidx.wear.compose.foundation {
   }
 
   public final class CurvedColumnKt {
-    method public static void curvedColumn(androidx.wear.compose.foundation.CurvedScope, optional androidx.wear.compose.foundation.CurvedModifier modifier, optional boolean outsideIn, optional androidx.wear.compose.foundation.CurvedAlignment.Angular? angularAlignment, kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.CurvedScope,kotlin.Unit> contentBuilder);
+    method public static void curvedColumn(androidx.wear.compose.foundation.CurvedScope, optional androidx.wear.compose.foundation.CurvedModifier modifier, optional androidx.wear.compose.foundation.CurvedDirection.Radial? radialDirection, optional androidx.wear.compose.foundation.CurvedAlignment.Angular? angularAlignment, kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.CurvedScope,kotlin.Unit> contentBuilder);
   }
 
   public final class CurvedComposableKt {
     method public static void curvedComposable(androidx.wear.compose.foundation.CurvedScope, optional androidx.wear.compose.foundation.CurvedModifier modifier, optional float radialAlignment, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
   }
 
+  public interface CurvedDirection {
+  }
+
+  @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public static final value class CurvedDirection.Angular {
+    field public static final androidx.wear.compose.foundation.CurvedDirection.Angular.Companion Companion;
+  }
+
+  public static final class CurvedDirection.Angular.Companion {
+    method public int getClockwise();
+    method public int getCounterClockwise();
+    method public int getNormal();
+    method public int getReversed();
+    property public final int Clockwise;
+    property public final int CounterClockwise;
+    property public final int Normal;
+    property public final int Reversed;
+  }
+
+  @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public static final value class CurvedDirection.Radial {
+    field public static final androidx.wear.compose.foundation.CurvedDirection.Radial.Companion Companion;
+  }
+
+  public static final class CurvedDirection.Radial.Companion {
+    method public int getInsideOut();
+    method public int getOutsideIn();
+    property public final int InsideOut;
+    property public final int OutsideIn;
+  }
+
   public final class CurvedLayoutKt {
-    method @androidx.compose.runtime.Composable public static void CurvedLayout(optional androidx.compose.ui.Modifier modifier, optional float anchor, optional float anchorType, optional androidx.wear.compose.foundation.CurvedAlignment.Radial? radialAlignment, optional boolean clockwise, kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.CurvedScope,kotlin.Unit> contentBuilder);
+    method @androidx.compose.runtime.Composable public static void CurvedLayout(optional androidx.compose.ui.Modifier modifier, optional float anchor, optional float anchorType, optional androidx.wear.compose.foundation.CurvedAlignment.Radial? radialAlignment, optional int angularDirection, kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.CurvedScope,kotlin.Unit> contentBuilder);
   }
 
   @androidx.compose.runtime.Stable public sealed interface CurvedModifier {
@@ -89,12 +118,10 @@ package androidx.wear.compose.foundation {
   }
 
   public final class CurvedRowKt {
-    method public static void curvedRow(androidx.wear.compose.foundation.CurvedScope, optional androidx.wear.compose.foundation.CurvedModifier modifier, optional androidx.wear.compose.foundation.CurvedAlignment.Radial? radialAlignment, optional boolean clockwise, kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.CurvedScope,kotlin.Unit> contentBuilder);
+    method public static void curvedRow(androidx.wear.compose.foundation.CurvedScope, optional androidx.wear.compose.foundation.CurvedModifier modifier, optional androidx.wear.compose.foundation.CurvedAlignment.Radial? radialAlignment, optional androidx.wear.compose.foundation.CurvedDirection.Angular? angularDirection, kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.CurvedScope,kotlin.Unit> contentBuilder);
   }
 
   @androidx.compose.foundation.layout.LayoutScopeMarker public final class CurvedScope {
-    method public boolean getReverseLayout();
-    property public final boolean reverseLayout;
   }
 
   public final class CurvedSizeKt {

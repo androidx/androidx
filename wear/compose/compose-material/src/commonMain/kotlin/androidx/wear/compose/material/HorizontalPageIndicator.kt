@@ -33,6 +33,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.foundation.CurvedDirection
 import androidx.wear.compose.foundation.CurvedLayout
 import androidx.wear.compose.foundation.curvedComposable
 import kotlin.math.abs
@@ -192,7 +193,9 @@ private fun CurvedPageIndicator(
         modifier = modifier,
         // 90 degrees equals to 6 o'clock position, at the bottom of the screen
         anchor = 90f,
-        clockwise = false,
+        // Since Swipe to dismiss is always LtR, we want to follow the same direction when
+        // navigating amongst pages, so the first page is always on the left.
+        angularDirection = CurvedDirection.Angular.CounterClockwise
     ) {
         for (page in 0 until pageIndicatorState.pageCount) {
             curvedComposable {

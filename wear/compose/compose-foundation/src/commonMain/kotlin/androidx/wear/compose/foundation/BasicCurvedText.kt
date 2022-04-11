@@ -119,8 +119,10 @@ internal class ArcPaddingValuesImpl(val outer: Dp, val inner: Dp, val start: Dp,
  *
  * @param text The text to display
  * @param modifier The [CurvedModifier] to apply to this curved text.
- * @param clockwise The direction the text follows (default is true). Usually text at the top of the
- * screen goes clockwise, and text at the bottom goes counterclockwise.
+ * @param angularDirection Specify if the text is laid out clockwise or anti-clockwise, and if
+ * those needs to be reversed in a Rtl layout.
+ * If not specified, it will be inherited from the enclosing [curvedRow] or [CurvedLayout]
+ * See [CurvedDirection.Angular].
  * @param contentArcPadding Allows to specify additional space along each "edge" of the content in
  * [Dp] see [ArcPaddingValues]
  * @param overflow How visual overflow should be handled.
@@ -130,11 +132,17 @@ internal class ArcPaddingValuesImpl(val outer: Dp, val inner: Dp, val start: Dp,
 public fun CurvedScope.basicCurvedText(
     text: String,
     modifier: CurvedModifier = CurvedModifier,
-    clockwise: Boolean = true,
+    angularDirection: CurvedDirection.Angular? = null,
     contentArcPadding: ArcPaddingValues = ArcPaddingValues(0.dp),
     overflow: TextOverflow = TextOverflow.Clip,
-    style: @Composable () -> CurvedTextStyle = { CurvedTextStyle() },
-) = add(CurvedTextChild(text, clockwise, contentArcPadding, style, overflow), modifier)
+    style: @Composable () -> CurvedTextStyle = { CurvedTextStyle() }
+) = add(CurvedTextChild(
+    text,
+    curvedLayoutDirection.copy(overrideAngular = angularDirection).clockwise(),
+    contentArcPadding,
+    style,
+    overflow
+), modifier)
 
 /**
  * [basicCurvedText] is a component allowing developers to easily write curved text following
@@ -147,8 +155,10 @@ public fun CurvedScope.basicCurvedText(
  * @param text The text to display
  * @param style A style to use.
  * @param modifier The [CurvedModifier] to apply to this curved text.
- * @param clockwise The direction the text follows (default is true). Usually text at the top of the
- * screen goes clockwise, and text at the bottom goes counterclockwise.
+ * @param angularDirection Specify if the text is laid out clockwise or anti-clockwise, and if
+ * those needs to be reversed in a Rtl layout.
+ * If not specified, it will be inherited from the enclosing [curvedRow] or [CurvedLayout]
+ * See [CurvedDirection.Angular].
  * @param contentArcPadding Allows to specify additional space along each "edge" of the content in
  * [Dp] see [ArcPaddingValues]
  * @param overflow How visual overflow should be handled.
@@ -157,11 +167,11 @@ public fun CurvedScope.basicCurvedText(
     text: String,
     style: CurvedTextStyle,
     modifier: CurvedModifier = CurvedModifier,
-    clockwise: Boolean = true,
+    angularDirection: CurvedDirection.Angular? = null,
     // TODO: reimplement as modifiers
     contentArcPadding: ArcPaddingValues = ArcPaddingValues(0.dp),
     overflow: TextOverflow = TextOverflow.Clip,
-) = basicCurvedText(text, modifier, clockwise, contentArcPadding, overflow) { style }
+) = basicCurvedText(text, modifier, angularDirection, contentArcPadding, overflow) { style }
 
 internal class CurvedTextChild(
     val text: String,
