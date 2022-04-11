@@ -53,19 +53,19 @@ import kotlin.math.min
  * additional memory allocation to store the specified number of mappings. If you supply an initial
  * capacity of 0, the sparse array will be initialized with a light-weight representation not
  * requiring any additional array allocations.
+ *
+ * @param initialCapacity initial capacity of the array. The array will not require any additional
+ * memory allocation to store the specified number of mappings. If you supply an initialCapacity of
+ * 0, the sparse array will be initialized with a light-weight representation not requiring any
+ * additional array allocations. Default initialCapacity is 10.
  */
-public open class SparseArrayCompat<E> public constructor(
-    initialCapacity: Int
+public open class SparseArrayCompat<E> @JvmOverloads public constructor(
+    initialCapacity: Int = 10
 ) : Cloneable {
     private var garbage = false
     private var keys: IntArray
     private var values: Array<Any?>
     private var size = 0
-
-    /**
-     * Creates a new SparseArray containing no mappings.
-     */
-    public constructor() : this(10)
 
     init {
         if (initialCapacity == 0) {
