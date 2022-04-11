@@ -52,7 +52,7 @@ dependencies {
 android {
     kotlinOptions {
         // Allow usage of Kotlin"s @OptIn.
-        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
+        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
         jvmTarget = "1.8" // necessary to use espresso kotlin extensions
     }
     sourceSets {

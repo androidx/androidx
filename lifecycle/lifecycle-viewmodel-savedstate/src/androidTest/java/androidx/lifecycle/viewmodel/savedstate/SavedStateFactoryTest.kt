@@ -180,7 +180,7 @@ class SavedStateFactoryTest {
         }
 
         val absFactory = object : AbstractSavedStateViewModelFactory() {
-            override fun <T : ViewModel?> create(
+            override fun <T : ViewModel> create(
                 key: String,
                 modelClass: Class<T>,
                 handle: SavedStateHandle

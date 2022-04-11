@@ -88,11 +88,11 @@ class ContentViewTest {
                 var attachedViewModelStoreOwner: Any? = "did not attach"
                 var attachedSavedStateRegistryOwner: Any? = "did not attach"
                 view.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
-                    override fun onViewDetachedFromWindow(v: View?) {
+                    override fun onViewDetachedFromWindow(v: View) {
                         // Do nothing
                     }
 
-                    override fun onViewAttachedToWindow(v: View?) {
+                    override fun onViewAttachedToWindow(v: View) {
                         attachedLifecycleOwner = ViewTreeLifecycleOwner.get(view)
                         attachedViewModelStoreOwner = ViewTreeViewModelStoreOwner.get(view)
                         attachedSavedStateRegistryOwner = view.findViewTreeSavedStateRegistryOwner()
