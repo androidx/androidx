@@ -18,7 +18,7 @@ package androidx.health.data.client.impl.converters.records
 import androidx.health.data.client.metadata.DataOrigin
 import androidx.health.data.client.metadata.Device
 import androidx.health.data.client.metadata.Metadata
-import androidx.health.data.client.records.ActiveEnergyBurned
+import androidx.health.data.client.records.ActiveCaloriesBurned
 import androidx.health.data.client.records.ActivityEvent
 import androidx.health.data.client.records.ActivityEventTypes
 import androidx.health.data.client.records.ActivityLap
@@ -74,7 +74,7 @@ import androidx.health.data.client.records.Steps
 import androidx.health.data.client.records.StepsCadence
 import androidx.health.data.client.records.SwimmingStrokes
 import androidx.health.data.client.records.SwimmingTypes
-import androidx.health.data.client.records.TotalEnergyBurned
+import androidx.health.data.client.records.TotalCaloriesBurned
 import androidx.health.data.client.records.Vo2Max
 import androidx.health.data.client.records.WaistCircumference
 import androidx.health.data.client.records.Weight
@@ -598,9 +598,9 @@ class AllRecordsConverterTest {
     }
 
     @Test
-    fun testActiveEnergyBurned() {
+    fun testActiveCaloriesBurned() {
         val data =
-            ActiveEnergyBurned(
+            ActiveCaloriesBurned(
                 energyKcal = 1.0,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
@@ -855,9 +855,9 @@ class AllRecordsConverterTest {
     }
 
     @Test
-    fun testTotalEnergyBurned() {
+    fun testTotalCaloriesBurned() {
         val data =
-            TotalEnergyBurned(
+            TotalCaloriesBurned(
                 energyKcal = 1.0,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
