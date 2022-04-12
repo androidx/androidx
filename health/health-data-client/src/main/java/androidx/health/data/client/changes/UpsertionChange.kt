@@ -15,13 +15,11 @@
  */
 package androidx.health.data.client.changes
 
-import androidx.annotation.RestrictTo
 import androidx.health.data.client.records.Record
 
 /**
  * A [Change] with inserted or updated [Record].
  *
- * @property record Updated or inserted record
+ * @property record Updated or inserted record.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 class UpsertionChange internal constructor(public val record: Record) : Change

@@ -193,14 +193,17 @@ interface HealthDataClient {
      * changes for a set of interested types of [Record] and optional [DataOrigin] filters.
      *
      * Changes-tokens are only valid for 30 days after they're generated. Calls to [getChanges] with
-     * an invalid changes-token will fail.
+     * an expired changes-token will lead to [ChangesResponse.changesTokenExpired]
      *
      * @param request Includes interested types of record to observe changes and optional filters.
+     * @return a changes-token
+     *
      * @throws RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
      * @throws IllegalStateException If service is not available.
+     *
+     * @see getChanges
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     suspend fun getChangesToken(request: ChangesTokenRequest): String
 
     /**
@@ -215,13 +218,25 @@ interface HealthDataClient {
      * time (such as a month). In this case [ChangesResponse.changesTokenExpired] will be set, and
      * clients should generate a new changes-token via [getChangesToken].
      *
+     * ```
+     * val response = client.getChanges(changesToken)
+     * if (response.changesTokenExpired) {
+     *   // Consider re-sync and fetch new changes token.
+     * } else {
+     *   // Process new insertion/deletions, either update local storage or upload to backends.
+     * }
+     * ```
+     *
      * @param changesToken A Changes-Token that represents a specific point in time in Android
      * Health Platform.
+     * @return a [ChangesResponse] with changes since provided [changesToken].
+     *
      * @throws RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
      * @throws IllegalStateException If service is not available.
+     *
+     * @see getChangesToken
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     suspend fun getChanges(changesToken: String): ChangesResponse
 
     companion object {

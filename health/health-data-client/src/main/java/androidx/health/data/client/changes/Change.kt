@@ -15,5 +15,11 @@
  */
 package androidx.health.data.client.changes
 
-/** Abstraction to represent a change to Android Health Platform. */
+/**
+ * Abstraction to represent a change to Android Health Platform.
+ *
+ * @see androidx.health.data.client.response.ChangesResponse
+ * @see UpsertionChange
+ * @see DeletionChange
+ */
 interface Change
