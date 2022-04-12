@@ -157,7 +157,9 @@ public class ExposureDeviceTest {
                 CameraManagerCompat.from((Context) ApplicationProvider.getApplicationContext()),
                 mCameraId,
                 camera2CameraInfo,
-                mCameraStateRegistry, sCameraExecutor, sCameraHandler);
+                mCameraStateRegistry, sCameraExecutor, sCameraHandler,
+                DisplayInfoManager.getInstance(ApplicationProvider.getApplicationContext())
+        );
 
         mCameraInfoInternal = mCamera2CameraImpl.getCameraInfoInternal();
         mCameraControlInternal = mCamera2CameraImpl.getCameraControlInternal();

@@ -162,7 +162,8 @@ class Camera2CameraImplForceOpenCameraTest {
             camera2CameraInfo,
             cameraRegistry,
             cameraExecutor,
-            cameraHandler
+            cameraHandler,
+            DisplayInfoManager.getInstance(ApplicationProvider.getApplicationContext())
         )
 
         // Open the camera
