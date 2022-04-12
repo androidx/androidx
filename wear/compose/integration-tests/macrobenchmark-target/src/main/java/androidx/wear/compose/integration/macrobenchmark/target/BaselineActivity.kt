@@ -254,8 +254,7 @@ fun Dialogs(navController: NavHostController) {
         colors = ChipDefaults.primaryChipColors(),
         label = { Text(ALERT_DIALOG) },
         modifier = Modifier.semantics { contentDescription = ALERT_DIALOG },
-
-        )
+    )
     CompactChip(
         onClick = { navController.navigate(CONFIRMATION_DIALOG) },
         colors = ChipDefaults.primaryChipColors(),
