@@ -41,10 +41,11 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import androidx.wear.compose.foundation.ArcPaddingValues
 import androidx.wear.compose.foundation.CurvedLayout
+import androidx.wear.compose.foundation.CurvedModifier
 import androidx.wear.compose.foundation.CurvedTextStyle
 import androidx.wear.compose.foundation.basicCurvedText
+import androidx.wear.compose.foundation.padding
 import androidx.wear.compose.material.AppCard
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.Card
@@ -238,7 +239,7 @@ fun CurvedTexts() {
                 color = Color.White,
                 background = background
             ),
-            contentArcPadding = ArcPaddingValues(2.dp)
+            modifier = CurvedModifier.padding(2.dp)
         )
     }
     CurvedLayout(anchor = 310f) {

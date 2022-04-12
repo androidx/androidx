@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.LayoutScopeMarker
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.layout.Measurable
-import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.Placeable
 
 /**
@@ -59,12 +58,17 @@ internal abstract class ContainerChild(
         }
     }
 
-    override fun MeasureScope.initializeMeasure(
+    override fun CurvedMeasureScope.initializeMeasure(
         measurables: List<Measurable>,
         index: Int
     ) = children.fold(index) { currentIndex, node ->
-            with(node) {
-                initializeMeasure(measurables, currentIndex)
+            with(CurvedMeasureScope(
+                subDensity = this,
+                curvedContainerScope.curvedLayoutDirection
+            )) {
+                with(node) {
+                    initializeMeasure(measurables, currentIndex)
+                }
             }
         }
 

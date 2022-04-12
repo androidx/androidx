@@ -39,7 +39,6 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.wear.compose.foundation.AnchorType
-import androidx.wear.compose.foundation.ArcPaddingValues
 import androidx.wear.compose.foundation.CurvedAlignment
 import androidx.wear.compose.foundation.CurvedDirection
 import androidx.wear.compose.foundation.CurvedLayout
@@ -50,6 +49,7 @@ import androidx.wear.compose.foundation.basicCurvedText
 import androidx.wear.compose.foundation.curvedColumn
 import androidx.wear.compose.foundation.curvedComposable
 import androidx.wear.compose.foundation.curvedRow
+import androidx.wear.compose.foundation.padding
 import androidx.wear.compose.foundation.sizeIn
 import androidx.wear.compose.foundation.weight
 import androidx.wear.compose.material.Text
@@ -229,7 +229,7 @@ fun BasicCurvedTextDemo() {
                 fontSize = 24.sp
             ),
             angularDirection = CurvedDirection.Angular.Reversed,
-            contentArcPadding = ArcPaddingValues(angular = 5.dp),
+            modifier = CurvedModifier.padding(angular = 5.dp),
             // TODO: Re-add when we implement alignment modifiers.
             // modifier = Modifier.radialAlignment(RadialAlignment.Inner)
         )
@@ -281,7 +281,7 @@ fun CurvedLayoutDirection() {
                         CurvedTextStyle(
                             fontSize = 24.sp
                         ),
-                        contentArcPadding = ArcPaddingValues(angular = 5.dp),
+                        modifier = CurvedModifier.padding(angular = 5.dp),
                     )
                     curvedColumn {
                         repeat(3) {
@@ -291,11 +291,11 @@ fun CurvedLayoutDirection() {
                     curvedRow {
                         basicCurvedText(
                             "after",
-                            contentArcPadding = ArcPaddingValues(angular = 4.dp)
+                            modifier = CurvedModifier.padding(angular = 4.dp),
                         )
                         basicCurvedText(
                             "end",
-                            contentArcPadding = ArcPaddingValues(angular = 4.dp)
+                            modifier = CurvedModifier.padding(angular = 4.dp),
                         )
                     }
                 }
