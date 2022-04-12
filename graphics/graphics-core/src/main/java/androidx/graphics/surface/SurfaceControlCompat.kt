@@ -16,6 +16,8 @@
 
 package androidx.graphics.surface
 
+import android.graphics.Rect
+import android.graphics.Region
 import android.hardware.HardwareBuffer
 import android.os.Build
 import android.view.Surface
@@ -58,6 +60,18 @@ internal class JniBindings {
             surfaceTransaction: Long,
             surfaceControl: Long,
             visibility: Byte
+        )
+
+        external fun nSetZOrder(surfaceTransaction: Long, surfaceControl: Long, zOrder: Int)
+        external fun nSetDamageRegion(
+            surfaceTransaction: Long,
+            surfaceControl: Long,
+            rect: Rect?
+        )
+
+        external fun nSetDesiredPresentTime(
+            surfaceTransaction: Long,
+            desiredPresentTime: Long
         )
 
         init {
@@ -274,6 +288,71 @@ class SurfaceControlCompat internal constructor(
                 surfaceControl.mNativeSurfaceControl,
                 if (visibility) 1 else 0
             )
+            return this
+        }
+
+        /**
+         * Updates z order index for [SurfaceControlCompat]. Note that the z order for a
+         * surface is relative to other surfaces that are siblings of this surface.
+         * Behavior of siblings with the same z order is undefined.
+         *
+         * Z orders can range from Integer.MIN_VALUE to Integer.MAX_VALUE. Default z order
+         * index is 0.
+         *
+         * @param surfaceControl surface control to set the z order of.
+         *
+         * @param zOrder desired layer z order to set the surfaceControl.
+         */
+        fun setLayer(surfaceControl: SurfaceControlCompat, zOrder: Int): Transaction {
+            JniBindings.nSetZOrder(
+                mNativeSurfaceTransaction,
+                surfaceControl.mNativeSurfaceControl,
+                zOrder
+            )
+            return this
+        }
+
+        /**
+         * Updates the region for content on this surface updated in this transaction. If
+         * unspecified, the complete surface will be assumed to be damaged. The damage region is
+         * the area of the buffer that has changed since the previously sent buffer. This can be
+         * used to reduce the amount of recomposition that needs to happen when only a small
+         * region of the buffer is being updated, such as for a small blinking cursor or
+         * a loading indicator.
+         *
+         * @param surfaceControl The surface control for which we want to set the damage region of.
+         *
+         * @param region The region to set. If null, the entire buffer is assumed dirty. This
+         * is equivalent to not setting a damage region at all.
+         */
+        fun setDamageRegion(
+            surfaceControl: SurfaceControlCompat,
+            region: Region?
+        ): Transaction {
+            JniBindings.nSetDamageRegion(
+                mNativeSurfaceTransaction,
+                surfaceControl.mNativeSurfaceControl,
+                region?.bounds
+            )
+            return this
+        }
+
+        /**
+         * Specifies a desiredPresentTime for the transaction. The framework will try to present
+         * the transaction at or after the time specified.
+         *
+         * Transactions will not be presented until all acquire fences have signaled even if the
+         * app requests an earlier present time.
+         *
+         * If an earlier transaction has a desired present time of x, and a later transaction
+         * has a desired present time that is before x, the later transaction will not preempt the
+         * earlier transaction.
+         *
+         * @param desiredPresentTimeNano The present time in nanoseconds to try to present the
+         * Transaction at.
+         */
+        fun setDesiredPresentTime(desiredPresentTimeNano: Long): Transaction {
+            JniBindings.nSetDesiredPresentTime(mNativeSurfaceTransaction, desiredPresentTimeNano)
             return this
         }
 

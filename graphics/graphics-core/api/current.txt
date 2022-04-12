@@ -185,6 +185,9 @@ package androidx.graphics.surface {
     method public void finalize();
     method public androidx.graphics.surface.SurfaceControlCompat.Transaction setBuffer(androidx.graphics.surface.SurfaceControlCompat surfaceControl, android.hardware.HardwareBuffer hardwareBuffer, optional androidx.hardware.SyncFenceCompat syncFence);
     method public androidx.graphics.surface.SurfaceControlCompat.Transaction setBuffer(androidx.graphics.surface.SurfaceControlCompat surfaceControl, android.hardware.HardwareBuffer hardwareBuffer);
+    method public androidx.graphics.surface.SurfaceControlCompat.Transaction setDamageRegion(androidx.graphics.surface.SurfaceControlCompat surfaceControl, android.graphics.Region? region);
+    method public androidx.graphics.surface.SurfaceControlCompat.Transaction setDesiredPresentTime(long desiredPresentTimeNano);
+    method public androidx.graphics.surface.SurfaceControlCompat.Transaction setLayer(androidx.graphics.surface.SurfaceControlCompat surfaceControl, int zOrder);
     method public androidx.graphics.surface.SurfaceControlCompat.Transaction setVisibility(androidx.graphics.surface.SurfaceControlCompat surfaceControl, boolean visibility);
   }
 
