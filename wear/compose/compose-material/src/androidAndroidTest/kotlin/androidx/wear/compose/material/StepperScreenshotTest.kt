@@ -19,13 +19,13 @@ package androidx.wear.compose.material
 import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.runtime.Composable
 import androidx.compose.testutils.assertAgainstGolden
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
@@ -117,7 +117,12 @@ public class StepperScreenshotTest {
                     onClick = {},
                     modifier = Modifier.width(146.dp),
                     colors = ChipDefaults.secondaryChipColors(),
-                    label = { Text("Demo", modifier = Modifier.align(Alignment.Center)) }
+                    label = {
+                        Text(
+                            text = "Demo",
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
                 )
             }
         }

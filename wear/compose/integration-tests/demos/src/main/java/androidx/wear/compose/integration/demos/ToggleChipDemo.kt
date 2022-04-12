@@ -105,7 +105,7 @@ fun ToggleChips(
                     // ToggleChipDefaults.switchUncheckedIconColor() rather than the default.
                     colors = ToggleChipDefaults.toggleChipColors(
                         uncheckedToggleControlTintColor = ToggleChipDefaults
-                            .switchUncheckedIconColor()
+                            .SwitchUncheckedIconColor
                     ),
                     toggleControl = {
                         Icon(
@@ -185,7 +185,7 @@ fun ToggleChips(
                     // ToggleChipDefaults.switchUncheckedIconColor() rather than the default.
                     colors = ToggleChipDefaults.toggleChipColors(
                         uncheckedToggleControlTintColor = ToggleChipDefaults
-                            .switchUncheckedIconColor()
+                            .SwitchUncheckedIconColor
                     ),
                     toggleControl = {
                         Icon(
@@ -214,7 +214,7 @@ fun ToggleChips(
                     // ToggleChipDefaults.switchUncheckedIconColor() rather than the default.
                     colors = ToggleChipDefaults.toggleChipColors(
                         uncheckedToggleControlTintColor = ToggleChipDefaults
-                            .switchUncheckedIconColor()
+                            .SwitchUncheckedIconColor
                     ),
                     toggleControl = {
                         Icon(
@@ -278,7 +278,7 @@ fun ToggleChips(
                     // ToggleChipDefaults.switchUncheckedIconColor() rather than the default.
                     colors = ToggleChipDefaults.splitToggleChipColors(
                         uncheckedToggleControlTintColor = ToggleChipDefaults
-                            .switchUncheckedIconColor()
+                            .SwitchUncheckedIconColor
                     ),
                     toggleControl = {
                         Icon(
@@ -361,7 +361,7 @@ fun ToggleChips(
                     colors = ToggleChipDefaults.splitToggleChipColors(
                         checkedToggleControlTintColor = AlternatePrimaryColor1,
                         uncheckedToggleControlTintColor = ToggleChipDefaults
-                            .switchUncheckedIconColor()
+                            .SwitchUncheckedIconColor
                     ),
                     enabled = enabled,
                 )
@@ -380,7 +380,7 @@ fun ToggleChips(
                     // ToggleChipDefaults.switchUncheckedIconColor() rather than the default.
                     colors = ToggleChipDefaults.toggleChipColors(
                         uncheckedToggleControlTintColor = ToggleChipDefaults
-                            .switchUncheckedIconColor()
+                            .SwitchUncheckedIconColor
                     ),
                     toggleControl = {
                         Icon(
