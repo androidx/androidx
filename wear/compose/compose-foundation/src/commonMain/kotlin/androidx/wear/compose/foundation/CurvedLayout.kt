@@ -104,9 +104,10 @@ public fun CurvedLayout(
     angularDirection: CurvedDirection.Angular = CurvedDirection.Angular.Normal,
     contentBuilder: CurvedScope.() -> Unit
 ) {
-    val curvedLayoutDirection = initialCurvedLayoutDirection(angularDirection)
     // Note that all angles in the function are in radians, and the anchor parameter is in degrees
-    val curvedRowChild by remember(curvedLayoutDirection) {
+
+    val curvedLayoutDirection = initialCurvedLayoutDirection(angularDirection)
+    val curvedRowChild by remember(curvedLayoutDirection, radialAlignment, contentBuilder) {
         derivedStateOf {
             CurvedRowChild(curvedLayoutDirection, radialAlignment, contentBuilder)
         }
