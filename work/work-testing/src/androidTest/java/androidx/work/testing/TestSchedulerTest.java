@@ -199,6 +199,14 @@ public class TestSchedulerTest {
     }
 
     @Test
+    public void testWorker_withPeriodicWorkerFlex_shouldRun() {
+        PeriodicWorkRequest request = createPeriodicWorkRequestWithFlex();
+        WorkManager workManager = WorkManager.getInstance(mContext);
+        workManager.enqueue(request);
+        assertThat(CountingTestWorker.COUNT.get(), is(1));
+    }
+
+    @Test
     public void testWorker_afterSuccessfulRun_postConditions()
             throws InterruptedException, ExecutionException {
 
@@ -349,5 +357,10 @@ public class TestSchedulerTest {
         return new PeriodicWorkRequest.Builder(CountingTestWorker.class, 10L, TimeUnit.DAYS)
                 .setInitialDelay(10L, TimeUnit.DAYS)
                 .build();
+    }
+
+    private static PeriodicWorkRequest createPeriodicWorkRequestWithFlex() {
+        return new PeriodicWorkRequest.Builder(CountingTestWorker.class, 10L, TimeUnit.DAYS,
+                5L, TimeUnit.HOURS).build();
     }
 }

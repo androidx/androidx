@@ -118,7 +118,6 @@ class TestScheduler(private val context: Context) : Scheduler, ExecutionListener
             state = oldState.copy(initialDelayMet = true)
             pendingWorkStates[id] = state
         }
-        rewindLastEnqueueTime(id)
         scheduleInternal(id, state)
     }
 
@@ -141,7 +140,6 @@ class TestScheduler(private val context: Context) : Scheduler, ExecutionListener
             state = oldState.copy(periodDelayMet = true)
             pendingWorkStates[id] = state
         }
-        rewindLastEnqueueTime(id)
         scheduleInternal(id, state)
     }
 
@@ -162,26 +160,10 @@ class TestScheduler(private val context: Context) : Scheduler, ExecutionListener
     }
 
     private fun scheduleInternal(workId: String, state: InternalWorkState) {
-        if (state.isRunnable)
-            WorkManagerImpl.getInstance(context).startWork(workRunIds.workRunIdFor(workId))
-    }
-
-    private fun rewindLastEnqueueTime(id: String) {
-        // We need to pass check that mWorkSpec.calculateNextRunTime() < now
-        // so we reset "rewind" enqueue time to pass the check
-        // we don't reuse available internalWorkState.mWorkSpec, because it
-        // is not update with period_count and last_enqueue_time
-        // More proper solution would be to abstract away time instead of just using
-        // System.currentTimeMillis() in WM
-        val workManager = WorkManagerImpl.getInstance(context)
-        val workDatabase: WorkDatabase = workManager.workDatabase
-        val dao: WorkSpecDao = workDatabase.workSpecDao()
-        val workSpec: WorkSpec = dao.getWorkSpec(id)
-            ?: throw IllegalStateException("WorkSpec is already deleted from WM's db")
-        val now = System.currentTimeMillis()
-        val timeOffset = workSpec.calculateNextRunTime() - now
-        if (timeOffset > 0) {
-            dao.setLastEnqueuedTime(id, workSpec.lastEnqueueTime - timeOffset)
+        if (state.isRunnable) {
+            val wm = WorkManagerImpl.getInstance(context)
+            wm.rewindLastEnqueueTime(workId)
+            wm.startWork(workRunIds.workRunIdFor(workId))
         }
     }
 }
@@ -205,3 +187,21 @@ internal fun InternalWorkState(spec: WorkSpec): InternalWorkState =
         hasConstraints = spec.hasConstraints(),
         isPeriodic = spec.isPeriodic
     )
+
+private fun WorkManagerImpl.rewindLastEnqueueTime(id: String) {
+    // We need to pass check that mWorkSpec.calculateNextRunTime() < now
+    // so we reset "rewind" enqueue time to pass the check
+    // we don't reuse available internalWorkState.mWorkSpec, because it
+    // is not update with period_count and last_enqueue_time
+    // More proper solution would be to abstract away time instead of just using
+    // System.currentTimeMillis() in WM
+    val workDatabase: WorkDatabase = workDatabase
+    val dao: WorkSpecDao = workDatabase.workSpecDao()
+    val workSpec: WorkSpec = dao.getWorkSpec(id)
+        ?: throw IllegalStateException("WorkSpec is already deleted from WM's db")
+    val now = System.currentTimeMillis()
+    val timeOffset = workSpec.calculateNextRunTime() - now
+    if (timeOffset > 0) {
+        dao.setLastEnqueuedTime(id, workSpec.lastEnqueueTime - timeOffset)
+    }
+}
