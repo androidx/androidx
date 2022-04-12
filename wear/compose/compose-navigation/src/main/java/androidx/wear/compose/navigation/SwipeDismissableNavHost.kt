@@ -44,7 +44,9 @@ import androidx.navigation.compose.LocalOwnersProvider
 import androidx.navigation.get
 import androidx.wear.compose.material.SwipeToDismissValue
 import androidx.wear.compose.material.SwipeToDismissBox
+import androidx.wear.compose.material.SwipeToDismissBoxState
 import androidx.wear.compose.material.SwipeToDismissKeys
+import androidx.wear.compose.material.edgeSwipeToDismiss
 import androidx.wear.compose.material.rememberSwipeToDismissBoxState
 
 /**
@@ -70,6 +72,7 @@ import androidx.wear.compose.material.rememberSwipeToDismissBoxState
  * @param navController The navController for this host
  * @param startDestination The route for the start destination
  * @param modifier The modifier to be applied to the layout
+ * @param state State containing information about ongoing swipe and animation.
  * @param route The route for the graph
  * @param builder The builder used to construct the graph
  */
@@ -78,6 +81,7 @@ public fun SwipeDismissableNavHost(
     navController: NavHostController,
     startDestination: String,
     modifier: Modifier = Modifier,
+    state: SwipeDismissableNavHostState = rememberSwipeDismissableNavHostState(),
     route: String? = null,
     builder: NavGraphBuilder.() -> Unit
 ) =
@@ -86,7 +90,8 @@ public fun SwipeDismissableNavHost(
         remember(route, startDestination, builder) {
             navController.createGraph(startDestination, route, builder)
         },
-        modifier
+        modifier,
+        state = state,
     )
 
 /**
@@ -111,7 +116,8 @@ public fun SwipeDismissableNavHost(
  *
  * @param navController [NavHostController] for this host
  * @param graph Graph for this host
- * @param modifier [Modifier] to be applied to the layout.
+ * @param modifier [Modifier] to be applied to the layout
+ * @param state State containing information about ongoing swipe and animation.
  *
  * @throws IllegalArgumentException if no WearNavigation.Destination is on the navigation backstack.
  */
@@ -119,7 +125,8 @@ public fun SwipeDismissableNavHost(
 public fun SwipeDismissableNavHost(
     navController: NavHostController,
     graph: NavGraph,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    state: SwipeDismissableNavHostState = rememberSwipeDismissableNavHostState(),
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
@@ -168,20 +175,20 @@ public fun SwipeDismissableNavHost(
         "The WearNavigator backstack is empty, there is no navigation destination to display."
     )
 
-    val state = rememberSwipeToDismissBoxState()
-    LaunchedEffect(state.currentValue) {
+    val swipeState = state.swipeToDismissBoxState
+    LaunchedEffect(swipeState.currentValue) {
         // This effect operates when the swipe gesture is complete:
         // 1) Resets the screen offset (otherwise, the next destination is draw off-screen)
         // 2) Pops the navigation back stack to return to the previous level
-        if (state.currentValue == SwipeToDismissValue.Dismissed) {
-            state.snapTo(SwipeToDismissValue.Default)
+        if (swipeState.currentValue == SwipeToDismissValue.Dismissed) {
+            swipeState.snapTo(SwipeToDismissValue.Default)
             navController.popBackStack()
         }
     }
-    LaunchedEffect(state.isAnimationRunning) {
+    LaunchedEffect(swipeState.isAnimationRunning) {
         // This effect marks the transitions completed when swipe animations finish,
         // so that the navigation backstack entries can go to Lifecycle.State.RESUMED.
-        if (state.isAnimationRunning == false) {
+        if (swipeState.isAnimationRunning == false) {
             transitionsInProgress.forEach { entry ->
                 wearNavigator.onTransitionComplete(entry)
             }
@@ -189,7 +196,7 @@ public fun SwipeDismissableNavHost(
     }
 
     SwipeToDismissBox(
-        state = state,
+        state = swipeState,
         modifier = Modifier,
         hasBackground = previous != null,
         backgroundKey = previous?.id ?: SwipeToDismissKeys.Background,
@@ -213,6 +220,33 @@ public fun SwipeDismissableNavHost(
                 wearNavigator.onTransitionComplete(entry)
             }
         }
+    }
+}
+
+/**
+ * State for [SwipeDismissableNavHost]
+ *
+ * @param swipeToDismissBoxState State for [SwipeToDismissBox], which is used to support the
+ * swipe-to-dismiss gesture in [SwipeDismissableNavHost] and can also be used to support
+ * edge-swiping, using [edgeSwipeToDismiss].
+ */
+public class SwipeDismissableNavHostState(
+    internal val swipeToDismissBoxState: SwipeToDismissBoxState
+)
+
+/**
+ * Create a [SwipeToDismissBoxState] and remember it.
+ *
+ * @param swipeToDismissBoxState State for [SwipeToDismissBox], which is used to support the
+ * swipe-to-dismiss gesture in [SwipeDismissableNavHost] and can also be used to support
+ * edge-swiping, using [edgeSwipeToDismiss].
+ */
+@Composable
+public fun rememberSwipeDismissableNavHostState(
+    swipeToDismissBoxState: SwipeToDismissBoxState = rememberSwipeToDismissBoxState(),
+): SwipeDismissableNavHostState {
+    return remember(swipeToDismissBoxState) {
+        SwipeDismissableNavHostState(swipeToDismissBoxState)
     }
 }
 
