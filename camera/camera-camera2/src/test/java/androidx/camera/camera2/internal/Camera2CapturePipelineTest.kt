@@ -166,7 +166,7 @@ class Camera2CapturePipelineTest {
         // Act.
         pipeline.executeCapture(
             listOf(singleRequest),
-            ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH,
+            FLASH_MODE_OFF,
         )
 
         // Assert.
