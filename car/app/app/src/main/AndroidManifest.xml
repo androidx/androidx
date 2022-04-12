@@ -23,7 +23,10 @@
             android:name=".CarAppPermissionActivity"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:exported="false"/>
-        <receiver android:name=".notification.CarAppNotificationBroadcastReceiver" />
+        <receiver
+            android:name=".notification.CarAppNotificationBroadcastReceiver"
+            android:process=""
+            android:exported="false"/>
     </application>
     <queries>
         <provider
