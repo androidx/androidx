@@ -616,14 +616,17 @@ class ActivityResultContracts private constructor() {
      */
     open class PickVisualMedia : ActivityResultContract<PickVisualMediaRequest, Uri?>() {
         companion object {
+            /**
+             * Check if the current device has support for the photo picker by checking the running
+             * Android version or the SDK extension version
+             */
             @JvmStatic
             fun isPhotoPickerAvailable(): Boolean {
                 return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ||
                     getExtensionVersion(Build.VERSION_CODES.R) >= 2
             }
 
-            @JvmStatic
-            fun getVisualMimeType(input: VisualMediaType): String? {
+            internal fun getVisualMimeType(input: VisualMediaType): String? {
                 return when (input) {
                     is ImageOnly -> "image/*"
                     is VideoOnly -> "video/*"
@@ -633,10 +636,30 @@ class ActivityResultContracts private constructor() {
             }
         }
 
+        /**
+         * Represents filter input type accepted by the photo picker.
+         */
         sealed interface VisualMediaType
+
+        /**
+         * [VisualMediaType] object used to filter images only when using the photo picker.
+         */
         object ImageOnly : VisualMediaType
+
+        /**
+         * [VisualMediaType] object used to filter video only when using the photo picker.
+         */
         object VideoOnly : VisualMediaType
+
+        /**
+         * [VisualMediaType] object used to filter images and video when using the photo picker.
+         */
         object ImageAndVideo : VisualMediaType
+
+        /**
+         * [VisualMediaType] class used to filter a single mime type only when using the photo
+         * picker.
+         */
         class SingleMimeType(val mimeType: String) : VisualMediaType
 
         @CallSuper
@@ -745,6 +768,13 @@ class ActivityResultContracts private constructor() {
         }
 
         internal companion object {
+            /**
+             * The photo picker has a maximum limit of selectable items returned by
+             * [MediaStore.getPickImagesMaxLimit()]. On devices not supporting the photo picker, the
+             * limit is ignored.
+             *
+             * @see MediaStore.EXTRA_PICK_IMAGES_MAX
+             */
             internal fun getMaxItems() = if (PickVisualMedia.isPhotoPickerAvailable()) {
                 MediaStore.getPickImagesMaxLimit()
             } else {

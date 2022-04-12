@@ -266,14 +266,12 @@ package androidx.activity.result.contract {
     ctor public ActivityResultContracts.PickVisualMedia();
     method @CallSuper public android.content.Intent createIntent(android.content.Context context, androidx.activity.result.PickVisualMediaRequest input);
     method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<android.net.Uri>? getSynchronousResult(android.content.Context context, androidx.activity.result.PickVisualMediaRequest input);
-    method public static final String? getVisualMimeType(androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType input);
     method public static final boolean isPhotoPickerAvailable();
     method public final android.net.Uri? parseResult(int resultCode, android.content.Intent? intent);
     field public static final androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.Companion Companion;
   }
 
   public static final class ActivityResultContracts.PickVisualMedia.Companion {
-    method public String? getVisualMimeType(androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType input);
     method public boolean isPhotoPickerAvailable();
   }
 
