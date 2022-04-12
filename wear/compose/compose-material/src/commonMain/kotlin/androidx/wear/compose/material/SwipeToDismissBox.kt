@@ -35,8 +35,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -281,9 +279,6 @@ public fun SwipeToDismissBox(
 /**
  * State for [SwipeToDismissBox].
  *
- * TODO(b/194492134): extend API to include shortcuts for status and actions like dismissing
- * the screen.
- *
  * @param animationSpec The default animation that will be used to animate to a new state.
  * @param confirmStateChange Optional callback invoked to confirm or veto a pending state change.
  */
@@ -298,7 +293,7 @@ public class SwipeToDismissBoxState(
      * Before and during a swipe, corresponds to [SwipeToDismissValue.Default], then switches to
      * [SwipeToDismissValue.Dismissed] if the swipe has been completed.
      */
-    val currentValue: SwipeToDismissValue
+    public val currentValue: SwipeToDismissValue
         get() = swipeableState.currentValue
 
     /**
@@ -308,13 +303,13 @@ public class SwipeToDismissBoxState(
      * swipe finished. If an animation is running, this is the target value of that animation.
      * Finally, if no swipe or animation is in progress, this is the same as the [currentValue].
      */
-    val targetValue: SwipeToDismissValue
+    public val targetValue: SwipeToDismissValue
         get() = swipeableState.targetValue
 
     /**
      * Whether the state is currently animating.
      */
-    val isAnimationRunning: Boolean
+    public val isAnimationRunning: Boolean
         get() = swipeableState.isAnimationRunning
 
     internal fun edgeNestedScrollConnection(
@@ -322,25 +317,14 @@ public class SwipeToDismissBoxState(
     ): NestedScrollConnection =
         swipeableState.edgeNestedScrollConnection(edgeTouched)
 
-    suspend fun snapTo(targetValue: SwipeToDismissValue) = swipeableState.snapTo(targetValue)
+    /**
+     * Set the state without any animation and suspend until it's set
+     *
+     * @param targetValue The new target value to set [currentValue] to.
+     */
+    public suspend fun snapTo(targetValue: SwipeToDismissValue) = swipeableState.snapTo(targetValue)
 
     companion object {
-        /**
-         * The default [Saver] implementation for [SwipeToDismissBox].
-         */
-        fun Saver(
-            animationSpec: AnimationSpec<Float>,
-            confirmStateChange: (SwipeToDismissValue) -> Boolean
-        ): Saver<SwipeToDismissBoxState, *> = Saver(
-            save = { it.currentValue },
-            restore = {
-                SwipeToDismissBoxState(
-                    animationSpec = animationSpec,
-                    confirmStateChange = confirmStateChange
-                )
-            }
-        )
-
         private fun <T> SwipeableState<T>.edgeNestedScrollConnection(
             edgeTouched: State<Boolean>
         ): NestedScrollConnection =
@@ -422,16 +406,8 @@ public fun rememberSwipeToDismissBoxState(
     animationSpec: AnimationSpec<Float> = SwipeToDismissBoxDefaults.AnimationSpec,
     confirmStateChange: (SwipeToDismissValue) -> Boolean = { true },
 ): SwipeToDismissBoxState {
-    return rememberSaveable(
-        saver = SwipeToDismissBoxState.Saver(
-            animationSpec = animationSpec,
-            confirmStateChange = confirmStateChange,
-        )
-    ) {
-        SwipeToDismissBoxState(
-            animationSpec = animationSpec,
-            confirmStateChange = confirmStateChange,
-        )
+    return remember(animationSpec, confirmStateChange) {
+        SwipeToDismissBoxState(animationSpec, confirmStateChange)
     }
 }
 
@@ -452,6 +428,9 @@ public object SwipeToDismissBoxDefaults {
     public val EdgeWidth = 30.dp
 }
 
+/**
+ * Keys used to persistent state in [SwipeToDismissBox].
+ */
 public enum class SwipeToDismissKeys {
     /**
      * The default background key to identify the content displayed by the content block
