@@ -321,6 +321,7 @@ includeProject(":biometric:biometric", [BuildType.MAIN])
 includeProject(":biometric:biometric-ktx", [BuildType.MAIN])
 includeProject(":biometric:biometric-ktx-samples", "biometric/biometric-ktx/samples", [BuildType.MAIN])
 includeProject(":biometric:integration-tests:testapp", [BuildType.MAIN])
+includeProject(":bluetooth:bluetooth", [BuildType.MAIN])
 includeProject(":browser:browser", [BuildType.MAIN])
 includeProject(":buildSrc-tests", [BuildType.MAIN])
 // these projects intentionally fail to compile unless androidx.useMaxDepVersions is enabled
