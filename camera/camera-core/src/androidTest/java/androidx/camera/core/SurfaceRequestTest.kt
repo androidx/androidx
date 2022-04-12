@@ -26,6 +26,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.util.Consumer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -274,6 +275,7 @@ class SurfaceRequestTest {
     }
 
     // deferrableSurface assigned to null to make GC eligible
+    @FlakyTest(bugId = 228838770)
     @LargeTest
     @Test
     @Throws(TimeoutException::class, InterruptedException::class)
