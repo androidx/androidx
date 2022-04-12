@@ -28,8 +28,6 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.asExecutor
 
 /**
  * This activity shows the basic usage of JankStats, from creating and enabling it to track
@@ -49,8 +47,7 @@ class JankLoggingActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         val metricsStateHolder = PerformanceMetricsState.getForHierarchy(binding.root)
-        jankStats = JankStats.createAndTrack(window, Dispatchers.Default.asExecutor(),
-            jankFrameListener)
+        jankStats = JankStats.createAndTrack(window, jankFrameListener)
         metricsStateHolder.state?.addState("Activity", javaClass.simpleName)
 
         setSupportActionBar(binding.toolbar)
@@ -61,8 +58,8 @@ class JankLoggingActivity : AppCompatActivity() {
     }
 
     object jankFrameListener : JankStats.OnFrameListener {
-        override fun onFrame(frameData: FrameData) {
-            println("JankStats.OnFrameListener: $frameData")
+        override fun onFrame(volatileFrameData: FrameData) {
+            println("JankStats.OnFrameListener: $volatileFrameData")
         }
     }
 

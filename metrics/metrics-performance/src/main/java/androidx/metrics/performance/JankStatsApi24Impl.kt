@@ -49,6 +49,9 @@ internal open class JankStatsApi24Impl(
     // overlapped due to jank
     var prevEnd: Long = 0
 
+    // Reuse the same frameData on every frame to avoid allocating per-frame objects
+    private val frameData = FrameDataApi24(0, 0, 0, false, stateInfo)
+
     private val frameMetricsAvailableListenerDelegate: Window.OnFrameMetricsAvailableListener =
         Window.OnFrameMetricsAvailableListener { _, frameMetrics, _ ->
             val startTime = max(getFrameStartTime(frameMetrics), prevEnd)
@@ -74,14 +77,13 @@ internal open class JankStatsApi24Impl(
             frameMetrics.getMetric(FrameMetrics.DRAW_DURATION) +
             frameMetrics.getMetric(FrameMetrics.SYNC_DURATION)
         prevEnd = startTime + uiDuration
-        val frameStates =
-            metricsStateHolder.state?.getIntervalStates(startTime, prevEnd)
-                ?: emptyList()
+        metricsStateHolder.state?.getIntervalStates(startTime, prevEnd, stateInfo)
         val isJank = uiDuration > expectedDuration
         val cpuDuration = uiDuration +
             frameMetrics.getMetric(FrameMetrics.COMMAND_ISSUE_DURATION) +
             frameMetrics.getMetric(FrameMetrics.SWAP_BUFFERS_DURATION)
-        return FrameDataApi24(startTime, uiDuration, cpuDuration, isJank, frameStates)
+        frameData.update(startTime, uiDuration, cpuDuration, isJank)
+        return frameData
     }
 
     internal open fun getFrameStartTime(frameMetrics: FrameMetrics): Long {

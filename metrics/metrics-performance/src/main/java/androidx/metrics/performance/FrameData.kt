@@ -33,11 +33,45 @@ package androidx.metrics.performance
  * @see PerformanceMetricsState.addState
  */
 open class FrameData(
-    val frameStartNanos: Long,
-    val frameDurationUiNanos: Long,
-    val isJank: Boolean,
+    frameStartNanos: Long,
+    frameDurationUiNanos: Long,
+    isJank: Boolean,
     val states: List<StateInfo>
 ) {
+    /**
+     * These backing fields are used to enable mutation of an existing FrameData object, to
+     * avoid allocating a new object on every frame for sending out to listeners.
+     */
+    var frameStartNanos = frameStartNanos
+        private set
+    var frameDurationUiNanos = frameDurationUiNanos
+        private set
+    var isJank = isJank
+        private set
+
+    /**
+     * Utility method which makes a copy of the items in this object (including copying the items
+     * in `states` into a new List). This is used internally to create a copy to pass along to
+     * listeners to avoid having a reference to the internally-mutable FrameData object.
+     */
+    open fun copy(): FrameData {
+        return FrameData(frameStartNanos, frameDurationUiNanos, isJank, ArrayList(states))
+    }
+
+    /**
+     * Utility method for updating the internal values in this object. Externally, this object is
+     * immutable. Internally, we need the ability to update the values so that we can reuse
+     * it for a non-allocating listener model, to avoid having to re-allocate a new FrameData
+     * (and its states List). Note that the states object is not being updated here; internal
+     * can already use a Mutable list to update the contents of that list; they do not need to
+     * update this object with a new List, since any usage of FrameData to avoid allocations
+     * should not be creating a new state List anyway.
+     */
+    internal fun update(frameStartNanos: Long, frameDurationUiNanos: Long, isJank: Boolean) {
+        this.frameStartNanos = frameStartNanos
+        this.frameDurationUiNanos = frameDurationUiNanos
+        this.isJank = isJank
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -98,5 +132,34 @@ class StateInfo(val stateName: String, val state: String) {
 
     override fun toString(): String {
         return "$stateName: $state"
+    }
+
+    /**
+     * This internal componion is used to manage a pool of reusable StateInfo objects.
+     * Rather than creating a new StateInfo object very time, the library requests an object
+     * for the given stateName/state pair. In general, requests will be common using the same
+     * pairs, thus reuse will be high and an object from the pool will be returned. When reuse
+     * is not necessary, a new StateInfo object will be created, added to the pool, and returned.
+     */
+    internal companion object {
+        val pool = mutableMapOf<String, MutableMap<String, StateInfo>>()
+
+        fun getStateInfo(stateName: String, state: String): StateInfo {
+            synchronized(pool) {
+                var poolItem = pool.get(stateName)
+                var stateInfo = poolItem?.get(state)
+                if (stateInfo != null) return stateInfo
+                else {
+                    stateInfo = StateInfo(stateName, state)
+                    if (poolItem != null) {
+                        poolItem.put(state, stateInfo)
+                    } else {
+                        poolItem = mutableMapOf(state to stateInfo)
+                        pool.put(stateName, poolItem)
+                    }
+                    return stateInfo
+                }
+            }
+        }
     }
 }

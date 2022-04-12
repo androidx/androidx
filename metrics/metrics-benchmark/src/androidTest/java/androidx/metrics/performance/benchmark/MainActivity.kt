@@ -14,29 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.metrics.performance.janktest
+package androidx.metrics.performance.benchmark
 
 import android.os.Bundle
-import android.util.Log
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.metrics.performance.JankStats
-import androidx.metrics.performance.PerformanceMetricsState
-import java.util.Date
 
-class SimpleLoggingActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.simple_layout)
-
-        JankStats.createAndTrack(window) { volatileFrameData ->
-            Log.d("MainActivity", volatileFrameData.toString())
-        }
-
-        findViewById<View>(R.id.button).setOnClickListener {
-            val stateHolder = PerformanceMetricsState.getForHierarchy(it).state!!
-            stateHolder.addSingleFrameState("stateKey1", "stateValue")
-            stateHolder.addState("stateKey2", "${Date()}")
-        }
+        setContentView(R.layout.activity_main)
     }
 }
