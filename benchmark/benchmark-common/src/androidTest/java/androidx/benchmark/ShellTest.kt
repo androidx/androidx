@@ -28,6 +28,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.File
+import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
@@ -341,6 +342,19 @@ class ShellTest {
     fun getRunningSubPackages() {
         assertEquals(emptyList(), Shell.getRunningProcessesForPackage("not.a.real.packagename"))
         assertEquals(listOf(Packages.TEST), Shell.getRunningProcessesForPackage(Packages.TEST))
+    }
+
+    @SdkSuppress(minSdkVersion = 21)
+    @Test
+    fun checkRootStatus() {
+        if (Shell.isSessionRooted()) {
+            assertContains(Shell.executeCommand("id"), "uid=0(root)")
+        } else {
+            assertFalse(
+                Shell.executeCommand("id").contains("uid=0(root)"),
+                "Shell.isSessionRooted() is false so user should not be root"
+            )
+        }
     }
 
     @RequiresApi(21)
