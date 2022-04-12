@@ -33,7 +33,7 @@ import org.robolectric.util.ReflectionHelpers;
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-public class ResolutionSelectorQuirkTest {
+public class ResolutionCorrectorQuirkTest {
 
 
     @Test
