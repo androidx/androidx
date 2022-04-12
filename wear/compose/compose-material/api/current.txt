@@ -510,7 +510,6 @@ package androidx.wear.compose.material {
   }
 
   public static final class SwipeToDismissBoxState.Companion {
-    method public androidx.compose.runtime.saveable.Saver<androidx.wear.compose.material.SwipeToDismissBoxState,?> Saver(androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.jvm.functions.Function1<? super androidx.wear.compose.material.SwipeToDismissValue,java.lang.Boolean> confirmStateChange);
   }
 
   public enum SwipeToDismissKeys {
