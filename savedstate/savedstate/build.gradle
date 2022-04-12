@@ -29,9 +29,9 @@ dependencies {
 }
 
 androidx {
-    name = "Activity"
+    name = "Saved State"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenGroup = LibraryGroups.SAVEDSTATE
     inceptionYear = "2018"
-    description = "Provides the base Activity subclass and the relevant hooks to build a composable structure on top."
+    description = "Android Lifecycle Saved State"
 }
