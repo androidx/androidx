@@ -21,6 +21,7 @@ import static androidx.webkit.WebViewFeature.isFeatureSupported;
 import android.webkit.WebSettings;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 
 import org.junit.After;
@@ -244,6 +245,7 @@ public class ServiceWorkerWebSettingsCompatTest {
         return server;
     }
 
+    @FlakyTest(bugId = 228071896)
     @Test
     public void testDisableXRequestedWithHeader() throws Throwable {
         WebkitUtils.checkFeature(WebViewFeature.REQUESTED_WITH_HEADER_CONTROL);
@@ -271,6 +273,7 @@ public class ServiceWorkerWebSettingsCompatTest {
         }
     }
 
+    @FlakyTest(bugId = 228071896)
     @Test
     public void testSetAppPackageNameXRequestedWithHeader() throws Throwable {
         WebkitUtils.checkFeature(WebViewFeature.REQUESTED_WITH_HEADER_CONTROL);
