@@ -15,7 +15,6 @@
  */
 package androidx.health.data.client.request
 
-import androidx.annotation.RestrictTo
 import androidx.health.data.client.metadata.DataOrigin
 import androidx.health.data.client.records.Record
 import kotlin.reflect.KClass
@@ -23,11 +22,11 @@ import kotlin.reflect.KClass
 /**
  * Request object to fetch Changes-Token for given [recordTypes] in Android Health Platform.
  *
- * @property recordTypes Set of [Record] types the token will observe change for
- * @property dataOriginFilters Optional set of [DataOrigin] filters.
+ * @param recordTypes Set of [Record] types the token will observe change for.
+ * @param dataOriginFilters Optional set of [DataOrigin] filters, default is empty set for no
+ * filter.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 class ChangesTokenRequest(
-    val recordTypes: Set<KClass<out Record>>,
-    val dataOriginFilters: Set<DataOrigin> = setOf()
+    internal val recordTypes: Set<KClass<out Record>>,
+    internal val dataOriginFilters: Set<DataOrigin> = setOf()
 )
