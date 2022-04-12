@@ -78,6 +78,7 @@ public class PassiveMonitoringUpdate(
          * Creates a [PassiveMonitoringUpdate] from an [Intent]. Returns null if no
          * [PassiveMonitoringUpdate] is stored in the given intent.
          */
+        @Suppress("DEPRECATION")
         @JvmStatic
         public fun fromIntent(intent: Intent): PassiveMonitoringUpdate? =
             intent.getParcelableExtra(EXTRA_KEY)
