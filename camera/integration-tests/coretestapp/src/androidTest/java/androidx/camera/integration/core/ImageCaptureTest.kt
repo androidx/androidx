@@ -1481,12 +1481,11 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
         val preview = Preview.Builder().build()
 
-        var camera: Camera
         withContext(Dispatchers.Main) {
             preview.setSurfaceProvider(SurfaceTextureProvider.createSurfaceTextureProvider())
             val cameraSelector =
                 getCameraSelectorWithSessionProcessor(BACK_SELECTOR, sessionProcessor)
-            camera = cameraProvider.bindToLifecycle(
+            cameraProvider.bindToLifecycle(
                 fakeLifecycleOwner, cameraSelector, imageCapture, preview)
         }
 
@@ -1499,9 +1498,8 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         val imageProperties = callback.results.first()
 
         // Check the output image rotation degrees value is correct.
-        assertThat(imageProperties.rotationDegrees).isEqualTo(
-            camera.cameraInfo.getSensorRotationDegrees(imageCapture.targetRotation)
-        )
+        assertThat(imageProperties.rotationDegrees).isEqualTo(imageProperties.exif!!.rotation)
+
         // Check the output format is correct.
         assertThat(imageProperties.format).isEqualTo(ImageFormat.JPEG)
     }
