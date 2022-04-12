@@ -185,6 +185,9 @@ final class Camera2CameraImpl implements CameraInternal {
     private SessionProcessor mSessionProcessor;
     boolean mIsActiveResumingMode = false;
 
+    @NonNull
+    private final DisplayInfoManager mDisplayInfoManager;
+
     /**
      * Constructor for a camera.
      *
@@ -202,7 +205,8 @@ final class Camera2CameraImpl implements CameraInternal {
             @NonNull Camera2CameraInfoImpl cameraInfoImpl,
             @NonNull CameraStateRegistry cameraStateRegistry,
             @NonNull Executor executor,
-            @NonNull Handler schedulerHandler) throws CameraUnavailableException {
+            @NonNull Handler schedulerHandler,
+            @NonNull DisplayInfoManager displayInfoManager) throws CameraUnavailableException {
         mCameraManager = cameraManager;
         mCameraStateRegistry = cameraStateRegistry;
         mScheduledExecutorService = CameraXExecutors.newHandlerExecutor(schedulerHandler);
@@ -212,6 +216,7 @@ final class Camera2CameraImpl implements CameraInternal {
         mObservableState.postValue(State.CLOSED);
         mCameraStateMachine = new CameraStateMachine(cameraStateRegistry);
         mCaptureSessionRepository = new CaptureSessionRepository(mExecutor);
+        mDisplayInfoManager = displayInfoManager;
         mCaptureSession = newCaptureSession();
 
         try {
@@ -893,7 +898,8 @@ final class Camera2CameraImpl implements CameraInternal {
                 // Create the MeteringRepeating UseCase
                 if (mMeteringRepeatingSession == null) {
                     mMeteringRepeatingSession = new MeteringRepeatingSession(
-                            mCameraInfoInternal.getCameraCharacteristicsCompat());
+                            mCameraInfoInternal.getCameraCharacteristicsCompat(),
+                            mDisplayInfoManager);
                 }
                 addMeteringRepeating();
             } else {

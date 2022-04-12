@@ -352,7 +352,8 @@ internal class Camera2CameraImplStateTest {
             camera2CameraInfo,
             cameraStateRegistry,
             CameraXExecutors.directExecutor(),
-            cameraHandler
+            cameraHandler,
+            DisplayInfoManager.getInstance(ApplicationProvider.getApplicationContext())
         )
     }
 

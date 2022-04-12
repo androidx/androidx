@@ -44,6 +44,7 @@ import androidx.camera.core.impl.utils.futures.Futures;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * A SessionConfig to act a Metering repeating use case.
@@ -65,13 +66,15 @@ class MeteringRepeatingSession {
             new SupportedRepeatingSurfaceSize();
 
     /** Creates a new instance of a {@link MeteringRepeatingSession}. */
-    MeteringRepeatingSession(@NonNull CameraCharacteristicsCompat cameraCharacteristicsCompat) {
+    MeteringRepeatingSession(@NonNull CameraCharacteristicsCompat cameraCharacteristicsCompat,
+            @NonNull DisplayInfoManager displayInfoManager) {
         MeteringRepeatingConfig configWithDefaults = new MeteringRepeatingConfig();
 
         // Create the metering DeferrableSurface
         SurfaceTexture surfaceTexture = new SurfaceTexture(0);
-        Size meteringSurfaceSize = getMinimumPreviewSize(cameraCharacteristicsCompat);
-        Logger.d(TAG, "MerteringSession SurfaceTexture size: " + meteringSurfaceSize);
+        Size meteringSurfaceSize = getProperPreviewSize(
+                cameraCharacteristicsCompat, displayInfoManager);
+        Logger.d(TAG, "MeteringSession SurfaceTexture size: " + meteringSurfaceSize);
         surfaceTexture.setDefaultBufferSize(meteringSurfaceSize.getWidth(),
                 meteringSurfaceSize.getHeight());
         Surface surface = new Surface(surfaceTexture);
@@ -145,8 +148,8 @@ class MeteringRepeatingSession {
     }
 
     @NonNull
-    private Size getMinimumPreviewSize(@NonNull CameraCharacteristicsCompat
-            cameraCharacteristicsCompat) {
+    private Size getProperPreviewSize(@NonNull CameraCharacteristicsCompat
+            cameraCharacteristicsCompat, @NonNull DisplayInfoManager displayInfoManager) {
         Size[] outputSizes;
         StreamConfigurationMap map = cameraCharacteristicsCompat.get(
                 CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
@@ -169,13 +172,36 @@ class MeteringRepeatingSession {
 
         outputSizes = mSupportedRepeatingSurfaceSize.getSupportedSizes(outputSizes);
 
-        return Collections.min(
-                Arrays.asList(outputSizes), (o1, o2) -> {
+        List<Size> outSizesList = Arrays.asList(outputSizes);
+        Collections.sort(outSizesList, (o1, o2) -> {
                     int result = Long.signum((long) o1.getWidth() * o1.getHeight()
                             - (long) o2.getWidth() * o2.getHeight());
-
                     return result;
                 });
+
+        // First, find minimum supported resolution that is >=  min(VGA, display resolution)
+        // Using minimum supported size could cause some issue on certain devices.
+        Size previewMaxSize = displayInfoManager.getPreviewSize();
+        long maxSizeProduct =
+                Math.min((long) previewMaxSize.getWidth() * (long) previewMaxSize.getHeight(),
+                        640L * 480L);
+        Size previousSize = null;
+        for (Size outputSize : outputSizes) {
+            long product = (long) outputSize.getWidth() * (long) outputSize.getHeight();
+            if (product == maxSizeProduct) {
+                return outputSize;
+            } else if (product > maxSizeProduct) {
+                if (previousSize != null) {
+                    return previousSize;
+                } else {
+                    break; // fallback to minimum size.
+                }
+            }
+            previousSize = outputSize;
+        }
+
+        // If not found, return the minimum size.
+        return outSizesList.get(0);
     }
 
 }
