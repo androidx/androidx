@@ -59,7 +59,6 @@
          <trusted-key id="190d5a957ff22273e601f7a7c92c5fec70161c62" group="org.codehaus.mojo"/>
          <trusted-key id="19beab2d799c020f17c69126b16698a4adf4d638">
             <trusting group="org.checkerframework"/>
-            <trusting group="org.checkerframework" name="checker-qual"/>
          </trusted-key>
          <trusted-key id="1b2718089ce964b8" group="com.thoughtworks.qdox"/>
          <trusted-key id="1bc86444bbd2a24c3a40904a438e9634a2319637" group="co.nstant.in" name="cbor"/>
@@ -106,6 +105,7 @@
             <trusting group="org.apache.maven"/>
             <trusting group="org.apache.maven.wagon"/>
          </trusted-key>
+         <trusted-key id="314fe82e5a4c5377bca2edec5208812e1e4a6db0" group="com.gradle"/>
          <trusted-key id="31bae2e51d95e0f8ad9b7bcc40a3c4432bd7308c" group="com.googlecode.juniversalchardet"/>
          <trusted-key id="31fae244a81d64507b47182e1b2718089ce964b8" group="com.thoughtworks.qdox" name="qdox"/>
          <trusted-key id="3288b8be8512d6c0ca185268c51e6cbc7ff46f0b">
@@ -117,6 +117,7 @@
          <trusted-key id="34441e504a937f43eb0daef96a65176a0fb1cd0b" group="org.codehaus.groovy"/>
          <trusted-key id="353a436e043e3145" group="com.google.code.findbugs"/>
          <trusted-key id="3872ed7d5904493d23d78fa2c4c8cb73b1435348" group="com.android.tools.build"/>
+         <trusted-key id="3ad93c3c677a106e" group="io.perfmark"/>
          <trusted-key id="3c0a8f4744f37328" group="com.github.ben-manes.caffeine"/>
          <trusted-key id="3c27d97b0c83a85c" group="com.google.errorprone"/>
          <trusted-key id="3d11126ea77e4e07fbabb38614a84c976d265b25" group="com.google.protobuf"/>
@@ -134,6 +135,7 @@
          <trusted-key id="438e9634a2319637" group="co.nstant.in"/>
          <trusted-key id="44ce7bf2825ea2cd" group="com.ibm.icu"/>
          <trusted-key id="461a804f2609fd89" group="com.github.shyiko.klob"/>
+         <trusted-key id="47504b76cf89c15c0512d9afe16ab52d79fd224f" group="com.google.api.grpc"/>
          <trusted-key id="47586a1b75ef0de5" group="com.squareup.wire"/>
          <trusted-key id="475f3b8e59e6e63aa78067482c7b12f2a511e325" group="org.slf4j"/>
          <trusted-key id="476634a4694e716a" group="com.googlecode.java-diff-utils"/>
@@ -330,6 +332,7 @@
          <trusted-key id="c2148900bcd3c2af" group="org.jetbrains.trove4j"/>
          <trusted-key id="c29b11246382a4d7" group="com.charleskorn.kaml"/>
          <trusted-key id="c51e6cbc7ff46f0b" group="com.google.auto.service"/>
+         <trusted-key id="c6f7d1c804c821f49af3bfc13ad93c3c677a106e" group="io.perfmark" name="perfmark-api"/>
          <trusted-key id="c70b844f002f21f6d2b9c87522e44ac0622b91c3" group="com.beust" name="jcommander"/>
          <trusted-key id="c7be5bcc9fec15518cfda882b0f3710fa64900e7">
             <trusting group="com.google.auto.value"/>
@@ -354,6 +357,7 @@
          </trusted-key>
          <trusted-key id="cf9f3090ce4cb752" group="org.abego.treelayout"/>
          <trusted-key id="cfae163b64ac9189" group="org.jetbrains.skiko"/>
+         <trusted-key id="d041cad2e452550f" group="com.google.protobuf"/>
          <trusted-key id="d196a5e3e70732eeb2e5007f1861c322c56014b2" group="commons-lang"/>
          <trusted-key id="d4c89ea4aaf455fd88b22087efe8086f9e93774e" group="junit"/>
          <trusted-key id="d4da5eab3cd7e958" group="com.google.devtools.ksp"/>
@@ -369,6 +373,7 @@
          <trusted-key id="dddafa7674e54418" group="org.testng"/>
          <trusted-key id="e0130a3ed5a2079e" group="org.webjars"/>
          <trusted-key id="e0cb7823cfd00fbf" group="com.jakewharton.android.repackaged"/>
+         <trusted-key id="e16ab52d79fd224f" group="com.google.api.grpc"/>
          <trusted-key id="e62231331bca7e1f292c9b88c1b12a5d99c0729d" group="org.jetbrains"/>
          <trusted-key id="e77417ac194160a3fabd04969a259c7ee636c5ed">
             <trusting group="com.google.errorprone"/>
