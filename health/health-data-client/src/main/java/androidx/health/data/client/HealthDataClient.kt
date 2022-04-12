@@ -22,12 +22,14 @@ import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.annotation.RestrictTo
 import androidx.health.data.client.aggregate.AggregateDataRow
 import androidx.health.data.client.aggregate.AggregateDataRowGroupByDuration
+import androidx.health.data.client.aggregate.AggregateDataRowGroupByPeriod
 import androidx.health.data.client.aggregate.AggregateMetric
 import androidx.health.data.client.impl.HealthDataClientImpl
 import androidx.health.data.client.metadata.DataOrigin
 import androidx.health.data.client.permission.Permission
 import androidx.health.data.client.records.Record
 import androidx.health.data.client.request.AggregateGroupByDurationRequest
+import androidx.health.data.client.request.AggregateGroupByPeriodRequest
 import androidx.health.data.client.request.AggregateRequest
 import androidx.health.data.client.request.ChangesTokenRequest
 import androidx.health.data.client.request.ReadRecordsRequest
@@ -166,7 +168,7 @@ interface HealthDataClient {
      * entire query's time interval, it returns a list of [AggregateDataRowGroupByDuration], with
      * each row keyed by start and end time. For example: steps for today bucketed by hours.
      *
-     * A [AggregateDataRowGroupByDuration] is returned only if there are [Record] points to
+     * An [AggregateDataRowGroupByDuration] is returned only if there are [Record] points to
      * aggregate within start and end time of the row.
      *
      * @param request [AggregateGroupByDurationRequest] object specifying [AggregateMetric]s to
@@ -183,6 +185,32 @@ interface HealthDataClient {
     suspend fun aggregateGroupByDuration(
         request: AggregateGroupByDurationRequest,
     ): List<AggregateDataRowGroupByDuration>
+
+    /**
+     * Reads [AggregateMetric]s according to requested read criteria specified in
+     * [AggregateGroupByPeriodRequest].
+     *
+     * This method is similar to [aggregate] but instead of returning one [AggregateDataRow] for the
+     * entire query's time interval, it returns a list of [AggregateDataRowGroupByPeriod], with each
+     * row keyed by start and end time. For example: steps for this month bucketed by day.
+     *
+     * An [AggregateDataRowGroupByPeriod] is returned only if there are [Record] points to aggregate
+     * within start and end time of the row.
+     *
+     * @param request [AggregateGroupByPeriodRequest] object specifying [AggregateMetric]s to
+     * aggregate and other filters.
+     *
+     * @return a list of [AggregateDataRowGroupByPeriod]s, each contains aggregated values and
+     * start/end time of the row. The list is sorted by time in ascending order.
+     * @throws RemoteException For any IPC transportation failures.
+     * @throws SecurityException For requests with unpermitted access.
+     * @throws IOException For any disk I/O issues.
+     * @throws IllegalStateException If service is not available.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    suspend fun aggregateGroupByPeriod(
+        request: AggregateGroupByPeriodRequest,
+    ): List<AggregateDataRowGroupByPeriod>
 
     /**
      * Retrieves a changes-token, representing a point in time in the underlying Android Health

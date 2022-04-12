@@ -19,6 +19,7 @@ import androidx.health.data.client.impl.converters.aggregate.toProto
 import androidx.health.data.client.impl.converters.time.toProto
 import androidx.health.data.client.metadata.DataOrigin
 import androidx.health.data.client.request.AggregateGroupByDurationRequest
+import androidx.health.data.client.request.AggregateGroupByPeriodRequest
 import androidx.health.data.client.request.AggregateRequest
 import androidx.health.platform.client.proto.DataProto
 import androidx.health.platform.client.proto.RequestProto
@@ -37,6 +38,15 @@ fun AggregateGroupByDurationRequest.toProto(): RequestProto.AggregateDataRequest
         .addAllDataOrigin(dataOriginFilter.toProtoList())
         .addAllMetricSpec(metrics.map { it.toProto() })
         .setSliceDurationMillis(timeRangeSlicer.toMillis())
+        .build()
+
+@SuppressWarnings("NewApi")
+fun AggregateGroupByPeriodRequest.toProto(): RequestProto.AggregateDataRequest =
+    RequestProto.AggregateDataRequest.newBuilder()
+        .setTimeSpec(timeRangeFilter.toProto())
+        .addAllDataOrigin(dataOriginFilter.toProtoList())
+        .addAllMetricSpec(metrics.map { it.toProto() })
+        .setSlicePeriod(timeRangeSlicer.toString())
         .build()
 
 private fun List<DataOrigin>.toProtoList() =
