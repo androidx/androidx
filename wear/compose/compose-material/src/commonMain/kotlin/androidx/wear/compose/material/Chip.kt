@@ -249,7 +249,7 @@ public fun Chip(
  * Both the icon and label are optional however it is expected that at least one will be provided.
  *
  * The [CompactChip] is Stadium shaped and has a max height designed to take no more than one line
- * of text of [Typography.button] style and/or one 24x24 icon. The default max height is
+ * of text of [Typography.caption1] style and/or one icon. The default max height is
  * [ChipDefaults.CompactChipHeight].
  *
  * If a icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so that
@@ -280,6 +280,13 @@ public fun Chip(
  * Example of a [CompactChip] with icon and single line of label text:
  * @sample androidx.wear.compose.material.samples.CompactChipWithIconAndLabel
  *
+ * Example of a [CompactChip] with a label, note that the text is center aligned:
+ * @sample androidx.wear.compose.material.samples.CompactChipWithLabel
+ *
+ * Example of a [CompactChip] with an icon only, note that the recommended icon size is 24x24 when
+ * only an icon is displayed:
+ * @sample androidx.wear.compose.material.samples.CompactChipWithIcon
+ *
  * For more information, see the
  * [Chips](https://developer.android.com/training/wearables/components/chips)
  * guide.
@@ -287,11 +294,11 @@ public fun Chip(
  * @param onClick Will be called when the user clicks the chip
  * @param modifier Modifier to be applied to the chip
  * @param label A slot for providing the chip's main label. The contents are expected to be text
- * which is "start" aligned if there is an icon preset and "start" or "center" aligned if not.
+ * which is "start" aligned if there is an icon preset and "center" aligned if not.
  * @param icon A slot for providing the chip's icon. The contents are expected to be a horizontally
- * and vertically aligned icon of size [ChipDefaults.IconSize] or [ChipDefaults.LargeIconSize]. In
- * order to correctly render when the Chip is not enabled the icon must set its alpha value to
- * [LocalContentAlpha].
+ * and vertically aligned icon of size [ChipDefaults.SmallIconSize] when used with a label or
+ * [ChipDefaults.IconSize] when used as the only content in the CompactChip. In order to correctly
+ * render when the Chip is not enabled the icon must set its alpha value to [LocalContentAlpha].
  * @param colors [ChipColors] that will be used to resolve the background and content color for
  * this chip in different states. See [ChipDefaults.chipColors]. Defaults to
  * [ChipDefaults.primaryChipColors]
@@ -313,11 +320,16 @@ public fun CompactChip(
     colors: ChipColors = ChipDefaults.primaryChipColors(),
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    contentPadding: PaddingValues = ChipDefaults.ContentPadding,
+    contentPadding: PaddingValues = ChipDefaults.CompactChipContentPadding,
 ) {
     if (label != null) {
         Chip(
-            label = label,
+            label = {
+                CompositionLocalProvider(
+                    LocalTextStyle provides MaterialTheme.typography.caption1,
+                    content = label
+                )
+            },
             onClick = onClick,
             modifier = modifier.height(ChipDefaults.CompactChipHeight),
             icon = icon,
@@ -327,6 +339,8 @@ public fun CompactChip(
             contentPadding = contentPadding
         )
     } else {
+        // Icon only compact chips have their own layout with a specific width and center aligned
+        // content. We use the base simple single slot Chip under the covers.
         Chip(
             onClick = onClick,
             modifier = modifier
@@ -337,8 +351,11 @@ public fun CompactChip(
             interactionSource = interactionSource,
             contentPadding = contentPadding
         ) {
-            if (icon != null) {
-                icon()
+            // Use a box to fill and center align the icon into the single slot of the Chip
+            Box(modifier = Modifier.fillMaxSize().wrapContentSize(align = Alignment.Center)) {
+                if (icon != null) {
+                    icon()
+                }
             }
         }
     }
@@ -608,6 +625,19 @@ public object ChipDefaults {
         top = ChipVerticalPadding,
         end = ChipHorizontalPadding,
         bottom = ChipVerticalPadding
+    )
+
+    private val CompactChipHorizontalPadding = 12.dp
+    private val CompactChipVerticalPadding = 0.dp
+
+    /**
+     * The default content padding used by [CompactChip]
+     */
+    public val CompactChipContentPadding: PaddingValues = PaddingValues(
+        start = CompactChipHorizontalPadding,
+        top = CompactChipVerticalPadding,
+        end = CompactChipHorizontalPadding,
+        bottom = CompactChipVerticalPadding
     )
 
     /**

@@ -17,15 +17,17 @@
 package androidx.wear.compose.material.samples
 
 import androidx.annotation.Sampled
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.Chip
+import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.CompactChip
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.Text
@@ -42,7 +44,8 @@ fun ChipWithIconAndLabels() {
             Icon(
                 painter = painterResource(id = R.drawable.ic_airplanemode_active_24px),
                 contentDescription = "airplane",
-                modifier = Modifier.size(24.dp).wrapContentSize(align = Alignment.Center),
+                modifier = Modifier.size(ChipDefaults.IconSize)
+                    .wrapContentSize(align = Alignment.Center),
             )
         }
     )
@@ -61,7 +64,41 @@ fun CompactChipWithIconAndLabel() {
             Icon(
                 painter = painterResource(id = R.drawable.ic_airplanemode_active_24px),
                 contentDescription = "airplane",
-                modifier = Modifier.size(24.dp).wrapContentSize(align = Alignment.Center),
+                modifier = Modifier.size(ChipDefaults.SmallIconSize),
+            )
+        },
+    )
+}
+
+@Sampled
+@Composable
+fun CompactChipWithLabel() {
+    CompactChip(
+        onClick = { /* Do something */ },
+        enabled = true,
+        label = {
+            Text(
+                text = "Single line label",
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+    )
+}
+
+@Sampled
+@Composable
+fun CompactChipWithIcon() {
+    CompactChip(
+        onClick = { /* Do something */ },
+        enabled = true,
+        icon = {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_airplanemode_active_24px),
+                contentDescription = "airplane",
+                modifier = Modifier.size(ChipDefaults.IconSize)
             )
         },
     )
