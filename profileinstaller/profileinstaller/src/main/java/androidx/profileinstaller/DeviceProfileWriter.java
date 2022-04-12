@@ -308,6 +308,7 @@ public class DeviceProfileWriter {
 
             case Build.VERSION_CODES.S:
             case Build.VERSION_CODES.S_V2:
+            case Build.VERSION_CODES.TIRAMISU:
                 return ProfileVersion.V015_S;
 
             default:
@@ -341,6 +342,7 @@ public class DeviceProfileWriter {
             // The profiles for S require a typeIdCount. Therefore metadata is required.
             case Build.VERSION_CODES.S:
             case Build.VERSION_CODES.S_V2:
+            case Build.VERSION_CODES.TIRAMISU:
                 return true;
 
             default:
