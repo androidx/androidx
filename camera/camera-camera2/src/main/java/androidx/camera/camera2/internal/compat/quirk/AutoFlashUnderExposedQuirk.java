@@ -25,7 +25,11 @@ import androidx.camera.core.impl.Quirk;
  * This denotes a quirk that when flash is auto, the device fails to get bright still photos with
  * good exposure.
  *
- * see b/205373142
+ * <p>QuirkSummary
+ *     Bug Id: 205373142
+ *     Description: When capturing still photos in auto flash mode, it fails to get bright photos
+ *     with good exposure.
+ *     Device(s): Pixel 3a / Pixel 3a XL
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class AutoFlashUnderExposedQuirk implements Quirk {
