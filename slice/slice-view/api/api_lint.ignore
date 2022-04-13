@@ -13,15 +13,15 @@ ExecutorRegistration: androidx.slice.SliceUtils#parseSlice(android.content.Conte
     Registration methods should have overload that accepts delivery Executor: `parseSlice`
 
 
-InvalidNullability: androidx.slice.widget.GridRowView#setSliceItem(androidx.slice.widget.SliceContent, boolean, int, int, androidx.slice.widget.SliceView.OnSliceActionListener) parameter #0:
+InvalidNullabilityOverride: androidx.slice.widget.GridRowView#setSliceItem(androidx.slice.widget.SliceContent, boolean, int, int, androidx.slice.widget.SliceView.OnSliceActionListener) parameter #0:
     Invalid nullability on parameter `slice` in method `setSliceItem`. Parameters of overrides cannot be NonNull if super parameter is Nullable.
-InvalidNullability: androidx.slice.widget.RowView#onClick(android.view.View) parameter #0:
+InvalidNullabilityOverride: androidx.slice.widget.RowView#onClick(android.view.View) parameter #0:
     Invalid nullability on parameter `view` in method `onClick`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullability: androidx.slice.widget.RowView#onItemSelected(android.widget.AdapterView<?>, android.view.View, int, long) parameter #0:
+InvalidNullabilityOverride: androidx.slice.widget.RowView#onItemSelected(android.widget.AdapterView<?>, android.view.View, int, long) parameter #0:
     Invalid nullability on parameter `parent` in method `onItemSelected`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullability: androidx.slice.widget.RowView#onItemSelected(android.widget.AdapterView<?>, android.view.View, int, long) parameter #1:
+InvalidNullabilityOverride: androidx.slice.widget.RowView#onItemSelected(android.widget.AdapterView<?>, android.view.View, int, long) parameter #1:
     Invalid nullability on parameter `view` in method `onItemSelected`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullability: androidx.slice.widget.RowView#onNothingSelected(android.widget.AdapterView<?>) parameter #0:
+InvalidNullabilityOverride: androidx.slice.widget.RowView#onNothingSelected(android.widget.AdapterView<?>) parameter #0:
     Invalid nullability on parameter `parent` in method `onNothingSelected`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 
 
