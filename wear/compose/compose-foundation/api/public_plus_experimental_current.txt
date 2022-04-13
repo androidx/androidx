@@ -97,6 +97,14 @@ package androidx.wear.compose.foundation {
     property public final int OutsideIn;
   }
 
+  public final class CurvedDrawKt {
+    method public static androidx.wear.compose.foundation.CurvedModifier angularGradientBackground(androidx.wear.compose.foundation.CurvedModifier, kotlin.Pair<java.lang.Float,androidx.compose.ui.graphics.Color>![] colorStops, optional int cap);
+    method public static androidx.wear.compose.foundation.CurvedModifier angularGradientBackground(androidx.wear.compose.foundation.CurvedModifier, java.util.List<androidx.compose.ui.graphics.Color> colors, optional int cap);
+    method public static androidx.wear.compose.foundation.CurvedModifier background(androidx.wear.compose.foundation.CurvedModifier, long color, optional int cap);
+    method public static androidx.wear.compose.foundation.CurvedModifier radialGradientBackground(androidx.wear.compose.foundation.CurvedModifier, kotlin.Pair<java.lang.Float,androidx.compose.ui.graphics.Color>![] colorStops, optional int cap);
+    method public static androidx.wear.compose.foundation.CurvedModifier radialGradientBackground(androidx.wear.compose.foundation.CurvedModifier, java.util.List<androidx.compose.ui.graphics.Color> colors, optional int cap);
+  }
+
   public final class CurvedLayoutKt {
     method @androidx.compose.runtime.Composable public static void CurvedLayout(optional androidx.compose.ui.Modifier modifier, optional float anchor, optional float anchorType, optional androidx.wear.compose.foundation.CurvedAlignment.Radial? radialAlignment, optional int angularDirection, kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.CurvedScope,kotlin.Unit> contentBuilder);
   }
