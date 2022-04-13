@@ -19,6 +19,7 @@ import androidx.health.data.client.impl.converters.time.toProto
 import androidx.health.data.client.metadata.DataOrigin
 import androidx.health.data.client.records.Steps
 import androidx.health.data.client.request.AggregateGroupByDurationRequest
+import androidx.health.data.client.request.AggregateGroupByPeriodRequest
 import androidx.health.data.client.request.AggregateRequest
 import androidx.health.data.client.time.TimeRangeFilter
 import androidx.health.platform.client.proto.DataProto
@@ -27,6 +28,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import java.time.Duration
 import java.time.Instant
+import java.time.Period
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -78,6 +80,27 @@ class AggregateRequestConverterTest {
                     .addAllDataOrigin(DATA_ORIGIN_FILTER.toProtoList())
                     .setTimeSpec(TIME_RANGE_FILTER.toProto())
                     .setSliceDurationMillis(98765)
+                    .build()
+            )
+    }
+
+    @Test
+    fun aggregateGroupByPeriodRequestToProto() {
+        val request =
+            AggregateGroupByPeriodRequest(
+                metrics = setOf(METRIC),
+                timeRangeFilter = TIME_RANGE_FILTER,
+                timeRangeSlicer = Period.ofDays(1),
+                dataOriginFilter = DATA_ORIGIN_FILTER
+            )
+
+        assertThat(request.toProto())
+            .isEqualTo(
+                RequestProto.AggregateDataRequest.newBuilder()
+                    .addMetricSpec(METRIC_PROTO)
+                    .addAllDataOrigin(DATA_ORIGIN_FILTER.toProtoList())
+                    .setTimeSpec(TIME_RANGE_FILTER.toProto())
+                    .setSlicePeriod(Period.ofDays(1).toString())
                     .build()
             )
     }

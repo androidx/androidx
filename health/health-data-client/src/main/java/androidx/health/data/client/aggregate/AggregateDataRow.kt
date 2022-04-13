@@ -22,7 +22,7 @@ import java.time.Duration
 /**
  * Represents an aggregation result row.
  *
- * See [HealthDataClient.aggregate]
+ * @see [androidx.health.data.client.HealthDataClient.aggregate]
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class AggregateDataRow

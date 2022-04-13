@@ -17,11 +17,13 @@ package androidx.health.data.client.impl.converters.aggregate
 
 import androidx.health.data.client.aggregate.AggregateDataRow
 import androidx.health.data.client.aggregate.AggregateDataRowGroupByDuration
+import androidx.health.data.client.aggregate.AggregateDataRowGroupByPeriod
 import androidx.health.data.client.metadata.DataOrigin
 import androidx.health.platform.client.proto.DataProto
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import java.time.Instant
+import java.time.LocalDateTime
 import java.time.ZoneOffset
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -49,9 +51,9 @@ class AggregateDataRowConverterTest {
             )
     }
 
-    @Test
     // ZoneOffset.ofTotalSeconds() has been banned but safe here for serialization.
     @SuppressWarnings("GoodTime")
+    @Test
     fun toAggregateDataRowGroupByDuration() {
         val proto =
             DataProto.AggregateDataRow.newBuilder()
@@ -108,6 +110,60 @@ class AggregateDataRowConverterTest {
         assertThat(thrown.message).isEqualTo("end time must be set")
     }
 
+    @Test
+    fun toAggregateDataRowGroupByPeriod() {
+        val proto =
+            DataProto.AggregateDataRow.newBuilder()
+                .addDataOrigins(DataProto.DataOrigin.newBuilder().setApplicationId("testApp"))
+                .putDoubleValues("doubleKey", 123.4)
+                .putLongValues("longKey", 567)
+                .setStartLocalDateTime("2022-02-11T20:22:02")
+                .setEndLocalDateTime("2022-02-22T20:22:02")
+                .build()
+
+        proto
+            .toAggregateDataRowGroupByPeriod()
+            .assertEquals(
+                AggregateDataRowGroupByPeriod(
+                    data =
+                        AggregateDataRow(
+                            longValues = mapOf(Pair("longKey", 567L)),
+                            doubleValues = mapOf(Pair("doubleKey", 123.4)),
+                            dataOrigins = listOf(DataOrigin("testApp")),
+                        ),
+                    startTime = LocalDateTime.parse("2022-02-11T20:22:02"),
+                    endTime = LocalDateTime.parse("2022-02-22T20:22:02"),
+                )
+            )
+    }
+
+    @Test
+    fun toAggregateDataRowGroupByPeriod_startOrEndTimeNotSet_throws() {
+        val proto =
+            DataProto.AggregateDataRow.newBuilder()
+                .addDataOrigins(DataProto.DataOrigin.newBuilder().setApplicationId("testApp"))
+                .putDoubleValues("doubleKey", 123.4)
+                .putLongValues("longKey", 567)
+                .setStartLocalDateTime("2022-02-11T20:22:02")
+                .setEndLocalDateTime("2022-02-12T20:22:02")
+                .build()
+
+        var thrown =
+            assertThrows(IllegalArgumentException::class.java) {
+                proto
+                    .toBuilder()
+                    .clearStartLocalDateTime()
+                    .build()
+                    .toAggregateDataRowGroupByPeriod()
+            }
+        assertThat(thrown.message).isEqualTo("start time must be set")
+        thrown =
+            assertThrows(IllegalArgumentException::class.java) {
+                proto.toBuilder().clearEndLocalDateTime().build().toAggregateDataRowGroupByPeriod()
+            }
+        assertThat(thrown.message).isEqualTo("end time must be set")
+    }
+
     private fun AggregateDataRow.assertEquals(expected: AggregateDataRow) {
         assertThat(longValues).isEqualTo(expected.longValues)
         assertThat(doubleValues).isEqualTo(expected.doubleValues)
@@ -120,8 +176,16 @@ class AggregateDataRowConverterTest {
         expected: AggregateDataRowGroupByDuration,
     ) {
         data.assertEquals(expected.data)
-        assertThat(startTime.toEpochMilli()).isEqualTo(1111)
-        assertThat(endTime.toEpochMilli()).isEqualTo(9999)
-        assertThat(zoneOffset.totalSeconds).isEqualTo(123)
+        assertThat(startTime).isEqualTo(expected.startTime)
+        assertThat(endTime).isEqualTo(expected.endTime)
+        assertThat(zoneOffset).isEqualTo(expected.zoneOffset)
+    }
+
+    private fun AggregateDataRowGroupByPeriod.assertEquals(
+        expected: AggregateDataRowGroupByPeriod,
+    ) {
+        data.assertEquals(expected.data)
+        assertThat(startTime).isEqualTo(expected.startTime)
+        assertThat(endTime).isEqualTo(expected.endTime)
     }
 }
