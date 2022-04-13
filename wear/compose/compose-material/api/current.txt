@@ -506,10 +506,6 @@ package androidx.wear.compose.material {
     property public final androidx.wear.compose.material.SwipeToDismissValue currentValue;
     property public final boolean isAnimationRunning;
     property public final androidx.wear.compose.material.SwipeToDismissValue targetValue;
-    field public static final androidx.wear.compose.material.SwipeToDismissBoxState.Companion Companion;
-  }
-
-  public static final class SwipeToDismissBoxState.Companion {
   }
 
   public enum SwipeToDismissKeys {

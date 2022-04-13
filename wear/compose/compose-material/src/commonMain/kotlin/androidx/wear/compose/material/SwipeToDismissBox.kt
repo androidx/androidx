@@ -324,7 +324,7 @@ public class SwipeToDismissBoxState(
      */
     public suspend fun snapTo(targetValue: SwipeToDismissValue) = swipeableState.snapTo(targetValue)
 
-    companion object {
+    private companion object {
         private fun <T> SwipeableState<T>.edgeNestedScrollConnection(
             edgeTouched: State<Boolean>
         ): NestedScrollConnection =
