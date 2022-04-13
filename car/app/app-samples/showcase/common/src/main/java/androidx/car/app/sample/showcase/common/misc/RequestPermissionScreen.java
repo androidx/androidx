@@ -37,6 +37,7 @@ import androidx.car.app.model.MessageTemplate;
 import androidx.car.app.model.OnClickListener;
 import androidx.car.app.model.ParkedOnlyOnClickListener;
 import androidx.car.app.model.Template;
+import androidx.car.app.sample.showcase.common.R;
 import androidx.core.location.LocationManagerCompat;
 
 import java.util.ArrayList;
@@ -63,7 +64,7 @@ public class RequestPermissionScreen extends Screen {
      * the permissions that need to be granted.
      */
     private final Action mRefreshAction = new Action.Builder()
-            .setTitle("Refresh")
+            .setTitle(getCarContext().getString(R.string.refresh_action_title))
             .setBackgroundColor(CarColor.BLUE)
             .setOnClickListener(this::invalidate)
             .build();
@@ -91,7 +92,8 @@ public class RequestPermissionScreen extends Screen {
                             PackageManager.GET_PERMISSIONS);
             declaredPermissions = info.requestedPermissions;
         } catch (PackageManager.NameNotFoundException e) {
-            return new MessageTemplate.Builder("Package Not found.")
+            return new MessageTemplate.Builder(
+                    getCarContext().getString(R.string.package_not_found_error_msg))
                     .setHeaderAction(headerAction)
                     .addAction(mRefreshAction)
                     .build();
@@ -112,18 +114,18 @@ public class RequestPermissionScreen extends Screen {
             }
         }
         if (permissions.isEmpty()) {
-            return new MessageTemplate.Builder("All permissions have been granted. Please "
-                    + "revoke permissions from Settings.")
+            return new MessageTemplate.Builder(
+                    getCarContext().getString(R.string.permissions_granted_msg))
                     .setHeaderAction(headerAction)
                     .addAction(new Action.Builder()
-                            .setTitle("Close")
+                            .setTitle(getCarContext().getString(R.string.close_action_title))
                             .setOnClickListener(this::finish)
                             .build())
                     .build();
         }
 
         StringBuilder message = new StringBuilder()
-                .append("The app needs access to the following permissions:\n");
+                .append(getCarContext().getString(R.string.needs_access_msg_prefix));
         for (String permission : permissions) {
             message.append(permission);
             message.append("\n");
@@ -139,13 +141,14 @@ public class RequestPermissionScreen extends Screen {
                                 CarToast.LENGTH_LONG).show();
                     });
             if (!getCarContext().getPackageManager().hasSystemFeature(FEATURE_AUTOMOTIVE)) {
-                CarToast.makeText(getCarContext(), "Grant Permission on the phone screen",
+                CarToast.makeText(getCarContext(),
+                        getCarContext().getString(R.string.phone_screen_permission_msg),
                         CarToast.LENGTH_LONG).show();
             }
         });
 
         Action action = new Action.Builder()
-                .setTitle("Grant Access")
+                .setTitle(getCarContext().getString(R.string.grant_access_action_title))
                 .setBackgroundColor(CarColor.BLUE)
                 .setOnClickListener(listener)
                 .build();
@@ -155,9 +158,11 @@ public class RequestPermissionScreen extends Screen {
         LocationManager locationManager =
                 (LocationManager) getCarContext().getSystemService(Context.LOCATION_SERVICE);
         if (!LocationManagerCompat.isLocationEnabled(locationManager)) {
-            message.append("Enable Location Permissions on device\n");
+            message.append(
+                    getCarContext().getString(R.string.enable_location_permission_on_device_msg));
+            message.append("\n");
             action2 = new Action.Builder()
-                    .setTitle("Enable Location")
+                    .setTitle(getCarContext().getString(R.string.enable_location_action_title))
                     .setBackgroundColor(CarColor.BLUE)
                     .setOnClickListener(ParkedOnlyOnClickListener.create(() -> {
                         getCarContext().startActivity(
@@ -165,8 +170,9 @@ public class RequestPermissionScreen extends Screen {
                                         Intent.FLAG_ACTIVITY_NEW_TASK));
                         if (!getCarContext().getPackageManager().hasSystemFeature(
                                 FEATURE_AUTOMOTIVE)) {
-                            CarToast.makeText(getCarContext(), "Enable location on the phone "
-                                            + "screen",
+                            CarToast.makeText(getCarContext(),
+                                    getCarContext().getString(
+                                            R.string.enable_location_permission_on_phone_msg),
                                     CarToast.LENGTH_LONG).show();
                         }
                     }))
@@ -175,7 +181,7 @@ public class RequestPermissionScreen extends Screen {
 
 
         LongMessageTemplate.Builder builder = new LongMessageTemplate.Builder(message)
-                .setTitle("Required Permissions")
+                .setTitle(getCarContext().getString(R.string.required_permissions_title))
                 .addAction(action)
                 .setHeaderAction(headerAction);
 

@@ -79,12 +79,12 @@ public class MapTemplateDemoScreen extends Screen {
         paneBuilder.setImage(new CarIcon.Builder(mPaneImage).build());
 
         Action.Builder primaryActionBuilder = new Action.Builder()
-                .setTitle("Reserve Chair")
+                .setTitle(getCarContext().getString(R.string.primary_action_title))
                 .setBackgroundColor(CarColor.BLUE)
                 .setOnClickListener(
                         () -> CarToast.makeText(
                                         getCarContext(),
-                                        "Reserve/Primary button pressed",
+                                        getCarContext().getString(R.string.primary_toast_msg),
                                         LENGTH_SHORT)
                                 .show());
         if (getCarContext().getCarAppApiLevel() >= CarAppApiLevels.LEVEL_4) {
@@ -95,11 +95,12 @@ public class MapTemplateDemoScreen extends Screen {
                 .addAction(primaryActionBuilder.build())
                 .addAction(
                         new Action.Builder()
-                                .setTitle("Options")
+                                .setTitle(getCarContext().getString(R.string.options_action_title))
                                 .setOnClickListener(
                                         () -> CarToast.makeText(
                                                         getCarContext(),
-                                                        "Options button pressed",
+                                                        getCarContext().getString(
+                                                                R.string.options_toast_msg),
                                                         LENGTH_SHORT)
                                                 .show())
                                 .build());
@@ -118,7 +119,11 @@ public class MapTemplateDemoScreen extends Screen {
                         .setOnClickListener(() -> {
                             CarToast.makeText(
                                             getCarContext(),
-                                            mIsFavorite ? "Not a favorite!" : "Favorite!",
+                                            mIsFavorite
+                                                    ? getCarContext()
+                                                            .getString(R.string.favorite_toast_msg)
+                                                    : getCarContext().getString(
+                                                            R.string.not_favorite_toast_msg),
                                             LENGTH_SHORT)
                                     .show();
                             mIsFavorite = !mIsFavorite;
@@ -134,7 +139,7 @@ public class MapTemplateDemoScreen extends Screen {
                                                 R.drawable.ic_close_white_24dp))
                                         .build())
                         .build())
-                .setTitle("Map Template with Pane Demo")
+                .setTitle(getCarContext().getString(R.string.map_template_pane_demo_title))
                 .build();
 
 
@@ -148,7 +153,8 @@ public class MapTemplateDemoScreen extends Screen {
                                 .setOnClickListener(
                                         () -> CarToast.makeText(
                                                         getCarContext(),
-                                                        "Bug reported!",
+                                                        getCarContext().getString(
+                                                                R.string.bug_reported_toast_msg),
                                                         CarToast.LENGTH_SHORT)
                                                 .show())
                                 .setIcon(
@@ -175,18 +181,18 @@ public class MapTemplateDemoScreen extends Screen {
             case 0:
                 // Row with a large image.
                 return new Row.Builder()
-                        .setTitle("Row with a large image and long text long text long text long "
-                                + "text long text")
-                        .addText("Text text text")
-                        .addText("Text text text")
+                        .setTitle(getCarContext().getString(R.string.first_row_title))
+                        .addText(getCarContext().getString(R.string.first_row_text))
+                        .addText(getCarContext().getString(R.string.first_row_text))
                         .setImage(new CarIcon.Builder(mRowLargeIcon).build())
                         .build();
             default:
                 return new Row.Builder()
-                        .setTitle("Row title " + (index + 1))
-                        .addText("R"
-                                + "ow text 1")
-                        .addText("Row text 2")
+                        .setTitle(
+                                getCarContext().getString(R.string.other_row_title_prefix) + (index
+                                        + 1))
+                        .addText(getCarContext().getString(R.string.other_row_text))
+                        .addText(getCarContext().getString(R.string.other_row_text))
                         .build();
 
         }
