@@ -198,12 +198,12 @@ public fun ToggleChip(
                 )
                 CompositionLocalProvider(
                     LocalContentColor provides
-                        colors.toggleControlTintColor(
+                        colors.toggleControlColor(
                             enabled = enabled,
                             checked = checked
                         ).value,
                     LocalContentAlpha provides
-                        colors.toggleControlTintColor(
+                        colors.toggleControlColor(
                             enabled = enabled,
                             checked = checked
                         ).value.alpha,
@@ -376,12 +376,12 @@ public fun SplitToggleChip(
             ) {
                 CompositionLocalProvider(
                     LocalContentColor provides
-                        colors.toggleControlTintColor(
+                        colors.toggleControlColor(
                             enabled = enabled,
                             checked = checked
                         ).value,
                     LocalContentAlpha provides
-                        colors.toggleControlTintColor(
+                        colors.toggleControlColor(
                             enabled = enabled,
                             checked = checked
                         ).value.alpha,
@@ -461,14 +461,14 @@ public interface ToggleChipColors {
     public fun secondaryContentColor(enabled: Boolean, checked: Boolean): State<Color>
 
     /**
-     * Represents the icon tint color for the toggle control for this chip, depending on the
-     * [enabled] and [checked]properties.
+     * Represents the color for the toggle control content for this chip, depending on the
+     * [enabled] and [checked] properties.
      *
      * @param enabled Whether the chip is enabled
      * @param checked Whether the chip is currently checked/selected or unchecked/not selected
      */
     @Composable
-    public fun toggleControlTintColor(enabled: Boolean, checked: Boolean): State<Color>
+    public fun toggleControlColor(enabled: Boolean, checked: Boolean): State<Color>
 }
 
 /**
@@ -501,14 +501,14 @@ public interface SplitToggleChipColors {
     public fun secondaryContentColor(enabled: Boolean): State<Color>
 
     /**
-     * Represents the icon tint color for the toggle control for this chip, depending on the
-     * [enabled] and [checked]properties.
+     * Represents the color for the toggle control content for this chip, depending on the
+     * [enabled] and [checked] properties.
      *
      * @param enabled Whether the chip is enabled
      * @param checked Whether the chip is currently checked/selected or unchecked/not selected
      */
     @Composable
-    public fun toggleControlTintColor(enabled: Boolean, checked: Boolean): State<Color>
+    public fun toggleControlColor(enabled: Boolean, checked: Boolean): State<Color>
 
     /**
      * Represents the overlay to apply to a split background SplitToggleChip to distinguish
@@ -542,8 +542,8 @@ public object ToggleChipDefaults {
      * checked/selected.
      * @param checkedSecondaryContentColor The secondary content color of this [ToggleChip] when
      * enabled and checked/selected, used for secondaryLabel content
-     * @param checkedToggleControlTintColor The icon tint color of this [ToggleChip] when enabled
-     * and checked/selected, used for ToggleControl content
+     * @param checkedToggleControlColor The toggle control color of this [ToggleChip] when enabled
+     * and checked/selected, used for toggleControl content
      * @param uncheckedStartBackgroundColor The background color used at the start of the gradient
      * of a [ToggleChip] when enabled and unchecked/not selected.
      * @param uncheckedEndBackgroundColor The background color used at the end of the gradient of a
@@ -552,8 +552,8 @@ public object ToggleChipDefaults {
      * checked/selected.
      * @param uncheckedSecondaryContentColor The secondary content color of this [ToggleChip] when
      * enabled and unchecked/not selected, used for secondaryLabel content
-     * @param uncheckedToggleControlTintColor The icon tint color of this [ToggleChip] when enabled
-     * and unchecked/not selected, used for ToggleControl content
+     * @param uncheckedToggleControlColor The toggle control color of this [ToggleChip] when enabled
+     * and unchecked/not selected.
      * @param gradientDirection Whether the chips gradient should be start to end (indicated by
      * [LayoutDirection.Ltr]) or end to start (indicated by [LayoutDirection.Rtl]).
      */
@@ -563,12 +563,12 @@ public object ToggleChipDefaults {
         checkedEndBackgroundColor: Color = MaterialTheme.colors.primary.copy(alpha = 0.325f),
         checkedContentColor: Color = MaterialTheme.colors.onSurface,
         checkedSecondaryContentColor: Color = MaterialTheme.colors.onSurfaceVariant,
-        checkedToggleControlTintColor: Color = MaterialTheme.colors.secondary,
+        checkedToggleControlColor: Color = MaterialTheme.colors.secondary,
         uncheckedStartBackgroundColor: Color = MaterialTheme.colors.surface,
         uncheckedEndBackgroundColor: Color = uncheckedStartBackgroundColor,
         uncheckedContentColor: Color = contentColorFor(checkedEndBackgroundColor),
         uncheckedSecondaryContentColor: Color = uncheckedContentColor,
-        uncheckedToggleControlTintColor: Color = uncheckedContentColor,
+        uncheckedToggleControlColor: Color = uncheckedContentColor,
         gradientDirection: LayoutDirection = LocalLayoutDirection.current
     ): ToggleChipColors {
         val checkedBackgroundColors: List<Color>
@@ -618,13 +618,13 @@ public object ToggleChipDefaults {
             checkedBackgroundPainter = BrushPainter(Brush.linearGradient(checkedBackgroundColors)),
             checkedContentColor = checkedContentColor,
             checkedSecondaryContentColor = checkedSecondaryContentColor,
-            checkedIconTintColor = checkedToggleControlTintColor,
+            checkedIconColor = checkedToggleControlColor,
             uncheckedBackgroundPainter = BrushPainter(
                 Brush.linearGradient(uncheckedBackgroundColors)
             ),
             uncheckedContentColor = uncheckedContentColor,
             uncheckedSecondaryContentColor = uncheckedSecondaryContentColor,
-            uncheckedIconTintColor = uncheckedToggleControlTintColor,
+            uncheckedIconColor = uncheckedToggleControlColor,
             disabledCheckedBackgroundPainter = BrushPainter(
                 Brush.linearGradient(disabledCheckedBackgroundColors)
             ),
@@ -632,7 +632,7 @@ public object ToggleChipDefaults {
             disabledCheckedSecondaryContentColor = checkedSecondaryContentColor.copy(
                 alpha = ContentAlpha.disabled
             ),
-            disabledCheckedIconTintColor = checkedToggleControlTintColor.copy(
+            disabledCheckedIconColor = checkedToggleControlColor.copy(
                 alpha = ContentAlpha.disabled
             ),
             disabledUncheckedBackgroundPainter = BrushPainter(
@@ -644,7 +644,7 @@ public object ToggleChipDefaults {
             disabledUncheckedSecondaryContentColor = uncheckedSecondaryContentColor.copy(
                 alpha = ContentAlpha.disabled
             ),
-            disabledUncheckedIconTintColor = uncheckedToggleControlTintColor.copy(
+            disabledUncheckedIconColor = uncheckedToggleControlColor.copy(
                 alpha = ContentAlpha.disabled
             ),
         )
@@ -657,10 +657,10 @@ public object ToggleChipDefaults {
      * @param contentColor The content color of this [SplitToggleChip] when enabled.
      * @param secondaryContentColor The secondary content color of this[SplitToggleChip] when
      * enabled
-     * @param checkedToggleControlTintColor The icon tint color of this [SplitToggleChip] when
-     * enabled, used for ToggleControl content
-     * @param uncheckedToggleControlTintColor The icon tint color of this [SplitToggleChip] when
-     * enabled, used for ToggleControl content
+     * @param checkedToggleControlColor The toggle control content color of this [SplitToggleChip]
+     * when enabled.
+     * @param uncheckedToggleControlColor The toggle control content color of this [SplitToggleChip]
+     * when enabled.
      * @param splitBackgroundOverlayColor The color to use to lighten/distinguish the background
      * behind the ToggleControl for a split background chip. A split background chip has two
      * tappable areas, one for the main body of the chip and one for area around the toggle
@@ -671,28 +671,28 @@ public object ToggleChipDefaults {
         backgroundColor: Color = MaterialTheme.colors.surface,
         contentColor: Color = MaterialTheme.colors.onSurface,
         secondaryContentColor: Color = MaterialTheme.colors.onSurfaceVariant,
-        checkedToggleControlTintColor: Color = MaterialTheme.colors.secondary,
-        uncheckedToggleControlTintColor: Color = contentColor,
+        checkedToggleControlColor: Color = MaterialTheme.colors.secondary,
+        uncheckedToggleControlColor: Color = contentColor,
         splitBackgroundOverlayColor: Color = Color.White.copy(alpha = 0.05f),
     ): SplitToggleChipColors {
         return DefaultSplitToggleChipColors(
             backgroundColor = backgroundColor,
             contentColor = contentColor,
             secondaryContentColor = secondaryContentColor,
-            checkedIconTintColor = checkedToggleControlTintColor,
+            checkedIconColor = checkedToggleControlColor,
             checkedSplitBackgroundOverlay = splitBackgroundOverlayColor,
-            uncheckedIconTintColor = uncheckedToggleControlTintColor,
+            uncheckedIconColor = uncheckedToggleControlColor,
             uncheckedSplitBackgroundOverlay = splitBackgroundOverlayColor,
             disabledBackgroundColor = backgroundColor.copy(alpha = ContentAlpha.disabled),
             disabledContentColor = contentColor.copy(alpha = ContentAlpha.disabled),
             disabledSecondaryContentColor = secondaryContentColor.copy(
                 alpha = ContentAlpha.disabled
             ),
-            disabledCheckedIconTintColor = checkedToggleControlTintColor.copy(
+            disabledCheckedIconColor = checkedToggleControlColor.copy(
                 alpha = ContentAlpha.disabled
             ),
             disabledCheckedSplitBackgroundOverlay = splitBackgroundOverlayColor,
-            disabledUncheckedIconTintColor = uncheckedToggleControlTintColor.copy(
+            disabledUncheckedIconColor = uncheckedToggleControlColor.copy(
                 alpha = ContentAlpha.disabled
             ),
             disabledUncheckedSplitBackgroundOverlay = splitBackgroundOverlayColor,
@@ -700,7 +700,7 @@ public object ToggleChipDefaults {
     }
 
     /**
-     * The Wear Material UX recommended tint color to use for an unselected switch icon.
+     * The Wear Material UX recommended color to use for an unselected switch icon.
      */
     public val SwitchUncheckedIconColor: Color
         @Composable get() = MaterialTheme.colors.onSurface.copy(0.6f)
@@ -981,19 +981,19 @@ private class DefaultToggleChipColors(
     private val checkedBackgroundPainter: Painter,
     private val checkedContentColor: Color,
     private val checkedSecondaryContentColor: Color,
-    private val checkedIconTintColor: Color,
+    private val checkedIconColor: Color,
     private val disabledCheckedBackgroundPainter: Painter,
     private val disabledCheckedContentColor: Color,
     private val disabledCheckedSecondaryContentColor: Color,
-    private val disabledCheckedIconTintColor: Color,
+    private val disabledCheckedIconColor: Color,
     private val uncheckedBackgroundPainter: Painter,
     private val uncheckedContentColor: Color,
     private val uncheckedSecondaryContentColor: Color,
-    private val uncheckedIconTintColor: Color,
+    private val uncheckedIconColor: Color,
     private val disabledUncheckedBackgroundPainter: Painter,
     private val disabledUncheckedContentColor: Color,
     private val disabledUncheckedSecondaryContentColor: Color,
-    private val disabledUncheckedIconTintColor: Color,
+    private val disabledUncheckedIconColor: Color,
 ) : ToggleChipColors {
 
     @Composable
@@ -1032,12 +1032,12 @@ private class DefaultToggleChipColors(
     }
 
     @Composable
-    override fun toggleControlTintColor(enabled: Boolean, checked: Boolean): State<Color> {
+    override fun toggleControlColor(enabled: Boolean, checked: Boolean): State<Color> {
         return rememberUpdatedState(
             if (enabled) {
-                if (checked) checkedIconTintColor else uncheckedIconTintColor
+                if (checked) checkedIconColor else uncheckedIconColor
             } else {
-                if (checked) disabledCheckedIconTintColor else disabledUncheckedIconTintColor
+                if (checked) disabledCheckedIconColor else disabledUncheckedIconColor
             }
         )
     }
@@ -1051,15 +1051,15 @@ private class DefaultToggleChipColors(
 
         if (checkedBackgroundPainter != other.checkedBackgroundPainter) return false
         if (checkedContentColor != other.checkedContentColor) return false
-        if (checkedIconTintColor != other.checkedIconTintColor) return false
+        if (checkedIconColor != other.checkedIconColor) return false
         if (checkedSecondaryContentColor != other.checkedSecondaryContentColor) return false
         if (uncheckedBackgroundPainter != other.uncheckedBackgroundPainter) return false
         if (uncheckedContentColor != other.uncheckedContentColor) return false
-        if (uncheckedIconTintColor != other.uncheckedIconTintColor) return false
+        if (uncheckedIconColor != other.uncheckedIconColor) return false
         if (uncheckedSecondaryContentColor != other.uncheckedSecondaryContentColor) return false
         if (disabledCheckedBackgroundPainter != other.disabledCheckedBackgroundPainter) return false
         if (disabledCheckedContentColor != other.disabledCheckedContentColor) return false
-        if (disabledCheckedIconTintColor != other.disabledCheckedIconTintColor) return false
+        if (disabledCheckedIconColor != other.disabledCheckedIconColor) return false
         if (disabledCheckedSecondaryContentColor !=
             other.disabledCheckedSecondaryContentColor
         ) return false
@@ -1067,7 +1067,7 @@ private class DefaultToggleChipColors(
             other.disabledUncheckedBackgroundPainter
         ) return false
         if (disabledUncheckedContentColor != other.disabledUncheckedContentColor) return false
-        if (disabledUncheckedIconTintColor != other.disabledUncheckedIconTintColor) return false
+        if (disabledUncheckedIconColor != other.disabledUncheckedIconColor) return false
         if (disabledUncheckedSecondaryContentColor !=
             other.disabledUncheckedSecondaryContentColor
         ) return false
@@ -1079,19 +1079,19 @@ private class DefaultToggleChipColors(
         var result = checkedBackgroundPainter.hashCode()
         result = 31 * result + checkedContentColor.hashCode()
         result = 31 * result + checkedSecondaryContentColor.hashCode()
-        result = 31 * result + checkedIconTintColor.hashCode()
+        result = 31 * result + checkedIconColor.hashCode()
         result = 31 * result + uncheckedBackgroundPainter.hashCode()
         result = 31 * result + uncheckedContentColor.hashCode()
         result = 31 * result + uncheckedSecondaryContentColor.hashCode()
-        result = 31 * result + uncheckedIconTintColor.hashCode()
+        result = 31 * result + uncheckedIconColor.hashCode()
         result = 31 * result + disabledCheckedBackgroundPainter.hashCode()
         result = 31 * result + disabledCheckedContentColor.hashCode()
         result = 31 * result + disabledCheckedSecondaryContentColor.hashCode()
-        result = 31 * result + disabledCheckedIconTintColor.hashCode()
+        result = 31 * result + disabledCheckedIconColor.hashCode()
         result = 31 * result + disabledUncheckedBackgroundPainter.hashCode()
         result = 31 * result + disabledUncheckedContentColor.hashCode()
         result = 31 * result + disabledUncheckedSecondaryContentColor.hashCode()
-        result = 31 * result + disabledUncheckedIconTintColor.hashCode()
+        result = 31 * result + disabledUncheckedIconColor.hashCode()
         return result
     }
 }
@@ -1104,16 +1104,16 @@ private class DefaultSplitToggleChipColors(
     private val backgroundColor: Color,
     private val contentColor: Color,
     private val secondaryContentColor: Color,
-    private val checkedIconTintColor: Color,
+    private val checkedIconColor: Color,
     private val checkedSplitBackgroundOverlay: Color,
     private val disabledBackgroundColor: Color,
     private val disabledContentColor: Color,
     private val disabledSecondaryContentColor: Color,
-    private val disabledCheckedIconTintColor: Color,
+    private val disabledCheckedIconColor: Color,
     private val disabledCheckedSplitBackgroundOverlay: Color,
-    private val uncheckedIconTintColor: Color,
+    private val uncheckedIconColor: Color,
     private val uncheckedSplitBackgroundOverlay: Color,
-    private val disabledUncheckedIconTintColor: Color,
+    private val disabledUncheckedIconColor: Color,
     private val disabledUncheckedSplitBackgroundOverlay: Color,
 ) : SplitToggleChipColors {
 
@@ -1139,12 +1139,12 @@ private class DefaultSplitToggleChipColors(
     }
 
     @Composable
-    override fun toggleControlTintColor(enabled: Boolean, checked: Boolean): State<Color> {
+    override fun toggleControlColor(enabled: Boolean, checked: Boolean): State<Color> {
         return rememberUpdatedState(
             if (enabled) {
-                if (checked) checkedIconTintColor else uncheckedIconTintColor
+                if (checked) checkedIconColor else uncheckedIconColor
             } else {
-                if (checked) disabledCheckedIconTintColor else disabledUncheckedIconTintColor
+                if (checked) disabledCheckedIconColor else disabledUncheckedIconColor
             }
         )
     }
@@ -1170,18 +1170,18 @@ private class DefaultSplitToggleChipColors(
 
         if (backgroundColor != other.backgroundColor) return false
         if (contentColor != other.contentColor) return false
-        if (checkedIconTintColor != other.checkedIconTintColor) return false
+        if (checkedIconColor != other.checkedIconColor) return false
         if (checkedSplitBackgroundOverlay != other.checkedSplitBackgroundOverlay) return false
-        if (uncheckedIconTintColor != other.uncheckedIconTintColor) return false
+        if (uncheckedIconColor != other.uncheckedIconColor) return false
         if (uncheckedSplitBackgroundOverlay != other.uncheckedSplitBackgroundOverlay) return false
         if (disabledBackgroundColor != other.disabledBackgroundColor) return false
         if (disabledContentColor != other.disabledContentColor) return false
-        if (disabledCheckedIconTintColor != other.disabledCheckedIconTintColor) return false
+        if (disabledCheckedIconColor != other.disabledCheckedIconColor) return false
         if (disabledSecondaryContentColor != other.disabledSecondaryContentColor) return false
         if (disabledCheckedSplitBackgroundOverlay !=
             other.disabledCheckedSplitBackgroundOverlay
         ) return false
-        if (disabledUncheckedIconTintColor != other.disabledUncheckedIconTintColor) return false
+        if (disabledUncheckedIconColor != other.disabledUncheckedIconColor) return false
         if (disabledUncheckedSplitBackgroundOverlay !=
             other.disabledUncheckedSplitBackgroundOverlay
         ) return false
@@ -1193,16 +1193,16 @@ private class DefaultSplitToggleChipColors(
         var result = backgroundColor.hashCode()
         result = 31 * result + contentColor.hashCode()
         result = 31 * result + secondaryContentColor.hashCode()
-        result = 31 * result + checkedIconTintColor.hashCode()
+        result = 31 * result + checkedIconColor.hashCode()
         result = 31 * result + checkedSplitBackgroundOverlay.hashCode()
-        result = 31 * result + uncheckedIconTintColor.hashCode()
+        result = 31 * result + uncheckedIconColor.hashCode()
         result = 31 * result + uncheckedSplitBackgroundOverlay.hashCode()
         result = 31 * result + disabledBackgroundColor.hashCode()
         result = 31 * result + disabledContentColor.hashCode()
         result = 31 * result + disabledSecondaryContentColor.hashCode()
-        result = 31 * result + disabledCheckedIconTintColor.hashCode()
+        result = 31 * result + disabledCheckedIconColor.hashCode()
         result = 31 * result + disabledCheckedSplitBackgroundOverlay.hashCode()
-        result = 31 * result + disabledUncheckedIconTintColor.hashCode()
+        result = 31 * result + disabledUncheckedIconColor.hashCode()
         result = 31 * result + disabledUncheckedSplitBackgroundOverlay.hashCode()
         return result
     }

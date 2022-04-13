@@ -696,7 +696,7 @@ class DialogContentColorTest {
 
         rule.setContentWithTheme {
             Alert(
-                iconTintColor = overrideColor,
+                iconColor = overrideColor,
                 icon = { actualColor = LocalContentColor.current },
                 title = {},
                 negativeButton = {},
@@ -715,7 +715,7 @@ class DialogContentColorTest {
 
         rule.setContentWithTheme {
             Alert(
-                iconTintColor = overrideColor,
+                iconColor = overrideColor,
                 icon = { actualColor = LocalContentColor.current },
                 title = {},
                 message = {},
@@ -734,7 +734,7 @@ class DialogContentColorTest {
         rule.setContentWithTheme {
             Confirmation(
                 onTimeout = {},
-                iconTintColor = overrideColor,
+                iconColor = overrideColor,
                 icon = { actualColor = LocalContentColor.current },
                 content = {},
             )

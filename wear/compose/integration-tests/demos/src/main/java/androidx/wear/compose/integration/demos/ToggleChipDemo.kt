@@ -104,7 +104,7 @@ fun ToggleChips(
                     // unselected toggle control color to
                     // ToggleChipDefaults.switchUncheckedIconColor() rather than the default.
                     colors = ToggleChipDefaults.toggleChipColors(
-                        uncheckedToggleControlTintColor = ToggleChipDefaults
+                        uncheckedToggleControlColor = ToggleChipDefaults
                             .SwitchUncheckedIconColor
                     ),
                     toggleControl = {
@@ -164,7 +164,7 @@ fun ToggleChips(
                     onCheckedChange = { radioIconWithSecondaryChecked = it },
                     enabled = enabled,
                     colors = ToggleChipDefaults.toggleChipColors(
-                        checkedToggleControlTintColor = AlternatePrimaryColor3,
+                        checkedToggleControlColor = AlternatePrimaryColor3,
                         checkedEndBackgroundColor = AlternatePrimaryColor3.copy(alpha = 0.325f)
                     )
                 )
@@ -184,7 +184,7 @@ fun ToggleChips(
                     // unselected toggle control color to
                     // ToggleChipDefaults.switchUncheckedIconColor() rather than the default.
                     colors = ToggleChipDefaults.toggleChipColors(
-                        uncheckedToggleControlTintColor = ToggleChipDefaults
+                        uncheckedToggleControlColor = ToggleChipDefaults
                             .SwitchUncheckedIconColor
                     ),
                     toggleControl = {
@@ -213,7 +213,7 @@ fun ToggleChips(
                     // unselected toggle control color to
                     // ToggleChipDefaults.switchUncheckedIconColor() rather than the default.
                     colors = ToggleChipDefaults.toggleChipColors(
-                        uncheckedToggleControlTintColor = ToggleChipDefaults
+                        uncheckedToggleControlColor = ToggleChipDefaults
                             .SwitchUncheckedIconColor
                     ),
                     toggleControl = {
@@ -277,7 +277,7 @@ fun ToggleChips(
                     // unselected toggle control color to
                     // ToggleChipDefaults.switchUncheckedIconColor() rather than the default.
                     colors = ToggleChipDefaults.splitToggleChipColors(
-                        uncheckedToggleControlTintColor = ToggleChipDefaults
+                        uncheckedToggleControlColor = ToggleChipDefaults
                             .SwitchUncheckedIconColor
                     ),
                     toggleControl = {
@@ -359,8 +359,8 @@ fun ToggleChips(
                     // unselected toggle control color to
                     // ToggleChipDefaults.switchUncheckedIconColor() rather than the default.
                     colors = ToggleChipDefaults.splitToggleChipColors(
-                        checkedToggleControlTintColor = AlternatePrimaryColor1,
-                        uncheckedToggleControlTintColor = ToggleChipDefaults
+                        checkedToggleControlColor = AlternatePrimaryColor1,
+                        uncheckedToggleControlColor = ToggleChipDefaults
                             .SwitchUncheckedIconColor
                     ),
                     enabled = enabled,
@@ -379,7 +379,7 @@ fun ToggleChips(
                     // unselected toggle control color to
                     // ToggleChipDefaults.switchUncheckedIconColor() rather than the default.
                     colors = ToggleChipDefaults.toggleChipColors(
-                        uncheckedToggleControlTintColor = ToggleChipDefaults
+                        uncheckedToggleControlColor = ToggleChipDefaults
                             .SwitchUncheckedIconColor
                     ),
                     toggleControl = {

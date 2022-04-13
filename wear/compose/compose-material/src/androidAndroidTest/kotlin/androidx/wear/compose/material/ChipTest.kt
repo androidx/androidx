@@ -638,27 +638,27 @@ class ChipColorTest {
     fun allows_custom_primary_enabled_icon_tint_color_override() {
         val overrideColor = Color.Red
         var actualContentColor = Color.Transparent
-        var actualIconTintColor = Color.Transparent
+        var actualIconColor = Color.Transparent
         var expectedContent = Color.Transparent
         rule.setContentWithTheme {
             expectedContent = MaterialTheme.colors.onPrimary
             Chip(
                 onClick = {},
                 colors = ChipDefaults.chipColors(
-                    iconTintColor = overrideColor
+                    iconColor = overrideColor
                 ),
                 label = {
                     actualContentColor = LocalContentColor.current
                 },
                 icon = {
-                    actualIconTintColor = LocalContentColor.current
+                    actualIconColor = LocalContentColor.current
                 },
                 enabled = true,
                 modifier = Modifier.testTag("test-item")
             )
         }
         assertEquals(expectedContent, actualContentColor)
-        assertEquals(overrideColor, actualIconTintColor)
+        assertEquals(overrideColor, actualIconColor)
     }
 
     @Test

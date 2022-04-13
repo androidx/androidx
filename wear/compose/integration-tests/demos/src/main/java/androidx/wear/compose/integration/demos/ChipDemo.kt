@@ -357,7 +357,7 @@ fun AvatarChips() {
                 // unselected toggle control color to ToggleChipDefaults.switchUncheckedIconColor()
                 // rather than the default.
                 colors = ToggleChipDefaults.toggleChipColors(
-                    uncheckedToggleControlTintColor = ToggleChipDefaults.SwitchUncheckedIconColor
+                    uncheckedToggleControlColor = ToggleChipDefaults.SwitchUncheckedIconColor
                 ),
                 toggleControl = {
                     Icon(
@@ -542,7 +542,7 @@ fun CustomChips() {
                 // unselected toggle control color to ToggleChipDefaults.switchUncheckedIconColor()
                 // rather than the default.
                 colors = ToggleChipDefaults.toggleChipColors(
-                    uncheckedToggleControlTintColor = ToggleChipDefaults.SwitchUncheckedIconColor
+                    uncheckedToggleControlColor = ToggleChipDefaults.SwitchUncheckedIconColor
                 ),
                 toggleControl = {
                     Icon(
@@ -599,7 +599,7 @@ fun ImageBackgroundChips() {
                 // unselected toggle control color to ToggleChipDefaults.switchUncheckedIconColor()
                 // rather than the default.
                 colors = ToggleChipDefaults.toggleChipColors(
-                    uncheckedToggleControlTintColor = ToggleChipDefaults.SwitchUncheckedIconColor
+                    uncheckedToggleControlColor = ToggleChipDefaults.SwitchUncheckedIconColor
                 ),
                 toggleControl = {
                     Icon(
@@ -657,7 +657,7 @@ private fun ChipCustomizer(
             // unselected toggle control color to ToggleChipDefaults.switchUncheckedIconColor()
             // rather than the default.
             colors = ToggleChipDefaults.toggleChipColors(
-                uncheckedToggleControlTintColor = ToggleChipDefaults.SwitchUncheckedIconColor
+                uncheckedToggleControlColor = ToggleChipDefaults.SwitchUncheckedIconColor
             ),
             toggleControl = {
                 Icon(

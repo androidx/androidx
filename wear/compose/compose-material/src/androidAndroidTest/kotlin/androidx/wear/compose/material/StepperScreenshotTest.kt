@@ -144,7 +144,7 @@ public class StepperScreenshotTest {
                 decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
                 backgroundColor = Color.Green,
                 contentColor = Color.Yellow,
-                iconTintColor = Color.Magenta,
+                iconColor = Color.Magenta,
             ) {
                 Text("Demo")
             }
