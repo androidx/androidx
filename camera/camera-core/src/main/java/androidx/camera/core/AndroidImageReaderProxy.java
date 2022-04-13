@@ -36,10 +36,9 @@ import java.util.concurrent.Executor;
  * ImageReader}.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-class AndroidImageReaderProxy implements ImageReaderProxy {
-    @GuardedBy("mLock")
+final class AndroidImageReaderProxy implements ImageReaderProxy {
+    @GuardedBy("this")
     private final ImageReader mImageReader;
-    private final Object mLock = new Object();
 
     /**
      * Creates a new instance which wraps the given image reader.
@@ -53,52 +52,48 @@ class AndroidImageReaderProxy implements ImageReaderProxy {
 
     @Override
     @Nullable
-    public ImageProxy acquireLatestImage() {
-        synchronized (mLock) {
-            Image image;
-            try {
-                image = mImageReader.acquireLatestImage();
-            } catch (RuntimeException e) {
+    public synchronized ImageProxy acquireLatestImage() {
+        Image image;
+        try {
+            image = mImageReader.acquireLatestImage();
+        } catch (RuntimeException e) {
             /* In API level 23 or below,  it will throw "java.lang.RuntimeException:
                ImageReaderContext is not initialized" when ImageReader is closed. To make the
                behavior consistent as newer API levels,  we make it return null Image instead.*/
-                if (isImageReaderContextNotInitializedException(e)) {
-                    image = null;
-                } else {
-                    throw e;  // only catch RuntimeException:ImageReaderContext is not initialized
-                }
+            if (isImageReaderContextNotInitializedException(e)) {
+                image = null;
+            } else {
+                throw e;  // only catch RuntimeException:ImageReaderContext is not initialized
             }
-
-            if (image == null) {
-                return null;
-            }
-            return new AndroidImageProxy(image);
         }
+
+        if (image == null) {
+            return null;
+        }
+        return new AndroidImageProxy(image);
     }
 
     @Override
     @Nullable
-    public ImageProxy acquireNextImage() {
-        synchronized (mLock) {
-            Image image;
-            try {
-                image = mImageReader.acquireNextImage();
-            } catch (RuntimeException e) {
+    public synchronized ImageProxy acquireNextImage() {
+        Image image;
+        try {
+            image = mImageReader.acquireNextImage();
+        } catch (RuntimeException e) {
             /* In API level 23 or below,  it will throw "java.lang.RuntimeException:
                ImageReaderContext is not initialized" when ImageReader is closed. To make the
                behavior consistent as newer API levels,  we make it return null Image instead.*/
-                if (isImageReaderContextNotInitializedException(e)) {
-                    image = null;
-                } else {
-                    throw e;  // only catch RuntimeException:ImageReaderContext is not initialized
-                }
+            if (isImageReaderContextNotInitializedException(e)) {
+                image = null;
+            } else {
+                throw e;  // only catch RuntimeException:ImageReaderContext is not initialized
             }
-
-            if (image == null) {
-                return null;
-            }
-            return new AndroidImageProxy(image);
         }
+
+        if (image == null) {
+            return null;
+        }
+        return new AndroidImageProxy(image);
     }
 
     private boolean isImageReaderContextNotInitializedException(RuntimeException e) {
@@ -106,66 +101,50 @@ class AndroidImageReaderProxy implements ImageReaderProxy {
     }
 
     @Override
-    public void close() {
-        synchronized (mLock) {
-            mImageReader.close();
-        }
+    public synchronized void close() {
+        mImageReader.close();
     }
 
     @Override
-    public int getHeight() {
-        synchronized (mLock) {
-            return mImageReader.getHeight();
-        }
+    public synchronized int getHeight() {
+        return mImageReader.getHeight();
     }
 
     @Override
-    public int getWidth() {
-        synchronized (mLock) {
-            return mImageReader.getWidth();
-        }
+    public synchronized int getWidth() {
+        return mImageReader.getWidth();
     }
 
     @Override
-    public int getImageFormat() {
-        synchronized (mLock) {
-            return mImageReader.getImageFormat();
-        }
+    public synchronized int getImageFormat() {
+        return mImageReader.getImageFormat();
     }
 
     @Override
-    public int getMaxImages() {
-        synchronized (mLock) {
-            return mImageReader.getMaxImages();
-        }
+    public synchronized int getMaxImages() {
+        return mImageReader.getMaxImages();
     }
 
     @Nullable
     @Override
-    public Surface getSurface() {
-        synchronized (mLock) {
-            return mImageReader.getSurface();
-        }
+    public synchronized Surface getSurface() {
+        return mImageReader.getSurface();
     }
 
     @Override
-    public void setOnImageAvailableListener(
+    public synchronized void setOnImageAvailableListener(
             @NonNull OnImageAvailableListener listener,
             @NonNull Executor executor) {
-        synchronized (mLock) {
-            // ImageReader does not accept an executor. As a workaround, the callback is run on main
-            // handler then immediately posted to the executor.
-            ImageReader.OnImageAvailableListener transformedListener = (imageReader) ->
-                    executor.execute(() -> listener.onImageAvailable(AndroidImageReaderProxy.this));
-            mImageReader.setOnImageAvailableListener(transformedListener,
-                    MainThreadAsyncHandler.getInstance());
-        }
+        // ImageReader does not accept an executor. As a workaround, the callback is run on main
+        // handler then immediately posted to the executor.
+        ImageReader.OnImageAvailableListener transformedListener = (imageReader) ->
+                executor.execute(() -> listener.onImageAvailable(AndroidImageReaderProxy.this));
+        mImageReader.setOnImageAvailableListener(transformedListener,
+                MainThreadAsyncHandler.getInstance());
     }
 
     @Override
-    public void clearOnImageAvailableListener() {
-        synchronized (mLock) {
-            mImageReader.setOnImageAvailableListener(null, null);
-        }
+    public synchronized void clearOnImageAvailableListener() {
+        mImageReader.setOnImageAvailableListener(null, null);
     }
 }
