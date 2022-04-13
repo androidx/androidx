@@ -80,7 +80,7 @@ import kotlinx.coroutines.delay
  * @param backgroundColor [Color] representing the background color for the dialog.
  * @param contentColor [Color] representing the color for [content].
  * @param titleColor [Color] representing the color for [title].
- * @param iconTintColor Icon [Color] that defaults to [contentColor],
+ * @param iconColor Icon [Color] that defaults to [contentColor],
  * unless specifically overridden.
  * @param verticalArrangement The vertical arrangement of the dialog's children. This allows us
  * to add spacing between items and specify the arrangement of the items when we have not enough
@@ -99,7 +99,7 @@ public fun Alert(
     backgroundColor: Color = MaterialTheme.colors.background,
     contentColor: Color = contentColorFor(backgroundColor),
     titleColor: Color = contentColor,
-    iconTintColor: Color = contentColor,
+    iconColor: Color = contentColor,
     verticalArrangement: Arrangement.Vertical = DialogDefaults.AlertVerticalArrangement,
     contentPadding: PaddingValues = DialogDefaults.ContentPadding,
     content: @Composable (ColumnScope.() -> Unit)? = null
@@ -113,7 +113,7 @@ public fun Alert(
     ) {
         if (icon != null) {
             item {
-                DialogIconHeader(iconTintColor, content = icon)
+                DialogIconHeader(iconColor, content = icon)
             }
         }
 
@@ -163,7 +163,7 @@ public fun Alert(
  * @param backgroundColor [Color] representing the background color for the dialog.
  * @param titleColor [Color] representing the color for [title].
  * @param messageColor [Color] representing the color for [message].
- * @param iconTintColor [Color] representing the color for [icon].
+ * @param iconColor [Color] representing the color for [icon].
  * @param verticalArrangement The vertical arrangement of the dialog's children. This allows us
  * to add spacing between items and specify the arrangement of the items when we have not enough
  * of them to fill the whole minimum size.
@@ -180,7 +180,7 @@ public fun Alert(
     backgroundColor: Color = MaterialTheme.colors.background,
     titleColor: Color = contentColorFor(backgroundColor),
     messageColor: Color = contentColorFor(backgroundColor),
-    iconTintColor: Color = contentColorFor(backgroundColor),
+    iconColor: Color = contentColorFor(backgroundColor),
     verticalArrangement: Arrangement.Vertical = DialogDefaults.AlertVerticalArrangement,
     contentPadding: PaddingValues = DialogDefaults.ContentPadding,
     content: ScalingLazyListScope.() -> Unit
@@ -194,7 +194,7 @@ public fun Alert(
     ) {
         if (icon != null) {
             item {
-                DialogIconHeader(iconTintColor, content = icon)
+                DialogIconHeader(iconColor, content = icon)
             }
         }
 
@@ -234,7 +234,7 @@ public fun Alert(
  * [DialogDefaults.LongDurationMillis] or [DialogDefaults.IndefiniteDurationMillis].
  * @param backgroundColor [Color] representing the background color for this dialog.
  * @param contentColor [Color] representing the color for [content].
- * @param iconTintColor Icon [Color] that defaults to the [contentColor],
+ * @param iconColor Icon [Color] that defaults to the [contentColor],
  * unless specifically overridden.
  * @param verticalArrangement The vertical arrangement of the dialog's children. This allows us
  * to add spacing between items and specify the arrangement of the items when we have not enough
@@ -251,7 +251,7 @@ public fun Confirmation(
     durationMillis: Long = DialogDefaults.ShortDurationMillis,
     backgroundColor: Color = MaterialTheme.colors.background,
     contentColor: Color = contentColorFor(backgroundColor),
-    iconTintColor: Color = contentColor,
+    iconColor: Color = contentColor,
     verticalArrangement: Arrangement.Vertical = DialogDefaults.ConfirmationVerticalArrangement,
     contentPadding: PaddingValues = DialogDefaults.ContentPadding,
     content: @Composable ColumnScope.() -> Unit
@@ -274,7 +274,7 @@ public fun Confirmation(
     ) {
         if (icon != null) {
             item {
-                DialogIconHeader(iconTintColor, content = icon)
+                DialogIconHeader(iconColor, content = icon)
             }
         }
 
@@ -397,15 +397,15 @@ private fun DialogImpl(
  * [DialogIconHeader] displays an icon at the top of the dialog
  * followed by the recommended spacing.
  *
- * @param iconTintColor [Color] in which to tint the icon.
+ * @param iconColor [Color] in which to tint the icon.
  * @param content Slot for an icon.
  */
 @Composable
 private fun DialogIconHeader(
-    iconTintColor: Color,
+    iconColor: Color,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    CompositionLocalProvider(LocalContentColor provides iconTintColor) {
+    CompositionLocalProvider(LocalContentColor provides iconColor) {
         Column(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
