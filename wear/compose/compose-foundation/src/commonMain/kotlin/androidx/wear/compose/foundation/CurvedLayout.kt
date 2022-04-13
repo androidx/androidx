@@ -19,10 +19,8 @@ package androidx.wear.compose.foundation
 import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
@@ -109,11 +107,11 @@ public fun CurvedLayout(
     // Note that all angles in the function are in radians, and the anchor parameter is in degrees
 
     val curvedLayoutDirection = initialCurvedLayoutDirection(angularDirection)
-    val curvedRowChild by remember(curvedLayoutDirection, radialAlignment, contentBuilder) {
-        derivedStateOf {
-            CurvedRowChild(curvedLayoutDirection, radialAlignment, contentBuilder)
-        }
-    }
+
+    // Create the curved tree and subscribe to be recomposed when any part changes, this may not be
+    // optimal but since we have only one measure block (the one here) for all the curved layout,
+    // we still need to do most of the work when content changes.
+    val curvedRowChild = CurvedRowChild(curvedLayoutDirection, radialAlignment, contentBuilder)
 
     Layout(
         modifier = modifier.drawWithContent {
