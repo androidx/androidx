@@ -28,6 +28,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
@@ -46,13 +47,9 @@ import java.util.List;
  */
 @SuppressLint("RestrictedApi")
 public class WebMessageListenerMaliciousWebsiteActivity extends AppCompatActivity {
-    private final Uri mMaliciousUrl = new Uri.Builder()
-                                            .scheme("https")
-                                            .authority("malicious.com")
-                                            .appendPath("androidx_webkit")
-                                            .appendPath("example")
-                                            .appendPath("assets")
-                                            .build();
+    private final Uri mMaliciousUrl = new Uri.Builder().scheme("https").authority(
+            "malicious.com").appendPath("androidx_webkit").appendPath("example").appendPath(
+            "assets").build();
 
     private static class MyWebViewClient extends WebViewClient {
         private final WebViewAssetLoader[] mAssetLoaders;
@@ -63,10 +60,11 @@ public class WebMessageListenerMaliciousWebsiteActivity extends AppCompatActivit
 
         @Override
         @RequiresApi(21)
-        public WebResourceResponse shouldInterceptRequest(
-                WebView view, WebResourceRequest request) {
+        public WebResourceResponse shouldInterceptRequest(WebView view,
+                WebResourceRequest request) {
             for (WebViewAssetLoader loader : mAssetLoaders) {
-                WebResourceResponse response = loader.shouldInterceptRequest(request.getUrl());
+                WebResourceResponse response = loader.shouldInterceptRequest(
+                        Api21Impl.getUrl(request));
                 if (response != null) {
                     return response;
                 }
@@ -87,17 +85,8 @@ public class WebMessageListenerMaliciousWebsiteActivity extends AppCompatActivit
         }
     }
 
-    private static class AvailableInAllowedOriginsFrameMessageListener
-            implements WebViewCompat.WebMessageListener {
-        @Override
-        public void onPostMessage(WebView view, WebMessageCompat message, Uri sourceOrigin,
-                boolean isMainFrame, JavaScriptReplyProxy replyProxy) {
-            replyProxy.postMessage("Hello");
-        }
-    }
-
-    private static class AvailableInAllFramesMessageListener
-            implements WebViewCompat.WebMessageListener {
+    private static class AvailableInAllFramesMessageListener implements
+            WebViewCompat.WebMessageListener {
         private final Context mContext;
         private final List<String> mBadAuthorities;
 
@@ -107,13 +96,13 @@ public class WebMessageListenerMaliciousWebsiteActivity extends AppCompatActivit
         }
 
         @Override
-        public void onPostMessage(WebView view, WebMessageCompat message, Uri sourceOrigin,
-                boolean isMainFrame, JavaScriptReplyProxy replyProxy) {
+        public void onPostMessage(@NonNull WebView view, @NonNull WebMessageCompat message,
+                @NonNull Uri sourceOrigin, boolean isMainFrame,
+                @NonNull JavaScriptReplyProxy replyProxy) {
             for (String badAuthority : mBadAuthorities) {
                 if (sourceOrigin.getAuthority().equals(badAuthority)) {
                     Toast.makeText(mContext, "Message from known bad website, no response.",
-                                 Toast.LENGTH_SHORT)
-                            .show();
+                            Toast.LENGTH_SHORT).show();
                     return;
                 }
             }
@@ -136,28 +125,24 @@ public class WebMessageListenerMaliciousWebsiteActivity extends AppCompatActivit
         }
 
         // Use WebViewAssetLoader to load html page from app's assets.
-        WebViewAssetLoader assetLoaderMalicious =
-                new WebViewAssetLoader.Builder()
-                        .setDomain("malicious.com")
-                        .addPathHandler(mMaliciousUrl.getPath() + "/", new AssetsPathHandler(this))
-                        .build();
-        WebViewAssetLoader assetLoaderGenuine =
-                new WebViewAssetLoader.Builder()
-                        .setDomain("example.com")
-                        .addPathHandler(
-                                "/androidx_webkit/example/assets/", new AssetsPathHandler(this))
-                        .build();
+        WebViewAssetLoader assetLoaderMalicious = new WebViewAssetLoader.Builder().setDomain(
+                "malicious.com").addPathHandler(mMaliciousUrl.getPath() + "/",
+                new AssetsPathHandler(this)).build();
+        WebViewAssetLoader assetLoaderGenuine = new WebViewAssetLoader.Builder().setDomain(
+                "example.com").addPathHandler("/androidx_webkit/example/assets/",
+                new AssetsPathHandler(this)).build();
 
         WebView webView = findViewById(R.id.webview);
         webView.setWebViewClient(new MyWebViewClient(
-                new WebViewAssetLoader[] {assetLoaderMalicious, assetLoaderGenuine}));
+                new WebViewAssetLoader[]{assetLoaderMalicious, assetLoaderGenuine}));
         webView.getSettings().setJavaScriptEnabled(true);
 
         // If you only intend to communicate with a limited number of origins, prefer only injecting
         // the listener in those frames.
         WebViewCompat.addWebMessageListener(webView, "restrictedObject",
                 new HashSet<>(Arrays.asList("https://example.com")),
-                new AvailableInAllowedOriginsFrameMessageListener());
+                (view, message, sourceOrigin, isMainFrame, replyProxy) ->
+                        replyProxy.postMessage("Hello"));
 
         // If you need to communicate with a wider set of origins but are aware of some origins
         // matching your filter that you need to block communication with, you can check the sending
@@ -166,8 +151,7 @@ public class WebMessageListenerMaliciousWebsiteActivity extends AppCompatActivit
                 new HashSet<>(Arrays.asList("*")),
                 new AvailableInAllFramesMessageListener(this, Arrays.asList("malicious.com")));
 
-        webView.loadUrl(
-                Uri.withAppendedPath(mMaliciousUrl, "www/web_message_listener_malicious.html")
-                        .toString());
+        webView.loadUrl(Uri.withAppendedPath(mMaliciousUrl,
+                "www/web_message_listener_malicious.html").toString());
     }
 }

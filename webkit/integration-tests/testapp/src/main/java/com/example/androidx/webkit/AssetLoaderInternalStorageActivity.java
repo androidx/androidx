@@ -47,10 +47,13 @@ public class AssetLoaderInternalStorageActivity extends AppCompatActivity {
     @NonNull private File mPublicDir;
     @NonNull private File mDemoFile;
 
-    @NonNull private WebViewAssetLoader mAssetLoader;
-    @NonNull private WebView mWebView;
+    private static class MyWebViewClient extends WebViewClient {
+        private final WebViewAssetLoader mAssetLoader;
 
-    private class MyWebViewClient extends WebViewClient {
+        MyWebViewClient(@NonNull WebViewAssetLoader assetLoader) {
+            mAssetLoader = assetLoader;
+        }
+
         @Override
         @SuppressWarnings("deprecation") // use the old one for compatibility with all API levels.
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -61,7 +64,7 @@ public class AssetLoaderInternalStorageActivity extends AppCompatActivity {
         @RequiresApi(21)
         public WebResourceResponse shouldInterceptRequest(WebView view,
                                             WebResourceRequest request) {
-            return mAssetLoader.shouldInterceptRequest(request.getUrl());
+            return mAssetLoader.shouldInterceptRequest(Api21Impl.getUrl(request));
         }
 
         @Override
@@ -80,32 +83,20 @@ public class AssetLoaderInternalStorageActivity extends AppCompatActivity {
         setTitle(R.string.asset_loader_internal_storage_activity_title);
         WebkitHelpers.appendWebViewVersionToTitle(this);
 
-        mWebView = findViewById(R.id.webview_asset_loader_webview);
-        mWebView.setWebViewClient(new MyWebViewClient());
+        WebView webView = findViewById(R.id.webview_asset_loader_webview);
 
         mPublicDir = new File(getFilesDir(), "public");
         mDemoFile = new File(mPublicDir, "some_text.html");
 
         // Host "files/public/" in app's data directory under:
         // http://appassets.androidplatform.net/public_data/...
-        mAssetLoader = new WebViewAssetLoader.Builder()
-                .addPathHandler("/public_data/", new InternalStoragePathHandler(this, mPublicDir))
-                .build();
+        WebViewAssetLoader assetLoader = new WebViewAssetLoader.Builder().addPathHandler(
+                "/public_data/", new InternalStoragePathHandler(this, mPublicDir)).build();
+
+        webView.setWebViewClient(new MyWebViewClient(assetLoader));
 
         // Write the demo file asynchronously and then load the file after it's written.
-        new WriteFileTask(mDemoFile, DEMO_HTML_CONTENT) {
-            @Override
-            protected void onPostExecute(Void result) {
-                Uri path = new Uri.Builder()
-                        .scheme("https")
-                        .authority(WebViewAssetLoader.DEFAULT_DOMAIN)
-                        .appendPath("public_data")
-                        .appendPath("some_text.html")
-                        .build();
-
-                mWebView.loadUrl(path.toString());
-            }
-        }.execute();
+        new WriteFileTask(webView, mDemoFile, DEMO_HTML_CONTENT).execute();
     }
 
     @Override
@@ -118,10 +109,12 @@ public class AssetLoaderInternalStorageActivity extends AppCompatActivity {
 
     // Writes to file asynchronously in the background thread.
     private static class WriteFileTask extends android.os.AsyncTask<Void, Void, Void> {
+        @NonNull private final WebView mWebView;
         @NonNull private final File mFile;
         @NonNull private final String mContent;
 
-        WriteFileTask(@NonNull File file, @NonNull String content) {
+        WriteFileTask(@NonNull WebView webView, @NonNull File file, @NonNull String content) {
+            mWebView = webView;
             mFile = file;
             mContent = content;
         }
@@ -135,6 +128,17 @@ public class AssetLoaderInternalStorageActivity extends AppCompatActivity {
                 throw new RuntimeException(e);
             }
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            Uri path = new Uri.Builder()
+                    .scheme("https")
+                    .authority(WebViewAssetLoader.DEFAULT_DOMAIN)
+                    .appendPath("public_data")
+                    .appendPath("some_text.html")
+                    .build();
+            mWebView.loadUrl(path.toString());
         }
 
     }
