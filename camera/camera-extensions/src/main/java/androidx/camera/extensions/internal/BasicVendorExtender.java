@@ -180,11 +180,16 @@ public class BasicVendorExtender implements VendorExtender {
         return map.getOutputSizes(imageFormat);
     }
 
-    private int getPreviewOutputImageFormat() {
-        return ImageFormat.PRIVATE;
+    private int getPreviewInputImageFormat() {
+        if (mPreviewExtenderImpl != null && mPreviewExtenderImpl.getProcessorType()
+                == PreviewExtenderImpl.ProcessorType.PROCESSOR_TYPE_IMAGE_PROCESSOR) {
+            return ImageFormat.YUV_420_888;
+        } else {
+            return ImageFormat.PRIVATE;
+        }
     }
 
-    private int getCaptureOutputImageFormat() {
+    private int getCaptureInputImageFormat() {
         if (mImageCaptureExtenderImpl != null
                 && mImageCaptureExtenderImpl.getCaptureProcessor() != null) {
             return ImageFormat.YUV_420_888;
@@ -213,7 +218,7 @@ public class BasicVendorExtender implements VendorExtender {
         // Returns output sizes from stream configuration map if OEM returns null or OEM does not
         // implement the function. It is required to return all supported sizes so it must fetch
         // all sizes from the stream configuration map here.
-        int imageformat = getPreviewOutputImageFormat();
+        int imageformat = getPreviewInputImageFormat();
         return Arrays.asList(new Pair<>(imageformat, getOutputSizes(imageformat)));
     }
 
@@ -237,7 +242,7 @@ public class BasicVendorExtender implements VendorExtender {
         // Returns output sizes from stream configuration map if OEM returns null or OEM does not
         // implement the function. It is required to return all supported sizes so it must fetch
         // all sizes from the stream configuration map here.
-        int imageFormat = getCaptureOutputImageFormat();
+        int imageFormat = getCaptureInputImageFormat();
         return Arrays.asList(new Pair<>(imageFormat, getOutputSizes(imageFormat)));
     }
 
