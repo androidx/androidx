@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.material.AutoCenteringParams
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.ListHeader
@@ -92,7 +93,8 @@ fun ScalingLazyColumnEdgeAnchoredAndAnimatedScrollTo() {
     ScalingLazyColumn(
         anchorType = ScalingLazyListAnchorType.ItemStart,
         verticalArrangement = Arrangement.spacedBy(itemSpacing),
-        state = state
+        state = state,
+        autoCentering = AutoCenteringParams(itemOffset = scrollOffset)
     ) {
         item {
             ListHeader {
@@ -119,7 +121,7 @@ fun ScalingLazyColumnEdgeAnchoredAndAnimatedScrollTo() {
 fun SimpleScalingLazyColumnWithContentPadding() {
     ScalingLazyColumn(
         contentPadding = PaddingValues(top = 20.dp, bottom = 20.dp),
-        autoCentering = false
+        autoCentering = null
     ) {
         item {
             ListHeader {

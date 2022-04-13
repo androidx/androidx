@@ -87,7 +87,7 @@ public class ScalingLazyColumnTest {
                     state = rememberScalingLazyListState().also { state = it },
                     modifier = Modifier.testTag(TEST_TAG).requiredSize(listSize),
                     anchorType = ScalingLazyListAnchorType.ItemCenter,
-                    autoCentering = true,
+                    autoCentering = AutoCenteringParams(),
                     verticalArrangement = Arrangement.spacedBy(0.dp),
                     scalingParams = ScalingLazyColumnDefaults.scalingParams(
                         edgeScale = 0f,
@@ -139,7 +139,7 @@ public class ScalingLazyColumnTest {
                     state = rememberScalingLazyListState().also { state = it },
                     modifier = Modifier.testTag(TEST_TAG).requiredSize(listSize),
                     anchorType = ScalingLazyListAnchorType.ItemStart,
-                    autoCentering = true,
+                    autoCentering = AutoCenteringParams(),
                     verticalArrangement = Arrangement.spacedBy(0.dp),
                     scalingParams = ScalingLazyColumnDefaults.scalingParams(
                         edgeScale = 0f,
@@ -192,7 +192,7 @@ public class ScalingLazyColumnTest {
                     modifier = Modifier.testTag(TEST_TAG).requiredSize(
                         itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
                     ),
-                    autoCentering = false
+                    autoCentering = null
                 ) {
                     items(5) {
                         Box(Modifier.requiredSize(itemSizeDp))
@@ -224,7 +224,7 @@ public class ScalingLazyColumnTest {
                     modifier = Modifier.testTag(TEST_TAG).requiredSize(
                         itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
                     ),
-                    autoCentering = false,
+                    autoCentering = null,
                     userScrollEnabled = false
                 ) {
                     items(5) {
@@ -259,7 +259,7 @@ public class ScalingLazyColumnTest {
                     modifier = Modifier.testTag(TEST_TAG).requiredSize(
                         itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
                     ),
-                    autoCentering = true
+                    autoCentering = AutoCenteringParams(itemIndex = 0)
                 ) {
                     items(5) {
                         Box(Modifier.requiredSize(itemSizeDp))
@@ -292,7 +292,7 @@ public class ScalingLazyColumnTest {
                     modifier = Modifier.testTag(TEST_TAG).requiredSize(
                         itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
                     ),
-                    autoCentering = true,
+                    autoCentering = AutoCenteringParams(itemIndex = 0),
                     flingBehavior = ScalingLazyColumnDefaults.snapFlingBehavior(state)
                 ) {
                     items(5) {
@@ -337,7 +337,7 @@ public class ScalingLazyColumnTest {
                     modifier = Modifier.testTag(TEST_TAG).requiredSize(
                         itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
                     ),
-                    autoCentering = true,
+                    autoCentering = AutoCenteringParams(itemIndex = 0),
                     flingBehavior = ScalingLazyColumnDefaults.snapFlingBehavior(
                         state = state,
                         snapOffset = snapOffset
@@ -381,7 +381,7 @@ public class ScalingLazyColumnTest {
                         itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
                     ),
                     reverseLayout = true,
-                    autoCentering = false
+                    autoCentering = null
                 ) {
                     items(5) {
                         Box(Modifier.requiredSize(itemSizeDp))
@@ -414,6 +414,7 @@ public class ScalingLazyColumnTest {
                         itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
                     ),
                     scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f),
+                    autoCentering = AutoCenteringParams(itemIndex = 0)
                 ) {
                     items(5) {
                         Box(Modifier.requiredSize(itemSizeDp).testTag("Item:" + it))
@@ -492,7 +493,7 @@ public class ScalingLazyColumnTest {
                     modifier = Modifier
                         .testTag(TEST_TAG)
                         .requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f),
-                    autoCentering = false
+                    autoCentering = null
                 ) {
                     items(6) {
                         Box(Modifier.requiredSize(itemSizeDp))
