@@ -307,7 +307,16 @@ public class DialogFragment extends Fragment
      * the fragment.
      */
     public void dismiss() {
-        dismissInternal(false, false);
+        dismissInternal(false, false, false);
+    }
+
+    /**
+     * Version of {@link #dismiss()} that uses {@link FragmentTransaction#commitNow()}.
+     * See linked documentation for further details.
+     */
+    @MainThread
+    public void dismissNow() {
+        dismissInternal(false, false, true);
     }
 
     /**
@@ -317,10 +326,10 @@ public class DialogFragment extends Fragment
      * documentation for further details.
      */
     public void dismissAllowingStateLoss() {
-        dismissInternal(true, false);
+        dismissInternal(true, false, false);
     }
 
-    private void dismissInternal(boolean allowStateLoss, boolean fromOnDismiss) {
+    private void dismissInternal(boolean allowStateLoss, boolean fromOnDismiss, boolean immediate) {
         if (mDismissed) {
             return;
         }
@@ -346,14 +355,22 @@ public class DialogFragment extends Fragment
         }
         mViewDestroyed = true;
         if (mBackStackId >= 0) {
-            getParentFragmentManager().popBackStack(mBackStackId,
-                    FragmentManager.POP_BACK_STACK_INCLUSIVE, allowStateLoss);
+            if (immediate) {
+                getParentFragmentManager().popBackStackImmediate(mBackStackId,
+                        FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            } else {
+                getParentFragmentManager().popBackStack(mBackStackId,
+                        FragmentManager.POP_BACK_STACK_INCLUSIVE, allowStateLoss);
+            }
             mBackStackId = -1;
         } else {
             FragmentTransaction ft = getParentFragmentManager().beginTransaction();
             ft.setReorderingAllowed(true);
             ft.remove(this);
-            if (allowStateLoss) {
+            // allowStateLoss and immediate should not both be true
+            if (immediate) {
+                ft.commitNow();
+            } else if (allowStateLoss) {
                 ft.commitAllowingStateLoss();
             } else {
                 ft.commit();
@@ -633,7 +650,7 @@ public class DialogFragment extends Fragment
             if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
                 Log.d(TAG, "onDismiss called for DialogFragment " + this);
             }
-            dismissInternal(true, true);
+            dismissInternal(true, true, false);
         }
     }
 
