@@ -40,6 +40,7 @@ import androidx.test.core.app.ApplicationProvider;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeoutException;
 
 /**
  * A wrapper around a WebView instance, to run View methods on the UI thread. This also includes
@@ -360,7 +361,19 @@ public class WebViewOnUiThread implements AutoCloseable{
     public void waitForDOMReadyToRender() {
         final ResolvableFuture<Void> future = ResolvableFuture.create();
         postVisualStateCallbackCompat(0, requestId -> future.set(null));
-        WebkitUtils.waitForFuture(future);
+        try {
+            WebkitUtils.waitForFuture(future);
+        } catch (RuntimeException e) {
+            if (e.getCause() instanceof TimeoutException) {
+                throw new RuntimeException(
+                        "Timeout while waiting for rendering. The most likely cause is that your "
+                                + "device's display is off. Enable the 'stay awake while "
+                                + "charging' developer option and try again.",
+                        e);
+            } else {
+                throw e;
+            }
+        }
     }
 
     /**
