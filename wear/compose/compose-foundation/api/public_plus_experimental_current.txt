@@ -132,9 +132,9 @@ package androidx.wear.compose.foundation {
   }
 
   public final class CurvedTextStyle {
-    ctor public CurvedTextStyle(optional long color, optional long fontSize, optional long background);
+    ctor public CurvedTextStyle(optional long background, optional long color, optional long fontSize);
     ctor public CurvedTextStyle(androidx.compose.ui.text.TextStyle style);
-    method public androidx.wear.compose.foundation.CurvedTextStyle copy(optional long color, optional long fontSize, optional long background);
+    method public androidx.wear.compose.foundation.CurvedTextStyle copy(optional long background, optional long color, optional long fontSize);
     method public operator boolean equals(Object? other);
     method public long getBackground();
     method public long getColor();
