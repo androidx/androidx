@@ -19,9 +19,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -105,29 +107,30 @@ public fun Chip(
     shape: Shape = MaterialTheme.shapes.small,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     role: Role? = Role.Button,
-    content: @Composable () -> Unit,
+    content: @Composable RowScope.() -> Unit,
 ) {
-    Box(
-        modifier = modifier
-            .height(ChipDefaults.Height)
-            .clip(shape = shape)
-            .paint(painter = colors.background(enabled = enabled).value,
-                contentScale = ContentScale.Crop
-            )
-            .clickable(
-                enabled = enabled,
-                onClick = onClick,
-                role = role,
-                indication = rememberRipple(),
-                interactionSource = interactionSource,
-            )
-            .fillMaxSize()
-            .padding(contentPadding)
+    CompositionLocalProvider(
+        LocalContentColor provides colors.contentColor(enabled = enabled).value,
+        LocalTextStyle provides MaterialTheme.typography.button,
+        LocalContentAlpha provides colors.contentColor(enabled = enabled).value.alpha,
     ) {
-        CompositionLocalProvider(
-            LocalContentColor provides colors.contentColor(enabled = enabled).value,
-            LocalTextStyle provides MaterialTheme.typography.button,
-            LocalContentAlpha provides colors.contentColor(enabled = enabled).value.alpha,
+        Row(
+            modifier = modifier
+                .height(ChipDefaults.Height)
+                .clip(shape = shape)
+                .paint(
+                    painter = colors.background(enabled = enabled).value,
+                    contentScale = ContentScale.Crop
+                )
+                .clickable(
+                    enabled = enabled,
+                    onClick = onClick,
+                    role = role,
+                    indication = rememberRipple(),
+                    interactionSource = interactionSource,
+                )
+                .fillMaxSize()
+                .padding(contentPadding),
             content = content
         )
     }
@@ -188,11 +191,11 @@ public fun Chip(
  */
 @Composable
 public fun Chip(
-    label: @Composable () -> Unit,
+    label: @Composable RowScope.() -> Unit,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    secondaryLabel: (@Composable () -> Unit)? = null,
-    icon: (@Composable () -> Unit)? = null,
+    secondaryLabel: (@Composable RowScope.() -> Unit)? = null,
+    icon: (@Composable BoxScope.() -> Unit)? = null,
     colors: ChipColors = ChipDefaults.primaryChipColors(),
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
@@ -211,33 +214,38 @@ public fun Chip(
             modifier = Modifier.fillMaxSize()
         ) {
             if (icon != null) {
-                Box(
-                    modifier = Modifier.wrapContentSize(align = Alignment.Center)
+                CompositionLocalProvider(
+                    LocalContentColor provides colors.iconTintColor(enabled).value,
+                    LocalContentAlpha provides
+                        colors.iconTintColor(enabled = enabled).value.alpha,
                 ) {
-                    CompositionLocalProvider(
-                        LocalContentColor provides colors.iconTintColor(enabled).value,
-                        LocalContentAlpha provides
-                            colors.iconTintColor(enabled = enabled).value.alpha,
+                    Box(
+                        modifier = Modifier.wrapContentSize(align = Alignment.Center),
                         content = icon
                     )
                 }
                 Spacer(modifier = Modifier.size(ChipDefaults.IconSpacing))
             }
             Column {
-                CompositionLocalProvider(
-                    LocalContentColor provides colors.contentColor(enabled).value,
-                    LocalTextStyle provides MaterialTheme.typography.button,
-                    LocalContentAlpha provides colors.contentColor(enabled = enabled).value.alpha,
-                    content = label
-                )
-                if (secondaryLabel != null) {
+                Row {
                     CompositionLocalProvider(
-                        LocalContentColor provides colors.secondaryContentColor(enabled).value,
-                        LocalTextStyle provides MaterialTheme.typography.caption2,
+                        LocalContentColor provides colors.contentColor(enabled).value,
+                        LocalTextStyle provides MaterialTheme.typography.button,
                         LocalContentAlpha provides
-                            colors.secondaryContentColor(enabled = enabled).value.alpha,
-                        content = secondaryLabel
+                            colors.contentColor(enabled = enabled).value.alpha,
+                        content = label
                     )
+                }
+                if (secondaryLabel != null) {
+                    Row {
+                        CompositionLocalProvider(
+                            LocalContentColor provides colors.secondaryContentColor(enabled).value,
+                            LocalTextStyle provides MaterialTheme.typography.caption2,
+                            LocalContentAlpha provides
+                                colors.secondaryContentColor(enabled = enabled).value.alpha,
+                            content = secondaryLabel
+                        )
+                    }
                 }
             }
         }
@@ -315,8 +323,8 @@ public fun Chip(
 public fun CompactChip(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    label: (@Composable () -> Unit)? = null,
-    icon: (@Composable () -> Unit)? = null,
+    label: (@Composable RowScope.() -> Unit)? = null,
+    icon: (@Composable BoxScope.() -> Unit)? = null,
     colors: ChipColors = ChipDefaults.primaryChipColors(),
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },

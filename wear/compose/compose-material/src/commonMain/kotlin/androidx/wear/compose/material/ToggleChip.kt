@@ -20,6 +20,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -124,11 +125,11 @@ import androidx.compose.ui.unit.dp
 public fun ToggleChip(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
-    label: @Composable () -> Unit,
+    label: @Composable RowScope.() -> Unit,
     toggleControl: @Composable () -> Unit,
     modifier: Modifier = Modifier,
-    appIcon: @Composable (() -> Unit)? = null,
-    secondaryLabel: @Composable (() -> Unit)? = null,
+    appIcon: @Composable (BoxScope.() -> Unit)? = null,
+    secondaryLabel: @Composable (RowScope.() -> Unit)? = null,
     colors: ToggleChipColors = ToggleChipDefaults.toggleChipColors(),
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
@@ -284,11 +285,11 @@ public fun ToggleChip(
 public fun SplitToggleChip(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
-    label: @Composable () -> Unit,
+    label: @Composable RowScope.() -> Unit,
     onClick: () -> Unit,
-    toggleControl: @Composable () -> Unit,
+    toggleControl: @Composable BoxScope.() -> Unit,
     modifier: Modifier = Modifier,
-    secondaryLabel: @Composable (() -> Unit)? = null,
+    secondaryLabel: @Composable (RowScope.() -> Unit)? = null,
     colors: SplitToggleChipColors = ToggleChipDefaults.splitToggleChipColors(),
     enabled: Boolean = true,
     checkedInteractionSource: MutableInteractionSource = remember { MutableInteractionSource() },
@@ -395,25 +396,29 @@ public fun SplitToggleChip(
 private fun RowScope.Labels(
     contentColor: Color,
     secondaryContentColor: Color,
-    label: @Composable () -> Unit,
-    secondaryLabel: @Composable (() -> Unit)?
+    label: @Composable RowScope.() -> Unit,
+    secondaryLabel: @Composable (RowScope.() -> Unit)?
 ) {
     Column(modifier = Modifier.weight(1.0f)) {
-        CompositionLocalProvider(
-            LocalContentColor provides
-                contentColor,
-            LocalTextStyle provides MaterialTheme.typography.button,
-            LocalContentAlpha provides
-                contentColor.alpha,
-            content = label
-        )
-        if (secondaryLabel != null) {
+        Row {
             CompositionLocalProvider(
-                LocalContentColor provides secondaryContentColor,
-                LocalTextStyle provides MaterialTheme.typography.caption2,
-                LocalContentAlpha provides secondaryContentColor.alpha,
-                content = secondaryLabel
+                LocalContentColor provides
+                    contentColor,
+                LocalTextStyle provides MaterialTheme.typography.button,
+                LocalContentAlpha provides
+                    contentColor.alpha,
+                content = label
             )
+        }
+        if (secondaryLabel != null) {
+            Row {
+                CompositionLocalProvider(
+                    LocalContentColor provides secondaryContentColor,
+                    LocalTextStyle provides MaterialTheme.typography.caption2,
+                    LocalContentAlpha provides secondaryContentColor.alpha,
+                    content = secondaryLabel
+                )
+            }
         }
     }
 }
@@ -560,7 +565,7 @@ public object ToggleChipDefaults {
         checkedSecondaryContentColor: Color = MaterialTheme.colors.onSurfaceVariant,
         checkedToggleControlTintColor: Color = MaterialTheme.colors.secondary,
         uncheckedStartBackgroundColor: Color = MaterialTheme.colors.surface,
-        uncheckedEndBackgroundColor: Color = MaterialTheme.colors.surface,
+        uncheckedEndBackgroundColor: Color = uncheckedStartBackgroundColor,
         uncheckedContentColor: Color = contentColorFor(checkedEndBackgroundColor),
         uncheckedSecondaryContentColor: Color = uncheckedContentColor,
         uncheckedToggleControlTintColor: Color = uncheckedContentColor,
@@ -697,8 +702,8 @@ public object ToggleChipDefaults {
     /**
      * The Wear Material UX recommended tint color to use for an unselected switch icon.
      */
-    @Composable
-    public fun switchUncheckedIconColor() = MaterialTheme.colors.onSurface.copy(0.6f)
+    public val SwitchUncheckedIconColor: Color
+        @Composable get() = MaterialTheme.colors.onSurface.copy(0.6f)
 
     private val ChipHorizontalPadding = 14.dp
     private val ChipVerticalPadding = 6.dp
