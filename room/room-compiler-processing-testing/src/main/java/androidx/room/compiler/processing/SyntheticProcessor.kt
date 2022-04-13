@@ -60,16 +60,10 @@ internal class SyntheticProcessorImpl(
         // A processing step that just ensures we're run every round.
         object : XProcessingStep {
             override fun annotations(): Set<String> = setOf("*")
-            @Deprecated(
-                "We're combining processOver() and this process() overload.",
-                replaceWith = ReplaceWith(
-                    "process(XProcessingEnv, Map<String, Set<XElement>>, Boolean)"
-                ),
-                level = DeprecationLevel.WARNING
-            )
             override fun process(
                 env: XProcessingEnv,
-                elementsByAnnotation: Map<String, Set<XElement>>
+                elementsByAnnotation: Map<String, Set<XElement>>,
+                isLastRound: Boolean
             ): Set<XTypeElement> = emptySet()
         }
     )
