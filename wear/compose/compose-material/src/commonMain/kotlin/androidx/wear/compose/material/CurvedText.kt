@@ -65,9 +65,9 @@ import androidx.wear.compose.foundation.curvedRow
  *
  * @param text The text to display
  * @param modifier The [CurvedModifier] to apply to this curved text.
+ * @param background The background color for the text.
  * @param color [Color] to apply to the text. If [Color.Unspecified], and [style] has no color set,
  * this will be [LocalContentColor].
- * @param background The background color for the text.
  * @param fontSize The size of glyphs to use when painting the text. See [TextStyle.fontSize].
  * @param style Specified the style to use.
  * @param angularDirection Specify if the text is laid out clockwise or anti-clockwise, and if
@@ -81,8 +81,8 @@ import androidx.wear.compose.foundation.curvedRow
 public fun CurvedScope.curvedText(
     text: String,
     modifier: CurvedModifier = CurvedModifier,
-    color: Color = Color.Unspecified,
     background: Color = Color.Unspecified,
+    color: Color = Color.Unspecified,
     fontSize: TextUnit = TextUnit.Unspecified,
     style: CurvedTextStyle? = null,
     angularDirection: CurvedDirection.Angular? = null,

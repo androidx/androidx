@@ -330,8 +330,8 @@ public fun PositionIndicator(
  * @param indicatorWidth the width of the position indicator in Dp.
  * @param paddingHorizontal the padding to apply between the indicator and the border of the screen.
  * @param modifier The modifier to be applied to the component.
- * @param color the color to draw the active part of the indicator in.
  * @param background the color to draw the non-active part of the position indicator.
+ * @param color the color to draw the active part of the indicator in.
  * @param reverseDirection Reverses direction of PositionIndicator if true.
  * @param position indicates where to put the PositionIndicator on the screen, default is
  * [PositionIndicatorPosition#End]
@@ -343,8 +343,8 @@ public fun PositionIndicator(
     indicatorWidth: Dp,
     paddingHorizontal: Dp,
     modifier: Modifier = Modifier,
-    color: Color = MaterialTheme.colors.onBackground,
     background: Color = MaterialTheme.colors.onBackground.copy(alpha = 0.3f),
+    color: Color = MaterialTheme.colors.onBackground,
     reverseDirection: Boolean = false,
     position: PositionIndicatorAlignment = PositionIndicatorAlignment.End
 ) {
