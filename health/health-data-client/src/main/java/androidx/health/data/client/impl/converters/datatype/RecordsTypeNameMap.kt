@@ -33,7 +33,7 @@ import androidx.health.data.client.records.CyclingPedalingCadence
 import androidx.health.data.client.records.Distance
 import androidx.health.data.client.records.ElevationGained
 import androidx.health.data.client.records.FloorsClimbed
-import androidx.health.data.client.records.HeartRate
+import androidx.health.data.client.records.HeartRateSeries
 import androidx.health.data.client.records.HeartRateVariabilityDifferentialIndex
 import androidx.health.data.client.records.HeartRateVariabilityRmssd
 import androidx.health.data.client.records.HeartRateVariabilityS
@@ -52,6 +52,7 @@ import androidx.health.data.client.records.Nutrition
 import androidx.health.data.client.records.OvulationTest
 import androidx.health.data.client.records.OxygenSaturation
 import androidx.health.data.client.records.Power
+import androidx.health.data.client.records.Record
 import androidx.health.data.client.records.Repetitions
 import androidx.health.data.client.records.RespiratoryRate
 import androidx.health.data.client.records.RestingHeartRate
@@ -67,6 +68,7 @@ import androidx.health.data.client.records.Vo2Max
 import androidx.health.data.client.records.WaistCircumference
 import androidx.health.data.client.records.Weight
 import androidx.health.data.client.records.WheelchairPushes
+import kotlin.reflect.KClass
 
 private val ALL_RECORDS_TYPES =
     setOf(
@@ -88,7 +90,7 @@ private val ALL_RECORDS_TYPES =
         Distance::class,
         ElevationGained::class,
         FloorsClimbed::class,
-        HeartRate::class,
+        HeartRateSeries::class,
         HeartRateVariabilityDifferentialIndex::class,
         HeartRateVariabilityRmssd::class,
         HeartRateVariabilityS::class,
@@ -124,4 +126,5 @@ private val ALL_RECORDS_TYPES =
         Weight::class,
     )
 
-val RECORDS_TYPE_NAME_MAP = ALL_RECORDS_TYPES.associateBy { it.simpleName!! }
+val RECORDS_TYPE_NAME_MAP: Map<String, KClass<out Record>> =
+    ALL_RECORDS_TYPES.associateBy { it.simpleName!! }

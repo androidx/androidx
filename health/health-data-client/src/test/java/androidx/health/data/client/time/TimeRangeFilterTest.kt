@@ -18,7 +18,9 @@ package androidx.health.data.client.time
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import java.time.Instant
 import java.time.LocalDateTime
+import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertNotEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -62,6 +64,51 @@ class TimeRangeFilterTest {
         TimeRangeFilter.between(
             startTime = LocalDateTime.parse("2021-02-01T01:00:00"),
             endTime = LocalDateTime.parse("2021-02-01T02:00:00")
+        )
+    }
+
+    @Test
+    fun equals() {
+        assertEquals(
+            TimeRangeFilter.between(
+                startTime = Instant.ofEpochMilli(1234L),
+                endTime = Instant.ofEpochMilli(5679L),
+            ),
+            TimeRangeFilter.between(
+                startTime = Instant.ofEpochMilli(1234L),
+                endTime = Instant.ofEpochMilli(5679L),
+            )
+        )
+        assertEquals(
+            TimeRangeFilter.between(
+                startTime = LocalDateTime.parse("2021-02-01T01:00:00"),
+                endTime = LocalDateTime.parse("2021-02-01T02:00:00")
+            ),
+            TimeRangeFilter.between(
+                startTime = LocalDateTime.parse("2021-02-01T01:00:00"),
+                endTime = LocalDateTime.parse("2021-02-01T02:00:00")
+            )
+        )
+
+        assertNotEquals(
+            TimeRangeFilter.between(
+                startTime = Instant.ofEpochMilli(1234L),
+                endTime = Instant.ofEpochMilli(5678L),
+            ),
+            TimeRangeFilter.between(
+                startTime = Instant.ofEpochMilli(1234L),
+                endTime = Instant.ofEpochMilli(5679L),
+            )
+        )
+        assertNotEquals(
+            TimeRangeFilter.between(
+                startTime = LocalDateTime.parse("2021-02-01T01:00:00"),
+                endTime = LocalDateTime.parse("2021-02-01T02:00:00")
+            ),
+            TimeRangeFilter.between(
+                startTime = LocalDateTime.parse("2021-02-01T01:30:00"),
+                endTime = LocalDateTime.parse("2021-02-01T02:00:00")
+            )
         )
     }
 }

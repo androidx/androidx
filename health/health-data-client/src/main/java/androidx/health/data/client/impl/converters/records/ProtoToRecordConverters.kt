@@ -34,6 +34,7 @@ import androidx.health.data.client.records.Distance
 import androidx.health.data.client.records.ElevationGained
 import androidx.health.data.client.records.FloorsClimbed
 import androidx.health.data.client.records.HeartRate
+import androidx.health.data.client.records.HeartRateSeries
 import androidx.health.data.client.records.HeartRateVariabilityDifferentialIndex
 import androidx.health.data.client.records.HeartRateVariabilityRmssd
 import androidx.health.data.client.records.HeartRateVariabilityS
@@ -69,11 +70,11 @@ import androidx.health.data.client.records.WaistCircumference
 import androidx.health.data.client.records.Weight
 import androidx.health.data.client.records.WheelchairPushes
 import androidx.health.platform.client.proto.DataProto
-import java.lang.RuntimeException
+import java.time.Instant
 
 /** Converts public API object into internal proto for ipc. */
-fun toRecord(proto: DataProto.DataPoint): Record {
-    return with(proto) {
+fun toRecord(proto: DataProto.DataPoint): Record =
+    with(proto) {
         when (dataType.name) {
             "BasalBodyTemperature" ->
                 BasalBodyTemperature(
@@ -163,12 +164,20 @@ fun toRecord(proto: DataProto.DataPoint): Record {
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
-            "HeartRate" ->
-                HeartRate(
-                    beatsPerMinute = getLong("bpm"),
-                    time = time,
-                    zoneOffset = zoneOffset,
-                    metadata = metadata
+            "HeartRateSeries" ->
+                HeartRateSeries(
+                    startTime = startTime,
+                    startZoneOffset = startZoneOffset,
+                    endTime = endTime,
+                    endZoneOffset = endZoneOffset,
+                    samples =
+                        seriesValuesList.map { value ->
+                            HeartRate(
+                                time = Instant.ofEpochMilli(value.instantTimeMillis),
+                                beatsPerMinute = value.getLong("bpm"),
+                            )
+                        },
+                    metadata = metadata,
                 )
             "Height" ->
                 Height(
@@ -533,4 +542,3 @@ fun toRecord(proto: DataProto.DataPoint): Record {
             else -> throw RuntimeException("Unknown data type ${dataType.name}")
         }
     }
-}

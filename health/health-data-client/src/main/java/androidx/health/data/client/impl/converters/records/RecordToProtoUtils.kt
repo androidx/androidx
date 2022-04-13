@@ -25,7 +25,7 @@ import java.time.Instant
 internal fun protoDataType(dataTypeName: String): DataProto.DataType =
     DataProto.DataType.newBuilder().setName(dataTypeName).build()
 
-@SuppressWarnings("GoodTime", "NewApi") // Suppress GoodTime for serialize/de-serialize.
+@SuppressWarnings("GoodTime") // Suppress GoodTime for serialize/de-serialize.
 internal fun InstantaneousRecord.instantaneousProto(): DataProto.DataPoint.Builder {
     val builder =
         DataProto.DataPoint.newBuilder()
@@ -35,7 +35,7 @@ internal fun InstantaneousRecord.instantaneousProto(): DataProto.DataPoint.Build
     return builder
 }
 
-@SuppressWarnings("GoodTime", "NewApi") // Suppress GoodTime for serialize/de-serialize.
+@SuppressWarnings("GoodTime") // Suppress GoodTime for serialize/de-serialize.
 internal fun IntervalRecord.intervalProto(): DataProto.DataPoint.Builder {
     val builder =
         DataProto.DataPoint.newBuilder()
@@ -47,7 +47,7 @@ internal fun IntervalRecord.intervalProto(): DataProto.DataPoint.Builder {
     return builder
 }
 
-@SuppressWarnings("GoodTime", "NewApi") // Suppress GoodTime for serialize/de-serialize.
+@SuppressWarnings("GoodTime") // Suppress GoodTime for serialize/de-serialize.
 private fun DataProto.DataPoint.Builder.setMetadata(metadata: Metadata) = apply {
     metadata.uid?.let { setUid(it) }
     if (metadata.dataOrigin.packageName.isNotEmpty()) {

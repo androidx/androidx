@@ -42,6 +42,7 @@ import androidx.health.data.client.records.Distance
 import androidx.health.data.client.records.ElevationGained
 import androidx.health.data.client.records.FloorsClimbed
 import androidx.health.data.client.records.HeartRate
+import androidx.health.data.client.records.HeartRateSeries
 import androidx.health.data.client.records.HeartRateVariabilityDifferentialIndex
 import androidx.health.data.client.records.HeartRateVariabilityRmssd
 import androidx.health.data.client.records.HeartRateVariabilityS
@@ -272,13 +273,29 @@ class AllRecordsConverterTest {
     }
 
     @Test
-    fun testHeartRate() {
+    fun testHeartRateSeries() {
         val data =
-            HeartRate(
-                beatsPerMinute = 1,
-                time = START_TIME,
-                zoneOffset = END_ZONE_OFFSET,
-                metadata = TEST_METADATA
+            HeartRateSeries(
+                startTime = START_TIME,
+                startZoneOffset = START_ZONE_OFFSET,
+                endTime = END_TIME,
+                endZoneOffset = END_ZONE_OFFSET,
+                samples =
+                    listOf(
+                        HeartRate(
+                            time = START_TIME,
+                            beatsPerMinute = 100L,
+                        ),
+                        HeartRate(
+                            time = START_TIME,
+                            beatsPerMinute = 110L,
+                        ),
+                        HeartRate(
+                            time = START_TIME,
+                            beatsPerMinute = 120L,
+                        ),
+                    ),
+                metadata = TEST_METADATA,
             )
 
         assertThat(toRecord(data.toProto())).isEqualTo(data)
