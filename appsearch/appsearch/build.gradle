@@ -36,6 +36,9 @@ dependencies {
     implementation('androidx.concurrent:concurrent-futures:1.0.0')
     implementation('androidx.core:core:1.7.0')
 
+    androidTestAnnotationProcessor(libs.autoValue)
+    androidTestImplementation(libs.autoValueAnnotations)
+
     androidTestAnnotationProcessor project(':appsearch:appsearch-compiler')
     androidTestImplementation project(':appsearch:appsearch-local-storage')
     androidTestImplementation project(':appsearch:appsearch-platform-storage')

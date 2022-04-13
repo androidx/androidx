@@ -9,7 +9,7 @@ import java.lang.String;
 import javax.annotation.processing.Generated;
 
 @Generated("androidx.appsearch.compiler.AppSearchCompiler")
-public class $$__AppSearch__AutoValue_Gift implements DocumentClassFactory<Gift> {
+public class $$__AppSearch__AutoValue_Outer_Gift implements DocumentClassFactory<Outer.Gift> {
   public static final String SCHEMA_NAME = "Gift";
 
   @Override
@@ -29,7 +29,7 @@ public class $$__AppSearch__AutoValue_Gift implements DocumentClassFactory<Gift>
   }
 
   @Override
-  public GenericDocument toGenericDocument(Gift document) throws AppSearchException {
+  public GenericDocument toGenericDocument(Outer.Gift document) throws AppSearchException {
     GenericDocument.Builder<?> builder =
         new GenericDocument.Builder<>(document.namespace(), document.id(), SCHEMA_NAME);
     String propertyCopy = document.property();
@@ -40,7 +40,7 @@ public class $$__AppSearch__AutoValue_Gift implements DocumentClassFactory<Gift>
   }
 
   @Override
-  public Gift fromGenericDocument(GenericDocument genericDoc) throws AppSearchException {
+  public Outer.Gift fromGenericDocument(GenericDocument genericDoc) throws AppSearchException {
     String idConv = genericDoc.getId();
     String namespaceConv = genericDoc.getNamespace();
     String[] propertyCopy = genericDoc.getPropertyStringArray("property");
@@ -48,7 +48,7 @@ public class $$__AppSearch__AutoValue_Gift implements DocumentClassFactory<Gift>
     if (propertyCopy != null && propertyCopy.length != 0) {
       propertyConv = propertyCopy[0];
     }
-    Gift document = Gift.create(idConv, namespaceConv, propertyConv);
+    Outer.Gift document = Outer.Gift.create(idConv, namespaceConv, propertyConv);
     return document;
   }
 }

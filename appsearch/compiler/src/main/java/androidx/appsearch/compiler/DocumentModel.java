@@ -65,6 +65,8 @@ class DocumentModel {
     private final IntrospectionHelper mHelper;
     private final TypeElement mClass;
     private final AnnotationMirror mDocumentAnnotation;
+    // The name of the original class annotated with @Document
+    private final String mQualifiedDocumentClassName;
     // Warning: if you change this to a HashSet, we may choose different getters or setters from
     // run to run, causing the generated code to bounce.
     private final Set<ExecutableElement> mAllMethods = new LinkedHashSet<>();
@@ -116,6 +118,7 @@ class DocumentModel {
             mAllMethods.addAll(
                     ElementFilter.methodsIn(generatedAutoValueElement.getEnclosedElements()));
 
+            mQualifiedDocumentClassName = generatedAutoValueElement.getQualifiedName().toString();
             scanFields(generatedAutoValueElement);
             scanCreationMethods(creationMethods);
         } else {
@@ -135,6 +138,7 @@ class DocumentModel {
                 }
             }
 
+            mQualifiedDocumentClassName = clazz.getQualifiedName().toString();
             scanFields(mClass);
             scanCreationMethods(creationMethods);
         }
@@ -167,6 +171,15 @@ class DocumentModel {
     @NonNull
     public TypeElement getClassElement() {
         return mClass;
+    }
+
+    /**
+     * The name of the original class annotated with @Document
+     * @return the class name
+     */
+    @NonNull
+    public String getQualifiedDocumentClassName() {
+        return mQualifiedDocumentClassName;
     }
 
     @NonNull
