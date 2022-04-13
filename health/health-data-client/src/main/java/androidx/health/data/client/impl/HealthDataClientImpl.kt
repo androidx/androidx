@@ -18,8 +18,10 @@ package androidx.health.data.client.impl
 import androidx.health.data.client.HealthDataClient
 import androidx.health.data.client.aggregate.AggregateDataRow
 import androidx.health.data.client.aggregate.AggregateDataRowGroupByDuration
+import androidx.health.data.client.aggregate.AggregateDataRowGroupByPeriod
 import androidx.health.data.client.impl.converters.aggregate.retrieveAggregateDataRow
 import androidx.health.data.client.impl.converters.aggregate.toAggregateDataRowGroupByDuration
+import androidx.health.data.client.impl.converters.aggregate.toAggregateDataRowGroupByPeriod
 import androidx.health.data.client.impl.converters.datatype.toDataTypeIdPairProtoList
 import androidx.health.data.client.impl.converters.datatype.toDataTypeName
 import androidx.health.data.client.impl.converters.permission.toJetpackPermission
@@ -35,6 +37,7 @@ import androidx.health.data.client.impl.converters.response.toReadRecordsRespons
 import androidx.health.data.client.permission.Permission
 import androidx.health.data.client.records.Record
 import androidx.health.data.client.request.AggregateGroupByDurationRequest
+import androidx.health.data.client.request.AggregateGroupByPeriodRequest
 import androidx.health.data.client.request.AggregateRequest
 import androidx.health.data.client.request.ChangesTokenRequest
 import androidx.health.data.client.request.ReadRecordsRequest
@@ -157,5 +160,12 @@ class HealthDataClientImpl(
     ): List<AggregateDataRowGroupByDuration> {
         val responseProto = delegate.aggregate(request.toProto()).await()
         return responseProto.rowsList.map { it.toAggregateDataRowGroupByDuration() }.toList()
+    }
+
+    override suspend fun aggregateGroupByPeriod(
+        request: AggregateGroupByPeriodRequest
+    ): List<AggregateDataRowGroupByPeriod> {
+        val responseProto = delegate.aggregate(request.toProto()).await()
+        return responseProto.rowsList.map { it.toAggregateDataRowGroupByPeriod() }.toList()
     }
 }

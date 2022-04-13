@@ -24,6 +24,8 @@ import android.content.pm.PackageInfo
 import android.os.Looper
 import androidx.health.data.client.HealthDataClient
 import androidx.health.data.client.aggregate.AggregateDataRow
+import androidx.health.data.client.aggregate.AggregateDataRowGroupByDuration
+import androidx.health.data.client.aggregate.AggregateDataRowGroupByPeriod
 import androidx.health.data.client.changes.DeletionChange
 import androidx.health.data.client.changes.UpsertionChange
 import androidx.health.data.client.metadata.DataOrigin
@@ -37,6 +39,7 @@ import androidx.health.data.client.records.Steps
 import androidx.health.data.client.records.Steps.Companion.STEPS_COUNT_TOTAL
 import androidx.health.data.client.records.Weight
 import androidx.health.data.client.request.AggregateGroupByDurationRequest
+import androidx.health.data.client.request.AggregateGroupByPeriodRequest
 import androidx.health.data.client.request.AggregateRequest
 import androidx.health.data.client.request.ChangesTokenRequest
 import androidx.health.data.client.request.ReadRecordsRequest
@@ -66,6 +69,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import java.time.Duration
 import java.time.Instant
+import java.time.LocalDateTime
+import java.time.Period
+import java.time.ZoneOffset
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
@@ -102,6 +108,11 @@ private val API_METHOD_LIST =
         {
             aggregateGroupByDuration(
                 AggregateGroupByDurationRequest(setOf(), TimeRangeFilter.none(), Duration.ZERO)
+            )
+        },
+        {
+            aggregateGroupByPeriod(
+                AggregateGroupByPeriodRequest(setOf(), TimeRangeFilter.none(), Period.ZERO)
             )
         },
         { getChanges("token") },
@@ -558,26 +569,37 @@ class HealthDataClientImplTest {
 
     @Test
     fun aggregateGroupByDuration_totalSteps() = runTest {
-        val dataOrigin = DataProto.DataOrigin.newBuilder().setApplicationId("id").build()
-        val aggregateDataRow =
+        val bucket1 =
             DataProto.AggregateDataRow.newBuilder()
                 .setStartTimeEpochMs(1234)
-                .setEndTimeEpochMs(4567)
+                .setEndTimeEpochMs(2234)
                 .setZoneOffsetSeconds(999)
-                .addDataOrigins(dataOrigin)
+                .addDataOrigins(DataProto.DataOrigin.newBuilder().setApplicationId("id"))
                 .putLongValues("Steps_count_total", 1000)
+                .build()
+        val bucket2 =
+            DataProto.AggregateDataRow.newBuilder()
+                .setStartTimeEpochMs(2234)
+                .setEndTimeEpochMs(3234)
+                .setZoneOffsetSeconds(999)
+                .addDataOrigins(DataProto.DataOrigin.newBuilder().setApplicationId("id2"))
+                .putLongValues("Steps_count_total", 1500)
                 .build()
         fakeAhpServiceStub.aggregateDataResponse =
             AggregateDataResponse(
-                ResponseProto.AggregateDataResponse.newBuilder().addRows(aggregateDataRow).build()
+                ResponseProto.AggregateDataResponse.newBuilder()
+                    .addRows(bucket1)
+                    .addRows(bucket2)
+                    .build()
             )
         val deferred = async {
             val startTime = Instant.ofEpochMilli(1234)
             val endTime = Instant.ofEpochMilli(4567)
-            healthDataClient.aggregate(
-                AggregateRequest(
+            healthDataClient.aggregateGroupByDuration(
+                AggregateGroupByDurationRequest(
                     setOf(STEPS_COUNT_TOTAL),
-                    TimeRangeFilter.between(startTime, endTime)
+                    TimeRangeFilter.between(startTime, endTime),
+                    Duration.ofMillis(1000)
                 )
             )
         }
@@ -585,10 +607,19 @@ class HealthDataClientImplTest {
         advanceUntilIdle()
         waitForMainLooperIdle()
 
-        val response: AggregateDataRow = deferred.await()
-        assertThat(response.hasMetric(STEPS_COUNT_TOTAL)).isTrue()
-        assertThat(response.getMetric(STEPS_COUNT_TOTAL)).isEqualTo(1000)
-        assertThat(response.dataOrigins).contains(DataOrigin("id"))
+        val response: List<AggregateDataRowGroupByDuration> = deferred.await()
+        assertThat(response[0].data.hasMetric(STEPS_COUNT_TOTAL)).isTrue()
+        assertThat(response[0].data.getMetric(STEPS_COUNT_TOTAL)).isEqualTo(1000)
+        assertThat(response[0].data.dataOrigins).contains(DataOrigin("id"))
+        assertThat(response[0].startTime).isEqualTo(Instant.ofEpochMilli(1234))
+        assertThat(response[0].endTime).isEqualTo(Instant.ofEpochMilli(2234))
+        assertThat(response[0].zoneOffset).isEqualTo(ZoneOffset.ofTotalSeconds(999))
+        assertThat(response[1].data.hasMetric(STEPS_COUNT_TOTAL)).isTrue()
+        assertThat(response[1].data.getMetric(STEPS_COUNT_TOTAL)).isEqualTo(1500)
+        assertThat(response[1].data.dataOrigins).contains(DataOrigin("id2"))
+        assertThat(response[1].startTime).isEqualTo(Instant.ofEpochMilli(2234))
+        assertThat(response[1].endTime).isEqualTo(Instant.ofEpochMilli(3234))
+        assertThat(response[1].zoneOffset).isEqualTo(ZoneOffset.ofTotalSeconds(999))
         assertThat(fakeAhpServiceStub.lastAggregateRequest?.proto)
             .isEqualTo(
                 RequestProto.AggregateDataRequest.newBuilder()
@@ -598,6 +629,78 @@ class HealthDataClientImplTest {
                             .setEndTimeEpochMs(4567)
                             .build()
                     )
+                    .setSliceDurationMillis(1000)
+                    .addMetricSpec(
+                        RequestProto.AggregateMetricSpec.newBuilder()
+                            .setDataTypeName("Steps")
+                            .setAggregationType("total")
+                            .setFieldName("count")
+                            .build()
+                    )
+                    .build()
+            )
+    }
+
+    @Test
+    fun aggregateGroupByPeriod_totalSteps() = runTest {
+        val dataOrigin = DataProto.DataOrigin.newBuilder().setApplicationId("id").build()
+        val bucket1 =
+            DataProto.AggregateDataRow.newBuilder()
+                .setStartLocalDateTime("2022-02-11T20:22:02")
+                .setEndLocalDateTime("2022-02-12T20:22:02")
+                .addDataOrigins(dataOrigin)
+                .putLongValues("Steps_count_total", 1500)
+                .build()
+        val bucket2 =
+            DataProto.AggregateDataRow.newBuilder()
+                .setStartLocalDateTime("2022-02-12T20:22:02")
+                .setEndLocalDateTime("2022-02-13T20:22:02")
+                .addDataOrigins(dataOrigin)
+                .putLongValues("Steps_count_total", 2000)
+                .build()
+        fakeAhpServiceStub.aggregateDataResponse =
+            AggregateDataResponse(
+                ResponseProto.AggregateDataResponse.newBuilder()
+                    .addRows(bucket1)
+                    .addRows(bucket2)
+                    .build()
+            )
+        val deferred = async {
+            val startTime = LocalDateTime.parse("2022-02-11T20:22:02")
+            val endTime = LocalDateTime.parse("2022-02-22T20:22:02")
+            healthDataClient.aggregateGroupByPeriod(
+                AggregateGroupByPeriodRequest(
+                    setOf(STEPS_COUNT_TOTAL),
+                    TimeRangeFilter.between(startTime, endTime),
+                    Period.ofDays(1)
+                )
+            )
+        }
+
+        advanceUntilIdle()
+        waitForMainLooperIdle()
+
+        val response: List<AggregateDataRowGroupByPeriod> = deferred.await()
+        assertThat(response[0].data.hasMetric(STEPS_COUNT_TOTAL)).isTrue()
+        assertThat(response[0].data.getMetric(STEPS_COUNT_TOTAL)).isEqualTo(1500)
+        assertThat(response[0].data.dataOrigins).contains(DataOrigin("id"))
+        assertThat(response[0].startTime).isEqualTo(LocalDateTime.parse("2022-02-11T20:22:02"))
+        assertThat(response[0].endTime).isEqualTo(LocalDateTime.parse("2022-02-12T20:22:02"))
+        assertThat(response[1].data.hasMetric(STEPS_COUNT_TOTAL)).isTrue()
+        assertThat(response[1].data.getMetric(STEPS_COUNT_TOTAL)).isEqualTo(2000)
+        assertThat(response[1].data.dataOrigins).contains(DataOrigin("id"))
+        assertThat(response[1].startTime).isEqualTo(LocalDateTime.parse("2022-02-12T20:22:02"))
+        assertThat(response[1].endTime).isEqualTo(LocalDateTime.parse("2022-02-13T20:22:02"))
+        assertThat(fakeAhpServiceStub.lastAggregateRequest?.proto)
+            .isEqualTo(
+                RequestProto.AggregateDataRequest.newBuilder()
+                    .setTimeSpec(
+                        TimeProto.TimeSpec.newBuilder()
+                            .setStartLocalDateTime("2022-02-11T20:22:02")
+                            .setEndLocalDateTime("2022-02-22T20:22:02")
+                            .build()
+                    )
+                    .setSlicePeriod(Period.ofDays(1).toString())
                     .addMetricSpec(
                         RequestProto.AggregateMetricSpec.newBuilder()
                             .setDataTypeName("Steps")

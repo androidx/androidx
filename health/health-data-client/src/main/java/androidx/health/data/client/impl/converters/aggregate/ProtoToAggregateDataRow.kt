@@ -17,13 +17,15 @@ package androidx.health.data.client.impl.converters.aggregate
 
 import androidx.health.data.client.aggregate.AggregateDataRow
 import androidx.health.data.client.aggregate.AggregateDataRowGroupByDuration
+import androidx.health.data.client.aggregate.AggregateDataRowGroupByPeriod
 import androidx.health.data.client.metadata.DataOrigin
 import androidx.health.platform.client.proto.DataProto
 import java.time.Instant
+import java.time.LocalDateTime
 import java.time.ZoneOffset
 
 // ZoneOffset.ofTotalSeconds() has been banned but safe here for serialization.
-@SuppressWarnings("GoodTime, NewApi")
+@SuppressWarnings("GoodTime")
 fun DataProto.AggregateDataRow.toAggregateDataRowGroupByDuration():
     AggregateDataRowGroupByDuration {
     require(hasStartTimeEpochMs()) { "start time must be set" }
@@ -34,6 +36,17 @@ fun DataProto.AggregateDataRow.toAggregateDataRowGroupByDuration():
         startTime = Instant.ofEpochMilli(startTimeEpochMs),
         endTime = Instant.ofEpochMilli(endTimeEpochMs),
         zoneOffset = ZoneOffset.ofTotalSeconds(zoneOffsetSeconds)
+    )
+}
+
+fun DataProto.AggregateDataRow.toAggregateDataRowGroupByPeriod(): AggregateDataRowGroupByPeriod {
+    require(hasStartLocalDateTime()) { "start time must be set" }
+    require(hasEndLocalDateTime()) { "end time must be set" }
+
+    return AggregateDataRowGroupByPeriod(
+        data = retrieveAggregateDataRow(),
+        startTime = LocalDateTime.parse(startLocalDateTime),
+        endTime = LocalDateTime.parse(endLocalDateTime),
     )
 }
 

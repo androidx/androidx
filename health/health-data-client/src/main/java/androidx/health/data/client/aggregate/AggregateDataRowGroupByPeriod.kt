@@ -16,21 +16,19 @@
 package androidx.health.data.client.aggregate
 
 import androidx.annotation.RestrictTo
-import java.time.Instant
-import java.time.ZoneOffset
+import java.time.LocalDateTime
 
 /**
  * Represents an aggregation result row.
  *
- * @see [androidx.health.data.client.HealthDataClient.aggregateGroupByDuration]
+ * @see [androidx.health.data.client.HealthDataClient.aggregateGroupByPeriod]
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class AggregateDataRowGroupByDuration
+class AggregateDataRowGroupByPeriod
 internal constructor(
     public val data: AggregateDataRow,
-    public val startTime: Instant,
-    public val endTime: Instant,
-    public val zoneOffset: ZoneOffset,
+    public val startTime: LocalDateTime,
+    public val endTime: LocalDateTime,
 ) {
     init {
         require(startTime.isBefore(endTime)) { "start time must be before end time" }
