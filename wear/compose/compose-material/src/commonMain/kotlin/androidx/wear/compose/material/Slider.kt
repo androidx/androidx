@@ -77,6 +77,8 @@ import kotlin.math.roundToInt
  * @param steps Specifies the number of discrete values, excluding min and max values, evenly
  * distributed across the whole value range. Must not be negative. If 0, slider will have only
  * min and max values and no steps in between
+ * @param decreaseIcon A slot for an icon which is placed on the decrease (start) button
+ * @param increaseIcon A slot for an icon which is placed on the increase (end) button
  * @param modifier Modifiers for the Slider layout
  * @param enabled Controls the enabled state of the slider.
  * When `false`, this slider will not be clickable
@@ -85,8 +87,6 @@ import kotlin.math.roundToInt
  * @param segmented A boolean value which specifies whether a bar will be split into
  * segments or not. Recommendation is while using this flag do not have more than 8 [steps]
  * as it might affect user experience. By default true if number of [steps] is <=8.
- * @param decreaseIcon A slot for an icon which is placed on the decrease (start) button
- * @param increaseIcon A slot for an icon which is placed on the increase (end) button
  * @param colors [InlineSliderColors] that will be used to resolve the background and content
  * color for this slider in different states
  */
@@ -95,12 +95,12 @@ public fun InlineSlider(
     value: Float,
     onValueChange: (Float) -> Unit,
     steps: Int,
+    decreaseIcon: @Composable () -> Unit,
+    increaseIcon: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     valueRange: ClosedFloatingPointRange<Float> = 0f..(steps + 1).toFloat(),
     segmented: Boolean = steps <= 8,
-    decreaseIcon: @Composable () -> Unit,
-    increaseIcon: @Composable () -> Unit,
     colors: InlineSliderColors = InlineSliderDefaults.colors(),
 ) {
     require(steps >= 0) { "steps should be >= 0" }
@@ -214,16 +214,16 @@ public fun InlineSlider(
  * @param value Current value of the Slider. If outside of [valueProgression] provided, value will be
  * coerced to this range.
  * @param onValueChange Lambda in which value should be updated
+ * @param valueProgression Progression of values that Slider value can take. Consists of
+ * rangeStart, rangeEnd and step. Range will be equally divided by step size
+ * @param decreaseIcon A slot for an icon which is placed on the decrease (start) button
+ * @param increaseIcon A slot for an icon which is placed on the increase (end) button
  * @param modifier Modifiers for the Slider layout
  * @param enabled Controls the enabled state of the slider.
  * When `false`, this slider will not be clickable
- * @param valueProgression Progression of values that Slider value can take. Consists of
- * rangeStart, rangeEnd and step. Range will be equally divided by step size
  * @param segmented A boolean value which specifies whether a bar will be split into
  * segments or not. Recommendation is while using this flag do not have more than 8 steps
  * as it might affect user experience. By default true if number of steps is <=8.
- * @param decreaseIcon A slot for an icon which is placed on the decrease (start) button
- * @param increaseIcon A slot for an icon which is placed on the increase (end) button
  * @param colors [InlineSliderColors] that will be used to resolve the background and content
  * color for this slider in different states
  */
@@ -231,12 +231,12 @@ public fun InlineSlider(
 public fun InlineSlider(
     value: Int,
     onValueChange: (Int) -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
     valueProgression: IntProgression,
-    segmented: Boolean = valueProgression.stepsNumber() <= 8,
     decreaseIcon: @Composable () -> Unit,
     increaseIcon: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    segmented: Boolean = valueProgression.stepsNumber() <= 8,
     colors: InlineSliderColors = InlineSliderDefaults.colors(),
 ) {
     InlineSlider(
