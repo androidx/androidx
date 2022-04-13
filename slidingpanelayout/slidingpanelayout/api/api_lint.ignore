@@ -1,7 +1,7 @@
 // Baseline format: 1.0
-InvalidNullability: androidx.slidingpanelayout.widget.SlidingPaneLayout#addView(android.view.View, int, android.view.ViewGroup.LayoutParams) parameter #0:
+InvalidNullabilityOverride: androidx.slidingpanelayout.widget.SlidingPaneLayout#addView(android.view.View, int, android.view.ViewGroup.LayoutParams) parameter #0:
     Invalid nullability on parameter `child` in method `addView`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullability: androidx.slidingpanelayout.widget.SlidingPaneLayout#removeView(android.view.View) parameter #0:
+InvalidNullabilityOverride: androidx.slidingpanelayout.widget.SlidingPaneLayout#removeView(android.view.View) parameter #0:
     Invalid nullability on parameter `view` in method `removeView`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 
 

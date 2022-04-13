@@ -1,7 +1,7 @@
 // Baseline format: 1.0
-InvalidNullability: androidx.viewpager2.widget.WindowInsetsApplier#onApplyWindowInsets(android.view.View, androidx.core.view.WindowInsetsCompat) parameter #0:
+InvalidNullabilityOverride: androidx.viewpager2.widget.WindowInsetsApplier#onApplyWindowInsets(android.view.View, androidx.core.view.WindowInsetsCompat) parameter #0:
     Invalid nullability on parameter `v` in method `onApplyWindowInsets`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullability: androidx.viewpager2.widget.WindowInsetsApplier#onApplyWindowInsets(android.view.View, androidx.core.view.WindowInsetsCompat) parameter #1:
+InvalidNullabilityOverride: androidx.viewpager2.widget.WindowInsetsApplier#onApplyWindowInsets(android.view.View, androidx.core.view.WindowInsetsCompat) parameter #1:
     Invalid nullability on parameter `insets` in method `onApplyWindowInsets`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 
 
