@@ -57,44 +57,39 @@ import androidx.lifecycle.LifecycleOwner;
 /** A simple screen that demonstrates how to use notifications in a car app. */
 public final class NotificationDemoScreen extends Screen implements DefaultLifecycleObserver {
 
+    static final long NOTIFICATION_DELAY_IN_MILLIS = SECONDS.toMillis(1);
     private static final String NOTIFICATION_CHANNEL_ID = "channel_00";
     private static final CharSequence NOTIFICATION_CHANNEL_NAME = "Default Channel";
     private static final int NOTIFICATION_ID = 1001;
-
     private static final String NOTIFICATION_CHANNEL_HIGH_ID = "channel_01";
     private static final CharSequence NOTIFICATION_CHANNEL_HIGH_NAME = "High Channel";
-
     private static final String NOTIFICATION_CHANNEL_LOW_ID = "channel_02";
     private static final CharSequence NOTIFICATION_CHANNEL_LOW_NAME = "Low Channel";
-
     private static final String INTENT_ACTION_PRIMARY_PHONE =
             "androidx.car.app.sample.showcase.common.INTENT_ACTION_PRIMARY_PHONE";
     private static final String INTENT_ACTION_SECONDARY_PHONE =
             "androidx.car.app.sample.showcase.common.INTENT_ACTION_SECONDARY_PHONE";
-
     private static final int MSG_SEND_NOTIFICATION = 1;
-
-    static final long NOTIFICATION_DELAY_IN_MILLIS = SECONDS.toMillis(1);
     final Handler mHandler = new Handler(Looper.getMainLooper(), new HandlerCallback());
 
     private final IconCompat mIcon = IconCompat.createWithResource(getCarContext(),
             R.drawable.ic_face_24px);
-    private int mImportance = NotificationManager.IMPORTANCE_DEFAULT;
-    private boolean mIsNavCategory = false;
-    private boolean mSetOngoing = false;
-    private int mNotificationCount = 0;
-
     /** A broadcast receiver that can show a toast message upon receiving a broadcast. */
     private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             CarToast.makeText(
-                    getCarContext(),
-                    "Triggered: " + intent.getAction(),
-                    CarToast.LENGTH_SHORT)
+                            getCarContext(),
+                            getCarContext().getString(R.string.triggered_toast_msg) + ": "
+                                    + intent.getAction(),
+                            CarToast.LENGTH_SHORT)
                     .show();
         }
     };
+    private int mImportance = NotificationManager.IMPORTANCE_DEFAULT;
+    private boolean mIsNavCategory = false;
+    private boolean mSetOngoing = false;
+    private int mNotificationCount = 0;
 
     public NotificationDemoScreen(@NonNull CarContext carContext) {
         super(carContext);
@@ -121,7 +116,7 @@ public final class NotificationDemoScreen extends Screen implements DefaultLifec
         // Send a single notification with the settings configured by other buttons.
         listBuilder.addItem(
                 new GridItem.Builder()
-                        .setTitle("Send a notification")
+                        .setTitle(getCarContext().getString(R.string.send_notification_title))
                         .setImage(new CarIcon.Builder(mIcon).build())
                         .setOnClickListener(this::sendNotification)
                         .build());
@@ -129,7 +124,7 @@ public final class NotificationDemoScreen extends Screen implements DefaultLifec
         // Start a repeating notification with the settings configured by other buttons.
         listBuilder.addItem(
                 new GridItem.Builder()
-                        .setTitle("Start notifications")
+                        .setTitle(getCarContext().getString(R.string.start_notifications_title))
                         .setImage(new CarIcon.Builder(mIcon).build())
                         .setOnClickListener(() -> mHandler.sendMessage(
                                 mHandler.obtainMessage(MSG_SEND_NOTIFICATION)))
@@ -138,7 +133,7 @@ public final class NotificationDemoScreen extends Screen implements DefaultLifec
         // Stop the repeating notification and reset the count.
         listBuilder.addItem(
                 new GridItem.Builder()
-                        .setTitle("Stop notifications")
+                        .setTitle(getCarContext().getString(R.string.stop_notifications_title))
                         .setImage(new CarIcon.Builder(mIcon).build())
                         .setOnClickListener(() -> {
                             mHandler.removeMessages(MSG_SEND_NOTIFICATION);
@@ -151,7 +146,7 @@ public final class NotificationDemoScreen extends Screen implements DefaultLifec
         listBuilder.addItem(
                 new GridItem.Builder()
                         .setImage(new CarIcon.Builder(mIcon).build())
-                        .setTitle("Importance")
+                        .setTitle(getCarContext().getString(R.string.importance_title))
                         .setText(getImportanceString())
                         .setOnClickListener(() -> {
                             setImportance();
@@ -163,7 +158,7 @@ public final class NotificationDemoScreen extends Screen implements DefaultLifec
         listBuilder.addItem(
                 new GridItem.Builder()
                         .setImage(new CarIcon.Builder(mIcon).build())
-                        .setTitle("Category")
+                        .setTitle(getCarContext().getString(R.string.category_title))
                         .setText(getCategoryString())
                         .setOnClickListener(() -> {
                             mIsNavCategory = !mIsNavCategory;
@@ -175,7 +170,7 @@ public final class NotificationDemoScreen extends Screen implements DefaultLifec
         listBuilder.addItem(
                 new GridItem.Builder()
                         .setImage(new CarIcon.Builder(mIcon).build())
-                        .setTitle("Ongoing")
+                        .setTitle(getCarContext().getString(R.string.ongoing_title))
                         .setText(String.valueOf(mSetOngoing))
                         .setOnClickListener(() -> {
                             mSetOngoing = !mSetOngoing;
@@ -185,15 +180,19 @@ public final class NotificationDemoScreen extends Screen implements DefaultLifec
 
         return new GridTemplate.Builder()
                 .setSingleList(listBuilder.build())
-                .setTitle("Notification Demo")
+                .setTitle(getCarContext().getString(R.string.notification_demo))
                 .setHeaderAction(Action.BACK)
                 .build();
     }
 
     void sendNotification() {
         mNotificationCount++;
-        String title = "Notification: " + getImportanceString() + ", " + mNotificationCount;
-        String text = "Category: " + getCategoryString() + ", ongoing: " + mSetOngoing;
+        String title =
+                getCarContext().getString(R.string.notification_title) + ": "
+                        + getImportanceString() + ", " + mNotificationCount;
+        String text = getCarContext().getString(R.string.category_title) + ": "
+                + getCategoryString() + ", "
+                + getCarContext().getString(R.string.ongoing_title) + ": " + mSetOngoing;
 
         switch (mImportance) {
             case NotificationManager.IMPORTANCE_HIGH:
@@ -269,11 +268,11 @@ public final class NotificationDemoScreen extends Screen implements DefaultLifec
                                                 R.drawable.ic_hi))
                                 .addAction(
                                         R.drawable.ic_commute_24px,
-                                        "Navigate",
+                                        getCarContext().getString(R.string.navigate),
                                         getPendingIntentForNavigation())
                                 .addAction(
                                         R.drawable.ic_face_24px,
-                                        "Call",
+                                        getCarContext().getString(R.string.call_action_title),
                                         createPendingIntentForCall())
                                 .build());
 

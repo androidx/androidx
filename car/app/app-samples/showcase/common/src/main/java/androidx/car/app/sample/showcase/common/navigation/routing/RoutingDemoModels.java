@@ -48,11 +48,14 @@ import java.util.concurrent.TimeUnit;
 /** A class that provides models for the routing demos. */
 public abstract class RoutingDemoModels {
 
+    private RoutingDemoModels() {
+    }
+
     /** Returns the current {@link Step} with information such as the cue text and images. */
     @NonNull
     public static Step getCurrentStep(@NonNull CarContext carContext) {
         // Create the cue text, and span the "520" text with a highway sign image.
-        String currentStepCue = "Roy st 520";
+        String currentStepCue = carContext.getString(R.string.current_step_cue);
         SpannableString currentStepCueWithImage = new SpannableString(currentStepCue);
         CarIconSpan highwaySign =
                 CarIconSpan.create(
@@ -101,7 +104,7 @@ public abstract class RoutingDemoModels {
     @NonNull
     public static Step getNextStep(@NonNull CarContext carContext) {
         // Create the cue text, and span the "I5" text with an image.
-        String nextStepCue = "I5 Aurora Ave N";
+        String nextStepCue = carContext.getString(R.string.next_step_cue);
         SpannableString nextStepCueWithImage = new SpannableString(nextStepCue);
         CarIconSpan highwaySign =
                 CarIconSpan.create(
@@ -134,7 +137,8 @@ public abstract class RoutingDemoModels {
                                 .setOnClickListener(
                                         () -> CarToast.makeText(
                                                         carContext,
-                                                        "Bug reported!",
+                                                        carContext.getString(
+                                                                R.string.bug_reported_toast_msg),
                                                         CarToast.LENGTH_SHORT)
                                                 .show())
                                 .setIcon(
@@ -146,7 +150,7 @@ public abstract class RoutingDemoModels {
                                 .build())
                 .addAction(
                         new Action.Builder()
-                                .setTitle("Stop")
+                                .setTitle(carContext.getString(R.string.stop_action_title))
                                 .setOnClickListener(onStopNavigation)
                                 .setFlags(Action.FLAG_IS_PERSISTENT)
                                 .build())
@@ -165,7 +169,8 @@ public abstract class RoutingDemoModels {
                                 .setOnClickListener(
                                         () -> CarToast.makeText(
                                                         carContext,
-                                                        "Zoomed in",
+                                                        carContext.getString(
+                                                                R.string.zoomed_in_toast_msg),
                                                         CarToast.LENGTH_SHORT)
                                                 .show())
                                 .setIcon(
@@ -180,7 +185,8 @@ public abstract class RoutingDemoModels {
                                 .setOnClickListener(
                                         () -> CarToast.makeText(
                                                         carContext,
-                                                        "Zoomed out",
+                                                        carContext.getString(
+                                                                R.string.zoomed_out_toast_msg),
                                                         CarToast.LENGTH_SHORT)
                                                 .show())
                                 .setIcon(
@@ -212,15 +218,12 @@ public abstract class RoutingDemoModels {
                 .setRemainingTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(timeToDestinationMillis))
                 .setRemainingTimeColor(CarColor.YELLOW)
                 .setRemainingDistanceColor(CarColor.RED)
-                .setTripText(CarText.create("Pick Up Alice"))
+                .setTripText(CarText.create(carContext.getString(R.string.travel_est_trip_text)))
                 .setTripIcon(new CarIcon.Builder(
                         IconCompat.createWithResource(
                                 carContext,
                                 R.drawable.ic_face_24px))
                         .build())
                 .build();
-    }
-
-    private RoutingDemoModels() {
     }
 }
