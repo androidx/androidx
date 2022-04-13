@@ -200,6 +200,43 @@ public value class ScalingLazyListAnchorType internal constructor(internal val t
     }
 }
 
+/**
+ * Parameters to determine which list item and offset to calculate auto-centering spacing for.
+ *
+ * @param itemIndex Which list item index to enable auto-centering from. Space (padding) will be
+ * added such that items with index [itemIndex] or greater will be able to be scrolled to the center
+ * of the viewport. If the developer wants to add additional space to allow other list items to also
+ * be scrollable to the center they can use contentPadding on the ScalingLazyColumn. If the
+ * developer wants custom control over position and spacing they can switch off autoCentering
+ * and provide contentPadding.
+ *
+ * @param itemOffset What offset, if any, to apply when calculating space for auto-centering
+ * the [itemIndex] item. E.g. itemOffset can be used if the developer wants to align the viewport
+ * center in the gap between two list items.
+ *
+ * For an example of a [ScalingLazyColumn] with an explicit itemOffset see:
+ * @sample androidx.wear.compose.material.samples.ScalingLazyColumnEdgeAnchoredAndAnimatedScrollTo
+ */
+@Immutable
+public class AutoCenteringParams(
+    // @IntRange(from = 0)
+    internal val itemIndex: Int = 1,
+    internal val itemOffset: Int = 0,
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        return (other is AutoCenteringParams) &&
+            itemIndex == other.itemIndex &&
+            itemOffset == other.itemOffset
+    }
+
+    override fun hashCode(): Int {
+        var result = itemIndex
+        result = 31 * result + itemOffset
+        return result
+    }
+}
+
 internal fun convertToCenterOffset(
     anchorType: ScalingLazyListAnchorType,
     itemScrollOffset: Int,
@@ -262,14 +299,14 @@ internal fun convertToCenterOffset(
  * @param scalingParams The parameters to configure the scaling and transparency effects for the
  * component
  * @param anchorType How to anchor list items to the center-line of the viewport
- * @param autoCentering Flag to indicate whether space/padding should be automatically added to make
- * sure that list items can be scrolled into the center of the viewport (based on their
- * [anchorType]). If true then space will be added before the first list item, if needed, to ensure
- * that items with indexes greater than or equal to the initialCenterItemIndex passed to
- * [ScalingLazyListState] will be able to be scrolled to the center. Similarly space will be added
- * at the end of the list to ensure that items can be scrolled up to the center. If false no
- * automatic space will be added and instead the developer can use [contentPadding] to manually
- * arrange the items.
+ * @param autoCentering AutoCenteringParams parameter to control whether space/padding should be
+ * automatically added to make sure that list items can be scrolled into the center of the viewport
+ * (based on their [anchorType]). If non-null then space will be added before the first list item,
+ * if needed, to ensure that items with indexes greater than or equal to the itemIndex (offset by
+ * itemOffset pixels) will be able to be scrolled to the center of the viewport. Similarly space
+ * will be added at the end of the list to ensure that items can be scrolled up to the center. If
+ * null no automatic space will be added and instead the developer can use [contentPadding] to
+ * manually arrange the items.
  */
 @Composable
 public fun ScalingLazyColumn(
@@ -287,7 +324,7 @@ public fun ScalingLazyColumn(
     userScrollEnabled: Boolean = true,
     scalingParams: ScalingParams = ScalingLazyColumnDefaults.scalingParams(),
     anchorType: ScalingLazyListAnchorType = ScalingLazyListAnchorType.ItemCenter,
-    autoCentering: Boolean = true,
+    autoCentering: AutoCenteringParams? = AutoCenteringParams(),
     content: ScalingLazyListScope.() -> Unit
 ) {
     var initialized by remember { mutableStateOf(false) }
@@ -360,7 +397,7 @@ public fun ScalingLazyColumn(
                 )
                 // Only add spacers if autoCentering == true as we have to consider the impact of
                 // vertical spacing between items.
-                if (autoCentering) {
+                if (autoCentering != null) {
                     item {
                         Spacer(
                             modifier = Modifier.height(state.topAutoCenteringItemSizePx.toDp())
@@ -368,7 +405,7 @@ public fun ScalingLazyColumn(
                     }
                 }
                 scope.content()
-                if (autoCentering) {
+                if (autoCentering != null) {
                     item {
                         Spacer(
                             modifier = Modifier.height(state.bottomAutoCenteringItemSizePx.toDp())

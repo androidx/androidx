@@ -346,7 +346,7 @@ internal fun calculateItemInfo(
     scalingParams: ScalingParams,
     beforeContentPaddingPx: Int,
     anchorType: ScalingLazyListAnchorType,
-    autoCentering: Boolean,
+    autoCentering: AutoCenteringParams?,
     initialized: Boolean
 ): ScalingLazyListItemInfo {
     val adjustedItemStart = itemStart - verticalAdjustment
@@ -381,7 +381,7 @@ internal fun calculateItemInfo(
     )
     return DefaultScalingLazyListItemInfo(
         // Adjust index to take into account the Spacer before the first list item
-        index = if (autoCentering) item.index - 1 else item.index,
+        index = if (autoCentering != null) item.index - 1 else item.index,
         key = item.key,
         unadjustedOffset = unadjustedOffset,
         offset = offset,
