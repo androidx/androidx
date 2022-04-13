@@ -70,7 +70,7 @@ import kotlin.math.roundToInt
  * this range
  * @param backgroundColor [Color] representing the background color for the stepper.
  * @param contentColor [Color] representing the color for [content] in the middle.
- * @param iconTintColor Icon tint [Color] which used by [increaseIcon] and [decreaseIcon]
+ * @param iconColor Icon tint [Color] which used by [increaseIcon] and [decreaseIcon]
  * that defaults to [contentColor], unless specifically overridden.
  */
 @Composable
@@ -84,7 +84,7 @@ public fun Stepper(
     valueRange: ClosedFloatingPointRange<Float> = 0f..(steps + 1).toFloat(),
     backgroundColor: Color = MaterialTheme.colors.background,
     contentColor: Color = contentColorFor(backgroundColor),
-    iconTintColor: Color = contentColor,
+    iconColor: Color = contentColor,
     content: @Composable BoxScope.() -> Unit
 ) {
     require(steps >= 0) { "steps should be >= 0" }
@@ -113,7 +113,7 @@ public fun Stepper(
             onClick = { updateValue(1) },
             contentAlignment = Alignment.TopCenter,
             paddingValues = PaddingValues(top = StepperDefaults.BorderPadding),
-            iconTintColor = iconTintColor,
+            iconColor = iconColor,
             content = increaseIcon
         )
         Box(
@@ -132,7 +132,7 @@ public fun Stepper(
             contentAlignment = Alignment.BottomCenter,
             paddingValues = PaddingValues(bottom = StepperDefaults.BorderPadding),
             content = decreaseIcon,
-            iconTintColor = iconTintColor
+            iconColor = iconColor
         )
     }
 }
@@ -167,7 +167,7 @@ public fun Stepper(
  * @param modifier Modifiers for the Stepper layout
  * @param backgroundColor [Color] representing the background color for the stepper.
  * @param contentColor [Color] representing the color for [content] in the middle.
- * @param iconTintColor Icon tint [Color] which used by [increaseIcon] and [decreaseIcon]
+ * @param iconColor Icon tint [Color] which used by [increaseIcon] and [decreaseIcon]
  * that defaults to [contentColor], unless specifically overridden.
  */
 @Composable
@@ -180,7 +180,7 @@ public fun Stepper(
     modifier: Modifier = Modifier,
     backgroundColor: Color = MaterialTheme.colors.background,
     contentColor: Color = contentColorFor(backgroundColor),
-    iconTintColor: Color = contentColor,
+    iconColor: Color = contentColor,
     content: @Composable BoxScope.() -> Unit
 ) {
     Stepper(
@@ -193,7 +193,7 @@ public fun Stepper(
         increaseIcon = increaseIcon,
         backgroundColor = backgroundColor,
         contentColor = contentColor,
-        iconTintColor = iconTintColor,
+        iconColor = iconColor,
         content = content
     )
 }
@@ -222,7 +222,7 @@ private fun ColumnScope.FullScreenButton(
     onClick: () -> Unit,
     contentAlignment: Alignment,
     paddingValues: PaddingValues,
-    iconTintColor: Color,
+    iconColor: Color,
     content: @Composable () -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -236,6 +236,6 @@ private fun ColumnScope.FullScreenButton(
             .padding(paddingValues),
         contentAlignment = contentAlignment,
     ) {
-        CompositionLocalProvider(LocalContentColor provides iconTintColor, content = content)
+        CompositionLocalProvider(LocalContentColor provides iconColor, content = content)
     }
 }

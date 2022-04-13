@@ -83,7 +83,7 @@ fun InlineSliderDemo() {
                 // unselected toggle control color to ToggleChipDefaults.switchUncheckedIconColor()
                 // rather than the default.
                 colors = ToggleChipDefaults.toggleChipColors(
-                    uncheckedToggleControlTintColor = ToggleChipDefaults.SwitchUncheckedIconColor
+                    uncheckedToggleControlColor = ToggleChipDefaults.SwitchUncheckedIconColor
                 ),
                 toggleControl = {
                     Icon(

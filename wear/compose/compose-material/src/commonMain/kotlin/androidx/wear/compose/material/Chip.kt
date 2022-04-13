@@ -215,9 +215,9 @@ public fun Chip(
         ) {
             if (icon != null) {
                 CompositionLocalProvider(
-                    LocalContentColor provides colors.iconTintColor(enabled).value,
+                    LocalContentColor provides colors.iconColor(enabled).value,
                     LocalContentAlpha provides
-                        colors.iconTintColor(enabled = enabled).value.alpha,
+                        colors.iconColor(enabled = enabled).value.alpha,
                 ) {
                     Box(
                         modifier = Modifier.wrapContentSize(align = Alignment.Center),
@@ -403,12 +403,12 @@ public interface ChipColors {
     public fun secondaryContentColor(enabled: Boolean): State<Color>
 
     /**
-     * Represents the icon tint color for this chip, depending on [enabled].
+     * Represents the icon color for this chip, depending on [enabled].
      *
      * @param enabled Whether the chip is enabled
      */
     @Composable
-    public fun iconTintColor(enabled: Boolean): State<Color>
+    public fun iconColor(enabled: Boolean): State<Color>
 }
 
 /**
@@ -425,20 +425,20 @@ public object ChipDefaults {
      * @param contentColor The content color of this [Chip] when enabled
      * @param secondaryContentColor The secondary content color of this [Chip] when enabled, used
      * for secondaryLabel content
-     * @param iconTintColor The icon tint color of this [Chip] when enabled, used for icon content
+     * @param iconColor The icon color of this [Chip] when enabled, used for icon content
      */
     @Composable
     public fun primaryChipColors(
         backgroundColor: Color = MaterialTheme.colors.primary,
         contentColor: Color = contentColorFor(backgroundColor),
         secondaryContentColor: Color = contentColor,
-        iconTintColor: Color = contentColor
+        iconColor: Color = contentColor
     ): ChipColors {
         return chipColors(
             backgroundColor = backgroundColor,
             contentColor = contentColor,
             secondaryContentColor = secondaryContentColor,
-            iconTintColor = iconTintColor
+            iconColor = iconColor
         )
     }
 
@@ -459,7 +459,7 @@ public object ChipDefaults {
      * @param contentColor The content color of this [Chip] when enabled
      * @param secondaryContentColor The secondary content color of this [Chip] when enabled, used
      * for secondaryLabel content
-     * @param iconTintColor The icon tint color of this [Chip] when enabled, used for icon content
+     * @param iconColor The icon color of this [Chip] when enabled, used for icon content
      * @param gradientDirection Whether the chips gradient should be start to end (indicated by
      * [LayoutDirection.Ltr]) or end to start (indicated by [LayoutDirection.Rtl]).
      */
@@ -471,7 +471,7 @@ public object ChipDefaults {
             .compositeOver(MaterialTheme.colors.surface.copy(alpha = 0.75f)),
         contentColor: Color = contentColorFor(endBackgroundColor),
         secondaryContentColor: Color = contentColor,
-        iconTintColor: Color = contentColor,
+        iconColor: Color = contentColor,
         gradientDirection: LayoutDirection = LocalLayoutDirection.current
     ): ChipColors {
         val backgroundColors: List<Color>
@@ -499,7 +499,7 @@ public object ChipDefaults {
             backgroundPainter = BrushPainter(Brush.linearGradient(backgroundColors)),
             contentColor = contentColor,
             secondaryContentColor = secondaryContentColor,
-            iconTintColor = iconTintColor,
+            iconColor = iconColor,
             disabledBackgroundPainter = BrushPainter(
                 Brush.linearGradient(disabledBackgroundColors)
             ),
@@ -507,7 +507,7 @@ public object ChipDefaults {
             disabledSecondaryContentColor = secondaryContentColor.copy(
                 alpha = ContentAlpha.disabled
             ),
-            disabledIconTintColor = iconTintColor.copy(alpha = ContentAlpha.disabled),
+            disabledIconColor = iconColor.copy(alpha = ContentAlpha.disabled),
         )
     }
 
@@ -521,20 +521,20 @@ public object ChipDefaults {
      * @param contentColor The content color of this [Chip] when enabled
      * @param secondaryContentColor The secondary content color of this [Chip] when enabled, used
      * for secondaryLabel content
-     * @param iconTintColor The icon tint color of this [Chip] when enabled, used for icon content
+     * @param iconColor The icon color of this [Chip] when enabled, used for icon content
      */
     @Composable
     public fun secondaryChipColors(
         backgroundColor: Color = MaterialTheme.colors.surface,
         contentColor: Color = contentColorFor(backgroundColor),
         secondaryContentColor: Color = contentColor,
-        iconTintColor: Color = contentColor
+        iconColor: Color = contentColor
     ): ChipColors {
         return chipColors(
             backgroundColor = backgroundColor,
             contentColor = contentColor,
             secondaryContentColor = secondaryContentColor,
-            iconTintColor = iconTintColor
+            iconColor = iconColor
         )
     }
 
@@ -549,19 +549,19 @@ public object ChipDefaults {
      * @param contentColor The content color of this [Chip] when enabled
      * @param secondaryContentColor The secondary content color of this [Chip] when enabled, used
      * for secondaryLabel content
-     * @param iconTintColor The icon tint color of this [Chip] when enabled, used for icon content
+     * @param iconColor The icon color of this [Chip] when enabled, used for icon content
      */
     @Composable
     public fun childChipColors(
         contentColor: Color = MaterialTheme.colors.onSurface,
         secondaryContentColor: Color = contentColor,
-        iconTintColor: Color = contentColor
+        iconColor: Color = contentColor
     ): ChipColors {
         return chipColors(
             backgroundColor = Color.Transparent,
             contentColor = contentColor,
             secondaryContentColor = secondaryContentColor,
-            iconTintColor = iconTintColor
+            iconColor = iconColor
         )
     }
 
@@ -576,7 +576,7 @@ public object ChipDefaults {
      * @param contentColor The content color of this [Chip] when enabled
      * @param secondaryContentColor The secondary content color of this [Chip] when enabled, used
      * for secondaryLabel content
-     * @param iconTintColor The icon tint color of this [Chip] when enabled, used for icon content
+     * @param iconColor The icon color of this [Chip] when enabled, used for icon content
      */
     @Composable
     public fun imageBackgroundChipColors(
@@ -589,7 +589,7 @@ public object ChipDefaults {
         ),
         contentColor: Color = MaterialTheme.colors.onBackground,
         secondaryContentColor: Color = contentColor,
-        iconTintColor: Color = contentColor,
+        iconColor: Color = contentColor,
     ): ChipColors {
         val backgroundPainter =
             remember(backgroundImagePainter, backgroundImageScrimBrush) {
@@ -612,13 +612,13 @@ public object ChipDefaults {
             backgroundPainter = backgroundPainter,
             contentColor = contentColor,
             secondaryContentColor = secondaryContentColor,
-            iconTintColor = iconTintColor,
+            iconColor = iconColor,
             disabledBackgroundPainter = disabledBackgroundPainter,
             disabledContentColor = contentColor.copy(alpha = ContentAlpha.disabled),
             disabledSecondaryContentColor = secondaryContentColor.copy(
                 alpha = ContentAlpha.disabled
             ),
-            disabledIconTintColor = iconTintColor.copy(alpha = ContentAlpha.disabled),
+            disabledIconColor = iconColor.copy(alpha = ContentAlpha.disabled),
         )
     }
 
@@ -694,32 +694,32 @@ public object ChipDefaults {
      * @param backgroundColor The background color of this [Chip] when enabled
      * @param contentColor The content color of this [Chip] when enabled
      * @param secondaryContentColor The content color of this [Chip] when enabled
-     * @param iconTintColor The content color of this [Chip] when enabled
+     * @param iconColor The content color of this [Chip] when enabled
      * @param disabledBackgroundColor The background color of this [Chip] when not enabled
      * @param disabledContentColor The content color of this [Chip] when not enabled
      * @param disabledSecondaryContentColor The content color of this [Chip] when not enabled
-     * @param disabledIconTintColor The content color of this [Chip] when not enabled
+     * @param disabledIconColor The content color of this [Chip] when not enabled
      */
     @Composable
     public fun chipColors(
         backgroundColor: Color = MaterialTheme.colors.primary,
         contentColor: Color = contentColorFor(backgroundColor),
         secondaryContentColor: Color = contentColor,
-        iconTintColor: Color = contentColor,
+        iconColor: Color = contentColor,
         disabledBackgroundColor: Color = backgroundColor.copy(alpha = ContentAlpha.disabled),
         disabledContentColor: Color = contentColor.copy(alpha = ContentAlpha.disabled),
         disabledSecondaryContentColor: Color =
             secondaryContentColor.copy(alpha = ContentAlpha.disabled),
-        disabledIconTintColor: Color = iconTintColor.copy(alpha = ContentAlpha.disabled),
+        disabledIconColor: Color = iconColor.copy(alpha = ContentAlpha.disabled),
     ): ChipColors = DefaultChipColors(
         backgroundColor = backgroundColor,
         contentColor = contentColor,
         secondaryContentColor = secondaryContentColor,
-        iconTintColor = iconTintColor,
+        iconColor = iconColor,
         disabledBackgroundColor = disabledBackgroundColor,
         disabledContentColor = disabledContentColor,
         disabledSecondaryContentColor = disabledSecondaryContentColor,
-        disabledIconTintColor = disabledIconTintColor,
+        disabledIconColor = disabledIconColor,
     )
 }
 
@@ -731,31 +731,31 @@ private class DefaultChipColors(
     private val backgroundPainter: Painter,
     private val contentColor: Color,
     private val secondaryContentColor: Color,
-    private val iconTintColor: Color,
+    private val iconColor: Color,
     private val disabledBackgroundPainter: Painter,
     private val disabledContentColor: Color,
     private val disabledSecondaryContentColor: Color,
-    private val disabledIconTintColor: Color,
+    private val disabledIconColor: Color,
 ) : ChipColors {
 
     constructor(
         backgroundColor: Color,
         contentColor: Color,
         secondaryContentColor: Color,
-        iconTintColor: Color,
+        iconColor: Color,
         disabledBackgroundColor: Color,
         disabledContentColor: Color,
         disabledSecondaryContentColor: Color,
-        disabledIconTintColor: Color
+        disabledIconColor: Color
     ) : this(
         ColorPainter(backgroundColor),
         contentColor,
         secondaryContentColor,
-        iconTintColor,
+        iconColor,
         ColorPainter(disabledBackgroundColor),
         disabledContentColor,
         disabledSecondaryContentColor,
-        disabledIconTintColor
+        disabledIconColor
     )
 
     @Composable
@@ -780,8 +780,8 @@ private class DefaultChipColors(
     }
 
     @Composable
-    override fun iconTintColor(enabled: Boolean): State<Color> {
-        return rememberUpdatedState(if (enabled) iconTintColor else disabledIconTintColor)
+    override fun iconColor(enabled: Boolean): State<Color> {
+        return rememberUpdatedState(if (enabled) iconColor else disabledIconColor)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -794,11 +794,11 @@ private class DefaultChipColors(
         if (backgroundPainter != other.backgroundPainter) return false
         if (contentColor != other.contentColor) return false
         if (secondaryContentColor != other.secondaryContentColor) return false
-        if (iconTintColor != other.iconTintColor) return false
+        if (iconColor != other.iconColor) return false
         if (disabledBackgroundPainter != other.disabledBackgroundPainter) return false
         if (disabledContentColor != other.disabledContentColor) return false
         if (disabledSecondaryContentColor != other.disabledSecondaryContentColor) return false
-        if (disabledIconTintColor != other.disabledIconTintColor) return false
+        if (disabledIconColor != other.disabledIconColor) return false
 
         return true
     }
@@ -807,11 +807,11 @@ private class DefaultChipColors(
         var result = backgroundPainter.hashCode()
         result = 31 * result + contentColor.hashCode()
         result = 31 * result + secondaryContentColor.hashCode()
-        result = 31 * result + iconTintColor.hashCode()
+        result = 31 * result + iconColor.hashCode()
         result = 31 * result + disabledBackgroundPainter.hashCode()
         result = 31 * result + disabledContentColor.hashCode()
         result = 31 * result + disabledSecondaryContentColor.hashCode()
-        result = 31 * result + disabledIconTintColor.hashCode()
+        result = 31 * result + disabledIconColor.hashCode()
         return result
     }
 }
