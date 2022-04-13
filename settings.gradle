@@ -86,6 +86,11 @@ rootProject.name = "androidx"
 dependencyResolutionManagement {
     versionCatalogs {
         libs {
+            def metalavaOverride = System.getenv("METALAVA_VERSION")
+            if (metalavaOverride != null) {
+                logger.warn("Using custom version ${metalavaOverride} of metalava due to METALAVA_VERSION being set.")
+                version('metalava', metalavaOverride)
+            }
             def skikoOverride = System.getenv("SKIKO_VERSION")
             if (skikoOverride != null) {
                 logger.warn("Using custom version ${skikoOverride} of SKIKO due to SKIKO_VERSION being set.")
