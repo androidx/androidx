@@ -440,12 +440,11 @@ public final class PlaceListMapTemplate implements Template {
          *
          * <h4>Requirements</h4>
          *
-         * Either a header {@link Action} or title must be set on the template.
+         * <p>If neither header {@link Action} nor title have been set on the template, the
+         * header is hidden.
          *
          * @throws IllegalArgumentException if the template is in a loading state but the list is
          *                                  set, or vice versa
-         * @throws IllegalStateException    if the template does not have either a title or header
-         *                                  {@link Action} set
          */
         @NonNull
         public PlaceListMapTemplate build() {
@@ -453,10 +452,6 @@ public final class PlaceListMapTemplate implements Template {
             if (mIsLoading == hasList) {
                 throw new IllegalArgumentException(
                         "Template is in a loading state but a list is set, or vice versa");
-            }
-
-            if (CarText.isNullOrEmpty(mTitle) && mHeaderAction == null) {
-                throw new IllegalStateException("Either the title or header action must be set");
             }
 
             return new PlaceListMapTemplate(this);

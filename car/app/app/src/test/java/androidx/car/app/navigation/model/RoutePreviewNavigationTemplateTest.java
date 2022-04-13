@@ -128,17 +128,11 @@ public class RoutePreviewNavigationTemplateTest {
     }
 
     @Test
-    public void noHeaderTitleOrAction_throws() {
-        assertThrows(
-                IllegalStateException.class,
-                () -> new RoutePreviewNavigationTemplate.Builder().setLoading(true).build());
-
-        // Positive cases.
-        new RoutePreviewNavigationTemplate.Builder().setTitle("Title").setLoading(true).build();
-        new RoutePreviewNavigationTemplate.Builder()
-                .setHeaderAction(Action.BACK)
-                .setLoading(true)
-                .build();
+    public void createInstance_emptyHeaderTitleOrAction() {
+        RoutePreviewNavigationTemplate template =
+                new RoutePreviewNavigationTemplate.Builder().setLoading(true).build();
+        assertThat(template.getTitle()).isNull();
+        assertThat(template.getHeaderAction()).isNull();
     }
 
     @Test

@@ -480,12 +480,12 @@ public final class RoutePreviewNavigationTemplate implements Template {
          *
          * <h4>Requirements</h4>
          *
-         * Either a header {@link Action} or title must be set on the template.
+         * <p>If neither header {@link Action} nor title have been set on the template, the
+         * header is hidden.
          *
          * @throws IllegalStateException if the template is in a loading state but the list is
-         *                               set or vice versa, if the template is not loading and
-         *                               the navigation action is not set, or if the template
-         *                               does not have either a title or header {@link Action} set
+         *                               set or vice versa, or if the template is not loading and
+         *                               the navigation action is not set.
          */
         @NonNull
         public RoutePreviewNavigationTemplate build() {
@@ -501,10 +501,6 @@ public final class RoutePreviewNavigationTemplate implements Template {
                             "The navigation action cannot be null when the list is not in a "
                                     + "loading state");
                 }
-            }
-
-            if (CarText.isNullOrEmpty(mTitle) && mHeaderAction == null) {
-                throw new IllegalStateException("Either the title or header action must be set");
             }
 
             return new RoutePreviewNavigationTemplate(this);
