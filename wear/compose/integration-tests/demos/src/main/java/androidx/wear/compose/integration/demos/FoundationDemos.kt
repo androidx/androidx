@@ -18,6 +18,7 @@ package androidx.wear.compose.integration.demos
 
 import androidx.wear.compose.foundation.samples.CurvedAndNormalText
 import androidx.wear.compose.foundation.samples.CurvedBottomLayout
+import androidx.wear.compose.foundation.samples.CurvedBackground
 import androidx.wear.compose.foundation.samples.CurvedFixedSize
 import androidx.wear.compose.foundation.samples.CurvedRowAndColumn
 import androidx.wear.compose.foundation.samples.CurvedWeight
@@ -38,6 +39,7 @@ val WearFoundationDemos = DemoCategory(
             ComposableDemo("Ellipsis Demo") { CurvedEllipsis() },
             ComposableDemo("Bottom layout") { CurvedBottomLayout() },
             ComposableDemo("Curved layout direction") { CurvedLayoutDirection() },
+            ComposableDemo("Background") { CurvedBackground() },
         )),
         ComposableDemo("Scrollable Column") { ScrollableColumnDemo() },
         ComposableDemo("Scrollable Row") { ScrollableRowDemo() },
