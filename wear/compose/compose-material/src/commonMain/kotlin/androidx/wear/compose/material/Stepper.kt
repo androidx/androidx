@@ -63,11 +63,11 @@ import kotlin.math.roundToInt
  * @param steps Specifies the number of discrete values, excluding min and max values, evenly
  * distributed across the whole value range. Must not be negative. If 0, stepper will have only
  * min and max values and no steps in between
+ * @param decreaseIcon A slot for an icon which is placed on the decrease (bottom) button
+ * @param increaseIcon A slot for an icon which is placed on the increase (top) button
  * @param modifier Modifiers for the Stepper layout
  * @param valueRange Range of values that Stepper value can take. Passed [value] will be coerced to
  * this range
- * @param decreaseIcon A slot for an icon which is placed on the decrease (bottom) button
- * @param increaseIcon A slot for an icon which is placed on the increase (top) button
  * @param backgroundColor [Color] representing the background color for the stepper.
  * @param contentColor [Color] representing the color for [content] in the middle.
  * @param iconTintColor Icon tint [Color] which used by [increaseIcon] and [decreaseIcon]
@@ -78,10 +78,10 @@ public fun Stepper(
     value: Float,
     onValueChange: (Float) -> Unit,
     steps: Int,
-    modifier: Modifier = Modifier,
-    valueRange: ClosedFloatingPointRange<Float> = 0f..(steps + 1).toFloat(),
     decreaseIcon: @Composable () -> Unit,
     increaseIcon: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    valueRange: ClosedFloatingPointRange<Float> = 0f..(steps + 1).toFloat(),
     backgroundColor: Color = MaterialTheme.colors.background,
     contentColor: Color = contentColorFor(backgroundColor),
     iconTintColor: Color = contentColor,
@@ -159,11 +159,11 @@ public fun Stepper(
  * @param value Current value of the Stepper. If outside of [valueProgression] provided, value will be
  * coerced to this range.
  * @param onValueChange Lambda in which value should be updated
- * @param modifier Modifiers for the Stepper layout
  * @param valueProgression Progression of values that Stepper value can take. Consists of
  * rangeStart, rangeEnd and step. Range will be equally divided by step size
  * @param decreaseIcon A slot for an icon which is placed on the decrease (bottom) button
  * @param increaseIcon A slot for an icon which is placed on the increase (top) button
+ * @param modifier Modifiers for the Stepper layout
  * @param backgroundColor [Color] representing the background color for the stepper.
  * @param contentColor [Color] representing the color for [content] in the middle.
  * @param iconTintColor Icon tint [Color] which used by [increaseIcon] and [decreaseIcon]
@@ -173,10 +173,10 @@ public fun Stepper(
 public fun Stepper(
     value: Int,
     onValueChange: (Int) -> Unit,
-    modifier: Modifier = Modifier,
     valueProgression: IntProgression,
     decreaseIcon: @Composable () -> Unit,
     increaseIcon: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
     backgroundColor: Color = MaterialTheme.colors.background,
     contentColor: Color = contentColorFor(backgroundColor),
     iconTintColor: Color = contentColor,
@@ -195,6 +195,25 @@ public fun Stepper(
         iconTintColor = iconTintColor,
         content = content
     )
+}
+
+/**
+ * Defaults used by stepper
+ */
+public object StepperDefaults {
+    internal const val ButtonWeight = 0.35f
+    internal const val ContentWeight = 0.3f
+    internal val BorderPadding = 22.dp
+
+    /**
+     * Decrease [ImageVector]
+     */
+    public val Decrease = RangeIcons.Minus
+
+    /**
+     * Increase [ImageVector]
+     */
+    public val Increase = Icons.Filled.Add
 }
 
 @Composable
@@ -218,23 +237,4 @@ private fun ColumnScope.FullScreenButton(
     ) {
         CompositionLocalProvider(LocalContentColor provides iconTintColor, content = content)
     }
-}
-
-/**
- * Defaults used by stepper
- */
-public object StepperDefaults {
-    internal const val ButtonWeight = 0.35f
-    internal const val ContentWeight = 0.3f
-    internal val BorderPadding = 22.dp
-
-    /**
-     * Decrease [ImageVector]
-     */
-    public val Decrease = RangeIcons.Minus
-
-    /**
-     * Increase [ImageVector]
-     */
-    public val Increase = Icons.Filled.Add
 }
