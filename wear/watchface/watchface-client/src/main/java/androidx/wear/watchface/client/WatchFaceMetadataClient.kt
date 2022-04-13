@@ -293,7 +293,7 @@ internal class WatchFaceMetadataClientImpl internal constructor(
                             ] = it.complicationBounds[i]
                         }
                         ComplicationSlotMetadata(
-                            ComplicationSlotBounds(perSlotBounds),
+                            ComplicationSlotBounds.createFromPartialMap(perSlotBounds),
                             it.boundsType,
                             it.supportedTypes.map { ComplicationType.fromWireType(it) },
                             DefaultComplicationDataSourcePolicy(

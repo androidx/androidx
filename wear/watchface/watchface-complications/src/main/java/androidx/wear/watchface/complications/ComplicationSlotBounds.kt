@@ -88,6 +88,27 @@ public class ComplicationSlotBounds(
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     companion object {
         /**
+         * Constructs a [ComplicationSlotBounds] from a potentially incomplete
+         * Map<ComplicationType, RectF>, backfilling with empty [RectF]s. This method is necessary
+         * because there can be a skew between the version of the library between the watch face and
+         * the system which would otherwise be problematic if new complication types have been
+         * introduced.
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        fun createFromPartialMap(
+            partialPerComplicationTypeBounds: Map<ComplicationType, RectF>
+        ): ComplicationSlotBounds {
+            val map = HashMap(partialPerComplicationTypeBounds)
+
+            for (type in ComplicationType.values()) {
+                map.putIfAbsent(type, RectF())
+            }
+
+            return ComplicationSlotBounds(map)
+        }
+
+        /**
          * The [parser] should be inside a node with any number of ComplicationSlotBounds child
          * nodes. No other child nodes are expected.
          */
@@ -155,7 +176,7 @@ public class ComplicationSlotBounds(
             return if (perComplicationTypeBounds.isEmpty()) {
                 null
             } else {
-                ComplicationSlotBounds(perComplicationTypeBounds)
+                createFromPartialMap(perComplicationTypeBounds)
             }
         }
     }

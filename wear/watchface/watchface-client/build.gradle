@@ -41,10 +41,12 @@ dependencies {
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(libs.truth)
 
-    testImplementation(libs.testExtJunit)
-    testImplementation(libs.testCore)
-    testImplementation(libs.testRules)
+    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoKotlin)
     testImplementation(libs.robolectric)
+    testImplementation(libs.testCore)
+    testImplementation(libs.testExtJunit)
+    testImplementation(libs.testRules)
     testImplementation(libs.truth)
 
     implementation("androidx.core:core:1.1.0")
