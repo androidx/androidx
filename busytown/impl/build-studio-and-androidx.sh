@@ -88,10 +88,15 @@ export JAVA_TOOLS_JAR="$(pwd)/prebuilts/jdk/jdk8/$PREBUILT_JDK/lib/tools.jar"
 export LINT_PRINT_STACKTRACE=true
 
 function buildAndroidx() {
+  RETURN_CODE=0
   LOG_PROCESSOR="$SCRIPTS_DIR/../development/build_log_processor.sh"
   properties="-Pandroidx.summarizeStderr --no-daemon"
-  "$LOG_PROCESSOR" $gw $properties -p frameworks/support $androidxArguments --profile \
-    --dependency-verification=off # building against tip of tree of AGP that potentially pulls in new dependencies
+  if "$LOG_PROCESSOR" $gw $properties -p frameworks/support $androidxArguments --profile \
+    --dependency-verification=off; then # building against tip of tree of AGP that potentially pulls in new dependencies
+    echo build passed
+  else
+    RETURN_CODE=1
+  fi
   $SCRIPTS_DIR/impl/parse_profile_htmls.sh
 
   # zip build scan
@@ -100,6 +105,7 @@ function buildAndroidx() {
   cd "$GRADLE_USER_HOME/build-scan-data"
   zip -q -r "$scanZip" .
   cd -
+  return $RETURN_CODE
 }
 
 buildAndroidx
