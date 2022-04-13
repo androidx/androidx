@@ -105,6 +105,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public abstract class FragmentManager implements FragmentResultOwner {
     static final String SAVED_STATE_TAG = "android:support:fragments";
+    static final String FRAGMENT_MANAGER_STATE_TAG = "state";
     private static boolean DEBUG = false;
 
     /** @hide */
@@ -2347,10 +2348,13 @@ public abstract class FragmentManager implements FragmentResultOwner {
             throwException(new IllegalStateException("You cannot use saveAllState when your "
                     + "FragmentHostCallback implements SavedStateRegistryOwner."));
         }
-        return saveAllStateInternal();
+        Bundle savedState = saveAllStateInternal();
+        return savedState.isEmpty() ? null : savedState;
     }
 
-    Parcelable saveAllStateInternal() {
+    @NonNull
+    Bundle saveAllStateInternal() {
+        Bundle bundle = new Bundle();
         // Make sure all pending operations have now been executed to get
         // our state update-to-date.
         forcePostponedTransactions();
@@ -2365,46 +2369,48 @@ public abstract class FragmentManager implements FragmentResultOwner {
 
         // And grab all FragmentState objects
         ArrayList<FragmentState> savedState = mFragmentStore.getAllSavedState();
-
         if (savedState.isEmpty()) {
-            if (isLoggingEnabled(Log.VERBOSE)) Log.v(TAG, "saveAllState: no fragments!");
-            return null;
-        }
+            if (isLoggingEnabled(Log.VERBOSE)) {
+                Log.v(TAG, "saveAllState: no fragments!");
+            }
+        } else {
+            // Build list of currently added fragments.
+            ArrayList<String> added = mFragmentStore.saveAddedFragments();
 
-        // Build list of currently added fragments.
-        ArrayList<String> added = mFragmentStore.saveAddedFragments();
-
-        // Now save back stack.
-        BackStackRecordState[] backStack = null;
-        if (mBackStack != null) {
-            int size = mBackStack.size();
-            if (size > 0) {
-                backStack = new BackStackRecordState[size];
-                for (int i = 0; i < size; i++) {
-                    backStack[i] = new BackStackRecordState(mBackStack.get(i));
-                    if (isLoggingEnabled(Log.VERBOSE)) {
-                        Log.v(TAG, "saveAllState: adding back stack #" + i
-                                + ": " + mBackStack.get(i));
+            // Now save back stack.
+            BackStackRecordState[] backStack = null;
+            if (mBackStack != null) {
+                int size = mBackStack.size();
+                if (size > 0) {
+                    backStack = new BackStackRecordState[size];
+                    for (int i = 0; i < size; i++) {
+                        backStack[i] = new BackStackRecordState(mBackStack.get(i));
+                        if (isLoggingEnabled(Log.VERBOSE)) {
+                            Log.v(TAG, "saveAllState: adding back stack #" + i
+                                    + ": " + mBackStack.get(i));
+                        }
                     }
                 }
             }
+
+            FragmentManagerState fms = new FragmentManagerState();
+            fms.mSavedState = savedState;
+            fms.mActive = active;
+            fms.mAdded = added;
+            fms.mBackStack = backStack;
+            fms.mBackStackIndex = mBackStackIndex.get();
+            if (mPrimaryNav != null) {
+                fms.mPrimaryNavActiveWho = mPrimaryNav.mWho;
+            }
+            fms.mBackStackStateKeys.addAll(mBackStackStates.keySet());
+            fms.mBackStackStates.addAll(mBackStackStates.values());
+            fms.mResultKeys.addAll(mResults.keySet());
+            fms.mResults.addAll(mResults.values());
+            fms.mLaunchedFragments = new ArrayList<>(mLaunchedFragments);
+            bundle.putParcelable(FRAGMENT_MANAGER_STATE_TAG, fms);
         }
 
-        FragmentManagerState fms = new FragmentManagerState();
-        fms.mSavedState = savedState;
-        fms.mActive = active;
-        fms.mAdded = added;
-        fms.mBackStack = backStack;
-        fms.mBackStackIndex = mBackStackIndex.get();
-        if (mPrimaryNav != null) {
-            fms.mPrimaryNavActiveWho = mPrimaryNav.mWho;
-        }
-        fms.mBackStackStateKeys.addAll(mBackStackStates.keySet());
-        fms.mBackStackStates.addAll(mBackStackStates.values());
-        fms.mResultKeys.addAll(mResults.keySet());
-        fms.mResults.addAll(mResults.values());
-        fms.mLaunchedFragments = new ArrayList<>(mLaunchedFragments);
-        return fms;
+        return bundle;
     }
 
     @SuppressWarnings("deprecation")
@@ -2425,11 +2431,13 @@ public abstract class FragmentManager implements FragmentResultOwner {
         restoreSaveStateInternal(state);
     }
 
+    @SuppressWarnings("deprecation")
     void restoreSaveStateInternal(@Nullable Parcelable state) {
         // If there is no saved state at all, then there's nothing else to do
         if (state == null) return;
-        FragmentManagerState fms = (FragmentManagerState) state;
-        if (fms.mSavedState == null) return;
+        Bundle bundle = (Bundle) state;
+        FragmentManagerState fms = bundle.getParcelable(FRAGMENT_MANAGER_STATE_TAG);
+        if (fms == null || fms.mSavedState == null) return;
 
         // Restore the saved state of all fragments
         mFragmentStore.restoreSaveState(fms.mSavedState);
@@ -2614,20 +2622,14 @@ public abstract class FragmentManager implements FragmentResultOwner {
             SavedStateRegistry registry =
                     ((SavedStateRegistryOwner) mHost).getSavedStateRegistry();
             registry.registerSavedStateProvider(SAVED_STATE_TAG, () -> {
-                        Bundle outState = new Bundle();
-                        Parcelable p = saveAllStateInternal();
-                        if (p != null) {
-                            outState.putParcelable(SAVED_STATE_TAG, p);
-                        }
-                        return outState;
+                        return saveAllStateInternal();
                     }
             );
 
             Bundle savedInstanceState = registry
                     .consumeRestoredStateForKey(SAVED_STATE_TAG);
             if (savedInstanceState != null) {
-                Parcelable p = savedInstanceState.getParcelable(SAVED_STATE_TAG);
-                restoreSaveStateInternal(p);
+                restoreSaveStateInternal(savedInstanceState);
             }
         }
 
