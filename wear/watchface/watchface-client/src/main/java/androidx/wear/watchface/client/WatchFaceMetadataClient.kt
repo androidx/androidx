@@ -165,8 +165,10 @@ public interface WatchFaceMetadataClient : AutoCloseable {
 
     /**
      * Returns the watch face's [UserStyleSchema].
+     *
+     * @throws [RuntimeException] if the watch face threw an exception while trying to service the
+     * request or there was a communication problem with watch face process.
      */
-    @Throws(WatchFaceException::class)
     public fun getUserStyleSchema(): UserStyleSchema
 
     /**
@@ -179,14 +181,18 @@ public interface WatchFaceMetadataClient : AutoCloseable {
     /**
      * Returns a map of [androidx.wear.watchface.ComplicationSlot] ID to [ComplicationSlotMetadata]
      * for each slot in the watch face's [androidx.wear.watchface.ComplicationSlotsManager].
+     *
+     * @throws [RuntimeException] if the watch face threw an exception while trying to service the
+     * request or there was a communication problem with watch face process.
      */
-    @Throws(WatchFaceException::class)
     public fun getComplicationSlotMetadataMap(): Map<Int, ComplicationSlotMetadata>
 
     /**
      * Returns the watch face's [UserStyleFlavors].
+     *
+     * @throws [RuntimeException] if the watch face threw an exception while trying to service the
+     * request or there was a communication problem with watch face process.
      */
-    @Throws(WatchFaceException::class)
     @WatchFaceFlavorsExperimental
     public fun getUserStyleFlavors(): UserStyleFlavors
 }

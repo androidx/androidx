@@ -79,9 +79,13 @@ public interface HeadlessWatchFaceClient : AutoCloseable {
     @Throws(RemoteException::class)
     public fun getUserStyleSchemaDigestHash(): ByteArray = ByteArray(0)
 
-    /** The watch face's [UserStyleFlavors] if any. */
+    /**
+     * Returns the watch face's [UserStyleFlavors] if any.
+     *
+     * @throws [RuntimeException] if the watch face threw an exception while trying to service the
+     * request or there was a communication problem with watch face process.
+     */
     @WatchFaceFlavorsExperimental
-    @Throws(WatchFaceException::class)
     public fun getUserStyleFlavors(): UserStyleFlavors = UserStyleFlavors()
 
     /**
