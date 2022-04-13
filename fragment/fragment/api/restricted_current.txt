@@ -6,6 +6,7 @@ package androidx.fragment.app {
     ctor public DialogFragment(@LayoutRes int);
     method public void dismiss();
     method public void dismissAllowingStateLoss();
+    method @MainThread public void dismissNow();
     method public android.app.Dialog? getDialog();
     method public boolean getShowsDialog();
     method @StyleRes public int getTheme();
