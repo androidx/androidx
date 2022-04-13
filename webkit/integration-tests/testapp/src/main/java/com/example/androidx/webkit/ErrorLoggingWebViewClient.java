@@ -44,7 +44,7 @@ class ErrorLoggingWebViewClient extends WebViewClientCompat {
     public void onReceivedError(@NonNull WebView view, @NonNull WebResourceRequest request,
             @NonNull WebResourceErrorCompat error) {
         if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_RESOURCE_ERROR_GET_CODE)) {
-            logErrors(request.getUrl().toString(), error.getErrorCode());
+            logErrors(Api21Impl.getUrl(request).toString(), error.getErrorCode());
         }
     }
 
