@@ -86,11 +86,6 @@ public sealed class ComplicationData constructor(
     internal open fun fillWireComplicationDataBuilder(builder: WireComplicationDataBuilder) {
     }
 
-    internal fun asPlaceholderWireComplicationData(): WireComplicationData =
-        WireComplicationDataBuilder(NoDataComplicationData.TYPE.toWireComplicationType()).apply {
-            fillWireComplicationDataBuilder(this)
-        }.build()
-
     /**
      * Returns `true` if any of the fields of this ComplicationData are placeholders. I.e. if any
      * fields are equal to: [ComplicationText.PLACEHOLDER], [SmallImage.PLACEHOLDER],
@@ -135,7 +130,7 @@ public class NoDataComplicationData internal constructor(
     TYPE,
     placeholder?.tapAction,
     cachedWireComplicationData,
-    dataSource = placeholder?.dataSource
+    dataSource = null
 ) {
 
     /** Constructs a NoDataComplicationData without a [placeholder]. */
@@ -170,12 +165,12 @@ public class NoDataComplicationData internal constructor(
         }
         return createWireComplicationDataBuilder().apply {
             if (placeholder == null) {
-                setPlaceholderType(TYPE.toWireComplicationType())
+                setPlaceholder(null)
             } else {
-                setPlaceholderType(placeholder.type.toWireComplicationType())
-                placeholder.fillWireComplicationDataBuilder(this)
+                val builder = placeholder.createWireComplicationDataBuilder()
+                placeholder.fillWireComplicationDataBuilder(builder)
+                setPlaceholder(builder.build())
             }
-            setDataSource(dataSource)
         }.build().also { cachedWireComplicationData = it }
     }
 
@@ -1611,6 +1606,84 @@ public class NoPermissionComplicationData internal constructor(
     }
 }
 
+internal fun WireComplicationData.toPlaceholderComplicationData(): ComplicationData? = when (type) {
+    NoDataComplicationData.TYPE.toWireComplicationType() -> null
+
+    ShortTextComplicationData.TYPE.toWireComplicationType() -> {
+        ShortTextComplicationData.Builder(
+            shortText!!.toApiComplicationTextPlaceholderAware(),
+            contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
+        ).apply {
+            setTapAction(tapAction)
+            setValidTimeRange(parseTimeRange())
+            setMonochromaticImage(parseIconPlaceholderAware())
+            setTitle(shortTitle?.toApiComplicationTextPlaceholderAware())
+            setDataSource(dataSource)
+        }.build()
+    }
+
+    LongTextComplicationData.TYPE.toWireComplicationType() -> {
+        LongTextComplicationData.Builder(
+            longText!!.toApiComplicationTextPlaceholderAware(),
+            contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
+        ).apply {
+            setTapAction(tapAction)
+            setValidTimeRange(parseTimeRange())
+            setMonochromaticImage(parseIconPlaceholderAware())
+            setSmallImage(parseSmallImagePlaceholderAware())
+            setTitle(longTitle?.toApiComplicationTextPlaceholderAware())
+            setDataSource(dataSource)
+        }.build()
+    }
+
+    RangedValueComplicationData.TYPE.toWireComplicationType() ->
+        RangedValueComplicationData.Builder(
+            value = rangedValue,
+            min = rangedMinValue,
+            max = rangedMaxValue,
+            contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
+        ).apply {
+            setTapAction(tapAction)
+            setValidTimeRange(parseTimeRange())
+            setMonochromaticImage(parseIconPlaceholderAware())
+            setTitle(shortTitle?.toApiComplicationTextPlaceholderAware())
+            setText(shortText?.toApiComplicationTextPlaceholderAware())
+            setDataSource(dataSource)
+        }.build()
+
+    MonochromaticImageComplicationData.TYPE.toWireComplicationType() ->
+        MonochromaticImageComplicationData(
+            parseIconPlaceholderAware()!!,
+            contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY,
+            tapAction,
+            parseTimeRange(),
+            this,
+            dataSource
+        )
+
+    SmallImageComplicationData.TYPE.toWireComplicationType() ->
+        SmallImageComplicationData(
+            parseSmallImagePlaceholderAware()!!,
+            contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY,
+            tapAction,
+            parseTimeRange(),
+            this,
+            dataSource
+        )
+
+    PhotoImageComplicationData.TYPE.toWireComplicationType() ->
+        PhotoImageComplicationData(
+            parseLargeImagePlaceholderAware()!!,
+            contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY,
+            tapAction,
+            parseTimeRange(),
+            this,
+            dataSource
+        )
+
+    else -> null
+}
+
 /**
  * @hide
  */
@@ -1619,95 +1692,9 @@ public fun WireComplicationData.toApiComplicationData(): ComplicationData {
     val wireComplicationData = this
     return when (type) {
         NoDataComplicationData.TYPE.toWireComplicationType() -> {
-            if (hasPlaceholderType()) {
-                val placeholder = when (placeholderType) {
-                    NoDataComplicationData.TYPE.toWireComplicationType() -> null
-
-                    ShortTextComplicationData.TYPE.toWireComplicationType() -> {
-                        ShortTextComplicationData.Builder(
-                            shortText!!.toApiComplicationTextPlaceholderAware(),
-                            contentDescription?.toApiComplicationText()
-                                ?: ComplicationText.EMPTY
-                        ).apply {
-                            setMonochromaticImage(parseIconPlaceholderAware())
-                            setTitle(shortTitle?.toApiComplicationTextPlaceholderAware())
-                            setDataSource(dataSource)
-                        }.build()
-                    }
-
-                    LongTextComplicationData.TYPE.toWireComplicationType() -> {
-                        LongTextComplicationData.Builder(
-                            longText!!.toApiComplicationTextPlaceholderAware(),
-                            contentDescription?.toApiComplicationText()
-                                ?: ComplicationText.EMPTY
-                        ).apply {
-                            setMonochromaticImage(parseIconPlaceholderAware())
-                            setSmallImage(parseSmallImagePlaceholderAware())
-                            setTitle(longTitle?.toApiComplicationTextPlaceholderAware())
-                            setDataSource(dataSource)
-                        }.build()
-                    }
-
-                    RangedValueComplicationData.TYPE.toWireComplicationType() ->
-                        RangedValueComplicationData.Builder(
-                            value = rangedValue,
-                            min = rangedMinValue,
-                            max = rangedMaxValue,
-                            contentDescription?.toApiComplicationText()
-                                ?: ComplicationText.EMPTY
-                        ).apply {
-                            setMonochromaticImage(parseIconPlaceholderAware())
-                            setTitle(shortTitle?.toApiComplicationTextPlaceholderAware())
-                            setText(shortText?.toApiComplicationTextPlaceholderAware())
-                            setDataSource(dataSource)
-                        }.build()
-
-                    MonochromaticImageComplicationData.TYPE.toWireComplicationType() ->
-                        MonochromaticImageComplicationData(
-                            parseIconPlaceholderAware()!!,
-                            contentDescription?.toApiComplicationText()
-                                ?: ComplicationText.EMPTY,
-                            tapAction,
-                            parseTimeRange(),
-                            wireComplicationData,
-                            dataSource
-                        )
-
-                    SmallImageComplicationData.TYPE.toWireComplicationType() ->
-                        SmallImageComplicationData(
-                            parseSmallImagePlaceholderAware()!!,
-                            contentDescription?.toApiComplicationText()
-                                ?: ComplicationText.EMPTY,
-                            tapAction,
-                            parseTimeRange(),
-                            wireComplicationData,
-                            dataSource
-                        )
-
-                    PhotoImageComplicationData.TYPE.toWireComplicationType() ->
-                        PhotoImageComplicationData(
-                            parseLargeImagePlaceholderAware()!!,
-                            contentDescription?.toApiComplicationText()
-                                ?: ComplicationText.EMPTY,
-                            tapAction,
-                            parseTimeRange(),
-                            wireComplicationData,
-                            dataSource
-                        )
-
-                    else -> throw IllegalStateException(
-                        "Unrecognized placeholderType $placeholderType"
-                    )
-                }
-
-                if (placeholder != null) {
-                    NoDataComplicationData(placeholder)
-                } else {
-                    NoDataComplicationData()
-                }
-            } else {
-                NoDataComplicationData()
-            }
+            placeholder?.toPlaceholderComplicationData() ?.let {
+                NoDataComplicationData(it)
+            } ?: NoDataComplicationData()
         }
 
         EmptyComplicationData.TYPE.toWireComplicationType() -> EmptyComplicationData()

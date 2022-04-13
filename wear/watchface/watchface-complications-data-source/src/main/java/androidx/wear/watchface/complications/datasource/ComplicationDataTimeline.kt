@@ -137,8 +137,8 @@ public class ComplicationDataTimeline(
                     complicationData.type == defaultComplicationData.type
                 ) {
                     "TimelineEntry's complicationData must have the same type as the " +
-                        "defaultComplicationData. Found ${complicationData.type} expected " +
-                        "${defaultComplicationData.type}."
+                        "defaultComplicationData or be NoDataComplicationData. Found " +
+                        "${complicationData.type} expected ${defaultComplicationData.type}."
                 }
 
                 require(!complicationData.hasPlaceholderFields()) {

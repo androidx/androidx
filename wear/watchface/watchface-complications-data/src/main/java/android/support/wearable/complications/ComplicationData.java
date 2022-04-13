@@ -262,6 +262,8 @@ public final class ComplicationData implements Parcelable, Serializable {
     private static final String FIELD_TIMELINE_START_TIME = "TIMELINE_START_TIME";
     private static final String FIELD_TIMELINE_END_TIME = "TIMELINE_END_TIME";
     private static final String FIELD_TIMELINE_ENTRIES = "TIMELINE";
+    private static final String FIELD_TIMELINE_ENTRY_TYPE = "TIMELINE_ENTRY_TYPE";
+    private static final String FIELD_PLACEHOLDER_FIELDS = "PLACEHOLDER_FIELDS";
     private static final String FIELD_PLACEHOLDER_TYPE = "PLACEHOLDER_TYPE";
     private static final String FIELD_DATA_SOURCE = "FIELD_DATA_SOURCE";
 
@@ -351,6 +353,7 @@ public final class ComplicationData implements Parcelable, Serializable {
                     FIELD_LONG_TITLE,
                     FIELD_MAX_VALUE,
                     FIELD_MIN_VALUE,
+                    FIELD_PLACEHOLDER_FIELDS,
                     FIELD_PLACEHOLDER_TYPE,
                     FIELD_SHORT_TEXT,
                     FIELD_SHORT_TITLE,
@@ -389,19 +392,9 @@ public final class ComplicationData implements Parcelable, Serializable {
     }
 
     ComplicationData(int type, Bundle fields) {
+        mType = type;
         mFields = fields;
         mFields.setClassLoader(getClass().getClassLoader());
-        // If this is a placeholder, coerce to TYPE_NO_DATA.
-        // If this is defined within a timeline, we assume the type of the outer ComplicationData
-        // applies to all elements in the timeline and we can just use the passed in type. The only
-        // exception is if we get a NO_DATA ComplicationData. In that case, we can check whether
-        // the placeholder type is included the serialization to determine if NO_DATA was passed
-        // in and coerce the type to NO_DATA.
-        if (mFields.containsKey(FIELD_PLACEHOLDER_TYPE)) {
-            mType = TYPE_NO_DATA;
-        } else {
-            mType = type;
-        }
     }
 
     private ComplicationData(@NonNull Parcel in) {
@@ -411,7 +404,7 @@ public final class ComplicationData implements Parcelable, Serializable {
 
     @RequiresApi(api = Build.VERSION_CODES.P)
     private static class SerializedForm implements Serializable {
-        private static final int VERSION_NUMBER = 5;
+        private static final int VERSION_NUMBER = 6;
 
         @NonNull
         ComplicationData mComplicationData;
@@ -480,9 +473,6 @@ public final class ComplicationData implements Parcelable, Serializable {
             if (isFieldValidForType(FIELD_END_TIME, type)) {
                 oos.writeLong(mComplicationData.getEndDateTimeMillis());
             }
-            if (isFieldValidForType(FIELD_PLACEHOLDER_TYPE, type)) {
-                oos.writeInt(mComplicationData.getPlaceholderType());
-            }
             if (isFieldValidForType(FIELD_DATA_SOURCE, type)) {
                 ComponentName componentName = mComplicationData.getDataSource();
                 if (componentName == null) {
@@ -499,6 +489,16 @@ public final class ComplicationData implements Parcelable, Serializable {
             oos.writeLong(start);
             long end = mComplicationData.mFields.getLong(FIELD_TIMELINE_END_TIME, -1);
             oos.writeLong(end);
+
+            if (isFieldValidForType(FIELD_PLACEHOLDER_FIELDS, type)) {
+                ComplicationData placeholder = mComplicationData.getPlaceholder();
+                if (placeholder == null) {
+                    oos.writeBoolean(false);
+                } else {
+                    oos.writeBoolean(true);
+                    new SerializedForm(placeholder).writeObject(oos);
+                }
+            }
 
             // This has to be last, since it's recursive.
             List<ComplicationData> timeline = mComplicationData.getTimelineEntries();
@@ -572,12 +572,6 @@ public final class ComplicationData implements Parcelable, Serializable {
             if (isFieldValidForType(FIELD_END_TIME, type)) {
                 fields.putLong(FIELD_END_TIME, ois.readLong());
             }
-            if (isFieldValidForType(FIELD_PLACEHOLDER_TYPE, type)) {
-                int placeholderType = ois.readInt();
-                if (placeholderType != 0) {
-                    fields.putInt(FIELD_PLACEHOLDER_TYPE, placeholderType);
-                }
-            }
             if (isFieldValidForType(FIELD_DATA_SOURCE, type)) {
                 String componentName = ois.readUTF();
                 if (componentName.isEmpty()) {
@@ -598,6 +592,18 @@ public final class ComplicationData implements Parcelable, Serializable {
             if (end != -1) {
                 fields.putLong(FIELD_TIMELINE_END_TIME, end);
             }
+
+            if (isFieldValidForType(FIELD_PLACEHOLDER_FIELDS, type)) {
+                if (ois.readBoolean()) {
+                    SerializedForm serializedPlaceholder = new SerializedForm();
+                    serializedPlaceholder.readObject(ois);
+                    fields.putInt(FIELD_PLACEHOLDER_TYPE,
+                            serializedPlaceholder.mComplicationData.mType);
+                    fields.putBundle(FIELD_PLACEHOLDER_FIELDS,
+                            serializedPlaceholder.mComplicationData.mFields);
+                }
+            }
+
             int timelineLength = ois.readInt();
             if (timelineLength != 0) {
                 Parcelable[] parcels = new Parcelable[timelineLength];
@@ -731,11 +737,12 @@ public final class ComplicationData implements Parcelable, Serializable {
         }
         ArrayList<ComplicationData> entries = new ArrayList<>();
         for (Parcelable parcelable : bundles) {
-            // Pass is the type of the outer complication data to the timeline entries by default.
-            // The array should only contain elements of the same type. The only exception is the
-            // NO_DATA type, which is allowed, but the code in the constructor is going to coerce
-            // the type to NO_DATA if necessary.
-            entries.add(new ComplicationData(mType, (Bundle) parcelable));
+            Bundle bundle = (Bundle) parcelable;
+            // Use the serialized FIELD_TIMELINE_ENTRY_TYPE or the outer type if it's not there.
+            // Usually the timeline entry type will be the same as the outer type, unless an entry
+            // contains NoDataComplicationData.
+            int type = bundle.getInt(FIELD_TIMELINE_ENTRY_TYPE, mType);
+            entries.add(new ComplicationData(type, (Bundle) parcelable));
         }
         return entries;
     }
@@ -747,7 +754,13 @@ public final class ComplicationData implements Parcelable, Serializable {
         } else {
             mFields.putParcelableArray(
                     FIELD_TIMELINE_ENTRIES,
-                    timelineEntries.stream().map(e -> e.mFields).toArray(Parcelable[]::new));
+                    timelineEntries.stream().map(
+                            e -> {
+                                // This supports timeline entry of NoDataComplicationData.
+                                e.mFields.putInt(FIELD_TIMELINE_ENTRY_TYPE, e.mType);
+                                return e.mFields;
+                            }
+                    ).toArray(Parcelable[]::new));
         }
     }
 
@@ -1215,28 +1228,18 @@ public final class ComplicationData implements Parcelable, Serializable {
     }
 
     /**
-     * Returns true if the ComplicationData contains a placeholder type. I.e. if
-     * {@link #getPlaceholderType} can succeed.
+     * Returns the placeholder ComplicationData if there is one or `null`.
      */
-    public boolean hasPlaceholderType() {
-        try {
-            return isFieldValidForType(FIELD_PLACEHOLDER_TYPE, mType)
-                    && mFields.containsKey(FIELD_PLACEHOLDER_TYPE);
-        } catch (BadParcelableException e) {
-            return false;
-        }
-    }
-
-    /**
-     * Returns the type this complication is a placeholder for.
-     *
-     * <p>Valid only if the type of this complication data is {@link #TYPE_NO_DATA}.
-     * Otherwise returns zero.
-     */
-    @ComplicationType
-    public int getPlaceholderType() {
+    @Nullable
+    public ComplicationData getPlaceholder() {
+        checkFieldValidForType(FIELD_PLACEHOLDER_FIELDS, mType);
         checkFieldValidForType(FIELD_PLACEHOLDER_TYPE, mType);
-        return mFields.getInt(FIELD_PLACEHOLDER_TYPE);
+        if (!mFields.containsKey(FIELD_PLACEHOLDER_FIELDS)
+                || !mFields.containsKey(FIELD_PLACEHOLDER_TYPE)) {
+            return null;
+        }
+        return new ComplicationData(mFields.getInt(FIELD_PLACEHOLDER_TYPE),
+                mFields.getBundle(FIELD_PLACEHOLDER_FIELDS));
     }
 
     /**
@@ -1699,13 +1702,21 @@ public final class ComplicationData implements Parcelable, Serializable {
         }
 
         /**
-         * Sets the type this complication is a placeholder for.
+         * Sets the placeholder.
          *
          * <p>Returns this Builder to allow chaining.
          */
+        @SuppressLint("SyntheticAccessor")
         @NonNull
-        public Builder setPlaceholderType(@ComplicationType int placeholderType) {
-            putIntField(FIELD_PLACEHOLDER_TYPE, placeholderType);
+        public Builder setPlaceholder(@Nullable ComplicationData placeholder) {
+            if (placeholder == null) {
+                mFields.remove(FIELD_PLACEHOLDER_FIELDS);
+                mFields.remove(FIELD_PLACEHOLDER_TYPE);
+            } else {
+                ComplicationData.checkFieldValidForType(FIELD_PLACEHOLDER_FIELDS, mType);
+                mFields.putBundle(FIELD_PLACEHOLDER_FIELDS, placeholder.mFields);
+                putIntField(FIELD_PLACEHOLDER_TYPE, placeholder.mType);
+            }
             return this;
         }
 
