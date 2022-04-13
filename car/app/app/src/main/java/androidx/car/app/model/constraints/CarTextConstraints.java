@@ -89,6 +89,15 @@ public final class CarTextConstraints {
                     DurationSpan.class,
                     ForegroundCarColorSpan.class));
 
+    /** Allow text with color and icon {@link CarSpan}s. */
+    @NonNull
+    public static final CarTextConstraints TEXT_WITH_COLORS_AND_ICON =
+            new CarTextConstraints(Arrays.asList(
+                    DistanceSpan.class,
+                    DurationSpan.class,
+                    ForegroundCarColorSpan.class,
+                    CarIconSpan.class));
+
     private final HashSet<Class<? extends CarSpan>> mAllowedTypes;
 
     /**
