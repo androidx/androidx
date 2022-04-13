@@ -17,6 +17,7 @@
 package androidx.camera.camera2.internal.compat.quirk;
 
 import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CaptureRequest;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
@@ -27,7 +28,11 @@ import androidx.camera.core.impl.Quirk;
 /**
  * Quirk denoting Af Region is incorrectly flipped horizontally.
  *
- * See b/210548792
+ * <p>QuirkSummary
+ *     Bug Id: 210548792
+ *     Description: Regions set in {@link CaptureRequest#CONTROL_AF_REGIONS} are incorrectly flipped
+ *                  horizontally when using front-facing cameras.
+ *     Device(s): All Samsung devices.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class AfRegionFlipHorizontallyQuirk implements Quirk {
