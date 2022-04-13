@@ -118,7 +118,7 @@ public class PositionIndicatorTest {
                 modifier = Modifier
                     .onSizeChanged { viewPortHeight = it.height }
                     .requiredSize(itemSizeDp * 3.5f + itemSpacingDp * 2.5f),
-                autoCentering = false
+                autoCentering = null
             ) {
                 items(3) {
                     Box(Modifier.requiredSize(itemSizeDp))
@@ -189,7 +189,7 @@ public class PositionIndicatorTest {
     @Test
     fun scrollableScalingLazyColumnGivesCorrectPositionAndSize() {
         scrollableScalingLazyColumnPositionAndSize(
-            autoCentering = true,
+            enableAutoCentering = true,
             contentPadding = PaddingValues(0.dp)
         )
     }
@@ -197,7 +197,7 @@ public class PositionIndicatorTest {
     @Test
     fun scrollableScalingLazyColumnGivesCorrectPositionAndSizeWithContentPadding() {
         scrollableScalingLazyColumnPositionAndSize(
-            autoCentering = true,
+            enableAutoCentering = true,
             contentPadding = PaddingValues(50.dp)
         )
     }
@@ -205,13 +205,13 @@ public class PositionIndicatorTest {
     @Test
     fun scrollableScalingLazyColumnGivesCorrectPositionAndSizeWithContentPaddingNoAutoCenter() {
         scrollableScalingLazyColumnPositionAndSize(
-            autoCentering = false,
+            enableAutoCentering = false,
             contentPadding = PaddingValues(50.dp)
         )
     }
 
     private fun scrollableScalingLazyColumnPositionAndSize(
-        autoCentering: Boolean,
+        enableAutoCentering: Boolean,
         contentPadding: PaddingValues
     ) {
         lateinit var state: ScalingLazyListState
@@ -230,7 +230,8 @@ public class PositionIndicatorTest {
                         itemSizeDp * 3f + itemSpacingDp * 2f
                     ),
                 scalingParams = ScalingLazyColumnDefaults.scalingParams(edgeScale = 1.0f),
-                autoCentering = autoCentering,
+                autoCentering = if (enableAutoCentering)
+                    AutoCenteringParams(itemIndex = 0) else null,
                 contentPadding = contentPadding
             ) {
                 items(5) {
@@ -325,7 +326,7 @@ public class PositionIndicatorTest {
                     .fillMaxWidth()
                     .requiredSize(itemSizeDp * 3.5f + itemSpacingDp * 2.5f)
                     .background(Color.DarkGray),
-                autoCentering = false
+                autoCentering = null
             ) {
                 items(3) {
                     Box(Modifier.requiredSize(itemSizeDp))
@@ -371,7 +372,7 @@ public class PositionIndicatorTest {
                     )
                     .background(Color.DarkGray),
                 scalingParams = ScalingLazyColumnDefaults.scalingParams(edgeScale = 1.0f),
-                autoCentering = false
+                autoCentering = null
             ) {
                 items(5) {
                     Box(Modifier.requiredSize(itemSizeDp))

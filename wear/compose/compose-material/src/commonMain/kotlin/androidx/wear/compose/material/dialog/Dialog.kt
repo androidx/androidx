@@ -382,7 +382,7 @@ private fun DialogImpl(
 ) {
     ScalingLazyColumn(
         state = scrollState,
-        autoCentering = false,
+        autoCentering = null,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = verticalArrangement,
         contentPadding = contentPadding,

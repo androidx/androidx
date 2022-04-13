@@ -93,7 +93,7 @@ fun HideWhenFullSLCDemo() {
     ) {
         ScalingLazyColumn(
             state = listState,
-            autoCentering = false
+            autoCentering = null
         ) {
             items(
                 count = if (smallList) 3 else 10
