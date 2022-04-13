@@ -65,6 +65,10 @@ android {
         multiDexEnabled = true
     }
 
+    lintOptions {
+        enable 'CameraXQuirksClassDetector'
+    }
+
     testOptions.unitTests.includeAndroidResources = true
     namespace "androidx.camera.viewfinder"
     lintOptions {
