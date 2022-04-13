@@ -901,9 +901,9 @@ public sealed class UserStyleSetting private constructor(
                         "Unrecognised wireFormat.mEnabled " + wireFormat.mEnabled
                     )
                 },
-                wireFormat.mPerComplicationTypeBounds?.let {
-                    ComplicationSlotBounds(
-                        it.mapKeys { ComplicationType.fromWireType(it.key) }
+                wireFormat.mPerComplicationTypeBounds?.let { perComplicationTypeBounds ->
+                    ComplicationSlotBounds.createFromPartialMap(
+                        perComplicationTypeBounds.mapKeys { ComplicationType.fromWireType(it.key) }
                     )
                 },
                 wireFormat.accessibilityTraversalIndex
