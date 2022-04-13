@@ -142,7 +142,7 @@ package androidx.wear.compose.material {
   }
 
   public final class HorizontalPageIndicatorKt {
-    method @androidx.compose.runtime.Composable public static void HorizontalPageIndicator(androidx.wear.compose.material.PageIndicatorState pageIndicatorState, optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.material.PageIndicatorStyle indicatorStyle, optional long selectedColor, optional long unselectedColor, optional float indicatorSize, optional float spacing, optional androidx.compose.ui.graphics.Shape indicatorShape);
+    method @androidx.compose.runtime.Composable public static void HorizontalPageIndicator(androidx.wear.compose.material.PageIndicatorState pageIndicatorState, optional androidx.compose.ui.Modifier modifier, optional int indicatorStyle, optional long selectedColor, optional long unselectedColor, optional float indicatorSize, optional float spacing, optional androidx.compose.ui.graphics.Shape indicatorShape);
   }
 
   public final class IconKt {
@@ -188,7 +188,7 @@ package androidx.wear.compose.material {
   }
 
   public final class PageIndicatorDefaults {
-    method @androidx.compose.runtime.Composable public androidx.wear.compose.material.PageIndicatorStyle style();
+    method @androidx.compose.runtime.Composable public int style();
     field public static final androidx.wear.compose.material.PageIndicatorDefaults INSTANCE;
   }
 
@@ -201,9 +201,15 @@ package androidx.wear.compose.material {
     property public abstract int selectedPage;
   }
 
-  public enum PageIndicatorStyle {
-    enum_constant public static final androidx.wear.compose.material.PageIndicatorStyle Curved;
-    enum_constant public static final androidx.wear.compose.material.PageIndicatorStyle Linear;
+  @kotlin.jvm.JvmInline public final value class PageIndicatorStyle {
+    field public static final androidx.wear.compose.material.PageIndicatorStyle.Companion Companion;
+  }
+
+  public static final class PageIndicatorStyle.Companion {
+    method public int getCurved();
+    method public int getLinear();
+    property public final int Curved;
+    property public final int Linear;
   }
 
   public final class PickerDefaults {

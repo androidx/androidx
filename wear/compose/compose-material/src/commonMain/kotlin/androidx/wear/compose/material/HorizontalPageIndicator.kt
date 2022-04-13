@@ -104,9 +104,19 @@ public fun HorizontalPageIndicator(
 /**
  * The style of [HorizontalPageIndicator]. May be Curved or Linear
  */
-public enum class PageIndicatorStyle {
-    Curved,
-    Linear
+@kotlin.jvm.JvmInline
+public value class PageIndicatorStyle internal constructor(internal val value: Int) {
+    companion object {
+        /**
+         * Curved style of [HorizontalPageIndicator]
+         */
+        val Curved = PageIndicatorStyle(0)
+
+        /**
+         * Linear style of [HorizontalPageIndicator]
+         */
+        val Linear = PageIndicatorStyle(1)
+    }
 }
 
 /**
