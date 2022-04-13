@@ -135,7 +135,7 @@ package androidx.wear.compose.material {
   }
 
   public final class CurvedTextKt {
-    method public static void curvedText(androidx.wear.compose.foundation.CurvedScope, String text, optional androidx.wear.compose.foundation.CurvedModifier modifier, optional long color, optional long background, optional long fontSize, optional androidx.wear.compose.foundation.CurvedTextStyle? style, optional androidx.wear.compose.foundation.CurvedDirection.Angular? angularDirection, optional androidx.wear.compose.foundation.ArcPaddingValues contentArcPadding, optional int overflow);
+    method public static void curvedText(androidx.wear.compose.foundation.CurvedScope, String text, optional androidx.wear.compose.foundation.CurvedModifier modifier, optional long background, optional long color, optional long fontSize, optional androidx.wear.compose.foundation.CurvedTextStyle? style, optional androidx.wear.compose.foundation.CurvedDirection.Angular? angularDirection, optional androidx.wear.compose.foundation.ArcPaddingValues contentArcPadding, optional int overflow);
   }
 
   public final class DefaultTimeSourceKt {
@@ -182,7 +182,7 @@ package androidx.wear.compose.material {
   }
 
   public final class ListHeaderKt {
-    method @androidx.compose.runtime.Composable public static void ListHeader(optional androidx.compose.ui.Modifier modifier, optional long contentColor, optional long backgroundColor, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void ListHeader(optional androidx.compose.ui.Modifier modifier, optional long backgroundColor, optional long contentColor, kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
 
   public final class MaterialTextSelectionColorsKt {
@@ -281,7 +281,7 @@ package androidx.wear.compose.material {
     method @androidx.compose.runtime.Composable public static void PositionIndicator(androidx.wear.compose.material.ScalingLazyListState scalingLazyListState, optional androidx.compose.ui.Modifier modifier, optional boolean reverseDirection);
     method @androidx.compose.runtime.Composable public static void PositionIndicator(androidx.compose.foundation.lazy.LazyListState lazyListState, optional androidx.compose.ui.Modifier modifier, optional boolean reverseDirection);
     method @androidx.compose.runtime.Composable public static void PositionIndicator(kotlin.jvm.functions.Function0<java.lang.Float> value, optional androidx.compose.ui.Modifier modifier, optional kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> range, optional long color, optional boolean reverseDirection, optional int position);
-    method @androidx.compose.runtime.Composable public static void PositionIndicator(androidx.wear.compose.material.PositionIndicatorState state, float indicatorHeight, float indicatorWidth, float paddingHorizontal, optional androidx.compose.ui.Modifier modifier, optional long color, optional long background, optional boolean reverseDirection, optional int position);
+    method @androidx.compose.runtime.Composable public static void PositionIndicator(androidx.wear.compose.material.PositionIndicatorState state, float indicatorHeight, float indicatorWidth, float paddingHorizontal, optional androidx.compose.ui.Modifier modifier, optional long background, optional long color, optional boolean reverseDirection, optional int position);
   }
 
   @androidx.compose.runtime.Stable public interface PositionIndicatorState {
@@ -623,7 +623,7 @@ package androidx.wear.compose.material {
     method public androidx.compose.foundation.layout.PaddingValues getContentPadding();
     method @androidx.compose.runtime.Composable public String timeFormat();
     method public androidx.wear.compose.material.TimeSource timeSource(String timeFormat);
-    method @androidx.compose.runtime.Composable public androidx.compose.ui.text.TextStyle timeTextStyle(optional long color, optional long background, optional long fontSize);
+    method @androidx.compose.runtime.Composable public androidx.compose.ui.text.TextStyle timeTextStyle(optional long background, optional long color, optional long fontSize);
     property public final androidx.compose.foundation.layout.PaddingValues ContentPadding;
     field public static final androidx.wear.compose.material.TimeTextDefaults INSTANCE;
     field public static final String TimeFormat12Hours = "h:mm a";

@@ -165,14 +165,14 @@ public object TimeTextDefaults {
      * Creates a [TextStyle] with default parameters used for showing time
      * on square screens. By default a copy of MaterialTheme.typography.caption1 style is created
      *
-     * @param color The main color
      * @param background The background color
+     * @param color The main color
      * @param fontSize The font size
      */
     @Composable
     public fun timeTextStyle(
-        color: Color = Color.Unspecified,
         background: Color = Color.Unspecified,
+        color: Color = Color.Unspecified,
         fontSize: TextUnit = TextUnit.Unspecified,
     ) = MaterialTheme.typography.caption1 +
         TextStyle(color = color, background = background, fontSize = fontSize)
