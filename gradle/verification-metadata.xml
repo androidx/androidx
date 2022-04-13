@@ -13,6 +13,7 @@
          <trust group="^com[.]android($|([.].*))" regex="true"/> <!-- b/215430394 -->
          <trust group="com.google.testing.platform"/> <!-- b/215430394 -->
          <trust group="com.google.android.gms"/> <!-- b/215442095 -->
+         <trust file=".*kotlin-native-prebuilt-macos-.*" regex="true"/> <!-- b/228184608 -->
       </trusted-artifacts>
       <trusted-keys>
          <trusted-key id="00089ee8c3afa95a854d0f1df800dd0933ecf7f7" group="com.google.guava" name="guava"/>

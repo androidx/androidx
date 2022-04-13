@@ -16,15 +16,34 @@
 
 
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 plugins {
     id("AndroidXPlugin")
     id("org.jetbrains.kotlin.multiplatform")
 }
 
+// This should be true when building from GitHub, and false when building
+// from AOSP.  Use this to block out any features or code that we're not
+// ready to build yet in AOSP
+
+def boolProperty(name) {
+    return project.providers.gradleProperty(name).getOrNull()?.toBoolean()
+}
+
+def playground = androidx.build.StudioType.isPlayground(project)
+//Native on by default in playground
+def enableNative = boolProperty('androidx.kmp.native.enabled') ?: playground
+
 kotlin {
     jvm {
         withJava()
+    }
+    if (enableNative) {
+        macosX64()
+        macosArm64()
+        linuxX64()
+        mingwX64()
     }
 
     sourceSets {
@@ -37,6 +56,19 @@ kotlin {
             dependencies {
                 implementation(libs.kotlinTestCommon)
                 implementation(libs.kotlinTestAnnotationsCommon)
+            }
+        }
+
+        if (enableNative) {
+            nativeMain
+
+            configure([linuxX64Main, macosX64Main, macosArm64Main, mingwX64Main]) {
+                dependsOn nativeMain
+            }
+
+            nativeTest
+            configure([linuxX64Test, macosX64Test, macosArm64Test, mingwX64Test]) {
+                dependsOn nativeTest
             }
         }
 
