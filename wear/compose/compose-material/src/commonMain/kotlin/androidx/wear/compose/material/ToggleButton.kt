@@ -111,10 +111,9 @@ fun ToggleButton(
         CompositionLocalProvider(
             LocalContentColor provides contentColor,
             LocalContentAlpha provides contentColor.alpha,
-            LocalTextStyle provides MaterialTheme.typography.button
-        ) {
-            content()
-        }
+            LocalTextStyle provides MaterialTheme.typography.button,
+            content = content
+        )
     }
 }
 

@@ -139,7 +139,7 @@ internal fun BoxScope.DisplayDemoList(
                     label = {
                         Text(
                             text = demo.title,
-                            modifier = Modifier.align(Alignment.Center)
+                            modifier = Modifier.fillMaxWidth()
                         )
                     },
                     modifier = Modifier.fillMaxWidth()

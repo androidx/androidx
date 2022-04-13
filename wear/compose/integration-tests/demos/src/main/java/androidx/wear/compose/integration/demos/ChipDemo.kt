@@ -18,6 +18,7 @@ package androidx.wear.compose.integration.demos
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -356,7 +357,7 @@ fun AvatarChips() {
                 // unselected toggle control color to ToggleChipDefaults.switchUncheckedIconColor()
                 // rather than the default.
                 colors = ToggleChipDefaults.toggleChipColors(
-                    uncheckedToggleControlTintColor = ToggleChipDefaults.switchUncheckedIconColor()
+                    uncheckedToggleControlTintColor = ToggleChipDefaults.SwitchUncheckedIconColor
                 ),
                 toggleControl = {
                     Icon(
@@ -541,7 +542,7 @@ fun CustomChips() {
                 // unselected toggle control color to ToggleChipDefaults.switchUncheckedIconColor()
                 // rather than the default.
                 colors = ToggleChipDefaults.toggleChipColors(
-                    uncheckedToggleControlTintColor = ToggleChipDefaults.switchUncheckedIconColor()
+                    uncheckedToggleControlTintColor = ToggleChipDefaults.SwitchUncheckedIconColor
                 ),
                 toggleControl = {
                     Icon(
@@ -598,7 +599,7 @@ fun ImageBackgroundChips() {
                 // unselected toggle control color to ToggleChipDefaults.switchUncheckedIconColor()
                 // rather than the default.
                 colors = ToggleChipDefaults.toggleChipColors(
-                    uncheckedToggleControlTintColor = ToggleChipDefaults.switchUncheckedIconColor()
+                    uncheckedToggleControlTintColor = ToggleChipDefaults.SwitchUncheckedIconColor
                 ),
                 toggleControl = {
                     Icon(
@@ -656,7 +657,7 @@ private fun ChipCustomizer(
             // unselected toggle control color to ToggleChipDefaults.switchUncheckedIconColor()
             // rather than the default.
             colors = ToggleChipDefaults.toggleChipColors(
-                uncheckedToggleControlTintColor = ToggleChipDefaults.switchUncheckedIconColor()
+                uncheckedToggleControlTintColor = ToggleChipDefaults.SwitchUncheckedIconColor
             ),
             toggleControl = {
                 Icon(
@@ -691,7 +692,7 @@ internal fun DemoIconChip(
     secondaryLabelColor: Color? = null,
     enabled: Boolean = true,
     onClick: (() -> Unit) = {},
-    content: @Composable (() -> Unit)? = null
+    content: @Composable (BoxScope.() -> Unit)? = null
 ) {
     val maxLabelLines = if (secondaryLabel != null) 1 else 2
     Chip(

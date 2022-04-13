@@ -122,9 +122,10 @@ public fun Stepper(
                 .weight(StepperDefaults.ContentWeight),
             contentAlignment = Alignment.Center,
         ) {
-            CompositionLocalProvider(LocalContentColor provides contentColor) {
-                content()
-            }
+            CompositionLocalProvider(
+                LocalContentColor provides contentColor,
+                content = content
+            )
         }
         FullScreenButton(
             onClick = { updateValue(-1) },
