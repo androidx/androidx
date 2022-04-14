@@ -52,7 +52,7 @@ fun <T> T.enableSavedStateHandles()
     if (savedStateRegistry.getSavedStateProvider(SAVED_STATE_KEY) == null) {
         val provider = SavedStateHandlesProvider(savedStateRegistry, this)
         savedStateRegistry.registerSavedStateProvider(SAVED_STATE_KEY, provider)
-        savedStateRegistry.runOnNextRecreation(SavedStateHandleAttacher::class.java)
+        lifecycle.addObserver(SavedStateHandleAttacher(provider))
     }
 }
 
@@ -184,11 +184,15 @@ internal class SavedStateHandlesProvider(
 }
 
 // it reconnects existent SavedStateHandles to SavedStateRegistryOwner when it is recreated
-internal class SavedStateHandleAttacher : SavedStateRegistry.AutoRecreated {
-    override fun onRecreated(owner: SavedStateRegistryOwner) {
-        // if SavedStateHandlesProvider wasn't added previously, there's nothing for us to do
-        val provider = owner.savedStateRegistry
-            .getSavedStateProvider(SAVED_STATE_KEY) as? SavedStateHandlesProvider ?: return
+internal class SavedStateHandleAttacher(
+    private val provider: SavedStateHandlesProvider
+) : LifecycleEventObserver {
+
+    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+        check(event == Lifecycle.Event.ON_CREATE) {
+            "Next event must be ON_CREATE, it was $event"
+        }
+        source.lifecycle.removeObserver(this)
         // onRecreated() is called after the Lifecycle reaches CREATED, so we
         // eagerly restore the state as part of this call to ensure it consumed
         // even if no ViewModels are actually created during this cycle of the Lifecycle
