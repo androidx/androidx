@@ -61,7 +61,7 @@ public class TotalCaloriesBurned(
 
     companion object {
         /** Metric identifier to retrieve total energy from [AggregateDataRow]. */
-        @JvmStatic
+        @JvmField
         val ENERGY_BURNED_TOTAL: DoubleAggregateMetric =
             DoubleAggregateMetric("TotalEnergyBurned", "total", "energy")
     }

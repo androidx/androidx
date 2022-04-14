@@ -64,7 +64,7 @@ public class Steps(
 
     internal companion object {
         /** Metric identifier to retrieve total steps count from [AggregateDataRow]. */
-        @JvmStatic
+        @JvmField
         internal val STEPS_COUNT_TOTAL: LongAggregateMetric =
             LongAggregateMetric("Steps", "total", "count")
     }

@@ -65,7 +65,7 @@ public class Distance(
 
     internal companion object {
         /** Metric identifier to retrieve total distance from [AggregateDataRow]. */
-        @JvmStatic
+        @JvmField
         internal val DISTANCE_TOTAL: DoubleAggregateMetric =
             DoubleAggregateMetric("Distance", "total", "distance")
     }
