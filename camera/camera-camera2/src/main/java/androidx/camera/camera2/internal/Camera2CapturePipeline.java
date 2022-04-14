@@ -47,12 +47,14 @@ import androidx.camera.camera2.internal.compat.workaround.OverrideAeModeForStill
 import androidx.camera.camera2.internal.compat.workaround.UseTorchAsFlash;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.ImageCaptureException;
+import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureFailure;
 import androidx.camera.core.impl.CameraCaptureMetaData.AeState;
 import androidx.camera.core.impl.CameraCaptureMetaData.AwbState;
 import androidx.camera.core.impl.CameraCaptureResult;
+import androidx.camera.core.impl.CameraCaptureResults;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Quirks;
 import androidx.camera.core.impl.annotation.ExecutedBy;
@@ -269,7 +271,30 @@ class Camera2CapturePipeline {
             List<CaptureConfig> configsToSubmit = new ArrayList<>();
             for (CaptureConfig captureConfig : captureConfigs) {
                 CaptureConfig.Builder configBuilder = CaptureConfig.Builder.from(captureConfig);
-                applyStillCaptureTemplate(configBuilder, captureConfig);
+
+                // Dequeue image from buffer and enqueue into image writer for reprocessing. If
+                // succeeded, retrieve capture result and set into capture config.
+                CameraCaptureResult cameraCaptureResult = null;
+                if (captureConfig.getTemplateType() == CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG) {
+                    ImageProxy imageProxy =
+                            mCameraControl.getZslControl().dequeueImageFromBuffer();
+                    boolean isSuccess = imageProxy != null
+                            && mCameraControl.getZslControl().enqueueImageToImageWriter(
+                                        imageProxy);
+                    if (isSuccess) {
+                        cameraCaptureResult =
+                                CameraCaptureResults.retrieveCameraCaptureResult(
+                                        imageProxy.getImageInfo());
+                    }
+                }
+
+                if (cameraCaptureResult != null) {
+                    configBuilder.setCameraCaptureResult(cameraCaptureResult);
+                } else {
+                    // Apply still capture template type for regular still capture case
+                    applyStillCaptureTemplate(configBuilder, captureConfig);
+                }
+
                 if (mOverrideAeModeForStillCapture.shouldSetAeModeAlwaysFlash(flashMode)) {
                     applyAeModeQuirk(configBuilder);
                 }
@@ -314,7 +339,8 @@ class Camera2CapturePipeline {
                 // repeating template is TEMPLATE_RECORD. Note:
                 // TEMPLATE_VIDEO_SNAPSHOT is not supported on legacy device.
                 templateToModify = CameraDevice.TEMPLATE_VIDEO_SNAPSHOT;
-            } else if (captureConfig.getTemplateType() == CaptureConfig.TEMPLATE_TYPE_NONE) {
+            } else if (captureConfig.getTemplateType() == CaptureConfig.TEMPLATE_TYPE_NONE
+                    || captureConfig.getTemplateType() == CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG) {
                 templateToModify = CameraDevice.TEMPLATE_STILL_CAPTURE;
             }
 
