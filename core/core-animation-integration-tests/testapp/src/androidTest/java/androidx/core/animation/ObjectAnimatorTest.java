@@ -204,7 +204,7 @@ public class ObjectAnimatorTest {
         int startColor = 0xFFFF8080;
         int endColor = 0xFF8080FF;
 
-        Integer[] values = {new Integer(startColor), new Integer(endColor)};
+        Integer[] values = {startColor, endColor};
         ArgbEvaluator evaluator = ArgbEvaluator.getInstance();
         final ObjectAnimator colorAnimator = ObjectAnimator.ofObject(object, property,
                 evaluator, values);

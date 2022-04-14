@@ -165,7 +165,8 @@ class BuiltInConverterFlagsTest {
                 env = invocation.processingEnv,
                 elementsByAnnotation = mapOf(
                     Database::class.qualifiedName!! to setOf(subject)
-                )
+                ),
+                false
             )
             invocation.assertCompilationResult {
                 generatedSourceFileWithPath("MyDatabase_Impl.java")

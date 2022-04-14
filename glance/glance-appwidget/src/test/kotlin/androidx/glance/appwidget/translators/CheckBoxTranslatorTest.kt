@@ -35,8 +35,8 @@ import androidx.glance.appwidget.unit.ColorProvider
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -48,19 +48,19 @@ import kotlin.test.assertIs
 @RunWith(RobolectricTestRunner::class)
 class CheckBoxTranslatorTest {
 
-    private lateinit var fakeCoroutineScope: TestCoroutineScope
+    private lateinit var fakeCoroutineScope: TestScope
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private val lightContext = configurationContext { uiMode = Configuration.UI_MODE_NIGHT_NO }
     private val darkContext = configurationContext { uiMode = Configuration.UI_MODE_NIGHT_YES }
 
     @Before
     fun setUp() {
-        fakeCoroutineScope = TestCoroutineScope()
+        fakeCoroutineScope = TestScope()
     }
 
     @Config(sdk = [21, 23])
     @Test
-    fun canTranslateCheckBox_resolved_unchecked() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateCheckBox_resolved_unchecked() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             CheckBox(
                 checked = false,
@@ -77,7 +77,7 @@ class CheckBoxTranslatorTest {
 
     @Config(sdk = [21, 23])
     @Test
-    fun canTranslateCheckBox_resolved_checked() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateCheckBox_resolved_checked() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             CheckBox(
                 checked = true,
@@ -94,7 +94,7 @@ class CheckBoxTranslatorTest {
 
     @Config(sdk = [29])
     @Test
-    fun canTranslateCheckBox_dayNight_unchecked_day() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateCheckBox_dayNight_unchecked_day() = fakeCoroutineScope.runTest {
         val rv = lightContext.runAndTranslate {
             CheckBox(
                 checked = false,
@@ -114,7 +114,7 @@ class CheckBoxTranslatorTest {
 
     @Config(sdk = [29])
     @Test
-    fun canTranslateCheckBox_dayNight_unchecked_night() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateCheckBox_dayNight_unchecked_night() = fakeCoroutineScope.runTest {
         val rv = darkContext.runAndTranslate {
             CheckBox(
                 checked = false,
@@ -134,7 +134,7 @@ class CheckBoxTranslatorTest {
 
     @Config(sdk = [29])
     @Test
-    fun canTranslateCheckBox_dayNight_checked_day() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateCheckBox_dayNight_checked_day() = fakeCoroutineScope.runTest {
         val rv = lightContext.runAndTranslate {
             CheckBox(
                 checked = true,
@@ -154,7 +154,7 @@ class CheckBoxTranslatorTest {
 
     @Config(sdk = [29])
     @Test
-    fun canTranslateCheckBox_dayNight_checked_night() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateCheckBox_dayNight_checked_night() = fakeCoroutineScope.runTest {
         val rv = darkContext.runAndTranslate {
             CheckBox(
                 checked = true,
@@ -174,7 +174,7 @@ class CheckBoxTranslatorTest {
 
     @Config(sdk = [21, 23])
     @Test
-    fun canTranslateCheckBox_resource_checked() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateCheckBox_resource_checked() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             CheckBox(
                 checked = true,
@@ -191,7 +191,7 @@ class CheckBoxTranslatorTest {
 
     @Config(sdk = [29])
     @Test
-    fun canTranslateCheckBox_onCheckedChange_null() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateCheckBox_onCheckedChange_null() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             CheckBox(
                 checked = true,
@@ -206,7 +206,7 @@ class CheckBoxTranslatorTest {
 
     @Config(sdk = [29])
     @Test
-    fun canTranslateCheckBox_onCheckedChange_withAction() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateCheckBox_onCheckedChange_withAction() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             CheckBox(
                 checked = true,

@@ -138,6 +138,17 @@ public class ProfileTranscoderTests {
         );
     }
 
+    @Test(expected = IllegalStateException.class)
+    public void testMultiDexTranscodeForS_withMetadata001() throws IOException {
+        assertGoldenTranscodeWithMeta(
+                testFile("baseline-multidex.prof"),
+                testFile("baseline-multidex.profm"),
+                testFile("baseline-multidex-n.prof"),
+                ProfileVersion.V015_S,
+                APK_NAME
+        );
+    }
+
     @Test
     public void testMultiDexTranscodeForN_withMetadata002() throws IOException {
         File input = testFile("jetcaster/baseline-multidex-p.prof");

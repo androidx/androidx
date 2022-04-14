@@ -47,19 +47,19 @@ public class WorkSpecDaoTest extends DatabaseTest {
     public void testWorkSpecsForInserting() {
         long startTime = System.currentTimeMillis();
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .setPeriodStartTime(
+                .setLastEnqueueTime(
                         startTime + TimeUnit.HOURS.toMillis(1),
                         TimeUnit.MILLISECONDS)
                 .build();
         OneTimeWorkRequest succeeded = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .setPeriodStartTime(startTime, TimeUnit.MILLISECONDS)
+                .setLastEnqueueTime(startTime, TimeUnit.MILLISECONDS)
                 .setInitialState(SUCCEEDED)
                 .build();
         OneTimeWorkRequest scheduled = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .setPeriodStartTime(startTime, TimeUnit.MILLISECONDS)
+                .setLastEnqueueTime(startTime, TimeUnit.MILLISECONDS)
                 .build();
         OneTimeWorkRequest enqueued = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .setPeriodStartTime(startTime, TimeUnit.MILLISECONDS)
+                .setLastEnqueueTime(startTime, TimeUnit.MILLISECONDS)
                 .build();
 
         insertWork(work);
@@ -84,19 +84,19 @@ public class WorkSpecDaoTest extends DatabaseTest {
     public void testEligibleWorkSpecsForScheduling() {
         long startTime = System.currentTimeMillis();
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .setPeriodStartTime(
+                .setLastEnqueueTime(
                         startTime + TimeUnit.HOURS.toMillis(1),
                         TimeUnit.MILLISECONDS)
                 .build();
         OneTimeWorkRequest succeeded = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .setPeriodStartTime(startTime, TimeUnit.MILLISECONDS)
+                .setLastEnqueueTime(startTime, TimeUnit.MILLISECONDS)
                 .setInitialState(SUCCEEDED)
                 .build();
         OneTimeWorkRequest scheduled = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .setPeriodStartTime(startTime, TimeUnit.MILLISECONDS)
+                .setLastEnqueueTime(startTime, TimeUnit.MILLISECONDS)
                 .build();
         OneTimeWorkRequest enqueued = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .setPeriodStartTime(startTime, TimeUnit.MILLISECONDS)
+                .setLastEnqueueTime(startTime, TimeUnit.MILLISECONDS)
                 .build();
 
         insertWork(work);
@@ -122,16 +122,16 @@ public class WorkSpecDaoTest extends DatabaseTest {
 
         long startTime = System.currentTimeMillis();
         OneTimeWorkRequest enqueued = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .setPeriodStartTime(startTime, TimeUnit.MILLISECONDS)
+                .setLastEnqueueTime(startTime, TimeUnit.MILLISECONDS)
                 .build();
         OneTimeWorkRequest succeeded = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setScheduleRequestedAt(startTime, TimeUnit.MILLISECONDS)
-                .setPeriodStartTime(startTime, TimeUnit.MILLISECONDS)
+                .setLastEnqueueTime(startTime, TimeUnit.MILLISECONDS)
                 .setInitialState(SUCCEEDED)
                 .build();
         OneTimeWorkRequest failed = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setScheduleRequestedAt(startTime, TimeUnit.MILLISECONDS)
-                .setPeriodStartTime(startTime, TimeUnit.MILLISECONDS)
+                .setLastEnqueueTime(startTime, TimeUnit.MILLISECONDS)
                 .setInitialState(FAILED)
                 .build();
 
@@ -154,16 +154,16 @@ public class WorkSpecDaoTest extends DatabaseTest {
         long startTime = System.currentTimeMillis();
         OneTimeWorkRequest enqueued = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setScheduleRequestedAt(startTime, TimeUnit.MILLISECONDS) // already scheduled
-                .setPeriodStartTime(startTime, TimeUnit.MILLISECONDS)
+                .setLastEnqueueTime(startTime, TimeUnit.MILLISECONDS)
                 .build();
         OneTimeWorkRequest succeeded = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setScheduleRequestedAt(startTime, TimeUnit.MILLISECONDS)
-                .setPeriodStartTime(startTime, TimeUnit.MILLISECONDS)
+                .setLastEnqueueTime(startTime, TimeUnit.MILLISECONDS)
                 .setInitialState(SUCCEEDED)
                 .build();
         OneTimeWorkRequest failed = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setScheduleRequestedAt(startTime, TimeUnit.MILLISECONDS)
-                .setPeriodStartTime(startTime, TimeUnit.MILLISECONDS)
+                .setLastEnqueueTime(startTime, TimeUnit.MILLISECONDS)
                 .setInitialState(FAILED)
                 .build();
 
@@ -185,21 +185,21 @@ public class WorkSpecDaoTest extends DatabaseTest {
         long startTime = System.currentTimeMillis();
         OneTimeWorkRequest enqueued = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setScheduleRequestedAt(startTime, TimeUnit.MILLISECONDS)
-                .setPeriodStartTime(startTime, TimeUnit.MILLISECONDS)
+                .setLastEnqueueTime(startTime, TimeUnit.MILLISECONDS)
                 .build();
         OneTimeWorkRequest succeeded = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setScheduleRequestedAt(startTime, TimeUnit.MILLISECONDS)
-                .setPeriodStartTime(startTime, TimeUnit.MILLISECONDS)
+                .setLastEnqueueTime(startTime, TimeUnit.MILLISECONDS)
                 .setInitialState(SUCCEEDED)
                 .build();
         OneTimeWorkRequest blocked = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setScheduleRequestedAt(startTime, TimeUnit.MILLISECONDS)
-                .setPeriodStartTime(startTime, TimeUnit.MILLISECONDS)
+                .setLastEnqueueTime(startTime, TimeUnit.MILLISECONDS)
                 .setInitialState(BLOCKED)
                 .build();
         OneTimeWorkRequest failed = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setScheduleRequestedAt(startTime, TimeUnit.MILLISECONDS)
-                .setPeriodStartTime(startTime, TimeUnit.MILLISECONDS)
+                .setLastEnqueueTime(startTime, TimeUnit.MILLISECONDS)
                 .setInitialState(FAILED)
                 .build();
 

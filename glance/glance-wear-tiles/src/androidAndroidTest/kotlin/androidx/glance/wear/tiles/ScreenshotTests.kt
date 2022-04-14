@@ -60,7 +60,10 @@ import androidx.glance.visibility
 import androidx.glance.wear.tiles.curved.AnchorType
 import androidx.glance.wear.tiles.curved.CurvedRow
 import androidx.glance.wear.tiles.curved.CurvedTextStyle
+import androidx.glance.wear.tiles.curved.GlanceCurvedModifier
 import androidx.glance.wear.tiles.curved.RadialAlignment
+import androidx.glance.wear.tiles.curved.sweepAngleDegrees
+import androidx.glance.wear.tiles.curved.thickness
 import androidx.glance.wear.tiles.test.R
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.screenshot.AndroidXScreenshotTestRule
@@ -72,8 +75,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -83,12 +86,12 @@ class ScreenshotTests {
     @get:Rule
     var screenshotRule = AndroidXScreenshotTestRule("glance/glance-wear-tiles")
 
-    private lateinit var fakeCoroutineScope: TestCoroutineScope
+    private lateinit var fakeCoroutineScope: TestScope
     private lateinit var testBitmap: Bitmap
 
     @Before
     fun setUp() {
-        fakeCoroutineScope = TestCoroutineScope()
+        fakeCoroutineScope = TestScope()
         testBitmap = getApplicationContext<Context>().getDrawable(R.drawable.oval)!!.toBitmap()
     }
 
@@ -115,17 +118,22 @@ class ScreenshotTests {
     fun boxesWithBorder() = runSingleGoldenTest("boxes-with-border") {
         Row {
             Column {
-                Box(modifier = GlanceModifier
+                Box(
+                    modifier = GlanceModifier
                         .size(20.dp)
                         .background(Color.Red)
-                        .border(width = 4.dp, color = ColorProvider(Color.Cyan))) {}
-                Box(modifier = GlanceModifier
+                        .border(width = 4.dp, color = ColorProvider(Color.Cyan))
+                ) {}
+                Box(
+                    modifier = GlanceModifier
                         .size(20.dp)
                         .background(Color.Green)
-                        .border(width = 4.dp, color = ColorProvider(Color.Blue))) {}
+                        .border(width = 4.dp, color = ColorProvider(Color.Blue))
+                ) {}
             }
             Column {
-                Box(modifier = GlanceModifier
+                Box(
+                    modifier = GlanceModifier
                         .size(20.dp)
                         .background(Color.Blue)
                         .border(
@@ -133,7 +141,8 @@ class ScreenshotTests {
                             color = ColorProvider(Color.Green)
                         )
                 ) {}
-                Box(modifier = GlanceModifier
+                Box(
+                    modifier = GlanceModifier
                         .size(20.dp)
                         .background(Color.Cyan)
                         .border(
@@ -219,19 +228,21 @@ class ScreenshotTests {
             anchorDegrees = -90f,
             anchorType = AnchorType.Center
         ) {
-            CurvedText(text = "Hello World")
-            CurvedText(text = "This is a test!", textStyle = CurvedTextStyle(fontSize = 24.sp))
+            curvedText(text = "Hello World")
+            curvedText(text = "This is a test!", style = CurvedTextStyle(fontSize = 24.sp))
         }
     }
 
     @Test
     fun curvedRowWithNormalElements() = runSingleGoldenTest("curved-row-with-normal-elements") {
         CurvedRow {
-            Box(modifier = GlanceModifier.size(30.dp).background(Color.Red)) {}
-            Box(modifier = GlanceModifier.size(30.dp).background(Color.Green)) {}
-            Box(modifier = GlanceModifier.size(30.dp).background(Color.Blue)) {}
-            Box(modifier = GlanceModifier.size(30.dp).background(Color.Cyan)) {}
-            Box(modifier = GlanceModifier.size(30.dp).background(Color.Magenta)) {}
+            curvedComposable(rotateContent = false) {
+                Box(modifier = GlanceModifier.size(30.dp).background(Color.Red)) {}
+                Box(modifier = GlanceModifier.size(30.dp).background(Color.Green)) {}
+                Box(modifier = GlanceModifier.size(30.dp).background(Color.Blue)) {}
+                Box(modifier = GlanceModifier.size(30.dp).background(Color.Cyan)) {}
+                Box(modifier = GlanceModifier.size(30.dp).background(Color.Magenta)) {}
+            }
         }
     }
 
@@ -255,13 +266,41 @@ class ScreenshotTests {
     @Test
     fun spacersInCurvedRow() = runSingleGoldenTest("spacers-in-curved-row") {
         CurvedRow {
-            Box(modifier = GlanceModifier.size(30.dp).background(Color.Red)) {}
-            Spacer(modifier = GlanceModifier.width(10.dp))
-            Box(modifier = GlanceModifier.size(30.dp).background(Color.Green)) {}
-            Spacer(modifier = GlanceModifier.width(10.dp))
-            Box(modifier = GlanceModifier.size(30.dp).background(Color.Blue)) {}
+            curvedComposable {
+                Box(modifier = GlanceModifier.size(30.dp).background(Color.Red)) {}
+                Spacer(modifier = GlanceModifier.width(10.dp))
+                Box(modifier = GlanceModifier.size(30.dp).background(Color.Green)) {}
+                Spacer(modifier = GlanceModifier.width(10.dp))
+                Box(modifier = GlanceModifier.size(30.dp).background(Color.Blue)) {}
+            }
         }
     }
+
+    @Test
+    fun curvedLineandspacersInCurvedRow() =
+        runSingleGoldenTest("lines-and-spacers-in-curved-row") {
+            CurvedRow {
+                curvedLine(
+                    color = ColorProvider(Color.Cyan),
+                    curvedModifier =
+                    GlanceCurvedModifier.sweepAngleDegrees(30f).thickness(10.dp)
+                )
+                curvedSpacer(
+                    curvedModifier = GlanceCurvedModifier.sweepAngleDegrees(10f)
+                )
+                curvedComposable {
+                    Box(modifier = GlanceModifier.size(30.dp).background(Color.Red)) {}
+                }
+                curvedSpacer(
+                    curvedModifier = GlanceCurvedModifier.sweepAngleDegrees(10f)
+                )
+                curvedLine(
+                    color = ColorProvider(Color.Cyan),
+                    curvedModifier =
+                    GlanceCurvedModifier.sweepAngleDegrees(30f).thickness(10.dp)
+                )
+            }
+        }
 
     @Test
     fun imageScaleModes() = runSingleGoldenTest("image-scale-modes") {
@@ -295,7 +334,8 @@ class ScreenshotTests {
             Text("First", style = TextStyle(color = ColorProvider(Color.Red)))
             Text("gone", modifier = GlanceModifier.visibility(Visibility.Gone))
             Row {
-                Text("First",
+                Text(
+                    "First",
                     modifier = GlanceModifier.visibility(Visibility.Invisible)
                         .background(ColorProvider(Color.Red))
                 )
@@ -339,7 +379,7 @@ class ScreenshotTests {
     private fun runSingleGoldenTest(
         expectedGolden: String,
         content: @Composable () -> Unit
-    ) = fakeCoroutineScope.runBlockingTest {
+    ) = fakeCoroutineScope.runTest {
         val context = getApplicationContext<Context>()
         val composition = runComposition(content)
         normalizeCompositionTree(context, composition)

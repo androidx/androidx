@@ -16,6 +16,8 @@
 
 package androidx.room.compiler.processing
 
+import androidx.room.compiler.processing.util.isValidJavaSourceName
+
 /**
  * Represents a method in a class / interface.
  *
@@ -39,6 +41,8 @@ interface XMethodElement : XExecutableElement {
      * The name of the method in JVM.
      * Use this properly when you need to generate code accessing this method.
      *
+     * Note that accessing this property requires resolving jvmName for Kotlin sources, which is an
+     * expensive operation that includes type resolution (in KSP).
      * @see name
      */
     val jvmName: String
@@ -124,4 +128,24 @@ interface XMethodElement : XExecutableElement {
      * Creates a new [XMethodElement] where containing element is replaced with [newContainer].
      */
     fun copyTo(newContainer: XTypeElement): XMethodElement
+
+    /**
+     * If true, this method can be invoked from Java sources. This is especially important for
+     * Kotlin functions that receive value class as a parameter as they cannot be called from Java
+     * sources.
+     *
+     * Note that calling this method requires resolving jvmName for Kotlin sources, which is an
+     * expensive operation that includes type resolution (in KSP).
+     */
+    fun hasValidJvmSourceName() = jvmName.isValidJavaSourceName()
+}
+
+internal fun <T : XMethodElement> List<T>.filterMethodsByConfig(
+    env: XProcessingEnv
+): List<T> = if (env.config.excludeMethodsWithInvalidJvmSourceNames) {
+    filter {
+        it.hasValidJvmSourceName()
+    }
+} else {
+    this
 }

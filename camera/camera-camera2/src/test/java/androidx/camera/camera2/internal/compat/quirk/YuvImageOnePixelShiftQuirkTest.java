@@ -31,6 +31,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.ParameterizedRobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
+import org.robolectric.shadow.api.Shadow;
 import org.robolectric.shadows.ShadowCameraCharacteristics;
 import org.robolectric.util.ReflectionHelpers;
 
@@ -79,6 +80,9 @@ public class YuvImageOnePixelShiftQuirkTest {
         // Act.
         CameraCharacteristics characteristics =
                 ShadowCameraCharacteristics.newCameraCharacteristics();
+        ShadowCameraCharacteristics shadowCharacteristics = Shadow.extract(characteristics);
+        shadowCharacteristics.set(CameraCharacteristics.LENS_FACING,
+                CameraCharacteristics.LENS_FACING_BACK);
         CameraCharacteristicsCompat characteristicsCompat =
                 CameraCharacteristicsCompat.toCameraCharacteristicsCompat(characteristics);
         final Quirks quirks = CameraQuirks.get(CAMERA_ID, characteristicsCompat);

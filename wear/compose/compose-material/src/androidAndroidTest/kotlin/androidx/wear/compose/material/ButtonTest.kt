@@ -55,12 +55,12 @@ import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 
-class ButtonBehaviourTest {
+public class ButtonBehaviourTest {
     @get:Rule
-    val rule = createComposeRule()
+    public val rule = createComposeRule()
 
     @Test
-    fun supports_testtag_on_button_for_image() {
+    public fun supports_testtag_on_button_for_image() {
         rule.setContentWithTheme {
             Button(
                 onClick = {},
@@ -74,7 +74,7 @@ class ButtonBehaviourTest {
     }
 
     @Test
-    fun supports_testtag_on_button_for_text() {
+    public fun supports_testtag_on_button_for_text() {
         rule.setContentWithTheme {
             Button(
                 onClick = {},
@@ -88,7 +88,7 @@ class ButtonBehaviourTest {
     }
 
     @Test
-    fun supports_testtag_on_compactbutton_for_image() {
+    public fun supports_testtag_on_compactbutton_for_image() {
         rule.setContentWithTheme {
             CompactButton(
                 onClick = {},
@@ -102,7 +102,7 @@ class ButtonBehaviourTest {
     }
 
     @Test
-    fun supports_testtag_on_compactbutton_for_text() {
+    public fun supports_testtag_on_compactbutton_for_text() {
         rule.setContentWithTheme {
             CompactButton(
                 onClick = {},
@@ -116,7 +116,7 @@ class ButtonBehaviourTest {
     }
 
     @Test
-    fun has_clickaction_when_enabled_for_image() {
+    public fun has_clickaction_when_enabled_for_image() {
         rule.setContentWithTheme {
             Button(
                 onClick = {},
@@ -131,7 +131,7 @@ class ButtonBehaviourTest {
     }
 
     @Test
-    fun has_clickaction_when_enabled_for_text() {
+    public fun has_clickaction_when_enabled_for_text() {
         rule.setContentWithTheme {
             Button(
                 onClick = {},
@@ -146,7 +146,7 @@ class ButtonBehaviourTest {
     }
 
     @Test
-    fun has_clickaction_when_disabled_for_image() {
+    public fun has_clickaction_when_disabled_for_image() {
         rule.setContentWithTheme {
             Button(
                 onClick = {},
@@ -161,7 +161,7 @@ class ButtonBehaviourTest {
     }
 
     @Test
-    fun has_clickaction_when_disabled_for_text() {
+    public fun has_clickaction_when_disabled_for_text() {
         rule.setContentWithTheme {
             Button(
                 onClick = {},
@@ -176,7 +176,7 @@ class ButtonBehaviourTest {
     }
 
     @Test
-    fun is_correctly_enabled_when_enabled_equals_true() {
+    public fun is_correctly_enabled_when_enabled_equals_true() {
         rule.setContentWithTheme {
             Button(
                 onClick = {},
@@ -191,7 +191,7 @@ class ButtonBehaviourTest {
     }
 
     @Test
-    fun is_correctly_disabled_when_enabled_equals_false() {
+    public fun is_correctly_disabled_when_enabled_equals_false() {
         rule.setContentWithTheme {
             Button(
                 onClick = {},
@@ -206,7 +206,7 @@ class ButtonBehaviourTest {
     }
 
     @Test
-    fun responds_to_click_when_enabled_on_compact_button() {
+    public fun responds_to_click_when_enabled_on_compact_button() {
         var clicked = false
 
         rule.setContentWithTheme {
@@ -227,7 +227,7 @@ class ButtonBehaviourTest {
     }
 
     @Test
-    fun responds_to_click_when_enabled_on_button() {
+    public fun responds_to_click_when_enabled_on_button() {
         var clicked = false
 
         rule.setContentWithTheme {
@@ -248,7 +248,7 @@ class ButtonBehaviourTest {
     }
 
     @Test
-    fun does_not_respond_to_click_when_disabled_on_compact_button() {
+    public fun does_not_respond_to_click_when_disabled_on_compact_button() {
         var clicked = false
 
         rule.setContentWithTheme {
@@ -269,7 +269,7 @@ class ButtonBehaviourTest {
     }
 
     @Test
-    fun does_not_respond_to_click_when_disabled_on_button() {
+    public fun does_not_respond_to_click_when_disabled_on_button() {
         var clicked = false
 
         rule.setContentWithTheme {
@@ -290,7 +290,7 @@ class ButtonBehaviourTest {
     }
 
     @Test
-    fun has_role_button_for_compact_image() {
+    public fun has_role_button_for_compact_image() {
         rule.setContentWithTheme {
             CompactButton(
                 onClick = {},
@@ -310,7 +310,7 @@ class ButtonBehaviourTest {
     }
 
     @Test
-    fun has_role_button_for_text() {
+    public fun has_role_button_for_text() {
         rule.setContentWithTheme {
             Button(
                 onClick = {},
@@ -330,7 +330,7 @@ class ButtonBehaviourTest {
     }
 
     @Test
-    fun contains_text_for_button() {
+    public fun contains_text_for_button() {
         val text = "Test"
         rule.setContentWithTheme {
             Button(
@@ -344,7 +344,7 @@ class ButtonBehaviourTest {
     }
 
     @Test
-    fun contains_text_for_compact_button() {
+    public fun contains_text_for_compact_button() {
         val text = "Test"
         rule.setContentWithTheme {
             CompactButton(
@@ -358,7 +358,7 @@ class ButtonBehaviourTest {
     }
 
     @Test
-    fun matches_has_text_for_button() {
+    public fun matches_has_text_for_button() {
         val text = "Test"
         rule.setContentWithTheme {
             Button(
@@ -372,7 +372,7 @@ class ButtonBehaviourTest {
     }
 
     @Test
-    fun matches_has_text_for_compactbutton() {
+    public fun matches_has_text_for_compactbutton() {
         val text = "Test"
         rule.setContentWithTheme {
             CompactButton(
@@ -386,7 +386,7 @@ class ButtonBehaviourTest {
     }
 
     @Test
-    fun is_circular_under_ltr_for_button() =
+    public fun is_circular_under_ltr_for_button() =
         rule.isCircular(LayoutDirection.Ltr) {
             Button(
                 modifier = Modifier.testTag(TEST_TAG),
@@ -397,7 +397,7 @@ class ButtonBehaviourTest {
         }
 
     @Test
-    fun is_circular_under_rtl_for_button() =
+    public fun is_circular_under_rtl_for_button() =
         rule.isCircular(LayoutDirection.Rtl) {
             Button(
                 modifier = Modifier.testTag(TEST_TAG),
@@ -408,12 +408,12 @@ class ButtonBehaviourTest {
         }
 }
 
-class ButtonSizeTest {
+public class ButtonSizeTest {
     @get:Rule
-    val rule = createComposeRule()
+    public val rule = createComposeRule()
 
     @Test
-    fun gives_compactbutton_correct_tapsize() {
+    public fun gives_compactbutton_correct_tapsize() {
         rule.verifyTapSize(TapSize.Small) {
             CompactButton(
                 onClick = {},
@@ -424,7 +424,7 @@ class ButtonSizeTest {
     }
 
     @Test
-    fun gives_button_correct_tapsize() {
+    public fun gives_button_correct_tapsize() {
         rule.verifyTapSize(TapSize.Default) {
             Button(
                 onClick = {},
@@ -435,7 +435,7 @@ class ButtonSizeTest {
     }
 
     @Test
-    fun gives_small_button_correct_tapsize() {
+    public fun gives_small_button_correct_tapsize() {
         rule.verifyTapSize(TapSize.Small) {
             Button(
                 onClick = {},
@@ -447,7 +447,7 @@ class ButtonSizeTest {
     }
 
     @Test
-    fun gives_large_button_correct_tapsize() {
+    public fun gives_large_button_correct_tapsize() {
         rule.verifyTapSize(TapSize.Large) {
             Button(
                 onClick = {},
@@ -459,12 +459,12 @@ class ButtonSizeTest {
     }
 }
 
-class ButtonColorTest {
+public class ButtonColorTest {
     @get:Rule
-    val rule = createComposeRule()
+    public val rule = createComposeRule()
 
     @Test
-    fun gives_enabled_button_primary_colors() =
+    public fun gives_enabled_button_primary_colors() =
         verifyButtonColors(
             Status.Enabled,
             { ButtonDefaults.primaryButtonColors() },
@@ -473,7 +473,7 @@ class ButtonColorTest {
         )
 
     @Test
-    fun gives_enabled_compact_button_primary_colors() =
+    public fun gives_enabled_compact_button_primary_colors() =
         verifyCompactButtonColors(
             Status.Enabled,
             { ButtonDefaults.primaryButtonColors() },
@@ -482,7 +482,7 @@ class ButtonColorTest {
         )
 
     @Test
-    fun gives_disabled_button_primary_colors() =
+    public fun gives_disabled_button_primary_colors() =
         verifyButtonColors(
             Status.Disabled,
             { ButtonDefaults.primaryButtonColors() },
@@ -491,7 +491,7 @@ class ButtonColorTest {
         )
 
     @Test
-    fun gives_disabled_compact_button_primary_colors() =
+    public fun gives_disabled_compact_button_primary_colors() =
         verifyCompactButtonColors(
             Status.Disabled,
             { ButtonDefaults.primaryButtonColors() },
@@ -500,7 +500,7 @@ class ButtonColorTest {
         )
 
     @Test
-    fun gives_enabled_button_secondary_colors() =
+    public fun gives_enabled_button_secondary_colors() =
         verifyButtonColors(
             Status.Enabled,
             { ButtonDefaults.secondaryButtonColors() },
@@ -509,7 +509,7 @@ class ButtonColorTest {
         )
 
     @Test
-    fun gives_enabled_compact_button_secondary_colors() =
+    public fun gives_enabled_compact_button_secondary_colors() =
         verifyCompactButtonColors(
             Status.Enabled,
             { ButtonDefaults.secondaryButtonColors() },
@@ -518,7 +518,7 @@ class ButtonColorTest {
         )
 
     @Test
-    fun gives_disabled_button_secondary_colors() =
+    public fun gives_disabled_button_secondary_colors() =
         verifyButtonColors(
             Status.Disabled,
             { ButtonDefaults.secondaryButtonColors() },
@@ -527,7 +527,7 @@ class ButtonColorTest {
         )
 
     @Test
-    fun gives_disabled_compact_button_secondary_colors() =
+    public fun gives_disabled_compact_button_secondary_colors() =
         verifyCompactButtonColors(
             Status.Disabled,
             { ButtonDefaults.secondaryButtonColors() },
@@ -536,7 +536,7 @@ class ButtonColorTest {
         )
 
     @Test
-    fun gives_enabled_button_icon_colors() =
+    public fun gives_enabled_button_icon_colors() =
         verifyButtonColors(
             Status.Enabled,
             { ButtonDefaults.iconButtonColors() },
@@ -545,7 +545,7 @@ class ButtonColorTest {
         )
 
     @Test
-    fun gives_enabled_compact_button_icon_colors() =
+    public fun gives_enabled_compact_button_icon_colors() =
         verifyCompactButtonColors(
             Status.Enabled,
             { ButtonDefaults.iconButtonColors() },
@@ -554,7 +554,7 @@ class ButtonColorTest {
         )
 
     @Test
-    fun gives_disabled_button_icon_colors() =
+    public fun gives_disabled_button_icon_colors() =
         verifyButtonColors(
             Status.Disabled,
             { ButtonDefaults.iconButtonColors() },
@@ -563,7 +563,7 @@ class ButtonColorTest {
         )
 
     @Test
-    fun gives_disabled_compact_button_icon_colors() =
+    public fun gives_disabled_compact_button_icon_colors() =
         verifyCompactButtonColors(
             Status.Disabled,
             { ButtonDefaults.iconButtonColors() },
@@ -573,7 +573,7 @@ class ButtonColorTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
-    fun allows_button_custom_enabled_background_color_override() {
+    public fun allows_button_custom_enabled_background_color_override() {
         val overrideColor = Color.Yellow
         rule.setContentWithTheme {
             Box(modifier = Modifier.fillMaxSize()) {
@@ -594,7 +594,7 @@ class ButtonColorTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
-    fun allows_compactbutton_custom_enabled_background_color_override() {
+    public fun allows_compactbutton_custom_enabled_background_color_override() {
         val overrideColor = Color.Yellow
         rule.setContentWithTheme {
             Box(modifier = Modifier.fillMaxSize()) {
@@ -615,7 +615,7 @@ class ButtonColorTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
-    fun allows_button_custom_disabled_background_color_override() {
+    public fun allows_button_custom_disabled_background_color_override() {
         val overrideColor = Color.Yellow
         rule.setContentWithTheme {
             Box(modifier = Modifier.fillMaxSize()) {
@@ -636,7 +636,7 @@ class ButtonColorTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
-    fun allows_compactbutton_custom_disabled_background_color_override() {
+    public fun allows_compactbutton_custom_disabled_background_color_override() {
         val overrideColor = Color.Yellow
         rule.setContentWithTheme {
             Box(modifier = Modifier.fillMaxSize()) {
@@ -656,7 +656,7 @@ class ButtonColorTest {
     }
 
     @Test
-    fun allows_button_custom_enabled_content_color_override() {
+    public fun allows_button_custom_enabled_content_color_override() {
         val overrideColor = Color.Red
         var actualContentColor = Color.Transparent
         rule.setContentWithTheme {
@@ -674,7 +674,7 @@ class ButtonColorTest {
     }
 
     @Test
-    fun allows_compactbutton_custom_enabled_content_color_override() {
+    public fun allows_compactbutton_custom_enabled_content_color_override() {
         val overrideColor = Color.Red
         var actualContentColor = Color.Transparent
         rule.setContentWithTheme {
@@ -692,7 +692,7 @@ class ButtonColorTest {
     }
 
     @Test
-    fun allows_button_custom_disabled_content_color_override() {
+    public fun allows_button_custom_disabled_content_color_override() {
         val overrideColor = Color.Yellow
         var actualContentColor = Color.Transparent
         rule.setContentWithTheme {
@@ -710,7 +710,7 @@ class ButtonColorTest {
     }
 
     @Test
-    fun allows_compactbutton_custom_disabled_content_color_override() {
+    public fun allows_compactbutton_custom_disabled_content_color_override() {
         val overrideColor = Color.Yellow
         var actualContentColor = Color.Transparent
         rule.setContentWithTheme {
@@ -727,7 +727,7 @@ class ButtonColorTest {
         assertEquals(overrideColor, actualContentColor)
     }
 
-    fun verifyButtonColors(
+    public fun verifyButtonColors(
         status: Status,
         buttonColors: @Composable () -> ButtonColors,
         backgroundColor: @Composable () -> Color,
@@ -751,7 +751,7 @@ class ButtonColorTest {
         }
     }
 
-    fun verifyCompactButtonColors(
+    public fun verifyCompactButtonColors(
         status: Status,
         buttonColors: @Composable () -> ButtonColors,
         backgroundColor: @Composable () -> Color,
@@ -819,12 +819,12 @@ class ButtonColorTest {
     }
 }
 
-class ButtonTextStyleTest {
+public class ButtonTextStyleTest {
     @get:Rule
-    val rule = createComposeRule()
+    public val rule = createComposeRule()
 
     @Test
-    fun gives_button_correct_font() {
+    public fun gives_button_correct_font() {
         var actualTextStyle = TextStyle.Default
         var expectedTextStyle = TextStyle.Default
 
@@ -841,7 +841,7 @@ class ButtonTextStyleTest {
     }
 
     @Test
-    fun gives_compactbutton_correct_font() {
+    public fun gives_compactbutton_correct_font() {
         var actualTextStyle = TextStyle.Default
         var expectedTextStyle = TextStyle.Default
 
@@ -909,9 +909,9 @@ internal enum class TapSize(val size: Dp) {
     Large(60.dp)
 }
 
-enum class Status {
+public enum class Status {
     Enabled,
     Disabled;
 
-    fun enabled() = this == Enabled
+    public fun enabled() = this == Enabled
 }

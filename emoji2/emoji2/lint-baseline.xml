@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
+<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
         id="NewApi"
@@ -8,7 +8,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji2/text/EmojiCompat.java"
-            line="1157"
+            line="1306"
             column="38"/>
     </issue>
 
@@ -30,7 +30,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/emoji2/text/SpannableBuilderTest.java"
-            line="123"
+            line="130"
             column="37"/>
     </issue>
 
@@ -41,7 +41,7 @@
         errorLine2="                                                                      ~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/emoji2/text/SpannableBuilderTest.java"
-            line="134"
+            line="141"
             column="71"/>
     </issue>
 
@@ -52,7 +52,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/emoji2/text/SpannableBuilderTest.java"
-            line="187"
+            line="194"
             column="37"/>
     </issue>
 
@@ -63,7 +63,7 @@
         errorLine2="                                                                      ~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/emoji2/text/SpannableBuilderTest.java"
-            line="199"
+            line="206"
             column="71"/>
     </issue>
 

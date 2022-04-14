@@ -95,8 +95,6 @@ MissingGetterMatchingBuilder: androidx.work.Configuration.Builder#setMaxSchedule
     androidx.work.Configuration does not declare a `getMaxSchedulerLimit()` method matching method androidx.work.Configuration.Builder.setMaxSchedulerLimit(int)
 MissingGetterMatchingBuilder: androidx.work.Configuration.Builder#setMinimumLoggingLevel(int):
     androidx.work.Configuration does not declare a `getMinimumLoggingLevel()` method matching method androidx.work.Configuration.Builder.setMinimumLoggingLevel(int)
-MissingGetterMatchingBuilder: androidx.work.Constraints.Builder#addContentUriTrigger(android.net.Uri, boolean):
-    androidx.work.Constraints does not declare a `getContentUriTriggers()` method matching method androidx.work.Constraints.Builder.addContentUriTrigger(android.net.Uri,boolean)
 MissingGetterMatchingBuilder: androidx.work.Constraints.Builder#setRequiresBatteryNotLow(boolean):
     androidx.work.Constraints does not declare a `isRequiresBatteryNotLow()` method matching method androidx.work.Constraints.Builder.setRequiresBatteryNotLow(boolean)
 MissingGetterMatchingBuilder: androidx.work.Constraints.Builder#setRequiresCharging(boolean):
@@ -128,12 +126,16 @@ MissingGetterMatchingBuilder: androidx.work.WorkRequest.Builder#setInitialDelay(
 MissingGetterMatchingBuilder: androidx.work.WorkRequest.Builder#setInputData(androidx.work.Data):
     W does not declare a `getInputData()` method matching method androidx.work.WorkRequest.Builder.setInputData(androidx.work.Data)
 
-
-MissingNullability: androidx.work.Constraints.Builder#setTriggerContentMaxDelay(java.time.Duration) parameter #0:
-    Missing nullability on parameter `duration` in method `setTriggerContentMaxDelay`
-MissingNullability: androidx.work.Constraints.Builder#setTriggerContentUpdateDelay(java.time.Duration) parameter #0:
-    Missing nullability on parameter `duration` in method `setTriggerContentUpdateDelay`
-
+MissingNullability: androidx.work.OneTimeWorkRequestKt#OneTimeWorkRequestBuilder():
+    Missing nullability on method `OneTimeWorkRequestBuilder` return
+MissingNullability: androidx.work.PeriodicWorkRequestKt#PeriodicWorkRequestBuilder(java.time.Duration):
+    Missing nullability on method `PeriodicWorkRequestBuilder` return
+MissingNullability: androidx.work.PeriodicWorkRequestKt#PeriodicWorkRequestBuilder(java.time.Duration, java.time.Duration):
+    Missing nullability on method `PeriodicWorkRequestBuilder` return
+MissingNullability: androidx.work.PeriodicWorkRequestKt#PeriodicWorkRequestBuilder(long, java.util.concurrent.TimeUnit):
+    Missing nullability on method `PeriodicWorkRequestBuilder` return
+MissingNullability: androidx.work.PeriodicWorkRequestKt#PeriodicWorkRequestBuilder(long, java.util.concurrent.TimeUnit, long, java.util.concurrent.TimeUnit):
+    Missing nullability on method `PeriodicWorkRequestBuilder` return
 
 NoByteOrShort: androidx.work.Data#getByte(String, byte):
     Should avoid odd sized primitives; use `int` instead of `byte` in method androidx.work.Data.getByte(String,byte)
@@ -145,6 +147,24 @@ NoByteOrShort: androidx.work.Data.Builder#putByte(String, byte) parameter #1:
 
 NullableCollection: androidx.work.Data#getStringArray(String):
     Return type of method androidx.work.Data.getStringArray(String) is a nullable collection (`java.lang.String[]`); must be non-null
+
+
+SetterReturnsThis: androidx.work.WorkRequest.Builder#addTag(String):
+    Methods must return the builder object (return type androidx.work.WorkRequest.Builder<B,W> instead of B): method androidx.work.WorkRequest.Builder.addTag(String)
+SetterReturnsThis: androidx.work.WorkRequest.Builder#setBackoffCriteria(androidx.work.BackoffPolicy, java.time.Duration):
+    Methods must return the builder object (return type androidx.work.WorkRequest.Builder<B,W> instead of B): method androidx.work.WorkRequest.Builder.setBackoffCriteria(androidx.work.BackoffPolicy,java.time.Duration)
+SetterReturnsThis: androidx.work.WorkRequest.Builder#setBackoffCriteria(androidx.work.BackoffPolicy, long, java.util.concurrent.TimeUnit):
+    Methods must return the builder object (return type androidx.work.WorkRequest.Builder<B,W> instead of B): method androidx.work.WorkRequest.Builder.setBackoffCriteria(androidx.work.BackoffPolicy,long,java.util.concurrent.TimeUnit)
+SetterReturnsThis: androidx.work.WorkRequest.Builder#setConstraints(androidx.work.Constraints):
+    Methods must return the builder object (return type androidx.work.WorkRequest.Builder<B,W> instead of B): method androidx.work.WorkRequest.Builder.setConstraints(androidx.work.Constraints)
+SetterReturnsThis: androidx.work.WorkRequest.Builder#setExpedited(androidx.work.OutOfQuotaPolicy):
+    Methods must return the builder object (return type androidx.work.WorkRequest.Builder<B,W> instead of B): method androidx.work.WorkRequest.Builder.setExpedited(androidx.work.OutOfQuotaPolicy)
+SetterReturnsThis: androidx.work.WorkRequest.Builder#setInitialDelay(java.time.Duration):
+    Methods must return the builder object (return type androidx.work.WorkRequest.Builder<B,W> instead of B): method androidx.work.WorkRequest.Builder.setInitialDelay(java.time.Duration)
+SetterReturnsThis: androidx.work.WorkRequest.Builder#setInitialDelay(long, java.util.concurrent.TimeUnit):
+    Methods must return the builder object (return type androidx.work.WorkRequest.Builder<B,W> instead of B): method androidx.work.WorkRequest.Builder.setInitialDelay(long,java.util.concurrent.TimeUnit)
+SetterReturnsThis: androidx.work.WorkRequest.Builder#setInputData(androidx.work.Data):
+    Methods must return the builder object (return type androidx.work.WorkRequest.Builder<B,W> instead of B): method androidx.work.WorkRequest.Builder.setInputData(androidx.work.Data)
 
 
 StaticFinalBuilder: androidx.work.WorkRequest.Builder:

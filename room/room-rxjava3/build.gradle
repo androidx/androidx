@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -40,4 +39,8 @@ androidx {
     mavenGroup = LibraryGroups.ROOM
     inceptionYear = "2020"
     description = "Android Room RXJava3"
+}
+
+android {
+    namespace "androidx.room.rxjava3"
 }

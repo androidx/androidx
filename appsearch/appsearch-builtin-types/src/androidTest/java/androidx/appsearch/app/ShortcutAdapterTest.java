@@ -106,16 +106,15 @@ public class ShortcutAdapterTest {
 
     private static Timer timer(@NonNull final String id, @NonNull final String name) {
         return new Timer.Builder(ShortcutAdapter.DEFAULT_NAMESPACE, id)
-                .setScore(1)
-                .setTtlMillis(6000)
+                .setDocumentScore(1)
+                .setDocumentTtlMillis(6000)
                 .setCreationTimestampMillis(100)
                 .setName(name)
                 .setDurationMillis(1000)
-                .setRemainingTimeMillis(500)
+                .setRemainingTimeMillisSinceUpdate(500)
                 .setRingtone("clock://ringtone/1")
                 .setStatus(Timer.STATUS_STARTED)
-                .setVibrate(true)
-                .setStartTimeMillis(750)
+                .setShouldVibrate(true)
                 .build();
     }
 }

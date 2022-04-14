@@ -20,24 +20,24 @@ import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.createTempFileFromAsset
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.MediumTest
 import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.Locale
 import kotlin.test.assertEquals
 
+@MediumTest
 @RunWith(AndroidJUnit4::class)
 class StartupTimingQueryTest {
     private fun validateFixedTrace(
         @Suppress("SameParameterValue") api: Int,
         startupMode: StartupMode,
-        expectedMetrics: StartupTimingQuery.SubMetrics
+        expectedMetrics: StartupTimingQuery.SubMetrics?,
+        tracePrefix: String = "api${api}_startup_${startupMode.name.lowercase(Locale.getDefault())}"
     ) {
         assumeTrue(isAbiSupported())
-        val traceFile = createTempFileFromAsset(
-            prefix = "api${api}_startup_${startupMode.name.lowercase(Locale.getDefault())}",
-            suffix = ".perfetto-trace"
-        )
+        val traceFile = createTempFileFromAsset(prefix = tracePrefix, suffix = ".perfetto-trace")
 
         val startupSubMetrics = StartupTimingQuery.getFrameSubMetrics(
             absoluteTracePath = traceFile.absolutePath,
@@ -114,5 +114,16 @@ class StartupTimingQueryTest {
             timeToFullDisplayNs = 542222554,
             timelineRangeNs = 186969441973689..186969984196243
         )
+    )
+
+    /**
+     * Validate that StartupTimingQuery returns null and doesn't crash when process name truncated
+     */
+    @Test
+    fun fixedApi29ColdProcessNameTruncated() = validateFixedTrace(
+        api = 29,
+        startupMode = StartupMode.COLD,
+        tracePrefix = "api29_cold_startup_processname_truncated",
+        expectedMetrics = null // process name is truncated, and we currently don't handle this
     )
 }

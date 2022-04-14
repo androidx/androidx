@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+InvalidNullability: androidx.leanback.paging.PagingDataAdapter#get(int):
+    Invalid nullability on method `get` return. Overrides of unannotated super method cannot be Nullable.

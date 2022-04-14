@@ -17,9 +17,7 @@
 package androidx.wear.watchface
 
 import android.annotation.SuppressLint
-import android.app.PendingIntent
 import android.app.PendingIntent.CanceledException
-import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -386,39 +384,6 @@ public class ComplicationSlotsManager(
         }
     }
 
-    /**
-     * Called when the user single taps on a [ComplicationSlot], and returns a [PendingIntent] for
-     * the permission request helper if needed, otherwise returns the tap action PendingIntent.
-     *
-     * @param complicationSlotId The ID for the [ComplicationSlot] that was single tapped
-     */
-    @SuppressWarnings("SyntheticAccessor")
-    @UiThread
-    internal fun getPendingIntentForSingleTappedComplication(
-        complicationSlotId: Int
-    ): PendingIntent? {
-        // Check if the complication is missing permissions.
-        val data = complicationSlots[complicationSlotId]?.renderer?.getData() ?: return null
-        if (data.type == ComplicationType.NO_PERMISSION) {
-            return PendingIntent.getActivity(
-                watchFaceHostApi.getContext(),
-                0,
-                ComplicationHelperActivity.createPermissionRequestHelperIntent(
-                    watchFaceHostApi.getContext(),
-                    getComponentName(watchFaceHostApi.getContext()),
-                    watchFaceHostApi.getComplicationDeniedIntent(),
-                    watchFaceHostApi.getComplicationRationaleIntent()
-                ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-                FLAG_IMMUTABLE
-            )
-        }
-
-        for (complicationListener in complicationListeners) {
-            complicationListener.onComplicationSlotTapped(complicationSlotId)
-        }
-        return data.tapAction
-    }
-
     @UiThread
     internal fun onTapDown(complicationSlotId: Int, tapEvent: TapEvent) {
         (lastComplicationTapDownEvents as HashMap)[complicationSlotId] = tapEvent
@@ -472,4 +437,35 @@ public class ComplicationSlotsManager(
                     .systemDataSourceFallbackDefaultType.toWireComplicationType()
             )
         }.toTypedArray()
+
+    /**
+     * Returns the earliest [Instant] after [afterInstant] at which any complication field in any
+     * enabled complication may change.
+     */
+    internal fun getNextChangeInstant(afterInstant: Instant): Instant {
+        var minInstant = Instant.MAX
+        for ((_, complication) in complicationSlots) {
+            if (!complication.enabled) {
+                continue
+            }
+            val instant = complication.complicationData.value.getNextChangeInstant(afterInstant)
+            if (instant.isBefore(minInstant)) {
+                minInstant = instant
+            }
+        }
+        return minInstant
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as ComplicationSlotsManager
+
+        return complicationSlots == other.complicationSlots
+    }
+
+    override fun hashCode(): Int {
+        return complicationSlots.hashCode()
+    }
 }

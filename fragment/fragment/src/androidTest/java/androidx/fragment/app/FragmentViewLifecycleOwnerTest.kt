@@ -17,6 +17,7 @@
 package androidx.fragment.app
 
 import androidx.fragment.app.test.FragmentTestActivity
+import androidx.fragment.app.test.TestViewModel
 import androidx.fragment.test.R
 import androidx.lifecycle.HasDefaultViewModelProviderFactory
 import androidx.lifecycle.ViewModel
@@ -92,7 +93,40 @@ class FragmentViewLifecycleOwnerTest {
         }
     }
 
-    private class TestViewModel : ViewModel()
+    @Test
+    fun testCreateViewModelViaExtras() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fm = withActivity {
+                setContentView(R.layout.simple_container)
+                supportFragmentManager
+            }
+            val fragment = StrictViewFragment()
+
+            fm.beginTransaction()
+                .add(R.id.fragmentContainer, fragment, "fragment")
+                .commit()
+            executePendingTransactions()
+
+            val viewLifecycleOwner = (fragment.viewLifecycleOwner as FragmentViewLifecycleOwner)
+
+            val creationViewModel = ViewModelProvider(
+                viewLifecycleOwner.viewModelStore,
+                viewLifecycleOwner.defaultViewModelProviderFactory,
+                viewLifecycleOwner.defaultViewModelCreationExtras
+            )["test", TestViewModel::class.java]
+
+            recreate()
+
+            val recreatedViewLifecycleOwner = withActivity {
+                supportFragmentManager.findFragmentByTag("fragment")?.viewLifecycleOwner
+                    as FragmentViewLifecycleOwner
+            }
+
+            assertThat(
+                ViewModelProvider(recreatedViewLifecycleOwner)["test", TestViewModel::class.java]
+            ).isSameInstanceAs(creationViewModel)
+        }
+    }
 
     class FakeViewModelProviderFactory : ViewModelProvider.Factory {
         private var createCalled: Boolean = false

@@ -19,13 +19,13 @@ package androidx.wear.compose.material
 import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.runtime.Composable
 import androidx.compose.testutils.assertAgainstGolden
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
@@ -46,22 +46,24 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-class StepperScreenshotTest {
+public class StepperScreenshotTest {
     @get:Rule
-    val rule = createComposeRule()
+    public val rule = createComposeRule()
 
     @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
+    public val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
 
     @get:Rule
-    val testName = TestName()
+    public val testName = TestName()
 
     @Test
-    fun stepper_no_content() {
+    public fun stepper_no_content() {
         rule.setContentWithThemeAndBackground {
             Stepper(
                 modifier = Modifier.testTag(TEST_TAG),
                 value = 2f,
+                increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
+                decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
                 steps = 3,
                 onValueChange = {}
             ) {}
@@ -73,7 +75,7 @@ class StepperScreenshotTest {
     }
 
     @Test
-    fun stepper_custom_icons() {
+    public fun stepper_custom_icons() {
         rule.setContentWithThemeAndBackground {
             Stepper(
                 modifier = Modifier.testTag(TEST_TAG),
@@ -101,19 +103,26 @@ class StepperScreenshotTest {
     }
 
     @Test
-    fun stepper_with_content() {
+    public fun stepper_with_content() {
         rule.setContentWithThemeAndBackground {
             Stepper(
                 modifier = Modifier.testTag(TEST_TAG),
                 value = 2f,
                 steps = 3,
+                increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
+                decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
                 onValueChange = {}
             ) {
                 Chip(
                     onClick = {},
                     modifier = Modifier.width(146.dp),
                     colors = ChipDefaults.secondaryChipColors(),
-                    label = { Text("Demo", modifier = Modifier.align(Alignment.Center)) }
+                    label = {
+                        Text(
+                            text = "Demo",
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
                 )
             }
         }
@@ -124,16 +133,18 @@ class StepperScreenshotTest {
     }
 
     @Test
-    fun stepper_with_custom_colors() {
+    public fun stepper_with_custom_colors() {
         rule.setContentWithThemeAndBackground {
             Stepper(
                 modifier = Modifier.testTag(TEST_TAG),
                 value = 2f,
                 steps = 3,
                 onValueChange = {},
+                increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
+                decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
                 backgroundColor = Color.Green,
                 contentColor = Color.Yellow,
-                iconTintColor = Color.Magenta,
+                iconColor = Color.Magenta,
             ) {
                 Text("Demo")
             }

@@ -38,6 +38,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.tracing.trace
 import java.io.File
 
+@Suppress("DEPRECATION")
 internal fun checkErrors(packageName: String): ConfigurationError.SuppressionState? {
     val pm = InstrumentationRegistry.getInstrumentation().context.packageManager
 
@@ -258,8 +259,7 @@ private fun macrobenchmark(
             }
         }
 
-        val warmupIterations = @Suppress("DEPRECATION") when (compilationMode) {
-            is CompilationMode.SpeedProfile -> compilationMode.warmupIterations
+        val warmupIterations = when (compilationMode) {
             is CompilationMode.Partial -> compilationMode.warmupIterations
             else -> 0
         }
@@ -310,8 +310,6 @@ fun macrobenchmarkWithStartupMode(
         setupBlock = {
             if (startupMode == StartupMode.COLD) {
                 killProcess()
-                // drop app pages from page cache to ensure it is loaded from disk, from scratch
-                dropKernelPageCache()
                 // Clear profile caches when possible.
 
                 // Benchmarks get faster over time as ART can create profiles for future
@@ -332,6 +330,15 @@ fun macrobenchmarkWithStartupMode(
                         throw IllegalStateException("block never used for CompilationMode.None")
                     }
                 }
+                // drop app pages from page cache to ensure it is loaded from disk, from scratch
+
+                // resetAndCompile uses ProfileInstallReceiver to write a skip file.
+                // This is done to reduce the interference from ProfileInstaller,
+                // so long-running benchmarks don't get optimized due to a background dexopt.
+
+                // To restore the state of the process we need to drop app pages so its
+                // loaded from disk, from scratch.
+                dropKernelPageCache()
             } else if (iteration == 0 && startupMode != null) {
                 try {
                     iteration = null // override to null for warmup, before starting measurements

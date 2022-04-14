@@ -32,10 +32,11 @@ android {
             shrinkResources true
         }
     }
+    namespace "androidx.hilt.integration.workerapp"
 }
 
 dependencies {
-    implementation("androidx.activity:activity:1.2.0")
+    implementation(project(":activity:activity"))
     implementation(project(":work:work-runtime-ktx"))
     implementation(project(":hilt:hilt-work"))
     kapt(project(":hilt:hilt-compiler"))

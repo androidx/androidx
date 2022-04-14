@@ -32,7 +32,11 @@ import java.util.Locale;
 /**
  * Quirks that denotes the device has a slow flash sequence that could result in blurred pictures.
  *
- * See issue https://issuetracker.google.com/211474332
+ * <p>QuirkSummary
+ *     Bug Id: 211474332
+ *     Description: When capturing still photos in auto flash mode, it needs more than 1 second to
+ *     flash and therefore it easily results in blurred pictures.
+ *     Device(s): Pixel 3a / Pixel 3a XL
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class FlashTooSlowQuirk implements UseTorchAsFlashQuirk {

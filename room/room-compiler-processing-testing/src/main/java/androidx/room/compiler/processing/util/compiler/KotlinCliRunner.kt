@@ -48,7 +48,7 @@ internal object KotlinCliRunner {
         // useJavac & compileJava are experimental so lets not use it for now.
         cliArguments.useJavac = false
         cliArguments.compileJava = false
-        cliArguments.jvmDefault = JvmDefaultMode.ENABLE.description
+        cliArguments.jvmDefault = JvmDefaultMode.ALL_COMPATIBILITY.description
         cliArguments.allowNoSourceFiles = true
         cliArguments.javacArguments = javacArguments.toTypedArray()
         val inherited = if (inheritClasspaths) {

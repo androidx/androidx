@@ -82,7 +82,7 @@ class ResponsiveAppWidget : GlanceAppWidget() {
     }
 }
 
-private val KEY_ITEM_CLICKED = ActionParameters.Key<String>("name")
+private val ItemClickedKey = ActionParameters.Key<String>("name")
 
 private val parentModifier = GlanceModifier
     .fillMaxSize()
@@ -155,7 +155,7 @@ private fun ContentItem(
             style = textStyle ?: TextStyle(textAlign = TextAlign.Center),
             onClick = actionRunCallback<ResponsiveAction>(
                 actionParametersOf(
-                    KEY_ITEM_CLICKED to text
+                    ItemClickedKey to text
                 )
             )
         )
@@ -163,11 +163,15 @@ private fun ContentItem(
 }
 
 class ResponsiveAction : ActionCallback {
-    override suspend fun onRun(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
+    override suspend fun onAction(
+        context: Context,
+        glanceId: GlanceId,
+        parameters: ActionParameters
+    ) {
         Handler(context.mainLooper).post {
             Toast.makeText(
                 context,
-                "Item clicked: ${parameters[KEY_ITEM_CLICKED]}",
+                "Item clicked: ${parameters[ItemClickedKey]}",
                 Toast.LENGTH_SHORT
             ).show()
         }

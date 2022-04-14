@@ -75,5 +75,5 @@ actual class SparseArray<E> actual constructor(initialCapacity: Int) {
     actual fun replace(key: Int, oldValue: E?, newValue: E): Boolean =
         commonReplace(key, oldValue, newValue)
 
-    override fun toString(): String = commonToString()
+    actual override fun toString(): String = commonToString()
 }

@@ -35,18 +35,15 @@ import android.text.TextUtils;
 import androidx.core.os.CancellationSignal;
 import androidx.core.os.ExecutorCompat;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 /**
  * Test for {@link androidx.core.location.LocationManagerCompat}.
  */
 @SmallTest
-@RunWith(AndroidJUnit4.class)
 public class LocationManagerCompatTest {
 
     private Context mContext;
@@ -61,9 +58,9 @@ public class LocationManagerCompatTest {
     @Test
     public void testIsLocationEnabled() {
         boolean isLocationEnabled;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        if (Build.VERSION.SDK_INT >= 28) {
             isLocationEnabled = mLocationManager.isLocationEnabled();
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+        } else if (Build.VERSION.SDK_INT >= 19) {
             isLocationEnabled = Settings.Secure.getInt(mContext.getContentResolver(), LOCATION_MODE,
                     LOCATION_MODE_OFF) != LOCATION_MODE_OFF;
         } else {

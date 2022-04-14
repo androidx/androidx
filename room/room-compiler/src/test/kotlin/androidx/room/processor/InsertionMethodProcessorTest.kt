@@ -380,6 +380,7 @@ class InsertionMethodProcessorTest {
     @Test
     fun onConflict_EachValue() {
         listOf(
+            Pair("NONE", 0),
             Pair("REPLACE", 1),
             Pair("ROLLBACK", 2),
             Pair("ABORT", 3),

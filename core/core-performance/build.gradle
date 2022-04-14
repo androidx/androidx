@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.LibraryVersions
 
 plugins {
     id("AndroidXPlugin")
@@ -41,4 +39,8 @@ androidx {
     mavenGroup = LibraryGroups.CORE
     inceptionYear = "2021"
     description = "This library makes it easy for developers to make UI and feature choices based on Android Performance Class level for GMS devices."
+}
+
+android {
+    namespace "androidx.core.performance"
 }

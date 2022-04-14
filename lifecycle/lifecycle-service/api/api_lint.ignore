@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+InvalidNullability: androidx.lifecycle.LifecycleService#onBind(android.content.Intent):
+    Invalid nullability on method `onBind` return. Overrides of unannotated super method cannot be Nullable.
+InvalidNullability: androidx.lifecycle.LifecycleService#onBind(android.content.Intent) parameter #0:
+    Invalid nullability on parameter `intent` in method `onBind`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.

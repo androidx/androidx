@@ -15,5 +15,7 @@
   -->
 
 <resources>
-    <style name="Glance.AppWidget.Theme" parent="android:Theme.DeviceDefault"/>
+    <style name="Glance.AppWidget.Theme" parent="android:Theme.DeviceDefault">
+        <item name="android:foreground">?android:attr/selectableItemBackground</item>
+    </style>
 </resources>

@@ -29,6 +29,7 @@ android {
     buildTypes.all {
         consumerProguardFiles "benchmark-proguard-rules.pro"
     }
+    namespace "androidx.wear.compose.material.benchmark"
 }
 
 dependencies {

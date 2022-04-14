@@ -15,6 +15,8 @@
 # libproto uses reflection to deserialize a Proto, which Proguard can't accurately detect.
 # Keep all the class members of any generated messages to ensure we can deserialize properly inside
 # these classes.
--keepclassmembers class * extends androidx.glance.appwidget.proto.GeneratedMessageLite {
+-keepclassmembers class * extends androidx.glance.appwidget.protobuf.GeneratedMessageLite {
   <fields>;
 }
+
+-keep androidx.glance.appwidget.proto.** { *; }

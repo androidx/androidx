@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 import androidx.build.RunApiTasks
 
@@ -69,4 +68,8 @@ androidx {
     description = "Compose integration with Navigation"
     runApiTasks = new RunApiTasks.Yes()
     legacyDisableKotlinStrictApiMode = true
+}
+
+android {
+    namespace "androidx.navigation.compose"
 }

@@ -504,7 +504,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                 .run();
 
         WorkSpec workSpec = mWorkSpecDao.getWorkSpec(work.getStringId());
-        assertThat(workSpec.periodStartTime, is(greaterThan(beforeUnblockedTime)));
+        assertThat(workSpec.lastEnqueueTime, is(greaterThan(beforeUnblockedTime)));
     }
 
     @Test
@@ -590,7 +590,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         mDatabase.beginTransaction();
         try {
             mWorkSpecDao.insertWorkSpec(retryWork.getWorkSpec());
-            mWorkSpecDao.setPeriodStartTime(retryWork.getStringId(), future);
+            mWorkSpecDao.setLastEnqueuedTime(retryWork.getStringId(), future);
             mWorkSpecDao.incrementWorkSpecRunAttemptCount(retryWork.getStringId());
             mDatabase.setTransactionSuccessful();
         } finally {
@@ -615,7 +615,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         PeriodicWorkRequest periodicWork = new PeriodicWorkRequest.Builder(
                 TestWorker.class, intervalDuration, TimeUnit.MILLISECONDS).build();
 
-        periodicWork.getWorkSpec().periodStartTime = periodStartTime;
+        periodicWork.getWorkSpec().lastEnqueueTime = periodStartTime;
         insertWork(periodicWork);
 
         createBuilder(periodicWork.getStringId())
@@ -635,7 +635,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         PeriodicWorkRequest periodicWork = new PeriodicWorkRequest.Builder(
                 FailureWorker.class, intervalDuration, TimeUnit.MILLISECONDS).build();
 
-        periodicWork.getWorkSpec().periodStartTime = periodStartTime;
+        periodicWork.getWorkSpec().lastEnqueueTime = periodStartTime;
         insertWork(periodicWork);
 
         createBuilder(periodicWork.getStringId())
@@ -740,7 +740,8 @@ public class WorkerWrapperTest extends DatabaseTest {
         final String periodicWorkId = periodicWork.getStringId();
         final WorkSpec workSpec = periodicWork.getWorkSpec();
         long now = System.currentTimeMillis();
-        workSpec.periodStartTime = now + workSpec.intervalDuration;
+        workSpec.lastEnqueueTime = now + workSpec.intervalDuration;
+        workSpec.setPeriodCount(1);
         insertWork(periodicWork);
         WorkerWrapper workerWrapper = createBuilder(periodicWorkId).build();
         FutureListener listener = createAndAddFutureListener(workerWrapper);
@@ -751,7 +752,7 @@ public class WorkerWrapperTest extends DatabaseTest {
 
     @Test
     @SmallTest
-    public void testPeriodic_firstRun_flexApplied_noDedupe() {
+    public void testPeriodic_firstRun_flexApplied() {
         PeriodicWorkRequest periodicWork = new PeriodicWorkRequest.Builder(
                 TestWorker.class,
                 PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS,
@@ -762,13 +763,13 @@ public class WorkerWrapperTest extends DatabaseTest {
 
         final String periodicWorkId = periodicWork.getStringId();
         final WorkSpec workSpec = periodicWork.getWorkSpec();
-        workSpec.periodStartTime = 0;
+        workSpec.lastEnqueueTime = System.currentTimeMillis();
         insertWork(periodicWork);
         WorkerWrapper workerWrapper = createBuilder(periodicWorkId).build();
         FutureListener listener = createAndAddFutureListener(workerWrapper);
         workerWrapper.run();
-        // Should not get rescheduled
-        assertThat(listener.mResult, is(false));
+        // Should get rescheduled because flex should be respected.
+        assertThat(listener.mResult, is(true));
     }
 
     @Test

@@ -19,6 +19,7 @@ package androidx.collection
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
@@ -58,7 +59,8 @@ class ArraySetKotlinTest {
         }
     }
 
-    @Test fun addAllTypeProjection() = testBody {
+    @Test
+    fun addAllTypeProjection() = testBody {
         val set1 = ArraySet<Any>()
         val set2 = ArraySet<String>()
         set2.add("Foo")
@@ -102,5 +104,43 @@ class ArraySetKotlinTest {
         for (e in sourceList) {
             assertEquals(e, set.valueAt(set.indexOf(e)))
         }
+    }
+
+    @Test
+    fun constructWithArray() {
+        val strings: Array<String> = arrayOf("a", "b", "c")
+        val set = ArraySet(strings)
+        assertEquals(3, set.size)
+        assertTrue(set.contains("a"))
+        assertFalse(set.contains("d"))
+    }
+
+    @Test
+    fun arraySetEqualsAndHashCode() {
+        val set3 = ArraySet(listOf(1, 2, 3))
+        val set3b = ArraySet(listOf(1, 2, 3))
+        val set4 = ArraySet(listOf(1, 2, 3, 4))
+        assertTrue(set3 == set3)
+        assertEquals(set3.hashCode(), set3.hashCode())
+
+        assertTrue(set3 == set3b)
+        assertEquals(set3.hashCode(), set3b.hashCode())
+
+        assertFalse(set3 == set4)
+        assertNotEquals(set3.hashCode(), set4.hashCode())
+    }
+
+    @Test
+    fun testToString() {
+        val set3 = ArraySet(listOf(1, 2, 3))
+        val set4 = ArraySet(listOf(1, 2, 3, 4))
+        assertEquals("{1, 2, 3}", set3.toString())
+        assertEquals("{1, 2, 3, 4}", set4.toString())
+
+        val set5 = ArraySet<Any>()
+        set5.add(1)
+        set5.add("one")
+        set5.add(set5)
+        assertEquals("{1, one, (this Set)}", set5.toString())
     }
 }

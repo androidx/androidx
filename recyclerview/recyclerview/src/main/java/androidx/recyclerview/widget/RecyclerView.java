@@ -81,6 +81,8 @@ import androidx.core.view.ViewConfigurationCompat;
 import androidx.core.view.accessibility.AccessibilityEventCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.core.widget.EdgeEffectCompat;
+import androidx.customview.poolingcontainer.PoolingContainer;
+import androidx.customview.poolingcontainer.PoolingContainerListener;
 import androidx.customview.view.AbsSavedState;
 import androidx.recyclerview.R;
 import androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo;
@@ -92,7 +94,9 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A flexible view for providing a limited window into a large data set.
@@ -758,6 +762,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         }
         // Re-set whether nested scrolling is enabled so that it is set on all API levels
         setNestedScrollingEnabled(nestedScrollingEnabled);
+        PoolingContainer.setPoolingContainer(this, true);
     }
 
     /**
@@ -1230,7 +1235,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
      * @param removeAndRecycleViews  If true, we'll remove and recycle all existing views. If
      *                               compatibleWithPrevious is false, this parameter is ignored.
      */
-    private void setAdapterInternal(@Nullable Adapter adapter, boolean compatibleWithPrevious,
+    private void setAdapterInternal(@Nullable Adapter<?> adapter, boolean compatibleWithPrevious,
             boolean removeAndRecycleViews) {
         if (mAdapter != null) {
             mAdapter.unregisterAdapterDataObserver(mObserver);
@@ -1240,7 +1245,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             removeAndRecycleViews();
         }
         mAdapterHelper.reset();
-        final Adapter oldAdapter = mAdapter;
+        final Adapter<?> oldAdapter = mAdapter;
         mAdapter = adapter;
         if (adapter != null) {
             adapter.registerAdapterDataObserver(mObserver);
@@ -3211,6 +3216,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         mLayoutOrScrollCounter = 0;
         mIsAttached = true;
         mFirstLayoutComplete = mFirstLayoutComplete && !isLayoutRequested();
+
+        mRecycler.onAttachedToWindow();
+
         if (mLayout != null) {
             mLayout.dispatchAttachedToWindow(this);
         }
@@ -3253,6 +3261,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         mPendingAccessibilityImportanceChange.clear();
         removeCallbacks(mItemAnimatorRunner);
         mViewInfoStore.onDetach();
+        mRecycler.onDetachedFromWindow();
+
+        PoolingContainer.callPoolingContainerOnReleaseForChildren(this);
 
         if (ALLOW_THREAD_GAP_WORK && mGapWorker != null) {
             // Unregister with gap worker
@@ -6005,7 +6016,33 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
 
         SparseArray<ScrapData> mScrap = new SparseArray<>();
 
-        private int mAttachCount = 0;
+        /**
+         * Attach counts for clearing (that is, emptying the pool when there are no adapters
+         * attached) and for PoolingContainer release are tracked separately to maintain the
+         * historical behavior of this functionality.
+         *
+         * The count for clearing is inaccurate in certain scenarios: for instance, if a
+         * RecyclerView is removed from the view hierarchy and thrown away to be GCed, the
+         * attach count will never be correspondingly decreased.  However, it has been this way
+         * for years without any complaints, so we are not going to potentially increase the
+         * number of scenarios where the pool would be cleared.
+         *
+         * The attached adapters for PoolingContainer purposes strives to be more accurate, as
+         * it will be decremented whenever a RecyclerView is detached from the window.  This
+         * could potentially be inaccurate in the unlikely event that someone is manually driving
+         * a detached RecyclerView by calling measure, layout, draw, etc.  However, the
+         * implementation of {@link RecyclerView#onDetachedFromWindow()} suggests this is not the
+         * only unexpected behavior that doing so might provoke, so this should be acceptable.
+         */
+        int mAttachCountForClearing = 0;
+
+        /**
+         * The set of adapters for PoolingContainer release purposes
+         *
+         * @see #mAttachCountForClearing
+         */
+        Set<Adapter<?>> mAttachedAdaptersForPoolingContainer =
+                Collections.newSetFromMap(new IdentityHashMap<>());
 
         /**
          * Discard all ViewHolders.
@@ -6013,6 +6050,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         public void clear() {
             for (int i = 0; i < mScrap.size(); i++) {
                 ScrapData data = mScrap.valueAt(i);
+                for (ViewHolder scrap: data.mScrapHeap) {
+                    PoolingContainer.callPoolingContainerOnRelease(scrap.itemView);
+                }
                 data.mScrapHeap.clear();
             }
         }
@@ -6088,6 +6128,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             final int viewType = scrap.getItemViewType();
             final ArrayList<ViewHolder> scrapHeap = getScrapDataForType(viewType).mScrapHeap;
             if (mScrap.get(viewType).mMaxScrap <= scrapHeap.size()) {
+                PoolingContainer.callPoolingContainerOnRelease(scrap.itemView);
                 return;
             }
             if (DEBUG && scrapHeap.contains(scrap)) {
@@ -6127,13 +6168,47 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         }
 
         void attach() {
-            mAttachCount++;
+            mAttachCountForClearing++;
         }
 
         void detach() {
-            mAttachCount--;
+            mAttachCountForClearing--;
         }
 
+        /**
+         * Adds this adapter to the set of adapters being tracked for PoolingContainer release
+         * purposes.  This method may validly be called multiple times for a given adapter.
+         * Additional calls to this method for an already-attached adapter are a no-op.
+         *
+         * @param adapter the adapter to ensure is in the set
+         */
+        void attachForPoolingContainer(@NonNull Adapter<?> adapter) {
+            mAttachedAdaptersForPoolingContainer.add(adapter);
+        }
+
+        /**
+         * Removes this adapter from the set of adapters being tracked for PoolingContainer
+         * release purposes. This method may validly be called multiple times for a given adapter.
+         + Additional calls to this method for an already-detached adapter are a no-op.
+         *
+         * @param adapter the adapter to be removed from the set
+         * @param isBeingReplaced {@code true} if this detach is immediately preceding a call to
+         * {@link #attachForPoolingContainer(Adapter)} and
+         * {@link PoolingContainerListener#onRelease()} should not be triggered, or false otherwise
+         */
+        void detachForPoolingContainer(@NonNull Adapter<?> adapter, boolean isBeingReplaced) {
+            mAttachedAdaptersForPoolingContainer.remove(adapter);
+            if (mAttachedAdaptersForPoolingContainer.size() == 0 && !isBeingReplaced) {
+                for (int keyIndex = 0; keyIndex < mScrap.size(); keyIndex++) {
+                    ArrayList<ViewHolder> scrapHeap = mScrap.get(mScrap.keyAt(keyIndex)).mScrapHeap;
+                    for (int i = 0; i < scrapHeap.size(); i++) {
+                        PoolingContainer.callPoolingContainerOnRelease(
+                                scrapHeap.get(i).itemView
+                        );
+                    }
+                }
+            }
+        }
 
         /**
          * Detaches the old adapter and attaches the new one.
@@ -6146,12 +6221,12 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * @param compatibleWithPrevious True if both oldAdapter and newAdapter are using the same
          *                               ViewHolder and view types.
          */
-        void onAdapterChanged(Adapter oldAdapter, Adapter newAdapter,
+        void onAdapterChanged(Adapter<?> oldAdapter, Adapter<?> newAdapter,
                 boolean compatibleWithPrevious) {
             if (oldAdapter != null) {
                 detach();
             }
-            if (!compatibleWithPrevious && mAttachCount == 0) {
+            if (!compatibleWithPrevious && mAttachCountForClearing == 0) {
                 clear();
             }
             if (newAdapter != null) {
@@ -6854,6 +6929,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             // from view holder lists.
             mViewInfoStore.removeViewHolder(holder);
             if (!cached && !recycled && transientStatePreventsRecycling) {
+                PoolingContainer.callPoolingContainerOnRelease(holder.itemView);
                 holder.mBindingAdapter = null;
                 holder.mOwnerRecyclerView = null;
             }
@@ -7128,10 +7204,13 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             if (DEBUG) Log.d(TAG, "dispatchViewRecycled: " + holder);
         }
 
-        void onAdapterChanged(Adapter oldAdapter, Adapter newAdapter,
+        void onAdapterChanged(Adapter<?> oldAdapter, Adapter<?> newAdapter,
                 boolean compatibleWithPrevious) {
             clear();
-            getRecycledViewPool().onAdapterChanged(oldAdapter, newAdapter, compatibleWithPrevious);
+            poolingContainerDetach(oldAdapter, true);
+            getRecycledViewPool().onAdapterChanged(oldAdapter, newAdapter,
+                    compatibleWithPrevious);
+            maybeSendPoolingContainerAttach();
         }
 
         void offsetPositionRecordsForMove(int from, int to) {
@@ -7211,6 +7290,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         }
 
         void setRecycledViewPool(RecycledViewPool pool) {
+            poolingContainerDetach(mAdapter);
             if (mRecyclerPool != null) {
                 mRecyclerPool.detach();
             }
@@ -7218,11 +7298,42 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             if (mRecyclerPool != null && getAdapter() != null) {
                 mRecyclerPool.attach();
             }
+            maybeSendPoolingContainerAttach();
+        }
+
+        private void maybeSendPoolingContainerAttach() {
+            if (mRecyclerPool != null
+                    && mAdapter != null
+                    && isAttachedToWindow()) {
+                mRecyclerPool.attachForPoolingContainer(mAdapter);
+            }
+        }
+
+        private void poolingContainerDetach(Adapter<?> adapter) {
+            poolingContainerDetach(adapter, false);
+        }
+
+        private void poolingContainerDetach(Adapter<?> adapter, boolean isBeingReplaced) {
+            if (mRecyclerPool != null) {
+                mRecyclerPool.detachForPoolingContainer(adapter, isBeingReplaced);
+            }
+        }
+
+        void onAttachedToWindow() {
+            maybeSendPoolingContainerAttach();
+        }
+
+        void onDetachedFromWindow() {
+            for (int i = 0; i < mCachedViews.size(); i++) {
+                PoolingContainer.callPoolingContainerOnRelease(mCachedViews.get(i).itemView);
+            }
+            poolingContainerDetach(mAdapter);
         }
 
         RecycledViewPool getRecycledViewPool() {
             if (mRecyclerPool == null) {
                 mRecyclerPool = new RecycledViewPool();
+                maybeSendPoolingContainerAttach();
             }
             return mRecyclerPool;
         }
@@ -9699,7 +9810,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                 }
                 // If the scrap view is animating, we need to cancel them first. If we cancel it
                 // here, ItemAnimator callback may recycle it which will cause double recycling.
-                // To avoid this, we mark it as not recycleable before calling the item animator.
+                // To avoid this, we mark it as not recyclable before calling the item animator.
                 // Since removeDetachedView calls a user API, a common mistake (ending animations on
                 // the view) may recycle it too, so we guard it before we call user APIs.
                 vh.setIsRecyclable(false);

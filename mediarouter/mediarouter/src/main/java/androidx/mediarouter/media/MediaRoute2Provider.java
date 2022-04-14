@@ -212,6 +212,7 @@ class MediaRoute2Provider extends MediaRouteProvider {
     }
 
     @Nullable
+    @SuppressWarnings("deprecation")
     static Messenger getMessengerFromRoutingController(
             @Nullable MediaRouter2.RoutingController controller) {
         if (controller == null) {

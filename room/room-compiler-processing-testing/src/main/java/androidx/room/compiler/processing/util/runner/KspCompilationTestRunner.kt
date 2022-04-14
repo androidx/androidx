@@ -41,7 +41,11 @@ internal object KspCompilationTestRunner : CompilationTestRunner {
             lateinit var processor: SyntheticKspProcessor
 
             override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
-                return SyntheticKspProcessor(environment, params.handlers).also { processor = it }
+                return SyntheticKspProcessor(
+                    symbolProcessorEnvironment = environment,
+                    handlers = params.handlers,
+                    config = params.config
+                ).also { processor = it }
             }
         }
         val args = TestCompilationArguments(

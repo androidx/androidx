@@ -1,5 +1,3 @@
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -77,6 +75,7 @@ android {
     defaultConfig {
         multiDexEnabled = true
     }
+    namespace "androidx.core"
 }
 
 androidx {

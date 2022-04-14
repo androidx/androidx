@@ -1458,8 +1458,11 @@ public abstract class RoomDatabase {
             }
 
             if (mQueryCallback != null) {
-                factory = new QueryInterceptorOpenHelperFactory(factory, mQueryCallback,
-                        mQueryCallbackExecutor);
+                factory = new QueryInterceptorOpenHelperFactory(
+                        factory,
+                        mQueryCallbackExecutor,
+                        mQueryCallback
+                );
             }
 
             DatabaseConfiguration configuration =

@@ -36,6 +36,7 @@ import androidx.car.app.model.Place;
 import androidx.car.app.model.PlaceListMapTemplate;
 import androidx.car.app.model.Row;
 import androidx.car.app.model.Template;
+import androidx.car.app.sample.showcase.common.R;
 import androidx.core.location.LocationListenerCompat;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
@@ -88,7 +89,7 @@ public final class PlaceListTemplateBrowseDemoScreen extends Screen {
                             mLocationUpdateHandlerThread.getLooper());
                 } else {
                     CarToast.makeText(carContext,
-                            "Grant location Permission to see current location",
+                            getCarContext().getString(R.string.grant_location_permission_toast_msg),
                             CarToast.LENGTH_LONG).show();
                 }
             }
@@ -108,14 +109,14 @@ public final class PlaceListTemplateBrowseDemoScreen extends Screen {
         PlaceListMapTemplate.Builder builder = new PlaceListMapTemplate.Builder()
                 .setItemList(new ItemList.Builder()
                         .addItem(new Row.Builder()
-                                .setTitle("Browse Places")
+                                .setTitle(getCarContext().getString(R.string.browse_places_title))
                                 .setBrowsable(true)
                                 .setOnClickListener(
                                         () -> getScreenManager().push(
                                                 new PlaceListTemplateDemoScreen(
                                                         getCarContext()))).build())
                         .build())
-                .setTitle("Place List Template Demo")
+                .setTitle(getCarContext().getString(R.string.place_list_template_demo_title))
                 .setHeaderAction(Action.BACK)
                 .setCurrentLocationEnabled(mHasPermissionLocation);
 

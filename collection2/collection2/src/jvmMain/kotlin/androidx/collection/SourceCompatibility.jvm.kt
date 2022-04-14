@@ -61,15 +61,8 @@ fun <K, V> SimpleArrayMap<K, V>.size() = size
 @Deprecated("Replaced with function", ReplaceWith("this.isEmpty()"), WARNING)
 val <K, V> SimpleArrayMap<K, V>.isEmpty get() = isEmpty()
 
-@Deprecated("Replaced with property", ReplaceWith("this.size"), WARNING)
-fun <E> SparseArray<E>.size() = size
-
 @Deprecated("Replaced with function", ReplaceWith("this.isEmpty()"), WARNING)
 val <E> SparseArray<E>.isEmpty get() = isEmpty()
-
-@Deprecated("Replaced with property", ReplaceWith("this.size"), WARNING)
-@Suppress("DEPRECATION") // Don't warn against extension on the deprecated class
-fun <E> SparseArrayCompat<E>.size() = size
 
 @Deprecated("Replaced with function", ReplaceWith("this.isEmpty()"), WARNING)
 @Suppress("DEPRECATION")

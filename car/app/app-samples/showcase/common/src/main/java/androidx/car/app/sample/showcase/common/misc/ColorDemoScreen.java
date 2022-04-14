@@ -49,8 +49,9 @@ public final class ColorDemoScreen extends Screen {
 
         listBuilder.addItem(
                 new Row.Builder()
-                        .setTitle("Example 1")
-                        .addText(Utils.colorize("This text has a red color", RED, 16, 3))
+                        .setTitle(getCarContext().getString(R.string.example_title, 1))
+                        .addText(Utils.colorize(getCarContext().getString(R.string.example_1_text),
+                                RED, 16, 3))
                         .setImage(new CarIcon.Builder(
                                 IconCompat.createWithResource(
                                         getCarContext(),
@@ -61,8 +62,9 @@ public final class ColorDemoScreen extends Screen {
 
         listBuilder.addItem(
                 new Row.Builder()
-                        .setTitle("Example 2")
-                        .addText(Utils.colorize("This text has a green color", GREEN, 16, 5))
+                        .setTitle(getCarContext().getString(R.string.example_title, 2))
+                        .addText(Utils.colorize(getCarContext().getString(R.string.example_2_text),
+                                GREEN, 16, 5))
                         .setImage(new CarIcon.Builder(
                                 IconCompat.createWithResource(
                                         getCarContext(),
@@ -73,8 +75,9 @@ public final class ColorDemoScreen extends Screen {
 
         listBuilder.addItem(
                 new Row.Builder()
-                        .setTitle("Example 3")
-                        .addText(Utils.colorize("This text has a blue color", BLUE, 16, 4))
+                        .setTitle(getCarContext().getString(R.string.example_title, 3))
+                        .addText(Utils.colorize(getCarContext().getString(R.string.example_3_text),
+                                BLUE, 16, 4))
                         .setImage(new CarIcon.Builder(
                                 IconCompat.createWithResource(
                                         getCarContext(),
@@ -85,8 +88,9 @@ public final class ColorDemoScreen extends Screen {
 
         listBuilder.addItem(
                 new Row.Builder()
-                        .setTitle("Example 4")
-                        .addText(Utils.colorize("This text has a yellow color", YELLOW, 16, 6))
+                        .setTitle(getCarContext().getString(R.string.example_title, 4))
+                        .addText(Utils.colorize(getCarContext().getString(R.string.example_4_text),
+                                YELLOW, 16, 6))
                         .setImage(new CarIcon.Builder(
                                 IconCompat.createWithResource(
                                         getCarContext(),
@@ -97,8 +101,9 @@ public final class ColorDemoScreen extends Screen {
 
         listBuilder.addItem(
                 new Row.Builder()
-                        .setTitle("Example 5")
-                        .addText(Utils.colorize("This text uses the primary color", PRIMARY, 19, 7))
+                        .setTitle(getCarContext().getString(R.string.example_title, 5))
+                        .addText(Utils.colorize(getCarContext().getString(R.string.example_5_text),
+                                PRIMARY, 19, 7))
                         .setImage(new CarIcon.Builder(
                                 IconCompat.createWithResource(
                                         getCarContext(),
@@ -109,10 +114,11 @@ public final class ColorDemoScreen extends Screen {
 
         listBuilder.addItem(
                 new Row.Builder()
-                        .setTitle("Example 6")
+                        .setTitle(getCarContext().getString(R.string.example_title, 6))
                         .addText(
                                 Utils.colorize(
-                                        "This text uses the secondary color", SECONDARY, 19, 9))
+                                        getCarContext().getString(R.string.example_6_text),
+                                        SECONDARY, 19, 9))
                         .setImage(new CarIcon.Builder(
                                 IconCompat.createWithResource(
                                         getCarContext(),
@@ -123,7 +129,7 @@ public final class ColorDemoScreen extends Screen {
 
         return new ListTemplate.Builder()
                 .setSingleList(listBuilder.build())
-                .setTitle("Color Demo")
+                .setTitle(getCarContext().getString(R.string.color_demo))
                 .setHeaderAction(BACK)
                 .build();
     }

@@ -1,0 +1,7 @@
+SELECT
+  CONCAT("./development/publishScan.sh ", build_id, " ", target.target)
+FROM android_build.builds.last1days
+WHERE
+  branch = 'aosp-androidx-main'
+  AND build_attempt_status = 'COMPLETE'
+ORDER BY 1 DESC;

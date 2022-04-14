@@ -236,7 +236,8 @@ object FragmentStrictMode {
         fragmentClass: Class<out Fragment>,
         violationClass: Class<out Violation>
     ): Boolean {
-        val violationsToBypass = policy.mAllowedViolations[fragmentClass] ?: return true
+        val fragmentClassString = fragmentClass.name
+        val violationsToBypass = policy.mAllowedViolations[fragmentClassString] ?: return true
         if (violationClass.superclass != Violation::class.java) {
             if (violationsToBypass.contains(violationClass.superclass)) {
                 return false
@@ -313,10 +314,10 @@ object FragmentStrictMode {
     class Policy internal constructor(
         internal val flags: Set<Flag>,
         listener: OnViolationListener?,
-        allowedViolations: Map<Class<out Fragment>, MutableSet<Class<out Violation>>>
+        allowedViolations: Map<String, MutableSet<Class<out Violation>>>
     ) {
         internal val listener: OnViolationListener?
-        internal val mAllowedViolations: Map<Class<out Fragment>, Set<Class<out Violation>>>
+        internal val mAllowedViolations: Map<String, Set<Class<out Violation>>>
 
         /**
          * Creates [Policy] instances. Methods whose names start with `detect` specify
@@ -330,7 +331,7 @@ object FragmentStrictMode {
             private val flags: MutableSet<Flag> = mutableSetOf()
             private var listener: OnViolationListener? = null
             private val mAllowedViolations:
-                MutableMap<Class<out Fragment>, MutableSet<Class<out Violation>>> = mutableMapOf()
+                MutableMap<String, MutableSet<Class<out Violation>>> = mutableMapOf()
 
             /** Log detected violations to the system log.  */
             @SuppressLint("BuilderSetStyle")
@@ -424,6 +425,25 @@ object FragmentStrictMode {
                 fragmentClass: Class<out Fragment>,
                 violationClass: Class<out Violation>
             ): Builder {
+                val fragmentClassString = fragmentClass.name
+                return allowViolation(fragmentClassString, violationClass)
+            }
+
+            /**
+             * Allow the specified [Fragment] class to bypass penalties for the specified
+             * [Violation], if detected.
+             *
+             * Since this overload of [allowViolation] takes in the name of the Fragment class
+             * as a string, rather than accepting the Class itself, the user will need to manually
+             * insure the class is not obfuscated.
+             *
+             * By default, all [Fragment] classes will incur penalties for any detected [Violation].
+             */
+            @SuppressLint("BuilderSetStyle")
+            fun allowViolation(
+                fragmentClass: String,
+                violationClass: Class<out Violation>
+            ): Builder {
                 var violationsToBypass = mAllowedViolations[fragmentClass]
                 if (violationsToBypass == null) {
                     violationsToBypass = mutableSetOf()
@@ -456,7 +476,7 @@ object FragmentStrictMode {
         init {
             this.listener = listener
             val newAllowedViolationsMap:
-                MutableMap<Class<out Fragment>, Set<Class<out Violation>>> = mutableMapOf()
+                MutableMap<String, Set<Class<out Violation>>> = mutableMapOf()
             for ((key, value) in allowedViolations) {
                 newAllowedViolationsMap[key] = value
             }

@@ -77,7 +77,7 @@ public class CarResultStubTest {
         Integer desiredResult = 5;
         Bundleable desiredBundleable = Bundleable.create(desiredResult);
         int desiredResultType = ICarHardwareResultTypes.TYPE_INFO_MODEL;
-        Integer unsupportedResult = new Integer(-1);
+        Integer unsupportedResult = -1;
 
         String param = "param";
         Bundleable paramBundle = Bundleable.create(param);
@@ -98,7 +98,7 @@ public class CarResultStubTest {
     public void addListener_callHost_unsupported_singleShot() throws BundlerException,
             RemoteException {
         int desiredResultType = ICarHardwareResultTypes.TYPE_INFO_MODEL;
-        Integer unsupportedResult = new Integer(-1);
+        Integer unsupportedResult = -1;
 
         String param = "param";
         Bundleable paramBundle = Bundleable.create(param);

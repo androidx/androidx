@@ -1,4 +1,3 @@
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -30,6 +29,7 @@ android {
             manifest.srcFile 'AndroidManifest.xml'
         }
     }
+    namespace "androidx.emoji2.viewsintegration"
 }
 
 androidx {

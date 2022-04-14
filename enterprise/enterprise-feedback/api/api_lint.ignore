@@ -5,6 +5,10 @@ ExecutorRegistration: androidx.enterprise.feedback.KeyedAppStatesReporter#setSta
     Registration methods should have overload that accepts delivery Executor: `setStatesImmediate`
 
 
+InvalidNullability: androidx.enterprise.feedback.KeyedAppStatesService#onBind(android.content.Intent) parameter #0:
+    Invalid nullability on parameter `intent` in method `onBind`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+
+
 StaticFinalBuilder: androidx.enterprise.feedback.KeyedAppState.KeyedAppStateBuilder:
     Builder must be final: androidx.enterprise.feedback.KeyedAppState.KeyedAppStateBuilder
 StaticFinalBuilder: androidx.enterprise.feedback.ReceivedKeyedAppState.ReceivedKeyedAppStateBuilder:

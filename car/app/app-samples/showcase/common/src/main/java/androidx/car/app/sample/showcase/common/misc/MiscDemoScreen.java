@@ -27,6 +27,7 @@ import androidx.car.app.model.ItemList;
 import androidx.car.app.model.ListTemplate;
 import androidx.car.app.model.Row;
 import androidx.car.app.model.Template;
+import androidx.car.app.sample.showcase.common.R;
 import androidx.car.app.sample.showcase.common.ShowcaseSession;
 
 /** Creates a screen that has an assortment of API demos. */
@@ -59,23 +60,28 @@ public final class MiscDemoScreen extends Screen {
 
         switch (mPage) {
             case 0:
-                listBuilder.addItem(createRow("Notification Demo",
+                listBuilder.addItem(createRow(getCarContext().getString(R.string.notification_demo),
                         new NotificationDemoScreen(getCarContext())));
-                listBuilder.addItem(createRow("PopTo Demo",
+                listBuilder.addItem(createRow(getCarContext().getString(R.string.pop_to_title),
                         new PopToDemoScreen(getCarContext())));
-                listBuilder.addItem(createRow("Loading Demo",
-                        new LoadingDemoScreen(getCarContext())));
-                listBuilder.addItem(createRow("Request Permission Demo",
-                        new RequestPermissionScreen(getCarContext())));
-                listBuilder.addItem(createRow("Pre-seed the Screen backstack on next run Demo",
-                        new FinishAppScreen(getCarContext())));
-                listBuilder.addItem(createRow("Car Hardware Demo",
-                        new CarHardwareDemoScreen(getCarContext(), mShowcaseSession)));
+                listBuilder.addItem(
+                        createRow(getCarContext().getString(R.string.loading_demo_title),
+                                new LoadingDemoScreen(getCarContext())));
+                listBuilder.addItem(
+                        createRow(getCarContext().getString(R.string.request_permissions_title),
+                                new RequestPermissionScreen(getCarContext())));
+                listBuilder.addItem(
+                        createRow(getCarContext().getString(R.string.finish_app_demo_title),
+                                new FinishAppScreen(getCarContext())));
+                listBuilder.addItem(
+                        createRow(getCarContext().getString(R.string.car_hardware_demo_title),
+                                new CarHardwareDemoScreen(getCarContext(), mShowcaseSession)));
                 break;
             case 1:
-                listBuilder.addItem(createRow("Content Limits Demo",
-                        new ContentLimitsDemoScreen(getCarContext())));
-                listBuilder.addItem(createRow("Color Demo",
+                listBuilder.addItem(
+                        createRow(getCarContext().getString(R.string.content_limits_demo_title),
+                                new ContentLimitsDemoScreen(getCarContext())));
+                listBuilder.addItem(createRow(getCarContext().getString(R.string.color_demo),
                         new ColorDemoScreen(getCarContext())));
                 break;
 
@@ -83,13 +89,13 @@ public final class MiscDemoScreen extends Screen {
 
         ListTemplate.Builder builder = new ListTemplate.Builder()
                 .setSingleList(listBuilder.build())
-                .setTitle("Misc Demos")
+                .setTitle(getCarContext().getString(R.string.misc_demo_title))
                 .setHeaderAction(BACK);
 
         if (mPage + 1 < MAX_PAGES) {
             builder.setActionStrip(new ActionStrip.Builder()
                     .addAction(new Action.Builder()
-                            .setTitle("More")
+                            .setTitle(getCarContext().getString(R.string.more_action_title))
                             .setOnClickListener(() -> {
                                 getScreenManager().push(
                                         new MiscDemoScreen(getCarContext(), mShowcaseSession,

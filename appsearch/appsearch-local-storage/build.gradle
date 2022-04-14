@@ -15,8 +15,6 @@
  */
 
 import androidx.build.BundleInsideHelper
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -55,10 +53,11 @@ android {
     }
     externalNativeBuild {
         cmake {
-            version "3.18.1"
+            version libs.versions.cmake.get()
             path "../../../../external/icing/CMakeLists.txt"
         }
     }
+    namespace "androidx.appsearch.localstorage"
 }
 
 BundleInsideHelper.forInsideAar(
@@ -75,6 +74,7 @@ dependencies {
     implementation(project(":appsearch:appsearch"))
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
     implementation("androidx.core:core:1.2.0")
+    implementation('androidx.collection:collection:1.0.0')
 
     androidTestImplementation project(':appsearch:appsearch-test-util')
     androidTestImplementation(libs.multidex)

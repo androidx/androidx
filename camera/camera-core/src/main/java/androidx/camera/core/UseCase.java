@@ -303,6 +303,19 @@ public abstract class UseCase {
     }
 
     /**
+     * Returns the target rotation set by apps explicitly.
+     *
+     * @return The rotation of the intended target.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @ImageOutputConfig.OptionalRotationValue
+    protected int getAppTargetRotation() {
+        return ((ImageOutputConfig) mCurrentConfig)
+                .getAppTargetRotation(ImageOutputConfig.ROTATION_NOT_SPECIFIED);
+    }
+
+    /**
      * Gets the relative rotation degrees based on the target rotation.
      *
      * @hide

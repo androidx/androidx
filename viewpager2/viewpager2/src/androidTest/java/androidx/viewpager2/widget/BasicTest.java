@@ -56,6 +56,7 @@ public class BasicTest {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void test_saveStateParcel_createRestore() {
         // given
         Bundle superState = createIntBundle(42);

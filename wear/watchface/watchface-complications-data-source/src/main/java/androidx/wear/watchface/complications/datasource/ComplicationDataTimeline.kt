@@ -17,6 +17,7 @@
 package androidx.wear.watchface.complications.datasource
 
 import androidx.wear.watchface.complications.data.ComplicationData
+import androidx.wear.watchface.complications.data.NoDataComplicationData
 import java.time.Instant
 
 /** The wire format for [ComplicationData]. */
@@ -32,7 +33,9 @@ public class TimeInterval(
     public var start: Instant,
     public var end: Instant
 ) {
-    init { require(start < end) { "start must be before end" } }
+    init {
+        require(start < end) { "start must be before end" }
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -120,9 +123,28 @@ public class ComplicationDataTimeline(
 ) {
     init {
         for (entry in timelineEntries) {
-            require(entry.complicationData.type == defaultComplicationData.type) {
-                "TimelineEntry's complicationData must have the same type as the " +
-                    "defaultComplicationData"
+            val complicationData = entry.complicationData
+            if (complicationData is NoDataComplicationData) {
+                require(complicationData.placeholder == null ||
+                    complicationData.placeholder!!.type == defaultComplicationData.type
+                ) {
+                    "TimelineEntry's placeholder types must match the defaultComplicationData. " +
+                        "Found ${complicationData.placeholder!!.type} expected " +
+                        "${defaultComplicationData.type}."
+                }
+            } else {
+                require(
+                    complicationData.type == defaultComplicationData.type
+                ) {
+                    "TimelineEntry's complicationData must have the same type as the " +
+                        "defaultComplicationData. Found ${complicationData.type} expected " +
+                        "${defaultComplicationData.type}."
+                }
+
+                require(!complicationData.hasPlaceholderFields()) {
+                    "Placeholder values may only be used in the context of " +
+                        "NoDataComplicationData.placeholder ComplicationData."
+                }
             }
         }
     }

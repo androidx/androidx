@@ -15,7 +15,6 @@
  */
 
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -29,6 +28,7 @@ android {
     buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
     }
+    namespace "androidx.lifecycle.viewmodel"
 }
 
 dependencies {
@@ -42,6 +42,7 @@ dependencies {
         implementation(project(":lifecycle:lifecycle-viewmodel-savedstate"))
     }
 
+    androidTestImplementation("androidx.core:core-ktx:1.2.0")
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.junit)

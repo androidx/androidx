@@ -27,6 +27,56 @@ GetterSetterNames: androidx.wear.widget.drawer.WearableDrawerView#setIsLocked(bo
     Symmetric method for `isLocked` must be named `setLocked`; was `setIsLocked`
 
 
+InvalidNullability: androidx.wear.widget.ArcLayout#checkLayoutParams(android.view.ViewGroup.LayoutParams) parameter #0:
+    Invalid nullability on parameter `p` in method `checkLayoutParams`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.wear.widget.ArcLayout#drawChild(android.graphics.Canvas, android.view.View, long) parameter #0:
+    Invalid nullability on parameter `canvas` in method `drawChild`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.wear.widget.ArcLayout#drawChild(android.graphics.Canvas, android.view.View, long) parameter #1:
+    Invalid nullability on parameter `child` in method `drawChild`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.wear.widget.ArcLayout#generateLayoutParams(android.util.AttributeSet) parameter #0:
+    Invalid nullability on parameter `attrs` in method `generateLayoutParams`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.wear.widget.ArcLayout#generateLayoutParams(android.view.ViewGroup.LayoutParams) parameter #0:
+    Invalid nullability on parameter `p` in method `generateLayoutParams`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.wear.widget.ArcLayout#onInterceptTouchEvent(android.view.MotionEvent) parameter #0:
+    Invalid nullability on parameter `event` in method `onInterceptTouchEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.wear.widget.ArcLayout#onTouchEvent(android.view.MotionEvent) parameter #0:
+    Invalid nullability on parameter `event` in method `onTouchEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.wear.widget.CurvedTextView#draw(android.graphics.Canvas) parameter #0:
+    Invalid nullability on parameter `canvas` in method `draw`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.wear.widget.CurvedTextView#onDraw(android.graphics.Canvas) parameter #0:
+    Invalid nullability on parameter `canvas` in method `onDraw`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.wear.widget.CurvedTextView#onInitializeAccessibilityNodeInfo(android.view.accessibility.AccessibilityNodeInfo) parameter #0:
+    Invalid nullability on parameter `info` in method `onInitializeAccessibilityNodeInfo`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.wear.widget.CurvedTextView#onPopulateAccessibilityEvent(android.view.accessibility.AccessibilityEvent) parameter #0:
+    Invalid nullability on parameter `event` in method `onPopulateAccessibilityEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.wear.widget.CurvedTextView#onTouchEvent(android.view.MotionEvent) parameter #0:
+    Invalid nullability on parameter `event` in method `onTouchEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.wear.widget.DismissibleFrameLayout#onInterceptTouchEvent(android.view.MotionEvent) parameter #0:
+    Invalid nullability on parameter `ev` in method `onInterceptTouchEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.wear.widget.DismissibleFrameLayout#onTouchEvent(android.view.MotionEvent) parameter #0:
+    Invalid nullability on parameter `ev` in method `onTouchEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.wear.widget.drawer.WearableDrawerLayout#onNestedFling(android.view.View, float, float, boolean) parameter #0:
+    Invalid nullability on parameter `target` in method `onNestedFling`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.wear.widget.drawer.WearableDrawerLayout#onNestedPreFling(android.view.View, float, float) parameter #0:
+    Invalid nullability on parameter `target` in method `onNestedPreFling`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.wear.widget.drawer.WearableDrawerLayout#onNestedPreScroll(android.view.View, int, int, int[]) parameter #0:
+    Invalid nullability on parameter `target` in method `onNestedPreScroll`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.wear.widget.drawer.WearableDrawerLayout#onNestedPreScroll(android.view.View, int, int, int[]) parameter #3:
+    Invalid nullability on parameter `consumed` in method `onNestedPreScroll`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.wear.widget.drawer.WearableDrawerLayout#onNestedScroll(android.view.View, int, int, int, int) parameter #0:
+    Invalid nullability on parameter `target` in method `onNestedScroll`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.wear.widget.drawer.WearableDrawerLayout#onNestedScrollAccepted(android.view.View, android.view.View, int) parameter #0:
+    Invalid nullability on parameter `child` in method `onNestedScrollAccepted`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.wear.widget.drawer.WearableDrawerLayout#onNestedScrollAccepted(android.view.View, android.view.View, int) parameter #1:
+    Invalid nullability on parameter `target` in method `onNestedScrollAccepted`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.wear.widget.drawer.WearableDrawerLayout#onStartNestedScroll(android.view.View, android.view.View, int) parameter #0:
+    Invalid nullability on parameter `child` in method `onStartNestedScroll`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.wear.widget.drawer.WearableDrawerLayout#onStartNestedScroll(android.view.View, android.view.View, int) parameter #1:
+    Invalid nullability on parameter `target` in method `onStartNestedScroll`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.wear.widget.drawer.WearableDrawerLayout#onStopNestedScroll(android.view.View) parameter #0:
+    Invalid nullability on parameter `target` in method `onStopNestedScroll`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+
+
 MissingNullability: androidx.wear.activity.ConfirmationActivity#onCreate(android.os.Bundle) parameter #0:
     Missing nullability on parameter `savedInstanceState` in method `onCreate`
 MissingNullability: androidx.wear.ambient.AmbientMode#attachAmbientSupport(T):

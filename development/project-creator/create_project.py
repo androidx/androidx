@@ -26,6 +26,14 @@ from shutil import copyfile
 from distutils.dir_util import copy_tree
 from distutils.dir_util import DistutilsFileError
 
+try:
+    # non-default python3 module, be helpful if it is missing
+    import toml
+except ModuleNotFoundError as e:
+    print(e)
+    print("Consider running `pip install toml` to install this module")
+    exit(-1)
+
 # cd into directory of script
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
@@ -36,10 +44,8 @@ SAMPLE_KOTLIN_SRC_FP = os.path.abspath(os.path.join(os.getcwd(), 'kotlin-templat
 SAMPLE_COMPOSE_SRC_FP = os.path.abspath(os.path.join(os.getcwd(), 'compose-template', 'groupId', 'artifactId'))
 NATIVE_SRC_FP = os.path.abspath(os.path.join(os.getcwd(), 'native-template', 'groupId', 'artifactId'))
 SETTINGS_GRADLE_FP = os.path.abspath(os.path.join(os.getcwd(), '..', '..', "settings.gradle"))
-LIBRARY_VERSIONS_REL = './buildSrc/public/src/main/kotlin/androidx/build/LibraryVersions.kt'
+LIBRARY_VERSIONS_REL = './libraryversions.toml'
 LIBRARY_VERSIONS_FP = os.path.join(FRAMEWORKS_SUPPORT_FP, LIBRARY_VERSIONS_REL)
-LIBRARY_GROUPS_REL = './buildSrc/public/src/main/kotlin/androidx/build/LibraryGroups.kt'
-LIBRARY_GROUPS_FP = os.path.join(FRAMEWORKS_SUPPORT_FP, LIBRARY_GROUPS_REL)
 DOCS_TOT_BUILD_GRADLE_REL = './docs-tip-of-tree/build.gradle'
 DOCS_TOT_BUILD_GRADLE_FP = os.path.join(FRAMEWORKS_SUPPORT_FP, DOCS_TOT_BUILD_GRADLE_REL)
 
@@ -346,10 +352,8 @@ def create_directories(group_id, artifact_id, project_type, is_compose_project):
 
     Given androidx.foo.bar:bar-qux, the structure will be:
     frameworks/support/foo/bar/bar-qux/build.gradle
-    frameworks/support/foo/bar/bar-qux/src/main/AndroidManifest.xml
     frameworks/support/foo/bar/bar-qux/src/main/androidx/foo/bar/package-info.java
     frameworks/support/foo/bar/bar-qux/src/main/androidx/foo/bar/artifact-documentation.md
-    frameworks/support/foo/bar/bar-qux/src/androidTest/AndroidManifest.xml
     frameworks/support/foo/bar/bar-qux/api/current.txt
 
     Args:
@@ -428,22 +432,11 @@ def create_directories(group_id, artifact_id, project_type, is_compose_project):
     year = get_year()
     sed("<YEAR>", year, full_artifact_path + "/build.gradle")
     sed("<YEAR>", year, full_package_docs_file)
-    if is_compose_project:
-        sed("<YEAR>", year, full_artifact_path + "/src/androidAndroidTest/AndroidManifest.xml")
-        sed("<YEAR>", year, full_artifact_path + "/src/androidMain/AndroidManifest.xml")
-    else:
-        sed("<YEAR>", year, full_artifact_path + "/src/androidTest/AndroidManifest.xml")
-        sed("<YEAR>", year, full_artifact_path + "/src/main/AndroidManifest.xml")
 
     # Populate the PACKAGE
     package = generate_package_name(group_id, artifact_id)
     sed("<PACKAGE>", package, full_package_docs_file)
-    if is_compose_project:
-        sed("<PACKAGE>", package, full_artifact_path + "/src/androidAndroidTest/AndroidManifest.xml")
-        sed("<PACKAGE>", package, full_artifact_path + "/src/androidMain/AndroidManifest.xml")
-    else:
-        sed("<PACKAGE>", package, full_artifact_path + "/src/androidTest/AndroidManifest.xml")
-        sed("<PACKAGE>", package, full_artifact_path + "/src/main/AndroidManifest.xml")
+    sed("<PACKAGE>", package, full_artifact_path + "/build.gradle")
 
     # Populate the VERSION macro
     group_id_version_macro = get_group_id_version_macro(group_id)
@@ -473,14 +466,11 @@ def get_new_settings_gradle_line(group_id, artifact_id):
     """
 
     build_type = "MAIN"
-    if (is_compose_project(group_id, artifact_id)):
+    if is_compose_project(group_id, artifact_id):
         build_type = "COMPOSE"
 
     gradle_cmd = get_gradle_project_coordinates(group_id, artifact_id)
-    sub_filepath = group_id.replace("androidx.", "").replace(".", "/") + \
-                   "/" + artifact_id
-    return "includeProject(\"" + gradle_cmd + \
-           "\", \"" + sub_filepath + "\", [BuildType." + build_type + "])\n"
+    return "includeProject(\"" + gradle_cmd + "\", [BuildType." + build_type + "])\n"
 
 def update_settings_gradle(group_id, artifact_id):
     """Updates frameworks/support/settings.gradle with the new library.
@@ -572,135 +562,59 @@ def update_docs_tip_of_tree_build_grade(group_id, artifact_id):
         f.writelines(docs_tot_bg_lines)
 
 
-def insert_new_group_id_into_library_versions_kt(group_id, artifact_id):
-    """Inserts a group ID into the LibrarVersions.kt file.
+def insert_new_group_id_into_library_versions_toml(group_id):
+    """Inserts a group ID into the libraryversions.toml file.
 
     If one already exists, then this function just returns and reuses
     the existing one.
 
     Args:
         group_id: group_id of the new library
-        artifact_id: group_id of the new library
     """
-    new_group_id_insert_line = 0
     new_group_id_variable_name = group_id.replace("androidx.","").replace(".","_").upper()
 
-    # Open file for reading and get all lines
-    with open(LIBRARY_VERSIONS_FP, 'r') as f:
-        library_versions_lines = f.readlines()
-    num_lines = len(library_versions_lines)
+    # Open toml file
+    library_versions = toml.load(LIBRARY_VERSIONS_FP)
+    if not new_group_id_variable_name in library_versions["versions"]:
+        library_versions["versions"][new_group_id_variable_name] = "1.0.0-alpha01"
+    if not new_group_id_variable_name in library_versions["groups"]:
+        decoder = toml.decoder.TomlDecoder()
+        group_entry = decoder.get_empty_inline_table()
+        group_entry["group"] = group_id
+        group_entry["atomicGroupVersion"] = "versions." + new_group_id_variable_name
+        library_versions["groups"][new_group_id_variable_name] = group_entry
 
-    for i in range(num_lines):
-        cur_line = library_versions_lines[i]
-        # Skip any line that doesn't declare a version
-        if 'Version(' not in cur_line: continue
-        group_id_variable_name = cur_line.split('val ')[1].split(' =')[0]
-        # If the group ID already exists, we're done!
-        if group_id_variable_name == new_group_id_variable_name:
-            return
-        # Iterate through until you found the alphabetical place to
-        # insert the new groupId
-        if new_group_id_variable_name <= group_id_variable_name:
-            new_group_id_insert_line = i
-            break
-        else:
-            new_group_id_insert_line = i + 1
+    # Sort the entries
+    library_versions["versions"] = dict(sorted(library_versions["versions"].items()))
+    library_versions["groups"] = dict(sorted(library_versions["groups"].items()))
 
-    # Failed to find a spot for the new groupID, so append it to the end
-    # of the LibraryGroup list
-    library_versions_lines.insert(new_group_id_insert_line,
-                                  "    val " + new_group_id_variable_name + \
-                                  " = Version(\"1.0.0-alpha01\")\n")
-
-    # Open file for writing and update all lines
+    # Open file for writing and update toml
     with open(LIBRARY_VERSIONS_FP, 'w') as f:
-        f.writelines(library_versions_lines)
-    insert_new_group_id_into_library_groups_kt(group_id, artifact_id)
+        toml.dump(library_versions, f, encoder=toml.TomlPreserveInlineDictEncoder())
 
-
-def insert_new_group_id_into_library_groups_kt(group_id, artifact_id):
-    """Inserts a group ID into the LibraryGroups.kt file.
-
-    If one already exists, then this function just returns and resuses
-    the existing one. Defaults to requires same version.
-
-    Args:
-        group_id: group_id of the new library
-        artifact_id: group_id of the new library
-    """
-    new_group_id_insert_line = 0
-    new_group_id_variable_name = group_id.replace("androidx.","").replace(".","_").upper()
-
-    # Open file for reading and get all lines
-    with open(LIBRARY_GROUPS_FP, 'r') as f:
-        library_groups_lines = f.readlines()
-    num_lines = len(library_groups_lines)
-
-    for i in range(num_lines):
-        cur_line = library_groups_lines[i]
-        # Skip any line that doesn't declare a version
-        if 'LibraryGroup(' not in cur_line: continue
-        group_id_variable_name = cur_line.split('val ')[1].split(' =')[0]
-        # If the group ID already exists, we're done!
-        if group_id_variable_name == new_group_id_variable_name:
-            return
-        # Iterate through until you found the alphabetical place to
-        # insert the new groupId
-        if new_group_id_variable_name <= group_id_variable_name:
-            new_group_id_insert_line = i
-            break
-        else:
-            new_group_id_insert_line = i + 1
-
-    # Failed to find a spot for the new groupID, so append it to the end of
-    # the LibraryGroup list
-    library_groups_lines.insert(new_group_id_insert_line,
-                                "    val " + new_group_id_variable_name + \
-                                " = LibraryGroup(\"" + group_id + \
-                                "\", LibraryVersions." + \
-                                new_group_id_variable_name + ")\n")
-
-    # Open file for writing and update all lines
-    with open(LIBRARY_GROUPS_FP, 'w') as f:
-        f.writelines(library_groups_lines)
 
 def is_group_id_atomic(group_id):
-    """Checks if a group ID is atomic using the LibraryGroups.kt file.
+    """Checks if a group ID is atomic using the libraryversions.toml file.
 
     If one already exists, then this function evaluates the group id
-    and returns the appropriate amoticity.  Otherwise, it returns
+    and returns the appropriate atomicity.  Otherwise, it returns
     False.
 
     Example of an atomic library group:
-        val WORK = LibraryGroup("androidx.work", LibraryVersions.WORK)
+        ACTIVITY = { group = "androidx.work", atomicGroupVersion = "WORK" }
     Example of a non-atomic library group:
-        val WEAR = LibraryGroup("androidx.wear", null)
+        WEAR = { group = "androidx.wear" }
 
     Args:
         group_id: group_id of the library we're checking.
     """
-    # Open file for reading and get all lines
-    with open(LIBRARY_GROUPS_FP, 'r') as f:
-        library_groups_lines = f.readlines()
-    num_lines = len(library_groups_lines)
+    library_versions = toml.load(LIBRARY_VERSIONS_FP)
+    for library_group in library_versions["groups"]:
+      if group_id == library_versions["groups"][library_group]["group"]:
+          return "atomicGroupVersion" in library_versions["groups"][library_group]
 
-    for i in range(num_lines):
-        cur_line = library_groups_lines[i]
-        # Skip any line that doesn't declare a version.
-        if 'LibraryGroup(' not in cur_line: continue
-        # Skip the definition of the LibraryGroup class too.
-        if 'data class LibraryGroup' in cur_line: continue
-        group_id_in_line = cur_line.split('LibraryGroup(')[1].split('"')[1]
-        # Account for Compose group id substitution variable.
-        group_id_in_line = group_id_in_line.replace("$group", "androidx.compose")
-        if group_id_in_line == group_id:
-            # Found the right line.
-            if 'LibraryVersions.' in cur_line and 'null' not in cur_line:
-                return True
-            else:
-                return False
-    # The group id does not exist yet, so just default to false.
     return False
+
 
 def print_todo_list(group_id, artifact_id, project_type):
     """Prints to the todo list once the script has finished.
@@ -747,9 +661,8 @@ def main(args):
         project_type = ProjectType.KOTLIN
     else:
         project_type = ask_project_type()
-    insert_new_group_id_into_library_versions_kt(
-        args.group_id,
-        args.artifact_id
+    insert_new_group_id_into_library_versions_toml(
+        args.group_id
     )
     create_directories(
         args.group_id,

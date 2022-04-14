@@ -373,11 +373,10 @@ public class PerfettoHelper(
         private const val TRACING_ON_PATH = "/sys/kernel/tracing/tracing_on"
         private const val TRACING_ON_FALLBACK_PATH = "/sys/kernel/debug/tracing/tracing_on"
 
-        @TestOnly
         fun isAbiSupported(): Boolean {
             Log.d(LOG_TAG, "Supported ABIs: ${Build.SUPPORTED_ABIS.joinToString()}")
             // Cuttlefish is x86 but claims support for x86_64
-            return !Build.MODEL.contains("Cuttlefish") && ( // b/180022458
+            return !Build.MODEL.contains("Cuttlefish") && ( // b/204892353
                 Build.SUPPORTED_64_BIT_ABIS.any { SUPPORTED_64_ABIS.contains(it) } ||
                     Build.SUPPORTED_32_BIT_ABIS.any { SUPPORTED_32_ABIS.contains(it) }
                 )

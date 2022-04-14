@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing.ksp
 
+import androidx.room.compiler.processing.XEnumTypeElement
 import androidx.room.compiler.processing.XExecutableParameterElement
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XMethodType
@@ -61,7 +62,7 @@ internal sealed class KspMethodElement(
                 add(
                     KspSyntheticReceiverParameterElement(
                         env = env,
-                        enclosingMethodElement = this@KspMethodElement,
+                        enclosingElement = this@KspMethodElement,
                         receiverType = extensionReceiver,
                     )
                 )
@@ -70,7 +71,7 @@ internal sealed class KspMethodElement(
                 declaration.parameters.mapIndexed { index, param ->
                     KspExecutableParameterElement(
                         env = env,
-                        enclosingMethodElement = this@KspMethodElement,
+                        enclosingElement = this@KspMethodElement,
                         parameter = param,
                         parameterIndex = index
                     )
@@ -103,6 +104,16 @@ internal sealed class KspMethodElement(
             ).executableType
         }
     }
+
+    override val enclosingElement: KspMemberContainer
+        // KSFunctionDeclarationJavaImpl.parent returns null for generated static enum functions
+        // `values` and `valueOf` in Java source(https://github.com/google/ksp/issues/816).
+        // To bypass this we use `containing` for these functions.
+        get() = if (containing is XEnumTypeElement && (name == "values" || name == "valueOf")) {
+            containing
+        } else {
+            super.enclosingElement
+        }
 
     override fun isJavaDefault(): Boolean {
         return declaration.modifiers.contains(Modifier.JAVA_DEFAULT) ||
@@ -178,7 +189,7 @@ internal sealed class KspMethodElement(
         override val parameters: List<XExecutableParameterElement>
             get() = super.parameters + KspSyntheticContinuationParameterElement(
                 env = env,
-                enclosingMethodElement = this
+                enclosingElement = this
             )
     }
 

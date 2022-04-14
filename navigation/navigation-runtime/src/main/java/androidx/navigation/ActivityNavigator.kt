@@ -78,6 +78,7 @@ public open class ActivityNavigator(
      *
      * @throws IllegalArgumentException if the given destination has no Intent
      */
+    @Suppress("DEPRECATION")
     override fun navigate(
         destination: Destination,
         args: Bundle?,

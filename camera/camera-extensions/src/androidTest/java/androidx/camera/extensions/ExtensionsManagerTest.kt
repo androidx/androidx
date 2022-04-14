@@ -67,7 +67,12 @@ class ExtensionsManagerTest(
     @Before
     @Throws(Exception::class)
     fun setUp() {
-        assumeTrue(CameraUtil.deviceHasCamera())
+        assumeTrue(
+            ExtensionsTestUtil.isTargetDeviceAvailableForExtensions(
+                lensFacing,
+                extensionMode
+            )
+        )
 
         cameraProvider =
             ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
@@ -82,8 +87,11 @@ class ExtensionsManagerTest(
     }
 
     @After
-    fun teardown() {
+    fun teardown(): Unit = runBlocking {
         if (::cameraProvider.isInitialized) {
+            withContext(Dispatchers.Main) {
+                cameraProvider.unbindAll()
+            }
             cameraProvider.shutdown()[10000, TimeUnit.MILLISECONDS]
         }
 
@@ -174,6 +182,9 @@ class ExtensionsManagerTest(
 
     @Test
     fun correctAvailability_whenExtensionIsNotAvailable() {
+        // Skips the test if extensions availability is disabled by quirk.
+        assumeFalse(ExtensionsTestUtil.extensionsDisabledByQuirk(lensFacing, extensionMode))
+
         extensionsManager = ExtensionsManager.getInstanceAsync(
             context,
             cameraProvider

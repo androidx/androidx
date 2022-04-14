@@ -22,8 +22,10 @@ import android.graphics.ImageFormat.PRIVATE
 import android.graphics.ImageFormat.YUV_420_888
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCaptureSession
+import android.hardware.camera2.CameraCaptureSession.CaptureCallback
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
+import android.hardware.camera2.TotalCaptureResult
 import android.media.ImageReader
 import android.media.ImageWriter
 import android.os.Build
@@ -32,7 +34,9 @@ import android.os.Looper
 import android.os.SystemClock
 import android.util.Size
 import android.view.Surface
+import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.internal.compat.CameraManagerCompat
+import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks
 import androidx.camera.camera2.internal.util.RequestProcessorRequest
 import androidx.camera.camera2.interop.CaptureRequestOptions
 import androidx.camera.core.CameraInfo
@@ -52,9 +56,11 @@ import androidx.camera.core.impl.RequestProcessor
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.SessionProcessorSurface
+import androidx.camera.core.impl.TagBundle
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraUtil.CameraDeviceHolder
+import androidx.camera.testing.CameraUtil.PreTestCameraIdList
 import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
@@ -62,6 +68,12 @@ import androidx.test.filters.SdkSuppress
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture
+import java.util.Objects
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.ExecutionException
+import java.util.concurrent.Executor
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -75,12 +87,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.util.Objects
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.ExecutionException
-import java.util.concurrent.Executor
-import java.util.concurrent.ScheduledExecutorService
-import java.util.concurrent.TimeUnit
 
 const val FAKE_CAPTURE_SEQUENCE_ID = 1
 const val JPEG_ORIENTATION_VALUE = 90
@@ -131,7 +137,9 @@ class ProcessingCaptureSessionTest(
     }
 
     @get:Rule
-    val cameraRule = CameraUtil.grantCameraPermissionAndPreTest()
+    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
+        PreTestCameraIdList(Camera2Config.defaultConfig())
+    )
 
     private lateinit var cameraDeviceHolder: CameraDeviceHolder
     private lateinit var captureSessionRepository: CaptureSessionRepository
@@ -164,7 +172,8 @@ class ProcessingCaptureSessionTest(
             executor as ScheduledExecutorService,
             handler,
             captureSessionRepository,
-            camera2CameraInfo.supportedHardwareLevel
+            camera2CameraInfo.cameraQuirks,
+            DeviceQuirks.getAll()
         )
 
         cameraDeviceHolder = CameraUtil.getCameraDevice(
@@ -233,7 +242,7 @@ class ProcessingCaptureSessionTest(
         ).awaitWithTimeout(3000)
 
         // Assert
-        sessionConfigParameters.assertRepeatingRequestCompleted()
+        sessionConfigParameters.assertRepeatingRequestCompletedWithTags()
         sessionConfigParameters.assertPreviewImageReceived()
 
         val parametersConfigSet = sessionProcessor.assertSetParametersInvoked()
@@ -260,7 +269,7 @@ class ProcessingCaptureSessionTest(
             sessionConfigParameters.getActiveSessionConfigForRepeating()
 
         // Assert
-        sessionConfigParameters.assertRepeatingRequestCompleted()
+        sessionConfigParameters.assertRepeatingRequestCompletedWithTags()
         sessionConfigParameters.assertPreviewImageReceived()
 
         val parametersConfigSet = sessionProcessor.assertSetParametersInvoked()
@@ -756,10 +765,14 @@ class ProcessingCaptureSessionTest(
         private var previewImageReader: ImageReader? = null
         private var captureImageReader: ImageReader
         private val sessionConfigured = CompletableDeferred<Unit>()
-        private val repeatingRequestCompleted = CompletableDeferred<Unit>()
+        private val repeatingRequestCompletedWithTags = CompletableDeferred<Unit>()
         private val previewImageReady = CompletableDeferred<Unit>()
         private val captureImageReady = CompletableDeferred<Unit>()
         private val stillCaptureCompleted = CompletableDeferred<Unit>()
+        private val tagKey1 = "KEY1"
+        private val tagKey2 = "KEY2"
+        private val tagValue1 = "Value1"
+        private val tagValue2 = 99
 
         init {
             // Preview
@@ -846,11 +859,27 @@ class ProcessingCaptureSessionTest(
                             CaptureRequest.CONTROL_AF_MODE_OFF
                         ).build()
                 )
-                addRepeatingCameraCaptureCallback(object : CameraCaptureCallback() {
-                    override fun onCaptureCompleted(cameraCaptureResult: CameraCaptureResult) {
-                        repeatingRequestCompleted.complete(Unit)
-                    }
-                })
+                addRepeatingCameraCaptureCallback(
+                    CaptureCallbackContainer.create(object : CaptureCallback() {
+                        override fun onCaptureCompleted(
+                            session: CameraCaptureSession,
+                            request: CaptureRequest,
+                            result: TotalCaptureResult
+                        ) {
+                            if (request.tag !is TagBundle) {
+                                return
+                            }
+
+                            val tagBundle = request.tag as TagBundle
+                            if (tagBundle.getTag(tagKey1)!! == tagValue1 &&
+                                tagBundle.getTag(tagKey2)!! == tagValue2
+                            ) {
+                                repeatingRequestCompletedWithTags.complete(Unit)
+                            }
+                        }
+                    }))
+                addTag(tagKey1, tagValue1)
+                addTag(tagKey2, tagValue2)
             }.build()
         }
 
@@ -884,8 +913,8 @@ class ProcessingCaptureSessionTest(
             sessionConfigured.awaitWithTimeout(3000)
         }
 
-        suspend fun assertRepeatingRequestCompleted() {
-            repeatingRequestCompleted.awaitWithTimeout(3000)
+        suspend fun assertRepeatingRequestCompletedWithTags() {
+            repeatingRequestCompletedWithTags.awaitWithTimeout(3000)
         }
 
         suspend fun assertPreviewImageReceived() {

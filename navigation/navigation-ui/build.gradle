@@ -16,7 +16,6 @@
 
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -32,6 +31,7 @@ android {
     defaultConfig {
         multiDexEnabled true
     }
+    namespace "androidx.navigation.ui"
 }
 
 dependencies {
@@ -64,6 +64,6 @@ androidx {
 // Allow usage of Kotlin's @OptIn.
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
-        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
+        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
     }
 }

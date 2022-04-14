@@ -1,5 +1,4 @@
 import androidx.build.BundleInsideHelper
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -25,7 +24,7 @@ dependencies {
     api("androidx.startup:startup-runtime:1.0.0")
     implementation("androidx.collection:collection:1.1.0")
     implementation("androidx.annotation:annotation:1.2.0")
-    implementation("androidx.lifecycle:lifecycle-process:2.4.0-rc01")
+    implementation("androidx.lifecycle:lifecycle-process:2.4.1")
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
@@ -43,4 +42,8 @@ androidx {
     mavenGroup = LibraryGroups.EMOJI2
     inceptionYear = "2017"
     description = "Core library to enable emoji compatibility in Kitkat and newer devices to avoid the empty emoji characters."
+}
+
+android {
+    namespace "androidx.emoji2"
 }

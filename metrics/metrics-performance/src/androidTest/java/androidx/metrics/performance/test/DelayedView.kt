@@ -7,11 +7,11 @@ import android.util.AttributeSet
 import android.view.View
 import androidx.annotation.RequiresApi
 
-public class DelayedView(context: Context?, attrs: AttributeSet?) :
+class DelayedView(context: Context?, attrs: AttributeSet?) :
     View(context, attrs) {
 
-    public var delayMs: Long = 0
-    public var repetitions: Int = 0
+    var delayMs: Long = 0
+    var repetitions: Int = 0
 
     @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
     override fun onDraw(canvas: Canvas?) {

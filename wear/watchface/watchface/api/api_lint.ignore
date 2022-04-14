@@ -1,0 +1,7 @@
+// Baseline format: 1.0
+InvalidNullability: androidx.wear.watchface.WatchFaceService#dump(java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #0:
+    Invalid nullability on parameter `fd` in method `dump`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.wear.watchface.WatchFaceService#dump(java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:
+    Invalid nullability on parameter `writer` in method `dump`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.wear.watchface.WatchFaceService#dump(java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #2:
+    Invalid nullability on parameter `args` in method `dump`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.

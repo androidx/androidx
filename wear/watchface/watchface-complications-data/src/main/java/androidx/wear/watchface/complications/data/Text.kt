@@ -76,6 +76,12 @@ public interface ComplicationText {
     /**
      * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun isPlaceholder(): Boolean = false
+
+    /**
+     * @hide
+     */
     @RestrictTo(RestrictTo.Scope.SUBCLASSES)
     public fun getTimeDependentText(): TimeDependentText
 
@@ -90,6 +96,22 @@ public interface ComplicationText {
     public companion object {
         @JvmField
         public val EMPTY: ComplicationText = PlainComplicationText.Builder("").build()
+
+        /** @hide */
+        @JvmField
+        public val PLACEHOLDER_STRING = "__placeholder__"
+
+        /**
+         * For use when the real data isn't available yet, this [ComplicationText] should be
+         * rendered as a placeholder. It is suggested that it should be rendered with a light grey
+         * box.
+         *
+         * Note a placeholder may only be used in the context of
+         * [NoDataComplicationData.placeholder].
+         */
+        @JvmField
+        public val PLACEHOLDER: ComplicationText =
+            PlainComplicationText.Builder(PLACEHOLDER_STRING).build()
     }
 }
 
@@ -109,6 +131,10 @@ public class PlainComplicationText internal constructor(
         delegate.getNextChangeTime(afterInstant)
 
     override fun isAlwaysEmpty() = delegate.isAlwaysEmpty()
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun isPlaceholder(): Boolean = delegate.isPlaceholder()
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.SUBCLASSES)
@@ -502,8 +528,18 @@ private class DelegatingComplicationText(
     override fun returnsSameText(firstInstant: Instant, secondInstant: Instant) =
         delegate.returnsSameText(firstInstant.toEpochMilli(), secondInstant.toEpochMilli())
 
-    override fun getNextChangeTime(afterInstant: Instant) =
-        Instant.ofEpochMilli(delegate.getNextChangeTime(afterInstant.toEpochMilli()))
+    override fun getNextChangeTime(afterInstant: Instant): Instant {
+        val nextChangeTime = delegate.getNextChangeTime(afterInstant.toEpochMilli())
+        return if (nextChangeTime == Long.MAX_VALUE) {
+             Instant.MAX
+        } else {
+            Instant.ofEpochMilli(nextChangeTime)
+        }
+    }
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun isPlaceholder(): Boolean = delegate.isPlaceholder()
 
     override fun isAlwaysEmpty() = delegate.isAlwaysEmpty
     override fun getTimeDependentText(): TimeDependentText = delegate.timeDependentText
@@ -536,6 +572,10 @@ private class DelegatingComplicationText(
 internal fun WireComplicationText.toApiComplicationText(): ComplicationText =
     DelegatingComplicationText(this)
 
+/** Converts a [WireComplicationText] into an equivalent [ComplicationText] instead. */
+internal fun WireComplicationText.toApiComplicationTextPlaceholderAware(): ComplicationText =
+    if (isPlaceholder) { ComplicationText.PLACEHOLDER } else { DelegatingComplicationText(this) }
+
 /** Converts a [TimeZone] into an equivalent [java.util.TimeZone]. */
 internal fun TimeZone.asJavaTimeZone(): java.util.TimeZone =
     java.util.TimeZone.getTimeZone(this.id)
@@ -550,8 +590,14 @@ private class DelegatingTimeDependentText(
     override fun returnsSameText(firstInstant: Instant, secondInstant: Instant) =
         delegate.returnsSameText(firstInstant.toEpochMilli(), secondInstant.toEpochMilli())
 
-    override fun getNextChangeTime(afterInstant: Instant) =
-        Instant.ofEpochMilli(delegate.getNextChangeTime(afterInstant.toEpochMilli()))
+    override fun getNextChangeTime(afterInstant: Instant): Instant {
+        val nextChangeTime = delegate.getNextChangeTime(afterInstant.toEpochMilli())
+        return if (nextChangeTime == Long.MAX_VALUE) {
+            Instant.MAX
+        } else {
+            Instant.ofEpochMilli(nextChangeTime)
+        }
+    }
 
     override fun isAlwaysEmpty() = false
 

@@ -26,6 +26,8 @@ import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 
+import static kotlinx.coroutines.test.TestCoroutineDispatchersKt.UnconfinedTestDispatcher;
+
 import androidx.annotation.Nullable;
 import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.arch.core.util.Function;
@@ -36,8 +38,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-
-import kotlinx.coroutines.test.TestCoroutineDispatcher;
 
 @SuppressWarnings("unchecked")
 @RunWith(JUnit4.class)
@@ -53,7 +53,7 @@ public class TransformationsTest {
     @Before
     public void setup() {
         mOwner = new TestLifecycleOwner(Lifecycle.State.STARTED,
-                new TestCoroutineDispatcher());
+                UnconfinedTestDispatcher(null, null));
     }
 
     @Test

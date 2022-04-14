@@ -21,6 +21,7 @@
     <string name="responsive_widget_name">Responsive Widget</string>
     <string name="exact_widget_name">Exact Widget</string>
     <string name="responsive_widget_title"><u>Responsive layout</u></string>
+    <string name="single_entity_widget_name"><u>Single entity widget</u></string>
     <string name="action_widget_name"><u>Action widget</u></string>
     <string name="exact_widget_title"><u>Exact layout</u></string>
     <string name="resizing_widget_name">Resizing Widget</string>
@@ -28,4 +29,7 @@
     <string name="error_widget_name">Error UI Widget</string>
     <string name="scrollable_widget_name">Scrollable Widget</string>
     <string name="image_widget_name">Image Widget</string>
+    <string name="grid_widget_name">Vertical Grid Widget</string>
+    <string name="default_state_widget_name">Default State Widget</string>
+    <string name="progress_indicator_widget_name">ProgressBar Widget</string>
 </resources>

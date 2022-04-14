@@ -44,7 +44,7 @@ android {
 }
 
 dependencies {
-    implementation "androidx.car.app:app-projected:1.2.0-alpha02"
+    implementation "androidx.car.app:app-projected:1.2.0-rc01"
     implementation project(":helloworld:common")
 }
 

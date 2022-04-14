@@ -90,6 +90,7 @@ public abstract class PreferenceDialogFragment extends android.app.DialogFragmen
     public PreferenceDialogFragment() {}
 
     @Override
+    @SuppressWarnings("deprecation")
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 

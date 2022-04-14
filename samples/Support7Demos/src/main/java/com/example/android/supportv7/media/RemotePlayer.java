@@ -329,6 +329,7 @@ public class RemotePlayer extends Player {
         if (mRoute != null && mRoute.supportsControlRequest(intent)) {
             ControlRequestCallback callback = new ControlRequestCallback() {
                 @Override
+                @SuppressWarnings("deprecation")
                 public void onResult(Bundle data) {
                     if (DEBUG) {
                         Log.d(TAG, "takeSnapshot: succeeded: data=" + data);

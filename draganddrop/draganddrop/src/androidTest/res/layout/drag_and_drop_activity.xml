@@ -46,5 +46,11 @@
                 android:padding="50dp"
                 android:text="I'm a nested EditText" />
         </LinearLayout>
+        <TextView
+            android:id="@+id/drop_target_non_editable"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="20dp"
+            android:text="I am not editable." />
     </LinearLayout>
 </ScrollView>

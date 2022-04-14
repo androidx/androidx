@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
+<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
         id="NewApi"
@@ -29,52 +29,8 @@
         errorLine1="        assertThat(mCarContext.getResources().getConfiguration().getLocales().get(0))"
         errorLine2="                                                                 ~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/CarAppServiceTest.java"
-            line="231"
-            column="66"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 24 (current min is 23): `android.os.LocaleList#get`"
-        errorLine1="        assertThat(mCarContext.getResources().getConfiguration().getLocales().get(0))"
-        errorLine2="                                                                              ~~~">
-        <location
-            file="src/test/java/androidx/car/app/CarAppServiceTest.java"
-            line="231"
-            column="79"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 24 (current min is 23): `android.content.res.Configuration#getLocales`"
-        errorLine1="        assertThat(mCarContext.getResources().getConfiguration().getLocales().get(0))"
-        errorLine2="                                                                 ~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/car/app/CarAppServiceTest.java"
-            line="294"
-            column="66"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 24 (current min is 23): `android.os.LocaleList#get`"
-        errorLine1="        assertThat(mCarContext.getResources().getConfiguration().getLocales().get(0))"
-        errorLine2="                                                                              ~~~">
-        <location
-            file="src/test/java/androidx/car/app/CarAppServiceTest.java"
-            line="294"
-            column="79"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 24 (current min is 23): `android.content.res.Configuration#getLocales`"
-        errorLine1="        assertThat(mCarContext.getResources().getConfiguration().getLocales().get(0))"
-        errorLine2="                                                                 ~~~~~~~~~~">
-        <location
             file="src/test/java/androidx/car/app/CarContextTest.java"
-            line="245"
+            line="258"
             column="66"/>
     </issue>
 
@@ -85,7 +41,7 @@
         errorLine2="                                                                              ~~~">
         <location
             file="src/test/java/androidx/car/app/CarContextTest.java"
-            line="245"
+            line="258"
             column="79"/>
     </issue>
 
@@ -294,7 +250,7 @@
         errorLine2="                                       ~~~~~~~~~~~">
         <location
             file="src/test/java/androidx/car/app/validation/HostValidatorTestApi28.java"
-            line="108"
+            line="109"
             column="40"/>
     </issue>
 
@@ -305,7 +261,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/androidx/car/app/validation/HostValidatorTestApi28.java"
-            line="108"
+            line="109"
             column="9"/>
     </issue>
 
@@ -316,7 +272,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/androidx/car/app/validation/HostValidatorTestApi28.java"
-            line="109"
+            line="110"
             column="38"/>
     </issue>
 
@@ -327,7 +283,7 @@
         errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/androidx/car/app/validation/HostValidatorTestApi28.java"
-            line="109"
+            line="110"
             column="14"/>
     </issue>
 
@@ -454,12 +410,12 @@
 
     <issue
         id="WrongConstant"
-        message="Must be one of: CarAppApiLevels.UNKNOWN, CarAppApiLevels.LEVEL_1, CarAppApiLevels.LEVEL_2, CarAppApiLevels.LEVEL_3, CarAppApiLevels.LEVEL_4"
+        message="Must be one of: CarAppApiLevels.UNKNOWN, CarAppApiLevels.LEVEL_1, CarAppApiLevels.LEVEL_2, CarAppApiLevels.LEVEL_3, CarAppApiLevels.LEVEL_4, CarAppApiLevels.LEVEL_5"
         errorLine1="        mCarAppApiLevel = handshakeInfo.getHostCarAppApiLevel();"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/app/CarContext.java"
-            line="645"
+            line="646"
             column="27"/>
     </issue>
 
@@ -481,7 +437,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/app/serialization/Bundler.java"
-            line="427"
+            line="428"
             column="26"/>
     </issue>
 
@@ -492,7 +448,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/app/serialization/Bundler.java"
-            line="514"
+            line="517"
             column="20"/>
     </issue>
 

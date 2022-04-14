@@ -817,6 +817,14 @@ class ProfileTranscoder {
             DexProfileData[] profile
     ) throws IOException {
         if (Arrays.equals(metadataVersion, ProfileVersion.METADATA_V001_N)) {
+            boolean requiresProfileV015 = Arrays.equals(
+                    ProfileVersion.V015_S, desiredProfileVersion
+            );
+            if (requiresProfileV015) {
+                throw error("Requires new Baseline Profile Metadata."
+                        + " Please rebuild the APK with Android Gradle Plugin 7.2 Canary 7 or "
+                        + "higher");
+            }
             return readMetadata001(is, metadataVersion, profile);
         } else if (Arrays.equals(metadataVersion, ProfileVersion.METADATA_V002)) {
             return readMetadataV002(is, desiredProfileVersion, profile);

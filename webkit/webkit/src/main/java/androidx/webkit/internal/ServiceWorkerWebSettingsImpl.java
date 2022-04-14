@@ -183,4 +183,26 @@ public class ServiceWorkerWebSettingsImpl extends ServiceWorkerWebSettingsCompat
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
     }
+
+    @Override
+    public void setRequestedWithHeaderMode(int requestedWithHeaderMode) {
+        final WebViewFeatureInternal feature =
+                WebViewFeatureInternal.REQUESTED_WITH_HEADER_CONTROL;
+        if (feature.isSupportedByWebView()) {
+            getBoundaryInterface().setRequestedWithHeaderMode(requestedWithHeaderMode);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    @Override
+    public int getRequestedWithHeaderMode() {
+        final WebViewFeatureInternal feature =
+                WebViewFeatureInternal.REQUESTED_WITH_HEADER_CONTROL;
+        if (feature.isSupportedByWebView()) {
+            return getBoundaryInterface().getRequestedWithHeaderMode();
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
 }

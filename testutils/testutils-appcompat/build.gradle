@@ -37,6 +37,7 @@ android {
     lintOptions {
         disable "InvalidPackage" // Lint is unhappy about junit package
     }
+    namespace "androidx.testutils.appcompat"
 }
 
 androidx {

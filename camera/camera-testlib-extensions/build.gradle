@@ -15,7 +15,6 @@
  */
 
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -29,9 +28,9 @@ dependencies {
 
 android {
     defaultConfig {
-        versionCode 1
         multiDexEnabled true
     }
+    namespace "androidx.camera.extensions.impl"
 }
 
 androidx {

@@ -255,6 +255,25 @@ public final class MediaConstants {
             "android.media.extras.MEDIA_ART_SIZE_HINT_PIXELS";
 
     /**
+     * Bundle key sent through {@link MediaBrowserCompat#getExtras()} to the {@link
+     * MediaBrowserCompat} to indicate that the {@link MediaBrowserServiceCompat} supports showing
+     * a settings page.  The intent should have the component name set to a Car App Library service
+     * which exists in the same package as the media browser service.
+     *
+     * <p>TYPE: {@link Intent}. Should be inserted into the Bundle {@link
+     * Bundle#putParcelable(String, Parcelable) as a Parcelable}.
+     *
+     * @see MediaBrowserCompat#getExtras()
+     * @see MediaBrowserServiceCompat.BrowserRoot#BrowserRoot(String, Bundle)
+     * @see #PLAYBACK_STATE_EXTRAS_KEY_ERROR_RESOLUTION_ACTION_INTENT
+     */
+    @SuppressLint("IntentName")
+    public static final String
+            BROWSER_SERVICE_EXTRAS_KEY_APPLICATION_PREFERENCES_USING_CAR_APP_LIBRARY_INTENT =
+            "androidx.media.BrowserRoot.Extras"
+                    + ".APPLICATION_PREFERENCES_USING_CAR_APP_LIBRARY_INTENT";
+
+    /**
      * Bundle key sent through {@link MediaBrowserCompat#getExtras()} to the hosting {@link
      * MediaBrowserCompat} to indicate that the {@link MediaBrowserServiceCompat} supports the
      * method {@link MediaBrowserServiceCompat#onSearch(String, Bundle,
@@ -510,7 +529,9 @@ public final class MediaConstants {
      * MediaControllerCompat} which maps to a pending intent. When launched, the intent should allow
      * users to resolve the current playback state error. {@link
      * #PLAYBACK_STATE_EXTRAS_KEY_ERROR_RESOLUTION_ACTION_LABEL A label} should be included in the
-     * same Bundle.
+     * same Bundle. The key {@link
+     * #BROWSER_SERVICE_EXTRAS_KEY_APPLICATION_PREFERENCES_USING_CAR_APP_LIBRARY_INTENT} should be
+     * used instead if the intent points to a Car App Library service.
      *
      * <p>TYPE: PendingIntent. Should be inserted into the Bundle {@link
      * Bundle#putParcelable(String, Parcelable) as a Parcelable}.
@@ -518,10 +539,30 @@ public final class MediaConstants {
      * @see PlaybackStateCompat#getExtras()
      * @see PlaybackStateCompat.Builder#setExtras(Bundle)
      * @see #PLAYBACK_STATE_EXTRAS_KEY_ERROR_RESOLUTION_ACTION_LABEL
+     * @see #BROWSER_SERVICE_EXTRAS_KEY_APPLICATION_PREFERENCES_USING_CAR_APP_LIBRARY_INTENT
      */
     @SuppressLint("IntentName")
     public static final String PLAYBACK_STATE_EXTRAS_KEY_ERROR_RESOLUTION_ACTION_INTENT =
             "android.media.extras.ERROR_RESOLUTION_ACTION_INTENT";
+
+    /**
+     * Bundle key passed through {@link PlaybackStateCompat#getExtras()} to the {@link
+     * MediaControllerCompat} which maps to an intent. When launched, the intent should allow
+     * users to resolve the current playback state error. The intent should have the component name
+     * set to a Car App Library service which exists in the same package as the media browser
+     * service.
+     *
+     * <p>TYPE: {@link Intent}. Should be inserted into the Bundle {@link
+     * Bundle#putParcelable(String, Parcelable) as a Parcelable}.
+     *
+     * @see PlaybackStateCompat#getExtras()
+     * @see PlaybackStateCompat.Builder#setExtras(Bundle)
+     */
+    @SuppressLint("IntentName")
+    public static final String
+            PLAYBACK_STATE_EXTRAS_KEY_ERROR_RESOLUTION_USING_CAR_APP_LIBRARY_INTENT =
+            "androidx.media.PlaybackStateCompat.Extras"
+                   + ".ERROR_RESOLUTION_USING_CAR_APP_LIBRARY_INTENT";
 
     /**
      * Bundle key passed through the {@code extras} of

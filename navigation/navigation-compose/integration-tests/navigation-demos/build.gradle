@@ -40,3 +40,7 @@ androidx {
     inceptionYear = "2020"
     description = "This is a project for Navigation demos."
 }
+
+android {
+    namespace "androidx.navigation.compose.demos"
+}

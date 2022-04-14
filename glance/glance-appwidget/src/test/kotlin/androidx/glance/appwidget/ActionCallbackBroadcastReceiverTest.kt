@@ -68,7 +68,6 @@ class ActionCallbackBroadcastReceiverTest {
                     TranslationContext(
                         context,
                         appWidgetId = 1,
-                        appWidgetClass = GlanceAppWidget::class.java,
                         isRtl = false,
                         layoutConfiguration = LayoutConfiguration.create(context, 1),
                         itemPosition = -1,

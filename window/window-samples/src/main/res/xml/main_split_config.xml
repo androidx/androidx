@@ -19,8 +19,9 @@
     <SplitPairRule
         window:splitRatio="0.3"
         window:splitMinWidth="600dp"
-        window:finishPrimaryWithSecondary="true"
-        window:finishSecondaryWithPrimary="true">
+        window:splitLayoutDirection="ltr"
+        window:finishPrimaryWithSecondary="always"
+        window:finishSecondaryWithPrimary="adjacent">
         <SplitPairFilter
             window:primaryActivityName="androidx.window.sample.embedding.SplitActivityList"
             window:secondaryActivityName="androidx.window.sample.embedding.SplitActivityDetail"/>
@@ -28,7 +29,9 @@
     <SplitPlaceholderRule
         window:placeholderActivityName="androidx.window.sample.embedding.SplitActivityListPlaceholder"
         window:splitRatio="0.3"
-        window:splitMinWidth="600dp">
+        window:splitMinWidth="600dp"
+        window:stickyPlaceholder="true"
+        window:finishPrimaryWithSecondary="adjacent">
         <ActivityFilter
             window:activityName="androidx.window.sample.embedding.SplitActivityList"/>
     </SplitPlaceholderRule>

@@ -28,6 +28,7 @@ import static androidx.activity.result.contract.ActivityResultContracts.StartInt
 import static androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult.ACTION_INTENT_SENDER_REQUEST;
 import static androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult.EXTRA_INTENT_SENDER_REQUEST;
 import static androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult.EXTRA_SEND_INTENT_EXCEPTION;
+import static androidx.lifecycle.SavedStateHandleSupport.enableSavedStateHandles;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -67,7 +68,11 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.app.MultiWindowModeChangedInfo;
+import androidx.core.app.OnMultiWindowModeChangedProvider;
 import androidx.core.app.OnNewIntentProvider;
+import androidx.core.app.OnPictureInPictureModeChangedProvider;
+import androidx.core.app.PictureInPictureModeChangedInfo;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.OnConfigurationChangedProvider;
 import androidx.core.content.OnTrimMemoryProvider;
@@ -81,12 +86,15 @@ import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LifecycleRegistry;
 import androidx.lifecycle.ReportFragment;
+import androidx.lifecycle.SavedStateHandleSupport;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStore;
 import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.lifecycle.ViewTreeLifecycleOwner;
 import androidx.lifecycle.ViewTreeViewModelStoreOwner;
+import androidx.lifecycle.viewmodel.CreationExtras;
+import androidx.lifecycle.viewmodel.MutableCreationExtras;
 import androidx.savedstate.SavedStateRegistry;
 import androidx.savedstate.SavedStateRegistryController;
 import androidx.savedstate.SavedStateRegistryOwner;
@@ -115,6 +123,8 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         OnConfigurationChangedProvider,
         OnTrimMemoryProvider,
         OnNewIntentProvider,
+        OnMultiWindowModeChangedProvider,
+        OnPictureInPictureModeChangedProvider,
         MenuHost {
 
     static final class NonConfigurationInstances {
@@ -235,6 +245,10 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
             new CopyOnWriteArrayList<>();
     private final CopyOnWriteArrayList<Consumer<Intent>> mOnNewIntentListeners =
             new CopyOnWriteArrayList<>();
+    private final CopyOnWriteArrayList<Consumer<MultiWindowModeChangedInfo>>
+            mOnMultiWindowModeChangedListeners = new CopyOnWriteArrayList<>();
+    private final CopyOnWriteArrayList<Consumer<PictureInPictureModeChangedInfo>>
+            mOnPictureInPictureModeChangedListeners = new CopyOnWriteArrayList<>();
 
     /**
      * Default constructor for ComponentActivity. All Activities must have a default constructor
@@ -288,6 +302,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
             }
         });
         mSavedStateRegistryController.performAttach();
+        enableSavedStateHandles(this);
 
         if (19 <= SDK_INT && SDK_INT <= 23) {
             getLifecycle().addObserver(new ImmLeaksCleaner(this));
@@ -477,6 +492,13 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(@NonNull Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        mMenuHostHelper.onPrepareMenu(menu);
+        return true;
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(@NonNull Menu menu) {
         super.onCreateOptionsMenu(menu);
         mMenuHostHelper.onCreateMenu(menu, getMenuInflater());
@@ -489,6 +511,12 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
             return true;
         }
         return mMenuHostHelper.onMenuItemSelected(item);
+    }
+
+    @Override
+    public void onPanelClosed(int featureId, @NonNull Menu menu) {
+        mMenuHostHelper.onMenuClosed(menu);
+        super.onPanelClosed(featureId, menu);
     }
 
     @Override
@@ -573,20 +601,9 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         }
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The extras of {@link #getIntent()} when this is first called will be used as
-     * the defaults to any {@link androidx.lifecycle.SavedStateHandle} passed to a view model
-     * created using this factory.</p>
-     */
     @NonNull
     @Override
     public ViewModelProvider.Factory getDefaultViewModelProviderFactory() {
-        if (getApplication() == null) {
-            throw new IllegalStateException("Your activity is not yet attached to the "
-                    + "Application instance. You can't request ViewModel before onCreate call.");
-        }
         if (mDefaultFactory == null) {
             mDefaultFactory = new SavedStateViewModelFactory(
                     getApplication(),
@@ -594,6 +611,29 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                     getIntent() != null ? getIntent().getExtras() : null);
         }
         return mDefaultFactory;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The extras of {@link #getIntent()} when this is first called will be used as
+     * the defaults to any {@link androidx.lifecycle.SavedStateHandle} passed to a view model
+     * created using this extra.</p>
+     */
+    @NonNull
+    @Override
+    @CallSuper
+    public CreationExtras getDefaultViewModelCreationExtras() {
+        MutableCreationExtras extras = new MutableCreationExtras();
+        if (getApplication() != null) {
+            extras.set(ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY, getApplication());
+        }
+        extras.set(SavedStateHandleSupport.SAVED_STATE_REGISTRY_OWNER_KEY, this);
+        extras.set(SavedStateHandleSupport.VIEW_MODEL_STORE_OWNER_KEY, this);
+        if (getIntent() != null && getIntent().getExtras() != null) {
+            extras.set(SavedStateHandleSupport.DEFAULT_ARGS_KEY, getIntent().getExtras());
+        }
+        return extras;
     }
 
     /**
@@ -872,6 +912,111 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
             @NonNull Consumer<Intent> listener
     ) {
         mOnNewIntentListeners.remove(listener);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Dispatches this call to all listeners added via
+     * {@link #addOnMultiWindowModeChangedListener(Consumer)}.
+     */
+    @CallSuper
+    @Override
+    @SuppressWarnings("deprecation")
+    public void onMultiWindowModeChanged(boolean isInMultiWindowMode) {
+        // We specifically do not call super.onMultiWindowModeChanged() to avoid
+        // crashing when this method is manually called prior to API 24 (which is
+        // when this method was added to the framework)
+        for (Consumer<MultiWindowModeChangedInfo> listener : mOnMultiWindowModeChangedListeners) {
+            listener.accept(new MultiWindowModeChangedInfo(isInMultiWindowMode));
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Dispatches this call to all listeners added via
+     * {@link #addOnMultiWindowModeChangedListener(Consumer)}.
+     */
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    @CallSuper
+    @Override
+    public void onMultiWindowModeChanged(boolean isInMultiWindowMode,
+            @NonNull Configuration newConfig) {
+        // We specifically do not call super.onMultiWindowModeChanged() to avoid
+        // triggering the call to onMultiWindowModeChanged(boolean) which would
+        // send a second callback to listeners without the newConfig
+        for (Consumer<MultiWindowModeChangedInfo> listener : mOnMultiWindowModeChangedListeners) {
+            listener.accept(new MultiWindowModeChangedInfo(isInMultiWindowMode, newConfig));
+        }
+    }
+
+    @Override
+    public final void addOnMultiWindowModeChangedListener(
+            @NonNull Consumer<MultiWindowModeChangedInfo> listener
+    ) {
+        mOnMultiWindowModeChangedListeners.add(listener);
+    }
+
+    @Override
+    public final void removeOnMultiWindowModeChangedListener(
+            @NonNull Consumer<MultiWindowModeChangedInfo> listener
+    ) {
+        mOnMultiWindowModeChangedListeners.remove(listener);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Dispatches this call to all listeners added via
+     * {@link #addOnPictureInPictureModeChangedListener(Consumer)}.
+     */
+    @CallSuper
+    @Override
+    @SuppressWarnings("deprecation")
+    public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode) {
+        // We specifically do not call super.onPictureInPictureModeChanged() to avoid
+        // crashing when this method is manually called prior to API 24 (which is
+        // when this method was added to the framework)
+        for (Consumer<PictureInPictureModeChangedInfo> listener :
+                mOnPictureInPictureModeChangedListeners) {
+            listener.accept(new PictureInPictureModeChangedInfo(isInPictureInPictureMode));
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Dispatches this call to all listeners added via
+     * {@link #addOnPictureInPictureModeChangedListener(Consumer)}.
+     */
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    @CallSuper
+    @Override
+    public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode,
+            @NonNull Configuration newConfig) {
+        // We specifically do not call super.onPictureInPictureModeChanged() to avoid
+        // triggering the call to onPictureInPictureModeChanged(boolean) which would
+        // send a second callback to listeners without the newConfig
+        for (Consumer<PictureInPictureModeChangedInfo> listener :
+                mOnPictureInPictureModeChangedListeners) {
+            listener.accept(new PictureInPictureModeChangedInfo(
+                    isInPictureInPictureMode, newConfig));
+        }
+    }
+
+    @Override
+    public final void addOnPictureInPictureModeChangedListener(
+            @NonNull Consumer<PictureInPictureModeChangedInfo> listener
+    ) {
+        mOnPictureInPictureModeChangedListeners.add(listener);
+    }
+
+    @Override
+    public final void removeOnPictureInPictureModeChangedListener(
+            @NonNull Consumer<PictureInPictureModeChangedInfo> listener
+    ) {
+        mOnPictureInPictureModeChangedListeners.remove(listener);
     }
 
     @Override

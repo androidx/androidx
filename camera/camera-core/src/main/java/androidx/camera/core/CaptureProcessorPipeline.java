@@ -21,6 +21,7 @@ import android.media.ImageReader;
 import android.util.Size;
 import android.view.Surface;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.CaptureProcessor;
@@ -28,6 +29,8 @@ import androidx.camera.core.impl.ImageProxyBundle;
 import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.TagBundle;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -50,6 +53,19 @@ class CaptureProcessorPipeline implements CaptureProcessor {
     private final int mMaxImages;
     private ImageReaderProxy mIntermediateImageReader = null;
     private ImageInfo mSourceImageInfo = null;
+
+    private final Object mLock = new Object();
+
+    @GuardedBy("mLock")
+    private boolean mClosed = false;
+
+    @GuardedBy("mLock")
+    private boolean mProcessing = false;
+
+    @GuardedBy("mLock")
+    CallbackToFutureAdapter.Completer<Void> mCloseCompleter;
+    @GuardedBy("mLock")
+    private ListenableFuture<Void> mCloseFuture;
 
     /**
      * Creates a {@link CaptureProcessorPipeline} to link two CaptureProcessors to process the
@@ -86,6 +102,14 @@ class CaptureProcessorPipeline implements CaptureProcessor {
 
     @Override
     public void process(@NonNull ImageProxyBundle bundle) {
+        synchronized (mLock) {
+            if (mClosed) {
+                return;
+            }
+
+            mProcessing = true;
+        }
+
         List<Integer> ids = bundle.getCaptureIds();
         ListenableFuture<ImageProxy> imageProxyListenableFuture = bundle.getImageProxy(ids.get(0));
         Preconditions.checkArgument(imageProxyListenableFuture.isDone());
@@ -152,15 +176,67 @@ class CaptureProcessorPipeline implements CaptureProcessor {
                 Collections.singletonList(captureId), tagBundleKey);
         settableImageProxyBundle.addImageProxy(settableImageProxy);
         mPostCaptureProcessor.process(settableImageProxyBundle);
+
+        synchronized (mLock) {
+            mProcessing = false;
+
+            if (mClosed) {
+                if (mCloseCompleter != null) {
+                    // Notify listeners of close
+                    mCloseCompleter.set(null);
+                }
+            }
+        }
     }
 
     /**
      * Closes the objects generated when creating the {@link CaptureProcessorPipeline}.
      */
     void close() {
-        if (mIntermediateImageReader != null) {
-            mIntermediateImageReader.clearOnImageAvailableListener();
-            mIntermediateImageReader.close();
+        synchronized (mLock) {
+            if (mClosed) {
+                return;
+            }
+
+            if (mIntermediateImageReader != null) {
+                mIntermediateImageReader.clearOnImageAvailableListener();
+                mIntermediateImageReader.close();
+            }
+
+            if (!mProcessing && mCloseCompleter != null) {
+                mCloseCompleter.set(null);
+            }
+
+            mClosed = true;
         }
+    }
+
+    /**
+     * Returns a future that will complete when the CaptureProcessorPipeline is actually closed.
+     *
+     * @return A future that signals when the CaptureProcessorPipeline is actually closed
+     * (after all processing). Cancelling this future has no effect.
+     */
+    @NonNull
+    ListenableFuture<Void> getCloseFuture() {
+        ListenableFuture<Void> closeFuture;
+        synchronized (mLock) {
+            if (mClosed && !mProcessing) {
+                // Everything should be closed. Return immediate future.
+                closeFuture = Futures.immediateFuture(null);
+            } else {
+                if (mCloseFuture == null) {
+                    mCloseFuture = CallbackToFutureAdapter.getFuture(completer -> {
+                        // Should already be locked, but lock again to satisfy linter.
+                        synchronized (mLock) {
+                            mCloseCompleter = completer;
+                        }
+                        return "CaptureProcessorPipeline-close";
+                    });
+                }
+                closeFuture = Futures.nonCancellationPropagating(mCloseFuture);
+            }
+        }
+        return closeFuture;
     }
 }

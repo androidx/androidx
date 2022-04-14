@@ -798,6 +798,7 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
             return false;
         }
 
+        @SuppressWarnings("deprecation")
         public boolean onDynamicRouteDescriptorsChanged(
                 int controllerId, Bundle descriptorsBundle) {
             if (mServiceVersion != 0) {

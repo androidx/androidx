@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+GenericCallbacks: androidx.emoji2.text.EmojiCompat.MetadataRepoLoaderCallback:
+    EmojiCompat.MetadataRepoLoaderCallback can be replaced with OutcomeReceiver<R,E> (platform) or suspend fun / ListenableFuture (AndroidX).

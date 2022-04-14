@@ -32,6 +32,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.collection.SimpleArrayMap;
+import androidx.core.view.MenuHost;
 import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.loader.app.LoaderManager;
 
@@ -351,7 +352,11 @@ public class FragmentController {
      * <p>Call when the multi-window mode of the activity changed.
      *
      * @see Fragment#onMultiWindowModeChanged
+     * @deprecated Have your {@link FragmentHostCallback} implement
+     * {@link androidx.core.app.OnMultiWindowModeChangedProvider}
+     * to automatically dispatch multi-window mode changes to fragments.
      */
+    @Deprecated
     public void dispatchMultiWindowModeChanged(boolean isInMultiWindowMode) {
         mHost.mFragmentManager.dispatchMultiWindowModeChanged(isInMultiWindowMode);
     }
@@ -362,7 +367,11 @@ public class FragmentController {
      * <p>Call when the picture-in-picture mode of the activity changed.
      *
      * @see Fragment#onPictureInPictureModeChanged
+     * @deprecated Have your {@link FragmentHostCallback} implement
+     * {@link androidx.core.app.OnPictureInPictureModeChangedProvider}
+     * to automatically dispatch picture-in-picture mode changes to fragments.
      */
+    @Deprecated
     public void dispatchPictureInPictureModeChanged(boolean isInPictureInPictureMode) {
         mHost.mFragmentManager.dispatchPictureInPictureModeChanged(isInPictureInPictureMode);
     }
@@ -405,7 +414,11 @@ public class FragmentController {
      *
      * @return {@code true} if the options menu contains items to display
      * @see Fragment#onCreateOptionsMenu(Menu, MenuInflater)
+     *
+     * @deprecated Have your {@link FragmentHostCallback} implement
+     * {@link MenuHost} to automatically dispatch menu changes to fragments.
      */
+    @Deprecated
     public boolean dispatchCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         return mHost.mFragmentManager.dispatchCreateOptionsMenu(menu, inflater);
     }
@@ -417,7 +430,11 @@ public class FragmentController {
      *
      * @return {@code true} if the options menu contains items to display
      * @see Fragment#onPrepareOptionsMenu(Menu)
+     *
+     * @deprecated Have your {@link FragmentHostCallback} implement
+     * {@link MenuHost} to automatically dispatch menu changes to fragments.
      */
+    @Deprecated
     public boolean dispatchPrepareOptionsMenu(@NonNull Menu menu) {
         return mHost.mFragmentManager.dispatchPrepareOptionsMenu(menu);
     }
@@ -430,7 +447,11 @@ public class FragmentController {
      *
      * @return {@code true} if the options menu selection event was consumed
      * @see Fragment#onOptionsItemSelected(MenuItem)
+     *
+     * @deprecated Have your {@link FragmentHostCallback} implement
+     * {@link MenuHost} to automatically dispatch menu changes to fragments.
      */
+    @Deprecated
     public boolean dispatchOptionsItemSelected(@NonNull MenuItem item) {
         return mHost.mFragmentManager.dispatchOptionsItemSelected(item);
     }
@@ -454,7 +475,11 @@ public class FragmentController {
      * <p>Call immediately after closing the Fragment's options menu.
      *
      * @see Fragment#onOptionsMenuClosed(Menu)
+     *
+     * @deprecated Have your {@link FragmentHostCallback} implement
+     * {@link MenuHost} to automatically dispatch menu changes to fragments.
      */
+    @Deprecated
     public void dispatchOptionsMenuClosed(@NonNull Menu menu) {
         mHost.mFragmentManager.dispatchOptionsMenuClosed(menu);
     }

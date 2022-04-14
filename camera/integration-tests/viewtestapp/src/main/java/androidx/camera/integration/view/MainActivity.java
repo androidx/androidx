@@ -58,6 +58,9 @@ public class MainActivity extends AppCompatActivity {
     public static final String INTENT_EXTRA_CAMERA_DIRECTION = "camera_direction";
     public static final String CAMERA_DIRECTION_BACK = "back";
     public static final String CAMERA_DIRECTION_FRONT = "front";
+    // Possible values for this intent key: "preview_test_case" or "default_test_case".
+    public static final String INTENT_EXTRA_E2E_TEST_CASE = "e2e_test_case";
+    public static final String PREVIEW_TEST_CASE = "preview_test_case";
 
     private boolean mCheckedPermissions = false;
     private FragmentType mFragmentType = FragmentType.CAMERA_CONTROLLER;
@@ -74,6 +77,13 @@ public class MainActivity extends AppCompatActivity {
                 mFragmentType = FragmentType.PREVIEW_VIEW;
             } else if (COMPOSE_UI_FRAGMENT.equalsIgnoreCase(viewTypeString)) {
                 mFragmentType = FragmentType.COMPOSE_UI;
+            }
+            // Update the app UI according to the e2e test case.
+            String testItem = bundle.getString(INTENT_EXTRA_E2E_TEST_CASE);
+            if (testItem != null) {
+                if (getSupportActionBar() != null) {
+                    getSupportActionBar().hide();
+                }
             }
         }
         // TODO(b/173019455): make this penaltyDeath after we fix the IO in test apps.
@@ -131,6 +141,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.compose_ui:
                 mFragmentType = FragmentType.COMPOSE_UI;
                 break;
+            case R.id.mlkit:
+                mFragmentType = FragmentType.MLKIT;
+                break;
         }
         startFragment();
         return true;
@@ -159,6 +172,10 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case COMPOSE_UI:
                 startFragment(R.string.compose_ui, new ComposeUiFragment());
+                break;
+            case MLKIT:
+                startFragment(R.string.mlkit, new MlKitFragment());
+                break;
         }
     }
 
@@ -180,6 +197,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private enum FragmentType {
-        PREVIEW_VIEW, CAMERA_CONTROLLER, TRANSFORM, COMPOSE_UI
+        PREVIEW_VIEW, CAMERA_CONTROLLER, TRANSFORM, COMPOSE_UI, MLKIT
     }
 }

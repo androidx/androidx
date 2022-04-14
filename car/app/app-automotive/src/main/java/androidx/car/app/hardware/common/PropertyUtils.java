@@ -60,6 +60,10 @@ public final class PropertyUtils {
     private static final String CAR_PERMISSION_CONTROL_CAR_ENERGY_PORTS =
             "android.car.permission.CONTROL_CAR_ENERGY_PORTS";
 
+    // System level permission in car-lib to access car specific communication channel.
+    private static final String CAR_PERMISSION_VENDOR_EXTENSION =
+            "android.car.permission.CAR_VENDOR_EXTENSION";
+
     // Index key is property id, value is the permission to read property.
     private static final SparseArray<String> PERMISSION_READ_PROPERTY = new SparseArray<String>() {
         {
@@ -94,6 +98,7 @@ public final class PropertyUtils {
             append(VehiclePropertyIds.CURRENT_GEAR, Car.PERMISSION_POWERTRAIN);
             append(VehiclePropertyIds.PARKING_BRAKE_ON, Car.PERMISSION_POWERTRAIN);
             append(VehiclePropertyIds.PARKING_BRAKE_AUTO_APPLY, Car.PERMISSION_POWERTRAIN);
+            append(VehiclePropertyIds.FUEL_VOLUME_DISPLAY_UNITS, Car.PERMISSION_READ_DISPLAY_UNITS);
         }
     };
 
@@ -103,6 +108,8 @@ public final class PropertyUtils {
             append(VehiclePropertyIds.FUEL_DOOR_OPEN, CAR_PERMISSION_CONTROL_CAR_ENERGY_PORTS);
             append(VehiclePropertyIds.EV_CHARGE_PORT_OPEN, CAR_PERMISSION_CONTROL_CAR_ENERGY_PORTS);
             append(VehiclePropertyIds.RANGE_REMAINING, CAR_PERMISSION_ADJUST_RANGE_REMAINING);
+            append(VehiclePropertyIds.FUEL_VOLUME_DISPLAY_UNITS,
+                    Car.PERMISSION_CONTROL_DISPLAY_UNITS + CAR_PERMISSION_VENDOR_EXTENSION);
         }
     };
     private static final Set<Integer> ON_CHANGE_PROPERTIES =
@@ -153,7 +160,7 @@ public final class PropertyUtils {
     /**
      * Maps speed units in car service to speed units in {@link CarUnit}.
      */
-    public static @CarUnit.CarSpeedUnit int covertSpeedUnit(int vehicleUnit) {
+    public static @CarUnit.CarSpeedUnit int convertSpeedUnit(int vehicleUnit) {
         switch (vehicleUnit) {
             case VEHICLE_UNIT_METER_PER_SEC:
                 return CarUnit.METERS_PER_SEC;
@@ -169,7 +176,7 @@ public final class PropertyUtils {
     /**
      * Maps distance units in car service to distance units in {@link CarUnit}.
      */
-    public static @CarUnit.CarDistanceUnit int covertDistanceUnit(int vehicleUnit) {
+    public static @CarUnit.CarDistanceUnit int convertDistanceUnit(int vehicleUnit) {
         switch (vehicleUnit) {
             case VEHICLE_UNIT_METER:
                 return CarUnit.METER;
@@ -189,7 +196,7 @@ public final class PropertyUtils {
      */
     // TODO(b/202303614): Remove this annotation once FuelVolumeDisplayUnit is ready.
     @OptIn(markerClass = ExperimentalCarApi.class)
-    public static @CarUnit.CarVolumeUnit int covertVolumeUnit(int vehicleUnit) {
+    public static @CarUnit.CarVolumeUnit int convertVolumeUnit(int vehicleUnit) {
         switch (vehicleUnit) {
             case VEHICLE_UNIT_MILLILITER:
                 return MILLILITER;
@@ -207,7 +214,7 @@ public final class PropertyUtils {
     /**
      * Maps EV connector types in car service to types in {@link EnergyProfile}.
      */
-    public static @EnergyProfile.EvConnectorType int covertEvConnectorType(
+    public static @EnergyProfile.EvConnectorType int convertEvConnectorType(
             int vehicleEvConnectorType) {
         switch (vehicleEvConnectorType) {
             case 1: // IEC_TYPE_1_AC

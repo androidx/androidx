@@ -30,7 +30,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.Timeout
@@ -49,7 +50,7 @@ class SimpleActorTest {
     val timeout = Timeout(10, TimeUnit.SECONDS)
 
     @Test
-    fun testSimpleActor() = runBlockingTest {
+    fun testSimpleActor() = runTest(UnconfinedTestDispatcher()) {
         val msgs = mutableListOf<Int>()
 
         val actor = SimpleActor<Int>(

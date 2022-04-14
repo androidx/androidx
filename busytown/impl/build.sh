@@ -18,9 +18,11 @@ if [ "$DIST_DIR" == "" ]; then
 fi
 mkdir -p "$DIST_DIR"
 export DIST_DIR="$DIST_DIR"
-
 if [ "$CHANGE_INFO" != "" ]; then
   cp "$CHANGE_INFO" "$DIST_DIR/"
+fi
+if [ "$MANIFEST" == "" ]; then
+  export MANIFEST="$DIST_DIR/manifest_${BUILD_NUMBER}.xml"
 fi
 
 # parse arguments
@@ -57,9 +59,6 @@ function run() {
     return 1
   fi
 }
-
-# Confirm the existence of .git dirs. TODO(b/170634430) remove this
-(echo "top commit:" && git --no-pager log -1)
 
 # export some variables
 ANDROID_HOME=../../prebuilts/fullsdk-linux

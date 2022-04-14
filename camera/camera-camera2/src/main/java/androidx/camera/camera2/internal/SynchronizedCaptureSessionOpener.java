@@ -16,30 +16,25 @@
 
 package androidx.camera.camera2.internal;
 
-import android.graphics.SurfaceTexture;
-import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.params.SessionConfiguration;
-import android.os.Build;
 import android.os.Handler;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.StringDef;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.params.OutputConfigurationCompat;
 import androidx.camera.camera2.internal.compat.params.SessionConfigurationCompat;
+import androidx.camera.camera2.internal.compat.workaround.ForceCloseCaptureSession;
+import androidx.camera.camera2.internal.compat.workaround.ForceCloseDeferrableSurface;
+import androidx.camera.camera2.internal.compat.workaround.WaitForRepeatingRequestStart;
 import androidx.camera.core.impl.DeferrableSurface;
+import androidx.camera.core.impl.Quirks;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -68,41 +63,6 @@ import java.util.concurrent.ScheduledExecutorService;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class SynchronizedCaptureSessionOpener {
-
-    /**
-     * Force close CaptureSession
-     * Criteria: OS version
-     * Description: on API22 or lower CaptureSession's close event might not be triggered and
-     * thus have to be force closed
-     */
-    static final String FEATURE_FORCE_CLOSE = "force_close";
-
-    /**
-     * Do not close for non-LEGACY devices
-     * Criteria: hardware level, OS version
-     * Description: Do not close for non-LEGACY devices. Reusing {@link DeferrableSurface} is
-     * only a problem for LEGACY devices. See: b/135050586. Another problem is the behavior of
-     * TextureView below API 23. It releases {@link SurfaceTexture}. Hence, request to close and
-     * recreate {@link DeferrableSurface}. See: b/145725334. (A better place for View related
-     * workaround is in the view artifact. However changing this now would be a breaking change.)
-     */
-    static final String FEATURE_DEFERRABLE_SURFACE_CLOSE = "deferrableSurface_close";
-
-    /**
-     * Delay Opening and releasing the capture session after set repeating request complete.
-     * Criteria: hardware level
-     * Description: Opening and releasing the capture session quickly and constantly is a problem
-     * for LEGACY devices. See: b/146773463. It needs to check all the releasing capture
-     * sessions are ready for opening next capture session.
-     */
-    static final String FEATURE_WAIT_FOR_REQUEST = "wait_for_request";
-
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @StringDef({FEATURE_DEFERRABLE_SURFACE_CLOSE, FEATURE_WAIT_FOR_REQUEST, FEATURE_FORCE_CLOSE})
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface SynchronizedSessionFeature {
-    }
 
     @NonNull
     private final OpenerImpl mImpl;
@@ -219,47 +179,36 @@ final class SynchronizedCaptureSessionOpener {
         private final ScheduledExecutorService mScheduledExecutorService;
         private final Handler mCompatHandler;
         private final CaptureSessionRepository mCaptureSessionRepository;
-        private final int mSupportedHardwareLevel;
-        private final Set<String> mEnableFeature = new HashSet<>();
+        private final Quirks mCameraQuirks;
+        private final Quirks mDeviceQuirks;
+        private final boolean mQuirkExist;
 
         Builder(@NonNull @CameraExecutor Executor executor,
                 @NonNull ScheduledExecutorService scheduledExecutorService,
                 @NonNull Handler compatHandler,
                 @NonNull CaptureSessionRepository captureSessionRepository,
-                int supportedHardwareLevel) {
+                @NonNull Quirks cameraQuirks,
+                @NonNull Quirks deviceQuirks) {
             mExecutor = executor;
             mScheduledExecutorService = scheduledExecutorService;
             mCompatHandler = compatHandler;
             mCaptureSessionRepository = captureSessionRepository;
-            mSupportedHardwareLevel = supportedHardwareLevel;
-
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-                mEnableFeature.add(FEATURE_FORCE_CLOSE);
-            }
-
-            if (mSupportedHardwareLevel
-                    == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
-                    || Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) {
-                mEnableFeature.add(FEATURE_DEFERRABLE_SURFACE_CLOSE);
-            }
-
-            if (mSupportedHardwareLevel
-                    == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY) {
-                mEnableFeature.add(FEATURE_WAIT_FOR_REQUEST);
-            }
+            mCameraQuirks = cameraQuirks;
+            mDeviceQuirks = deviceQuirks;
+            mQuirkExist = new ForceCloseDeferrableSurface(mCameraQuirks,
+                    mDeviceQuirks).shouldForceClose() || new WaitForRepeatingRequestStart(
+                    mCameraQuirks).shouldWaitRepeatingSubmit() || new ForceCloseCaptureSession(
+                    mDeviceQuirks).shouldForceClose();
         }
 
         @NonNull
         SynchronizedCaptureSessionOpener build() {
-            if (mEnableFeature.isEmpty()) {
-                return new SynchronizedCaptureSessionOpener(
-                        new SynchronizedCaptureSessionBaseImpl(mCaptureSessionRepository, mExecutor,
-                                mScheduledExecutorService, mCompatHandler));
-            }
-
             return new SynchronizedCaptureSessionOpener(
-                    new SynchronizedCaptureSessionImpl(mEnableFeature, mCaptureSessionRepository,
-                            mExecutor, mScheduledExecutorService, mCompatHandler));
+                    mQuirkExist ? new SynchronizedCaptureSessionImpl(mCameraQuirks, mDeviceQuirks,
+                            mCaptureSessionRepository, mExecutor, mScheduledExecutorService,
+                            mCompatHandler)
+                            : new SynchronizedCaptureSessionBaseImpl(mCaptureSessionRepository,
+                                    mExecutor, mScheduledExecutorService, mCompatHandler));
         }
     }
 

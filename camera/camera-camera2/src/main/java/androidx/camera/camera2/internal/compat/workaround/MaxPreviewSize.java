@@ -23,7 +23,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks;
-import androidx.camera.camera2.internal.compat.quirk.SelectResolutionQuirk;
+import androidx.camera.camera2.internal.compat.quirk.ExtraCroppingQuirk;
 import androidx.camera.core.impl.SurfaceConfig;
 
 /**
@@ -35,21 +35,21 @@ import androidx.camera.core.impl.SurfaceConfig;
 public class MaxPreviewSize {
 
     @Nullable
-    private final SelectResolutionQuirk mSelectResolutionQuirk;
+    private final ExtraCroppingQuirk mExtraCroppingQuirk;
 
     /**
      * Constructs new {@link MaxPreviewSize}.
      */
     public MaxPreviewSize() {
-        this(DeviceQuirks.get(SelectResolutionQuirk.class));
+        this(DeviceQuirks.get(ExtraCroppingQuirk.class));
     }
 
     /**
      * Constructs new {@link MaxPreviewSize}.
      */
     @VisibleForTesting
-    MaxPreviewSize(@Nullable SelectResolutionQuirk selectResolutionQuirk) {
-        mSelectResolutionQuirk = selectResolutionQuirk;
+    MaxPreviewSize(@Nullable ExtraCroppingQuirk extraCroppingQuirk) {
+        mExtraCroppingQuirk = extraCroppingQuirk;
     }
 
     /**
@@ -61,10 +61,10 @@ public class MaxPreviewSize {
      */
     @NonNull
     public Size getMaxPreviewResolution(@NonNull Size defaultMaxPreviewResolution) {
-        if (mSelectResolutionQuirk == null) {
+        if (mExtraCroppingQuirk == null) {
             return defaultMaxPreviewResolution;
         }
-        Size selectResolution = mSelectResolutionQuirk.selectResolution(
+        Size selectResolution = mExtraCroppingQuirk.getVerifiedResolution(
                 SurfaceConfig.ConfigType.PRIV);
         if (selectResolution == null) {
             return defaultMaxPreviewResolution;

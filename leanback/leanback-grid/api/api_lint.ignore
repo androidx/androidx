@@ -1,0 +1,45 @@
+// Baseline format: 1.0
+InvalidNullability: androidx.leanback.widget.BaseGridView#dispatchGenericFocusedEvent(android.view.MotionEvent) parameter #0:
+    Invalid nullability on parameter `event` in method `dispatchGenericFocusedEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.leanback.widget.BaseGridView#dispatchKeyEvent(android.view.KeyEvent) parameter #0:
+    Invalid nullability on parameter `event` in method `dispatchKeyEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.leanback.widget.BaseGridView#dispatchTouchEvent(android.view.MotionEvent) parameter #0:
+    Invalid nullability on parameter `event` in method `dispatchTouchEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.leanback.widget.BaseGridView#focusSearch(int):
+    Invalid nullability on method `focusSearch` return. Overrides of unannotated super method cannot be Nullable.
+InvalidNullability: androidx.leanback.widget.BaseGridView#removeView(android.view.View) parameter #0:
+    Invalid nullability on parameter `view` in method `removeView`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.leanback.widget.GridLayoutManager#collectAdjacentPrefetchPositions(int, int, androidx.recyclerview.widget.RecyclerView.State, androidx.recyclerview.widget.RecyclerView.LayoutManager.LayoutPrefetchRegistry) parameter #2:
+    Invalid nullability on parameter `state` in method `collectAdjacentPrefetchPositions`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.leanback.widget.GridLayoutManager#collectAdjacentPrefetchPositions(int, int, androidx.recyclerview.widget.RecyclerView.State, androidx.recyclerview.widget.RecyclerView.LayoutManager.LayoutPrefetchRegistry) parameter #3:
+    Invalid nullability on parameter `layoutPrefetchRegistry` in method `collectAdjacentPrefetchPositions`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.leanback.widget.GridLayoutManager#collectInitialPrefetchPositions(int, androidx.recyclerview.widget.RecyclerView.LayoutManager.LayoutPrefetchRegistry) parameter #1:
+    Invalid nullability on parameter `layoutPrefetchRegistry` in method `collectInitialPrefetchPositions`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.leanback.widget.GridLayoutManager#generateLayoutParams(android.content.Context, android.util.AttributeSet) parameter #0:
+    Invalid nullability on parameter `context` in method `generateLayoutParams`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.leanback.widget.GridLayoutManager#generateLayoutParams(android.content.Context, android.util.AttributeSet) parameter #1:
+    Invalid nullability on parameter `attrs` in method `generateLayoutParams`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.leanback.widget.GridLayoutManager#generateLayoutParams(android.view.ViewGroup.LayoutParams) parameter #0:
+    Invalid nullability on parameter `lp` in method `generateLayoutParams`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.leanback.widget.GridLayoutManager#onLayoutChildren(androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #0:
+    Invalid nullability on parameter `recycler` in method `onLayoutChildren`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.leanback.widget.GridLayoutManager#onLayoutChildren(androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #1:
+    Invalid nullability on parameter `state` in method `onLayoutChildren`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.leanback.widget.GridLayoutManager#onLayoutCompleted(androidx.recyclerview.widget.RecyclerView.State) parameter #0:
+    Invalid nullability on parameter `state` in method `onLayoutCompleted`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.leanback.widget.GridLayoutManager#scrollHorizontallyBy(int, androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #1:
+    Invalid nullability on parameter `recycler` in method `scrollHorizontallyBy`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.leanback.widget.GridLayoutManager#scrollHorizontallyBy(int, androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #2:
+    Invalid nullability on parameter `state` in method `scrollHorizontallyBy`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.leanback.widget.GridLayoutManager#scrollVerticallyBy(int, androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #1:
+    Invalid nullability on parameter `recycler` in method `scrollVerticallyBy`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.leanback.widget.GridLayoutManager#scrollVerticallyBy(int, androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #2:
+    Invalid nullability on parameter `state` in method `scrollVerticallyBy`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.leanback.widget.GridLayoutManager#smoothScrollToPosition(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.State, int) parameter #0:
+    Invalid nullability on parameter `recyclerView` in method `smoothScrollToPosition`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.leanback.widget.GridLayoutManager#smoothScrollToPosition(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.State, int) parameter #1:
+    Invalid nullability on parameter `state` in method `smoothScrollToPosition`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.leanback.widget.GridLayoutManager#startSmoothScroll(androidx.recyclerview.widget.RecyclerView.SmoothScroller) parameter #0:
+    Invalid nullability on parameter `smoothScroller` in method `startSmoothScroll`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.leanback.widget.HorizontalGridView#draw(android.graphics.Canvas) parameter #0:
+    Invalid nullability on parameter `canvas` in method `draw`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.

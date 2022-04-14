@@ -92,8 +92,8 @@ class WorkManagerGcmDispatcherTest {
 
         mWorkManager = WorkManagerImpl(mContext, configuration, workTaskExecutor, true)
         WorkManagerImpl.setDelegate(mWorkManager)
-        mWorkTimer = spy(WorkTimer())
-        mDispatcher = WorkManagerGcmDispatcher(mContext, mWorkTimer)
+        mWorkTimer = spy(WorkTimer(configuration.runnableScheduler))
+        mDispatcher = WorkManagerGcmDispatcher(mWorkManager, mWorkTimer)
     }
 
     @Test

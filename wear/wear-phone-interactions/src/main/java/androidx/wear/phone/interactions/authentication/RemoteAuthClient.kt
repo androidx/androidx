@@ -52,7 +52,7 @@ import java.util.concurrent.Executor
  *
  * public fun startAuthFlow() {
  *    // PKCE (Proof Key for Code Exchange) is required, store this code verifier here .
- *    // To access the resource later, both the auth token ans code verifier are needed.
+ *    // To access the resource later, both the auth token and code verifier are needed.
  *    codeVerifier = CodeVerifier()
  *
  *   // Construct your auth request.
@@ -339,6 +339,7 @@ public class RemoteAuthClient internal constructor(
          * <ul><li>"responseUrl": the response URL from the Auth request (Uri)
          * <ul><li>"error": an error code explaining why the request failed (int)
          */
+        @Suppress("DEPRECATION")
         override fun onResult(result: Bundle) {
             val errorCode = result.getInt(KEY_ERROR_CODE, NO_ERROR)
             val responseUrl: Uri? = result.getParcelable(KEY_RESPONSE_URL)

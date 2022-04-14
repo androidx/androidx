@@ -25,7 +25,6 @@ import android.content.res.XmlResourceParser
 import android.graphics.RectF
 import android.os.Bundle
 import android.os.IBinder
-import android.os.RemoteException
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.complications.ComplicationSlotBounds
 import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
@@ -39,8 +38,11 @@ import androidx.wear.watchface.control.data.GetComplicationSlotMetadataParams
 import androidx.wear.watchface.control.data.GetUserStyleSchemaParams
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.ComplicationSlotBoundsType
+import androidx.wear.watchface.UserStyleFlavors
+import androidx.wear.watchface.WatchFaceFlavorsExperimental
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.XmlSchemaAndComplicationSlotsDefinition
+import androidx.wear.watchface.control.data.GetUserStyleFlavorsParams
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay
@@ -89,6 +91,7 @@ public interface WatchFaceMetadataClient : AutoCloseable {
 
         /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @Suppress("DEPRECATION")
         open class ParserProvider {
             // Open to allow testing without having to install the sample app.
             open fun getParser(context: Context, watchFaceName: ComponentName): XmlResourceParser? {
@@ -162,16 +165,36 @@ public interface WatchFaceMetadataClient : AutoCloseable {
 
     /**
      * Returns the watch face's [UserStyleSchema].
+     *
+     * @throws [RuntimeException] if the watch face threw an exception while trying to service the
+     * request or there was a communication problem with watch face process.
      */
-    @Throws(RemoteException::class)
     public fun getUserStyleSchema(): UserStyleSchema
+
+    /**
+     * Whether or not the [UserStyleSchema] is static and won't change unless the APK is updated.
+     */
+    @Suppress("INAPPLICABLE_JVM_NAME")
+    @get:JvmName("isUserStyleSchemaStatic")
+    public val isUserStyleSchemaStatic: Boolean
 
     /**
      * Returns a map of [androidx.wear.watchface.ComplicationSlot] ID to [ComplicationSlotMetadata]
      * for each slot in the watch face's [androidx.wear.watchface.ComplicationSlotsManager].
+     *
+     * @throws [RuntimeException] if the watch face threw an exception while trying to service the
+     * request or there was a communication problem with watch face process.
      */
-    @Throws(RemoteException::class)
     public fun getComplicationSlotMetadataMap(): Map<Int, ComplicationSlotMetadata>
+
+    /**
+     * Returns the watch face's [UserStyleFlavors].
+     *
+     * @throws [RuntimeException] if the watch face threw an exception while trying to service the
+     * request or there was a communication problem with watch face process.
+     */
+    @WatchFaceFlavorsExperimental
+    public fun getUserStyleFlavors(): UserStyleFlavors
 }
 
 /**
@@ -247,62 +270,81 @@ internal class WatchFaceMetadataClientImpl internal constructor(
         }
     }
 
-    override fun getUserStyleSchema(): UserStyleSchema {
-        return if (service.apiVersion >= 3) {
-            UserStyleSchema(service.getUserStyleSchema(GetUserStyleSchemaParams(watchFaceName)))
-        } else {
-            headlessClient.userStyleSchema
+    override fun getUserStyleSchema(): UserStyleSchema =
+        callRemote {
+            if (service.apiVersion >= 3) {
+                UserStyleSchema(service.getUserStyleSchema(GetUserStyleSchemaParams(watchFaceName)))
+            } else {
+                headlessClient.userStyleSchema
+            }
         }
-    }
+
+    override val isUserStyleSchemaStatic: Boolean
+        get() = false
 
     override fun getComplicationSlotMetadataMap(): Map<Int, ComplicationSlotMetadata> {
         requireNotClosed()
-        return if (service.apiVersion >= 3) {
-            val wireFormat = service.getComplicationSlotMetadata(
-                GetComplicationSlotMetadataParams(watchFaceName)
-            )
-            wireFormat.associateBy(
-                { it.id },
-                {
-                    val perSlotBounds = HashMap<ComplicationType, RectF>()
-                    for (i in it.complicationBoundsType.indices) {
-                        perSlotBounds[
-                            ComplicationType.fromWireType(it.complicationBoundsType[i])
-                        ] = it.complicationBounds[i]
+        return callRemote {
+            if (service.apiVersion >= 3) {
+                val wireFormat = service.getComplicationSlotMetadata(
+                    GetComplicationSlotMetadataParams(watchFaceName)
+                )
+                wireFormat.associateBy(
+                    { it.id },
+                    {
+                        val perSlotBounds = HashMap<ComplicationType, RectF>()
+                        for (i in it.complicationBoundsType.indices) {
+                            perSlotBounds[
+                                ComplicationType.fromWireType(it.complicationBoundsType[i])
+                            ] = it.complicationBounds[i]
+                        }
+                        ComplicationSlotMetadata(
+                            ComplicationSlotBounds.createFromPartialMap(perSlotBounds),
+                            it.boundsType,
+                            it.supportedTypes.map { ComplicationType.fromWireType(it) },
+                            DefaultComplicationDataSourcePolicy(
+                                it.defaultDataSourcesToTry ?: emptyList(),
+                                it.fallbackSystemDataSource,
+                                ComplicationType.fromWireType(
+                                    it.primaryDataSourceDefaultType
+                                ),
+                                ComplicationType.fromWireType(
+                                    it.secondaryDataSourceDefaultType
+                                ),
+                                ComplicationType.fromWireType(it.defaultDataSourceType)
+                            ),
+                            it.isInitiallyEnabled,
+                            it.isFixedComplicationDataSource,
+                            it.complicationConfigExtras
+                        )
                     }
+                )
+            } else {
+                headlessClient.complicationSlotsState.mapValues {
                     ComplicationSlotMetadata(
-                        ComplicationSlotBounds(perSlotBounds),
-                        it.boundsType,
-                        it.supportedTypes.map { ComplicationType.fromWireType(it) },
-                        DefaultComplicationDataSourcePolicy(
-                            it.defaultDataSourcesToTry ?: emptyList(),
-                            it.fallbackSystemDataSource,
-                            ComplicationType.fromWireType(
-                                it.primaryDataSourceDefaultType
-                            ),
-                            ComplicationType.fromWireType(
-                                it.secondaryDataSourceDefaultType
-                            ),
-                            ComplicationType.fromWireType(it.defaultDataSourceType)
-                        ),
-                        it.isInitiallyEnabled,
-                        it.isFixedComplicationDataSource,
-                        it.complicationConfigExtras
+                        null,
+                        it.value.boundsType,
+                        it.value.supportedTypes,
+                        it.value.defaultDataSourcePolicy,
+                        it.value.isInitiallyEnabled,
+                        it.value.fixedComplicationDataSource,
+                        it.value.complicationConfigExtras
                     )
                 }
+            }
+        }
+    }
+
+    @OptIn(WatchFaceFlavorsExperimental::class)
+    override fun getUserStyleFlavors(): UserStyleFlavors = callRemote {
+        if (service.apiVersion >= 5) {
+            UserStyleFlavors(
+                service.getUserStyleFlavors(
+                    GetUserStyleFlavorsParams(watchFaceName)
+                )
             )
         } else {
-            headlessClient.complicationSlotsState.mapValues {
-                ComplicationSlotMetadata(
-                    null,
-                    it.value.boundsType,
-                    it.value.supportedTypes,
-                    it.value.defaultDataSourcePolicy,
-                    it.value.isInitiallyEnabled,
-                    it.value.fixedComplicationDataSource,
-                    it.value.complicationConfigExtras
-                )
-            }
+            UserStyleFlavors()
         }
     }
 
@@ -321,6 +363,9 @@ internal class XmlWatchFaceMetadataClientImpl(
     override fun getUserStyleSchema() =
         xmlSchemaAndComplicationSlotsDefinition.schema ?: UserStyleSchema(emptyList())
 
+    override val isUserStyleSchemaStatic: Boolean
+        get() = true
+
     override fun getComplicationSlotMetadataMap() =
         xmlSchemaAndComplicationSlotsDefinition.complicationSlots.associateBy(
             { it.slotId },
@@ -336,6 +381,10 @@ internal class XmlWatchFaceMetadataClientImpl(
                 )
             }
         )
+
+    @WatchFaceFlavorsExperimental
+    override fun getUserStyleFlavors() =
+        xmlSchemaAndComplicationSlotsDefinition.flavors ?: UserStyleFlavors()
 
     override fun close() {}
 }

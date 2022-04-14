@@ -17,12 +17,14 @@
 package androidx.glance.appwidget.state
 
 import android.content.Context
+import androidx.datastore.preferences.core.MutablePreferences
 import androidx.glance.GlanceId
 import androidx.glance.appwidget.AppWidgetId
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.createUniqueRemoteUiName
 import androidx.glance.state.GlanceState
 import androidx.glance.state.GlanceStateDefinition
+import androidx.glance.state.PreferencesGlanceStateDefinition
 
 /**
  * Retrieve the state of an app widget.
@@ -58,6 +60,23 @@ public suspend fun <T> updateAppWidgetState(
     )
 }
 
+/**
+ * Update the state of an app widget using the global PreferencesGlanceStateDefinition.
+ *
+ * The state definition must be the one used for that particular app widget.
+ */
+public suspend fun updateAppWidgetState(
+    context: Context,
+    glanceId: GlanceId,
+    updateState: suspend (MutablePreferences) -> Unit,
+) {
+    updateAppWidgetState(context, PreferencesGlanceStateDefinition, glanceId) {
+        it.toMutablePreferences().apply {
+            updateState(this)
+        }
+    }
+}
+
 /** Get the state of an App Widget. */
 @Suppress("UNCHECKED_CAST")
 public suspend fun <T> GlanceAppWidget.getAppWidgetState(
@@ -69,19 +88,3 @@ public suspend fun <T> GlanceAppWidget.getAppWidgetState(
         checkNotNull(stateDefinition) { "No state defined in this provider" },
         glanceId
     ) as T
-
-/** Update the state of an app widget. */
-@Suppress("UNCHECKED_CAST")
-public suspend fun <T> GlanceAppWidget.updateAppWidgetState(
-    @Suppress("ContextFirst") context: Context,
-    glanceId: GlanceId,
-    updateState: suspend (T) -> T,
-): T =
-    updateAppWidgetState(
-        context,
-        checkNotNull(stateDefinition as GlanceStateDefinition<T>?) {
-            "No state defined in this provider"
-        },
-        glanceId,
-        updateState,
-    )

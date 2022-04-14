@@ -1,0 +1,15 @@
+// Baseline format: 1.0
+InvalidNullability: androidx.emoji2.widget.EmojiButton#setCustomSelectionActionModeCallback(android.view.ActionMode.Callback) parameter #0:
+    Invalid nullability on parameter `actionModeCallback` in method `setCustomSelectionActionModeCallback`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.emoji2.widget.EmojiButton#setFilters(android.text.InputFilter[]) parameter #0:
+    Invalid nullability on parameter `filters` in method `setFilters`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.emoji2.widget.EmojiEditText#onCreateInputConnection(android.view.inputmethod.EditorInfo):
+    Invalid nullability on method `onCreateInputConnection` return. Overrides of unannotated super method cannot be Nullable.
+InvalidNullability: androidx.emoji2.widget.EmojiEditText#onCreateInputConnection(android.view.inputmethod.EditorInfo) parameter #0:
+    Invalid nullability on parameter `outAttrs` in method `onCreateInputConnection`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.emoji2.widget.EmojiEditText#setCustomSelectionActionModeCallback(android.view.ActionMode.Callback) parameter #0:
+    Invalid nullability on parameter `actionModeCallback` in method `setCustomSelectionActionModeCallback`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.emoji2.widget.EmojiTextView#setCustomSelectionActionModeCallback(android.view.ActionMode.Callback) parameter #0:
+    Invalid nullability on parameter `actionModeCallback` in method `setCustomSelectionActionModeCallback`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.emoji2.widget.EmojiTextView#setFilters(android.text.InputFilter[]) parameter #0:
+    Invalid nullability on parameter `filters` in method `setFilters`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.

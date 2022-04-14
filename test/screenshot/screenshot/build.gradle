@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 
 plugins {
@@ -43,4 +42,8 @@ androidx {
     name = "AndroidX Library Screenshot Test"
     type = LibraryType.INTERNAL_TEST_LIBRARY
     mavenGroup = LibraryGroups.TESTSCREENSHOT
+}
+
+android {
+    namespace "androidx.test.screenshot"
 }

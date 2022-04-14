@@ -149,12 +149,12 @@ object Shell {
     }
 
     /**
-     * Returns true if the shell session is rooted, and thus root commands can be run (e.g. atrace
-     * commands with root-only tags)
+     * Returns true if the shell session is rooted or su is usable, and thus root commands can be
+     * run (e.g. atrace commands with root-only tags)
      */
     @RequiresApi(21)
     fun isSessionRooted(): Boolean {
-        return ShellImpl.executeCommand("getprop service.adb.root").trim() == "1"
+        return ShellImpl.isSessionRooted || ShellImpl.isSuAvailable
     }
 
     /**
@@ -229,8 +229,8 @@ object Shell {
                 }
         }
 
-        // Can't use ps -A on older platforms, arg isn't supported.
-        // Can't simply run ps, since it gets truncated
+        // Can't use ps -A pre API 26, arg isn't supported.
+        // Grep device side, since ps output by itself gets truncated
         return executeScript("ps | grep $processName")
             .split(Regex("\r?\n"))
             .map { it.trim() }
@@ -239,6 +239,27 @@ object Shell {
                 // map to int - split, and take 2nd column (PID)
                 it.split(Regex("\\s+"))[1]
                     .toInt()
+            }
+    }
+
+    @RequiresApi(21)
+    fun getRunningProcessesForPackage(packageName: String): List<String> {
+        check(!packageName.contains(":")) { "Package $packageName must contain contain ':'" }
+
+        // Can't use ps -A pre API 26, arg isn't supported.
+        // Need -A arg on newer platforms to see full process list
+        val psCommand = if (Build.VERSION.SDK_INT >= 26) "ps -A" else "ps"
+
+        // Grep device side, since ps output by itself gets truncated
+        return executeScript("$psCommand | grep $packageName")
+            .split(Regex("\r?\n"))
+            .map {
+                // get process name from end
+                it.substringAfterLast(" ")
+            }
+            .filter {
+                // allow primary or sub process
+                it == packageName || it.startsWith("$packageName:")
             }
     }
 
@@ -318,11 +339,38 @@ private object ShellImpl {
     private val uiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation
 
     /**
+     * When true, the session is already rooted and all commands run as root by default.
+     */
+    var isSessionRooted = false
+
+    /**
+     * When true, su is available for running commands and scripts as root.
+     */
+    var isSuAvailable = false
+
+    init {
+        // These variables are used in executeCommand and executeScript, so we keep them as var
+        // instead of val and use a separate initializer
+        isSessionRooted = executeCommand("id").contains("uid=0(root)")
+        isSuAvailable = executeScript(
+            "su root id",
+            null,
+            false
+        ).first.contains("uid=0(root)")
+    }
+
+    /**
      * Reimplementation of UiAutomator's Device.executeShellCommand,
      * to avoid the UiAutomator dependency
      */
     fun executeCommand(cmd: String): String {
-        val parcelFileDescriptor = uiAutomation.executeShellCommand(cmd)
+        val parcelFileDescriptor = uiAutomation.executeShellCommand(
+            if (!isSessionRooted && isSuAvailable) {
+                "su root $cmd"
+            } else {
+                cmd
+            }
+        )
         AutoCloseInputStream(parcelFileDescriptor).use { inputStream ->
             return inputStream.readBytes().toString(Charset.defaultCharset())
         }

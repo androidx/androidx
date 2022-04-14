@@ -95,6 +95,9 @@ public class WebViewFeature {
             WEB_MESSAGE_LISTENER,
             DOCUMENT_START_SCRIPT,
             PROXY_OVERRIDE_REVERSE_BYPASS,
+            GET_VARIATIONS_HEADER,
+            ALGORITHMIC_DARKENING,
+            REQUESTED_WITH_HEADER_CONTROL,
     })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
@@ -439,6 +442,14 @@ public class WebViewFeature {
 
     /**
      * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link WebSettingsCompat#setAlgorithmicDarkeningAllowed(WebSettings, boolean)} and
+     * {@link WebSettingsCompat#isAlgorithmicDarkeningAllowed(WebSettings)}.
+     */
+    public static final String ALGORITHMIC_DARKENING = "ALGORITHMIC_DARKENING";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers {@link WebViewCompat#addWebMessageListener(android.webkit.WebView,
      * String, Set, WebViewCompat.WebMessageListener)} and {@link
      * WebViewCompat#removeWebMessageListener(android.webkit.WebView, String)}.
@@ -458,6 +469,23 @@ public class WebViewFeature {
      * {@link androidx.webkit.ProxyConfig.Builder#setReverseBypassEnabled(boolean)}
      */
     public static final String PROXY_OVERRIDE_REVERSE_BYPASS = "PROXY_OVERRIDE_REVERSE_BYPASS";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers {@link WebViewCompat#getVariationsHeader()}.
+     */
+    public static final String GET_VARIATIONS_HEADER = "GET_VARIATIONS_HEADER";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers {@link WebSettingsCompat#setRequestedWithHeaderMode(WebSettings, int)},
+     * {@link WebSettingsCompat#getRequestedWithHeaderMode(WebSettings)},
+     * {@link ServiceWorkerWebSettingsCompat#setRequestedWithHeaderMode(int)},
+     * and {@link ServiceWorkerWebSettingsCompat#getRequestedWithHeaderMode()}.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String REQUESTED_WITH_HEADER_CONTROL = "REQUESTED_WITH_HEADER_CONTROL";
 
     /**
      * Return whether a feature is supported at run-time. On devices running Android version {@link

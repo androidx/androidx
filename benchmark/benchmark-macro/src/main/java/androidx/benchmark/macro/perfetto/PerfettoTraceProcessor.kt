@@ -114,4 +114,11 @@ internal object PerfettoTraceProcessor {
             queryFile.delete()
         }
     }
+
+    /**
+     * Helper for fuzzy matching process name to package
+     */
+    internal fun processNameLikePkg(pkg: String): String {
+        return """(process.name LIKE "$pkg" OR process.name LIKE "$pkg:%")"""
+    }
 }

@@ -749,6 +749,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void testNotificationActionBuilder_assignsColorized() throws Throwable {
         Notification n = newNotificationBuilder().setColorized(true).build();
         if (Build.VERSION.SDK_INT >= 26) {
@@ -757,6 +758,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void testNotificationActionBuilder_unassignesColorized() throws Throwable {
         Notification n = newNotificationBuilder().setColorized(false).build();
         if (Build.VERSION.SDK_INT >= 26) {
@@ -1357,6 +1359,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @SdkSuppress(minSdkVersion = 16)
+    @SuppressWarnings("deprecation")
     @Test
     public void testBigPictureStyle_withNullBigLargeIcon() {
         Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(),
@@ -1420,6 +1423,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @SdkSuppress(minSdkVersion = 24)
+    @SuppressWarnings("deprecation")
     @Test
     public void testBigPictureStyle_isRecovered() {
         Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(),
@@ -1444,6 +1448,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @SdkSuppress(minSdkVersion = 19)
+    @SuppressWarnings("deprecation")
     @Test
     public void testBigPictureStyle_recoverStyleWithBitmap() {
         Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(),
@@ -1481,6 +1486,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @SdkSuppress(minSdkVersion = 23)
+    @SuppressWarnings("deprecation")
     @Test
     public void testBigPictureStyle_recoverStyleWithResIcon() {
         Notification n = new Notification.Builder(mContext)
@@ -1835,6 +1841,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @SdkSuppress(minSdkVersion = 28)
+    @SuppressWarnings("deprecation")
     @Test
     public void testMessagingStyle_apply_writesMessagePerson() {
         Notification msNotification = newMsNotification(true, true);
@@ -1846,6 +1853,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @SdkSuppress(minSdkVersion = 24, maxSdkVersion = 27)
+    @SuppressWarnings("deprecation")
     @Test
     public void testMessagingStyle_apply_writesMessagePerson_legacy() {
         Notification msNotification = newMsNotification(true, true);
@@ -2185,6 +2193,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void testPeopleField() {
         final Person person1 = new Person.Builder().setName("test name").setKey("key").build();
         final Person person2 = new Person.Builder()

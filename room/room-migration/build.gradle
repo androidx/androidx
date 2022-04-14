@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
-    id("java-library")
+    id("kotlin")
 }
 
 dependencies {

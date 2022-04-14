@@ -37,6 +37,7 @@ android {
             testProguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    namespace "androidx.camera.integration.extensions"
 }
 
 dependencies {

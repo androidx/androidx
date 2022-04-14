@@ -266,7 +266,6 @@ internal object WindowMetricsCalculatorCompat : WindowMetricsCalculator {
      * Given that multi-window mode isn't supported before N we simply return the real display
      * size which should match the window size of a full-screen app.
      */
-    @RequiresApi(VERSION_CODES.ICE_CREAM_SANDWICH)
     internal fun computeWindowBoundsIceCreamSandwich(activity: Activity): Rect {
         // [WindowManager#getDefaultDisplay] is deprecated but we have this for
         // compatibility with older versions
@@ -298,7 +297,6 @@ internal object WindowMetricsCalculatorCompat : WindowMetricsCalculator {
      * @see Display.getRealSize
      */
     @VisibleForTesting
-    @RequiresApi(VERSION_CODES.ICE_CREAM_SANDWICH)
     internal fun getRealSizeForDisplay(display: Display): Point {
         val size = Point()
         if (Build.VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN_MR1) {

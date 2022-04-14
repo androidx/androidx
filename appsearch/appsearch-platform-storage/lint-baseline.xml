@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
+<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="cli" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
         id="NewApi"
-        message="Call requires API level S (current min is 14): `Builder`"
+        message="Call requires API level 31 (current min is 14): `Builder`"
         errorLine1="                new PlatformStorage.SearchContext.Builder("
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -14,7 +14,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level S (current min is 14): `build`"
+        message="Call requires API level 31 (current min is 14): `build`"
         errorLine1="                        /*databaseName=*/&quot;dbName&quot;).build();"
         errorLine2="                                                   ~~~~~">
         <location
@@ -25,7 +25,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level S (current min is 14): `getDatabaseName`"
+        message="Call requires API level 31 (current min is 14): `getDatabaseName`"
         errorLine1="        assertThat(searchContext.getDatabaseName()).isEqualTo(&quot;dbName&quot;);"
         errorLine2="                                 ~~~~~~~~~~~~~~~">
         <location
@@ -36,7 +36,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level S (current min is 14): `Builder`"
+        message="Call requires API level 31 (current min is 14): `Builder`"
         errorLine1="        PlatformStorage.SearchContext searchContext = new PlatformStorage.SearchContext.Builder("
         errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -47,7 +47,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level S (current min is 14): `setWorkerExecutor`"
+        message="Call requires API level 31 (current min is 14): `setWorkerExecutor`"
         errorLine1="                .setWorkerExecutor(executor)"
         errorLine2="                 ~~~~~~~~~~~~~~~~~">
         <location
@@ -58,7 +58,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level S (current min is 14): `build`"
+        message="Call requires API level 31 (current min is 14): `build`"
         errorLine1="                .build();"
         errorLine2="                 ~~~~~">
         <location
@@ -69,7 +69,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level S (current min is 14): `getWorkerExecutor`"
+        message="Call requires API level 31 (current min is 14): `getWorkerExecutor`"
         errorLine1="        assertThat(searchContext.getWorkerExecutor()).isEqualTo(executor);"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~">
         <location
@@ -80,7 +80,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level S (current min is 14): `getDatabaseName`"
+        message="Call requires API level 31 (current min is 14): `getDatabaseName`"
         errorLine1="        assertThat(searchContext.getDatabaseName()).isEqualTo(&quot;dbName&quot;);"
         errorLine2="                                 ~~~~~~~~~~~~~~~">
         <location
@@ -91,7 +91,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level S (current min is 14): `Builder`"
+        message="Call requires API level 31 (current min is 14): `Builder`"
         errorLine1="        PlatformStorage.SearchContext searchContext = new PlatformStorage.SearchContext.Builder("
         errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -102,7 +102,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level S (current min is 14): `build`"
+        message="Call requires API level 31 (current min is 14): `build`"
         errorLine1="                .build();"
         errorLine2="                 ~~~~~">
         <location
@@ -113,7 +113,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level S (current min is 14): `getWorkerExecutor`"
+        message="Call requires API level 31 (current min is 14): `getWorkerExecutor`"
         errorLine1="        assertThat(searchContext.getWorkerExecutor()).isNotNull();"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~">
         <location
@@ -124,7 +124,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level S (current min is 14): `getDatabaseName`"
+        message="Call requires API level 31 (current min is 14): `getDatabaseName`"
         errorLine1="        assertThat(searchContext.getDatabaseName()).isEqualTo(&quot;dbName&quot;);"
         errorLine2="                                 ~~~~~~~~~~~~~~~">
         <location
@@ -135,7 +135,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level S (current min is 14): `Builder`"
+        message="Call requires API level 31 (current min is 14): `Builder`"
         errorLine1="                () -> new PlatformStorage.SearchContext.Builder("
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -146,7 +146,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level S (current min is 14): `build`"
+        message="Call requires API level 31 (current min is 14): `build`"
         errorLine1="                        &quot;testDatabaseNameEndWith/&quot;).build());"
         errorLine2="                                                    ~~~~~">
         <location
@@ -157,7 +157,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level S (current min is 14): `Builder`"
+        message="Call requires API level 31 (current min is 14): `Builder`"
         errorLine1="                () -> new PlatformStorage.SearchContext.Builder("
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -168,7 +168,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level S (current min is 14): `build`"
+        message="Call requires API level 31 (current min is 14): `build`"
         errorLine1="                        &quot;/testDatabaseNameStartWith&quot;).build());"
         errorLine2="                                                      ~~~~~">
         <location

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -36,11 +35,13 @@ dependencies {
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(project(":internal-testutils-runtime"))
     androidTestImplementation(project(":media2:media2-player"))
+    androidTestImplementation(libs.multidex)
 }
 
 android {
     defaultConfig {
         minSdkVersion 16
+        multiDexEnabled true
     }
     sourceSets {
         main.res.srcDirs += "src/main/res-public"
@@ -51,6 +52,7 @@ android {
 	// Remove once b/136119801 is fixed
 	disable("RestrictedApi")
     }
+    namespace "androidx.media2.widget"
 }
 
 androidx {

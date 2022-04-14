@@ -32,7 +32,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.glance.Button
 import androidx.glance.GlanceId
@@ -61,15 +60,12 @@ import androidx.glance.layout.Row
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.padding
-import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
 
 class ActionAppWidget : GlanceAppWidget() {
-
-    override val stateDefinition = PreferencesGlanceStateDefinition
 
     @Composable
     override fun Content() {
@@ -85,7 +81,7 @@ class ActionAppWidget : GlanceAppWidget() {
                 SelectableActionItem(label = "Broadcasts", index = 2)
             }
 
-            when (currentState<Preferences>()[selectedItemKey] ?: 0) {
+            when (currentState(SelectedItemKey) ?: 0) {
                 0 -> StartActivityActions()
                 1 -> StartServiceActions()
                 2 -> SendBroadcastActions()
@@ -95,12 +91,12 @@ class ActionAppWidget : GlanceAppWidget() {
     }
 }
 
-private val selectedItemKey = intPreferencesKey("selectedItemKey")
-private val startMessageKey = ActionParameters.Key<String>("launchMessageKey")
+private val SelectedItemKey = intPreferencesKey("selectedItemKey")
+private val StartMessageKey = ActionParameters.Key<String>("launchMessageKey")
 
 @Composable
 private fun SelectableActionItem(label: String, index: Int) {
-    val style = if (index == currentState<Preferences>()[selectedItemKey] ?: 0) {
+    val style = if (index == (currentState(SelectedItemKey) ?: 0)) {
         TextStyle(
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
@@ -125,7 +121,7 @@ private fun SelectableActionItem(label: String, index: Int) {
             .clickable(
                 actionRunCallback<UpdateAction>(
                     actionParametersOf(
-                        selectedItemKey.toParametersKey() to index
+                        SelectedItemKey.toParametersKey() to index
                     )
                 )
             )
@@ -148,7 +144,7 @@ private fun StartActivityActions() {
         text = "Target class with params",
         onClick = actionStartActivity<ActionDemoActivity>(
             actionParametersOf(
-                startMessageKey to "Start activity by target class"
+                StartMessageKey to "Start activity by target class"
             )
         )
     )
@@ -163,7 +159,7 @@ private fun StartActivityActions() {
         onClick = actionStartActivity(
             ComponentName(LocalContext.current, ActionDemoActivity::class.java),
             actionParametersOf(
-                startMessageKey to "Start activity by component name"
+                StartMessageKey to "Start activity by component name"
             )
         )
     )
@@ -220,17 +216,18 @@ private fun SendBroadcastActions() {
 }
 
 /**
- * Action to update the [selectedItemKey] value whenever users clicks on text
+ * Action to update the [SelectedItemKey] value whenever users clicks on text
  */
 class UpdateAction : ActionCallback {
-    override suspend fun onRun(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
-        val actionAppWidget = ActionAppWidget()
-        actionAppWidget.updateAppWidgetState<Preferences>(context, glanceId) { prefs ->
-            prefs.toMutablePreferences().apply {
-                this[selectedItemKey] = parameters[selectedItemKey.toParametersKey()] ?: 0
-            }
+    override suspend fun onAction(
+        context: Context,
+        glanceId: GlanceId,
+        parameters: ActionParameters
+    ) {
+        updateAppWidgetState(context, glanceId) { state ->
+            state[SelectedItemKey] = parameters[SelectedItemKey.toParametersKey()] ?: 0
         }
-        actionAppWidget.update(context, glanceId)
+        ActionAppWidget().update(context, glanceId)
     }
 }
 
@@ -246,7 +243,7 @@ class ActionDemoActivity : ComponentActivity() {
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = androidx.compose.ui.Alignment.Center
             ) {
-                val message = intent.getStringExtra(startMessageKey.name) ?: "Not found"
+                val message = intent.getStringExtra(StartMessageKey.name) ?: "Not found"
                 androidx.compose.material.Text(message)
             }
         }

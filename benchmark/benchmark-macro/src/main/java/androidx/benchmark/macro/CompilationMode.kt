@@ -23,6 +23,9 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.benchmark.DeviceInfo
 import androidx.benchmark.Shell
+import androidx.benchmark.macro.CompilationMode.Full
+import androidx.benchmark.macro.CompilationMode.None
+import androidx.benchmark.macro.CompilationMode.Partial
 import androidx.profileinstaller.ProfileInstallReceiver
 import androidx.profileinstaller.ProfileInstaller
 import org.junit.AssumptionViolatedException
@@ -62,15 +65,90 @@ import org.junit.AssumptionViolatedException
  */
 sealed class CompilationMode {
     internal fun resetAndCompile(packageName: String, warmupBlock: () -> Unit) {
-        Log.d(TAG, "Clearing profiles for $packageName")
-        Shell.executeCommand("cmd package compile --reset $packageName")
-        compileImpl(packageName, warmupBlock)
+        if (Build.VERSION.SDK_INT >= 24) {
+            // Write skip file before we clear profiles
+            writeProfileInstallerSkipFile(packageName)
+            Log.d(TAG, "Clearing profiles for $packageName")
+            Shell.executeCommand("cmd package compile --reset $packageName")
+            compileImpl(packageName, warmupBlock)
+        }
     }
 
+    /**
+     * Writes a skip file via a [ProfileInstallReceiver] broadcast, so profile installation
+     * does not interfere with benchmarks.
+     */
+    private fun writeProfileInstallerSkipFile(packageName: String) {
+        val result = profileInstallerSkipFileOperation(packageName, "WRITE_SKIP_FILE")
+        if (result != null) {
+            Log.w(
+                TAG,
+                """
+                    $packageName should use the latest version of `androidx.profileinstaller`
+                    for stable benchmarks. ($result)"
+                """.trimIndent()
+            )
+        }
+        Log.d(TAG, "Killing process $packageName")
+        Shell.executeCommand("am force-stop $packageName")
+    }
+
+    /**
+     * Uses skip files for avoiding interference from ProfileInstaller when using
+     * [CompilationMode.None].
+     *
+     * Operation name is one of `WRITE_SKIP_FILE` or `DELETE_SKIP_FILE`.
+     *
+     * Returned error strings aren't thrown, to let the calling function decide strictness.
+     */
+    private fun profileInstallerSkipFileOperation(
+        packageName: String,
+        operation: String
+    ): String? {
+        // Redefining constants here, because these are only defined in the latest alpha for
+        // ProfileInstaller.
+
+        // Use an explicit broadcast given the app was force-stopped.
+        val name = ProfileInstallReceiver::class.java.name
+        val action = "androidx.profileinstaller.action.SKIP_FILE"
+        val operationKey = "EXTRA_SKIP_FILE_OPERATION"
+        val extras = "$operationKey $operation"
+        Log.d(TAG, "Profile Installation Skip File Operation: $operation")
+        val result = Shell.executeCommand("am broadcast -a $action -e $extras $packageName/$name")
+            .substringAfter("Broadcast completed: result=")
+            .trim()
+            .toIntOrNull()
+        return when {
+            result == null || result == 0 -> {
+                // 0 is returned by the platform by default, and also if no broadcast receiver
+                // receives the broadcast.
+
+                "The baseline profile skip file broadcast was not received. " +
+                    "This most likely means that the `androidx.profileinstaller` library " +
+                    "used by the target apk is old. Please use `1.2.0-alpha03` or newer. " +
+                    "For more information refer to the release notes at " +
+                    "https://developer.android.com/jetpack/androidx/releases/profileinstaller."
+            }
+            operation == "WRITE_SKIP_FILE" && result == 10 -> { // RESULT_INSTALL_SKIP_FILE_SUCCESS
+                null // success!
+            }
+            operation == "DELETE_SKIP_FILE" && result == 11 -> { // RESULT_DELETE_SKIP_FILE_SUCCESS
+                null // success!
+            }
+            else -> {
+                throw RuntimeException(
+                    "unrecognized ProfileInstaller result code: $result"
+                )
+            }
+        }
+    }
+
+    @RequiresApi(24)
     internal fun cmdPackageCompile(packageName: String, compileArgument: String) {
         Shell.executeCommand("cmd package compile -f -m $compileArgument $packageName")
     }
 
+    @RequiresApi(24)
     internal abstract fun compileImpl(packageName: String, warmupBlock: () -> Unit)
 
     /**
@@ -203,6 +281,7 @@ sealed class CompilationMode {
 
         override fun compileImpl(packageName: String, warmupBlock: () -> Unit) {
             if (baselineProfileMode != BaselineProfileMode.Disable) {
+                // Ignores the presence of a skip file.
                 val installErrorString = broadcastBaselineProfileInstall(packageName)
                 if (installErrorString == null) {
                     // baseline profile install success, kill process before compiling
@@ -252,78 +331,6 @@ sealed class CompilationMode {
                 cmdPackageCompile(packageName, "speed")
             }
             // Noop on older versions: apps are fully compiled at install time on API 23 and below
-        }
-    }
-
-    /**
-     * Partial pre-compilation, based on configurable number of profiling iterations.
-     *
-     * The compilation itself is performed with `cmd package compile -f -m speed-profile <package>`
-     */
-    @Deprecated(
-        message = "Use CompilationMode.Partial to partially pre-compile the target app",
-        replaceWith = ReplaceWith(
-            expression = "CompilationMode.Partial(baselineProfileMode=" +
-                "BaselineProfileMode.Ignore, warmupIterations=warmupIterations)",
-            imports = ["androidx.benchmark.macro.BaselineProfileMode"]
-        )
-    )
-    class SpeedProfile(
-        val warmupIterations: Int = 3
-    ) : CompilationMode() {
-        override fun toString(): String = "SpeedProfile(iterations=$warmupIterations)"
-
-        override fun compileImpl(packageName: String, warmupBlock: () -> Unit) {
-            if (Build.VERSION.SDK_INT >= 24) {
-                Partial(BaselineProfileMode.Disable, warmupIterations).compileImpl(
-                    packageName,
-                    warmupBlock
-                )
-            }
-            // Noop on older versions: this is compat behavior with previous library releases
-        }
-    }
-
-    /**
-     * Partial pre-compilation based on bundled baseline profile.
-     *
-     * Note: this mode is only supported for APKs that have the profileinstaller library
-     * included, and have been built by AGP 7.0+ to package the baseline profile in the APK.
-     *
-     * The compilation itself is performed with `cmd package compile -f -m speed-profile <package>`
-     */
-    @Deprecated(
-        message = "Use CompilationMode.Partial to partially pre-compile the target app",
-        replaceWith = ReplaceWith("CompilationMode.Partial()")
-    )
-    object BaselineProfile : CompilationMode() {
-        override fun toString(): String = "BaselineProfile"
-
-        override fun compileImpl(packageName: String, warmupBlock: () -> Unit) {
-            if (Build.VERSION.SDK_INT >= 24) {
-                Partial(BaselineProfileMode.Require, 0).compileImpl(
-                    packageName,
-                    warmupBlock
-                )
-            }
-            // Noop on older versions: this is compat behavior with previous library releases
-        }
-    }
-
-    /**
-     * Full ahead-of-time compilation.
-     *
-     * Equates to `cmd package compile -f -m speed <package>`
-     */
-    @Deprecated(
-        message = "Use CompilationMode.Full to fully compile the target app",
-        replaceWith = ReplaceWith("CompilationMode.Full")
-    )
-    object Speed : CompilationMode() {
-        override fun toString(): String = "Speed"
-
-        override fun compileImpl(packageName: String, warmupBlock: () -> Unit) {
-            Full().compileImpl(packageName, warmupBlock)
         }
     }
 

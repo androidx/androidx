@@ -16,6 +16,8 @@
 
 package androidx.camera.core.impl;
 
+import android.util.Range;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -74,6 +76,13 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, UseCa
      */
     Option<CameraSelector> OPTION_CAMERA_SELECTOR =
             Config.Option.create("camerax.core.useCase.cameraSelector", CameraSelector.class);
+
+    /**
+     * Option: camerax.core.useCase.targetFramerate
+     */
+    Option<Range<Integer>> OPTION_TARGET_FRAME_RATE =
+            Config.Option.create("camerax.core.useCase.targetFrameRate", CameraSelector.class);
+
 
     // *********************************************************************************************
 
@@ -247,6 +256,28 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, UseCa
     @NonNull
     default CameraSelector getCameraSelector() {
         return retrieveOption(OPTION_CAMERA_SELECTOR);
+    }
+
+    /**
+     * Retrieves target frame rate
+     * @param valueIfMissing
+     * @return the stored value or <code>valueIfMissing</code> if the value does not exist in
+     * this configuration
+     */
+    @Nullable
+    default Range<Integer> getTargetFramerate(@Nullable Range<Integer> valueIfMissing) {
+        return retrieveOption(OPTION_TARGET_FRAME_RATE, valueIfMissing);
+    }
+
+    /**
+     * Retrieves the target frame rate
+     *
+     * @return The stored value, if it exists in this configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     */
+    @NonNull
+    default Range<Integer> getTargetFramerate() {
+        return retrieveOption(OPTION_TARGET_FRAME_RATE);
     }
 
     /**

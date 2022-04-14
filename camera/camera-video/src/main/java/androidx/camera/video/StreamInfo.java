@@ -19,7 +19,6 @@ package androidx.camera.video;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.SurfaceRequest;
@@ -27,6 +26,11 @@ import androidx.camera.core.impl.ConstantObservable;
 import androidx.camera.core.impl.Observable;
 
 import com.google.auto.value.AutoValue;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * A class that contains the information of an video output stream.
@@ -38,10 +42,17 @@ import com.google.auto.value.AutoValue;
 @AutoValue
 public abstract class StreamInfo {
 
-    static final Integer STREAM_ID_ANY = 0;
+    /** The stream hasn't been setup. */
+    static final int STREAM_ID_ANY = 0;
+
+    /** The stream setup fails. */
+    static final int STREAM_ID_ERROR = -1;
 
     static final StreamInfo STREAM_INFO_ANY_INACTIVE = StreamInfo.of(STREAM_ID_ANY,
             StreamState.INACTIVE);
+
+    static final Set<Integer> NON_SURFACE_STREAM_ID = Collections.unmodifiableSet(
+            new HashSet<>(Arrays.asList(STREAM_ID_ANY, STREAM_ID_ERROR)));
 
     static final Observable<StreamInfo> ALWAYS_ACTIVE_OBSERVABLE =
             ConstantObservable.withValue(StreamInfo.of(STREAM_ID_ANY, StreamState.ACTIVE));
@@ -65,7 +76,7 @@ public abstract class StreamInfo {
     }
 
     @NonNull
-    static StreamInfo of(@Nullable Integer id, @NonNull StreamState streamState) {
+    static StreamInfo of(int id, @NonNull StreamState streamState) {
         return new AutoValue_StreamInfo(id, streamState);
     }
 
@@ -77,10 +88,10 @@ public abstract class StreamInfo {
      * {@link SurfaceRequest} has to be issued in order to obtain a new {@link Surface} to
      * continue drawing frames to the {@link VideoOutput}.
      *
-     * <p>The ID will be {@link #STREAM_ID_ANY} if the stream hasn't been setup.
+     * <p>The ID will be {@link #STREAM_ID_ANY} if the stream hasn't been setup and the ID will be
+     * {@link #STREAM_ID_ERROR} if the stream setup fails.
      */
-    @NonNull
-    public abstract Integer getId();
+    public abstract int getId();
 
     /**
      * Gets the stream state which can be used to determine if the video output is ready for

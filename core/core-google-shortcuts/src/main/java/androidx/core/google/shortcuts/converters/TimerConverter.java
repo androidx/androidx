@@ -31,11 +31,6 @@ import androidx.core.util.Preconditions;
 
 import com.google.firebase.appindexing.Indexable;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-
 /**
  * Convert for the {@link Timer} built-in type.
  *
@@ -48,13 +43,16 @@ public class TimerConverter implements AppSearchDocumentConverter {
     // Keys from the AppSearch document
     private static final String NAME_KEY = "name";
     private static final String DURATION_MILLIS_KEY = "durationMillis";
-    private static final String REMAINING_TIME_MILLIS_KEY = "remainingTimeMillis";
+    private static final String REMAINING_TIME_MILLIS_SINCE_UPDATE_KEY =
+            "remainingTimeMillisSinceUpdate";
     private static final String RINGTONE_KEY = "ringtone";
     private static final String STATUS_KEY = "status";
-    private static final String VIBRATE_KEY = "vibrate";
+    private static final String SHOULD_VIBRATE_KEY = "shouldVibrate";
     private static final String START_TIME_MILLIS_KEY = "startTimeMillis";
     private static final String START_TIME_MILLIS_IN_ELAPSED_REALTIME_KEY =
             "startTimeMillisInElapsedRealtime";
+    private static final String BOOT_COUNT_KEY = "bootCount";
+    private static final String ORIGINAL_DURATION_MILLIS_KEY = "originalDurationMillis";
 
     // Keys for Indexables
     private static final String MESSAGE_KEY = "message";
@@ -64,6 +62,7 @@ public class TimerConverter implements AppSearchDocumentConverter {
     private static final String EXPIRE_TIME_CORRECTED_BY_START_TIME_IN_ELAPSED_REALTIME_KEY =
             "expireTimeCorrectedByStartTimeInElapsedRealtime";
     private static final String TIMER_STATUS_KEY = "timerStatus";
+    private static final String VIBRATE_KEY = "vibrate";
 
     // Enums for TimerStatus
     private static final String STARTED = "Started";
@@ -74,14 +73,6 @@ public class TimerConverter implements AppSearchDocumentConverter {
     private static final String UNKNOWN = "Unknown";
 
     private static final String TIMER_INDEXABLE_TYPE = "Timer";
-
-    private static final ThreadLocal<DateFormat> ISO8601_DATE_TIME_FORMAT =
-            new ThreadLocal<DateFormat>() {
-        @Override
-        public DateFormat initialValue() {
-            return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US);
-        }
-    };
 
     private final TimeModel mTimeModel;
 
@@ -107,9 +98,13 @@ public class TimerConverter implements AppSearchDocumentConverter {
         indexableBuilder
                 .put(MESSAGE_KEY, timer.getPropertyString(NAME_KEY))
                 .put(LENGTH_KEY, timer.getPropertyLong(DURATION_MILLIS_KEY))
-                .put(REMAINING_TIME_KEY, timer.getPropertyLong(REMAINING_TIME_MILLIS_KEY))
+                .put(REMAINING_TIME_KEY,
+                        timer.getPropertyLong(REMAINING_TIME_MILLIS_SINCE_UPDATE_KEY))
                 .put(RINGTONE_KEY, timer.getPropertyString(RINGTONE_KEY))
-                .put(VIBRATE_KEY, timer.getPropertyBoolean(VIBRATE_KEY));
+                .put(VIBRATE_KEY, timer.getPropertyBoolean(SHOULD_VIBRATE_KEY))
+                .put(BOOT_COUNT_KEY, timer.getPropertyLong(BOOT_COUNT_KEY))
+                .put(ORIGINAL_DURATION_MILLIS_KEY,
+                        timer.getPropertyLong(ORIGINAL_DURATION_MILLIS_KEY));
 
         int timerStatus = (int) timer.getPropertyLong(STATUS_KEY);
         switch (timerStatus) {
@@ -139,10 +134,11 @@ public class TimerConverter implements AppSearchDocumentConverter {
 
         if (timerStatus == Timer.STATUS_STARTED) {
             long startTime = timer.getPropertyLong(START_TIME_MILLIS_KEY);
-            long remainingTime = timer.getPropertyLong(REMAINING_TIME_MILLIS_KEY);
+            long remainingTime = timer.getPropertyLong(REMAINING_TIME_MILLIS_SINCE_UPDATE_KEY);
 
             long expireTime = remainingTime + startTime;
-            indexableBuilder.put(EXPIRE_TIME_KEY, convertTimeToISOFormat(expireTime));
+            indexableBuilder.put(EXPIRE_TIME_KEY,
+                    ConverterUtils.convertTimestampToISO8601Format(expireTime, null));
 
             long startTimeInElapsedRealtime =
                     timer.getPropertyLong(START_TIME_MILLIS_IN_ELAPSED_REALTIME_KEY);
@@ -154,14 +150,10 @@ public class TimerConverter implements AppSearchDocumentConverter {
                 long expireTimeFromElapsedRealtime =
                         mTimeModel.getSystemCurrentTimeMillis() - elapsedTime + remainingTime;
                 indexableBuilder.put(EXPIRE_TIME_CORRECTED_BY_START_TIME_IN_ELAPSED_REALTIME_KEY,
-                        convertTimeToISOFormat(expireTimeFromElapsedRealtime));
+                        ConverterUtils.convertTimestampToISO8601Format(
+                                expireTimeFromElapsedRealtime, null));
             }
         }
         return indexableBuilder;
-    }
-
-    private String convertTimeToISOFormat(long time) {
-        Date date = new Date(time);
-        return Preconditions.checkNotNull(ISO8601_DATE_TIME_FORMAT.get()).format(date);
     }
 }

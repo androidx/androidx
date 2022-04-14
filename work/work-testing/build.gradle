@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -47,4 +46,13 @@ androidx {
     mavenGroup = LibraryGroups.WORK
     inceptionYear = "2018"
     description = "Android WorkManager testing library"
+}
+
+android {
+    namespace "androidx.work.testing"
+    lintOptions {
+        // Too many Kotlin features require synthetic accessors - we want to rely on R8 to
+        // remove these accessors
+        disable("SyntheticAccessor")
+    }
 }

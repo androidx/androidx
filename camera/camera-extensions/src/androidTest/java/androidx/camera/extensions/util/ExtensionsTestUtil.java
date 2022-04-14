@@ -43,6 +43,9 @@ import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.NightImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.NightPreviewExtenderImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
+import androidx.camera.extensions.internal.ExtensionVersion;
+import androidx.camera.extensions.internal.Version;
+import androidx.camera.extensions.internal.compat.workaround.ExtensionDisabledValidator;
 import androidx.camera.testing.CameraUtil;
 
 import java.util.Arrays;
@@ -147,13 +150,13 @@ public class ExtensionsTestUtil {
         return impl;
     }
 
-
     /**
-     * Returns whether the target camera device can support the test cases.
+     * Returns whether the target camera device can support the test for a specific extension mode.
      */
     public static boolean isTargetDeviceAvailableForExtensions(
-            @CameraSelector.LensFacing int lensFacing) {
-        return isLimitedAboveDevice(lensFacing) && !isSpecificSkippedDevice();
+            @CameraSelector.LensFacing int lensFacing, @ExtensionMode.Mode int mode) {
+        return CameraUtil.hasCameraWithLensFacing(lensFacing) && isLimitedAboveDevice(lensFacing)
+                && !isSpecificSkippedDevice() && !isSpecificSkippedDeviceWithExtensionMode(mode);
     }
 
     /**
@@ -191,7 +194,32 @@ public class ExtensionsTestUtil {
      * Returns that whether the device should be skipped for the test.
      */
     private static boolean isSpecificSkippedDevice() {
-        return Build.BRAND.equalsIgnoreCase("SONY") && (Build.MODEL.equalsIgnoreCase("G8142")
-                || Build.MODEL.equalsIgnoreCase("G8342"));
+        return (Build.BRAND.equalsIgnoreCase("SONY") && (Build.MODEL.equalsIgnoreCase("G8142")
+                || Build.MODEL.equalsIgnoreCase("G8342"))) || Build.MODEL.contains("Cuttlefish");
+    }
+
+    /**
+     * Returns that whether the device with specific extension mode should be skipped for the test.
+     */
+    private static boolean isSpecificSkippedDeviceWithExtensionMode(@ExtensionMode.Mode int mode) {
+        return "tecno".equalsIgnoreCase(Build.BRAND) && "tecno-ke5".equalsIgnoreCase(Build.DEVICE)
+                && (mode == ExtensionMode.HDR || mode == ExtensionMode.NIGHT);
+    }
+
+    /**
+     * Returns whether extensions is disabled by quirk.
+     */
+    public static boolean extensionsDisabledByQuirk(@CameraSelector.LensFacing int lensFacing,
+            @ExtensionMode.Mode int extensionMode) {
+
+        boolean isAdvancedExtenderSupported = false;
+
+        if (ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_2) >= 0) {
+            isAdvancedExtenderSupported = ExtensionVersion.isAdvancedExtenderSupported();
+        }
+
+        return new ExtensionDisabledValidator().shouldDisableExtension(
+                CameraUtil.getCameraIdWithLensFacing(lensFacing), extensionMode,
+                isAdvancedExtenderSupported);
     }
 }

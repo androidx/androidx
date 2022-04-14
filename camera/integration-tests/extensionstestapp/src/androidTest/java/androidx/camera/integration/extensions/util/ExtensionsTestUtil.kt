@@ -17,6 +17,7 @@
 package androidx.camera.integration.extensions.util
 
 import android.hardware.camera2.CameraCharacteristics
+import android.os.Build
 import androidx.camera.extensions.ExtensionMode
 import androidx.camera.extensions.impl.AutoImageCaptureExtenderImpl
 import androidx.camera.extensions.impl.AutoPreviewExtenderImpl
@@ -30,6 +31,7 @@ import androidx.camera.extensions.impl.ImageCaptureExtenderImpl
 import androidx.camera.extensions.impl.NightImageCaptureExtenderImpl
 import androidx.camera.extensions.impl.NightPreviewExtenderImpl
 import androidx.camera.extensions.impl.PreviewExtenderImpl
+import androidx.camera.extensions.internal.ExtensionVersion
 import androidx.camera.integration.extensions.utils.ExtensionModeUtil
 import androidx.camera.testing.CameraUtil
 import junit.framework.AssertionFailedError
@@ -95,5 +97,20 @@ object ExtensionsTestUtil {
         else -> throw AssertionFailedError("No such Preview extender implementation")
     }.apply {
         init(cameraId, cameraCharacteristics)
+    }
+
+    /**
+     * Returns whether the target camera device can support the test for a specific extension mode.
+     */
+    @JvmStatic
+    fun isTargetDeviceAvailableForExtensions(): Boolean {
+        // Runtime version must be non-null if the device supports extensions.
+        if (ExtensionVersion.getRuntimeVersion() == null) {
+            return false
+        }
+
+        // Skips Cuttlefish device since actually it is not a real marketing device which supports
+        // extensions and it will cause pre-submit failures.
+        return !Build.MODEL.contains("Cuttlefish", true)
     }
 }

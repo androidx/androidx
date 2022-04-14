@@ -23,8 +23,8 @@
     <string name="error_message_client_side_error" msgid="3323186720368387787">"Колдонмодо ката кетти. Бул катаны колдонмонун иштеп чыгуучусуна кабарлаңыз"</string>
     <string name="error_message_host_error" msgid="5484419926049675696">"Тутум катасы"</string>
     <string name="error_message_host_connection_lost" msgid="5723205987837759151">"Тутум убактылуу жеткиликсиз"</string>
-    <string name="error_message_host_not_found" msgid="3241065067065670113">"Тутумду жаңыртуу керек"</string>
-    <string name="error_message_host_incompatible" msgid="160406216155183851">"Тутумду жаңыртуу керек"</string>
+    <string name="error_message_host_not_found" msgid="3241065067065670113">"Системаны жаңыртуу керек"</string>
+    <string name="error_message_host_incompatible" msgid="160406216155183851">"Системаны жаңыртуу керек"</string>
     <string name="error_message_multiple_hosts" msgid="2591031904206928207">"Шайкеш келбеген тутум"</string>
     <string name="error_message_unknown_error" msgid="1918523834689044166">"Белгисиз ката"</string>
     <string name="error_message_no_vending" msgid="5866202078252905802">"Унаа кызматтары менен байланышыңыз"</string>

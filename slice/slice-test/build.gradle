@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryVersions
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 import androidx.build.Publish
 
@@ -48,4 +46,8 @@ androidx {
     inceptionYear = "2017"
     description = "A library that holds common code for testing slices"
     failOnDeprecationWarnings = false
+}
+
+android {
+    namespace "androidx.slice.test"
 }

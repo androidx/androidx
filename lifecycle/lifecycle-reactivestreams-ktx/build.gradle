@@ -15,7 +15,6 @@
  */
 
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -45,9 +44,13 @@ androidx {
   description = "Kotlin extensions for Lifecycle ReactiveStreams"
 }
 
+android {
+    namespace "androidx.lifecycle.reactivestreams.ktx"
+}
+
 // Allow usage of Kotlin's @OptIn.
 tasks.withType(KotlinCompile).configureEach {
   kotlinOptions {
-    freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
+    freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
   }
 }

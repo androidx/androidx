@@ -20,8 +20,14 @@ import androidx.room.compiler.processing.XEnumEntry
 import androidx.room.compiler.processing.XEnumTypeElement
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XHasModifiers
+import androidx.room.compiler.processing.XMethodElement
+import androidx.room.compiler.processing.XMemberContainer
 import androidx.room.compiler.processing.XTypeElement
+import androidx.room.compiler.processing.collectAllMethods
+import androidx.room.compiler.processing.collectFieldsIncludingPrivateSupers
+import androidx.room.compiler.processing.filterMethodsByConfig
 import androidx.room.compiler.processing.javac.kotlin.KotlinMetadataElement
+import androidx.room.compiler.processing.util.MemoizedSequence
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import com.squareup.javapoet.ClassName
@@ -53,6 +59,14 @@ internal sealed class JavacTypeElement(
     override val className: ClassName by lazy {
         ClassName.get(element)
     }
+
+    override val enclosingElement: XMemberContainer? by lazy {
+        enclosingTypeElement
+    }
+
+    override val closestMemberContainer: JavacTypeElement
+        get() = this
+
     override val enclosingTypeElement: XTypeElement? by lazy {
         element.enclosingType(env)
     }
@@ -69,11 +83,24 @@ internal sealed class JavacTypeElement(
             }
     }
 
+    private val allMethods = MemoizedSequence {
+        collectAllMethods(this)
+    }
+
+    private val allFieldsIncludingPrivateSupers = MemoizedSequence {
+        collectFieldsIncludingPrivateSupers(this)
+    }
+
+    override fun getAllMethods(): Sequence<XMethodElement> = allMethods
+
+    override fun getAllFieldsIncludingPrivateSupers() = allFieldsIncludingPrivateSupers
+
     override fun getDeclaredFields(): List<XFieldElement> {
         return _declaredFields
     }
 
-    override fun isKotlinObject() = kotlinMetadata?.isObject() == true
+    override fun isKotlinObject() = kotlinMetadata?.isObject() == true ||
+            kotlinMetadata?.isCompanionObject() == true
     override fun isCompanionObject() = kotlinMetadata?.isCompanionObject() == true
     override fun isDataClass() = kotlinMetadata?.isDataClass() == true
     override fun isValueClass() = kotlinMetadata?.isValueClass() == true
@@ -111,7 +138,7 @@ internal sealed class JavacTypeElement(
                 containing = this,
                 element = it
             )
-        }
+        }.filterMethodsByConfig(env)
     }
 
     override fun getDeclaredMethods(): List<JavacMethodElement> {

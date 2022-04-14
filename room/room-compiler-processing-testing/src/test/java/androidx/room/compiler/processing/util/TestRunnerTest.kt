@@ -19,6 +19,7 @@ package androidx.room.compiler.processing.util
 import androidx.room.compiler.processing.ExperimentalProcessingApi
 import androidx.room.compiler.processing.SyntheticJavacProcessor
 import androidx.room.compiler.processing.SyntheticKspProcessor
+import androidx.room.compiler.processing.XProcessingEnvConfig
 import androidx.room.compiler.processing.util.compiler.TestCompilationArguments
 import androidx.room.compiler.processing.util.compiler.compile
 import com.google.common.truth.Truth.assertThat
@@ -59,6 +60,7 @@ class TestRunnerTest {
             override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
                 return SyntheticKspProcessor(
                     environment,
+                    XProcessingEnvConfig.DEFAULT,
                     listOf { invocation ->
                         if (
                             invocation.processingEnv.findTypeElement("gen.GeneratedKotlin")
@@ -79,6 +81,7 @@ class TestRunnerTest {
         }
 
         val javaProcessor = SyntheticJavacProcessor(
+            XProcessingEnvConfig.DEFAULT,
             listOf { invocation ->
                 if (
                     invocation.processingEnv.findTypeElement("gen.GeneratedJava")

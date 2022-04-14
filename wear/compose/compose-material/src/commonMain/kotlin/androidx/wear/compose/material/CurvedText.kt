@@ -16,27 +16,30 @@
 
 package androidx.wear.compose.material
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.ArcPaddingValues
-import androidx.wear.compose.foundation.BasicCurvedText
+import androidx.wear.compose.foundation.CurvedDirection
+import androidx.wear.compose.foundation.CurvedLayout
+import androidx.wear.compose.foundation.basicCurvedText
+import androidx.wear.compose.foundation.CurvedModifier
+import androidx.wear.compose.foundation.CurvedScope
 import androidx.wear.compose.foundation.CurvedTextStyle
-import androidx.wear.compose.foundation.CurvedRowScope
+import androidx.wear.compose.foundation.curvedRow
 
 /**
  * CurvedText is a component allowing developers to easily write curved text following
  * the curvature a circle (usually at the edge of a circular screen).
- * CurvedText can be only created within the CurvedRow to ensure the best experience, like being
+ * CurvedText can be only created within the CurvedLayout to ensure the best experience, like being
  * able to specify to positioning.
  *
  * The default [style] uses the [LocalTextStyle] provided by the [MaterialTheme] / components,
- * converting it to a [CurvedTextStyle]. Note that not all parameters are used by [CurvedText].
+ * converting it to a [CurvedTextStyle]. Note that not all parameters are used by [curvedText].
  *
  * If you are setting your own style, you may want to consider first retrieving [LocalTextStyle],
  * and using [TextStyle.copy] to keep any theme defined attributes, only modifying the specific
@@ -51,54 +54,52 @@ import androidx.wear.compose.foundation.CurvedRowScope
  *
  * Additionally, for [color], if [color] is not set, and [style] does not have a color, then
  * [LocalContentColor] will be used with an alpha of [LocalContentAlpha]- this allows this
- * [CurvedText] or element containing this [CurvedText] to adapt to different background colors and
+ * [curvedText] or element containing this [curvedText] to adapt to different background colors and
  * still maintain contrast and accessibility.
  *
  * @sample androidx.wear.compose.material.samples.CurvedTextDemo
  *
  * For more information, see the
- * [Curved Text](https://developer.android.com/training/wearables/components/curved-text)
+ * [Curved Text](https://developer.android.com/training/wearables/compose/curved-text)
  * guide.
  *
  * @param text The text to display
+ * @param modifier The [CurvedModifier] to apply to this curved text.
+ * @param background The background color for the text.
  * @param color [Color] to apply to the text. If [Color.Unspecified], and [style] has no color set,
  * this will be [LocalContentColor].
  * @param fontSize The size of glyphs to use when painting the text. See [TextStyle.fontSize].
  * @param style Specified the style to use.
- * @param background The background color for the text.
- * @param clockwise The direction the text follows (default is true). Usually text at the top of the
- * screen goes clockwise, and text at the bottom goes counterclockwise.
+ * @param angularDirection Specify if the text is laid out clockwise or anti-clockwise, and if
+ * those needs to be reversed in a Rtl layout.
+ * If not specified, it will be inherited from the enclosing [curvedRow] or [CurvedLayout]
+ * See [CurvedDirection.Angular].
  * @param contentArcPadding Allows to specify additional space along each "edge" of the content in
  * [Dp] see [ArcPaddingValues]
+ * @param overflow How visual overflow should be handled.
  */
-@Composable
-fun CurvedRowScope.CurvedText(
+public fun CurvedScope.curvedText(
     text: String,
-    modifier: Modifier = Modifier,
-    color: Color = Color.Unspecified,
+    modifier: CurvedModifier = CurvedModifier,
     background: Color = Color.Unspecified,
+    color: Color = Color.Unspecified,
     fontSize: TextUnit = TextUnit.Unspecified,
-    style: CurvedTextStyle = CurvedTextStyle(LocalTextStyle.current),
-    clockwise: Boolean = true,
+    style: CurvedTextStyle? = null,
+    angularDirection: CurvedDirection.Angular? = null,
     contentArcPadding: ArcPaddingValues = ArcPaddingValues(0.dp),
-) {
+    overflow: TextOverflow = TextOverflow.Clip,
+) = basicCurvedText(text, modifier, angularDirection, contentArcPadding, overflow) {
+    val baseStyle = style ?: CurvedTextStyle(LocalTextStyle.current)
     val textColor = color.takeOrElse {
-        style.color.takeOrElse {
+        baseStyle.color.takeOrElse {
             LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
         }
     }
-    val mergedStyle = style.merge(
+    baseStyle.merge(
         CurvedTextStyle(
             color = textColor,
             fontSize = fontSize,
             background = background
         )
-    )
-    BasicCurvedText(
-        text = text,
-        style = mergedStyle,
-        modifier = modifier,
-        clockwise = clockwise,
-        contentArcPadding = contentArcPadding
     )
 }

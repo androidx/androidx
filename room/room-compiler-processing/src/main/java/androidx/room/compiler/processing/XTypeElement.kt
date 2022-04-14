@@ -61,6 +61,11 @@ interface XTypeElement : XHasModifiers, XElement, XMemberContainer {
      */
     val enclosingTypeElement: XTypeElement?
 
+    override val enclosingElement: XMemberContainer?
+
+    override val closestMemberContainer: XTypeElement
+        get() = this
+
     override val fallbackLocationText: String
         get() = qualifiedName
 
@@ -108,7 +113,7 @@ interface XTypeElement : XHasModifiers, XElement, XMemberContainer {
     fun isAnnotationClass(): Boolean
 
     /**
-     * Returns `true` if this [XTypeElement] is a non-companion `object` in Kotlin
+     * Returns `true` if this [XTypeElement] is an `object` or `companion object` in Kotlin
      */
     fun isKotlinObject(): Boolean
 
@@ -127,9 +132,7 @@ interface XTypeElement : XHasModifiers, XElement, XMemberContainer {
      * All fields, including private supers.
      * Room only ever reads fields this way.
      */
-    fun getAllFieldsIncludingPrivateSupers(): Sequence<XFieldElement> {
-        return collectFieldsIncludingPrivateSupers(this)
-    }
+    fun getAllFieldsIncludingPrivateSupers(): Sequence<XFieldElement>
 
     /**
      * Returns the primary constructor for the type, if it exists.
@@ -156,9 +159,7 @@ interface XTypeElement : XHasModifiers, XElement, XMemberContainer {
      *   2. All super class methods appear before all sub class methods,
      *   3. Within a given class/interface methods appear in the order they're declared in source.
      */
-    fun getAllMethods(): Sequence<XMethodElement> {
-        return collectAllMethods(this)
-    }
+    fun getAllMethods(): Sequence<XMethodElement>
 
     /**
      * Instance methods declared in this and supers

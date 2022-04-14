@@ -373,6 +373,7 @@ class SplashScreen private constructor(activity: Activity) {
             val finalListener = animationListener ?: return
             animationListener = null
             splashScreenViewProvider.view.postOnAnimation {
+                splashScreenViewProvider.view.bringToFront()
                 finalListener.onSplashScreenExit(splashScreenViewProvider)
             }
         }

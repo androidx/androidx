@@ -18,6 +18,7 @@ package androidx.camera.integration.uiwidgets.rotations
 
 import android.content.Context
 import android.content.Intent
+import androidx.camera.camera2.Camera2Config
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CoreAppTestUtil
@@ -28,11 +29,10 @@ import androidx.test.rule.GrantPermissionRule
 import androidx.test.uiautomator.UiDevice
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertWithMessage
+import java.util.concurrent.TimeUnit
 import org.junit.Assume
 import org.junit.BeforeClass
 import org.junit.Rule
-import org.junit.rules.TestRule
-import java.util.concurrent.TimeUnit
 
 /**
  * Base class for rotation image analysis tests.
@@ -47,7 +47,9 @@ import java.util.concurrent.TimeUnit
 abstract class ImageAnalysisBaseTest<A : CameraActivity> {
 
     @get:Rule
-    val mUseCameraRule: TestRule = CameraUtil.grantCameraPermissionAndPreTest(testCameraRule)
+    val useCameraRule = CameraUtil.grantCameraPermissionAndPreTest(
+        testCameraRule, CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+    )
 
     @get:Rule
     val mCameraActivityRules: GrantPermissionRule =

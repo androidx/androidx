@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 import androidx.build.RunApiTasks
 
@@ -26,9 +25,12 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
-    testImplementation(libs.truth)
-    testImplementation(libs.kotlinStdlib)
-    testImplementation(libs.junit)
+    androidTestImplementation(libs.kotlinStdlib)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.junit)
 }
 
 androidx {
@@ -47,4 +49,12 @@ android {
         // studio pipeline works only starting with Android O
         minSdkVersion 26
     }
+
+    externalNativeBuild {
+        cmake {
+            path "src/main/native/CMakeLists.txt"
+            version "3.22.1"
+        }
+    }
+    namespace "androidx.inspection"
 }

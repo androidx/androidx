@@ -105,6 +105,7 @@ public class PassiveGoal(
          * Creates a [PassiveGoal] from an [Intent]. Returns null if no [PassiveGoal] is stored in
          * the given intent.
          */
+        @Suppress("DEPRECATION")
         @JvmStatic
         public fun fromIntent(intent: Intent): PassiveGoal? = intent.getParcelableExtra(EXTRA_KEY)
     }

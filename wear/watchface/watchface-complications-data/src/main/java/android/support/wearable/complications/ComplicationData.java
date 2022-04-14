@@ -18,6 +18,7 @@ package android.support.wearable.complications;
 
 import android.annotation.SuppressLint;
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
 import android.os.BadParcelableException;
@@ -261,6 +262,8 @@ public final class ComplicationData implements Parcelable, Serializable {
     private static final String FIELD_TIMELINE_START_TIME = "TIMELINE_START_TIME";
     private static final String FIELD_TIMELINE_END_TIME = "TIMELINE_END_TIME";
     private static final String FIELD_TIMELINE_ENTRIES = "TIMELINE";
+    private static final String FIELD_PLACEHOLDER_TYPE = "PLACEHOLDER_TYPE";
+    private static final String FIELD_DATA_SOURCE = "FIELD_DATA_SOURCE";
 
     // Originally it was planned to support both content and image content descriptions.
     private static final String FIELD_CONTENT_DESCRIPTION = "IMAGE_CONTENT_DESCRIPTION";
@@ -278,7 +281,7 @@ public final class ComplicationData implements Parcelable, Serializable {
             {FIELD_SMALL_IMAGE, FIELD_IMAGE_STYLE}, // SMALL_IMAGE
             {FIELD_LARGE_IMAGE}, // LARGE_IMAGE
             {}, // TYPE_NO_PERMISSION
-            {} // TYPE_NO_DATA
+            {}, // TYPE_NO_DATA
     };
 
     // Used for validation. OPTIONAL_FIELDS[i] is an array containing all the fields which are
@@ -292,7 +295,8 @@ public final class ComplicationData implements Parcelable, Serializable {
                     FIELD_ICON,
                     FIELD_ICON_BURN_IN_PROTECTION,
                     FIELD_TAP_ACTION,
-                    FIELD_CONTENT_DESCRIPTION
+                    FIELD_CONTENT_DESCRIPTION,
+                    FIELD_DATA_SOURCE
             }, // SHORT_TEXT
             {
                     FIELD_LONG_TITLE,
@@ -302,7 +306,8 @@ public final class ComplicationData implements Parcelable, Serializable {
                     FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
                     FIELD_IMAGE_STYLE,
                     FIELD_TAP_ACTION,
-                    FIELD_CONTENT_DESCRIPTION
+                    FIELD_CONTENT_DESCRIPTION,
+                    FIELD_DATA_SOURCE
             }, // LONG_TEXT
             {
                     FIELD_SHORT_TEXT,
@@ -311,28 +316,50 @@ public final class ComplicationData implements Parcelable, Serializable {
                     FIELD_ICON_BURN_IN_PROTECTION,
                     FIELD_TAP_ACTION,
                     FIELD_CONTENT_DESCRIPTION,
+                    FIELD_DATA_SOURCE
             }, // RANGED_VALUE
             {
                     FIELD_TAP_ACTION,
                     FIELD_ICON_BURN_IN_PROTECTION,
-                    FIELD_CONTENT_DESCRIPTION
+                    FIELD_CONTENT_DESCRIPTION,
+                    FIELD_DATA_SOURCE
             }, // ICON
             {
                     FIELD_TAP_ACTION,
                     FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
-                    FIELD_CONTENT_DESCRIPTION
+                    FIELD_CONTENT_DESCRIPTION,
+                    FIELD_DATA_SOURCE
             }, // SMALL_IMAGE
             {
-                    FIELD_TAP_ACTION, FIELD_CONTENT_DESCRIPTION
+                    FIELD_TAP_ACTION, FIELD_CONTENT_DESCRIPTION, FIELD_DATA_SOURCE
             }, // LARGE_IMAGE
             {
                     FIELD_SHORT_TEXT,
                     FIELD_SHORT_TITLE,
                     FIELD_ICON,
                     FIELD_ICON_BURN_IN_PROTECTION,
-                    FIELD_CONTENT_DESCRIPTION
+                    FIELD_CONTENT_DESCRIPTION,
+                    FIELD_DATA_SOURCE
             }, // TYPE_NO_PERMISSION
-            {} // TYPE_NO_DATA
+            {  // TYPE_NO_DATA
+                    FIELD_CONTENT_DESCRIPTION,
+                    FIELD_ICON,
+                    FIELD_ICON_BURN_IN_PROTECTION,
+                    FIELD_IMAGE_STYLE,
+                    FIELD_LARGE_IMAGE,
+                    FIELD_LONG_TEXT,
+                    FIELD_LONG_TITLE,
+                    FIELD_MAX_VALUE,
+                    FIELD_MIN_VALUE,
+                    FIELD_PLACEHOLDER_TYPE,
+                    FIELD_SHORT_TEXT,
+                    FIELD_SHORT_TITLE,
+                    FIELD_SMALL_IMAGE,
+                    FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
+                    FIELD_TAP_ACTION,
+                    FIELD_VALUE,
+                    FIELD_DATA_SOURCE
+            }
     };
 
     @NonNull
@@ -362,8 +389,19 @@ public final class ComplicationData implements Parcelable, Serializable {
     }
 
     ComplicationData(int type, Bundle fields) {
-        mType = type;
         mFields = fields;
+        mFields.setClassLoader(getClass().getClassLoader());
+        // If this is a placeholder, coerce to TYPE_NO_DATA.
+        // If this is defined within a timeline, we assume the type of the outer ComplicationData
+        // applies to all elements in the timeline and we can just use the passed in type. The only
+        // exception is if we get a NO_DATA ComplicationData. In that case, we can check whether
+        // the placeholder type is included the serialization to determine if NO_DATA was passed
+        // in and coerce the type to NO_DATA.
+        if (mFields.containsKey(FIELD_PLACEHOLDER_TYPE)) {
+            mType = TYPE_NO_DATA;
+        } else {
+            mType = type;
+        }
     }
 
     private ComplicationData(@NonNull Parcel in) {
@@ -373,11 +411,13 @@ public final class ComplicationData implements Parcelable, Serializable {
 
     @RequiresApi(api = Build.VERSION_CODES.P)
     private static class SerializedForm implements Serializable {
-        private static final int VERSION_NUMBER = 3;
+        private static final int VERSION_NUMBER = 5;
 
-        @NonNull ComplicationData mComplicationData;
+        @NonNull
+        ComplicationData mComplicationData;
 
-        SerializedForm() {}
+        SerializedForm() {
+        }
 
         SerializedForm(@NonNull ComplicationData complicationData) {
             mComplicationData = complicationData;
@@ -440,6 +480,18 @@ public final class ComplicationData implements Parcelable, Serializable {
             if (isFieldValidForType(FIELD_END_TIME, type)) {
                 oos.writeLong(mComplicationData.getEndDateTimeMillis());
             }
+            if (isFieldValidForType(FIELD_PLACEHOLDER_TYPE, type)) {
+                oos.writeInt(mComplicationData.getPlaceholderType());
+            }
+            if (isFieldValidForType(FIELD_DATA_SOURCE, type)) {
+                ComponentName componentName = mComplicationData.getDataSource();
+                if (componentName == null) {
+                    oos.writeUTF("");
+                } else {
+                    oos.writeUTF(componentName.flattenToString());
+                }
+            }
+
             // TapAction unfortunately can't be serialized, instead we record if we've lost it.
             oos.writeBoolean(mComplicationData.hasTapAction()
                     || mComplicationData.getTapActionLostDueToSerialization());
@@ -519,6 +571,21 @@ public final class ComplicationData implements Parcelable, Serializable {
             }
             if (isFieldValidForType(FIELD_END_TIME, type)) {
                 fields.putLong(FIELD_END_TIME, ois.readLong());
+            }
+            if (isFieldValidForType(FIELD_PLACEHOLDER_TYPE, type)) {
+                int placeholderType = ois.readInt();
+                if (placeholderType != 0) {
+                    fields.putInt(FIELD_PLACEHOLDER_TYPE, placeholderType);
+                }
+            }
+            if (isFieldValidForType(FIELD_DATA_SOURCE, type)) {
+                String componentName = ois.readUTF();
+                if (componentName.isEmpty()) {
+                    fields.remove(FIELD_DATA_SOURCE);
+                } else {
+                    fields.putParcelable(
+                            FIELD_DATA_SOURCE, ComponentName.unflattenFromString(componentName));
+                }
             }
             if (ois.readBoolean()) {
                 fields.putBoolean(FIELD_TAP_ACTION_LOST, true);
@@ -656,14 +723,19 @@ public final class ComplicationData implements Parcelable, Serializable {
 
     /** Returns the list of {@link ComplicationData} timeline entries. */
     @Nullable
+    @SuppressWarnings("deprecation")
     public List<ComplicationData> getTimelineEntries() {
         Parcelable[] bundles = mFields.getParcelableArray(FIELD_TIMELINE_ENTRIES);
         if (bundles == null) {
             return null;
         }
         ArrayList<ComplicationData> entries = new ArrayList<>();
-        for (Parcelable parcel : bundles) {
-            entries.add(new ComplicationData(mType, (Bundle) parcel));
+        for (Parcelable parcelable : bundles) {
+            // Pass is the type of the outer complication data to the timeline entries by default.
+            // The array should only contain elements of the same type. The only exception is the
+            // NO_DATA type, which is allowed, but the code in the constructor is going to coerce
+            // the type to NO_DATA if necessary.
+            entries.add(new ComplicationData(mType, (Bundle) parcelable));
         }
         return entries;
     }
@@ -675,8 +747,26 @@ public final class ComplicationData implements Parcelable, Serializable {
         } else {
             mFields.putParcelableArray(
                     FIELD_TIMELINE_ENTRIES,
-                    timelineEntries.stream().map(e-> e.mFields).toArray(Parcelable[]::new));
+                    timelineEntries.stream().map(e -> e.mFields).toArray(Parcelable[]::new));
         }
+    }
+
+    /**
+     * Sets the {@link ComponentName} of the ComplicationDataSourceService that provided this
+     * ComplicationData.
+     */
+    public void setDataSource(@Nullable ComponentName provider) {
+        mFields.putParcelable(FIELD_DATA_SOURCE, provider);
+    }
+
+    /**
+     * Gets the {@link ComponentName} of the ComplicationDataSourceService that provided this
+     * ComplicationData.
+     */
+    @Nullable
+    @SuppressWarnings("deprecation")  // The safer alternative is not available on Wear OS yet.
+    public ComponentName getDataSource() {
+        return (ComponentName) mFields.getParcelable(FIELD_DATA_SOURCE);
     }
 
     /**
@@ -752,6 +842,7 @@ public final class ComplicationData implements Parcelable, Serializable {
      * Returns true if the ComplicationData contains a short title. I.e. if {@link #getShortTitle}
      * can succeed.
      */
+    @SuppressWarnings("deprecation")
     public boolean hasShortTitle() {
         try {
             return isFieldValidForType(FIELD_SHORT_TITLE, mType)
@@ -788,6 +879,7 @@ public final class ComplicationData implements Parcelable, Serializable {
      * Returns true if the ComplicationData contains short text. I.e. if {@link #getShortText} can
      * succeed.
      */
+    @SuppressWarnings("deprecation")
     public boolean hasShortText() {
         try {
             return isFieldValidForType(FIELD_SHORT_TEXT, mType)
@@ -824,6 +916,7 @@ public final class ComplicationData implements Parcelable, Serializable {
      * Returns true if the ComplicationData contains a long title. I.e. if {@link #getLongTitle}
      * can succeed.
      */
+    @SuppressWarnings("deprecation")
     public boolean hasLongTitle() {
         try {
             return isFieldValidForType(FIELD_LONG_TITLE, mType)
@@ -853,6 +946,7 @@ public final class ComplicationData implements Parcelable, Serializable {
      * Returns true if the ComplicationData contains long text. I.e. if {@link #getLongText} can
      * succeed.
      */
+    @SuppressWarnings("deprecation")
     public boolean hasLongText() {
         try {
             return isFieldValidForType(FIELD_LONG_TEXT, mType)
@@ -880,6 +974,7 @@ public final class ComplicationData implements Parcelable, Serializable {
     /**
      * Returns true if the ComplicationData contains an Icon. I.e. if {@link #getIcon} can succeed.
      */
+    @SuppressWarnings("deprecation")
     public boolean hasIcon() {
         try {
             return isFieldValidForType(FIELD_ICON, mType)
@@ -912,6 +1007,7 @@ public final class ComplicationData implements Parcelable, Serializable {
      * Returns true if the ComplicationData contains a burn in protection Icon. I.e. if
      * {@link #getBurnInProtectionIcon} can succeed.
      */
+    @SuppressWarnings("deprecation")
     public boolean hasBurnInProtectionIcon() {
         try {
             return isFieldValidForType(FIELD_ICON_BURN_IN_PROTECTION, mType)
@@ -946,6 +1042,7 @@ public final class ComplicationData implements Parcelable, Serializable {
      * Returns true if the ComplicationData contains a small image. I.e. if {@link #getSmallImage}
      * can succeed.
      */
+    @SuppressWarnings("deprecation")
     public boolean hasSmallImage() {
         try {
             return isFieldValidForType(FIELD_SMALL_IMAGE, mType)
@@ -983,6 +1080,7 @@ public final class ComplicationData implements Parcelable, Serializable {
      *
      * @throws IllegalStateException for invalid types
      */
+    @SuppressWarnings("deprecation")
     public boolean hasBurnInProtectionSmallImage() {
         try {
             return isFieldValidForType(FIELD_SMALL_IMAGE_BURN_IN_PROTECTION, mType)
@@ -1035,6 +1133,7 @@ public final class ComplicationData implements Parcelable, Serializable {
      * Returns true if the ComplicationData contains a large image. I.e. if {@link #getLargeImage}
      * can succeed.
      */
+    @SuppressWarnings("deprecation")
     public boolean hasLargeImage() {
         try {
             return isFieldValidForType(FIELD_LARGE_IMAGE, mType)
@@ -1065,6 +1164,7 @@ public final class ComplicationData implements Parcelable, Serializable {
      * Returns true if the ComplicationData contains a tap action. I.e. if {@link #getTapAction}
      * can succeed.
      */
+    @SuppressWarnings("deprecation")
     public boolean hasTapAction() {
         try {
             return isFieldValidForType(FIELD_TAP_ACTION, mType)
@@ -1092,6 +1192,7 @@ public final class ComplicationData implements Parcelable, Serializable {
      * Returns true if the ComplicationData contains a content description. I.e. if
      * {@link #getContentDescription} can succeed.
      */
+    @SuppressWarnings("deprecation")
     public boolean hasContentDescription() {
         try {
             return isFieldValidForType(FIELD_CONTENT_DESCRIPTION, mType)
@@ -1111,6 +1212,31 @@ public final class ComplicationData implements Parcelable, Serializable {
     public ComplicationText getContentDescription() {
         checkFieldValidForTypeWithoutThrowingException(FIELD_CONTENT_DESCRIPTION, mType);
         return getParcelableField(FIELD_CONTENT_DESCRIPTION);
+    }
+
+    /**
+     * Returns true if the ComplicationData contains a placeholder type. I.e. if
+     * {@link #getPlaceholderType} can succeed.
+     */
+    public boolean hasPlaceholderType() {
+        try {
+            return isFieldValidForType(FIELD_PLACEHOLDER_TYPE, mType)
+                    && mFields.containsKey(FIELD_PLACEHOLDER_TYPE);
+        } catch (BadParcelableException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Returns the type this complication is a placeholder for.
+     *
+     * <p>Valid only if the type of this complication data is {@link #TYPE_NO_DATA}.
+     * Otherwise returns zero.
+     */
+    @ComplicationType
+    public int getPlaceholderType() {
+        checkFieldValidForType(FIELD_PLACEHOLDER_TYPE, mType);
+        return mFields.getInt(FIELD_PLACEHOLDER_TYPE);
     }
 
     /**
@@ -1191,7 +1317,7 @@ public final class ComplicationData implements Parcelable, Serializable {
         }
     }
 
-    @SuppressWarnings("TypeParameterUnusedInFormals")
+    @SuppressWarnings({"TypeParameterUnusedInFormals", "deprecation"})
     private <T extends Parcelable> T getParcelableField(String field) {
         try {
             return mFields.getParcelable(field);
@@ -1560,7 +1686,7 @@ public final class ComplicationData implements Parcelable, Serializable {
         }
 
         /**
-         * Sets whether or not tis ComplicationData has been serialized.
+         * Sets whether or not this ComplicationData has been serialized.
          *
          * <p>Returns this Builder to allow chaining.
          */
@@ -1569,6 +1695,30 @@ public final class ComplicationData implements Parcelable, Serializable {
             if (tapActionLostDueToSerialization) {
                 mFields.putBoolean(FIELD_TAP_ACTION_LOST, tapActionLostDueToSerialization);
             }
+            return this;
+        }
+
+        /**
+         * Sets the type this complication is a placeholder for.
+         *
+         * <p>Returns this Builder to allow chaining.
+         */
+        @NonNull
+        public Builder setPlaceholderType(@ComplicationType int placeholderType) {
+            putIntField(FIELD_PLACEHOLDER_TYPE, placeholderType);
+            return this;
+        }
+
+        /**
+         * Sets the {@link ComponentName} of the ComplicationDataSourceService that provided this
+         * ComplicationData. Generally this field should be set and is only nullable for backwards
+         * compatibility.
+         *
+         * <p>Returns this Builder to allow chaining.
+         */
+        @NonNull
+        public Builder setDataSource(@Nullable ComponentName provider) {
+            putOrRemoveField(FIELD_DATA_SOURCE, provider);
             return this;
         }
 

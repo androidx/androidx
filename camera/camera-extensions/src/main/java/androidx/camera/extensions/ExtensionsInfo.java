@@ -44,7 +44,6 @@ import androidx.camera.extensions.internal.ExtensionVersion;
 import androidx.camera.extensions.internal.ExtensionsUseCaseConfigFactory;
 import androidx.camera.extensions.internal.VendorExtender;
 import androidx.camera.extensions.internal.Version;
-import androidx.camera.extensions.internal.compat.workaround.ExtensionDisabledValidator;
 
 import java.util.Collections;
 import java.util.List;
@@ -64,8 +63,6 @@ import java.util.Map;
 final class ExtensionsInfo {
     private static final String EXTENDED_CAMERA_CONFIG_PROVIDER_ID_PREFIX = ":camera:camera"
             + "-extensions-";
-    private static final ExtensionDisabledValidator sExtensionDisabledValidator =
-            new ExtensionDisabledValidator();
     private final CameraProvider mCameraProvider;
 
     ExtensionsInfo(@NonNull CameraProvider cameraProvider) {
@@ -237,11 +234,6 @@ final class ExtensionsInfo {
 
         // Disable Advanced Extender until it is well tested.
         if (isAdvancedExtenderSupported) {
-            return new DisabledVendorExtender();
-        }
-
-        // Force disable extension for some devices by quirk.
-        if (sExtensionDisabledValidator.shouldDisableExtension(isAdvancedExtenderSupported)) {
             return new DisabledVendorExtender();
         }
 

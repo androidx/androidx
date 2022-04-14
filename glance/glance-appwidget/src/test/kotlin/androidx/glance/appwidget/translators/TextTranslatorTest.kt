@@ -55,8 +55,8 @@ import androidx.glance.unit.ColorProvider
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -68,7 +68,7 @@ import kotlin.test.assertIs
 @RunWith(RobolectricTestRunner::class)
 class TextTranslatorTest {
 
-    private lateinit var fakeCoroutineScope: TestCoroutineScope
+    private lateinit var fakeCoroutineScope: TestScope
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private val lightContext = configurationContext { uiMode = Configuration.UI_MODE_NIGHT_NO }
     private val darkContext = configurationContext { uiMode = Configuration.UI_MODE_NIGHT_YES }
@@ -76,11 +76,11 @@ class TextTranslatorTest {
 
     @Before
     fun setUp() {
-        fakeCoroutineScope = TestCoroutineScope()
+        fakeCoroutineScope = TestScope()
     }
 
     @Test
-    fun canTranslateText() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateText() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Text("test")
         }
@@ -92,7 +92,7 @@ class TextTranslatorTest {
 
     @Test
     @Config(sdk = [23, 29])
-    fun canTranslateText_withStyleWeightAndSize() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateText_withStyleWeightAndSize() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Text(
                 "test",
@@ -117,7 +117,7 @@ class TextTranslatorTest {
     }
 
     @Test
-    fun canTranslateText_withStyleStrikeThrough() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateText_withStyleStrikeThrough() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Text("test", style = TextStyle(textDecoration = TextDecoration.LineThrough))
         }
@@ -130,7 +130,7 @@ class TextTranslatorTest {
     }
 
     @Test
-    fun canTranslateText_withStyleUnderline() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateText_withStyleUnderline() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Text("test", style = TextStyle(textDecoration = TextDecoration.Underline))
         }
@@ -143,7 +143,7 @@ class TextTranslatorTest {
     }
 
     @Test
-    fun canTranslateText_withStyleItalic() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateText_withStyleItalic() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Text("test", style = TextStyle(fontStyle = FontStyle.Italic))
         }
@@ -159,7 +159,7 @@ class TextTranslatorTest {
 
     @Test
     @Config(sdk = [23, 29])
-    fun canTranslateText_withComplexStyle() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateText_withComplexStyle() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Text(
                 "test",
@@ -193,7 +193,7 @@ class TextTranslatorTest {
     }
 
     @Test
-    fun canTranslateText_withAlignments() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateText_withAlignments() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Column(modifier = GlanceModifier.fillMaxWidth()) {
                 Text("Center", style = TextStyle(textAlign = TextAlign.Center))
@@ -240,7 +240,7 @@ class TextTranslatorTest {
     }
 
     @Test
-    fun canTranslateText_withAlignmentsInRtl() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateText_withAlignmentsInRtl() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslateInRtl {
             Column(modifier = GlanceModifier.fillMaxWidth()) {
                 Text("Center", style = TextStyle(textAlign = TextAlign.Center))
@@ -287,7 +287,7 @@ class TextTranslatorTest {
     }
 
     @Test
-    fun canTranslateText_withColor_fixed() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateText_withColor_fixed() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Column {
                 Text("Blue", style = TextStyle(color = ColorProvider(Color.Blue)))
@@ -308,7 +308,7 @@ class TextTranslatorTest {
 
     @Config(minSdk = 29)
     @Test
-    fun canTranslateText_withColor_resource_light() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateText_withColor_resource_light() = fakeCoroutineScope.runTest {
         val rv = lightContext.runAndTranslate {
             Text("GrayResource", style = TextStyle(color = ColorProvider(R.color.my_color)))
         }
@@ -320,7 +320,7 @@ class TextTranslatorTest {
 
     @Config(minSdk = 29)
     @Test
-    fun canTranslateText_withColor_resource_dark() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateText_withColor_resource_dark() = fakeCoroutineScope.runTest {
         val rv = darkContext.runAndTranslate {
             Text("GrayResource", style = TextStyle(color = ColorProvider(R.color.my_color)))
         }
@@ -332,7 +332,7 @@ class TextTranslatorTest {
 
     @Config(minSdk = 29)
     @Test
-    fun canTranslateText_withColor_dayNight_light() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateText_withColor_dayNight_light() = fakeCoroutineScope.runTest {
         val rv = lightContext.runAndTranslate {
             Text(
                 "Green day / Magenta night",
@@ -347,7 +347,7 @@ class TextTranslatorTest {
 
     @Config(minSdk = 29)
     @Test
-    fun canTranslateText_withColor_dayNight_dark() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateText_withColor_dayNight_dark() = fakeCoroutineScope.runTest {
         val rv = darkContext.runAndTranslate {
             Text(
                 "Green day / Magenta night",
@@ -361,7 +361,7 @@ class TextTranslatorTest {
     }
 
     @Test
-    fun canTranslateText_withMaxLines() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateText_withMaxLines() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Text("Max line is set", maxLines = 5)
         }

@@ -35,6 +35,7 @@ import androidx.work.impl.Processor
 import androidx.work.impl.Scheduler
 import androidx.work.impl.WorkDatabase
 import androidx.work.impl.WorkManagerImpl
+import androidx.work.impl.WorkRunId
 import androidx.work.impl.constraints.WorkConstraintsCallback
 import androidx.work.impl.constraints.WorkConstraintsTracker
 import androidx.work.impl.foreground.SystemForegroundDispatcher.createCancelWorkIntent
@@ -381,7 +382,9 @@ class SystemForegroundDispatcherTest {
         val metadata = ForegroundInfo(notificationId, notification)
         val intent = createStartForegroundIntent(context, request.stringId, metadata)
         dispatcher.onStartCommand(intent)
-        val stopWorkRunnable = StopWorkRunnable(workManager, request.stringId, false)
+        val stopWorkRunnable = StopWorkRunnable(
+            workManager, WorkRunId(request.stringId), false
+        )
         stopWorkRunnable.run()
         val state = workDatabase.workSpecDao().getState(request.stringId)
         assertThat(state, `is`(WorkInfo.State.RUNNING))

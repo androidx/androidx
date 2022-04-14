@@ -21,3 +21,7 @@ import android.text.Spanned
 internal fun Spanned.hasSpan(clazz: Class<*>): Boolean {
     return nextSpanTransition(-1 /* start */, length /* limit */, clazz) != length
 }
+
+internal fun Spanned.hasSpan(clazz: Class<*>, startInclusive: Int, endExclusive: Int): Boolean {
+    return nextSpanTransition(startInclusive - 1, endExclusive /* limit */, clazz) != endExclusive
+}

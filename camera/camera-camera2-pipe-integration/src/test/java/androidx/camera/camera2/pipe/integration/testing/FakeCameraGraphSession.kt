@@ -29,7 +29,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import java.util.concurrent.Semaphore
 
-class FakeCameraGraphSession : CameraGraph.Session {
+open class FakeCameraGraphSession : CameraGraph.Session {
 
     val repeatingRequests = mutableListOf<Request>()
     val repeatingRequestSemaphore = Semaphore(0)

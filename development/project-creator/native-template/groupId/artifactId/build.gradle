@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.LibraryVersions
 
 plugins {
     id("AndroidXPlugin")
@@ -39,17 +37,18 @@ androidx {
 }
 
 android {
+    namespace "<PACKAGE>"
     defaultConfig {
         externalNativeBuild {
             cmake {
-                arguments "=DANDROID_STL=c++_shared"
+                arguments "-DANDROID_STL=c++_shared"
                 targets "<TARGET>"
             }
         }
     }
     externalNativeBuild {
         cmake {
-            version "3.18.1"
+            version libs.versions.cmake.get()
             path "src/main/cpp/CMakeLists.txt"
         }
     }

@@ -16,4 +16,377 @@
 -->
 <resources>
   <string name="app_name" translatable="false">Showcase</string>
+
+  <!-- Action Titles -->
+  <string name="back_caps_action_title">BACK</string>
+  <string name="home_caps_action_title">HOME</string>
+  <string name="exit_action_title">Exit</string>
+  <string name="refresh_action_title">Refresh</string>
+  <string name="close_action_title">Close</string>
+  <string name="grant_access_action_title">Grant Access</string>
+  <string name="enable_location_action_title">Enable Location</string>
+  <string name="cancel_action_title">Cancel</string>
+  <string name="stop_action_title">Stop</string>
+  <string name="more_action_title">More</string>
+  <string name="call_action_title">Call</string>
+  <string name="primary_action_title">Primary</string>
+  <string name="options_action_title">Options</string>
+  <string name="search_action_title">Search</string>
+  <string name="checked_action_title">Checked</string>
+  <string name="unchecked_action_title">Unchecked</string>
+  <string name="on_action_title">On</string>
+  <string name="off_action_title">Off</string>
+  <string name="settings_action_title">Settings</string>
+  <string name="accept_action_title">Settings</string>
+  <string name="reject_action_title">Reject</string>
+  <string name="ok_action_title">OK</string>
+  <string name="throw_action_title">Throw</string>
+  <string name="commute_action_title">Commute</string>
+  <string name="sign_out_action_title">Sign out</string>
+  <string name="try_anyway_action_title">Try Anyway</string>
+
+  <!-- Toast Messages -->
+  <string name="bug_reported_toast_msg">Bug reported!</string>
+  <string name="zoomed_in_toast_msg">Zoomed in</string>
+  <string name="zoomed_out_toast_msg">Zoomed out</string>
+  <string name="triggered_toast_msg">Triggered</string>
+  <string name="primary_toast_msg">Primary button pressed</string>
+  <string name="search_toast_msg">Search button pressed</string>
+  <string name="options_toast_msg">Options button pressed</string>
+  <string name="favorite_toast_msg">Favorite!</string>
+  <string name="not_favorite_toast_msg">Not a favorite!</string>
+  <string name="nav_requested_toast_msg">Navigation Requested</string>
+  <string name="selected_route_toast_msg">Selected route</string>
+  <string name="visible_routes_toast_msg">Visible routes</string>
+  <string name="second_item_toast_msg">Clicked second item</string>
+  <string name="third_item_checked_toast_msg">Third item checked</string>
+  <string name="fifth_item_checked_toast_msg">Fifth item checked</string>
+  <string name="sixth_item_toast_msg">Clicked sixth item</string>
+  <string name="settings_toast_msg">Clicked Settings</string>
+  <string name="parked_toast_msg">Parked action</string>
+  <string name="more_toast_msg">Clicked More</string>
+  <string name="commute_toast_msg">Commute button pressed</string>
+  <string name="grant_location_permission_toast_msg">Grant location Permission to see current location</string>
+  <string name="sign_in_with_google_toast_msg">Sign-in with Google starts here</string>
+  <string name="changes_selection_to_index_toast_msg_prefix">Changed selection to index</string>
+
+  <!-- Row text -->
+  <string name="first_row_title">Row with a large image and long text long text long text long text long text</string>
+  <string name="first_row_text">Text text text</string>
+  <string name="other_row_title_prefix">Row title </string>
+  <string name="other_row_text">Row text</string>
+
+  <!-- Place Details Screen -->
+  <string name="navigate">Navigate</string>
+  <string name="dial">Dial</string>
+  <string name="address">Address</string>
+  <string name="phone">Phone</string>
+
+  <!-- CarHardwareDemoScreen -->
+  <string name="fail_start_nav">Failure starting navigation</string>
+  <string name="fail_start_dialer">Failure starting dialer</string>
+  <string name="car_hardware_demo_title">Car Hardware Demo</string>
+
+  <!-- CarHardwareInfoScreen -->
+  <string name="car_hardware_info">Car Hardware Information</string>
+  <string name="model_info">Model Information</string>
+  <string name="no_model_permission">No Model Permission</string>
+  <string name="manufacturer_unavailable">Manufacturer unavailable</string>
+  <string name="model_unavailable">Model unavailable</string>
+  <string name="year_unavailable">Year unavailable</string>
+  <string name="energy_profile">Energy Profile</string>
+  <string name="no_energy_profile_permission">No Energy Profile Permission</string>
+  <string name="fuel_types">Fuel Types</string>
+  <string name="unavailable">Unavailable</string>
+  <string name="ev_connector_types">EV Connector Types</string>
+
+  <!-- ColorDemoScreen -->
+  <string name="example_title">Example %d</string>
+  <string name="example_1_text">This text has a red color</string>
+  <string name="example_2_text">This text has a green color</string>
+  <string name="example_3_text">This text has a blue color</string>
+  <string name="example_4_text">This text has a yellow color</string>
+  <string name="example_5_text">This text uses the primary colo</string>
+  <string name="example_6_text">This text uses the secondary color</string>
+  <string name="color_demo">Color Demo</string>
+
+  <!-- ContentLimitsDemoScreen -->
+  <string name="list_limit">List Limit</string>
+  <string name="grid_limit">Grid Limit</string>
+  <string name="pane_limit">Pane Limit</string>
+  <string name="place_list_limit">Place List Limit</string>
+  <string name="route_list_limit">Route List Limit</string>
+  <string name="content_limits">Content Limits</string>
+  <string name="content_limits_demo_title">Content Limits Demo</string>
+
+  <!-- FinishAppScreen -->
+  <string name="finish_app_msg">This will finish the app, and when you return it will pre-seed a permission screen</string>
+  <string name="finish_app_title">Finish App Demo</string>
+  <string name="finish_app_demo_title">Pre-seed the Screen backstack on next run Demo</string>
+
+  <!-- LoadingDemoScreen -->
+  <string name="loading_demo_title">Loading Demo</string>
+  <string name="loading_demo_row_title">Loading Complete!</string>
+
+  <!-- PopToDemoScreen -->
+  <string name="pop_to_root">Pop to root</string>
+  <string name="pop_to_marker">Pop to Misc Demo Marker</string>
+  <string name="push_stack">Push further in stack</string>
+  <string name="pop_to_prefix">Pop To </string>
+  <string name="pop_to_title">PopTo Demo</string>
+
+  <!-- RequestPermissionScreen -->
+  <string name="package_not_found_error_msg">Package Not found.</string>
+  <string name="permissions_granted_msg">All permissions have been granted. Please revoke permissions from Settings.</string>
+  <string name="needs_access_msg_prefix">The app needs access to the following permissions:\n</string>
+  <string name="phone_screen_permission_msg">Grant Permission on the phone screen</string>
+  <string name="enable_location_permission_on_device_msg">Enable Location Permissions on device</string>
+  <string name="enable_location_permission_on_phone_msg">Enable location on the phone screen</string>
+  <string name="required_permissions_title">Required Permissions</string>
+  <string name="request_permissions_title">Request Permission Demo</string>
+
+  <!-- ReservationCancelledScreen -->
+  <string name="cancel_reservation_title">Cancel Reservation Screen</string>
+  <string name="reservation_cancelled_msg">Reservation canceled</string>
+
+  <!-- ResultDemoScreen -->
+  <string name="result_demo_title">Result demo</string>
+  <string name="not_started_for_result_msg">This app was not started for result</string>
+  <string name="started_for_result_msg">This app was called for result from %s. Please select the result to send back to the caller</string>
+
+  <!-- ArrivedDemoScreen -->
+  <string name="arrived_exclamation_msg">Arrived!</string>
+  <string name="arrived_address_msg">Google Bellevue Office\n1120 112th Ave NE</string>
+
+  <!-- RoutingDemoModels -->
+  <string name="current_step_cue">Roy st 520</string>
+  <string name="next_step_cue">I5 Aurora Ave N</string>
+  <string name="travel_est_trip_text">Pick Up Alice</string>
+
+  <!-- NotificationDemoScreen -->
+  <string name="send_notification_title">Send a notification</string>
+  <string name="start_notifications_title">Start notifications</string>
+  <string name="stop_notifications_title">Stop notifications</string>
+  <string name="notification_title">Notification</string>
+  <string name="importance_title">Importance</string>
+  <string name="category_title">Category</string>
+  <string name="ongoing_title">Ongoing</string>
+  <string name="notification_demo">Notification Demo</string>
+
+  <!-- MiscDemoScreen -->
+  <string name="misc_demo_title">Misc Demos</string>
+
+  <!-- NavigationTemplateDemoScreen -->
+  <string name="navigating_demo_title">Navigating Demo</string>
+  <string name="arrived_demo_title">Arrived Demo</string>
+  <string name="junction_image_demo_title">Junction Image Demo</string>
+  <string name="nav_template_demos_title">Navigation Template Demos</string>
+
+  <!-- MapTemplateDemoScreen -->
+  <string name="map_template_pane_demo_title">Map Template with Pane Demo</string>
+
+  <!-- NavigationNotificationsDemoScreen -->
+  <string name="start_notification_title">Start Notification</string>
+  <string name="stop_notification_title">Stop Notification</string>
+  <string name="nav_notification_demo_title">Navigation Notification Demo</string>
+
+  <!-- NavigationNotificationService -->
+  <string name="go_straight">Go Straight</string>
+  <string name="turn_right">Turn Right</string>
+  <string name="take_520">Take 520</string>
+  <string name="gas_station">Gas Station</string>
+
+  <!-- RoutePreviewDemoScreen -->
+  <string name="short_route">Short route</string>
+  <string name="less_busy">Less busy</string>
+  <string name="hov_friendly">HOV friendly</string>
+  <string name="long_route">Long route</string>
+  <string name="continue_start_nav">Continue to start navigation</string>
+  <string name="continue_route">Continue to route</string>
+  <string name="routes_title">Routes</string>
+
+  <!-- NavigationDemosScreen -->
+  <string name="place_list_nav_template_demo_title">Place List Navigation Template Demo</string>
+  <string name="route_preview_template_demo_title">Route Preview Template Demo</string>
+  <string name="notification_template_demo_title">Notification Template Demo</string>
+  <string name="nav_map_template_demo_title">Navigation Template with map only Demo</string>
+  <string name="nav_demos_title">Navigation Demos</string>
+
+  <!-- CarHardwareRenderer -->
+  <string name="no_toll_card_permission">No TollCard Permission.</string>
+  <string name="no_energy_level_permission">No EnergyLevel Permission.</string>
+  <string name="no_speed_permission">No Speed Permission.</string>
+  <string name="no_mileage_permission">No Mileage Permission.</string>
+  <string name="no_ev_status_permission">No EV status Permission.</string>
+  <string name="no_accelerometer_permission">No Accelerometer Permission.</string>
+  <string name="no_gyroscope_permission">No Gyroscope Permission.</string>
+  <string name="no_compass_permission">No Compass Permission.</string>
+  <string name="no_car_hardware_location">No CarHardwareLocation Permission.</string>
+  <string name="fetch_toll_info">Fetching Toll information.</string>
+  <string name="fetch_energy_level">Fetching Energy Level.</string>
+  <string name="fetch_speed">Fetching Speed.</string>
+  <string name="fetch_mileage">Fetching Mileage.</string>
+  <string name="fetch_ev_status">Fetching EV status.</string>
+  <string name="fetch_accelerometer">Fetching Accelerometer.</string>
+  <string name="fetch_gyroscope">Fetching Gyroscope.</string>
+  <string name="fetch_compass">Fetching Compass.</string>
+  <string name="fetch_location">Fetching Location.</string>
+  <string name="toll_card_state">Toll card state</string>
+  <string name="low_energy">Low energy</string>
+  <string name="range">Range</string>
+  <string name="fuel">Fuel</string>
+  <string name="battery">Battery</string>
+  <string name="display_speed">Display Speed</string>
+  <string name="raw_speed">Raw Speed</string>
+  <string name="unit">Unit</string>
+  <string name="odometer">Odometer</string>
+  <string name="ev_connected">Ev Charge Port Connected</string>
+  <string name="ev_open">Ev Charge Port Open</string>
+  <string name="accelerometer">Accelerometer</string>
+  <string name="gyroscope">Gyroscope</string>
+  <string name="compass">Compass</string>
+  <string name="car_hardware_location">Car Hardware Location</string>
+
+  <!-- GridTemplateDemoScreen -->
+  <string name="non_actionable">Non-actionable</string>
+  <string name="second_item">Second Item</string>
+  <string name="third_item">Third Item</string>
+  <string name="fourth_item">Fourth Item</string>
+  <string name="fifth_item">Fifth Item has a long title set</string>
+  <string name="sixth_item">Sixth Item has a long title set</string>
+  <string name="grid_template_demo_title">Grid Template Demo</string>
+
+  <!-- ListTemplateDemoScreen -->
+  <string name="parked_only_title">Parked Only Title</string>
+  <string name="parked_only_text">More Parked only text.</string>
+  <string name="clicked_row_prefix">Clicked row</string>
+  <string name="first_line_text">First line of text</string>
+  <string name="second_line_text">Second line of text</string>
+  <string name="title_prefix">Title</string>
+  <string name="list_template_demo_title">List Template Demo</string>
+
+  <!-- LongMessageTemplateDemoScreen -->
+  <string name="long_msg_template_demo_title">Long Message Template Demo</string>
+  <string name="long_msg_template_text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. \nAliquam laoreet ac metus eu commodo. Sed a congue diam, sed dictum lectus. Nam nec\ntristique dolor, quis sodales arcu. Etiam at metus eu nulla auctor varius. \nInteger dolor lorem, placerat sit amet lacus in, imperdiet semper dui. Vestibulum \nante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; \nQuisque gravida fermentum egestas.\n\n\n\nUt ut sodales mi. Aenean porta vel ipsum sed lacinia. Morbi odio ipsum, hendrerit \neu est et, sollicitudin finibus diam. Nunc sit amet felis elit. Orci varius \nnatoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Sed \nvestibulum, tellus a rutrum auctor, diam arcu vestibulum purus, nec mollis ligula \nnisi in nisi. Donec sem tortor, pharetra sed fermentum sit amet, ullamcorper nec \nsapien. Aliquam risus arcu, porttitor eu dui nec, vulputate tempus libero. \nCurabitur sit amet tristique orci. Suspendisse et odio tempus, tempus turpis quis,\n euismod est.\n\n\n\nVestibulum mauris ante, luctus viverra nisi eget, blandit facilisis nulla. \nPhasellus ex lorem, semper in vestibulum nec, aliquet vel elit. Aliquam vitae \nligula nec enim dictum lobortis. Sed varius turpis quis nisi tempus varius. Sed \nnon sollicitudin magna, at mattis tortor. Curabitur quis ligula eget lorem mattis \ntincidunt et in sapien. Curabitur a elit nisi. Aliquam ex arcu, hendrerit eget \nturpis vitae, bibendum vulputate nibh. Fusce vitae ex aliquet, tristique magna eu,\n vulputate dui. Aenean tempor viverra tortor non pharetra. Pellentesque convallis \nnec risus a auctor. Praesent non sem non eros tincidunt ullamcorper efficitur non \nlacus.\n\n\n\nSuspendisse accumsan ultricies egestas. Aenean leo ligula, congue ac erat eu, \nlobortis ultricies lorem. Nulla finibus, arcu sed tincidunt lobortis, magna justo \nrutrum ligula, et mattis felis turpis vel ex. Morbi ac auctor ex, at bibendum sem.\n Vestibulum a tortor iaculis, viverra felis vitae, lobortis est. Duis sit amet \ncondimentum sem. Ut molestie, dolor pretium imperdiet maximus, enim orci porta \nquam, id gravida enim nunc vitae lacus. Pellentesque habitant morbi tristique \nsenectus et netus et malesuada fames ac turpis egestas. Nullam vel justo eu risus \nlobortis dignissim sit amet ullamcorper nulla. Donec finibus cursus purus \nporttitor pellentesque.\n\n\n\nDonec at vehicula ante. Suspendisse rutrum nisl quis metus faucibus lacinia. \nVestibulum eros sapien, eleifend nec accumsan a, interdum sed nisi. Aenean posuere\n ultrices lorem non pharetra. Nulla non porta ligula. Maecenas at elit diam. \nNullam gravida augue et semper eleifend. Fusce venenatis ac arcu et luctus. Mauris\n ultricies urna non dui interdum, vel hendrerit est aliquam. Fusce id dictum leo, \nfringilla egestas ipsum.</string>
+  <string name="long_msg_template_not_supported_text">Your host doesn\'t support Long Message template</string>
+  <string name="long_msg_template_not_supported_title">Incompatible host</string>
+
+  <!-- MessageTemplateDemoScreen -->
+  <string name="msg_template_demo_title">Message Template Demo</string>
+  <string name="msg_template_demo_text">Message goes here.\nMore text on second line.</string>
+
+  <!-- PaneTemplateDemoScreen -->
+  <string name="pane_template_demo_title">Pane Template Demo</string>
+
+  <!-- PlaceListTemplateBrowseDemoScreen -->
+  <string name="place_list_template_demo_title">Place List Template Demo</string>
+  <string name="browse_places_title">Browse Places</string>
+
+  <!-- SearchTemplateDemoScreen -->
+  <string name="search_hint">Search here</string>
+
+  <!-- SignInTemplateDemoScreen -->
+  <string name="additional_text">Please review our terms of service</string>
+  <string name="google_sign_in">Google sign-in</string>
+  <string name="use_pin">Use PIN</string>
+  <string name="qr_code">QR Code</string>
+  <string name="sign_in_template_not_supported_text">Your host doesn\'t support Sign In template</string>
+  <string name="sign_in_template_not_supported_title">Incompatible host</string>
+  <string name="email_hint">Email</string>
+  <string name="sign_in_title">Sign in</string>
+  <string name="sign_in_instructions">Enter your credentials</string>
+  <string name="invalid_email_error_msg">User name must be a valid email address</string>
+  <string name="invalid_length_error_msg">User name must be at least %s characters long</string>
+  <string name="invalid_password_error_msg">Invalid password</string>
+  <string name="password_hint">password</string>
+  <string name="password_sign_in_instruction_prefix">Username</string>
+  <string name="pin_sign_in_instruction">Type this PIN in your phone</string>
+  <string name="qr_code_sign_in_title">Scan QR Code to sign in</string>
+  <string name="sign_in_with_google_title">Sign in with Google</string>
+  <string name="provider_sign_in_instruction">Use this button to complete your Google sign-in</string>
+  <string name="sign_in_complete_text">You are signed in!</string>
+  <string name="sign_in_complete_title">Sign in completed</string>
+
+  <!-- ContentProviderIconsDemoScreen -->
+  <string name="images_unknown_host_error">Images cannot be displayed for an unknown host</string>
+  <string name="icon_title_prefix">Icon</string>
+  <string name="content_provider_icons_demo_title">Content Provider Icons Demo</string>
+
+  <!-- IconsDemoScreen -->
+  <string name="icons_demo_title">Icons Demo</string>
+  <string name="app_icon_title">The app icon</string>
+  <string name="vector_no_tint_title">A vector drawable, without a tint</string>
+  <string name="vector_with_tint_title">A vector drawable, with a tint</string>
+  <string name="vector_with_app_theme_attr_title">A vector drawable, with an app\'s theme attribute for its color</string>
+  <string name="png_res_title">A PNG, sent as a resource</string>
+  <string name="png_bitmap_title">A PNG, sent as a resource</string>
+
+  <!-- RowDemoScreen -->
+  <string name="just_row_title">Just a title</string>
+  <string name="title_with_app_icon_row_title">Title with app icon</string>
+  <string name="title_with_res_id_image_row_title">Title with resource ID image</string>
+  <string name="title_with_svg_image_row_title">Title with SVG image</string>
+  <string name="colored_secondary_row_title">Colored secondary text</string>
+  <string name="title_with_secondary_lines_row_title">Title with multiple secondary text lines</string>
+  <string name="title_with_secondary_lines_row_text_1">Err and err and err again, but less and less and less.</string>
+  <string name="title_with_secondary_lines_row_text_2">- Piet Hein</string>
+  <string name="rows_demo_title">Rows Demo</string>
+
+  <!-- TextAndIconsDemosScreen -->
+  <string name="text_icons_demo_title">Text and Icons Demos</string>
+  <string name="row_text_icons_demo_title">Rows with Text and Icons Demo</string>
+
+  <!-- SelectableListsDemoScreen -->
+  <string name="selectable_lists_demo_title">Selectable Lists Demo</string>
+  <string name="option_1_title">Option 1</string>
+  <string name="option_2_title">Option 2</string>
+  <string name="option_3_title">Option 3</string>
+  <string name="some_additional_text">Some additional text</string>
+  <string name="sample_additional_list">Sample selectable list</string>
+
+  <!-- TaskRestrictionDemoScreen -->
+  <string name="task_restriction_demo_title">Task Restriction Demo</string>
+  <string name="task_limit_reached_msg">Task limit reached\nGoing forward will force stop the app</string>
+  <string name="task_step_of_title">Task step %1$d of %2$d</string>
+  <string name="task_step_of_text">Click to go forward</string>
+  <string name="toggle_test_title">Toggle test</string>
+  <string name="toggle_test_text">Stateful changes are allowed</string>
+  <string name="image_test_title">Image test</string>
+  <string name="image_test_text">Image changes are allowed</string>
+  <string name="additional_data_title">Additional Data</string>
+  <string name="additional_data_text">Updates allows on back operations.</string>
+
+  <!-- StartScreen -->
+  <string name="misc_templates_demos_title">Misc Templates Demos</string>
+  <string name="showcase_demos_title">Showcase Demos</string>
+
+  <!-- Location Strings -->
+  <string name="location_1_title">Google Kirkland</string>
+  <string name="location_1_address" translatable="false">747 6th St South, Kirkland, WA 98033</string>
+  <string name="location_1_description">Tinted resource vector</string>
+  <string name="location_1_phone" translatable="false">+14257395600</string>
+  <string name="location_2_title">Google Bellevue</string>
+  <string name="location_2_address" translatable="false">1120 112th Ave NE, Bellevue, WA 98004</string>
+  <string name="location_2_description">Image resource bitmap</string>
+  <string name="location_2_phone" translatable="false">+14252301301</string>
+  <string name="location_3_title">Google South Lake Union</string>
+  <string name="location_3_address" translatable="false">1021 Valley St, Seattle, WA 98109</string>
+  <string name="location_3_description">Colored text marker</string>
+  <string name="location_3_phone" translatable="false">+12065311800</string>
+  <string name="location_4_title">Google Seattle</string>
+  <string name="location_4_address" translatable="false">601 N 34th St, Seattle, WA 98103</string>
+  <string name="location_4_description">Image bitmap</string>
+  <string name="location_4_phone" translatable="false">+12068761800</string>
+  <string name="location_5_address" translatable="false">1600 Amphitheatre Pkwy, Mountain View, CA 94043</string>
+  <string name="location_5_phone" translatable="false">+16502530000</string>
+  <string name="location_6_title">Google Bothell</string>
+  <string name="location_6_address" translatable="false">11831 North Creek Pkwy, Bothell, WA 98011</string>
+  <string name="location_7_title">Seward Park</string>
+  <string name="location_7_address" translatable="false">5900 Lake Washington Blvd S, Seattle, WA 98118</string>
+  <string name="location_8_title">Luther Burbank Park</string>
+  <string name="location_8_address" translatable="false">2040 84th Ave SE, Mercer Island, WA 98040</string>
+  <string name="location_9_title">Heritage Park</string>
+  <string name="location_9_address" translatable="false">111 Waverly Way, Kirkland, WA 98033</string>
+  <string name="location_description_text_label">Text label</string>
+  <string name="location_phone_not_available" translatable="false">n/a</string>
 </resources>

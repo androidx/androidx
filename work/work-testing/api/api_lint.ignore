@@ -5,6 +5,10 @@ BuilderSetStyle: androidx.work.testing.TestListenableWorkerBuilder#from(android.
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.work.testing.TestListenableWorkerBuilder.from(android.content.Context,androidx.work.WorkRequest)
 
 
+InvalidNullability: androidx.work.testing.SynchronousExecutor#execute(Runnable) parameter #0:
+    Invalid nullability on parameter `command` in method `execute`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+
+
 MissingGetterMatchingBuilder: androidx.work.testing.TestListenableWorkerBuilder#setForegroundUpdater(androidx.work.ForegroundUpdater):
     W does not declare a `getForegroundUpdater()` method matching method androidx.work.testing.TestListenableWorkerBuilder.setForegroundUpdater(androidx.work.ForegroundUpdater)
 MissingGetterMatchingBuilder: androidx.work.testing.TestListenableWorkerBuilder#setProgressUpdater(androidx.work.ProgressUpdater):

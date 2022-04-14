@@ -21,6 +21,34 @@ GetterSetterNames: androidx.webkit.ServiceWorkerWebSettingsCompat#getBlockNetwor
     Symmetric method for `setBlockNetworkLoads` must be named `isBlockNetworkLoads`; was `getBlockNetworkLoads`
 
 
+InvalidNullability: androidx.webkit.WebViewClientCompat#onPageCommitVisible(android.webkit.WebView, String) parameter #0:
+    Invalid nullability on parameter `view` in method `onPageCommitVisible`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.webkit.WebViewClientCompat#onPageCommitVisible(android.webkit.WebView, String) parameter #1:
+    Invalid nullability on parameter `url` in method `onPageCommitVisible`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.webkit.WebViewClientCompat#onReceivedError(android.webkit.WebView, android.webkit.WebResourceRequest, android.webkit.WebResourceError) parameter #0:
+    Invalid nullability on parameter `view` in method `onReceivedError`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.webkit.WebViewClientCompat#onReceivedError(android.webkit.WebView, android.webkit.WebResourceRequest, android.webkit.WebResourceError) parameter #1:
+    Invalid nullability on parameter `request` in method `onReceivedError`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.webkit.WebViewClientCompat#onReceivedError(android.webkit.WebView, android.webkit.WebResourceRequest, android.webkit.WebResourceError) parameter #2:
+    Invalid nullability on parameter `error` in method `onReceivedError`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.webkit.WebViewClientCompat#onReceivedHttpError(android.webkit.WebView, android.webkit.WebResourceRequest, android.webkit.WebResourceResponse) parameter #0:
+    Invalid nullability on parameter `view` in method `onReceivedHttpError`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.webkit.WebViewClientCompat#onReceivedHttpError(android.webkit.WebView, android.webkit.WebResourceRequest, android.webkit.WebResourceResponse) parameter #1:
+    Invalid nullability on parameter `request` in method `onReceivedHttpError`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.webkit.WebViewClientCompat#onReceivedHttpError(android.webkit.WebView, android.webkit.WebResourceRequest, android.webkit.WebResourceResponse) parameter #2:
+    Invalid nullability on parameter `errorResponse` in method `onReceivedHttpError`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.webkit.WebViewClientCompat#onSafeBrowsingHit(android.webkit.WebView, android.webkit.WebResourceRequest, int, android.webkit.SafeBrowsingResponse) parameter #0:
+    Invalid nullability on parameter `view` in method `onSafeBrowsingHit`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.webkit.WebViewClientCompat#onSafeBrowsingHit(android.webkit.WebView, android.webkit.WebResourceRequest, int, android.webkit.SafeBrowsingResponse) parameter #1:
+    Invalid nullability on parameter `request` in method `onSafeBrowsingHit`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.webkit.WebViewClientCompat#onSafeBrowsingHit(android.webkit.WebView, android.webkit.WebResourceRequest, int, android.webkit.SafeBrowsingResponse) parameter #3:
+    Invalid nullability on parameter `response` in method `onSafeBrowsingHit`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.webkit.WebViewClientCompat#shouldOverrideUrlLoading(android.webkit.WebView, android.webkit.WebResourceRequest) parameter #0:
+    Invalid nullability on parameter `view` in method `shouldOverrideUrlLoading`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.webkit.WebViewClientCompat#shouldOverrideUrlLoading(android.webkit.WebView, android.webkit.WebResourceRequest) parameter #1:
+    Invalid nullability on parameter `request` in method `shouldOverrideUrlLoading`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+
+
 MissingGetterMatchingBuilder: androidx.webkit.ProxyConfig.Builder#addDirect():
     androidx.webkit.ProxyConfig does not declare a `getDirects()` method matching method androidx.webkit.ProxyConfig.Builder.addDirect()
 MissingGetterMatchingBuilder: androidx.webkit.ProxyConfig.Builder#addDirect(String):

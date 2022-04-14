@@ -287,9 +287,10 @@ final class CaptureSession implements CaptureSessionInterface {
                                             sessionConfig.getSessionStateCallbacks())
                             );
 
+                    Camera2ImplConfig camera2Config =
+                            new Camera2ImplConfig(sessionConfig.getImplementationOptions());
                     // Start check preset CaptureStage information.
-                    Config options = sessionConfig.getImplementationOptions();
-                    mCameraEventCallbacks = new Camera2ImplConfig(options)
+                    mCameraEventCallbacks = camera2Config
                             .getCameraEventCallback(CameraEventCallbacks.createEmptyCallback());
                     List<CaptureConfig> presetList =
                             mCameraEventCallbacks.createComboCallback().onPresetSession();
@@ -307,7 +308,14 @@ final class CaptureSession implements CaptureSessionInterface {
 
                     List<OutputConfigurationCompat> outputConfigList = new ArrayList<>();
                     for (Surface surface : uniqueConfiguredSurface) {
-                        outputConfigList.add(new OutputConfigurationCompat(surface));
+                        OutputConfigurationCompat outputConfiguration =
+                                new OutputConfigurationCompat(surface);
+                        // Set the desired physical camera ID, or null to use the logical stream.
+                        // TODO(b/219414502): Configure different streams with different physical
+                        //  camera IDs.
+                        outputConfiguration.setPhysicalCameraId(
+                                camera2Config.getPhysicalCameraId(null));
+                        outputConfigList.add(outputConfiguration);
                     }
 
                     SessionConfigurationCompat sessionConfigCompat =

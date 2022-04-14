@@ -3857,6 +3857,7 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
         return true;
     }
 
+    @SuppressWarnings("deprecation")
     private void sendTypeViewScrolledAccessibilityEvent() {
         AccessibilityEvent event = AccessibilityEvent.obtain(AccessibilityEvent.TYPE_VIEW_SCROLLED);
         mBaseGridView.onInitializeAccessibilityEvent(event);

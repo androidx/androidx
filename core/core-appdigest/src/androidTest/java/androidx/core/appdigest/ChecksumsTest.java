@@ -631,6 +631,7 @@ public class ChecksumsTest {
     @SdkSuppress(minSdkVersion = 29)
     @LargeTest
     @Test
+    @SuppressWarnings("deprecation")
     public void testFixedAllFileChecksumsDirectExecutor() throws Exception {
         installPackage(TEST_FIXED_APK);
         assertTrue(isAppInstalled(FIXED_PACKAGE_NAME));
@@ -1048,6 +1049,7 @@ public class ChecksumsTest {
             }
         }
 
+        @SuppressWarnings("deprecation")
         void commitSession(PackageInstaller.Session session) throws Exception {
             final ResolvableFuture<Intent> result = ResolvableFuture.create();
 

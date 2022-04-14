@@ -36,6 +36,8 @@ public class AppSearchDocumentConverterFactory {
     private static final String TAG = "AppSearchDocumentConver"; // NOTYPO
 
     private static final String TIMER_SCHEMA_TYPE = "builtin:Timer";
+    private static final String ALARM_SCHEMA_TYPE = "builtin:Alarm";
+    private static final String ALARM_INSTANCE_SCHEMA_TYPE = "builtin:AlarmInstance";
 
     /**
      * Returns a {@link AppSearchDocumentConverter} given a schema type. If the schema type is not
@@ -47,6 +49,10 @@ public class AppSearchDocumentConverterFactory {
 
         if (TIMER_SCHEMA_TYPE.equals(schemaType)) {
             return new TimerConverter();
+        } else if (ALARM_SCHEMA_TYPE.equals(schemaType)) {
+            return new AlarmConverter();
+        } else if (ALARM_INSTANCE_SCHEMA_TYPE.equals(schemaType)) {
+            return new AlarmInstanceConverter();
         }
 
         Log.w(TAG, "schema type " + schemaType + " does not have a Typed Converter registered. "

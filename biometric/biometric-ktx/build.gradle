@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -37,4 +36,8 @@ androidx {
     mavenGroup = LibraryGroups.BIOMETRIC
     inceptionYear = "2020"
     description = "Kotlin extensions for the Biometric Library."
+}
+
+android {
+    namespace "androidx.biometric.ktx"
 }

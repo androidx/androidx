@@ -20,7 +20,9 @@ import android.os.Build;
 import android.os.Environment;
 import android.util.Log;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import java.io.File;
 import java.io.IOException;
@@ -57,9 +59,9 @@ public final class EnvironmentCompat {
     @NonNull
     public static String getStorageState(@NonNull File path) {
         if (Build.VERSION.SDK_INT >= 21) {
-            return Environment.getExternalStorageState(path);
+            return Api21Impl.getExternalStorageState(path);
         } else if (Build.VERSION.SDK_INT >= 19) {
-            return Environment.getStorageState(path);
+            return Api19Impl.getStorageState(path);
         }
 
         try {
@@ -78,5 +80,30 @@ public final class EnvironmentCompat {
         return MEDIA_UNKNOWN;
     }
 
-    private EnvironmentCompat() {}
+    private EnvironmentCompat() {
+    }
+
+    @RequiresApi(21)
+    static class Api21Impl {
+        private Api21Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static String getExternalStorageState(File path) {
+            return Environment.getExternalStorageState(path);
+        }
+    }
+
+    @RequiresApi(19)
+    static class Api19Impl {
+        private Api19Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static String getStorageState(File path) {
+            return Environment.getStorageState(path);
+        }
+    }
 }

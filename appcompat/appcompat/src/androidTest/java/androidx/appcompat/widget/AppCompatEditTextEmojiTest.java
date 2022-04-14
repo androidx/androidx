@@ -58,6 +58,32 @@ public class AppCompatEditTextEmojiTest
         assertThat(notFocusable.isFocusable()).isFalse();
     }
 
+    /**
+     * Verify b/221094907 is fixed
+     */
+    @Test
+    @UiThreadTest
+    public void respectsClickable() {
+        AppCompatEditText notClickable = mActivityTestRule.getActivity()
+                .findViewById(R.id.not_clickable);
+
+        assertThat(notClickable.isClickable()).isFalse();
+        assertThat(notClickable.isLongClickable()).isTrue();
+    }
+
+    /**
+     * Verify b/221094907 is fixed
+     */
+    @Test
+    @UiThreadTest
+    public void respectsLongClickable() {
+        AppCompatEditText notLongClickable = mActivityTestRule.getActivity()
+                .findViewById(R.id.not_long_clickable);
+
+        assertThat(notLongClickable.isLongClickable()).isFalse();
+        assertThat(notLongClickable.isClickable()).isTrue();
+    }
+
     @Test
     @UiThreadTest
     public void respectsDigits() {

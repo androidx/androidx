@@ -78,10 +78,13 @@ final class Camera2SessionOptionUnpacker implements SessionConfig.OptionUnpacker
                         camera2Config.getSessionCaptureCallback(
                                 Camera2CaptureCallbacks.createNoOpCallback())));
 
-        MutableOptionsBundle cameraEventConfig = MutableOptionsBundle.create();
-        cameraEventConfig.insertOption(Camera2ImplConfig.CAMERA_EVENT_CALLBACK_OPTION,
+        // Copy extended Camera2 configurations
+        MutableOptionsBundle extendedConfig = MutableOptionsBundle.create();
+        extendedConfig.insertOption(Camera2ImplConfig.CAMERA_EVENT_CALLBACK_OPTION,
                 camera2Config.getCameraEventCallback(CameraEventCallbacks.createEmptyCallback()));
-        builder.addImplementationOptions(cameraEventConfig);
+        extendedConfig.insertOption(Camera2ImplConfig.SESSION_PHYSICAL_CAMERA_ID_OPTION,
+                camera2Config.getPhysicalCameraId(null));
+        builder.addImplementationOptions(extendedConfig);
 
         // Copy extension keys
         builder.addImplementationOptions(camera2Config.getCaptureRequestOptions());

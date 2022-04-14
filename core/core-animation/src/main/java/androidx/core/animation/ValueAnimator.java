@@ -27,7 +27,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.core.os.TraceCompat;
+import androidx.tracing.Trace;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -1164,7 +1164,7 @@ public class ValueAnimator extends Animator implements AnimationHandler.Animatio
         }
         // mReversing needs to be reset *after* notifying the listeners for the end callbacks.
         mReversing = false;
-        TraceCompat.endSection();
+        Trace.endSection();
     }
 
     /**
@@ -1173,7 +1173,7 @@ public class ValueAnimator extends Animator implements AnimationHandler.Animatio
      */
     private void startAnimation() {
 
-        TraceCompat.beginSection(getNameForTrace());
+        Trace.beginSection(getNameForTrace());
 
         mAnimationEndRequested = false;
         initAnimation();

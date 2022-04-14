@@ -15,8 +15,7 @@
  limitations under the License.
 -->
 <manifest
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    package="androidx.car.app.sample.showcase.common">
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- For accessing current location in PlaceListMapTemplate -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>

@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface.samples
 
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.graphics.Canvas
@@ -35,7 +36,10 @@ import androidx.wear.watchface.ComplicationSlot
 import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.Renderer
+import androidx.wear.watchface.UserStyleFlavor
+import androidx.wear.watchface.UserStyleFlavors
 import androidx.wear.watchface.WatchFace
+import androidx.wear.watchface.WatchFaceFlavorsExperimental
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
@@ -43,6 +47,7 @@ import androidx.wear.watchface.complications.permission.dialogs.sample.Complicat
 import androidx.wear.watchface.complications.permission.dialogs.sample.ComplicationRationalActivity
 import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
 import androidx.wear.watchface.style.CurrentUserStyleRepository
+import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting
@@ -79,7 +84,7 @@ private const val MINUTE_HAND_THICKNESS_FRACTION = 0.0163f
 private const val SECOND_HAND_LENGTH_FRACTION = 0.37383f
 private const val SECOND_HAND_THICKNESS_FRACTION = 0.00934f
 
-private const val NUMBER_RADIUS_FRACTION = 0.45f
+const val NUMBER_RADIUS_FRACTION = 0.45f
 
 const val COLOR_STYLE_SETTING = "color_style_setting"
 const val RED_STYLE = "red_style"
@@ -104,8 +109,12 @@ const val HOURS_DRAW_FREQ_MIN = 1L
 const val HOURS_DRAW_FREQ_MAX = 4L
 const val HOURS_DRAW_FREQ_DEFAULT = 3L
 
+const val CONFIGURABLE_DATA_SOURCE_PKG = "androidx.wear.watchface.complications.datasource.samples"
+const val CONFIGURABLE_DATA_SOURCE = "$CONFIGURABLE_DATA_SOURCE_PKG.ConfigurableDataSourceService"
+
 /** A simple example canvas based analog watch face. NB this is open for testing. */
 open class ExampleCanvasAnalogWatchFaceService : WatchFaceService() {
+
     // Lazy because the context isn't initialized til later.
     private val watchFaceStyle by lazy { WatchFaceColorStyle.create(this, RED_STYLE) }
 
@@ -258,6 +267,36 @@ open class ExampleCanvasAnalogWatchFaceService : WatchFaceService() {
         )
     )
 
+    @OptIn(WatchFaceFlavorsExperimental::class)
+    internal val exampleFlavor by lazy {
+        UserStyleFlavor(
+            "exampleFlavor",
+            UserStyle(mapOf(
+                colorStyleSetting to colorStyleSetting.getOptionForId(Option.Id(BLUE_STYLE)),
+                watchHandLengthStyleSetting to DoubleRangeOption(1.0)
+            )),
+            mapOf(
+                EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID to
+                    DefaultComplicationDataSourcePolicy(
+                        SystemDataSources.DATA_SOURCE_DAY_OF_WEEK,
+                        ComplicationType.SHORT_TEXT
+                    ),
+                EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID to
+                    DefaultComplicationDataSourcePolicy(
+                        ComponentName(CONFIGURABLE_DATA_SOURCE_PKG, CONFIGURABLE_DATA_SOURCE),
+                        ComplicationType.SHORT_TEXT,
+                        SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET,
+                        ComplicationType.SHORT_TEXT
+                    )
+            ))
+    }
+
+    @OptIn(WatchFaceFlavorsExperimental::class)
+    public override fun createUserStyleFlavors(
+        currentUserStyleRepository: CurrentUserStyleRepository,
+        complicationSlotsManager: ComplicationSlotsManager
+    ) = UserStyleFlavors(listOf(exampleFlavor))
+
     public override fun createComplicationSlotsManager(
         currentUserStyleRepository: CurrentUserStyleRepository
     ): ComplicationSlotsManager {
@@ -279,12 +318,16 @@ open class ExampleCanvasAnalogWatchFaceService : WatchFaceService() {
                 ComplicationType.MONOCHROMATIC_IMAGE,
                 ComplicationType.SMALL_IMAGE
             ),
+            // try to use the configurable data source sample, then default to system data source
             DefaultComplicationDataSourcePolicy(
+                ComponentName(CONFIGURABLE_DATA_SOURCE_PKG, CONFIGURABLE_DATA_SOURCE),
+                ComplicationType.SHORT_TEXT,
                 SystemDataSources.DATA_SOURCE_DAY_OF_WEEK,
                 ComplicationType.SHORT_TEXT
             ),
             ComplicationSlotBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
-        ).build()
+        ).setNameResourceId(R.string.left_complication_screen_name)
+            .setScreenReaderNameResourceId(R.string.left_complication_screen_reader_name).build()
 
         val rightComplication = ComplicationSlot.createRoundRectComplicationSlotBuilder(
             EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,
@@ -301,7 +344,9 @@ open class ExampleCanvasAnalogWatchFaceService : WatchFaceService() {
                 ComplicationType.SHORT_TEXT
             ),
             ComplicationSlotBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
-        ).build()
+        ).setNameResourceId(R.string.right_complication_screen_name)
+            .setScreenReaderNameResourceId(R.string.right_complication_screen_reader_name).build()
+
         return ComplicationSlotsManager(
             listOf(leftComplication, rightComplication),
             currentUserStyleRepository
@@ -336,6 +381,7 @@ open class ExampleCanvasAnalogWatchFaceService : WatchFaceService() {
         )
 }
 
+@Suppress("Deprecation")
 class ExampleAnalogWatchCanvasRenderer(
     surfaceHolder: SurfaceHolder,
     private val context: Context,
@@ -352,7 +398,8 @@ class ExampleAnalogWatchCanvasRenderer(
     currentUserStyleRepository,
     watchState,
     CanvasType.HARDWARE,
-    FRAME_PERIOD_MS
+    FRAME_PERIOD_MS,
+    clearWithBackgroundTintBeforeRenderingHighlightLayer = true
 ) {
     private val clockHandPaint = Paint().apply {
         isAntiAlias = true
@@ -436,8 +483,6 @@ class ExampleAnalogWatchCanvasRenderer(
     }
 
     override fun renderHighlightLayer(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
-        canvas.drawColor(renderParameters.highlightLayer!!.backgroundTint)
-
         for ((_, complication) in complicationSlotsManager.complicationSlots) {
             if (complication.enabled) {
                 complication.renderHighlightLayer(canvas, zonedDateTime, renderParameters)

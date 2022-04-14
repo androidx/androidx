@@ -27,7 +27,7 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -58,7 +58,7 @@ private fun <T : Any> assertInsertData(
 @RunWith(JUnit4::class)
 class SeparatorsTest {
     @Test
-    fun refreshFull() = runBlockingTest {
+    fun refreshFull() = runTest {
         assertThat(
             flowOf(
                 localRefresh(
@@ -100,7 +100,7 @@ class SeparatorsTest {
     }
 
     @Test
-    fun refreshStartFull() = runBlockingTest {
+    fun refreshStartFull() = runTest {
         val refresh = localRefresh(
             pages = listOf(
                 listOf("c1")
@@ -151,7 +151,7 @@ class SeparatorsTest {
     }
 
     @Test
-    fun refreshEndFull() = runBlockingTest {
+    fun refreshEndFull() = runTest {
         val refresh = localRefresh(
             pages = listOf(
                 listOf("a1", "a2")
@@ -202,7 +202,7 @@ class SeparatorsTest {
     }
 
     @Test
-    fun refreshDropFull() = runBlockingTest {
+    fun refreshDropFull() = runTest {
         assertThat(
             flowOf(
                 localRefresh(
@@ -284,7 +284,7 @@ class SeparatorsTest {
     )
 
     @Test
-    fun refreshNoop() = runBlockingTest {
+    fun refreshNoop() = runTest {
         assertInsertData(
             listOf(
                 refresh(pages = listOf("a1"))
@@ -299,7 +299,7 @@ class SeparatorsTest {
     }
 
     @Test
-    fun refreshStartDone() = runBlockingTest {
+    fun refreshStartDone() = runTest {
         assertInsertData(
             listOf(
                 refresh(pages = listOf("A", "a1"))
@@ -314,7 +314,7 @@ class SeparatorsTest {
     }
 
     @Test
-    fun refreshEndDone() = runBlockingTest {
+    fun refreshEndDone() = runTest {
         assertInsertData(
             listOf(
                 refresh(pages = listOf("a1", "END"))
@@ -329,7 +329,7 @@ class SeparatorsTest {
     }
 
     @Test
-    fun refreshBothDone() = runBlockingTest {
+    fun refreshBothDone() = runTest {
         assertInsertData(
             listOf(
                 refresh(pages = listOf("A", "a1", "END"))
@@ -348,7 +348,7 @@ class SeparatorsTest {
     }
 
     @Test
-    fun refreshEmptyNoop() = runBlockingTest {
+    fun refreshEmptyNoop() = runTest {
         assertInsertData(
             listOf(
                 // should only get one item when initial page is endOfPaginationReached is false on
@@ -365,7 +365,7 @@ class SeparatorsTest {
     }
 
     @Test
-    fun refreshEmptyStartDone() = runBlockingTest {
+    fun refreshEmptyStartDone() = runTest {
         assertInsertData(
             listOf(
                 // not enough data to create separators yet
@@ -390,7 +390,7 @@ class SeparatorsTest {
     }
 
     @Test
-    fun refreshEmptyEndDone() = runBlockingTest {
+    fun refreshEmptyEndDone() = runTest {
         assertInsertData(
             listOf(
                 // not enough data to create separators yet
@@ -415,7 +415,7 @@ class SeparatorsTest {
     }
 
     @Test
-    fun emptyDropResetsDeferredFrontSeparator() = runBlockingTest {
+    fun emptyDropResetsDeferredFrontSeparator() = runTest {
         assertInsertData(
             listOf(
                 // not enough data to create separators yet
@@ -438,7 +438,7 @@ class SeparatorsTest {
     }
 
     @Test
-    fun emptyDropResetsDeferredEndSeparator() = runBlockingTest {
+    fun emptyDropResetsDeferredEndSeparator() = runTest {
         assertInsertData(
             listOf(
                 // not enough data to create separators yet
@@ -461,7 +461,7 @@ class SeparatorsTest {
     }
 
     @Test
-    fun refreshEmptyStart() = runBlockingTest {
+    fun refreshEmptyStart() = runTest {
         assertInsertData(
             listOf(
                 refresh(pages = listOf()),
@@ -479,7 +479,7 @@ class SeparatorsTest {
     }
 
     @Test
-    fun refreshEmptyEnd() = runBlockingTest {
+    fun refreshEmptyEnd() = runTest {
         assertInsertData(
             listOf(
                 refresh(pages = listOf()),
@@ -497,7 +497,7 @@ class SeparatorsTest {
     }
 
     @Test
-    fun refreshEmptyStartDropFull() = runBlockingTest {
+    fun refreshEmptyStartDropFull() = runTest {
         // when start terminal separator is inserted, we need to drop count*2 + 1
         assertThat(
             flowOf(
@@ -545,7 +545,7 @@ class SeparatorsTest {
     }
 
     @Test
-    fun refreshEmptyEndDropFull() = runBlockingTest {
+    fun refreshEmptyEndDropFull() = runTest {
         // when end terminal separator is inserted, we need to drop count*2 + 1
         assertThat(
             flowOf(
@@ -592,7 +592,7 @@ class SeparatorsTest {
     }
 
     @Test
-    fun types() = runBlockingTest {
+    fun types() = runTest {
         open class Base
         data class PrimaryType(val string: String) : Base()
         data class SeparatorType(val string: String) : Base()
@@ -629,7 +629,7 @@ class SeparatorsTest {
     }
 
     @Test
-    fun refreshEmptyPagesExceptOne() = runBlockingTest {
+    fun refreshEmptyPagesExceptOne() = runTest {
         assertThat(
             flowOf(
                 localRefresh(
@@ -682,7 +682,7 @@ class SeparatorsTest {
     }
 
     @Test
-    fun refreshSparsePages() = runBlockingTest {
+    fun refreshSparsePages() = runTest {
         assertThat(
             flowOf(
                 localRefresh(
@@ -741,7 +741,7 @@ class SeparatorsTest {
     }
 
     @Test
-    fun prependEmptyPagesExceptOne() = runBlockingTest {
+    fun prependEmptyPagesExceptOne() = runTest {
         val refresh = localRefresh(
             pages = listOf(
                 listOf("c1", "c2")
@@ -807,7 +807,7 @@ class SeparatorsTest {
     }
 
     @Test
-    fun prependSparsePages() = runBlockingTest {
+    fun prependSparsePages() = runTest {
         val refresh = localRefresh(
             pages = listOf(
                 listOf("d1", "d2")
@@ -880,7 +880,7 @@ class SeparatorsTest {
     }
 
     @Test
-    fun appendEmptyPagesExceptOne() = runBlockingTest {
+    fun appendEmptyPagesExceptOne() = runTest {
         val refresh = localRefresh(
             pages = listOf(
                 listOf("a1", "a2")
@@ -945,7 +945,7 @@ class SeparatorsTest {
     }
 
     @Test
-    fun appendSparsePages() = runBlockingTest {
+    fun appendSparsePages() = runTest {
         val refresh = localRefresh(
             pages = listOf(
                 listOf("a1", "a2")
@@ -1016,7 +1016,7 @@ class SeparatorsTest {
     }
 
     @Test
-    fun remoteRefreshEndOfPaginationReached_fullyComplete() = runBlockingTest {
+    fun remoteRefreshEndOfPaginationReached_fullyComplete() = runTest {
         assertThat(
             flowOf(
                 remoteLoadStateUpdate(
@@ -1118,7 +1118,7 @@ class SeparatorsTest {
     }
 
     @Test
-    fun remoteRefreshEndOfPaginationReached_sourceComplete() = runBlockingTest {
+    fun remoteRefreshEndOfPaginationReached_sourceComplete() = runTest {
         assertThat(
             flowOf(
                 remoteLoadStateUpdate(
@@ -1229,7 +1229,7 @@ class SeparatorsTest {
     }
 
     @Test
-    fun remotePrependEndOfPaginationReached_fullyComplete() = runBlockingTest {
+    fun remotePrependEndOfPaginationReached_fullyComplete() = runTest {
         assertThat(
             flowOf(
                 remoteRefresh(
@@ -1285,7 +1285,7 @@ class SeparatorsTest {
     }
 
     @Test
-    fun remotePrependEndOfPaginationReached_sourceComplete() = runBlockingTest {
+    fun remotePrependEndOfPaginationReached_sourceComplete() = runTest {
         assertThat(
             flowOf(
                 remoteRefresh(
@@ -1351,7 +1351,7 @@ class SeparatorsTest {
     }
 
     @Test
-    fun remotePrependEndOfPaginationReachedWithDrops_fullyComplete() = runBlockingTest {
+    fun remotePrependEndOfPaginationReachedWithDrops_fullyComplete() = runTest {
         assertThat(
             flowOf(
                 remoteRefresh(
@@ -1496,7 +1496,7 @@ class SeparatorsTest {
     }
 
     @Test
-    fun remotePrependEndOfPaginationReachedWithDrops_sourceComplete() = runBlockingTest {
+    fun remotePrependEndOfPaginationReachedWithDrops_sourceComplete() = runTest {
         assertThat(
             flowOf(
                 remoteRefresh(
@@ -1645,7 +1645,7 @@ class SeparatorsTest {
     }
 
     @Test
-    fun remoteAppendEndOfPaginationReached_fullyComplete() = runBlockingTest {
+    fun remoteAppendEndOfPaginationReached_fullyComplete() = runTest {
         assertThat(
             flowOf(
                 remoteRefresh(
@@ -1701,7 +1701,7 @@ class SeparatorsTest {
     }
 
     @Test
-    fun remoteAppendEndOfPaginationReached_sourceComplete() = runBlockingTest {
+    fun remoteAppendEndOfPaginationReached_sourceComplete() = runTest {
         assertThat(
             flowOf(
                 remoteRefresh(
@@ -1767,7 +1767,7 @@ class SeparatorsTest {
     }
 
     @Test
-    fun remoteAppendEndOfPaginationReachedWithDrops_fullyComplete() = runBlockingTest {
+    fun remoteAppendEndOfPaginationReachedWithDrops_fullyComplete() = runTest {
         assertThat(
             flowOf(
                 remoteRefresh(
@@ -1903,7 +1903,7 @@ class SeparatorsTest {
     }
 
     @Test
-    fun remoteAppendEndOfPaginationReachedWithDrops_sourceComplete() = runBlockingTest {
+    fun remoteAppendEndOfPaginationReachedWithDrops_sourceComplete() = runTest {
         assertThat(
             flowOf(
                 remoteRefresh(

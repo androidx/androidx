@@ -88,6 +88,7 @@ public class RemoteCoroutineWorkerTest {
         `when`(mWorkManager.schedulers).thenReturn(schedulers)
         `when`(mWorkManager.processor).thenReturn(mProcessor)
         WorkManagerImpl.setDelegate(mWorkManager)
+        RemoteWorkManagerInfo.clearInstance()
     }
 
     @Test

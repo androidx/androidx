@@ -28,6 +28,7 @@ import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSettin
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting.ListOption
 import androidx.wear.watchface.style.UserStyleSetting.LongRangeUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.WatchFaceEditorData
 import androidx.wear.watchface.style.UserStyleSetting.Option
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
 import androidx.wear.watchface.style.data.UserStyleSettingWireFormat
@@ -49,10 +50,34 @@ public class StyleParcelableTest {
     private val icon2 = Icon.createWithContentUri("icon2")
     private val icon3 = Icon.createWithContentUri("icon3")
     private val icon4 = Icon.createWithContentUri("icon4")
-    private val option1 = ListOption(Option.Id("1"), "one", icon1)
-    private val option2 = ListOption(Option.Id("2"), "two", icon2)
-    private val option3 = ListOption(Option.Id("3"), "three", icon3)
-    private val option4 = ListOption(Option.Id("4"), "four", icon4)
+    private val wfIcon1 = Icon.createWithContentUri("wfIcon1")
+    private val wfIcon2 = Icon.createWithContentUri("wfIcon2")
+    private val wfIcon3 = Icon.createWithContentUri("wfIcon3")
+    private val wfIcon4 = Icon.createWithContentUri("wfIcon4")
+    private val option1 = ListOption(
+        Option.Id("1"),
+        "one",
+        icon1,
+        watchFaceEditorData = WatchFaceEditorData(wfIcon1)
+    )
+    private val option2 = ListOption(
+        Option.Id("2"),
+        "two",
+        icon2,
+        watchFaceEditorData = WatchFaceEditorData(wfIcon2)
+    )
+    private val option3 = ListOption(
+        Option.Id("3"),
+        "three",
+        icon3,
+        watchFaceEditorData = WatchFaceEditorData(wfIcon3)
+    )
+    private val option4 = ListOption(
+        Option.Id("4"),
+        "four",
+        icon4,
+        watchFaceEditorData = WatchFaceEditorData(wfIcon4)
+    )
 
     @Before
     public fun setUp() {
@@ -126,23 +151,27 @@ public class StyleParcelableTest {
 
     @Test
     public fun parcelAndUnparcelUserStyleSchema() {
-        val settingIcon1 = Icon.createWithContentUri("settingIcon1")
-        val settingIcon2 = Icon.createWithContentUri("settingIcon2")
+        val companionIcon1 = Icon.createWithContentUri("companionEditorIcon1")
+        val companionIcon2 = Icon.createWithContentUri("companionEditorIcon2")
+        val watchEditorIcon1 = Icon.createWithContentUri("watchEditorIcon1")
+        val watchEditorIcon2 = Icon.createWithContentUri("watchEditorIcon2")
         val styleSetting1 = ListUserStyleSetting(
             UserStyleSetting.Id("id1"),
             "displayName1",
             "description1",
-            settingIcon1,
+            companionIcon1,
             listOf(option1, option2),
-            listOf(WatchFaceLayer.BASE)
+            listOf(WatchFaceLayer.BASE),
+            watchFaceEditorData = WatchFaceEditorData(watchEditorIcon1)
         )
         val styleSetting2 = ListUserStyleSetting(
             UserStyleSetting.Id("id2"),
             "displayName2",
             "description2",
-            settingIcon2,
+            companionIcon2,
             listOf(option3, option4),
-            listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY)
+            listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY),
+            watchFaceEditorData = WatchFaceEditorData(watchEditorIcon2)
         )
         val styleSetting3 = BooleanUserStyleSetting(
             UserStyleSetting.Id("id3"),
@@ -179,7 +208,10 @@ public class StyleParcelableTest {
         assertThat(schema.userStyleSettings[0].id.value).isEqualTo("id1")
         assertThat(schema.userStyleSettings[0].displayName).isEqualTo("displayName1")
         assertThat(schema.userStyleSettings[0].description).isEqualTo("description1")
-        assertThat(schema.userStyleSettings[0].icon!!.uri.toString()).isEqualTo("settingIcon1")
+        assertThat(schema.userStyleSettings[0].icon!!.uri.toString())
+            .isEqualTo("companionEditorIcon1")
+        assertThat(schema.userStyleSettings[0].watchFaceEditorData!!.icon!!.uri.toString())
+            .isEqualTo("watchEditorIcon1")
         assertThat(schema.userStyleSettings[0].affectedWatchFaceLayers.size).isEqualTo(1)
         assertThat(schema.userStyleSettings[0].affectedWatchFaceLayers.first()).isEqualTo(
             WatchFaceLayer.BASE
@@ -190,15 +222,20 @@ public class StyleParcelableTest {
         assertThat(optionArray1[0].id.value.decodeToString()).isEqualTo("1")
         assertThat(optionArray1[0].displayName).isEqualTo("one")
         assertThat(optionArray1[0].icon!!.uri.toString()).isEqualTo("icon1")
+        assertThat(optionArray1[0].watchFaceEditorData!!.icon!!.uri.toString()).isEqualTo("wfIcon1")
         assertThat(optionArray1[1].id.value.decodeToString()).isEqualTo("2")
         assertThat(optionArray1[1].displayName).isEqualTo("two")
         assertThat(optionArray1[1].icon!!.uri.toString()).isEqualTo("icon2")
+        assertThat(optionArray1[1].watchFaceEditorData!!.icon!!.uri.toString()).isEqualTo("wfIcon2")
 
         assert(schema.userStyleSettings[1] is ListUserStyleSetting)
         assertThat(schema.userStyleSettings[1].id.value).isEqualTo("id2")
         assertThat(schema.userStyleSettings[1].displayName).isEqualTo("displayName2")
         assertThat(schema.userStyleSettings[1].description).isEqualTo("description2")
-        assertThat(schema.userStyleSettings[1].icon!!.uri.toString()).isEqualTo("settingIcon2")
+        assertThat(schema.userStyleSettings[1].icon!!.uri.toString())
+            .isEqualTo("companionEditorIcon2")
+        assertThat(schema.userStyleSettings[1].watchFaceEditorData!!.icon!!.uri.toString())
+            .isEqualTo("watchEditorIcon2")
         assertThat(schema.userStyleSettings[1].affectedWatchFaceLayers.size).isEqualTo(1)
         assertThat(schema.userStyleSettings[1].affectedWatchFaceLayers.first()).isEqualTo(
             WatchFaceLayer.COMPLICATIONS_OVERLAY
@@ -209,15 +246,18 @@ public class StyleParcelableTest {
         assertThat(optionArray2[0].id.value.decodeToString()).isEqualTo("3")
         assertThat(optionArray2[0].displayName).isEqualTo("three")
         assertThat(optionArray2[0].icon!!.uri.toString()).isEqualTo("icon3")
+        assertThat(optionArray2[0].watchFaceEditorData!!.icon!!.uri.toString()).isEqualTo("wfIcon3")
         assertThat(optionArray2[1].id.value.decodeToString()).isEqualTo("4")
         assertThat(optionArray2[1].displayName).isEqualTo("four")
         assertThat(optionArray2[1].icon!!.uri.toString()).isEqualTo("icon4")
+        assertThat(optionArray2[1].watchFaceEditorData!!.icon!!.uri.toString()).isEqualTo("wfIcon4")
 
         assert(schema.userStyleSettings[2] is BooleanUserStyleSetting)
         assertThat(schema.userStyleSettings[2].id.value).isEqualTo("id3")
         assertThat(schema.userStyleSettings[2].displayName).isEqualTo("displayName3")
         assertThat(schema.userStyleSettings[2].description).isEqualTo("description3")
-        assertThat(schema.userStyleSettings[2].icon).isEqualTo(null)
+        assertThat(schema.userStyleSettings[2].icon).isNull()
+        assertThat(schema.userStyleSettings[2].watchFaceEditorData).isNull()
         assertThat(schema.userStyleSettings[2].affectedWatchFaceLayers.size).isEqualTo(1)
         assertThat(schema.userStyleSettings[2].affectedWatchFaceLayers.first()).isEqualTo(
             WatchFaceLayer.BASE
@@ -230,6 +270,132 @@ public class StyleParcelableTest {
         assertThat(schema.userStyleSettings[3].affectedWatchFaceLayers.first()).isEqualTo(
             WatchFaceLayer.BASE
         )
+        assertThat(schema.userStyleSettings[3].icon).isNull()
+        assertThat(schema.userStyleSettings[3].watchFaceEditorData).isNull()
+    }
+
+    @OptIn(ExperimentalHierarchicalStyle::class)
+    @Test
+    public fun parcelAndUnparcelHierarchicalSchema() {
+        val twelveHourClockOption =
+            ListOption(Option.Id("12_style"), "12", icon = null)
+
+        val twentyFourHourClockOption =
+            ListOption(Option.Id("24_style"), "24", icon = null)
+
+        val digitalClockStyleSetting = ListUserStyleSetting(
+            UserStyleSetting.Id("digital_clock_style"),
+            "Clock style",
+            "Clock style setting",
+            null,
+            listOf(twelveHourClockOption, twentyFourHourClockOption),
+            WatchFaceLayer.ALL_WATCH_FACE_LAYERS
+        )
+
+        val digitalWatchFaceType = ListOption(
+            Option.Id("digital"),
+            "Digital",
+            icon = null,
+            childSettings = listOf(digitalClockStyleSetting)
+        )
+
+        val settingIcon1 = Icon.createWithContentUri("settingIcon1")
+        val settingIcon2 = Icon.createWithContentUri("settingIcon2")
+
+        val styleSetting1 = ListUserStyleSetting(
+            UserStyleSetting.Id("id1"),
+            "displayName1",
+            "description1",
+            settingIcon1,
+            listOf(option1, option2),
+            listOf(WatchFaceLayer.BASE)
+        )
+
+        val styleSetting2 = ListUserStyleSetting(
+            UserStyleSetting.Id("id2"),
+            "displayName2",
+            "description2",
+            settingIcon2,
+            listOf(option3, option4),
+            listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY)
+        )
+
+        val analogWatchFaceType = ListOption(
+            Option.Id("analog"),
+            "Analog",
+            icon = null,
+            childSettings = listOf(styleSetting1, styleSetting2)
+        )
+
+        val watchFaceType = ListUserStyleSetting(
+            UserStyleSetting.Id("clock_type"),
+            "Watch face type",
+            "Analog or digital",
+            icon = null,
+            options = listOf(digitalWatchFaceType, analogWatchFaceType),
+            WatchFaceLayer.ALL_WATCH_FACE_LAYERS
+        )
+
+        val srcSchema = UserStyleSchema(
+            listOf(
+                watchFaceType,
+                digitalClockStyleSetting,
+                styleSetting1,
+                styleSetting2
+            )
+        )
+
+        val parcel = Parcel.obtain()
+        srcSchema.toWireFormat().writeToParcel(parcel, 0)
+
+        parcel.setDataPosition(0)
+
+        val schema =
+            UserStyleSchema(UserStyleSchemaWireFormat.CREATOR.createFromParcel(parcel))
+        parcel.recycle()
+
+        assertThat(schema.userStyleSettings.size).isEqualTo(4)
+
+        val deserializedWatchFaceType = schema.userStyleSettings[0] as ListUserStyleSetting
+        assertThat(deserializedWatchFaceType.id)
+            .isEqualTo(UserStyleSetting.Id("clock_type"))
+        assertThat(deserializedWatchFaceType.hasParent).isFalse()
+
+        val deserializedDigitalClockStyleSetting =
+            schema.userStyleSettings[1] as ListUserStyleSetting
+        assertThat(deserializedDigitalClockStyleSetting.id)
+            .isEqualTo(UserStyleSetting.Id("digital_clock_style"))
+        assertThat(deserializedDigitalClockStyleSetting.hasParent).isTrue()
+
+        val deserializedStyleSetting1 =
+            schema.userStyleSettings[2] as ListUserStyleSetting
+        assertThat(deserializedStyleSetting1.id)
+            .isEqualTo(UserStyleSetting.Id("id1"))
+        assertThat(deserializedStyleSetting1.hasParent).isTrue()
+
+        val deserializedStyleSetting2 =
+            schema.userStyleSettings[3] as ListUserStyleSetting
+        assertThat(deserializedStyleSetting2.id)
+            .isEqualTo(UserStyleSetting.Id("id2"))
+        assertThat(deserializedStyleSetting2.hasParent).isTrue()
+
+        assertThat(deserializedWatchFaceType.options[0].childSettings).containsExactly(
+            deserializedDigitalClockStyleSetting
+        )
+
+        assertThat(deserializedWatchFaceType.options[1].childSettings).containsExactly(
+            deserializedStyleSetting1,
+            deserializedStyleSetting2
+        )
+
+        assertThat(deserializedDigitalClockStyleSetting.options[0].childSettings).isEmpty()
+        assertThat(deserializedDigitalClockStyleSetting.options[1].childSettings).isEmpty()
+
+        assertThat(deserializedStyleSetting1.options[0].childSettings).isEmpty()
+        assertThat(deserializedStyleSetting1.options[1].childSettings).isEmpty()
+
+        assertThat(deserializedStyleSetting2.options[0].childSettings).isEmpty()
+        assertThat(deserializedStyleSetting2.options[1].childSettings).isEmpty()
     }
 
     @Test
