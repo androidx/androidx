@@ -220,6 +220,7 @@ package androidx.wear.tiles.material.layouts {
   }
 
   public class MultiSlotLayout implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method @Dimension(unit=androidx.annotation.Dimension.DP) public float getHorizontalSpacerWidth();
     method public java.util.List<androidx.wear.tiles.LayoutElementBuilders.LayoutElement!> getSlotContents();
   }
 
