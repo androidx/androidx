@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 
 plugins {
@@ -47,4 +46,8 @@ androidx {
     mavenGroup = LibraryGroups.ACTIVITY
     inceptionYear = "2020"
     description = "Samples for Compose integration with Activity"
+}
+
+android {
+    namespace "androidx.activity.compose.samples"
 }

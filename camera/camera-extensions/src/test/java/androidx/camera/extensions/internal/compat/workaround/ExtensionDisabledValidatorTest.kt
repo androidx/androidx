@@ -17,6 +17,7 @@
 package androidx.camera.extensions.internal.compat.workaround
 
 import android.os.Build
+import androidx.camera.extensions.ExtensionMode
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -29,24 +30,29 @@ import org.robolectric.util.ReflectionHelpers
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class ExtensionDisabledValidatorTest(private val config: TestConfig) {
-    @Test
-    fun shouldUseDefaultVendorExtender() {
-        // Set up device properties
-        if (config.brand != null) {
-            ReflectionHelpers.setStaticField(Build::class.java, "BRAND", config.brand)
-            ReflectionHelpers.setStaticField(Build::class.java, "DEVICE", config.device)
-        }
 
-        val validator =
-            ExtensionDisabledValidator()
-        assertThat(validator.shouldDisableExtension(config.isAdvancedExtenderSupported))
-            .isEqualTo(config.shouldDisableExtension)
+    @Test
+    fun shouldDisableExtensionMode() {
+        // Set up device properties
+        ReflectionHelpers.setStaticField(Build::class.java, "BRAND", config.brand)
+        ReflectionHelpers.setStaticField(Build::class.java, "DEVICE", config.device)
+
+        val validator = ExtensionDisabledValidator()
+        assertThat(
+            validator.shouldDisableExtension(
+                config.cameraId,
+                config.extensionMode,
+                config.isAdvancedInterface
+            )
+        ).isEqualTo(config.shouldDisableExtension)
     }
 
     class TestConfig(
-        val brand: String?,
-        val device: String?,
-        val isAdvancedExtenderSupported: Boolean,
+        val brand: String,
+        val device: String,
+        val cameraId: String,
+        val extensionMode: Int,
+        val isAdvancedInterface: Boolean,
         val shouldDisableExtension: Boolean
     )
 
@@ -55,10 +61,33 @@ class ExtensionDisabledValidatorTest(private val config: TestConfig) {
         @ParameterizedRobolectricTestRunner.Parameters(name = "{0}")
         fun createTestSet(): List<TestConfig> {
             return listOf(
-                TestConfig("Google", "Redfin", false, true),
-                TestConfig("Google", "Redfin", true, false),
-                TestConfig("", "", false, false),
-                TestConfig("", "", true, false)
+                // Pixel 5 extension capability is disabled on basic extender
+                TestConfig("Google", "Redfin", "0", ExtensionMode.BOKEH, false, true),
+                TestConfig("Google", "Redfin", "0", ExtensionMode.HDR, false, true),
+                TestConfig("Google", "Redfin", "0", ExtensionMode.NIGHT, false, true),
+                TestConfig("Google", "Redfin", "0", ExtensionMode.FACE_RETOUCH, false, true),
+                TestConfig("Google", "Redfin", "0", ExtensionMode.AUTO, false, true),
+                TestConfig("Google", "Redfin", "1", ExtensionMode.BOKEH, false, true),
+                TestConfig("Google", "Redfin", "1", ExtensionMode.HDR, false, true),
+                TestConfig("Google", "Redfin", "1", ExtensionMode.NIGHT, false, true),
+                TestConfig("Google", "Redfin", "1", ExtensionMode.FACE_RETOUCH, false, true),
+                TestConfig("Google", "Redfin", "1", ExtensionMode.AUTO, false, true),
+
+                // Pixel 5 extension capability is not disabled on advanced extender
+                TestConfig("Google", "Redfin", "0", ExtensionMode.NIGHT, true, false),
+                TestConfig("Google", "Redfin", "1", ExtensionMode.NIGHT, true, false),
+
+                // Motorola Razr 5G bokeh mode is disabled. Other extension modes should still work.
+                TestConfig("Motorola", "Smith", "0", ExtensionMode.BOKEH, false, true),
+                TestConfig("Motorola", "Smith", "0", ExtensionMode.HDR, false, false),
+                TestConfig("Motorola", "Smith", "1", ExtensionMode.BOKEH, false, true),
+                TestConfig("Motorola", "Smith", "1", ExtensionMode.HDR, false, false),
+                TestConfig("Motorola", "Smith", "2", ExtensionMode.BOKEH, false, false),
+                TestConfig("Motorola", "Smith", "2", ExtensionMode.HDR, false, false),
+
+                // Other cases should be kept normal.
+                TestConfig("", "", "0", ExtensionMode.BOKEH, false, false),
+                TestConfig("", "", "1", ExtensionMode.BOKEH, false, false)
             )
         }
     }

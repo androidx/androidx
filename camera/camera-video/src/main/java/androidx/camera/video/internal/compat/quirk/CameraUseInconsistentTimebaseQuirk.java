@@ -28,11 +28,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Quirk that denotes some Samsung devices use inconsistent timebase for camera frame.
- *
- * <p>See b/197805856 for more detail.
- *
- * @see CorrectVideoTimeByTimebase
+ * <p>QuirkSummary
+ *     Bug Id: 197805856
+ *     Description: Quirk that denotes some Samsung devices use inconsistent timebase for camera
+ *                  frame.
+ *     Device(s): Some Samsung devices
+ *     @see CorrectVideoTimeByTimebase
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class CameraUseInconsistentTimebaseQuirk implements Quirk {

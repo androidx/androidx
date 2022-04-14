@@ -22,6 +22,7 @@ import com.android.tools.lint.client.api.UElementHandler
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
+import com.android.tools.lint.detector.api.Incident
 import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Scope
@@ -36,12 +37,13 @@ class BanSynchronizedMethods : Detector(), Detector.UastScanner {
     override fun createUastHandler(context: JavaContext) = object : UElementHandler() {
         override fun visitMethod(node: UMethod) {
             if (node.hasModifier(JvmModifier.SYNCHRONIZED)) {
-                context.report(
-                    ISSUE, node,
-                    context.getLocation(node),
-                    "Use of synchronized methods is not recommended",
-                    null
-                )
+                val incident = Incident(context)
+                    .fix(null)
+                    .issue(ISSUE)
+                    .location(context.getLocation(node))
+                    .message("Use of synchronized methods is not recommended")
+                    .scope(node)
+                context.report(incident)
             }
         }
     }

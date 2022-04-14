@@ -16,7 +16,6 @@
 
 package androidx.glance.appwidget.lazy
 
-import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.Composable
 import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceModifier
@@ -113,7 +112,6 @@ private fun LazyListItem(
  * Values between -2^63 and -2^62 are reserved for list items whose id has not been explicitly
  * defined.
  */
-@VisibleForTesting
 internal const val ReservedItemIdRangeEnd = -0x4_000_000_000_000_000L
 
 @DslMarker

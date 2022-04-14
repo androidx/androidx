@@ -94,6 +94,7 @@ abstract class BaseNavControllerTest<A : BaseNavigationActivity>(
         assertDeeplink(R.id.double_nested_deep_link_test, 3)
     }
 
+    @Suppress("DEPRECATION")
     private fun assertDeeplink(@IdRes destId: Int, expectedStackSize: Int) {
         val activity = launchDeepLink(
             R.navigation.nav_deep_link,
@@ -144,6 +145,7 @@ abstract class BaseNavControllerTest<A : BaseNavigationActivity>(
         assertDeepLinkWithArgs(R.id.double_nested_deep_link_test, 3)
     }
 
+    @Suppress("DEPRECATION")
     private fun assertDeepLinkWithArgs(@IdRes destId: Int, expectedStackSize: Int) {
         val args = Bundle().apply {
             putString(TEST_ARG, TEST_ARG_VALUE)
@@ -213,6 +215,7 @@ abstract class BaseNavControllerTest<A : BaseNavigationActivity>(
         assertUriDeepLink("$path/$TEST_ARG_VALUE", TEST_ARG_VALUE, destId, expectedStackSize)
     }
 
+    @Suppress("DEPRECATION")
     private fun assertUriDeepLink(
         fullPath: String,
         expectedValue: String,

@@ -84,7 +84,7 @@ public class ShortcutAdapter {
      * press menu) nor do they count toward the quota defined in
      * {@link androidx.core.content.pm.ShortcutManagerCompat#getMaxShortcutCountPerActivity(Context)}
      *
-     * <p>See {@link ShortcutInfoCompat.Builder#setExcludedSurfaces(int)}.
+     * <p>See {@link ShortcutInfoCompat.Builder#setExcludedFromSurfaces(int)}.
      *
      * <p>Given document object will be stored in the form of {@link Bundle} in
      * {@link ShortcutInfoCompat} and will remain visible to any library that implements
@@ -123,7 +123,7 @@ public class ShortcutAdapter {
         return new ShortcutInfoCompat.Builder(context, doc.getId())
                 .setShortLabel(!TextUtils.isEmpty(name) ? name : doc.getId())
                 .setIntent(new Intent(Intent.ACTION_VIEW, getDocumentUri(doc)))
-                .setExcludedSurfaces(ShortcutInfoCompat.SURFACE_LAUNCHER)
+                .setExcludedFromSurfaces(ShortcutInfoCompat.SURFACE_LAUNCHER)
                 .setTransientExtras(doc.getBundle());
     }
 

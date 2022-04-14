@@ -41,13 +41,21 @@ import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.fakes.FakeAppConfig
 import androidx.camera.testing.fakes.FakeCamera
+import androidx.camera.testing.fakes.FakeCameraControl
 import androidx.camera.testing.fakes.FakeCameraFactory
+import androidx.camera.testing.fakes.FakeCameraInfoInternal
 import androidx.camera.testing.fakes.FakeImageInfo
 import androidx.camera.testing.fakes.FakeImageProxy
 import androidx.camera.testing.fakes.FakeImageReaderProxy
 import androidx.concurrent.futures.ResolvableFuture
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
+import java.io.File
+import java.util.ArrayDeque
+import java.util.Collections
+import java.util.concurrent.ExecutionException
+import java.util.concurrent.Executor
+import java.util.concurrent.atomic.AtomicReference
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -65,12 +73,6 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 import org.robolectric.shadow.api.Shadow
 import org.robolectric.shadows.ShadowLooper
-import java.io.File
-import java.util.ArrayDeque
-import java.util.Collections
-import java.util.concurrent.ExecutionException
-import java.util.concurrent.Executor
-import java.util.concurrent.atomic.AtomicReference
 
 private const val MAX_IMAGES = 3
 
@@ -85,6 +87,7 @@ public class ImageCaptureTest {
     private lateinit var callbackHandler: Handler
     private lateinit var callbackThread: HandlerThread
     private lateinit var executor: Executor
+    private lateinit var camera: FakeCamera
     private var fakeImageReaderProxy: FakeImageReaderProxy? = null
     private var capturedImage: ImageProxy? = null
     private lateinit var cameraUseCaseAdapter: CameraUseCaseAdapter
@@ -100,7 +103,12 @@ public class ImageCaptureTest {
     @Before
     @Throws(ExecutionException::class, InterruptedException::class)
     public fun setUp() {
-        val camera = FakeCamera()
+        val cameraInfo = FakeCameraInfoInternal().apply {
+            isYuvReprocessingSupported = true
+            isPrivateReprocessingSupported = true
+        }
+
+        camera = FakeCamera(null, cameraInfo)
 
         val cameraFactoryProvider =
             CameraFactory.Provider { _, _, _ ->
@@ -155,6 +163,7 @@ public class ImageCaptureTest {
     public fun captureImageWithViewPort_isSet() {
         // Arrange
         val imageCapture = bindImageCapture(
+            ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
             ViewPort.Builder(Rational(1, 1), Surface.ROTATION_0).build()
         )
 
@@ -181,6 +190,7 @@ public class ImageCaptureTest {
     public fun capturedImageValidAfterRemoved() {
         // Arrange
         val imageCapture = bindImageCapture(
+            ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
             ViewPort.Builder(Rational(1, 1), Surface.ROTATION_0).build()
         )
 
@@ -202,7 +212,7 @@ public class ImageCaptureTest {
     @Test
     public fun capturedImageSize_isEqualToSurfaceSize() {
         // Act/arrange.
-        val imageCapture = bindImageCapture()
+        val imageCapture = bindImageCapture(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
 
         // Act
         imageCapture.takePicture(executor, onImageCapturedCallback)
@@ -362,11 +372,50 @@ public class ImageCaptureTest {
         verify(request).notifyCallbackError(anyInt(), eq(errorMsg), eq(throwable))
     }
 
-    private fun bindImageCapture(): ImageCapture {
-        return bindImageCapture(null)
+    @Config(maxSdk = 22)
+    @Test
+    public fun bindImageCaptureWithZslUnsupportedSdkVersion_notAddZslConfig() {
+        bindImageCapture(
+            ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG,
+            ViewPort.Builder(Rational(1, 1), Surface.ROTATION_0).build()
+        )
+
+        assertThat(camera.cameraControlInternal).isInstanceOf(FakeCameraControl::class.java)
+        val cameraControl = camera.cameraControlInternal as FakeCameraControl
+        assertThat(cameraControl.isZslConfigAdded).isFalse()
     }
 
-    private fun bindImageCapture(viewPort: ViewPort?): ImageCapture {
+    @Config(minSdk = 23)
+    @Test
+    public fun bindImageCaptureInRegularCaptureModeWithZslSupportedSdkVersion_notAddZslConfig() {
+        bindImageCapture(
+            ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
+            ViewPort.Builder(Rational(1, 1), Surface.ROTATION_0).build()
+        )
+
+        assertThat(camera.cameraControlInternal).isInstanceOf(FakeCameraControl::class.java)
+        val cameraControl = camera.cameraControlInternal as FakeCameraControl
+        assertThat(cameraControl.isZslConfigAdded).isFalse()
+    }
+
+    @Config(minSdk = 23)
+    @Test
+    public fun bindImageCaptureInZslCaptureModeWithZslSupportedSdkVersion_addZslConfig() {
+        bindImageCapture(
+            ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG,
+            ViewPort.Builder(Rational(1, 1), Surface.ROTATION_0).build()
+        )
+
+        assertThat(camera.cameraControlInternal).isInstanceOf(FakeCameraControl::class.java)
+        val cameraControl = camera.cameraControlInternal as FakeCameraControl
+        assertThat(cameraControl.isZslConfigAdded).isTrue()
+    }
+
+    private fun bindImageCapture(captureMode: Int): ImageCapture {
+        return bindImageCapture(captureMode, null)
+    }
+
+    private fun bindImageCapture(captureMode: Int, viewPort: ViewPort?): ImageCapture {
         // Arrange.
         val sessionOptionUnpacker =
             { _: UseCaseConfig<*>?, _: SessionConfig.Builder? -> }
@@ -374,7 +423,7 @@ public class ImageCaptureTest {
             // Set non jpg format so it doesn't trigger the exif code path.
             .setBufferFormat(ImageFormat.YUV_420_888)
             .setTargetRotation(Surface.ROTATION_0)
-            .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+            .setCaptureMode(captureMode)
             .setFlashMode(ImageCapture.FLASH_MODE_OFF)
             .setCaptureOptionUnpacker { _: UseCaseConfig<*>?, _: CaptureConfig.Builder? -> }
             .setImageReaderProxyProvider(getImageReaderProxyProvider())

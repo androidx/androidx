@@ -40,6 +40,7 @@ import androidx.camera.camera2.internal.compat.ApiCompat;
 import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
+import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.core.CameraState;
 import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.Logger;
@@ -184,6 +185,9 @@ final class Camera2CameraImpl implements CameraInternal {
     private SessionProcessor mSessionProcessor;
     boolean mIsActiveResumingMode = false;
 
+    @NonNull
+    private final DisplayInfoManager mDisplayInfoManager;
+
     /**
      * Constructor for a camera.
      *
@@ -201,7 +205,8 @@ final class Camera2CameraImpl implements CameraInternal {
             @NonNull Camera2CameraInfoImpl cameraInfoImpl,
             @NonNull CameraStateRegistry cameraStateRegistry,
             @NonNull Executor executor,
-            @NonNull Handler schedulerHandler) throws CameraUnavailableException {
+            @NonNull Handler schedulerHandler,
+            @NonNull DisplayInfoManager displayInfoManager) throws CameraUnavailableException {
         mCameraManager = cameraManager;
         mCameraStateRegistry = cameraStateRegistry;
         mScheduledExecutorService = CameraXExecutors.newHandlerExecutor(schedulerHandler);
@@ -211,6 +216,7 @@ final class Camera2CameraImpl implements CameraInternal {
         mObservableState.postValue(State.CLOSED);
         mCameraStateMachine = new CameraStateMachine(cameraStateRegistry);
         mCaptureSessionRepository = new CaptureSessionRepository(mExecutor);
+        mDisplayInfoManager = displayInfoManager;
         mCaptureSession = newCaptureSession();
 
         try {
@@ -227,7 +233,7 @@ final class Camera2CameraImpl implements CameraInternal {
         }
         mCaptureSessionOpenerBuilder = new SynchronizedCaptureSessionOpener.Builder(mExecutor,
                 mScheduledExecutorService, schedulerHandler, mCaptureSessionRepository,
-                mCameraInfoInternal.getSupportedHardwareLevel());
+                cameraInfoImpl.getCameraQuirks(), DeviceQuirks.getAll());
 
         mCameraAvailability = new CameraAvailability(cameraId);
 
@@ -892,7 +898,8 @@ final class Camera2CameraImpl implements CameraInternal {
                 // Create the MeteringRepeating UseCase
                 if (mMeteringRepeatingSession == null) {
                     mMeteringRepeatingSession = new MeteringRepeatingSession(
-                            mCameraInfoInternal.getCameraCharacteristicsCompat());
+                            mCameraInfoInternal.getCameraCharacteristicsCompat(),
+                            mDisplayInfoManager);
                 }
                 addMeteringRepeating();
             } else {
@@ -1001,8 +1008,7 @@ final class Camera2CameraImpl implements CameraInternal {
 
             // If camera is interrupted currently, force open the camera right now regardless of the
             // camera availability.
-            if (enabled && (mState == InternalState.PENDING_OPEN
-                    || mState == InternalState.REOPENING)) {
+            if (enabled && mState == InternalState.PENDING_OPEN) {
                 tryForceOpenCameraDevice(/*fromScheduledCameraReopen*/false);
             }
         });
@@ -1769,10 +1775,12 @@ final class Camera2CameraImpl implements CameraInternal {
 
         /**
          * Enables active resume only when camera is stolen by other apps.
+         * ERROR_CAMERA_IN_USE: The same camera id is occupied.
+         * ERROR_MAX_CAMERAS_IN_USE: when other app is opening camera but with different camera id.
          */
         boolean shouldActiveResume() {
-            return mIsActiveResumingMode && (mCameraDeviceError != ERROR_CAMERA_DEVICE
-                    && mCameraDeviceError != ERROR_MAX_CAMERAS_IN_USE);
+            return mIsActiveResumingMode && (mCameraDeviceError == ERROR_CAMERA_IN_USE
+                    || mCameraDeviceError == ERROR_MAX_CAMERAS_IN_USE);
         }
 
         /**

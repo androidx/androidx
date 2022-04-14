@@ -16,7 +16,6 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="androidx.wear.compose.navigation.samples">
+    xmlns:tools="http://schemas.android.com/tools">
     <uses-sdk tools:overrideLibrary="androidx.wear.compose.navigation"/>
 </manifest>

@@ -25,7 +25,7 @@ import static androidx.work.WorkInfo.State.ENQUEUED;
 import static androidx.work.WorkInfo.State.FAILED;
 import static androidx.work.WorkInfo.State.RUNNING;
 import static androidx.work.WorkInfo.State.SUCCEEDED;
-import static androidx.work.impl.workers.ConstraintTrackingWorker.ARGUMENT_CLASS_NAME;
+import static androidx.work.impl.workers.ConstraintTrackingWorkerKt.ARGUMENT_CLASS_NAME;
 
 import android.content.Context;
 import android.os.Build;
@@ -301,21 +301,10 @@ public class EnqueueRunnable implements Runnable {
                     workSpec.state = BLOCKED;
                 }
             } else {
-                // Set scheduled times only for work without prerequisites and that are
-                // not periodic. Dependent work will set their scheduled times when they are
+                // Set scheduled times only for work without prerequisites.
+                // Dependent work will set their scheduled times when they are
                 // unblocked.
-
-                // We only set the periodStartTime for OneTimeWorkRequest's here. For
-                // PeriodicWorkRequests the first interval duration is effective immediately, and
-                // WorkerWrapper special cases the first run for a PeriodicWorkRequest. This is
-                // essential because we de-dupe multiple runs of the same PeriodicWorkRequest for a
-                // given interval. JobScheduler has bugs that cause PeriodicWorkRequests to run too
-                // frequently otherwise.
-                if (!workSpec.isPeriodic()) {
-                    workSpec.periodStartTime = currentTimeMillis;
-                } else {
-                    workSpec.periodStartTime = 0L;
-                }
+                workSpec.lastEnqueueTime = currentTimeMillis;
             }
 
             if (Build.VERSION.SDK_INT >= WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL

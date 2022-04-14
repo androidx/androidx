@@ -101,19 +101,6 @@ public final class WorkQuery {
     /**
      * Creates a query for {@link WorkRequest}s with the given ids.
      *
-     * @param id an id of {@link WorkRequest}s
-     * @return a requested WorkQuery
-     */
-    @NonNull
-    public static WorkQuery fromIds(@NonNull UUID id) {
-        ArrayList<UUID> list = new ArrayList<>(1);
-        list.add(id);
-        return Builder.fromIds(list).build();
-    }
-
-    /**
-     * Creates a query for {@link WorkRequest}s with the given ids.
-     *
      * @param ids ids of {@link WorkRequest}s
      * @return a requested WorkQuery
      */
@@ -142,32 +129,6 @@ public final class WorkQuery {
     @NonNull
     public static WorkQuery fromTags(@NonNull String... tags) {
         return fromTags(Arrays.asList(tags));
-    }
-
-    /**
-     * Creates a query for {@link WorkRequest}s with the given tags.
-     *
-     * @param tag tag of {@link WorkRequest}s
-     * @return a requested WorkQuery
-     */
-    @NonNull
-    public static WorkQuery fromTags(@NonNull String tag) {
-        ArrayList<String> list = new ArrayList<>(1);
-        list.add(tag);
-        return fromTags(list);
-    }
-
-    /**
-     * Creates a query for {@link WorkRequest}s with the given unique names.
-     *
-     * @param uniqueWorkName The unique work name
-     * @return a requested WorkQuery
-     */
-    @NonNull
-    public static WorkQuery fromUniqueWorkNames(@NonNull String uniqueWorkName) {
-        ArrayList<String> list = new ArrayList<>(1);
-        list.add(uniqueWorkName);
-        return WorkQuery.Builder.fromUniqueWorkNames(list).build();
     }
 
     /**
@@ -212,19 +173,6 @@ public final class WorkQuery {
     @NonNull
     public static WorkQuery fromStates(@NonNull WorkInfo.State... states) {
         return WorkQuery.Builder.fromStates(Arrays.asList(states)).build();
-    }
-
-    /**
-     * Creates a {@link WorkQuery} for the workers in the given {@link WorkInfo.State} state.
-     *
-     * @param state the state of workers
-     * @return a requested WorkQuery
-     */
-    @NonNull
-    public static WorkQuery fromStates(@NonNull WorkInfo.State state) {
-        ArrayList<WorkInfo.State> list = new ArrayList<>(1);
-        list.add(state);
-        return WorkQuery.fromStates(list);
     }
 
     /**

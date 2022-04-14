@@ -28,11 +28,9 @@ import android.annotation.SuppressLint;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.car.app.Screen;
 import androidx.car.app.SurfaceCallback;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
@@ -104,7 +102,6 @@ public final class PlaceListNavigationTemplate implements Template {
     private final PanModeDelegate mPanModeDelegate;
     @Keep
     @Nullable
-    @ExperimentalCarApi
     private final OnContentRefreshDelegate mOnContentRefreshDelegate;
 
     /**
@@ -186,7 +183,6 @@ public final class PlaceListNavigationTemplate implements Template {
      * @see PlaceListMapTemplate.Builder#setOnContentRefreshListener
      */
     @Nullable
-    @ExperimentalCarApi
     public OnContentRefreshDelegate getOnContentRefreshDelegate() {
         return mOnContentRefreshDelegate;
     }
@@ -197,14 +193,12 @@ public final class PlaceListNavigationTemplate implements Template {
         return "PlaceListNavigationTemplate";
     }
 
-    @OptIn(markerClass = ExperimentalCarApi.class) // OnContentRefreshDelegate
     @Override
     public int hashCode() {
         return Objects.hash(mTitle, mIsLoading, mItemList, mHeaderAction, mActionStrip,
                 mMapActionStrip, mPanModeDelegate == null, mOnContentRefreshDelegate == null);
     }
 
-    @OptIn(markerClass = ExperimentalCarApi.class) // OnContentRefreshDelegate
     @Override
     public boolean equals(@Nullable Object other) {
         if (this == other) {
@@ -226,7 +220,6 @@ public final class PlaceListNavigationTemplate implements Template {
                 otherTemplate.mOnContentRefreshDelegate == null);
     }
 
-    @OptIn(markerClass = ExperimentalCarApi.class) // OnContentRefreshDelegate
     PlaceListNavigationTemplate(Builder builder) {
         mTitle = builder.mTitle;
         mIsLoading = builder.mIsLoading;
@@ -239,7 +232,6 @@ public final class PlaceListNavigationTemplate implements Template {
     }
 
     /** Constructs an empty instance, used by serialization code. */
-    @OptIn(markerClass = ExperimentalCarApi.class) // OnContentRefreshDelegate
     private PlaceListNavigationTemplate() {
         mTitle = null;
         mIsLoading = false;
@@ -267,7 +259,6 @@ public final class PlaceListNavigationTemplate implements Template {
         @Nullable
         PanModeDelegate mPanModeDelegate;
         @Nullable
-        @ExperimentalCarApi
         OnContentRefreshDelegate mOnContentRefreshDelegate;
 
         /**
@@ -466,7 +457,6 @@ public final class PlaceListNavigationTemplate implements Template {
          */
         @NonNull
         @SuppressLint({"MissingGetterMatchingBuilder", "ExecutorRegistration"})
-        @ExperimentalCarApi
         public Builder setOnContentRefreshListener(
                 @NonNull OnContentRefreshListener onContentRefreshListener) {
             mOnContentRefreshDelegate =

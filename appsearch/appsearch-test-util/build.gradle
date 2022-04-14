@@ -13,9 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -44,4 +42,8 @@ androidx {
     mavenGroup = LibraryGroups.APPSEARCH
     inceptionYear = '2021'
     description = 'Test Utilities to be used by any test module for AppSearch'
+}
+
+android {
+    namespace "androidx.appsearch.testutil"
 }

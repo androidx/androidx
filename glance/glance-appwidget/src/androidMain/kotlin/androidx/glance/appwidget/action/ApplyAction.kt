@@ -41,22 +41,27 @@ internal fun applyAction(
     action: Action,
     @IdRes viewId: Int,
 ) {
+    // CheckBox is wrapped in a FrameLayout, so the viewId passed to this function is the ID of the
+    // FrameLayout, not the CheckBox itself. CheckBoxTranslator sets actionTargetId on the
+    // translationContext which allows us to call setOnCheckedChangeResponse() on the correct
+    // target.
+    val targetId = translationContext.actionTargetId ?: viewId
     try {
         if (translationContext.isLazyCollectionDescendant) {
             val fillInIntent =
-                getFillInIntentForAction(action, translationContext, viewId)
+                getFillInIntentForAction(action, translationContext, targetId)
             if (action is CompoundButtonAction && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                ApplyActionApi31Impl.setOnCheckedChangeResponse(rv, viewId, fillInIntent)
+                ApplyActionApi31Impl.setOnCheckedChangeResponse(rv, targetId, fillInIntent)
             } else {
-                rv.setOnClickFillInIntent(viewId, fillInIntent)
+                rv.setOnClickFillInIntent(targetId, fillInIntent)
             }
         } else {
             val pendingIntent =
-                getPendingIntentForAction(action, translationContext, viewId)
+                getPendingIntentForAction(action, translationContext, targetId)
             if (action is CompoundButtonAction && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                ApplyActionApi31Impl.setOnCheckedChangeResponse(rv, viewId, pendingIntent)
+                ApplyActionApi31Impl.setOnCheckedChangeResponse(rv, targetId, pendingIntent)
             } else {
-                rv.setOnClickPendingIntent(viewId, pendingIntent)
+                rv.setOnClickPendingIntent(targetId, pendingIntent)
             }
         }
     } catch (t: Throwable) {

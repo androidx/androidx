@@ -85,6 +85,14 @@ internal fun applyModifiers(
             is AppWidgetBackgroundModifier -> {
                 // This modifier is handled somewhere else.
             }
+            is SelectableGroupModifier -> {
+                if (!translationContext.canUseSelectableGroup) {
+                    error(
+                        "GlanceModifier.selectableGroup() can only be used on Row or Column " +
+                        "composables."
+                    )
+                }
+            }
             else -> {
                 Log.w(GlanceAppWidgetTag, "Unknown modifier '$modifier', nothing done.")
             }

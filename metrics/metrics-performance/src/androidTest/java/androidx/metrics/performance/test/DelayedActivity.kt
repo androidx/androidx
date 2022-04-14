@@ -23,30 +23,30 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 
-public class DelayedActivity : AppCompatActivity() {
+class DelayedActivity : AppCompatActivity() {
 
-    public var delayMs: Long
+    var delayMs: Long
         get() {
-            val delayedView: DelayedView? = findViewById<DelayedView>(R.id.delayedView)
+            val delayedView = findViewById<DelayedView>(R.id.delayedView)
             return delayedView?.delayMs ?: 0
         }
         set(value) {
-            val delayedView: DelayedView? = findViewById<DelayedView>(R.id.delayedView)
+            val delayedView = findViewById<DelayedView>(R.id.delayedView)
             delayedView?.delayMs = value
         }
 
-    public var repetions: Int
+    var repetions: Int
         get() {
-            val delayedView: DelayedView? = findViewById<DelayedView>(R.id.delayedView)
+            val delayedView = findViewById<DelayedView>(R.id.delayedView)
             return delayedView?.repetitions ?: 0
         }
         set(value) {
-            val delayedView: DelayedView? = findViewById<DelayedView>(R.id.delayedView)
+            val delayedView = findViewById<DelayedView>(R.id.delayedView)
             delayedView?.repetitions = value
         }
 
-    public fun invalidate() {
-        val delayedView: DelayedView? = findViewById<DelayedView>(R.id.delayedView)
+    fun invalidate() {
+        val delayedView = findViewById<DelayedView>(R.id.delayedView)
         delayedView?.invalidate()
     }
 

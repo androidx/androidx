@@ -45,9 +45,11 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.video.internal.DebugUtils;
+import androidx.camera.video.internal.compat.quirk.AudioEncoderIgnoresInputTimestampQuirk;
 import androidx.camera.video.internal.compat.quirk.CameraUseInconsistentTimebaseQuirk;
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.video.internal.compat.quirk.EncoderNotUsePersistentInputSurfaceQuirk;
+import androidx.camera.video.internal.compat.quirk.VideoEncoderSuspendDoesNotIncludeSuspendTimeQuirk;
 import androidx.camera.video.internal.workaround.CorrectVideoTimeByTimebase;
 import androidx.camera.video.internal.workaround.EncoderFinder;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
@@ -66,6 +68,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -136,6 +139,8 @@ public class EncoderImpl implements Encoder {
     private static final boolean DEBUG = false;
     private static final long NO_LIMIT_LONG = Long.MAX_VALUE;
     private static final Range<Long> NO_RANGE = Range.create(NO_LIMIT_LONG, NO_LIMIT_LONG);
+    private static final long STOP_TIMEOUT_MS = 1000L;
+    private static final long TIMESTAMP_ANY = -1;
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final String mTag;
@@ -177,8 +182,17 @@ public class EncoderImpl implements Encoder {
     Range<Long> mStartStopTimeRangeUs = NO_RANGE;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     long mTotalPausedDurationUs = 0L;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    boolean mPendingCodecStop = false;
+    // The data timestamp that an encoding stops at. If this timestamp is null, it means the
+    // encoding hasn't receiving enough data to be stopped.
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    Long mLastDataStopTimestamp = null;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    Future<?> mStopTimeoutFuture = null;
 
     private boolean mIsFlushedAfterEndOfStream = false;
+    private boolean mSourceStoppedSignalled = false;
 
     final EncoderFinder mEncoderFinder = new EncoderFinder();
 
@@ -238,6 +252,12 @@ public class EncoderImpl implements Encoder {
 
         mMediaCodec.reset();
         mIsFlushedAfterEndOfStream = false;
+        mSourceStoppedSignalled = false;
+        mPendingCodecStop = false;
+        if (mStopTimeoutFuture != null) {
+            mStopTimeoutFuture.cancel(true);
+            mStopTimeoutFuture = null;
+        }
         mMediaCodec.setCallback(new MediaCodecCallback());
         mMediaCodec.configure(mMediaFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
 
@@ -267,12 +287,15 @@ public class EncoderImpl implements Encoder {
         mEncoderExecutor.execute(() -> {
             switch (mState) {
                 case CONFIGURED:
+                    mLastDataStopTimestamp = null;
+
                     final long startTimeUs = generatePresentationTimeUs();
                     Logger.d(mTag, "Start on " + DebugUtils.readableUs(startTimeUs));
                     try {
                         if (mIsFlushedAfterEndOfStream) {
-                            // If the codec is flushed after an end-of-stream, we need to reset it
-                            // before starting the codec again.
+                            // If the codec is flushed after an end-of-stream, it was never
+                            // signalled that the source stopped, so we will reset the codec
+                            // before starting it again.
                             reset();
                         }
                         mStartStopTimeRangeUs = Range.create(startTimeUs, NO_LIMIT_LONG);
@@ -288,6 +311,10 @@ public class EncoderImpl implements Encoder {
                     break;
                 case PAUSED:
                     // Resume
+
+                    // The Encoder has been resumed, so reset the stop timestamp flags.
+                    mLastDataStopTimestamp = null;
+
                     final Range<Long> pauseRange = mActivePauseResumeTimeRanges.removeLast();
                     Preconditions.checkState(
                             pauseRange != null && pauseRange.getUpper() == NO_LIMIT_LONG,
@@ -303,9 +330,19 @@ public class EncoderImpl implements Encoder {
                             (resumeTimeUs - pauseTimeUs))
                     );
 
-                    setMediaCodecPaused(false);
-                    if (mEncoderInput instanceof ByteBufferInput) {
-                        ((ByteBufferInput) mEncoderInput).setActive(true);
+                    if (!mIsVideoEncoder && DeviceQuirks.get(
+                            AudioEncoderIgnoresInputTimestampQuirk.class) != null) {
+                        // Do nothing. Since we keep handling audio data in the codec after
+                        // paused, we don't have to resume the codec and the input source.
+                    } else if (mIsVideoEncoder && DeviceQuirks.get(
+                            VideoEncoderSuspendDoesNotIncludeSuspendTimeQuirk.class) != null) {
+                        // Do nothing. Since we don't pause the codec when paused, we don't have
+                        // to resume the codec.
+                    } else {
+                        setMediaCodecPaused(false);
+                        if (mEncoderInput instanceof ByteBufferInput) {
+                            ((ByteBufferInput) mEncoderInput).setActive(true);
+                        }
                     }
                     // If this is a video encoder, then request a key frame in order to complete
                     // the resume process as soon as possible in MediaCodec.Callback
@@ -341,6 +378,25 @@ public class EncoderImpl implements Encoder {
      */
     @Override
     public void stop() {
+        stop(TIMESTAMP_ANY);
+    }
+
+    /**
+     * Stops the encoder with an expected stop time.
+     *
+     * <p>It will trigger {@link EncoderCallback#onEncodeStop} after the last encoded data. It can
+     * call {@link #start} to start again.
+     *
+     * <p>The encoder will try to provide the last {@link EncodedData} with a timestamp as close
+     * as to the given stop timestamp.
+     *
+     * <p>Use {@link #stop()} to stop the encoder without specifying expected stop time and let
+     * the Encoder to decide.
+     *
+     * @param expectedStopTimeUs The desired stop time.
+     */
+    @Override
+    public void stop(long expectedStopTimeUs) {
         mEncoderExecutor.execute(() -> {
             switch (mState) {
                 case CONFIGURED:
@@ -350,30 +406,56 @@ public class EncoderImpl implements Encoder {
                     break;
                 case STARTED:
                 case PAUSED:
+                    InternalState currentState = mState;
                     setState(STOPPING);
-                    if (mEncoderInput instanceof ByteBufferInput) {
-                        ((ByteBufferInput) mEncoderInput).setActive(false);
-                        // Wait for all issued input buffer done to avoid input loss.
-                        List<ListenableFuture<Void>> futures = new ArrayList<>();
-                        for (InputBuffer inputBuffer : mInputBufferSet) {
-                            futures.add(inputBuffer.getTerminationFuture());
-                        }
-                        Futures.successfulAsList(futures).addListener(this::signalEndOfInputStream,
-                                mEncoderExecutor);
-                    } else if (mEncoderInput instanceof SurfaceInput) {
-                        try {
-                            mMediaCodec.signalEndOfInputStream();
-                        } catch (MediaCodec.CodecException e) {
-                            handleEncodeError(e);
-                            return;
-                        }
-                    }
                     final long startTimeUs = mStartStopTimeRangeUs.getLower();
-                    Preconditions.checkState(startTimeUs != NO_LIMIT_LONG,
-                            "There should be a \"start\" before \"stop\"");
-                    final long stopTimeUs = generatePresentationTimeUs();
+                    if (startTimeUs == NO_LIMIT_LONG) {
+                        throw new AssertionError("There should be a \"start\" before \"stop\"");
+                    }
+                    long stopTimeUs;
+                    if (expectedStopTimeUs == TIMESTAMP_ANY) {
+                        stopTimeUs = generatePresentationTimeUs();
+                    } else if (expectedStopTimeUs < startTimeUs) {
+                        // If the recording is stopped immediately after started, it's possible
+                        // that the expected stop time is less than the start time because the
+                        // encoder is run on different executor. Ignore the expected stop time in
+                        // this case so that the recording can be stopped correctly.
+                        Logger.w(mTag, "The expected stop time is less than the start time. Use "
+                                + "current time as stop time.");
+                        stopTimeUs = generatePresentationTimeUs();
+                    } else {
+                        stopTimeUs = expectedStopTimeUs;
+                    }
+                    if (stopTimeUs < startTimeUs) {
+                        throw new AssertionError("The start time should be before the stop time.");
+                    }
+                    // Store the stop time. The codec will be stopped after receiving the data
+                    // that has a timestamp equal or greater than the stop time.
                     mStartStopTimeRangeUs = Range.create(startTimeUs, stopTimeUs);
                     Logger.d(mTag, "Stop on " + DebugUtils.readableUs(stopTimeUs));
+                    // If the Encoder is paused and has received enough data, directly signal
+                    // the codec to stop.
+                    if (currentState == PAUSED && mLastDataStopTimestamp != null) {
+                        signalCodecStop();
+                    } else {
+                        mPendingCodecStop = true;
+                        // If somehow the data doesn't reach the expected timestamp before it
+                        // times out, stop the codec so that the Encoder can at least be stopped.
+                        // Set mDataStopTimeStamp to be null in order to catch this issue in test.
+                        mStopTimeoutFuture =
+                                CameraXExecutors.mainThreadExecutor().schedule(
+                                        () -> mEncoderExecutor.execute(() -> {
+                                            if (mPendingCodecStop) {
+                                                Logger.w(mTag,
+                                                        "The data didn't reach the expected "
+                                                                + "timestamp before timeout, stop"
+                                                                + " the codec.");
+                                                mLastDataStopTimestamp = null;
+                                                signalCodecStop();
+                                                mPendingCodecStop = false;
+                                            }
+                                        }), STOP_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+                    }
                     break;
                 case PENDING_START:
                 case PENDING_START_PAUSED:
@@ -386,6 +468,27 @@ public class EncoderImpl implements Encoder {
                     throw new IllegalStateException("Unknown state: " + mState);
             }
         });
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @ExecutedBy("mEncoderExecutor")
+    void signalCodecStop() {
+        if (mEncoderInput instanceof ByteBufferInput) {
+            ((ByteBufferInput) mEncoderInput).setActive(false);
+            // Wait for all issued input buffer done to avoid input loss.
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
+            for (InputBuffer inputBuffer : mInputBufferSet) {
+                futures.add(inputBuffer.getTerminationFuture());
+            }
+            Futures.successfulAsList(futures).addListener(this::signalEndOfInputStream,
+                    mEncoderExecutor);
+        } else if (mEncoderInput instanceof SurfaceInput) {
+            try {
+                mMediaCodec.signalEndOfInputStream();
+            } catch (MediaCodec.CodecException e) {
+                handleEncodeError(e);
+            }
+        }
     }
 
     /**
@@ -453,6 +556,24 @@ public class EncoderImpl implements Encoder {
                     break;
                 default:
                     throw new IllegalStateException("Unknown state: " + mState);
+            }
+        });
+    }
+
+    /**
+     * Sends a hint to the encoder that the source has stopped producing data.
+     *
+     * <p>This will allow the encoder to reset when it is stopped and no more input data is
+     * incoming. This can optimize the time needed to start the next session with
+     * {@link #start()} and can regenerate a {@link Surface} on devices that don't support
+     * persistent input surfaces.
+     */
+    public void signalSourceStopped() {
+        mEncoderExecutor.execute(() -> {
+            mSourceStoppedSignalled = true;
+            if (mIsFlushedAfterEndOfStream) {
+                mMediaCodec.stop();
+                reset();
             }
         });
     }
@@ -646,7 +767,7 @@ public class EncoderImpl implements Encoder {
             futures.add(inputBuffer.getTerminationFuture());
         }
         Futures.successfulAsList(futures).addListener(() -> {
-            if (mEncoderInput instanceof SurfaceInput) {
+            if (mEncoderInput instanceof SurfaceInput && !mSourceStoppedSignalled) {
                 // For a SurfaceInput, the codec is in control of dequeuing buffers from the
                 // underlying BufferQueue. If we stop the codec, then it will stop dequeuing buffers
                 // and the BufferQueue may run out of input buffers, causing the camera pipeline
@@ -655,15 +776,13 @@ public class EncoderImpl implements Encoder {
                 // discard buffers. We should have already received the end-of-stream signal on
                 // an output buffer at this point, so those buffers are not needed anyways. We will
                 // defer resetting the codec until just before starting the codec again.
-                // TODO: If we can get an external signal that no more buffers are being
-                //  enqueued, we can reset when that signal comes. This could save on some of the
-                //  latency of restarting the codec since it could already be reset before the
-                //  signal to restart comes.
                 mMediaCodec.flush();
                 mIsFlushedAfterEndOfStream = true;
             } else {
                 // Non-SurfaceInputs give us more control over input buffers. We can directly
                 // stop the codec instead of flushing.
+                // Additionally, if we already received a signal that the source is stopped, then
+                // there shouldn't be new buffers being produced, and we don't need to flush.
                 mMediaCodec.stop();
             }
             if (afterStop != null) {
@@ -681,7 +800,7 @@ public class EncoderImpl implements Encoder {
         } else {
             InternalState oldState = mState;
             if (!mIsFlushedAfterEndOfStream) {
-                // Only reset if the codec is stopped (no flushed). If the codec is flushed, we
+                // Only reset if the codec is stopped (not flushed). If the codec is flushed, we
                 // want it to continue to discard buffers. We will reset before starting the
                 // codec again.
                 reset();
@@ -891,7 +1010,7 @@ public class EncoderImpl implements Encoder {
                             }
                         }
 
-                        if (!shouldDropBuffer(bufferInfo)) {
+                        if (!checkBufferInfo(bufferInfo)) {
                             if (!mHasFirstData) {
                                 mHasFirstData = true;
                             }
@@ -979,8 +1098,13 @@ public class EncoderImpl implements Encoder {
             }
         }
 
+        /**
+         * Checks the {@link android.media.MediaCodec.BufferInfo} and updates related states.
+         *
+         * @return {@code true} if the buffer should be dropped, otherwise {@code false}.
+         */
         @ExecutedBy("mEncoderExecutor")
-        private boolean shouldDropBuffer(@NonNull MediaCodec.BufferInfo bufferInfo) {
+        private boolean checkBufferInfo(@NonNull MediaCodec.BufferInfo bufferInfo) {
             if (mHasEndData) {
                 Logger.d(mTag, "Drop buffer by already reach end of stream.");
                 return true;
@@ -1011,6 +1135,16 @@ public class EncoderImpl implements Encoder {
             // buffer, and send those old frames in the next startup.
             if (!mStartStopTimeRangeUs.contains(bufferInfo.presentationTimeUs)) {
                 Logger.d(mTag, "Drop buffer by not in start-stop range.");
+                // If data hasn't reached the expected stop timestamp, set the stop timestamp.
+                if (mPendingCodecStop
+                        && bufferInfo.presentationTimeUs >= mStartStopTimeRangeUs.getUpper()) {
+                    if (mStopTimeoutFuture != null) {
+                        mStopTimeoutFuture.cancel(true);
+                    }
+                    mLastDataStopTimestamp = bufferInfo.presentationTimeUs;
+                    signalCodecStop();
+                    mPendingCodecStop = false;
+                }
                 return true;
             }
 
@@ -1045,16 +1179,37 @@ public class EncoderImpl implements Encoder {
                     executor = mEncoderCallbackExecutor;
                     encoderCallback = mEncoderCallback;
                 }
-                executor.execute(() -> encoderCallback.onEncodePaused());
+                executor.execute(encoderCallback::onEncodePaused);
 
-                // It has to ensure the current state is PAUSED state and then stop the input
-                // source. This is because start() will resume input source and could be called
-                // before the output buffer reach pause range.
+                // We must ensure that the current state is PAUSED before we stop the input
+                // source and pause the codec. This is because start() may be called before the
+                // output buffer reaches the pause range.
                 if (mState == PAUSED) {
-                    if (mEncoderInput instanceof ByteBufferInput) {
-                        ((ByteBufferInput) mEncoderInput).setActive(false);
+                    if (!mIsVideoEncoder && DeviceQuirks.get(
+                            AudioEncoderIgnoresInputTimestampQuirk.class) != null) {
+                        // Do nothing, which means keep handling audio data in the codec.
+                    } else if (mIsVideoEncoder && DeviceQuirks.get(
+                            VideoEncoderSuspendDoesNotIncludeSuspendTimeQuirk.class) != null) {
+                        // Do nothing, which means don't pause the codec.
+                    } else {
+                        if (mEncoderInput instanceof ByteBufferInput) {
+                            ((ByteBufferInput) mEncoderInput).setActive(false);
+                        }
+                        setMediaCodecPaused(true);
                     }
-                    setMediaCodecPaused(true);
+                }
+
+                // An encoding session could be pause/resume for multiple times. So a later pause
+                // should overwrite the previous data stop time.
+                mLastDataStopTimestamp = bufferInfo.presentationTimeUs;
+                // If the encoder has been stopped before the data enters pause period, stop the
+                // codec directly.
+                if (mPendingCodecStop) {
+                    if (mStopTimeoutFuture != null) {
+                        mStopTimeoutFuture.cancel(true);
+                    }
+                    signalCodecStop();
+                    mPendingCodecStop = false;
                 }
             } else if (mIsOutputBufferInPauseState && !isInPauseRange) {
                 // From pause to resume

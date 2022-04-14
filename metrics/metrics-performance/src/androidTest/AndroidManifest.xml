@@ -14,8 +14,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="androidx.metrics.performance.test">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application android:supportsRtl="true"
         android:theme="@style/Theme.Androidx"

@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+InvalidNullability: androidx.wear.watchface.complications.rendering.ComplicationDrawable#onBoundsChange(android.graphics.Rect) parameter #0:
+    Invalid nullability on parameter `bounds` in method `onBoundsChange`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.

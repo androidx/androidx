@@ -40,6 +40,27 @@ class DevicePerformanceTest {
     }
 
     @Test
+    @Config(maxSdk = R, minSdk = R)
+    fun getMediaPerformanceClass_sdk30_declared() {
+        // on R devices, it doesn't matter if you set the value, ignore it
+        ShadowSystemProperties.override("ro.odm.build.media_performance_class", "30")
+        ShadowBuild.reset()
+        val pc = createPerformanceClass()
+        assertThat(pc.mediaPerformanceClass).isEqualTo(0)
+    }
+
+    // declared an undefined perf class, treat it as 0
+    @Test
+    @Config(minSdk = S)
+    fun getMediaPerformanceClass_sdk31_declared25() {
+        // TODO(b/205732671): Use ShadowBuild.setMediaPerformanceClass when available
+        ShadowSystemProperties.override("ro.odm.build.media_performance_class", "25")
+        ShadowBuild.reset()
+        val pc = createPerformanceClass()
+        assertThat(pc.mediaPerformanceClass).isEqualTo(0)
+    }
+
+    @Test
     @Config(minSdk = S)
     fun getMediaPerformanceClass_sdk31_declared30() {
         // TODO(b/205732671): Use ShadowBuild.setMediaPerformanceClass when available
@@ -51,11 +72,42 @@ class DevicePerformanceTest {
 
     @Test
     @Config(minSdk = S)
-    fun getMediaPerformanceClass_sdk31_notDeclared() {
+    fun getMediaPerformanceClass_sdk31_declared31() {
         // TODO(b/205732671): Use ShadowBuild.setMediaPerformanceClass when available
+        ShadowSystemProperties.override("ro.odm.build.media_performance_class", "31")
+        ShadowBuild.reset()
+        val pc = createPerformanceClass()
+        assertThat(pc.mediaPerformanceClass).isEqualTo(31)
+    }
+
+    @Test
+    @Config(minSdk = S)
+    fun getMediaPerformanceClass_sdk31_notDeclared() {
         ShadowBuild.reset()
         val pc = createPerformanceClass()
         assertThat(pc.mediaPerformanceClass).isEqualTo(0)
+    }
+
+    @Test
+    fun getMediaPerformanceClass_sdk30_inList() {
+        ShadowBuild.reset()
+        ShadowBuild.setBrand("robolectric-BrandX")
+        ShadowBuild.setProduct("ProductX")
+        ShadowBuild.setDevice("Device30")
+        ShadowBuild.setVersionRelease("11")
+        val pc = createPerformanceClass()
+        assertThat(pc.mediaPerformanceClass).isEqualTo(30)
+    }
+
+    @Test
+    fun getMediaPerformanceClass_sdk31_inList() {
+        ShadowBuild.reset()
+        ShadowBuild.setBrand("robolectric-BrandX")
+        ShadowBuild.setProduct("ProductX")
+        ShadowBuild.setDevice("Device31")
+        ShadowBuild.setVersionRelease("12")
+        val pc = createPerformanceClass()
+        assertThat(pc.mediaPerformanceClass).isEqualTo(31)
     }
 
     private fun createPerformanceClass(): DevicePerformance {

@@ -277,6 +277,7 @@ class CoroutineWorkerTest {
             return Result.success(workDataOf("output" to 999L))
         }
 
+        @Deprecated(message = "use withContext(...) inside doWork() instead.")
         override val coroutineContext = SynchronousExecutor().asCoroutineDispatcher()
     }
 }

@@ -73,6 +73,20 @@ public class ComplicationSlotState {
     public val complicationConfigExtras: Bundle
 
     /**
+     * The ID of a string resource (or `null` if absent) to identify the complication slot visually
+     * in an editor. This is supposed to be short and without the word complication in it.
+     */
+    @get:Suppress("AutoBoxing")
+    public val nameResourceId: Int?
+
+    /**
+     * The ID of a string resource (or `null` if absent) to identify the complication slot in a
+     * screen reader. This is supposed to be a complete sentence.
+     */
+    @get:Suppress("AutoBoxing")
+    public val screenReaderNameResourceId: Int?
+
+    /**
      * @param bounds Screen space bounds of the [ComplicationSlot] in pixels.
      * @param boundsType The type of the complication's bounds.
      * @param supportedTypes The [ComplicationType]s supported by this complication.
@@ -88,6 +102,10 @@ public class ComplicationSlotState {
      * the user can't configure it).
      * @param complicationConfigExtras Extras to be merged into the Intent sent when invoking the
      * complication data source chooser activity.
+     * @param nameResourceId The ID of a string resource (or `null` if absent) to visually identify
+     * the complication slot in an editor.
+     * @param screenReaderNameResourceId The ID of a string resource (or `null` if absent) to
+     * identify the complication slot in a screen reader.
      */
     public constructor(
         bounds: Rect,
@@ -98,7 +116,11 @@ public class ComplicationSlotState {
         isInitiallyEnabled: Boolean,
         currentType: ComplicationType,
         fixedComplicationDataSource: Boolean,
-        complicationConfigExtras: Bundle
+        complicationConfigExtras: Bundle,
+        @Suppress("AutoBoxing")
+        nameResourceId: Int?,
+        @Suppress("AutoBoxing")
+        screenReaderNameResourceId: Int?
     ) {
         this.bounds = bounds
         this.boundsType = boundsType
@@ -109,6 +131,8 @@ public class ComplicationSlotState {
         this.currentType = currentType
         this.fixedComplicationDataSource = fixedComplicationDataSource
         this.complicationConfigExtras = complicationConfigExtras
+        this.nameResourceId = nameResourceId
+        this.screenReaderNameResourceId = screenReaderNameResourceId
     }
 
     /**
@@ -183,6 +207,8 @@ public class ComplicationSlotState {
         this.currentType = currentType
         this.fixedComplicationDataSource = fixedComplicationDataSource
         this.complicationConfigExtras = complicationConfigExtras
+        this.nameResourceId = null
+        this.screenReaderNameResourceId = null
     }
 
     /** @hide */
@@ -208,6 +234,60 @@ public class ComplicationSlotState {
         complicationStateWireFormat.isInitiallyEnabled,
         ComplicationType.fromWireType(complicationStateWireFormat.currentType),
         complicationStateWireFormat.isFixedComplicationProvider,
-        complicationStateWireFormat.complicationConfigExtras
+        complicationStateWireFormat.complicationConfigExtras,
+        complicationStateWireFormat.nameResourceId,
+        complicationStateWireFormat.screenReaderNameResourceId
     )
+
+    @Suppress("Deprecation")
+    override fun toString(): String {
+        return "ComplicationSlotState(bounds=$bounds, boundsType=$boundsType, " +
+            "supportedTypes=$supportedTypes, defaultDataSourcePolicy=$defaultDataSourcePolicy, " +
+            "defaultDataSourceType=$defaultDataSourceType, isEnabled=$isEnabled, " +
+            "isInitiallyEnabled=$isInitiallyEnabled, currentType=$currentType, " +
+            "fixedComplicationDataSource=$fixedComplicationDataSource, " +
+            "complicationConfigExtras=$complicationConfigExtras, " +
+            "nameResourceId=$nameResourceId, " +
+            "screenReaderNameResourceId=$screenReaderNameResourceId)"
+    }
+
+    @Suppress("Deprecation")
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as ComplicationSlotState
+
+        if (bounds != other.bounds) return false
+        if (boundsType != other.boundsType) return false
+        if (supportedTypes != other.supportedTypes) return false
+        if (defaultDataSourcePolicy != other.defaultDataSourcePolicy) return false
+        if (defaultDataSourceType != other.defaultDataSourceType) return false
+        if (isEnabled != other.isEnabled) return false
+        if (isInitiallyEnabled != other.isInitiallyEnabled) return false
+        if (currentType != other.currentType) return false
+        if (fixedComplicationDataSource != other.fixedComplicationDataSource) return false
+        if (complicationConfigExtras != other.complicationConfigExtras) return false
+        if (nameResourceId != other.nameResourceId) return false
+        if (screenReaderNameResourceId != other.screenReaderNameResourceId) return false
+
+        return true
+    }
+
+    @Suppress("Deprecation")
+    override fun hashCode(): Int {
+        var result = bounds.hashCode()
+        result = 31 * result + boundsType
+        result = 31 * result + supportedTypes.hashCode()
+        result = 31 * result + defaultDataSourcePolicy.hashCode()
+        result = 31 * result + defaultDataSourceType.hashCode()
+        result = 31 * result + isEnabled.hashCode()
+        result = 31 * result + isInitiallyEnabled.hashCode()
+        result = 31 * result + currentType.hashCode()
+        result = 31 * result + fixedComplicationDataSource.hashCode()
+        result = 31 * result + complicationConfigExtras.hashCode()
+        result = 31 * result + (nameResourceId ?: 0)
+        result = 31 * result + (screenReaderNameResourceId ?: 0)
+        return result
+    }
 }

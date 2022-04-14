@@ -333,7 +333,7 @@ open class BaseTest {
                 equalTo(expectPageDownAction)
             )
 
-            var node = AccessibilityNodeInfo.obtain()
+            @Suppress("DEPRECATION") var node = AccessibilityNodeInfo.obtain()
             runOnUiThreadSync { viewPager.onInitializeAccessibilityNodeInfo(node) }
             @Suppress("DEPRECATION") var standardActions = node.actions
 

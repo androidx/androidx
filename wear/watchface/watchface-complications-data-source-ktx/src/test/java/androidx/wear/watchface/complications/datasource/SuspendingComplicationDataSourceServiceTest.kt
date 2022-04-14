@@ -99,7 +99,7 @@ public class SuspendingComplicationDataSourceServiceTest {
         lateinit var result: ComplicationData
 
         testService.onComplicationRequest(
-            ComplicationRequest(123, ComplicationType.SMALL_IMAGE),
+            ComplicationRequest(123, ComplicationType.SMALL_IMAGE, false),
             object : ComplicationDataSourceService.ComplicationRequestListener {
                 override fun onComplicationData(complicationData: ComplicationData?) {
                     result = complicationData!!
@@ -118,7 +118,7 @@ public class SuspendingComplicationDataSourceServiceTest {
         lateinit var result: ComplicationDataTimeline
 
         testService.onComplicationRequest(
-            ComplicationRequest(123, ComplicationType.SMALL_IMAGE),
+            ComplicationRequest(123, ComplicationType.SMALL_IMAGE, false),
             object : ComplicationDataSourceService.ComplicationRequestListener {
                 override fun onComplicationData(complicationData: ComplicationData?) { }
 

@@ -60,6 +60,7 @@ public object DataPoints {
     private const val EXTRA_PERMISSIONS_GRANTED: String = "hs.data_points_has_permissions"
 
     /** Retrieves the [DataPoint] s that are contained in the given [Intent], if any. */
+    @Suppress("DEPRECATION")
     @JvmStatic
     @Keep
     public fun getDataPoints(intent: Intent): List<DataPoint> =

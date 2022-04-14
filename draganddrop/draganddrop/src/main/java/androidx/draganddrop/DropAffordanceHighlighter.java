@@ -50,7 +50,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 /** Used for visually indicating a View's affordance as a drop target. */
-@RequiresApi(Build.VERSION_CODES.N)
 final class DropAffordanceHighlighter {
     static final float FILL_OPACITY_INACTIVE = .2f;
     static final float FILL_OPACITY_ACTIVE = .65f;
@@ -67,6 +66,8 @@ final class DropAffordanceHighlighter {
 
     final View mViewToHighlight;
     private final Predicate<ClipDescription> mEligibilityPredicate;
+    private final boolean mAcceptDragsWithLocalState;
+
     /** Highlight for possible targets (light) */
     private final Drawable mHighlightAffordance;
     /** Highlight for the current target that will receive the content if the user lets go (dark) */
@@ -87,10 +88,12 @@ final class DropAffordanceHighlighter {
     DropAffordanceHighlighter(
             View viewToHighlight,
             Predicate<ClipDescription> eligibilityPredicate,
+            boolean acceptDragsWithLocalState,
             @ColorInt int highlightColor,
             int cornerRadiusPx) {
         this.mViewToHighlight = viewToHighlight;
         this.mEligibilityPredicate = eligibilityPredicate;
+        this.mAcceptDragsWithLocalState = acceptDragsWithLocalState;
 
         @ColorInt int  inactiveColor = colorWithOpacity(
                 highlightColor, FILL_OPACITY_INACTIVE);
@@ -117,6 +120,9 @@ final class DropAffordanceHighlighter {
 
     /** Sets the highlight state based on the drag events. */
     boolean onDrag(@NonNull View reportingView, @NonNull DragEvent dragEvent) {
+        if (!mAcceptDragsWithLocalState && dragEvent.getLocalState() != null) {
+            return false;
+        }
         int action = dragEvent.getAction();
         // ClipDescription is not present in ACTION_DRAG_ENDED.
         if (action != ACTION_DRAG_ENDED
@@ -236,10 +242,10 @@ final class DropAffordanceHighlighter {
     }
 
     /** Builder for {@link DropAffordanceHighlighter}. */
-    @RequiresApi(Build.VERSION_CODES.N)
     static final class Builder {
         private final View mViewToHighlight;
         private final Predicate<ClipDescription> mEligibilityPredicate;
+        private boolean mAcceptDragsWithLocalState;
         private int mCornerRadiusPx;
         private @ColorInt int mHighlightColor;
         private boolean mHighlightColorHasBeenSupplied = false;
@@ -265,10 +271,26 @@ final class DropAffordanceHighlighter {
             return this;
         }
 
+        /**
+         * By default, drag events containing a {@link DragEvent#getLocalState() localState} (and
+         * therefore coming from this Activity) are ignored. Setting this to true will let them
+         * be handled.
+         */
+        @SuppressLint("MissingGetterMatchingBuilder")
+        @NonNull
+        Builder shouldAcceptDragsWithLocalState(boolean acceptDragsWithLocalState) {
+            this.mAcceptDragsWithLocalState = acceptDragsWithLocalState;
+            return this;
+        }
+
         /** Creates the {@link androidx.draganddrop.DropAffordanceHighlighter}. */
         @NonNull DropAffordanceHighlighter build() {
             return new DropAffordanceHighlighter(
-                    mViewToHighlight, mEligibilityPredicate, getHighlightColor(), mCornerRadiusPx);
+                    mViewToHighlight,
+                    mEligibilityPredicate,
+                    mAcceptDragsWithLocalState,
+                    getHighlightColor(),
+                    mCornerRadiusPx);
         }
 
         private @ColorInt int getHighlightColor() {

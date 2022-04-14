@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -27,13 +27,14 @@ android {
     buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
     }
+    namespace "androidx.navigation.common"
 }
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api(projectOrArtifact(":lifecycle:lifecycle-runtime-ktx"))
     api(projectOrArtifact(":lifecycle:lifecycle-viewmodel-ktx"))
-    api("androidx.savedstate:savedstate:1.0.0")
+    api(projectOrArtifact(":savedstate:savedstate-ktx"))
     api(projectOrArtifact(":lifecycle:lifecycle-viewmodel-savedstate"))
     implementation("androidx.core:core-ktx:1.1.0")
     implementation("androidx.collection:collection-ktx:1.1.0")
@@ -45,6 +46,7 @@ dependencies {
     testImplementation(libs.mockitoCore)
     testImplementation(libs.truth)
     testImplementation(libs.kotlinStdlib)
+    testImplementation(libs.kotlinCoroutinesTest)
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
@@ -75,4 +77,10 @@ androidx {
     mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2017"
     description = "Android Navigation-Common"
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
+    }
 }

@@ -133,7 +133,6 @@ public open class NavController(
      * Activity/Fragment - if the Activity is not `RESUMED`, no entry will be `RESUMED`, no matter
      * what the transition state is.
      */
-    @NavControllerVisibleEntries
     public val visibleEntries: StateFlow<List<NavBackStackEntry>> =
         _visibleEntries.asStateFlow()
 
@@ -761,6 +760,7 @@ public open class NavController(
      * stack used to start this Activity. Returns false if
      * the current destination was already the root of the deep link.
      */
+    @Suppress("DEPRECATION")
     private fun tryRelaunchUpToExplicitStack(): Boolean {
         if (!deepLinkHandled) {
             return false
@@ -998,14 +998,14 @@ public open class NavController(
         navigatorState.values.forEach { state ->
             entries += state.transitionsInProgress.value.filter { entry ->
                 !entries.contains(entry) &&
-                    !entry.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+                    !entry.maxLifecycle.isAtLeast(Lifecycle.State.STARTED)
             }
         }
         // Add any STARTED entries from the backQueue. This will include the topmost
         // non-FloatingWindow destination plus every FloatingWindow destination above it.
         entries += backQueue.filter { entry ->
             !entries.contains(entry) &&
-                entry.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+                entry.maxLifecycle.isAtLeast(Lifecycle.State.STARTED)
         }
         return entries.filter {
             it.destination !is NavGraph
@@ -1089,6 +1089,9 @@ public open class NavController(
                 val newDestination = graph.nodes.valueAt(i)
                 _graph!!.nodes.replace(i, newDestination)
                 backQueue.filter { currentEntry ->
+                    // Necessary since CI builds against ToT, can be removed once
+                    // androidx.collection is updated to >= 1.3.*
+                    @Suppress("UNNECESSARY_SAFE_CALL", "SAFE_CALL_WILL_CHANGE_NULLABILITY")
                     currentEntry.destination.id == newDestination?.id
                 }.forEach { entry ->
                     entry.destination = newDestination
@@ -1185,6 +1188,7 @@ public open class NavController(
      * @see NavDestination.addDeepLink
      */
     @MainThread
+    @Suppress("DEPRECATION")
     public open fun handleDeepLink(intent: Intent?): Boolean {
         if (intent == null) {
             return false
@@ -1280,7 +1284,7 @@ public open class NavController(
                             exit = 0
                         }
                         val changingGraphs = node is NavGraph &&
-                            currentDestination?.hierarchy?.none { it == node } == true
+                            node.hierarchy.none { it == currentDestination?.parent }
                         if (changingGraphs && deepLinkSaveState) {
                             // If we are navigating to a 'sibling' graph (one that isn't part
                             // of the current destination's hierarchy), then we need to saveState
@@ -2077,6 +2081,7 @@ public open class NavController(
      * @param navState state bundle to restore
      */
     @CallSuper
+    @Suppress("DEPRECATION")
     public open fun restoreState(navState: Bundle?) {
         if (navState == null) {
             return

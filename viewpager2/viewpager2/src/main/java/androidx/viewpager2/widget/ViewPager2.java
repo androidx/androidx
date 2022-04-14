@@ -959,7 +959,7 @@ public final class ViewPager2 extends ViewGroup {
 
     @RequiresApi(16)
     @Override
-    public boolean performAccessibilityAction(int action, Bundle arguments) {
+    public boolean performAccessibilityAction(int action, @Nullable Bundle arguments) {
         if (mAccessibilityProvider.handlesPerformAccessibilityAction(action, arguments)) {
             return mAccessibilityProvider.onPerformAccessibilityAction(action, arguments);
         }

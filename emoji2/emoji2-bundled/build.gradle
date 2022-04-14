@@ -1,4 +1,3 @@
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -26,6 +25,7 @@ android {
             }
         }
     }
+    namespace "androidx.emoji2.bundled"
 
 }
 

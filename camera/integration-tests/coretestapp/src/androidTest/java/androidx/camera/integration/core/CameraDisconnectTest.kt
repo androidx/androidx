@@ -25,6 +25,7 @@ import androidx.camera.core.CameraX
 import androidx.camera.core.CameraXConfig
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.camera.testing.activity.Camera2TestActivity
 import androidx.camera.testing.activity.CameraXTestActivity
@@ -37,13 +38,13 @@ import androidx.test.espresso.IdlingResource
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
+import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.util.concurrent.TimeUnit
 
 /** Tests for [CameraX] which varies use case combinations to run. */
 @LargeTest
@@ -54,7 +55,9 @@ class CameraDisconnectTest(
 ) {
 
     @get:Rule
-    val cameraRule = CameraUtil.grantCameraPermissionAndPreTest()
+    val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
+        PreTestCameraIdList(cameraConfig)
+    )
 
     companion object {
         @JvmStatic

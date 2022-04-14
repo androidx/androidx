@@ -27,11 +27,16 @@ import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
+import java.io.FileNotFoundException
 import org.jetbrains.uast.UAnnotated
 import org.jetbrains.uast.UAnnotation
 import org.jetbrains.uast.UClass
+import org.jetbrains.uast.UClassLiteralExpression
 import org.jetbrains.uast.UElement
+import org.jetbrains.uast.UExpression
+import org.jetbrains.uast.kotlin.KotlinUVarargExpression
 import org.jetbrains.uast.resolveToUElement
+import org.jetbrains.uast.toUElement
 
 /**
  * Prevents usage of experimental annotations outside the groups in which they were defined.
@@ -45,9 +50,13 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
     }
 
     private inner class AnnotationChecker(val context: JavaContext) : UElementHandler() {
+        val atomicGroupList: List<String> by lazy { loadAtomicLibraryGroupList() }
+
         override fun visitAnnotation(node: UAnnotation) {
+            val signature = node.qualifiedName
+
             if (DEBUG) {
-                if (APPLICABLE_ANNOTATIONS.contains(node.qualifiedName) && node.sourcePsi != null) {
+                if (APPLICABLE_ANNOTATIONS.contains(signature) && node.sourcePsi != null) {
                     (node.uastParent as? UClass)?.let { annotation ->
                         println(
                             "${context.driver.mode}: declared ${annotation.qualifiedName} in " +
@@ -57,8 +66,65 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
                 }
             }
 
-            // If we find an usage of an experimentally-declared annotation, check it.
-            val annotation = node.resolveToUElement()
+            /**
+             * If the annotation under evaluation is a form of @OptIn, extract and evaluate the
+             * annotation(s) referenced by @OptIn - denoted by its markerClass.
+             */
+            if (signature != null && APPLICATION_OPT_IN_ANNOTATIONS.contains(signature)) {
+                if (DEBUG) {
+                    println("Processing $signature annotation")
+                }
+
+                val markerClass: UExpression? = node.findAttributeValue("markerClass")
+                if (markerClass != null) {
+                    getUElementsFromOptInMarkerClass(markerClass).forEach { uElement ->
+                        inspectAnnotation(uElement, node)
+                    }
+                }
+
+                /**
+                 * @OptIn has no effect if its markerClass isn't provided.
+                 * Similarly, if [getUElementsFromOptInMarkerClass] returns an empty list then
+                 * there isn't anything more to inspect.
+                 *
+                 * In both of these cases we can stop processing here.
+                 */
+                return
+            }
+
+            inspectAnnotation(node.resolveToUElement(), node)
+        }
+
+        private fun getUElementsFromOptInMarkerClass(markerClass: UExpression): List<UElement> {
+            val elements = ArrayList<UElement?>()
+
+            when (markerClass) {
+                is UClassLiteralExpression -> { // opting in to single annotation
+                    elements.add(markerClass.toUElement())
+                }
+                is KotlinUVarargExpression -> { // opting in to multiple annotations
+                    val expressions: List<UExpression> = markerClass.valueArguments
+                    for (expression in expressions) {
+                        val uElement = (expression as UClassLiteralExpression).toUElement()
+                        elements.add(uElement)
+                    }
+                }
+                else -> {
+                    // do nothing
+                }
+            }
+
+            return elements.filterNotNull()
+        }
+
+        private fun UClassLiteralExpression.toUElement(): UElement? {
+            val psiType = this.type
+            val psiClass = context.evaluator.getTypeClass(psiType)
+            return psiClass.toUElement()
+        }
+
+        // If we find an usage of an experimentally-declared annotation, check it.
+        private fun inspectAnnotation(annotation: UElement?, node: UAnnotation) {
             if (annotation is UAnnotated) {
                 val annotations = context.evaluator.getAllAnnotations(annotation, false)
                 if (annotations.any { APPLICABLE_ANNOTATIONS.contains(it.qualifiedName) }) {
@@ -68,9 +134,30 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
                                 "${context.project}"
                         )
                     }
-                    verifyUsageOfElementIsWithinSameGroup(context, node, annotation, ISSUE)
+                    verifyUsageOfElementIsWithinSameGroup(
+                        context,
+                        node,
+                        annotation,
+                        ISSUE,
+                        atomicGroupList
+                    )
                 }
             }
+        }
+
+        private fun loadAtomicLibraryGroupList(): List<String> {
+            val fileStream = this::class.java.classLoader
+                .getResourceAsStream(ATOMIC_LIBRARY_GROUPS_FILENAME)
+                ?: throw FileNotFoundException(
+                    "Couldn't find atomic library group file $ATOMIC_LIBRARY_GROUPS_FILENAME" +
+                        " within lint-checks.jar")
+
+            val atomicLibraryGroupsString = fileStream.bufferedReader().use { it.readText() }
+            if (atomicLibraryGroupsString.isEmpty()) {
+                throw RuntimeException("Atomic library group file should not be empty")
+            }
+
+            return atomicLibraryGroupsString.split("\n")
         }
     }
 
@@ -79,12 +166,18 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
         usage: UElement,
         annotation: UElement,
         issue: Issue,
+        atomicGroupList: List<String>,
     ) {
         val evaluator = context.evaluator
         val usageCoordinates = evaluator.getLibrary(usage) ?: context.project.mavenCoordinate
         val usageGroupId = usageCoordinates?.groupId
-        val annotationGroupId = evaluator.getLibrary(annotation)?.groupId
-        if (annotationGroupId != usageGroupId && annotationGroupId != null) {
+        val annotationGroup = evaluator.getLibrary(annotation) ?: return
+        val annotationGroupId = annotationGroup.groupId
+
+        val isUsedInSameGroup = annotationGroupId == usageGroupId
+        val isUsedInDifferentArtifact = usageCoordinates.artifactId != annotationGroup.artifactId
+        val isAtomic = atomicGroupList.contains(usageGroupId)
+        if (!isUsedInSameGroup || (isUsedInSameGroup && isUsedInDifferentArtifact && !isAtomic)) {
             if (DEBUG) {
                 println(
                     "${context.driver.mode}: report usage of $annotationGroupId in $usageGroupId"
@@ -122,6 +215,14 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
             JAVA_REQUIRES_OPT_IN_ANNOTATION,
             KOTLIN_REQUIRES_OPT_IN_ANNOTATION,
         )
+
+        private val APPLICATION_OPT_IN_ANNOTATIONS = listOf(
+            "androidx.annotation.OptIn",
+            "kotlin.OptIn",
+        )
+
+        // This must match the definition in ExportAtomicLibraryGroupsToTextTask
+        const val ATOMIC_LIBRARY_GROUPS_FILENAME = "atomic-library-groups.txt"
 
         val ISSUE = Issue.create(
             id = "IllegalExperimentalApiUsage",

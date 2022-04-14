@@ -21,7 +21,6 @@ import static com.google.common.truth.Truth.assertThat;
 import android.content.pm.PackageInfo;
 import android.os.Build;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
@@ -45,7 +44,6 @@ import java.util.List;
 @RunWith(JUnit4.class)
 public class ProfileInstallerTest extends TestCase {
 
-    @NonNull
     private Path mTmpDir;
 
     @Before
@@ -123,14 +121,37 @@ public class ProfileInstallerTest extends TestCase {
         packageInfo.lastUpdateTime = 5L;
         TraceDiagnostics diagnosticsCallback = new TraceDiagnostics();
         File appFilesDir = mTmpDir.toFile();
-        boolean result = ProfileInstaller.hasAlreadyWrittenProfileForThisInstall(packageInfo,
-                appFilesDir, diagnosticsCallback);
-
+        ProfileInstaller.hasAlreadyWrittenProfileForThisInstall(
+                packageInfo,
+                appFilesDir,
+                diagnosticsCallback
+        );
         assertThat(diagnosticsCallback.mResults).isEmpty();
     }
 
-    class TraceDiagnostics implements ProfileInstaller.DiagnosticsCallback {
+    @Test
+    public void verifySkipFileDeleted() {
+        PackageInfo packageInfo = new PackageInfo();
+        packageInfo.lastUpdateTime = 5L;
+        TraceDiagnostics diagnosticsCallback = new TraceDiagnostics();
+        File appFilesDir = mTmpDir.toFile();
+        ProfileInstaller.noteProfileWrittenFor(packageInfo, appFilesDir);
+        boolean result = ProfileInstaller.hasAlreadyWrittenProfileForThisInstall(
+                packageInfo,
+                appFilesDir,
+                diagnosticsCallback
+        );
+        assertTrue(result);
+        ProfileInstaller.deleteProfileWrittenFor(appFilesDir);
+        result = ProfileInstaller.hasAlreadyWrittenProfileForThisInstall(
+                packageInfo,
+                appFilesDir,
+                diagnosticsCallback
+        );
+        assertFalse(result);
+    }
 
+    static class TraceDiagnostics implements ProfileInstaller.DiagnosticsCallback {
         List<Integer> mDiagnostics = new ArrayList<>();
         List<Integer> mResults = new ArrayList<>();
 

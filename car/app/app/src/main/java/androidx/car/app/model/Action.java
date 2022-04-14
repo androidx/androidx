@@ -90,6 +90,7 @@ public final class Action {
             flag = true,
             value = {
                     FLAG_PRIMARY,
+                    FLAG_IS_PERSISTENT,
             })
     @Retention(RetentionPolicy.SOURCE)
     public @interface ActionFlag {
@@ -131,6 +132,12 @@ public final class Action {
      */
     @RequiresCarApi(4)
     public static final int FLAG_PRIMARY = 1 << 0;
+
+    /**
+     * Indicates that this action will not fade in/out inside an {@link ActionStrip}.
+     */
+    @RequiresCarApi(5)
+    public static final int FLAG_IS_PERSISTENT = 1 << 1;
 
     /**
      * A standard action to show the app's icon.

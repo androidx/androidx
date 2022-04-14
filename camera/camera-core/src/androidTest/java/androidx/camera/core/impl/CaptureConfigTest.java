@@ -238,6 +238,36 @@ public class CaptureConfigTest {
                 .containsExactly(callback0, callback1, callback2);
     }
 
+    @Test
+    public void builderRemoveCameraCaptureCallback_returnsFalseIfNotAdded() {
+        CameraCaptureCallback mockCallback = mock(CameraCaptureCallback.class);
+        CaptureConfig.Builder builder = new CaptureConfig.Builder();
+
+        assertThat(builder.removeCameraCaptureCallback(mockCallback)).isFalse();
+    }
+
+    @Test
+    public void builderRemoveCameraCaptureCallback_removesAddedCallback() {
+        // Arrange.
+        CameraCaptureCallback mockCallback = mock(CameraCaptureCallback.class);
+        CaptureConfig.Builder builder = new CaptureConfig.Builder();
+
+        // Act.
+        builder.addCameraCaptureCallback(mockCallback);
+        CaptureConfig configWithCallback = builder.build();
+
+        // Assert.
+        assertThat(configWithCallback.getCameraCaptureCallbacks()).contains(mockCallback);
+
+        // Act.
+        boolean removedCallback = builder.removeCameraCaptureCallback(mockCallback);
+        CaptureConfig configWithoutCallback = builder.build();
+
+        // Assert.
+        assertThat(removedCallback).isTrue();
+        assertThat(configWithoutCallback.getCameraCaptureCallbacks()).doesNotContain(mockCallback);
+    }
+
     @Test(expected = UnsupportedOperationException.class)
     public void cameraCaptureCallbacks_areImmutable() {
         CaptureConfig.Builder builder = new CaptureConfig.Builder();

@@ -44,7 +44,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.junit.AfterClass
 import org.junit.Before
 import org.junit.Test
@@ -127,10 +127,11 @@ class TorchControlTest {
             return CompletableDeferred(Result3A(status = Result3A.Status.OK))
         }
 
-        override fun issueSingleCaptureAsync(
+        override suspend fun issueSingleCaptureAsync(
             captureSequence: List<CaptureConfig>,
             captureMode: Int,
             flashType: Int,
+            flashMode: Int,
         ): List<Deferred<Void?>> {
             return listOf(CompletableDeferred(null))
         }
@@ -263,7 +264,7 @@ class TorchControlTest {
         torchControl.torchStateLiveData.observe(
             TestLifecycleOwner(
                 Lifecycle.State.STARTED,
-                TestCoroutineDispatcher()
+                UnconfinedTestDispatcher()
             ), object : Observer<Int?> {
                 private var mValue: Int? = null
                 override fun onChanged(value: Int?) {

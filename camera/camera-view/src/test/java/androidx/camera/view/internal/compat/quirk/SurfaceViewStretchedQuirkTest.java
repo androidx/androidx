@@ -37,18 +37,23 @@ public class SurfaceViewStretchedQuirkTest {
 
     @Test
     public void quirkExistsOnSamsungGalaxyZFold2() {
-        quirkExistsOnDevice("f2q");
+        quirkExistsOnDevice("Samsung", "f2q");
     }
 
     @Test
     public void quirkExistsOnSamsungGalaxyZFold3() {
-        quirkExistsOnDevice("q2q");
+        quirkExistsOnDevice("Samsung", "q2q");
     }
 
-    public void quirkExistsOnDevice(String device) {
+    @Test
+    public void quirkExistsOnOppoFindN() {
+        quirkExistsOnDevice("Oppo", "OP4E75L1");
+    }
+
+    public void quirkExistsOnDevice(String manufacturer, String device) {
         // Arrange.
         ReflectionHelpers.setStaticField(Build.class, "DEVICE", device);
-        ReflectionHelpers.setStaticField(Build.class, "MANUFACTURER", "SAMSUNG");
+        ReflectionHelpers.setStaticField(Build.class, "MANUFACTURER", manufacturer);
 
         // Act.
         final SurfaceViewStretchedQuirk quirk = DeviceQuirks.get(SurfaceViewStretchedQuirk.class);

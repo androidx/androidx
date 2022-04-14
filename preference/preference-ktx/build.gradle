@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -48,4 +47,8 @@ androidx {
     mavenGroup = LibraryGroups.PREFERENCE
     inceptionYear = "2018"
     description = "Kotlin extensions for preferences"
+}
+
+android {
+    namespace "androidx.preference.ktx"
 }

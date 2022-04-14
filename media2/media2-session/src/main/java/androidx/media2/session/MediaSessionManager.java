@@ -102,6 +102,7 @@ public final class MediaSessionManager {
      * @return set of tokens
      */
     @NonNull
+    @SuppressWarnings("deprecation")
     public Set<SessionToken> getSessionServiceTokens() {
         ArraySet<SessionToken> sessionServiceTokens = new ArraySet<>();
         PackageManager pm = mContext.getPackageManager();

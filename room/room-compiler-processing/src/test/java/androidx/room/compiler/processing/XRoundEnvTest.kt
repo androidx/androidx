@@ -290,19 +290,19 @@ class XRoundEnvTest {
                 testInvocation.roundEnv.getElementsAnnotatedWith(TopLevelAnnotation::class)
             val annotatedParams = annotatedElements.filterIsInstance<XExecutableParameterElement>()
             val ctorProperty = annotatedParams.first { it.name == "ctorProperty" }
-            assertThat(ctorProperty.enclosingMethodElement).isEqualTo(
+            assertThat(ctorProperty.enclosingElement).isEqualTo(
                 typeElement.findPrimaryConstructor()
             )
             val ctorParam = annotatedParams.first { it.name == "ctorParam" }
-            assertThat(ctorParam.enclosingMethodElement).isEqualTo(
+            assertThat(ctorParam.enclosingElement).isEqualTo(
                 typeElement.findPrimaryConstructor()
             )
             val setterParam = annotatedParams.first { it.name == "p0" || it.name == "arg0" }
-            assertThat(setterParam.enclosingMethodElement).isEqualTo(
+            assertThat(setterParam.enclosingElement).isEqualTo(
                 typeElement.getDeclaredMethodByJvmName("setProperty")
             )
             val methodParam = annotatedParams.first { it.name == "methodParam" }
-            assertThat(methodParam.enclosingMethodElement).isEqualTo(
+            assertThat(methodParam.enclosingElement).isEqualTo(
                 typeElement.getDeclaredMethodByJvmName("method")
             )
         }

@@ -6,6 +6,7 @@ package androidx.fragment.app {
     ctor public DialogFragment(@LayoutRes int);
     method public void dismiss();
     method public void dismissAllowingStateLoss();
+    method @MainThread public void dismissNow();
     method public android.app.Dialog? getDialog();
     method public boolean getShowsDialog();
     method @StyleRes public int getTheme();
@@ -88,10 +89,10 @@ package androidx.fragment.app {
     method @MainThread public android.view.animation.Animation? onCreateAnimation(int, boolean, int);
     method @MainThread public android.animation.Animator? onCreateAnimator(int, boolean, int);
     method @MainThread public void onCreateContextMenu(android.view.ContextMenu, android.view.View, android.view.ContextMenu.ContextMenuInfo?);
-    method @MainThread public void onCreateOptionsMenu(android.view.Menu, android.view.MenuInflater);
+    method @Deprecated @MainThread public void onCreateOptionsMenu(android.view.Menu, android.view.MenuInflater);
     method @MainThread public android.view.View? onCreateView(android.view.LayoutInflater, android.view.ViewGroup?, android.os.Bundle?);
     method @CallSuper @MainThread public void onDestroy();
-    method @MainThread public void onDestroyOptionsMenu();
+    method @Deprecated @MainThread public void onDestroyOptionsMenu();
     method @CallSuper @MainThread public void onDestroyView();
     method @CallSuper @MainThread public void onDetach();
     method public android.view.LayoutInflater onGetLayoutInflater(android.os.Bundle?);
@@ -100,11 +101,11 @@ package androidx.fragment.app {
     method @Deprecated @CallSuper @UiThread public void onInflate(android.app.Activity, android.util.AttributeSet, android.os.Bundle?);
     method @CallSuper @MainThread public void onLowMemory();
     method public void onMultiWindowModeChanged(boolean);
-    method @MainThread public boolean onOptionsItemSelected(android.view.MenuItem);
-    method @MainThread public void onOptionsMenuClosed(android.view.Menu);
+    method @Deprecated @MainThread public boolean onOptionsItemSelected(android.view.MenuItem);
+    method @Deprecated @MainThread public void onOptionsMenuClosed(android.view.Menu);
     method @CallSuper @MainThread public void onPause();
     method public void onPictureInPictureModeChanged(boolean);
-    method @MainThread public void onPrepareOptionsMenu(android.view.Menu);
+    method @Deprecated @MainThread public void onPrepareOptionsMenu(android.view.Menu);
     method @MainThread public void onPrimaryNavigationFragmentChanged(boolean);
     method @Deprecated public void onRequestPermissionsResult(int, String![], int[]);
     method @CallSuper @MainThread public void onResume();
@@ -133,7 +134,7 @@ package androidx.fragment.app {
     method public void setEnterTransition(Object?);
     method public void setExitSharedElementCallback(androidx.core.app.SharedElementCallback?);
     method public void setExitTransition(Object?);
-    method public void setHasOptionsMenu(boolean);
+    method @Deprecated public void setHasOptionsMenu(boolean);
     method public void setInitialSavedState(androidx.fragment.app.Fragment.SavedState?);
     method public void setMenuVisibility(boolean);
     method public void setReenterTransition(Object?);
@@ -169,8 +170,6 @@ package androidx.fragment.app {
     method public androidx.fragment.app.FragmentManager getSupportFragmentManager();
     method @Deprecated public androidx.loader.app.LoaderManager getSupportLoaderManager();
     method @Deprecated @MainThread public void onAttachFragment(androidx.fragment.app.Fragment);
-    method @CallSuper public void onMultiWindowModeChanged(boolean);
-    method @CallSuper public void onPictureInPictureModeChanged(boolean);
     method protected void onResumeFragments();
     method public void onStateNotSaved();
     method public void setEnterSharedElementCallback(androidx.core.app.SharedElementCallback?);
@@ -206,16 +205,16 @@ package androidx.fragment.app {
     method @Deprecated public void dispatchConfigurationChanged(android.content.res.Configuration);
     method public boolean dispatchContextItemSelected(android.view.MenuItem);
     method public void dispatchCreate();
-    method public boolean dispatchCreateOptionsMenu(android.view.Menu, android.view.MenuInflater);
+    method @Deprecated public boolean dispatchCreateOptionsMenu(android.view.Menu, android.view.MenuInflater);
     method public void dispatchDestroy();
     method public void dispatchDestroyView();
     method @Deprecated public void dispatchLowMemory();
-    method public void dispatchMultiWindowModeChanged(boolean);
-    method public boolean dispatchOptionsItemSelected(android.view.MenuItem);
-    method public void dispatchOptionsMenuClosed(android.view.Menu);
+    method @Deprecated public void dispatchMultiWindowModeChanged(boolean);
+    method @Deprecated public boolean dispatchOptionsItemSelected(android.view.MenuItem);
+    method @Deprecated public void dispatchOptionsMenuClosed(android.view.Menu);
     method public void dispatchPause();
-    method public void dispatchPictureInPictureModeChanged(boolean);
-    method public boolean dispatchPrepareOptionsMenu(android.view.Menu);
+    method @Deprecated public void dispatchPictureInPictureModeChanged(boolean);
+    method @Deprecated public boolean dispatchPrepareOptionsMenu(android.view.Menu);
     method @Deprecated public void dispatchReallyStop();
     method public void dispatchResume();
     method public void dispatchStart();
@@ -466,7 +465,7 @@ package androidx.fragment.app.strictmode {
   public final class FragmentStrictMode {
     method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy getDefaultPolicy();
     method @VisibleForTesting public void onPolicyViolation(androidx.fragment.app.strictmode.Violation violation);
-    method public void setDefaultPolicy(androidx.fragment.app.strictmode.FragmentStrictMode.Policy defaultPolicy);
+    method public void setDefaultPolicy(androidx.fragment.app.strictmode.FragmentStrictMode.Policy);
     property public final androidx.fragment.app.strictmode.FragmentStrictMode.Policy defaultPolicy;
     field public static final androidx.fragment.app.strictmode.FragmentStrictMode INSTANCE;
   }
@@ -482,6 +481,7 @@ package androidx.fragment.app.strictmode {
   public static final class FragmentStrictMode.Policy.Builder {
     ctor public FragmentStrictMode.Policy.Builder();
     method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder allowViolation(Class<? extends androidx.fragment.app.Fragment> fragmentClass, Class<? extends androidx.fragment.app.strictmode.Violation> violationClass);
+    method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder allowViolation(String fragmentClass, Class<? extends androidx.fragment.app.strictmode.Violation> violationClass);
     method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy build();
     method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder detectFragmentReuse();
     method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder detectFragmentTagUsage();

@@ -21,6 +21,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.GenericDocument;
 import androidx.core.google.shortcuts.converters.AppSearchDocumentConverter;
@@ -29,6 +30,12 @@ import androidx.core.util.Preconditions;
 
 import com.google.firebase.appindexing.Indexable;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
+
 /**
  * Utility methods for {@link AppSearchDocumentConverter}.
  *
@@ -36,6 +43,8 @@ import com.google.firebase.appindexing.Indexable;
  */
 @RestrictTo(LIBRARY)
 public class ConverterUtils {
+    private static final String ISO8601_DATE_TIME_FORMAT_STRING = "yyyy-MM-dd'T'HH:mm:ssZ";
+
     /** Creates an {@link Indexable.Builder} from {@link GenericDocument} with common fields set. */
     @NonNull
     public static Indexable.Builder buildBaseIndexableFromGenericDocument(
@@ -55,6 +64,19 @@ public class ConverterUtils {
                 .put(IndexableKeys.CREATION_TIMESTAMP_MILLIS,
                         genericDocument.getCreationTimestampMillis())
                 .put(IndexableKeys.TTL_MILLIS, genericDocument.getTtlMillis());
+    }
+
+    /** Converts a timestamp into ISO8601 format. */
+    @NonNull
+    public static String convertTimestampToISO8601Format(
+            long timestamp,
+            @Nullable TimeZone timeZone) {
+        DateFormat dateFormat = new SimpleDateFormat(ISO8601_DATE_TIME_FORMAT_STRING, Locale.US);
+        if (timeZone != null) {
+            dateFormat.setTimeZone(timeZone);
+        }
+        Date date = new Date(timestamp);
+        return dateFormat.format(date);
     }
 
     private ConverterUtils() {}

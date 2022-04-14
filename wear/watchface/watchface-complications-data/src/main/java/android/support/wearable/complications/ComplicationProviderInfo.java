@@ -91,7 +91,7 @@ public final class ComplicationProviderInfo implements Parcelable {
     /**
      * Constructs a {@link ComplicationProviderInfo} from details stored in a {@link Parcel}.
      */
-    @SuppressWarnings("ParcelConstructor")
+    @SuppressWarnings({"ParcelConstructor", "deprecation"})
     public ComplicationProviderInfo(@NonNull Parcel in) {
         Bundle bundle = in.readBundle(getClass().getClassLoader());
         mAppName = bundle.getString(KEY_APP_NAME);

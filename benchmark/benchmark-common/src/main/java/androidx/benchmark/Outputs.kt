@@ -119,6 +119,8 @@ public object Outputs {
                         adb pull ${file.absolutePath}
                     """.trimIndent()
                     Log.e(BenchmarkState.TAG, message, exception)
+
+                    // TODO(b/227510293): return failure/null to signal file isn't readable
                     destination = file
                 }
             }

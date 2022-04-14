@@ -18,66 +18,36 @@ package androidx.wear.compose.material.samples
 
 import android.text.format.DateFormat
 import androidx.annotation.Sampled
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
-import androidx.wear.compose.foundation.ArcPaddingValues
-import androidx.wear.compose.material.CurvedText
-import androidx.wear.compose.material.ExperimentalWearMaterialApi
+import androidx.wear.compose.foundation.CurvedTextStyle
+import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.TimeText
 import androidx.wear.compose.material.TimeTextDefaults
+import androidx.wear.compose.material.curvedText
 import java.util.Locale
 
-@OptIn(ExperimentalWearMaterialApi::class)
 @Sampled
 @Composable
-fun TimeTextWithCustomSeparator() {
+fun TimeTextWithStatus() {
+    val leadingTextStyle = TimeTextDefaults.timeTextStyle(color = MaterialTheme.colors.primary)
+
     TimeText(
-        leadingLinearContent = {
+        startLinearContent = {
             Text(
-                text = "Leading content",
-                style = TimeTextDefaults.timeTextStyle(color = Color.Green)
+                text = "ETA 12:48",
+                style = leadingTextStyle
             )
         },
-        leadingCurvedContent = {
-            CurvedText(
-                text = "Leading content",
-                style = TimeTextDefaults.timeCurvedTextStyle(color = Color.Green)
+        startCurvedContent = {
+            curvedText(
+                text = "ETA 12:48",
+                style = CurvedTextStyle(leadingTextStyle)
             )
         },
-        trailingLinearContent = {
-            Text(
-                text = "Trailing content",
-                style = TimeTextDefaults.timeTextStyle(color = Color.Yellow)
-            )
-        },
-        trailingCurvedContent = {
-            CurvedText(
-                text = "Trailing content",
-                style = TimeTextDefaults.timeCurvedTextStyle(color = Color.Yellow)
-            )
-        },
-        textLinearSeparator = {
-            Text(
-                modifier = Modifier.padding(horizontal = 8.dp),
-                text = "***",
-                style = TimeTextDefaults.timeTextStyle(color = Color.Magenta)
-            )
-        },
-        textCurvedSeparator = {
-            CurvedText(
-                text = "***",
-                style = TimeTextDefaults.timeCurvedTextStyle(color = Color.Magenta),
-                contentArcPadding = ArcPaddingValues(angular = 8.dp)
-            )
-        }
     )
 }
 
-@OptIn(ExperimentalWearMaterialApi::class)
 @Sampled
 @Composable
 fun TimeTextWithFullDateAndTimeFormat() {

@@ -128,6 +128,25 @@ class GlanceAppWidgetReceiverScreenshotTest {
     }
 
     @Test
+    fun createRadioButtonAppWidget() {
+        TestGlanceAppWidget.uiDefinition = { RadioButtonScreenshotTest() }
+
+        mHostRule.startHost()
+
+        mScreenshotRule.checkScreenshot(mHostRule.mHostView, "radioButtonWidget")
+    }
+
+    @WithNightMode
+    @Test
+    fun createRadioButtonAppWidget_dark() {
+        TestGlanceAppWidget.uiDefinition = { RadioButtonScreenshotTest() }
+
+        mHostRule.startHost()
+
+        mScreenshotRule.checkScreenshot(mHostRule.mHostView, "radioButtonWidget_dark")
+    }
+
+    @Test
     fun createRowWidget() {
         TestGlanceAppWidget.uiDefinition = { RowTest() }
 
@@ -248,6 +267,22 @@ class GlanceAppWidgetReceiverScreenshotTest {
                     Switch(
                         checked = true,
                         onCheckedChange = null,
+                        text = "End",
+                        modifier = GlanceModifier.defaultWeight().fillMaxHeight(),
+                        style = TextStyle(textAlign = TextAlign.End)
+                    )
+                }
+                Row(modifier = GlanceModifier.defaultWeight().fillMaxWidth()) {
+                    RadioButton(
+                        checked = false,
+                        onClick = null,
+                        text = "Start",
+                        modifier = GlanceModifier.defaultWeight().fillMaxHeight(),
+                        style = TextStyle(textAlign = TextAlign.Start)
+                    )
+                    RadioButton(
+                        checked = true,
+                        onClick = null,
                         text = "End",
                         modifier = GlanceModifier.defaultWeight().fillMaxHeight(),
                         style = TextStyle(textAlign = TextAlign.End)
@@ -640,6 +675,42 @@ private fun SwitchTest() {
                 fontWeight = FontWeight.Medium,
                 fontStyle = FontStyle.Italic,
             )
+        )
+    }
+}
+
+@Composable
+private fun RadioButtonScreenshotTest() {
+    Column(
+        modifier = GlanceModifier.background(day = Color.White, night = Color.Black)
+    ) {
+        RadioButton(
+            checked = true,
+            onClick = null,
+            text = "Hello Checked Radio (text: day=black, night=white| radio: day=magenta, " +
+                "night=yellow)",
+            style = TextStyle(
+                color = ColorProvider(day = Color.Black, night = Color.White),
+                fontWeight = FontWeight.Bold,
+                fontStyle = FontStyle.Normal,
+            ),
+            colors = RadioButtonColors(
+                checkedColor = ColorProvider(day = Color.Magenta, night = Color.Yellow),
+                uncheckedColor = ColorProvider(day = Color.Yellow, night = Color.Magenta)
+            )
+        )
+
+        RadioButton(
+            checked = false,
+            onClick = null,
+            text = "Hello Unchecked Radio (text: day=dark gray, night=light gray| radio: green)",
+            style = TextStyle(
+                color = ColorProvider(day = Color.DarkGray, night = Color.LightGray),
+                textDecoration = TextDecoration.Underline,
+                fontWeight = FontWeight.Medium,
+                fontStyle = FontStyle.Italic,
+            ),
+            colors = RadioButtonColors(checkedColor = Color.Red, uncheckedColor = Color.Green)
         )
     }
 }

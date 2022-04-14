@@ -174,8 +174,9 @@ class XTypeElementTest {
         runProcessorTest(sources = listOf(src)) { invocation ->
             invocation.processingEnv.requireTypeElement("foo.bar.Baz").let {
                 assertThat(it.superInterfaces).hasSize(1)
-                val superInterface = it.superInterfaces.first {
-                        type -> type.rawType.toString() == "foo.bar.MyInterface" }
+                val superInterface = it.superInterfaces.first { type ->
+                    type.rawType.toString() == "foo.bar.MyInterface"
+                }
                 assertThat(superInterface.typeArguments).hasSize(1)
                 assertThat(superInterface.typeArguments[0].typeName)
                     .isEqualTo(ClassName.get("java.lang", "String"))
@@ -803,6 +804,64 @@ class XTypeElementTest {
     }
 
     @Test
+    fun suspendOverride() {
+        val src = Source.kotlin(
+            "Foo.kt",
+            """
+            interface Base<T> {
+                suspend fun get(): T
+                suspend fun getAll(): List<T>
+                suspend fun putAll(input: List<T>)
+                suspend fun getAllWithDefault(): List<T>
+            }
+
+            interface DerivedInterface : Base<String> {
+                override suspend fun get(): String
+                override suspend fun getAll(): List<String>
+                override suspend fun putAll(input: List<String>)
+                override suspend fun getAllWithDefault(): List<String> {
+                    return emptyList()
+                }
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(sources = listOf(src)) { invocation ->
+            val base = invocation.processingEnv.requireTypeElement("DerivedInterface")
+            val methodNames = base.getAllMethods().toList().jvmNames()
+            assertThat(methodNames).containsExactly("get", "getAll", "putAll", "getAllWithDefault")
+        }
+    }
+
+    @Test
+    fun suspendOverride_abstractClass() {
+        val src = Source.kotlin(
+            "Foo.kt",
+            """
+            abstract class Base<T> {
+                abstract suspend fun get(): T
+                abstract suspend fun getAll(): List<T>
+                abstract suspend fun putAll(input: List<T>)
+            }
+
+            abstract class DerivedClass : Base<Int>() {
+                abstract override suspend fun get(): Int
+                abstract override suspend fun getAll(): List<Int>
+                override suspend fun putAll(input: List<Int>) {
+                }
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(sources = listOf(src)) { invocation ->
+            val base = invocation.processingEnv.requireTypeElement("DerivedClass")
+            val methodNamesCount =
+                base.getAllMethods().toList().jvmNames().groupingBy { it }.eachCount()
+            assertThat(methodNamesCount["get"]).isEqualTo(1)
+            assertThat(methodNamesCount["getAll"]).isEqualTo(1)
+            assertThat(methodNamesCount["putAll"]).isEqualTo(1)
+        }
+    }
+
+    @Test
     fun overrideMethodWithCovariantReturnType() {
         val src = Source.kotlin(
             "ParentWithExplicitOverride.kt",
@@ -909,6 +968,70 @@ class XTypeElementTest {
                 "baseMethod", "overriddenMethod", "baseCompanionMethod",
                 "interfaceMethod", "subMethod", "privateSubMethod", "subCompanionMethod"
             )
+        }
+    }
+
+    /**
+     * When JvmNames is used along with a suppression over the error, the behavior becomes
+     * complicated. Normally, JvmName annotation is not allowed in overrides and open methods, yet
+     * developers can still use it by putting a suppression over it. The compiler will generate a
+     * delegating method in these cases in the .class file, yet in KSP, we don't really see that
+     * method (also shouldn't ideally).
+     *
+     * This test is here to acknowledge that the behavior is inconsistent yet working as intended
+     * from XProcessing's perspective.
+     *
+     * Also see: https://youtrack.jetbrains.com/issue/KT-50782 as a sign why this suppression is
+     * not worth supporting :).
+     */
+    @Test
+    fun allMethods_withJvmNames() {
+        fun buildSource(pkg: String) = listOf(
+            Source.kotlin(
+                "Foo.kt",
+                """
+                package $pkg
+                interface Interface {
+                    fun f1()
+                    @JvmName("notF2")
+                    @Suppress("INAPPLICABLE_JVM_NAME")
+                    fun f2()
+                }
+                abstract class Subject : Interface {
+                    @JvmName("notF1")
+                    @Suppress("INAPPLICABLE_JVM_NAME")
+                    override fun f1() {
+                    }
+                }
+            """.trimIndent()
+            )
+        )
+
+        runProcessorTest(
+            sources = buildSource("app"),
+            classpath = compileFiles(buildSource("lib"))
+        ) { invocation ->
+            listOf("app", "lib").forEach {
+                val appSubject = invocation.processingEnv.requireTypeElement("$it.Subject")
+                val methodNames = appSubject.getAllMethods().map { it.name }.toList()
+                val methodJvmNames = appSubject.getAllMethods().map { it.jvmName }.toList()
+                val objectMethodNames = invocation.objectMethodNames()
+                if (invocation.isKsp) {
+                    assertThat(methodNames - objectMethodNames).containsExactly(
+                        "f1", "f2"
+                    )
+                    assertThat(methodJvmNames - objectMethodNames).containsExactly(
+                        "notF1", "notF2"
+                    )
+                } else {
+                    assertThat(methodNames - objectMethodNames).containsExactly(
+                        "f1", "f1", "f2"
+                    )
+                    assertThat(methodJvmNames - objectMethodNames).containsExactly(
+                        "f1", "notF1", "notF2"
+                    )
+                }
+            }
         }
     }
 
@@ -1372,6 +1495,30 @@ class XTypeElementTest {
                     invocation.processingEnv.requireTypeElement("TopLevelClass.NestedInterface"),
                     invocation.processingEnv.requireTypeElement("TopLevelClass.NestedEnum"),
                 )
+        }
+    }
+
+    @Test
+    fun kotlinObjects() {
+        val kotlinSrc = Source.kotlin(
+            "Test.kt",
+            """
+            package foo.bar
+            class KotlinClass {
+                companion object
+                object NestedObject
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(listOf(kotlinSrc)) { invocation ->
+            val kotlinClass = invocation.processingEnv.requireTypeElement(
+                "foo.bar.KotlinClass")
+            val companionObjects = kotlinClass.getEnclosedTypeElements().filter {
+                it.isCompanionObject()
+            }
+            assertThat(companionObjects.size).isEqualTo(1)
+            val companionObj = companionObjects.first()
+            assertThat(companionObj.isKotlinObject()).isTrue()
         }
     }
 

@@ -20,6 +20,7 @@ import static android.graphics.Paint.ANTI_ALIAS_FLAG;
 import static android.graphics.Paint.DITHER_FLAG;
 import static android.graphics.Paint.FILTER_BITMAP_FLAG;
 
+import static androidx.camera.core.impl.ImageOutputConfig.ROTATION_NOT_SPECIFIED;
 import static androidx.camera.view.PreviewView.ScaleType.FILL_CENTER;
 import static androidx.camera.view.PreviewView.ScaleType.FIT_CENTER;
 import static androidx.camera.view.PreviewView.ScaleType.FIT_END;
@@ -29,7 +30,6 @@ import static androidx.camera.view.TransformUtils.is90or270;
 import static androidx.camera.view.TransformUtils.isAspectRatioMatchingWithRoundingError;
 import static androidx.camera.view.TransformUtils.surfaceRotationToRotationDegrees;
 
-import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
@@ -51,8 +51,6 @@ import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.ViewPort;
-import androidx.camera.view.internal.compat.quirk.DeviceQuirks;
-import androidx.camera.view.internal.compat.quirk.TextureViewRotationQuirk;
 import androidx.core.util.Preconditions;
 
 /**
@@ -122,8 +120,6 @@ final class PreviewTransformation {
      *
      * <p> All the values originally come from a {@link SurfaceRequest}.
      */
-    // TODO(b/185869869) Remove the UnsafeOptInUsageError once view's version matches core's.
-    @SuppressLint("UnsafeOptInUsageError")
     void setTransformationInfo(@NonNull SurfaceRequest.TransformationInfo transformationInfo,
             Size resolution, boolean isFrontCamera) {
         Logger.d(TAG, "Transformation info set: " + transformationInfo + " " + resolution + " "
@@ -133,6 +129,14 @@ final class PreviewTransformation {
         mTargetRotation = transformationInfo.getTargetRotation();
         mResolution = resolution;
         mIsFrontCamera = isFrontCamera;
+    }
+
+    /**
+     * Override with display rotation when Preview does not have a target rotation set.
+     */
+    void overrideWithDisplayRotation(int rotationDegrees, int displayRotation) {
+        mPreviewRotationDegrees = rotationDegrees;
+        mTargetRotation = displayRotation;
     }
 
     /**
@@ -151,12 +155,6 @@ final class PreviewTransformation {
         Preconditions.checkState(isTransformationInfoReady());
         RectF surfaceRect = new RectF(0, 0, mResolution.getWidth(), mResolution.getHeight());
         int rotationDegrees = -surfaceRotationToRotationDegrees(mTargetRotation);
-
-        TextureViewRotationQuirk textureViewRotationQuirk =
-                DeviceQuirks.get(TextureViewRotationQuirk.class);
-        if (textureViewRotationQuirk != null) {
-            rotationDegrees += textureViewRotationQuirk.getCorrectionRotation(mIsFrontCamera);
-        }
         return getRectToRect(surfaceRect, surfaceRect, rotationDegrees);
     }
 
@@ -443,6 +441,7 @@ final class PreviewTransformation {
     }
 
     private boolean isTransformationInfoReady() {
-        return mSurfaceCropRect != null && mResolution != null;
+        return mSurfaceCropRect != null && mResolution != null
+                && mTargetRotation != ROTATION_NOT_SPECIFIED;
     }
 }

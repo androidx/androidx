@@ -27,23 +27,23 @@ import androidx.glance.layout.runTestingComposition
 import androidx.glance.text.TextStyle
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertIs
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ButtonTest {
-    private lateinit var fakeCoroutineScope: TestCoroutineScope
+    private lateinit var fakeCoroutineScope: TestScope
 
     @Before
     fun setUp() {
-        fakeCoroutineScope = TestCoroutineScope()
+        fakeCoroutineScope = TestScope()
     }
 
     @Test
-    fun createComposableButton() = fakeCoroutineScope.runBlockingTest {
+    fun createComposableButton() = fakeCoroutineScope.runTest {
         val stringKey = ActionParameters.Key<String>("test")
         val intKey = ActionParameters.Key<Int>("test2")
         val string = "testString"
@@ -69,7 +69,7 @@ class ButtonTest {
     }
 
     @Test
-    fun createDisabledButton() = fakeCoroutineScope.runBlockingTest {
+    fun createDisabledButton() = fakeCoroutineScope.runTest {
         val root = runTestingComposition {
             Button(text = "button", onClick = actionStartActivity<Activity>(), enabled = false)
         }
@@ -82,7 +82,7 @@ class ButtonTest {
     }
 
     @Test
-    fun toEmittableText() = fakeCoroutineScope.runBlockingTest {
+    fun toEmittableText() = fakeCoroutineScope.runTest {
         val root = runTestingComposition {
             Button(
                 text = "button",

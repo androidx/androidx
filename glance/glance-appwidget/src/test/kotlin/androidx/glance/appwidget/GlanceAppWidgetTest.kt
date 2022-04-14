@@ -39,8 +39,8 @@ import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -52,23 +52,23 @@ import kotlin.test.assertIs
 @RunWith(RobolectricTestRunner::class)
 class GlanceAppWidgetTest {
 
-    private lateinit var fakeCoroutineScope: TestCoroutineScope
+    private lateinit var fakeCoroutineScope: TestScope
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private val displayMetrics = context.resources.displayMetrics
 
     @Before
     fun setUp() {
-        fakeCoroutineScope = TestCoroutineScope()
+        fakeCoroutineScope = TestScope()
     }
 
     @Test
-    fun createEmptyUi() = fakeCoroutineScope.runBlockingTest {
+    fun createEmptyUi() = fakeCoroutineScope.runTest {
         val composer = SampleGlanceAppWidget { }
 
         val rv = composer.composeForSize(
             context,
             1,
-            state = null,
+            composer.stateDefinition,
             Bundle(),
             DpSize(40.dp, 50.dp),
             LayoutConfiguration.create(context, 1),
@@ -80,7 +80,7 @@ class GlanceAppWidgetTest {
     }
 
     @Test
-    fun createUiWithSize() = fakeCoroutineScope.runBlockingTest {
+    fun createUiWithSize() = fakeCoroutineScope.runTest {
         val composer = SampleGlanceAppWidget {
             val size = LocalSize.current
             Text("${size.width} x ${size.height}")
@@ -89,7 +89,7 @@ class GlanceAppWidgetTest {
         val rv = composer.composeForSize(
             context,
             1,
-            state = null,
+            composer.stateDefinition,
             Bundle(),
             DpSize(40.dp, 50.dp),
             LayoutConfiguration.create(context, 1),
@@ -101,7 +101,7 @@ class GlanceAppWidgetTest {
     }
 
     @Test
-    fun createUiFromOptionBundle() = fakeCoroutineScope.runBlockingTest {
+    fun createUiFromOptionBundle() = fakeCoroutineScope.runTest {
         val composer = SampleGlanceAppWidget {
             val options = LocalAppWidgetOptions.current
 
@@ -113,7 +113,7 @@ class GlanceAppWidgetTest {
         val rv = composer.composeForSize(
             context,
             1,
-            state = null,
+            composer.stateDefinition,
             bundle,
             DpSize(40.dp, 50.dp),
             LayoutConfiguration.create(context, 1),
@@ -125,7 +125,7 @@ class GlanceAppWidgetTest {
     }
 
     @Test
-    fun createUiFromGlanceId() = fakeCoroutineScope.runBlockingTest {
+    fun createUiFromGlanceId() = fakeCoroutineScope.runTest {
         val composer = SampleGlanceAppWidget {
             val glanceId = LocalGlanceId.current
 
@@ -136,7 +136,7 @@ class GlanceAppWidgetTest {
         val rv = composer.composeForSize(
             context,
             1,
-            state = null,
+            composer.stateDefinition,
             bundle,
             DpSize(40.dp, 50.dp),
             LayoutConfiguration.create(context, 1),
@@ -148,7 +148,7 @@ class GlanceAppWidgetTest {
     }
 
     @Test
-    fun createUiWithUniqueMode() = fakeCoroutineScope.runBlockingTest {
+    fun createUiWithUniqueMode() = fakeCoroutineScope.runTest {
         val composer = SampleGlanceAppWidget {
             val size = LocalSize.current
             Text("${size.width} x ${size.height}")
@@ -169,7 +169,7 @@ class GlanceAppWidgetTest {
             context,
             appWidgetManager,
             appWidgetId = 1,
-            state = null,
+            composer.stateDefinition,
             options = Bundle(),
             LayoutConfiguration.create(context, 2),
         )
@@ -181,7 +181,7 @@ class GlanceAppWidgetTest {
 
     @Config(sdk = [30])
     @Test
-    fun createUiWithExactModePreS() = fakeCoroutineScope.runBlockingTest {
+    fun createUiWithExactModePreS() = fakeCoroutineScope.runTest {
         val composer = SampleGlanceAppWidget(SizeMode.Exact) {
             val size = LocalSize.current
             Text("${size.width} x ${size.height}")
@@ -194,7 +194,7 @@ class GlanceAppWidgetTest {
             context,
             appWidgetManager,
             appWidgetId = 1,
-            state = null,
+            composer.stateDefinition,
             options = options,
             LayoutConfiguration.create(context, 1),
         )
@@ -210,7 +210,7 @@ class GlanceAppWidgetTest {
 
     @Config(sdk = [30])
     @Test
-    fun createUiWithResponsiveModePreS() = fakeCoroutineScope.runBlockingTest {
+    fun createUiWithResponsiveModePreS() = fakeCoroutineScope.runTest {
         val sizes = setOf(
             DpSize(60.dp, 80.dp),
             DpSize(100.dp, 70.dp),
@@ -230,7 +230,7 @@ class GlanceAppWidgetTest {
             context,
             appWidgetManager,
             appWidgetId = 1,
-            state = null,
+            composer.stateDefinition,
             options = options,
             LayoutConfiguration.create(context, 1),
         )
@@ -266,7 +266,7 @@ class GlanceAppWidgetTest {
                 context,
                 appWidgetManager,
                 appWidgetId = 1,
-                state = null,
+                composer.stateDefinition,
                 options = Bundle(),
                 LayoutConfiguration.create(context, 1),
             )
@@ -283,7 +283,7 @@ class GlanceAppWidgetTest {
 
     @Config(sdk = [30])
     @Test
-    fun createUiWithResponsiveMode_noSizeUseMinSize() = fakeCoroutineScope.runBlockingTest {
+    fun createUiWithResponsiveMode_noSizeUseMinSize() = fakeCoroutineScope.runTest {
         val sizes = setOf(
             DpSize(60.dp, 80.dp),
             DpSize(100.dp, 70.dp),
@@ -300,7 +300,7 @@ class GlanceAppWidgetTest {
             context,
             appWidgetManager,
             appWidgetId = 1,
-            state = null,
+            composer.stateDefinition,
             options = Bundle(),
             LayoutConfiguration.create(context, 1),
         )

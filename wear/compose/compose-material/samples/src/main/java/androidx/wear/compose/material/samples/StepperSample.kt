@@ -22,7 +22,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.Stepper
+import androidx.wear.compose.material.StepperDefaults
 import androidx.wear.compose.material.Text
 
 @Sampled
@@ -33,6 +35,21 @@ fun StepperSample() {
         value = value,
         onValueChange = { value = it },
         valueRange = 1f..4f,
+        increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
+        decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
         steps = 7
+    ) { Text("Value: $value") }
+}
+
+@Sampled
+@Composable
+fun StepperWithIntegerSample() {
+    var value by remember { mutableStateOf(2) }
+    Stepper(
+        value = value,
+        onValueChange = { value = it },
+        increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
+        decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
+        valueProgression = 1..10
     ) { Text("Value: $value") }
 }

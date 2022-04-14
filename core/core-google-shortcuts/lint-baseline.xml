@@ -1,60 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 24 (current min is 21): `java.util.Collection#stream`"
-        errorLine1="                actions.stream().map(Object::toString).collect(Collectors.toList());"
-        errorLine2="                        ~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/google/shortcuts/ShortcutInfoChangeListenerImplTest.java"
-            line="272"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 24 (current min is 21): `java.util.stream.Collectors#toList`"
-        errorLine1="                actions.stream().map(Object::toString).collect(Collectors.toList());"
-        errorLine2="                                                                          ~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/google/shortcuts/ShortcutInfoChangeListenerImplTest.java"
-            line="272"
-            column="75"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 24 (current min is 21): `java.util.stream.Stream#collect`"
-        errorLine1="                actions.stream().map(Object::toString).collect(Collectors.toList());"
-        errorLine2="                                                       ~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/google/shortcuts/ShortcutInfoChangeListenerImplTest.java"
-            line="272"
-            column="56"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 24 (current min is 21): `java.util.stream.Stream#map`"
-        errorLine1="                actions.stream().map(Object::toString).collect(Collectors.toList());"
-        errorLine2="                                 ~~~">
-        <location
-            file="src/androidTest/java/androidx/core/google/shortcuts/ShortcutInfoChangeListenerImplTest.java"
-            line="272"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Cast to `Collector` requires API level 24 (current min is 21)"
-        errorLine1="                actions.stream().map(Object::toString).collect(Collectors.toList());"
-        errorLine2="                                                               ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/google/shortcuts/ShortcutInfoChangeListenerImplTest.java"
-            line="272"
-            column="64"/>
-    </issue>
+<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
         id="NewApi"
@@ -63,7 +8,7 @@
         errorLine2="                                ~~~~~~">
         <location
             file="src/androidTest/java/androidx/core/google/shortcuts/TrampolineActivityTest.java"
-            line="136"
+            line="138"
             column="33"/>
     </issue>
 
@@ -74,7 +19,7 @@
         errorLine2="                                         ~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/core/google/shortcuts/TrampolineActivityTest.java"
-            line="136"
+            line="138"
             column="42"/>
     </issue>
 

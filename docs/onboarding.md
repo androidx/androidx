@@ -27,15 +27,16 @@ curl https://storage.googleapis.com/git-repo-downloads/repo \
     > ~/bin/repo && chmod 700 ~/bin/repo
 ```
 
-Then, modify `~/.bash_profile` (if using `bash`) to ensure you can find local
-binaries from the command line.
+Then, modify `~/.zshrc` (or `~/.bash_profile` if using `bash`) to ensure you can
+find local binaries from the command line. We assume you're using `zsh`, but the
+following should work with `bash` as well.
 
 ```shell
 export PATH=~/bin:$PATH
 ```
 
-You will need to either start a new terminal session or run `source
-~/.bash_profile` to pick up the new path.
+You will need to either start a new terminal session or run `source ~/.zshrc`
+(or `source ~/.bash_profile` if using `bash`) to pick up the new path.
 
 If you encounter an SSL `CERTIFICATE_VERIFY_FAILED` error or warning about
 Python 2 being no longer supported, you will need to install Python 3 and alias
@@ -56,15 +57,19 @@ Please read the "Important Information" displayed during installation for
 information about SSL/TLS certificate validation and the running the "Install
 Certificates.command".
 
-Next, open your `~/.bash_profile` and add the following lines to wrap the `repo`
-command:
+Next, double-check where your `repo 
+Next, open your `~/.zshrc` (or `~/.bash_profile` if using bash) and add the
+following lines to wrap the `repo` command:
 
 ```shell
 # Force repo to run with Python3
 function repo() {
-  command python3 "$(which repo)" $@
+  command python3 ~/bin/repo $@
 }
 ```
+
+Make sure to reload the updated profile by starting a new terminal session or
+running `source ~/.zshrc` or `source ~/.bash_profile` as appropriate.
 
 ### Windows {#setup-win}
 
@@ -138,6 +143,28 @@ contains a history of the matching exact commits of each git repository over
 time, and it can be
 [checked out directly via git](https://stackoverflow.com/questions/3796927/how-to-git-clone-including-submodules)
 
+### Troubleshooting
+
+> NOTE: If the repo manifest changes -- for example when we update the version
+> of `platform-tools` by pointing it to a different git project -- you may see
+> the following error during`repo sync`:
+>
+> ```shell
+> error.GitError: Cannot fetch --force-sync not enabled; cannot overwrite a local work tree.
+> ...
+> error: Unable to fully sync the tree.
+> error: Downloading network changes failed.
+> ```
+>
+> This indicates that Studio or some other process has made changes in the git
+> project that has been replaced or removed. You can force `repo sync` to
+> discard these changes and check out the correct git project by adding the
+> `--force-sync` argument:
+>
+> ```shell
+> repo sync -j32 --force-sync
+> ```
+
 ## Explore source code from a browser {#code-search}
 
 `androidx-main` has a publicly-accessible
@@ -180,6 +207,9 @@ asks you which SDK you would like to use, select `Use project SDK`. Importing
 projects may take a while, but once that finishes you can use Studio as you
 normally would for application or library development -- right-click on a test
 or sample to run or debug it, search through classes, and so on.
+
+If you get a “Unregistered VCS root detected” message, click “Add root” to
+enable the Git/VCS integration for Android Studio.
 
 If you see any errors (red underlines), click Gradle's elephant button in the
 toolbar ("Sync Project with Gradle Files") and they should resolve once the
@@ -234,6 +264,23 @@ The `--cbr` switch automatically picks the current repo branch for upload. The
 can refer to the
 [Android documentation](https://source.android.com/setup/create/coding-tasks#workflow)
 for a high level overview of this basic workflow.
+
+If you see the following prompt, choose `always`:
+
+```
+Run hook scripts from https://android.googlesource.com/platform/manifest (yes/always/NO)?
+```
+
+If the upload succeeds, you'll see an output like:
+
+```
+remote:
+remote: New Changes:
+remote:   https://android-review.googlesource.com/c/platform/frameworks/support/+/720062 Further README updates
+remote:
+```
+
+To edit your change, use `git commit --amend`, and re-upload.
 
 NOTE If you encounter issues with `repo upload`, consider running upload with
 trace enabled, e.g. `GIT_DAPPER_TRACE=1 repo --trace upload . --cbr -y`. These
@@ -402,7 +449,7 @@ task:
 ```
 
 Places the documentation in
-`{androidx-main}/out/dist/out/androidx/docs-tip-of-tree/build/dokkaKotlinDocs`
+`{androidx-main}/out/androidx/docs-tip-of-tree/build/dokkaKotlinDocs`
 
 #### Dackka docs
 
@@ -416,9 +463,9 @@ run the Gradle task:
 Location of generated refdocs:
 
 *   docs-public (what is published to DAC):
-    `{androidx-main}/out/dist/out/androidx/docs-public/build/dackkaDocs`
+    `{androidx-main}/out/androidx/docs-public/build/dackkaDocs`
 *   docs-tip-of-tree:
-    `{androidx-main}/out/dist/out/androidx/docs-tip-of-tree/build/dackkaDocs`
+    `{androidx-main}/out/androidx/docs-tip-of-tree/build/dackkaDocs`
 
 #### Release docs
 
@@ -618,10 +665,19 @@ Make sure to upload this change before or concurrently (ex. in the same Gerrit
 topic) with the dependent library code.
 
 Libraries typically reference dependencies using constants defined in
-[`Dependencies.kt`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:buildSrc/public/src/main/kotlin/androidx/build/dependencies/Dependencies.kt),
+[`libs.versions.toml`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:gradle/libs.versions.toml),
 so please update this file to include a constant for the version of the library
 that you have checked in. You will reference this constant in your library's
 `build.gradle` dependencies.
+
+#### Dependency verification
+
+If the new dependency you are importing is unsigned, or is signed with a new,
+unrecognized key, then you will need to add new dependency verification metadata
+to indicate to Gradle that this new dependency is trusted. Instructions for how
+to do this are currently in the
+[README](https://android.googlesource.com/platform/frameworks/support/+/androidx-main/gradle/README.md)
+in the development subfolder
 
 #### Updating an existing dependency
 
@@ -661,7 +717,30 @@ AndroidX libraries are expected to include unit or integration test coverage for
 100% of their public API surface. Additionally, all CLs must include a `Test:`
 stanza indicating which tests were used to verify correctness. Any CLs
 implementing bug fixes are expected to include new regression tests specific to
-the issue being fixed
+the issue being fixed.
+
+### Running Tests
+
+#### Single Test Class or Method
+
+1.  Open the desired test file in Android Studio.
+2.  Right-click on a test class or @Test method name and select `Run FooBarTest`
+
+#### Full Test Package
+
+1.  In the project side panel open the desired module.
+2.  Find the directory with the tests
+3.  Right-click on the directory and select `Run androidx.foobar`
+
+### Running Sample Apps
+
+The AndroidX repository has a set of Android applications that exercise AndroidX
+code. These applications can be useful when you want to debug a real running
+application, or reproduce a problem interactively, before writing test code.
+
+These applications are named either `<libraryname>-integration-tests-testapp`,
+or `support-\*-demos` (e.g. `support-v4-demos` or `support-leanback-demos`). You
+can run them by clicking `Run > Run ...` and choosing the desired application.
 
 See the [Testing](testing.md) page for more resources on writing, running, and
 monitoring tests.
@@ -686,7 +765,10 @@ ln -s /Users/$(whoami)/Library/Android/sdk/system-images \
 ### Benchmarking {#testing-benchmarking}
 
 Libraries are encouraged to write and monitor performance benchmarks. See the
-[Benchmarking](benchmarking.md) page for more details.
+[Benchmarking](benchmarking.md) and [Macrobenchmarking](macrobenchmarking.md)
+pages for more details, and the
+[Benchmarking section of d.android.com](http://d.android.com/benchmark) for more
+info on these tools.
 
 ## Library snapshots {#snapshots}
 
@@ -822,32 +904,20 @@ First, use the `createArchive` Gradle task to generate the local Maven
 repository artifact:
 
 ```shell
-# Creates <path-to-checkout>/out/dist/sdk-repo-linux-m2repository-##.zip
+# Creates <path-to-checkout>/out/androidx/build/support_repo/
 ./gradlew createArchive
 ```
 
-Next, take the ZIP output from this task and extract the contents to the Android
-SDK path that you are using for your alternate (non-AndroidX) version of Android
-Studio. For example, you may be using `~/Android/SDK/extras` if you are using
-the default Android Studio SDK for app development or
-`prebuilts/fullsdk-linux/extras` if you are using fullsdk for platform
-development.
-
-```shell
-# Creates or overwrites android/m2repository
-cd <path-to-sdk>/extras
-unzip <path-to-checkout>/out/dist/top-of-tree-m2repository-##.zip
-```
-
-In the project's 'build.gradle' within 'repositories' notify studio of the
-location of m2repository:
+Using for your alternate (non-AndroidX) version of Android Studio open the
+project's 'build.gradle' and add the following within 'repositories' to make
+Android Gradle Plugin look for binaries in newly built repository:
 
 ```groovy
 allprojects {
     repositories {
         ...
         maven {
-            url "<path-to-sdk>/extras/m2repository"
+            url "<path-to-sdk>/out/androidx/build/support_repo/"
         }
     }
 }

@@ -49,10 +49,19 @@ internal abstract class KspType(
     }
 
     final override val typeName: TypeName by lazy {
-        jvmTypeResolver?.resolveJvmType(
-            env = env
-        )?.typeName ?: resolveTypeName()
+        jvmWildcardType?.typeName ?: resolveTypeName()
     }
+
+    /**
+     * A Kotlin type might have a sligtly different type in JVM due to wildcards.
+     * This fields holds onto that value which will be used when creating JVM types.
+     */
+    private val jvmWildcardType by lazy {
+        jvmTypeResolver?.resolveJvmType(env)
+    }
+
+    val jvmWildcardTypeOrSelf
+        get() = jvmWildcardType ?: this
 
     protected abstract fun resolveTypeName(): TypeName
 

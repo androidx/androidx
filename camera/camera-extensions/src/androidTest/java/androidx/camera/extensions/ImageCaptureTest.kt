@@ -19,6 +19,7 @@ package androidx.camera.extensions
 import android.content.Context
 import android.graphics.SurfaceTexture
 import android.util.Size
+import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
@@ -28,6 +29,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.extensions.util.ExtensionsTestUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.SurfaceTextureProvider
 import androidx.camera.testing.SurfaceTextureProvider.SurfaceTextureCallback
 import androidx.camera.testing.fakes.FakeLifecycleOwner
@@ -35,6 +37,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -48,7 +51,6 @@ import org.junit.runners.Parameterized
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito
-import java.util.concurrent.TimeUnit
 
 @LargeTest
 @RunWith(Parameterized::class)
@@ -59,7 +61,9 @@ class ImageCaptureTest(
 ) {
 
     @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTest()
+    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
+        PreTestCameraIdList(Camera2Config.defaultConfig())
+    )
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
@@ -72,8 +76,12 @@ class ImageCaptureTest(
     @Before
     @Throws(Exception::class)
     fun setUp() {
-        assumeTrue(CameraUtil.deviceHasCamera())
-        assumeTrue(ExtensionsTestUtil.isTargetDeviceAvailableForExtensions(lensFacing))
+        assumeTrue(
+            ExtensionsTestUtil.isTargetDeviceAvailableForExtensions(
+                lensFacing,
+                extensionMode
+            )
+        )
 
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
         baseCameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
@@ -86,8 +94,11 @@ class ImageCaptureTest(
     }
 
     @After
-    fun teardown() {
+    fun teardown(): Unit = runBlocking {
         if (::cameraProvider.isInitialized) {
+            withContext(Dispatchers.Main) {
+                cameraProvider.unbindAll()
+            }
             cameraProvider.shutdown()[10000, TimeUnit.MILLISECONDS]
         }
 

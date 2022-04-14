@@ -109,7 +109,9 @@ import java.util.concurrent.TimeoutException;
 @SdkSuppress(minSdkVersion = 21)
 public final class Camera2CameraControlImplDeviceTest {
     @Rule
-    public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest();
+    public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest(
+            new CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+    );
 
     private Camera2CameraControlImpl mCamera2CameraControlImpl;
     private CameraControlInternal.ControlUpdateCallback mControlUpdateCallback;

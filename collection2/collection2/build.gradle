@@ -15,9 +15,7 @@
  */
 
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
-import androidx.build.RunApiTasks
 import me.champeau.gradle.japicmp.JapicmpTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
 
@@ -40,13 +38,18 @@ plugins {
 // from AOSP.  Use this to block out any features or code that we're not
 // ready to build yet in AOSP
 
-def githubBuild = project.properties['androidx.github.build']?.toBoolean() ?: false
+def boolProperty(name) {
+    return project.providers.gradleProperty(name).getOrNull()?.toBoolean()
+}
 
-def enableMac = project.properties['androidx.kmp.mac.enabled']?.toBoolean() ?: githubBuild
+def platformEnabled(platformString) {
+    return boolProperty("androidx.kmp.${platformString}.enabled")
+}
 
-def enableJs = project.properties['androidx.kmp.js.enabled']?.toBoolean() ?: githubBuild
-
-def enableLinux = project.properties['androidx.kmp.linux.enabled']?.toBoolean() ?: githubBuild
+def githubBuild = boolProperty('androidx.github.build') ?: false
+def enableJs = platformEnabled('js') ?: githubBuild
+def enableLinux = platformEnabled('linux') ?: githubBuild
+def enableMac = platformEnabled('mac') ?: githubBuild
 
 kotlin {
     jvm {
@@ -137,7 +140,7 @@ kotlin {
             }
         }
 
-	if (enableLinux) {
+        if (enableLinux) {
             configure([linuxX64Test]) {
                 dependsOn nativeTest
             }
@@ -182,6 +185,9 @@ if (githubBuild || enableMac) {
    sourceSets.test.java.srcDir('../../collection/collection/src/test/java')
 }
 
+def targetPlatformsList = ["jvm"]
+if (enableJs) targetPlatformsList += "js"
+
 androidx {
     name = "Android Support Library collections"
     publish = Publish.SNAPSHOT_AND_RELEASE
@@ -189,7 +195,7 @@ androidx {
     inceptionYear = "2020"
     description = "Standalone efficient collections."
     legacyDisableKotlinStrictApiMode = true // TODO: Re-enable this!
-    multiplatform = true
+    publishPlatforms = targetPlatformsList
 }
 
 repositories {
@@ -203,6 +209,14 @@ configurations {
 dependencies {
     jvmApiBaseline('androidx.collection:collection:1.1.0') {
         transitive = false
+    }
+}
+
+if (!githubBuild) {
+    tasks.withType(KotlinNativeCompile).configureEach {
+        kotlinOptions {
+            freeCompilerArgs += ["-Xoverride-konan-properties=dependenciesUrl=file:../../prebuilts/androidx/konan"]
+        }
     }
 }
 

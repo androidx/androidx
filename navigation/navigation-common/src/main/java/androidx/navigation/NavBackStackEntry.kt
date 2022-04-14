@@ -20,16 +20,22 @@ import android.content.Context
 import android.os.Bundle
 import androidx.annotation.RestrictTo
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
+import androidx.lifecycle.DEFAULT_ARGS_KEY
 import androidx.lifecycle.HasDefaultViewModelProviderFactory
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.SAVED_STATE_REGISTRY_OWNER_KEY
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.SavedStateViewModelFactory
+import androidx.lifecycle.VIEW_MODEL_STORE_OWNER_KEY
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.enableSavedStateHandles
+import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
@@ -107,6 +113,7 @@ public class NavBackStackEntry private constructor(
 
     private var lifecycle = LifecycleRegistry(this)
     private val savedStateRegistryController = SavedStateRegistryController.create(this)
+    private var savedStateRegistryAttached = false
     private val defaultFactory by lazy {
         SavedStateViewModelFactory((context?.applicationContext as? Application), this, arguments)
     }
@@ -115,13 +122,17 @@ public class NavBackStackEntry private constructor(
      * The [SavedStateHandle] for this entry.
      */
     public val savedStateHandle: SavedStateHandle by lazy {
-        check(lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)) {
+        check(savedStateRegistryAttached) {
             "You cannot access the NavBackStackEntry's SavedStateHandle until it is added to " +
                 "the NavController's back stack (i.e., the Lifecycle of the NavBackStackEntry " +
                 "reaches the CREATED state)."
         }
+        check(lifecycle.currentState != Lifecycle.State.DESTROYED) {
+            "You cannot access the NavBackStackEntry's SavedStateHandle after the " +
+                "NavBackStackEntry is destroyed."
+        }
         ViewModelProvider(
-            this, NavResultSavedStateFactory(this, null)
+            this, NavResultSavedStateFactory(this)
         ).get(SavedStateViewModel::class.java).handle
     }
 
@@ -141,10 +152,6 @@ public class NavBackStackEntry private constructor(
     @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public var maxLifecycle: Lifecycle.State = Lifecycle.State.INITIALIZED
         set(maxState) {
-            if (field == Lifecycle.State.INITIALIZED) {
-                // Perform the restore just when moving from the INITIALIZED state
-                savedStateRegistryController.performRestore(savedState)
-            }
             field = maxState
             updateState()
         }
@@ -162,6 +169,16 @@ public class NavBackStackEntry private constructor(
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun updateState() {
+        if (!savedStateRegistryAttached) {
+            savedStateRegistryController.performAttach()
+            savedStateRegistryAttached = true
+            if (viewModelStoreProvider != null) {
+                enableSavedStateHandles()
+            }
+            // Perform the restore just once, the first time updateState() is called
+            // and specifically *before* we move up the Lifecycle
+            savedStateRegistryController.performRestore(savedState)
+        }
         if (hostLifecycleState.ordinal < maxLifecycle.ordinal) {
             lifecycle.currentState = hostLifecycleState
         } else {
@@ -177,10 +194,14 @@ public class NavBackStackEntry private constructor(
      * [androidx.navigation.NavHostController.setViewModelStore].
      */
     public override fun getViewModelStore(): ViewModelStore {
-        check(lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)) {
+        check(savedStateRegistryAttached) {
             "You cannot access the NavBackStackEntry's ViewModels until it is added to " +
                 "the NavController's back stack (i.e., the Lifecycle of the NavBackStackEntry " +
                 "reaches the CREATED state)."
+        }
+        check(lifecycle.currentState != Lifecycle.State.DESTROYED) {
+            "You cannot access the NavBackStackEntry's ViewModels after the " +
+                "NavBackStackEntry is destroyed."
         }
         checkNotNull(viewModelStoreProvider) {
             "You must call setViewModelStore() on your NavHostController before accessing the " +
@@ -193,9 +214,21 @@ public class NavBackStackEntry private constructor(
         return defaultFactory
     }
 
-    public override fun getSavedStateRegistry(): SavedStateRegistry {
-        return savedStateRegistryController.savedStateRegistry
+    override fun getDefaultViewModelCreationExtras(): CreationExtras {
+        val extras = MutableCreationExtras()
+        (context?.applicationContext as? Application)?.let { application ->
+            extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] = application
+        }
+        extras[SAVED_STATE_REGISTRY_OWNER_KEY] = this
+        extras[VIEW_MODEL_STORE_OWNER_KEY] = this
+        arguments?.let { args ->
+            extras[DEFAULT_ARGS_KEY] = args
+        }
+        return extras
     }
+
+    override val savedStateRegistry: SavedStateRegistry
+        get() = savedStateRegistryController.savedStateRegistry
 
     /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -203,6 +236,7 @@ public class NavBackStackEntry private constructor(
         savedStateRegistryController.performSave(outBundle)
     }
 
+    @Suppress("DEPRECATION")
     override fun equals(other: Any?): Boolean {
         if (other == null || other !is NavBackStackEntry) return false
         return id == other.id && destination == other.destination &&
@@ -214,6 +248,7 @@ public class NavBackStackEntry private constructor(
                 )
     }
 
+    @Suppress("DEPRECATION")
     override fun hashCode(): Int {
         var result = id.hashCode()
         result = 31 * result + destination.hashCode()
@@ -229,9 +264,8 @@ public class NavBackStackEntry private constructor(
      * Used to create the {SavedStateViewModel}
      */
     private class NavResultSavedStateFactory(
-        owner: SavedStateRegistryOwner,
-        defaultArgs: Bundle?
-    ) : AbstractSavedStateViewModelFactory(owner, defaultArgs) {
+        owner: SavedStateRegistryOwner
+    ) : AbstractSavedStateViewModelFactory(owner, null) {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(
             key: String,

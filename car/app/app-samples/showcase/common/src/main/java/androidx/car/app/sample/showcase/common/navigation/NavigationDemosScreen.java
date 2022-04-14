@@ -49,7 +49,7 @@ public final class NavigationDemosScreen extends Screen {
                                                 R.drawable.ic_explore_white_24dp))
                                         .build(),
                                 Row.IMAGE_TYPE_ICON)
-                        .setTitle("Navigation Template Demo")
+                        .setTitle(getCarContext().getString(R.string.nav_template_demos_title))
                         .setOnClickListener(
                                 () ->
                                         getScreenManager()
@@ -61,7 +61,8 @@ public final class NavigationDemosScreen extends Screen {
 
         listBuilder.addItem(
                 new Row.Builder()
-                        .setTitle("Place List Navigation Template Demo")
+                        .setTitle(getCarContext().getString(
+                                R.string.place_list_nav_template_demo_title))
                         .setOnClickListener(
                                 () ->
                                         getScreenManager()
@@ -72,7 +73,8 @@ public final class NavigationDemosScreen extends Screen {
 
         listBuilder.addItem(
                 new Row.Builder()
-                        .setTitle("Route Preview Template Demo")
+                        .setTitle(getCarContext().getString(
+                                R.string.route_preview_template_demo_title))
                         .setOnClickListener(
                                 () ->
                                         getScreenManager()
@@ -81,7 +83,8 @@ public final class NavigationDemosScreen extends Screen {
 
         listBuilder.addItem(
                 new Row.Builder()
-                        .setTitle("Notification Template Demo")
+                        .setTitle(getCarContext().getString(
+                                R.string.notification_template_demo_title))
                         .setOnClickListener(
                                 () ->
                                         getScreenManager()
@@ -92,16 +95,25 @@ public final class NavigationDemosScreen extends Screen {
 
         listBuilder.addItem(
                 new Row.Builder()
-                        .setTitle("Navigation Template with map only Demo")
+                        .setTitle(getCarContext().getString(R.string.nav_map_template_demo_title))
                         .setOnClickListener(
                                 () ->
                                         getScreenManager()
                                                 .push(new NavigationMapOnlyScreen(getCarContext())))
                         .build());
 
+        listBuilder.addItem(
+                new Row.Builder()
+                        .setTitle(getCarContext().getString(R.string.map_template_pane_demo_title))
+                        .setOnClickListener(
+                                () ->
+                                        getScreenManager()
+                                                .push(new MapTemplateDemoScreen(getCarContext())))
+                        .build());
+
         return new ListTemplate.Builder()
                 .setSingleList(listBuilder.build())
-                .setTitle("Navigation Demos")
+                .setTitle(getCarContext().getString(R.string.nav_demos_title))
                 .setHeaderAction(Action.BACK)
                 .build();
     }

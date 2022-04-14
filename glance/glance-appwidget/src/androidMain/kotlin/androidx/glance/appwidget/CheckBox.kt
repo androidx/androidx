@@ -93,12 +93,6 @@ public fun CheckBoxColors(@ColorRes checkBoxColor: Int): CheckBoxColors =
         )
     )
 
-/** Collection of defaults for [CheckBox]es. */
-public object CheckBoxDefaults {
-    /** Default colors applied to a CheckBox. */
-    val colors = CheckBoxColors()
-}
-
 /**
  * Adds a check box view to the glance view.
  *
@@ -121,7 +115,7 @@ public fun CheckBox(
     modifier: GlanceModifier = GlanceModifier,
     text: String = "",
     style: TextStyle? = null,
-    colors: CheckBoxColors = CheckBoxDefaults.colors,
+    colors: CheckBoxColors = CheckBoxColors(),
     maxLines: Int = Int.MAX_VALUE,
 ) {
     val finalModifier = if (onCheckedChange != null) {
@@ -147,7 +141,7 @@ internal class EmittableCheckBox : Emittable {
     var checked: Boolean = false
     var text: String = ""
     var style: TextStyle? = null
-    var colors: CheckBoxColors = CheckBoxDefaults.colors
+    var colors: CheckBoxColors = CheckBoxColors()
     var maxLines: Int = Int.MAX_VALUE
 
     override fun toString(): String = "EmittableCheckBox(" +

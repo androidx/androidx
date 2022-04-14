@@ -23,8 +23,8 @@ import androidx.glance.findModifier
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -36,12 +36,12 @@ import kotlin.test.assertNotNull
 @RunWith(RobolectricTestRunner::class)
 class ActionTest {
 
-    private lateinit var fakeCoroutineScope: TestCoroutineScope
+    private lateinit var fakeCoroutineScope: TestScope
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
     @Before
     fun setUp() {
-        fakeCoroutineScope = TestCoroutineScope()
+        fakeCoroutineScope = TestScope()
     }
 
     @Test
@@ -52,7 +52,7 @@ class ActionTest {
     }
 
     @Test
-    fun testLaunchFromComponent() = fakeCoroutineScope.runBlockingTest {
+    fun testLaunchFromComponent() = fakeCoroutineScope.runTest {
         val c = ComponentName("androidx.glance.action", "androidx.glance.action.TestActivity")
 
         val modifiers = GlanceModifier.clickable(actionStartActivity(c))
@@ -64,7 +64,7 @@ class ActionTest {
     }
 
     @Test
-    fun testLaunchFromComponentWithContext() = fakeCoroutineScope.runBlockingTest {
+    fun testLaunchFromComponentWithContext() = fakeCoroutineScope.runTest {
         val c = ComponentName(context, "androidx.glance.action.TestActivity")
 
         val modifiers = GlanceModifier.clickable(actionStartActivity(c))

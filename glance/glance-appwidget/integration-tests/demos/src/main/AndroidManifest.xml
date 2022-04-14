@@ -14,7 +14,7 @@
   limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="androidx.glance.appwidget.demos">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <application
         android:allowBackup="false"
@@ -34,7 +34,9 @@
         </activity>
 
         <activity android:name=".ActionDemoActivity" />
-        <service android:name=".ActionDemoService" />
+        <service
+            android:name=".ActionDemoService"
+            tools:ignore="MissingServiceExportedEqualsTrue" />
 
         <activity android:name=".ListClickDestinationActivity" android:exported="false" />
 
@@ -94,6 +96,20 @@
         </receiver>
 
         <receiver
+            android:name="androidx.glance.appwidget.demos.SingleEntityWidgetReceiver"
+            android:enabled="@bool/glance_appwidget_available"
+            android:exported="false"
+            android:label="@string/single_entity_widget_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/default_app_widget_info" />
+        </receiver>
+
+        <receiver
             android:name="androidx.glance.appwidget.demos.ActionAppWidgetReceiver"
             android:enabled="@bool/glance_appwidget_available"
             android:exported="false"
@@ -137,6 +153,45 @@
         <receiver
             android:name="androidx.glance.appwidget.demos.ImageAppWidgetReceiver"
             android:label="@string/image_widget_name"
+            android:enabled="@bool/glance_appwidget_available"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/default_app_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name="androidx.glance.appwidget.demos.VerticalGridAppWidgetReceiver"
+            android:label="@string/grid_widget_name"
+            android:enabled="@bool/glance_appwidget_available"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/default_app_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name="androidx.glance.appwidget.demos.DefaultStateAppWidgetReceiver"
+            android:label="@string/default_state_widget_name"
+            android:enabled="@bool/glance_appwidget_available"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/default_app_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name="androidx.glance.appwidget.demos.ProgressIndicatorAppWidgetReceiver"
+            android:label="@string/progress_indicator_widget_name"
             android:enabled="@bool/glance_appwidget_available"
             android:exported="false">
             <intent-filter>

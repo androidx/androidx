@@ -43,6 +43,8 @@ public class ListOptionWireFormat extends OptionWireFormat {
     @Nullable
     public Icon mIcon = null;
 
+    // WARNING: This class is held in a list and can't change due to flaws in VersionedParcelable.
+
     ListOptionWireFormat() {
     }
 

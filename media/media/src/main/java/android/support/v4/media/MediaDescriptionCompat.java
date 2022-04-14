@@ -383,6 +383,7 @@ public final class MediaDescriptionCompat implements Parcelable {
      * @return An equivalent {@link MediaMetadataCompat} object, or null if
      *         none.
      */
+    @SuppressWarnings("deprecation")
     public static MediaDescriptionCompat fromMediaDescription(Object descriptionObj) {
         if (descriptionObj != null && Build.VERSION.SDK_INT >= 21) {
             Builder bob = new Builder();

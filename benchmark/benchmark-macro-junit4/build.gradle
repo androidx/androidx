@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -29,6 +28,7 @@ android {
         minSdkVersion 23
         multiDexEnabled true
     }
+    namespace "androidx.benchmark.macro.junit4"
 }
 
 dependencies {
@@ -64,6 +64,6 @@ androidx {
 // Allow usage of Kotlin's @OptIn.
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
-        freeCompilerArgs += [ '-Xopt-in=kotlin.RequiresOptIn' ]
+        freeCompilerArgs += [ '-opt-in=kotlin.RequiresOptIn' ]
     }
 }

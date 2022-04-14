@@ -65,6 +65,7 @@ class FlowWithLifecycleTest {
 
     @Test
     fun testFlowDoesNotCollectIfLifecycleIsDestroyed() = runBlocking(Dispatchers.Main) {
+        owner.setState(Lifecycle.State.CREATED)
         owner.setState(Lifecycle.State.DESTROYED)
         val result = flowOf(1, 2, 3)
             .flowWithLifecycle(owner.lifecycle, Lifecycle.State.RESUMED)

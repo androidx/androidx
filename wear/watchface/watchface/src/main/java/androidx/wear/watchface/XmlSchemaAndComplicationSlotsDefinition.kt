@@ -24,17 +24,21 @@ import android.os.Bundle
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.complications.ComplicationSlotBounds
 import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
+import androidx.wear.watchface.complications.NAMESPACE_APP
 import androidx.wear.watchface.complications.data.ComplicationType
+import androidx.wear.watchface.complications.hasValue
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
 import org.xmlpull.v1.XmlPullParser
 import kotlin.jvm.Throws
 
 /** @hide */
+@OptIn(WatchFaceFlavorsExperimental::class)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class XmlSchemaAndComplicationSlotsDefinition(
     val schema: UserStyleSchema?,
-    val complicationSlots: List<ComplicationSlotStaticData>
+    val complicationSlots: List<ComplicationSlotStaticData>,
+    val flavors: UserStyleFlavors?
 ) {
     companion object {
         @Throws(PackageManager.NameNotFoundException::class)
@@ -53,6 +57,7 @@ public class XmlSchemaAndComplicationSlotsDefinition(
             }
 
             var schema: UserStyleSchema? = null
+            var flavors: UserStyleFlavors? = null
             val outerDepth = parser.depth
 
             type = parser.next()
@@ -67,8 +72,14 @@ public class XmlSchemaAndComplicationSlotsDefinition(
                         }
                         "ComplicationSlot" -> {
                             complicationSlots.add(
-                                ComplicationSlotStaticData.inflate(resources, parser)
+                                ComplicationSlotStaticData.inflate(parser)
                             )
+                        }
+                        "UserStyleFlavors" -> {
+                            require(schema != null) {
+                                "A UserStyleFlavors node requires a previous UserStyleSchema node"
+                            }
+                            flavors = UserStyleFlavors.inflate(parser, schema)
                         }
                         else -> throw IllegalArgumentException(
                             "Unexpected node ${parser.name} at line ${parser.lineNumber}"
@@ -80,7 +91,7 @@ public class XmlSchemaAndComplicationSlotsDefinition(
 
             parser.close()
 
-            return XmlSchemaAndComplicationSlotsDefinition(schema, complicationSlots)
+            return XmlSchemaAndComplicationSlotsDefinition(schema, complicationSlots, flavors)
         }
     }
 
@@ -92,85 +103,25 @@ public class XmlSchemaAndComplicationSlotsDefinition(
         val supportedTypes: List<ComplicationType>,
         val defaultDataSourcePolicy: DefaultComplicationDataSourcePolicy,
         val initiallyEnabled: Boolean,
-        val fixedComplicationDataSource: Boolean
+        val fixedComplicationDataSource: Boolean,
+        val nameResourceId: Int?,
+        val screenReaderNameResourceId: Int?
     ) {
         companion object {
-            fun inflate(
-                resources: Resources,
-                parser: XmlResourceParser
-            ): ComplicationSlotStaticData {
-                require(parser.name == "ComplicationSlot") {
-                    "Expected a UserStyleSchema node"
-                }
-                val attributes = resources.obtainAttributes(
-                    parser,
-                    R.styleable.ComplicationSlot
-                )
-
-                require(attributes.hasValue(R.styleable.ComplicationSlot_slotId)) {
-                    "A ComplicationSlot must have an id attribute"
-                }
-                val slotId = attributes.getString(R.styleable.ComplicationSlot_slotId)!!.toInt()
-
-                val accessibilityTraversalIndex = if (
-                    attributes.hasValue(R.styleable.ComplicationSlot_accessibilityTraversalIndex)
-                ) {
-                    attributes.getInteger(
-                        R.styleable.ComplicationSlot_accessibilityTraversalIndex,
-                        0
-                    )
-                } else {
-                    null
-                }
-                require(attributes.hasValue(R.styleable.ComplicationSlot_boundsType)) {
-                    "A ComplicationSlot must have a boundsType attribute"
-                }
-                val boundsType = when (
-                    attributes.getInteger(R.styleable.ComplicationSlot_boundsType, 0)
-                ) {
-                    0 -> ComplicationSlotBoundsType.ROUND_RECT
-                    1 -> ComplicationSlotBoundsType.BACKGROUND
-                    2 -> ComplicationSlotBoundsType.EDGE
-                    else -> throw IllegalArgumentException("Unknown boundsType")
-                }
-
-                require(attributes.hasValue(R.styleable.ComplicationSlot_supportedTypes)) {
-                    "A ComplicationSlot must have a supportedTypes attribute"
-                }
-                val supportedTypes =
-                    attributes.getInteger(R.styleable.ComplicationSlot_supportedTypes, 0)
-                val supportedTypesList = ArrayList<ComplicationType>()
-                if ((supportedTypes and 0x1) != 0) {
-                    supportedTypesList.add(ComplicationType.SHORT_TEXT)
-                }
-                if ((supportedTypes and 0x2) != 0) {
-                    supportedTypesList.add(ComplicationType.LONG_TEXT)
-                }
-                if ((supportedTypes and 0x4) != 0) {
-                    supportedTypesList.add(ComplicationType.RANGED_VALUE)
-                }
-                if ((supportedTypes and 0x8) != 0) {
-                    supportedTypesList.add(ComplicationType.MONOCHROMATIC_IMAGE)
-                }
-                if ((supportedTypes and 0x10) != 0) {
-                    supportedTypesList.add(ComplicationType.SMALL_IMAGE)
-                }
-                if ((supportedTypes and 0x20) != 0) {
-                    supportedTypesList.add(ComplicationType.PHOTO_IMAGE)
-                }
-
+            fun inflateDefaultComplicationDataSourcePolicy(
+                parser: XmlResourceParser,
+                nodeName: String,
+            ): DefaultComplicationDataSourcePolicy {
                 val primaryDataSource =
-                    attributes.getString(R.styleable.ComplicationSlot_primaryDataSource)?.let {
+                    parser.getAttributeValue(NAMESPACE_APP, "primaryDataSource")?.let {
                         ComponentName.unflattenFromString(it)
                     }
                 val primaryDataSourceDefaultType =
-                    if (attributes.hasValue(
-                            R.styleable.ComplicationSlot_primaryDataSourceDefaultType
-                        )
-                    ) {
+                    if (parser.hasValue("primaryDataSourceDefaultType")) {
                         ComplicationType.fromWireType(
-                            attributes.getInt(
-                                R.styleable.ComplicationSlot_primaryDataSourceDefaultType,
+                            parser.getAttributeIntValue(
+                                NAMESPACE_APP,
+                                "primaryDataSourceDefaultType",
                                 0
                             )
                         )
@@ -178,18 +129,16 @@ public class XmlSchemaAndComplicationSlotsDefinition(
                         null
                     }
                 val secondaryDataSource =
-                    attributes.getString(R.styleable.ComplicationSlot_secondaryDataSource)?.let {
+                    parser.getAttributeValue(NAMESPACE_APP, "secondaryDataSource")?.let {
                         ComponentName.unflattenFromString(it)
                     }
 
                 val secondaryDataSourceDefaultType =
-                    if (attributes.hasValue(
-                            R.styleable.ComplicationSlot_secondaryDataSourceDefaultType
-                        )
-                    ) {
+                    if (parser.hasValue("secondaryDataSourceDefaultType")) {
                         ComplicationType.fromWireType(
-                            attributes.getInt(
-                                R.styleable.ComplicationSlot_secondaryDataSourceDefaultType,
+                            parser.getAttributeIntValue(
+                                NAMESPACE_APP,
+                                "secondaryDataSourceDefaultType",
                                 0
                             )
                         )
@@ -197,36 +146,24 @@ public class XmlSchemaAndComplicationSlotsDefinition(
                         null
                     }
 
-                require(
-                    attributes.hasValue(R.styleable.ComplicationSlot_systemDataSourceFallback)
-                ) {
-                    "A ComplicationSlot must have a systemDataSourceFallback attribute"
+                require(parser.hasValue("systemDataSourceFallback")) {
+                    "A $nodeName must have a systemDataSourceFallback attribute"
                 }
-                val systemDataSourceFallback = attributes.getInt(
-                    R.styleable.ComplicationSlot_systemDataSourceFallback,
-                    0
-                )
-                require(
-                    attributes.hasValue(
-                        R.styleable.ComplicationSlot_systemDataSourceFallbackDefaultType
-                    )
-                ) {
-                    "A ComplicationSlot must have a systemDataSourceFallbackDefaultType" +
-                        " attribute"
+                val systemDataSourceFallback = parser.getAttributeIntValue(
+                    NAMESPACE_APP, "systemDataSourceFallback", 0)
+                require(parser.hasValue("systemDataSourceFallbackDefaultType")) {
+                    "A $nodeName must have a systemDataSourceFallbackDefaultType attribute"
                 }
                 val systemDataSourceFallbackDefaultType = ComplicationType.fromWireType(
-                    attributes.getInt(
-                        R.styleable.ComplicationSlot_systemDataSourceFallbackDefaultType,
-                        0
-                    )
-                )
-                val defaultComplicationDataSourcePolicy = when {
+                    parser.getAttributeIntValue(
+                        NAMESPACE_APP, "systemDataSourceFallbackDefaultType", 0))
+                return when {
                     secondaryDataSource != null -> {
                         require(primaryDataSource != null) {
                             "If a secondaryDataSource is specified, a primaryDataSource must be too"
                         }
                         require(primaryDataSourceDefaultType != null) {
-                            "If a primaryDataSource is specified, a " +
+                            "If a secondaryDataSource is specified, a " +
                                 "primaryDataSourceDefaultType must be too"
                         }
                         require(secondaryDataSourceDefaultType != null) {
@@ -263,22 +200,98 @@ public class XmlSchemaAndComplicationSlotsDefinition(
                         )
                     }
                 }
+            }
 
-                val initiallyEnabled = attributes.getBoolean(
-                    R.styleable.ComplicationSlot_initiallyEnabled,
+            fun inflate(
+                parser: XmlResourceParser
+            ): ComplicationSlotStaticData {
+                require(parser.name == "ComplicationSlot") {
+                    "Expected a UserStyleSchema node"
+                }
+
+                require(parser.hasValue("slotId")) {
+                    "A ComplicationSlot must have a slotId attribute"
+                }
+                val slotId = parser.getAttributeValue(NAMESPACE_APP, "slotId")!!.toInt()
+
+                val accessibilityTraversalIndex = if (
+                    parser.hasValue("accessibilityTraversalIndex")
+                ) {
+                    parser.getAttributeIntValue(
+                        NAMESPACE_APP,
+                        "accessibilityTraversalIndex",
+                        0
+                    )
+                } else {
+                    null
+                }
+                require(parser.hasValue("boundsType")) {
+                    "A ComplicationSlot must have a boundsType attribute"
+                }
+                val boundsType = when (
+                    parser.getAttributeIntValue(NAMESPACE_APP, "boundsType", 0)
+                ) {
+                    0 -> ComplicationSlotBoundsType.ROUND_RECT
+                    1 -> ComplicationSlotBoundsType.BACKGROUND
+                    2 -> ComplicationSlotBoundsType.EDGE
+                    else -> throw IllegalArgumentException("Unknown boundsType")
+                }
+
+                require(parser.hasValue("supportedTypes")) {
+                    "A ComplicationSlot must have a supportedTypes attribute"
+                }
+                val supportedTypes =
+                    parser.getAttributeIntValue(NAMESPACE_APP, "supportedTypes", 0)
+                val supportedTypesList = ArrayList<ComplicationType>()
+                if ((supportedTypes and 0x1) != 0) {
+                    supportedTypesList.add(ComplicationType.SHORT_TEXT)
+                }
+                if ((supportedTypes and 0x2) != 0) {
+                    supportedTypesList.add(ComplicationType.LONG_TEXT)
+                }
+                if ((supportedTypes and 0x4) != 0) {
+                    supportedTypesList.add(ComplicationType.RANGED_VALUE)
+                }
+                if ((supportedTypes and 0x8) != 0) {
+                    supportedTypesList.add(ComplicationType.MONOCHROMATIC_IMAGE)
+                }
+                if ((supportedTypes and 0x10) != 0) {
+                    supportedTypesList.add(ComplicationType.SMALL_IMAGE)
+                }
+                if ((supportedTypes and 0x20) != 0) {
+                    supportedTypesList.add(ComplicationType.PHOTO_IMAGE)
+                }
+
+                val defaultComplicationDataSourcePolicy =
+                    inflateDefaultComplicationDataSourcePolicy(parser, "ComplicationSlot")
+
+                val initiallyEnabled = parser.getAttributeBooleanValue(
+                    NAMESPACE_APP,
+                    "initiallyEnabled",
                     true
                 )
-                val fixedComplicationDataSource = attributes.getBoolean(
-                    R.styleable.ComplicationSlot_fixedComplicationDataSource,
+                val fixedComplicationDataSource = parser.getAttributeBooleanValue(
+                    NAMESPACE_APP,
+                    "fixedComplicationDataSource",
                     false
                 )
-                val bounds = ComplicationSlotBounds.inflate(resources, parser)
+                val nameResourceId =
+                    if (parser.hasValue("name")) {
+                        parser.getAttributeResourceValue(NAMESPACE_APP, "name", 0)
+                    } else {
+                        null
+                    }
+                val screenReaderNameResourceId =
+                    if (parser.hasValue("screenReaderName")) {
+                        parser.getAttributeResourceValue(NAMESPACE_APP, "screenReaderName", 0)
+                    } else {
+                        null
+                    }
+                val bounds = ComplicationSlotBounds.inflate(parser)
                 require(bounds != null) {
                     "ComplicationSlot must have either one ComplicationSlotBounds child node or " +
                         "one per ComplicationType."
                 }
-
-                attributes.recycle()
 
                 return ComplicationSlotStaticData(
                     slotId,
@@ -288,7 +301,9 @@ public class XmlSchemaAndComplicationSlotsDefinition(
                     supportedTypesList,
                     defaultComplicationDataSourcePolicy,
                     initiallyEnabled,
-                    fixedComplicationDataSource
+                    fixedComplicationDataSource,
+                    nameResourceId,
+                    screenReaderNameResourceId
                 )
             }
         }
@@ -303,7 +318,7 @@ public class XmlSchemaAndComplicationSlotsDefinition(
         }
 
         require(complicationSlotInflationFactory != null) {
-            "You must override WatchFaceService.getComplicationSlotDetailsFactory to provide " +
+            "You must override WatchFaceService.getComplicationSlotInflationFactory to provide " +
             "additional details needed to inflate ComplicationSlotsManager"
         }
 
@@ -329,7 +344,9 @@ public class XmlSchemaAndComplicationSlotsDefinition(
                         else -> throw UnsupportedOperationException(
                             "Unknown boundsType ${it.boundsType}"
                         )
-                    }
+                    },
+                    it.nameResourceId,
+                    it.screenReaderNameResourceId
                 )
             },
             currentUserStyleRepository

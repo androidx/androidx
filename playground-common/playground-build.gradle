@@ -32,6 +32,9 @@ buildscript {
     def metalavaRepo = "https://androidx.dev/metalava/builds/${metalavaBuildId}/artifacts/repo/m2repository"
     def dokkaRepo = "https://androidx.dev/dokka/builds/${dokkaBuildId}/artifacts/repository"
     repositories {
+        maven {
+            url "https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev/"
+        }
         google()
         mavenCentral()
         maven {

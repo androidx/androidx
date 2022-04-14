@@ -19,7 +19,8 @@ import android.net.Uri
 import android.os.Build
 import androidx.room.TypeConverter
 import androidx.work.BackoffPolicy
-import androidx.work.ContentUriTriggers
+import androidx.work.Constraints
+import androidx.work.Constraints.ContentUriTrigger
 import androidx.work.NetworkType
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkInfo
@@ -226,40 +227,39 @@ object WorkTypeConverters {
     }
 
     /**
-     * Converts a list of [ContentUriTriggers.Trigger]s to byte array representation
-     * @param triggers the list of [ContentUriTriggers.Trigger]s to convert
+     * Converts a set of [Constraints.ContentUriTrigger]s to byte array representation
+     * @param triggers the list of [Constraints.ContentUriTrigger]s to convert
      * @return corresponding byte array representation
      */
     @JvmStatic
     @TypeConverter
-    fun contentUriTriggersToByteArray(triggers: ContentUriTriggers): ByteArray? {
-        if (triggers.size() == 0) {
-            return null
+    fun setOfTriggersToByteArray(triggers: Set<ContentUriTrigger>): ByteArray {
+        if (triggers.isEmpty()) {
+            return ByteArray(0)
         }
         val outputStream = ByteArrayOutputStream()
         outputStream.use {
             ObjectOutputStream(outputStream).use { objectOutputStream ->
-                objectOutputStream.writeInt(triggers.size())
-                for (trigger in triggers.triggers) {
+                objectOutputStream.writeInt(triggers.size)
+                for (trigger in triggers) {
                     objectOutputStream.writeUTF(trigger.uri.toString())
-                    objectOutputStream.writeBoolean(trigger.shouldTriggerForDescendants())
+                    objectOutputStream.writeBoolean(trigger.isTriggeredForDescendants)
                 }
             }
         }
-
         return outputStream.toByteArray()
     }
 
     /**
-     * Converts a byte array to list of [ContentUriTriggers.Trigger]s
+     * Converts a byte array to set of [ContentUriTrigger]s
      * @param bytes byte array representation to convert
-     * @return list of [ContentUriTriggers.Trigger]s
+     * @return set of [ContentUriTrigger]
      */
     @JvmStatic
     @TypeConverter
-    fun byteArrayToContentUriTriggers(bytes: ByteArray?): ContentUriTriggers {
-        val triggers = ContentUriTriggers()
-        if (bytes == null) {
+    fun byteArrayToSetOfTriggers(bytes: ByteArray): Set<ContentUriTrigger> {
+        val triggers = mutableSetOf<ContentUriTrigger>()
+        if (bytes.isEmpty()) {
             // bytes will be null if there are no Content Uri Triggers
             return triggers
         }
@@ -270,7 +270,7 @@ object WorkTypeConverters {
                     repeat(objectInputStream.readInt()) {
                         val uri = Uri.parse(objectInputStream.readUTF())
                         val triggersForDescendants = objectInputStream.readBoolean()
-                        triggers.add(uri, triggersForDescendants)
+                        triggers.add(ContentUriTrigger(uri, triggersForDescendants))
                     }
                 }
             } catch (e: IOException) {

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -56,11 +55,12 @@ android {
     sourceSets {
         main.resources.srcDirs += "src/main/proto"
     }
+    namespace "androidx.sqlite.inspection"
 }
 
 // Allow usage of Kotlin's @OptIn.
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
-        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
+        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
     }
 }

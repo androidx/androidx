@@ -52,16 +52,20 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+    namespace "androidx.camera.integration.view"
 }
 
 dependencies {
     // Internal library
     implementation(project(":camera:camera-camera2"))
     implementation(project(":camera:camera-lifecycle"))
+    implementation(project(":camera:camera-mlkit-vision"))
     implementation("androidx.lifecycle:lifecycle-runtime:2.3.1")
     implementation(project(":camera:camera-view"))
     implementation(libs.guavaAndroid)
+    implementation('com.google.mlkit:barcode-scanning:17.0.2')
     implementation("androidx.exifinterface:exifinterface:1.3.2")
+    implementation(libs.mlkitBarcode)
     // old version of common-java8 conflicts with newer version, because both have
     // DefaultLifecycleEventObserver.
     // Outside of androidx this is resolved via constraint added to lifecycle-common,
@@ -78,10 +82,10 @@ dependencies {
     // Compose UI
     kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
     implementation(project(":compose:runtime:runtime"))
-    implementation("androidx.compose.ui:ui:1.0.0-rc02")
-    implementation("androidx.compose.material:material:1.0.0-rc02")
-    implementation("androidx.compose.ui:ui-tooling:1.0.0-rc02")
-    implementation("androidx.activity:activity-compose:1.3.0-beta02")
+    implementation("androidx.compose.ui:ui:1.0.5")
+    implementation("androidx.compose.material:material:1.0.5")
+    implementation("androidx.compose.ui:ui-tooling:1.0.5")
+    implementation("androidx.activity:activity-compose:1.3.1")
 
     // Testing framework
     androidTestImplementation(libs.testExtJunit)

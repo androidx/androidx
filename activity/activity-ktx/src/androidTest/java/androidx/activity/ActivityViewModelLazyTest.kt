@@ -17,8 +17,14 @@
 package androidx.activity
 
 import android.os.Bundle
+import androidx.core.os.bundleOf
+import androidx.lifecycle.DEFAULT_ARGS_KEY
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.SavedStateViewModelFactory
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.test.annotation.UiThreadTest
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
@@ -39,6 +45,7 @@ class ActivityViewModelLazyTest {
         assertThat(activity.vm).isNotNull()
         assertThat(activity.factoryVM.prop).isEqualTo("activity")
         assertThat(activity.daggerPoorCopyVM.prop).isEqualTo("dagger")
+        assertThat(activity.savedStateViewModel.defaultValue).isEqualTo("value")
     }
 
     class TestActivity : ComponentActivity() {
@@ -46,16 +53,32 @@ class ActivityViewModelLazyTest {
         val factoryVM: TestFactorizedViewModel by viewModels { VMFactory("activity") }
         lateinit var injectedFactory: ViewModelProvider.Factory
         val daggerPoorCopyVM: TestDaggerViewModel by viewModels { injectedFactory }
+        val savedStateViewModel: TestSavedStateViewModel by viewModels(
+            extrasProducer = { defaultViewModelCreationExtras }
+        )
 
         override fun onCreate(savedInstanceState: Bundle?) {
             injectedFactory = VMFactory("dagger")
             super.onCreate(savedInstanceState)
+        }
+
+        override fun getDefaultViewModelProviderFactory(): ViewModelProvider.Factory {
+            return SavedStateViewModelFactory()
+        }
+
+        override fun getDefaultViewModelCreationExtras(): CreationExtras {
+            val extras = MutableCreationExtras(super.getDefaultViewModelCreationExtras())
+            extras[DEFAULT_ARGS_KEY] = bundleOf("test" to "value")
+            return extras
         }
     }
 
     class TestViewModel : ViewModel()
     class TestFactorizedViewModel(val prop: String) : ViewModel()
     class TestDaggerViewModel(val prop: String) : ViewModel()
+    class TestSavedStateViewModel(val savedStateHandle: SavedStateHandle) : ViewModel() {
+        val defaultValue = savedStateHandle.get<String>("test")
+    }
 
     private class VMFactory(val prop: String) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")

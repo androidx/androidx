@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -43,4 +41,8 @@ androidx {
     inceptionYear = "2021"
     description =
         "An implementation of AppSearchSession which uses the AppSearch service on Android S+"
+}
+
+android {
+    namespace "androidx.appsearch.platformstorage"
 }

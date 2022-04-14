@@ -1,0 +1,44 @@
+// Signature format: 4.0
+package @androidx.camera.viewfinder.ExperimentalViewfinder androidx.camera.viewfinder {
+
+  @RequiresApi(21) public final class CameraViewfinder extends android.widget.FrameLayout {
+    ctor @UiThread public CameraViewfinder(android.content.Context);
+    ctor @UiThread public CameraViewfinder(android.content.Context, android.util.AttributeSet?);
+    ctor @UiThread public CameraViewfinder(android.content.Context, android.util.AttributeSet?, int);
+    ctor @UiThread public CameraViewfinder(android.content.Context, android.util.AttributeSet?, int, int);
+    method @UiThread public android.graphics.Bitmap? getBitmap();
+    method @UiThread public androidx.camera.viewfinder.CameraViewfinder.ImplementationMode getImplementationMode();
+    method @UiThread public androidx.camera.viewfinder.CameraViewfinder.ScaleType getScaleType();
+    method @UiThread public com.google.common.util.concurrent.ListenableFuture<android.view.Surface!> requestSurfaceAsync(androidx.camera.viewfinder.ViewfinderSurfaceRequest);
+    method @UiThread public void setImplementationMode(androidx.camera.viewfinder.CameraViewfinder.ImplementationMode);
+    method @UiThread public void setScaleType(androidx.camera.viewfinder.CameraViewfinder.ScaleType);
+  }
+
+  @RequiresApi(21) public enum CameraViewfinder.ImplementationMode {
+    enum_constant public static final androidx.camera.viewfinder.CameraViewfinder.ImplementationMode COMPATIBLE;
+    enum_constant public static final androidx.camera.viewfinder.CameraViewfinder.ImplementationMode PERFORMANCE;
+  }
+
+  @RequiresApi(21) public enum CameraViewfinder.ScaleType {
+    enum_constant public static final androidx.camera.viewfinder.CameraViewfinder.ScaleType FILL_CENTER;
+    enum_constant public static final androidx.camera.viewfinder.CameraViewfinder.ScaleType FILL_END;
+    enum_constant public static final androidx.camera.viewfinder.CameraViewfinder.ScaleType FILL_START;
+    enum_constant public static final androidx.camera.viewfinder.CameraViewfinder.ScaleType FIT_CENTER;
+    enum_constant public static final androidx.camera.viewfinder.CameraViewfinder.ScaleType FIT_END;
+    enum_constant public static final androidx.camera.viewfinder.CameraViewfinder.ScaleType FIT_START;
+  }
+
+  @RequiresOptIn(level=androidx.annotation.RequiresOptIn.Level.ERROR) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalViewfinder {
+  }
+
+  @RequiresApi(21) public class ViewfinderSurfaceRequest {
+    ctor public ViewfinderSurfaceRequest(android.util.Size, android.hardware.camera2.CameraCharacteristics);
+    method public android.util.Size getResolution();
+    method public int getSensorOrientation();
+    method public boolean isFrontCamera();
+    method public boolean isLegacyDevice();
+    method public void markSurfaceSafeToRelease();
+  }
+
+}
+

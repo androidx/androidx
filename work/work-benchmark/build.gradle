@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -44,4 +43,8 @@ androidx {
     mavenGroup = LibraryGroups.WORK
     inceptionYear = "2019"
     description = "Android WorkManager Benchmark Library"
+}
+
+android {
+    namespace "androidx.work.benchmark"
 }

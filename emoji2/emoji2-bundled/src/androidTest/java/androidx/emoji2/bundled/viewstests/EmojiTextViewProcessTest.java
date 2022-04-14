@@ -16,11 +16,17 @@
 
 package androidx.emoji2.bundled.viewstests;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.app.Instrumentation;
+import android.text.PrecomputedText;
+import android.text.SpannedString;
 import android.widget.TextView;
 
+import androidx.core.text.PrecomputedTextCompat;
+import androidx.core.widget.TextViewCompat;
 import androidx.emoji2.bundled.TestActivity;
 import androidx.emoji2.bundled.TestConfigBuilder;
 import androidx.emoji2.bundled.test.R;
@@ -72,5 +78,64 @@ public class EmojiTextViewProcessTest {
         mInstrumentation.waitForIdleSync();
 
         assertThat(textView.getText(), EmojiMatcher.hasEmojiCount(2));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 19)
+    public void precomputedText_addsReplacementSpans() {
+        final TestActivity activity = mActivityRule.getActivity();
+        final TextView textView = activity.findViewById(R.id.emojiTextView);
+
+        PrecomputedTextCompat.Params params = TextViewCompat.getTextMetricsParams(textView);
+        final String string = new TestString(Emoji.EMOJI_FLAG).append(
+                Emoji.EMOJI_SKIN_MODIFIER_TYPE_ONE).toString();
+        PrecomputedTextCompat pct = PrecomputedTextCompat.create(string, params);
+        mInstrumentation.runOnMainSync(() -> {
+            TextViewCompat.setPrecomputedText(textView, pct);
+        });
+
+        mInstrumentation.waitForIdleSync();
+
+        assertThat(textView.getText(), EmojiMatcher.hasEmojiCount(2));
+        assertThat(textView.getText(), not(instanceOf(PrecomputedTextCompat.class)));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 29)
+    public void precomputedText_notModifiedWhenNoEmoji() {
+        final TestActivity activity = mActivityRule.getActivity();
+        final TextView textView = activity.findViewById(R.id.emojiTextView);
+
+        PrecomputedTextCompat.Params params = TextViewCompat.getTextMetricsParams(textView);
+        final String string = "No emoji here";
+        PrecomputedTextCompat pct = PrecomputedTextCompat.create(string, params);
+        mInstrumentation.runOnMainSync(() -> {
+            TextViewCompat.setPrecomputedText(textView, pct);
+        });
+
+        mInstrumentation.waitForIdleSync();
+
+        assertThat(textView.getText(), EmojiMatcher.hasEmojiCount(0));
+        assertThat(textView.getText(), instanceOf(PrecomputedText.class));
+    }
+
+    @Test
+    @SdkSuppress(maxSdkVersion = 28)
+    public void precomputedText_notModifiedWhenNoEmoji_beforePlatformPrecomputedText() {
+        final TestActivity activity = mActivityRule.getActivity();
+        final TextView textView = activity.findViewById(R.id.emojiTextView);
+
+        PrecomputedTextCompat.Params params = TextViewCompat.getTextMetricsParams(textView);
+        final String string = "No emoji here";
+        PrecomputedTextCompat pct = PrecomputedTextCompat.create(string, params);
+        mInstrumentation.runOnMainSync(() -> {
+            TextViewCompat.setPrecomputedText(textView, pct);
+        });
+
+        mInstrumentation.waitForIdleSync();
+
+        assertThat(textView.getText(), EmojiMatcher.hasEmojiCount(0));
+        // PrecomutedTextCompat becomes a SpannedString <=28
+        assertThat(textView.getText(), instanceOf(SpannedString.class));
     }
 }

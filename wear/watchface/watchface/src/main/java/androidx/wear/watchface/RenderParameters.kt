@@ -97,6 +97,13 @@ public class RenderParameters @JvmOverloads constructor(
     public val highlightLayer: HighlightLayer? = null,
     public val lastComplicationTapDownEvents: Map<Int, TapEvent> = emptyMap()
 ) {
+    /**
+     * Whether or not we're rendering for a screenshot. Some watch faces with animations may need to
+     * make adjustments when a screen shot is taken to achieve the best result.
+     */
+    public var isForScreenshot: Boolean = false
+      internal set
+
     init {
         require(watchFaceLayers.isNotEmpty() || highlightLayer != null) {
             "Either watchFaceLayers must be non empty or " +

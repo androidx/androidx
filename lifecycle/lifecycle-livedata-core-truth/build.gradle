@@ -15,7 +15,6 @@
  */
 
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -40,4 +39,8 @@ androidx {
     mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2019"
     description = "Truth extensions for 'livedata-core' artifact"
+}
+
+android {
+    namespace "androidx.lifecycle.livedata.core.truth"
 }

@@ -49,18 +49,29 @@ class ArraySet<E>
     /**
      * Create a new ArraySet with the elements from the given ArraySet.
      */
-    constructor(set: ArraySet<out E>?) : this(0) {
-        if (set != null) {
-            addAll(set)
+    constructor(arraySet: ArraySet<out E>?) : this(0) {
+        if (arraySet != null) {
+            addAll(arraySet)
         }
     }
 
     /**
      * Create a new ArraySet with the elements from the given [Collection].
      */
-    constructor(set: Collection<E>?) : this(0) {
-        if (set != null) {
-            addAll(set)
+    constructor(c: Collection<E>?) : this(0) {
+        if (c != null) {
+            addAll(c)
+        }
+    }
+
+    /**
+     * Create a new ArraySet with the elements from the given [Array].
+     */
+    // Suppress this lint error.  In general, we want APIs to use collections instead of
+    // arrays, but that means we need to have ways to build collections from arrays
+    constructor(@Suppress("ArrayReturn") array: Array<E>?) : this(0) {
+        if (array != null) {
+            addAll(array)
         }
     }
 
@@ -462,6 +473,75 @@ class ArraySet<E>
      */
     override fun iterator(): MutableIterator<E> {
         return Iterator(_size)
+    }
+
+    /**
+     * This implementation returns false if the object is not a set, or
+     * if the sets have different sizes.  Otherwise, for each value in this
+     * set, it checks to make sure the value also exists in the other set.
+     * If any value doesn't exist, the method returns false; otherwise, it
+     * returns true.
+     */
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+        if (other is Set<*>) {
+            if (size != other.size) {
+                return false
+            }
+            try {
+                for (i in 0 until size) {
+                    val mine = valueAt(i)
+                    if (!other.contains(mine)) {
+                        return false
+                    }
+                }
+            } catch (ignored: NullPointerException) {
+                return false
+            } catch (ignored: ClassCastException) {
+                return false
+            }
+            return true
+        }
+        return false
+    }
+
+    override fun hashCode(): Int {
+        var result = 0
+        var i = 0
+        val s: Int = size
+        while (i < s) {
+            result += hashes[i]
+            i++
+        }
+        return result
+    }
+
+    /**
+     * This implementation composes a string by iterating over its values. If
+     * this set contains itself as a value, the string "(this Set)"
+     * will appear in its place.
+     */
+    override fun toString(): String {
+        if (isEmpty()) {
+            return "{}"
+        }
+        val buffer = StringBuilder(size * 14)
+        buffer.append('{')
+        for (i in 0 until size) {
+            if (i > 0) {
+                buffer.append(", ")
+            }
+            val value: Any? = valueAt(i)
+            if (value !== this) {
+                buffer.append(value)
+            } else {
+                buffer.append("(this Set)")
+            }
+        }
+        buffer.append('}')
+        return buffer.toString()
     }
 
     private inner class Iterator(size: Int) : IndexBasedMutableIterator<E>(size) {

@@ -21,15 +21,16 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appsearch.annotation.Document;
 import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig;
+import androidx.appsearch.utils.DateTimeFormatValidator;
 import androidx.core.util.Preconditions;
 
 import java.util.Calendar;
 
 /**
- * AppSearch document representing an Alarm entity.
+ * AppSearch document representing an {@link Alarm} entity.
  */
 @Document(name = "builtin:Alarm")
-public class Alarm {
+public final class Alarm {
     @Document.Namespace
     private final String mNamespace;
 
@@ -37,13 +38,13 @@ public class Alarm {
     private final String mId;
 
     @Document.Score
-    private final int mScore;
+    private final int mDocumentScore;
 
     @Document.CreationTimestampMillis
     private final long mCreationTimestampMillis;
 
     @Document.TtlMillis
-    private final long mTtlMillis;
+    private final long mDocumentTtlMillis;
 
     @Document.StringProperty(indexingType = StringPropertyConfig.INDEXING_TYPE_PREFIXES)
     private final String mName;
@@ -60,17 +61,17 @@ public class Alarm {
     @Document.LongProperty
     private final int mMinute;
 
-    @Document.LongProperty
-    private final long mBlackoutStartTimeMillis;
+    @Document.StringProperty
+    private final String mBlackoutPeriodStartDate;
 
-    @Document.LongProperty
-    private final long mBlackoutEndTimeMillis;
+    @Document.StringProperty
+    private final String mBlackoutPeriodEndDate;
 
     @Document.StringProperty
     private final String mRingtone;
 
     @Document.BooleanProperty
-    private final boolean mVibrate;
+    private final boolean mShouldVibrate;
 
     @Document.DocumentProperty
     private final AlarmInstance mPreviousInstance;
@@ -78,68 +79,82 @@ public class Alarm {
     @Document.DocumentProperty
     private final AlarmInstance mNextInstance;
 
-    Alarm(String namespace, String id, int score, long creationTimestampMillis, long ttlMillis,
-            String name, boolean enabled, int[] daysOfWeek, int hour, int minute,
-            long blackoutStartTimeMillis, long blackoutEndTimeMillis, String ringtone,
-            boolean vibrate, AlarmInstance previousInstance, AlarmInstance nextInstance) {
-        mNamespace = namespace;
-        mId = id;
-        mScore = score;
+    Alarm(@NonNull String namespace, @NonNull String id, int documentScore,
+            long creationTimestampMillis, long documentTtlMillis, @Nullable String name,
+            boolean enabled, @Nullable int[] daysOfWeek, int hour, int minute,
+            @Nullable String blackoutPeriodStartDate, @Nullable String blackoutPeriodEndDate,
+            @Nullable String ringtone, boolean shouldVibrate,
+            @Nullable AlarmInstance previousInstance, @Nullable AlarmInstance nextInstance) {
+        mNamespace = Preconditions.checkNotNull(namespace);
+        mId = Preconditions.checkNotNull(id);
+        mDocumentScore = documentScore;
         mCreationTimestampMillis = creationTimestampMillis;
-        mTtlMillis = ttlMillis;
+        mDocumentTtlMillis = documentTtlMillis;
         mName = name;
         mEnabled = enabled;
         mDaysOfWeek = daysOfWeek;
         mHour = hour;
         mMinute = minute;
-        mBlackoutStartTimeMillis = blackoutStartTimeMillis;
-        mBlackoutEndTimeMillis = blackoutEndTimeMillis;
+        mBlackoutPeriodStartDate = blackoutPeriodStartDate;
+        mBlackoutPeriodEndDate = blackoutPeriodEndDate;
         mRingtone = ringtone;
-        mVibrate = vibrate;
+        mShouldVibrate = shouldVibrate;
         mPreviousInstance = previousInstance;
         mNextInstance = nextInstance;
     }
 
-    /** Returns the namespace of the {@link Alarm}. */
+    /** Returns the namespace. */
     @NonNull
     public String getNamespace() {
         return mNamespace;
     }
 
-    /** Returns the unique identifier of the {@link Alarm}. */
+    /** Returns the unique identifier. */
     @NonNull
     public String getId() {
         return mId;
     }
 
     /**
-     * Returns the user-provided opaque document score of the {@link Alarm}, which can be
-     * used for ranking using
+     * Returns the user-provided opaque document score of the current AppSearch document, which can
+     * be used for ranking using
      * {@link androidx.appsearch.app.SearchSpec.RankingStrategy#RANKING_STRATEGY_DOCUMENT_SCORE}.
+     *
+     * <p>See {@link Document.Score} for more information on score.
      */
-    public int getScore() {
-        return mScore;
+    public int getDocumentScore() {
+        return mDocumentScore;
     }
 
     /**
-     * Returns the creation timestamp for the {@link Alarm} document, in milliseconds using the
+     * Returns the creation timestamp for the current AppSearch entity, in milliseconds using the
      * {@link System#currentTimeMillis()} time base.
+     *
+     * <p>This timestamp refers to the creation time of the AppSearch entity, not when the
+     * document is written into AppSearch.
+     *
+     * <p>If not set, then the current timestamp will be used.
+     *
+     * <p>See {@link androidx.appsearch.annotation.Document.CreationTimestampMillis} for more
+     * information on creation timestamp.
      */
     public long getCreationTimestampMillis() {
         return mCreationTimestampMillis;
     }
 
     /**
-     * Returns the time-to-live (TTL) for the {@link Alarm} document in milliseconds using the
-     * {@link System#currentTimeMillis()} time base.
+     * Returns the time-to-live (TTL) for the current AppSearch document as a duration in
+     * milliseconds.
      *
-     * <p>The {@link Alarm} document will be automatically deleted when the TTL expires.
+     * <p>The document will be automatically deleted when the TTL expires.
+     *
+     * <p>See {@link Document.TtlMillis} for more information on TTL.
      */
-    public long getTtlMillis() {
-        return mTtlMillis;
+    public long getDocumentTtlMillis() {
+        return mDocumentTtlMillis;
     }
 
-    /** Returns the name associated with the {@link Alarm}. */
+    /** Returns the name. */
     @Nullable
     public String getName() {
         return mName;
@@ -151,7 +166,7 @@ public class Alarm {
     }
 
     /**
-     * Returns the scheduled days for repeating the {@link Alarm}.
+     * Returns the scheduled days for repeating.
      *
      * <p>Days of the week can be {@link java.util.Calendar#MONDAY},
      * {@link java.util.Calendar#TUESDAY}, {@link java.util.Calendar#WEDNESDAY},
@@ -186,37 +201,39 @@ public class Alarm {
     }
 
     /**
-     * Returns the start time for the {@link Alarm} blackout period in milliseconds using the
-     * {@link System#currentTimeMillis()} time base.
+     * Returns the start date of the blackout period in ISO 8601 format.
+     * E.g.: 2022-01-14
      *
      * <p>A blackout period means the {@link Alarm} will not fire during this period.
      *
-     * <p>The value {@code 0} indicates that the blackout period has no start time.
+     * <p>If not set, then it indicates that the blackout period has no start time.
      *
-     * <p>If both blackoutStartTime and blackoutEndTime are {@code 0}, then the blackout period
-     * is not defined for this {@link Alarm}.
+     * <p>If neither blackoutPeriodStartDate and blackoutPeriodEndDate are set, then
+     * the blackout period is not defined.
      */
-    public long getBlackoutStartTimeMillis() {
-        return mBlackoutStartTimeMillis;
+    @Nullable
+    public String getBlackoutPeriodStartDate() {
+        return mBlackoutPeriodStartDate;
     }
 
     /**
-     * Returns the end time for the {@link Alarm} blackout period in milliseconds using the
-     * {@link System#currentTimeMillis()} time base.
+     * Returns the end time for the blackout period in ISO 8601 format.
+     * E.g.: 2022-01-14
      *
      * <p>A blackout period means the {@link Alarm} will not fire during this period.
      *
-     * <p>The value {@code 0} indicates that the blackout period has no end time.
+     * <p>If not set, then it indicates that the blackout period has no end time.
      *
-     * <p>If both blackoutStartTime and blackoutEndTime are {@code 0}, then the blackout period
-     * is not defined for this {@link Alarm}.
+     * <p>If neither blackoutPeriodStartDate and blackoutPeriodEndDate are set, then
+     * the blackout period is not defined.
      */
-    public long getBlackoutEndTimeMillis() {
-        return mBlackoutEndTimeMillis;
+    @Nullable
+    public String getBlackoutPeriodEndDate() {
+        return mBlackoutPeriodEndDate;
     }
 
     /**
-     * Returns the ringtone of the {@link Alarm} as a content URI to be played, or
+     * Returns the ringtone as a content URI to be played, or
      * {@link android.provider.AlarmClock#VALUE_RINGTONE_SILENT} if no ringtone will be played.
      */
     @Nullable
@@ -225,15 +242,15 @@ public class Alarm {
     }
 
     /** Returns whether or not to activate the device vibrator when the {@link Alarm} fires. */
-    public boolean isVibrate() {
-        return mVibrate;
+    public boolean shouldVibrate() {
+        return mShouldVibrate;
     }
 
     /**
-     * Returns the previous {@link AlarmInstance} associated with the {@link Alarm}.
+     * Returns the previous {@link AlarmInstance}.
      *
-     * <p>The previous {@link AlarmInstance} is most recent past instance that was fired. If the
-     * {@link Alarm} has no past instances, then null will be returned.
+     * <p>The previous {@link AlarmInstance} is most recent past instance that was fired. If
+     * there are no past instances, then null will be returned.
      *
      * <p>See {@link AlarmInstance}.
      */
@@ -243,10 +260,10 @@ public class Alarm {
     }
 
     /**
-     * Returns the next {@link AlarmInstance} associated with the {@link Alarm}.
+     * Returns the next {@link AlarmInstance}.
      *
      * <p>The next {@link AlarmInstance} is the immediate future instance that is scheduled to fire.
-     * If the {@link Alarm} has no future instances, then null will be returned.
+     * If there are no future instances, then null will be returned.
      *
      * <p>See {@link AlarmInstance}.
      */
@@ -256,107 +273,54 @@ public class Alarm {
     }
 
     /** Builder for {@link Alarm}. */
-    public static final class Builder {
-        private final String mNamespace;
-        private final String mId;
-        private int mScore;
-        private long mCreationTimestampMillis;
-        private long mTtlMillis;
+    public static final class Builder extends BaseBuiltinTypeBuilder<Builder> {
         private String mName;
         private boolean mEnabled;
         private int[] mDaysOfWeek;
         private int mHour;
         private int mMinute;
-        private long mBlackoutStartTimeMillis;
-        private long mBlackoutEndTimeMillis;
+        private String mBlackoutPeriodStartDate;
+        private String mBlackoutPeriodEndDate;
         private String mRingtone;
-        private boolean mVibrate;
+        private boolean mShouldVibrate;
         private AlarmInstance mPreviousInstance;
         private AlarmInstance mNextInstance;
 
         /**
          * Constructor for {@link Alarm.Builder}.
          *
-         * @param namespace Namespace for the {@link Alarm} Document. See
+         * @param namespace Namespace for the Document. See
          * {@link Document.Namespace}.
-         * @param id Unique identifier for the {@link Alarm} Document. See {@link Document.Id}.
+         * @param id Unique identifier for the Document. See {@link Document.Id}.
          */
         public Builder(@NonNull String namespace, @NonNull String id) {
-            mNamespace = Preconditions.checkNotNull(namespace);
-            mId = Preconditions.checkNotNull(id);
-
-            // Default for unset creationTimestampMillis. AppSearch will internally convert this
-            // to current time when creating the GenericDocument.
-            mCreationTimestampMillis = -1;
+            super(namespace, id);
         }
 
         /**
-         * Constructor for {@link Alarm.Builder} with all the existing values of an {@link Alarm}.
+         * Constructor with all the existing values.
          */
         public Builder(@NonNull Alarm alarm) {
             this(alarm.getNamespace(), alarm.getId());
-            mScore = alarm.getScore();
+            mDocumentScore = alarm.getDocumentScore();
             mCreationTimestampMillis = alarm.getCreationTimestampMillis();
-            mTtlMillis = alarm.getTtlMillis();
+            mDocumentTtlMillis = alarm.getDocumentTtlMillis();
             mName = alarm.getName();
             mEnabled = alarm.isEnabled();
             mDaysOfWeek = alarm.getDaysOfWeek();
             mHour = alarm.getHour();
             mMinute = alarm.getMinute();
-            mBlackoutStartTimeMillis = alarm.getBlackoutStartTimeMillis();
-            mBlackoutEndTimeMillis = alarm.getBlackoutEndTimeMillis();
+            mBlackoutPeriodStartDate = alarm.getBlackoutPeriodStartDate();
+            mBlackoutPeriodEndDate = alarm.getBlackoutPeriodEndDate();
             mRingtone = alarm.getRingtone();
-            mVibrate = alarm.isVibrate();
+            mShouldVibrate = alarm.shouldVibrate();
             mPreviousInstance = alarm.getPreviousInstance();
             mNextInstance = alarm.getNextInstance();
         }
 
-        /**
-         * Sets the opaque document score of the {@link Alarm}, which can be used for
-         * ranking using
-         * {@link androidx.appsearch.app.SearchSpec.RankingStrategy#RANKING_STRATEGY_DOCUMENT_SCORE}
-         *
-         * <p>See {@link Document.Score}
-         */
+        /** Sets the name. */
         @NonNull
-        public Alarm.Builder setScore(int score) {
-            mScore = score;
-            return this;
-        }
-
-        /**
-         * Sets the Creation Timestamp of the {@link Alarm} document, in milliseconds using the
-         * {@link System#currentTimeMillis()} time base.
-         *
-         * <p>If not set, then the current timestamp will be used.
-         *
-         * <p>See {@link Document.CreationTimestampMillis}
-         */
-        @NonNull
-        public Alarm.Builder setCreationTimestampMillis(long creationTimestampMillis) {
-            mCreationTimestampMillis = creationTimestampMillis;
-            return this;
-        }
-
-        /**
-         * Sets the time-to-live (TTL) for the {@link Alarm} document in milliseconds using the
-         * {@link System#currentTimeMillis()} time base.
-         *
-         * <p>The {@link Alarm} document will be automatically deleted when the TTL expires.
-         *
-         * <p>If set to 0, then the document will never expire.
-         *
-         * <p>See {@link Document.TtlMillis}
-         */
-        @NonNull
-        public Alarm.Builder setTtlMillis(long ttlMillis) {
-            mTtlMillis = ttlMillis;
-            return this;
-        }
-
-        /** Sets the name of the {@link Alarm}. */
-        @NonNull
-        public Alarm.Builder setName(@Nullable String name) {
+        public Builder setName(@Nullable String name) {
             mName = name;
             return this;
         }
@@ -369,7 +333,7 @@ public class Alarm {
         }
 
         /**
-         * Sets the scheduled days for repeating the {@link Alarm}.
+         * Sets the scheduled days for repeating.
          *
          * <p>Days of the week can be {@link java.util.Calendar#MONDAY},
          * {@link java.util.Calendar#TUESDAY}, {@link java.util.Calendar#WEDNESDAY},
@@ -415,36 +379,47 @@ public class Alarm {
         }
 
         /**
-         * Sets the start time for the {@link Alarm} blackout period in milliseconds using the
-         * {@link System#currentTimeMillis()} time base.
+         * Sets the start date for the blackout period in ISO 8601 format.
+         * E.g.: 2022-01-14
          *
          * <p>A blackout period means the {@link Alarm} will not fire during this period.
          *
-         * <p>If not set, or set to 0, then the blackout period has no start time.
+         * <p>If not set, then it indicates that the blackout period has no start time.
          *
-         * <p>If neither blackoutStartTime nor blackoutEndTime are set, or if they are both set
-         * to 0, then the {@link Alarm} has no blackout period.
+         * <p>If neither blackoutPeriodStartDate and blackoutPeriodEndDate are set, then
+         * the blackout period is not defined.
          */
         @NonNull
-        public Builder setBlackoutStartTimeMillis(long blackoutStartTimeMillis) {
-            mBlackoutStartTimeMillis = blackoutStartTimeMillis;
+        public Builder setBlackoutPeriodStartDate(
+                @Nullable String blackoutPeriodStartDate) {
+            if (blackoutPeriodStartDate != null) {
+                Preconditions.checkArgument(
+                        DateTimeFormatValidator.validateISO8601Date(blackoutPeriodStartDate),
+                        "blackoutPeriodStartDate must be in the format: yyyy-MM-dd");
+            }
+            mBlackoutPeriodStartDate = blackoutPeriodStartDate;
             return this;
         }
 
         /**
-         * Sets the end time for the {@link Alarm} blackout period in milliseconds using the
-         * {@link System#currentTimeMillis()} time base.
+         * Sets the end time for the blackout period in ISO 8601 format.
+         * E.g.: 2022-01-14
          *
          * <p>A blackout period means the {@link Alarm} will not fire during this period.
          *
-         * <p>If not set, or set to 0, then the blackout period has no end time.
+         * <p>If not set, then it indicates that the blackout period has no end time.
          *
-         * <p>If neither blackoutStartTime nor blackoutEndTime are set, or if they are both set
-         * to 0, then the {@link Alarm} has no blackout period.
+         * <p>If neither blackoutPeriodStartDate and blackoutPeriodEndDate are set, then
+         * the blackout period is not defined.
          */
         @NonNull
-        public Builder setBlackoutEndTimeMillis(long blackoutEndTimeMillis) {
-            mBlackoutEndTimeMillis = blackoutEndTimeMillis;
+        public Builder setBlackoutPeriodEndDate(@Nullable String blackoutPeriodEndDate) {
+            if (blackoutPeriodEndDate != null) {
+                Preconditions.checkArgument(
+                        DateTimeFormatValidator.validateISO8601Date(blackoutPeriodEndDate),
+                        "blackoutPeriodEndDate must be in the format: yyyy-MM-dd");
+            }
+            mBlackoutPeriodEndDate = blackoutPeriodEndDate;
             return this;
         }
 
@@ -460,16 +435,16 @@ public class Alarm {
 
         /** Sets whether or not to activate the device vibrator when the {@link Alarm} fires. */
         @NonNull
-        public Builder setVibrate(boolean vibrate) {
-            mVibrate = vibrate;
+        public Builder setShouldVibrate(boolean shouldVibrate) {
+            mShouldVibrate = shouldVibrate;
             return this;
         }
 
         /**
-         * Sets the previous {@link AlarmInstance} associated with the {@link Alarm}.
+         * Sets the previous {@link AlarmInstance}.
          *
          * <p>The previous {@link AlarmInstance} is most recent past instance that was fired. If
-         * not set, then the {@link Alarm} has no past instances.
+         * not set, then there are no past instances.
          *
          * <p>See {@link AlarmInstance}.
          */
@@ -480,10 +455,10 @@ public class Alarm {
         }
 
         /**
-         * Sets the next {@link AlarmInstance} associated with the {@link Alarm}.
+         * Sets the next {@link AlarmInstance}.
          *
          * <p>The next {@link AlarmInstance} is the immediate future instance that is scheduled
-         * to fire. If not set, then the {@link Alarm} has no future instances.
+         * to fire. If not set, then there are no future instances.
          *
          * <p>See {@link AlarmInstance}.
          */
@@ -496,12 +471,10 @@ public class Alarm {
         /** Builds the {@link Alarm}. */
         @NonNull
         public Alarm build() {
-            Preconditions.checkNotNull(mId);
-            Preconditions.checkNotNull(mNamespace);
-
-            return new Alarm(mNamespace, mId, mScore, mCreationTimestampMillis, mTtlMillis, mName,
-                    mEnabled, mDaysOfWeek, mHour, mMinute, mBlackoutStartTimeMillis,
-                    mBlackoutEndTimeMillis, mRingtone, mVibrate, mPreviousInstance, mNextInstance);
+            return new Alarm(mNamespace, mId, mDocumentScore, mCreationTimestampMillis,
+                    mDocumentTtlMillis, mName, mEnabled, mDaysOfWeek, mHour, mMinute,
+                    mBlackoutPeriodStartDate, mBlackoutPeriodEndDate, mRingtone,
+                    mShouldVibrate, mPreviousInstance, mNextInstance);
         }
     }
 }

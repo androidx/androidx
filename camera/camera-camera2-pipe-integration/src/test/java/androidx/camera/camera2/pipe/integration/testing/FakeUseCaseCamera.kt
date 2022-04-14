@@ -55,7 +55,7 @@ class FakeUseCaseCameraComponent(useCases: List<UseCase>) : UseCaseCameraCompone
 }
 
 // TODO: Further implement the methods in this class as needed
-class FakeUseCaseCameraRequestControl : UseCaseCameraRequestControl {
+open class FakeUseCaseCameraRequestControl : UseCaseCameraRequestControl {
     override fun addParametersAsync(
         type: UseCaseCameraRequestControl.Type,
         values: Map<CaptureRequest.Key<*>, Any>,
@@ -95,10 +95,11 @@ class FakeUseCaseCameraRequestControl : UseCaseCameraRequestControl {
         return CompletableDeferred(Result3A(status = Result3A.Status.OK))
     }
 
-    override fun issueSingleCaptureAsync(
+    override suspend fun issueSingleCaptureAsync(
         captureSequence: List<CaptureConfig>,
         captureMode: Int,
         flashType: Int,
+        flashMode: Int,
     ): List<Deferred<Void?>> {
         return listOf(CompletableDeferred(null))
     }

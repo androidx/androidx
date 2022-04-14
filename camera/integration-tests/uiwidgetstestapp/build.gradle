@@ -45,11 +45,13 @@ android {
     buildFeatures {
         viewBinding true
     }
+    namespace "androidx.camera.integration.uiwidgets"
 }
 
 dependencies {
     // Internal library
     implementation(libs.kotlinStdlib)
+    implementation(project(":camera:camera-core"))
     implementation(project(":camera:camera-camera2"))
     implementation(project(":camera:camera-lifecycle"))
     implementation(project(":camera:camera-view"))

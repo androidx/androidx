@@ -279,7 +279,9 @@ abstract class ImageAnalysisAbstractAnalyzer implements ImageReaderProxy.OnImage
 
                                 ImageProxy outputSettableImageProxy = new SettableImageProxy(
                                         outputImageProxy, imageInfo);
-                                outputSettableImageProxy.setCropRect(cropRect);
+                                if (!cropRect.isEmpty()) {
+                                    outputSettableImageProxy.setCropRect(cropRect);
+                                }
                                 analyzer.analyze(outputSettableImageProxy);
                                 completer.set(null);
                             } else {

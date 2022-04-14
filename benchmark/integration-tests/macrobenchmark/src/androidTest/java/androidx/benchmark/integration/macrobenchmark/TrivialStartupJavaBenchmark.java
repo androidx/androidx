@@ -44,6 +44,10 @@ public class TrivialStartupJavaBenchmark {
                 3,
                 scope -> {
                     scope.pressHome();
+                    return Unit.INSTANCE;
+                },
+                scope -> {
+                    scope.pressHome();
                     scope.startActivityAndWait();
                     return Unit.INSTANCE;
                 }

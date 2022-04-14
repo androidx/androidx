@@ -23,8 +23,10 @@ android {
         applicationId "androidx.car.app.sample.navigation"
         minSdkVersion 29
         targetSdkVersion 31
-        versionCode 101     // Increment this to generate signed builds for uploading to Playstore
-        versionName "101"
+        // Increment this to generate signed builds for uploading to Playstore
+        // Make sure this is different from the navigation-mobile version
+        versionCode 109
+        versionName "109"
     }
 
     buildTypes {
@@ -44,6 +46,6 @@ android {
 }
 
 dependencies {
-    implementation "androidx.car.app:app-automotive:1.2.0-alpha02"
+    implementation "androidx.car.app:app-automotive:1.2.0-rc01"
     implementation project(":navigation:common")
 }

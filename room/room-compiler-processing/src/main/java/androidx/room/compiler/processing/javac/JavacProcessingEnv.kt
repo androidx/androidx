@@ -20,6 +20,7 @@ import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XMessager
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.processing.XProcessingEnvConfig
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.javac.kotlin.KmType
@@ -39,7 +40,8 @@ import javax.lang.model.util.Elements
 import javax.lang.model.util.Types
 
 internal class JavacProcessingEnv(
-    val delegate: ProcessingEnvironment
+    val delegate: ProcessingEnvironment,
+    override val config: XProcessingEnvConfig,
 ) : XProcessingEnv {
     override val backend: XProcessingEnv.Backend = XProcessingEnv.Backend.JAVAC
 
@@ -68,6 +70,12 @@ internal class JavacProcessingEnv(
 
     override val options: Map<String, String>
         get() = delegate.options
+
+    // SourceVersion enum constants are named 'RELEASE_x' and since they are public APIs, its safe
+    // to assume they won't change and we can extract the version from them.
+    override val jvmVersion =
+        delegate.sourceVersion.name.substringAfter("RELEASE_").toIntOrNull()
+            ?: error("Invalid source version: ${delegate.sourceVersion}")
 
     override fun findTypeElement(qName: String): JavacTypeElement? {
         return typeElementStore[qName]
@@ -276,9 +284,8 @@ internal class JavacProcessingEnv(
         return when (val enclosingElement = element.enclosingElement) {
             is ExecutableElement -> {
                 val executableElement = wrapExecutableElement(enclosingElement)
-
                 executableElement.parameters.find { param ->
-                    param.element === element
+                    param.element.simpleName == element.simpleName
                 } ?: error("Unable to create variable element for $element")
             }
             is TypeElement -> {

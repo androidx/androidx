@@ -16,8 +16,6 @@
 
 import androidx.build.RunApiTasks
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -28,6 +26,7 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
+    api("androidx.versionedparcelable:versionedparcelable:1.1.0")
     api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesAndroid)
     implementation("androidx.core:core:1.1.0")
@@ -40,6 +39,8 @@ dependencies {
     testImplementation(libs.mockitoCore)
     testImplementation(libs.truth)
     testImplementation(libs.junit)
+
+    annotationProcessor(project(":versionedparcelable:versionedparcelable-compiler"))
 }
 
 android {
@@ -55,6 +56,7 @@ android {
 
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
+    namespace "androidx.wear.watchface.complications.data"
 }
 
 androidx {

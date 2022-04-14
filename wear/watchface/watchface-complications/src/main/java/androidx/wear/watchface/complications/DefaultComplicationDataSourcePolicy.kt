@@ -20,6 +20,7 @@ import android.content.ComponentName
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.complications.SystemDataSources.DataSourceId
 import androidx.wear.watchface.complications.data.ComplicationType
+import androidx.wear.watchface.complications.data.DefaultComplicationDataSourcePolicyWireFormat
 import java.util.ArrayList
 
 /**
@@ -66,11 +67,21 @@ public class DefaultComplicationDataSourcePolicy {
         secondaryDataSourceDefaultType: ComplicationType,
         systemDataSourceFallbackDefaultType: ComplicationType
     ) {
-        this.primaryDataSource = if (dataSources.isNotEmpty()) dataSources[0] else null
-        this.primaryDataSourceDefaultType = primaryDataSourceDefaultType
+        if (dataSources.isNotEmpty()) {
+            this.primaryDataSource = dataSources[0]
+            this.primaryDataSourceDefaultType = primaryDataSourceDefaultType
+        } else {
+            this.primaryDataSource = null
+            this.primaryDataSourceDefaultType = null
+        }
 
-        this.secondaryDataSource = if (dataSources.size >= 2) dataSources[1] else null
-        this.secondaryDataSourceDefaultType = secondaryDataSourceDefaultType
+        if (dataSources.size >= 2) {
+            this.secondaryDataSource = dataSources[1]
+            this.secondaryDataSourceDefaultType = secondaryDataSourceDefaultType
+        } else {
+            this.secondaryDataSource = null
+            this.secondaryDataSourceDefaultType = null
+        }
 
         this.systemDataSourceFallback = systemDataSourceFallback
         this.systemDataSourceFallbackDefaultType =
@@ -241,6 +252,40 @@ public class DefaultComplicationDataSourcePolicy {
         secondaryDataSource?.let { add(it) }
     }
 
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public constructor(wireFormat: DefaultComplicationDataSourcePolicyWireFormat) : this(
+        wireFormat.mDefaultDataSourcesToTry,
+        wireFormat.mFallbackSystemDataSource,
+        ComplicationType.fromWireType(wireFormat.mPrimaryDataSourceDefaultType),
+        ComplicationType.fromWireType(wireFormat.mSecondaryDataSourceDefaultType),
+        ComplicationType.fromWireType(wireFormat.mDefaultType)
+    ) {
+    }
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public fun toWireFormat(): DefaultComplicationDataSourcePolicyWireFormat {
+        val systemDataSourceFallbackDefaultType = systemDataSourceFallbackDefaultType
+            .toWireComplicationType()
+
+        return DefaultComplicationDataSourcePolicyWireFormat(
+            dataSourcesAsList(),
+            systemDataSourceFallback,
+            systemDataSourceFallbackDefaultType,
+            primaryDataSourceDefaultType
+                ?.toWireComplicationType() ?: systemDataSourceFallbackDefaultType,
+            secondaryDataSourceDefaultType
+                ?.toWireComplicationType() ?: systemDataSourceFallbackDefaultType
+        )
+    }
+
+    override fun toString(): String =
+        "DefaultComplicationDataSourcePolicy[" +
+            "primary($primaryDataSource, $primaryDataSourceDefaultType), " +
+            "secondary($secondaryDataSource, $secondaryDataSourceDefaultType), " +
+            "system($systemDataSourceFallback, $systemDataSourceFallbackDefaultType)]"
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -251,6 +296,11 @@ public class DefaultComplicationDataSourcePolicy {
         if (secondaryDataSource != other.secondaryDataSource) return false
         if (systemDataSourceFallback != other.systemDataSourceFallback) return false
 
+        if (primaryDataSourceDefaultType != other.primaryDataSourceDefaultType) return false
+        if (secondaryDataSourceDefaultType != other.secondaryDataSourceDefaultType) return false
+        if (systemDataSourceFallbackDefaultType != other.systemDataSourceFallbackDefaultType)
+            return false
+
         return true
     }
 
@@ -258,6 +308,9 @@ public class DefaultComplicationDataSourcePolicy {
         var result = primaryDataSource?.hashCode() ?: 0
         result = 31 * result + (secondaryDataSource?.hashCode() ?: 0)
         result = 31 * result + systemDataSourceFallback
+        result = 31 * result + (primaryDataSourceDefaultType?.toWireComplicationType() ?: 0)
+        result = 31 * result + (secondaryDataSourceDefaultType?.toWireComplicationType() ?: 0)
+        result = 31 * result + systemDataSourceFallbackDefaultType.toWireComplicationType()
         return result
     }
 

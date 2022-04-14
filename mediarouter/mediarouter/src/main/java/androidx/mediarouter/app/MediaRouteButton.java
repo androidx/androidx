@@ -412,6 +412,7 @@ public class MediaRouteButton extends View {
         return result;
     }
 
+    @SuppressWarnings("deprecation")
     private boolean showOutputSwitcherForAndroidR() {
         Context context = getContext();
 

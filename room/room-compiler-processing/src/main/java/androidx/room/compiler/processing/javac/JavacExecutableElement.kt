@@ -45,6 +45,13 @@ internal abstract class JavacExecutableElement(
         arrayOf(element, containing)
     }
 
+    override val enclosingElement: JavacTypeElement by lazy {
+        element.requireEnclosingType(env)
+    }
+
+    override val closestMemberContainer: JavacTypeElement
+        get() = enclosingElement
+
     override fun isVarArgs(): Boolean {
         return element.isVarArgs
     }

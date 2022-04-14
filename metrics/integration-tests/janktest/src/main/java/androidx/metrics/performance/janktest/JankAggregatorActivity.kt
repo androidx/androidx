@@ -68,17 +68,10 @@ class JankAggregatorActivity : AppCompatActivity() {
             totalFrames: Int,
             jankFrameData: List<FrameData>
         ) {
-            println("*** Jank Report ($reason), totalFrames = $totalFrames, " +
+            println("Jank Report ($reason), totalFrames = $totalFrames, " +
                 "jankFrames = ${jankFrameData.size}")
             for (frameData in jankFrameData) {
-                println(
-                    "***** Jank Report: frame start, duration, jank = " +
-                        "${frameData.frameStartNanos}, ${frameData.frameDurationNanos}, " +
-                        "${frameData.isJank}"
-                )
-                for (state in frameData.states) {
-                    println("    ${state.stateName}: ${state.state}")
-                }
+                println("$frameData")
             }
         }
     }

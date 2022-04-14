@@ -45,8 +45,6 @@ unset ANDROID_BUILD_TOP
 
 # Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
 
-JAVA_OPTS="$JAVA_OPTS -Dkotlin.incremental.compilation=true" # b/188565660
-
 if [[ " ${@} " =~ " -PupdateLintBaseline " ]]; then
   # remove when b/188666845 is complete
   # Inform lint to not fail even when creating a baseline file
@@ -85,7 +83,11 @@ case "`uname`" in
     msys=true
     ;;
 esac
-
+platform_suffix="x86"
+case "$(arch)" in
+  arm64* )
+    platform_suffix="arm64"
+esac
 # Attempt to set APP_HOME
 # Resolve links: $0 may be a link
 PRG="$0"
@@ -120,7 +122,7 @@ DEFAULT_JVM_OPTS="-DLINT_API_DATABASE=$APP_HOME/../../prebuilts/fullsdk-$plat/pl
 # setup from each lint module.
 export ANDROID_HOME="$APP_HOME/../../prebuilts/fullsdk-$plat"
 # override JAVA_HOME, because CI machines have it and it points to very old JDK
-export JAVA_HOME="$APP_HOME/../../prebuilts/jdk/jdk11/$plat-x86"
+export JAVA_HOME="$APP_HOME/../../prebuilts/jdk/jdk11/$plat-$platform_suffix"
 export JAVA_TOOLS_JAR="$APP_HOME/../../prebuilts/jdk/jdk8/$plat-x86/lib/tools.jar"
 export STUDIO_GRADLE_JDK=$JAVA_HOME
 
@@ -300,6 +302,49 @@ for compact in "--ci" "--strict" "--clean" "--no-ci"; do
   fi
 done
 
+# check whether the user has requested profiling via yourkit
+yourkitArgPrefix="androidx.profile.yourkitAgentPath"
+yourkitAgentPath=""
+if [[ " ${@}" =~ " -P$yourkitArgPrefix" ]]; then
+  for arg in "$@"; do
+    if echo "$arg" | grep "${yourkitArgPrefix}=" >/dev/null; then
+      yourkitAgentPath="$(echo "$arg" | sed "s/-P${yourkitArgPrefix}=//")"
+    fi
+  done
+  if [ "$yourkitAgentPath" == "" ]; then
+    echo "Error: $yourkitArgPrefix must be set to the path of the YourKit Java agent" >&2
+    exit 1
+  fi
+  if [ ! -e "$yourkitAgentPath" ]; then
+    echo "Error: $yourkitAgentPath does not exist" >&2
+    exit 1
+  fi
+  # add the agent to the path
+  export _JAVA_OPTIONS="$_JAVA_OPTIONS -agentpath:$yourkitAgentPath"
+  # add arguments
+  set -- "$@" --no-daemon --rerun-tasks
+
+  # lots of blank lines because these messages are important
+  echo
+  echo
+  echo
+  echo
+  echo
+  # suggest --clean
+  if [ "$cleanCaches" == "false" ]; then
+    echo "When setting $yourkitArgPrefix you may also want to pass --clean"
+  fi
+  COLOR_YELLOW="\u001B[33m"
+  COLOR_CLEAR="\u001B[0m"
+
+  echo -e "${COLOR_YELLOW}Also be sure to start the YourKit user interface and connect to the appropriate Java process (probably the Gradle Daemon)${COLOR_CLEAR}"
+  echo
+  echo
+  echo
+  echo
+  echo
+fi
+
 if [[ " ${@} " =~ " --scan " ]]; then
   if [[ " ${@} " =~ " --offline " ]]; then
     echo "--scan incompatible with --offline"
@@ -404,7 +449,7 @@ if [[ " ${@} " =~ " -Pandroidx.verifyUpToDate " ]]; then
   # Re-run Gradle, and find all tasks that are unexpectly out of date
   if ! runGradle "$@" -PdisallowExecution --continue; then
     echo >&2
-    echo "TaskUpToDateValidator's second build failed, -PdisallowExecution specified" >&2
+    echo "TaskUpToDateValidator's second build failed. To reproduce, try running './gradlew -Pandroidx.verifyUpToDate <failing tasks>'" >&2
     exit 1
   fi
 fi

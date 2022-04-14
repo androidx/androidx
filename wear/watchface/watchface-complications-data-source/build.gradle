@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -50,6 +48,7 @@ android {
 
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
+    namespace "androidx.wear.watchface.complications.datasource"
 }
 
 androidx {

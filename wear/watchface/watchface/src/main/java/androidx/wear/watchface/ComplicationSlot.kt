@@ -42,6 +42,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import java.time.Instant
 import java.time.ZonedDateTime
+import java.util.Objects
 
 /**
  * Interface for rendering complicationSlots onto a [Canvas]. These should be created by
@@ -216,6 +217,14 @@ public annotation class ComplicationSlotBoundsType {
  * complications.
  * @param tapFilter The [ComplicationTapFilter] used to determine whether or not a tap hit the
  * complication slot.
+ * @param nameResourceId The ID of string resource (or `null` if absent) to identify the
+ * complication slot on screen in an editor. These strings should be short (perhaps 10 characters
+ * max) E.g. complication slots named 'left' and 'right' might be shown by the editor in a list from
+ * which the user selects a complication slot for editing.
+ * @param screenReaderNameResourceId The ID of a string resource (or `null` if absent) for use by a
+ * watch face editor to identify the complication slot in a screen reader. While similar to
+ * [nameResourceId] this string can be longer and should be more descriptive. E.g. saying
+ * 'left complication' rather than just 'left'.
  */
 public class ComplicationSlot internal constructor(
     public val id: Int,
@@ -231,7 +240,11 @@ public class ComplicationSlot internal constructor(
     configExtras: Bundle,
     @get:JvmName("isFixedComplicationDataSource")
     public val fixedComplicationDataSource: Boolean,
-    public val tapFilter: ComplicationTapFilter
+    public val tapFilter: ComplicationTapFilter,
+    @get:Suppress("AutoBoxing")
+    public val nameResourceId: Int?,
+    @get:Suppress("AutoBoxing")
+    public val screenReaderNameResourceId: Int?
 ) {
     /**
      * The [ComplicationSlotsManager] this is attached to. Only set after the
@@ -418,6 +431,8 @@ public class ComplicationSlot internal constructor(
         private var initiallyEnabled = true
         private var configExtras: Bundle = Bundle.EMPTY
         private var fixedComplicationDataSource = false
+        private var nameResourceId: Int? = null
+        private var screenReaderNameResourceId: Int? = null
 
         init {
             require(id >= 0) { "id must be >= 0" }
@@ -503,6 +518,30 @@ public class ComplicationSlot internal constructor(
             return this
         }
 
+        /**
+         * If non-null sets the ID of a string resource containing the name of this complication
+         * slot, for use visually in an editor. This resource should be short and should not contain
+         * the word "Complication".  E.g. "Left" for the left complication.
+         */
+        public fun setNameResourceId(
+            @Suppress("AutoBoxing") nameResourceId: Int?
+        ): Builder {
+            this.nameResourceId = nameResourceId
+            return this
+        }
+
+        /**
+         * If non-null sets the ID of a string resource containing the name of this complication
+         * slot, for use by a screen reader. This resource should be a short sentence. E.g.
+         * "Left complication" for the left complication.
+         */
+        public fun setScreenReaderNameResourceId(
+            @Suppress("AutoBoxing") screenReaderNameResourceId: Int?
+        ): Builder {
+            this.screenReaderNameResourceId = screenReaderNameResourceId
+            return this
+        }
+
         /** Constructs the [ComplicationSlot]. */
         public fun build(): ComplicationSlot = ComplicationSlot(
             id,
@@ -516,7 +555,9 @@ public class ComplicationSlot internal constructor(
             initiallyEnabled,
             configExtras,
             fixedComplicationDataSource,
-            complicationTapFilter
+            complicationTapFilter,
+            nameResourceId,
+            screenReaderNameResourceId
         )
     }
 
@@ -863,5 +904,33 @@ public class ComplicationSlot internal constructor(
         }
         writer.println("bounds=[$bounds]")
         writer.decreaseIndent()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as ComplicationSlot
+
+        if (id != other.id) return false
+        if (accessibilityTraversalIndex != other.accessibilityTraversalIndex) return false
+        if (boundsType != other.boundsType) return false
+        if (complicationSlotBounds != other.complicationSlotBounds) return false
+        if (supportedTypes.size != other.supportedTypes.size ||
+            !supportedTypes.containsAll(other.supportedTypes)) return false
+        if (defaultDataSourcePolicy != other.defaultDataSourcePolicy) return false
+        if (initiallyEnabled != other.initiallyEnabled) return false
+        if (fixedComplicationDataSource != other.fixedComplicationDataSource) return false
+        if (nameResourceId != other.nameResourceId) return false
+        if (screenReaderNameResourceId != other.screenReaderNameResourceId) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return Objects.hash(id, accessibilityTraversalIndex, boundsType, complicationSlotBounds,
+            supportedTypes.sorted(),
+            defaultDataSourcePolicy, initiallyEnabled, fixedComplicationDataSource,
+            nameResourceId, screenReaderNameResourceId)
     }
 }

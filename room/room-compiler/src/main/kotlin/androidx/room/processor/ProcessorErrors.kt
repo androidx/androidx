@@ -1025,4 +1025,8 @@ object ProcessorErrors {
     val AUTOMIGRATION_SPEC_MISSING_NOARG_CONSTRUCTOR = "Classes that are used as " +
         "AutoMigrationSpec " +
         "implementations must have no-argument public constructors."
+
+    val JVM_NAME_ON_OVERRIDDEN_METHOD = "Using @JvmName annotation on a function or accessor " +
+        "that will be overridden by Room is not supported. If this is important for your use " +
+        "case, please file a bug at $ISSUE_TRACKER_LINK with details."
 }

@@ -20,6 +20,10 @@ import androidx.annotation.IdRes
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.navigation.testing.TestNavigatorState
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.setMain
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -45,8 +49,10 @@ class NavGraphNavigatorTest {
     private lateinit var navGraphState: TestNavigatorState
     private lateinit var navGraphNavigator: NavGraphNavigator
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Before
     fun setup() {
+        Dispatchers.setMain(UnconfinedTestDispatcher())
         provider = NavigatorProvider().apply {
             addNavigator(NoOpNavigator().also { noOpNavigator = it })
             addNavigator(

@@ -1,0 +1,55 @@
+// Baseline format: 1.0
+ParameterNameChange: androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable#setDrawable(androidx.wear.watchface.complications.rendering.ComplicationDrawable) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable.setDrawable
+ParameterNameChange: androidx.wear.watchface.complications.rendering.ComplicationDrawable#setBurnInProtectionOn(boolean) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.wear.watchface.complications.rendering.ComplicationDrawable.setBurnInProtectionOn
+ParameterNameChange: androidx.wear.watchface.complications.rendering.ComplicationDrawable#setCurrentTime(java.time.Instant) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.wear.watchface.complications.rendering.ComplicationDrawable.setCurrentTime
+ParameterNameChange: androidx.wear.watchface.complications.rendering.ComplicationDrawable#setHighlightDuration(long) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.wear.watchface.complications.rendering.ComplicationDrawable.setHighlightDuration
+ParameterNameChange: androidx.wear.watchface.complications.rendering.ComplicationDrawable#setHighlighted(boolean) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.wear.watchface.complications.rendering.ComplicationDrawable.setHighlighted
+ParameterNameChange: androidx.wear.watchface.complications.rendering.ComplicationDrawable#setInAmbientMode(boolean) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.wear.watchface.complications.rendering.ComplicationDrawable.setInAmbientMode
+ParameterNameChange: androidx.wear.watchface.complications.rendering.ComplicationDrawable#setLowBitAmbient(boolean) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.wear.watchface.complications.rendering.ComplicationDrawable.setLowBitAmbient
+ParameterNameChange: androidx.wear.watchface.complications.rendering.ComplicationDrawable#setNoDataText(CharSequence) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.wear.watchface.complications.rendering.ComplicationDrawable.setNoDataText
+ParameterNameChange: androidx.wear.watchface.complications.rendering.ComplicationDrawable#setRangedValueProgressHidden(boolean) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.wear.watchface.complications.rendering.ComplicationDrawable.setRangedValueProgressHidden
+ParameterNameChange: androidx.wear.watchface.complications.rendering.ComplicationStyle#setBackgroundColor(int) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.wear.watchface.complications.rendering.ComplicationStyle.setBackgroundColor
+ParameterNameChange: androidx.wear.watchface.complications.rendering.ComplicationStyle#setBackgroundDrawable(android.graphics.drawable.Drawable) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.wear.watchface.complications.rendering.ComplicationStyle.setBackgroundDrawable
+ParameterNameChange: androidx.wear.watchface.complications.rendering.ComplicationStyle#setBorderColor(int) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.wear.watchface.complications.rendering.ComplicationStyle.setBorderColor
+ParameterNameChange: androidx.wear.watchface.complications.rendering.ComplicationStyle#setBorderDashGap(int) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.wear.watchface.complications.rendering.ComplicationStyle.setBorderDashGap
+ParameterNameChange: androidx.wear.watchface.complications.rendering.ComplicationStyle#setBorderDashWidth(int) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.wear.watchface.complications.rendering.ComplicationStyle.setBorderDashWidth
+ParameterNameChange: androidx.wear.watchface.complications.rendering.ComplicationStyle#setBorderRadius(int) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.wear.watchface.complications.rendering.ComplicationStyle.setBorderRadius
+ParameterNameChange: androidx.wear.watchface.complications.rendering.ComplicationStyle#setBorderStyle(int) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.wear.watchface.complications.rendering.ComplicationStyle.setBorderStyle
+ParameterNameChange: androidx.wear.watchface.complications.rendering.ComplicationStyle#setBorderWidth(int) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.wear.watchface.complications.rendering.ComplicationStyle.setBorderWidth
+ParameterNameChange: androidx.wear.watchface.complications.rendering.ComplicationStyle#setHighlightColor(int) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.wear.watchface.complications.rendering.ComplicationStyle.setHighlightColor
+ParameterNameChange: androidx.wear.watchface.complications.rendering.ComplicationStyle#setIconColor(int) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.wear.watchface.complications.rendering.ComplicationStyle.setIconColor
+ParameterNameChange: androidx.wear.watchface.complications.rendering.ComplicationStyle#setImageColorFilter(android.graphics.ColorFilter) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.wear.watchface.complications.rendering.ComplicationStyle.setImageColorFilter
+ParameterNameChange: androidx.wear.watchface.complications.rendering.ComplicationStyle#setRangedValuePrimaryColor(int) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.wear.watchface.complications.rendering.ComplicationStyle.setRangedValuePrimaryColor
+ParameterNameChange: androidx.wear.watchface.complications.rendering.ComplicationStyle#setRangedValueRingWidth(int) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.wear.watchface.complications.rendering.ComplicationStyle.setRangedValueRingWidth
+ParameterNameChange: androidx.wear.watchface.complications.rendering.ComplicationStyle#setRangedValueSecondaryColor(int) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.wear.watchface.complications.rendering.ComplicationStyle.setRangedValueSecondaryColor
+ParameterNameChange: androidx.wear.watchface.complications.rendering.ComplicationStyle#setTextColor(int) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.wear.watchface.complications.rendering.ComplicationStyle.setTextColor
+ParameterNameChange: androidx.wear.watchface.complications.rendering.ComplicationStyle#setTextSize(int) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.wear.watchface.complications.rendering.ComplicationStyle.setTextSize
+ParameterNameChange: androidx.wear.watchface.complications.rendering.ComplicationStyle#setTitleColor(int) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.wear.watchface.complications.rendering.ComplicationStyle.setTitleColor
+ParameterNameChange: androidx.wear.watchface.complications.rendering.ComplicationStyle#setTitleSize(int) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.wear.watchface.complications.rendering.ComplicationStyle.setTitleSize

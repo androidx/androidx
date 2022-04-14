@@ -16,14 +16,13 @@
 
 package androidx.wear.compose.integration.macrobenchmark.target
 
-import androidx.activity.ComponentActivity
 import android.os.Bundle
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.wear.compose.foundation.CurvedRow
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -43,20 +42,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.wear.compose.foundation.ArcPaddingValues
-import androidx.wear.compose.foundation.BasicCurvedText
+import androidx.wear.compose.foundation.CurvedLayout
 import androidx.wear.compose.foundation.CurvedTextStyle
-import androidx.wear.compose.material.AlertDialog
+import androidx.wear.compose.foundation.basicCurvedText
 import androidx.wear.compose.material.AppCard
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.Card
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
+import androidx.wear.compose.material.CircularProgressIndicator
 import androidx.wear.compose.material.CompactButton
 import androidx.wear.compose.material.CompactChip
-import androidx.wear.compose.material.ConfirmationDialog
-import androidx.wear.compose.material.CurvedText
-import androidx.wear.compose.material.ExperimentalWearMaterialApi
+import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.InlineSlider
+import androidx.wear.compose.material.InlineSliderDefaults
 import androidx.wear.compose.material.ListHeader
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Picker
@@ -64,13 +63,18 @@ import androidx.wear.compose.material.PositionIndicator
 import androidx.wear.compose.material.Scaffold
 import androidx.wear.compose.material.SplitToggleChip
 import androidx.wear.compose.material.Stepper
+import androidx.wear.compose.material.StepperDefaults
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.TimeText
 import androidx.wear.compose.material.TitleCard
 import androidx.wear.compose.material.ToggleButton
 import androidx.wear.compose.material.ToggleChip
+import androidx.wear.compose.material.ToggleChipDefaults
 import androidx.wear.compose.material.Vignette
 import androidx.wear.compose.material.VignettePosition
+import androidx.wear.compose.material.curvedText
+import androidx.wear.compose.material.dialog.Alert
+import androidx.wear.compose.material.dialog.Confirmation
 import androidx.wear.compose.material.rememberPickerState
 import androidx.wear.compose.navigation.SwipeDismissableNavHost
 import androidx.wear.compose.navigation.composable
@@ -80,10 +84,11 @@ private val ALERT_DIALOG = "alert-dialog"
 private val CONFIRMATION_DIALOG = "confirmation-dialog"
 private val STEPPER = "stepper"
 private val SWIPE_DISMISS = "swipe-dismiss"
+private val PROGRESS_INDICATOR = "progress-indicator"
+private val PROGRESS_INDICATOR_INDETERMINATE = "progress-indicator-indeterminate"
 
 class BaselineActivity : ComponentActivity() {
 
-    @OptIn(ExperimentalWearMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -120,6 +125,7 @@ class BaselineActivity : ComponentActivity() {
                                 ) {
                                     Dialogs(navController)
                                     Steppers(navController)
+                                    ProgressIndicators(navController)
                                     Buttons()
                                     Cards()
                                     Chips()
@@ -129,14 +135,14 @@ class BaselineActivity : ComponentActivity() {
                             }
                         }
                         composable(ALERT_DIALOG) {
-                            AlertDialog(
+                            Alert(
                                 title = { Text("Alert") },
                                 negativeButton = {},
                                 positiveButton = {},
                             )
                         }
                         composable(CONFIRMATION_DIALOG) {
-                            ConfirmationDialog(
+                            Confirmation(
                                 onTimeout = { navController.popBackStack() },
                                 content = { Text("Confirmation") },
                             )
@@ -146,9 +152,27 @@ class BaselineActivity : ComponentActivity() {
                             Stepper(
                                 value = value,
                                 onValueChange = { value = it },
+                                increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
+                                decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
                                 valueRange = 1f..4f,
                                 steps = 7
                             ) { Text("Value: $value") }
+                        }
+                        composable(PROGRESS_INDICATOR) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.fillMaxSize(),
+                                startAngle = 300f,
+                                endAngle = 240f,
+                                progress = 0.3f
+                            )
+                        }
+                        composable(PROGRESS_INDICATOR_INDETERMINATE) {
+                            Column(
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                CircularProgressIndicator()
+                            }
                         }
                     }
                 }
@@ -178,29 +202,47 @@ fun Chips() {
     ListHeader { Text("Chips") }
     Chip(onClick = {}, colors = ChipDefaults.primaryChipColors()) { Text("Chip") }
     CompactChip(onClick = {}, label = { Text("CompactChip") })
-    ToggleChip(true, onCheckedChange = {}, label = { Text("ToggleChip") })
+    ToggleChip(
+        checked = true,
+        onCheckedChange = {},
+        label = { Text("ToggleChip") },
+        toggleControl = {
+            Icon(
+                imageVector = ToggleChipDefaults.radioIcon(checked = false),
+                contentDescription = null
+            )
+        }
+    )
     SplitToggleChip(
         checked = true,
         onCheckedChange = {},
         label = { Text("SplitToggleChip") },
-        onClick = {})
+        onClick = {},
+        toggleControl = {
+            Icon(
+                imageVector = ToggleChipDefaults.radioIcon(checked = true),
+                contentDescription = null
+            )
+        }
+    )
 }
 
 @Composable
 fun CurvedTexts() {
-    CurvedRow(anchor = 235f) {
-        BasicCurvedText(
+    val background = MaterialTheme.colors.background
+    CurvedLayout(anchor = 235f) {
+        basicCurvedText(
             "Basic",
             CurvedTextStyle(
                 fontSize = 16.sp,
                 color = Color.White,
-                background = MaterialTheme.colors.background
+                background = background
             ),
             contentArcPadding = ArcPaddingValues(2.dp)
         )
     }
-    CurvedRow(anchor = 310f) {
-        CurvedText(text = "Curved")
+    CurvedLayout(anchor = 310f) {
+        curvedText(text = "Curved")
     }
 }
 
@@ -212,8 +254,7 @@ fun Dialogs(navController: NavHostController) {
         colors = ChipDefaults.primaryChipColors(),
         label = { Text(ALERT_DIALOG) },
         modifier = Modifier.semantics { contentDescription = ALERT_DIALOG },
-
-        )
+    )
     CompactChip(
         onClick = { navController.navigate(CONFIRMATION_DIALOG) },
         colors = ChipDefaults.primaryChipColors(),
@@ -227,10 +268,27 @@ fun Pickers() {
     ListHeader { Text("Pickers") }
     val items = listOf("One", "Two", "Three", "Four", "Five")
     Picker(
-        items.size,
-        state = rememberPickerState(),
+        state = rememberPickerState(items.size),
         option = { Text(items[it]) },
         modifier = Modifier.size(100.dp, 100.dp),
+    )
+}
+
+@Composable
+fun ProgressIndicators(navController: NavHostController) {
+    ListHeader { Text("Progress Indicators") }
+    // Test both circular progress indicator with gap and spinning indicator.
+    CompactChip(
+        onClick = { navController.navigate(PROGRESS_INDICATOR) },
+        colors = ChipDefaults.primaryChipColors(),
+        label = { Text(PROGRESS_INDICATOR) },
+        modifier = Modifier.semantics { contentDescription = PROGRESS_INDICATOR },
+    )
+    CompactChip(
+        onClick = { navController.navigate(PROGRESS_INDICATOR_INDETERMINATE) },
+        colors = ChipDefaults.primaryChipColors(),
+        label = { Text(PROGRESS_INDICATOR_INDETERMINATE) },
+        modifier = Modifier.semantics { contentDescription = PROGRESS_INDICATOR_INDETERMINATE },
     )
 }
 
@@ -241,6 +299,8 @@ fun Sliders() {
     InlineSlider(
         value = value,
         onValueChange = { value = it },
+        increaseIcon = { Icon(InlineSliderDefaults.Increase, "Increase") },
+        decreaseIcon = { Icon(InlineSliderDefaults.Decrease, "Decrease") },
         valueRange = 3f..6f,
         steps = 5,
         segmented = false
@@ -255,5 +315,5 @@ fun Steppers(navController: NavHostController) {
         colors = ChipDefaults.primaryChipColors(),
         label = { Text(STEPPER) },
         modifier = Modifier.semantics { contentDescription = STEPPER },
-        )
+    )
 }

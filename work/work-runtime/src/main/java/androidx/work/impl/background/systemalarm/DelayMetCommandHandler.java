@@ -28,6 +28,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.WorkerThread;
 import androidx.work.Logger;
 import androidx.work.impl.ExecutionListener;
+import androidx.work.impl.WorkRunIds;
 import androidx.work.impl.constraints.WorkConstraintsCallback;
 import androidx.work.impl.constraints.WorkConstraintsTrackerImpl;
 import androidx.work.impl.constraints.trackers.Trackers;
@@ -37,6 +38,7 @@ import androidx.work.impl.utils.WorkTimer;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 /**
  * This is a command handler which attempts to run a work spec given its id.
@@ -88,22 +90,29 @@ public class DelayMetCommandHandler implements
     private final SystemAlarmDispatcher mDispatcher;
     private final WorkConstraintsTrackerImpl mWorkConstraintsTracker;
     private final Object mLock;
+    // should be accessed only from SerialTaskExecutor
     private int mCurrentState;
+    private final Executor mSerialExecutor;
+    private final Executor mMainThreadExecutor;
 
     @Nullable private PowerManager.WakeLock mWakeLock;
     private boolean mHasConstraints;
+    private final WorkRunIds mWorkRunIds;
 
     DelayMetCommandHandler(
             @NonNull Context context,
             int startId,
             @NonNull String workSpecId,
-            @NonNull SystemAlarmDispatcher dispatcher) {
-
+            @NonNull SystemAlarmDispatcher dispatcher,
+            @NonNull WorkRunIds workRunIds) {
         mContext = context;
         mStartId = startId;
         mDispatcher = dispatcher;
         mWorkSpecId = workSpecId;
+        mWorkRunIds = workRunIds;
         Trackers trackers = dispatcher.getWorkManager().getTrackers();
+        mSerialExecutor = dispatcher.getTaskExecutor().getSerialTaskExecutor();
+        mMainThreadExecutor = dispatcher.getTaskExecutor().getMainThreadExecutor();
         mWorkConstraintsTracker = new WorkConstraintsTrackerImpl(trackers, this);
         mHasConstraints = false;
         mCurrentState = STATE_INITIAL;
@@ -118,30 +127,33 @@ public class DelayMetCommandHandler implements
         if (!workSpecIds.contains(mWorkSpecId)) {
             return;
         }
+        mSerialExecutor.execute(this::startWork);
+    }
 
-        synchronized (mLock) {
-            if (mCurrentState == STATE_INITIAL) {
-                mCurrentState = STATE_START_REQUESTED;
+    private void startWork() {
+        if (mCurrentState == STATE_INITIAL) {
+            mCurrentState = STATE_START_REQUESTED;
 
-                Logger.get().debug(TAG, "onAllConstraintsMet for " + mWorkSpecId);
-                // Constraints met, schedule execution
-                // Not using WorkManagerImpl#startWork() here because we need to know if the
-                // processor actually enqueued the work here.
-                boolean isEnqueued = mDispatcher.getProcessor().startWork(mWorkSpecId);
+            Logger.get().debug(TAG, "onAllConstraintsMet for " + mWorkSpecId);
+            // Constraints met, schedule execution
+            // Not using WorkManagerImpl#startWork() here because we need to know if the
+            // processor actually enqueued the work here.
+            boolean isEnqueued = mDispatcher.getProcessor().startWork(
+                    mWorkRunIds.workRunIdFor(mWorkSpecId)
+            );
 
-                if (isEnqueued) {
-                    // setup timers to enforce quotas on workers that have
-                    // been enqueued
-                    mDispatcher.getWorkTimer()
-                            .startTimer(mWorkSpecId, WORK_PROCESSING_TIME_IN_MS, this);
-                } else {
-                    // if we did not actually enqueue the work, it was enqueued before
-                    // cleanUp and pretend this never happened.
-                    cleanUp();
-                }
+            if (isEnqueued) {
+                // setup timers to enforce quotas on workers that have
+                // been enqueued
+                mDispatcher.getWorkTimer()
+                        .startTimer(mWorkSpecId, WORK_PROCESSING_TIME_IN_MS, this);
             } else {
-                Logger.get().debug(TAG, "Already started work for " + mWorkSpecId);
+                // if we did not actually enqueue the work, it was enqueued before
+                // cleanUp and pretend this never happened.
+                cleanUp();
             }
+        } else {
+            Logger.get().debug(TAG, "Already started work for " + mWorkSpecId);
         }
     }
 
@@ -149,12 +161,12 @@ public class DelayMetCommandHandler implements
     public void onExecuted(@NonNull String workSpecId, boolean needsReschedule) {
         Logger.get().debug(TAG, "onExecuted " + workSpecId + ", " + needsReschedule);
         cleanUp();
-
+        mWorkRunIds.remove(workSpecId);
         if (needsReschedule) {
             // We need to reschedule the WorkSpec. WorkerWrapper may also call Scheduler.schedule()
             // but given that we will only consider WorkSpecs that are eligible that it safe.
             Intent reschedule = CommandHandler.createScheduleWorkIntent(mContext, mWorkSpecId);
-            mDispatcher.postOnMainThread(
+            mMainThreadExecutor.execute(
                     new SystemAlarmDispatcher.AddRunnable(mDispatcher, reschedule, mStartId));
         }
 
@@ -163,22 +175,20 @@ public class DelayMetCommandHandler implements
             // we might need to disable constraint proxies which were previously enabled for
             // this WorkSpec. Hence, trigger a constraints changed command.
             Intent intent = CommandHandler.createConstraintsChangedIntent(mContext);
-            mDispatcher.postOnMainThread(
+            mMainThreadExecutor.execute(
                     new SystemAlarmDispatcher.AddRunnable(mDispatcher, intent, mStartId));
         }
     }
 
     @Override
     public void onTimeLimitExceeded(@NonNull String workSpecId) {
-        Logger.get().debug(
-                TAG,
-                "Exceeded time limits on execution for " + workSpecId);
-        stopWork();
+        Logger.get().debug(TAG, "Exceeded time limits on execution for " + workSpecId);
+        mSerialExecutor.execute(this::stopWork);
     }
 
     @Override
     public void onAllConstraintsNotMet(@NonNull List<String> workSpecIds) {
-        stopWork();
+        mSerialExecutor.execute(this::stopWork);
     }
 
     @WorkerThread
@@ -197,7 +207,7 @@ public class DelayMetCommandHandler implements
         // alarm has already fired, then fire a stop work request to remove the pending delay met
         // command handler.
         if (workSpec == null) {
-            stopWork();
+            mSerialExecutor.execute(this::stopWork);
             return;
         }
 
@@ -219,35 +229,31 @@ public class DelayMetCommandHandler implements
         // onExecuted() if there is a corresponding pending delay met command handler; which in
         // turn calls cleanUp().
 
-        // Needs to be synchronized, as the stopWork() request can potentially come from the
-        // WorkTimer thread as well as the command executor service in SystemAlarmDispatcher.
-        synchronized (mLock) {
-            if (mCurrentState < STATE_STOP_REQUESTED) {
-                mCurrentState = STATE_STOP_REQUESTED;
-                Logger.get().debug(
-                        TAG,
-                        "Stopping work for WorkSpec " + mWorkSpecId);
-                Intent stopWork = CommandHandler.createStopWorkIntent(mContext, mWorkSpecId);
-                mDispatcher.postOnMainThread(
-                        new SystemAlarmDispatcher.AddRunnable(mDispatcher, stopWork, mStartId));
-                // There are cases where the work may not have been enqueued at all, and therefore
-                // the processor is completely unaware of such a workSpecId in which case a
-                // reschedule should not happen. For e.g. DELAY_MET when constraints are not met,
-                // should not result in a reschedule.
-                if (mDispatcher.getProcessor().isEnqueued(mWorkSpecId)) {
-                    Logger.get().debug(TAG, "WorkSpec " + mWorkSpecId + " needs to be rescheduled");
-                    Intent reschedule = CommandHandler.createScheduleWorkIntent(mContext,
-                            mWorkSpecId);
-                    mDispatcher.postOnMainThread(
-                            new SystemAlarmDispatcher.AddRunnable(mDispatcher, reschedule,
-                                    mStartId));
-                } else {
-                    Logger.get().debug(TAG, "Processor does not have WorkSpec " + mWorkSpecId
-                            + ". No need to reschedule");
-                }
+        if (mCurrentState < STATE_STOP_REQUESTED) {
+            mCurrentState = STATE_STOP_REQUESTED;
+            Logger.get().debug(
+                    TAG,
+                    "Stopping work for WorkSpec " + mWorkSpecId);
+            Intent stopWork = CommandHandler.createStopWorkIntent(mContext, mWorkSpecId);
+            mMainThreadExecutor.execute(
+                    new SystemAlarmDispatcher.AddRunnable(mDispatcher, stopWork, mStartId));
+            // There are cases where the work may not have been enqueued at all, and therefore
+            // the processor is completely unaware of such a workSpecId in which case a
+            // reschedule should not happen. For e.g. DELAY_MET when constraints are not met,
+            // should not result in a reschedule.
+            if (mDispatcher.getProcessor().isEnqueued(mWorkSpecId)) {
+                Logger.get().debug(TAG, "WorkSpec " + mWorkSpecId + " needs to be rescheduled");
+                Intent reschedule = CommandHandler.createScheduleWorkIntent(mContext,
+                        mWorkSpecId);
+                mMainThreadExecutor.execute(
+                        new SystemAlarmDispatcher.AddRunnable(mDispatcher, reschedule,
+                                mStartId));
             } else {
-                Logger.get().debug(TAG, "Already stopped work for " + mWorkSpecId);
+                Logger.get().debug(TAG, "Processor does not have WorkSpec " + mWorkSpecId
+                        + ". No need to reschedule");
             }
+        } else {
+            Logger.get().debug(TAG, "Already stopped work for " + mWorkSpecId);
         }
     }
 

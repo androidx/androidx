@@ -5,9 +5,6 @@ package androidx.paging {
     method @CheckResult public static <T> kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<T>> cachedIn(kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<T>>, kotlinx.coroutines.CoroutineScope scope);
   }
 
-  public final class CancelableChannelFlowKt {
-  }
-
   public final class CombinedLoadStates {
     ctor public CombinedLoadStates(androidx.paging.LoadState refresh, androidx.paging.LoadState prepend, androidx.paging.LoadState append, androidx.paging.LoadStates source, optional androidx.paging.LoadStates? mediator);
     method public androidx.paging.LoadState getAppend();
@@ -52,12 +49,6 @@ package androidx.paging {
   @kotlin.RequiresOptIn public @interface ExperimentalPagingApi {
   }
 
-  public final class FlowExtKt {
-  }
-
-  public final class HintHandlerKt {
-  }
-
   public final class InvalidatingPagingSourceFactory<Key, Value> implements kotlin.jvm.functions.Function0<androidx.paging.PagingSource<Key,Value>> {
     ctor public InvalidatingPagingSourceFactory(kotlin.jvm.functions.Function0<? extends androidx.paging.PagingSource<Key,Value>> pagingSourceFactory);
     method public void invalidate();
@@ -100,7 +91,7 @@ package androidx.paging {
   }
 
   public final class ItemSnapshotList<T> extends kotlin.collections.AbstractList<T> {
-    ctor public ItemSnapshotList(@IntRange(from=0) int placeholdersBefore, @IntRange(from=0) int placeholdersAfter, java.util.List<? extends T> items);
+    ctor public ItemSnapshotList(@IntRange(from=0L) int placeholdersBefore, @IntRange(from=0L) int placeholdersAfter, java.util.List<? extends T> items);
     method public T? get(int index);
     method public java.util.List<T> getItems();
     method public int getPlaceholdersAfter();
@@ -149,9 +140,6 @@ package androidx.paging {
     enum_constant public static final androidx.paging.LoadType APPEND;
     enum_constant public static final androidx.paging.LoadType PREPEND;
     enum_constant public static final androidx.paging.LoadType REFRESH;
-  }
-
-  public final class PageFetcherSnapshotKt {
   }
 
   @Deprecated public abstract class PageKeyedDataSource<Key, Value> extends androidx.paging.DataSource<Key,Value> {
@@ -259,10 +247,10 @@ package androidx.paging {
     ctor @Deprecated public PagedList.Config.Builder();
     method @Deprecated public androidx.paging.PagedList.Config build();
     method @Deprecated public androidx.paging.PagedList.Config.Builder setEnablePlaceholders(boolean enablePlaceholders);
-    method @Deprecated public androidx.paging.PagedList.Config.Builder setInitialLoadSizeHint(@IntRange(from=1) int initialLoadSizeHint);
-    method @Deprecated public androidx.paging.PagedList.Config.Builder setMaxSize(@IntRange(from=2) int maxSize);
-    method @Deprecated public androidx.paging.PagedList.Config.Builder setPageSize(@IntRange(from=1) int pageSize);
-    method @Deprecated public androidx.paging.PagedList.Config.Builder setPrefetchDistance(@IntRange(from=0) int prefetchDistance);
+    method @Deprecated public androidx.paging.PagedList.Config.Builder setInitialLoadSizeHint(@IntRange(from=1L) int initialLoadSizeHint);
+    method @Deprecated public androidx.paging.PagedList.Config.Builder setMaxSize(@IntRange(from=2L) int maxSize);
+    method @Deprecated public androidx.paging.PagedList.Config.Builder setPageSize(@IntRange(from=1L) int pageSize);
+    method @Deprecated public androidx.paging.PagedList.Config.Builder setPrefetchDistance(@IntRange(from=0L) int prefetchDistance);
   }
 
   public final class PagedListConfigKt {
@@ -282,11 +270,11 @@ package androidx.paging {
   }
 
   public final class PagingConfig {
-    ctor public PagingConfig(int pageSize, optional @IntRange(from=0) int prefetchDistance, optional boolean enablePlaceholders, optional @IntRange(from=1) int initialLoadSize, optional @IntRange(from=2) int maxSize, optional int jumpThreshold);
-    ctor public PagingConfig(int pageSize, optional @IntRange(from=0) int prefetchDistance, optional boolean enablePlaceholders, optional @IntRange(from=1) int initialLoadSize, optional @IntRange(from=2) int maxSize);
-    ctor public PagingConfig(int pageSize, optional @IntRange(from=0) int prefetchDistance, optional boolean enablePlaceholders, optional @IntRange(from=1) int initialLoadSize);
-    ctor public PagingConfig(int pageSize, optional @IntRange(from=0) int prefetchDistance, optional boolean enablePlaceholders);
-    ctor public PagingConfig(int pageSize, optional @IntRange(from=0) int prefetchDistance);
+    ctor public PagingConfig(int pageSize, optional @IntRange(from=0L) int prefetchDistance, optional boolean enablePlaceholders, optional @IntRange(from=1L) int initialLoadSize, optional @IntRange(from=2L) int maxSize, optional int jumpThreshold);
+    ctor public PagingConfig(int pageSize, optional @IntRange(from=0L) int prefetchDistance, optional boolean enablePlaceholders, optional @IntRange(from=1L) int initialLoadSize, optional @IntRange(from=2L) int maxSize);
+    ctor public PagingConfig(int pageSize, optional @IntRange(from=0L) int prefetchDistance, optional boolean enablePlaceholders, optional @IntRange(from=1L) int initialLoadSize);
+    ctor public PagingConfig(int pageSize, optional @IntRange(from=0L) int prefetchDistance, optional boolean enablePlaceholders);
+    ctor public PagingConfig(int pageSize, optional @IntRange(from=0L) int prefetchDistance);
     ctor public PagingConfig(int pageSize);
     field public static final androidx.paging.PagingConfig.Companion Companion;
     field public static final int MAX_SIZE_UNBOUNDED = 2147483647; // 0x7fffffff
@@ -343,7 +331,7 @@ package androidx.paging {
     method public boolean getKeyReuseSupported();
     method public abstract Key? getRefreshKey(androidx.paging.PagingState<Key,Value> state);
     method public final void invalidate();
-    method public abstract suspend Object? load(androidx.paging.PagingSource.LoadParams<Key> params, kotlin.coroutines.Continuation<? super androidx.paging.PagingSource.LoadResult<Key,Value>> p);
+    method public abstract suspend Object? load(androidx.paging.PagingSource.LoadParams<Key> params, kotlin.coroutines.Continuation<? super androidx.paging.PagingSource.LoadResult<Key,Value>>);
     method public final void registerInvalidatedCallback(kotlin.jvm.functions.Function0<kotlin.Unit> onInvalidatedCallback);
     method public final void unregisterInvalidatedCallback(kotlin.jvm.functions.Function0<kotlin.Unit> onInvalidatedCallback);
     property public final boolean invalid;
@@ -423,7 +411,7 @@ package androidx.paging {
   }
 
   public final class PagingState<Key, Value> {
-    ctor public PagingState(java.util.List<androidx.paging.PagingSource.LoadResult.Page<Key,Value>> pages, Integer? anchorPosition, androidx.paging.PagingConfig config, @IntRange(from=0) int leadingPlaceholderCount);
+    ctor public PagingState(java.util.List<androidx.paging.PagingSource.LoadResult.Page<Key,Value>> pages, Integer? anchorPosition, androidx.paging.PagingConfig config, @IntRange(from=0L) int leadingPlaceholderCount);
     method public Value? closestItemToPosition(int anchorPosition);
     method public androidx.paging.PagingSource.LoadResult.Page<Key,Value>? closestPageToPosition(int anchorPosition);
     method public Value? firstItemOrNull();
@@ -476,8 +464,8 @@ package androidx.paging {
 
   @androidx.paging.ExperimentalPagingApi public abstract class RemoteMediator<Key, Value> {
     ctor public RemoteMediator();
-    method public suspend Object? initialize(kotlin.coroutines.Continuation<? super androidx.paging.RemoteMediator.InitializeAction> p);
-    method public abstract suspend Object? load(androidx.paging.LoadType loadType, androidx.paging.PagingState<Key,Value> state, kotlin.coroutines.Continuation<? super androidx.paging.RemoteMediator.MediatorResult> p);
+    method public suspend Object? initialize(kotlin.coroutines.Continuation<? super androidx.paging.RemoteMediator.InitializeAction>);
+    method public abstract suspend Object? load(androidx.paging.LoadType loadType, androidx.paging.PagingState<Key,Value> state, kotlin.coroutines.Continuation<? super androidx.paging.RemoteMediator.MediatorResult>);
   }
 
   public enum RemoteMediator.InitializeAction {
@@ -506,19 +494,9 @@ package androidx.paging {
   public final class SeparatorsKt {
   }
 
-  public final class SimpleChannelFlowKt {
-  }
-
   public enum TerminalSeparatorType {
     enum_constant public static final androidx.paging.TerminalSeparatorType FULLY_COMPLETE;
     enum_constant public static final androidx.paging.TerminalSeparatorType SOURCE_COMPLETE;
-  }
-
-}
-
-package androidx.paging.internal {
-
-  public final class ConstantsKt {
   }
 
 }

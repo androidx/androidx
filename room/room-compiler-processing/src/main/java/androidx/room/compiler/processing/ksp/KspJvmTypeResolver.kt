@@ -45,10 +45,13 @@ internal class KspJvmTypeResolver(
             KSTypeVarianceResolver.WildcardMode.PREFERRED
         }
 
+        // use the jvm type of the declaration so that it also gets its jvm wildcards resolved.
+        val declarationJvmType = (scope.findDeclarationType() as? KspType)?.jvmWildcardTypeOrSelf
+
         return env.resolveWildcards(
             ksType = delegate.ksType,
             wildcardMode = wildcardMode,
-            declarationType = (scope.findDeclarationType() as? KspType)?.ksType
+            declarationType = declarationJvmType?.ksType
         ).let {
             env.wrap(
                 ksType = it,
@@ -119,14 +122,17 @@ internal sealed class KspJvmTypeResolutionScope(
         }
     }
 
-    internal class PropertyAccessor(
+    internal class PropertySetterParameter(
         val declaration: KspSyntheticPropertyMethodElement
     ) : KspJvmTypeResolutionScope(
         annotated = declaration.accessor,
         container = declaration.field.containing.declaration
     ) {
         override fun findDeclarationType(): XType? {
-            return declaration.field.declarationType
+            // We return the declaration from the setter, not the field because the setter parameter
+            // will have a different type in jvm (due to jvm wildcard resolution)
+            return declaration.field.declarationField
+                ?.syntheticSetter?.parameters?.firstOrNull()?.type
         }
     }
 }

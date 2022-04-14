@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+InvalidNullConversion: androidx.savedstate.ViewKt#findViewTreeSavedStateRegistryOwner(android.view.View):
+    Attempted to remove @Nullable annotation from method androidx.savedstate.ViewKt.findViewTreeSavedStateRegistryOwner(android.view.View)

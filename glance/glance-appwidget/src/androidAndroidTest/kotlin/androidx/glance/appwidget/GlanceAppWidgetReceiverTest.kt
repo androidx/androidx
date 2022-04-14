@@ -83,16 +83,16 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
-import kotlinx.coroutines.runBlocking
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
+import kotlinx.coroutines.runBlocking
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
 
 @SdkSuppress(minSdkVersion = 29)
 @MediumTest
@@ -486,7 +486,6 @@ class GlanceAppWidgetReceiverTest {
 
     @Test
     fun removeAppWidget() {
-        TestGlanceAppWidget.stateDefinition = PreferencesGlanceStateDefinition
         TestGlanceAppWidget.uiDefinition = {
             Text("something")
         }
@@ -499,10 +498,8 @@ class GlanceAppWidgetReceiverTest {
         }
 
         runBlocking {
-            TestGlanceAppWidget.updateAppWidgetState<Preferences>(context, glanceId) { prefs ->
-                prefs.toMutablePreferences().apply {
-                    this[testKey] = 3
-                }
+            updateAppWidgetState(context, glanceId) {
+                it[testKey] = 3
             }
         }
 
@@ -550,8 +547,6 @@ class GlanceAppWidgetReceiverTest {
 
     @Test
     fun updateIf() {
-        TestGlanceAppWidget.stateDefinition = PreferencesGlanceStateDefinition
-
         TestGlanceAppWidget.uiDefinition = {
             Text("before")
         }
@@ -562,14 +557,8 @@ class GlanceAppWidgetReceiverTest {
         runBlocking {
             appWidgetManager.getGlanceIds(TestGlanceAppWidget::class.java)
                 .forEach { glanceId ->
-                    updateAppWidgetState(
-                        context,
-                        PreferencesGlanceStateDefinition,
-                        glanceId
-                    ) { prefs ->
-                        prefs.toMutablePreferences().apply {
-                            this[testKey] = 2
-                        }
+                    updateAppWidgetState(context, glanceId) {
+                        it[testKey] = 2
                     }
                 }
         }
@@ -601,8 +590,6 @@ class GlanceAppWidgetReceiverTest {
 
     @Test
     fun viewState() {
-        TestGlanceAppWidget.stateDefinition = PreferencesGlanceStateDefinition
-
         TestGlanceAppWidget.uiDefinition = {
             val value = currentState<Preferences>()[testKey] ?: -1
             Text("Value = $value")
@@ -616,13 +603,8 @@ class GlanceAppWidgetReceiverTest {
         }
 
         runBlocking {
-            TestGlanceAppWidget.updateAppWidgetState<Preferences>(
-                context,
-                appWidgetId.get()
-            ) { prefs ->
-                prefs.toMutablePreferences().apply {
-                    this[testKey] = 2
-                }
+            updateAppWidgetState(context, appWidgetId.get()) {
+                it[testKey] = 2
             }
 
             val prefs =
@@ -762,6 +744,30 @@ class GlanceAppWidgetReceiverTest {
         )
     }
 
+    @Test
+    fun radioActionCallback() {
+        TestGlanceAppWidget.uiDefinition = {
+            RadioButton(
+                checked = true,
+                onClick = actionRunCallback<CallbackTest>(
+                    actionParametersOf(CallbackTest.key to 2)
+                ),
+                text = "text1"
+            )
+        }
+
+        mHostRule.startHost()
+
+        CallbackTest.received.set(emptyList())
+        CallbackTest.latch = CountDownLatch(1)
+        mHostRule.onHostView { root ->
+            checkNotNull(root.findChild<TextView> { it.text == "text1" })
+                .performCompoundButtonClick()
+        }
+        assertThat(CallbackTest.latch.await(5, TimeUnit.SECONDS)).isTrue()
+        assertThat(CallbackTest.received.get()).containsExactly(2)
+    }
+
     // Check there is a single span of the given type and that it passes the [check].
     private inline
     fun <reified T> SpannedString.checkHasSingleTypedSpan(check: (T) -> Unit) {
@@ -787,7 +793,7 @@ class GlanceAppWidgetReceiverTest {
 private val testKey = intPreferencesKey("testKey")
 
 internal class CallbackTest : ActionCallback {
-    override suspend fun onRun(
+    override suspend fun onAction(
         context: Context,
         glanceId: GlanceId,
         parameters: ActionParameters
@@ -827,7 +833,7 @@ private fun BoxRowBox(modifier: GlanceModifier, text: String) {
 }
 
 internal class CompoundButtonActionTest : ActionCallback {
-    override suspend fun onRun(
+    override suspend fun onAction(
         context: Context,
         glanceId: GlanceId,
         parameters: ActionParameters

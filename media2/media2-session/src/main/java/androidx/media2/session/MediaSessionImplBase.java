@@ -1153,6 +1153,7 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
     }
 
     @Nullable
+    @SuppressWarnings("deprecation")
     private ComponentName getServiceComponentByAction(@NonNull String action) {
         PackageManager pm = mContext.getPackageManager();
         Intent queryIntent = new Intent(action);

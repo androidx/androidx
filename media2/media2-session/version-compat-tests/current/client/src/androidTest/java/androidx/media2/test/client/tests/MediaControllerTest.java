@@ -65,6 +65,7 @@ import androidx.test.filters.LargeTest;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -180,6 +181,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
         session.cleanUp();
     }
 
+    @Ignore("b/202942942")
     @Test
     public void setVolumeWithLocalVolume() throws Exception {
         if (Build.VERSION.SDK_INT >= 21 && mAudioManager.isVolumeFixed()) {
@@ -368,6 +370,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
         controller.close();
     }
 
+    @Ignore("b/202942942")
     @Test
     public void gettersAfterConnected() throws InterruptedException {
         final int state = SessionPlayer.PLAYER_STATE_PLAYING;
@@ -450,6 +453,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
         assertEquals(testTracks, testTracksFromController);
     }
 
+    @Ignore("b/202942942")
     @Test
     public void selectDeselectTrackAndGetSelectedTrack() throws Exception {
         CountDownLatch selectTrackLatch = new CountDownLatch(1);
@@ -613,6 +617,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
         assertTrue("All futures should be completed", latch.await(10, TimeUnit.SECONDS));
     }
 
+    @Ignore("b/202942942")
     @Test
     public void play_returnsSessionResultWithMediaItem() throws Exception {
         RemoteMediaSession session = mRemoteSession;
@@ -624,6 +629,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
         assertNotNull(result.getMediaItem());
     }
 
+    @Ignore("b/202942942")
     @Test
     public void getPlaylistMetadata_returnsPlaylistMetadataOfPlayerInSession() throws Exception {
         MediaMetadata testMetadata = MediaTestUtils.createMetadata();

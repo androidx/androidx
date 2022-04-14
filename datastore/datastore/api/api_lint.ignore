@@ -1,4 +1,10 @@
 // Baseline format: 1.0
+InvalidNullability: androidx.datastore.migrations.SharedPreferencesMigration#migrate(T, kotlin.coroutines.Continuation<? super T>):
+    Invalid nullability on method `migrate` return. Overrides of unannotated super method cannot be Nullable.
+InvalidNullability: androidx.datastore.migrations.SharedPreferencesMigration#shouldMigrate(T, kotlin.coroutines.Continuation<? super java.lang.Boolean>):
+    Invalid nullability on method `shouldMigrate` return. Overrides of unannotated super method cannot be Nullable.
+
+
 MissingJvmstatic: androidx.datastore.migrations.SharedPreferencesView#getString(String, String):
     A Kotlin method with default parameter values should be annotated with @JvmOverloads for better Java interoperability; see https://android.github.io/kotlin-guides/interop.html#function-overloads-for-defaults
 MissingJvmstatic: androidx.datastore.migrations.SharedPreferencesView#getStringSet(String, java.util.Set<java.lang.String>):

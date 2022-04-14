@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+ParameterNameChange: androidx.wear.watchface.complications.ComplicationDataSourceInfoRetriever#retrieveComplicationDataSourceInfo(android.content.ComponentName, int[], kotlin.coroutines.Continuation<? super androidx.wear.watchface.complications.ComplicationDataSourceInfoRetriever.Result[]>) parameter #2:
+    Attempted to remove parameter name from parameter arg3 in androidx.wear.watchface.complications.ComplicationDataSourceInfoRetriever.retrieveComplicationDataSourceInfo
+ParameterNameChange: androidx.wear.watchface.complications.ComplicationDataSourceInfoRetriever#retrievePreviewComplicationData(android.content.ComponentName, androidx.wear.watchface.complications.data.ComplicationType, kotlin.coroutines.Continuation<? super androidx.wear.watchface.complications.data.ComplicationData>) parameter #2:
+    Attempted to remove parameter name from parameter arg3 in androidx.wear.watchface.complications.ComplicationDataSourceInfoRetriever.retrievePreviewComplicationData

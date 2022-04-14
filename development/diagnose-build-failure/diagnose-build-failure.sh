@@ -136,7 +136,7 @@ function getBuildCommand() {
   if [ "$expectedMessage" == "" ]; then
     testCommand="$* 2>&1"
   else
-    testCommand="$* >log 2>&1; $vgrep '$expectedMessage' log $grepOptions"
+    testCommand="$* >log 2>&1; $vgrep \"$expectedMessage\" log $grepOptions"
   fi
   echo "$testCommand"
 }
@@ -338,6 +338,8 @@ function determineMinimalSetOfRequiredTasks() {
   cp -r "$tempDir/prev" "$requiredTasksWork"
   mkdir -p "$requiredTasksWork/tasks"
   bash -c "cd $requiredTasksWork/tasks && split -l 1 '$taskListFile'"
+  # also include the original tasks in case either we failed to compute the list of tasks (due to the build failing during project configuration) or there are too many tasks to fit in one command line invocation
+  echo "$gradleTasks" > "$requiredTasksWork/tasks/givenTasks"
 
   rm -rf "$requiredTasksDir"
   # Build the command for passing to diff-filterer.

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 import androidx.build.Publish
 import androidx.build.AndroidXComposePlugin
@@ -61,6 +60,7 @@ dependencies {
 android {
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
+    namespace "androidx.glance"
 }
 
 androidx {

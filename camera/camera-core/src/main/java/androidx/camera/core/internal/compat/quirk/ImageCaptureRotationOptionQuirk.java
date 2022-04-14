@@ -25,16 +25,20 @@ import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.Quirk;
 
 /**
- * Checks whether ImageCapture supports a specific capture config option.
- *
- * <p>When capturing images, JPEG related options will be applied. But not all devices can
- * support those options. For example, CaptureConfig.OPTION_ROTATION is used to provide the
- * target rotation information to the HAL. So that the HAL can rotate the image buffer directly
- * and provide the correct orientation information in the embedded exif data. But Huawei Mate 20
- * Lite and Honor 9X can't handle the capture rotation option correctly and the embedded exif's
- * orientation value is wrong. For these devices, the rotation option can't be used and we should
- * calculate the rotation value according to the target rotation setting for the final output
- * image. See: b/171492111.
+ * <p>QuirkSummary
+ *     Bug Id: b/171492111
+ *     Description: Quirk required to check whether ImageCapture supports a specific capture
+ *                  config option. For example, JPEG related options will be applied when
+ *                  capturing images. CaptureConfig.OPTION_ROTATION is used to provide the target
+ *                  rotation information to the HAL. So that the HAL can rotate the image buffer
+ *                  directly and provide the correct orientation information in the embedded exif
+ *                  data. But not all devices can support CaptureConfig.OPTION_ROTATION. Huawei
+ *                  Mate 20 Lite and Honor 9X can't handle the capture rotation option correctly
+ *                  and the embedded exif's orientation value is wrong. For these devices, the
+ *                  rotation option can't be used and we should calculate the rotation value
+ *                  according to the target rotation setting for the final output image.
+ *     Device(s): Huawei Mate 20 Lite, Honor 9X
+ *     @see androidx.camera.core.internal.compat.workaround.ExifRotationAvailability
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class ImageCaptureRotationOptionQuirk implements Quirk {

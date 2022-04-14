@@ -32,6 +32,7 @@ internal object NotificationTester {
         assertBundleEquals("Notification.extras", n2.extras, n2.extras)
     }
 
+    @Suppress("DEPRECATION")
     private fun assertBundleEquals(keyPath: String, b1: Bundle, b2: Bundle) {
         assertEquals("Keys @ $keyPath", TreeSet(b1.keySet()), TreeSet(b2.keySet()))
         for (key in b1.keySet()) {

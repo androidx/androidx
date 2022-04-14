@@ -508,10 +508,20 @@ public class ShortcutInfoCompat {
     }
 
     /**
-     * Return true if the shortcut is included in specified surface.
+     * Return true if the shortcut is excluded from specified surface.
      */
-    public boolean isIncludedIn(@Surface final int surface) {
-        return (mExcludedSurfaces & surface) == 0;
+    public boolean isExcludedFromSurfaces(@Surface int surface) {
+        return (mExcludedSurfaces & surface) != 0;
+    }
+
+    /**
+     * Returns a bitmask of all surfaces this shortcut is excluded from.
+     *
+     * @see ShortcutInfo.Builder#setExcludedFromSurfaces(int)
+     */
+    @Surface
+    public int getExcludedFromSurfaces() {
+        return mExcludedSurfaces;
     }
 
     /**
@@ -836,9 +846,8 @@ public class ShortcutInfoCompat {
          * actually sent to {@link ShortcutManager}. These shortcuts might still be made
          * available to other surfaces via alternative means.
          */
-        @SuppressWarnings("MissingGetterMatchingBuilder")
         @NonNull
-        public Builder setExcludedSurfaces(final int surfaces) {
+        public Builder setExcludedFromSurfaces(final int surfaces) {
             mInfo.mExcludedSurfaces = surfaces;
             return this;
         }

@@ -15,6 +15,46 @@ ForbiddenSuperClass: androidx.activity.ComponentActivity:
     ComponentActivity should not extend `Activity`. Activity subclasses are impossible to compose. Expose a composable API instead.
 
 
+InvalidNullability: androidx.activity.ComponentActivity#onCreateOptionsMenu(android.view.Menu) parameter #0:
+    Invalid nullability on parameter `menu` in method `onCreateOptionsMenu`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.activity.ComponentActivity#onMultiWindowModeChanged(boolean, android.content.res.Configuration) parameter #1:
+    Invalid nullability on parameter `newConfig` in method `onMultiWindowModeChanged`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.activity.ComponentActivity#onPictureInPictureModeChanged(boolean, android.content.res.Configuration) parameter #1:
+    Invalid nullability on parameter `newConfig` in method `onPictureInPictureModeChanged`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.activity.ComponentActivity#onPrepareOptionsMenu(android.view.Menu) parameter #0:
+    Invalid nullability on parameter `menu` in method `onPrepareOptionsMenu`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.activity.ComponentActivity#onRetainNonConfigurationInstance():
+    Invalid nullability on method `onRetainNonConfigurationInstance` return. Overrides of unannotated super method cannot be Nullable.
+InvalidNullability: androidx.activity.result.ActivityResult#writeToParcel(android.os.Parcel, int) parameter #0:
+    Invalid nullability on parameter `dest` in method `writeToParcel`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.activity.result.IntentSenderRequest#writeToParcel(android.os.Parcel, int) parameter #0:
+    Invalid nullability on parameter `dest` in method `writeToParcel`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.activity.result.contract.ActivityResultContracts.CaptureVideo#getSynchronousResult(android.content.Context, android.net.Uri):
+    Invalid nullability on method `getSynchronousResult` return. Overrides of unannotated super method cannot be Nullable.
+InvalidNullability: androidx.activity.result.contract.ActivityResultContracts.CreateDocument#getSynchronousResult(android.content.Context, String):
+    Invalid nullability on method `getSynchronousResult` return. Overrides of unannotated super method cannot be Nullable.
+InvalidNullability: androidx.activity.result.contract.ActivityResultContracts.GetContent#getSynchronousResult(android.content.Context, String):
+    Invalid nullability on method `getSynchronousResult` return. Overrides of unannotated super method cannot be Nullable.
+InvalidNullability: androidx.activity.result.contract.ActivityResultContracts.GetMultipleContents#getSynchronousResult(android.content.Context, String):
+    Invalid nullability on method `getSynchronousResult` return. Overrides of unannotated super method cannot be Nullable.
+InvalidNullability: androidx.activity.result.contract.ActivityResultContracts.OpenDocument#getSynchronousResult(android.content.Context, String[]):
+    Invalid nullability on method `getSynchronousResult` return. Overrides of unannotated super method cannot be Nullable.
+InvalidNullability: androidx.activity.result.contract.ActivityResultContracts.OpenDocumentTree#getSynchronousResult(android.content.Context, android.net.Uri):
+    Invalid nullability on method `getSynchronousResult` return. Overrides of unannotated super method cannot be Nullable.
+InvalidNullability: androidx.activity.result.contract.ActivityResultContracts.OpenMultipleDocuments#getSynchronousResult(android.content.Context, String[]):
+    Invalid nullability on method `getSynchronousResult` return. Overrides of unannotated super method cannot be Nullable.
+InvalidNullability: androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions#getSynchronousResult(android.content.Context, String[]):
+    Invalid nullability on method `getSynchronousResult` return. Overrides of unannotated super method cannot be Nullable.
+InvalidNullability: androidx.activity.result.contract.ActivityResultContracts.RequestPermission#getSynchronousResult(android.content.Context, String):
+    Invalid nullability on method `getSynchronousResult` return. Overrides of unannotated super method cannot be Nullable.
+InvalidNullability: androidx.activity.result.contract.ActivityResultContracts.TakePicture#getSynchronousResult(android.content.Context, android.net.Uri):
+    Invalid nullability on method `getSynchronousResult` return. Overrides of unannotated super method cannot be Nullable.
+InvalidNullability: androidx.activity.result.contract.ActivityResultContracts.TakePicturePreview#getSynchronousResult(android.content.Context, Void):
+    Invalid nullability on method `getSynchronousResult` return. Overrides of unannotated super method cannot be Nullable.
+InvalidNullability: androidx.activity.result.contract.ActivityResultContracts.TakeVideo#getSynchronousResult(android.content.Context, android.net.Uri):
+    Invalid nullability on method `getSynchronousResult` return. Overrides of unannotated super method cannot be Nullable.
+
+
 MissingGetterMatchingBuilder: androidx.activity.result.IntentSenderRequest.Builder#setFlags(int, int):
     androidx.activity.result.IntentSenderRequest does not declare a `getFlags()` method matching method androidx.activity.result.IntentSenderRequest.Builder.setFlags(int,int)
 

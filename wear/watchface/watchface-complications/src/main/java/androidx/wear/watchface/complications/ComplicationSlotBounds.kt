@@ -19,13 +19,15 @@
 
 package androidx.wear.watchface.complications
 
-import android.content.res.Resources
-import android.content.res.TypedArray
 import android.content.res.XmlResourceParser
 import android.graphics.RectF
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.complications.data.ComplicationType
+import java.io.DataOutputStream
 import org.xmlpull.v1.XmlPullParser
+
+const val NAMESPACE_APP = "http://schemas.android.com/apk/res-auto"
+const val NAMESPACE_ANDROID = "http://schemas.android.com/apk/res/android"
 
 /**
  * ComplicationSlotBounds are defined by fractional screen space coordinates in unit-square [0..1].
@@ -39,6 +41,32 @@ public class ComplicationSlotBounds(
     /** Per [ComplicationType] fractional unit-square screen space complication bounds. */
     public val perComplicationTypeBounds: Map<ComplicationType, RectF>
 ) {
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    fun write(dos: DataOutputStream) {
+        perComplicationTypeBounds.keys.toSortedSet().forEach { type ->
+            val bounds = perComplicationTypeBounds[type]!!
+            dos.writeInt(type.toWireComplicationType())
+            dos.writeFloat(bounds.left)
+            dos.writeFloat(bounds.right)
+            dos.writeFloat(bounds.top)
+            dos.writeFloat(bounds.bottom)
+        }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as ComplicationSlotBounds
+
+        return perComplicationTypeBounds == other.perComplicationTypeBounds
+    }
+
+    override fun hashCode(): Int {
+        return perComplicationTypeBounds.toSortedMap().hashCode()
+    }
+
     /**
      * Constructs a ComplicationSlotBounds where all complication types have the same screen space
      * unit-square bounds.
@@ -60,10 +88,31 @@ public class ComplicationSlotBounds(
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     companion object {
         /**
+         * Constructs a [ComplicationSlotBounds] from a potentially incomplete
+         * Map<ComplicationType, RectF>, backfilling with empty [RectF]s. This method is necessary
+         * because there can be a skew between the version of the library between the watch face and
+         * the system which would otherwise be problematic if new complication types have been
+         * introduced.
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        fun createFromPartialMap(
+            partialPerComplicationTypeBounds: Map<ComplicationType, RectF>
+        ): ComplicationSlotBounds {
+            val map = HashMap(partialPerComplicationTypeBounds)
+
+            for (type in ComplicationType.values()) {
+                map.putIfAbsent(type, RectF())
+            }
+
+            return ComplicationSlotBounds(map)
+        }
+
+        /**
          * The [parser] should be inside a node with any number of ComplicationSlotBounds child
          * nodes. No other child nodes are expected.
          */
-        fun inflate(resources: Resources, parser: XmlResourceParser): ComplicationSlotBounds? {
+        fun inflate(parser: XmlResourceParser): ComplicationSlotBounds? {
             var type = 0
             val outerDepth = parser.depth
             val perComplicationTypeBounds by lazy { HashMap<ComplicationType, RectF>() }
@@ -71,31 +120,29 @@ public class ComplicationSlotBounds(
                 if (type == XmlPullParser.START_TAG) {
                     when (parser.name) {
                         "ComplicationSlotBounds" -> {
-                            val attrs = resources.obtainAttributes(
-                                parser,
-                                R.styleable.ComplicationSlotBounds
-                            )
                             val rect = RectF(
-                                attrs.requireAndGet(R.styleable.ComplicationSlotBounds_left) {
+                                parser.requireAndGet("left") {
                                     "ComplicationSlotBounds must define 'left'"
                                 },
-                                attrs.requireAndGet(R.styleable.ComplicationSlotBounds_top) {
+                                parser.requireAndGet("top") {
                                     "ComplicationSlotBounds must define 'top'"
                                 },
-                                attrs.requireAndGet(R.styleable.ComplicationSlotBounds_right) {
+                                parser.requireAndGet("right") {
                                     "ComplicationSlotBounds must define 'right'"
                                 },
-                                attrs.requireAndGet(R.styleable.ComplicationSlotBounds_bottom) {
+                                parser.requireAndGet("bottom") {
                                     "ComplicationSlotBounds must define 'bottom'"
                                 }
                             )
-                            if (attrs.hasValue(
-                                    R.styleable.ComplicationSlotBounds_complicationType
+                            if (null != parser.getAttributeValue(
+                                    NAMESPACE_APP,
+                                    "complicationType"
                                 )
                             ) {
                                 val complicationType = ComplicationType.fromWireType(
-                                    attrs.getInteger(
-                                        R.styleable.ComplicationSlotBounds_complicationType,
+                                    parser.getAttributeIntValue(
+                                        NAMESPACE_APP,
+                                        "complicationType",
                                         0
                                     )
                                 )
@@ -117,7 +164,6 @@ public class ComplicationSlotBounds(
                                     perComplicationTypeBounds[complicationType] = rect
                                 }
                             }
-                            attrs.recycle()
                         }
                         else -> throw IllegalArgumentException(
                             "Unexpected node ${parser.name} at line ${parser.lineNumber}"
@@ -130,13 +176,17 @@ public class ComplicationSlotBounds(
             return if (perComplicationTypeBounds.isEmpty()) {
                 null
             } else {
-                ComplicationSlotBounds(perComplicationTypeBounds)
+                createFromPartialMap(perComplicationTypeBounds)
             }
         }
     }
 }
 
-internal fun TypedArray.requireAndGet(resourceId: Int, produceError: () -> String): Float {
-    require(hasValue(resourceId), produceError)
-    return getFloat(resourceId, 0f)
+internal fun XmlResourceParser.requireAndGet(id: String, produceError: () -> String): Float {
+    require(null != getAttributeValue(NAMESPACE_APP, id), produceError)
+    return getAttributeFloatValue(NAMESPACE_APP, id, 0f)
+}
+
+fun XmlResourceParser.hasValue(id: String): Boolean {
+    return null != getAttributeValue(NAMESPACE_APP, id)
 }

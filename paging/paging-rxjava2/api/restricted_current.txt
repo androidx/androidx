@@ -49,7 +49,7 @@ package androidx.paging.rxjava2 {
 
   public abstract class RxPagingSource<Key, Value> extends androidx.paging.PagingSource<Key,Value> {
     ctor public RxPagingSource();
-    method public final suspend Object? load(androidx.paging.PagingSource.LoadParams<Key> params, kotlin.coroutines.Continuation<? super androidx.paging.PagingSource.LoadResult<Key,Value>> p);
+    method public final suspend Object? load(androidx.paging.PagingSource.LoadParams<Key> params, kotlin.coroutines.Continuation<? super androidx.paging.PagingSource.LoadResult<Key,Value>>);
     method public abstract io.reactivex.Single<androidx.paging.PagingSource.LoadResult<Key,Value>> loadSingle(androidx.paging.PagingSource.LoadParams<Key> params);
   }
 

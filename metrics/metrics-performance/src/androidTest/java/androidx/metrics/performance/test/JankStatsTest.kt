@@ -18,6 +18,8 @@ package androidx.metrics.performance.test
 import androidx.core.util.Pair
 import androidx.metrics.performance.PerformanceMetricsState
 import androidx.metrics.performance.FrameData
+import androidx.metrics.performance.FrameDataApi24
+import androidx.metrics.performance.FrameDataApi31
 import androidx.metrics.performance.JankStats
 import androidx.metrics.performance.JankStats.OnFrameListener
 import androidx.metrics.performance.StateInfo
@@ -25,18 +27,20 @@ import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
 import org.hamcrest.Matchers
-import org.junit.Assert
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertThat
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
@@ -87,6 +91,46 @@ class JankStatsTest {
     }
 
     @Test
+    fun testEquality() {
+        val states1 = listOf<StateInfo>(StateInfo("1", "a"))
+        val states2 = listOf<StateInfo>(StateInfo("1", "a"), StateInfo("2", "b"))
+        val frameDataBase = FrameData(0, 0, true, states1)
+        val frameDataBaseCopy = FrameData(0, 0, true, states1)
+        val frameDataBaseA = FrameData(0, 0, true, states2)
+        val frameDataBaseB = FrameData(0, 0, false, states1)
+        val frameDataBaseC = FrameData(0, 1, true, states1)
+        val frameDataBaseD = FrameData(1, 0, true, states1)
+
+        val frameData24 = FrameDataApi24(0, 0, 0, true, states1)
+        val frameData24Copy = FrameDataApi24(0, 0, 0, true, states1)
+        val frameData24A = FrameDataApi24(0, 0, 1, true, states1)
+
+        val frameData31 = FrameDataApi31(0, 0, 0, 0, true, states1)
+        val frameData31Copy = FrameDataApi31(0, 0, 0, 0, true, states1)
+        val frameData31A = FrameDataApi31(0, 0, 0, 1, true, states1)
+
+        assertEquals(frameDataBase, frameDataBase)
+        assertEquals(frameDataBase, frameDataBaseCopy)
+        assertEquals(frameData24, frameData24)
+        assertEquals(frameData24, frameData24Copy)
+        assertEquals(frameData31, frameData31)
+        assertEquals(frameData31, frameData31Copy)
+
+        assertNotEquals(frameDataBase, frameDataBaseA)
+        assertNotEquals(frameDataBase, frameDataBaseB)
+        assertNotEquals(frameDataBase, frameDataBaseC)
+        assertNotEquals(frameDataBase, frameDataBaseD)
+        assertNotEquals(frameDataBase, frameData24)
+        assertNotEquals(frameData24, frameDataBase)
+        assertNotEquals(frameDataBase, frameData31)
+        assertNotEquals(frameData31, frameDataBase)
+        assertNotEquals(frameData24, frameData31)
+        assertNotEquals(frameData31, frameData24)
+        assertNotEquals(frameData24, frameData24A)
+        assertNotEquals(frameData31, frameData31A)
+    }
+
+    @Test
     fun testNoJank() {
         val frameDelay = 0
 
@@ -95,15 +139,42 @@ class JankStatsTest {
         latchedListener.reset()
 
         runDelayTest(frameDelay, NUM_FRAMES, latchedListener)
-        Assert.assertEquals("numJankFrames should equal 0", 0, latchedListener.numJankFrames)
+        assertEquals("numJankFrames should equal 0", 0, latchedListener.numJankFrames)
         latchedListener.reset()
 
         jankStats.jankHeuristicMultiplier = 0f
         runDelayTest(frameDelay, NUM_FRAMES, latchedListener)
-        Assert.assertEquals(
+        assertEquals(
             "multiplier 0, extremeMs 0: numJankFrames should equal NUM_FRAMES",
             NUM_FRAMES, latchedListener.numJankFrames
         )
+    }
+
+    @Test
+    fun testMultipleListeners() {
+        val frameDelay = 0
+
+        // Prime the system first to flush out any frames happening before we start forcing jank
+        runDelayTest(0, NUM_FRAMES, latchedListener)
+        latchedListener.reset()
+
+        val testState = StateInfo("Testing State", "sampleState")
+        metricsState.addSingleFrameState(testState.stateName, testState.state)
+        val secondListenerStates = mutableListOf<StateInfo>()
+        val secondListener = OnFrameListener {
+            secondListenerStates.addAll(it.states)
+        }
+        val scenario = delayedActivityRule.scenario
+        scenario.onActivity { _ ->
+            JankStats.createAndTrack(
+                delayedActivity.window,
+                Dispatchers.Default.asExecutor(), secondListener
+            )
+        }
+        runDelayTest(frameDelay, NUM_FRAMES, latchedListener)
+        val jankData: FrameData = latchedListener.jankData[0]
+        assertEquals(listOf(testState), jankData.states)
+        assertEquals(listOf(testState), secondListenerStates)
     }
 
     @Test
@@ -115,7 +186,7 @@ class JankStatsTest {
         latchedListener.reset()
 
         runDelayTest(frameDelay, NUM_FRAMES, latchedListener)
-        Assert.assertEquals(
+        assertEquals(
             "numJankFrames should equal NUM_FRAMES",
             NUM_FRAMES,
             latchedListener.numJankFrames
@@ -124,7 +195,7 @@ class JankStatsTest {
 
         jankStats.jankHeuristicMultiplier = 20f
         runDelayTest(frameDelay, NUM_FRAMES, latchedListener)
-        Assert.assertEquals(
+        assertEquals(
             "multiplier 20, extremeMs 0: numJankFrames should equal 0",
             0, latchedListener.numJankFrames
         )
@@ -147,29 +218,29 @@ class JankStatsTest {
         metricsState.addState(state1.stateName, state1.state)
         metricsState.addSingleFrameState(state2.stateName, state2.state)
         runDelayTest(frameDelay, NUM_FRAMES, latchedListener)
-        Assert.assertEquals(
-            "frameDelay 100: There should be 10 frames with jank data", NUM_FRAMES,
+        assertEquals(
+            "frameDelay 100: There should be $NUM_FRAMES frames with jank data", NUM_FRAMES,
             latchedListener.jankData.size
         )
         var item0: FrameData = latchedListener.jankData[0]
-        Assert.assertEquals("There should be 3 states at frame 0", 3,
+        assertEquals("There should be 3 states at frame 0", 3,
             item0.states.size)
         for (state in item0.states) {
             // Test that every state is in the states set above
-            Assert.assertThat(state, Matchers.isIn(listOf(state0, state1, state2)))
+            assertThat(state, Matchers.isIn(listOf(state0, state1, state2)))
         }
         // Test that all states set above are in the states for the first frame
-        Assert.assertThat(state0, Matchers.isIn(item0.states))
-        Assert.assertThat(state1, Matchers.isIn(item0.states))
-        Assert.assertThat(state2, Matchers.isIn(item0.states))
+        assertThat(state0, Matchers.isIn(item0.states))
+        assertThat(state1, Matchers.isIn(item0.states))
+        assertThat(state2, Matchers.isIn(item0.states))
 
         // Now test the rest of the frames, which should not include singleFrameState state2
         for (i in 1 until NUM_FRAMES) {
             val item = latchedListener.jankData[i]
-            Assert.assertEquals("There should be 2 states at frame 0", 2,
+            assertEquals("There should be 2 states at frame 0", 2,
                 item.states.size)
             for (state in item.states) {
-                Assert.assertThat(
+                assertThat(
                     state,
                     Matchers.either(Matchers.`is`(state0)).or(Matchers.`is`(state1))
                 )
@@ -183,7 +254,7 @@ class JankStatsTest {
 
         runDelayTest(frameDelay, 1, latchedListener)
         item0 = latchedListener.jankData[0]
-        Assert.assertEquals(
+        assertEquals(
             "States should be empty after being cleared",
             0,
             item0.states.size
@@ -195,7 +266,7 @@ class JankStatsTest {
         metricsState.addState(state4.first!!, state4.second!!)
         runDelayTest(frameDelay, 1, latchedListener)
         item0 = latchedListener.jankData[0]
-        Assert.assertEquals(2, item0.states.size)
+        assertEquals(2, item0.states.size)
         latchedListener.reset()
 
         // Test removal of state3 and replacement of state4
@@ -203,9 +274,9 @@ class JankStatsTest {
         metricsState.addState(state4.first!!, "sampleStateF")
         runDelayTest(frameDelay, 1, latchedListener)
         item0 = latchedListener.jankData[0]
-        Assert.assertEquals(1, item0.states.size)
-        Assert.assertEquals(state4.first, item0.states[0].stateName)
-        Assert.assertEquals("sampleStateF", item0.states[0].state)
+        assertEquals(1, item0.states.size)
+        assertEquals(state4.first, item0.states[0].stateName)
+        assertEquals("sampleStateF", item0.states[0].state)
         latchedListener.reset()
     }
 
@@ -251,7 +322,7 @@ class JankStatsTest {
                 if (frameData.isJank) {
                     this.numJankFrames++
                 }
-                this.jankData.add(FrameData(frameData))
+                this.jankData.add(frameData)
                 latch!!.countDown()
             }
         }

@@ -30,6 +30,8 @@ import androidx.camera.testing.LabTestRule
 import androidx.camera.testing.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.runBlocking
@@ -40,11 +42,8 @@ import org.junit.Assume
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
 // Test the YubToRgbConverter to convert the input image from CameraX
 @LargeTest
@@ -54,7 +53,9 @@ class YuvToRgbConverterTest(
     private val cameraXConfig: CameraXConfig
 ) {
     @get:Rule
-    val useCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
+    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
+        CameraUtil.PreTestCameraIdList(cameraXConfig)
+    )
 
     @get:Rule
     val labTest: LabTestRule = LabTestRule()

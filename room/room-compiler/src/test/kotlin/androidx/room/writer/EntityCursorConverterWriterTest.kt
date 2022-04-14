@@ -32,6 +32,7 @@ class EntityCursorConverterWriterTest : BaseEntityParserTest() {
         val OUT_PREFIX = """
             package foo.bar;
             import android.database.Cursor;
+            import androidx.room.util.CursorUtil;
             import java.lang.SuppressWarnings;
             import javax.annotation.processing.Generated;
             @Generated("androidx.room.RoomProcessor")
@@ -56,10 +57,10 @@ class EntityCursorConverterWriterTest : BaseEntityParserTest() {
             """
                 private MyEntity __entityCursorConverter_fooBarMyEntity(Cursor cursor) {
                   final MyEntity _entity;
-                  final int _cursorIndexOfId = cursor.getColumnIndex("id");
-                  final int _cursorIndexOfName = cursor.getColumnIndex("name");
-                  final int _cursorIndexOfLastName = cursor.getColumnIndex("lastName");
-                  final int _cursorIndexOfAge = cursor.getColumnIndex("age");
+                  final int _cursorIndexOfId = CursorUtil.getColumnIndex(cursor, "id");
+                  final int _cursorIndexOfName = CursorUtil.getColumnIndex(cursor, "name");
+                  final int _cursorIndexOfLastName = CursorUtil.getColumnIndex(cursor, "lastName");
+                  final int _cursorIndexOfAge = CursorUtil.getColumnIndex(cursor, "age");
                   _entity = new MyEntity();
                   if (_cursorIndexOfId != -1) {
                     final int _tmpId;

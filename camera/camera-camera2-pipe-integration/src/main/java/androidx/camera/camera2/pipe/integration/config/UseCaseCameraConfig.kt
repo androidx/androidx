@@ -27,6 +27,7 @@ import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
 import androidx.camera.camera2.pipe.integration.impl.CameraCallbackMap
+import androidx.camera.camera2.pipe.integration.impl.CapturePipelineImpl
 import androidx.camera.camera2.pipe.integration.impl.ComboRequestListener
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCameraImpl
@@ -44,6 +45,7 @@ annotation class UseCaseCameraScope
 
 /** Dependency bindings for building a [UseCaseCamera] */
 @Module(includes = [
+    CapturePipelineImpl.Bindings::class,
     UseCaseCameraImpl.Bindings::class,
     UseCaseCameraRequestControlImpl.Bindings::class,
 ])

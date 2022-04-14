@@ -19,19 +19,26 @@
 package androidx.build.lint
 
 import com.android.tools.lint.client.api.IssueRegistry
+import com.android.tools.lint.client.api.Vendor
 import com.android.tools.lint.detector.api.CURRENT_API
 import com.android.tools.lint.detector.api.Issue
 
 class AndroidXIssueRegistry : IssueRegistry() {
     override val minApi = CURRENT_API
-    override val api = 11
+    override val api = 13
     override val issues get(): List<Issue> {
         return Issues
     }
+    override val vendor = Vendor(
+        feedbackUrl = "https://issuetracker.google.com/issues/new?component=1147525",
+        identifier = "androidx.build",
+        vendorName = "Android Open Source Project",
+    )
 
     companion object {
         val Issues get(): List<Issue> {
             return listOf(
+                AndroidManifestServiceExportedDetector.ISSUE,
                 BanParcelableUsage.ISSUE,
                 BanConcurrentHashMap.ISSUE,
                 BanInappropriateExperimentalUsage.ISSUE,
@@ -54,6 +61,7 @@ class AndroidXIssueRegistry : IssueRegistry() {
                 PrivateConstructorForUtilityClassDetector.ISSUE,
                 ClassVerificationFailureDetector.ISSUE,
                 IdeaSuppressionDetector.ISSUE,
+                CameraXQuirksClassDetector.ISSUE
             )
         }
     }

@@ -1,20 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="cli" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.media2.test.common.TestUtils is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return Objects.equals(a, b);"
-        errorLine2="                           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/test/common/TestUtils.java"
-            line="77"
-            column="28"/>
-    </issue>
+<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static void waitFor(final PollingCheckCondition condition) {"
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -25,7 +14,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static void waitFor(long timeout, final PollingCheckCondition condition) {"
         errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -36,7 +25,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static boolean equals(Bundle a, Bundle b) {"
         errorLine2="                                 ~~~~~~">
         <location
@@ -47,7 +36,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static boolean equals(Bundle a, Bundle b) {"
         errorLine2="                                           ~~~~~~">
         <location
@@ -58,89 +47,89 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static boolean contains(Bundle a, Bundle b) {"
         errorLine2="                                   ~~~~~~">
         <location
             file="src/main/java/androidx/media2/test/common/TestUtils.java"
-            line="55"
+            line="56"
             column="36"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static boolean contains(Bundle a, Bundle b) {"
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/androidx/media2/test/common/TestUtils.java"
-            line="55"
+            line="56"
             column="46"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static boolean equals(Object a, Object b) {"
         errorLine2="                                 ~~~~~~">
         <location
             file="src/main/java/androidx/media2/test/common/TestUtils.java"
-            line="75"
+            line="76"
             column="34"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static boolean equals(Object a, Object b) {"
         errorLine2="                                           ~~~~~~">
         <location
             file="src/main/java/androidx/media2/test/common/TestUtils.java"
-            line="75"
+            line="76"
             column="44"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static Bundle createTestBundle() {"
         errorLine2="                  ~~~~~~">
         <location
             file="src/main/java/androidx/media2/test/common/TestUtils.java"
-            line="88"
+            line="89"
             column="19"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static String getMediaIdInFakeList(int index) {"
         errorLine2="                  ~~~~~~">
         <location
             file="src/main/java/androidx/media2/test/common/TestUtils.java"
-            line="97"
+            line="98"
             column="19"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="        public SyncHandler(Looper looper) {"
         errorLine2="                           ~~~~~~">
         <location
             file="src/main/java/androidx/media2/test/common/TestUtils.java"
-            line="106"
+            line="107"
             column="28"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="        public void postAndSync(final Runnable runnable) throws InterruptedException {"
         errorLine2="                                      ~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/test/common/TestUtils.java"
-            line="110"
+            line="111"
             column="39"/>
     </issue>
 

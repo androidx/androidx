@@ -19,7 +19,6 @@ package androidx.wear.compose.material
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -29,9 +28,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -48,6 +49,7 @@ import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -74,7 +76,7 @@ import kotlin.math.min
  * Note that the Wear OS design guidance recommends a gradient or image background for Cards which
  * is not the case for Mobile Cards. As a result you will see a backgroundPainter rather than a
  * backgroundColor for Cards. If you want to workaround this recommendation you could use a
- * ColorPainter to produce a solid colored background.
+ * [ColorPainter] to produce a solid colored background.
  *
  * @param onClick Will be called when the user clicks the card
  * @param modifier Modifier to be applied to the card
@@ -100,31 +102,23 @@ public fun Card(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     backgroundPainter: Painter = CardDefaults.cardBackgroundPainter(),
-    contentColor: Color = MaterialTheme.colors.onSurfaceVariant2,
+    contentColor: Color = MaterialTheme.colors.onSurfaceVariant,
     enabled: Boolean = true,
     contentPadding: PaddingValues = CardDefaults.ContentPadding,
     shape: Shape = MaterialTheme.shapes.large,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     role: Role? = null,
-    content: @Composable () -> Unit,
+    content: @Composable ColumnScope.() -> Unit,
 ) {
-    Box(
+    Column(
         modifier = modifier
             .fillMaxWidth()
+            .height(IntrinsicSize.Min)
             .clip(shape = shape)
-    ) {
-        // TODO: Due to b/178201337 the paint() modifier on the box doesn't make a call to draw the
-        //  box contents. As a result we need to have stacked boxes to enable us to paint the
-        //  background
-        val painterModifier =
-            Modifier
-                .matchParentSize()
-                .paint(
-                    painter = backgroundPainter,
-                    contentScale = ContentScale.Crop
-                )
-
-        val contentBoxModifier = Modifier
+            .paint(
+                painter = backgroundPainter,
+                contentScale = ContentScale.Crop
+            )
             .clickable(
                 enabled = enabled,
                 onClick = onClick,
@@ -133,20 +127,12 @@ public fun Card(
                 interactionSource = interactionSource,
             )
             .padding(contentPadding)
-
-        Box(
-            modifier = painterModifier
-        )
+    ) {
         CompositionLocalProvider(
             LocalContentColor provides contentColor,
-            LocalTextStyle provides MaterialTheme.typography.button
-        ) {
-            Box(
-                modifier = contentBoxModifier,
-            ) {
-                content()
-            }
-        }
+            LocalTextStyle provides MaterialTheme.typography.button,
+            content = content
+        )
     }
 }
 
@@ -193,26 +179,26 @@ public fun Card(
  * @param backgroundPainter A painter used to paint the background of the card. A card will
  * normally have a gradient background. Use [CardDefaults.cardBackgroundPainter()] to obtain an
  * appropriate painter
+ * @param contentColor The default color to use for content() slot unless explicitly set.
  * @param appColor The default color to use for appName() and appImage() slots unless explicitly
  * set.
  * @param timeColor The default color to use for time() slot unless explicitly set.
  * @param titleColor The default color to use for title() slot unless explicitly set.
- * @param contentColor The default color to use for content() slot unless explicitly set.
  */
 @Composable
 public fun AppCard(
     onClick: () -> Unit,
-    appName: @Composable () -> Unit,
-    time: @Composable () -> Unit,
-    title: @Composable () -> Unit,
+    appName: @Composable RowScope.() -> Unit,
+    time: @Composable RowScope.() -> Unit,
+    title: @Composable RowScope.() -> Unit,
     modifier: Modifier = Modifier,
-    appImage: @Composable (() -> Unit)? = null,
+    appImage: @Composable (RowScope.() -> Unit)? = null,
     backgroundPainter: Painter = CardDefaults.cardBackgroundPainter(),
-    appColor: Color = MaterialTheme.colors.onSurfaceVariant,
-    timeColor: Color = MaterialTheme.colors.onSurfaceVariant,
+    contentColor: Color = MaterialTheme.colors.onSurfaceVariant,
+    appColor: Color = contentColor,
+    timeColor: Color = contentColor,
     titleColor: Color = MaterialTheme.colors.onSurface,
-    contentColor: Color = MaterialTheme.colors.onSurfaceVariant2,
-    content: @Composable () -> Unit,
+    content: @Composable ColumnScope.() -> Unit,
 ) {
     Card(
         onClick = onClick,
@@ -237,21 +223,21 @@ public fun AppCard(
                         content = appName
                     )
                 }
-                Spacer(modifier = Modifier.width(4.dp))
-                Box(modifier = Modifier.weight(1.0f), contentAlignment = Alignment.CenterEnd) {
-                    CompositionLocalProvider(
-                        LocalContentColor provides timeColor,
-                        LocalTextStyle provides MaterialTheme.typography.caption1,
-                        content = time
-                    )
-                }
+                Spacer(modifier = Modifier.weight(1.0f))
+                CompositionLocalProvider(
+                    LocalContentColor provides timeColor,
+                    LocalTextStyle provides MaterialTheme.typography.caption1,
+                    content = time
+                )
             }
             Spacer(modifier = Modifier.height(4.dp))
-            CompositionLocalProvider(
-                LocalContentColor provides titleColor,
-                LocalTextStyle provides MaterialTheme.typography.title3,
-                content = title
-            )
+            Row {
+                CompositionLocalProvider(
+                    LocalContentColor provides titleColor,
+                    LocalTextStyle provides MaterialTheme.typography.title3,
+                    content = title
+                )
+            }
             CompositionLocalProvider(
                 LocalContentColor provides contentColor,
                 LocalTextStyle provides MaterialTheme.typography.body1,
@@ -303,21 +289,21 @@ public fun AppCard(
  * have either a gradient background or an image background, use
  * [CardDefaults.cardBackgroundPainter()] or [CardDefaults.imageBackgroundPainter()] to obtain an
  * appropriate painter
+ * @param contentColor The default color to use for content() slot unless explicitly set.
  * @param titleColor The default color to use for title() slot unless explicitly set.
  * @param timeColor The default color to use for time() slot unless explicitly set.
- * @param contentColor The default color to use for content() slot unless explicitly set.
  */
 @Composable
 public fun TitleCard(
     onClick: () -> Unit,
-    title: @Composable () -> Unit,
+    title: @Composable RowScope.() -> Unit,
     modifier: Modifier = Modifier,
-    time: @Composable (() -> Unit)? = null,
+    time: @Composable (RowScope.() -> Unit)? = null,
     backgroundPainter: Painter = CardDefaults.cardBackgroundPainter(),
+    contentColor: Color = MaterialTheme.colors.onSurfaceVariant,
     titleColor: Color = MaterialTheme.colors.onSurface,
-    timeColor: Color = MaterialTheme.colors.onSurfaceVariant,
-    contentColor: Color = MaterialTheme.colors.onSurfaceVariant2,
-    content: @Composable () -> Unit,
+    timeColor: Color = contentColor,
+    content: @Composable ColumnScope.() -> Unit,
 ) {
     Card(
         onClick = onClick,
@@ -336,14 +322,12 @@ public fun TitleCard(
                     content = title
                 )
                 if (time != null) {
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Box(modifier = Modifier.weight(1.0f), contentAlignment = Alignment.CenterEnd) {
-                        CompositionLocalProvider(
-                            LocalContentColor provides timeColor,
-                            LocalTextStyle provides MaterialTheme.typography.caption1,
-                            content = time
-                        )
-                    }
+                    Spacer(modifier = Modifier.weight(1.0f))
+                    CompositionLocalProvider(
+                        LocalContentColor provides timeColor,
+                        LocalTextStyle provides MaterialTheme.typography.caption1,
+                        content = time
+                    )
                 }
             }
             Spacer(modifier = Modifier.height(2.dp))
@@ -380,7 +364,7 @@ public object CardDefaults {
             MaterialTheme.colors.onSurfaceVariant.copy(alpha = 0.20f)
                 .compositeOver(MaterialTheme.colors.background),
         endBackgroundColor: Color =
-            MaterialTheme.colors.onSurfaceVariant2.copy(alpha = 0.13f)
+            MaterialTheme.colors.onSurfaceVariant.copy(alpha = 0.10f)
                 .compositeOver(MaterialTheme.colors.background),
         gradientDirection: LayoutDirection = LocalLayoutDirection.current
     ): Painter {

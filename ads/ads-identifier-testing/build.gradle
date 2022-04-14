@@ -31,6 +31,7 @@ android {
     lintOptions {
         disable "InvalidPackage" // Lint is unhappy about mockito package
     }
+    namespace "androidx.ads.identifier.testing"
 }
 
 androidx {

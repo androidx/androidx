@@ -1,44 +1,4 @@
 // Baseline format: 1.0
-AddedFinal: androidx.collection.SparseArrayCompat#append(int, E):
-    Method androidx.collection.SparseArrayCompat.append has added 'final' qualifier
-AddedFinal: androidx.collection.SparseArrayCompat#clear():
-    Method androidx.collection.SparseArrayCompat.clear has added 'final' qualifier
-AddedFinal: androidx.collection.SparseArrayCompat#containsKey(int):
-    Method androidx.collection.SparseArrayCompat.containsKey has added 'final' qualifier
-AddedFinal: androidx.collection.SparseArrayCompat#containsValue(E):
-    Method androidx.collection.SparseArrayCompat.containsValue has added 'final' qualifier
-AddedFinal: androidx.collection.SparseArrayCompat#get(int):
-    Method androidx.collection.SparseArrayCompat.get has added 'final' qualifier
-AddedFinal: androidx.collection.SparseArrayCompat#get(int, E):
-    Method androidx.collection.SparseArrayCompat.get has added 'final' qualifier
-AddedFinal: androidx.collection.SparseArrayCompat#indexOfKey(int):
-    Method androidx.collection.SparseArrayCompat.indexOfKey has added 'final' qualifier
-AddedFinal: androidx.collection.SparseArrayCompat#indexOfValue(E):
-    Method androidx.collection.SparseArrayCompat.indexOfValue has added 'final' qualifier
-AddedFinal: androidx.collection.SparseArrayCompat#isEmpty():
-    Method androidx.collection.SparseArrayCompat.isEmpty has added 'final' qualifier
-AddedFinal: androidx.collection.SparseArrayCompat#keyAt(int):
-    Method androidx.collection.SparseArrayCompat.keyAt has added 'final' qualifier
-AddedFinal: androidx.collection.SparseArrayCompat#put(int, E):
-    Method androidx.collection.SparseArrayCompat.put has added 'final' qualifier
-AddedFinal: androidx.collection.SparseArrayCompat#putIfAbsent(int, E):
-    Method androidx.collection.SparseArrayCompat.putIfAbsent has added 'final' qualifier
-AddedFinal: androidx.collection.SparseArrayCompat#remove(int):
-    Method androidx.collection.SparseArrayCompat.remove has added 'final' qualifier
-AddedFinal: androidx.collection.SparseArrayCompat#remove(int, Object):
-    Method androidx.collection.SparseArrayCompat.remove has added 'final' qualifier
-AddedFinal: androidx.collection.SparseArrayCompat#removeAt(int):
-    Method androidx.collection.SparseArrayCompat.removeAt has added 'final' qualifier
-AddedFinal: androidx.collection.SparseArrayCompat#replace(int, E):
-    Method androidx.collection.SparseArrayCompat.replace has added 'final' qualifier
-AddedFinal: androidx.collection.SparseArrayCompat#replace(int, E, E):
-    Method androidx.collection.SparseArrayCompat.replace has added 'final' qualifier
-AddedFinal: androidx.collection.SparseArrayCompat#setValueAt(int, E):
-    Method androidx.collection.SparseArrayCompat.setValueAt has added 'final' qualifier
-AddedFinal: androidx.collection.SparseArrayCompat#valueAt(int):
-    Method androidx.collection.SparseArrayCompat.valueAt has added 'final' qualifier
-
-
 ChangedType: androidx.collection.ArraySet#iterator():
     Method androidx.collection.ArraySet.iterator has changed return type from java.util.Iterator<E!> to java.util.Iterator<E>
 ChangedType: androidx.collection.LongSparseArray#clone():
@@ -51,8 +11,6 @@ ChangedType: androidx.collection.SparseArrayCompat#clone():
 
 RemovedMethod: androidx.collection.ArrayMap#ArrayMap(androidx.collection.SimpleArrayMap):
     Removed constructor androidx.collection.ArrayMap(androidx.collection.SimpleArrayMap)
-RemovedMethod: androidx.collection.ArraySet#ArraySet(E[]):
-    Removed constructor androidx.collection.ArraySet(E[])
 RemovedMethod: androidx.collection.ArraySet#ArraySet(androidx.collection.ArraySet<E>):
     Removed constructor androidx.collection.ArraySet(androidx.collection.ArraySet<E>)
 RemovedMethod: androidx.collection.ArraySet#ArraySet(java.util.Collection<E>):

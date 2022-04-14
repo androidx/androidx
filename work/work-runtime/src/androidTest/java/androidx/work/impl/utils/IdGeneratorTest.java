@@ -16,8 +16,8 @@
 
 package androidx.work.impl.utils;
 
-import static androidx.work.impl.utils.IdGenerator.INITIAL_ID;
-import static androidx.work.impl.utils.IdGenerator.NEXT_JOB_SCHEDULER_ID_KEY;
+import static androidx.work.impl.utils.IdGeneratorKt.INITIAL_ID;
+import static androidx.work.impl.utils.IdGeneratorKt.NEXT_JOB_SCHEDULER_ID_KEY;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;

@@ -972,6 +972,7 @@ public class NotificationCompat {
          * with the NotitifactionCompat.Builder API.
          */
         @RequiresApi(19)
+        @SuppressWarnings("deprecation")
         public Builder(@NonNull Context context,
                 @NonNull Notification notification) {
             this(context, getChannelId(notification));
@@ -3163,6 +3164,7 @@ public class NotificationCompat {
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Override
+        @SuppressWarnings("deprecation")
         protected void restoreFromCompatExtras(@NonNull Bundle extras) {
             super.restoreFromCompatExtras(extras);
 
@@ -3863,6 +3865,7 @@ public class NotificationCompat {
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Override
+        @SuppressWarnings("deprecation")
         protected void restoreFromCompatExtras(@NonNull Bundle extras) {
             super.restoreFromCompatExtras(extras);
             mMessages.clear();
@@ -4106,6 +4109,7 @@ public class NotificationCompat {
             }
 
             @Nullable
+            @SuppressWarnings("deprecation")
             static Message getMessageFromBundle(@NonNull Bundle bundle) {
                 try {
                     if (!bundle.containsKey(KEY_TEXT) || !bundle.containsKey(KEY_TIMESTAMP)) {
@@ -6380,6 +6384,7 @@ public class NotificationCompat {
          *
          * @param notification The notification from which to copy options.
          */
+        @SuppressWarnings("deprecation")
         public CarExtender(@NonNull Notification notification) {
             if (Build.VERSION.SDK_INT < 21) {
                 return;
@@ -6397,6 +6402,7 @@ public class NotificationCompat {
         }
 
         @RequiresApi(21)
+        @SuppressWarnings("deprecation")
         private static UnreadConversation getUnreadConversationFromBundle(@Nullable Bundle b) {
             if (b == null) {
                 return null;
@@ -7369,6 +7375,7 @@ public class NotificationCompat {
      * Update the bundle to have a typed array so fetches in the future don't need
      * to do an array copy.
      */
+    @SuppressWarnings("deprecation")
     static @NonNull Notification[] getNotificationArrayFromBundle(@NonNull Bundle bundle,
             @NonNull String key) {
         Parcelable[] array = bundle.getParcelableArray(key);
@@ -7551,6 +7558,7 @@ public class NotificationCompat {
      * On platforms which do not have the {@link android.app.Person} class, the
      * {@link Person} objects will contain only the URI from {@link Builder#addPerson(String)}.
      */
+    @SuppressWarnings("deprecation")
     public static @NonNull List<Person> getPeople(@NonNull Notification notification) {
         ArrayList<Person> result = new ArrayList<>();
         if (Build.VERSION.SDK_INT >= 28) {

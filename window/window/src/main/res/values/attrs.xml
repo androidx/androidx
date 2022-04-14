@@ -28,16 +28,26 @@
         <enum name="ltr" value="1" />
         <enum name="rtl" value="2" />
     </attr>
+    <attr name="finishPrimaryWithSecondary" format="enum">
+        <enum name="never" value="0" />
+        <enum name="always" value="1" />
+        <enum name="adjacent" value="2" />
+    </attr>
+    <attr name="finishSecondaryWithPrimary" format="enum">
+        <enum name="never" value="0" />
+        <enum name="always" value="1" />
+        <enum name="adjacent" value="2" />
+    </attr>
 
     <!-- Split configuration rules for activity pairs. Must contain at least one SplitPairFilter.
     See androidx.window.embedding.SplitPairRule for complete documentation. -->
     <declare-styleable name="SplitPairRule">
         <!-- When all activities are finished in the secondary container, the activity in the
-         primary container that created the split should also be finished. Defaults to "false". -->
-        <attr name="finishPrimaryWithSecondary" format="boolean" />
+         primary container that created the split should also be finished. Defaults to "never". -->
+        <attr name="finishPrimaryWithSecondary" />
         <!-- When all activities are finished in the primary container, the activities in the
-         secondary container in the split should also be finished. Defaults to "true". -->
-        <attr name="finishSecondaryWithPrimary" format="boolean" />
+         secondary container in the split should also be finished. Defaults to "always". -->
+        <attr name="finishSecondaryWithPrimary" />
         <!-- If there is an existing split with the same primary container, indicates whether the
         existing secondary container on top and all activities in it should be destroyed when a new
         split is created using this rule. Otherwise the new secondary will appear on top. Defaults
@@ -55,6 +65,12 @@
     <declare-styleable name="SplitPlaceholderRule">
         <!-- Component name of the placeholder activity in the split. Must be non-empty. -->
         <attr name="placeholderActivityName" format="string" />
+        <!-- Determines whether the placeholder will show on top in a smaller window size after
+        it first appeared in a split with sufficient minimum width. -->
+        <attr name="stickyPlaceholder" format="boolean" />
+        <!-- When all activities are finished in the secondary container, the activity in the
+         primary container that created the split should also be finished. Defaults to "always". -->
+        <attr name="finishPrimaryWithSecondary" />
         <attr name="splitRatio"/>
         <attr name="splitMinWidth"/>
         <attr name="splitMinSmallestWidth"/>

@@ -29,6 +29,7 @@ import android.app.Instrumentation;
 import android.content.Context;
 import android.os.Build;
 
+import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.impl.CameraEventCallback;
 import androidx.camera.camera2.impl.CameraEventCallbacks;
@@ -65,7 +66,9 @@ import java.util.concurrent.TimeoutException;
 public class ExtensionTest {
 
     @Rule
-    public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest();
+    public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest(
+            new CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+    );
 
     @Parameterized.Parameters(name = "effect = {0}, facing = {1}")
     public static Collection<Object[]> getParameters() {
@@ -94,14 +97,14 @@ public class ExtensionTest {
 
     @Before
     public void setUp() throws Exception {
-        assumeTrue(CameraUtil.deviceHasCamera());
-        assumeTrue(CameraUtil.hasCameraWithLensFacing(mLensFacing));
+        assumeTrue(ExtensionsTestUtil.isTargetDeviceAvailableForExtensions(mLensFacing,
+                mExtensionMode));
 
         mProcessCameraProvider = ProcessCameraProvider.getInstance(mContext).get(10000,
                 TimeUnit.MILLISECONDS);
         mExtensionsManager = ExtensionsManager.getInstanceAsync(mContext,
                 mProcessCameraProvider).get(10000, TimeUnit.MILLISECONDS);
-        assumeTrue(isTargetDeviceAvailableForExtensions(mLensFacing));
+        assumeTrue(isTargetDeviceAvailableForExtensions(mLensFacing, mExtensionMode));
         mBaseCameraSelector = new CameraSelector.Builder().requireLensFacing(mLensFacing).build();
         assumeTrue(mExtensionsManager.isExtensionAvailable(mBaseCameraSelector, mExtensionMode));
 
@@ -115,6 +118,7 @@ public class ExtensionTest {
     @After
     public void cleanUp() throws InterruptedException, ExecutionException, TimeoutException {
         if (mProcessCameraProvider != null) {
+            mInstrumentation.runOnMainSync(() -> mProcessCameraProvider.unbindAll());
             mProcessCameraProvider.shutdown().get(10000, TimeUnit.MILLISECONDS);
             mExtensionsManager.shutdown().get(10000, TimeUnit.MILLISECONDS);
         }

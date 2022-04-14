@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -36,4 +35,8 @@ androidx {
     mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2018"
     description = "Android Navigation-Runtime-Ktx"
+}
+
+android {
+    namespace "androidx.navigation.ktx"
 }

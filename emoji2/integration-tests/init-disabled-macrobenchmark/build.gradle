@@ -24,6 +24,7 @@ android {
     defaultConfig {
         minSdkVersion 23
     }
+    namespace "androidx.emoji2.integration.macrobenchmark.disabled"
 }
 
 dependencies {

@@ -76,6 +76,11 @@ import java.util.Objects;
  * the text strings it supplies. For that reason, some models that take text allow the app to
  * pass a list of text variants of different lengths. In those cases the host will pick the
  * variant that best fits the screen. See {@link Builder#addVariant} for more information.
+ *
+ * <h4>Text Localization</h4>
+ *
+ * <p>The host will render the text the app sends without interpretation. The app must localize
+ * the text before sending it to the host.
  */
 @CarProtocol
 public final class CarText {

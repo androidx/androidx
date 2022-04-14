@@ -50,6 +50,7 @@ internal abstract class AbstractAppBarOnDestinationChangedListener(
 
     protected abstract fun setNavigationIcon(icon: Drawable?, @StringRes contentDescription: Int)
 
+    @Suppress("DEPRECATION")
     override fun onDestinationChanged(
         controller: NavController,
         destination: NavDestination,

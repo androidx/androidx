@@ -20,6 +20,8 @@ import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.unit.DpSize
+import androidx.datastore.preferences.core.Preferences
+import androidx.glance.state.GlanceStateDefinition
 
 /**
  * Size of the glance view being generated.
@@ -47,8 +49,21 @@ public val LocalState =
 public val LocalGlanceId = staticCompositionLocalOf<GlanceId> { error("No default glance id") }
 
 /**
- * Local view state, defined in surface implementation. A customizable store for view specific state
- * data.
+ * Retrieves the current customizable store for view specific state data as defined by
+ * [GlanceStateDefinition] in the surface implementation.
+ *
+ * @return the current store of the provided type [T]
  */
 @Composable
 public inline fun <reified T> currentState(): T = LocalState.current as T
+
+/**
+ * Retrieves the current [Preferences] value of the provided [Preferences.Key] from the current
+ * state when [Preferences] store is used as [GlanceStateDefinition] in the surface implementation.
+ *
+ * @param key the [Preferences.Key] to retrieve its value
+ * @return the stored value or null if not available.
+ */
+@Composable
+public inline fun <reified T> currentState(key: Preferences.Key<T>): T? =
+    currentState<Preferences>()[key]

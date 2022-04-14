@@ -36,8 +36,8 @@ import androidx.glance.unit.ColorProvider
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -51,18 +51,18 @@ import kotlin.test.assertIs
 @RunWith(RobolectricTestRunner::class)
 class SwitchTranslatorTest {
 
-    private lateinit var fakeCoroutineScope: TestCoroutineScope
+    private lateinit var fakeCoroutineScope: TestScope
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private val lightContext = configurationContext { uiMode = Configuration.UI_MODE_NIGHT_NO }
     private val darkContext = configurationContext { uiMode = Configuration.UI_MODE_NIGHT_YES }
 
     @Before
     fun setUp() {
-        fakeCoroutineScope = TestCoroutineScope()
+        fakeCoroutineScope = TestScope()
     }
 
     @Test
-    fun canTranslateSwitch_fixed_unchecked() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateSwitch_fixed_unchecked() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Switch(
                 checked = false,
@@ -83,7 +83,7 @@ class SwitchTranslatorTest {
     }
 
     @Test
-    fun canTranslateSwitch_fixed_checked() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateSwitch_fixed_checked() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Switch(
                 checked = true,
@@ -104,7 +104,7 @@ class SwitchTranslatorTest {
     }
 
     @Test
-    fun canTranslateSwitch_dayNight_unchecked_day() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateSwitch_dayNight_unchecked_day() = fakeCoroutineScope.runTest {
         val rv = lightContext.runAndTranslate {
             Switch(
                 checked = false,
@@ -128,7 +128,7 @@ class SwitchTranslatorTest {
     }
 
     @Test
-    fun canTranslateSwitch_dayNight_unchecked_night() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateSwitch_dayNight_unchecked_night() = fakeCoroutineScope.runTest {
         val rv = darkContext.runAndTranslate {
             Switch(
                 checked = false,
@@ -152,7 +152,7 @@ class SwitchTranslatorTest {
     }
 
     @Test
-    fun canTranslateSwitch_dayNight_checked_day() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateSwitch_dayNight_checked_day() = fakeCoroutineScope.runTest {
         val rv = lightContext.runAndTranslate {
             Switch(
                 checked = true,
@@ -176,7 +176,7 @@ class SwitchTranslatorTest {
     }
 
     @Test
-    fun canTranslateSwitch_dayNight_checked_night() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateSwitch_dayNight_checked_night() = fakeCoroutineScope.runTest {
         val rv = darkContext.runAndTranslate {
             Switch(
                 checked = true,
@@ -200,7 +200,7 @@ class SwitchTranslatorTest {
     }
 
     @Test
-    fun canTranslateSwitch_resource_unchecked() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateSwitch_resource_unchecked() = fakeCoroutineScope.runTest {
         val rv = lightContext.runAndTranslate {
             Switch(
                 checked = false,
@@ -219,7 +219,7 @@ class SwitchTranslatorTest {
     }
 
     @Test
-    fun canTranslateSwitch_resource_checked() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateSwitch_resource_checked() = fakeCoroutineScope.runTest {
         val rv = lightContext.runAndTranslate {
             Switch(
                 checked = true,
@@ -238,7 +238,7 @@ class SwitchTranslatorTest {
     }
 
     @Test
-    fun canTranslateSwitch_onCheckedChange_null() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateSwitch_onCheckedChange_null() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Switch(
                 checked = true,
@@ -252,7 +252,7 @@ class SwitchTranslatorTest {
     }
 
     @Test
-    fun canTranslateSwitch_onCheckedChange_withAction() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateSwitch_onCheckedChange_withAction() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Switch(
                 checked = true,

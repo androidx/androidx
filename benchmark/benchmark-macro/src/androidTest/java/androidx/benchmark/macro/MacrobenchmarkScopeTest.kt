@@ -19,7 +19,7 @@ package androidx.benchmark.macro
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
-import androidx.annotation.RequiresApi
+import androidx.benchmark.DeviceInfo
 import androidx.benchmark.Shell
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -27,15 +27,16 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.fail
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.fail
+import org.junit.Assume.assumeTrue
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
@@ -43,6 +44,7 @@ class MacrobenchmarkScopeTest {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
 
     @Before
+    @Suppress("DEPRECATION")
     fun setup() {
         // validate target is installed with clear error message,
         // since error messages from e.g. startActivityAndWait may be less clear
@@ -101,10 +103,11 @@ class MacrobenchmarkScopeTest {
         intent.setPackage(Packages.TARGET)
         intent.action = "${Packages.TARGET}.NOT_EXPORTED_ACTIVITY"
 
-        if (Shell.isSessionRooted() || Build.VERSION.SDK_INT <= 23) {
+        // Workaround b/227512788 - isSessionRooted isn't reliable below API 24 on rooted devices
+        assumeTrue(Build.VERSION.SDK_INT > 23 || !DeviceInfo.isRooted)
+
+        if (Shell.isSessionRooted()) {
             // while device and adb session are both rooted, doesn't throw
-            // TODO: verify whether pre-23 behavior requires userdebug device, only tested with
-            //  emulator so far
             scope.startActivityAndWait(intent)
             val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
             assertTrue(device.hasObject(By.text("NOT EXPORTED ACTIVITY")))
@@ -121,7 +124,9 @@ class MacrobenchmarkScopeTest {
         }
     }
 
-    @RequiresApi(24) // Test flakes locally on API 23, appears to be UiAutomation issue
+    // Note: Test flakes locally on API 23, appears to be UI automation issue. In API 23 CI running
+    // MRA58K crashes, but haven't repro'd locally, so just skip on API 23.
+    @SdkSuppress(minSdkVersion = 24)
     @Test
     fun startActivityAndWait_invalidActivity() {
         val scope = MacrobenchmarkScope(Packages.TARGET, launchWithClearTask = true)
@@ -163,4 +168,45 @@ class MacrobenchmarkScopeTest {
         )
         assertTrue(device.hasObject(By.text("UpdatedText")))
     }
+
+    private fun validateLaunchAndFrameStats(pressHome: Boolean) {
+        val scope = MacrobenchmarkScope(
+            Packages.TEST, // self-instrumenting macrobench, so don't kill the process!
+            launchWithClearTask = false
+        )
+        // check that initial launch (home -> activity) is detected
+        scope.pressHome()
+        scope.startActivityAndWait(ConfigurableActivity.createIntent("InitialText"))
+        val initialFrameStats = scope.getFrameStats()
+            .sortedBy { it.lastFrameNs }
+            .first()
+        assertTrue(initialFrameStats.uniqueName.contains("ConfigurableActivity"))
+
+        if (pressHome) {
+            scope.pressHome()
+        }
+
+        // check that hot startup is detected
+        scope.startActivityAndWait(ConfigurableActivity.createIntent("InitialText"))
+        val secondFrameStats = scope.getFrameStats()
+            .sortedBy { it.lastFrameNs }
+            .first()
+        assertTrue(secondFrameStats.uniqueName.contains("ConfigurableActivity"))
+
+        if (pressHome) {
+            assertTrue(secondFrameStats.lastFrameNs!! > initialFrameStats.lastFrameNs!!)
+            if (Build.VERSION.SDK_INT >= 29) {
+                // data not trustworthy before API 29
+                assertTrue(secondFrameStats.lastLaunchNs!! > initialFrameStats.lastLaunchNs!!)
+            }
+        }
+    }
+
+    /** Tests getFrameStats after launch which resumes app */
+    @Test
+    fun getFrameStats_home() = validateLaunchAndFrameStats(pressHome = true)
+
+    /** Tests getFrameStats after launch which does nothing, as Activity already visible */
+    @Test
+    fun getFrameStats_noop() = validateLaunchAndFrameStats(pressHome = false)
 }

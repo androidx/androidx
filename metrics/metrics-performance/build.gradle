@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 import androidx.build.RunApiTasks
 
@@ -55,6 +54,7 @@ android {
     defaultConfig {
         multiDexEnabled true
     }
+    namespace "androidx.metrics.performance"
 }
 
 androidx {

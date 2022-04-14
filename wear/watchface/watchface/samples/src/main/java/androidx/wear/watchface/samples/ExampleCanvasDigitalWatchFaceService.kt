@@ -529,7 +529,8 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
                 CIRCLE_COMPLICATION_DIAMETER_FRACTION
             )
         )
-    ).build()
+    ).setNameResourceId(R.string.left_complication_screen_name)
+        .setScreenReaderNameResourceId(R.string.left_complication_screen_reader_name).build()
 
     private val rightComplication = ComplicationSlot.createRoundRectComplicationSlotBuilder(
         ComplicationID.RIGHT.ordinal,
@@ -550,7 +551,8 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
                 CIRCLE_COMPLICATION_DIAMETER_FRACTION
             )
         )
-    ).build()
+    ).setNameResourceId(R.string.right_complication_screen_name)
+        .setScreenReaderNameResourceId(R.string.right_complication_screen_reader_name).build()
 
     private val upperAndLowerComplicationTypes = listOf(
         ComplicationType.LONG_TEXT,
@@ -570,7 +572,7 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
         ),
         ComplicationSlotBounds(
             ComplicationType.values().associateWith {
-                if (it == ComplicationType.LONG_TEXT) {
+                if (it == ComplicationType.LONG_TEXT || it == ComplicationType.NO_DATA) {
                     createBoundsRect(
                         UPPER_ROUND_RECT_COMPLICATION_CENTER_FRACTION,
                         ROUND_RECT_COMPLICATION_SIZE_FRACTION
@@ -583,7 +585,8 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
                 }
             }
         )
-    ).build()
+    ).setNameResourceId(R.string.upper_complication_screen_name)
+        .setScreenReaderNameResourceId(R.string.upper_complication_screen_reader_name).build()
 
     private val lowerComplication = ComplicationSlot.createRoundRectComplicationSlotBuilder(
         ComplicationID.LOWER.ordinal,
@@ -595,7 +598,7 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
         ),
         ComplicationSlotBounds(
             ComplicationType.values().associateWith {
-                if (it == ComplicationType.LONG_TEXT) {
+                if (it == ComplicationType.LONG_TEXT || it == ComplicationType.NO_DATA) {
                     createBoundsRect(
                         LOWER_ROUND_RECT_COMPLICATION_CENTER_FRACTION,
                         ROUND_RECT_COMPLICATION_SIZE_FRACTION
@@ -608,14 +611,16 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
                 }
             }
         )
-    ).build()
+    ).setNameResourceId(R.string.lower_complication_screen_name)
+        .setScreenReaderNameResourceId(R.string.lower_complication_screen_reader_name).build()
 
     private val backgroundComplication = ComplicationSlot.createBackgroundComplicationSlotBuilder(
         ComplicationID.BACKGROUND.ordinal,
         canvasComplicationFactory,
         listOf(ComplicationType.PHOTO_IMAGE),
         DefaultComplicationDataSourcePolicy()
-    ).build()
+    ).setNameResourceId(R.string.background_complication_screen_name)
+        .setScreenReaderNameResourceId(R.string.background_complication_screen_reader_name).build()
 
     override fun createUserStyleSchema() = UserStyleSchema(listOf(colorStyleSetting))
 
@@ -677,6 +682,7 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
     }
 }
 
+@Suppress("Deprecation")
 class ExampleDigitalWatchCanvasRenderer(
     surfaceHolder: SurfaceHolder,
     private val context: Context,
@@ -690,7 +696,8 @@ class ExampleDigitalWatchCanvasRenderer(
     currentUserStyleRepository,
     watchState,
     CanvasType.HARDWARE,
-    INTERACTIVE_UPDATE_RATE_MS
+    INTERACTIVE_UPDATE_RATE_MS,
+    clearWithBackgroundTintBeforeRenderingHighlightLayer = true
 ) {
     internal var oldBounds = Rect(0, 0, 0, 0)
 
@@ -1022,8 +1029,6 @@ class ExampleDigitalWatchCanvasRenderer(
     }
 
     override fun renderHighlightLayer(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
-        canvas.drawColor(renderParameters.highlightLayer!!.backgroundTint)
-
         drawComplicationHighlights(canvas, zonedDateTime)
     }
 

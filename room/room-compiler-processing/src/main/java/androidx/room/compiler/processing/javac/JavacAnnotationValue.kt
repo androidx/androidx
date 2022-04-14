@@ -77,7 +77,8 @@ private val UNWRAP_VISITOR = object : AbstractAnnotationValueVisitor8<Any?, Visi
         return JavacEnumEntry(
             env = data.env,
             entryElement = c,
-            enumTypeElement = JavacTypeElement.create(data.env, enumTypeElement) as XEnumTypeElement
+            enclosingElement = JavacTypeElement.create(data.env, enumTypeElement)
+                as XEnumTypeElement
         )
     }
 

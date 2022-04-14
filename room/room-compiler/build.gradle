@@ -15,7 +15,6 @@
  */
 
 import androidx.build.BuildOnServerKt
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 import androidx.build.SupportConfig
 import androidx.build.SdkHelperKt
@@ -115,11 +114,19 @@ dependencies {
             include : "android.jar"
     ))
     testImplementation(fileTree(
-            dir: "${new File(project(":room:room-runtime").buildDir, "libJar")}",
+            dir: provider {
+                // Wrapping in a provider as we access buildDir before this project is configured
+                // Replace with AGP API once it is added b/228109260
+                "${new File(project(":room:room-runtime").buildDir, "intermediates/runtime_library_classes_jar/release/")}"
+            },
             include : "*.jar"
     ))
     testImplementation(fileTree(
-            dir: "${new File(project(":sqlite:sqlite").buildDir, "libJar")}",
+            dir: provider {
+                // Wrapping in a provider as we access buildDir before this project is configured
+                // Replace with AGP API once it is added b/228109260
+                "${new File(project(":sqlite:sqlite").buildDir, "libJar")}"
+            },
             include : "*.jar"
     ))
     testImplementation(project(":internal-testutils-common"))
@@ -273,22 +280,26 @@ BuildOnServerKt.addToBuildOnServer(project, checkArtifactContentsTask)
 
 tasks.findByName("compileKotlin").dependsOn(generateAntlrTask)
 tasks.findByName("sourceJar").dependsOn(generateAntlrTask)
-tasks.findByName("compileKotlin").dependsOn(":room:room-runtime:jarRelease")
+tasks.findByName("compileKotlin").dependsOn(":room:room-runtime:bundleLibRuntimeToJarRelease")
 tasks.findByName("compileKotlin").dependsOn(":sqlite:sqlite:jarRelease")
 
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
         freeCompilerArgs += [
-                "-Xjvm-default=all",
-                "-Xopt-in=kotlin.RequiresOptIn",
-                "-Xopt-in=kotlin.contracts.ExperimentalContracts",
-                "-Xopt-in=androidx.room.compiler.processing.ExperimentalProcessingApi"
+                "-opt-in=kotlin.RequiresOptIn",
+                "-opt-in=kotlin.contracts.ExperimentalContracts",
+                "-opt-in=androidx.room.compiler.processing.ExperimentalProcessingApi"
         ]
     }
 }
 
 tasks.withType(Test).configureEach {
     it.systemProperty("androidx.room.compiler.processing.strict", "true")
+    it.maxParallelForks(3)
+    if (project.providers.environmentVariable("GITHUB_ACTIONS").present) {
+        // limit memory usage to avoid running out of memory in the docker container.
+        it.maxHeapSize("512m")
+    }
 }
 
 androidx {

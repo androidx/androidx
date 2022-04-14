@@ -111,8 +111,8 @@ private fun Emittable.makeInvisible(context: Context): Emittable {
             this
         }
         is EmittableCurvedText -> {
-            val oldStyle = textStyle
-            textStyle = oldStyle?.updateColor(Color.Transparent)
+            val oldStyle = style
+            style = oldStyle?.updateColor(Color.Transparent)
                 ?: CurvedTextStyle(color = ColorProvider(Color.Transparent))
             this
         }
@@ -165,7 +165,7 @@ private fun ImageProvider.getImageSize(context: Context): DpSize {
             )
         }
         is IconImageProvider -> {
-            val drawable = icon.loadDrawable(context)
+            val drawable = icon.loadDrawable(context)!!
             DpSize(
                 (drawable.intrinsicWidth.toFloat() / density).dp,
                 (drawable.intrinsicHeight.toFloat() / density).dp,

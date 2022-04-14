@@ -45,10 +45,8 @@ public class SplashScreenViewProvider internal constructor(ctx: Activity) {
         (impl as ViewImpl31).platformView = platformView
     }
 
-    @SuppressLint("NewApi") // TODO(188897399) Remove once "S" is finalized
     private val impl: ViewImpl = when {
         Build.VERSION.SDK_INT >= 31 -> ViewImpl31(ctx)
-        Build.VERSION.SDK_INT == 30 && Build.VERSION.PREVIEW_SDK_INT > 0 -> ViewImpl31(ctx)
         else -> ViewImpl(ctx)
     }.apply {
         createSplashScreenView()

@@ -48,6 +48,7 @@ import androidx.test.espresso.UiController;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.rule.ActivityTestRule;
+import androidx.testutils.PollingCheck;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -81,6 +82,9 @@ public abstract class AppCompatBaseViewTest<A extends BaseTestActivity, T extend
         mActivity = mActivityTestRule.getActivity();
         mContainer = mActivity.findViewById(R.id.container);
         mResources = mActivity.getResources();
+
+        // Wait until the Activity is interactive to prevent flakiness.
+        PollingCheck.waitFor(() -> mActivity.hasWindowFocus());
     }
 
     /**

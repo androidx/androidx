@@ -51,7 +51,10 @@ internal fun collectAllMethods(
     xTypeElement: XTypeElement
 ): Sequence<XMethodElement> {
     return sequence {
-        // group methods by name for faster override checks
+        // group methods by name for faster override checks. Note that we are using name here
+        // instead of jvmName because resolving jvmName is expensive and @JvmName is not allowed on
+        // overriding methods or open methods (unless suppressed, which we don't support).
+        // As a result of this, name is as good as jvmName for grouping.
         val methodsByName = mutableMapOf<String, LinkedHashSet<XMethodElement>>()
         val visitedInterfaces = mutableSetOf<XTypeElement>()
         fun collectAllMethodsByName(type: XTypeElement) {
@@ -69,14 +72,16 @@ internal fun collectAllMethods(
             // Finally, visit all methods declared in this type.
             if (type == xTypeElement) {
                 type.getDeclaredMethods().forEach {
-                    methodsByName.getOrPut(it.jvmName) { linkedSetOf() }.add(it)
+                    methodsByName.getOrPut(it.name) { linkedSetOf() }.add(it)
                 }
             } else {
                 type.getDeclaredMethods()
                     .filter { it.isAccessibleFrom(type.packageName) }
                     .filterNot { it.isStaticInterfaceMethod() }
                     .map { it.copyTo(xTypeElement) }
-                    .forEach { methodsByName.getOrPut(it.jvmName) { linkedSetOf() }.add(it) }
+                    .forEach {
+                        methodsByName.getOrPut(it.name) { linkedSetOf() }.add(it)
+                    }
             }
         }
         collectAllMethodsByName(xTypeElement)
@@ -117,7 +122,7 @@ private fun XMethodElement.isAccessibleFrom(packageName: String): Boolean {
         return false
     }
     // check package
-    return packageName == enclosingElement.className.packageName()
+    return packageName == closestMemberContainer.className.packageName()
 }
 
 private fun XMethodElement.isStaticInterfaceMethod(): Boolean {

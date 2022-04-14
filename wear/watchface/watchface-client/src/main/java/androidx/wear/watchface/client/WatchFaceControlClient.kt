@@ -22,6 +22,7 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
 import android.os.RemoteException
+import android.util.Log
 import androidx.annotation.Px
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
@@ -288,12 +289,22 @@ internal class WatchFaceControlClientImpl internal constructor(
 ) : WatchFaceControlClient {
     private var closed = false
 
+    internal companion object {
+        const val TAG = "WatchFaceControlClientImpl"
+    }
+
     override fun getInteractiveWatchFaceClientInstance(
         instanceId: String
     ) = service.getInteractiveWatchFaceInstance(instanceId)?.let {
         InteractiveWatchFaceClientImpl(it)
     }
 
+    @Deprecated(
+        "Creating a headless client without a watchface ID is deprecated",
+        ReplaceWith(
+            "[createHeadlessWatchFaceClient(String, ComponentName, DeviceConfig, Int, Int)]"
+        )
+    )
     override fun createHeadlessWatchFaceClient(
         watchFaceName: ComponentName,
         deviceConfig: DeviceConfig,
@@ -390,7 +401,7 @@ internal class WatchFaceControlClientImpl internal constructor(
                     override fun onInteractiveWatchFaceCreated(
                         iInteractiveWatchFace: IInteractiveWatchFace
                     ) {
-                        serviceBinder.unlinkToDeath(deathObserver, 0)
+                        safeUnlinkToDeath(serviceBinder, deathObserver)
                         traceEvent.close()
                         continuation.resume(
                             InteractiveWatchFaceClientImpl(iInteractiveWatchFace)
@@ -398,7 +409,7 @@ internal class WatchFaceControlClientImpl internal constructor(
                     }
 
                     override fun onInteractiveWatchFaceCrashed(exception: CrashInfoParcel) {
-                        serviceBinder.unlinkToDeath(deathObserver, 0)
+                        safeUnlinkToDeath(serviceBinder, deathObserver)
                         traceEvent.close()
                         continuation.resumeWithException(
                             WatchFaceControlClient.ServiceStartFailureException(
@@ -409,10 +420,19 @@ internal class WatchFaceControlClientImpl internal constructor(
                 }
             )?.let {
                 // There was an existing watchface.onInteractiveWatchFaceCreated
-                serviceBinder.unlinkToDeath(deathObserver, 0)
+                safeUnlinkToDeath(serviceBinder, deathObserver)
                 traceEvent.close()
                 continuation.resume(InteractiveWatchFaceClientImpl(it))
             }
+        }
+    }
+
+    internal fun safeUnlinkToDeath(binder: IBinder, deathObserver: IBinder.DeathRecipient) {
+        try {
+            binder.unlinkToDeath(deathObserver, 0)
+        } catch (e: NoSuchElementException) {
+            // This really shouldn't happen.
+            Log.w(TAG, "getOrCreateInteractiveWatchFaceClient encountered", e)
         }
     }
 
@@ -423,6 +443,7 @@ internal class WatchFaceControlClientImpl internal constructor(
         return EditorServiceClientImpl(service.editorService)
     }
 
+    @Deprecated("Use the WatchFaceMetadataClient instead.")
     @Suppress("DEPRECATION") // DefaultComplicationDataSourcePolicyAndType
     override fun getDefaultComplicationDataSourcePoliciesAndType(
         watchFaceName: ComponentName

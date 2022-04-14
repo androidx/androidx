@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 
 plugins {
@@ -23,7 +22,19 @@ plugins {
 }
 
 dependencies {
+    api("androidx.annotation:annotation:1.2.0")
+    api(project(":wear:tiles:tiles"))
+
+    implementation(project(":wear:tiles:tiles-proto"))
+
     annotationProcessor(libs.nullaway)
+}
+
+android {
+    defaultConfig {
+        minSdkVersion 25
+    }
+    namespace "androidx.wear.tiles.material"
 }
 
 androidx {

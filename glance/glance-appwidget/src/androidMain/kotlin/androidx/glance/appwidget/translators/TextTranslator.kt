@@ -53,7 +53,6 @@ import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.FixedColorProvider
 import androidx.glance.unit.ResourceColorProvider
-import androidx.glance.unit.resolve
 
 internal fun RemoteViews.translateEmittableText(
     translationContext: TranslationContext,

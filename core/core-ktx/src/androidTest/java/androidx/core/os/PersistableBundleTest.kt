@@ -26,11 +26,13 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 @SdkSuppress(minSdkVersion = 21)
 @SmallTest
 class PersistableBundleTest {
+    @Suppress("DEPRECATION")
     @Test fun persistableBundleOfValid() {
         val bundle = persistableBundleOf(
             "null" to null,
@@ -66,6 +68,7 @@ class PersistableBundleTest {
     }
 
     @SdkSuppress(minSdkVersion = 22)
+    @Suppress("DEPRECATION")
     @Test fun persistableBundleOfValidApi22() {
         val bundle = persistableBundleOf(
             "boolean" to true,
@@ -90,6 +93,12 @@ class PersistableBundleTest {
         }.hasMessageThat().isEqualTo("Illegal value array type android.view.View for key \"nopes\"")
     }
 
+    @Test fun persistableBundleOfEmpty() {
+        val bundle = persistableBundleOf()
+        assertTrue(bundle.isEmpty)
+    }
+
+    @Suppress("DEPRECATION")
     @Test fun mapToPersistableBundle() {
         val map = mapOf(
             "null" to null,

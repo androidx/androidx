@@ -29,6 +29,7 @@ import androidx.car.app.model.Row;
 import androidx.car.app.model.SearchTemplate;
 import androidx.car.app.model.SearchTemplate.SearchCallback;
 import androidx.car.app.model.Template;
+import androidx.car.app.sample.showcase.common.R;
 
 /** A screen that demonstrates the search template. */
 public class SearchTemplateDemoScreen extends Screen {
@@ -44,9 +45,9 @@ public class SearchTemplateDemoScreen extends Screen {
         for (int i = 1; i <= 6; ++i) {
             listBuilder.addItem(
                     new Row.Builder()
-                            .setTitle("Title " + i)
-                            .addText("First line of text")
-                            .addText("Second line of text")
+                            .setTitle(getCarContext().getString(R.string.title_prefix) + " " + i)
+                            .addText(getCarContext().getString(R.string.first_line_text))
+                            .addText(getCarContext().getString(R.string.second_line_text))
                             .build());
         }
 
@@ -64,19 +65,19 @@ public class SearchTemplateDemoScreen extends Screen {
         ActionStrip actionStrip = new ActionStrip.Builder()
                 .addAction(
                         new Action.Builder()
-                                .setTitle("Settings")
+                                .setTitle(getCarContext().getString(R.string.settings_action_title))
                                 .setOnClickListener(
-                                        () ->
-                                                CarToast.makeText(
+                                        () -> CarToast.makeText(
                                                         getCarContext(),
-                                                        "Clicked Settings",
+                                                        getCarContext().getString(
+                                                                R.string.settings_toast_msg),
                                                         LENGTH_LONG)
-                                                        .show())
+                                                .show())
                                 .build())
                 .build();
 
         return new SearchTemplate.Builder(searchListener)
-                .setSearchHint("Search here")
+                .setSearchHint(getCarContext().getString(R.string.search_hint))
                 .setHeaderAction(Action.BACK)
                 .setShowKeyboardByDefault(false)
                 .setItemList(listBuilder.build())

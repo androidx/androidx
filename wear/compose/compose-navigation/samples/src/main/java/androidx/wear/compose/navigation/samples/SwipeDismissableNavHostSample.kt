@@ -31,7 +31,6 @@ import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.CompactChip
-import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.ListHeader
 import androidx.wear.compose.material.ScalingLazyColumn
 import androidx.wear.compose.material.Text
@@ -39,7 +38,6 @@ import androidx.wear.compose.navigation.SwipeDismissableNavHost
 import androidx.wear.compose.navigation.composable
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
 
-@OptIn(ExperimentalWearMaterialApi::class)
 @Sampled
 @Composable
 fun SimpleNavHost() {
@@ -68,7 +66,6 @@ fun SimpleNavHost() {
     }
 }
 
-@OptIn(ExperimentalWearMaterialApi::class)
 @Sampled
 @Composable
 fun NavHostWithNamedArgument() {

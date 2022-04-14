@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -38,4 +37,8 @@ androidx {
     mavenGroup = LibraryGroups.PALETTE
     inceptionYear = "2018"
     description = "Kotlin extensions for 'palette' artifact"
+}
+
+android {
+    namespace "androidx.palette.ktx"
 }

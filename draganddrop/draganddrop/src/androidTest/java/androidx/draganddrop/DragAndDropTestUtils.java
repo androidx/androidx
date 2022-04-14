@@ -59,18 +59,36 @@ public final class DragAndDropTestUtils {
      * @param action One of the {@link DragEvent} actions.
      */
     public static DragEvent makeImageDragEvent(int action) {
+        return makeImageDragEventWithLocalState(action, /* localState= */ null);
+    }
+
+    /**
+     * Makes a stub drag event containing an image mimetype, fake uri, and provided localState.
+     *
+     * @param action One of the {@link DragEvent} actions.
+     * @param localState The Object to set as localState.
+     */
+    public static DragEvent makeImageDragEventWithLocalState(int action, Object localState) {
         // We're not actually resolving Uris in these tests, so this can be anything:
         String mimeType = "image/*";
-        return makeDragEvent(action, new Item(SAMPLE_URI), mimeType);
+        return makeDragEvent(action, new Item(SAMPLE_URI), mimeType, localState);
     }
 
     private static DragEvent makeDragEvent(int action, ClipData.Item item, String mimeType) {
+        return makeDragEvent(action, item, mimeType, /* localState= */ null);
+    }
+    private static DragEvent makeDragEvent(
+            int action,
+            ClipData.Item item,
+            String mimeType,
+            Object localState) {
         ClipData clipData = new ClipData(LABEL, new String[] {mimeType}, item);
         ClipDescription clipDescription = new ClipDescription(LABEL, new String[] {mimeType});
         DragEvent dragEvent = mock(DragEvent.class);
         doReturn(action).when(dragEvent).getAction();
         doReturn(clipData).when(dragEvent).getClipData();
         doReturn(clipDescription).when(dragEvent).getClipDescription();
+        doReturn(localState).when(dragEvent).getLocalState();
         return dragEvent;
     }
 }

@@ -30,8 +30,10 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.CancellationSignal;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.content.res.FontResourcesParserCompat;
 import androidx.core.provider.FontsContractCompat.FontFamilyResult;
@@ -43,7 +45,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-/* package */ class FontProvider {
+class FontProvider {
     private FontProvider() {}
 
     @NonNull
@@ -63,7 +65,6 @@ import java.util.List;
 
     /**
      * Do not access directly, visible for testing only.
-     * @return
      */
     @VisibleForTesting
     @Nullable
@@ -107,7 +108,6 @@ import java.util.List;
 
     /**
      * Do not access directly, visible for testing only.
-     * @return
      */
     @VisibleForTesting
     @NonNull
@@ -134,12 +134,13 @@ import java.util.List;
                     FontsContractCompat.Columns.WEIGHT, FontsContractCompat.Columns.ITALIC,
                     FontsContractCompat.Columns.RESULT_CODE};
 
+            ContentResolver resolver = context.getContentResolver();
             if (Build.VERSION.SDK_INT > 16) {
-                cursor = context.getContentResolver().query(uri, projection, "query = ?",
+                cursor = Api16Impl.query(resolver, uri, projection, "query = ?",
                         new String[]{request.getQuery()}, null, cancellationSignal);
             } else {
                 // No cancellation signal.
-                cursor = context.getContentResolver().query(uri, projection, "query = ?",
+                cursor = resolver.query(uri, projection, "query = ?",
                         new String[]{request.getQuery()}, null);
             }
 
@@ -193,19 +194,16 @@ import java.util.List;
         return FontResourcesParserCompat.readCerts(resources, resourceId);
     }
 
-    private static final Comparator<byte[]> sByteArrayComparator = new Comparator<byte[]>() {
-        @Override
-        public int compare(byte[] l, byte[] r) {
-            if (l.length != r.length) {
-                return l.length - r.length;
-            }
-            for (int i = 0; i < l.length; ++i) {
-                if (l[i] != r[i]) {
-                    return l[i] - r[i];
-                }
-            }
-            return 0;
+    private static final Comparator<byte[]> sByteArrayComparator = (l, r) -> {
+        if (l.length != r.length) {
+            return l.length - r.length;
         }
+        for (int i = 0; i < l.length; ++i) {
+            if (l[i] != r[i]) {
+                return l[i] - r[i];
+            }
+        }
+        return 0;
     };
 
     private static boolean equalsByteArrayList(List<byte[]> signatures,
@@ -223,9 +221,25 @@ import java.util.List;
 
     private static List<byte[]> convertToByteArrayList(Signature[] signatures) {
         List<byte[]> shaList = new ArrayList<>();
-        for (int i = 0; i < signatures.length; ++i) {
-            shaList.add(signatures[i].toByteArray());
+        for (Signature signature : signatures) {
+            shaList.add(signature.toByteArray());
         }
         return shaList;
+    }
+
+    @RequiresApi(16)
+    static class Api16Impl {
+        private Api16Impl() {
+            // This class is not instantiable.
+        }
+
+        @SuppressWarnings("SameParameterValue")
+        @DoNotInline
+        static Cursor query(ContentResolver contentResolver, Uri uri, String[] projection,
+                String selection, String[] selectionArgs, String sortOrder,
+                Object cancellationSignal) { // Avoid implicit NewApi cast for CancellationSignal
+            return contentResolver.query(uri, projection, selection, selectionArgs, sortOrder,
+                    (CancellationSignal) cancellationSignal);
+        }
     }
 }

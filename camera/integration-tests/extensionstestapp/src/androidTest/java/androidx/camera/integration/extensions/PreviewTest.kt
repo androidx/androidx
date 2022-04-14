@@ -19,12 +19,15 @@ package androidx.camera.integration.extensions
 import android.Manifest
 import android.content.Context
 import android.content.Intent
+import androidx.camera.camera2.Camera2Config
 import androidx.camera.integration.extensions.util.ExtensionsTestUtil
 import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.camera.testing.waitForIdle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.espresso.IdlingResource
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
@@ -47,13 +50,15 @@ private const val BASIC_SAMPLE_PACKAGE = "androidx.camera.integration.extensions
 class PreviewTest(private val cameraId: String, private val extensionMode: Int) {
 
     @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTest()
+    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
+        PreTestCameraIdList(Camera2Config.defaultConfig())
+    )
 
     @get:Rule
     val storagePermissionRule =
         GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE)!!
 
-    private lateinit var cameraExtensionsActivity: CameraExtensionsActivity
+    private lateinit var activityScenario: ActivityScenario<CameraExtensionsActivity>
 
     companion object {
         @Parameterized.Parameters(name = "cameraId = {0}, extensionMode = {1}")
@@ -63,6 +68,7 @@ class PreviewTest(private val cameraId: String, private val extensionMode: Int) 
 
     @Before
     fun setUp() {
+        assumeTrue(ExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
         // Clear the device UI and check if there is no dialog or lock screen on the top of the
         // window before start the test.
         CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
@@ -70,8 +76,8 @@ class PreviewTest(private val cameraId: String, private val extensionMode: Int) 
 
     @After
     fun tearDown() {
-        if (::cameraExtensionsActivity.isInitialized) {
-            cameraExtensionsActivity.finish()
+        if (::activityScenario.isInitialized) {
+            activityScenario.onActivity { it.finish() }
         }
     }
 
@@ -81,26 +87,37 @@ class PreviewTest(private val cameraId: String, private val extensionMode: Int) 
      */
     @Test
     fun previewWithExtensionModeCanEnterStreamingState() {
-        ApplicationProvider.getApplicationContext<Context>().packageManager
+        val intent = ApplicationProvider.getApplicationContext<Context>().packageManager
             .getLaunchIntentForPackage(BASIC_SAMPLE_PACKAGE)?.apply {
                 putExtra(CameraExtensionsActivity.INTENT_EXTRA_CAMERA_ID, cameraId)
                 putExtra(CameraExtensionsActivity.INTENT_EXTRA_EXTENSION_MODE, extensionMode)
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            }.also {
-                ActivityScenario.launch<CameraExtensionsActivity>(it).onActivity {
-                    cameraExtensionsActivity = it
-                }
             }
 
+        activityScenario = ActivityScenario.launch(intent)
+        var initializationIdlingResource: IdlingResource? = null
+        var previewViewIdlingResource: IdlingResource? = null
+
+        activityScenario.onActivity {
+            initializationIdlingResource = it.mInitializationIdlingResource
+            previewViewIdlingResource = it.mPreviewViewIdlingResource
+        }
+
         // Wait for CameraExtensionsActivity's initialization to be complete
-        cameraExtensionsActivity.mInitializationIdlingResource.waitForIdle()
+        initializationIdlingResource.waitForIdle()
 
-        assumeTrue(cameraExtensionsActivity.isExtensionModeSupported(cameraId, extensionMode))
+        activityScenario.onActivity {
+            assumeTrue(it.isExtensionModeSupported(cameraId, extensionMode))
+        }
 
-        // Wait for preview view turned to STREAMING state
-        cameraExtensionsActivity.mPreviewViewIdlingResource.waitForIdle()
+        // Waits for preview view turned to STREAMING state to make sure that the capture session
+        // has been created and the capture stages can be retrieved from the vendor library
+        // successfully.
+        previewViewIdlingResource.waitForIdle()
 
-        // Checks that CameraExtensionsActivity's current extension mode is correct.
-        assertThat(cameraExtensionsActivity.currentExtensionMode).isEqualTo(extensionMode)
+        activityScenario.onActivity {
+            // Checks that CameraExtensionsActivity's current extension mode is correct.
+            assertThat(it.currentExtensionMode).isEqualTo(extensionMode)
+        }
     }
 }

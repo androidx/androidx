@@ -66,6 +66,12 @@ object DialogCancel : Operation() {
     }
 }
 
+object FragmentDismissNow : Operation() {
+    override fun run(dialogFragment: DialogFragment) {
+        dialogFragment.dismissNow()
+    }
+}
+
 @LargeTest
 @RunWith(Parameterized::class)
 class DialogFragmentDismissTest(
@@ -87,6 +93,8 @@ class DialogFragmentDismissTest(
                 // Run the operation off the main thread
                 add(arrayOf(operation, false))
             }
+            // dismissNow can only be run on the main thread
+            add(arrayOf(FragmentDismissNow, true))
         }
     }
 

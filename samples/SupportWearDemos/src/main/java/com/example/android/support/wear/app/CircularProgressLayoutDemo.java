@@ -17,13 +17,11 @@
 package com.example.android.support.wear.app;
 
 import android.app.Activity;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import androidx.wear.widget.CircularProgressLayout;
 
@@ -34,7 +32,6 @@ import java.util.concurrent.TimeUnit;
 /**
  * Main activity for the CircularProgressLayout demo.
  */
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 public class CircularProgressLayoutDemo extends Activity implements
         CircularProgressLayout.OnTimerFinishedListener, View.OnClickListener {
 

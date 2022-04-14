@@ -83,6 +83,7 @@ public final class InputConnectionCompat {
     private static final String COMMIT_CONTENT_RESULT_INTEROP_RECEIVER_KEY =
             "android.support.v13.view.inputmethod.InputConnectionCompat.CONTENT_RESULT_RECEIVER";
 
+    @SuppressWarnings("deprecation")
     static boolean handlePerformPrivateCommand(
             @Nullable String action,
             @Nullable Bundle data,

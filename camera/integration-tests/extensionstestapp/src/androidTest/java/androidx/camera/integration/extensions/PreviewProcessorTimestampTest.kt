@@ -23,6 +23,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
 import android.util.Size
+import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.core.CameraFilter
 import androidx.camera.core.CameraInfo
@@ -42,6 +43,7 @@ import androidx.camera.integration.extensions.util.ExtensionsTestUtil
 import androidx.camera.integration.extensions.utils.CameraSelectorUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.GLUtil
 import androidx.camera.testing.SurfaceTextureProvider
 import androidx.camera.testing.SurfaceTextureProvider.SurfaceTextureCallback
@@ -52,6 +54,8 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import junit.framework.AssertionFailedError
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -65,8 +69,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
 @LargeTest
 @RunWith(Parameterized::class)
@@ -76,7 +78,9 @@ class PreviewProcessorTimestampTest(
     private val extensionMode: Int
 ) {
     @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTest()
+    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
+        PreTestCameraIdList(Camera2Config.defaultConfig())
+    )
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
@@ -143,10 +147,8 @@ class PreviewProcessorTimestampTest(
 
     @Before
     fun setUp(): Unit = runBlocking {
-        assumeFalse(
-            Build.BRAND.equals("Samsung", ignoreCase = true) ||
-                Build.MODEL.contains("Cuttlefish")
-        )
+        assumeTrue(ExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
+        assumeFalse(Build.BRAND.equals("Samsung", ignoreCase = true))
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
         extensionsManager = ExtensionsManager.getInstanceAsync(
             context,
@@ -381,9 +383,13 @@ class PreviewProcessorTimestampTest(
         private val timestampListener: TimestampListener
     ) :
         UseCaseConfigFactory {
-        override fun getConfig(captureType: UseCaseConfigFactory.CaptureType): Config? {
+        override fun getConfig(
+            captureType: UseCaseConfigFactory.CaptureType,
+            captureMode: Int
+        ): Config? {
             // Retrieves the config from the default ExtensionsUseCaseConfigFactory
-            val mutableOptionsBundle = useCaseConfigFactory.getConfig(captureType)?.let {
+            val mutableOptionsBundle = useCaseConfigFactory.getConfig(
+                captureType, captureMode)?.let {
                 MutableOptionsBundle.from(it)
             } ?: throw AssertionFailedError("Can not retrieve config for capture type $captureType")
 

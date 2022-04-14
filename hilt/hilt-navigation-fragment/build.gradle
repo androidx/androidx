@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -30,6 +28,7 @@ android {
     defaultConfig {
         testInstrumentationRunner "androidx.hilt.navigation.fragment.TestRunner"
     }
+    namespace "androidx.hilt.navigation.fragment"
 }
 
 dependencies {

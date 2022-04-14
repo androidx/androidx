@@ -22,8 +22,7 @@ object Packages {
      *
      * Use this app/package if it's necessary to kill/compile target process.
      */
-    const val TARGET =
-        "androidx.benchmark.integration.macrobenchmark.target"
+    const val TARGET = "androidx.benchmark.integration.macrobenchmark.target"
 
     /**
      * This test app - this process.

@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.LibraryVersions
 
 plugins {
     id("AndroidXPlugin")
@@ -37,4 +35,8 @@ androidx {
     mavenGroup = LibraryGroups.CORE
     inceptionYear = "2021"
     description = "Samples for AndroidX Core Performance Library"
+}
+
+android {
+    namespace "androidx.core.performance.samples"
 }

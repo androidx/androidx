@@ -18,6 +18,7 @@ package androidx.wear.watchface.style.data;
 
 import android.annotation.SuppressLint;
 import android.graphics.drawable.Icon;
+import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -79,16 +80,41 @@ public class UserStyleSettingWireFormat implements VersionedParcelable, Parcelab
      * may be an exhaustive list, or just examples to populate a ListView in case the
      * UserStyleCategory isn't supported by the UI (e.g. a new WatchFace with an old Companion).
      *
-     * This list needs to go last because VersionedParcelable has a design flaw, if the format
-     * changes the reader can't determine the correct size of the list and data afterwards would get
-     * corrupted. We try to avoid this by putting the list last.
+     * OptionWireFormat can't change because VersionedParcelable has a design flaw, if the format
+     * changes the reader can't determine the correct size of the list and data afterwards
+     * (including elements of this list) will get corrupted.
      */
     @ParcelField(100)
     @NonNull
     public List<OptionWireFormat> mOptions = new ArrayList<>();
 
+    /**
+     * Flattened list of child settings for each option. Note this ID must always be a list of
+     * Integers.
+     */
+    @Nullable
+    @ParcelField(101)
+    public List<Integer> mOptionChildIndices = null;
+
+    /**
+     * Contains OnWatchFaceData.
+     */
+    @Nullable
+    @ParcelField(102)
+    public Bundle mOnWatchFaceEditorBundle = null;
+
+    /**
+     * Per option OnWatchFaceData. Ideally this would be in OptionWireFormat, but
+     * VersionedParcellable doesn't support us adding that in a backwards compatible way.
+     */
+    @Nullable
+    @ParcelField(103)
+    public List<Bundle> mPerOptionOnWatchFaceEditorBundles = new ArrayList<>();
+
     UserStyleSettingWireFormat() {}
 
+    /** @deprecated use a constructor with List<Bundle> perOptionOnWatchFaceEditorBundles. */
+    @Deprecated
     public UserStyleSettingWireFormat(
             @NonNull String id,
             @NonNull CharSequence displayName,
@@ -104,6 +130,27 @@ public class UserStyleSettingWireFormat implements VersionedParcelable, Parcelab
         mOptions = options;
         mDefaultOptionIndex = defaultOptionIndex;
         mAffectsLayers = affectsLayers;
+    }
+
+    public UserStyleSettingWireFormat(
+            @NonNull String id,
+            @NonNull CharSequence displayName,
+            @NonNull CharSequence description,
+            @Nullable Icon icon,
+            @NonNull List<OptionWireFormat> options,
+            int defaultOptionIndex,
+            @NonNull List<Integer> affectsLayers,
+            @Nullable Bundle onWatchFaceEditorBundle,
+            @Nullable List<Bundle> perOptionOnWatchFaceEditorBundles) {
+        mId = id;
+        mDisplayName = displayName;
+        mDescription = description;
+        mIcon = icon;
+        mOptions = options;
+        mDefaultOptionIndex = defaultOptionIndex;
+        mAffectsLayers = affectsLayers;
+        mOnWatchFaceEditorBundle = onWatchFaceEditorBundle;
+        mPerOptionOnWatchFaceEditorBundles = perOptionOnWatchFaceEditorBundles;
     }
 
     /** Serializes this UserStyleCategoryWireFormat to the specified {@link Parcel}. */

@@ -52,6 +52,11 @@ public class ProjectSubsetsTest {
         validateSubset("wear")
     }
 
+    @Test
+    fun testSubsetGlance() {
+        validateSubset("glance")
+    }
+
     /**
      * Validates a specific project subset
      */

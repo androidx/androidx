@@ -16,7 +16,6 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="androidx.car.app.sample.navigation"
     android:versionCode="1"
     android:versionName="1.0">
 
@@ -80,6 +79,7 @@
         android:name="androidx.car.app.activity.CarAppActivity"
         android:theme="@android:style/Theme.DeviceDefault.NoActionBar"
         android:exported="true"
+        android:launchMode="singleTask"
         android:label="Navigation">
 
       <intent-filter>

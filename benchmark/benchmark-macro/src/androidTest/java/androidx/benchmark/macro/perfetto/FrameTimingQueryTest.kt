@@ -17,9 +17,9 @@
 package androidx.benchmark.macro.perfetto
 
 import androidx.benchmark.macro.createTempFileFromAsset
-import androidx.benchmark.macro.perfetto.FrameTimingQuery.SubMetric.FrameCpuTime
-import androidx.benchmark.macro.perfetto.FrameTimingQuery.SubMetric.FrameOverrunTime
-import androidx.benchmark.macro.perfetto.FrameTimingQuery.SubMetric.FrameUiTime
+import androidx.benchmark.macro.perfetto.FrameTimingQuery.SubMetric.FrameDurationCpuNs
+import androidx.benchmark.macro.perfetto.FrameTimingQuery.SubMetric.FrameOverrunNs
+import androidx.benchmark.macro.perfetto.FrameTimingQuery.SubMetric.FrameDurationUiNs
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -44,8 +44,8 @@ class FrameTimingQueryTest {
 
         assertEquals(
             expected = mapOf(
-                FrameCpuTime to listOf(9907605L, 6038595L, 4812136L, 3938490L),
-                FrameUiTime to listOf(3086979L, 2868490L, 2232709L, 1889479L)
+                FrameDurationCpuNs to listOf(9907605L, 6038595L, 4812136L, 3938490L),
+                FrameDurationUiNs to listOf(3086979L, 2868490L, 2232709L, 1889479L)
             ),
             actual = frameSubMetrics.mapValues {
                 it.value.subList(0, 4)
@@ -71,9 +71,9 @@ class FrameTimingQueryTest {
         )
         assertEquals(
             expected = mapOf(
-                FrameCpuTime to listOf(6881407L, 5648542L, 3830261L, 4343438L),
-                FrameUiTime to listOf(2965052L, 3246407L, 1562188L, 1945469L),
-                FrameOverrunTime to listOf(-5207137L, -11699862L, -14025295L, -12300155L)
+                FrameDurationCpuNs to listOf(6881407L, 5648542L, 3830261L, 4343438L),
+                FrameDurationUiNs to listOf(2965052L, 3246407L, 1562188L, 1945469L),
+                FrameOverrunNs to listOf(-5207137L, -11699862L, -14025295L, -12300155L)
             ),
             actual = frameSubMetrics.mapValues {
                 it.value.subList(0, 4)

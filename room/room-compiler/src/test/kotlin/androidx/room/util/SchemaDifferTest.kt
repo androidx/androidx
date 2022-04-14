@@ -155,14 +155,16 @@ class SchemaDifferTest {
             deleteTableEntries = listOf()
         ).diffSchemas()
         assertThat(schemaDiffResult.addedColumns).hasSize(2)
-        schemaDiffResult.addedColumns[0].let { addedColumn ->
-            assertThat(addedColumn.tableName).isEqualTo("Artist")
-            assertThat(addedColumn.fieldBundle.columnName).isEqualTo("newColumn")
-        }
-        schemaDiffResult.addedColumns[1].let { addedColumn ->
-            assertThat(addedColumn.tableName).isEqualTo("Song")
-            assertThat(addedColumn.fieldBundle.columnName).isEqualTo("newColumn")
-        }
+        assertThat(
+            schemaDiffResult.addedColumns.any {
+                it.tableName == "Song" && it.fieldBundle.columnName == "newColumn"
+            }
+        ).isTrue()
+        assertThat(
+            schemaDiffResult.addedColumns.any {
+                it.tableName == "Artist" && it.fieldBundle.columnName == "newColumn"
+            }
+        ).isTrue()
     }
 
     @Test

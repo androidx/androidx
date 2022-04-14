@@ -3,6 +3,16 @@ ExecutorRegistration: androidx.security.crypto.EncryptedSharedPreferences#regist
     Registration methods should have overload that accepts delivery Executor: `registerOnSharedPreferenceChangeListener`
 
 
+InvalidNullability: androidx.security.crypto.EncryptedSharedPreferences#getString(String, String):
+    Invalid nullability on method `getString` return. Overrides of unannotated super method cannot be Nullable.
+InvalidNullability: androidx.security.crypto.EncryptedSharedPreferences#getStringSet(String, java.util.Set<java.lang.String>):
+    Invalid nullability on method `getStringSet` return. Overrides of unannotated super method cannot be Nullable.
+InvalidNullability: androidx.security.crypto.EncryptedSharedPreferences#registerOnSharedPreferenceChangeListener(android.content.SharedPreferences.OnSharedPreferenceChangeListener) parameter #0:
+    Invalid nullability on parameter `listener` in method `registerOnSharedPreferenceChangeListener`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullability: androidx.security.crypto.EncryptedSharedPreferences#unregisterOnSharedPreferenceChangeListener(android.content.SharedPreferences.OnSharedPreferenceChangeListener) parameter #0:
+    Invalid nullability on parameter `listener` in method `unregisterOnSharedPreferenceChangeListener`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+
+
 MissingGetterMatchingBuilder: androidx.security.crypto.EncryptedFile.Builder#setKeysetAlias(String):
     androidx.security.crypto.EncryptedFile does not declare a `getKeysetAlias()` method matching method androidx.security.crypto.EncryptedFile.Builder.setKeysetAlias(String)
 MissingGetterMatchingBuilder: androidx.security.crypto.EncryptedFile.Builder#setKeysetPrefName(String):

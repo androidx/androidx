@@ -42,7 +42,9 @@ public class WatchFaceControlTestService : Service() {
 
     private val realService = object : WatchFaceControlService() {
         override fun createServiceStub(): IWatchFaceInstanceServiceStub =
-            object : IWatchFaceInstanceServiceStub(this, Handler(Looper.getMainLooper())) {
+            object : IWatchFaceInstanceServiceStub(
+                this@WatchFaceControlTestService, Handler(Looper.getMainLooper())
+            ) {
                 @RequiresApi(Build.VERSION_CODES.O_MR1)
                 override fun getApiVersion(): Int = apiVersionOverride ?: super.getApiVersion()
             }

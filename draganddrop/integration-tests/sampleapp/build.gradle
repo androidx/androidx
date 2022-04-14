@@ -28,4 +28,5 @@ android {
     defaultConfig {
         minSdkVersion 24
     }
+    namespace "androidx.draganddrop.sampleapp"
 }

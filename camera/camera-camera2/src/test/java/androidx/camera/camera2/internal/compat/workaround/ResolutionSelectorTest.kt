@@ -18,7 +18,7 @@ package androidx.camera.camera2.internal.compat.workaround
 
 import android.os.Build
 import android.util.Size
-import androidx.camera.camera2.internal.compat.quirk.SelectResolutionQuirk
+import androidx.camera.camera2.internal.compat.quirk.ExtraCroppingQuirk
 import androidx.camera.core.impl.SurfaceConfig
 import com.google.common.truth.Truth
 import org.junit.Test
@@ -45,8 +45,8 @@ private val SUPPORTED_RESOLUTIONS = listOf(RESOLUTION_1, RESOLUTION_2)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class ResolutionSelectorTest {
 
-    private val mResolutionSelector = ResolutionSelector(object : SelectResolutionQuirk() {
-        override fun selectResolution(configType: SurfaceConfig.ConfigType): Size? {
+    private val mResolutionSelector = ResolutionSelector(object : ExtraCroppingQuirk() {
+        override fun getVerifiedResolution(configType: SurfaceConfig.ConfigType): Size? {
             return when (configType) {
                 SurfaceConfig.ConfigType.YUV -> SELECT_RESOLUTION_YUV
                 SurfaceConfig.ConfigType.PRIV -> SELECT_RESOLUTION_PRIV
@@ -115,7 +115,7 @@ class ResolutionSelectorTest {
     }
 
     private fun noQuirk_returnsOriginalSupportedResolutions(
-        quirk: SelectResolutionQuirk?
+        quirk: ExtraCroppingQuirk?
     ) {
         val resolutionSelector = ResolutionSelector(quirk)
         val result = resolutionSelector.insertOrPrioritize(
@@ -125,7 +125,7 @@ class ResolutionSelectorTest {
         Truth.assertThat(result).containsExactlyElementsIn(SUPPORTED_RESOLUTIONS)
     }
 
-    private fun getEmptyQuirk(): SelectResolutionQuirk? {
-        return Mockito.mock(SelectResolutionQuirk::class.java)
+    private fun getEmptyQuirk(): ExtraCroppingQuirk? {
+        return Mockito.mock(ExtraCroppingQuirk::class.java)
     }
 }
