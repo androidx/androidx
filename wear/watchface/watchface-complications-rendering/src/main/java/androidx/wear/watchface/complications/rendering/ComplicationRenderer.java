@@ -170,6 +170,7 @@ class ComplicationRenderer {
     boolean mIsPlaceholderTitle;
     @VisibleForTesting
     boolean mIsPlaceholderText;
+    boolean mIsPlaceholder;
 
     // Drawables for rendering rounded images
     private RoundedDrawable mRoundedBackgroundDrawable = null;
@@ -284,9 +285,12 @@ class ComplicationRenderer {
         mIsPlaceholderRangedValue = false;
         mIsPlaceholderTitle = false;
         mIsPlaceholderText = false;
+        mIsPlaceholder = false;
 
         if (data.getType() == ComplicationData.TYPE_NO_DATA) {
-            if (data.hasPlaceholderType()) {
+            ComplicationData placeholder = data.getPlaceholder();
+            if (placeholder != null) {
+                data = placeholder;
                 mIsPlaceholderIcon = data.hasIcon() && ImageKt.isPlaceholder(data.getIcon());
                 mIsPlaceholderSmallImage =
                         data.hasSmallImage() && ImageKt.isPlaceholder(data.getSmallImage());
@@ -295,7 +299,7 @@ class ComplicationRenderer {
                 mIsPlaceholderRangedValue = data.hasRangedValue()
                         && data.getRangedValue()
                         == RangedValueComplicationData.PLACEHOLDER;
-                if (data.getPlaceholderType() == ComplicationData.TYPE_LONG_TEXT) {
+                if (data.getType() == ComplicationData.TYPE_LONG_TEXT) {
                     mIsPlaceholderTitle =
                             data.hasLongTitle() && data.getLongTitle().isPlaceholder();
                     mIsPlaceholderText =
@@ -308,6 +312,7 @@ class ComplicationRenderer {
                 }
                 mComplicationData = data;
                 mHasNoData = false;
+                mIsPlaceholder = true;
             } else {
                 if (!mHasNoData) {
                     // Render TYPE_NO_DATA as a short text complication with a predefined string
@@ -547,8 +552,8 @@ class ComplicationRenderer {
             float height;
             // Avoid drawing two placeholder text fields of the same length.
             if (!mSubTextBounds.isEmpty()
-                    && (mComplicationData.getPlaceholderType() == ComplicationData.TYPE_SHORT_TEXT
-                    || mComplicationData.getPlaceholderType() == ComplicationData.TYPE_LONG_TEXT)) {
+                    && (mComplicationData.getType() == ComplicationData.TYPE_SHORT_TEXT
+                    || mComplicationData.getType() == ComplicationData.TYPE_LONG_TEXT)) {
                 width = mMainTextBounds.width() * 0.4f;
                 height = mMainTextBounds.height() * 0.9f;
             } else {
@@ -659,7 +664,7 @@ class ComplicationRenderer {
             if (paintSet.isInBurnInProtectionMode() && mBurnInProtectionIcon != null) {
                 icon = mBurnInProtectionIcon;
             }
-            icon.setColorFilter(mComplicationData.hasPlaceholderType() ? PLACEHOLDER_COLOR_FILTER :
+            icon.setColorFilter(mIsPlaceholder ? PLACEHOLDER_COLOR_FILTER :
                     paintSet.mIconColorFilter);
             drawIconOnCanvas(canvas, mIconBounds, icon);
         } else if (isPlaceholder) {
@@ -768,9 +773,6 @@ class ComplicationRenderer {
         mBackgroundBoundsF.set(0, 0, mBounds.width(), mBounds.height());
         LayoutHelper currentLayoutHelper;
         int type = mComplicationData.getType();
-        if (type == ComplicationData.TYPE_NO_DATA && mComplicationData.hasPlaceholderType()) {
-            type = mComplicationData.getPlaceholderType();
-        }
         switch (type) {
             case ComplicationData.TYPE_ICON:
                 currentLayoutHelper = new IconLayoutHelper();
