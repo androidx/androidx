@@ -45,7 +45,7 @@ public class AsWireComplicationDataTest {
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA)
-                    .setPlaceholderType(WireComplicationData.TYPE_NO_DATA)
+                    .setPlaceholder(null)
                     .build()
             )
         testRoundTripConversions(data)
@@ -470,12 +470,17 @@ public class AsWireComplicationDataTest {
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA)
-                    .setPlaceholderType(WireComplicationData.TYPE_SHORT_TEXT)
-                    .setShortText(ComplicationText.PLACEHOLDER.toWireComplicationText())
-                    .setShortTitle(ComplicationText.PLACEHOLDER.toWireComplicationText())
-                    .setIcon(createPlaceholderIcon())
-                    .setContentDescription(WireComplicationText.plainText("content description"))
-                    .setDataSource(dataSourceA)
+                    .setPlaceholder(
+                        WireComplicationDataBuilder(WireComplicationData.TYPE_SHORT_TEXT)
+                            .setShortText(ComplicationText.PLACEHOLDER.toWireComplicationText())
+                            .setShortTitle(ComplicationText.PLACEHOLDER.toWireComplicationText())
+                            .setIcon(createPlaceholderIcon())
+                            .setContentDescription(
+                                WireComplicationText.plainText("content description")
+                            )
+                            .setDataSource(dataSourceA)
+                            .build()
+                    )
                     .build()
             )
         testRoundTripConversions(data)
@@ -533,10 +538,15 @@ public class AsWireComplicationDataTest {
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA)
-                    .setPlaceholderType(WireComplicationData.TYPE_LONG_TEXT)
-                    .setLongText(WireComplicationText.plainText("text"))
-                    .setContentDescription(WireComplicationText.plainText("content description"))
-                    .setDataSource(dataSourceA)
+                    .setPlaceholder(
+                        WireComplicationDataBuilder(WireComplicationData.TYPE_LONG_TEXT)
+                            .setLongText(WireComplicationText.plainText("text"))
+                            .setContentDescription(
+                                WireComplicationText.plainText("content description")
+                            )
+                            .setDataSource(dataSourceA)
+                            .build()
+                    )
                     .build()
             )
         testRoundTripConversions(data)
@@ -592,13 +602,18 @@ public class AsWireComplicationDataTest {
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA)
-                    .setPlaceholderType(WireComplicationData.TYPE_RANGED_VALUE)
-                    .setRangedValue(RangedValueComplicationData.PLACEHOLDER)
-                    .setRangedMinValue(0f)
-                    .setRangedMaxValue(100f)
-                    .setShortText(ComplicationText.PLACEHOLDER.toWireComplicationText())
-                    .setContentDescription(WireComplicationText.plainText("content description"))
-                    .setDataSource(dataSourceA)
+                    .setPlaceholder(
+                        WireComplicationDataBuilder(WireComplicationData.TYPE_RANGED_VALUE)
+                            .setRangedValue(RangedValueComplicationData.PLACEHOLDER)
+                            .setRangedMinValue(0f)
+                            .setRangedMaxValue(100f)
+                            .setShortText(ComplicationText.PLACEHOLDER.toWireComplicationText())
+                            .setContentDescription(
+                                WireComplicationText.plainText("content description")
+                            )
+                            .setDataSource(dataSourceA)
+                            .build()
+                    )
                     .build()
             )
         testRoundTripConversions(data)
@@ -656,10 +671,15 @@ public class AsWireComplicationDataTest {
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA)
-                    .setPlaceholderType(WireComplicationData.TYPE_ICON)
-                    .setIcon(createPlaceholderIcon())
-                    .setContentDescription(WireComplicationText.plainText("content description"))
-                    .setDataSource(dataSourceA)
+                    .setPlaceholder(
+                        WireComplicationDataBuilder(WireComplicationData.TYPE_ICON)
+                            .setIcon(createPlaceholderIcon())
+                            .setContentDescription(
+                                WireComplicationText.plainText("content description")
+                            )
+                            .setDataSource(dataSourceA)
+                            .build()
+                    )
                     .build()
             )
         testRoundTripConversions(data)
@@ -713,11 +733,16 @@ public class AsWireComplicationDataTest {
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA)
-                    .setPlaceholderType(WireComplicationData.TYPE_SMALL_IMAGE)
-                    .setSmallImage(createPlaceholderIcon())
-                    .setSmallImageStyle(WireComplicationData.IMAGE_STYLE_ICON)
-                    .setContentDescription(WireComplicationText.plainText("content description"))
-                    .setDataSource(dataSourceA)
+                    .setPlaceholder(
+                        WireComplicationDataBuilder(WireComplicationData.TYPE_SMALL_IMAGE)
+                            .setSmallImage(createPlaceholderIcon())
+                            .setSmallImageStyle(WireComplicationData.IMAGE_STYLE_ICON)
+                            .setContentDescription(
+                                WireComplicationText.plainText("content description")
+                            )
+                            .setDataSource(dataSourceA)
+                            .build()
+                    )
                     .build()
             )
         testRoundTripConversions(data)
@@ -771,10 +796,15 @@ public class AsWireComplicationDataTest {
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA)
-                    .setPlaceholderType(WireComplicationData.TYPE_LARGE_IMAGE)
-                    .setLargeImage(createPlaceholderIcon())
-                    .setContentDescription(WireComplicationText.plainText("content description"))
-                    .setDataSource(dataSourceA)
+                    .setPlaceholder(
+                        WireComplicationDataBuilder(WireComplicationData.TYPE_LARGE_IMAGE)
+                            .setLargeImage(createPlaceholderIcon())
+                            .setContentDescription(
+                                WireComplicationText.plainText("content description")
+                            )
+                            .setDataSource(dataSourceA)
+                            .build()
+                    )
                     .build()
             )
         testRoundTripConversions(data)
@@ -842,7 +872,7 @@ public class FromWireComplicationDataTest {
     public fun noDataComplicationData() {
         assertRoundtrip(
             WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA)
-                .setPlaceholderType(WireComplicationData.TYPE_NO_DATA).build(),
+                .setPlaceholder(null).build(),
             ComplicationType.NO_DATA
         )
     }
@@ -953,11 +983,16 @@ public class FromWireComplicationDataTest {
         val icon = Icon.createWithContentUri("someuri")
         assertRoundtrip(
             WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA)
-                .setPlaceholderType(WireComplicationData.TYPE_SHORT_TEXT)
-                .setContentDescription(WireComplicationText.plainText("content description"))
-                .setShortText(WireComplicationText.plainText("text"))
-                .setShortTitle(WireComplicationText.plainText("title"))
-                .setIcon(icon)
+                .setPlaceholder(
+                    WireComplicationDataBuilder(WireComplicationData.TYPE_SHORT_TEXT)
+                        .setContentDescription(
+                            WireComplicationText.plainText("content description")
+                        )
+                        .setShortText(WireComplicationText.plainText("text"))
+                        .setShortTitle(WireComplicationText.plainText("title"))
+                        .setIcon(icon)
+                        .build()
+                )
                 .build(),
             ComplicationType.NO_DATA
         )
@@ -968,11 +1003,16 @@ public class FromWireComplicationDataTest {
         val icon = Icon.createWithContentUri("someuri")
         assertRoundtrip(
             WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA)
-                .setPlaceholderType(WireComplicationData.TYPE_LONG_TEXT)
-                .setContentDescription(WireComplicationText.plainText("content description"))
-                .setLongText(WireComplicationText.plainText("text"))
-                .setLongTitle(WireComplicationText.plainText("title"))
-                .setIcon(icon)
+                .setPlaceholder(
+                    WireComplicationDataBuilder(WireComplicationData.TYPE_LONG_TEXT)
+                        .setContentDescription(
+                            WireComplicationText.plainText("content description")
+                        )
+                        .setLongText(WireComplicationText.plainText("text"))
+                        .setLongTitle(WireComplicationText.plainText("title"))
+                        .setIcon(icon)
+                        .build()
+                )
                 .build(),
             ComplicationType.NO_DATA
         )
@@ -983,13 +1023,18 @@ public class FromWireComplicationDataTest {
         val icon = Icon.createWithContentUri("someuri")
         assertRoundtrip(
             WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA)
-                .setPlaceholderType(WireComplicationData.TYPE_RANGED_VALUE)
-                .setContentDescription(WireComplicationText.plainText("content description"))
-                .setRangedValue(75f)
-                .setRangedMinValue(0f)
-                .setRangedMaxValue(100f)
-                .setShortTitle(WireComplicationText.plainText("battery"))
-                .setIcon(icon)
+                .setPlaceholder(
+                    WireComplicationDataBuilder(WireComplicationData.TYPE_RANGED_VALUE)
+                        .setContentDescription(
+                            WireComplicationText.plainText("content description")
+                        )
+                        .setRangedValue(75f)
+                        .setRangedMinValue(0f)
+                        .setRangedMaxValue(100f)
+                        .setShortTitle(WireComplicationText.plainText("battery"))
+                        .setIcon(icon)
+                        .build()
+                )
                 .build(),
             ComplicationType.NO_DATA
         )
@@ -1000,10 +1045,15 @@ public class FromWireComplicationDataTest {
         val icon = Icon.createWithContentUri("someuri")
         assertRoundtrip(
             WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA)
-                .setPlaceholderType(WireComplicationData.TYPE_SMALL_IMAGE)
-                .setSmallImage(icon)
-                .setSmallImageStyle(WireComplicationData.IMAGE_STYLE_PHOTO)
-                .setContentDescription(WireComplicationText.plainText("content description"))
+                .setPlaceholder(
+                    WireComplicationDataBuilder(WireComplicationData.TYPE_SMALL_IMAGE)
+                        .setSmallImage(icon)
+                        .setSmallImageStyle(WireComplicationData.IMAGE_STYLE_PHOTO)
+                        .setContentDescription(
+                            WireComplicationText.plainText("content description")
+                        )
+                        .build()
+                )
                 .build(),
             ComplicationType.NO_DATA
         )
@@ -1014,9 +1064,14 @@ public class FromWireComplicationDataTest {
         val icon = Icon.createWithContentUri("someuri")
         assertRoundtrip(
             WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA)
-                .setPlaceholderType(WireComplicationData.TYPE_ICON)
-                .setIcon(icon)
-                .setContentDescription(WireComplicationText.plainText("content description"))
+                .setPlaceholder(
+                    WireComplicationDataBuilder(WireComplicationData.TYPE_ICON)
+                        .setIcon(icon)
+                        .setContentDescription(
+                            WireComplicationText.plainText("content description")
+                        )
+                        .build()
+                )
                 .build(),
             ComplicationType.NO_DATA
         )
@@ -1105,14 +1160,14 @@ public class TapActionTest {
     }
 
     @Test
-    public fun NoDataComplicationData() {
+    public fun noDataComplicationData() {
         assertThat(
             NoDataComplicationData(
                 ShortTextComplicationData.Builder(
                     ComplicationText.PLACEHOLDER,
                     ComplicationText.EMPTY
                 ).setTapAction(mPendingIntent).build()
-            ).asWireComplicationData().tapAction
+            ).asWireComplicationData().placeholder?.tapAction
         ).isEqualTo(mPendingIntent)
     }
 }
@@ -1325,8 +1380,11 @@ public class ValidTimeRangeTest {
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA)
-                    .setPlaceholderType(WireComplicationData.TYPE_SHORT_TEXT)
-                    .setShortText(WireComplicationText.plainText("text"))
+                    .setPlaceholder(
+                        WireComplicationDataBuilder(WireComplicationData.TYPE_SHORT_TEXT)
+                            .setShortText(WireComplicationText.plainText("text"))
+                            .build()
+                    )
                     .build()
             )
     }
@@ -1340,8 +1398,11 @@ public class ValidTimeRangeTest {
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA)
-                    .setPlaceholderType(WireComplicationData.TYPE_LONG_TEXT)
-                    .setLongText(WireComplicationText.plainText("text"))
+                    .setPlaceholder(
+                        WireComplicationDataBuilder(WireComplicationData.TYPE_LONG_TEXT)
+                            .setLongText(WireComplicationText.plainText("text"))
+                            .build()
+                    )
                     .build()
             )
     }
@@ -1359,10 +1420,13 @@ public class ValidTimeRangeTest {
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA)
-                    .setPlaceholderType(WireComplicationData.TYPE_RANGED_VALUE)
-                    .setRangedValue(95f)
-                    .setRangedMinValue(0f)
-                    .setRangedMaxValue(100f)
+                    .setPlaceholder(
+                        WireComplicationDataBuilder(WireComplicationData.TYPE_RANGED_VALUE)
+                            .setRangedValue(95f)
+                            .setRangedMinValue(0f)
+                            .setRangedMaxValue(100f)
+                            .build()
+                    )
                     .build()
             )
     }
@@ -1377,8 +1441,11 @@ public class ValidTimeRangeTest {
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA)
-                    .setPlaceholderType(WireComplicationData.TYPE_ICON)
-                    .setIcon(icon)
+                    .setPlaceholder(
+                        WireComplicationDataBuilder(WireComplicationData.TYPE_ICON)
+                            .setIcon(icon)
+                            .build()
+                    )
                     .build()
             )
     }
@@ -1393,9 +1460,12 @@ public class ValidTimeRangeTest {
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA)
-                    .setPlaceholderType(WireComplicationData.TYPE_SMALL_IMAGE)
-                    .setSmallImage(icon)
-                    .setSmallImageStyle(WireComplicationData.IMAGE_STYLE_PHOTO)
+                    .setPlaceholder(
+                        WireComplicationDataBuilder(WireComplicationData.TYPE_SMALL_IMAGE)
+                            .setSmallImage(icon)
+                            .setSmallImageStyle(WireComplicationData.IMAGE_STYLE_PHOTO)
+                            .build()
+                    )
                     .build()
             )
     }
@@ -1409,8 +1479,11 @@ public class ValidTimeRangeTest {
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA)
-                    .setPlaceholderType(WireComplicationData.TYPE_LARGE_IMAGE)
-                    .setLargeImage(icon)
+                    .setPlaceholder(
+                        WireComplicationDataBuilder(WireComplicationData.TYPE_LARGE_IMAGE)
+                            .setLargeImage(icon)
+                            .build()
+                    )
                     .build()
             )
     }

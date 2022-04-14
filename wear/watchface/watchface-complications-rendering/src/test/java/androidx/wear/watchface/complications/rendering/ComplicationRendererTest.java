@@ -608,8 +608,10 @@ public class ComplicationRendererTest {
     public void placeholderLongTextIsDrawnAsPlaceholder() {
         mComplicationRenderer.setComplicationData(
                 new ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
-                        .setPlaceholderType(ComplicationData.TYPE_LONG_TEXT)
-                        .setLongText(PLACEHOLDER_COMPLICATION_TEXT)
+                        .setPlaceholder(new ComplicationData.Builder(
+                                ComplicationData.TYPE_LONG_TEXT)
+                                .setLongText(PLACEHOLDER_COMPLICATION_TEXT)
+                                .build())
                         .build(),
                 true);
 
@@ -623,8 +625,10 @@ public class ComplicationRendererTest {
     public void placeholderShortTextIsDrawnAsPlaceholder() {
         mComplicationRenderer.setComplicationData(
                 new ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
-                        .setPlaceholderType(ComplicationData.TYPE_SHORT_TEXT)
-                        .setShortText(PLACEHOLDER_COMPLICATION_TEXT)
+                        .setPlaceholder(new ComplicationData.Builder(
+                                ComplicationData.TYPE_SHORT_TEXT)
+                                .setShortText(PLACEHOLDER_COMPLICATION_TEXT)
+                                .build())
                         .build(),
                 true);
 
@@ -638,9 +642,11 @@ public class ComplicationRendererTest {
     public void placeholderLongTitleIsDrawnAsPlaceholder() {
         mComplicationRenderer.setComplicationData(
                 new ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
-                        .setPlaceholderType(ComplicationData.TYPE_LONG_TEXT)
-                        .setLongText(ComplicationText.plainText("Hi"))
-                        .setLongTitle(PLACEHOLDER_COMPLICATION_TEXT)
+                        .setPlaceholder(new ComplicationData.Builder(
+                                ComplicationData.TYPE_LONG_TEXT)
+                                .setLongText(ComplicationText.plainText("Hi"))
+                                .setLongTitle(PLACEHOLDER_COMPLICATION_TEXT)
+                                .build())
                         .build(),
                 true);
 
@@ -654,9 +660,11 @@ public class ComplicationRendererTest {
     public void placeholderShortTitleIsDrawnAsPlaceholder() {
         mComplicationRenderer.setComplicationData(
                 new ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
-                        .setPlaceholderType(ComplicationData.TYPE_SHORT_TEXT)
-                        .setShortText(ComplicationText.plainText("Hi"))
-                        .setShortTitle(PLACEHOLDER_COMPLICATION_TEXT)
+                        .setPlaceholder(new ComplicationData.Builder(
+                                ComplicationData.TYPE_SHORT_TEXT)
+                                .setShortText(ComplicationText.plainText("Hi"))
+                                .setShortTitle(PLACEHOLDER_COMPLICATION_TEXT)
+                                .build())
                         .build(),
                 true);
 
@@ -670,11 +678,13 @@ public class ComplicationRendererTest {
     public void iconIsTintedWithPlaceholderTintForPlaceholderComplication() {
         mComplicationRenderer.setComplicationData(
                 new ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
-                        .setPlaceholderType(ComplicationData.TYPE_SHORT_TEXT)
-                        .setShortText(ComplicationText.plainText("Hi"))
-                        .setIcon(Icon.createWithBitmap(
-                                Bitmap.createBitmap(100, 100, Bitmap.Config.RGB_565)))
-                        .setShortTitle(PLACEHOLDER_COMPLICATION_TEXT)
+                        .setPlaceholder(new ComplicationData.Builder(
+                                ComplicationData.TYPE_SHORT_TEXT)
+                                .setShortText(ComplicationText.plainText("Hi"))
+                                .setIcon(Icon.createWithBitmap(
+                                        Bitmap.createBitmap(100, 100, Bitmap.Config.RGB_565)))
+                                .setShortTitle(PLACEHOLDER_COMPLICATION_TEXT)
+                                .build())
                         .build(),
                 false);
 
