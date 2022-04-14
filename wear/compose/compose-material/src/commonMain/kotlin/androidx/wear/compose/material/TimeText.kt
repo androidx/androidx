@@ -30,8 +30,10 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.ArcPaddingValues
 import androidx.wear.compose.foundation.CurvedLayout
+import androidx.wear.compose.foundation.CurvedModifier
 import androidx.wear.compose.foundation.CurvedScope
 import androidx.wear.compose.foundation.CurvedTextStyle
+import androidx.wear.compose.foundation.padding
 import androidx.wear.compose.material.TimeTextDefaults.CurvedTextSeparator
 import androidx.wear.compose.material.TimeTextDefaults.TextSeparator
 import androidx.wear.compose.material.TimeTextDefaults.timeFormat
@@ -209,8 +211,8 @@ public object TimeTextDefaults {
     ) {
         curvedText(
             text = "·",
-            contentArcPadding = contentArcPadding,
-            style = curvedTextStyle
+            style = curvedTextStyle,
+            modifier = CurvedModifier.padding(contentArcPadding)
         )
     }
 

@@ -20,16 +20,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.dp
-import androidx.wear.compose.foundation.ArcPaddingValues
 import androidx.wear.compose.foundation.CurvedDirection
 import androidx.wear.compose.foundation.CurvedLayout
-import androidx.wear.compose.foundation.basicCurvedText
 import androidx.wear.compose.foundation.CurvedModifier
 import androidx.wear.compose.foundation.CurvedScope
 import androidx.wear.compose.foundation.CurvedTextStyle
+import androidx.wear.compose.foundation.basicCurvedText
 import androidx.wear.compose.foundation.curvedRow
 
 /**
@@ -74,8 +71,6 @@ import androidx.wear.compose.foundation.curvedRow
  * those needs to be reversed in a Rtl layout.
  * If not specified, it will be inherited from the enclosing [curvedRow] or [CurvedLayout]
  * See [CurvedDirection.Angular].
- * @param contentArcPadding Allows to specify additional space along each "edge" of the content in
- * [Dp] see [ArcPaddingValues]
  * @param overflow How visual overflow should be handled.
  */
 public fun CurvedScope.curvedText(
@@ -86,9 +81,8 @@ public fun CurvedScope.curvedText(
     fontSize: TextUnit = TextUnit.Unspecified,
     style: CurvedTextStyle? = null,
     angularDirection: CurvedDirection.Angular? = null,
-    contentArcPadding: ArcPaddingValues = ArcPaddingValues(0.dp),
     overflow: TextOverflow = TextOverflow.Clip,
-) = basicCurvedText(text, modifier, angularDirection, contentArcPadding, overflow) {
+) = basicCurvedText(text, modifier, angularDirection, overflow) {
     val baseStyle = style ?: CurvedTextStyle(LocalTextStyle.current)
     val textColor = color.takeOrElse {
         baseStyle.color.takeOrElse {
