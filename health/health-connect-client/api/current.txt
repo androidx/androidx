@@ -2,6 +2,9 @@
 package androidx.health.connect.client {
 
   public interface HealthConnectClient {
+    method public suspend Object? aggregate(androidx.health.connect.client.request.AggregateRequest request, kotlin.coroutines.Continuation<? super androidx.health.connect.client.aggregate.AggregationResult>);
+    method public suspend Object? aggregateGroupByDuration(androidx.health.connect.client.request.AggregateGroupByDurationRequest request, kotlin.coroutines.Continuation<? super java.util.List<? extends androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration>>);
+    method public suspend Object? aggregateGroupByPeriod(androidx.health.connect.client.request.AggregateGroupByPeriodRequest request, kotlin.coroutines.Continuation<? super java.util.List<? extends androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod>>);
     method public suspend Object? deleteRecords(kotlin.reflect.KClass<? extends androidx.health.connect.client.records.Record> recordType, java.util.List<java.lang.String> uidsList, java.util.List<java.lang.String> clientIdsList, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? deleteRecords(kotlin.reflect.KClass<? extends androidx.health.connect.client.records.Record> recordType, androidx.health.connect.client.time.TimeRangeFilter timeRangeFilter, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? getChanges(String changesToken, kotlin.coroutines.Continuation<? super androidx.health.connect.client.response.ChangesResponse>);
@@ -27,6 +30,40 @@ package androidx.health.connect.client {
   public interface PermissionController {
     method public suspend Object? getGrantedPermissions(java.util.Set<androidx.health.connect.client.permission.Permission> permissions, kotlin.coroutines.Continuation<? super java.util.Set<? extends androidx.health.connect.client.permission.Permission>>);
     method public suspend Object? revokeAllPermissions(kotlin.coroutines.Continuation<? super kotlin.Unit>);
+  }
+
+}
+
+package androidx.health.connect.client.aggregate {
+
+  public final class AggregateMetric<T> {
+  }
+
+  public final class AggregationResult {
+    method public java.util.List<androidx.health.connect.client.metadata.DataOrigin> getDataOrigins();
+    method public <T> T? getMetric(androidx.health.connect.client.aggregate.AggregateMetric<T> metric);
+    method public boolean hasMetric(androidx.health.connect.client.aggregate.AggregateMetric<?> metric);
+    property public final java.util.List<androidx.health.connect.client.metadata.DataOrigin> dataOrigins;
+  }
+
+  public final class AggregationResultGroupedByDuration {
+    method public java.time.Instant getEndTime();
+    method public androidx.health.connect.client.aggregate.AggregationResult getResult();
+    method public java.time.Instant getStartTime();
+    method public java.time.ZoneOffset getZoneOffset();
+    property public final java.time.Instant endTime;
+    property public final androidx.health.connect.client.aggregate.AggregationResult result;
+    property public final java.time.Instant startTime;
+    property public final java.time.ZoneOffset zoneOffset;
+  }
+
+  public final class AggregationResultGroupedByPeriod {
+    method public java.time.LocalDateTime getEndTime();
+    method public androidx.health.connect.client.aggregate.AggregationResult getResult();
+    method public java.time.LocalDateTime getStartTime();
+    property public final java.time.LocalDateTime endTime;
+    property public final androidx.health.connect.client.aggregate.AggregationResult result;
+    property public final java.time.LocalDateTime startTime;
   }
 
 }
@@ -268,6 +305,11 @@ package androidx.health.connect.client.records {
     property public androidx.health.connect.client.metadata.Metadata metadata;
     property public java.time.Instant startTime;
     property public java.time.ZoneOffset? startZoneOffset;
+    field public static final androidx.health.connect.client.records.Distance.Companion Companion;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> TOTAL;
+  }
+
+  public static final class Distance.Companion {
   }
 
   public final class ElevationGained implements androidx.health.connect.client.records.Record {
@@ -284,6 +326,11 @@ package androidx.health.connect.client.records {
     property public androidx.health.connect.client.metadata.Metadata metadata;
     property public java.time.Instant startTime;
     property public java.time.ZoneOffset? startZoneOffset;
+    field public static final androidx.health.connect.client.records.ElevationGained.Companion Companion;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> TOTAL;
+  }
+
+  public static final class ElevationGained.Companion {
   }
 
   public final class Height implements androidx.health.connect.client.records.Record {
@@ -296,6 +343,13 @@ package androidx.health.connect.client.records {
     property public androidx.health.connect.client.metadata.Metadata metadata;
     property public java.time.Instant time;
     property public java.time.ZoneOffset? zoneOffset;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> AVG;
+    field public static final androidx.health.connect.client.records.Height.Companion Companion;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> MAX;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> MIN;
+  }
+
+  public static final class Height.Companion {
   }
 
   public final class HipCircumference implements androidx.health.connect.client.records.Record {
@@ -352,6 +406,18 @@ package androidx.health.connect.client.records {
 }
 
 package androidx.health.connect.client.request {
+
+  public final class AggregateGroupByDurationRequest {
+    ctor public AggregateGroupByDurationRequest(java.util.Set<? extends androidx.health.connect.client.aggregate.AggregateMetric<?>> metrics, androidx.health.connect.client.time.TimeRangeFilter timeRangeFilter, java.time.Duration timeRangeSlicer, optional java.util.List<androidx.health.connect.client.metadata.DataOrigin> dataOriginFilter);
+  }
+
+  public final class AggregateGroupByPeriodRequest {
+    ctor public AggregateGroupByPeriodRequest(java.util.Set<? extends androidx.health.connect.client.aggregate.AggregateMetric<?>> metrics, androidx.health.connect.client.time.TimeRangeFilter timeRangeFilter, java.time.Period timeRangeSlicer, optional java.util.List<androidx.health.connect.client.metadata.DataOrigin> dataOriginFilter);
+  }
+
+  public final class AggregateRequest {
+    ctor public AggregateRequest(java.util.Set<? extends androidx.health.connect.client.aggregate.AggregateMetric<?>> metrics, androidx.health.connect.client.time.TimeRangeFilter timeRangeFilter, optional java.util.List<androidx.health.connect.client.metadata.DataOrigin> dataOriginFilter);
+  }
 
   public final class ChangesTokenRequest {
     ctor public ChangesTokenRequest(java.util.Set<? extends kotlin.reflect.KClass<? extends androidx.health.connect.client.records.Record>> recordTypes, optional java.util.Set<androidx.health.connect.client.metadata.DataOrigin> dataOriginFilters);

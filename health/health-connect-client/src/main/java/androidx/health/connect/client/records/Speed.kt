@@ -16,7 +16,7 @@
 package androidx.health.connect.client.records
 
 import androidx.annotation.RestrictTo
-import androidx.health.connect.client.aggregate.DoubleAggregateMetric
+import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
@@ -56,16 +56,43 @@ public class Speed(
     }
 
     companion object {
-        /** Metric identifier to retrieve average speed from [AggregateDataRow]. */
-        @JvmField
-        val SPEED_AVG: DoubleAggregateMetric = DoubleAggregateMetric("Speed", "avg", "speed")
+        private const val SPEED_NAME = "Speed"
+        private const val SPEED_FIELD_NAME = "speed"
 
-        /** Metric identifier to retrieve minimum speed from [AggregateDataRow]. */
+        /**
+         * Metric identifier to retrieve average speed from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
         @JvmField
-        val SPEED_MIN: DoubleAggregateMetric = DoubleAggregateMetric("Speed", "min", "speed")
+        val AVG: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                SPEED_NAME,
+                AggregateMetric.AggregationType.AVERAGE,
+                SPEED_FIELD_NAME
+            )
 
-        /** Metric identifier to retrieve maximum speed from [AggregateDataRow]. */
+        /**
+         * Metric identifier to retrieve minimum speed from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
         @JvmField
-        val SPEED_MAX: DoubleAggregateMetric = DoubleAggregateMetric("Speed", "max", "speed")
+        val MIN: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                SPEED_NAME,
+                AggregateMetric.AggregationType.MINIMUM,
+                SPEED_FIELD_NAME
+            )
+
+        /**
+         * Metric identifier to retrieve maximum speed from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val MAX: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                SPEED_NAME,
+                AggregateMetric.AggregationType.MAXIMUM,
+                SPEED_FIELD_NAME
+            )
     }
 }

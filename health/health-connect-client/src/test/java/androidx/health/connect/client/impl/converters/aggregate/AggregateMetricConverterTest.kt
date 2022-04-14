@@ -15,7 +15,7 @@
  */
 package androidx.health.connect.client.impl.converters.aggregate
 
-import androidx.health.connect.client.aggregate.DurationAggregateMetric
+import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.records.Distance
 import androidx.health.connect.client.records.Steps
 import androidx.health.platform.client.proto.RequestProto
@@ -28,7 +28,7 @@ import org.junit.runner.RunWith
 class AggregateMetricConverterTest {
     @Test
     fun aggregateMetric_toProto() {
-        assertThat(Steps.STEPS_COUNT_TOTAL.toProto())
+        assertThat(Steps.TOTAL.toProto())
             .isEqualTo(
                 RequestProto.AggregateMetricSpec.newBuilder()
                     .setDataTypeName("Steps")
@@ -36,7 +36,7 @@ class AggregateMetricConverterTest {
                     .setFieldName("count")
                     .build()
             )
-        assertThat(Distance.DISTANCE_TOTAL.toProto())
+        assertThat(Distance.TOTAL.toProto())
             .isEqualTo(
                 RequestProto.AggregateMetricSpec.newBuilder()
                     .setDataTypeName("Distance")
@@ -45,11 +45,11 @@ class AggregateMetricConverterTest {
                     .build()
             )
         // TODO(b/227996244): Use active time when the metric is created
-        assertThat(DurationAggregateMetric("ActiveTime", "total").toProto())
+        assertThat(AggregateMetric.durationMetric("ActiveTime").toProto())
             .isEqualTo(
                 RequestProto.AggregateMetricSpec.newBuilder()
                     .setDataTypeName("ActiveTime")
-                    .setAggregationType("total")
+                    .setAggregationType("duration")
                     .build()
             )
     }

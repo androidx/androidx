@@ -15,9 +15,9 @@
  */
 package androidx.health.connect.client.impl.converters.aggregate
 
-import androidx.health.connect.client.aggregate.AggregateDataRow
-import androidx.health.connect.client.aggregate.AggregateDataRowGroupByDuration
-import androidx.health.connect.client.aggregate.AggregateDataRowGroupByPeriod
+import androidx.health.connect.client.aggregate.AggregationResult
+import androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration
+import androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod
 import androidx.health.connect.client.metadata.DataOrigin
 import androidx.health.platform.client.proto.DataProto
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -30,7 +30,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class AggregateDataRowConverterTest {
+class AggregationResultConverterTest {
     @Test
     fun retrieveAggregateDataRow() {
         val proto =
@@ -43,7 +43,7 @@ class AggregateDataRowConverterTest {
         proto
             .retrieveAggregateDataRow()
             .assertEquals(
-                AggregateDataRow(
+                AggregationResult(
                     longValues = mapOf(Pair("longKey", 567L)),
                     doubleValues = mapOf(Pair("doubleKey", 123.4)),
                     dataOrigins = listOf(DataOrigin("testApp")),
@@ -68,9 +68,9 @@ class AggregateDataRowConverterTest {
         proto
             .toAggregateDataRowGroupByDuration()
             .assertEquals(
-                AggregateDataRowGroupByDuration(
-                    data =
-                        AggregateDataRow(
+                AggregationResultGroupedByDuration(
+                    result =
+                        AggregationResult(
                             longValues = mapOf(Pair("longKey", 567L)),
                             doubleValues = mapOf(Pair("doubleKey", 123.4)),
                             dataOrigins = listOf(DataOrigin("testApp")),
@@ -124,9 +124,9 @@ class AggregateDataRowConverterTest {
         proto
             .toAggregateDataRowGroupByPeriod()
             .assertEquals(
-                AggregateDataRowGroupByPeriod(
-                    data =
-                        AggregateDataRow(
+                AggregationResultGroupedByPeriod(
+                    result =
+                        AggregationResult(
                             longValues = mapOf(Pair("longKey", 567L)),
                             doubleValues = mapOf(Pair("doubleKey", 123.4)),
                             dataOrigins = listOf(DataOrigin("testApp")),
@@ -164,7 +164,7 @@ class AggregateDataRowConverterTest {
         assertThat(thrown.message).isEqualTo("end time must be set")
     }
 
-    private fun AggregateDataRow.assertEquals(expected: AggregateDataRow) {
+    private fun AggregationResult.assertEquals(expected: AggregationResult) {
         assertThat(longValues).isEqualTo(expected.longValues)
         assertThat(doubleValues).isEqualTo(expected.doubleValues)
         assertThat(dataOrigins).isEqualTo(expected.dataOrigins)
@@ -172,19 +172,19 @@ class AggregateDataRowConverterTest {
 
     // ZoneOffset.ofTotalSeconds() has been banned but safe here for serialization.
     @SuppressWarnings("GoodTime")
-    private fun AggregateDataRowGroupByDuration.assertEquals(
-        expected: AggregateDataRowGroupByDuration,
+    private fun AggregationResultGroupedByDuration.assertEquals(
+        expected: AggregationResultGroupedByDuration,
     ) {
-        data.assertEquals(expected.data)
+        result.assertEquals(expected.result)
         assertThat(startTime).isEqualTo(expected.startTime)
         assertThat(endTime).isEqualTo(expected.endTime)
         assertThat(zoneOffset).isEqualTo(expected.zoneOffset)
     }
 
-    private fun AggregateDataRowGroupByPeriod.assertEquals(
-        expected: AggregateDataRowGroupByPeriod,
+    private fun AggregationResultGroupedByPeriod.assertEquals(
+        expected: AggregationResultGroupedByPeriod,
     ) {
-        data.assertEquals(expected.data)
+        result.assertEquals(expected.result)
         assertThat(startTime).isEqualTo(expected.startTime)
         assertThat(endTime).isEqualTo(expected.endTime)
     }

@@ -15,7 +15,7 @@
  */
 package androidx.health.connect.client.records
 
-import androidx.health.connect.client.aggregate.DoubleAggregateMetric
+import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
@@ -50,19 +50,43 @@ public class Weight(
     }
 
     internal companion object {
-        /** Metric identifier to retrieve average weight from [AggregateDataRow]. */
-        @JvmField
-        internal val WEIGHT_AVG: DoubleAggregateMetric =
-            DoubleAggregateMetric("Weight", "avg", "weight")
+        private const val WEIGHT_NAME = "Weight"
+        private const val WEIGHT_FIELD = "weight"
 
-        /** Metric identifier to retrieve minimum weight from [AggregateDataRow]. */
+        /**
+         * Metric identifier to retrieve average weight from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
         @JvmField
-        internal val WEIGHT_MIN: DoubleAggregateMetric =
-            DoubleAggregateMetric("Weight", "min", "weight")
+        internal val AVG: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                WEIGHT_NAME,
+                AggregateMetric.AggregationType.AVERAGE,
+                WEIGHT_FIELD
+            )
 
-        /** Metric identifier to retrieve maximum weight from [AggregateDataRow]. */
+        /**
+         * Metric identifier to retrieve minimum weight from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
         @JvmField
-        internal val WEIGHT_MAX: DoubleAggregateMetric =
-            DoubleAggregateMetric("Weight", "max", "weight")
+        internal val MIN: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                WEIGHT_NAME,
+                AggregateMetric.AggregationType.MINIMUM,
+                WEIGHT_FIELD
+            )
+
+        /**
+         * Metric identifier to retrieve maximum weight from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        internal val MAX: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                WEIGHT_NAME,
+                AggregateMetric.AggregationType.MAXIMUM,
+                WEIGHT_FIELD
+            )
     }
 }

@@ -15,7 +15,7 @@
  */
 package androidx.health.connect.client.records
 
-import androidx.health.connect.client.aggregate.LongAggregateMetric
+import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
@@ -63,9 +63,12 @@ public class Steps(
     }
 
     internal companion object {
-        /** Metric identifier to retrieve total steps count from [AggregateDataRow]. */
+        /**
+         * Metric identifier to retrieve total steps count from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
         @JvmField
-        internal val STEPS_COUNT_TOTAL: LongAggregateMetric =
-            LongAggregateMetric("Steps", "total", "count")
+        internal val TOTAL: AggregateMetric<Long> =
+            AggregateMetric.longMetric("Steps", AggregateMetric.AggregationType.TOTAL, "count")
     }
 }

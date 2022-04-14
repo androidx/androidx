@@ -15,7 +15,7 @@
  */
 package androidx.health.connect.client.records
 
-import androidx.health.connect.client.aggregate.DoubleAggregateMetric
+import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
@@ -54,10 +54,17 @@ public class ElevationGained(
         return result
     }
 
-    internal companion object {
-        /** Metric identifier to retrieve total elevation gained from [AggregateDataRow]. */
+    companion object {
+        /**
+         * Metric identifier to retrieve total elevation gained from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
         @JvmField
-        internal val ELEVATION_TOTAL: DoubleAggregateMetric =
-            DoubleAggregateMetric("ElevationGained", "total", "elevation")
+        val TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                "ElevationGained",
+                AggregateMetric.AggregationType.TOTAL,
+                "elevation"
+            )
     }
 }
