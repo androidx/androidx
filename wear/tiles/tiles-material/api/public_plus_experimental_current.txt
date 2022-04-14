@@ -137,8 +137,7 @@ package androidx.wear.tiles.material {
     ctor public ProgressIndicatorColors(@ColorInt int, @ColorInt int);
     method public androidx.wear.tiles.ColorBuilders.ColorProp getIndicatorColor();
     method public androidx.wear.tiles.ColorBuilders.ColorProp getTrackColor();
-    method public static androidx.wear.tiles.material.ProgressIndicatorColors primaryProgressIndicatorColors(androidx.wear.tiles.material.Colors);
-    method public static androidx.wear.tiles.material.ProgressIndicatorColors secondaryProgressIndicatorColors(androidx.wear.tiles.material.Colors);
+    method public static androidx.wear.tiles.material.ProgressIndicatorColors progressIndicatorColors(androidx.wear.tiles.material.Colors);
   }
 
   public class ProgressIndicatorDefaults {

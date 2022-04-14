@@ -88,6 +88,7 @@ public class MultiSlotLayout implements LayoutElement {
             return this;
         }
 
+        /** Constructs and returns {@link MultiSlotLayout} with the provided content and look. */
         @NonNull
         @Override
         // The @Dimension(unit = DP) on mVerticalSpacerHeight.getValue() is seemingly being ignored,
