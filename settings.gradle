@@ -659,6 +659,7 @@ includeProject(":navigation:navigation-fragment-ktx", [BuildType.MAIN, BuildType
 includeProject(":navigation:navigation-integration-tests", "navigation/integration-tests", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":navigation:navigation-integration-tests:testapp", "navigation/integration-tests/testapp", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":navigation:navigation-runtime", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
+includeProject(":navigation:navigation-runtime-lint", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
 includeProject(":navigation:navigation-runtime-ktx", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
 includeProject(":navigation:navigation-runtime-truth", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":navigation:navigation-safe-args-generator", [BuildType.MAIN, BuildType.FLAN])
