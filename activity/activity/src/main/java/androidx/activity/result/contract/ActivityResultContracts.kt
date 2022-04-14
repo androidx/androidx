@@ -686,7 +686,7 @@ class ActivityResultContracts private constructor() {
             }
         }
 
-        @Suppress("InvalidNullability")
+        @Suppress("InvalidNullabilityOverride")
         final override fun getSynchronousResult(
             context: Context,
             input: PickVisualMediaRequest
@@ -755,7 +755,7 @@ class ActivityResultContracts private constructor() {
             }
         }
 
-        @Suppress("InvalidNullability")
+        @Suppress("InvalidNullabilityOverride")
         final override fun getSynchronousResult(
             context: Context,
             input: PickVisualMediaRequest

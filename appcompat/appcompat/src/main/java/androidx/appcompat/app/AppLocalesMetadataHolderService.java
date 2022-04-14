@@ -44,7 +44,7 @@ public final class AppLocalesMetadataHolderService extends Service {
 
     @NonNull
     @Override
-    public IBinder onBind(@SuppressWarnings("InvalidNullability") @NonNull Intent intent) {
+    public IBinder onBind(@SuppressWarnings("InvalidNullabilityOverride") @NonNull Intent intent) {
         throw new UnsupportedOperationException();
     }
 
