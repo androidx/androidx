@@ -13,57 +13,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.room
 
-package androidx.room;
-
-import androidx.annotation.RestrictTo;
-import androidx.sqlite.db.SupportSQLiteStatement;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import androidx.annotation.RestrictTo
+import androidx.sqlite.db.SupportSQLiteStatement
 
 /**
  * Implementations of this class knows how to insert a particular entity.
- * <p>
+ *
  * This is an internal library class and all of its implementations are auto-generated.
  *
- * @param <T> The type parameter of the entity to be inserted
- * @hide
- */
-@SuppressWarnings({"WeakerAccess", "unused"})
+ * @constructor Creates an InsertionAdapter that can insert the entity type T into the given
+ * database.
+ *
+ * @param T The type parameter of the entity to be inserted
+ * @suppress
+*/
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public abstract class EntityInsertionAdapter<T> extends SharedSQLiteStatement {
-    /**
-     * Creates an InsertionAdapter that can insert the entity type T into the given database.
-     *
-     * @param database The database to insert into.
-     */
-    public EntityInsertionAdapter(RoomDatabase database) {
-        super(database);
-    }
-
+abstract class EntityInsertionAdapter<T>(database: RoomDatabase) : SharedSQLiteStatement(database) {
     /**
      * Binds the entity into the given statement.
      *
      * @param statement The SQLite statement that prepared for the query returned from
-     *                  createInsertQuery.
+     * createInsertQuery.
      * @param entity    The entity of type T.
      */
-    protected abstract void bind(SupportSQLiteStatement statement, T entity);
+    protected abstract fun bind(statement: SupportSQLiteStatement?, entity: T)
 
     /**
      * Inserts the entity into the database.
      *
      * @param entity The entity to insert
      */
-    public final void insert(T entity) {
-        final SupportSQLiteStatement stmt = acquire();
+    fun insert(entity: T) {
+        val stmt: SupportSQLiteStatement = acquire()
         try {
-            bind(stmt, entity);
-            stmt.executeInsert();
+            bind(stmt, entity)
+            stmt.executeInsert()
         } finally {
-            release(stmt);
+            release(stmt)
         }
     }
 
@@ -72,15 +60,15 @@ public abstract class EntityInsertionAdapter<T> extends SharedSQLiteStatement {
      *
      * @param entities Entities to insert
      */
-    public final void insert(T[] entities) {
-        final SupportSQLiteStatement stmt = acquire();
+    fun insert(entities: Array<T>) {
+        val stmt: SupportSQLiteStatement = acquire()
         try {
-            for (T entity : entities) {
-                bind(stmt, entity);
-                stmt.executeInsert();
+            entities.forEach { entity ->
+                bind(stmt, entity)
+                stmt.executeInsert()
             }
         } finally {
-            release(stmt);
+            release(stmt)
         }
     }
 
@@ -89,15 +77,15 @@ public abstract class EntityInsertionAdapter<T> extends SharedSQLiteStatement {
      *
      * @param entities Entities to insert
      */
-    public final void insert(Iterable<? extends T> entities) {
-        final SupportSQLiteStatement stmt = acquire();
+    fun insert(entities: Iterable<T>) {
+        val stmt: SupportSQLiteStatement = acquire()
         try {
-            for (T entity : entities) {
-                bind(stmt, entity);
-                stmt.executeInsert();
+            entities.forEach { entity ->
+                bind(stmt, entity)
+                stmt.executeInsert()
             }
         } finally {
-            release(stmt);
+            release(stmt)
         }
     }
 
@@ -107,13 +95,13 @@ public abstract class EntityInsertionAdapter<T> extends SharedSQLiteStatement {
      * @param entity The entity to insert
      * @return The SQLite row id or -1 if no row is inserted
      */
-    public final long insertAndReturnId(T entity) {
-        final SupportSQLiteStatement stmt = acquire();
-        try {
-            bind(stmt, entity);
-            return stmt.executeInsert();
+    fun insertAndReturnId(entity: T): Long {
+        val stmt: SupportSQLiteStatement = acquire()
+        return try {
+            bind(stmt, entity)
+            stmt.executeInsert()
         } finally {
-            release(stmt);
+            release(stmt)
         }
     }
 
@@ -123,19 +111,17 @@ public abstract class EntityInsertionAdapter<T> extends SharedSQLiteStatement {
      * @param entities Entities to insert
      * @return The SQLite row ids, for entities that are not inserted the row id returned will be -1
      */
-    public final long[] insertAndReturnIdsArray(Collection<? extends T> entities) {
-        final SupportSQLiteStatement stmt = acquire();
-        try {
-            final long[] result = new long[entities.size()];
-            int index = 0;
-            for (T entity : entities) {
-                bind(stmt, entity);
-                result[index] = stmt.executeInsert();
-                index++;
+    fun insertAndReturnIdsArray(entities: Collection<T>): LongArray {
+        val stmt: SupportSQLiteStatement = acquire()
+        return try {
+            val result = LongArray(entities.size)
+            entities.forEachIndexed { index, entity ->
+                bind(stmt, entity)
+                result[index] = stmt.executeInsert()
             }
-            return result;
+            result
         } finally {
-            release(stmt);
+            release(stmt)
         }
     }
 
@@ -145,19 +131,17 @@ public abstract class EntityInsertionAdapter<T> extends SharedSQLiteStatement {
      * @param entities Entities to insert
      * @return The SQLite row ids, for entities that are not inserted the row id returned will be -1
      */
-    public final long[] insertAndReturnIdsArray(T[] entities) {
-        final SupportSQLiteStatement stmt = acquire();
-        try {
-            final long[] result = new long[entities.length];
-            int index = 0;
-            for (T entity : entities) {
-                bind(stmt, entity);
-                result[index] = stmt.executeInsert();
-                index++;
+    fun insertAndReturnIdsArray(entities: Array<T>): LongArray {
+        val stmt: SupportSQLiteStatement = acquire()
+        return try {
+            val result = LongArray(entities.size)
+            entities.forEachIndexed { index, entity ->
+                bind(stmt, entity)
+                result[index] = stmt.executeInsert()
             }
-            return result;
+            result
         } finally {
-            release(stmt);
+            release(stmt)
         }
     }
 
@@ -167,19 +151,17 @@ public abstract class EntityInsertionAdapter<T> extends SharedSQLiteStatement {
      * @param entities Entities to insert
      * @return The SQLite row ids, for entities that are not inserted the row id returned will be -1
      */
-    public final Long[] insertAndReturnIdsArrayBox(Collection<? extends T> entities) {
-        final SupportSQLiteStatement stmt = acquire();
-        try {
-            final Long[] result = new Long[entities.size()];
-            int index = 0;
-            for (T entity : entities) {
-                bind(stmt, entity);
-                result[index] = stmt.executeInsert();
-                index++;
+    fun insertAndReturnIdsArrayBox(entities: Collection<T>): Array<Long?> {
+        val stmt: SupportSQLiteStatement = acquire()
+        return try {
+            val result = arrayOfNulls<Long>(entities.size)
+            entities.forEachIndexed { index, entity ->
+                bind(stmt, entity)
+                result[index] = stmt.executeInsert()
             }
-            return result;
+            result
         } finally {
-            release(stmt);
+            release(stmt)
         }
     }
 
@@ -189,19 +171,17 @@ public abstract class EntityInsertionAdapter<T> extends SharedSQLiteStatement {
      * @param entities Entities to insert
      * @return The SQLite row ids, for entities that are not inserted the row id returned will be -1
      */
-    public final Long[] insertAndReturnIdsArrayBox(T[] entities) {
-        final SupportSQLiteStatement stmt = acquire();
-        try {
-            final Long[] result = new Long[entities.length];
-            int index = 0;
-            for (T entity : entities) {
-                bind(stmt, entity);
-                result[index] = stmt.executeInsert();
-                index++;
+    fun insertAndReturnIdsArrayBox(entities: Array<T>): Array<Long?> {
+        val stmt: SupportSQLiteStatement = acquire()
+        return try {
+            val result = arrayOfNulls<Long>(entities.size)
+            entities.forEachIndexed { index, entity ->
+                bind(stmt, entity)
+                result[index] = stmt.executeInsert()
             }
-            return result;
+            result
         } finally {
-            release(stmt);
+            release(stmt)
         }
     }
 
@@ -211,19 +191,17 @@ public abstract class EntityInsertionAdapter<T> extends SharedSQLiteStatement {
      * @param entities Entities to insert
      * @return The SQLite row ids, for entities that are not inserted the row id returned will be -1
      */
-    public final List<Long> insertAndReturnIdsList(T[] entities) {
-        final SupportSQLiteStatement stmt = acquire();
-        try {
-            final List<Long> result = new ArrayList<>(entities.length);
-            int index = 0;
-            for (T entity : entities) {
-                bind(stmt, entity);
-                result.add(index, stmt.executeInsert());
-                index++;
+    fun insertAndReturnIdsList(entities: Array<T>): List<Long> {
+        val stmt: SupportSQLiteStatement = acquire()
+        return try {
+            buildList {
+                entities.forEach { entity ->
+                    bind(stmt, entity)
+                    add(stmt.executeInsert())
+                }
             }
-            return result;
         } finally {
-            release(stmt);
+            release(stmt)
         }
     }
 
@@ -233,19 +211,17 @@ public abstract class EntityInsertionAdapter<T> extends SharedSQLiteStatement {
      * @param entities Entities to insert
      * @return The SQLite row ids, for entities that are not inserted the row id returned will be -1
      */
-    public final List<Long> insertAndReturnIdsList(Collection<? extends T> entities) {
-        final SupportSQLiteStatement stmt = acquire();
-        try {
-            final List<Long> result = new ArrayList<>(entities.size());
-            int index = 0;
-            for (T entity : entities) {
-                bind(stmt, entity);
-                result.add(index, stmt.executeInsert());
-                index++;
+    fun insertAndReturnIdsList(entities: Collection<T>): List<Long> {
+        val stmt: SupportSQLiteStatement = acquire()
+        return try {
+            buildList {
+                entities.forEach { entity ->
+                    bind(stmt, entity)
+                    add(stmt.executeInsert())
+                }
             }
-            return result;
         } finally {
-            release(stmt);
+            release(stmt)
         }
     }
 }

@@ -13,274 +13,230 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.room
 
-package androidx.room;
-
-import android.content.Context;
-import android.os.Build;
-import android.util.Log;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
-import androidx.room.util.DBUtil;
-import androidx.room.util.FileUtil;
-import androidx.sqlite.db.SupportSQLiteDatabase;
-import androidx.sqlite.db.SupportSQLiteOpenHelper;
-import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
-import androidx.sqlite.util.ProcessLock;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.channels.Channels;
-import java.nio.channels.FileChannel;
-import java.nio.channels.ReadableByteChannel;
-import java.util.concurrent.Callable;
+import android.content.Context
+import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
+import androidx.room.util.readVersion
+import androidx.room.util.copy
+import androidx.sqlite.db.SupportSQLiteDatabase
+import androidx.sqlite.db.SupportSQLiteOpenHelper
+import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
+import androidx.sqlite.util.ProcessLock
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.InputStream
+import java.lang.Exception
+import java.lang.IllegalStateException
+import java.lang.RuntimeException
+import java.nio.channels.Channels
+import java.nio.channels.ReadableByteChannel
+import java.util.concurrent.Callable
 
 /**
  * An open helper that will copy & open a pre-populated database if it doesn't exists in internal
  * storage.
  */
-class SQLiteCopyOpenHelper implements SupportSQLiteOpenHelper, DelegatingOpenHelper {
+@Suppress("BanSynchronizedMethods")
+internal class SQLiteCopyOpenHelper(
+    private val context: Context,
+    private val copyFromAssetPath: String?,
+    private val copyFromFile: File?,
+    private val copyFromInputStream: Callable<InputStream>?,
+    private val databaseVersion: Int,
+    override val delegate: SupportSQLiteOpenHelper
+) : SupportSQLiteOpenHelper, DelegatingOpenHelper {
+    private lateinit var databaseConfiguration: DatabaseConfiguration
+    private var verified = false
 
-    @NonNull
-    private final Context mContext;
-    @Nullable
-    private final String mCopyFromAssetPath;
-    @Nullable
-    private final File mCopyFromFile;
-    @Nullable
-    private final Callable<InputStream> mCopyFromInputStream;
-    private final int mDatabaseVersion;
-    @NonNull
-    private final SupportSQLiteOpenHelper mDelegate;
-    @Nullable
-    private DatabaseConfiguration mDatabaseConfiguration;
-
-    private boolean mVerified;
-
-    SQLiteCopyOpenHelper(
-            @NonNull Context context,
-            @Nullable String copyFromAssetPath,
-            @Nullable File copyFromFile,
-            @Nullable Callable<InputStream> copyFromInputStream,
-            int databaseVersion,
-            @NonNull SupportSQLiteOpenHelper supportSQLiteOpenHelper) {
-        mContext = context;
-        mCopyFromAssetPath = copyFromAssetPath;
-        mCopyFromFile = copyFromFile;
-        mCopyFromInputStream = copyFromInputStream;
-        mDatabaseVersion = databaseVersion;
-        mDelegate = supportSQLiteOpenHelper;
+    override fun getDatabaseName(): String? {
+        return delegate.databaseName
     }
 
-    @Override
-    public String getDatabaseName() {
-        return mDelegate.getDatabaseName();
-    }
-
-    @Override
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-    public void setWriteAheadLoggingEnabled(boolean enabled) {
-        mDelegate.setWriteAheadLoggingEnabled(enabled);
+    override fun setWriteAheadLoggingEnabled(enabled: Boolean) {
+        delegate.setWriteAheadLoggingEnabled(enabled)
     }
 
-    @Override
-    public synchronized SupportSQLiteDatabase getWritableDatabase() {
-        if (!mVerified) {
-            verifyDatabaseFile(true);
-            mVerified = true;
+    @Synchronized
+    override fun getWritableDatabase(): SupportSQLiteDatabase {
+        if (!verified) {
+            verifyDatabaseFile(true)
+            verified = true
         }
-        return mDelegate.getWritableDatabase();
+        return delegate.writableDatabase
     }
 
-    @Override
-    public synchronized SupportSQLiteDatabase getReadableDatabase() {
-        if (!mVerified) {
-            verifyDatabaseFile(false);
-            mVerified = true;
+    @Synchronized
+    override fun getReadableDatabase(): SupportSQLiteDatabase {
+        if (!verified) {
+            verifyDatabaseFile(false)
+            verified = true
         }
-        return mDelegate.getReadableDatabase();
+        return delegate.readableDatabase
     }
 
-    @Override
-    public synchronized void close() {
-        mDelegate.close();
-        mVerified = false;
-    }
-
-    @Override
-    @NonNull
-    public SupportSQLiteOpenHelper getDelegate() {
-        return mDelegate;
+    @Synchronized
+    override fun close() {
+        delegate.close()
+        verified = false
     }
 
     // Can't be constructor param because the factory is needed by the database builder which in
     // turn is the one that actually builds the configuration.
-    void setDatabaseConfiguration(@Nullable DatabaseConfiguration databaseConfiguration) {
-        mDatabaseConfiguration = databaseConfiguration;
+    fun setDatabaseConfiguration(databaseConfiguration: DatabaseConfiguration) {
+        this.databaseConfiguration = databaseConfiguration
     }
 
-    private void verifyDatabaseFile(boolean writable) {
-        String databaseName = getDatabaseName();
-        File databaseFile = mContext.getDatabasePath(databaseName);
-        boolean processLevelLock = mDatabaseConfiguration == null
-                || mDatabaseConfiguration.multiInstanceInvalidation;
-        ProcessLock copyLock = new ProcessLock(databaseName, mContext.getFilesDir(),
-                processLevelLock);
+    private fun verifyDatabaseFile(writable: Boolean) {
+        val name = checkNotNull(databaseName)
+        val databaseFile = context.getDatabasePath(name)
+        val processLevelLock = (databaseConfiguration.multiInstanceInvalidation)
+        val copyLock = ProcessLock(
+            name,
+            context.filesDir,
+            processLevelLock
+        )
         try {
             // Acquire a copy lock, this lock works across threads and processes, preventing
             // concurrent copy attempts from occurring.
-            copyLock.lock();
-
+            copyLock.lock()
             if (!databaseFile.exists()) {
                 try {
                     // No database file found, copy and be done.
-                    copyDatabaseFile(databaseFile, writable);
-                    return;
-                } catch (IOException e) {
-                    throw new RuntimeException("Unable to copy database file.", e);
+                    copyDatabaseFile(databaseFile, writable)
+                    return
+                } catch (e: IOException) {
+                    throw RuntimeException("Unable to copy database file.", e)
                 }
-            }
-
-            if (mDatabaseConfiguration == null) {
-                return;
             }
 
             // A database file is present, check if we need to re-copy it.
-            int currentVersion;
-            try {
-                currentVersion = DBUtil.readVersion(databaseFile);
-            } catch (IOException e) {
-                Log.w(Room.LOG_TAG, "Unable to read database version.", e);
-                return;
+            val currentVersion = try {
+                readVersion(databaseFile)
+            } catch (e: IOException) {
+                Log.w(Room.LOG_TAG, "Unable to read database version.", e)
+                return
             }
-
-            if (currentVersion == mDatabaseVersion) {
-                return;
+            if (currentVersion == databaseVersion) {
+                return
             }
-
-            if (mDatabaseConfiguration.isMigrationRequired(currentVersion, mDatabaseVersion)) {
+            if (databaseConfiguration.isMigrationRequired(currentVersion, databaseVersion)) {
                 // From the current version to the desired version a migration is required, i.e.
                 // we won't be performing a copy destructive migration.
-                return;
+                return
             }
-
-            if (mContext.deleteDatabase(databaseName)) {
+            if (context.deleteDatabase(name)) {
                 try {
-                    copyDatabaseFile(databaseFile, writable);
-                } catch (IOException e) {
+                    copyDatabaseFile(databaseFile, writable)
+                } catch (e: IOException) {
                     // We are more forgiving copying a database on a destructive migration since
                     // there is already a database file that can be opened.
-                    Log.w(Room.LOG_TAG, "Unable to copy database file.", e);
+                    Log.w(Room.LOG_TAG, "Unable to copy database file.", e)
                 }
             } else {
-                Log.w(Room.LOG_TAG, "Failed to delete database file ("
-                        + databaseName + ") for a copy destructive migration.");
+                Log.w(
+                    Room.LOG_TAG, "Failed to delete database file ($name) for " +
+                        "a copy destructive migration."
+                )
             }
         } finally {
-            copyLock.unlock();
+            copyLock.unlock()
         }
     }
 
-    private void copyDatabaseFile(File destinationFile, boolean writable) throws IOException {
-        ReadableByteChannel input;
-        if (mCopyFromAssetPath != null) {
-            input = Channels.newChannel(mContext.getAssets().open(mCopyFromAssetPath));
-        } else if (mCopyFromFile != null) {
-            input = new FileInputStream(mCopyFromFile).getChannel();
-        } else if (mCopyFromInputStream != null) {
-            final InputStream inputStream;
-            try {
-                inputStream = mCopyFromInputStream.call();
-            } catch (Exception e) {
-                throw new IOException("inputStreamCallable exception on call", e);
+    @Throws(IOException::class)
+    private fun copyDatabaseFile(destinationFile: File, writable: Boolean) {
+        val input: ReadableByteChannel
+        if (copyFromAssetPath != null) {
+            input = Channels.newChannel(context.assets.open(copyFromAssetPath))
+        } else if (copyFromFile != null) {
+            input = FileInputStream(copyFromFile).channel
+        } else if (copyFromInputStream != null) {
+            val inputStream = try {
+                copyFromInputStream.call()
+            } catch (e: Exception) {
+                throw IOException("inputStreamCallable exception on call", e)
             }
-            input = Channels.newChannel(inputStream);
+            input = Channels.newChannel(inputStream)
         } else {
-            throw new IllegalStateException("copyFromAssetPath, copyFromFile and "
-                    + "copyFromInputStream are all null!");
+            throw IllegalStateException(
+                "copyFromAssetPath, copyFromFile and copyFromInputStream are all null!"
+            )
         }
 
         // An intermediate file is used so that we never end up with a half-copied database file
         // in the internal directory.
-        File intermediateFile = File.createTempFile(
-                "room-copy-helper", ".tmp", mContext.getCacheDir());
-        intermediateFile.deleteOnExit();
-        FileChannel output = new FileOutputStream(intermediateFile).getChannel();
-        FileUtil.copy(input, output);
-
-        File parent = destinationFile.getParentFile();
+        val intermediateFile = File.createTempFile(
+            "room-copy-helper", ".tmp", context.cacheDir
+        )
+        intermediateFile.deleteOnExit()
+        val output = FileOutputStream(intermediateFile).channel
+        copy(input, output)
+        val parent = destinationFile.parentFile
         if (parent != null && !parent.exists() && !parent.mkdirs()) {
-            throw new IOException("Failed to create directories for "
-                    + destinationFile.getAbsolutePath());
+            throw IOException(
+                "Failed to create directories for ${destinationFile.absolutePath}"
+            )
         }
 
         // Temporarily open intermediate database file using FrameworkSQLiteOpenHelper and dispatch
         // the open pre-packaged callback. If it fails then intermediate file won't be copied making
         // invoking pre-packaged callback a transactional operation.
-        dispatchOnOpenPrepackagedDatabase(intermediateFile, writable);
-
+        dispatchOnOpenPrepackagedDatabase(intermediateFile, writable)
         if (!intermediateFile.renameTo(destinationFile)) {
-            throw new IOException("Failed to move intermediate file ("
-                    + intermediateFile.getAbsolutePath() + ") to destination ("
-                    + destinationFile.getAbsolutePath() + ").");
+            throw IOException(
+                "Failed to move intermediate file (${intermediateFile.absolutePath}) to " +
+                    "destination (${destinationFile.absolutePath})."
+            )
         }
     }
 
-    private void dispatchOnOpenPrepackagedDatabase(File databaseFile, boolean writable) {
-        if (mDatabaseConfiguration == null
-                || mDatabaseConfiguration.prepackagedDatabaseCallback == null) {
-            return;
+    private fun dispatchOnOpenPrepackagedDatabase(databaseFile: File, writable: Boolean) {
+        if (databaseConfiguration.prepackagedDatabaseCallback == null
+        ) {
+            return
         }
-
-        SupportSQLiteOpenHelper helper = createFrameworkOpenHelper(databaseFile);
-        try {
-            SupportSQLiteDatabase db = writable ? helper.getWritableDatabase() :
-                    helper.getReadableDatabase();
-            mDatabaseConfiguration.prepackagedDatabaseCallback.onOpenPrepackagedDatabase(db);
-        } finally {
-            // Close the db and let Room re-open it through a normal path
-            helper.close();
+        createFrameworkOpenHelper(databaseFile).use { helper ->
+            val db = if (writable) helper.writableDatabase else helper.readableDatabase
+            databaseConfiguration.prepackagedDatabaseCallback!!.onOpenPrepackagedDatabase(db)
         }
     }
 
-    private SupportSQLiteOpenHelper createFrameworkOpenHelper(File databaseFile) {
-        final int version;
-        try {
-            version = DBUtil.readVersion(databaseFile);
-        } catch (IOException e) {
-            throw new RuntimeException("Malformed database file, unable to read version.", e);
+    private fun createFrameworkOpenHelper(databaseFile: File): SupportSQLiteOpenHelper {
+        val version = try {
+            readVersion(databaseFile)
+        } catch (e: IOException) {
+            throw RuntimeException("Malformed database file, unable to read version.", e)
         }
-        FrameworkSQLiteOpenHelperFactory factory = new FrameworkSQLiteOpenHelperFactory();
-        Configuration configuration = Configuration.builder(mContext)
-                .name(databaseFile.getAbsolutePath())
-                .callback(new Callback(Math.max(version, 1)) {
-                    @Override
-                    public void onCreate(@NonNull SupportSQLiteDatabase db) {
-                    }
+        val factory = FrameworkSQLiteOpenHelperFactory()
+        val configuration = SupportSQLiteOpenHelper.Configuration.builder(context)
+            .name(databaseFile.absolutePath)
+            .callback(object : SupportSQLiteOpenHelper.Callback(version.coerceAtLeast(1)) {
+                override fun onCreate(db: SupportSQLiteDatabase) {}
+                override fun onUpgrade(
+                    db: SupportSQLiteDatabase,
+                    oldVersion: Int,
+                    newVersion: Int
+                ) {
+                }
 
-                    @Override
-                    public void onUpgrade(@NonNull SupportSQLiteDatabase db, int oldVersion,
-                            int newVersion) {
+                override fun onOpen(db: SupportSQLiteDatabase) {
+                    // If pre-packaged database has a version < 1 we will open it as if it was
+                    // version 1 because the framework open helper does not allow version < 1.
+                    // The database will be considered as newly created and onCreate() will be
+                    // invoked, but we do nothing and reset the version back so Room later runs
+                    // migrations as usual.
+                    if (version < 1) {
+                        db.version = version
                     }
-
-                    @Override
-                    public void onOpen(@NonNull SupportSQLiteDatabase db) {
-                        // If pre-packaged database has a version < 1 we will open it as if it was
-                        // version 1 because the framework open helper does not allow version < 1.
-                        // The database will be considered as newly created and onCreate() will be
-                        // invoked, but we do nothing and reset the version back so Room later runs
-                        // migrations as usual.
-                        if (version < 1) {
-                            db.setVersion(version);
-                        }
-                    }
-                })
-                .build();
-        return factory.create(configuration);
+                }
+            })
+            .build()
+        return factory.create(configuration)
     }
 }

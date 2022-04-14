@@ -13,40 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.room;
+package androidx.room
 
-import androidx.annotation.RestrictTo;
-import androidx.sqlite.db.SupportSQLiteStatement;
-
-import java.util.concurrent.atomic.AtomicBoolean;
+import androidx.annotation.RestrictTo
+import androidx.sqlite.db.SupportSQLiteStatement
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * Represents a prepared SQLite state that can be re-used multiple times.
- * <p>
- * This class is used by generated code. After it is used, {@code release} must be called so that
+ *
+ * This class is used by generated code. After it is used, `release` must be called so that
  * it can be used by other threads.
- * <p>
+ *
  * To avoid re-entry even within the same thread, this class allows only 1 time access to the shared
  * statement until it is released.
  *
- * @hide
+ * @constructor Creates an SQLite prepared statement that can be re-used across threads. If it is
+ * in use, it automatically creates a new one.
+ *
+ * @suppress
  */
-@SuppressWarnings({"WeakerAccess", "unused"})
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public abstract class SharedSQLiteStatement {
-    private final AtomicBoolean mLock = new AtomicBoolean(false);
+abstract class SharedSQLiteStatement(private val database: RoomDatabase) {
+    private val lock = AtomicBoolean(false)
 
-    private final RoomDatabase mDatabase;
-    private volatile SupportSQLiteStatement mStmt;
-
-    /**
-     * Creates an SQLite prepared statement that can be re-used across threads. If it is in use,
-     * it automatically creates a new one.
-     *
-     * @param database The database to create the statement in.
-     */
-    public SharedSQLiteStatement(RoomDatabase database) {
-        mDatabase = database;
+    private val stmt: SupportSQLiteStatement by lazy {
+        createNewStatement()
     }
 
     /**
@@ -54,37 +46,33 @@ public abstract class SharedSQLiteStatement {
      *
      * @return The SQL query to prepare.
      */
-    protected abstract String createQuery();
+    protected abstract fun createQuery(): String
 
-    protected void assertNotMainThread() {
-        mDatabase.assertNotMainThread();
+    protected open fun assertNotMainThread() {
+        database.assertNotMainThread()
     }
 
-    private SupportSQLiteStatement createNewStatement() {
-        String query = createQuery();
-        return mDatabase.compileStatement(query);
+    private fun createNewStatement(): SupportSQLiteStatement {
+        val query = createQuery()
+        return database.compileStatement(query)
     }
 
-    private SupportSQLiteStatement getStmt(boolean canUseCached) {
-        final SupportSQLiteStatement stmt;
-        if (canUseCached) {
-            if (mStmt == null) {
-                mStmt = createNewStatement();
-            }
-            stmt = mStmt;
+    private fun getStmt(canUseCached: Boolean): SupportSQLiteStatement {
+        val stmt = if (canUseCached) {
+            stmt
         } else {
             // it is in use, create a one off statement
-            stmt = createNewStatement();
+            createNewStatement()
         }
-        return stmt;
+        return stmt
     }
 
     /**
-     * Call this to get the statement. Must call {@link #release(SupportSQLiteStatement)} once done.
+     * Call this to get the statement. Must call [.release] once done.
      */
-    public SupportSQLiteStatement acquire() {
-        assertNotMainThread();
-        return getStmt(mLock.compareAndSet(false, true));
+    open fun acquire(): SupportSQLiteStatement {
+        assertNotMainThread()
+        return getStmt(lock.compareAndSet(false, true))
     }
 
     /**
@@ -92,9 +80,9 @@ public abstract class SharedSQLiteStatement {
      *
      * @param statement The statement that was returned from acquire.
      */
-    public void release(SupportSQLiteStatement statement) {
-        if (statement == mStmt) {
-            mLock.set(false);
+    open fun release(statement: SupportSQLiteStatement) {
+        if (statement === stmt) {
+            lock.set(false)
         }
     }
 }

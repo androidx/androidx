@@ -2,17 +2,17 @@
 package androidx.room {
 
   public class DatabaseConfiguration {
-    method public boolean isMigrationRequired(int, int);
-    method @Deprecated public boolean isMigrationRequiredFrom(int);
+    method public boolean isMigrationRequired(int fromVersion, int toVersion);
+    method @Deprecated public boolean isMigrationRequiredFrom(int version);
     field public final boolean allowDestructiveMigrationOnDowngrade;
     field public final boolean allowMainThreadQueries;
-    field public final java.util.List<androidx.room.migration.AutoMigrationSpec!> autoMigrationSpecs;
-    field public final java.util.List<androidx.room.RoomDatabase.Callback!>? callbacks;
+    field public final java.util.List<androidx.room.migration.AutoMigrationSpec> autoMigrationSpecs;
+    field public final java.util.List<androidx.room.RoomDatabase.Callback>? callbacks;
     field public final android.content.Context context;
     field public final String? copyFromAssetPath;
     field public final java.io.File? copyFromFile;
-    field public final java.util.concurrent.Callable<java.io.InputStream!>? copyFromInputStream;
-    field public final androidx.room.RoomDatabase.JournalMode! journalMode;
+    field public final java.util.concurrent.Callable<java.io.InputStream>? copyFromInputStream;
+    field public final androidx.room.RoomDatabase.JournalMode journalMode;
     field public final androidx.room.RoomDatabase.MigrationContainer migrationContainer;
     field public final boolean multiInstanceInvalidation;
     field public final String? name;
@@ -21,7 +21,7 @@ package androidx.room {
     field public final boolean requireMigration;
     field public final androidx.sqlite.db.SupportSQLiteOpenHelper.Factory sqliteOpenHelperFactory;
     field public final java.util.concurrent.Executor transactionExecutor;
-    field public final java.util.List<java.lang.Object!> typeConverters;
+    field public final java.util.List<java.lang.Object> typeConverters;
   }
 
   public class InvalidationTracker {
