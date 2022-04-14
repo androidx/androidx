@@ -19,52 +19,60 @@ import androidx.health.data.client.metadata.DataOrigin
 import androidx.health.data.client.metadata.Device
 import androidx.health.data.client.metadata.Metadata
 import androidx.health.platform.client.proto.DataProto
+import androidx.health.platform.client.proto.DataProto.DataPointOrBuilder
+import androidx.health.platform.client.proto.DataProto.SeriesValueOrBuilder
 import java.time.Instant
 import java.time.ZoneOffset
 
 /** Internal helper functions to convert proto to records. */
-@get:SuppressWarnings("GoodTime", "NewApi") // Safe to use for deserialization
+@get:SuppressWarnings("GoodTime") // Safe to use for deserialization
 internal val DataProto.DataPoint.startTime: Instant
     get() = Instant.ofEpochMilli(startTimeMillis)
 
-@get:SuppressWarnings("GoodTime", "NewApi") // Safe to use for deserialization
+@get:SuppressWarnings("GoodTime") // Safe to use for deserialization
 internal val DataProto.DataPoint.endTime: Instant
     get() = Instant.ofEpochMilli(endTimeMillis)
 
-@get:SuppressWarnings("GoodTime", "NewApi") // Safe to use for deserialization
+@get:SuppressWarnings("GoodTime") // Safe to use for deserialization
 internal val DataProto.DataPoint.time: Instant
     get() = Instant.ofEpochMilli(instantTimeMillis)
 
-@get:SuppressWarnings("GoodTime", "NewApi") // Safe to use for deserialization
+@get:SuppressWarnings("GoodTime") // Safe to use for deserialization
 internal val DataProto.DataPoint.startZoneOffset: ZoneOffset?
     get() =
         if (hasStartZoneOffsetSeconds()) ZoneOffset.ofTotalSeconds(startZoneOffsetSeconds) else null
 
-@get:SuppressWarnings("GoodTime", "NewApi") // Safe to use for deserialization
+@get:SuppressWarnings("GoodTime") // Safe to use for deserialization
 internal val DataProto.DataPoint.endZoneOffset: ZoneOffset?
     get() = if (hasEndZoneOffsetSeconds()) ZoneOffset.ofTotalSeconds(endZoneOffsetSeconds) else null
 
-@get:SuppressWarnings("GoodTime", "NewApi") // Safe to use for deserialization
+@get:SuppressWarnings("GoodTime") // HealthDataClientImplSafe to use for deserialization
 internal val DataProto.DataPoint.zoneOffset: ZoneOffset?
     get() = if (hasZoneOffsetSeconds()) ZoneOffset.ofTotalSeconds(zoneOffsetSeconds) else null
 
-internal fun DataProto.DataPoint.getLong(key: String, defaultVal: Long = 0): Long {
-    return valuesMap[key]?.longVal ?: defaultVal
-}
+internal fun DataPointOrBuilder.getLong(key: String, defaultVal: Long = 0): Long =
+    valuesMap[key]?.longVal ?: defaultVal
 
-internal fun DataProto.DataPoint.getDouble(key: String, defaultVal: Double = 0.0): Double {
-    return valuesMap[key]?.doubleVal ?: defaultVal
-}
+internal fun DataPointOrBuilder.getDouble(key: String, defaultVal: Double = 0.0): Double =
+    valuesMap[key]?.doubleVal ?: defaultVal
 
-internal fun DataProto.DataPoint.getString(key: String): String? {
-    return valuesMap[key]?.stringVal
-}
+internal fun DataPointOrBuilder.getString(key: String): String? = valuesMap[key]?.stringVal
 
-internal fun DataProto.DataPoint.getEnum(key: String): String? {
+internal fun DataPointOrBuilder.getEnum(key: String): String? {
     return valuesMap[key]?.enumVal
 }
 
-@get:SuppressWarnings("GoodTime", "NewApi") // Safe to use for deserialization
+internal fun SeriesValueOrBuilder.getLong(key: String, defaultVal: Long = 0): Long =
+    valuesMap[key]?.longVal ?: defaultVal
+
+internal fun SeriesValueOrBuilder.getDouble(key: String, defaultVal: Double = 0.0): Double =
+    valuesMap[key]?.doubleVal ?: defaultVal
+
+internal fun SeriesValueOrBuilder.getString(key: String): String? = valuesMap[key]?.stringVal
+
+internal fun SeriesValueOrBuilder.getEnum(key: String): String? = valuesMap[key]?.enumVal
+
+@get:SuppressWarnings("GoodTime") // Safe to use for deserialization
 internal val DataProto.DataPoint.metadata: Metadata
     get() =
         Metadata(

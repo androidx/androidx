@@ -33,7 +33,7 @@ import androidx.health.data.client.records.CyclingPedalingCadence
 import androidx.health.data.client.records.Distance
 import androidx.health.data.client.records.ElevationGained
 import androidx.health.data.client.records.FloorsClimbed
-import androidx.health.data.client.records.HeartRate
+import androidx.health.data.client.records.HeartRateSeries
 import androidx.health.data.client.records.HeartRateVariabilityDifferentialIndex
 import androidx.health.data.client.records.HeartRateVariabilityRmssd
 import androidx.health.data.client.records.HeartRateVariabilityS
@@ -56,6 +56,7 @@ import androidx.health.data.client.records.Record
 import androidx.health.data.client.records.Repetitions
 import androidx.health.data.client.records.RespiratoryRate
 import androidx.health.data.client.records.RestingHeartRate
+import androidx.health.data.client.records.SeriesRecord
 import androidx.health.data.client.records.SexualActivity
 import androidx.health.data.client.records.SleepSession
 import androidx.health.data.client.records.SleepStage
@@ -69,12 +70,10 @@ import androidx.health.data.client.records.WaistCircumference
 import androidx.health.data.client.records.Weight
 import androidx.health.data.client.records.WheelchairPushes
 import androidx.health.platform.client.proto.DataProto
-import java.lang.RuntimeException
 
 /** Converts public API object into internal proto for ipc. */
-@SuppressWarnings("NewApi") // Safe to use with java8 desugar
-fun Record.toProto(): DataProto.DataPoint {
-    return when (this) {
+fun Record.toProto(): DataProto.DataPoint =
+    when (this) {
         is BasalBodyTemperature ->
             instantaneousProto()
                 .setDataType(protoDataType("BasalBodyTemperature"))
@@ -153,11 +152,13 @@ fun Record.toProto(): DataProto.DataPoint {
                 .setDataType(protoDataType("CyclingPedalingCadence"))
                 .apply { putValues("rpm", doubleVal(revolutionsPerMinute)) }
                 .build()
-        is HeartRate ->
-            instantaneousProto()
-                .setDataType(protoDataType("HeartRate"))
-                .apply { putValues("bpm", longVal(beatsPerMinute)) }
-                .build()
+        is HeartRateSeries ->
+            toProto(dataTypeName = "HeartRateSeries") { sample ->
+                DataProto.SeriesValue.newBuilder()
+                    .putValues("bpm", longVal(sample.beatsPerMinute))
+                    .setInstantTimeMillis(sample.time.toEpochMilli())
+                    .build()
+            }
         is Height ->
             instantaneousProto()
                 .setDataType(protoDataType("Height"))
@@ -508,4 +509,16 @@ fun Record.toProto(): DataProto.DataPoint {
                 .build()
         else -> throw RuntimeException("Unsupported yet!")
     }
-}
+
+private fun <T : Any> SeriesRecord<T>.toProto(
+    dataTypeName: String,
+    getSeriesValue: (sample: T) -> DataProto.SeriesValue,
+): DataProto.DataPoint =
+    intervalProto()
+        .setDataType(protoDataType(dataTypeName = dataTypeName))
+        .apply {
+            for (sample in samples) {
+                addSeriesValues(getSeriesValue(sample))
+            }
+        }
+        .build()
