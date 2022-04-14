@@ -56,7 +56,7 @@ public class ElevationGained(
 
     internal companion object {
         /** Metric identifier to retrieve total elevation gained from [AggregateDataRow]. */
-        @JvmStatic
+        @JvmField
         internal val ELEVATION_TOTAL: DoubleAggregateMetric =
             DoubleAggregateMetric("ElevationGained", "total", "elevation")
     }

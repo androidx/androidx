@@ -57,15 +57,15 @@ public class Speed(
 
     companion object {
         /** Metric identifier to retrieve average speed from [AggregateDataRow]. */
-        @JvmStatic
+        @JvmField
         val SPEED_AVG: DoubleAggregateMetric = DoubleAggregateMetric("Speed", "avg", "speed")
 
         /** Metric identifier to retrieve minimum speed from [AggregateDataRow]. */
-        @JvmStatic
+        @JvmField
         val SPEED_MIN: DoubleAggregateMetric = DoubleAggregateMetric("Speed", "min", "speed")
 
         /** Metric identifier to retrieve maximum speed from [AggregateDataRow]. */
-        @JvmStatic
+        @JvmField
         val SPEED_MAX: DoubleAggregateMetric = DoubleAggregateMetric("Speed", "max", "speed")
     }
 }
