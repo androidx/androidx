@@ -15,7 +15,6 @@
  */
 package androidx.appsearch.platformstorage;
 
-import android.annotation.SuppressLint;
 import android.os.Build;
 
 import androidx.annotation.GuardedBy;
@@ -45,7 +44,6 @@ import androidx.appsearch.platformstorage.converter.SearchSpecToPlatformConverte
 import androidx.appsearch.platformstorage.util.BatchResultCallbackAdapter;
 import androidx.collection.ArrayMap;
 import androidx.concurrent.futures.ResolvableFuture;
-import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -80,27 +78,27 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
         mFeatures = Preconditions.checkNotNull(features);
     }
 
-    @BuildCompat.PrereleaseSdkCheck
     @NonNull
     @Override
     public ListenableFuture<AppSearchBatchResult<String, GenericDocument>> getByDocumentIdAsync(
             @NonNull String packageName, @NonNull String databaseName,
             @NonNull GetByDocumentIdRequest request) {
-        if (!BuildCompat.isAtLeastT()) {
+        if (Build.VERSION.SDK_INT < 33) {
             throw new UnsupportedOperationException(Features.GLOBAL_SEARCH_SESSION_GET_BY_ID
                     + " is not supported on this AppSearch implementation.");
+        } else {
+            Preconditions.checkNotNull(packageName);
+            Preconditions.checkNotNull(databaseName);
+            Preconditions.checkNotNull(request);
+            ResolvableFuture<AppSearchBatchResult<String, GenericDocument>> future =
+                    ResolvableFuture.create();
+            mPlatformSession.getByDocumentId(packageName, databaseName,
+                    RequestToPlatformConverter.toPlatformGetByDocumentIdRequest(request),
+                    mExecutor,
+                    new BatchResultCallbackAdapter<>(
+                            future, GenericDocumentToPlatformConverter::toJetpackGenericDocument));
+            return future;
         }
-        Preconditions.checkNotNull(packageName);
-        Preconditions.checkNotNull(databaseName);
-        Preconditions.checkNotNull(request);
-        ResolvableFuture<AppSearchBatchResult<String, GenericDocument>> future =
-                ResolvableFuture.create();
-        mPlatformSession.getByDocumentId(packageName, databaseName,
-                RequestToPlatformConverter.toPlatformGetByDocumentIdRequest(request),
-                mExecutor,
-                new BatchResultCallbackAdapter<>(
-                        future, GenericDocumentToPlatformConverter::toJetpackGenericDocument));
-        return future;
     }
 
     @Override
@@ -131,28 +129,28 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
         return future;
     }
 
-    @BuildCompat.PrereleaseSdkCheck
     @NonNull
     @Override
     public ListenableFuture<GetSchemaResponse> getSchemaAsync(@NonNull String packageName,
             @NonNull String databaseName) {
         // Superclass is annotated with @RequiresFeature, so we shouldn't get here on an
         // unsupported build.
-        if (!BuildCompat.isAtLeastT()) {
+        if (Build.VERSION.SDK_INT < 33) {
             throw new UnsupportedOperationException(
                     Features.GLOBAL_SEARCH_SESSION_GET_SCHEMA
                             + " is not supported on this AppSearch implementation.");
+        } else {
+            ResolvableFuture<GetSchemaResponse> future = ResolvableFuture.create();
+            mPlatformSession.getSchema(
+                    packageName,
+                    databaseName,
+                    mExecutor,
+                    result -> AppSearchResultToPlatformConverter.platformAppSearchResultToFuture(
+                            result,
+                            future,
+                            GetSchemaResponseToPlatformConverter::toJetpackGetSchemaResponse));
+            return future;
         }
-        ResolvableFuture<GetSchemaResponse> future = ResolvableFuture.create();
-        mPlatformSession.getSchema(
-                packageName,
-                databaseName,
-                mExecutor,
-                result -> AppSearchResultToPlatformConverter.platformAppSearchResultToFuture(
-                        result,
-                        future,
-                        GetSchemaResponseToPlatformConverter::toJetpackGetSchemaResponse));
-        return future;
     }
 
     @NonNull
@@ -161,9 +159,6 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
         return mFeatures;
     }
 
-    // TODO(b/193494000): Remove these two lines once BuildCompat.isAtLeastT() is removed.
-    @SuppressLint("NewApi")
-    @BuildCompat.PrereleaseSdkCheck
     @Override
     public void registerObserverCallback(
             @NonNull String targetPackageName,
@@ -176,61 +171,60 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
         Preconditions.checkNotNull(observer);
         // Superclass is annotated with @RequiresFeature, so we shouldn't get here on an
         // unsupported build.
-        if (!BuildCompat.isAtLeastT()) {
+        if (Build.VERSION.SDK_INT < 33) {
             throw new UnsupportedOperationException(
                     Features.GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK
                             + " is not supported on this AppSearch implementation");
-        }
+        } else {
+            synchronized (mObserverCallbacksLocked) {
+                android.app.appsearch.observer.ObserverCallback frameworkCallback =
+                        mObserverCallbacksLocked.get(observer);
+                if (frameworkCallback == null) {
+                    // No stub is associated with this package and observer, so we must create one.
+                    frameworkCallback = new android.app.appsearch.observer.ObserverCallback() {
+                        @Override
+                        public void onSchemaChanged(
+                                @NonNull android.app.appsearch.observer.SchemaChangeInfo
+                                        platformSchemaChangeInfo) {
+                            SchemaChangeInfo jetpackSchemaChangeInfo =
+                                    ObserverSpecToPlatformConverter.toJetpackSchemaChangeInfo(
+                                            platformSchemaChangeInfo);
+                            observer.onSchemaChanged(jetpackSchemaChangeInfo);
+                        }
 
-        synchronized (mObserverCallbacksLocked) {
-            android.app.appsearch.observer.ObserverCallback frameworkCallback =
-                    mObserverCallbacksLocked.get(observer);
-            if (frameworkCallback == null) {
-                // No stub is associated with this package and observer, so we must create one.
-                frameworkCallback = new android.app.appsearch.observer.ObserverCallback() {
-                    @Override
-                    public void onSchemaChanged(
-                            @NonNull android.app.appsearch.observer.SchemaChangeInfo
-                                    platformSchemaChangeInfo) {
-                        SchemaChangeInfo jetpackSchemaChangeInfo =
-                                ObserverSpecToPlatformConverter.toJetpackSchemaChangeInfo(
-                                        platformSchemaChangeInfo);
-                        observer.onSchemaChanged(jetpackSchemaChangeInfo);
-                    }
+                        @Override
+                        public void onDocumentChanged(
+                                @NonNull android.app.appsearch.observer.DocumentChangeInfo
+                                        platformDocumentChangeInfo) {
+                            DocumentChangeInfo jetpackDocumentChangeInfo =
+                                    ObserverSpecToPlatformConverter.toJetpackDocumentChangeInfo(
+                                            platformDocumentChangeInfo);
+                            observer.onDocumentChanged(jetpackDocumentChangeInfo);
+                        }
+                    };
+                }
 
-                    @Override
-                    public void onDocumentChanged(
-                            @NonNull android.app.appsearch.observer.DocumentChangeInfo
-                                    platformDocumentChangeInfo) {
-                        DocumentChangeInfo jetpackDocumentChangeInfo =
-                                ObserverSpecToPlatformConverter.toJetpackDocumentChangeInfo(
-                                        platformDocumentChangeInfo);
-                        observer.onDocumentChanged(jetpackDocumentChangeInfo);
-                    }
-                };
+                // Regardless of whether this stub was fresh or not, we have to register it again
+                // because the user might be supplying a different spec.
+                try {
+                    mPlatformSession.registerObserverCallback(
+                            targetPackageName,
+                            ObserverSpecToPlatformConverter.toPlatformObserverSpec(spec),
+                            executor,
+                            frameworkCallback);
+                } catch (android.app.appsearch.exceptions.AppSearchException e) {
+                    throw new AppSearchException((int) e.getResultCode(), e.getMessage(),
+                            e.getCause());
+                }
+
+                // Now that registration has succeeded, save this stub into our in-memory cache.
+                // This isn't done when errors occur because the user may not call removeObserver if
+                // addObserver threw.
+                mObserverCallbacksLocked.put(observer, frameworkCallback);
             }
-
-            // Regardless of whether this stub was fresh or not, we have to register it again
-            // because the user might be supplying a different spec.
-            try {
-                mPlatformSession.registerObserverCallback(
-                        targetPackageName,
-                        ObserverSpecToPlatformConverter.toPlatformObserverSpec(spec),
-                        executor,
-                        frameworkCallback);
-            } catch (android.app.appsearch.exceptions.AppSearchException e) {
-                throw new AppSearchException((int) e.getResultCode(), e.getMessage(), e.getCause());
-            }
-
-            // Now that registration has succeeded, save this stub into our in-memory cache. This
-            // isn't done when errors occur because the user may not call removeObserver if
-            // addObserver threw.
-            mObserverCallbacksLocked.put(observer, frameworkCallback);
         }
     }
 
-    @SuppressLint("NewApi")
-    @BuildCompat.PrereleaseSdkCheck
     @Override
     public void unregisterObserverCallback(
             @NonNull String targetPackageName, @NonNull ObserverCallback observer)
@@ -239,27 +233,29 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
         Preconditions.checkNotNull(observer);
         // Superclass is annotated with @RequiresFeature, so we shouldn't get here on an
         // unsupported build.
-        if (!BuildCompat.isAtLeastT()) {
+        if (Build.VERSION.SDK_INT < 33) {
             throw new UnsupportedOperationException(
                     Features.GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK
                             + " is not supported on this AppSearch implementation");
-        }
+        } else {
+            android.app.appsearch.observer.ObserverCallback frameworkCallback;
+            synchronized (mObserverCallbacksLocked) {
+                frameworkCallback = mObserverCallbacksLocked.get(observer);
+                if (frameworkCallback == null) {
+                    return;  // No such observer registered. Nothing to do.
+                }
 
-        android.app.appsearch.observer.ObserverCallback frameworkCallback;
-        synchronized (mObserverCallbacksLocked) {
-            frameworkCallback = mObserverCallbacksLocked.get(observer);
-            if (frameworkCallback == null) {
-                return;  // No such observer registered. Nothing to do.
+                try {
+                    mPlatformSession.unregisterObserverCallback(targetPackageName,
+                            frameworkCallback);
+                } catch (android.app.appsearch.exceptions.AppSearchException e) {
+                    throw new AppSearchException((int) e.getResultCode(), e.getMessage(),
+                            e.getCause());
+                }
+
+                // Only remove from the in-memory map once removal from the service side succeeds
+                mObserverCallbacksLocked.remove(observer);
             }
-
-            try {
-                mPlatformSession.unregisterObserverCallback(targetPackageName, frameworkCallback);
-            } catch (android.app.appsearch.exceptions.AppSearchException e) {
-                throw new AppSearchException((int) e.getResultCode(), e.getMessage(), e.getCause());
-            }
-
-            // Only remove from the in-memory map once removal from the service side succeeds
-            mObserverCallbacksLocked.remove(observer);
         }
     }
 

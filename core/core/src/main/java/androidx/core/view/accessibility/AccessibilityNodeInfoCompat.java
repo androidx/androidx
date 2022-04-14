@@ -43,11 +43,9 @@ import android.view.accessibility.AccessibilityNodeInfo.TouchDelegateInfo;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.core.R;
 import androidx.core.accessibilityservice.AccessibilityServiceInfoCompat;
-import androidx.core.os.BuildCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.accessibility.AccessibilityViewCommand.CommandArguments;
 import androidx.core.view.accessibility.AccessibilityViewCommand.MoveAtGranularityArguments;
@@ -2864,7 +2862,7 @@ public class AccessibilityNodeInfoCompat {
      * than 19.
      */
     public @Nullable CharSequence getStateDescription() {
-        if (BuildCompat.isAtLeastR()) {
+        if (Build.VERSION.SDK_INT >= 30) {
             return mInfo.getStateDescription();
         } else if (Build.VERSION.SDK_INT >= 19) {
             return mInfo.getExtras().getCharSequence(STATE_DESCRIPTION_KEY);
@@ -2899,7 +2897,7 @@ public class AccessibilityNodeInfoCompat {
      * @throws IllegalStateException If called from an AccessibilityService.
      */
     public void setStateDescription(@Nullable CharSequence stateDescription) {
-        if (BuildCompat.isAtLeastR()) {
+        if (Build.VERSION.SDK_INT >= 30) {
             mInfo.setStateDescription(stateDescription);
         } else if (Build.VERSION.SDK_INT >= 19) {
             mInfo.getExtras().putCharSequence(STATE_DESCRIPTION_KEY, stateDescription);
@@ -2912,9 +2910,8 @@ public class AccessibilityNodeInfoCompat {
      * @return the unique id or null if android version smaller
      * than 19.
      */
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     public @Nullable String getUniqueId() {
-        if (BuildCompat.isAtLeastT()) {
+        if (Build.VERSION.SDK_INT >= 33) {
             return mInfo.getUniqueId();
         } else if (Build.VERSION.SDK_INT >= 19) {
             return mInfo.getExtras().getString(UNIQUE_ID_KEY);
@@ -2933,9 +2930,8 @@ public class AccessibilityNodeInfoCompat {
      * @param uniqueId the unique id of this node.
      * @throws IllegalStateException If called from an AccessibilityService.
      */
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     public void setUniqueId(@Nullable String uniqueId) {
-        if (BuildCompat.isAtLeastT()) {
+        if (Build.VERSION.SDK_INT >= 33) {
             mInfo.setUniqueId(uniqueId);
         } else if (Build.VERSION.SDK_INT >= 19) {
             mInfo.getExtras().putString(UNIQUE_ID_KEY, uniqueId);

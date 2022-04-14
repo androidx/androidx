@@ -15,9 +15,10 @@
  */
 package androidx.appsearch.platformstorage;
 
+import android.os.Build;
+
 import androidx.annotation.NonNull;
 import androidx.appsearch.app.Features;
-import androidx.core.os.BuildCompat;
 
 /**
  * An implementation of {@link Features}. Feature availability is dependent on Android API
@@ -26,23 +27,21 @@ import androidx.core.os.BuildCompat;
 final class FeaturesImpl implements Features {
 
     @Override
-    // TODO(b/201316758): Remove once BuildCompat.isAtLeastT is removed
-    @BuildCompat.PrereleaseSdkCheck
     public boolean isFeatureSupported(@NonNull String feature) {
         if (Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH.equals(feature)) {
-            return BuildCompat.isAtLeastT();
+            return Build.VERSION.SDK_INT >= 33;
         }
         if (Features.GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK.equals(feature)) {
-            return BuildCompat.isAtLeastT();
+            return Build.VERSION.SDK_INT >= 33;
         }
         if (Features.GLOBAL_SEARCH_SESSION_GET_SCHEMA.equals(feature)) {
-            return BuildCompat.isAtLeastT();
+            return Build.VERSION.SDK_INT >= 33;
         }
         if (Features.GLOBAL_SEARCH_SESSION_GET_BY_ID.equals(feature)) {
-            return BuildCompat.isAtLeastT();
+            return Build.VERSION.SDK_INT >= 33;
         }
         if (Features.ADD_PERMISSIONS_AND_GET_VISIBILITY.equals(feature)) {
-            return BuildCompat.isAtLeastT();
+            return Build.VERSION.SDK_INT >= 33;
         }
         return false;
     }

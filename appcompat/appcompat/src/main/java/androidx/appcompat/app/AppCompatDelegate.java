@@ -30,6 +30,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.pm.ServiceInfo;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.LocaleList;
 import android.util.AttributeSet;
@@ -47,7 +48,6 @@ import androidx.annotation.IntDef;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StyleRes;
@@ -56,7 +56,6 @@ import androidx.appcompat.view.ActionMode;
 import androidx.appcompat.widget.Toolbar;
 import androidx.appcompat.widget.VectorEnabledTintResources;
 import androidx.collection.ArraySet;
-import androidx.core.os.BuildCompat;
 import androidx.core.os.LocaleListCompat;
 import androidx.core.view.WindowCompat;
 import androidx.fragment.app.FragmentActivity;
@@ -696,10 +695,9 @@ public abstract class AppCompatDelegate {
      *
      * @param locales a list of locales.
      */
-    @OptIn(markerClass = androidx.core.os.BuildCompat.PrereleaseSdkCheck.class)
     public static void setApplicationLocales(@NonNull LocaleListCompat locales) {
         requireNonNull(locales);
-        if (BuildCompat.isAtLeastT()) {
+        if (Build.VERSION.SDK_INT >= 33) {
             // If the API version is 33 (version for T) or above we want to redirect the call to
             // the framework API.
             Object localeManager = getLocaleManagerForApplication();
@@ -732,9 +730,8 @@ public abstract class AppCompatDelegate {
      */
     @AnyThread
     @NonNull
-    @OptIn(markerClass = androidx.core.os.BuildCompat.PrereleaseSdkCheck.class)
     public static LocaleListCompat getApplicationLocales() {
-        if (BuildCompat.isAtLeastT()) {
+        if (Build.VERSION.SDK_INT >= 33) {
             // If the API version is 33 or above we want to redirect the call to the framework API.
             Object localeManager = getLocaleManagerForApplication();
             if (localeManager != null) {
@@ -890,11 +887,10 @@ public abstract class AppCompatDelegate {
      * storedAppLocales is updated accordingly.</li>
      * </ul>
      */
-    @OptIn(markerClass = androidx.core.os.BuildCompat.PrereleaseSdkCheck.class)
     static void syncRequestedAndStoredLocales(Context context) {
         if (!isAutoStorageOptedIn(context)) {
             return;
-        } else if (BuildCompat.isAtLeastT()) {
+        } else if (Build.VERSION.SDK_INT >= 33) {
             // TODO: After BuildCompat.isAtLeast() is deprecated, the above condition needs to be
             //  replaced by (Build.VERSION.SDK_INT == 33).
             if (!sIsFrameworkSyncChecked) {

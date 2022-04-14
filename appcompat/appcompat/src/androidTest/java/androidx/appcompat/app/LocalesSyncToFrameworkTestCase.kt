@@ -21,12 +21,12 @@ package androidx.appcompat.app
 import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.LocaleList
 import androidx.annotation.RequiresApi
 import androidx.appcompat.testutils.LocalesActivityTestRule
 import androidx.appcompat.testutils.LocalesUtils.CUSTOM_LOCALE_LIST
 import androidx.appcompat.testutils.LocalesUtils.assertConfigurationLocalesEquals
-import androidx.core.os.BuildCompat
 import androidx.core.os.LocaleListCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -62,9 +62,7 @@ class LocalesSyncToFrameworkTestCase {
     @RequiresApi(33)
     @Before
     fun setUp() {
-        // TODO(b/223775393): Remove BuildCompat.isAtLeastT() checks after API version is
-        //  bumped to 33
-        assumeTrue("Requires API version >=T", BuildCompat.isAtLeastT())
+        assumeTrue("Requires API version >=T", Build.VERSION.SDK_INT >= 33)
         // setting the app to follow system.
         AppCompatDelegate.Api33Impl.localeManagerSetApplicationLocales(
             AppCompatDelegate.getLocaleManagerForApplication(),
@@ -148,9 +146,7 @@ class LocalesSyncToFrameworkTestCase {
     @After
     @RequiresApi(33)
     fun teardown() {
-        // TODO(b/223775393): Remove BuildCompat.isAtLeastT() checks after API version is
-        //  bumped to 33
-        if (!BuildCompat.isAtLeastT()) {
+        if (!(Build.VERSION.SDK_INT >= 33)) {
             return
         }
         val context = instrumentation.context

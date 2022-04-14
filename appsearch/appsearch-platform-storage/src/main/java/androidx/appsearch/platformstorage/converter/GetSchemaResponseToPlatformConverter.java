@@ -24,7 +24,6 @@ import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.GetSchemaResponse;
 import androidx.appsearch.app.PackageIdentifier;
 import androidx.collection.ArraySet;
-import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import java.util.Map;
@@ -44,12 +43,11 @@ public final class GetSchemaResponseToPlatformConverter {
      * {@link GetSchemaResponse}.
      */
     @NonNull
-    @BuildCompat.PrereleaseSdkCheck
     public static GetSchemaResponse toJetpackGetSchemaResponse(
             @NonNull android.app.appsearch.GetSchemaResponse platformResponse) {
         Preconditions.checkNotNull(platformResponse);
         GetSchemaResponse.Builder jetpackBuilder;
-        if (!BuildCompat.isAtLeastT()) {
+        if (Build.VERSION.SDK_INT < 33) {
             // Android API level in S-v2 and lower won't have any supported feature.
             jetpackBuilder = new GetSchemaResponse.Builder(/*getVisibilitySettingSupported=*/false);
         } else {
@@ -60,7 +58,7 @@ public final class GetSchemaResponseToPlatformConverter {
             jetpackBuilder.addSchema(SchemaToPlatformConverter.toJetpackSchema(platformSchema));
         }
         jetpackBuilder.setVersion(platformResponse.getVersion());
-        if (BuildCompat.isAtLeastT()) {
+        if (Build.VERSION.SDK_INT >= 33) {
             // Convert schemas not displayed by system
             for (String schemaTypeNotDisplayedBySystem :
                     platformResponse.getSchemaTypesNotDisplayedBySystem()) {

@@ -23,7 +23,6 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.SearchResult;
-import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import java.util.List;
@@ -38,7 +37,6 @@ public class SearchResultToPlatformConverter {
     private SearchResultToPlatformConverter() {}
 
     /** Translates from Platform to Jetpack versions of {@link SearchResult}. */
-    @BuildCompat.PrereleaseSdkCheck
     @NonNull
     public static SearchResult toJetpackSearchResult(
             @NonNull android.app.appsearch.SearchResult platformResult) {
@@ -58,7 +56,6 @@ public class SearchResultToPlatformConverter {
         return builder.build();
     }
 
-    @BuildCompat.PrereleaseSdkCheck
     @NonNull
     private static SearchResult.MatchInfo toJetpackMatchInfo(
             @NonNull android.app.appsearch.SearchResult.MatchInfo platformMatchInfo) {
@@ -73,7 +70,7 @@ public class SearchResultToPlatformConverter {
                         new SearchResult.MatchRange(
                                 platformMatchInfo.getSnippetRange().getStart(),
                                 platformMatchInfo.getSnippetRange().getEnd()));
-        if (BuildCompat.isAtLeastT()) {
+        if (Build.VERSION.SDK_INT >= 33) {
             builder.setSubmatchRange(
                     new SearchResult.MatchRange(
                             platformMatchInfo.getSubmatchRange().getStart(),

@@ -145,13 +145,11 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.res.ResourcesCompat;
-import androidx.core.os.BuildCompat;
 import androidx.core.os.EnvironmentCompat;
 import androidx.core.os.ExecutorCompat;
 import androidx.core.util.ObjectsCompat;
@@ -589,10 +587,9 @@ public class ContextCompat {
      * permission, or {@link PackageManager#PERMISSION_DENIED} if not.
      * @see PackageManager#checkPermission(String, String)
      */
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     public static int checkSelfPermission(@NonNull Context context, @NonNull String permission) {
         ObjectsCompat.requireNonNull(permission, "permission must be non-null");
-        if (!BuildCompat.isAtLeastT()
+        if (Build.VERSION.SDK_INT < 33
                 && TextUtils.equals(android.Manifest.permission.POST_NOTIFICATIONS, permission)) {
             return NotificationManagerCompat.from(context).areNotificationsEnabled()
                     ? PackageManager.PERMISSION_GRANTED
@@ -814,7 +811,6 @@ public class ContextCompat {
      * @see Context#registerReceiver(BroadcastReceiver, IntentFilter, String, Handler, int)
      */
     @Nullable
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     public static Intent registerReceiver(@NonNull Context context,
             @Nullable BroadcastReceiver receiver, @NonNull IntentFilter filter,
             @Nullable String broadcastPermission,
@@ -829,7 +825,7 @@ public class ContextCompat {
                     + "RECEIVER_NOT_EXPORTED");
         }
 
-        if (BuildCompat.isAtLeastT()) {
+        if (Build.VERSION.SDK_INT >= 33) {
             return Api33Impl.registerReceiver(context, receiver, filter, broadcastPermission,
                     scheduler, flags);
         }

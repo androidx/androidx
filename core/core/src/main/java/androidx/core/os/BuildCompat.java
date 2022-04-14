@@ -68,7 +68,7 @@ public class BuildCompat {
      * @return {@code true} if N APIs are available for use
      * @deprecated Android N is a finalized release and this method is no longer necessary. It will
      *             be removed in a future release of the Support Library. Instead, use
-     *             {@code Build.VERSION.SDK_INT >= Build.VERSION_CODES.N}.
+     *             {@code Build.VERSION.SDK_INT >= 24}.
      */
     @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.N)
     @Deprecated
@@ -82,7 +82,7 @@ public class BuildCompat {
      * @return {@code true} if N MR1 APIs are available for use
      * @deprecated Android N MR1 is a finalized release and this method is no longer necessary. It
      *             will be removed in a future release of the Support Library. Instead, use
-     *             {@code Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1}.
+     *             {@code Build.VERSION.SDK_INT >= 25}.
      */
     @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.N_MR1)
     @Deprecated
@@ -96,7 +96,7 @@ public class BuildCompat {
      * @return {@code true} if O APIs are available for use, {@code false} otherwise
      * @deprecated Android O is a finalized release and this method is no longer necessary. It will
      *             be removed in a future release of the Support Library. Instead use
-     *             {@code Build.VERSION.SDK_INT >= Build.VERSION_CODES.O}.
+     *             {@code Build.VERSION.SDK_INT >= 26}.
      */
     @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.O)
     @Deprecated
@@ -110,7 +110,7 @@ public class BuildCompat {
      * @return {@code true} if O MR1 APIs are available for use, {@code false} otherwise
      * @deprecated Android O MR1 is a finalized release and this method is no longer necessary. It
      *             will be removed in a future release of the Support Library. Instead, use
-     *             {@code Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1}.
+     *             {@code Build.VERSION.SDK_INT >= 27}.
      */
     @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.O_MR1)
     @Deprecated
@@ -124,7 +124,7 @@ public class BuildCompat {
      * @return {@code true} if P APIs are available for use, {@code false} otherwise
      * @deprecated Android P is a finalized release and this method is no longer necessary. It
      *             will be removed in a future release of the Support Library. Instead, use
-     *             {@code Build.VERSION.SDK_INT >= Build.VERSION_CODES.P}.
+     *             {@code Build.VERSION.SDK_INT >= 28}.
      */
     @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.P)
     @Deprecated
@@ -138,7 +138,7 @@ public class BuildCompat {
      * @return {@code true} if Q APIs are available for use, {@code false} otherwise
      * @deprecated Android Q is a finalized release and this method is no longer necessary. It
      *             will be removed in a future release of the Support Library. Instead, use
-     *             {@code Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q}.
+     *             {@code Build.VERSION.SDK_INT >= 29}.
      */
     @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.Q)
     @Deprecated
@@ -152,7 +152,7 @@ public class BuildCompat {
      * @return {@code true} if R APIs are available for use, {@code false} otherwise
      * @deprecated Android R is a finalized release and this method is no longer necessary. It
      *             will be removed in a future release of the Support Library. Instead, use
-     *             {@code Build.VERSION.SDK_INT >= Build.VERSION_CODES.R}.
+     *             {@code Build.VERSION.SDK_INT >= 30}.
      */
     @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.R)
     @Deprecated
