@@ -24,6 +24,8 @@ import androidx.paging.PagingState
 import androidx.room.RoomDatabase
 import androidx.room.RoomSQLiteQuery
 import androidx.room.getQueryDispatcher
+import androidx.room.paging.util.INITIAL_ITEM_COUNT
+import androidx.room.paging.util.INVALID
 import androidx.room.paging.util.ThreadSafeInvalidationObserver
 import androidx.room.paging.util.getClippedRefreshKey
 import androidx.room.paging.util.queryDatabase
@@ -40,9 +42,6 @@ import java.util.concurrent.atomic.AtomicInteger
  * for Pager's consumption. Registers observers on tables lazily and automatically invalidates
  * itself when data changes.
  */
-
-private val INVALID = PagingSource.LoadResult.Invalid<Any, Any>()
-
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 abstract class LimitOffsetPagingSource<Value : Any>(
     private val sourceQuery: RoomSQLiteQuery,
@@ -60,7 +59,7 @@ abstract class LimitOffsetPagingSource<Value : Any>(
         tables = tables,
     )
 
-    internal val itemCount: AtomicInteger = AtomicInteger(-1)
+    internal val itemCount: AtomicInteger = AtomicInteger(INITIAL_ITEM_COUNT)
 
     private val observer = ThreadSafeInvalidationObserver(
         tables = tables,
@@ -72,7 +71,7 @@ abstract class LimitOffsetPagingSource<Value : Any>(
             observer.registerIfNecessary(db)
             val tempCount = itemCount.get()
             // if itemCount is < 0, then it is initial load
-            if (tempCount < 0) {
+            if (tempCount == INITIAL_ITEM_COUNT) {
                 initialLoad(params)
             } else {
                 nonInitialLoad(params, tempCount)
@@ -94,7 +93,13 @@ abstract class LimitOffsetPagingSource<Value : Any>(
         return db.withTransaction {
             val tempCount = queryItemCount(sourceQuery, db)
             itemCount.set(tempCount)
-            queryDatabase(params, sourceQuery, db, tempCount, ::convertRows)
+            queryDatabase(
+                params = params,
+                sourceQuery = sourceQuery,
+                db = db,
+                itemCount = tempCount,
+                convertRows = ::convertRows
+            )
         }
     }
 
@@ -102,8 +107,14 @@ abstract class LimitOffsetPagingSource<Value : Any>(
         params: LoadParams<Int>,
         tempCount: Int,
     ): LoadResult<Int, Value> {
-        val loadResult = queryDatabase(params, sourceQuery, db, tempCount, ::convertRows)
-        // manually check if database has been updated. If so, the observers's
+        val loadResult = queryDatabase(
+            params = params,
+            sourceQuery = sourceQuery,
+            db = db,
+            itemCount = tempCount,
+            convertRows = ::convertRows
+        )
+        // manually check if database has been updated. If so, the observer's
         // invalidation callback will invalidate this paging source
         db.invalidationTracker.refreshVersionsSync()
         @Suppress("UNCHECKED_CAST")
