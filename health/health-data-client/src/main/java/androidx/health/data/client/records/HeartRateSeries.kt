@@ -62,15 +62,18 @@ public class HeartRateSeries(
         return result
     }
 
-    companion object {
+    internal companion object {
         /** Metric identifier to retrieve average heart rate from [AggregateDataRow]. */
-        @JvmStatic val BPM_AVG: LongAggregateMetric = LongAggregateMetric("HeartRate", "avg", "bpm")
+        @JvmField
+        internal val BPM_AVG: LongAggregateMetric = LongAggregateMetric("HeartRate", "avg", "bpm")
 
         /** Metric identifier to retrieve minimum heart rate from [AggregateDataRow]. */
-        @JvmStatic val BPM_MIN: LongAggregateMetric = LongAggregateMetric("HeartRate", "min", "bpm")
+        @JvmField
+        internal val BPM_MIN: LongAggregateMetric = LongAggregateMetric("HeartRate", "min", "bpm")
 
         /** Metric identifier to retrieve maximum heart rate from [AggregateDataRow]. */
-        @JvmStatic val BPM_MAX: LongAggregateMetric = LongAggregateMetric("HeartRate", "max", "bpm")
+        @JvmField
+        internal val BPM_MAX: LongAggregateMetric = LongAggregateMetric("HeartRate", "max", "bpm")
     }
 }
 

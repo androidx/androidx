@@ -58,7 +58,7 @@ public class FloorsClimbed(
 
     companion object {
         /** Metric identifier to retrieve total floors climbed from [AggregateDataRow]. */
-        @JvmStatic
+        @JvmField
         val DISTANCE_TOTAL: DoubleAggregateMetric =
             DoubleAggregateMetric("FloorsClimbed", "total", "floors")
     }

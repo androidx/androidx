@@ -51,17 +51,17 @@ public class Weight(
 
     internal companion object {
         /** Metric identifier to retrieve average weight from [AggregateDataRow]. */
-        @JvmStatic
+        @JvmField
         internal val WEIGHT_AVG: DoubleAggregateMetric =
             DoubleAggregateMetric("Weight", "avg", "weight")
 
         /** Metric identifier to retrieve minimum weight from [AggregateDataRow]. */
-        @JvmStatic
+        @JvmField
         internal val WEIGHT_MIN: DoubleAggregateMetric =
             DoubleAggregateMetric("Weight", "min", "weight")
 
         /** Metric identifier to retrieve maximum weight from [AggregateDataRow]. */
-        @JvmStatic
+        @JvmField
         internal val WEIGHT_MAX: DoubleAggregateMetric =
             DoubleAggregateMetric("Weight", "max", "weight")
     }

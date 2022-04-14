@@ -80,32 +80,32 @@ public class BloodPressure(
 
     companion object {
         /** Metric identifier to retrieve average systolic from [AggregateDataRow]. */
-        @JvmStatic
+        @JvmField
         val BLOOD_PRESSURE_SYSTOLIC_AVG: DoubleAggregateMetric =
             DoubleAggregateMetric("BloodPressure", "avg", "systolic")
 
         /** Metric identifier to retrieve minimum systolic from [AggregateDataRow]. */
-        @JvmStatic
+        @JvmField
         val BLOOD_PRESSURE_SYSTOLIC_MIN: DoubleAggregateMetric =
             DoubleAggregateMetric("BloodPressure", "min", "systolic")
 
         /** Metric identifier to retrieve maximum systolic from [AggregateDataRow]. */
-        @JvmStatic
+        @JvmField
         val BLOOD_PRESSURE_SYSTOLIC_MAX: DoubleAggregateMetric =
             DoubleAggregateMetric("BloodPressure", "max", "systolic")
 
         /** Metric identifier to retrieve average diastolic from [AggregateDataRow]. */
-        @JvmStatic
+        @JvmField
         val BLOOD_PRESSURE_DIASTOLIC_AVG: DoubleAggregateMetric =
             DoubleAggregateMetric("BloodPressure", "avg", "diastolic")
 
         /** Metric identifier to retrieve minimum diastolic from [AggregateDataRow]. */
-        @JvmStatic
+        @JvmField
         val BLOOD_PRESSURE_DIASTOLIC_MIN: DoubleAggregateMetric =
             DoubleAggregateMetric("BloodPressure", "min", "diastolic")
 
         /** Metric identifier to retrieve maximum diastolic from [AggregateDataRow]. */
-        @JvmStatic
+        @JvmField
         val BLOOD_PRESSURE_DIASTOLIC_MAX: DoubleAggregateMetric =
             DoubleAggregateMetric("BloodPressure", "max", "diastolic")
     }

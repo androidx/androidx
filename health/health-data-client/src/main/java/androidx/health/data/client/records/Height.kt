@@ -51,17 +51,17 @@ public class Height(
 
     internal companion object {
         /** Metric identifier to retrieve average height from [AggregateDataRow]. */
-        @JvmStatic
+        @JvmField
         internal val HEIGHT_AVG: DoubleAggregateMetric =
             DoubleAggregateMetric("Height", "avg", "height")
 
         /** Metric identifier to retrieve minimum height from [AggregateDataRow]. */
-        @JvmStatic
+        @JvmField
         internal val HEIGHT_MIN: DoubleAggregateMetric =
             DoubleAggregateMetric("Height", "min", "height")
 
         /** Metric identifier to retrieve maximum height from [AggregateDataRow]. */
-        @JvmStatic
+        @JvmField
         internal val HEIGHT_MAX: DoubleAggregateMetric =
             DoubleAggregateMetric("Height", "max", "height")
     }
