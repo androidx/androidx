@@ -19,13 +19,12 @@ trap 'rm -rf "$tempdir"' EXIT
 expect="$tempdir/expect.txt"
 find . \
     \( \
-      -iname '*sample*' \
-      -o -iname '*donottranslate*' \
+      -iname '*samples*' \
       -o -iname '*debug*' \
       -o -iname '*test*' \
     \) \
     -prune -o \
-    -path '*/res/values/*strings.xml' \
+    -path '*/res/values/strings.xml' \
     -print \
   | sed -n 's/.\///p' \
   | sort \
