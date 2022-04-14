@@ -18,6 +18,7 @@ package androidx.build
 
 import androidx.testutils.gradle.ProjectSetupRule
 import java.io.File
+import net.saff.checkmark.Checkmark.Companion.check
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.Assert
 import org.junit.Test
@@ -75,12 +76,11 @@ class AndroidXRootPluginTest {
 
                 File(setup.rootDir, "build.gradle").writeText(buildGradleText)
                 Assert.assertTrue(privateJar.path, privateJar.exists())
-                val output = GradleRunner.create().withProjectDir(setup.rootDir)
-                    .withArguments("tasks", "--stacktrace").build().output
-                Assert.assertTrue(
-                    output,
-                    output.contains("listAndroidXProperties - Lists AndroidX-specific properties")
-                )
+                GradleRunner.create().withProjectDir(setup.rootDir)
+                    .withArguments("tasks", "--stacktrace")
+                    .build().output.check {
+                        it.contains("listAndroidXProperties - Lists AndroidX-specific properties")
+                    }
             }
         }
     }
