@@ -18,6 +18,13 @@
     <application android:requestLegacyExternalStorage="true">
         <service android:name="androidx.wear.watchface.client.test.WatchFaceControlTestService"/>
         <service android:name="androidx.wear.watchface.client.test.TestNopCanvasWatchFaceService"/>
+        <service
+            android:name="androidx.wear.watchface.client.test.OutdatedWatchFaceControlTestService">
+            <meta-data android:name="androidx.wear.watchface.xml_version" android:value="99999" />
+            <meta-data
+                android:name="androidx.wear.watchface.XmlSchemaAndComplicationSlotsDefinition"
+                android:resource="@xml/xml_watchface" />
+        </service>
     </application>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>

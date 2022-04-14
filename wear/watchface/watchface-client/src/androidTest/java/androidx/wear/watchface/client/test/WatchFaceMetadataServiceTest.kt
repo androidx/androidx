@@ -358,4 +358,22 @@ public class WatchFaceMetadataServiceTest {
         Truth.assertThat(right.systemDataSourceFallbackDefaultType).isEqualTo(
             ComplicationType.SHORT_TEXT)
     }
+
+    @Test
+    public fun xmlVersionCompatibility() {
+        Truth.assertThat(
+            WatchFaceMetadataClient.isXmlVersionCompatible(context, context.resources)).isTrue()
+        Truth.assertThat(
+            WatchFaceMetadataClient.isXmlVersionCompatible(
+                context,
+                context.resources,
+                ComponentName(context, OutdatedWatchFaceControlTestService::class.java)
+            )).isFalse()
+        Truth.assertThat(
+            WatchFaceMetadataClient.isXmlVersionCompatible(
+                context,
+                context.resources,
+                ComponentName("non.existing.package", "non.existing.package.Service")
+            )).isFalse()
+    }
 }
