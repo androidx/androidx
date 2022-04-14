@@ -19,7 +19,6 @@ package androidx.wear.compose.foundation
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.layout.Measurable
-import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.Placeable
 import org.junit.Assert
 
@@ -119,7 +118,7 @@ internal fun CurvedModifier.spy(capturedInfo: CapturedInfo) =
 internal class SpyCurvedChildWrapper(private val capturedInfo: CapturedInfo, wrapped: CurvedChild) :
     BaseCurvedChildWrapper(wrapped) {
 
-    override fun MeasureScope.initializeMeasure(
+    override fun CurvedMeasureScope.initializeMeasure(
         measurables: List<Measurable>,
         index: Int
     ): Int = with(wrapped) {

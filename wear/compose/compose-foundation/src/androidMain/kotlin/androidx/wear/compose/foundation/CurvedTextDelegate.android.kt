@@ -38,7 +38,6 @@ internal actual class CurvedTextDelegate {
     private var text: String = ""
     private var clockwise: Boolean = true
     private var fontSizePx: Float = 0f
-    private var arcPaddingPx: ArcPaddingPx = ArcPaddingPx(0f, 0f, 0f, 0f)
 
     actual var textWidth by mutableStateOf(0f)
     actual var textHeight by mutableStateOf(0f)
@@ -53,19 +52,16 @@ internal actual class CurvedTextDelegate {
     actual fun updateIfNeeded(
         text: String,
         clockwise: Boolean,
-        fontSizePx: Float,
-        arcPaddingPx: ArcPaddingPx
+        fontSizePx: Float
     ) {
         if (
             text != this.text ||
             clockwise != this.clockwise ||
-            fontSizePx != this.fontSizePx ||
-            arcPaddingPx != this.arcPaddingPx
+            fontSizePx != this.fontSizePx
         ) {
             this.text = text
             this.clockwise = clockwise
             this.fontSizePx = fontSizePx
-            this.arcPaddingPx = arcPaddingPx
             doUpdate()
             lastLayoutInfo = null // Ensure paths are recomputed
         }
@@ -77,10 +73,9 @@ internal actual class CurvedTextDelegate {
         val rect = android.graphics.Rect()
         paint.getTextBounds(text, 0, text.length, rect)
 
-        textWidth = rect.width() + arcPaddingPx.before + arcPaddingPx.after
-        textHeight = -paint.fontMetrics.top + paint.fontMetrics.bottom +
-            arcPaddingPx.inner + arcPaddingPx.outer
-        baseLinePosition = arcPaddingPx.outer +
+        textWidth = rect.width().toFloat()
+        textHeight = -paint.fontMetrics.top + paint.fontMetrics.bottom
+        baseLinePosition =
             if (clockwise) -paint.fontMetrics.top else paint.fontMetrics.bottom
     }
 
@@ -90,9 +85,6 @@ internal actual class CurvedTextDelegate {
             with(layoutInfo) {
                 val clockwiseFactor = if (clockwise) 1f else -1f
 
-                val paddingBeforeAsAngle = (arcPaddingPx.before / measureRadius)
-                    .toDegrees()
-                    .coerceAtMost(360f)
                 val sweepDegree = sweepRadians.toDegrees().coerceAtMost(360f)
 
                 val centerX = centerOffset.x
@@ -125,8 +117,7 @@ internal actual class CurvedTextDelegate {
                     centerX + measureRadius,
                     centerY + measureRadius,
                     startAngleRadians.toDegrees() +
-                        (if (clockwise) paddingBeforeAsAngle
-                        else sweepDegree - paddingBeforeAsAngle),
+                        (if (clockwise) 0f else sweepDegree),
                     clockwiseFactor * sweepDegree
                 )
             }
