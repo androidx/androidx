@@ -23,7 +23,9 @@ import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.wear.watchface.complications.IllegalNodeException
 import androidx.wear.watchface.complications.data.ComplicationType
+import androidx.wear.watchface.complications.iterate
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting.ListOption
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption
 import androidx.wear.watchface.style.test.R
@@ -326,5 +328,32 @@ class UserStyleSchemaInflateTest {
         listParser.close()
         parser1.close()
         parser2.close()
+    }
+
+    @Test
+    public fun test_inflate_simple_flavor() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val parser = context.resources.getXml(R.xml.simple_flavor)
+
+        // Parse next until start tag is found
+        parser.moveToStart("XmlWatchFace")
+
+        var schema: UserStyleSchema? = null
+        var flavors: UserStyleFlavors? = null
+
+        parser.iterate {
+            when (parser.name) {
+                "UserStyleSchema" ->
+                    schema = UserStyleSchema.inflate(context.resources, parser)
+                "UserStyleFlavors" ->
+                    flavors = UserStyleFlavors.inflate(context.resources, parser, schema!!)
+                else -> throw IllegalNodeException(parser)
+            }
+        }
+
+        assertThat(flavors!!.flavors.size).isEqualTo(2)
+        assertThat(flavors!!.flavors[0].style.userStyleMap.keys).containsExactly(
+            context.getString(R.string.list_setting_common_id)
+        )
     }
 }

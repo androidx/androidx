@@ -77,6 +77,7 @@ import androidx.wear.watchface.editor.EditorService
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleData
+import androidx.wear.watchface.style.UserStyleFlavors
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.data.UserStyleFlavorsWireFormat
@@ -476,7 +477,6 @@ public abstract class WatchFaceService : WallpaperService() {
      * @return The [UserStyleFlavors], which is exposed to the system.
      */
     @WorkerThread
-    @WatchFaceFlavorsExperimental
     protected open fun createUserStyleFlavors(
         currentUserStyleRepository: CurrentUserStyleRepository,
         complicationSlotsManager: ComplicationSlotsManager
@@ -1022,7 +1022,6 @@ public abstract class WatchFaceService : WallpaperService() {
         }
     }
 
-    @OptIn(WatchFaceFlavorsExperimental::class)
     internal class WatchFaceInitDetails(
         val watchFace: WatchFace,
         val complicationSlotsManager: ComplicationSlotsManager,
@@ -1653,7 +1652,6 @@ public abstract class WatchFaceService : WallpaperService() {
         internal fun getUserStyleSchemaWireFormat() = createUserStyleSchema().toWireFormat()
 
         /** This will be called from a binder thread. */
-        @OptIn(WatchFaceFlavorsExperimental::class)
         @WorkerThread
         internal fun getUserStyleFlavorsWireFormat(): UserStyleFlavorsWireFormat {
             val currentUserStyleRepository = CurrentUserStyleRepository(createUserStyleSchema())
@@ -1833,7 +1831,6 @@ public abstract class WatchFaceService : WallpaperService() {
             }
         }
 
-        @OptIn(WatchFaceFlavorsExperimental::class)
         internal fun createWatchFaceInternal(
             watchState: WatchState,
             overrideSurfaceHolder: SurfaceHolder?,

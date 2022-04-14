@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.watchface
+package androidx.wear.watchface.style
 
 import android.content.res.Resources
 import android.content.res.XmlResourceParser
@@ -24,14 +24,8 @@ import androidx.wear.watchface.complications.IllegalNodeException
 import androidx.wear.watchface.complications.NAMESPACE_APP
 import androidx.wear.watchface.complications.hasValue
 import androidx.wear.watchface.complications.iterate
-import androidx.wear.watchface.style.UserStyle
-import androidx.wear.watchface.style.UserStyleData
-import androidx.wear.watchface.style.UserStyleSchema
-import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.data.UserStyleFlavorWireFormat
 import androidx.wear.watchface.style.data.UserStyleFlavorsWireFormat
-import androidx.wear.watchface.style.getIntRefAttribute
-import androidx.wear.watchface.style.getStringRefAttribute
 import java.io.IOException
 import org.xmlpull.v1.XmlPullParserException
 
@@ -45,7 +39,6 @@ import org.xmlpull.v1.XmlPullParserException
  * [DefaultComplicationDataSourcePolicy] for each [ComplicationSlot.id] presented in map. For
  * absent complication slots default policies are used.
  */
-@WatchFaceFlavorsExperimental
 public class UserStyleFlavor(
     public val id: String,
     public val style: UserStyleData,
@@ -169,12 +162,9 @@ public class UserStyleFlavor(
                             "slotId is required for ComplicationPolicy"
                         }
 
-                        val policy =
-                            XmlSchemaAndComplicationSlotsDefinition.ComplicationSlotStaticData
-                                .inflateDefaultComplicationDataSourcePolicy(
-                                    parser,
-                                    "ComplicationPolicy"
-                                )
+                        val policy = DefaultComplicationDataSourcePolicy.inflate(
+                            parser,
+                            "ComplicationPolicy")
 
                         complications[id] = policy
                     }
@@ -196,7 +186,6 @@ public class UserStyleFlavor(
  *
  * @param flavors List of flavors.
  */
-@WatchFaceFlavorsExperimental
 public class UserStyleFlavors(public val flavors: List<UserStyleFlavor>) {
     /**
      * Constructs empty flavors collection.

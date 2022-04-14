@@ -106,7 +106,7 @@ package androidx.wear.watchface.client {
     method public default static androidx.wear.watchface.client.HeadlessWatchFaceClient createFromBundle(android.os.Bundle bundle);
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationSlotState> getComplicationSlotsState();
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public java.time.Instant getPreviewReferenceInstant();
-    method @androidx.wear.watchface.WatchFaceFlavorsExperimental public default androidx.wear.watchface.UserStyleFlavors getUserStyleFlavors();
+    method public default androidx.wear.watchface.style.UserStyleFlavors getUserStyleFlavors();
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public androidx.wear.watchface.style.UserStyleSchema getUserStyleSchema();
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public default byte[] getUserStyleSchemaDigestHash() throws android.os.RemoteException;
     method @AnyThread public boolean isConnectionAlive();
@@ -223,7 +223,7 @@ package androidx.wear.watchface.client {
 
   public interface WatchFaceMetadataClient extends java.lang.AutoCloseable {
     method public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationSlotMetadata> getComplicationSlotMetadataMap();
-    method @androidx.wear.watchface.WatchFaceFlavorsExperimental public androidx.wear.watchface.UserStyleFlavors getUserStyleFlavors();
+    method public androidx.wear.watchface.style.UserStyleFlavors getUserStyleFlavors();
     method public androidx.wear.watchface.style.UserStyleSchema getUserStyleSchema();
     method public boolean isUserStyleSchemaStatic();
     property public abstract boolean isUserStyleSchemaStatic;

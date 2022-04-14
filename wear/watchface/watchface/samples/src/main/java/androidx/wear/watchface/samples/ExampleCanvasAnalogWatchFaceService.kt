@@ -36,10 +36,7 @@ import androidx.wear.watchface.ComplicationSlot
 import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.Renderer
-import androidx.wear.watchface.UserStyleFlavor
-import androidx.wear.watchface.UserStyleFlavors
 import androidx.wear.watchface.WatchFace
-import androidx.wear.watchface.WatchFaceFlavorsExperimental
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
@@ -48,6 +45,8 @@ import androidx.wear.watchface.complications.permission.dialogs.sample.Complicat
 import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyle
+import androidx.wear.watchface.style.UserStyleFlavor
+import androidx.wear.watchface.style.UserStyleFlavors
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting
@@ -63,7 +62,6 @@ import androidx.wear.watchface.style.UserStyleSetting.Option
 import androidx.wear.watchface.style.WatchFaceLayer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.time.ZonedDateTime
 import kotlin.math.cos
@@ -267,7 +265,6 @@ open class ExampleCanvasAnalogWatchFaceService : WatchFaceService() {
         )
     )
 
-    @OptIn(WatchFaceFlavorsExperimental::class)
     internal val exampleFlavor by lazy {
         UserStyleFlavor(
             "exampleFlavor",
@@ -291,7 +288,6 @@ open class ExampleCanvasAnalogWatchFaceService : WatchFaceService() {
             ))
     }
 
-    @OptIn(WatchFaceFlavorsExperimental::class)
     public override fun createUserStyleFlavors(
         currentUserStyleRepository: CurrentUserStyleRepository,
         complicationSlotsManager: ComplicationSlotsManager
