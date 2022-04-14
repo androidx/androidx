@@ -21,10 +21,12 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
+import android.content.res.Resources
 import android.content.res.XmlResourceParser
 import android.graphics.RectF
 import android.os.Bundle
 import android.os.IBinder
+import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.complications.ComplicationSlotBounds
 import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
@@ -55,6 +57,9 @@ import kotlinx.coroutines.CompletableDeferred
 public interface WatchFaceMetadataClient : AutoCloseable {
 
     public companion object {
+        /** @hide */
+        private const val TAG = "WatchFaceMetadataClient"
+
         /**
          * Constructs a [WatchFaceMetadataClient] for fetching metadata for the specified watch
          * face.
@@ -90,11 +95,50 @@ public interface WatchFaceMetadataClient : AutoCloseable {
         }
 
         /** @hide */
+        private const val ANDROIDX_WATCHFACE_XML_VERSION = "androidx.wear.watchface.xml_version"
+        /** @hide */
+        private const val ANDROIDX_WATCHFACE_CONTROL_SERVICE =
+            "androidx.wear.watchface.control.WatchFaceControlService"
+
+        @Suppress("DEPRECATION") // getServiceInfo
+        internal fun isXmlVersionCompatible(
+            context: Context,
+            resources: Resources,
+            controlServiceComponentName: ComponentName = ComponentName(
+                context, ANDROIDX_WATCHFACE_CONTROL_SERVICE)
+        ): Boolean {
+            val version = try {
+                context.packageManager.getServiceInfo(
+                    controlServiceComponentName,
+                    PackageManager.GET_META_DATA or PackageManager.MATCH_DISABLED_COMPONENTS
+                ).metaData.getInt(ANDROIDX_WATCHFACE_XML_VERSION, 0)
+            } catch (exception: PackageManager.NameNotFoundException) {
+                // WatchFaceControlService may be missing in case WF is built with
+                // pre-androidx watchface library.
+                return false
+            }
+
+            val ourVersion = resources.getInteger(
+                androidx.wear.watchface.R.integer.watch_face_xml_version)
+
+            if (version > ourVersion) {
+                Log.w(TAG, "WatchFaceControlService version ($version) " +
+                    "of $controlServiceComponentName is higher than $ourVersion")
+                return false
+            }
+
+            return true
+        }
+
+        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Suppress("DEPRECATION")
         open class ParserProvider {
             // Open to allow testing without having to install the sample app.
             open fun getParser(context: Context, watchFaceName: ComponentName): XmlResourceParser? {
+                if (!isXmlVersionCompatible(context, context.resources))
+                    return null
+
                 return context.packageManager.getServiceInfo(
                     watchFaceName,
                     PackageManager.GET_META_DATA
