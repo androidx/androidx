@@ -146,4 +146,25 @@ internal constructor(
 
     internal fun isOpenEnded(): Boolean =
         (localStartTime == null || localEndTime == null) && (startTime == null || endTime == null)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is TimeRangeFilter) return false
+
+        if (startTime != other.startTime) return false
+        if (endTime != other.endTime) return false
+        if (localStartTime != other.localStartTime) return false
+        if (localEndTime != other.localEndTime) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = 0
+        result = 31 * result + (startTime?.hashCode() ?: 0)
+        result = 31 * result + (endTime?.hashCode() ?: 0)
+        result = 31 * result + (localStartTime?.hashCode() ?: 0)
+        result = 31 * result + (localEndTime?.hashCode() ?: 0)
+        return result
+    }
 }
