@@ -16,21 +16,21 @@
 
 package androidx.wear.compose.material
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -174,6 +174,8 @@ public fun Card(
  * @param title A slot for displaying the title of the card, expected to be one or two lines of
  * start aligned text of [Typography.button]
  * @param modifier Modifier to be applied to the card
+ * @param enabled Controls the enabled state of the card. When `false`, this card will not
+ * be clickable
  * @param appImage A slot for a small ([CardDefaults.AppImageSize]x[CardDefaults.AppImageSize] )
  * [Image] associated with the application.
  * @param backgroundPainter A painter used to paint the background of the card. A card will
@@ -192,6 +194,7 @@ public fun AppCard(
     time: @Composable RowScope.() -> Unit,
     title: @Composable RowScope.() -> Unit,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     appImage: @Composable (RowScope.() -> Unit)? = null,
     backgroundPainter: Painter = CardDefaults.cardBackgroundPainter(),
     contentColor: Color = MaterialTheme.colors.onSurfaceVariant,
@@ -204,7 +207,7 @@ public fun AppCard(
         onClick = onClick,
         modifier = modifier,
         backgroundPainter = backgroundPainter,
-        enabled = true,
+        enabled = enabled,
     ) {
         Column {
             Row(
@@ -283,6 +286,8 @@ public fun AppCard(
  * @param title A slot for displaying the title of the card, expected to be one or two lines of text
  * of [Typography.button]
  * @param modifier Modifier to be applied to the card
+ * @param enabled Controls the enabled state of the card. When `false`, this card will not
+ * be clickable
  * @param time An optional slot for displaying the time relevant to the contents of the card,
  * expected to be a short piece of end aligned text.
  * @param backgroundPainter A painter used to paint the background of the card. A title card can
@@ -298,6 +303,7 @@ public fun TitleCard(
     onClick: () -> Unit,
     title: @Composable RowScope.() -> Unit,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     time: @Composable (RowScope.() -> Unit)? = null,
     backgroundPainter: Painter = CardDefaults.cardBackgroundPainter(),
     contentColor: Color = MaterialTheme.colors.onSurfaceVariant,
@@ -309,7 +315,7 @@ public fun TitleCard(
         onClick = onClick,
         modifier = modifier,
         backgroundPainter = backgroundPainter,
-        enabled = true,
+        enabled = enabled,
     ) {
         Column {
             Row(
