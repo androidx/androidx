@@ -184,6 +184,110 @@ public class CardBehaviourTest {
     }
 }
 
+public class AppCardTest {
+    @get:Rule
+    public val rule: ComposeContentTestRule = createComposeRule()
+
+    @Test
+    public fun responds_to_click_when_enabled() {
+        var clicked = false
+
+        rule.setContentWithTheme {
+            AppCard(
+                onClick = { clicked = true },
+                enabled = true,
+                appName = {},
+                time = {},
+                title = {},
+                modifier = Modifier.testTag(TEST_TAG)
+            ) {
+                TestImage()
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performClick()
+
+        rule.runOnIdle {
+            assertEquals(true, clicked)
+        }
+    }
+
+    @Test
+    public fun does_not_respond_to_click_when_disabled() {
+        var clicked = false
+
+        rule.setContentWithTheme {
+            AppCard(
+                onClick = { clicked = true },
+                appName = {},
+                time = {},
+                title = {},
+                enabled = false,
+                modifier = Modifier.testTag(TEST_TAG)
+            ) {
+                TestImage()
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performClick()
+
+        rule.runOnIdle {
+            assertEquals(false, clicked)
+        }
+    }
+}
+
+public class TitleCardTest {
+    @get:Rule
+    public val rule: ComposeContentTestRule = createComposeRule()
+
+    @Test
+    public fun responds_to_click_when_enabled() {
+        var clicked = false
+
+        rule.setContentWithTheme {
+            TitleCard(
+                onClick = { clicked = true },
+                enabled = true,
+                time = {},
+                title = {},
+                modifier = Modifier.testTag(TEST_TAG)
+            ) {
+                TestImage()
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performClick()
+
+        rule.runOnIdle {
+            assertEquals(true, clicked)
+        }
+    }
+
+    @Test
+    public fun does_not_respond_to_click_when_disabled() {
+        var clicked = false
+
+        rule.setContentWithTheme {
+            TitleCard(
+                onClick = { clicked = true },
+                enabled = false,
+                time = {},
+                title = {},
+                modifier = Modifier.testTag(TEST_TAG)
+            ) {
+                TestImage()
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performClick()
+
+        rule.runOnIdle {
+            assertEquals(false, clicked)
+        }
+    }
+}
+
 public class CardSizeTest {
     @get:Rule
     public val rule: ComposeContentTestRule = createComposeRule()
