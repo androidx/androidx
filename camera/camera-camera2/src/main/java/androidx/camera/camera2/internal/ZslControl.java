@@ -27,11 +27,22 @@ import androidx.camera.core.impl.SessionConfig;
 interface ZslControl {
 
     /**
-     * Add zero-shutter lag config to {@link SessionConfig}.
+     * Adds zero-shutter lag config to {@link SessionConfig}.
+     *
      * @param resolution surface resolution.
      * @param sessionConfigBuilder session config builder.
      */
     void addZslConfig(
             @NonNull Size resolution,
             @NonNull SessionConfig.Builder sessionConfigBuilder);
+
+    /**
+     * Sets zsl disabled or not.
+     *
+     * @param disabled True if zero-shutter lag should be disabled. Otherwise, should not be
+     *                 disabled. However, enabling zero-shutter lag needs other conditions e.g.
+     *                 flash mode OFF, so setting to false doesn't guarantee zero-shutter lag to
+     *                 be always ON.
+     */
+    void setZslDisabled(boolean disabled);
 }

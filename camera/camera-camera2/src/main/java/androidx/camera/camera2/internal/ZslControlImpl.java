@@ -65,6 +65,7 @@ final class ZslControlImpl implements ZslControl {
     @NonNull
     final Queue<TotalCaptureResult> mTotalCaptureResultRingBuffer = new LinkedList<>();
 
+    private boolean mIsZslDisabled = false;
     private boolean mIsYuvReprocessingSupported = false;
     private boolean mIsPrivateReprocessingSupported = false;
 
@@ -84,11 +85,19 @@ final class ZslControlImpl implements ZslControl {
                         REQUEST_AVAILABLE_CAPABILITIES_PRIVATE_REPROCESSING);
     }
 
+    @Override
+    public void setZslDisabled(boolean disabled) {
+        mIsZslDisabled = disabled;
+    }
 
     @Override
     public void addZslConfig(
             @NonNull Size resolution,
             @NonNull SessionConfig.Builder sessionConfigBuilder) {
+        if (mIsZslDisabled) {
+            return;
+        }
+
         if (!mIsYuvReprocessingSupported && !mIsPrivateReprocessingSupported) {
             return;
         }
