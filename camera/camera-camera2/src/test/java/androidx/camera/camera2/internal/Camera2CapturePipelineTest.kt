@@ -50,7 +50,6 @@ import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.filters.FlakyTest
 import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture
@@ -127,7 +126,7 @@ class Camera2CapturePipelineTest {
         executorService.shutdown()
     }
 
-    @FlakyTest(bugId = 228856476)
+    @Ignore // b/228856476
     @Test
     fun pipelineTest_preCapturePostCaptureShouldCalled() {
         // Arrange.
