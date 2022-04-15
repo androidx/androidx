@@ -133,9 +133,6 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
                 }
             }
         }
-        google()
-        mavenCentral()
-        gradlePluginPortal()
     }
 
     private class PlaygroundRepositories(

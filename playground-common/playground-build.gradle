@@ -24,36 +24,8 @@ buildscript {
     def playgroundCommonFolder = rootProject.buildFile.parentFile
     ext.supportRootFolder = playgroundCommonFolder.parentFile
 
-    def metalavaBuildId = rootProject.properties["androidx.playground.metalavaBuildId"]
-    def dokkaBuildId = rootProject.properties["androidx.playground.dokkaBuildId"]
-    if (metalavaBuildId == null || dokkaBuildId == null) {
-        throw new GradleException("metalava and or dokka build ids must be defined.")
-    }
-    def metalavaRepo = "https://androidx.dev/metalava/builds/${metalavaBuildId}/artifacts/repo/m2repository"
-    def dokkaRepo = "https://androidx.dev/dokka/builds/${dokkaBuildId}/artifacts/repository"
-    repositories {
-        maven {
-            url "https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev/"
-        }
-        google()
-        mavenCentral()
-        maven {
-            url metalavaRepo
-            metadataSources {
-                mavenPom()
-                artifact()
-            }
-        }
-        maven {
-            url dokkaRepo
-            metadataSources {
-                mavenPom()
-                artifact()
-            }
-        }
-        gradlePluginPortal()
-    }
-
+    apply(from: new File(ext.supportRootFolder, "buildSrc/repos.gradle"))
+    repos.addMavenRepositories(repositories)
     ext.repos = [:]
     dependencies {
         // NOTE: It's not really clear why asm:9.1 must be explicitly declared here since it should
