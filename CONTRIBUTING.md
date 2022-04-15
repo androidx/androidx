@@ -40,6 +40,7 @@ We have tried to make contributing to androidx a lot easier with this new setup.
 
   ```bash
   sdkmanager --install "ndk;23.1.7779620"
+  sdkmanager --install "cmake;3.22.1" --channel=3 #channel 3 is the canary channel
   ```
 
   Next, you need to set up the following environment variables:
