@@ -57,7 +57,6 @@ Please read the "Important Information" displayed during installation for
 information about SSL/TLS certificate validation and the running the "Install
 Certificates.command".
 
-Next, double-check where your `repo 
 Next, open your `~/.zshrc` (or `~/.bash_profile` if using bash) and add the
 following lines to wrap the `repo` command:
 
