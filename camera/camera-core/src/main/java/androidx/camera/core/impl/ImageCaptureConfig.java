@@ -62,6 +62,8 @@ public final class ImageCaptureConfig implements UseCaseConfig<ImageCapture>, Im
             Option.create("camerax.core.imageCapture.flashType", int.class);
     public static final Option<Integer> OPTION_JPEG_COMPRESSION_QUALITY =
             Option.create("camerax.core.imageCapture.jpegCompressionQuality", int.class);
+    public static final Option<Boolean> OPTION_SESSION_PROCESSOR_ENABLED =
+            Option.create("camerax.core.imageCapture.sessionProcessorEnabled", boolean.class);
 
     // *********************************************************************************************
 
@@ -286,6 +288,13 @@ public final class ImageCaptureConfig implements UseCaseConfig<ImageCapture>, Im
     @IntRange(from = 1, to = 100)
     public int getJpegQuality() {
         return retrieveOption(OPTION_JPEG_COMPRESSION_QUALITY);
+    }
+
+    /**
+     * Returns if the SessionProcessor is enabled.
+     */
+    public boolean isSessionProcessorEnabled() {
+        return retrieveOption(OPTION_SESSION_PROCESSOR_ENABLED, false);
     }
 
     // Implementations of IO default methods

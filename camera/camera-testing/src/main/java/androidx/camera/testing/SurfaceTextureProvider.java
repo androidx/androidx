@@ -101,6 +101,30 @@ public final class SurfaceTextureProvider {
     }
 
     /**
+     * Creates a {@link Preview.SurfaceProvider} that is backed by a {@link SurfaceTexture} which
+     * is suitable to be used in testing that doesn't actually show camera preview but just need
+     * a surface for preview.
+     *
+     * <p> The {@link SurfaceTexture} will be released when it is no longer needed.
+     *
+     */
+    @NonNull
+    public static Preview.SurfaceProvider createSurfaceTextureProvider() {
+        return createSurfaceTextureProvider(new SurfaceTextureCallback() {
+            @Override
+            public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture,
+                    @NonNull Size resolution) {
+                // no op
+            }
+
+            @Override
+            public void onSafeToRelease(@NonNull SurfaceTexture surfaceTexture) {
+                surfaceTexture.release();
+            }
+        });
+    }
+
+    /**
      * Creates a {@link Preview.SurfaceProvider} that is backed by a {@link SurfaceTexture}.
      *
      * <p>This method also creates a backing OpenGL thread that will automatically drain frames

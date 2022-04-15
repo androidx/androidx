@@ -105,6 +105,7 @@ public class PreviewConfigProvider implements ConfigProvider<PreviewConfig> {
                                 AdaptingPreviewProcessor(
                                 (PreviewImageProcessorImpl) previewExtenderImpl.getProcessor());
                         builder.setCaptureProcessor(adaptingPreviewProcessor);
+                        builder.setIsRgba8888SurfaceRequired(true);
                         previewEventAdapter = new PreviewEventAdapter(previewExtenderImpl, context,
                                 adaptingPreviewProcessor);
                         break;
@@ -118,6 +119,10 @@ public class PreviewConfigProvider implements ConfigProvider<PreviewConfig> {
             } else {
                 Logger.e(TAG, "PreviewExtenderImpl is null!");
             }
+        } else { // Advanced extensions interface.
+            // Set RGB8888 = true always since we have no way to tell if the OEM implementation does
+            // the processing or not.
+            builder.setIsRgba8888SurfaceRequired(true);
         }
 
         builder.getMutableConfig().insertOption(OPTION_PREVIEW_CONFIG_PROVIDER_MODE, effectMode);
