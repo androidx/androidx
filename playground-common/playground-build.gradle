@@ -26,7 +26,6 @@ buildscript {
 
     apply(from: new File(ext.supportRootFolder, "buildSrc/repos.gradle"))
     repos.addMavenRepositories(repositories)
-    ext.repos = [:]
     dependencies {
         // NOTE: It's not really clear why asm:9.1 must be explicitly declared here since it should
         // be provided transitively.

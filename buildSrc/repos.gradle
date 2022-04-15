@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+// if you make changes no this file, make sure to update ReposProxy class in buildSrc
 def supportRootFolder = ext.supportRootFolder
 if (supportRootFolder == null) {
     throw new RuntimeException("Canonical root project directory is not set. You must specify " +
