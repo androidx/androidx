@@ -13,372 +13,347 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.collection
 
-package androidx.collection;
+import java.util.Locale
+import java.util.concurrent.atomic.AtomicBoolean
+import org.junit.Assert
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-
-import java.util.Collections;
-import java.util.ConcurrentModificationException;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-@RunWith(JUnit4.class)
+@RunWith(JUnit4::class)
 public class SimpleArrayMapTest {
     @Test
-    @SuppressWarnings({"SimplifiableJUnitAssertion", "EqualsWithItself",
-            "EqualsBetweenInconvertibleTypes"})
-    public void equalsEmpty() {
-        SimpleArrayMap<String, String> empty = new SimpleArrayMap<>();
-
-        assertTrue(empty.equals(empty));
-        assertTrue(empty.equals(Collections.emptyMap()));
-        assertTrue(empty.equals(new SimpleArrayMap<String, String>()));
-        assertTrue(empty.equals(new HashMap<String, String>()));
-
-        assertFalse(empty.equals(Collections.singletonMap("foo", "bar")));
-
-        SimpleArrayMap<String, String> simpleArrayMapNotEmpty = new SimpleArrayMap<>();
-        simpleArrayMapNotEmpty.put("foo", "bar");
-        assertFalse(empty.equals(simpleArrayMapNotEmpty));
-
-        HashMap<String, String> hashMapNotEquals = new HashMap<>();
-        hashMapNotEquals.put("foo", "bar");
-        assertFalse(empty.equals(hashMapNotEquals));
+    public fun equalsEmpty() {
+        val empty = SimpleArrayMap<String, String>()
+        assertEquals(empty, empty)
+        assertTrue(empty == emptyMap<String, String>())
+        assertEquals(empty, SimpleArrayMap<String, String>())
+        assertTrue(empty == HashMap<String, String>())
+        assertFalse(empty == mapOf("foo" to "bar"))
+        val simpleArrayMapNotEmpty = SimpleArrayMap<String, String>()
+        simpleArrayMapNotEmpty.put("foo", "bar")
+        assertNotEquals(empty, simpleArrayMapNotEmpty)
+        val hashMapNotEquals = HashMap<String, String>()
+        hashMapNotEquals["foo"] = "bar"
+        assertFalse(empty == hashMapNotEquals)
     }
 
     @Test
-    @SuppressWarnings({"SimplifiableJUnitAssertion", "EqualsWithItself",
-            "EqualsBetweenInconvertibleTypes"})
-    public void equalsNonEmpty() {
-        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
-        map.put("foo", "bar");
-
-        assertTrue(map.equals(map));
-        assertTrue(map.equals(Collections.singletonMap("foo", "bar")));
-
-        SimpleArrayMap<String, String> otherSimpleArrayMap = new SimpleArrayMap<>();
-        otherSimpleArrayMap.put("foo", "bar");
-
-        HashMap<String, String> otherHashMap = new HashMap<>();
-        otherHashMap.put("foo", "bar");
-        assertTrue(map.equals(otherHashMap));
-
-        assertFalse(map.equals(Collections.emptyMap()));
-        assertFalse(map.equals(new SimpleArrayMap<String, String>()));
-        assertFalse(map.equals(new HashMap<String, String>()));
+    public fun equalsNonEmpty() {
+        val map = SimpleArrayMap<String, String>()
+        map.put("foo", "bar")
+        assertTrue(map == mapOf("foo" to "bar"))
+        val otherSimpleArrayMap = SimpleArrayMap<String, String>()
+        otherSimpleArrayMap.put("foo", "bar")
+        val otherHashMap = HashMap<String, String>()
+        otherHashMap["foo"] = "bar"
+        assertTrue(map == otherHashMap)
+        assertFalse(map == emptyMap<Any, Any>())
+        assertNotEquals(map, SimpleArrayMap<String, String>())
+        assertFalse(map == HashMap<String, String>())
     }
 
     @Test
-    public void getOrDefaultPrefersStoredValue() {
-        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
-        map.put("one", "1");
-        assertEquals("1", map.getOrDefault("one", "2"));
+    public fun getOrDefaultPrefersStoredValue() {
+        val map = SimpleArrayMap<String, String>()
+        map.put("one", "1")
+        assertEquals("1", map.getOrDefault("one", "2"))
     }
 
     @Test
-    public void getOrDefaultUsesDefaultWhenAbsent() {
-        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
-        assertEquals("1", map.getOrDefault("one", "1"));
+    public fun getOrDefaultUsesDefaultWhenAbsent() {
+        val map = SimpleArrayMap<String, String>()
+        assertEquals("1", map.getOrDefault("one", "1"))
     }
 
     @Test
-    public void getOrDefaultReturnsNullWhenNullStored() {
-        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
-        map.put("one", null);
-        assertNull(map.getOrDefault("one", "1"));
+    public fun getOrDefaultReturnsNullWhenNullStored() {
+        val map = SimpleArrayMap<String, String?>()
+        map.put("one", null)
+        assertNull(map.getOrDefault("one", "1"))
     }
 
     @Test
-    public void getOrDefaultDoesNotPersistDefault() {
-        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
-        map.getOrDefault("one", "1");
-        assertFalse(map.containsKey("one"));
+    public fun getOrDefaultDoesNotPersistDefault() {
+        val map = SimpleArrayMap<String, String>()
+        map.getOrDefault("one", "1")
+        assertFalse(map.containsKey("one"))
     }
 
     @Test
-    public void putIfAbsentDoesNotOverwriteStoredValue() {
-        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
-        map.put("one", "1");
-        map.putIfAbsent("one", "2");
-        assertEquals("1", map.get("one"));
+    public fun putIfAbsentDoesNotOverwriteStoredValue() {
+        val map = SimpleArrayMap<String, String>()
+        map.put("one", "1")
+        map.putIfAbsent("one", "2")
+        assertEquals("1", map["one"])
     }
 
     @Test
-    public void putIfAbsentReturnsStoredValue() {
-        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
-        map.put("one", "1");
-        assertEquals("1", map.putIfAbsent("one", "2"));
+    public fun putIfAbsentReturnsStoredValue() {
+        val map = SimpleArrayMap<String, String>()
+        map.put("one", "1")
+        assertEquals("1", map.putIfAbsent("one", "2"))
     }
 
     @Test
-    public void putIfAbsentStoresValueWhenAbsent() {
-        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
-        map.putIfAbsent("one", "2");
-        assertEquals("2", map.get("one"));
+    public fun putIfAbsentStoresValueWhenAbsent() {
+        val map = SimpleArrayMap<String, String>()
+        map.putIfAbsent("one", "2")
+        assertEquals("2", map["one"])
     }
 
     @Test
-    public void putIfAbsentReturnsNullWhenAbsent() {
-        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
-        assertNull(map.putIfAbsent("one", "2"));
+    public fun putIfAbsentReturnsNullWhenAbsent() {
+        val map = SimpleArrayMap<String, String>()
+        assertNull(map.putIfAbsent("one", "2"))
     }
 
     @Test
-    public void replaceWhenAbsentDoesNotStore() {
-        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
-        assertNull(map.replace("one", "1"));
-        assertFalse(map.containsKey("one"));
+    public fun replaceWhenAbsentDoesNotStore() {
+        val map = SimpleArrayMap<String, String>()
+        assertNull(map.replace("one", "1"))
+        assertFalse(map.containsKey("one"))
     }
 
     @Test
-    public void replaceStoresAndReturnsOldValue() {
-        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
-        map.put("one", "1");
-        assertEquals("1", map.replace("one", "2"));
-        assertEquals("2", map.get("one"));
+    public fun replaceStoresAndReturnsOldValue() {
+        val map = SimpleArrayMap<String, String>()
+        map.put("one", "1")
+        assertEquals("1", map.replace("one", "2"))
+        assertEquals("2", map["one"])
     }
 
     @Test
-    public void replaceStoresAndReturnsNullWhenMappedToNull() {
-        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
-        map.put("one", null);
-        assertNull(map.replace("one", "1"));
-        assertEquals("1", map.get("one"));
+    public fun replaceStoresAndReturnsNullWhenMappedToNull() {
+        val map = SimpleArrayMap<String, String?>()
+        map.put("one", null)
+        assertNull(map.replace("one", "1"))
+        assertEquals("1", map["one"])
     }
 
     @Test
-    public void replaceValueKeyAbsent() {
-        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
-        assertFalse(map.replace("one", "1", "2"));
-        assertFalse(map.containsKey("one"));
+    public fun replaceValueKeyAbsent() {
+        val map = SimpleArrayMap<String, String>()
+        assertFalse(map.replace("one", "1", "2"))
+        assertFalse(map.containsKey("one"))
     }
 
     @Test
-    public void replaceValueMismatchDoesNotReplace() {
-        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
-        map.put("one", "1");
-        assertFalse(map.replace("one", "2", "3"));
-        assertEquals("1", map.get("one"));
+    public fun replaceValueMismatchDoesNotReplace() {
+        val map = SimpleArrayMap<String, String>()
+        map.put("one", "1")
+        assertFalse(map.replace("one", "2", "3"))
+        assertEquals("1", map["one"])
     }
 
     @Test
-    public void replaceValueMismatchNullDoesNotReplace() {
-        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
-        map.put("one", "1");
-        assertFalse(map.replace("one", null, "2"));
-        assertEquals("1", map.get("one"));
+    public fun replaceValueMismatchNullDoesNotReplace() {
+        val map = SimpleArrayMap<String, String?>()
+        map.put("one", "1")
+        assertFalse(map.replace("one", null, "2"))
+        assertEquals("1", map["one"])
     }
 
     @Test
-    public void replaceValueMatchReplaces() {
-        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
-        map.put("one", "1");
-        assertTrue(map.replace("one", "1", "2"));
-        assertEquals("2",  map.get("one"));
+    public fun replaceValueMatchReplaces() {
+        val map = SimpleArrayMap<String, String>()
+        map.put("one", "1")
+        assertTrue(map.replace("one", "1", "2"))
+        assertEquals("2", map["one"])
     }
 
     @Test
-    public void replaceNullValueMismatchDoesNotReplace() {
-        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
-        map.put("one", null);
-        assertFalse(map.replace("one", "1", "2"));
-        assertNull(map.get("one"));
+    public fun replaceNullValueMismatchDoesNotReplace() {
+        val map = SimpleArrayMap<String, String?>()
+        map.put("one", null)
+        assertFalse(map.replace("one", "1", "2"))
+        assertNull(map["one"])
     }
 
     @Test
-    public void replaceNullValueMatchRemoves() {
-        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
-        map.put("one", null);
-        assertTrue(map.replace("one", null, "1"));
-        assertEquals("1", map.get("one"));
+    public fun replaceNullValueMatchRemoves() {
+        val map = SimpleArrayMap<String, String?>()
+        map.put("one", null)
+        assertTrue(map.replace("one", null, "1"))
+        assertEquals("1", map["one"])
     }
 
     @Test
-    public void removeValueKeyAbsent() {
-        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
-        assertFalse(map.remove("one", "1"));
+    public fun removeValueKeyAbsent() {
+        val map = SimpleArrayMap<String, String>()
+        assertFalse(map.remove("one", "1"))
     }
 
     @Test
-    public void removeValueMismatchDoesNotRemove() {
-        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
-        map.put("one", "1");
-        assertFalse(map.remove("one", "2"));
-        assertTrue(map.containsKey("one"));
+    public fun removeValueMismatchDoesNotRemove() {
+        val map = SimpleArrayMap<String, String>()
+        map.put("one", "1")
+        assertFalse(map.remove("one", "2"))
+        assertTrue(map.containsKey("one"))
     }
 
     @Test
-    public void removeValueMismatchNullDoesNotRemove() {
-        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
-        map.put("one", "1");
-        assertFalse(map.remove("one", null));
-        assertTrue(map.containsKey("one"));
+    public fun removeValueMismatchNullDoesNotRemove() {
+        val map = SimpleArrayMap<String, String?>()
+        map.put("one", "1")
+        assertFalse(map.remove("one", null))
+        assertTrue(map.containsKey("one"))
     }
 
     @Test
-    public void removeValueMatchRemoves() {
-        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
-        map.put("one", "1");
-        assertTrue(map.remove("one", "1"));
-        assertFalse(map.containsKey("one"));
+    public fun removeValueMatchRemoves() {
+        val map = SimpleArrayMap<String, String>()
+        map.put("one", "1")
+        assertTrue(map.remove("one", "1"))
+        assertFalse(map.containsKey("one"))
     }
 
     @Test
-    public void removeNullValueMismatchDoesNotRemove() {
-        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
-        map.put("one", null);
-        assertFalse(map.remove("one", "2"));
-        assertTrue(map.containsKey("one"));
+    public fun removeNullValueMismatchDoesNotRemove() {
+        val map = SimpleArrayMap<String, String?>()
+        map.put("one", null)
+        assertFalse(map.remove("one", "2"))
+        assertTrue(map.containsKey("one"))
     }
 
     @Test
-    public void removeNullValueMatchRemoves() {
-        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
-        map.put("one", null);
-        assertTrue(map.remove("one", null));
-        assertFalse(map.containsKey("one"));
+    public fun removeNullValueMatchRemoves() {
+        val map = SimpleArrayMap<String, String?>()
+        map.put("one", null)
+        assertTrue(map.remove("one", null))
+        assertFalse(map.containsKey("one"))
     }
 
     /**
      * Attempt to generate a ConcurrentModificationException in ArrayMap.
      */
     @Test
-    public void testConcurrentModificationException() {
-        final SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
-        final AtomicBoolean done = new AtomicBoolean();
-
-        final int TEST_LEN_MS = 5000;
-        System.out.println("Starting SimpleArrayMap concurrency test");
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                int i = 0;
-                while (!done.get()) {
-                    try {
-                        map.put(String.format(Locale.US, "key %d", i++), "B_DONT_DO_THAT");
-                    } catch (ArrayIndexOutOfBoundsException e) {
-                        // SimpleArrayMap is not thread safe, so lots of concurrent modifications
-                        // can still cause data corruption
-                        System.err.println("concurrent modification uncaught, causing indexing failure");
-                        e.printStackTrace();
-                    } catch (ClassCastException e) {
-                        // cache corruption should not occur as it is hard to trace and one thread
-                        // may corrupt the pool for all threads in the same process.
-                        System.err.println("concurrent modification uncaught, causing cache corruption");
-                        e.printStackTrace();
-                        fail();
-                    } catch (ConcurrentModificationException e) {
-                    }
+    public fun testConcurrentModificationException() {
+        val map = SimpleArrayMap<String, String>()
+        val done = AtomicBoolean()
+        val TEST_LEN_MS = 5000
+        println("Starting SimpleArrayMap concurrency test")
+        Thread {
+            var i = 0
+            while (!done.get()) {
+                try {
+                    map.put(String.format(Locale.US, "key %d", i++), "B_DONT_DO_THAT")
+                } catch (e: ArrayIndexOutOfBoundsException) {
+                    // SimpleArrayMap is not thread safe, so lots of concurrent modifications
+                    // can still cause data corruption
+                    System.err.println("concurrent modification uncaught, causing indexing failure")
+                    e.printStackTrace()
+                } catch (e: ClassCastException) {
+                    // cache corruption should not occur as it is hard to trace and one thread
+                    // may corrupt the pool for all threads in the same process.
+                    System.err.println("concurrent modification uncaught, causing cache corruption")
+                    e.printStackTrace()
+                    Assert.fail()
+                } catch (_: ConcurrentModificationException) {
                 }
             }
-        }).start();
-        for (int i = 0; i < (TEST_LEN_MS / 100); i++) {
+        }.start()
+        for (i in 0 until TEST_LEN_MS / 100) {
             try {
-                Thread.sleep(100);
-                map.clear();
-            } catch (InterruptedException e) {
-            } catch (ArrayIndexOutOfBoundsException e) {
-                System.err.println("concurrent modification uncaught, causing indexing failure");
-            } catch (ClassCastException e) {
-                System.err.println("concurrent modification uncaught, causing cache corruption");
-                fail();
-            } catch (ConcurrentModificationException e) {
+                Thread.sleep(100)
+                map.clear()
+            } catch (_: InterruptedException) {
+            } catch (e: ArrayIndexOutOfBoundsException) {
+                System.err.println("concurrent modification uncaught, causing indexing failure")
+            } catch (e: ClassCastException) {
+                System.err.println("concurrent modification uncaught, causing cache corruption")
+                Assert.fail()
+            } catch (_: ConcurrentModificationException) {
             }
         }
-        done.set(true);
+        done.set(true)
     }
 
     /**
      * Check to make sure the same operations behave as expected in a single thread.
      */
     @Test
-    public void testNonConcurrentAccesses() {
-        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
-
-        for (int i = 0; i < 100000; i++) {
+    public fun testNonConcurrentAccesses() {
+        val map = SimpleArrayMap<String, String>()
+        repeat(100000) { i ->
             try {
-                map.put(String.format(Locale.US, "key %d", i++), "B_DONT_DO_THAT");
+                map.put("key $i", "B_DONT_DO_THAT")
                 if (i % 500 == 0) {
-                    map.clear();
+                    map.clear()
                 }
-            } catch (ConcurrentModificationException e) {
-                System.err.println("Concurrent modification caught on single thread");
-                e.printStackTrace();
-                fail();
+            } catch (e: ConcurrentModificationException) {
+                System.err.println("Concurrent modification caught on single thread")
+                e.printStackTrace()
+                Assert.fail()
             }
         }
     }
 
     /**
-     * Even though the Javadoc of {@link SimpleArrayMap#put(Object, Object)} says that the key
+     * Even though the Javadoc of [SimpleArrayMap.put] says that the key
      * must not be null, the actual implementation allows it, and therefore we must ensure
      * that any future implementations of the class will still honor that contract.
      */
     @Test
-    public void nullKeyCompatibility_canPutNullKeyAndNonNullValue() {
-        SimpleArrayMap<String, Integer> map = new SimpleArrayMap<>();
-        assertFalse(map.containsKey(null));
-        map.put(null, 42);
-        assertTrue(map.containsKey(null));
+    public fun nullKeyCompatibility_canPutNullKeyAndNonNullValue() {
+        val map = SimpleArrayMap<String?, Int>()
+        assertFalse(map.containsKey(null))
+        map.put(null, 42)
+        assertTrue(map.containsKey(null))
     }
 
     @Test
-    public void nullKeyCompatibility_replacesValuesWithNullKey() {
-        final Integer firstValue = 42;
-        final Integer secondValue = 43;
-        SimpleArrayMap<String, Integer> map = new SimpleArrayMap<>();
-        assertFalse(map.containsKey(null));
-        map.put(null, firstValue);
-        assertTrue(map.containsKey(null));
-
-        assertEquals(firstValue, map.get(null));
-        assertEquals(firstValue, map.put(null, secondValue));
-
-        assertEquals(secondValue, map.get(null));
-        assertEquals(secondValue, map.remove(null));
-        assertFalse(map.containsKey(null));
+    public fun nullKeyCompatibility_replacesValuesWithNullKey() {
+        val firstValue = 42
+        val secondValue = 43
+        val map = SimpleArrayMap<String?, Int>()
+        assertFalse(map.containsKey(null))
+        map.put(null, firstValue)
+        assertTrue(map.containsKey(null))
+        assertEquals(firstValue, map[null])
+        assertEquals(firstValue, map.put(null, secondValue))
+        assertEquals(secondValue, map[null])
+        assertEquals(secondValue, map.remove(null))
+        assertFalse(map.containsKey(null))
     }
 
     @Test
-    public void nullKeyCompatibility_putThenRemoveNullKeyAndValue() {
-        SimpleArrayMap<String, Integer> map = new SimpleArrayMap<>();
-        map.put(null, null);
-        assertTrue(map.containsKey(null));
-        assertNull(map.get(null));
-        map.remove(null);
-        assertFalse(map.containsKey(null));
+    public fun nullKeyCompatibility_putThenRemoveNullKeyAndValue() {
+        val map = SimpleArrayMap<String?, Int?>()
+        map.put(null, null)
+        assertTrue(map.containsKey(null))
+        assertNull(map[null])
+        map.remove(null)
+        assertFalse(map.containsKey(null))
     }
 
     @Test
-    public void nullKeyCompatibility_removeNonNullValueWithNullKey() {
-        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
-        map.put(null, null);
-        assertNull(map.put(null, "42"));
-        assertEquals("42", map.get(null));
-        map.remove(null);
+    public fun nullKeyCompatibility_removeNonNullValueWithNullKey() {
+        val map = SimpleArrayMap<String?, String?>()
+        map.put(null, null)
+        assertNull(map.put(null, "42"))
+        assertEquals("42", map[null])
+        map.remove(null)
     }
 
     @Test
-    public void nullKeyCompatibility_testReplaceMethodsWithNullKey() {
-        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
-        map.put(null, null);
-        assertNull(null, map.replace(null, "42"));
-        assertFalse(map.replace(null, null, null));
-        assertTrue(map.replace(null, "42", null));
-        assertFalse(map.replace(null, "42", null));
-        assertTrue(map.replace(null, null, null));
-        assertTrue(map.containsKey(null));
-        assertNull(map.get(null));
+    public fun nullKeyCompatibility_testReplaceMethodsWithNullKey() {
+        val map = SimpleArrayMap<String?, String?>()
+        map.put(null, null)
+        assertNull(null, map.replace(null, "42"))
+        assertFalse(map.replace(null, null, null))
+        assertTrue(map.replace(null, "42", null))
+        assertFalse(map.replace(null, "42", null))
+        assertTrue(map.replace(null, null, null))
+        assertTrue(map.containsKey(null))
+        assertNull(map[null])
     }
 
     /**
@@ -388,15 +363,15 @@ public class SimpleArrayMapTest {
      * backing arrays are expanded.
      */
     @Test
-    public void backingArrayGrowth() {
-        for (int initCapacity = 0; initCapacity <= 16; initCapacity++) {
-            for (int entries = 1; entries < 32; entries++) {
-                SimpleArrayMap<String, String> map = new SimpleArrayMap<>(initCapacity);
-                for (int index = 0; index < entries; index++) {
-                    map.put("key " + index, "value " + index);
+    public fun backingArrayGrowth() {
+        for (initCapacity in 0..16) {
+            for (entries in 1..31) {
+                val map = SimpleArrayMap<String, String>(initCapacity)
+                for (index in 0 until entries) {
+                    map.put("key $index", "value $index")
                 }
-                for (int index = 0; index < entries; index++) {
-                    assertEquals((Object) ("value " + index), map.get("key " + index));
+                for (index in 0 until entries) {
+                    assertEquals("value $index", map["key $index"])
                 }
             }
         }
