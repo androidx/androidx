@@ -29,6 +29,7 @@ playground {
     selectProjectsFromAndroidX({ name ->
         // Must exclude this because AndroidXCompose plugin doesn't currently support playground.
         if (name == ":datastore:datastore-compose-samples") return false
+        if (name == ":datastore:datastore-multiprocess") return false
         if (name.startsWith(":datastore")) return true
         if (name == ":annotation:annotation-sampled") return true
         if (name == ":internal-testutils-truth") return true
