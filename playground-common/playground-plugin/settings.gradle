@@ -16,12 +16,14 @@
 
 pluginManagement {
     repositories {
-        maven {
-            url 'https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev/'
-        }
-        maven {
-            url 'https://repo1.maven.org/maven2/'
-        }
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+dependencyResolutionManagement {
+    repositories {
+        mavenCentral()
         gradlePluginPortal()
     }
 }
