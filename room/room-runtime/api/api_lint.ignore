@@ -35,9 +35,9 @@ ExecutorRegistration: androidx.room.RoomDatabase.Builder#createFromInputStream(j
     Registration methods should have overload that accepts delivery Executor: `createFromInputStream`
 
 
-InvalidNullability: androidx.room.MultiInstanceInvalidationService#onBind(android.content.Intent):
+InvalidNullabilityOverride: androidx.room.MultiInstanceInvalidationService#onBind(android.content.Intent):
     Invalid nullability on method `onBind` return. Overrides of unannotated super method cannot be Nullable.
-InvalidNullability: androidx.room.MultiInstanceInvalidationService#onBind(android.content.Intent) parameter #0:
+InvalidNullabilityOverride: androidx.room.MultiInstanceInvalidationService#onBind(android.content.Intent) parameter #0:
     Invalid nullability on parameter `intent` in method `onBind`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 
 
