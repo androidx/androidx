@@ -77,6 +77,10 @@ android {
         consumerProguardFiles "proguard-rules.pro"
     }
 
+    lintOptions {
+        enable 'CameraXQuirksClassDetector'
+    }
+
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
     namespace "androidx.camera.camera2"

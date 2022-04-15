@@ -89,6 +89,10 @@ android {
         }
     }
 
+    lintOptions {
+        enable 'CameraXQuirksClassDetector'
+    }
+
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
 

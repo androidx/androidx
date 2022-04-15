@@ -85,6 +85,9 @@ android {
     defaultConfig {
         multiDexEnabled = true
     }
+    lintOptions {
+        enable 'CameraXQuirksClassDetector'
+    }
     namespace "androidx.camera.camera2.pipe.integration"
 }
 
