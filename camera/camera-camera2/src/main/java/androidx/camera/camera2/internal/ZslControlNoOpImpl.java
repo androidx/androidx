@@ -29,4 +29,8 @@ public class ZslControlNoOpImpl implements ZslControl {
     public void addZslConfig(@NonNull Size resolution,
             @NonNull SessionConfig.Builder sessionConfigBuilder) {
     }
+
+    @Override
+    public void setZslDisabled(boolean disabled) {
+    }
 }

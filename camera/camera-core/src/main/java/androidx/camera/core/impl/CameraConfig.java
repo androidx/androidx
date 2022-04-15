@@ -48,6 +48,9 @@ public interface CameraConfig extends ReadableConfig {
     Option<SessionProcessor> OPTION_SESSION_PROCESSOR =
             Option.create("camerax.core.camera.SessionProcessor", SessionProcessor.class);
 
+    Option<Boolean> OPTION_ZSL_DISABLED =
+            Option.create("camerax.core.camera.isZslDisabled", Boolean.class);
+
     /**
      * No rule is required when the camera is opened by the camera config.
      */
@@ -73,6 +76,14 @@ public interface CameraConfig extends ReadableConfig {
     @NonNull
     default UseCaseConfigFactory getUseCaseConfigFactory() {
         return retrieveOption(OPTION_USECASE_CONFIG_FACTORY, UseCaseConfigFactory.EMPTY_INSTANCE);
+    }
+
+    /**
+     * Retrieves the status for zsl disabled or not.
+     */
+    @NonNull
+    default Boolean isZslDisabled() {
+        return retrieveOption(OPTION_ZSL_DISABLED, Boolean.FALSE);
     }
 
     /**
@@ -148,5 +159,14 @@ public interface CameraConfig extends ReadableConfig {
          */
         @NonNull
         B setSessionProcessor(@NonNull SessionProcessor sessionProcessor);
+
+        /**
+         * Sets zsl disabled or not. If disabled is true, zero-shutter lag should be disabled.
+         * Otherwise, zero-shutter lag should not be disabled. However, enabling zero-shutter lag
+         * needs other conditions e.g. flash mode OFF, so setting to false doesn't guarantee
+         * zero-shutter lag to be always ON.
+         */
+        @NonNull
+        B setZslDisabled(boolean disabled);
     }
 }
