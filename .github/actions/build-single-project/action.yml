@@ -33,27 +33,6 @@ runs:
       uses: actions/setup-java@v1
       with:
         java-version: "11"
-    # Required for CMake when building workmanager.
-    - name: "Install Ninja"
-      shell: bash
-      run: |
-        set -x
-        if [ "$RUNNER_OS" == "Linux" ]; then
-          # Should use version 1.10.2 but it is not available on apt yet.
-          sudo apt-get install ninja-build=1.10.0-1build1
-        elif [ "$RUNNER_OS" == "macOS" ]; then
-          # Should use version 1.10.2, but it is not well supported by Homebrew.
-          brew install ninja
-        elif [ "$RUNNER_OS" == "Windows" ]; then
-          choco install ninja --version=1.10.2
-        else
-          echo "Failed to install ninja due to unsupport OS: $RUNNER_OS"
-          exit 1
-        fi
-        # See b/206099937. Hack needed to make ninja visible to cmake during NDK builds
-        if [ ! -e "/usr/local/bin/ninja" ]; then
-          ln -s "/usr/bin/ninja" "/usr/local/bin/ninja"
-        fi
     - name: "Install Cmake"
       shell: bash
       run: echo "yes" | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --install "cmake;3.22.1" --channel=3
