@@ -59,7 +59,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -175,7 +174,6 @@ public abstract class GlobalSearchSessionCtsTestBase {
         assertThat(afterPutDocuments.getSuccesses()).containsExactly("id1", inEmail);
     }
 
-    @Ignore("b/228838046")
     @Test
     public void testGlobalGetById_nonExistentPackage() throws Exception {
         assumeTrue(mGlobalSearchSession.getFeatures().isFeatureSupported(
