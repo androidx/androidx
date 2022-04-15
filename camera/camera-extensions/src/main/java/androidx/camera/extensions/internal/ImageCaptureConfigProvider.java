@@ -118,6 +118,8 @@ public class ImageCaptureConfigProvider implements ConfigProvider<ImageCaptureCo
             } else {
                 Logger.e(TAG, "ImageCaptureExtenderImpl is null!");
             }
+        } else { // Advanced vendor interface
+            builder.setSessionProcessorEnabled(true);
         }
 
         builder.getMutableConfig().insertOption(OPTION_IMAGE_CAPTURE_CONFIG_PROVIDER_MODE,

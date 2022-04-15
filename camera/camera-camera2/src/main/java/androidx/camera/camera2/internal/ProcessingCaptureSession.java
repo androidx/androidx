@@ -17,6 +17,7 @@
 package androidx.camera.camera2.internal;
 
 import android.hardware.camera2.CameraDevice;
+import android.hardware.camera2.CaptureRequest;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
@@ -343,9 +344,25 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
                 break;
             case ON_CAPTURE_SESSION_STARTED:
                 mIsExecutingStillCaptureRequest = true;
-                mStillCaptureOptions =
-                        CaptureRequestOptions.Builder.from(captureConfig.getImplementationOptions())
-                                .build();
+                CaptureRequestOptions.Builder builder =
+                        CaptureRequestOptions.Builder.from(
+                                captureConfig.getImplementationOptions());
+
+                if (captureConfig.getImplementationOptions().containsOption(
+                        CaptureConfig.OPTION_ROTATION)) {
+                    builder.setCaptureRequestOption(CaptureRequest.JPEG_ORIENTATION,
+                            captureConfig.getImplementationOptions().retrieveOption(
+                                    CaptureConfig.OPTION_ROTATION));
+                }
+
+                if (captureConfig.getImplementationOptions().containsOption(
+                        CaptureConfig.OPTION_JPEG_QUALITY)) {
+                    builder.setCaptureRequestOption(CaptureRequest.JPEG_QUALITY,
+                            captureConfig.getImplementationOptions().retrieveOption(
+                                    CaptureConfig.OPTION_JPEG_QUALITY).byteValue());
+                }
+
+                mStillCaptureOptions = builder.build();
                 updateParameters(mSessionOptions, mStillCaptureOptions);
                 mSessionProcessor.startCapture(new SessionProcessor.CaptureCallback() {
                     @Override
