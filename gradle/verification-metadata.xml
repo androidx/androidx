@@ -57,9 +57,7 @@
          <trusted-key id="160a7a9cf46221a56b06ad64461a804f2609fd89" group="com.github.shyiko.klob" name="klob"/>
          <trusted-key id="1861c322c56014b2" group="commons-lang"/>
          <trusted-key id="190d5a957ff22273e601f7a7c92c5fec70161c62" group="org.codehaus.mojo"/>
-         <trusted-key id="19beab2d799c020f17c69126b16698a4adf4d638">
-            <trusting group="org.checkerframework"/>
-         </trusted-key>
+         <trusted-key id="19beab2d799c020f17c69126b16698a4adf4d638" group="org.checkerframework"/>
          <trusted-key id="1b2718089ce964b8" group="com.thoughtworks.qdox"/>
          <trusted-key id="1bc86444bbd2a24c3a40904a438e9634a2319637" group="co.nstant.in" name="cbor"/>
          <trusted-key id="1d0a8b5e77c678a7c724445abf984b4145ea13f7" group="com.squareup"/>
@@ -135,7 +133,16 @@
          <trusted-key id="438e9634a2319637" group="co.nstant.in"/>
          <trusted-key id="44ce7bf2825ea2cd" group="com.ibm.icu"/>
          <trusted-key id="461a804f2609fd89" group="com.github.shyiko.klob"/>
-         <trusted-key id="47504b76cf89c15c0512d9afe16ab52d79fd224f" group="com.google.api.grpc"/>
+         <trusted-key id="47504b76cf89c15c0512d9afe16ab52d79fd224f">
+            <trusting group="com.google.api"/>
+            <trusting group="com.google.api-client"/>
+            <trusting group="com.google.api.grpc"/>
+            <trusting group="com.google.apis"/>
+            <trusting group="com.google.auth"/>
+            <trusting group="com.google.cloud"/>
+            <trusting group="com.google.http-client"/>
+            <trusting group="com.google.oauth-client"/>
+         </trusted-key>
          <trusted-key id="47586a1b75ef0de5" group="com.squareup.wire"/>
          <trusted-key id="475f3b8e59e6e63aa78067482c7b12f2a511e325" group="org.slf4j"/>
          <trusted-key id="476634a4694e716a" group="com.googlecode.java-diff-utils"/>
@@ -176,6 +183,7 @@
          <trusted-key id="5ed22f661bbf0acc" group="com.almworks.sqlite4java"/>
          <trusted-key id="5f7786df73e61f56" group="com.google.devtools.ksp"/>
          <trusted-key id="5fa41c402006eac55d72aafd99ce9d9f22dc5c99" group="org.json"/>
+         <trusted-key id="600ea202b1ec682f4a788e5aac7a514bc9f9bb70" group="io.opencensus"/>
          <trusted-key id="6214760097dc5cfad0175ac2c9fbaa83a8753994">
             <trusting group="com.fasterxml"/>
             <trusting group="com.fasterxml.jackson"/>
@@ -198,6 +206,7 @@
             <trusting group="com.google.jimfs"/>
             <trusting group="^com[.]google($|([.].*))" regex="true"/>
          </trusted-key>
+         <trusted-key id="696b6199a2a9d8c29ce78cc0d041cad2e452550f" group="com.google.protobuf"/>
          <trusted-key id="6a65176a0fb1cd0b" group="org.codehaus.groovy"/>
          <trusted-key id="6ccc36cc6c69fc17" group="com.google"/>
          <trusted-key id="6dd3b8c64ef75253beb2c53ad908a43fb7ec07ac">
@@ -252,6 +261,11 @@
          </trusted-key>
          <trusted-key id="8858d45be9b276802318155b96fb9db219f3338d" group="kr.motd.maven"/>
          <trusted-key id="88bb19a33a18445f" group="net.ltgt.gradle.incap"/>
+         <trusted-key id="8a10792983023d5d14c93b488d7f1bec1e2ecae7">
+            <trusting group="com.fasterxml"/>
+            <trusting group="com.fasterxml.jackson"/>
+            <trusting group="com.fasterxml.jackson.core"/>
+         </trusted-key>
          <trusted-key id="8f9a3c6d105b9f57844a721d79e193516be7998f" group="org.dom4j" name="dom4j"/>
          <trusted-key id="908366594e746bf3c449f5622be5d98f751f4136" group="org.pcollections" name="pcollections"/>
          <trusted-key id="90ee19787a7bcf6fd37a1e9180c08b1c29100955">
@@ -310,7 +324,10 @@
          <trusted-key id="afcc4c7594d09e2182c60e0f7a01b0f236e5430f" group="com.google.code.gson"/>
          <trusted-key id="b02335aa54ccf21e52bbf9abd9c565aa72ba2fdd" group="io.grpc"/>
          <trusted-key id="b252e5789636134a311e4463971b04f56669b805" group="com.google.jsilver" name="jsilver"/>
-         <trusted-key id="b41089a2da79b0fa5810252872385ff0af338d52" group="org.threeten" name="threeten-extra"/>
+         <trusted-key id="b41089a2da79b0fa5810252872385ff0af338d52">
+            <trusting group="org.threeten" name="threeten-extra"/>
+            <trusting group="org.threeten" name="threetenbp"/>
+         </trusted-key>
          <trusted-key id="b47034c19c9b1f3dc3702f8d476634a4694e716a" group="com.googlecode.java-diff-utils" name="diffutils"/>
          <trusted-key id="b4c70893b62babe8" group="org.apache.logging.log4j"/>
          <trusted-key id="b57bd58ef6d0a713" group="com.google.protobuf"/>
