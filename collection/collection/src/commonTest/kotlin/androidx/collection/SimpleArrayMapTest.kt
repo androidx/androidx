@@ -15,26 +15,22 @@
  */
 package androidx.collection
 
-import java.util.Locale
-import java.util.concurrent.atomic.AtomicBoolean
-import org.junit.Assert
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotEquals
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertNotEquals
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
+import kotlin.test.fail
 
-@RunWith(JUnit4::class)
+@Suppress("RedundantVisibilityModifier")
 public class SimpleArrayMapTest {
     @Test
     public fun equalsEmpty() {
         val empty = SimpleArrayMap<String, String>()
         assertEquals(empty, empty)
         assertTrue(empty == emptyMap<String, String>())
-        assertEquals(empty, SimpleArrayMap<String, String>())
+        assertEquals(empty, SimpleArrayMap())
         assertTrue(empty == HashMap<String, String>())
         assertFalse(empty == mapOf("foo" to "bar"))
         val simpleArrayMapNotEmpty = SimpleArrayMap<String, String>()
@@ -56,7 +52,7 @@ public class SimpleArrayMapTest {
         otherHashMap["foo"] = "bar"
         assertTrue(map == otherHashMap)
         assertFalse(map == emptyMap<Any, Any>())
-        assertNotEquals(map, SimpleArrayMap<String, String>())
+        assertNotEquals(map, SimpleArrayMap())
         assertFalse(map == HashMap<String, String>())
     }
 
@@ -232,51 +228,6 @@ public class SimpleArrayMapTest {
     }
 
     /**
-     * Attempt to generate a ConcurrentModificationException in ArrayMap.
-     */
-    @Test
-    public fun testConcurrentModificationException() {
-        val map = SimpleArrayMap<String, String>()
-        val done = AtomicBoolean()
-        val TEST_LEN_MS = 5000
-        println("Starting SimpleArrayMap concurrency test")
-        Thread {
-            var i = 0
-            while (!done.get()) {
-                try {
-                    map.put(String.format(Locale.US, "key %d", i++), "B_DONT_DO_THAT")
-                } catch (e: ArrayIndexOutOfBoundsException) {
-                    // SimpleArrayMap is not thread safe, so lots of concurrent modifications
-                    // can still cause data corruption
-                    System.err.println("concurrent modification uncaught, causing indexing failure")
-                    e.printStackTrace()
-                } catch (e: ClassCastException) {
-                    // cache corruption should not occur as it is hard to trace and one thread
-                    // may corrupt the pool for all threads in the same process.
-                    System.err.println("concurrent modification uncaught, causing cache corruption")
-                    e.printStackTrace()
-                    Assert.fail()
-                } catch (_: ConcurrentModificationException) {
-                }
-            }
-        }.start()
-        for (i in 0 until TEST_LEN_MS / 100) {
-            try {
-                Thread.sleep(100)
-                map.clear()
-            } catch (_: InterruptedException) {
-            } catch (e: ArrayIndexOutOfBoundsException) {
-                System.err.println("concurrent modification uncaught, causing indexing failure")
-            } catch (e: ClassCastException) {
-                System.err.println("concurrent modification uncaught, causing cache corruption")
-                Assert.fail()
-            } catch (_: ConcurrentModificationException) {
-            }
-        }
-        done.set(true)
-    }
-
-    /**
      * Check to make sure the same operations behave as expected in a single thread.
      */
     @Test
@@ -289,9 +240,9 @@ public class SimpleArrayMapTest {
                     map.clear()
                 }
             } catch (e: ConcurrentModificationException) {
-                System.err.println("Concurrent modification caught on single thread")
+                println("Concurrent modification caught on single thread")
                 e.printStackTrace()
-                Assert.fail()
+                fail()
             }
         }
     }
