@@ -568,7 +568,7 @@ includeProject(":glance:glance-appwidget:glance-layout-generator", [BuildType.MA
 includeProject(":glance:glance-wear-tiles:integration-tests:demos", [BuildType.MAIN, BuildType.GLANCE])
 includeProject(":glance:glance-wear-tiles", [BuildType.MAIN, BuildType.GLANCE])
 includeProject(":gridlayout:gridlayout", [BuildType.MAIN])
-includeProject(":health:health-data-client", [BuildType.MAIN])
+includeProject(":health:health-connect-client", [BuildType.MAIN])
 includeProject(":health:health-services-client", [BuildType.MAIN])
 includeProject(":heifwriter:heifwriter", [BuildType.MAIN])
 includeProject(":graphics:graphics-core", [BuildType.MAIN])
