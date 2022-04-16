@@ -41,6 +41,7 @@ import androidx.glance.Visibility
 import androidx.glance.VisibilityModifier
 import androidx.glance.action.ActionModifier
 import androidx.glance.appwidget.action.applyAction
+import androidx.glance.appwidget.action.unsetAction
 import androidx.glance.appwidget.unit.DayNightColorProvider
 import androidx.glance.layout.HeightModifier
 import androidx.glance.layout.PaddingModifier
@@ -100,6 +101,7 @@ internal fun applyModifiers(
     }
     applySizeModifiers(translationContext, rv, widthModifier, heightModifier, viewDef)
     actionModifier?.let { applyAction(translationContext, rv, it.action, viewDef.mainViewId) }
+        ?: unsetAction(translationContext, rv, viewDef.mainViewId)
     cornerRadius?.let { applyRoundedCorners(rv, viewDef.mainViewId, it) }
     paddingModifiers?.let { padding ->
         val absolutePadding = padding.toDp(context.resources).toAbsolute(translationContext.isRtl)
