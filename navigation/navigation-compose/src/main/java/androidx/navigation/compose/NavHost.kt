@@ -142,10 +142,6 @@ public fun NavHost(
             val lastEntry = visibleEntries.last { entry ->
                 it == entry.id
             }
-
-            lastEntry.LocalOwnersProvider(saveableStateHolder) {
-                (lastEntry.destination as ComposeNavigator.Destination).content(lastEntry)
-            }
             DisposableEffect(lastEntry) {
                 if (initialCrossfade) {
                     // There's no animation for the initial crossfade,
@@ -160,6 +156,10 @@ public fun NavHost(
                         composeNavigator.onTransitionComplete(entry)
                     }
                 }
+            }
+
+            lastEntry.LocalOwnersProvider(saveableStateHolder) {
+                (lastEntry.destination as ComposeNavigator.Destination).content(lastEntry)
             }
         }
     }

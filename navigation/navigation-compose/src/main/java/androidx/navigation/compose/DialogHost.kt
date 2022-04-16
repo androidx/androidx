@@ -47,16 +47,16 @@ public fun DialogHost(dialogNavigator: DialogNavigator) {
             onDismissRequest = { dialogNavigator.dismiss(backStackEntry) },
             properties = destination.dialogProperties
         ) {
-            // while in the scope of the composable, we provide the navBackStackEntry as the
-            // ViewModelStoreOwner and LifecycleOwner
-            backStackEntry.LocalOwnersProvider(saveableStateHolder) {
-                destination.content(backStackEntry)
-            }
-
             DisposableEffect(backStackEntry) {
                 onDispose {
                     dialogNavigator.onTransitionComplete(backStackEntry)
                 }
+            }
+
+            // while in the scope of the composable, we provide the navBackStackEntry as the
+            // ViewModelStoreOwner and LifecycleOwner
+            backStackEntry.LocalOwnersProvider(saveableStateHolder) {
+                destination.content(backStackEntry)
             }
         }
     }
