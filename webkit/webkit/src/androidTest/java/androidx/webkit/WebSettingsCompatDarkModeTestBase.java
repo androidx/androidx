@@ -116,9 +116,11 @@ public class WebSettingsCompatDarkModeTestBase<T extends Activity> {
             }
         }
         assertNotNull("There must be at least one color on the screen", maxEntry);
+        double major = 1.0 * maxEntry.getValue() / (64 * 64);
         assertTrue(
-                "The majority color should be at least 90% of the pixels",
-                1.0 * maxEntry.getValue() / (64 * 64) > 0.9);
+                "The majority color should be at least 85% of the pixels,"
+                + " the actual value " + major,
+                 major > 0.85);
         return maxEntry.getKey();
     }
 
