@@ -284,6 +284,7 @@
   <string name="browse_places_title">Browse Places</string>
 
   <!-- SearchTemplateDemoScreen -->
+  <string name="search_template_demo_title">Search Template Demo</string>
   <string name="search_hint">Search here</string>
 
   <!-- SignInTemplateDemoScreen -->
@@ -307,6 +308,7 @@
   <string name="provider_sign_in_instruction">Use this button to complete your Google sign-in</string>
   <string name="sign_in_complete_text">You are signed in!</string>
   <string name="sign_in_complete_title">Sign in completed</string>
+  <string name="sign_in_template_demo_title">Sign In Template Demo</string>
 
   <!-- ContentProviderIconsDemoScreen -->
   <string name="images_unknown_host_error">Images cannot be displayed for an unknown host</string>
