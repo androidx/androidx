@@ -85,24 +85,13 @@ internal fun createCharSequence(
         spannableString.setSpan(NoopSpan, 0, text.length)
     }
 
-    if (contextTextStyle.isIncludeFontPaddingEnabled() &&
-        contextTextStyle.lineHeightStyle == null
-    ) {
-        // keep the existing line height behavior for includeFontPadding=true
-        spannableString.setLineHeight(
-            lineHeight = contextTextStyle.lineHeight,
-            contextFontSize = contextFontSize,
-            density = density
-        )
-    } else {
-        val lineHeightStyle = contextTextStyle.lineHeightStyle ?: LineHeightStyle.Default
-        spannableString.setLineHeight(
-            lineHeight = contextTextStyle.lineHeight,
-            lineHeightStyle = lineHeightStyle,
-            contextFontSize = contextFontSize,
-            density = density,
-        )
-    }
+    val lineHeightStyle = contextTextStyle.lineHeightStyle ?: LineHeightStyle.Default
+    spannableString.setLineHeight(
+        lineHeight = contextTextStyle.lineHeight,
+        lineHeightStyle = lineHeightStyle,
+        contextFontSize = contextFontSize,
+        density = density,
+    )
 
     spannableString.setTextIndent(contextTextStyle.textIndent, contextFontSize, density)
 
