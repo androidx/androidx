@@ -45,8 +45,8 @@ import androidx.car.app.sample.showcase.common.navigation.routing.RoutingDemoMod
 import androidx.car.app.versioning.CarAppApiLevels;
 import androidx.core.graphics.drawable.IconCompat;
 
-/** Simple demo of how to present a map template. */
-public class MapTemplateDemoScreen extends Screen {
+/** Simple demo of how to present a map template with a pane. */
+public class MapTemplateWithPaneDemoScreen extends Screen {
     @Nullable
     private final IconCompat mPaneImage;
 
@@ -55,7 +55,7 @@ public class MapTemplateDemoScreen extends Screen {
 
     private boolean mIsFavorite = false;
 
-    protected MapTemplateDemoScreen(@NonNull CarContext carContext) {
+    protected MapTemplateWithPaneDemoScreen(@NonNull CarContext carContext) {
         super(carContext);
         Resources resources = getCarContext().getResources();
         Bitmap bitmap = BitmapFactory.decodeResource(resources, R.drawable.patio);
