@@ -527,20 +527,32 @@ public class InvalidationTrackerTest {
     }
 
     /**
-     * Tries to trigger garbage collection until an element is available in the given queue.
+     * Tries to trigger garbage collection by allocating in the heap until an element is
+     * available in the given reference queue.
      */
     private static void forceGc(ReferenceQueue<Object> queue) throws InterruptedException {
         AtomicBoolean continueTriggeringGc = new AtomicBoolean(true);
-        new Thread(() -> {
-            @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
-            ArrayList<byte[]> leak = new ArrayList<>();
-            do {
-                int arraySize = (int) (Math.random() * 1000);
-                leak.add(new byte[arraySize]);
-            } while (continueTriggeringGc.get());
-        }).start();
+        Thread t = new Thread(() -> {
+            int byteCount = 0;
+            try {
+                @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
+                ArrayList<byte[]> leak = new ArrayList<>();
+                do {
+                    int arraySize = (int) (Math.random() * 1000);
+                    byteCount += arraySize;
+                    leak.add(new byte[arraySize]);
+                    System.gc(); // Not guaranteed to trigger GC, hence the leak and the timeout
+                    Thread.sleep(10);
+                } while (continueTriggeringGc.get());
+            } catch (InterruptedException e) {
+                // Ignored
+            }
+            System.out.println("Allocated " + byteCount + " bytes trying to force a GC.");
+        });
+        t.start();
         Reference<?> result = queue.remove(TimeUnit.SECONDS.toMillis(10));
         continueTriggeringGc.set(false);
+        t.interrupt();
         Truth.assertWithMessage("Couldn't trigger garbage collection, test flake")
                 .that(result)
                 .isNotNull();
