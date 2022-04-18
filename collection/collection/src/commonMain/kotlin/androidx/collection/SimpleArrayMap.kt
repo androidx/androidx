@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-@file:RestrictTo(RestrictTo.Scope.LIBRARY)
-
 package androidx.collection
 
-import androidx.annotation.RestrictTo
 import androidx.collection.internal.EMPTY_INTS
 import androidx.collection.internal.EMPTY_OBJECTS
 import androidx.collection.internal.binarySearch
+import kotlin.jvm.JvmName
+import kotlin.jvm.JvmOverloads
 
 private const val DEBUG = false
 private const val TAG = "ArrayMap"
@@ -230,7 +229,6 @@ public open class SimpleArrayMap<K, V>
     // and we are overriding the name mangling to make it callable from a Java subclass in this
     // package (ArrayMap).
     @JvmName("__restricted\$indexOfValue")
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     internal fun indexOfValue(value: V): Int {
         val n = size * 2
         val array = array

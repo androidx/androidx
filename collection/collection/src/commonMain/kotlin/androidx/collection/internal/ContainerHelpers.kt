@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-@file:RestrictTo(RestrictTo.Scope.LIBRARY)
-
 package androidx.collection.internal
 
-import androidx.annotation.RestrictTo
+import kotlin.jvm.JvmField
 
 @JvmField
 internal val EMPTY_INTS = IntArray(0)
