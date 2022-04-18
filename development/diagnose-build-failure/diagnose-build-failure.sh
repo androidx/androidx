@@ -136,7 +136,9 @@ function getBuildCommand() {
   if [ "$expectedMessage" == "" ]; then
     testCommand="$* 2>&1"
   else
-    testCommand="$* >log 2>&1; $vgrep \"$expectedMessage\" log $grepOptions"
+    # escape single quotes (end the previous quote, add an escaped quote, and start a new quote)
+    escapedMessage="$(echo "$expectedMessage" | sed "s/'/'\\\\''/g")"
+    testCommand="$* >log 2>&1; $vgrep '$escapedMessage' log $grepOptions"
   fi
   echo "$testCommand"
 }
