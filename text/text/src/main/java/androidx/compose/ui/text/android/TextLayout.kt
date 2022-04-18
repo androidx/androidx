@@ -279,7 +279,23 @@ class TextLayout constructor(
             if (line == lineCount - 1) bottomPadding else 0
     }
 
+    /**
+     * Returns the ascent of the line in the line coordinates. Baseline is considered to be 0,
+     * therefore ascent is generally a negative value. The unit for values are pixels.
+     *
+     * @param line the line index starting from 0
+     */
+    fun getLineAscent(line: Int): Float = layout.getLineAscent(line).toFloat()
+
     fun getLineBaseline(line: Int): Float = topPadding + layout.getLineBaseline(line).toFloat()
+
+    /**
+     * Returns the descent of the line in the line coordinates. Baseline is considered to be 0,
+     * therefore descent is generally a positive value. The unit for values are pixels.
+     *
+     * @param line the line index starting from 0
+     */
+    fun getLineDescent(line: Int): Float = layout.getLineDescent(line).toFloat()
 
     fun getLineHeight(lineIndex: Int): Float = getLineBottom(lineIndex) - getLineTop(lineIndex)
 

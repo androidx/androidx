@@ -49,13 +49,11 @@ class LineHeightSpan(
         // when we implement b/139320242 this assumption will become wrong.
         if (start == 0 && !applyToFirstLine) return
         // In StaticLayout, line height is computed with descent - ascent
-        val currentHeight = fontMetricsInt.descent - fontMetricsInt.ascent
+        val currentHeight = fontMetricsInt.lineHeight()
         // If current height is not positive, do nothing.
         if (currentHeight <= 0) {
             return
         }
-        // TODO changes here might be wrong: ceiling line height before ratio would cause
-        //  discrepancies because of ~roundings in between.
         val ceiledLineHeight = ceil(this.lineHeight).toInt()
         val ratio = ceiledLineHeight * 1.0f / currentHeight
         fontMetricsInt.descent = ceil(fontMetricsInt.descent * ratio.toDouble()).toInt()
