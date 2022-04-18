@@ -273,6 +273,16 @@
             android:configChanges="uiMode"/>
 
         <activity
+            android:name="androidx.appcompat.app.NightModeRotationConfigChangesActivityA"
+            android:theme="@style/Theme.AppCompat.DayNight"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|fontScale|uiMode|mcc|mnc"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="androidx.appcompat.app.NightModeRotationConfigChangesActivityB"
+            android:screenOrientation="landscape" />
+
+        <activity
             android:name="androidx.appcompat.app.NightModeRotateDoesNotRecreateActivity"
             android:theme="@style/Theme.AppCompat.DayNight"
             android:configChanges="orientation|screenSize"/>
