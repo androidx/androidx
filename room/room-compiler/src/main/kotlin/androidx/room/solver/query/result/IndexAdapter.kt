@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,22 +17,20 @@
 package androidx.room.solver.query.result
 
 import androidx.room.solver.CodeGenScope
-import androidx.room.solver.types.CursorValueReader
 import androidx.room.vo.ColumnIndexVar
 
 /**
- * Wraps a row adapter when there is only 1 item with 1 column in the response.
+ * Creates the index variables used by [RowAdapter]s from a cursor.
+ *
+ * Most row adapters know how to find the indices needed and provide an implementation of this
+ * interface via [RowAdapter.getDefaultIndexAdapter].
  */
-class SingleColumnRowAdapter(val reader: CursorValueReader) : RowAdapter(reader.typeMirror()) {
-    override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
-        reader.readFromCursor(outVarName, cursorVarName, "0", scope)
-    }
+interface IndexAdapter {
 
-    override fun getDefaultIndexAdapter() = object : IndexAdapter {
-        override fun onCursorReady(cursorVarName: String, scope: CodeGenScope) {}
+    /**
+     * Called when the cursor variable is ready.
+     */
+    fun onCursorReady(cursorVarName: String, scope: CodeGenScope)
 
-        override fun getIndexVars() = listOf(
-            ColumnIndexVar(null, "0")
-        )
-    }
+    fun getIndexVars(): List<ColumnIndexVar>
 }

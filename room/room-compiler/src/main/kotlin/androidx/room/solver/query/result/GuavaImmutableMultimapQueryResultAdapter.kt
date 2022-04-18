@@ -26,10 +26,10 @@ import com.squareup.javapoet.ParameterizedTypeName
 class GuavaImmutableMultimapQueryResultAdapter(
     override val keyTypeArg: XType,
     override val valueTypeArg: XType,
-    private val keyRowAdapter: RowAdapter,
-    private val valueRowAdapter: RowAdapter,
+    private val keyRowAdapter: QueryMappedRowAdapter,
+    private val valueRowAdapter: QueryMappedRowAdapter,
     private val immutableClassName: ClassName
-) : QueryResultAdapter(listOf(keyRowAdapter, valueRowAdapter)), MultimapQueryResultAdapter {
+) : MultimapQueryResultAdapter(listOf(keyRowAdapter, valueRowAdapter)) {
     private val mapType = ParameterizedTypeName.get(
         immutableClassName,
         keyTypeArg.typeName,
@@ -40,8 +40,9 @@ class GuavaImmutableMultimapQueryResultAdapter(
         val mapVarName = scope.getTmpVar("_mapBuilder")
 
         scope.builder().apply {
-            keyRowAdapter.onCursorReady(cursorVarName, scope)
-            valueRowAdapter.onCursorReady(cursorVarName, scope)
+            rowAdapters.forEach {
+                it.onCursorReady(cursorVarName = cursorVarName, scope = scope)
+            }
             addStatement(
                 "final $T.Builder<$T, $T> $L = $T.builder()",
                 immutableClassName,
@@ -58,13 +59,13 @@ class GuavaImmutableMultimapQueryResultAdapter(
 
                 // Iterate over all matched fields to check if all are null. If so, we continue in
                 // the while loop to the next iteration.
-                val columnNullCheckVarName = getColumnNullCheck(
+                val valueIndexVars = valueRowAdapter.getDefaultIndexAdapter().getIndexVars()
+                val columnNullCheckCodeBlock = getColumnNullCheckCode(
                     cursorVarName = cursorVarName,
-                    valueRowAdapter = valueRowAdapter
+                    indexVars = valueIndexVars
                 )
-
                 // Perform column null check
-                beginControlFlow("if ($L)", columnNullCheckVarName).apply {
+                beginControlFlow("if ($L)", columnNullCheckCodeBlock).apply {
                     addStatement("continue")
                 }.endControlFlow()
 
@@ -74,8 +75,6 @@ class GuavaImmutableMultimapQueryResultAdapter(
             }
             endControlFlow()
             addStatement("final $T $L = $L.build()", mapType, outVarName, mapVarName)
-            keyRowAdapter.onCursorFinished()?.invoke(scope)
-            valueRowAdapter.onCursorFinished()?.invoke(scope)
         }
     }
 }

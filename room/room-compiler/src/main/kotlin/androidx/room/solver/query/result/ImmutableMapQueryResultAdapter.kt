@@ -28,7 +28,7 @@ class ImmutableMapQueryResultAdapter(
     override val keyTypeArg: XType,
     override val valueTypeArg: XType,
     private val resultAdapter: QueryResultAdapter
-) : QueryResultAdapter(resultAdapter.rowAdapters), MultimapQueryResultAdapter {
+) : MultimapQueryResultAdapter(resultAdapter.rowAdapters) {
     override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
         scope.builder().apply {
             val mapVarName = scope.getTmpVar("_mapResult")

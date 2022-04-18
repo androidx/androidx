@@ -27,12 +27,12 @@ import com.squareup.javapoet.ParameterizedTypeName
 class MapQueryResultAdapter(
     override val keyTypeArg: XType,
     override val valueTypeArg: XType,
-    private val keyRowAdapter: RowAdapter,
-    private val valueRowAdapter: RowAdapter,
+    private val keyRowAdapter: QueryMappedRowAdapter,
+    private val valueRowAdapter: QueryMappedRowAdapter,
     private val valueCollectionType: XType?,
     isArrayMap: Boolean = false,
     private val isSparseArray: ClassName? = null
-) : QueryResultAdapter(listOf(keyRowAdapter, valueRowAdapter)), MultimapQueryResultAdapter {
+) : MultimapQueryResultAdapter(listOf(keyRowAdapter, valueRowAdapter)) {
     private val declaredToConcreteCollection = mapOf<ClassName, ClassName>(
         ClassName.get(List::class.java) to ClassName.get(ArrayList::class.java),
         ClassName.get(Set::class.java) to ClassName.get(HashSet::class.java)
@@ -47,9 +47,9 @@ class MapQueryResultAdapter(
         valueTypeArg.typeName
     }
 
-    private val concreteValueType = if (valueCollectionType != null) {
+    private val implValueType = if (valueCollectionType != null) {
         ParameterizedTypeName.get(
-            declaredToConcreteCollection[valueCollectionType.typeElement?.className],
+            declaredToImplCollection[valueCollectionType.typeElement?.className],
             valueTypeArg.typeName
         )
     } else {
@@ -69,27 +69,27 @@ class MapQueryResultAdapter(
         )
     }
 
-    // LinkedHashMap is used as impl to preserve key ordering for ordered query results.
-    private val mapImplType =
-        if (isSparseArray != null) {
-            ParameterizedTypeName.get(
-                isSparseArray,
-                declaredValueType
-            )
-        } else {
-            ParameterizedTypeName.get(
-                if (isArrayMap) ARRAY_MAP else ClassName.get(LinkedHashMap::class.java),
-                keyTypeArg.typeName,
-                declaredValueType
-            )
-        }
+    private val implMapType = if (isSparseArray != null) {
+        ParameterizedTypeName.get(
+            isSparseArray,
+            declaredValueType
+        )
+    } else {
+        // LinkedHashMap is used as impl to preserve key ordering for ordered query results.
+        ParameterizedTypeName.get(
+            if (isArrayMap) ARRAY_MAP else ClassName.get(LinkedHashMap::class.java),
+            keyTypeArg.typeName,
+            declaredValueType
+        )
+    }
 
     override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
         scope.builder().apply {
-            keyRowAdapter.onCursorReady(cursorVarName, scope)
-            valueRowAdapter.onCursorReady(cursorVarName, scope)
+            rowAdapters.forEach {
+                it.onCursorReady(cursorVarName = cursorVarName, scope = scope)
+            }
 
-            addStatement("final $T $L = new $T()", mapType, outVarName, mapImplType)
+            addStatement("final $T $L = new $T()", mapType, outVarName, implMapType)
 
             val tmpKeyVarName = scope.getTmpVar("_key")
             val tmpValueVarName = scope.getTmpVar("_value")
@@ -97,9 +97,10 @@ class MapQueryResultAdapter(
                 addStatement("final $T $L", keyTypeArg.typeName, tmpKeyVarName)
                 keyRowAdapter.convert(tmpKeyVarName, cursorVarName, scope)
 
-                val columnNullCheckVarName = getColumnNullCheck(
+                val valueIndexVars = valueRowAdapter.getDefaultIndexAdapter().getIndexVars()
+                val columnNullCheckCodeBlock = getColumnNullCheckCode(
                     cursorVarName = cursorVarName,
-                    valueRowAdapter = valueRowAdapter
+                    indexVars = valueIndexVars
                 )
 
                 // If valueCollectionType is null, this means that we have a 1-to-1 mapping, as
@@ -119,20 +120,19 @@ class MapQueryResultAdapter(
                             outVarName,
                             tmpKeyVarName
                         )
-                    }
-                    nextControlFlow("else").apply {
-                        addStatement("$L = new $T()", tmpCollectionVarName, concreteValueType)
+                    }.nextControlFlow("else").apply {
+                        addStatement("$L = new $T()", tmpCollectionVarName, implValueType)
                         addStatement(
                             "$L.put($L, $L)",
                             outVarName,
                             tmpKeyVarName,
                             tmpCollectionVarName
                         )
-                    }
-                    endControlFlow()
+                    }.endControlFlow()
 
-                    // Perform column null check
-                    beginControlFlow("if ($L)", columnNullCheckVarName).apply {
+                    // Perform value columns null check, in a 1-to-many mapping we still add the key
+                    // with an empty collection as the value entry.
+                    beginControlFlow("if ($L)", columnNullCheckCodeBlock).apply {
                         addStatement("continue")
                     }.endControlFlow()
 
@@ -140,8 +140,9 @@ class MapQueryResultAdapter(
                     valueRowAdapter.convert(tmpValueVarName, cursorVarName, scope)
                     addStatement("$L.add($L)", tmpCollectionVarName, tmpValueVarName)
                 } else {
-                    // Perform column null check
-                    beginControlFlow("if ($L)", columnNullCheckVarName).apply {
+                    // Perform value columns null check, in a 1-to-1 mapping we still add the key
+                    // with a null value entry.
+                    beginControlFlow("if ($L)", columnNullCheckCodeBlock).apply {
                         addStatement("$L.put($L, null)", outVarName, tmpKeyVarName)
                         addStatement("continue")
                     }.endControlFlow()
@@ -162,13 +163,10 @@ class MapQueryResultAdapter(
                         beginControlFlow("if (!$L.containsKey($L))", outVarName, tmpKeyVarName)
                     }.apply {
                         addStatement("$L.put($L, $L)", outVarName, tmpKeyVarName, tmpValueVarName)
-                    }
-                    endControlFlow()
+                    }.endControlFlow()
                 }
             }
             endControlFlow()
-            keyRowAdapter.onCursorFinished()?.invoke(scope)
-            valueRowAdapter.onCursorFinished()?.invoke(scope)
         }
     }
 }

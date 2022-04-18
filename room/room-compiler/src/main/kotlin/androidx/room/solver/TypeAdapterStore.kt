@@ -32,6 +32,7 @@ import androidx.room.ext.isNotVoidObject
 import androidx.room.ext.isUUID
 import androidx.room.parser.ParsedQuery
 import androidx.room.parser.SQLTypeAffinity
+import androidx.room.preconditions.checkTypeOrNull
 import androidx.room.processor.Context
 import androidx.room.processor.EntityProcessor
 import androidx.room.processor.FieldProcessor
@@ -556,8 +557,8 @@ class TypeAdapterStore private constructor(
             return GuavaImmutableMultimapQueryResultAdapter(
                 keyTypeArg = keyTypeArg,
                 valueTypeArg = valueTypeArg,
-                keyRowAdapter = keyRowAdapter,
-                valueRowAdapter = valueRowAdapter,
+                keyRowAdapter = checkTypeOrNull(keyRowAdapter) ?: return null,
+                valueRowAdapter = checkTypeOrNull(valueRowAdapter) ?: return null,
                 immutableClassName = immutableClassName
             )
         } else if (typeMirror.isTypeOf(java.util.Map::class) ||
@@ -632,8 +633,8 @@ class TypeAdapterStore private constructor(
                     return MapQueryResultAdapter(
                         keyTypeArg = keyTypeArg,
                         valueTypeArg = valueTypeArg,
-                        keyRowAdapter = keyRowAdapter,
-                        valueRowAdapter = valueRowAdapter,
+                        keyRowAdapter = checkTypeOrNull(keyRowAdapter) ?: return null,
+                        valueRowAdapter = checkTypeOrNull(valueRowAdapter) ?: return null,
                         valueCollectionType = mapValueTypeArg,
                         isArrayMap = typeMirror.rawType.typeName == ARRAY_MAP,
                         isSparseArray = isSparseArray
@@ -666,8 +667,8 @@ class TypeAdapterStore private constructor(
                 return MapQueryResultAdapter(
                     keyTypeArg = keyTypeArg,
                     valueTypeArg = mapValueTypeArg,
-                    keyRowAdapter = keyRowAdapter,
-                    valueRowAdapter = valueRowAdapter,
+                    keyRowAdapter = checkTypeOrNull(keyRowAdapter) ?: return null,
+                    valueRowAdapter = checkTypeOrNull(valueRowAdapter) ?: return null,
                     valueCollectionType = null,
                     isArrayMap = typeMirror.rawType.typeName == ARRAY_MAP,
                     isSparseArray = isSparseArray

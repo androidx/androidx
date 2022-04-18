@@ -18,27 +18,33 @@ package androidx.room.solver.query.result
 
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.L
-import androidx.room.ext.RoomTypeNames
-import androidx.room.ext.S
-import androidx.room.ext.T
 import androidx.room.ext.W
 import androidx.room.ext.implementsEqualsAndHashcode
 import androidx.room.log.RLog
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.types.CursorValueReader
+import androidx.room.vo.ColumnIndexVar
 import androidx.room.vo.MapInfo
 import androidx.room.vo.Warning
-import androidx.room.vo.columnNames
+import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 
 /**
- * Common interface for Map and Multimap result adapters.
+ * Abstract class for Map and Multimap result adapters.
  */
-interface MultimapQueryResultAdapter {
-    val keyTypeArg: XType
-    val valueTypeArg: XType
+abstract class MultimapQueryResultAdapter(
+    rowAdapters: List<RowAdapter>,
+) : QueryResultAdapter(rowAdapters) {
+    abstract val keyTypeArg: XType
+    abstract val valueTypeArg: XType
 
     companion object {
+
+        val declaredToImplCollection = mapOf<ClassName, ClassName>(
+            ClassName.get(List::class.java) to ClassName.get(ArrayList::class.java),
+            ClassName.get(Set::class.java) to ClassName.get(HashSet::class.java)
+        )
+
         /**
          * Checks if the @MapInfo annotation is needed for clarification regarding the return type
          * of a Dao method.
@@ -82,46 +88,19 @@ interface MultimapQueryResultAdapter {
     }
 
     /**
-     * Iterates over all matched fields to check if all are null. If so, we continue in the while
-     * loop to the next iteration.
+     * Generates a code expression that verifies if all matched fields are null.
      */
-    fun getColumnNullCheck(cursorVarName: String, valueRowAdapter: RowAdapter): CodeBlock {
-        return when (valueRowAdapter) {
-            is PojoRowAdapter -> {
-                val conditions = valueRowAdapter.fieldsWithIndices.map {
-                    CodeBlock.of(
-                        "$L.isNull($L)",
-                        cursorVarName,
-                        it.indexVar
-                    )
-                }
-                CodeBlock.join(conditions, "$W&&$W")
-            }
-            is SingleNamedColumnRowAdapter -> {
-                val condition = listOf(
-                    CodeBlock.of(
-                        "$L.isNull($L)",
-                        cursorVarName,
-                        valueRowAdapter.indexVarName
-                    )
-                )
-                CodeBlock.join(condition, "")
-            }
-            is EntityRowAdapter -> {
-                val condition = valueRowAdapter.entity.columnNames.map { columnName ->
-                    CodeBlock.of(
-                        "$L.isNull($T.getColumnIndex($L, $S))",
-                        cursorVarName,
-                        RoomTypeNames.CURSOR_UTIL,
-                        cursorVarName,
-                        columnName
-                    )
-                }
-                CodeBlock.join(condition, "$W&&$W")
-            }
-            else -> {
-                throw IllegalStateException("Unexpected value row adapter found: $valueRowAdapter")
-            }
+    fun getColumnNullCheckCode(
+        cursorVarName: String,
+        indexVars: List<ColumnIndexVar>
+    ): CodeBlock {
+        val conditions = indexVars.map {
+            CodeBlock.of(
+                "$L.isNull($L)",
+                cursorVarName,
+                it.indexVar
+            )
         }
+        return CodeBlock.join(conditions, "$W&&$W")
     }
 }
