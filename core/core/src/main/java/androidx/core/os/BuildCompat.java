@@ -16,6 +16,7 @@
 
 package androidx.core.os;
 
+import android.annotation.SuppressLint;
 import android.os.Build;
 import android.os.Build.VERSION;
 
@@ -168,6 +169,7 @@ public class BuildCompat {
      *             will be removed in a future release of this library. Instead, use
      *             {@code Build.VERSION.SDK_INT >= 31}.
      */
+    @SuppressLint("RestrictedApi")
     @ChecksSdkIntAtLeast(api = 31, codename = "S")
     @Deprecated
     public static boolean isAtLeastS() {
@@ -178,15 +180,15 @@ public class BuildCompat {
     /**
      * Checks if the device is running on a pre-release version of Android Sv2 or a release
      * version of Android Sv2 or newer.
-     * <p>
-     * <strong>Note:</strong> When Android Sv2 is finalized for release, this method will be
-     * removed and all calls must be replaced with {@code Build.VERSION.SDK_INT >=
-     * Build.VERSION_CODES.S_V2}.
      *
      * @return {@code true} if Sv2 APIs are available for use, {@code false} otherwise
+     * @deprecated Android Sv2 is a finalized release and this method is no longer necessary. It
+     *             will be removed in a future release of this library. Instead, use
+     *             {@code Build.VERSION.SDK_INT >= 32}.
      */
     @PrereleaseSdkCheck
     @ChecksSdkIntAtLeast(api = 32, codename = "Sv2")
+    @Deprecated
     public static boolean isAtLeastSv2() {
         return VERSION.SDK_INT >= 32
                 || (VERSION.SDK_INT >= 31 && isAtLeastPreReleaseCodename("Sv2", VERSION.CODENAME));
@@ -195,17 +197,19 @@ public class BuildCompat {
     /**
      * Checks if the device is running on a pre-release version of Android Tiramisu or a release
      * version of Android Tiramisu or newer.
-     * <p>
-     * <strong>Note:</strong> When Android Tiramisu is finalized for release, this method will be
-     * removed and all calls must be replaced with {@code Build.VERSION.SDK_INT >=
-     * Build.VERSION_CODES.TIRAMISU}.
      *
-     * @return {@code true} if T APIs are available for use, {@code false} otherwise
+     * @return {@code true} if Tiramisu APIs are available for use, {@code false} otherwise
+     * @deprecated Android Tiramisu is a finalized release and this method is no longer necessary.
+     *             It will be removed in a future release of this library. Instead, use
+     *             {@code Build.VERSION.SDK_INT >= 33}.
      */
     @PrereleaseSdkCheck
     @ChecksSdkIntAtLeast(codename = "Tiramisu")
+    @Deprecated
     public static boolean isAtLeastT() {
-        return VERSION.SDK_INT >= 32 && isAtLeastPreReleaseCodename("Tiramisu", VERSION.CODENAME);
+        return VERSION.SDK_INT >= 33
+                || (VERSION.SDK_INT >= 32
+                && isAtLeastPreReleaseCodename("Tiramisu", VERSION.CODENAME));
     }
 
     /**
