@@ -142,10 +142,14 @@ public final class NavigationScreen extends Screen {
         // Set the action strip.
         ActionStrip.Builder actionStripBuilder = new ActionStrip.Builder();
         actionStripBuilder.addAction(mSettingsAction);
-        actionStripBuilder.addAction(new Action.Builder().setIcon(new CarIcon.Builder(
-                IconCompat.createWithResource(getCarContext(),
-                        R.drawable.ic_mic)).build()).setOnClickListener(
-                mMicrophoneRecorder::record).build());
+        actionStripBuilder.addAction(
+                new Action.Builder()
+                        .setTitle("Voice")
+                        .setIcon(new CarIcon.Builder(
+                            IconCompat.createWithResource(getCarContext(),
+                                    R.drawable.ic_mic)).build()).setOnClickListener(
+                            mMicrophoneRecorder::record)
+                        .build());
         if (mIsNavigating) {
             actionStripBuilder.addAction(
                     new Action.Builder()
@@ -155,6 +159,7 @@ public final class NavigationScreen extends Screen {
         } else {
             actionStripBuilder.addAction(
                     new Action.Builder()
+                            .setTitle("Search")
                             .setIcon(
                                     new CarIcon.Builder(
                                             IconCompat.createWithResource(
@@ -166,6 +171,12 @@ public final class NavigationScreen extends Screen {
             actionStripBuilder.addAction(
                     new Action.Builder()
                             .setTitle("Favorites")
+                            .setIcon(
+                                    new CarIcon.Builder(
+                                            IconCompat.createWithResource(
+                                                    getCarContext(),
+                                                    R.drawable.ic_favorite_white_24dp))
+                                            .build())
                             .setOnClickListener(this::openFavorites)
                             .build());
         }

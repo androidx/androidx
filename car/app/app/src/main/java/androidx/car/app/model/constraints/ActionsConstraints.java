@@ -100,15 +100,13 @@ public final class ActionsConstraints {
                     .setTitleTextConstraints(CarTextConstraints.TEXT_ONLY)
                     .build();
 
-    /** Constraints for navigation templates. */
+    /** Constraints for map based templates. */
     @NonNull
     public static final ActionsConstraints ACTIONS_CONSTRAINTS_NAVIGATION =
             new ActionsConstraints.Builder(ACTIONS_CONSTRAINTS_CONSERVATIVE)
                     .setMaxActions(4)
-                    .setMaxCustomTitles(1)
-                    // Must specify a custom stop action.
-                    .addRequiredActionType(Action.TYPE_CUSTOM)
-                    .setTitleTextConstraints(CarTextConstraints.TEXT_ONLY)
+                    .setMaxCustomTitles(4)
+                    .setTitleTextConstraints(CarTextConstraints.TEXT_AND_ICON)
                     .build();
 
     /**
