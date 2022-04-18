@@ -52,6 +52,8 @@ import androidx.compose.ui.text.android.LayoutCompat.TEXT_DIRECTION_RTL
 import androidx.compose.ui.text.android.LayoutCompat.TextDirection
 import androidx.compose.ui.text.android.LayoutCompat.TextLayoutAlignment
 import androidx.compose.ui.text.android.style.BaselineShiftSpan
+import androidx.compose.ui.text.android.style.LineHeightBehaviorSpan
+import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.math.min
@@ -248,8 +250,9 @@ class TextLayout constructor(
             }
 
         val verticalPaddings = getVerticalPaddings()
-        topPadding = verticalPaddings.first
-        bottomPadding = verticalPaddings.second
+        val lineHeightPaddings = getLineHeightPaddings()
+        topPadding = max(verticalPaddings.first, lineHeightPaddings.first)
+        bottomPadding = max(verticalPaddings.second, lineHeightPaddings.second)
     }
 
     private val layoutHelper by lazy(LazyThreadSafetyMode.NONE) { LayoutHelper(layout) }
@@ -654,5 +657,43 @@ private fun TextLayout.getVerticalPaddings(): Pair<Int, Int> {
         layout.bottomPadding
     }
 
-    return Pair(topPadding, bottomPadding)
+    return if (topPadding == 0 && bottomPadding == 0) {
+        EmptyPair
+    } else {
+        Pair(topPadding, bottomPadding)
+    }
+}
+
+private val EmptyPair = Pair(0, 0)
+
+@OptIn(InternalPlatformTextApi::class)
+private fun TextLayout.getLineHeightPaddings(): Pair<Int, Int> {
+    var firstAscentDiff = 0
+    var lastDescentDiff = 0
+    val lineHeightSpans = getLineHeightSpans()
+
+    for (span in lineHeightSpans) {
+        if (span.firstAscentDiff < 0) {
+            firstAscentDiff = max(firstAscentDiff, abs(span.firstAscentDiff))
+        }
+        if (span.lastDescentDiff < 0) {
+            lastDescentDiff = max(firstAscentDiff, abs(span.lastDescentDiff))
+        }
+    }
+
+    return if (firstAscentDiff == 0 && lastDescentDiff == 0) {
+        EmptyPair
+    } else {
+        Pair(firstAscentDiff, lastDescentDiff)
+    }
+}
+
+@OptIn(InternalPlatformTextApi::class)
+private fun TextLayout.getLineHeightSpans(): Array<LineHeightBehaviorSpan> {
+    if (text !is Spanned) return emptyArray()
+    val lineHeightBehaviorSpans = (text as Spanned).getSpans(
+        0, text.length, LineHeightBehaviorSpan::class.java
+    )
+    if (lineHeightBehaviorSpans.isEmpty()) return emptyArray()
+    return lineHeightBehaviorSpans
 }

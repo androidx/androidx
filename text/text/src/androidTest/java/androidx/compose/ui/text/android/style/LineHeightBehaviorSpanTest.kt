@@ -715,6 +715,84 @@ class LineHeightBehaviorSpanTest {
         assertThat(newFontMetrics.descent).isEqualTo(fontMetrics.descent)
     }
 
+    /* first ascent & last descent diff */
+
+    @Test
+    fun singleLine_with_firstLineTop_and_lastLineBottom_topPercentage_50_larger_line_height() {
+        val fontMetrics = createFontMetrics()
+
+        val span = createSingleLineSpan(
+            topPercentage = 50,
+            trimFirstLineTop = false,
+            trimLastLineBottom = false,
+            newLineHeight = fontMetrics.doubleLineHeight()
+        )
+
+        span.runFirstLine(fontMetrics)
+
+        val halfLeading = fontMetrics.lineHeight() / 2
+        assertThat(span.firstAscentDiff).isEqualTo(halfLeading)
+        assertThat(span.lastDescentDiff).isEqualTo(halfLeading)
+    }
+
+    @Test
+    fun multiLine_with_firstLineTop_and_lastLineBottom_topPercentage_50_larger_line_height() {
+        val fontMetrics = createFontMetrics()
+
+        val span = createMultiLineSpan(
+            topPercentage = 50,
+            trimFirstLineTop = false,
+            trimLastLineBottom = false,
+            fontMetrics = fontMetrics
+        )
+
+        span.runFirstLine(fontMetrics)
+        span.runSecondLine(fontMetrics)
+        span.runLastLine(fontMetrics)
+
+        val halfLeading = fontMetrics.lineHeight() / 2
+        assertThat(span.firstAscentDiff).isEqualTo(halfLeading)
+        assertThat(span.lastDescentDiff).isEqualTo(halfLeading)
+    }
+
+    @Test
+    fun singleLine_with_firstLineTop_and_lastLineBottom_topPercentage_50_smaller_line_height() {
+        val fontMetrics = createFontMetrics()
+
+        val span = createSingleLineSpan(
+            topPercentage = 50,
+            trimFirstLineTop = false,
+            trimLastLineBottom = false,
+            newLineHeight = fontMetrics.lineHeight() / 2
+        )
+
+        span.runFirstLine(fontMetrics)
+
+        val halfLeading = fontMetrics.lineHeight() / -4
+        assertThat(span.firstAscentDiff).isEqualTo(halfLeading)
+        assertThat(span.lastDescentDiff).isEqualTo(halfLeading)
+    }
+
+    @Test
+    fun multiLine_with_firstLineTop_and_lastLineBottom_topPercentage_50_smaller_line_height() {
+        val fontMetrics = createFontMetrics()
+
+        val span = createMultiLineSpan(
+            topPercentage = 50,
+            trimFirstLineTop = false,
+            trimLastLineBottom = false,
+            newLineHeight = fontMetrics.lineHeight() / 2
+        )
+
+        span.runFirstLine(fontMetrics)
+        span.runSecondLine(fontMetrics)
+        span.runLastLine(fontMetrics)
+
+        val halfLeading = fontMetrics.lineHeight() / -4
+        assertThat(span.firstAscentDiff).isEqualTo(halfLeading)
+        assertThat(span.lastDescentDiff).isEqualTo(halfLeading)
+    }
+
     private fun proportionalDescentDiff(fontMetrics: FontMetricsInt): Int {
         val ascent = abs(fontMetrics.ascent.toFloat())
         val ascentRatio = ascent / fontMetrics.lineHeight()
@@ -766,8 +844,23 @@ class LineHeightBehaviorSpanTest {
         trimFirstLineTop: Boolean,
         trimLastLineBottom: Boolean,
         fontMetrics: FontMetricsInt
+    ): LineHeightBehaviorSpan = createMultiLineSpan(
+        topPercentage = topPercentage,
+        trimFirstLineTop = trimFirstLineTop,
+        trimLastLineBottom = trimLastLineBottom,
+        newLineHeight = fontMetrics.doubleLineHeight()
+    )
+
+    /**
+     * Creates a LineHeightSpan that covers [MultiLineStartIndex, MultiLineEndIndex].
+     */
+    private fun createMultiLineSpan(
+        topPercentage: Int,
+        trimFirstLineTop: Boolean,
+        trimLastLineBottom: Boolean,
+        newLineHeight: Int
     ): LineHeightBehaviorSpan = LineHeightBehaviorSpan(
-        lineHeight = fontMetrics.doubleLineHeight().toFloat(),
+        lineHeight = newLineHeight.toFloat(),
         startIndex = MultiLineStartIndex,
         endIndex = MultiLineEndIndex,
         trimFirstLineTop = trimFirstLineTop,
