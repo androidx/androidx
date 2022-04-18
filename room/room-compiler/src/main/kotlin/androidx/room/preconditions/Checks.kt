@@ -40,6 +40,13 @@ class Checks(private val logger: RLog) {
         return predicate
     }
 
+    fun check(predicate: Boolean, element: XElement, errorMsgProducer: () -> String): Boolean {
+        if (!predicate) {
+            logger.e(element, errorMsgProducer.invoke())
+        }
+        return predicate
+    }
+
     fun hasAnnotation(
         element: XElement,
         annotation: KClass<out Annotation>,

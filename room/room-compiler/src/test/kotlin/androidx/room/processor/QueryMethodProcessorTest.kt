@@ -1467,6 +1467,68 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
     }
 
     @Test
+    fun testUseMapInfoWithTableAndColumnName() {
+        if (!enableVerification) {
+            return
+        }
+        singleQueryMethod<ReadQueryMethod>(
+            """
+                @SuppressWarnings(
+                    {RoomWarnings.CURSOR_MISMATCH, RoomWarnings.AMBIGUOUS_COLUMN_IN_RESULT}
+                )
+                @MapInfo(keyColumn = "uid", keyTable = "u")
+                @Query("SELECT * FROM User u JOIN Book b ON u.uid == b.uid")
+                abstract Map<Integer, Book> getMultimap();
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasNoWarnings()
+            }
+        }
+    }
+
+    @Test
+    fun testUseMapInfoWithOriginalTableAndColumnName() {
+        if (!enableVerification) {
+            return
+        }
+        singleQueryMethod<ReadQueryMethod>(
+            """
+                @SuppressWarnings(
+                    {RoomWarnings.CURSOR_MISMATCH, RoomWarnings.AMBIGUOUS_COLUMN_IN_RESULT}
+                )
+                @MapInfo(keyColumn = "uid", keyTable = "User")
+                @Query("SELECT * FROM User u JOIN Book b ON u.uid == b.uid")
+                abstract Map<Integer, Book> getMultimap();
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasNoWarnings()
+            }
+        }
+    }
+
+    @Test
+    fun testUseMapInfoWithColumnAlias() {
+        if (!enableVerification) {
+            return
+        }
+        singleQueryMethod<ReadQueryMethod>(
+            """
+                @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+                @MapInfo(keyColumn = "name", valueColumn = "bookCount")
+                @Query("SELECT name, (SELECT count(*) FROM User u JOIN Book b ON u.uid == b.uid) "
+                    + "AS bookCount FROM User")
+                abstract Map<String, Integer> getMultimap();
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasNoWarnings()
+            }
+        }
+    }
+
+    @Test
     fun testDoesNotImplementEqualsAndHashcodeQuery() {
         singleQueryMethod<ReadQueryMethod>(
             """
@@ -1671,11 +1733,11 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 )
                 hasErrorCount(2)
                 hasErrorContaining(
-                    "Column(s) specified in the provided @MapInfo annotation must " +
+                    "Column specified in the provided @MapInfo annotation must " +
                         "be present in the query. Provided: cat."
                 )
                 hasErrorContaining(
-                    "Column(s) specified in the provided @MapInfo annotation must " +
+                    "Column specified in the provided @MapInfo annotation must " +
                         "be present in the query. Provided: dog."
                 )
             }
