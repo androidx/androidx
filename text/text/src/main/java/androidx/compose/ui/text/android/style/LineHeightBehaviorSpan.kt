@@ -53,10 +53,18 @@ class LineHeightBehaviorSpan(
     @IntRange(from = 0, to = 100) private val topPercentage: Int
 ) : android.text.style.LineHeightSpan {
 
-    var firstAscent: Int = 0
-    var ascent: Int = 0
-    var descent: Int = 0
-    var lastDescent: Int = 0
+    private var firstAscent: Int = 0
+    private var ascent: Int = 0
+    private var descent: Int = 0
+    private var lastDescent: Int = 0
+
+    /** Holds the firstAscent - fontMetricsInt.ascent */
+    var firstAscentDiff = 0
+        private set
+
+    /** Holds the last lastDescent - fontMetricsInt.descent */
+    var lastDescentDiff = 0
+        private set
 
     init {
         check(topPercentage in 0..100 || topPercentage == -1) {
@@ -114,6 +122,8 @@ class LineHeightBehaviorSpan(
 
         firstAscent = if (trimFirstLineTop) fontMetricsInt.ascent else ascent
         lastDescent = if (trimLastLineBottom) fontMetricsInt.descent else descent
+        firstAscentDiff = fontMetricsInt.ascent - firstAscent
+        lastDescentDiff = lastDescent - fontMetricsInt.descent
     }
 }
 
