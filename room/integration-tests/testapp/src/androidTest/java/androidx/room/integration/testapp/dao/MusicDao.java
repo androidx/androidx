@@ -208,12 +208,12 @@ public interface MusicDao {
     Map<Integer, List<Song>> getReleaseYearToAlbums();
 
     @RewriteQueriesToDropUnusedColumns
-    @MapInfo(keyColumn = "mArtistId")
+    @MapInfo(keyColumn = "mImageYear")
     @Query("SELECT * FROM Artist JOIN Image ON Artist.mArtistName = Image.mArtistInImage")
     LongSparseArray<Artist> getAllAlbumCoverYearToArtistsWithLongSparseArray();
 
     @RewriteQueriesToDropUnusedColumns
-    @MapInfo(keyColumn = "mArtistId")
+    @MapInfo(keyColumn = "mImageYear")
     @Query("SELECT * FROM Artist JOIN Image ON Artist.mArtistName = Image.mArtistInImage")
     SparseArrayCompat<Artist> getAllAlbumCoverYearToArtistsWithIntSparseArray();
 
