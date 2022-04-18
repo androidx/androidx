@@ -26,15 +26,12 @@ import kotlin.math.ceil
  * @constructor Create a LineHeightSpan which sets the line height to `height` physical pixels.
  * @param lineHeight The specified line height in pixel unit, which is the space between the
  * baseline of adjacent lines.
- * @param applyToFirstLine whether to apply the line height to the first line or not. false by
- * default.
  *
  * @suppress
  */
 @InternalPlatformTextApi
 class LineHeightSpan(
-    val lineHeight: Float,
-    val applyToFirstLine: Boolean = false
+    val lineHeight: Float
 ) : android.text.style.LineHeightSpan {
 
     override fun chooseHeight(
@@ -45,9 +42,6 @@ class LineHeightSpan(
         lineHeight: Int,
         fontMetricsInt: FontMetricsInt
     ) {
-        // start == 0 assumes that the string always start from 0
-        // when we implement b/139320242 this assumption will become wrong.
-        if (start == 0 && !applyToFirstLine) return
         // In StaticLayout, line height is computed with descent - ascent
         val currentHeight = fontMetricsInt.lineHeight()
         // If current height is not positive, do nothing.
