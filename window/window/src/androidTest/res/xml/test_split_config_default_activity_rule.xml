@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright 2021 The Android Open Source Project
+  Copyright 2022 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -16,18 +16,8 @@
   -->
 <resources
     xmlns:window="http://schemas.android.com/apk/res-auto">
-    <SplitPairRule
-        window:finishPrimaryWithSecondary="always"
-        window:finishSecondaryWithPrimary="adjacent">
-        <SplitPairFilter
-            window:primaryActivityName="androidx.window.sample.embedding.SplitActivityList"
-            window:secondaryActivityName="androidx.window.sample.embedding.SplitActivityDetail"/>
-    </SplitPairRule>
-    <SplitPlaceholderRule
-        window:placeholderActivityName="androidx.window.sample.embedding.SplitActivityListPlaceholder"
-        window:stickyPlaceholder="true"
-        window:finishPrimaryWithSecondary="adjacent">
+    <ActivityRule>
         <ActivityFilter
             window:activityName="androidx.window.sample.embedding.SplitActivityList"/>
-    </SplitPlaceholderRule>
+    </ActivityRule>
 </resources>
