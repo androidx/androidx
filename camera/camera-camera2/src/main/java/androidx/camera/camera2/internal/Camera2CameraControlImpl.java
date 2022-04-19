@@ -126,7 +126,8 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
     private final ZoomControl mZoomControl;
     private final TorchControl mTorchControl;
     private final ExposureControl mExposureControl;
-    private final ZslControl mZslControl;
+    @VisibleForTesting
+    ZslControl mZslControl;
     private final Camera2CameraControl mCamera2CameraControl;
     private final Camera2CapturePipeline mCamera2CapturePipeline;
     @GuardedBy("mLock")

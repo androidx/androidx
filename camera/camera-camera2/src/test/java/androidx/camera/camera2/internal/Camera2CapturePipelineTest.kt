@@ -26,6 +26,8 @@ import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
+import android.media.Image
+import android.media.ImageWriter
 import android.os.Build
 import android.view.Surface
 import androidx.camera.camera2.impl.Camera2ImplConfig
@@ -48,6 +50,9 @@ import androidx.camera.core.impl.ImmediateSurface
 import androidx.camera.core.impl.Quirks
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.utils.futures.Futures
+import androidx.camera.core.internal.CameraCaptureResultImageInfo
+import androidx.camera.testing.fakes.FakeCameraCaptureResult
+import androidx.camera.testing.fakes.FakeImageProxy
 import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.FlakyTest
@@ -544,6 +549,97 @@ class Camera2CapturePipelineTest {
     }
 
     @Test
+    fun submitZslCaptureRequests_withZslTemplate_templateZeroShutterLagSent(): Unit = runBlocking {
+        // Arrange.
+        val imageCaptureConfig = CaptureConfig.Builder().let {
+            it.addSurface(fakeStillCaptureSurface)
+            it.templateType = CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG
+            it.build()
+        }
+
+        val cameraControl = createCameraControl().apply {
+            simulateRepeatingResult(initialDelay = 100)
+        }
+
+        val zslControl = ZslControlImpl(createCameraCharacteristicsCompat(
+            hasCapabilities = true,
+            isYuvReprocessingSupported = true,
+            isPrivateReprocessingSupported = true
+        ))
+
+        val captureResult = FakeCameraCaptureResult()
+        val imageProxy = FakeImageProxy(CameraCaptureResultImageInfo(captureResult))
+        imageProxy.image = mock(Image::class.java)
+        zslControl.mImageRingBuffer.add(imageProxy)
+        zslControl.mReprocessingImageWriter = mock(ImageWriter::class.java)
+
+        cameraControl.mZslControl = zslControl
+
+        // Act.
+        cameraControl.submitStillCaptureRequests(
+            listOf(imageCaptureConfig),
+            ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG,
+            FLASH_MODE_OFF,
+        ).await()
+
+        // Assert.
+        val templateTypeToVerify = if (Build.VERSION.SDK_INT >= 23)
+            CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG
+        else CameraDevice.TEMPLATE_STILL_CAPTURE
+
+        immediateCompleteCapture.verifyRequestResult { captureConfigList ->
+            captureConfigList.filter {
+                it.surfaces.contains(fakeStillCaptureSurface)
+            }.map { captureConfig ->
+                captureConfig.templateType
+            }.contains(templateTypeToVerify)
+        }
+    }
+
+    @Test
+    fun submitZslCaptureRequests_withNoTemplate_templateStillPictureSent(): Unit = runBlocking {
+        // Arrange.
+        val imageCaptureConfig = CaptureConfig.Builder().let {
+            it.addSurface(fakeStillCaptureSurface)
+            it.build()
+        }
+
+        val cameraControl = createCameraControl().apply {
+            simulateRepeatingResult(initialDelay = 100)
+        }
+
+        val zslControl = ZslControlImpl(createCameraCharacteristicsCompat(
+            hasCapabilities = true,
+            isYuvReprocessingSupported = true,
+            isPrivateReprocessingSupported = true
+        ))
+
+        val captureResult = FakeCameraCaptureResult()
+        val imageProxy = FakeImageProxy(CameraCaptureResultImageInfo(captureResult))
+        imageProxy.image = mock(Image::class.java)
+        zslControl.mImageRingBuffer.add(imageProxy)
+        zslControl.mReprocessingImageWriter = mock(ImageWriter::class.java)
+
+        cameraControl.mZslControl = zslControl
+
+        // Act.
+        cameraControl.submitStillCaptureRequests(
+            listOf(imageCaptureConfig),
+            ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG,
+            FLASH_MODE_OFF,
+        ).await()
+
+        // Assert.
+        immediateCompleteCapture.verifyRequestResult { captureConfigList ->
+            captureConfigList.filter {
+                it.surfaces.contains(fakeStillCaptureSurface)
+            }.map { captureConfig ->
+                captureConfig.templateType
+            }.contains(CameraDevice.TEMPLATE_STILL_CAPTURE)
+        }
+    }
+
+    @Test
     fun captureFailure_taskShouldFailure() {
         // Arrange.
         val immediateFailureCapture =
@@ -1031,5 +1127,33 @@ class Camera2CapturePipelineTest {
         }
 
         return parameters
+    }
+
+    private fun createCameraCharacteristicsCompat(
+        hasCapabilities: Boolean,
+        isYuvReprocessingSupported: Boolean,
+        isPrivateReprocessingSupported: Boolean
+    ): CameraCharacteristicsCompat {
+        val characteristics = ShadowCameraCharacteristics.newCameraCharacteristics()
+        val shadowCharacteristics = Shadow.extract<ShadowCameraCharacteristics>(characteristics)
+
+        val capabilities = arrayListOf<Int>()
+        if (isYuvReprocessingSupported) {
+            capabilities.add(
+                CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_YUV_REPROCESSING)
+        }
+        if (isPrivateReprocessingSupported) {
+            capabilities.add(
+                CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_PRIVATE_REPROCESSING)
+        }
+
+        if (hasCapabilities) {
+            shadowCharacteristics.set(
+                CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES,
+                capabilities.toIntArray()
+            )
+        }
+
+        return CameraCharacteristicsCompat.toCameraCharacteristicsCompat(characteristics)
     }
 }
