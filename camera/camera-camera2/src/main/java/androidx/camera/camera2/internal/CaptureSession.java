@@ -651,6 +651,12 @@ final class CaptureSession implements CaptureSessionInterface {
                     CaptureConfig.Builder captureConfigBuilder = CaptureConfig.Builder.from(
                             captureConfig);
 
+                    if (captureConfig.getTemplateType() == CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG
+                            && captureConfig.getCameraCaptureResult() != null) {
+                        captureConfigBuilder.setCameraCaptureResult(
+                                captureConfig.getCameraCaptureResult());
+                    }
+
                     // The override priority for implementation options
                     // P1 Single capture options
                     // P2 CameraEventCallback onRepeating options

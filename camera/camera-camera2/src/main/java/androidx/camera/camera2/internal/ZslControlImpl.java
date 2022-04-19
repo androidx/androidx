@@ -26,14 +26,18 @@ import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.InputConfiguration;
+import android.media.Image;
 import android.media.ImageWriter;
+import android.os.Build;
 import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
+import androidx.camera.core.ExperimentalGetImage;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.ImageReaderProxys;
 import androidx.camera.core.SafeCloseImageReaderProxy;
@@ -46,6 +50,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.compat.ImageWriterCompat;
 
 import java.util.LinkedList;
+import java.util.NoSuchElementException;
 import java.util.Queue;
 
 /**
@@ -176,6 +181,30 @@ final class ZslControlImpl implements ZslControl {
                 mReprocessingImageReader.getWidth(),
                 mReprocessingImageReader.getHeight(),
                 mReprocessingImageReader.getImageFormat()));
+    }
+
+    @Nullable
+    @Override
+    public ImageProxy dequeueImageFromBuffer() {
+        ImageProxy imageProxy = null;
+        try {
+            imageProxy = mImageRingBuffer.remove();
+        } catch (NoSuchElementException e) {
+        }
+
+        return imageProxy;
+    }
+
+    @Override
+    public boolean enqueueImageToImageWriter(@NonNull ImageProxy imageProxy) {
+        @OptIn(markerClass = ExperimentalGetImage.class)
+        Image image = imageProxy.getImage();
+
+        if (Build.VERSION.SDK_INT >= 23 && mReprocessingImageWriter != null && image != null) {
+            ImageWriterCompat.queueInputImage(mReprocessingImageWriter, image);
+            return true;
+        }
+        return false;
     }
 
     private void cleanup() {

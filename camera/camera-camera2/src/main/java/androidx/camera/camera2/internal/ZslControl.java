@@ -16,9 +16,12 @@
 
 package androidx.camera.camera2.internal;
 
+import android.media.ImageWriter;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.camera.core.ImageProxy;
 import androidx.camera.core.impl.SessionConfig;
 
 /**
@@ -45,4 +48,20 @@ interface ZslControl {
      *                 be always ON.
      */
     void setZslDisabled(boolean disabled);
+
+    /**
+     * Dequeues {@link ImageProxy} from ring buffer.
+     *
+     * @return {@link ImageProxy}.
+     */
+    @Nullable
+    ImageProxy dequeueImageFromBuffer();
+
+    /**
+     * Enqueues image to {@link ImageWriter} for reprocessing capture request.
+     *
+     * @param imageProxy {@link ImageProxy} to enqueue.
+     * @return True if enqueuing image succeeded, otherwise false.
+     */
+    boolean enqueueImageToImageWriter(@NonNull ImageProxy imageProxy);
 }
