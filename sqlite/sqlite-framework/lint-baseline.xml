@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 7.3.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha08)" variant="all" version="7.3.0-alpha08">
+
+    <issue
+        id="NewApi"
+        message="Implicit cast from `Cursor` to `Closeable` requires API level 16 (current min is 14)"
+        errorLine1="            db.query(&quot;SELECT * FROM sqlite_master WHERE name = &apos;Foo&apos;&quot;).use {"
+        errorLine2="                                                                       ~~~">
+        <location
+            file="src/androidTest/java/androidx/sqlite/db/framework/OpenHelperRecoveryTest.kt"
+            line="46"
+            column="72"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Implicit cast from `Cursor` to `Closeable` requires API level 16 (current min is 14)"
+        errorLine1="            db.query(&quot;SELECT * FROM sqlite_master WHERE name = &apos;Foo&apos;&quot;).use {"
+        errorLine2="                                                                       ~~~">
+        <location
+            file="src/androidTest/java/androidx/sqlite/db/framework/OpenHelperRecoveryTest.kt"
+            line="69"
+            column="72"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Implicit cast from `Cursor` to `Closeable` requires API level 16 (current min is 14)"
+        errorLine1="            db.query(&quot;SELECT * FROM sqlite_master WHERE name = &apos;Foo&apos;&quot;).use {"
+        errorLine2="                                                                       ~~~">
+        <location
+            file="src/androidTest/java/androidx/sqlite/db/framework/OpenHelperRecoveryTest.kt"
+            line="80"
+            column="72"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Implicit cast from `Cursor` to `Closeable` requires API level 16 (current min is 14)"
+        errorLine1="            db.query(&quot;SELECT * FROM sqlite_master WHERE name = &apos;Foo&apos;&quot;).use {"
+        errorLine2="                                                                       ~~~">
+        <location
+            file="src/androidTest/java/androidx/sqlite/db/framework/OpenHelperRecoveryTest.kt"
+            line="176"
+            column="72"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Implicit cast from `Cursor` to `Closeable` requires API level 16 (current min is 14)"
+        errorLine1="            db.query(&quot;SELECT * FROM sqlite_master WHERE name = &apos;Foo&apos;&quot;).use {"
+        errorLine2="                                                                       ~~~">
+        <location
+            file="src/androidTest/java/androidx/sqlite/db/framework/OpenHelperRecoveryTest.kt"
+            line="204"
+            column="72"/>
+    </issue>
+
+</issues>
