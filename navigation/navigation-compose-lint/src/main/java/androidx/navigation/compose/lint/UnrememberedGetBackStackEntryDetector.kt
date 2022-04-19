@@ -20,7 +20,7 @@ package androidx.navigation.compose.lint
 
 import androidx.compose.lint.Name
 import androidx.compose.lint.Package
-import androidx.compose.lint.invokedInComposableBodyAndNotRemembered
+import androidx.compose.lint.isNotRemembered
 import androidx.compose.lint.isInPackageName
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
@@ -46,7 +46,7 @@ class UnrememberedGetBackStackEntryDetector : Detector(), SourceCodeScanner {
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
         if (!method.isInPackageName(PackageName)) return
 
-        if (node.invokedInComposableBodyAndNotRemembered()) {
+        if (node.isNotRemembered()) {
             context.report(
                 UnrememberedGetBackStackEntry,
                 node,
