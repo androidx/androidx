@@ -160,22 +160,12 @@ public class PlaceListNavigationTemplateTest {
     }
 
     @Test
-    public void createInstance_noHeaderTitleOrAction_throws() {
-        assertThrows(
-                IllegalStateException.class,
-                () ->
-                        new PlaceListNavigationTemplate.Builder().setItemList(
-                                new ItemList.Builder().build()).build());
-
-        // Positive cases.
-        new PlaceListNavigationTemplate.Builder()
-                .setTitle("Title")
-                .setItemList(new ItemList.Builder().build())
-                .build();
-        new PlaceListNavigationTemplate.Builder()
-                .setHeaderAction(Action.BACK)
-                .setItemList(new ItemList.Builder().build())
-                .build();
+    public void createInstance_emptyHeaderTitleOrAction() {
+        ItemList itemList = TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan);
+        PlaceListNavigationTemplate template =
+                new PlaceListNavigationTemplate.Builder().setItemList(itemList).build();
+        assertThat(template.getTitle()).isNull();
+        assertThat(template.getHeaderAction()).isNull();
     }
 
     @Test

@@ -288,21 +288,12 @@ public class PlaceListMapTemplateTest {
     }
 
     @Test
-    public void createInstance_noHeaderTitleOrAction_throws() {
+    public void createInstance_emptyHeaderTitleOrAction() {
         ItemList itemList = TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan);
-
-        assertThrows(
-                IllegalStateException.class,
-                () ->
-                        new PlaceListMapTemplate.Builder()
-                                .setItemList(itemList)
-                                .setCurrentLocationEnabled(true)
-                                .build());
-
-        // Positive cases.
-        new PlaceListMapTemplate.Builder().setTitle("Title").setItemList(itemList).build();
-        new PlaceListMapTemplate.Builder().setHeaderAction(Action.BACK).setItemList(
-                itemList).build();
+        PlaceListMapTemplate template =
+                new PlaceListMapTemplate.Builder().setItemList(itemList).build();
+        assertThat(template.getTitle()).isNull();
+        assertThat(template.getHeaderAction()).isNull();
     }
 
     @Test
