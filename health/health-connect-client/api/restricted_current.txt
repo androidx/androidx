@@ -11,6 +11,7 @@ package androidx.health.connect.client {
     method public suspend Object? insertRecords(java.util.List<? extends androidx.health.connect.client.records.Record> records, kotlin.coroutines.Continuation<? super androidx.health.connect.client.response.InsertRecordsResponse>);
     method public default static boolean isAvailable(android.content.Context context, optional java.util.List<java.lang.String> packageNames);
     method public default static boolean isAvailable(android.content.Context context);
+    method public suspend <T extends androidx.health.connect.client.records.Record> Object? readRecords(androidx.health.connect.client.request.ReadRecordsRequest<T> request, kotlin.coroutines.Continuation<? super androidx.health.connect.client.response.ReadRecordsResponse<T>>);
     field public static final androidx.health.connect.client.HealthConnectClient.Companion Companion;
   }
 
@@ -345,6 +346,10 @@ package androidx.health.connect.client.request {
     ctor public ChangesTokenRequest(java.util.Set<? extends kotlin.reflect.KClass<? extends androidx.health.connect.client.records.Record>> recordTypes, optional java.util.Set<androidx.health.connect.client.metadata.DataOrigin> dataOriginFilters);
   }
 
+  public final class ReadRecordsRequest<T extends androidx.health.connect.client.records.Record> {
+    ctor public ReadRecordsRequest(kotlin.reflect.KClass<T> recordType, androidx.health.connect.client.time.TimeRangeFilter timeRangeFilter, optional java.util.List<androidx.health.connect.client.metadata.DataOrigin> dataOriginFilter, optional boolean ascendingOrder, optional int pageSize, optional String? pageToken);
+  }
+
 }
 
 package androidx.health.connect.client.response {
@@ -363,6 +368,13 @@ package androidx.health.connect.client.response {
   public final class InsertRecordsResponse {
     method public java.util.List<java.lang.String> getRecordUidsList();
     property public final java.util.List<java.lang.String> recordUidsList;
+  }
+
+  public final class ReadRecordsResponse<T extends androidx.health.connect.client.records.Record> {
+    method public String? getPageToken();
+    method public java.util.List<T> getRecords();
+    property public final String? pageToken;
+    property public final java.util.List<T> records;
   }
 
 }

@@ -100,7 +100,7 @@ private val API_METHOD_LIST =
                     TimeRangeFilter.between(
                         Instant.ofEpochMilli(1234L),
                         Instant.ofEpochMilli(1235L)
-                    )
+                    ),
                 )
             )
         },
@@ -396,7 +396,7 @@ class HealthConnectClientImplTest {
                 ReadRecordsRequest(
                     Steps::class,
                     timeRangeFilter = TimeRangeFilter.before(endTime = Instant.ofEpochMilli(7890L)),
-                    limit = 10
+                    pageSize = 10
                 )
             )
         }
@@ -411,7 +411,7 @@ class HealthConnectClientImplTest {
                     .setTimeSpec(TimeProto.TimeSpec.newBuilder().setEndTimeEpochMs(7890L))
                     .setDataType(DataProto.DataType.newBuilder().setName("Steps"))
                     .setAscOrdering(true)
-                    .setLimit(10)
+                    .setPageSize(10)
                     .build()
             )
         assertThat(response.pageToken).isEqualTo("nextPageToken")

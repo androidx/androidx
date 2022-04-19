@@ -39,12 +39,7 @@ fun <T : Record> toReadDataRangeRequestProto(
                 }
             )
             setAscOrdering(request.ascendingOrder)
-            if (request.hasLimit()) {
-                setLimit(request.limit)
-            }
-            if (request.hasPageSize()) {
-                setPageSize(request.pageSize)
-            }
+            setPageSize(request.pageSize)
             request.pageToken?.let { setPageToken(it) }
         }
         .build()
