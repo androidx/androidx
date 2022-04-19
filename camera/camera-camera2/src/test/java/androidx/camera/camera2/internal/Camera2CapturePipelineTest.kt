@@ -137,11 +137,11 @@ class Camera2CapturePipelineTest {
 
             override fun preCapture(captureResult: TotalCaptureResult?): ListenableFuture<Boolean> {
                 preCaptureCountDown.countDown()
-                return Futures.immediateFuture(true)
+                return Futures.immediateFuture(false)
             }
 
             override fun isCaptureResultNeeded(): Boolean {
-                return true
+                return false
             }
 
             override fun postCapture() {
@@ -854,16 +854,14 @@ class Camera2CapturePipelineTest {
         period: Long = 100, // in milliseconds
         resultParameters: Map<CaptureResult.Key<*>, Any> = mutableMapOf(),
     ) {
-        executorService.schedule({
-            runningRepeatingStream = executorService.scheduleAtFixedRate({
-                val tagBundle = sessionConfig.repeatingCaptureConfig.tagBundle
-                val requestOptions = sessionConfig.repeatingCaptureConfig.implementationOptions
-                val resultOptions = baseRepeatingResult.toMutableMap().apply {
-                    putAll(resultParameters)
-                }
-                sendRepeatingResult(tagBundle, requestOptions.toParameters(), resultOptions)
-            }, 0, period, TimeUnit.MILLISECONDS)
-        }, initialDelay, TimeUnit.MILLISECONDS)
+        runningRepeatingStream = executorService.scheduleAtFixedRate({
+            val tagBundle = sessionConfig.repeatingCaptureConfig.tagBundle
+            val requestOptions = sessionConfig.repeatingCaptureConfig.implementationOptions
+            val resultOptions = baseRepeatingResult.toMutableMap().apply {
+                putAll(resultParameters)
+            }
+            sendRepeatingResult(tagBundle, requestOptions.toParameters(), resultOptions)
+        }, initialDelay, period, TimeUnit.MILLISECONDS)
     }
 
     private fun Camera2CameraControlImpl.sendRepeatingResult(
