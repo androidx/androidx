@@ -19,8 +19,7 @@ import androidx.health.connect.client.records.Steps
 import androidx.health.connect.client.time.TimeRangeFilter
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import java.time.Instant
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertThrows
+import kotlin.test.assertFailsWith
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -31,68 +30,38 @@ class ReadRecordsRequestTest {
         TimeRangeFilter.between(Instant.ofEpochMilli(1234L), Instant.ofEpochMilli(1235L))
 
     @Test
-    fun limitAndSizeTogether_throws() {
-        val exception =
-            assertThrows(IllegalArgumentException::class.java) {
-                ReadRecordsRequest(
-                    recordType = Steps::class,
-                    timeRangeFilter = TimeRangeFilter.none(),
-                    limit = 10,
-                    pageSize = 10
-                )
-            }
-        assertEquals("pageSize and limit can't be used at the same time", exception.message)
+    fun negativePageSize_throws() {
+        assertFailsWith<IllegalArgumentException> {
+            ReadRecordsRequest(
+                recordType = Steps::class,
+                timeRangeFilter = TimeRangeFilter.none(),
+                pageSize = -1
+            )
+        }
     }
 
     @Test
-    fun openEndedTimeRange_withoutLimitOrPageSize_throws() {
-        val exception =
-            assertThrows(IllegalArgumentException::class.java) {
-                ReadRecordsRequest(
-                    recordType = Steps::class,
-                    timeRangeFilter = TimeRangeFilter.none()
-                )
-            }
-        assertEquals(
-            "When timeRangeFilter is open-ended, either limit or pageSize must be set",
-            exception.message
-        )
+    fun zeroPageSize_throws() {
+        assertFailsWith<IllegalArgumentException> {
+            ReadRecordsRequest(
+                recordType = Steps::class,
+                timeRangeFilter = TimeRangeFilter.none(),
+                pageSize = 0
+            )
+        }
     }
 
     @Test
-    fun openEndedTimeRange_withLimit_success() {
+    fun openEndedTimeRange_success() {
         ReadRecordsRequest(
             recordType = Steps::class,
             timeRangeFilter = TimeRangeFilter.none(),
-            limit = 10
-        )
-    }
-
-    @Test
-    fun openEndedTimeRange_withPageSize_success() {
-        ReadRecordsRequest(
-            recordType = Steps::class,
-            timeRangeFilter = TimeRangeFilter.none(),
-            pageSize = 10
         )
     }
 
     @Test
     fun closedTimeRange_success() {
         ReadRecordsRequest(recordType = Steps::class, timeRangeFilter = closedTimeRange)
-    }
-
-    @Test
-    fun pageTokenWithoutPageSize_throws() {
-        val exception =
-            assertThrows(IllegalArgumentException::class.java) {
-                ReadRecordsRequest(
-                    recordType = Steps::class,
-                    timeRangeFilter = closedTimeRange,
-                    pageToken = "token"
-                )
-            }
-        assertEquals("pageToken must be set with pageSize", exception.message)
     }
 
     @Test

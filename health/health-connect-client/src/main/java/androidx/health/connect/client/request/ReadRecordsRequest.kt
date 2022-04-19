@@ -15,7 +15,6 @@
  */
 package androidx.health.connect.client.request
 
-import androidx.annotation.RestrictTo
 import androidx.health.connect.client.metadata.DataOrigin
 import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.time.TimeRangeFilter
@@ -25,43 +24,61 @@ import kotlin.reflect.KClass
  * Request object to read [Record]s in Android Health Platform determined by time range and other
  * filters.
  *
- * @property recordType Which type of [Record] to read, such as `Steps::class`.
- * @property timeRangeFilter The [TimeRangeFilter] to read from. If open-ended in any direction,
- * [limit] or [pageSize] must be set.
- * @property dataOriginFilter List of [DataOrigin] to read from, or empty for no filter.
- * @property ascendingOrder Whether the [Record] should be returned in ascending or descending order
- * by time. Default is true.
- * @property limit Maximum number of [Record] to read. Cannot be set together with [pageSize]. Must
- * be set if [timeRangeFilter] is open-ended in any direction.
- * @property pageSize Maximum number of [Record] within one page. If there's more data remaining
- * (and the next page should be read), the response will contain a [pageToken] to be used in the
- * subsequent read request. Cannot be set together with [limit].
- * @property pageToken Continuation token to access the next page, returned in the response to the
- * previous page read request. [pageSize] must be set together with [pageToken].
+ * Returned collection will contain a
+ * [androidx.health.data.client.response.ReadRecordsResponse.pageToken] if number of records exceeds
+ * [pageSize]. Use this if you expect an unbound number of records within specified time ranges.
+ * Stops at any time once desired amount of records are processed.
+ *
+ * @param T type of [Record], such as `Steps`.
+ * @param recordType Which type of [Record] to read, such as `Steps::class`.
+ * @param timeRangeFilter The [TimeRangeFilter] to read from.
+ * @param dataOriginFilter List of [DataOrigin] to read from, or empty for no filter.
+ * @param ascendingOrder Whether the [Record] should be returned in ascending or descending order by
+ * time. Default is true for ascending.
+ * @param pageSize Maximum number of [Record] within one page. If there's more data remaining (and
+ * the next page should be read), the response will contain a [pageToken] to be used in the
+ * subsequent read request. Must be positive, default to 1000.
+ * @param pageToken Continuation token to access the next page, returned in the response to the
+ * previous page read request, or `null` for the initial request for the first page.
+ *
+ * @see androidx.health.connect.client.response.ReadRecordsResponse
+ * @see androidx.health.connect.client.HealthConnectClient.readRecords
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-class ReadRecordsRequest<T : Record>(
-    val recordType: KClass<T>,
-    val timeRangeFilter: TimeRangeFilter,
-    val dataOriginFilter: List<DataOrigin> = emptyList(),
-    val ascendingOrder: Boolean = true,
-    val limit: Int = 0,
-    val pageSize: Int = 0,
-    val pageToken: String? = null
+public class ReadRecordsRequest<T : Record>(
+    internal val recordType: KClass<T>,
+    internal val timeRangeFilter: TimeRangeFilter,
+    internal val dataOriginFilter: List<DataOrigin> = emptyList(),
+    internal val ascendingOrder: Boolean = true,
+    internal val pageSize: Int = 1000,
+    internal val pageToken: String? = null,
 ) {
     init {
-        require(limit == 0 || pageSize == 0) { "pageSize and limit can't be used at the same time" }
-        if (timeRangeFilter.isOpenEnded()) {
-            require(limit > 0 || pageSize > 0) {
-                "When timeRangeFilter is open-ended, either limit or pageSize must be set"
-            }
-        }
-        if (pageToken != null) {
-            require(pageSize > 0) { "pageToken must be set with pageSize" }
-        }
+        require(pageSize > 0) { "pageSize must be positive." }
     }
 
-    internal fun hasLimit(): Boolean = limit > 0
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
 
-    internal fun hasPageSize(): Boolean = pageSize > 0
+        other as ReadRecordsRequest<*>
+
+        if (recordType != other.recordType) return false
+        if (timeRangeFilter != other.timeRangeFilter) return false
+        if (dataOriginFilter != other.dataOriginFilter) return false
+        if (ascendingOrder != other.ascendingOrder) return false
+        if (pageSize != other.pageSize) return false
+        if (pageToken != other.pageToken) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = recordType.hashCode()
+        result = 31 * result + timeRangeFilter.hashCode()
+        result = 31 * result + dataOriginFilter.hashCode()
+        result = 31 * result + ascendingOrder.hashCode()
+        result = 31 * result + pageSize
+        result = 31 * result + (pageToken?.hashCode() ?: 0)
+        return result
+    }
 }
