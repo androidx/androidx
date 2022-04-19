@@ -104,9 +104,12 @@ public interface WatchFaceMetadataClient : AutoCloseable {
         internal fun isXmlVersionCompatible(
             context: Context,
             resources: Resources,
-            controlServiceComponentName: ComponentName = ComponentName(
-                context, ANDROIDX_WATCHFACE_CONTROL_SERVICE)
+            controlServicePackage: String,
+            controlServiceName: String = ANDROIDX_WATCHFACE_CONTROL_SERVICE
         ): Boolean {
+            val controlServiceComponentName = ComponentName(
+                controlServicePackage,
+                controlServiceName)
             val version = try {
                 context.packageManager.getServiceInfo(
                     controlServiceComponentName,
@@ -136,7 +139,7 @@ public interface WatchFaceMetadataClient : AutoCloseable {
         open class ParserProvider {
             // Open to allow testing without having to install the sample app.
             open fun getParser(context: Context, watchFaceName: ComponentName): XmlResourceParser? {
-                if (!isXmlVersionCompatible(context, context.resources))
+                if (!isXmlVersionCompatible(context, context.resources, watchFaceName.packageName))
                     return null
 
                 return context.packageManager.getServiceInfo(
