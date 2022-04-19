@@ -15,8 +15,7 @@
   limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="androidx.biometric">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-sdk tools:overrideLibrary="android_libs.ub_uiautomator" />
 
@@ -25,6 +24,6 @@
     <uses-permission android:name="android.permission.USE_FINGERPRINT" />
 
     <application>
-        <activity android:name=".BiometricPromptTest$TestActivity" />
+        <activity android:name="androidx.biometric.TestActivity" />
     </application>
 </manifest>
