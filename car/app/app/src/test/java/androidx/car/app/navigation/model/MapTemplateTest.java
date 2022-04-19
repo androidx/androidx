@@ -74,12 +74,11 @@ public class MapTemplateTest {
     }
 
     @Test
-    public void createInstance_noHeader_throws() {
+    public void createInstance_emptyHeaderTitleOrAction() {
         Pane pane = TestUtils.createPane(2, 2);
-
-        assertThrows(IllegalStateException.class, () -> new MapTemplate.Builder()
-                .setPane(pane)
-                .build());
+        MapTemplate template =
+                new MapTemplate.Builder().setPane(pane).build();
+        assertThat(template.getHeader()).isNull();
     }
 
     @Test

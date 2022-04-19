@@ -302,8 +302,10 @@ public final class MapTemplate implements Template {
          * can be customized with {@link ForegroundCarColorSpan} instances. Any other span is not
          * supported.
          *
+         * <p>If neither header {@link Action} nor title have been set on the template, the
+         * header is hidden.
+         *
          * @throws IllegalArgumentException if the {@link Pane} does not meet the requirements
-         * @throws IllegalStateException    if {@link Header} is null
          * @throws IllegalStateException    if both {@link Pane} and {@link ItemList} are set or
          *                                  are null.
          */
@@ -312,9 +314,6 @@ public final class MapTemplate implements Template {
             if ((mPane == null) == (mItemList == null)) {
                 throw new IllegalStateException("Either Pane or Item List must be set but not "
                         + "both");
-            }
-            if (mHeader == null) {
-                throw new IllegalStateException("Header must be set");
             }
 
             return new MapTemplate(this);
