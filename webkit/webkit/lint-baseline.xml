@@ -144,4 +144,180 @@
             column="21"/>
     </issue>
 
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                            messageHandlerThread.getLooper().isCurrentThread());"
+        errorLine2="                                                             ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/webkit/PostMessageTest.java"
+            line="314"
+            column="62"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                    messageMainLooperFuture.set(Looper.getMainLooper().isCurrentThread());"
+        errorLine2="                                                                       ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/webkit/PostMessageTest.java"
+            line="348"
+            column="72"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.webkit.ServiceWorkerClientCompatTest.InterceptClient is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                if (request.getUrl().toString().equals(INDEX_URL)) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/webkit/ServiceWorkerClientCompatTest.java"
+            line="106"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.webkit.ServiceWorkerClientCompatTest.InterceptServiceWorkerClient is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                if (request.getUrl().toString().equals(SW_URL)) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/webkit/ServiceWorkerClientCompatTest.java"
+            line="123"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.webkit.ServiceWorkerClientCompatTest is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        assertEquals(SW_URL, requests.get(0).getUrl().toString());"
+        errorLine2="                                             ~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/webkit/ServiceWorkerClientCompatTest.java"
+            line="191"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.webkit.ServiceWorkerClientCompatTest is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        assertEquals(FETCH_URL, requests.get(1).getUrl().toString());"
+        errorLine2="                                                ~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/webkit/ServiceWorkerClientCompatTest.java"
+            line="192"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.webkit.WebViewClientCompatTest is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                webViewClient.getLastShouldOverrideResourceRequest().getUrl().toString());"
+        errorLine2="                                                                     ~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/webkit/WebViewClientCompatTest.java"
+            line="168"
+            column="70"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.webkit.WebViewClientCompatTest is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        Assert.assertTrue(request.isForMainFrame());"
+        errorLine2="                                  ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/webkit/WebViewClientCompatTest.java"
+            line="172"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.webkit.WebViewClientCompatTest is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        Assert.assertFalse(request.hasGesture());"
+        errorLine2="                                   ~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/webkit/WebViewClientCompatTest.java"
+            line="174"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.webkit.WebViewClientCompatTest is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        Assert.assertEquals(404, webViewClient.getOnReceivedHttpError().getStatusCode());"
+        errorLine2="                                                                        ~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/webkit/WebViewClientCompatTest.java"
+            line="256"
+            column="73"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.webkit.WebViewClientCompatTest is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                    backToSafetyWebViewClient.getOnSafeBrowsingHitRequest().getUrl().toString());"
+        errorLine2="                                                                            ~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/webkit/WebViewClientCompatTest.java"
+            line="340"
+            column="77"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.webkit.WebViewClientCompatTest is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                client.getOnSafeBrowsingHitRequest().getUrl().toString());"
+        errorLine2="                                                     ~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/webkit/WebViewClientCompatTest.java"
+            line="405"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.webkit.WebViewClientCompatTest is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        Assert.assertTrue(client.getOnSafeBrowsingHitRequest().isForMainFrame());"
+        errorLine2="                                                               ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/webkit/WebViewClientCompatTest.java"
+            line="406"
+            column="64"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.webkit.WebViewCompatTest is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                value -> startSafeBrowsingFuture.set(Looper.getMainLooper().isCurrentThread()));"
+        errorLine2="                                                                            ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/webkit/WebViewCompatTest.java"
+            line="163"
+            column="77"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.webkit.WebViewOnUiThread is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        WebkitUtils.onMainThread(() -> mWebView.evaluateJavascript(script, result));"
+        errorLine2="                                                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/webkit/WebViewOnUiThread.java"
+            line="335"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.webkit.WebViewRenderProcessClientTest is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            webView.evaluateJavascript(&quot;blocker.block();&quot;, null);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/webkit/WebViewRenderProcessClientTest.java"
+            line="116"
+            column="21"/>
+    </issue>
+
 </issues>
