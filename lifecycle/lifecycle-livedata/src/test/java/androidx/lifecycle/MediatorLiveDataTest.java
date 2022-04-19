@@ -35,6 +35,7 @@ import androidx.lifecycle.util.InstantTaskExecutor;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
@@ -44,6 +45,9 @@ public class MediatorLiveDataTest {
 
     @Rule
     public InstantTaskExecutorRule mInstantTaskExecutorRule = new InstantTaskExecutorRule();
+    @Rule
+    @SuppressWarnings("deprecation")
+    public ExpectedException exception = ExpectedException.none();
 
     private TestLifecycleOwner mOwner;
     private MediatorLiveData<String> mMediator;
@@ -237,6 +241,16 @@ public class MediatorLiveDataTest {
         });
         mOwner.handleLifecycleEvent(Lifecycle.Event.ON_START);
         assertThat(mMediator.getValue(), is("c"));
+    }
+
+    @Test
+    public void addNullSource() {
+        Observer observer = mock(Observer.class);
+        exception.expect(NullPointerException.class);
+        exception.expectMessage("source cannot be null");
+
+        mMediator.addSource(null, observer);
+
     }
 
 }
