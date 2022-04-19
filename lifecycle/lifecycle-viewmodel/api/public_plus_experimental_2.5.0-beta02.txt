@@ -1,0 +1,133 @@
+// Signature format: 4.0
+package androidx.lifecycle {
+
+  public class AndroidViewModel extends androidx.lifecycle.ViewModel {
+    ctor public AndroidViewModel(android.app.Application);
+    method public <T extends android.app.Application> T getApplication();
+  }
+
+  public interface HasDefaultViewModelProviderFactory {
+    method public default androidx.lifecycle.viewmodel.CreationExtras getDefaultViewModelCreationExtras();
+    method public androidx.lifecycle.ViewModelProvider.Factory getDefaultViewModelProviderFactory();
+  }
+
+  public abstract class ViewModel {
+    ctor public ViewModel();
+    ctor public ViewModel(java.io.Closeable!...);
+    method public void addCloseable(java.io.Closeable);
+    method protected void onCleared();
+  }
+
+  public final class ViewModelLazy<VM extends androidx.lifecycle.ViewModel> implements kotlin.Lazy<VM> {
+    ctor public ViewModelLazy(kotlin.reflect.KClass<VM> viewModelClass, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelStore> storeProducer, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory> factoryProducer, optional kotlin.jvm.functions.Function0<? extends androidx.lifecycle.viewmodel.CreationExtras> extrasProducer);
+    ctor public ViewModelLazy(kotlin.reflect.KClass<VM> viewModelClass, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelStore> storeProducer, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory> factoryProducer);
+    method public VM getValue();
+    method public boolean isInitialized();
+    property public VM value;
+  }
+
+  public class ViewModelProvider {
+    ctor public ViewModelProvider(androidx.lifecycle.ViewModelStore store, androidx.lifecycle.ViewModelProvider.Factory factory, optional androidx.lifecycle.viewmodel.CreationExtras defaultCreationExtras);
+    ctor public ViewModelProvider(androidx.lifecycle.ViewModelStore store, androidx.lifecycle.ViewModelProvider.Factory factory);
+    ctor public ViewModelProvider(androidx.lifecycle.ViewModelStoreOwner owner);
+    ctor public ViewModelProvider(androidx.lifecycle.ViewModelStoreOwner owner, androidx.lifecycle.ViewModelProvider.Factory factory);
+    method @MainThread public operator <T extends androidx.lifecycle.ViewModel> T get(Class<T> modelClass);
+    method @MainThread public operator <T extends androidx.lifecycle.ViewModel> T get(String key, Class<T> modelClass);
+  }
+
+  public static class ViewModelProvider.AndroidViewModelFactory extends androidx.lifecycle.ViewModelProvider.NewInstanceFactory {
+    ctor public ViewModelProvider.AndroidViewModelFactory();
+    ctor public ViewModelProvider.AndroidViewModelFactory(android.app.Application application);
+    method public static final androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory getInstance(android.app.Application application);
+    field public static final androidx.lifecycle.viewmodel.CreationExtras.Key<android.app.Application> APPLICATION_KEY;
+    field public static final androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion Companion;
+  }
+
+  public static final class ViewModelProvider.AndroidViewModelFactory.Companion {
+    method public androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory getInstance(android.app.Application application);
+  }
+
+  public static interface ViewModelProvider.Factory {
+    method public default <T extends androidx.lifecycle.ViewModel> T create(Class<T> modelClass);
+    method public default <T extends androidx.lifecycle.ViewModel> T create(Class<T> modelClass, androidx.lifecycle.viewmodel.CreationExtras extras);
+    method public default static androidx.lifecycle.ViewModelProvider.Factory from(androidx.lifecycle.viewmodel.ViewModelInitializer<?>... initializers);
+    field public static final androidx.lifecycle.ViewModelProvider.Factory.Companion Companion;
+  }
+
+  public static final class ViewModelProvider.Factory.Companion {
+    method public androidx.lifecycle.ViewModelProvider.Factory from(androidx.lifecycle.viewmodel.ViewModelInitializer<?>... initializers);
+  }
+
+  public static class ViewModelProvider.NewInstanceFactory implements androidx.lifecycle.ViewModelProvider.Factory {
+    ctor public ViewModelProvider.NewInstanceFactory();
+    field public static final androidx.lifecycle.ViewModelProvider.NewInstanceFactory.Companion Companion;
+    field public static final androidx.lifecycle.viewmodel.CreationExtras.Key<java.lang.String> VIEW_MODEL_KEY;
+  }
+
+  public static final class ViewModelProvider.NewInstanceFactory.Companion {
+  }
+
+  public final class ViewModelProviderGetKt {
+    method @MainThread public static inline <reified VM extends androidx.lifecycle.ViewModel> VM! get(androidx.lifecycle.ViewModelProvider);
+  }
+
+  public class ViewModelStore {
+    ctor public ViewModelStore();
+    method public final void clear();
+  }
+
+  public interface ViewModelStoreOwner {
+    method public androidx.lifecycle.ViewModelStore getViewModelStore();
+  }
+
+  public final class ViewTreeViewModelKt {
+    method public static androidx.lifecycle.ViewModelStoreOwner? findViewTreeViewModelStoreOwner(android.view.View);
+  }
+
+  public class ViewTreeViewModelStoreOwner {
+    method public static androidx.lifecycle.ViewModelStoreOwner? get(android.view.View);
+    method public static void set(android.view.View, androidx.lifecycle.ViewModelStoreOwner?);
+  }
+
+}
+
+package androidx.lifecycle.viewmodel {
+
+  public abstract class CreationExtras {
+    method public abstract operator <T> T? get(androidx.lifecycle.viewmodel.CreationExtras.Key<T> key);
+  }
+
+  public static final class CreationExtras.Empty extends androidx.lifecycle.viewmodel.CreationExtras {
+    method public <T> T? get(androidx.lifecycle.viewmodel.CreationExtras.Key<T> key);
+    field public static final androidx.lifecycle.viewmodel.CreationExtras.Empty INSTANCE;
+  }
+
+  public static interface CreationExtras.Key<T> {
+  }
+
+  @androidx.lifecycle.viewmodel.ViewModelFactoryDsl public final class InitializerViewModelFactoryBuilder {
+    ctor public InitializerViewModelFactoryBuilder();
+    method public <T extends androidx.lifecycle.ViewModel> void addInitializer(kotlin.reflect.KClass<T> clazz, kotlin.jvm.functions.Function1<? super androidx.lifecycle.viewmodel.CreationExtras,? extends T> initializer);
+    method public androidx.lifecycle.ViewModelProvider.Factory build();
+  }
+
+  public final class InitializerViewModelFactoryKt {
+    method public static inline <reified VM extends androidx.lifecycle.ViewModel> void initializer(androidx.lifecycle.viewmodel.InitializerViewModelFactoryBuilder, kotlin.jvm.functions.Function1<? super androidx.lifecycle.viewmodel.CreationExtras,? extends VM> initializer);
+    method public static inline androidx.lifecycle.ViewModelProvider.Factory viewModelFactory(kotlin.jvm.functions.Function1<? super androidx.lifecycle.viewmodel.InitializerViewModelFactoryBuilder,kotlin.Unit> builder);
+  }
+
+  public final class MutableCreationExtras extends androidx.lifecycle.viewmodel.CreationExtras {
+    ctor public MutableCreationExtras(optional androidx.lifecycle.viewmodel.CreationExtras initialExtras);
+    method public <T> T? get(androidx.lifecycle.viewmodel.CreationExtras.Key<T> key);
+    method public operator <T> void set(androidx.lifecycle.viewmodel.CreationExtras.Key<T> key, T? t);
+  }
+
+  @kotlin.DslMarker public @interface ViewModelFactoryDsl {
+  }
+
+  public final class ViewModelInitializer<T extends androidx.lifecycle.ViewModel> {
+    ctor public ViewModelInitializer(Class<T> clazz, kotlin.jvm.functions.Function1<? super androidx.lifecycle.viewmodel.CreationExtras,? extends T> initializer);
+  }
+
+}
+
