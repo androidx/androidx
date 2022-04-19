@@ -83,12 +83,21 @@ import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.Option
 import androidx.wear.watchface.style.WatchFaceLayer
 import com.google.common.truth.Truth.assertThat
+import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import java.io.StringWriter
+import java.time.Instant
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.util.ArrayDeque
+import java.util.PriorityQueue
+import java.util.concurrent.TimeUnit
+import kotlin.test.assertFailsWith
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.android.asCoroutineDispatcher
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -112,14 +121,6 @@ import org.mockito.Mockito.times
 import org.mockito.Mockito.validateMockitoUsage
 import org.mockito.Mockito.verify
 import org.robolectric.annotation.Config
-import java.io.StringWriter
-import java.time.Instant
-import java.time.ZoneId
-import java.time.ZonedDateTime
-import java.util.ArrayDeque
-import java.util.PriorityQueue
-import java.util.concurrent.TimeUnit
-import kotlin.test.assertFailsWith
 
 private const val INTERACTIVE_UPDATE_RATE_MS = 16L
 private const val LEFT_COMPLICATION_ID = 1000
@@ -4551,6 +4552,84 @@ public class WatchFaceServiceTest {
 
         renderer.renderInternal(ZonedDateTime.ofInstant(Instant.EPOCH, ZoneId.of("GMT")))
         assertThat(renderer.lastRenderWasForScreenshot).isFalse()
+    }
+
+    @Test
+    public fun applyComplicationSlotsStyleCategoryOption() {
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication, rightComplication),
+            UserStyleSchema(emptyList()),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                INTERACTIVE_INSTANCE_ID,
+                DeviceConfig(
+                    false,
+                    false,
+                    0,
+                    0
+                ),
+                WatchUiState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
+                null
+            )
+        )
+
+        val mockWatchFaceHostApi = mock<WatchFaceHostApi>()
+        complicationSlotsManager.watchFaceHostApi = mockWatchFaceHostApi
+
+        complicationSlotsManager.applyComplicationSlotsStyleCategoryOption(
+            ComplicationSlotsOption(
+                Option.Id("123"),
+                "testOption",
+                icon = null,
+                complicationSlotOverlays = listOf(
+                    ComplicationSlotOverlay(
+                        LEFT_COMPLICATION_ID,
+                        enabled = false,
+                        complicationSlotBounds =
+                        ComplicationSlotBounds(RectF(0.1f, 0.2f, 0.3f, 0.4f)),
+                        accessibilityTraversalIndex = 100
+                    ),
+                    ComplicationSlotOverlay(
+                        RIGHT_COMPLICATION_ID,
+                        enabled = true,
+                        complicationSlotBounds =
+                            ComplicationSlotBounds(RectF(0.5f, 0.6f, 0.7f, 0.8f)),
+                        accessibilityTraversalIndex = 1
+                    )
+                ),
+                watchFaceEditorData = null
+            )
+        )
+
+        // Dirty flags should lead to several WatchFaceHostApi calls.
+        verify(mockWatchFaceHostApi).setActiveComplicationSlots(
+            eq(intArrayOf(RIGHT_COMPLICATION_ID))
+        )
+        verify(mockWatchFaceHostApi).updateContentDescriptionLabels()
+
+        assertThat(leftComplication.enabled).isFalse()
+        assertThat(
+            leftComplication.complicationSlotBounds.perComplicationTypeBounds[
+                ComplicationType.SHORT_TEXT
+            ]
+        ).isEqualTo(RectF(0.1f, 0.2f, 0.3f, 0.4f))
+        assertThat(leftComplication.accessibilityTraversalIndex).isEqualTo(100)
+
+        assertThat(rightComplication.enabled).isTrue()
+        assertThat(
+            rightComplication.complicationSlotBounds.perComplicationTypeBounds[
+                ComplicationType.SHORT_TEXT
+            ]
+        ).isEqualTo(RectF(0.5f, 0.6f, 0.7f, 0.8f))
+        assertThat(rightComplication.accessibilityTraversalIndex).isEqualTo(1)
+
+        reset(mockWatchFaceHostApi)
+
+        // Dirty flags should be cleared leading to no further interactions if
+        // onComplicationsUpdated is called.
+        complicationSlotsManager.onComplicationsUpdated()
+        verifyNoMoreInteractions(mockWatchFaceHostApi)
     }
 
     private fun getLeftShortTextComplicationDataText(): CharSequence {
