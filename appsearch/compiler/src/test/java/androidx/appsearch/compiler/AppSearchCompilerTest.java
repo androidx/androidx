@@ -917,6 +917,45 @@ public class AppSearchCompilerTest {
     }
 
     @Test
+    public void testMultipleNestedAutoValueDocument() throws IOException {
+        Compilation compilation = compile(
+                "import com.google.auto.value.AutoValue;\n"
+                        + "import com.google.auto.value.AutoValue.*;\n"
+                        + "@Document\n"
+                        + "@AutoValue\n"
+                        + "public abstract class Gift {\n"
+                        + "  @CopyAnnotations @Document.Id abstract String id();\n"
+                        + "  @CopyAnnotations @Document.Namespace abstract String namespace();\n"
+                        + "  @CopyAnnotations\n"
+                        + "  @Document.StringProperty abstract String property();\n"
+                        + "  public static Gift create(String id, String namespace, String"
+                        + " property) {\n"
+                        + "    return new AutoValue_Gift(id, namespace, property);\n"
+                        + "  }\n"
+                        + "  @Document\n"
+                        + "  @AutoValue\n"
+                        + "  abstract static class B {\n"
+                        + "    @CopyAnnotations @Document.Id abstract String id();\n"
+                        + "    @CopyAnnotations @Document.Namespace abstract String namespace();\n"
+                        + "    public static B create(String id, String namespace) {\n"
+                        + "      return new AutoValue_Gift_B(id, namespace);\n"
+                        + "    }\n"
+                        + "  }\n"
+                        + "  @Document\n"
+                        + "  @AutoValue\n"
+                        + "  abstract static class A {\n"
+                        + "    @CopyAnnotations @Document.Id abstract String id();\n"
+                        + "    @CopyAnnotations @Document.Namespace abstract String namespace();\n"
+                        + "    public static A create(String id, String namespace) {\n"
+                        + "      return new AutoValue_Gift_A(id, namespace);\n"
+                        + "    }\n"
+                        + "  }\n"
+                        + "}\n");
+        assertThat(compilation).succeededWithoutWarnings();
+        checkEqualsGolden("AutoValue_Gift_A.java");
+    }
+
+    @Test
     public void testAutoValueDocument() throws IOException {
         Compilation compilation = compile(
                 "import com.google.auto.value.AutoValue;\n"
@@ -935,7 +974,7 @@ public class AppSearchCompilerTest {
                         + "}\n");
 
         assertThat(compilation).succeededWithoutWarnings();
-        checkEqualsGolden("Gift.java");
+        checkEqualsGolden("AutoValue_Gift.java");
     }
 
     @Test
