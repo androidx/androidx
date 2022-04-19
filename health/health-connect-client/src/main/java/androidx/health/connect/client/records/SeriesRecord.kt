@@ -17,6 +17,7 @@ package androidx.health.connect.client.records
 
 /** A record that contains a series of measurements. */
 // Consider exposing this one and other similar interfaces!
+@PublishedApi
 internal interface SeriesRecord<out T : Any> : IntervalRecord {
 
     val samples: List<T>

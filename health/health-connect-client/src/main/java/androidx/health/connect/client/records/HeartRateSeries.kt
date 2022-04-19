@@ -15,14 +15,12 @@
  */
 package androidx.health.connect.client.records
 
-import androidx.annotation.RestrictTo
 import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
 
 /** Captures the user's heart rate. Each record represents a series of measurements. */
-@RestrictTo(RestrictTo.Scope.LIBRARY) // Will be made public after API reviews
 public class HeartRateSeries(
     override val startTime: Instant,
     override val startZoneOffset: ZoneOffset?,
@@ -100,7 +98,6 @@ public class HeartRateSeries(
  *
  * @param beatsPerMinute Heart beats per minute. Validation range: 1-300.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY) // Will be made public after API reviews
 public class HeartRate(
     val time: Instant,
     val beatsPerMinute: Long,
