@@ -362,18 +362,23 @@ public class WatchFaceMetadataServiceTest {
     @Test
     public fun xmlVersionCompatibility() {
         Truth.assertThat(
-            WatchFaceMetadataClient.isXmlVersionCompatible(context, context.resources)).isTrue()
+            WatchFaceMetadataClient.isXmlVersionCompatible(
+                context,
+                context.resources,
+                context.packageName)).isTrue()
         Truth.assertThat(
             WatchFaceMetadataClient.isXmlVersionCompatible(
                 context,
                 context.resources,
-                ComponentName(context, OutdatedWatchFaceControlTestService::class.java)
+                context.packageName,
+                OutdatedWatchFaceControlTestService::class.java.name
             )).isFalse()
         Truth.assertThat(
             WatchFaceMetadataClient.isXmlVersionCompatible(
                 context,
                 context.resources,
-                ComponentName("non.existing.package", "non.existing.package.Service")
+                "non.existing.package",
+                "non.existing.package.Service"
             )).isFalse()
     }
 }
