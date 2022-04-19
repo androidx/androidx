@@ -57,5 +57,5 @@ ExecutorRegistration: androidx.health.services.client.ExerciseClient#clearUpdate
     Registration methods should have overload that accepts delivery Executor: `clearUpdateListener`
 
 
-InvalidNullability: androidx.health.services.client.data.ProtoParcelable#writeToParcel(android.os.Parcel, int) parameter #0:
+InvalidNullabilityOverride: androidx.health.services.client.data.ProtoParcelable#writeToParcel(android.os.Parcel, int) parameter #0:
     Invalid nullability on parameter `dest` in method `writeToParcel`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
