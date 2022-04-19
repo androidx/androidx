@@ -251,7 +251,6 @@ public class ComplicationSlotsManager(
 
                 complication.dataDirty = false
                 complication.complicationBoundsDirty = false
-                complication.supportedTypesDirty = false
                 complication.defaultDataSourcePolicyDirty = false
                 complication.defaultDataSourceTypeDirty = false
                 complication.accessibilityTraversalIndexDirty = false
