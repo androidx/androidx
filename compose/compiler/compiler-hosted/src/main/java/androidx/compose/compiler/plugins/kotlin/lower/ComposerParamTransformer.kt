@@ -24,6 +24,7 @@ import androidx.compose.compiler.plugins.kotlin.lower.decoys.copyWithNewTypePara
 import androidx.compose.compiler.plugins.kotlin.lower.decoys.didDecoyHaveDefaultForValueParameter
 import androidx.compose.compiler.plugins.kotlin.lower.decoys.isDecoy
 import androidx.compose.compiler.plugins.kotlin.lower.decoys.isDecoyImplementation
+import androidx.compose.compiler.plugins.kotlin.lower.decoys.isExternalDecoyImplStub
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.ir.copyTo
 import org.jetbrains.kotlin.backend.common.ir.copyTypeParametersFrom
@@ -88,6 +89,7 @@ import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
 import org.jetbrains.kotlin.load.java.JvmAbi
 import org.jetbrains.kotlin.platform.js.isJs
 import org.jetbrains.kotlin.platform.jvm.isJvm
+import org.jetbrains.kotlin.platform.konan.isNative
 import org.jetbrains.kotlin.resolve.BindingTrace
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.multiplatform.findCompatibleExpectsForActual
@@ -324,8 +326,16 @@ class ComposerParamTransformer(
         // if it is a decoy, no need to process
         if (isDecoy()) return this
 
-        // some functions were transformed during previous compilations or in other modules
-        if (this.externallyTransformed()) {
+        // some functions were transformed during previous compilations or in other modules.
+        // Add "isExternalDecoyImplStub" condition to compatible decoy pattern with K/N.
+        // We make it decoy and create implementation stub with type "IR_EXTERNAL_FUNCTION_STUB"
+        // in previous pass(CreateDecoysTransformer), "externallyTransformed" here will return
+        // "true" here because it is "external". But cause of we generate stubs in this
+        // module's transform, there has no compose-params in it. So we should add an condition
+        // letting compiler generate extra parameters in "copyWithComposerParam".
+        // Or, compilation will fail by "No such value argument slot in IrCallImpl: 0 (total 0)"
+        // when transforming "IrCall"(withComposerParamIfNeeded)
+        if (this.externallyTransformed() && !this.isExternalDecoyImplStub()) {
             return this
         }
 
@@ -485,7 +495,9 @@ class ComposerParamTransformer(
         if (this !is IrSimpleFunction) return false
         if (valueParameters[index].defaultValue != null) return true
 
-        if (context.platform.isJs() && this.isDecoyImplementation()) {
+        // support decoy on native target
+        if (context.platform.isJs() || context.platform.isNative() &&
+            this.isDecoyImplementation()) {
             if (didDecoyHaveDefaultForValueParameter(index)) return true
         }
 
