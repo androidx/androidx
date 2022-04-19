@@ -786,6 +786,15 @@ class TypeAdapterStore private constructor(
             }
             return null
         } else {
+            if (columnName != null) {
+                val singleNamedColumn = findCursorValueReader(
+                    typeMirror,
+                    query.resultInfo?.columns?.find { it.name == columnName }?.type
+                )
+                if (singleNamedColumn != null) {
+                    return SingleNamedColumnRowAdapter(singleNamedColumn, columnName)
+                }
+            }
             val singleColumn = findCursorValueReader(typeMirror, null) ?: return null
             return SingleColumnRowAdapter(singleColumn)
         }
