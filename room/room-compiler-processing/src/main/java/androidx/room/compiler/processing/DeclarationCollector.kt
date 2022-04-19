@@ -76,7 +76,7 @@ internal fun collectAllMethods(
                 }
             } else {
                 type.getDeclaredMethods()
-                    .filter { it.isAccessibleFrom(type.packageName) }
+                    .filter { it.isAccessibleFrom(xTypeElement.packageName) }
                     .filterNot { it.isStaticInterfaceMethod() }
                     .map { it.copyTo(xTypeElement) }
                     .forEach {
