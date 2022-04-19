@@ -118,7 +118,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/androidTest/java/androidx/webkit/ServiceWorkerClientCompatTest.java"
-            line="173"
+            line="176"
             column="46"/>
     </issue>
 
@@ -129,7 +129,7 @@
         errorLine2="                                                ~~~~~~">
         <location
             file="src/androidTest/java/androidx/webkit/ServiceWorkerClientCompatTest.java"
-            line="174"
+            line="177"
             column="49"/>
     </issue>
 
@@ -157,46 +157,68 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 24 (current min is 14): `FrameworkServiceWorkerClient`"
-        errorLine1="            getFrameworksImpl().setServiceWorkerClient(new FrameworkServiceWorkerClient(client));"
-        errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/webkit/internal/ServiceWorkerControllerImpl.java"
-            line="85"
-            column="56"/>
-    </issue>
-
-    <issue
-        id="NewApi"
         message="Call requires API level 24 (current min is 14): `android.webkit.ServiceWorkerController#setServiceWorkerClient`"
-        errorLine1="            getFrameworksImpl().setServiceWorkerClient(new FrameworkServiceWorkerClient(client));"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="                getFrameworksImpl().setServiceWorkerClient(null);"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/webkit/internal/ServiceWorkerControllerImpl.java"
-            line="85"
-            column="33"/>
+            line="86"
+            column="37"/>
     </issue>
 
     <issue
         id="NewApi"
         message="Call requires API level 24 (current min is 14): `getFrameworksImpl`"
-        errorLine1="            getFrameworksImpl().setServiceWorkerClient(new FrameworkServiceWorkerClient(client));"
-        errorLine2="            ~~~~~~~~~~~~~~~~~">
+        errorLine1="                getFrameworksImpl().setServiceWorkerClient(null);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/webkit/internal/ServiceWorkerControllerImpl.java"
-            line="85"
-            column="13"/>
+            line="86"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `android.webkit.ServiceWorkerController#setServiceWorkerClient`"
+        errorLine1="                getFrameworksImpl().setServiceWorkerClient("
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/ServiceWorkerControllerImpl.java"
+            line="88"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `getFrameworksImpl`"
+        errorLine1="                getFrameworksImpl().setServiceWorkerClient("
+        errorLine2="                ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/ServiceWorkerControllerImpl.java"
+            line="88"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `FrameworkServiceWorkerClient`"
+        errorLine1="                        new FrameworkServiceWorkerClient(client));"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/ServiceWorkerControllerImpl.java"
+            line="89"
+            column="25"/>
     </issue>
 
     <issue
         id="NewApi"
         message="Call requires API level 19 (current min is 14): `createInvocationHandlerFor`"
-        errorLine1="                    BoundaryInterfaceReflectionUtil.createInvocationHandlerFor("
-        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="                        BoundaryInterfaceReflectionUtil.createInvocationHandlerFor("
+        errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/webkit/internal/ServiceWorkerControllerImpl.java"
-            line="88"
-            column="53"/>
+            line="96"
+            column="57"/>
     </issue>
 
     <issue
@@ -1196,7 +1218,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/webkit/WebViewOnUiThread.java"
-            line="52"
+            line="53"
             column="43"/>
     </issue>
 
@@ -1207,7 +1229,7 @@
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/webkit/WebViewOnUiThread.java"
-            line="334"
+            line="335"
             column="49"/>
     </issue>
 
