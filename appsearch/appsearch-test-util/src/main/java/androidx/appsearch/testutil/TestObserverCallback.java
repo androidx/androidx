@@ -81,7 +81,11 @@ public class TestObserverCallback implements ObserverCallback {
                                     + expectedCount
                                     + " notifications but there are"
                                     + " already "
-                                    + actualCount);
+                                    + actualCount
+                                    + ".\n  Schema changes: "
+                                    + mSchemaChanges
+                                    + "\n  Document changes: "
+                                    + mDocumentChanges);
                 } else if (actualCount == expectedCount) {
                     return;
                 } else {

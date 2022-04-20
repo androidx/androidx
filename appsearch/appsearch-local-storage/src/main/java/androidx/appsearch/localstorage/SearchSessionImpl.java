@@ -285,7 +285,12 @@ class SearchSessionImpl implements AppSearchSession {
             for (int i = 0; i < request.getGenericDocuments().size(); i++) {
                 GenericDocument document = request.getGenericDocuments().get(i);
                 try {
-                    mAppSearchImpl.putDocument(mPackageName, mDatabaseName, document, mLogger);
+                    mAppSearchImpl.putDocument(
+                            mPackageName,
+                            mDatabaseName,
+                            document,
+                            /*sendChangeNotifications=*/ true,
+                            mLogger);
                     resultBuilder.setSuccess(document.getId(), /*value=*/ null);
                 } catch (Throwable t) {
                     resultBuilder.setResult(document.getId(), throwableToFailedResult(t));

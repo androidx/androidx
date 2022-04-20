@@ -899,13 +899,20 @@ public final class AppSearchImpl implements Closeable {
      *
      * <p>This method belongs to mutate group.
      *
-     * @param packageName  The package name that owns this document.
-     * @param databaseName The databaseName this document resides in.
-     * @param document     The document to index.
+     * @param packageName             The package name that owns this document.
+     * @param databaseName            The databaseName this document resides in.
+     * @param document                The document to index.
+     * @param sendChangeNotifications Whether to dispatch
+     *                                {@link androidx.appsearch.observer.DocumentChangeInfo}
+     *                                messages to observers for this change.
      * @throws AppSearchException on IcingSearchEngine error.
      */
-    public void putDocument(@NonNull String packageName, @NonNull String databaseName,
-            @NonNull GenericDocument document, @Nullable AppSearchLogger logger)
+    public void putDocument(
+            @NonNull String packageName,
+            @NonNull String databaseName,
+            @NonNull GenericDocument document,
+            boolean sendChangeNotifications,
+            @Nullable AppSearchLogger logger)
             throws AppSearchException {
         PutDocumentStats.Builder pStatsBuilder = null;
         if (logger != null) {
@@ -960,14 +967,16 @@ public final class AppSearchImpl implements Closeable {
             checkSuccess(putResultProto.getStatus());
 
             // Prepare notifications
-            mObserverManager.onDocumentChange(
-                    packageName,
-                    databaseName,
-                    document.getNamespace(),
-                    document.getSchemaType(),
-                    document.getId(),
-                    mVisibilityStoreLocked,
-                    mVisibilityCheckerLocked);
+            if (sendChangeNotifications) {
+                mObserverManager.onDocumentChange(
+                        packageName,
+                        databaseName,
+                        document.getNamespace(),
+                        document.getSchemaType(),
+                        document.getId(),
+                        mVisibilityStoreLocked,
+                        mVisibilityCheckerLocked);
+            }
         } finally {
             mReadWriteLock.writeLock().unlock();
 

@@ -110,6 +110,7 @@ public class VisibilityStoreMigrationHelperFromV1Test {
                 VisibilityStore.VISIBILITY_PACKAGE_NAME,
                 VisibilityStore.VISIBILITY_DATABASE_NAME,
                 visibilityDocumentV1,
+                /*sendChangeNotifications=*/ false,
                 /*logger=*/null);
 
         // Persist to disk and re-open the AppSearchImpl

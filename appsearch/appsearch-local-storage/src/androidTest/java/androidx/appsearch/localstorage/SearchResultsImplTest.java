@@ -77,7 +77,12 @@ public class SearchResultsImplTest {
         // Insert one package1 documents
         GenericDocument document1 = new GenericDocument.Builder<>("namespace", "id1",
                 "schema1").build();
-        mAppSearchImpl.putDocument("package1", "database1", document1, /*logger=*/ null);
+        mAppSearchImpl.putDocument(
+                "package1",
+                "database1",
+                document1,
+                /*sendChangeNotifications=*/ false,
+                /*logger=*/ null);
 
         // Query for only 1 result per page
         SearchSpec searchSpec = new SearchSpec.Builder()
@@ -124,9 +129,24 @@ public class SearchResultsImplTest {
                 "schema1").build();
         GenericDocument document3 = new GenericDocument.Builder<>("namespace", "id3",
                 "schema1").build();
-        mAppSearchImpl.putDocument("package1", "database1", document1, /*logger=*/ null);
-        mAppSearchImpl.putDocument("package1", "database1", document2, /*logger=*/ null);
-        mAppSearchImpl.putDocument("package1", "database1", document3, /*logger=*/ null);
+        mAppSearchImpl.putDocument(
+                "package1",
+                "database1",
+                document1,
+                /*sendChangeNotifications=*/ false,
+                /*logger=*/ null);
+        mAppSearchImpl.putDocument(
+                "package1",
+                "database1",
+                document2,
+                /*sendChangeNotifications=*/ false,
+                /*logger=*/ null);
+        mAppSearchImpl.putDocument(
+                "package1",
+                "database1",
+                document3,
+                /*sendChangeNotifications=*/ false,
+                /*logger=*/ null);
 
         // Query for only 2 result per page
         SearchSpec searchSpec = new SearchSpec.Builder()
