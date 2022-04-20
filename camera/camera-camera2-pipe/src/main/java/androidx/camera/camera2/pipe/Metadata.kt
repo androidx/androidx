@@ -178,7 +178,20 @@ public data class MetadataTransform(
  * default. These values are defined by camera2.
  */
 @JvmInline
-public value class RequestTemplate(public val value: Int)
+public value class RequestTemplate(public val value: Int) {
+    val name: String
+        get() {
+            return when (value) {
+                1 -> "TEMPLATE_PREVIEW"
+                2 -> "TEMPLATE_STILL_CAPTURE"
+                3 -> "TEMPLATE_RECORD"
+                4 -> "TEMPLATE_VIDEO_SNAPSHOT"
+                5 -> "TEMPLATE_ZERO_SHUTTER_LAG"
+                6 -> "TEMPLATE_MANUAL"
+                else -> "UNKNOWN-$value"
+            }
+        }
+}
 
 /**
  * A [RequestNumber] is an artificial identifier that is created for each request that is submitted
