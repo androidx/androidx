@@ -23,6 +23,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.webkit.ValueCallback;
@@ -34,6 +35,7 @@ import android.webkit.WebViewClient;
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.test.core.app.ApplicationProvider;
 
@@ -50,6 +52,7 @@ import java.util.concurrent.TimeoutException;
  * Modifications to this class should be reflected in that class as necessary. See
  * http://go/modifying-webview-cts.
  */
+@RequiresApi(api = Build.VERSION_CODES.KITKAT)
 public class WebViewOnUiThread implements AutoCloseable{
     /**
      * The maximum time, in milliseconds (10 seconds) to wait for a load
@@ -561,4 +564,5 @@ public class WebViewOnUiThread implements AutoCloseable{
             mOnUiThread.onPageStarted();
         }
     }
+
 }

@@ -19,6 +19,8 @@ package androidx.webkit;
 import android.os.Handler;
 import android.os.Looper;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.concurrent.futures.ResolvableFuture;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -161,8 +163,15 @@ public final class WebkitUtils {
      * <p>
      * Note that this method is AndroidX-specific, and is not reflected in the CTS class.
      *
+     * <p>
+     * This method does not actually require API 21, but it will always fail for API < 21, so the
+     * annotation has been added to make it easier to spot instances where this is being called
+     * in a test. AffectedTests should be annotated with
+     * {@code @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)}
+     *
      * @param featureName the feature to be checked
      */
+    @RequiresApi(21)
     public static void checkFeature(String featureName) {
         final String msg = "This device does not have the feature '" +  featureName + "'";
         final boolean hasFeature = WebViewFeature.isFeatureSupported(featureName);
@@ -264,6 +273,19 @@ public final class WebkitUtils {
 
         boolean ret = currentFile.delete();
         return ret;
+    }
+
+    /**
+     * Check if the given looper is the current thread.
+     *
+     * <p>
+     * Note that this method is AndroidX-specific, and is not reflected in the CTS class.
+     *
+     * Backwards-compatible implementation of {@link Looper#isCurrentThread()}
+     * @return {@code true} if the current thread is the loopers thread
+     */
+    static boolean isCurrentThread(@NonNull Looper looper) {
+        return Thread.currentThread().equals(looper.getThread());
     }
 
     // Do not instantiate this class.
