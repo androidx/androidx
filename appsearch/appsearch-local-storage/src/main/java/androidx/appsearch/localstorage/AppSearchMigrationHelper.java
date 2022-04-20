@@ -185,7 +185,12 @@ class AppSearchMigrationHelper implements Closeable {
             while (!codedInputStream.isAtEnd()) {
                 GenericDocument document = readDocumentFromInputStream(codedInputStream);
                 try {
-                    mAppSearchImpl.putDocument(mPackageName, mDatabaseName, document,
+                    // During schema migrations, only schema change notifications are dispatched.
+                    mAppSearchImpl.putDocument(
+                            mPackageName,
+                            mDatabaseName,
+                            document,
+                            /*sendChangeNotifications=*/ false,
                             /*logger=*/ null);
                     savedDocsCount++;
                 } catch (Throwable t) {

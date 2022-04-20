@@ -154,8 +154,12 @@ public class VisibilityStore {
             // VisibilityDocument with same prefixed schema exists, it will be replaced by new
             // VisibilityDocument in both AppSearch and memory look up map.
             VisibilityDocument prefixedVisibilityDocument = prefixedVisibilityDocuments.get(i);
-            mAppSearchImpl.putDocument(VISIBILITY_PACKAGE_NAME, VISIBILITY_DATABASE_NAME,
-                    prefixedVisibilityDocument, /*logger=*/ null);
+            mAppSearchImpl.putDocument(
+                    VISIBILITY_PACKAGE_NAME,
+                    VISIBILITY_DATABASE_NAME,
+                    prefixedVisibilityDocument,
+                    /*sendChangeNotifications=*/ false,
+                    /*logger=*/ null);
             mVisibilityDocumentMap.put(prefixedVisibilityDocument.getId(),
                     prefixedVisibilityDocument);
         }
@@ -253,8 +257,12 @@ public class VisibilityStore {
         for (int i = 0; i < migratedDocuments.size(); i++) {
             VisibilityDocument migratedDocument = migratedDocuments.get(i);
             mVisibilityDocumentMap.put(migratedDocument.getId(), migratedDocument);
-            mAppSearchImpl.putDocument(VISIBILITY_PACKAGE_NAME, VISIBILITY_DATABASE_NAME,
-                    migratedDocument, /*logger=*/ null);
+            mAppSearchImpl.putDocument(
+                    VISIBILITY_PACKAGE_NAME,
+                    VISIBILITY_DATABASE_NAME,
+                    migratedDocument,
+                    /*sendChangeNotifications=*/ false,
+                    /*logger=*/ null);
         }
     }
 }

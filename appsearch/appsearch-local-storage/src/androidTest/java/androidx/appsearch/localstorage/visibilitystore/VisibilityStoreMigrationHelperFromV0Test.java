@@ -119,6 +119,7 @@ public class VisibilityStoreMigrationHelperFromV0Test {
                 VisibilityStore.VISIBILITY_PACKAGE_NAME,
                 VisibilityStore.VISIBILITY_DATABASE_NAME,
                 deprecatedVisibilityDocument,
+                /*sendChangeNotifications=*/ false,
                 /*logger=*/null);
 
         // Persist to disk and re-open the AppSearchImpl

@@ -38,6 +38,7 @@ import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.GetSchemaResponse;
 import androidx.appsearch.app.GlobalSearchSession;
+import androidx.appsearch.app.Migrator;
 import androidx.appsearch.app.PutDocumentsRequest;
 import androidx.appsearch.app.RemoveByDocumentIdRequest;
 import androidx.appsearch.app.ReportSystemUsageRequest;
@@ -1650,6 +1651,168 @@ public abstract class GlobalSearchSessionCtsTestBase {
         assertThat(observer.getDocumentChanges()).isEmpty();
     }
 
-    // TODO(b/193494000): Properly handle change notification during schema migration, and add tests
-    // for it.
+    @Test
+    public void testRegisterObserver_schemaMigration() throws Exception {
+        // Add a schema with two types
+        mDb1.setSchemaAsync(new SetSchemaRequest.Builder()
+                .setVersion(1)
+                .addSchemas(
+                        new AppSearchSchema.Builder("Type1")
+                                .addProperty(
+                                        new AppSearchSchema.StringPropertyConfig.Builder("strProp1")
+                                                .build()
+                                ).build(),
+                        new AppSearchSchema.Builder("Type2")
+                                .addProperty(
+                                        new AppSearchSchema.LongPropertyConfig.Builder("longProp1")
+                                                .build()
+                                ).build()
+                        ).build()
+        ).get();
+
+        // Index some documents
+        GenericDocument type1doc1 = new GenericDocument.Builder<GenericDocument.Builder<?>>(
+                "namespace", "t1id1", "Type1")
+                .setPropertyString("strProp1", "t1id1 prop value")
+                .build();
+        GenericDocument type1doc2 = new GenericDocument.Builder<GenericDocument.Builder<?>>(
+                "namespace", "t1id2", "Type1")
+                .setPropertyString("strProp1", "t1id2 prop value")
+                .build();
+        GenericDocument type2doc1 = new GenericDocument.Builder<GenericDocument.Builder<?>>(
+                "namespace", "t2id1", "Type2")
+                .setPropertyLong("longProp1", 41)
+                .build();
+        GenericDocument type2doc2 = new GenericDocument.Builder<GenericDocument.Builder<?>>(
+                "namespace", "t2id2", "Type2")
+                .setPropertyLong("longProp1", 42)
+                .build();
+        mDb1.putAsync(new PutDocumentsRequest.Builder()
+                .addGenericDocuments(type1doc1, type1doc2, type2doc1, type2doc2)
+                .build())
+                .get();
+
+        // Register an observer that only listens for Type1
+        TestObserverCallback observer = new TestObserverCallback();
+        mGlobalSearchSession.registerObserverCallback(
+                /*targetPackageName=*/mContext.getPackageName(),
+                new ObserverSpec.Builder().addFilterSchemas("Type1").build(),
+                EXECUTOR,
+                observer);
+
+        // Update both types of the schema with migration to a new property name
+        mDb1.setSchemaAsync(new SetSchemaRequest.Builder()
+                .setVersion(2)
+                .addSchemas(
+                        new AppSearchSchema.Builder("Type1")
+                                .addProperty(
+                                        new AppSearchSchema.StringPropertyConfig.Builder("strProp2")
+                                                .build()
+                                ).build(),
+                        new AppSearchSchema.Builder("Type2")
+                                .addProperty(
+                                        new AppSearchSchema.LongPropertyConfig.Builder("longProp2")
+                                                .build()
+                                ).build()
+                        )
+                .setMigrator("Type1", new Migrator() {
+                    @Override
+                    public boolean shouldMigrate(int currentVersion, int finalVersion) {
+                        assertThat(currentVersion).isEqualTo(1);
+                        assertThat(finalVersion).isEqualTo(2);
+                        return true;
+                    }
+
+                    @NonNull
+                    @Override
+                    public GenericDocument onUpgrade(
+                            int currentVersion,
+                            int finalVersion,
+                            @NonNull GenericDocument document) {
+                        assertThat(currentVersion).isEqualTo(1);
+                        assertThat(finalVersion).isEqualTo(2);
+                        assertThat(document.getSchemaType()).isEqualTo("Type1");
+                        String[] prop = document.getPropertyStringArray("strProp1");
+                        assertThat(prop).isNotNull();
+                        return new GenericDocument.Builder<GenericDocument.Builder<?>>(
+                                document.getNamespace(),
+                                document.getId(),
+                                document.getSchemaType())
+                                .setPropertyString("strProp2", prop)
+                        .build();
+                    }
+
+                    @NonNull
+                    @Override
+                    public GenericDocument onDowngrade(
+                            int currentVersion,
+                            int finalVersion,
+                            @NonNull GenericDocument document) {
+                        // Doesn't happen in this test
+                        throw new UnsupportedOperationException();
+                    }
+                }).setMigrator("Type2", new Migrator() {
+                    @Override
+                    public boolean shouldMigrate(int currentVersion, int finalVersion) {
+                        assertThat(currentVersion).isEqualTo(1);
+                        assertThat(finalVersion).isEqualTo(2);
+                        return true;
+                    }
+
+                    @NonNull
+                    @Override
+                    public GenericDocument onUpgrade(
+                            int currentVersion,
+                            int finalVersion,
+                            @NonNull GenericDocument document) {
+                        assertThat(currentVersion).isEqualTo(1);
+                        assertThat(finalVersion).isEqualTo(2);
+                        assertThat(document.getSchemaType()).isEqualTo("Type2");
+                        long[] prop = document.getPropertyLongArray("longProp1");
+                        assertThat(prop).isNotNull();
+                        return new GenericDocument.Builder<GenericDocument.Builder<?>>(
+                                document.getNamespace(),
+                                document.getId(),
+                                document.getSchemaType())
+                                .setPropertyLong("longProp2", prop[0] + 1000)
+                        .build();
+                    }
+
+                    @NonNull
+                    @Override
+                    public GenericDocument onDowngrade(
+                            int currentVersion,
+                            int finalVersion,
+                            @NonNull GenericDocument document) {
+                        // Doesn't happen in this test
+                        throw new UnsupportedOperationException();
+                    }
+                })
+                .build()
+        ).get();
+
+        // Make sure the test is valid by checking that migration actually occurred
+        AppSearchBatchResult<String, GenericDocument> getResponse = mDb1.getByDocumentIdAsync(
+                new GetByDocumentIdRequest.Builder("namespace")
+                        .addIds("t1id1", "t1id2", "t2id1", "t2id2")
+                        .build())
+                .get();
+        assertThat(getResponse.isSuccess()).isTrue();
+        assertThat(getResponse.getSuccesses().get("t1id1").getPropertyString("strProp2"))
+                .isEqualTo("t1id1 prop value");
+        assertThat(getResponse.getSuccesses().get("t1id2").getPropertyString("strProp2"))
+                .isEqualTo("t1id2 prop value");
+        assertThat(getResponse.getSuccesses().get("t2id1").getPropertyLong("longProp2"))
+                .isEqualTo(1041);
+        assertThat(getResponse.getSuccesses().get("t2id2").getPropertyLong("longProp2"))
+                .isEqualTo(1042);
+
+        // Per the observer documentation, for schema migrations, individual document changes are
+        // not dispatched. Only SchemaChangeInfo is dispatched.
+        observer.waitForNotificationCount(1);
+        assertThat(observer.getSchemaChanges()).containsExactly(
+                new SchemaChangeInfo(
+                        mContext.getPackageName(), DB_NAME_1, ImmutableSet.of("Type1")));
+        assertThat(observer.getDocumentChanges()).isEmpty();
+    }
 }
