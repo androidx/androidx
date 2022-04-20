@@ -16,6 +16,7 @@
 package androidx.health.connect.client.impl
 
 import androidx.health.connect.client.HealthConnectClient
+import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.aggregate.AggregateDataRow
 import androidx.health.connect.client.aggregate.AggregateDataRowGroupByDuration
 import androidx.health.connect.client.aggregate.AggregateDataRowGroupByPeriod
@@ -60,7 +61,7 @@ import kotlinx.coroutines.guava.await
  */
 class HealthConnectClientImpl(
     private val delegate: HealthDataAsyncClient,
-) : HealthConnectClient {
+) : HealthConnectClient, PermissionController {
 
     override suspend fun getGrantedPermissions(permissions: Set<Permission>): Set<Permission> {
         return delegate
@@ -69,6 +70,13 @@ class HealthConnectClientImpl(
             .map { it.toJetpackPermission() }
             .toSet()
     }
+
+    override suspend fun revokeAllPermissions() {
+        return delegate.revokeAllPermissions().await()
+    }
+
+    override val permissionController: PermissionController
+        get() = this
 
     override suspend fun insertRecords(records: List<Record>): InsertRecordsResponse {
         val uidList = delegate.insertData(records.map { it.toProto() }).await()
