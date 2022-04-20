@@ -14,17 +14,23 @@ package androidx.wear.compose.material {
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material.ButtonColors buttonColors(optional long backgroundColor, optional long contentColor, optional long disabledBackgroundColor, optional long disabledContentColor);
     method public float getCompactButtonBackgroundPadding();
     method public float getDefaultButtonSize();
+    method public float getDefaultIconSize();
     method public float getExtraSmallButtonSize();
     method public float getLargeButtonSize();
+    method public float getLargeIconSize();
     method public float getSmallButtonSize();
+    method public float getSmallIconSize();
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material.ButtonColors iconButtonColors(optional long contentColor);
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material.ButtonColors primaryButtonColors(optional long backgroundColor, optional long contentColor);
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material.ButtonColors secondaryButtonColors(optional long backgroundColor, optional long contentColor);
     property public final float CompactButtonBackgroundPadding;
     property public final float DefaultButtonSize;
+    property public final float DefaultIconSize;
     property public final float ExtraSmallButtonSize;
     property public final float LargeButtonSize;
+    property public final float LargeIconSize;
     property public final float SmallButtonSize;
+    property public final float SmallIconSize;
     field public static final androidx.wear.compose.material.ButtonDefaults INSTANCE;
   }
 
@@ -649,10 +655,14 @@ package androidx.wear.compose.material {
   }
 
   public final class ToggleButtonDefaults {
+    method public float getDefaultIconSize();
     method public float getDefaultToggleButtonSize();
+    method public float getSmallIconSize();
     method public float getSmallToggleButtonSize();
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material.ToggleButtonColors toggleButtonColors(optional long checkedBackgroundColor, optional long checkedContentColor, optional long disabledCheckedBackgroundColor, optional long disabledCheckedContentColor, optional long uncheckedBackgroundColor, optional long uncheckedContentColor, optional long disabledUncheckedBackgroundColor, optional long disabledUncheckedContentColor);
+    property public final float DefaultIconSize;
     property public final float DefaultToggleButtonSize;
+    property public final float SmallIconSize;
     property public final float SmallToggleButtonSize;
     field public static final androidx.wear.compose.material.ToggleButtonDefaults INSTANCE;
   }

@@ -45,6 +45,7 @@ import androidx.wear.compose.material.samples.IndeterminateCircularProgressIndic
 import androidx.wear.compose.material.samples.InlineSliderSample
 import androidx.wear.compose.material.samples.InlineSliderSegmentedSample
 import androidx.wear.compose.material.samples.InlineSliderWithIntegerSample
+import androidx.wear.compose.material.samples.LargeButtonWithIcon
 import androidx.wear.compose.material.samples.ScalingLazyColumnEdgeAnchoredAndAnimatedScrollTo
 import androidx.wear.compose.material.samples.SimplePicker
 import androidx.wear.compose.material.samples.SimpleScaffoldWithScrollIndicator
@@ -227,6 +228,9 @@ val WearMaterialDemos = DemoCategory(
                     "Samples",
                     listOf(
                         ComposableDemo("Button With Icon") { Centralize { ButtonWithIcon() } },
+                        ComposableDemo("Button With Large Icon") {
+                            Centralize { LargeButtonWithIcon() }
+                        },
                         ComposableDemo("Button With Text") { Centralize { ButtonWithText() } },
                         ComposableDemo("Compact Button With Icon") {
                             Centralize { CompactButtonWithIcon() }

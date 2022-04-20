@@ -25,7 +25,6 @@ import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
@@ -43,8 +42,9 @@ import androidx.compose.ui.unit.dp
  * (text, icon or image).
  *
  * The [ToggleButton] is circular in shape and defaults to size
- * [ToggleButtonDefaults.DefaultToggleButtonSize].
- * Other recommended sizes can be obtained from [ToggleButtonDefaults].
+ * [ToggleButtonDefaults.DefaultToggleButtonSize] or [ToggleButtonDefaults.SmallToggleButtonSize].
+ * Icon content should be of size [ToggleButtonDefaults.DefaultIconSize] or
+ * [ToggleButtonDefaults.SmallIconSize] respectively.
  *
  * The recommended set of checked and unchecked [ToggleButtonColors] can be obtained
  * from [ToggleButtonDefaults.toggleButtonColors], which defaults to
@@ -147,18 +147,28 @@ interface ToggleButtonColors {
 /**
  * Contains the default values used by [ToggleButton].
  */
-object ToggleButtonDefaults {
+public object ToggleButtonDefaults {
     /**
      * The recommended size for a small [ToggleButton].
      * You can apply this value for the size by overriding Modifier.size directly on [ToggleButton].
      */
-    val SmallToggleButtonSize = 48.dp
+    public val SmallToggleButtonSize = 48.dp
 
     /**
      * The default size applied for the [ToggleButton].
      * Note that you can override it by applying Modifier.size directly on [ToggleButton].
      */
-    val DefaultToggleButtonSize = 52.dp
+    public val DefaultToggleButtonSize = 52.dp
+
+    /**
+     * The size of an icon when used inside a small-sized [ToggleButton].
+     */
+    public val SmallIconSize = 24.dp
+
+    /**
+     * The default size of an icon when used inside a default-sized [ToggleButton].
+     */
+    public val DefaultIconSize = 26.dp
 
     /**
      * Creates a [ToggleButtonColors] that represents the background and content colors
@@ -182,7 +192,7 @@ object ToggleButtonDefaults {
      * and not enabled
      */
     @Composable
-    fun toggleButtonColors(
+    public fun toggleButtonColors(
         checkedBackgroundColor: Color = MaterialTheme.colors.primary,
         checkedContentColor: Color = contentColorFor(checkedBackgroundColor),
         disabledCheckedBackgroundColor: Color =
