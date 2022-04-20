@@ -15,6 +15,7 @@
  */
 
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
@@ -28,6 +29,9 @@ kotlin {
         withJava()
     }
     macosX64()
+    linuxArm64()
+    macosArm64()
+    mingwX64()
     sourceSets {
         commonMain {
             dependencies {
@@ -44,12 +48,14 @@ kotlin {
             }
         }
 
-        macosX64Main { // TODO move this to nativeMain or nonJvmMain
+        nativeMain {
+            dependsOn(commonMain)
             dependencies {
                 api("com.squareup.okio:okio:3.0.0")
                 implementation("org.jetbrains.kotlinx:atomicfu:0.17.2")
             }
         }
+
         jvmMain {
             dependencies {
                 api(libs.kotlinStdlib)
@@ -67,10 +73,24 @@ kotlin {
                 implementation(project(":internal-testutils-truth"))
             }
         }
+
+        nativeTest {
+            dependsOn(commonTest)
+        }
     }
     targets.withType(KotlinNativeTarget).configureEach {
         binaries.all {
             binaryOptions["memoryModel"] = "experimental"
+        }
+    }
+    targets.forEach {target ->
+        if (target.platformType == KotlinPlatformType.native) {
+            target.compilations["main"].defaultSourceSet {
+                dependsOn(sourceSets["nativeMain"])
+            }
+            target.compilations["test"].defaultSourceSet {
+                dependsOn(sourceSets["nativeTest"])
+            }
         }
     }
 }

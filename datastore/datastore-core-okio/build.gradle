@@ -29,6 +29,9 @@ kotlin {
         withJava()
     }
     macosX64()
+    linuxArm64()
+    macosArm64()
+    mingwX64()
     sourceSets {
         commonMain {
             dependencies {
