@@ -16,6 +16,12 @@
 
 package androidx.datastore.core
 
+import okio.BufferedSink
+import okio.BufferedSource
+
+// TODO try to clean this up or at least have real classes.
+internal fun BufferedSource.toInputStream() = object : InputStream(this){}
+internal fun BufferedSink.toOutputStream() = object : OutputStream(this){}
 public actual abstract class InputStream(
     delegate: okio.BufferedSource
 ) : okio.BufferedSource by delegate

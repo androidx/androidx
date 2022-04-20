@@ -39,7 +39,8 @@ kotlin {
 
         macosX64Main { // TODO move this to nativeMain or nonJvmMain
             dependencies {
-                api(implementation("com.squareup.okio:okio:3.0.0"))
+                api("com.squareup.okio:okio:3.0.0")
+                implementation("org.jetbrains.kotlinx:atomicfu:0.17.2")
             }
         }
         jvmMain {

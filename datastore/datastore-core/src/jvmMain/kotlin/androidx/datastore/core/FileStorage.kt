@@ -17,6 +17,7 @@
 package androidx.datastore.core
 
 import androidx.annotation.GuardedBy
+import androidx.datastore.core.Storage.Companion.SCRATCH_SUFFIX
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileNotFoundException
@@ -28,8 +29,6 @@ internal class FileStorage<T>(
     val produceFile: () -> File,
     private val serializer: Serializer<T>
 ) : Storage<T> {
-    private val SCRATCH_SUFFIX = ".tmp"
-
     private val file: File by lazy {
         val file = produceFile()
 

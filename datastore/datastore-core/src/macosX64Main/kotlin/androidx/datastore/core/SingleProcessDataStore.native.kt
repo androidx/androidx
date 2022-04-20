@@ -16,13 +16,8 @@
 
 package androidx.datastore.core
 
-interface Storage<T> {
-    suspend fun readData(): T
-    suspend fun writeData(newData: T)
-    fun onComplete()
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 
-    companion object {
-        internal val SCRATCH_SUFFIX = ".tmp"
-
-    }
-}
+// TODO this should be IO, not default.
+internal actual fun ioDispatcher(): CoroutineDispatcher  = Dispatchers.Default
