@@ -18,6 +18,8 @@ package androidx.appsearch.localstorage;
 
 import static androidx.appsearch.app.AppSearchResult.RESULT_INTERNAL_ERROR;
 import static androidx.appsearch.app.AppSearchResult.RESULT_SECURITY_ERROR;
+import static androidx.appsearch.app.InternalSetSchemaResponse.newFailedSetSchemaResponse;
+import static androidx.appsearch.app.InternalSetSchemaResponse.newSuccessfulSetSchemaResponse;
 import static androidx.appsearch.localstorage.util.PrefixUtil.addPrefixToDocument;
 import static androidx.appsearch.localstorage.util.PrefixUtil.createPrefix;
 import static androidx.appsearch.localstorage.util.PrefixUtil.getDatabaseName;
@@ -40,6 +42,7 @@ import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.GetSchemaResponse;
+import androidx.appsearch.app.InternalSetSchemaResponse;
 import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.SearchResultPage;
 import androidx.appsearch.app.SearchSpec;
@@ -448,14 +451,18 @@ public final class AppSearchImpl implements Closeable {
      * @param version                     The overall version number of the request.
      * @param setSchemaStatsBuilder       Builder for {@link SetSchemaStats} to hold stats for
      *                                    setSchema
-     * @return The response contains deleted schema types and incompatible schema types of this
-     * call.
+     * @return A success {@link InternalSetSchemaResponse} with a {@link SetSchemaResponse}. Or a
+     * failed {@link InternalSetSchemaResponse} if this call contains incompatible change. The
+     * {@link SetSchemaResponse} in the failed {@link InternalSetSchemaResponse} contains which type
+     * is incompatible. You need to check the status by
+     * {@link InternalSetSchemaResponse#isSuccess()}.
+     *
      * @throws AppSearchException On IcingSearchEngine error. If the status code is
      *                            FAILED_PRECONDITION for the incompatible change, the
      *                            exception will be converted to the SetSchemaResponse.
      */
     @NonNull
-    public SetSchemaResponse setSchema(
+    public InternalSetSchemaResponse setSchema(
             @NonNull String packageName,
             @NonNull String databaseName,
             @NonNull List<AppSearchSchema> schemas,
@@ -498,7 +505,7 @@ public final class AppSearchImpl implements Closeable {
      */
     @GuardedBy("mReadWriteLock")
     @NonNull
-    private SetSchemaResponse doSetSchemaWithChangeNotificationLocked(
+    private InternalSetSchemaResponse doSetSchemaWithChangeNotificationLocked(
             @NonNull String packageName,
             @NonNull String databaseName,
             @NonNull List<AppSearchSchema> schemas,
@@ -537,7 +544,7 @@ public final class AppSearchImpl implements Closeable {
         }
 
         // Apply the new schema
-        SetSchemaResponse setSchemaResponse = doSetSchemaNoChangeNotificationLocked(
+        InternalSetSchemaResponse internalSetSchemaResponse = doSetSchemaNoChangeNotificationLocked(
                 packageName,
                 databaseName,
                 schemas,
@@ -548,15 +555,8 @@ public final class AppSearchImpl implements Closeable {
 
         // This check is needed wherever setSchema is called to detect soft errors which do not
         // throw an exception but also prevent the schema from actually being applied.
-        // TODO(b/229874420): Improve the usability of doSetSchemaNoChangeNotificationLocked() by
-        //  adding documentation that the return value must be checked for these conditions, and by
-        //  making it easier to check for these conditions via one of the ways documented in the
-        //  bug.
-        if (!forceOverride && (
-                !setSchemaResponse.getDeletedTypes().isEmpty()
-                        || !setSchemaResponse.getIncompatibleTypes().isEmpty())
-        ) {
-            return setSchemaResponse;
+        if (!internalSetSchemaResponse.isSuccess()) {
+            return internalSetSchemaResponse;
         }
 
         // Cache some lookup tables to help us work with the new schema
@@ -646,7 +646,7 @@ public final class AppSearchImpl implements Closeable {
             }
         }
 
-        return setSchemaResponse;
+        return internalSetSchemaResponse;
     }
 
     /**
@@ -659,7 +659,7 @@ public final class AppSearchImpl implements Closeable {
      */
     @GuardedBy("mReadWriteLock")
     @NonNull
-    private SetSchemaResponse doSetSchemaNoChangeNotificationLocked(
+    private InternalSetSchemaResponse doSetSchemaNoChangeNotificationLocked(
             @NonNull String packageName,
             @NonNull String databaseName,
             @NonNull List<AppSearchSchema> schemas,
@@ -699,19 +699,24 @@ public final class AppSearchImpl implements Closeable {
                     setSchemaStatsBuilder);
         }
 
+        boolean isFailedPrecondition = setSchemaResultProto.getStatus().getCode()
+                == StatusProto.Code.FAILED_PRECONDITION;
         // Determine whether it succeeded.
         try {
             checkSuccess(setSchemaResultProto.getStatus());
         } catch (AppSearchException e) {
-            // Swallow the exception for the incompatible change case. We will propagate
-            // those deleted schemas and incompatible types to the SetSchemaResponse.
-            boolean isFailedPrecondition = setSchemaResultProto.getStatus().getCode()
-                    == StatusProto.Code.FAILED_PRECONDITION;
-            boolean isIncompatible = setSchemaResultProto.getDeletedSchemaTypesCount() > 0
-                    || setSchemaResultProto.getIncompatibleSchemaTypesCount() > 0;
-            if (isFailedPrecondition && isIncompatible) {
-                return SetSchemaResponseToProtoConverter
+            // Swallow the exception for the incompatible change case. We will generate a failed
+            // InternalSetSchemaResponse for this case.
+            int deletedTypes = setSchemaResultProto.getDeletedSchemaTypesCount();
+            int incompatibleTypes = setSchemaResultProto.getIncompatibleSchemaTypesCount();
+            boolean isIncompatible = deletedTypes > 0 || incompatibleTypes > 0;
+            if (isFailedPrecondition && !forceOverride  && isIncompatible) {
+                SetSchemaResponse setSchemaResponse = SetSchemaResponseToProtoConverter
                         .toSetSchemaResponse(setSchemaResultProto, prefix);
+                String errorMessage = "Schema is incompatible."
+                        + "\n  Deleted types: " + setSchemaResponse.getDeletedTypes()
+                        + "\n  Incompatible types: " + setSchemaResponse.getIncompatibleTypes();
+                return newFailedSetSchemaResponse(setSchemaResponse, errorMessage);
             } else {
                 throw e;
             }
@@ -758,8 +763,8 @@ public final class AppSearchImpl implements Closeable {
             mVisibilityStoreLocked.removeVisibility(deprecatedVisibilityDocuments);
             mVisibilityStoreLocked.setVisibility(prefixedVisibilityDocuments);
         }
-        return SetSchemaResponseToProtoConverter
-                .toSetSchemaResponse(setSchemaResultProto, prefix);
+        return newSuccessfulSetSchemaResponse(SetSchemaResponseToProtoConverter
+                .toSetSchemaResponse(setSchemaResultProto, prefix));
     }
 
     /**

@@ -22,6 +22,7 @@ import static androidx.appsearch.localstorage.visibilitystore.VisibilityStoreMig
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.appsearch.app.AppSearchSchema;
+import androidx.appsearch.app.InternalSetSchemaResponse;
 import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.VisibilityDocument;
@@ -72,7 +73,7 @@ public class VisibilityStoreMigrationHelperFromV1Test {
         AppSearchImpl appSearchImplInV1 = AppSearchImpl.create(mFile, new UnlimitedLimitConfig(),
                 /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
-        appSearchImplInV1.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = appSearchImplInV1.setSchema(
                 VisibilityStore.VISIBILITY_PACKAGE_NAME,
                 VisibilityStore.VISIBILITY_DATABASE_NAME,
                 ImmutableList.of(VisibilityDocumentV1.SCHEMA),
@@ -80,6 +81,7 @@ public class VisibilityStoreMigrationHelperFromV1Test {
                 /*forceOverride=*/ true, // force push the old version into disk
                 /*version=*/ 1,
                 /*setSchemaStatsBuilder=*/ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
         // Build deprecated visibility documents in version 1
         String prefix = PrefixUtil.createPrefix("package", "database");
         VisibilityDocumentV1 visibilityDocumentV1 =
@@ -95,7 +97,7 @@ public class VisibilityStoreMigrationHelperFromV1Test {
 
         // Set client schema into AppSearchImpl with empty VisibilityDocument since we need to
         // directly put old version of VisibilityDocument.
-        appSearchImplInV1.setSchema(
+        internalSetSchemaResponse = appSearchImplInV1.setSchema(
                 "package",
                 "database",
                 ImmutableList.of(
@@ -104,6 +106,7 @@ public class VisibilityStoreMigrationHelperFromV1Test {
                 /*forceOverride=*/ false,
                 /*schemaVersion=*/ 0,
                 /*setSchemaStatsBuilder=*/ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Put deprecated visibility documents in version 0 to AppSearchImpl
         appSearchImplInV1.putDocument(

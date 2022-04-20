@@ -26,6 +26,7 @@ import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetSchemaResponse;
+import androidx.appsearch.app.InternalSetSchemaResponse;
 import androidx.appsearch.app.VisibilityDocument;
 import androidx.appsearch.app.VisibilityPermissionDocument;
 import androidx.appsearch.exceptions.AppSearchException;
@@ -114,12 +115,8 @@ public class VisibilityStore {
                     loadVisibilityDocumentMap();
                 } else {
                     // We must have a broken schema. Reset it to the latest version.
-                    // Do NOT set forceOverride to be true here. If you hit problem here it means
-                    // you made a incompatible change in Visibility Schema without update the
-                    // version number. You should bump the version number and create a
-                    // VisibilityStoreMigrationHelper which can analyse the different between the
-                    // old version and the new version to migration user's visibility settings.
-                    mAppSearchImpl.setSchema(
+                    // Do NOT set forceOverride to be true here, see comment below.
+                    InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                             VISIBILITY_PACKAGE_NAME,
                             VISIBILITY_DATABASE_NAME,
                             Arrays.asList(VisibilityDocument.SCHEMA,
@@ -128,6 +125,17 @@ public class VisibilityStore {
                             /*forceOverride=*/ false,
                             /*version=*/ VisibilityDocument.SCHEMA_VERSION_LATEST,
                             /*setSchemaStatsBuilder=*/ null);
+                    if (!internalSetSchemaResponse.isSuccess()) {
+                        // If you hit problem here it means you made a incompatible change in
+                        // Visibility Schema without update the version number. You should bump
+                        // the version number and create a VisibilityStoreMigrationHelper which
+                        // can analyse the different between the old version and the new version
+                        // to migration user's visibility settings.
+                        throw new AppSearchException(AppSearchResult.RESULT_INTERNAL_ERROR,
+                                "Fail to set the latest visibility schema to AppSearch. "
+                                        + "You may need to update the visibility schema version "
+                                        + "number.");
+                    }
                 }
                 break;
             default:
@@ -245,7 +253,7 @@ public class VisibilityStore {
             throws AppSearchException {
         // The latest schema type doesn't exist yet. Add it. Set forceOverride true to
         // delete old schema.
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 VISIBILITY_PACKAGE_NAME,
                 VISIBILITY_DATABASE_NAME,
                 Arrays.asList(VisibilityDocument.SCHEMA,
@@ -254,6 +262,12 @@ public class VisibilityStore {
                 /*forceOverride=*/ true,
                 /*version=*/ VisibilityDocument.SCHEMA_VERSION_LATEST,
                 /*setSchemaStatsBuilder=*/ null);
+        if (!internalSetSchemaResponse.isSuccess()) {
+            // Impossible case, we just set forceOverride to be true, we should never
+            // fail in incompatible changes.
+            throw new AppSearchException(AppSearchResult.RESULT_INTERNAL_ERROR,
+                    internalSetSchemaResponse.getErrorMessage());
+        }
         for (int i = 0; i < migratedDocuments.size(); i++) {
             VisibilityDocument migratedDocument = migratedDocuments.get(i);
             mVisibilityDocumentMap.put(migratedDocument.getId(), migratedDocument);

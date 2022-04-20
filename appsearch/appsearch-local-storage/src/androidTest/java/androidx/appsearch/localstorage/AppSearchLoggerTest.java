@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
+import androidx.appsearch.app.InternalSetSchemaResponse;
 import androidx.appsearch.app.SearchResultPage;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.exceptions.AppSearchException;
@@ -371,7 +372,7 @@ public class AppSearchLoggerTest {
         List<AppSearchSchema> schemas = ImmutableList.of(
                 new AppSearchSchema.Builder("Type1").build(),
                 new AppSearchSchema.Builder("Type2").build());
-        appSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = appSearchImpl.setSchema(
                 testPackageName,
                 testDatabase,
                 schemas,
@@ -379,6 +380,7 @@ public class AppSearchLoggerTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
         GenericDocument doc1 =
                 new GenericDocument.Builder<>("namespace", "id1", "Type1").build();
         GenericDocument doc2 =
@@ -433,7 +435,7 @@ public class AppSearchLoggerTest {
         List<AppSearchSchema> schemas = ImmutableList.of(
                 new AppSearchSchema.Builder("Type1").build(),
                 new AppSearchSchema.Builder("Type2").build());
-        appSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = appSearchImpl.setSchema(
                 testPackageName,
                 testDatabase,
                 schemas,
@@ -441,6 +443,7 @@ public class AppSearchLoggerTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Insert a valid doc
         GenericDocument doc1 =
@@ -490,7 +493,7 @@ public class AppSearchLoggerTest {
                         .build())
                 .build();
         List<AppSearchSchema> schemas = Collections.singletonList(testSchema);
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 testPackageName,
                 testDatabase,
                 schemas,
@@ -498,6 +501,7 @@ public class AppSearchLoggerTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         GenericDocument document =
                 new GenericDocument.Builder<>("namespace", "id", "type")
@@ -535,7 +539,7 @@ public class AppSearchLoggerTest {
                         .build())
                 .build();
         List<AppSearchSchema> schemas = Collections.singletonList(testSchema);
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 testPackageName,
                 testDatabase,
                 schemas,
@@ -543,6 +547,7 @@ public class AppSearchLoggerTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         GenericDocument document =
                 new GenericDocument.Builder<>("namespace", "id", "type")
@@ -579,7 +584,7 @@ public class AppSearchLoggerTest {
                         .build())
                 .build();
         List<AppSearchSchema> schemas = Collections.singletonList(testSchema);
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 testPackageName,
                 testDatabase,
                 schemas,
@@ -587,6 +592,7 @@ public class AppSearchLoggerTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
         GenericDocument document1 =
                 new GenericDocument.Builder<>("namespace", "id1", "type")
                         .setPropertyString("subject", "testPut example1")
@@ -661,7 +667,7 @@ public class AppSearchLoggerTest {
         List<AppSearchSchema> schemas = ImmutableList.of(
                 new AppSearchSchema.Builder("Type1").build(),
                 new AppSearchSchema.Builder("Type2").build());
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 testPackageName,
                 testDatabase,
                 schemas,
@@ -669,6 +675,7 @@ public class AppSearchLoggerTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         SearchSpec searchSpec =
                 new SearchSpec.Builder().setTermMatch(TermMatchType.Code.PREFIX_VALUE)
@@ -697,7 +704,7 @@ public class AppSearchLoggerTest {
         final String testId = "id";
         List<AppSearchSchema> schemas =
                 Collections.singletonList(new AppSearchSchema.Builder("type").build());
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 testPackageName,
                 testDatabase,
                 schemas,
@@ -705,6 +712,7 @@ public class AppSearchLoggerTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
         GenericDocument document =
                 new GenericDocument.Builder<>(testNamespace, testId, "type").build();
         mAppSearchImpl.putDocument(
@@ -735,7 +743,7 @@ public class AppSearchLoggerTest {
         final String testId = "id";
         List<AppSearchSchema> schemas =
                 Collections.singletonList(new AppSearchSchema.Builder("type").build());
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 testPackageName,
                 testDatabase,
                 schemas,
@@ -743,6 +751,7 @@ public class AppSearchLoggerTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         GenericDocument document =
                 new GenericDocument.Builder<>(testNamespace, testId, "type").build();
@@ -778,7 +787,7 @@ public class AppSearchLoggerTest {
         final String testNamespace = "testNameSpace";
         List<AppSearchSchema> schemas =
                 Collections.singletonList(new AppSearchSchema.Builder("type").build());
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 testPackageName,
                 testDatabase,
                 schemas,
@@ -786,6 +795,7 @@ public class AppSearchLoggerTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
         GenericDocument document1 =
                 new GenericDocument.Builder<>(testNamespace, "id1", "type").build();
         GenericDocument document2 =
@@ -831,7 +841,7 @@ public class AppSearchLoggerTest {
                         .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
                         .build())
                 .build();
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 PACKAGE_NAME,
                 DATABASE,
                 Collections.singletonList(schema1),
@@ -839,11 +849,12 @@ public class AppSearchLoggerTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // create a backwards incompatible schema
         SetSchemaStats.Builder sStatsBuilder = new SetSchemaStats.Builder(PACKAGE_NAME, DATABASE);
         AppSearchSchema schema2 = new AppSearchSchema.Builder("testSchema").build();
-        mAppSearchImpl.setSchema(
+        internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 PACKAGE_NAME,
                 DATABASE,
                 Collections.singletonList(schema2),
@@ -851,6 +862,7 @@ public class AppSearchLoggerTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ sStatsBuilder);
+        assertThat(internalSetSchemaResponse.isSuccess()).isFalse();
 
         SetSchemaStats sStats = sStatsBuilder.build();
         assertThat(sStats.getPackageName()).isEqualTo(PACKAGE_NAME);

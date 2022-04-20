@@ -16,6 +16,8 @@
 // @exportToFramework:skipFile()
 package androidx.appsearch.localstorage;
 
+import static androidx.appsearch.app.AppSearchResult.RESULT_INTERNAL_ERROR;
+import static androidx.appsearch.app.AppSearchResult.RESULT_INVALID_SCHEMA;
 import static androidx.appsearch.app.AppSearchResult.throwableToFailedResult;
 
 import android.content.Context;
@@ -31,6 +33,7 @@ import androidx.appsearch.app.Features;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.GetSchemaResponse;
+import androidx.appsearch.app.InternalSetSchemaResponse;
 import androidx.appsearch.app.Migrator;
 import androidx.appsearch.app.PutDocumentsRequest;
 import androidx.appsearch.app.RemoveByDocumentIdRequest;
@@ -163,7 +166,7 @@ class SearchSessionImpl implements AppSearchSession {
             // 2. SetSchema with forceOverride=false, to retrieve the list of incompatible/deleted
             // types.
             long firstSetSchemaLatencyStartMillis = SystemClock.elapsedRealtime();
-            SetSchemaResponse setSchemaResponse = mAppSearchImpl.setSchema(
+            InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                     mPackageName,
                     mDatabaseName,
                     new ArrayList<>(request.getSchemas()),
@@ -176,10 +179,8 @@ class SearchSessionImpl implements AppSearchSession {
             // If some aren't we must throw an error, rather than proceeding and deleting those
             // types.
             long queryAndTransformLatencyStartMillis = SystemClock.elapsedRealtime();
-            if (!request.isForceOverride()) {
-                SchemaMigrationUtil.checkDeletedAndIncompatibleAfterMigration(setSchemaResponse,
-                        activeMigrators.keySet());
-            }
+            SchemaMigrationUtil.checkDeletedAndIncompatibleAfterMigration(
+                    internalSetSchemaResponse, activeMigrators.keySet());
 
             SchemaMigrationStats.Builder schemaMigrationStatsBuilder = null;
             if (setSchemaStatsBuilder != null) {
@@ -195,9 +196,8 @@ class SearchSessionImpl implements AppSearchSession {
                 // 5. SetSchema a second time with forceOverride=true if the first attempted failed
                 // due to backward incompatible changes.
                 long secondSetSchemaLatencyStartMillis = SystemClock.elapsedRealtime();
-                if (!setSchemaResponse.getIncompatibleTypes().isEmpty()
-                        || !setSchemaResponse.getDeletedTypes().isEmpty()) {
-                    setSchemaResponse = mAppSearchImpl.setSchema(
+                if (!internalSetSchemaResponse.isSuccess()) {
+                    internalSetSchemaResponse = mAppSearchImpl.setSchema(
                             mPackageName,
                             mDatabaseName,
                             new ArrayList<>(request.getSchemas()),
@@ -205,8 +205,17 @@ class SearchSessionImpl implements AppSearchSession {
                             /*forceOverride=*/ true,
                             request.getVersion(),
                             setSchemaStatsBuilder);
+                    if (!internalSetSchemaResponse.isSuccess()) {
+                        // Impossible case, we just set forceOverride to be true, we should never
+                        // fail in incompatible changes. And all other cases should failed during
+                        // the first call.
+                        throw new AppSearchException(RESULT_INTERNAL_ERROR,
+                                internalSetSchemaResponse.getErrorMessage());
+                    }
                 }
-                SetSchemaResponse.Builder responseBuilder = setSchemaResponse.toBuilder()
+                SetSchemaResponse.Builder responseBuilder = internalSetSchemaResponse
+                        .getSetSchemaResponse()
+                        .toBuilder()
                         .addMigratedTypes(activeMigrators.keySet());
                 mIsMutated = true;
 
@@ -491,7 +500,7 @@ class SearchSessionImpl implements AppSearchSession {
             @NonNull List<VisibilityDocument> visibilityDocuments,
             SetSchemaStats.Builder setSchemaStatsBuilder)
             throws AppSearchException {
-        SetSchemaResponse setSchemaResponse = mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 mPackageName,
                 mDatabaseName,
                 new ArrayList<>(request.getSchemas()),
@@ -499,14 +508,14 @@ class SearchSessionImpl implements AppSearchSession {
                 request.isForceOverride(),
                 request.getVersion(),
                 setSchemaStatsBuilder);
-        if (!request.isForceOverride()) {
-            // check both deleted types and incompatible types are empty. That's the only case we
-            // swallowed in the AppSearchImpl#setSchema().
-            SchemaMigrationUtil.checkDeletedAndIncompatible(setSchemaResponse.getDeletedTypes(),
-                    setSchemaResponse.getIncompatibleTypes());
+        if (!internalSetSchemaResponse.isSuccess()) {
+            // check is the set schema call failed because incompatible changes.
+            // That's the only case we swallowed in the AppSearchImpl#setSchema().
+            throw new AppSearchException(RESULT_INVALID_SCHEMA,
+                    internalSetSchemaResponse.getErrorMessage());
         }
         mIsMutated = true;
-        return setSchemaResponse;
+        return internalSetSchemaResponse.getSetSchemaResponse();
     }
 
     /**

@@ -30,6 +30,7 @@ import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetSchemaResponse;
+import androidx.appsearch.app.InternalSetSchemaResponse;
 import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResultPage;
@@ -381,7 +382,7 @@ public class AppSearchImplTest {
         // Insert schema
         List<AppSearchSchema> schemas =
                 Collections.singletonList(new AppSearchSchema.Builder("type").build());
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package",
                 "database",
                 schemas,
@@ -389,6 +390,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Insert a document and then remove it to generate garbage.
         GenericDocument document = new GenericDocument.Builder<>("namespace", "id", "type").build();
@@ -434,7 +436,7 @@ public class AppSearchImplTest {
         List<AppSearchSchema> schemas = ImmutableList.of(
                 new AppSearchSchema.Builder("Type1").build(),
                 new AppSearchSchema.Builder("Type2").build());
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 mContext.getPackageName(),
                 "database1",
                 schemas,
@@ -442,6 +444,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Insert a valid doc
         GenericDocument validDoc =
@@ -517,7 +520,7 @@ public class AppSearchImplTest {
         assertThat(results.getResults()).isEmpty();
 
         // Make sure the index can now be used successfully
-        mAppSearchImpl.setSchema(
+        internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 mContext.getPackageName(),
                 "database1",
                 Collections.singletonList(new AppSearchSchema.Builder("Type1").build()),
@@ -525,6 +528,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Insert a valid doc
         mAppSearchImpl.putDocument(
@@ -562,7 +566,7 @@ public class AppSearchImplTest {
         // Insert package1 schema
         List<AppSearchSchema> schema1 =
                 ImmutableList.of(new AppSearchSchema.Builder("schema1").build());
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package1",
                 "database1",
                 schema1,
@@ -570,11 +574,12 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Insert package2 schema
         List<AppSearchSchema> schema2 =
                 ImmutableList.of(new AppSearchSchema.Builder("schema2").build());
-        mAppSearchImpl.setSchema(
+        internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package2",
                 "database2",
                 schema2,
@@ -582,6 +587,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Insert package1 document
         GenericDocument document = new GenericDocument.Builder<>("namespace", "id", "schema1")
@@ -625,7 +631,7 @@ public class AppSearchImplTest {
         // Insert package1 schema
         List<AppSearchSchema> schema1 =
                 ImmutableList.of(new AppSearchSchema.Builder("schema1").build());
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package1",
                 "database1",
                 schema1,
@@ -633,11 +639,12 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Insert package2 schema
         List<AppSearchSchema> schema2 =
                 ImmutableList.of(new AppSearchSchema.Builder("schema2").build());
-        mAppSearchImpl.setSchema(
+        internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package2",
                 "database2",
                 schema2,
@@ -645,6 +652,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Insert package1 document
         GenericDocument document = new GenericDocument.Builder<>("namespace", "id",
@@ -703,7 +711,7 @@ public class AppSearchImplTest {
         // Insert package1 schema
         List<AppSearchSchema> schema1 =
                 ImmutableList.of(new AppSearchSchema.Builder("schema1").build());
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package1",
                 "database1",
                 schema1,
@@ -711,6 +719,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Insert two package1 documents
         GenericDocument document1 = new GenericDocument.Builder<>("namespace", "id1",
@@ -755,7 +764,7 @@ public class AppSearchImplTest {
         // Insert package1 schema
         List<AppSearchSchema> schema1 =
                 ImmutableList.of(new AppSearchSchema.Builder("schema1").build());
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package1",
                 "database1",
                 schema1,
@@ -763,6 +772,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Insert two package1 documents
         GenericDocument document1 = new GenericDocument.Builder<>("namespace", "id1",
@@ -817,7 +827,7 @@ public class AppSearchImplTest {
         // Insert package1 schema
         List<AppSearchSchema> schema1 =
                 ImmutableList.of(new AppSearchSchema.Builder("schema1").build());
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package1",
                 "database1",
                 schema1,
@@ -825,6 +835,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Insert two package1 documents
         GenericDocument document1 = new GenericDocument.Builder<>("namespace", "id1",
@@ -872,7 +883,7 @@ public class AppSearchImplTest {
         // Insert package1 schema
         List<AppSearchSchema> schema1 =
                 ImmutableList.of(new AppSearchSchema.Builder("schema1").build());
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package1",
                 "database1",
                 schema1,
@@ -880,6 +891,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Insert two package1 documents
         GenericDocument document1 = new GenericDocument.Builder<>("namespace", "id1",
@@ -937,7 +949,7 @@ public class AppSearchImplTest {
         // Insert package1 schema
         List<AppSearchSchema> schema1 =
                 ImmutableList.of(new AppSearchSchema.Builder("schema1").build());
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package1",
                 "database1",
                 schema1,
@@ -945,6 +957,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Insert two package1 documents
         GenericDocument document1 = new GenericDocument.Builder<>("namespace", "id1",
@@ -996,7 +1009,7 @@ public class AppSearchImplTest {
         // Insert package1 schema
         List<AppSearchSchema> schema1 =
                 ImmutableList.of(new AppSearchSchema.Builder("schema1").build());
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package1",
                 "database1",
                 schema1,
@@ -1004,6 +1017,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Insert one package1 documents
         GenericDocument document1 = new GenericDocument.Builder<>("namespace", "id1",
@@ -1039,7 +1053,7 @@ public class AppSearchImplTest {
         // Insert package1 schema
         List<AppSearchSchema> schema1 =
                 ImmutableList.of(new AppSearchSchema.Builder("schema1").build());
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package1",
                 "database1",
                 schema1,
@@ -1047,6 +1061,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Insert two package1 documents
         GenericDocument document1 = new GenericDocument.Builder<>("namespace", "id1",
@@ -1101,7 +1116,7 @@ public class AppSearchImplTest {
         // Insert package1 schema
         List<AppSearchSchema> schema1 =
                 ImmutableList.of(new AppSearchSchema.Builder("schema1").build());
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package1",
                 "database1",
                 schema1,
@@ -1109,6 +1124,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Insert two package1 documents
         GenericDocument document1 = new GenericDocument.Builder<>("namespace", "id1",
@@ -1163,7 +1179,7 @@ public class AppSearchImplTest {
         // Insert package1 schema
         List<AppSearchSchema> schema1 =
                 ImmutableList.of(new AppSearchSchema.Builder("schema1").build());
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package1",
                 "database1",
                 schema1,
@@ -1171,6 +1187,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Insert two package1 documents
         GenericDocument document1 = new GenericDocument.Builder<>("namespace", "id1",
@@ -1250,7 +1267,7 @@ public class AppSearchImplTest {
         List<AppSearchSchema> schemas =
                 Collections.singletonList(new AppSearchSchema.Builder("Email").build());
         // Set schema Email to AppSearch database1
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package",
                 "database1",
                 schemas,
@@ -1258,6 +1275,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Create expected schemaType proto.
         SchemaProto expectedProto = SchemaProto.newBuilder()
@@ -1286,7 +1304,7 @@ public class AppSearchImplTest {
                 .build());
         oldSchemas.add(new AppSearchSchema.Builder("Text").build());
         // Set schema Email to AppSearch database1
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package",
                 "database1",
                 oldSchemas,
@@ -1294,13 +1312,14 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Create incompatible schema
         List<AppSearchSchema> newSchemas =
                 Collections.singletonList(new AppSearchSchema.Builder("Email").build());
 
         // set email incompatible and delete text
-        SetSchemaResponse setSchemaResponse = mAppSearchImpl.setSchema(
+        internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package",
                 "database1",
                 newSchemas,
@@ -1308,6 +1327,9 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ true,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
+        SetSchemaResponse setSchemaResponse = internalSetSchemaResponse.getSetSchemaResponse();
+
         assertThat(setSchemaResponse.getDeletedTypes()).containsExactly("Text");
         assertThat(setSchemaResponse.getIncompatibleTypes()).containsExactly("Email");
     }
@@ -1321,7 +1343,7 @@ public class AppSearchImplTest {
                 new AppSearchSchema.Builder("Email").build(),
                 new AppSearchSchema.Builder("Document").build());
         // Set schema Email and Document to AppSearch database1
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package",
                 "database1",
                 schemas,
@@ -1329,6 +1351,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Create expected schemaType proto.
         SchemaProto expectedProto = SchemaProto.newBuilder()
@@ -1348,8 +1371,7 @@ public class AppSearchImplTest {
 
         final List<AppSearchSchema> finalSchemas = Collections.singletonList(
                 new AppSearchSchema.Builder("Email").build());
-        SetSchemaResponse setSchemaResponse =
-                mAppSearchImpl.setSchema(
+        internalSetSchemaResponse = mAppSearchImpl.setSchema(
                         "package",
                         "database1",
                         finalSchemas,
@@ -1357,11 +1379,14 @@ public class AppSearchImplTest {
                         /*forceOverride=*/ false,
                         /*version=*/ 0,
                         /* setSchemaStatsBuilder= */ null);
-        // Check the Document type has been deleted.
+        // We are fail to set this call since forceOverride is false.
+        assertThat(internalSetSchemaResponse.isSuccess()).isFalse();
+        SetSchemaResponse setSchemaResponse = internalSetSchemaResponse.getSetSchemaResponse();
+        // Check the incompatible reason is we are trying to delete Document type.
         assertThat(setSchemaResponse.getDeletedTypes()).containsExactly("Document");
 
         // ForceOverride to delete.
-        mAppSearchImpl.setSchema(
+        internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package",
                 "database1",
                 finalSchemas,
@@ -1369,6 +1394,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ true,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Check Document schema is removed.
         expectedProto = SchemaProto.newBuilder()
@@ -1395,7 +1421,7 @@ public class AppSearchImplTest {
                 new AppSearchSchema.Builder("Document").build());
 
         // Set schema Email and Document to AppSearch database1 and 2
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package",
                 "database1",
                 schemas,
@@ -1403,7 +1429,8 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
-        mAppSearchImpl.setSchema(
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
+        internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package",
                 "database2",
                 schemas,
@@ -1411,6 +1438,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Create expected schemaType proto.
         SchemaProto expectedProto = SchemaProto.newBuilder()
@@ -1435,7 +1463,7 @@ public class AppSearchImplTest {
 
         // Save only Email to database1 this time.
         schemas = Collections.singletonList(new AppSearchSchema.Builder("Email").build());
-        mAppSearchImpl.setSchema(
+        internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package",
                 "database1",
                 schemas,
@@ -1443,6 +1471,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ true,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Create expected schemaType list, database 1 should only contain Email but database 2
         // remains in same.
@@ -1474,7 +1503,7 @@ public class AppSearchImplTest {
         // Insert package schema
         List<AppSearchSchema> schema =
                 ImmutableList.of(new AppSearchSchema.Builder("schema").build());
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package",
                 "database",
                 schema,
@@ -1482,6 +1511,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Insert package document
         GenericDocument document = new GenericDocument.Builder<>("namespace", "id",
@@ -1537,7 +1567,7 @@ public class AppSearchImplTest {
         // Insert schema for package A and B.
         List<AppSearchSchema> schema =
                 ImmutableList.of(new AppSearchSchema.Builder("schema").build());
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "packageA",
                 "database",
                 schema,
@@ -1545,7 +1575,8 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
-        mAppSearchImpl.setSchema(
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
+        internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "packageB",
                 "database",
                 schema,
@@ -1553,6 +1584,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Verify these two packages are stored in AppSearch.
         SchemaProto expectedProto = SchemaProto.newBuilder()
@@ -1613,37 +1645,40 @@ public class AppSearchImplTest {
 
         // Has database1
         expectedMapping.put("package1", ImmutableSet.of("database1"));
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package1", "database1",
                 Collections.singletonList(new AppSearchSchema.Builder("schema").build()),
                 /*visibilityDocuments=*/ Collections.emptyList(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
         assertThat(mAppSearchImpl.getPackageToDatabases()).containsExactlyEntriesIn(
                 expectedMapping);
 
         // Has both databases
         expectedMapping.put("package1", ImmutableSet.of("database1", "database2"));
-        mAppSearchImpl.setSchema(
+        internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package1", "database2",
                 Collections.singletonList(new AppSearchSchema.Builder("schema").build()),
                 /*visibilityDocuments=*/ Collections.emptyList(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
         assertThat(mAppSearchImpl.getPackageToDatabases()).containsExactlyEntriesIn(
                 expectedMapping);
 
         // Has both packages
         expectedMapping.put("package2", ImmutableSet.of("database1"));
-        mAppSearchImpl.setSchema(
+        internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package2", "database1",
                 Collections.singletonList(new AppSearchSchema.Builder("schema").build()),
                 /*visibilityDocuments=*/ Collections.emptyList(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
         assertThat(mAppSearchImpl.getPackageToDatabases()).containsExactlyEntriesIn(
                 expectedMapping);
     }
@@ -1657,7 +1692,7 @@ public class AppSearchImplTest {
                 Collections.singletonList(new AppSearchSchema.Builder("type2").build());
         List<AppSearchSchema> schemas3 =
                 Collections.singletonList(new AppSearchSchema.Builder("type3").build());
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package1",
                 "database1",
                 schemas1,
@@ -1665,7 +1700,8 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
-        mAppSearchImpl.setSchema(
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
+        internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package1",
                 "database2",
                 schemas2,
@@ -1673,7 +1709,8 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
-        mAppSearchImpl.setSchema(
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
+        internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package2",
                 "database1",
                 schemas3,
@@ -1681,6 +1718,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
         assertThat(mAppSearchImpl.getAllPrefixedSchemaTypes()).containsExactly(
                 "package1$database1/type1",
                 "package1$database2/type2",
@@ -1695,7 +1733,7 @@ public class AppSearchImplTest {
         // Insert schema
         List<AppSearchSchema> schemas =
                 Collections.singletonList(new AppSearchSchema.Builder("type").build());
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package",
                 "database",
                 schemas,
@@ -1703,6 +1741,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Insert two docs
         GenericDocument document1 =
@@ -1793,7 +1832,7 @@ public class AppSearchImplTest {
         // Insert schema for "package1"
         List<AppSearchSchema> schemas =
                 Collections.singletonList(new AppSearchSchema.Builder("type").build());
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package1",
                 "database",
                 schemas,
@@ -1801,6 +1840,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Since "package1" doesn't have a document, it get any space attributed to it.
         StorageInfo storageInfo = mAppSearchImpl.getStorageInfoForPackage("package1");
@@ -1815,7 +1855,7 @@ public class AppSearchImplTest {
                 Collections.singletonList(new AppSearchSchema.Builder("type").build());
 
         // Insert schema for "package1"
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package1",
                 "database",
                 schemas,
@@ -1823,6 +1863,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Insert document for "package1"
         GenericDocument document =
@@ -1835,7 +1876,7 @@ public class AppSearchImplTest {
                 /*logger=*/ null);
 
         // Insert schema for "package2"
-        mAppSearchImpl.setSchema(
+        internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package2",
                 "database",
                 schemas,
@@ -1843,6 +1884,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Insert two documents for "package2"
         document = new GenericDocument.Builder<>("namespace", "id1", "type").build();
@@ -1892,7 +1934,7 @@ public class AppSearchImplTest {
         // Insert schema for "package1"
         List<AppSearchSchema> schemas =
                 Collections.singletonList(new AppSearchSchema.Builder("type").build());
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package1",
                 "database",
                 schemas,
@@ -1900,6 +1942,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // "package2" doesn't exist yet, so it shouldn't have any storage size
         StorageInfo storageInfo = mAppSearchImpl.getStorageInfoForDatabase("package1",
@@ -1914,7 +1957,7 @@ public class AppSearchImplTest {
         // Insert schema for "package1"
         List<AppSearchSchema> schemas =
                 Collections.singletonList(new AppSearchSchema.Builder("type").build());
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package1",
                 "database1",
                 schemas,
@@ -1922,6 +1965,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Since "package1", "database1" doesn't have a document, it get any space attributed to it.
         StorageInfo storageInfo = mAppSearchImpl.getStorageInfoForDatabase("package1", "database1");
@@ -1935,7 +1979,7 @@ public class AppSearchImplTest {
         // Insert schema for "package1", "database1" and "database2"
         List<AppSearchSchema> schemas =
                 Collections.singletonList(new AppSearchSchema.Builder("type").build());
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package1",
                 "database1",
                 schemas,
@@ -1943,7 +1987,8 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
-        mAppSearchImpl.setSchema(
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
+        internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package1",
                 "database2",
                 schemas,
@@ -1951,6 +1996,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Add a document for "package1", "database1"
         GenericDocument document =
@@ -2000,7 +2046,7 @@ public class AppSearchImplTest {
         // Initial check that we could do something at first.
         List<AppSearchSchema> schemas =
                 Collections.singletonList(new AppSearchSchema.Builder("type").build());
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package",
                 "database",
                 schemas,
@@ -2008,6 +2054,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         mAppSearchImpl.close();
 
@@ -2084,7 +2131,7 @@ public class AppSearchImplTest {
     public void testPutPersistsWithLiteFlush() throws Exception {
         List<AppSearchSchema> schemas =
                 Collections.singletonList(new AppSearchSchema.Builder("type").build());
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package",
                 "database",
                 schemas,
@@ -2092,6 +2139,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Add a document and persist it.
         GenericDocument document =
@@ -2127,7 +2175,7 @@ public class AppSearchImplTest {
     public void testDeletePersistsWithLiteFlush() throws Exception {
         List<AppSearchSchema> schemas =
                 Collections.singletonList(new AppSearchSchema.Builder("type").build());
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package",
                 "database",
                 schemas,
@@ -2135,6 +2183,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Add two documents and persist them.
         GenericDocument document1 =
@@ -2200,7 +2249,7 @@ public class AppSearchImplTest {
     public void testDeleteByQueryPersistsWithLiteFlush() throws Exception {
         List<AppSearchSchema> schemas =
                 Collections.singletonList(new AppSearchSchema.Builder("type").build());
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package",
                 "database",
                 schemas,
@@ -2208,6 +2257,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Add two documents and persist them.
         GenericDocument document1 =
@@ -2275,7 +2325,7 @@ public class AppSearchImplTest {
     public void testGetIcingSearchEngineStorageInfo() throws Exception {
         List<AppSearchSchema> schemas =
                 Collections.singletonList(new AppSearchSchema.Builder("type").build());
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package",
                 "database",
                 schemas,
@@ -2283,6 +2333,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Add two documents
         GenericDocument document1 =
@@ -2338,7 +2389,7 @@ public class AppSearchImplTest {
         // Insert schema
         List<AppSearchSchema> schemas =
                 Collections.singletonList(new AppSearchSchema.Builder("type").build());
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package",
                 "database",
                 schemas,
@@ -2346,6 +2397,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Insert a document which is too large
         GenericDocument document = new GenericDocument.Builder<>(
@@ -2412,7 +2464,7 @@ public class AppSearchImplTest {
         // Insert schema
         List<AppSearchSchema> schemas =
                 Collections.singletonList(new AppSearchSchema.Builder("type").build());
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package",
                 "database",
                 schemas,
@@ -2420,6 +2472,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Index a document
         mAppSearchImpl.putDocument(
@@ -2497,7 +2550,7 @@ public class AppSearchImplTest {
         // Insert schema
         List<AppSearchSchema> schemas =
                 Collections.singletonList(new AppSearchSchema.Builder("type").build());
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package",
                 "database",
                 schemas,
@@ -2505,6 +2558,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Index 3 documents
         mAppSearchImpl.putDocument(
@@ -2605,7 +2659,7 @@ public class AppSearchImplTest {
         // Insert schema
         List<AppSearchSchema> schemas =
                 Collections.singletonList(new AppSearchSchema.Builder("type").build());
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package1",
                 "database1",
                 schemas,
@@ -2613,7 +2667,8 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
-        mAppSearchImpl.setSchema(
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
+        internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package1",
                 "database2",
                 schemas,
@@ -2621,7 +2676,8 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
-        mAppSearchImpl.setSchema(
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
+        internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package2",
                 "database1",
                 schemas,
@@ -2629,7 +2685,8 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
-        mAppSearchImpl.setSchema(
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
+        internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package2",
                 "database2",
                 schemas,
@@ -2637,6 +2694,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Index documents in package1/database1
         mAppSearchImpl.putDocument(
@@ -2753,7 +2811,7 @@ public class AppSearchImplTest {
                                         AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
                                 .build())
                         .build());
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package",
                 "database",
                 schemas,
@@ -2761,6 +2819,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Index 3 documents
         mAppSearchImpl.putDocument(
@@ -2882,7 +2941,7 @@ public class AppSearchImplTest {
                         .addProperty(
                                 new AppSearchSchema.StringPropertyConfig.Builder("body").build())
                         .build());
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package",
                 "database",
                 schemas,
@@ -2890,6 +2949,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Index a document
         mAppSearchImpl.putDocument(
@@ -2960,7 +3020,7 @@ public class AppSearchImplTest {
                         .addProperty(
                                 new AppSearchSchema.StringPropertyConfig.Builder("body").build())
                         .build());
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package",
                 "database",
                 schemas,
@@ -2968,6 +3028,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Index a document
         mAppSearchImpl.putDocument(
@@ -3037,7 +3098,7 @@ public class AppSearchImplTest {
     public void testRemoveObserver_onlyAffectsOnePackage() throws Exception {
         final String fakePackage = "com.android.appsearch.fake.package";
 
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 mContext.getPackageName(),
                 "database1",
                 /*schemas=*/ImmutableList.of(new AppSearchSchema.Builder("Type1").build()),
@@ -3045,6 +3106,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/false,
                 /*version=*/0,
                 /*setSchemaStatsBuilder=*/null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Register an observer twice, on different packages.
         TestObserverCallback observer = new TestObserverCallback();
@@ -3119,7 +3181,7 @@ public class AppSearchImplTest {
                 ALWAYS_OPTIMIZE,
                 mockVisibilityChecker);
 
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package",
                 "database",
                 schemas,
@@ -3127,6 +3189,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Add a document and persist it.
         GenericDocument document =
@@ -3168,7 +3231,7 @@ public class AppSearchImplTest {
                 ALWAYS_OPTIMIZE,
                 mockVisibilityChecker);
 
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package",
                 "database",
                 schemas,
@@ -3176,6 +3239,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Add a document and persist it.
         GenericDocument document =
@@ -3215,7 +3279,7 @@ public class AppSearchImplTest {
                 ALWAYS_OPTIMIZE,
                 mockVisibilityChecker);
 
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package",
                 "database",
                 schemas,
@@ -3223,6 +3287,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Add a document and persist it.
         GenericDocument document =
@@ -3264,7 +3329,7 @@ public class AppSearchImplTest {
                 ALWAYS_OPTIMIZE,
                 mockVisibilityChecker);
 
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package",
                 "database",
                 schemas,
@@ -3272,6 +3337,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Add a document and persist it.
         GenericDocument document =
@@ -3320,7 +3386,7 @@ public class AppSearchImplTest {
                 Collections.singletonList(new AppSearchSchema.Builder("Email").build());
 
         // Set schema Email to AppSearch database1 with a visibility document
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package",
                 "database1",
                 schemas,
@@ -3328,6 +3394,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
         String prefix = PrefixUtil.createPrefix("package", "database1");
 
         // assert the visibility document is saved.
@@ -3360,7 +3427,7 @@ public class AppSearchImplTest {
                 Collections.singletonList(new AppSearchSchema.Builder("Email1").build());
 
         // Set schema Email1 to package1 with a visibility document
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package1",
                 "database",
                 schemas1,
@@ -3368,6 +3435,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
         String prefix1 = PrefixUtil.createPrefix("package1", "database");
 
         // assert the visibility document is saved.
@@ -3397,7 +3465,7 @@ public class AppSearchImplTest {
                 Collections.singletonList(new AppSearchSchema.Builder("Email2").build());
 
         // Set schema Email2 to package1 with a visibility document
-        mAppSearchImpl.setSchema(
+        internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package2",
                 "database",
                 schemas2,
@@ -3405,6 +3473,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
         String prefix2 = PrefixUtil.createPrefix("package2", "database");
 
         // assert the visibility document is saved.
@@ -3450,7 +3519,7 @@ public class AppSearchImplTest {
                 Collections.singletonList(new AppSearchSchema.Builder("Email").build());
 
         // Set schema Email and its visibility document to AppSearch database1
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package",
                 "database1",
                 schemas,
@@ -3458,6 +3527,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
         String prefix = PrefixUtil.createPrefix("package", "database1");
         VisibilityDocument expectedDocument = new VisibilityDocument.Builder(prefix + "Email")
                 .setNotDisplayedBySystem(true)
@@ -3476,7 +3546,7 @@ public class AppSearchImplTest {
         assertThat(actualDocument).isEqualTo(expectedDocument);
 
         // Set schema Email and its all-default visibility document to AppSearch database1
-        mAppSearchImpl.setSchema(
+        internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package",
                 "database1",
                 schemas,
@@ -3484,6 +3554,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
         // All-default visibility document won't be saved in AppSearch.
         assertThat(mAppSearchImpl.mVisibilityStoreLocked.getVisibility(prefix + "Email"))
                 .isNull();
@@ -3581,7 +3652,7 @@ public class AppSearchImplTest {
                 .build();
         List<AppSearchSchema> schemas =
                 Collections.singletonList(new AppSearchSchema.Builder("Email").build());
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "packageName",
                 "databaseName",
                 schemas,
@@ -3589,6 +3660,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ true,
                 /*version=*/ 0,
                 /*setSchemaStatsBuilder=*/ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // close and re-open AppSearchImpl, the visibility document retains
         mAppSearchImpl.close();
@@ -3618,7 +3690,7 @@ public class AppSearchImplTest {
         assertThat(actualDocument).isEqualTo(expectedDocument);
 
         // remove schema and visibility document
-        mAppSearchImpl.setSchema(
+        internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "packageName",
                 "databaseName",
                 ImmutableList.of(),
@@ -3626,6 +3698,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ true,
                 /*version=*/ 0,
                 /*setSchemaStatsBuilder=*/ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // close and re-open AppSearchImpl, the visibility document removed
         mAppSearchImpl.close();
@@ -3666,7 +3739,8 @@ public class AppSearchImplTest {
                 ALWAYS_OPTIMIZE,
                 mockVisibilityChecker);
 
-        mAppSearchImpl.setSchema(
+        // Add a schema type that is not displayed by the system
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package",
                 "database",
                 schemas,
@@ -3676,6 +3750,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/false,
                 /*version=*/0,
                 /*setSchemaStatsBuilder=*/null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Get this schema as another package
         GetSchemaResponse getResponse = mAppSearchImpl.getSchema(
@@ -3689,7 +3764,7 @@ public class AppSearchImplTest {
     @Test
     public void testGetSchema_nonExistentApp() throws Exception {
         // Add a schema. The test loses meaning if the schema is completely empty.
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package",
                 "database",
                 Collections.singletonList(new AppSearchSchema.Builder("Type").build()),
@@ -3697,6 +3772,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/false,
                 /*version=*/0,
                 /*setSchemaStatsBuilder=*/null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Try to get the schema of a nonexistent package.
         GetSchemaResponse getResponse = mAppSearchImpl.getSchema(
@@ -3711,7 +3787,8 @@ public class AppSearchImplTest {
     public void testGetSchema_noAccess() throws Exception {
         List<AppSearchSchema> schemas =
                 Collections.singletonList(new AppSearchSchema.Builder("Type").build());
-        mAppSearchImpl.setSchema(
+        // Add a schema type
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package",
                 "database",
                 schemas,
@@ -3719,6 +3796,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/false,
                 /*version=*/1,
                 /*setSchemaStatsBuilder=*/null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
         GetSchemaResponse getResponse = mAppSearchImpl.getSchema(
                 "package",
                 "database",
@@ -3756,7 +3834,8 @@ public class AppSearchImplTest {
                 ALWAYS_OPTIMIZE,
                 mockVisibilityChecker);
 
-        mAppSearchImpl.setSchema(
+        // Add two schema types that are not displayed by the system.
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package",
                 "database",
                 schemas,
@@ -3770,6 +3849,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/false,
                 /*version=*/1,
                 /*setSchemaStatsBuilder=*/null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         GetSchemaResponse getResponse = mAppSearchImpl.getSchema(
                 "package",
@@ -3783,7 +3863,8 @@ public class AppSearchImplTest {
 
     @Test
     public void testDispatchObserver_samePackage_noVisStore_accept() throws Exception {
-        mAppSearchImpl.setSchema(
+        // Add a schema type
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 mContext.getPackageName(),
                 "database1",
                 ImmutableList.of(new AppSearchSchema.Builder("Type1").build()),
@@ -3791,6 +3872,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /*setSchemaStatsBuilder=*/ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Register an observer
         TestObserverCallback observer = new TestObserverCallback();
@@ -3838,7 +3920,8 @@ public class AppSearchImplTest {
                 ALWAYS_OPTIMIZE,
                 rejectChecker);
 
-        mAppSearchImpl.setSchema(
+        // Add a schema type
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 mContext.getPackageName(),
                 "database1",
                 ImmutableList.of(new AppSearchSchema.Builder("Type1").build()),
@@ -3846,6 +3929,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /*setSchemaStatsBuilder=*/ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Register an observer
         TestObserverCallback observer = new TestObserverCallback();
@@ -3882,7 +3966,8 @@ public class AppSearchImplTest {
 
     @Test
     public void testDispatchObserver_differentPackage_noVisStore_reject() throws Exception {
-        mAppSearchImpl.setSchema(
+        // Add a schema type
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 mContext.getPackageName(),
                 "database1",
                 ImmutableList.of(new AppSearchSchema.Builder("Type1").build()),
@@ -3890,6 +3975,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /*setSchemaStatsBuilder=*/ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Register an observer from a simulated different package
         TestObserverCallback observer = new TestObserverCallback();
@@ -3935,7 +4021,8 @@ public class AppSearchImplTest {
                 ALWAYS_OPTIMIZE,
                 visibilityChecker);
 
-        mAppSearchImpl.setSchema(
+        // Add a schema type
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 mContext.getPackageName(),
                 "database1",
                 ImmutableList.of(new AppSearchSchema.Builder("Type1").build()),
@@ -3943,6 +4030,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /*setSchemaStatsBuilder=*/ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Register an observer
         TestObserverCallback observer = new TestObserverCallback();
@@ -3992,7 +4080,8 @@ public class AppSearchImplTest {
                 ALWAYS_OPTIMIZE,
                 rejectChecker);
 
-        mAppSearchImpl.setSchema(
+        // Add a schema type
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 mContext.getPackageName(),
                 "database1",
                 ImmutableList.of(new AppSearchSchema.Builder("Type1").build()),
@@ -4000,6 +4089,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /*setSchemaStatsBuilder=*/ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Register an observer
         TestObserverCallback observer = new TestObserverCallback();
@@ -4042,7 +4132,7 @@ public class AppSearchImplTest {
         // Add a schema type
         assertThat(observer.getSchemaChanges()).isEmpty();
         assertThat(observer.getDocumentChanges()).isEmpty();
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 mContext.getPackageName(),
                 "database1",
                 ImmutableList.of(new AppSearchSchema.Builder("Type1").build()),
@@ -4050,6 +4140,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /*setSchemaStatsBuilder=*/ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
         assertThat(observer.getSchemaChanges()).isEmpty();
         assertThat(observer.getDocumentChanges()).isEmpty();
 
@@ -4064,7 +4155,7 @@ public class AppSearchImplTest {
 
         // Add two more schema types without touching the existing one
         observer.clear();
-        mAppSearchImpl.setSchema(
+        internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 mContext.getPackageName(),
                 "database1",
                 ImmutableList.of(
@@ -4075,6 +4166,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /*setSchemaStatsBuilder=*/ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
         assertThat(observer.getSchemaChanges()).isEmpty();
         assertThat(observer.getDocumentChanges()).isEmpty();
 
@@ -4089,7 +4181,7 @@ public class AppSearchImplTest {
     @Test
     public void testAddObserver_schemaChange_removed() throws Exception {
         // Add a schema type
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 mContext.getPackageName(),
                 "database1",
                 ImmutableList.of(
@@ -4099,6 +4191,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /*setSchemaStatsBuilder=*/ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Register an observer
         TestObserverCallback observer = new TestObserverCallback();
@@ -4110,7 +4203,7 @@ public class AppSearchImplTest {
                 observer);
 
         // Remove Type2
-        mAppSearchImpl.setSchema(
+        internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 mContext.getPackageName(),
                 "database1",
                 ImmutableList.of(new AppSearchSchema.Builder("Type1").build()),
@@ -4118,6 +4211,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ true,
                 /*version=*/ 0,
                 /*setSchemaStatsBuilder=*/ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Dispatch notifications
         assertThat(observer.getSchemaChanges()).isEmpty();
@@ -4134,7 +4228,7 @@ public class AppSearchImplTest {
     @Test
     public void testAddObserver_schemaChange_contents() throws Exception {
         // Add a schema
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 mContext.getPackageName(),
                 "database1",
                 ImmutableList.of(
@@ -4150,6 +4244,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /*setSchemaStatsBuilder=*/ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Register an observer
         TestObserverCallback observer = new TestObserverCallback();
@@ -4161,7 +4256,7 @@ public class AppSearchImplTest {
                 observer);
 
         // Update the schema, but don't make any actual changes
-        mAppSearchImpl.setSchema(
+        internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 mContext.getPackageName(),
                 "database1",
                 ImmutableList.of(
@@ -4177,6 +4272,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 1,
                 /*setSchemaStatsBuilder=*/ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Dispatch notifications
         assertThat(observer.getSchemaChanges()).isEmpty();
@@ -4187,7 +4283,7 @@ public class AppSearchImplTest {
 
         // Now update the schema again, but this time actually make a change (cardinality of the
         // property)
-        mAppSearchImpl.setSchema(
+        internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 mContext.getPackageName(),
                 "database1",
                 ImmutableList.of(
@@ -4203,6 +4299,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 2,
                 /*setSchemaStatsBuilder=*/ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Dispatch notifications
         assertThat(observer.getSchemaChanges()).isEmpty();
@@ -4217,7 +4314,7 @@ public class AppSearchImplTest {
     @Test
     public void testAddObserver_schemaChange_contents_skipBySpec() throws Exception {
         // Add a schema
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 mContext.getPackageName(),
                 "database1",
                 ImmutableList.of(
@@ -4239,6 +4336,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /*setSchemaStatsBuilder=*/ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Register an observer that only listens for Type2
         TestObserverCallback observer = new TestObserverCallback();
@@ -4250,7 +4348,7 @@ public class AppSearchImplTest {
                 observer);
 
         // Update both types of the schema (changed cardinalities)
-        mAppSearchImpl.setSchema(
+        internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 mContext.getPackageName(),
                 "database1",
                 ImmutableList.of(
@@ -4272,6 +4370,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /*setSchemaStatsBuilder=*/ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Dispatch notifications
         assertThat(observer.getSchemaChanges()).isEmpty();
@@ -4319,7 +4418,7 @@ public class AppSearchImplTest {
         List<AppSearchSchema> schemas = ImmutableList.of(
                 new AppSearchSchema.Builder("Type1").build(),
                 new AppSearchSchema.Builder("Type2").build());
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 mContext.getPackageName(),
                 "database1",
                 schemas,
@@ -4336,6 +4435,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /*setSchemaStatsBuilder=*/ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Notifications of addition should now be dispatched
         assertThat(observer.getSchemaChanges()).isEmpty();
@@ -4348,7 +4448,7 @@ public class AppSearchImplTest {
         observer.clear();
 
         // Update schema, keeping the types identical but denying visibility to type2
-        mAppSearchImpl.setSchema(
+        internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 mContext.getPackageName(),
                 "database1",
                 schemas,
@@ -4362,6 +4462,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /*setSchemaStatsBuilder=*/ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Dispatch notifications. This should look like a deletion of Type2.
         assertThat(observer.getSchemaChanges()).isEmpty();
@@ -4374,7 +4475,7 @@ public class AppSearchImplTest {
         observer.clear();
 
         // Now update Type2 and make sure no further notification is received.
-        mAppSearchImpl.setSchema(
+        internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 mContext.getPackageName(),
                 "database1",
                 ImmutableList.of(
@@ -4396,6 +4497,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /*setSchemaStatsBuilder=*/ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         assertThat(observer.getSchemaChanges()).isEmpty();
         assertThat(observer.getDocumentChanges()).isEmpty();
@@ -4404,7 +4506,7 @@ public class AppSearchImplTest {
         assertThat(observer.getDocumentChanges()).isEmpty();
 
         // Grant visibility to Type2 again and make sure it appears
-        mAppSearchImpl.setSchema(
+        internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 mContext.getPackageName(),
                 "database1",
                 ImmutableList.of(
@@ -4429,6 +4531,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /*setSchemaStatsBuilder=*/ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Dispatch notifications. This should look like a creation of Type2.
         assertThat(observer.getSchemaChanges()).isEmpty();
@@ -4458,7 +4561,7 @@ public class AppSearchImplTest {
                 visibilityChecker);
 
         // Add a schema.
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 mContext.getPackageName(),
                 "database1",
                 ImmutableList.of(
@@ -4480,6 +4583,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /*setSchemaStatsBuilder=*/ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Register an observer
         TestObserverCallback observer = new TestObserverCallback();
@@ -4491,7 +4595,7 @@ public class AppSearchImplTest {
                 observer);
 
         // Update both types of the schema (changed cardinalities)
-        mAppSearchImpl.setSchema(
+        internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 mContext.getPackageName(),
                 "database1",
                 ImmutableList.of(
@@ -4513,6 +4617,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /*setSchemaStatsBuilder=*/ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Dispatch notifications
         assertThat(observer.getSchemaChanges()).isEmpty();
@@ -4542,7 +4647,7 @@ public class AppSearchImplTest {
                 visibilityChecker);
 
         // Add a schema.
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 mContext.getPackageName(),
                 "database1",
                 ImmutableList.of(
@@ -4552,6 +4657,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /*setSchemaStatsBuilder=*/ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Register an observer
         TestObserverCallback observer = new TestObserverCallback();
@@ -4563,7 +4669,7 @@ public class AppSearchImplTest {
                 observer);
 
         // Remove Type1
-        mAppSearchImpl.setSchema(
+        internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 mContext.getPackageName(),
                 "database1",
                 ImmutableList.of(new AppSearchSchema.Builder("Type2").build()),
@@ -4571,6 +4677,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ true,
                 /*version=*/ 0,
                 /*setSchemaStatsBuilder=*/ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Dispatch notifications. Nothing should appear since Type1 is not visible to us.
         assertThat(observer.getSchemaChanges()).isEmpty();
@@ -4580,7 +4687,7 @@ public class AppSearchImplTest {
         assertThat(observer.getDocumentChanges()).isEmpty();
 
         // Now remove Type2. This should cause a notification.
-        mAppSearchImpl.setSchema(
+        internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 mContext.getPackageName(),
                 "database1",
                 ImmutableList.of(),
@@ -4588,6 +4695,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ true,
                 /*version=*/ 0,
                 /*setSchemaStatsBuilder=*/ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
         assertThat(observer.getSchemaChanges()).isEmpty();
         assertThat(observer.getDocumentChanges()).isEmpty();
         mAppSearchImpl.dispatchAndClearChangeNotifications();
@@ -4629,7 +4737,7 @@ public class AppSearchImplTest {
                 visibilityChecker);
 
         // Add a schema.
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 mContext.getPackageName(),
                 "database1",
                 ImmutableList.of(
@@ -4642,6 +4750,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /*setSchemaStatsBuilder=*/ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Register three observers: one in each package, and another in package1 with a filter.
         TestObserverCallback observerPkg1NoFilter = new TestObserverCallback();
@@ -4669,7 +4778,7 @@ public class AppSearchImplTest {
                 observerPkg1FilterType4);
 
         // Remove everything
-        mAppSearchImpl.setSchema(
+        internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 mContext.getPackageName(),
                 "database1",
                 ImmutableList.of(),
@@ -4677,6 +4786,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ true,
                 /*version=*/ 0,
                 /*setSchemaStatsBuilder=*/ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Dispatch notifications.
         mAppSearchImpl.dispatchAndClearChangeNotifications();
@@ -4706,7 +4816,7 @@ public class AppSearchImplTest {
     @Test
     public void testAddObserver_schemaChange_noChangeIfIncompatible() throws Exception {
         // Add a schema with two types.
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 mContext.getPackageName(),
                 "database1",
                 ImmutableList.of(
@@ -4731,6 +4841,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 1,
                 /*setSchemaStatsBuilder=*/ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Register an observer
         TestObserverCallback observer = new TestObserverCallback();
@@ -4759,7 +4870,7 @@ public class AppSearchImplTest {
                                         .build()
                         ).build()
         );
-        SetSchemaResponse setSchemaResponse = mAppSearchImpl.setSchema(
+        internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 mContext.getPackageName(),
                 "database1",
                 updatedSchemaTypes,
@@ -4767,6 +4878,8 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 2,
                 /*setSchemaStatsBuilder=*/ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isFalse();
+        SetSchemaResponse setSchemaResponse = internalSetSchemaResponse.getSetSchemaResponse();
         assertThat(setSchemaResponse.getDeletedTypes()).isEmpty();
         assertThat(setSchemaResponse.getIncompatibleTypes()).containsExactly("Type1");
 
@@ -4779,7 +4892,7 @@ public class AppSearchImplTest {
         assertThat(observer.getDocumentChanges()).isEmpty();
 
         // Now force apply the schemas Type2. This should cause a notification.
-        mAppSearchImpl.setSchema(
+        internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 mContext.getPackageName(),
                 "database1",
                 updatedSchemaTypes,
@@ -4787,6 +4900,7 @@ public class AppSearchImplTest {
                 /*forceOverride=*/ true,
                 /*version=*/ 3,
                 /*setSchemaStatsBuilder=*/ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
         assertThat(observer.getSchemaChanges()).isEmpty();
         assertThat(observer.getDocumentChanges()).isEmpty();
         mAppSearchImpl.dispatchAndClearChangeNotifications();

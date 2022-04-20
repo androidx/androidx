@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
+import androidx.appsearch.app.InternalSetSchemaResponse;
 import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchSpec;
 
@@ -65,7 +66,7 @@ public class SearchResultsImplTest {
         // Insert package1 schema
         List<AppSearchSchema> schema1 =
                 ImmutableList.of(new AppSearchSchema.Builder("schema1").build());
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package1",
                 "database1",
                 schema1,
@@ -73,6 +74,7 @@ public class SearchResultsImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Insert one package1 documents
         GenericDocument document1 = new GenericDocument.Builder<>("namespace", "id1",
@@ -113,7 +115,7 @@ public class SearchResultsImplTest {
         // Insert package1 schema
         List<AppSearchSchema> schema1 =
                 ImmutableList.of(new AppSearchSchema.Builder("schema1").build());
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package1",
                 "database1",
                 schema1,
@@ -121,6 +123,7 @@ public class SearchResultsImplTest {
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Insert 3 package1 documents
         GenericDocument document1 = new GenericDocument.Builder<>("namespace", "id1",
