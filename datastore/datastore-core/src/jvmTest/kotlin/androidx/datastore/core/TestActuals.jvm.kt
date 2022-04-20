@@ -16,5 +16,32 @@
 
 package androidx.datastore.core
 
+import java.nio.file.Files
+
 actual fun InputStream.readInt(): Int = this.read()
 actual fun OutputStream.writeInt(value: Int)= write(value)
+
+actual class TestIO {
+    private val tmpDir = Files.createTempDirectory(
+        "datastore-test-io"
+    ).also {
+        it.toFile().deleteOnExit()
+    }
+    actual fun <T> newFileStorage(serializer: Serializer<T>): Storage<T> {
+        return FileStorage(
+            produceFile = {
+                Files.createTempFile(
+                    tmpDir,
+                    "test-file", // prefix
+                    ""//suffix
+                ).toFile()
+            },
+            serializer = serializer
+        )
+    }
+
+    actual fun cleanup() {
+        tmpDir.toFile().deleteRecursively()
+    }
+
+}

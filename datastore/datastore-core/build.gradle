@@ -38,6 +38,7 @@ kotlin {
             dependencies {
                 implementation(libs.kotlinTestCommon)
                 implementation(libs.kotlinTestAnnotationsCommon)
+                implementation(libs.kotlinCoroutinesTest)
             }
         }
 
@@ -59,7 +60,7 @@ kotlin {
             dependsOn(commonTest)
             dependencies {
                 implementation(libs.junit)
-                implementation(libs.kotlinCoroutinesTest)
+                implementation(libs.kotlinTestJunit)
                 implementation(libs.truth)
                 implementation(project(":internal-testutils-truth"))
             }

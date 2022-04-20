@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,44 +17,32 @@
 package androidx.datastore.core
 
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
-import com.google.common.truth.Truth.assertThat
+import androidx.kruth.assertThat
+import kotlin.test.Test
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TemporaryFolder
-import org.junit.rules.Timeout
-import java.io.File
-import java.util.concurrent.TimeUnit
 
 @kotlinx.coroutines.ExperimentalCoroutinesApi
 @kotlinx.coroutines.ObsoleteCoroutinesApi
 @kotlinx.coroutines.FlowPreview
 class DataStoreFactoryTest {
-    @get:Rule
-    val timeout = Timeout(10, TimeUnit.SECONDS)
+    // TODO add timeout
+//    @get:Rule
+//    val timeout = Timeout(10, TimeUnit.SECONDS)
 
-    @get:Rule
-    val tmp = TemporaryFolder()
+    val testIO = TestIO()
 
-    private lateinit var testFile: File
-    private lateinit var dataStoreScope: TestScope
+    private val dataStoreScope: TestScope = TestScope(UnconfinedTestDispatcher())
 
-    @Before
-    fun setUp() {
-        testFile = tmp.newFile()
-        dataStoreScope = TestScope(UnconfinedTestDispatcher())
-    }
 
     @Test
-    fun testNewInstance() = runTest {
+    fun testNewInstance() = dataStoreScope.runTest {
         val store = DataStoreFactory.create(
-            serializer = TestingSerializer(),
+            storage = testIO.newFileStorage(TestingSerializer()),
             scope = dataStoreScope
-        ) { testFile }
+        )
 
         val expectedByte = 123.toByte()
 
@@ -71,12 +59,12 @@ class DataStoreFactoryTest {
         val valueToReplace = 123.toByte()
 
         val store = DataStoreFactory.create(
-            serializer = TestingSerializer(failReadWithCorruptionException = true),
+            storage = testIO.newFileStorage(TestingSerializer(failReadWithCorruptionException = true)),
             corruptionHandler = ReplaceFileCorruptionHandler<Byte> {
                 valueToReplace
             },
             scope = dataStoreScope
-        ) { testFile }
+        )
 
         assertThat(store.data.first()).isEqualTo(valueToReplace)
     }
@@ -99,11 +87,11 @@ class DataStoreFactoryTest {
         }
 
         val store = DataStoreFactory.create(
-            serializer = TestingSerializer(),
+            storage = testIO.newFileStorage(TestingSerializer()),
             migrations = listOf(migratePlus2, migrateMinus1),
             scope = dataStoreScope
-        ) { testFile }
+        )
 
-        assertThat(store.data.first()).isEqualTo(migratedByte)
+        assertThat(store.data.first()).isEqualTo(migratedByte.toByte())
     }
 }

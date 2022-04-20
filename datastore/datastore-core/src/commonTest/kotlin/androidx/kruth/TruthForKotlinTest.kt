@@ -14,17 +14,25 @@
  * limitations under the License.
  */
 
-package androidx.datastore.core
+package androidx.kruth
 
-expect fun InputStream.readInt(): Int
-expect fun OutputStream.writeInt(value: Int)
+import kotlin.test.assertEquals
 
-
-expect class TestIO (
+// This mimics truth APis. not that we would merge it but makes moving tests and trying it
+// easier
+class KruthAssertion<T>(
+    val actual: T?
 ) {
-    fun <T> newFileStorage(
-        serializer: Serializer<T>
-    ): Storage<T>
-
-    fun cleanup()
+    fun isEqualTo(
+        expected: T?
+    ) {
+        // TODO truth does some clever conversions here. e.g. you can say byte is equal to int
+        assertEquals(
+            expected = expected,
+            actual = actual
+        )
+    }
 }
+fun <T> assertThat(
+    actual: T?
+) = KruthAssertion(actual)
