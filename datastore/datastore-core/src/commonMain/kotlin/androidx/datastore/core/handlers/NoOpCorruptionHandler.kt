@@ -22,8 +22,7 @@ import androidx.datastore.core.CorruptionHandler
  * Default corruption handler which does nothing but rethrow the exception.
  */
 internal class NoOpCorruptionHandler<T> : CorruptionHandler<T> {
-
-    @Throws(CorruptionException::class)
+    // TODO needs expect actual to be able to throw from here for java compat
     override suspend fun handleCorruption(ex: CorruptionException): T {
         throw ex
     }

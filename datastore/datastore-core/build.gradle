@@ -26,6 +26,7 @@ kotlin {
     jvm {
         withJava()
     }
+    macosX64()
     sourceSets {
         commonMain {
             dependencies {
@@ -36,6 +37,11 @@ kotlin {
         commonTest {
         }
 
+        macosX64Main { // TODO move this to nativeMain or nonJvmMain
+            dependencies {
+                api(implementation("com.squareup.okio:okio:3.0.0"))
+            }
+        }
         jvmMain {
             dependencies {
                 api(libs.kotlinStdlib)
@@ -43,6 +49,7 @@ kotlin {
                 api("androidx.annotation:annotation:1.1.0")
             }
         }
+
         jvmTest {
             dependencies {
                 implementation(libs.junit)
