@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,8 @@
 
 package androidx.datastore.core
 
-import java.io.IOException
-import java.io.InputStream
-import java.io.OutputStream
-
+expect abstract class InputStream
+expect abstract class OutputStream
 /**
  * The serializer determines the on-disk format and API for accessing it.
  *
@@ -49,11 +47,3 @@ public interface Serializer<T> {
      */
     public suspend fun writeTo(t: T, output: OutputStream)
 }
-
-/**
- * A subclass of IOException that indicates that the file could not be de-serialized due
- * to data format corruption. This exception should not be thrown when the IOException is
- * due to a transient IO issue or permissions issue.
- */
-public class CorruptionException(message: String, cause: Throwable? = null) :
-    IOException(message, cause)
