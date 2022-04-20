@@ -35,6 +35,10 @@ kotlin {
             }
         }
         commonTest {
+            dependencies {
+                implementation(libs.kotlinTestCommon)
+                implementation(libs.kotlinTestAnnotationsCommon)
+            }
         }
 
         macosX64Main { // TODO move this to nativeMain or nonJvmMain
@@ -52,6 +56,7 @@ kotlin {
         }
 
         jvmTest {
+            dependsOn(commonTest)
             dependencies {
                 implementation(libs.junit)
                 implementation(libs.kotlinCoroutinesTest)

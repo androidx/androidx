@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,7 @@
 
 package androidx.datastore.core
 
-import java.io.IOException
-import java.io.InputStream
-import java.io.OutputStream
+import kotlin.jvm.Volatile
 
 internal class TestingSerializer(
     @Volatile var failReadWithCorruptionException: Boolean = false,
@@ -38,7 +36,7 @@ internal class TestingSerializer(
             throw IOException("I was asked to fail on reads")
         }
 
-        val read = input.read()
+        val read = input.readInt()
         if (read == -1) {
             return 0
         }
@@ -49,6 +47,6 @@ internal class TestingSerializer(
         if (failingWrite) {
             throw IOException("I was asked to fail on writes")
         }
-        output.write(t.toInt())
+        output.writeInt(t.toInt())
     }
 }
