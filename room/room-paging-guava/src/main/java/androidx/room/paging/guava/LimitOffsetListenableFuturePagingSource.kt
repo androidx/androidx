@@ -19,6 +19,7 @@ package androidx.room.paging.guava
 import android.database.Cursor
 import androidx.annotation.NonNull
 import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import androidx.paging.ListenableFuturePagingSource
 import androidx.paging.PagingState
 import androidx.room.RoomDatabase
@@ -32,6 +33,7 @@ import androidx.room.paging.util.queryDatabase
 import androidx.room.paging.util.queryItemCount
 import androidx.room.util.createCancellationSignal
 import androidx.sqlite.db.SupportSQLiteQuery
+import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.Callable
 import java.util.concurrent.atomic.AtomicInteger
@@ -53,7 +55,7 @@ abstract class LimitOffsetListenableFuturePagingSource<Value : Any>(
         tables = tables,
     )
 
-    // internal for testing visibility
+    @VisibleForTesting
     internal val itemCount: AtomicInteger = AtomicInteger(INITIAL_ITEM_COUNT)
     private val observer = ThreadSafeInvalidationObserver(tables = tables, ::invalidate)
 
@@ -65,13 +67,18 @@ abstract class LimitOffsetListenableFuturePagingSource<Value : Any>(
     * cancellation of await() will transitively cancel this future as well.
     */
     override fun loadFuture(params: LoadParams<Int>): ListenableFuture<LoadResult<Int, Value>> {
-        observer.registerIfNecessary(db)
-        val tempCount = itemCount.get()
-        return if (tempCount == INITIAL_ITEM_COUNT) {
-            initialLoad(params)
-        } else {
-            nonInitialLoad(params, tempCount)
-        }
+        return Futures.transformAsync(
+            createListenableFuture(db, false) { observer.registerIfNecessary(db) },
+            {
+                val tempCount = itemCount.get()
+                if (tempCount == INITIAL_ITEM_COUNT) {
+                    initialLoad(params)
+                } else {
+                    nonInitialLoad(params, tempCount)
+                }
+            },
+            db.queryExecutor
+        )
     }
 
     /**
