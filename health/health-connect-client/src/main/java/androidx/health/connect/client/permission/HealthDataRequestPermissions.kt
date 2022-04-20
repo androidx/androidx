@@ -18,7 +18,6 @@ package androidx.health.connect.client.permission
 import android.content.Context
 import android.content.Intent
 import androidx.activity.result.contract.ActivityResultContract
-import androidx.annotation.RestrictTo
 import androidx.health.connect.client.HealthConnectClient.Companion.DEFAULT_PROVIDER_PACKAGE_NAME
 import androidx.health.connect.client.impl.converters.permission.toJetpackPermission
 import androidx.health.connect.client.impl.converters.permission.toProtoPermission
@@ -32,9 +31,10 @@ import androidx.health.platform.client.service.HealthDataServiceConstants.KEY_RE
  *
  * @param providerPackageName Optional provider package name for the backing implementation of
  * choice.
+ *
+ * @see androidx.activity.ComponentActivity.registerForActivityResult
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-class HealthDataRequestPermissions(
+public class HealthDataRequestPermissions(
     private val providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME,
 ) : ActivityResultContract<Set<Permission>, Set<Permission>>() {
 

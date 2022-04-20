@@ -96,6 +96,10 @@ class FakeHealthDataService : IHealthDataService.Stub() {
         context: RequestContext,
         callback: IRevokeAllPermissionsCallback,
     ) {
+        errorCode?.let {
+            callback.onError(ErrorStatus.create(it, "" + it))
+            return@revokeAllPermissions
+        }
         grantedPermissions.clear()
         callback.onSuccess()
     }

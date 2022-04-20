@@ -18,7 +18,11 @@ package androidx.health.connect.client.permission
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 
-/** Type of access to health data: read or write. */
+/**
+ * Type of access to health data: read or write.
+ *
+ * @see Permission.create
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public object AccessTypes {
     const val READ = 1
