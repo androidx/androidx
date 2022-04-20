@@ -548,6 +548,10 @@ public final class AppSearchImpl implements Closeable {
 
         // This check is needed wherever setSchema is called to detect soft errors which do not
         // throw an exception but also prevent the schema from actually being applied.
+        // TODO(b/229874420): Improve the usability of doSetSchemaNoChangeNotificationLocked() by
+        //  adding documentation that the return value must be checked for these conditions, and by
+        //  making it easier to check for these conditions via one of the ways documented in the
+        //  bug.
         if (!forceOverride && (
                 !setSchemaResponse.getDeletedTypes().isEmpty()
                         || !setSchemaResponse.getIncompatibleTypes().isEmpty())
