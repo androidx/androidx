@@ -21,9 +21,6 @@ import okio.BufferedSink
 import okio.BufferedSource
 import okio.FileSystem
 
-actual fun InputStream.readInt(): Int = (this as BufferedSource).readInt()
-actual fun OutputStream.writeInt(value: Int) { (this as BufferedSink).writeInt(value) }
-
 actual class TestIO {
     // TODO could use fake filesysyem but we actually rather test with real filesystem
     private val fileSystem = FileSystem.SYSTEM

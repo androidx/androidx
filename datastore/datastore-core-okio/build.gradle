@@ -15,6 +15,7 @@
  */
 
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
@@ -31,40 +32,23 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
+                api(project(":datastore:datastore-core"))
                 api(libs.kotlinStdlib)
                 api(libs.kotlinCoroutinesCore)
-            }
-        }
-        commonTest {
-            dependencies {
-                implementation(libs.kotlinTestCommon)
-                implementation(libs.kotlinTestAnnotationsCommon)
-                implementation(libs.kotlinCoroutinesTest)
-                implementation(project(":datastore:datastore-core-okio"))
-            }
-        }
-
-        macosX64Main { // TODO move this to nativeMain or nonJvmMain
-            dependencies {
                 api("com.squareup.okio:okio:3.0.0")
-                implementation("org.jetbrains.kotlinx:atomicfu:0.17.2")
             }
         }
         jvmMain {
-            dependencies {
-                api(libs.kotlinStdlib)
-                api(libs.kotlinCoroutinesCore)
-                api("androidx.annotation:annotation:1.1.0")
-            }
+            dependsOn(commonMain)
         }
-
-        jvmTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(libs.junit)
-                implementation(libs.kotlinTestJunit)
-                implementation(libs.truth)
-                implementation(project(":internal-testutils-truth"))
+        nativeMain {
+            dependsOn(commonMain)
+        }
+    }
+    targets.forEach {target ->
+        if (target.platformType == KotlinPlatformType.native) {
+            target.compilations["main"].defaultSourceSet {
+                dependsOn(sourceSets["nativeMain"])
             }
         }
     }
@@ -76,11 +60,11 @@ kotlin {
 }
 
 androidx {
-    name = "Android DataStore Core"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    name = "Android DataStore Core Okio"
+    publish = Publish.NONE
     mavenGroup = LibraryGroups.DATASTORE
     inceptionYear = "2020"
-    description = "Android DataStore Core - contains the underlying store used by each serialization method"
+    description = "Android DataStore Core Okio- contains APIs to use datastore-core in multiplatform via okio"
     legacyDisableKotlinStrictApiMode = true
     publishPlatforms = ["jvm"]
 }

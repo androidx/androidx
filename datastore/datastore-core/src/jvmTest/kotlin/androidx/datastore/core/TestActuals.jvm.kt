@@ -18,9 +18,6 @@ package androidx.datastore.core
 
 import java.nio.file.Files
 
-actual fun InputStream.readInt(): Int = this.read()
-actual fun OutputStream.writeInt(value: Int)= write(value)
-
 actual class TestIO {
     private val tmpDir = Files.createTempDirectory(
         "datastore-test-io"

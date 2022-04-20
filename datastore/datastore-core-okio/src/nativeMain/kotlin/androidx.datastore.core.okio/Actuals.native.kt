@@ -14,13 +14,18 @@
  * limitations under the License.
  */
 
-package androidx.datastore.core
+package androidx.datastore.core.okio
 
-expect class TestIO (
-) {
-    fun <T> newFileStorage(
-        serializer: Serializer<T>
-    ): Storage<T>
+import androidx.datastore.core.InputStream
+import androidx.datastore.core.OutputStream
+import okio.BufferedSink
+import okio.BufferedSource
 
-    fun cleanup()
+
+actual fun InputStream.asBufferedSource(): BufferedSource {
+    return this as BufferedSource
+}
+
+actual  fun OutputStream.asBufferedSink(): BufferedSink {
+    return this as BufferedSink
 }
