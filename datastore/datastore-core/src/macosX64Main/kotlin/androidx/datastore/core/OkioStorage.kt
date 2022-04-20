@@ -19,6 +19,7 @@ package androidx.datastore.core
 import androidx.datastore.core.Storage.Companion.SCRATCH_SUFFIX
 import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.update
+import okio.FileNotFoundException
 import okio.FileSystem
 import okio.Path
 
@@ -32,9 +33,12 @@ class OkioStorage<T>(
         check(originalPath.isAbsolute) {
             "figure out how to make this canoncnical"
         }
-        val canonicalPath = fileSystem.canonicalize(path = originalPath)
+        // TODO we need to convert this to canonical path but okio cannot do it if it does not
+        //  exist so we need to do it more carefull i guess
+        //  fileSystem.canonicalize(path = originalPath)
+        val canonicalPath = originalPath
         activePaths.update {
-            check(it.add(canonicalPath)) {
+            check(!it.contains(canonicalPath)) {
                 """
                 There are multiple DataStores active for the same file: $originalPath. You
                 should either maintain your DataStore as a singleton or confirm that there
@@ -42,18 +46,24 @@ class OkioStorage<T>(
                 is cancelled.
                 """.trimIndent()
             }
-            it
+            it + canonicalPath
         }
         canonicalPath
     }
     override suspend fun readData(): T {
+        println("READING")
         return try {
+            // TODO current implementation of FileStorage always calls serializer even when
+            //  the file does not exist. OTOH, okio throws file not found exception. Unfortunately
+            //  the DataStoreFactory.testCorruptionHandlerInstalled test does not account fot this.
+            //  need to decide what to do,
             fileSystem.read(
                 file = canonicalPath
             ) {
                 serializer.readFrom(this.toInputStream())
             }
-        } catch (th: Throwable) {
+        } catch (th: FileNotFoundException) {
+            println("CAUGHT EXCEPTION ${th} /${th::class.qualifiedName}")
             if (fileSystem.exists(path = canonicalPath)) {
                 throw th
             }
@@ -94,12 +104,12 @@ class OkioStorage<T>(
     override fun onComplete() {
         activePaths.update {
             it.also {
-                it.remove(canonicalPath)
+                it - canonicalPath
             }
         }
     }
 
     companion object {
-        private val activePaths = atomic(mutableSetOf<Path>())
+        private val activePaths = atomic(emptySet<Path>())
     }
 }
