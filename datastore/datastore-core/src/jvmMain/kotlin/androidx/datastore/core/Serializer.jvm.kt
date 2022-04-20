@@ -16,14 +16,7 @@
 
 package androidx.datastore.core
 
-import java.io.IOException
-
 actual typealias InputStream = java.io.InputStream
 actual typealias OutputStream = java.io.OutputStream
-/**
- * A subclass of IOException that indicates that the file could not be de-serialized due
- * to data format corruption. This exception should not be thrown when the IOException is
- * due to a transient IO issue or permissions issue.
- */
-public class CorruptionException(message: String, cause: Throwable? = null) :
-    IOException(message, cause)
+
+actual typealias IOException = java.io.IOException

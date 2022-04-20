@@ -26,9 +26,12 @@ kotlin {
     jvm {
         withJava()
     }
-
     sourceSets {
         commonMain {
+            dependencies {
+                api(libs.kotlinStdlib)
+                api(libs.kotlinCoroutinesCore)
+            }
         }
         commonTest {
         }

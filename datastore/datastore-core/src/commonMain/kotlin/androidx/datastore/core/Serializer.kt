@@ -18,6 +18,9 @@ package androidx.datastore.core
 
 expect abstract class InputStream
 expect abstract class OutputStream
+expect class IOException : Exception {
+    constructor(message: String, cause: Throwable)
+}
 /**
  * The serializer determines the on-disk format and API for accessing it.
  *
@@ -47,3 +50,11 @@ public interface Serializer<T> {
      */
     public suspend fun writeTo(t: T, output: OutputStream)
 }
+
+/**
+ * A subclass of IOException that indicates that the file could not be de-serialized due
+ * to data format corruption. This exception should not be thrown when the IOException is
+ * due to a transient IO issue or permissions issue.
+ */
+public class CorruptionException(message: String, cause: Throwable? = null) :
+    IOException(message, cause)
