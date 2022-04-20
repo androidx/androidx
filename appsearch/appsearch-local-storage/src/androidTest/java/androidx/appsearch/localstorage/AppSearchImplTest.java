@@ -3668,7 +3668,7 @@ public class AppSearchImplTest {
                 "database1",
                 ImmutableList.of(new AppSearchSchema.Builder("Type1").build()),
                 /*visibilityDocuments=*/ Collections.emptyList(),
-                /*forceOverride=*/ false,
+                /*forceOverride=*/ true,
                 /*version=*/ 0,
                 /*setSchemaStatsBuilder=*/ null);
 
@@ -4121,7 +4121,7 @@ public class AppSearchImplTest {
                 "database1",
                 ImmutableList.of(new AppSearchSchema.Builder("Type2").build()),
                 /*visibilityDocuments=*/ Collections.emptyList(),
-                /*forceOverride=*/ false,
+                /*forceOverride=*/ true,
                 /*version=*/ 0,
                 /*setSchemaStatsBuilder=*/ null);
 
@@ -4138,7 +4138,7 @@ public class AppSearchImplTest {
                 "database1",
                 ImmutableList.of(),
                 /*visibilityDocuments=*/ Collections.emptyList(),
-                /*forceOverride=*/ false,
+                /*forceOverride=*/ true,
                 /*version=*/ 0,
                 /*setSchemaStatsBuilder=*/ null);
         assertThat(observer.getSchemaChanges()).isEmpty();
@@ -4227,7 +4227,7 @@ public class AppSearchImplTest {
                 "database1",
                 ImmutableList.of(),
                 /*visibilityDocuments=*/ Collections.emptyList(),
-                /*forceOverride=*/ false,
+                /*forceOverride=*/ true,
                 /*version=*/ 0,
                 /*setSchemaStatsBuilder=*/ null);
 
@@ -4254,5 +4254,98 @@ public class AppSearchImplTest {
                         mContext.getPackageName(), "database1", ImmutableSet.of("Type4"))
         );
         assertThat(observerPkg1FilterType4.getDocumentChanges()).isEmpty();
+    }
+
+    @Test
+    public void testAddObserver_schemaChange_noChangeIfIncompatible() throws Exception {
+        // Add a schema with two types.
+        mAppSearchImpl.setSchema(
+                mContext.getPackageName(),
+                "database1",
+                ImmutableList.of(
+                        new AppSearchSchema.Builder("Type1")
+                                .addProperty(
+                                        new AppSearchSchema.StringPropertyConfig.Builder("strProp")
+                                                .setCardinality(
+                                                        AppSearchSchema.PropertyConfig
+                                                                .CARDINALITY_OPTIONAL)
+                                                .build()
+                                ).build(),
+                        new AppSearchSchema.Builder("Type2")
+                                .addProperty(
+                                        new AppSearchSchema.StringPropertyConfig.Builder("strProp")
+                                                .setCardinality(
+                                                        AppSearchSchema.PropertyConfig
+                                                                .CARDINALITY_OPTIONAL)
+                                                .build()
+                                ).build()
+                ),
+                /*visibilityDocuments=*/ Collections.emptyList(),
+                /*forceOverride=*/ false,
+                /*version=*/ 1,
+                /*setSchemaStatsBuilder=*/ null);
+
+        // Register an observer
+        TestObserverCallback observer = new TestObserverCallback();
+        mAppSearchImpl.registerObserverCallback(
+                new CallerAccess(/*callingPackageName=*/mContext.getPackageName()),
+                /*targetPackageName=*/mContext.getPackageName(),
+                new ObserverSpec.Builder().build(),
+                MoreExecutors.directExecutor(),
+                observer);
+
+        // Update schema to try to make an incompatible change to Type1, and a compatible change to
+        // Type2.
+        List<AppSearchSchema> updatedSchemaTypes = ImmutableList.of(
+                new AppSearchSchema.Builder("Type1")
+                        .addProperty(
+                                new AppSearchSchema.StringPropertyConfig.Builder("strProp")
+                                        .setCardinality(
+                                                AppSearchSchema.PropertyConfig.CARDINALITY_REQUIRED)
+                                        .build()
+                        ).build(),
+                new AppSearchSchema.Builder("Type2")
+                        .addProperty(
+                                new AppSearchSchema.StringPropertyConfig.Builder("strProp")
+                                        .setCardinality(
+                                                AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+                                        .build()
+                        ).build()
+        );
+        SetSchemaResponse setSchemaResponse = mAppSearchImpl.setSchema(
+                mContext.getPackageName(),
+                "database1",
+                updatedSchemaTypes,
+                /*visibilityDocuments=*/ Collections.emptyList(),
+                /*forceOverride=*/ false,
+                /*version=*/ 2,
+                /*setSchemaStatsBuilder=*/ null);
+        assertThat(setSchemaResponse.getDeletedTypes()).isEmpty();
+        assertThat(setSchemaResponse.getIncompatibleTypes()).containsExactly("Type1");
+
+        // Dispatch notifications. Nothing should appear since the schema was incompatible and has
+        // not changed.
+        assertThat(observer.getSchemaChanges()).isEmpty();
+        assertThat(observer.getDocumentChanges()).isEmpty();
+        mAppSearchImpl.dispatchAndClearChangeNotifications();
+        assertThat(observer.getSchemaChanges()).isEmpty();
+        assertThat(observer.getDocumentChanges()).isEmpty();
+
+        // Now force apply the schemas Type2. This should cause a notification.
+        mAppSearchImpl.setSchema(
+                mContext.getPackageName(),
+                "database1",
+                updatedSchemaTypes,
+                /*visibilityDocuments=*/ Collections.emptyList(),
+                /*forceOverride=*/ true,
+                /*version=*/ 3,
+                /*setSchemaStatsBuilder=*/ null);
+        assertThat(observer.getSchemaChanges()).isEmpty();
+        assertThat(observer.getDocumentChanges()).isEmpty();
+        mAppSearchImpl.dispatchAndClearChangeNotifications();
+        assertThat(observer.getSchemaChanges()).containsExactly(
+                new SchemaChangeInfo(
+                        mContext.getPackageName(), "database1", ImmutableSet.of("Type1", "Type2")));
+        assertThat(observer.getDocumentChanges()).isEmpty();
     }
 }

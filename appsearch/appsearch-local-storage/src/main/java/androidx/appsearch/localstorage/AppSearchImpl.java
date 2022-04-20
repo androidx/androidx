@@ -546,6 +546,15 @@ public final class AppSearchImpl implements Closeable {
                 version,
                 setSchemaStatsBuilder);
 
+        // This check is needed wherever setSchema is called to detect soft errors which do not
+        // throw an exception but also prevent the schema from actually being applied.
+        if (!forceOverride && (
+                !setSchemaResponse.getDeletedTypes().isEmpty()
+                        || !setSchemaResponse.getIncompatibleTypes().isEmpty())
+        ) {
+            return setSchemaResponse;
+        }
+
         // Cache some lookup tables to help us work with the new schema
         Map<String, AppSearchSchema> newSchemaNameToType = new ArrayMap<>(schemas.size());
         // Maps unprefixed schema name to the set of listening packages that have visibility into
