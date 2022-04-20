@@ -35,11 +35,11 @@ import org.junit.runner.RunWith;
 @MediumTest
 @RunWith(AndroidJUnit4.class)
 public class WebSettingsCompatForceDarkTest extends
-        WebSettingsCompatDarkModeTestBase<WebViewTestActivity> {
+        WebSettingsCompatDarkModeTestBase<WebViewLightThemeTestActivity> {
     public WebSettingsCompatForceDarkTest() {
         // Set targetSdkVersion to the max version the force dark API works on.
         // TODO(http://b/214741472): Use VERSION_CODES.S_V2 once Android X supports it.
-        super(WebViewTestActivity.class, VERSION_CODES.S);
+        super(WebViewLightThemeTestActivity.class, VERSION_CODES.S);
     }
 
     /**
