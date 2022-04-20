@@ -20,6 +20,10 @@ package androidx.health.connect.client.records
 
 import androidx.annotation.RestrictTo
 
+internal fun requireNonNegative(value: Int, name: String) {
+    require(value >= 0) { "$name must not be negative" }
+}
+
 internal fun requireNonNegative(value: Long, name: String) {
     require(value >= 0) { "$name must not be negative" }
 }

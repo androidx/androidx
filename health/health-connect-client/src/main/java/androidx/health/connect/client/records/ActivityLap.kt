@@ -15,7 +15,6 @@
  */
 package androidx.health.connect.client.records
 
-import androidx.annotation.RestrictTo
 import androidx.health.connect.client.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
@@ -25,7 +24,6 @@ import java.time.ZoneOffset
  * activity session (such as pool length while swimming or a track lap while running). Each data
  * point represents the start / stop time for an event.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ActivityLap(
     /** Length of the lap, in meters. Optional field. Valid range: 0-1000000. */
     public val lengthMeters: Double = 0.0,
@@ -35,6 +33,10 @@ public class ActivityLap(
     override val endZoneOffset: ZoneOffset?,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : IntervalRecord {
+    init {
+        requireNonNegative(value = lengthMeters, name = "lengthMeters")
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is ActivityLap) return false

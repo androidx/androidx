@@ -15,7 +15,6 @@
  */
 package androidx.health.connect.client.records
 
-import androidx.annotation.RestrictTo
 import androidx.health.connect.client.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
@@ -25,14 +24,18 @@ import java.time.ZoneOffset
  * oxygen-saturated hemoglobin. Each record represents a single blood oxygen saturation reading at
  * the time of measurement.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class OxygenSaturation(
     /** Percentage. Required field. Valid range: 0-100. */
-    public val percentage: Double,
+    public val percentage: Int,
     override val time: Instant,
     override val zoneOffset: ZoneOffset?,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : InstantaneousRecord {
+
+    init {
+        requireNonNegative(value = percentage, name = "percentage")
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is OxygenSaturation) return false

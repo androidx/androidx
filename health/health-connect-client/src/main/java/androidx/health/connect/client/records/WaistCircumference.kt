@@ -15,13 +15,11 @@
  */
 package androidx.health.connect.client.records
 
-import androidx.annotation.RestrictTo
 import androidx.health.connect.client.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
 
 /** Captures that user's waist circumference in meters. */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class WaistCircumference(
     /** Circumference in meters. Required field. Valid range: 0-10. */
     public val circumferenceMeters: Double,
@@ -29,6 +27,9 @@ public class WaistCircumference(
     override val zoneOffset: ZoneOffset?,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : InstantaneousRecord {
+    init {
+        requireNonNegative(value = circumferenceMeters, name = "circumferenceMeters")
+    }
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is WaistCircumference) return false

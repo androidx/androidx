@@ -21,22 +21,22 @@ import androidx.health.connect.client.metadata.Metadata
 import androidx.health.connect.client.records.ActiveCaloriesBurned
 import androidx.health.connect.client.records.ActiveEnergyBurned
 import androidx.health.connect.client.records.ActivityEvent
-import androidx.health.connect.client.records.ActivityEventTypes
+import androidx.health.connect.client.records.ActivityEvent.EventType
 import androidx.health.connect.client.records.ActivityLap
 import androidx.health.connect.client.records.ActivitySession
-import androidx.health.connect.client.records.ActivityTypes
+import androidx.health.connect.client.records.ActivitySession.ActivityType
 import androidx.health.connect.client.records.BasalBodyTemperature
 import androidx.health.connect.client.records.BasalMetabolicRate
 import androidx.health.connect.client.records.BloodGlucose
 import androidx.health.connect.client.records.BloodPressure
 import androidx.health.connect.client.records.BodyFat
 import androidx.health.connect.client.records.BodyTemperature
-import androidx.health.connect.client.records.BodyTemperatureMeasurementLocations
+import androidx.health.connect.client.records.BodyTemperatureMeasurementLocation
 import androidx.health.connect.client.records.BodyWaterMass
 import androidx.health.connect.client.records.BoneMass
 import androidx.health.connect.client.records.CervicalMucus
-import androidx.health.connect.client.records.CervicalMucusAmounts
-import androidx.health.connect.client.records.CervicalMucusTextures
+import androidx.health.connect.client.records.CervicalMucus.Amount
+import androidx.health.connect.client.records.CervicalMucus.Texture
 import androidx.health.connect.client.records.CervicalPosition
 import androidx.health.connect.client.records.CyclingPedalingCadence
 import androidx.health.connect.client.records.CyclingPedalingCadenceSeries
@@ -59,28 +59,27 @@ import androidx.health.connect.client.records.HipCircumference
 import androidx.health.connect.client.records.Hydration
 import androidx.health.connect.client.records.LeanBodyMass
 import androidx.health.connect.client.records.Menstruation
-import androidx.health.connect.client.records.MenstruationFlows
+import androidx.health.connect.client.records.Menstruation.Flow
 import androidx.health.connect.client.records.Nutrition
 import androidx.health.connect.client.records.OvulationTest
-import androidx.health.connect.client.records.OvulationTestResults
+import androidx.health.connect.client.records.OvulationTest.Result
 import androidx.health.connect.client.records.OxygenSaturation
 import androidx.health.connect.client.records.Power
 import androidx.health.connect.client.records.PowerSeries
-import androidx.health.connect.client.records.RepetitionActivityTypes
 import androidx.health.connect.client.records.Repetitions
 import androidx.health.connect.client.records.RespiratoryRate
 import androidx.health.connect.client.records.RestingHeartRate
 import androidx.health.connect.client.records.SexualActivity
 import androidx.health.connect.client.records.SleepSession
 import androidx.health.connect.client.records.SleepStage
-import androidx.health.connect.client.records.SleepStageTypes
+import androidx.health.connect.client.records.SleepStage.StageType
 import androidx.health.connect.client.records.Speed
 import androidx.health.connect.client.records.SpeedSeries
 import androidx.health.connect.client.records.Steps
 import androidx.health.connect.client.records.StepsCadence
 import androidx.health.connect.client.records.StepsCadenceSeries
 import androidx.health.connect.client.records.SwimmingStrokes
-import androidx.health.connect.client.records.SwimmingTypes
+import androidx.health.connect.client.records.SwimmingStrokes.SwimmingType
 import androidx.health.connect.client.records.TotalCaloriesBurned
 import androidx.health.connect.client.records.TotalEnergyBurned
 import androidx.health.connect.client.records.Vo2Max
@@ -129,7 +128,7 @@ class AllRecordsConverterTest {
         val dataAllFields =
             BasalBodyTemperature(
                 temperatureDegreesCelsius = 1.0,
-                measurementLocation = BodyTemperatureMeasurementLocations.ARMPIT,
+                measurementLocation = BodyTemperatureMeasurementLocation.ARMPIT,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
@@ -188,7 +187,7 @@ class AllRecordsConverterTest {
     fun testBodyFat() {
         val data =
             BodyFat(
-                percentage = 1.0,
+                percentage = 1,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
@@ -241,8 +240,8 @@ class AllRecordsConverterTest {
     fun testCervicalMucus() {
         val data =
             CervicalMucus(
-                texture = CervicalMucusTextures.CLEAR,
-                amount = CervicalMucusAmounts.HEAVY,
+                texture = Texture.CLEAR,
+                amount = Amount.HEAVY,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
@@ -480,7 +479,7 @@ class AllRecordsConverterTest {
     fun testMenstruation() {
         val data =
             Menstruation(
-                flow = MenstruationFlows.HEAVY,
+                flow = Flow.HEAVY,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
@@ -493,7 +492,7 @@ class AllRecordsConverterTest {
     fun testOvulationTest() {
         val data =
             OvulationTest(
-                result = OvulationTestResults.NEGATIVE,
+                result = Result.NEGATIVE,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
@@ -506,7 +505,7 @@ class AllRecordsConverterTest {
     fun testOxygenSaturation() {
         val data =
             OxygenSaturation(
-                percentage = 1.0,
+                percentage = 1,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
@@ -703,7 +702,7 @@ class AllRecordsConverterTest {
     fun testActivityEvent() {
         val data =
             ActivityEvent(
-                eventType = ActivityEventTypes.PAUSE,
+                eventType = EventType.PAUSE,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
                 endTime = END_TIME,
@@ -733,7 +732,7 @@ class AllRecordsConverterTest {
     fun testActivitySession() {
         val data =
             ActivitySession(
-                activityType = ActivityTypes.BACK_EXTENSION,
+                activityType = ActivityType.BACK_EXTENSION,
                 title = null,
                 notes = null,
                 startTime = START_TIME,
@@ -869,7 +868,7 @@ class AllRecordsConverterTest {
         val data =
             Repetitions(
                 count = 1,
-                type = RepetitionActivityTypes.JUMPING_JACK,
+                type = ActivityType.JUMPING_JACK,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
                 endTime = END_TIME,
@@ -900,7 +899,7 @@ class AllRecordsConverterTest {
     fun testSleepStage() {
         val data =
             SleepStage(
-                stage = SleepStageTypes.AWAKE,
+                stage = StageType.AWAKE,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
                 endTime = END_TIME,
@@ -931,7 +930,7 @@ class AllRecordsConverterTest {
         val data =
             SwimmingStrokes(
                 count = 1,
-                type = SwimmingTypes.BACKSTROKE,
+                type = SwimmingType.BACKSTROKE,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
                 endTime = END_TIME,

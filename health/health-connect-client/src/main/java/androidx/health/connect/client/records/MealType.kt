@@ -15,29 +15,30 @@
  */
 package androidx.health.connect.client.records
 
-import androidx.annotation.RestrictTo
 import androidx.annotation.StringDef
 
-/** How open or dilated the user's cervix is. */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-public object CervicalDilations {
-    const val CLOSED = "closed"
-    const val PARTIALLY_OPEN = "partially_open"
-    const val FULLY_DILATED = "fully_dilated"
+/** Type of meal. */
+public object MealType {
+    const val UNKNOWN = "unknown"
+    const val BREAKFAST = "breakfast"
+    const val LUNCH = "lunch"
+    const val DINNER = "dinner"
+    const val SNACK = "snack"
 }
 
 /**
- * How open or dilated the user's cervix is.
+ * Type of meal.
  * @suppress
  */
 @Retention(AnnotationRetention.SOURCE)
 @StringDef(
     value =
         [
-            CervicalDilations.CLOSED,
-            CervicalDilations.PARTIALLY_OPEN,
-            CervicalDilations.FULLY_DILATED,
+            MealType.UNKNOWN,
+            MealType.BREAKFAST,
+            MealType.LUNCH,
+            MealType.DINNER,
+            MealType.SNACK,
         ]
 )
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-annotation class CervicalDilation
+annotation class MealTypes

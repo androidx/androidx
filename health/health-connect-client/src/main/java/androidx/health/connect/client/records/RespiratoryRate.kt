@@ -15,7 +15,6 @@
  */
 package androidx.health.connect.client.records
 
-import androidx.annotation.RestrictTo
 import androidx.health.connect.client.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
@@ -23,7 +22,6 @@ import java.time.ZoneOffset
 /**
  * Captures the user's respiratory rate. Each record represents a single instantaneous measurement.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class RespiratoryRate(
     /** Respiratory rate in breaths per minute. Required field. Valid range: 0-1000. */
     public val rate: Double,
@@ -31,6 +29,10 @@ public class RespiratoryRate(
     override val zoneOffset: ZoneOffset?,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : InstantaneousRecord {
+    init {
+        requireNonNegative(value = rate, name = "rate")
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is RespiratoryRate) return false

@@ -16,21 +16,27 @@
 package androidx.health.connect.client.records
 
 import androidx.annotation.RestrictTo
+import androidx.annotation.StringDef
 import androidx.health.connect.client.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
 
 /** Capture user's VO2 max score and optionally the measurement method. */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class Vo2Max(
     /** Maximal aerobic capacity (VO2 max) in milliliters. Required field. Valid range: 0-100. */
     public val vo2MillilitersPerMinuteKilogram: Double,
-    /** VO2 max measurement method. Optional field. Allowed values: [Vo2MaxMeasurementMethod]. */
-    @property:Vo2MaxMeasurementMethod public val measurementMethod: String? = null,
+    /** VO2 max measurement method. Optional field. Allowed values: [MeasurementMethods]. */
+    @property:MeasurementMethods public val measurementMethod: String? = null,
     override val time: Instant,
     override val zoneOffset: ZoneOffset?,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : InstantaneousRecord {
+    init {
+        requireNonNegative(
+            value = vo2MillilitersPerMinuteKilogram,
+            name = "vo2MillilitersPerMinuteKilogram"
+        )
+    }
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Vo2Max) return false
@@ -53,4 +59,33 @@ public class Vo2Max(
         result = 31 * result + metadata.hashCode()
         return result
     }
+
+    /** VO2 max (maximal aerobic capacity) measurement method. */
+    public object MeasurementMethod {
+        const val METABOLIC_CART = "metabolic_cart"
+        const val HEART_RATE_RATIO = "heart_rate_ratio"
+        const val COOPER_TEST = "cooper_test"
+        const val MULTISTAGE_FITNESS_TEST = "multistage_fitness_test"
+        const val ROCKPORT_FITNESS_TEST = "rockport_fitness_test"
+        const val OTHER = "other"
+    }
+
+    /**
+     * VO2 max (maximal aerobic capacity) measurement method.
+     * @suppress
+     */
+    @Retention(AnnotationRetention.SOURCE)
+    @StringDef(
+        value =
+            [
+                MeasurementMethod.METABOLIC_CART,
+                MeasurementMethod.HEART_RATE_RATIO,
+                MeasurementMethod.COOPER_TEST,
+                MeasurementMethod.MULTISTAGE_FITNESS_TEST,
+                MeasurementMethod.ROCKPORT_FITNESS_TEST,
+                MeasurementMethod.OTHER,
+            ]
+    )
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    annotation class MeasurementMethods
 }

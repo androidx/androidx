@@ -31,6 +31,11 @@ public class BodyWaterMass(
     override val zoneOffset: ZoneOffset?,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : InstantaneousRecord {
+
+    init {
+        requireNonNegative(value = massKg, name = "massKg")
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is BodyWaterMass) return false

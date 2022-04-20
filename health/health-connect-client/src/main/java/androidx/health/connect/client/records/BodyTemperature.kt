@@ -28,13 +28,18 @@ public class BodyTemperature(
     public val temperatureDegreesCelsius: Double,
     /**
      * Where on the user's body the temperature measurement was taken from. Optional field. Allowed
-     * values: [BodyTemperatureMeasurementLocation].
+     * values: [BodyTemperatureMeasurementLocations].
      */
-    @property:BodyTemperatureMeasurementLocation public val measurementLocation: String? = null,
+    @property:BodyTemperatureMeasurementLocations public val measurementLocation: String? = null,
     override val time: Instant,
     override val zoneOffset: ZoneOffset?,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : InstantaneousRecord {
+
+    init {
+        requireNonNegative(value = temperatureDegreesCelsius, name = "temperatureDegreesCelsius")
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is BodyTemperature) return false

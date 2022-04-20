@@ -16,6 +16,7 @@
 package androidx.health.connect.client.records
 
 import androidx.health.connect.client.aggregate.AggregateMetric
+import androidx.health.connect.client.aggregate.AggregationResult
 import androidx.health.connect.client.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
@@ -31,6 +32,10 @@ public class RestingHeartRate(
     override val zoneOffset: ZoneOffset?,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : InstantaneousRecord {
+    init {
+        requireNonNegative(value = beatsPerMinute, name = "beatsPerMinute")
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is RestingHeartRate) return false

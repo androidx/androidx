@@ -16,6 +16,7 @@
 package androidx.health.connect.client.records
 
 import androidx.annotation.RestrictTo
+import androidx.annotation.StringDef
 import androidx.health.connect.client.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
@@ -25,18 +26,16 @@ import java.time.ZoneOffset
  * cervical mucus for a user. All fields are optional and can be used to describe the look and feel
  * of cervical mucus, and the amount.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class CervicalMucus(
     /**
      * The consistency or texture of the user's cervical mucus. Optional field. Allowed values:
-     * [CervicalMucusTexture].
+     * [Textures].
      */
-    @property:CervicalMucusTexture public val texture: String? = null,
+    @property:Textures public val texture: String? = null,
     /**
-     * The amount of cervical mucus the user observes. Optional field. Allowed values:
-     * [CervicalMucusAmount].
+     * The amount of cervical mucus the user observes. Optional field. Allowed values: [Amounts].
      */
-    @property:CervicalMucusAmount public val amount: String? = null,
+    @property:Amounts public val amount: String? = null,
     override val time: Instant,
     override val zoneOffset: ZoneOffset?,
     override val metadata: Metadata = Metadata.EMPTY,
@@ -63,4 +62,54 @@ public class CervicalMucus(
         result = 31 * result + metadata.hashCode()
         return result
     }
+
+    /** List of supported Cervical Mucus Amount types on Health Platform. */
+    public object Amount {
+        const val LIGHT = "light"
+        const val MEDIUM = "medium"
+        const val HEAVY = "heavy"
+    }
+
+    /**
+     * List of supported Cervical Mucus Amount types on Health Platform.
+     * @suppress
+     */
+    @Retention(AnnotationRetention.SOURCE)
+    @StringDef(
+        value =
+            [
+                Amount.LIGHT,
+                Amount.MEDIUM,
+                Amount.HEAVY,
+            ]
+    )
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    annotation class Amounts
+
+    /** The consistency or texture of the user's cervical mucus. */
+    public object Texture {
+        const val DRY = "dry"
+        const val STICKY = "sticky"
+        const val CREAMY = "creamy"
+        const val WATERY = "watery"
+        const val CLEAR = "clear"
+    }
+
+    /**
+     * The consistency or texture of the user's cervical mucus.
+     * @suppress
+     */
+    @Retention(AnnotationRetention.SOURCE)
+    @StringDef(
+        value =
+            [
+                Texture.DRY,
+                Texture.STICKY,
+                Texture.CREAMY,
+                Texture.WATERY,
+                Texture.CLEAR,
+            ]
+    )
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    annotation class Textures
 }

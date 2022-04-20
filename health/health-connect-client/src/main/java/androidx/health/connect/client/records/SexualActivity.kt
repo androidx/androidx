@@ -16,6 +16,7 @@
 package androidx.health.connect.client.records
 
 import androidx.annotation.RestrictTo
+import androidx.annotation.StringDef
 import androidx.health.connect.client.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
@@ -24,13 +25,12 @@ import java.time.ZoneOffset
  * Captures an occurrence of sexual activity. Each record is a single occurrence. ProtectionUsed
  * field is optional.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class SexualActivity(
     /**
-     * Whether protection was used during sexual activity. Optional field. Allowed values:
-     * [SexualActivityProtection].
+     * Whether protection was used during sexual activity. Optional field, null if unknown. Allowed
+     * values: [Protection].
      */
-    @property:SexualActivityProtection public val protectionUsed: String? = null,
+    @property:Protections public val protectionUsed: String? = null,
     override val time: Instant,
     override val zoneOffset: ZoneOffset?,
     override val metadata: Metadata = Metadata.EMPTY,
@@ -55,4 +55,25 @@ public class SexualActivity(
         result = 31 * result + metadata.hashCode()
         return result
     }
+
+    /** Whether protection was used during sexual activity. */
+    public object Protection {
+        const val PROTECTED = "protected"
+        const val UNPROTECTED = "unprotected"
+    }
+
+    /**
+     * Whether protection was used during sexual activity.
+     * @suppress
+     */
+    @Retention(AnnotationRetention.SOURCE)
+    @StringDef(
+        value =
+            [
+                SexualActivity.Protection.PROTECTED,
+                SexualActivity.Protection.UNPROTECTED,
+            ]
+    )
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    annotation class Protections
 }

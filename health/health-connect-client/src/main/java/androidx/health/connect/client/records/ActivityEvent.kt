@@ -16,6 +16,7 @@
 package androidx.health.connect.client.records
 
 import androidx.annotation.RestrictTo
+import androidx.annotation.StringDef
 import androidx.health.connect.client.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
@@ -24,10 +25,9 @@ import java.time.ZoneOffset
  * Captures the time of a event within an activity - such as a pause or rest. Each record represents
  * the start / stop time for an event.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ActivityEvent(
-    /** Type of event. Required field. Allowed values: [ActivityEventType]. */
-    @property:ActivityEventType public val eventType: String,
+    /** Type of event. Required field. Allowed values: [EventType]. */
+    @property:EventTypes public val eventType: String,
     override val startTime: Instant,
     override val startZoneOffset: ZoneOffset?,
     override val endTime: Instant,
@@ -57,4 +57,38 @@ public class ActivityEvent(
         result = 31 * result + metadata.hashCode()
         return result
     }
+
+    /**
+     * Types of activity event. They can be either explicitly requested by a user or auto-detected
+     * by a tracking app.
+     */
+    public object EventType {
+        /**
+         * Explicit pause during an workout, requested by the user (by clicking a pause button in
+         * the session UI). Movement happening during pause should not contribute to session
+         * metrics.
+         */
+        const val PAUSE = "pause"
+        /**
+         * Auto-detected periods of rest during an workout. There should be no user movement
+         * detected during rest and any movement detected should finish rest event.
+         */
+        const val REST = "rest"
+    }
+    /**
+     * Types of activity event. They can be either explicitly requested by a user or auto-detected
+     * by a tracking app.
+     *
+     * @suppress
+     */
+    @Retention(AnnotationRetention.SOURCE)
+    @StringDef(
+        value =
+            [
+                EventType.PAUSE,
+                EventType.REST,
+            ]
+    )
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    annotation class EventTypes
 }

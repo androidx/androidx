@@ -27,7 +27,7 @@ import java.time.ZoneOffset
  *
  * The start time of the record represents the start of the sleep stage and always needs to be
  * included. The timestamp represents the end of the sleep stage. Time intervals don't need to be
- * continuous but shouldn't overlap
+ * continuous but shouldn't overlap.
  */
 public class SleepSession(
     /** Title of the session. Optional field. */
