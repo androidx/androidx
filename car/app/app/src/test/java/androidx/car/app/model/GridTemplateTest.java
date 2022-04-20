@@ -56,19 +56,13 @@ public class GridTemplateTest {
     }
 
     @Test
-    public void createInstance_noHeaderTitleOrAction_throws() {
-        assertThrows(
-                IllegalStateException.class,
-                () -> new GridTemplate.Builder().setSingleList(
-                        TestUtils.getGridItemList(2)).build());
+    public void createInstance_emptyHeader() {
+        GridTemplate template = new GridTemplate.Builder().setSingleList(
+                        TestUtils.getGridItemList(2)).build();
 
-        // Positive cases.
-        new GridTemplate.Builder().setTitle("Title").setSingleList(
-                TestUtils.getGridItemList(2)).build();
-        new GridTemplate.Builder()
-                .setHeaderAction(Action.BACK)
-                .setSingleList(TestUtils.getGridItemList(2))
-                .build();
+        assertThat(template.getTitle()).isNull();
+        assertThat(template.getActionStrip()).isNull();
+        assertThat(template.getHeaderAction()).isNull();
     }
 
     @Test
