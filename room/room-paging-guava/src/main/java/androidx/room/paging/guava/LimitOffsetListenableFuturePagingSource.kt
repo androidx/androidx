@@ -131,7 +131,7 @@ abstract class LimitOffsetListenableFuturePagingSource<Value : Any>(
             val result = queryDatabase(
                 params, sourceQuery, db, tempCount, cancellationSignal, ::convertRows
             )
-            db.invalidationTracker.refreshVersionsAsync()
+            db.invalidationTracker.refreshVersionsSync()
             @Suppress("UNCHECKED_CAST")
             if (invalid) INVALID as LoadResult.Invalid<Int, Value> else result
         }

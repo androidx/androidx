@@ -73,7 +73,7 @@ class LimitOffsetListenableFuturePagingSourceTest {
         setupAndRunWithTestExecutor { db, queryExecutor, _ ->
             val pagingSource = LimitOffsetListenableFuturePagingSourceImpl(
                 db = db,
-                isInitialLoad = true
+                registerObserver = true
             )
 
             val listenableFuture = pagingSource.refresh()
@@ -93,7 +93,7 @@ class LimitOffsetListenableFuturePagingSourceTest {
     fun initialEmptyLoad_futureIsDone() = setupAndRun { db ->
         val pagingSource = LimitOffsetListenableFuturePagingSourceImpl(
             db = db,
-            isInitialLoad = true
+            registerObserver = true
         )
 
         runTest {
@@ -110,7 +110,7 @@ class LimitOffsetListenableFuturePagingSourceTest {
         setupAndRunWithTestExecutor { db, queryExecutor, transactionExecutor ->
             val pagingSource = LimitOffsetListenableFuturePagingSourceImpl(
                 db = db,
-                isInitialLoad = true
+                registerObserver = true
             )
 
             val listenableFuture = pagingSource.refresh()
@@ -703,6 +703,74 @@ class LimitOffsetListenableFuturePagingSourceTest {
     }
 
     @Test
+    fun append_insertInvalidatesPagingSource() =
+        setupAndRunWithTestExecutor { db, queryExecutor, _ ->
+            val pagingSource = LimitOffsetListenableFuturePagingSourceImpl(
+                db = db,
+                registerObserver = true
+            )
+            pagingSource.itemCount.set(100) // bypass check for initial load
+
+            // queue up the append first
+            val listenableFuture = pagingSource.append(key = 20)
+            assertThat(queryExecutor.queuedSize()).isEqualTo(1)
+
+            queryExecutor.executeNext() // start transformAsync
+            queryExecutor.executeNext() // start async function
+            assertThat(queryExecutor.queuedSize()).isEqualTo(1) // nonInitialLoad is queued up
+
+            // run this async separately from queryExecutor
+            run {
+                db.dao.addItem(TestItem(101))
+            }
+
+            // tasks in queue [nonInitialLoad, InvalidationTracker(from additem)]
+            assertThat(queryExecutor.queuedSize()).isEqualTo(2)
+
+            // run nonInitialLoad first. The InvalidationTracker
+            // is still queued up. This imitates delayed notification from Room.
+            queryExecutor.executeNext()
+
+            val result = listenableFuture.await()
+            assertThat(result).isInstanceOf(LoadResult.Invalid::class.java)
+            assertThat(pagingSource.invalid)
+        }
+
+    @Test
+    fun prepend_insertInvalidatesPagingSource() =
+        setupAndRunWithTestExecutor { db, queryExecutor, _ ->
+            val pagingSource = LimitOffsetListenableFuturePagingSourceImpl(
+                db = db,
+                registerObserver = true
+            )
+            pagingSource.itemCount.set(100) // bypass check for initial load
+
+            // queue up the append first
+            val listenableFuture = pagingSource.prepend(key = 20)
+            assertThat(queryExecutor.queuedSize()).isEqualTo(1)
+
+            queryExecutor.executeNext() // start transformAsync
+            queryExecutor.executeNext() // start async function
+            assertThat(queryExecutor.queuedSize()).isEqualTo(1) // nonInitialLoad is queued up
+
+            // run this async separately from queryExecutor
+            run {
+                db.dao.addItem(TestItem(101))
+            }
+
+            // tasks in queue [nonInitialLoad, InvalidationTracker(from additem)]
+            assertThat(queryExecutor.queuedSize()).isEqualTo(2)
+
+            // run nonInitialLoad first. The InvalidationTracker
+            // is still queued up. This imitates delayed notification from Room.
+            queryExecutor.executeNext()
+
+            val result = listenableFuture.await()
+            assertThat(result).isInstanceOf(LoadResult.Invalid::class.java)
+            assertThat(pagingSource.invalid)
+        }
+
+    @Test
     fun test_jumpSupport() = setupAndRun { db ->
         val pagingSource = LimitOffsetListenableFuturePagingSourceImpl(db)
         assertTrue(pagingSource.jumpingSupported)
@@ -823,7 +891,7 @@ class LimitOffsetListenableFuturePagingSourceTest {
 
 private class LimitOffsetListenableFuturePagingSourceImpl(
     db: RoomDatabase,
-    isInitialLoad: Boolean = false,
+    registerObserver: Boolean = false,
     queryString: String = "SELECT * FROM $tableName ORDER BY id ASC",
 ) : LimitOffsetListenableFuturePagingSource<TestItem>(
     sourceQuery = RoomSQLiteQuery.acquire(
@@ -836,7 +904,7 @@ private class LimitOffsetListenableFuturePagingSourceImpl(
 
    init {
        // bypass register check and avoid registering observer
-       if (!isInitialLoad) {
+       if (!registerObserver) {
            privateObserver().privateRegisteredState().set(true)
        }
    }
@@ -1036,4 +1104,7 @@ data class TestItem(
 interface TestItemDao {
     @Insert
     fun addAllItems(testItems: List<TestItem>)
+
+    @Insert
+    fun addItem(testItem: TestItem)
 }
