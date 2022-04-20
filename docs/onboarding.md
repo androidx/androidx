@@ -976,3 +976,13 @@ Note: this only counts the weight of your library's jar/aar, including
 resources. It does not count library dependencies. It does not account for a
 minification step (e.g. with R8), as that is dynamic, and done at app build time
 (and depend on which entrypoints the app uses).
+
+### How do I add content to a library's Overview reference doc page?
+
+Put content in a markdown file that ends with `-documentation.md` in the
+directory that corresponds to the Overview page that you'd like to document.
+
+For example, the `androidx.compose.runtime`
+[Overview page](https://developer.android.com/reference/kotlin/androidx/compose/runtime/package-summary)
+includes content from
+[compose-runtime-documentation.md](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/runtime/runtime/src/commonMain/kotlin/androidx/compose/runtime/compose-runtime-documentation.md).
