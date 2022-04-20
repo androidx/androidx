@@ -37,6 +37,7 @@ kotlinCoroutines = "1.6.0"
 ksp = "1.6.20-1.0.4"
 ktlint = "0.43.0"
 leakcanary = "2.7"
+metalava = "1.0.0-alpha06"
 mockito = "2.25.0"
 skiko = "0.7.7"
 sqldelight = "1.3.0"
@@ -135,7 +136,7 @@ kspGradlePluginz = { module = "com.google.devtools.ksp:symbol-processing-gradle-
 leakcanary = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanary" }
 leakcanaryInstrumentation = { module = "com.squareup.leakcanary:leakcanary-android-instrumentation", version.ref = "leakcanary" }
 material = { module = "com.google.android.material:material", version = "1.2.1" }
-metalava = { module = "com.android.tools.metalava:metalava", version = "1.0.0-alpha06" }
+metalava = { module = "com.android.tools.metalava:metalava", version.ref = "metalava" }
 mlkitBarcode = { module = "com.google.mlkit:barcode-scanning", version = "17.0.2" }
 mockitoCore = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 mockitoAndroid = { module = "org.mockito:mockito-android", version.ref = "mockito" }
