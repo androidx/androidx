@@ -102,6 +102,7 @@ import android.content.IntentFilter;
 import android.content.RestrictionsManager;
 import android.content.pm.LauncherApps;
 import android.content.pm.PackageManager;
+import android.content.pm.PermissionInfo;
 import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
 import android.hardware.ConsumerIrManager;
@@ -526,6 +527,21 @@ public class ContextCompatTest extends BaseInstrumentationTestCase<ThemedYellowA
         ContextCompat.registerReceiver(spyContext, mTestReceiver, mTestFilter,
                 ContextCompat.RECEIVER_EXPORTED);
         verify(spyContext).registerReceiver(eq(mTestReceiver), eq(mTestFilter), eq(null), any());
+    }
+
+    @Test
+    public void testRegisterReceiver_mergedPermission_hasSignatureProtectionLevel()
+            throws Exception {
+        // Packages registering unexported runtime receivers on pre-T devices will have their
+        // receiver protected by a permission; to ensure other apps on the device cannot send a
+        // broadcast to these receivers, the permission must be declared with the signature
+        // protectionLevel.
+        PermissionInfo permissionInfo =
+                mContext.getPackageManager().getPermissionInfo(mPermission, 0);
+
+        assertEquals("The permission guarding unexported runtime receivers must have the "
+                + "signature protectionLevel.", PermissionInfo.PROTECTION_SIGNATURE,
+                permissionInfo.protectionLevel);
     }
 
     @Test(expected = NullPointerException.class)
