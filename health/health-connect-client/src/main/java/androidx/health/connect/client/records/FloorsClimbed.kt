@@ -16,7 +16,7 @@
 package androidx.health.connect.client.records
 
 import androidx.annotation.RestrictTo
-import androidx.health.connect.client.aggregate.DoubleAggregateMetric
+import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
@@ -57,9 +57,16 @@ public class FloorsClimbed(
     }
 
     companion object {
-        /** Metric identifier to retrieve total floors climbed from [AggregateDataRow]. */
+        /**
+         * Metric identifier to retrieve total floors climbed from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
         @JvmField
-        val DISTANCE_TOTAL: DoubleAggregateMetric =
-            DoubleAggregateMetric("FloorsClimbed", "total", "floors")
+        val TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                "FloorsClimbed",
+                AggregateMetric.AggregationType.TOTAL,
+                "floors"
+            )
     }
 }

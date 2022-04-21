@@ -15,7 +15,7 @@
  */
 package androidx.health.connect.client.records
 
-import androidx.health.connect.client.aggregate.DoubleAggregateMetric
+import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
@@ -49,20 +49,44 @@ public class Height(
         return result
     }
 
-    internal companion object {
-        /** Metric identifier to retrieve average height from [AggregateDataRow]. */
-        @JvmField
-        internal val HEIGHT_AVG: DoubleAggregateMetric =
-            DoubleAggregateMetric("Height", "avg", "height")
+    companion object {
+        private const val HEIGHT_NAME = "Height"
+        private const val HEIGHT_FIELD_NAME = "height"
 
-        /** Metric identifier to retrieve minimum height from [AggregateDataRow]. */
+        /**
+         * Metric identifier to retrieve average height from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
         @JvmField
-        internal val HEIGHT_MIN: DoubleAggregateMetric =
-            DoubleAggregateMetric("Height", "min", "height")
+        val AVG: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                HEIGHT_NAME,
+                AggregateMetric.AggregationType.AVERAGE,
+                HEIGHT_FIELD_NAME
+            )
 
-        /** Metric identifier to retrieve maximum height from [AggregateDataRow]. */
+        /**
+         * Metric identifier to retrieve minimum height from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
         @JvmField
-        internal val HEIGHT_MAX: DoubleAggregateMetric =
-            DoubleAggregateMetric("Height", "max", "height")
+        val MIN: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                HEIGHT_NAME,
+                AggregateMetric.AggregationType.MINIMUM,
+                HEIGHT_FIELD_NAME
+            )
+
+        /**
+         * Metric identifier to retrieve maximum height from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val MAX: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                HEIGHT_NAME,
+                AggregateMetric.AggregationType.MAXIMUM,
+                HEIGHT_FIELD_NAME
+            )
     }
 }

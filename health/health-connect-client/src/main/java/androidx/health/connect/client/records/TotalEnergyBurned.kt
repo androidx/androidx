@@ -16,7 +16,7 @@
 package androidx.health.connect.client.records
 
 import androidx.annotation.RestrictTo
-import androidx.health.connect.client.aggregate.DoubleAggregateMetric
+import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
@@ -60,9 +60,16 @@ public class TotalEnergyBurned(
     }
 
     companion object {
-        /** Metric identifier to retrieve total energy from [AggregateDataRow]. */
-        @JvmStatic
-        val ENERGY_BURNED_TOTAL: DoubleAggregateMetric =
-            DoubleAggregateMetric("TotalEnergyBurned", "total", "energy")
+        /**
+         * Metric identifier to retrieve total energy from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                "TotalEnergyBurned",
+                AggregateMetric.AggregationType.TOTAL,
+                "energy"
+            )
     }
 }
