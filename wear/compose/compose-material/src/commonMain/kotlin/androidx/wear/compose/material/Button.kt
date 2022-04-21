@@ -81,7 +81,7 @@ import androidx.compose.ui.unit.dp
  * appearance / behavior of this Button in different [Interaction]s.
  */
 @Composable
-fun Button(
+public fun Button(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -156,7 +156,7 @@ fun Button(
  * appearance / behavior of this Button in different [Interaction]s.
  */
 @Composable
-fun CompactButton(
+public fun CompactButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -202,14 +202,14 @@ fun CompactButton(
  * in a secondary styled [Button].
  */
 @Stable
-interface ButtonColors {
+public interface ButtonColors {
     /**
      * Represents the background color for this button, depending on [enabled].
      *
      * @param enabled whether the button is enabled
      */
     @Composable
-    fun backgroundColor(enabled: Boolean): State<Color>
+    public fun backgroundColor(enabled: Boolean): State<Color>
 
     /**
      * Represents the content color for this button, depending on [enabled].
@@ -217,13 +217,22 @@ interface ButtonColors {
      * @param enabled whether the button is enabled
      */
     @Composable
-    fun contentColor(enabled: Boolean): State<Color>
+    public fun contentColor(enabled: Boolean): State<Color>
 }
 
 /**
  * Contains the default values used by [Button].
  */
 public object ButtonDefaults {
+    /**
+     * Creates a [ButtonColors] that represents the default background and content colors for a
+     * primary [Button]. Primary buttons have a colored background with a contrasting content color.
+     * If a button is disabled then the color will have an alpha ([ContentAlpha.disabled]) value
+     * applied.
+     *
+     * @param backgroundColor The background color of this [Button] when enabled
+     * @param contentColor The content color of this [Button] when enabled
+     */
     @Composable
     public fun primaryButtonColors(
         backgroundColor: Color = MaterialTheme.colors.primary,
@@ -235,6 +244,15 @@ public object ButtonDefaults {
         )
     }
 
+    /**
+     * Creates a [ButtonColors] that represents the default background and content colors for a
+     * secondary [Button]. Secondary buttons have a muted background with a contrasting content
+     * color. If a button is disabled then the color will have an alpha ([ContentAlpha.disabled])
+     * value applied.
+     *
+     * @param backgroundColor The background color of this [Button] when enabled
+     * @param contentColor The content color of this [Button] when enabled
+     */
     @Composable
     public fun secondaryButtonColors(
         backgroundColor: Color = MaterialTheme.colors.surface,
@@ -246,6 +264,13 @@ public object ButtonDefaults {
         )
     }
 
+    /**
+     * Creates a [ButtonColors] that represents the content colors for
+     * an icon-only [Button]. If a button is disabled then the color will have an alpha
+     * ([ContentAlpha.disabled]) value applied.
+     *
+     * @param contentColor The content color of this [Button] when enabled
+     */
     @Composable
     public fun iconButtonColors(
         contentColor: Color = MaterialTheme.colors.onSurface,
