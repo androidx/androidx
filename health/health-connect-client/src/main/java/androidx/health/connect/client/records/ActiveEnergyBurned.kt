@@ -20,15 +20,15 @@ import androidx.health.connect.client.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
 
-/** Captures the number of repetitions in an exercise set. */
+/**
+ * Captures the estimated active energy burned by the user (in kilocalories), excluding basal
+ * metabolic rate (BMR). Each record represents the total kilocalories burned over a time interval,
+ * so both the start and end times should be set.
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class Repetitions(
-    /** Count. Required field. Valid range: 1-1000000. */
-    public val count: Long,
-    /**
-     * Type of activity being repeated. Optional field. Allowed values: [RepetitionActivityType].
-     */
-    @property:RepetitionActivityType public val type: String,
+public class ActiveEnergyBurned(
+    /** Energy in kilocalories. Required field. Valid range: 0-1000000. */
+    public val energyKcal: Double,
     override val startTime: Instant,
     override val startZoneOffset: ZoneOffset?,
     override val endTime: Instant,
@@ -37,10 +37,9 @@ public class Repetitions(
 ) : IntervalRecord {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is Repetitions) return false
+        if (other !is ActiveEnergyBurned) return false
 
-        if (count != other.count) return false
-        if (type != other.type) return false
+        if (energyKcal != other.energyKcal) return false
         if (startTime != other.startTime) return false
         if (startZoneOffset != other.startZoneOffset) return false
         if (endTime != other.endTime) return false
@@ -52,8 +51,7 @@ public class Repetitions(
 
     override fun hashCode(): Int {
         var result = 0
-        result = 31 * result + count.hashCode()
-        result = 31 * result + type.hashCode()
+        result = 31 * result + energyKcal.hashCode()
         result = 31 * result + (startZoneOffset?.hashCode() ?: 0)
         result = 31 * result + endTime.hashCode()
         result = 31 * result + (endZoneOffset?.hashCode() ?: 0)
