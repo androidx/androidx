@@ -55,6 +55,7 @@ kotlin {
             dependencies {
                 implementation(libs.kotlinTestCommon)
                 implementation(libs.kotlinTestAnnotationsCommon)
+                implementation(libs.kotlinCoroutinesCore)
             }
         }
 
@@ -84,6 +85,11 @@ kotlin {
                 implementation(project(":internal-testutils-truth"))
             }
         }
+
+        all {
+            languageSettings.optIn("kotlin.RequiresOptIn")
+            languageSettings.optIn("kotlin.contracts.ExperimentalContracts")
+        }
     }
 }
 
@@ -94,4 +100,10 @@ androidx {
     inceptionYear = "2018"
     description = "Standalone efficient collections."
     publishPlatforms = ["jvm"]
+}
+
+kotlin.targets.withType(KotlinNativeTarget.class) {
+    binaries.all {
+        binaryOptions["memoryModel"] = "experimental"
+    }
 }
