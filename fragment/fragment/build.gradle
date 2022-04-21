@@ -25,15 +25,15 @@ android {
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
-    api("androidx.core:core:1.8.0-beta01")
+    api("androidx.core:core-ktx:1.2.0")
     api("androidx.collection:collection:1.1.0")
     api("androidx.viewpager:viewpager:1.0.0")
     api("androidx.loader:loader:1.0.0")
-    api("androidx.activity:activity:1.5.0-beta01")
-    api(projectOrArtifact(":lifecycle:lifecycle-livedata-core"))
-    api(projectOrArtifact(":lifecycle:lifecycle-viewmodel"))
-    api(projectOrArtifact(":lifecycle:lifecycle-viewmodel-savedstate"))
-    api(projectOrArtifact(":savedstate:savedstate"))
+    api("androidx.activity:activity:1.5.0-rc01")
+    api("androidx.lifecycle:lifecycle-livedata-core:2.5.0-rc01")
+    api("androidx.lifecycle:lifecycle-viewmodel:2.5.0-rc01")
+    api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.5.0-rc01")
+    api("androidx.savedstate:savedstate:1.2.0-rc01")
     api("androidx.annotation:annotation-experimental:1.0.0")
     api(libs.kotlinStdlib)
 
