@@ -221,7 +221,7 @@ fun TimePickerWith12HourClock() {
                         initiallySelectedOption = 6
                     ),
                     focusRequester = focusRequester1,
-                    modifier = Modifier.size(40.dp, 100.dp),
+                    modifier = Modifier.size(64.dp, 100.dp),
                     readOnlyLabel = { LabelText("Hour") }
                 ) { hour: Int ->
                     TimePiece(
