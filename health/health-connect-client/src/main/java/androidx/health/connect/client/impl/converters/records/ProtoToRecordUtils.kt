@@ -87,7 +87,6 @@ internal val DataProto.DataPoint.metadata: Metadata
 private fun toDevice(proto: DataProto.Device): Device {
     return with(proto) {
         Device(
-            identifier = if (hasIdentifier()) identifier else null,
             manufacturer = if (hasManufacturer()) manufacturer else null,
             model = if (hasModel()) model else null,
             type = if (hasType()) type else null

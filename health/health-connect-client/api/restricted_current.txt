@@ -57,12 +57,10 @@ package androidx.health.connect.client.metadata {
   }
 
   public final class Device {
-    ctor public Device(optional String? identifier, optional String? manufacturer, optional String? model, optional String? type);
-    method public String? getIdentifier();
+    ctor public Device(optional String? manufacturer, optional String? model, optional String? type);
     method public String? getManufacturer();
     method public String? getModel();
     method public String? getType();
-    property public final String? identifier;
     property public final String? manufacturer;
     property public final String? model;
     property public final String? type;
