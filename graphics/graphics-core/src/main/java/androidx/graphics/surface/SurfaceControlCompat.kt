@@ -21,6 +21,31 @@ import android.view.Surface
 import androidx.annotation.RequiresApi
 import java.util.concurrent.Executor
 
+internal class JniBindings {
+    companion object {
+        external fun nCreate(surfaceControl: Long, debugName: String): Long
+        external fun nCreateFromSurface(surface: Surface, debugName: String): Long
+        external fun nRelease(surfaceControl: Long)
+
+        external fun nTransactionCreate(): Long
+        external fun nTransactionDelete(surfaceTransaction: Long)
+        external fun nTransactionApply(surfaceTransaction: Long)
+        external fun nTransactionSetOnComplete(
+            surfaceTransaction: Long,
+            listener: SurfaceControlCompat.TransactionCompletedListener
+        )
+
+        external fun nTransactionSetOnCommit(
+            surfaceTransaction: Long,
+            listener: SurfaceControlCompat.TransactionCommittedListener
+        )
+
+        init {
+            System.loadLibrary("graphics-core")
+        }
+    }
+}
+
 @RequiresApi(Build.VERSION_CODES.Q)
 class SurfaceControlCompat internal constructor(
     surface: Surface? = null,
@@ -31,9 +56,10 @@ class SurfaceControlCompat internal constructor(
 
     init {
         if (surface != null) {
-            mNativeSurfaceControl = nCreateFromWindow(surface, debugName)
+            mNativeSurfaceControl = JniBindings.nCreateFromSurface(surface, debugName)
         } else if (surfaceControl != null) {
-            mNativeSurfaceControl = nCreate(surfaceControl.mNativeSurfaceControl, debugName)
+            mNativeSurfaceControl =
+                JniBindings.nCreate(surfaceControl.mNativeSurfaceControl, debugName)
         }
 
         if (mNativeSurfaceControl == 0L) {
@@ -84,7 +110,7 @@ class SurfaceControlCompat internal constructor(
         private var mNativeSurfaceTransaction: Long
 
         init {
-            mNativeSurfaceTransaction = nTransactionCreate()
+            mNativeSurfaceTransaction = JniBindings.nTransactionCreate()
             if (mNativeSurfaceTransaction == 0L) {
                 throw java.lang.IllegalArgumentException()
             }
@@ -100,7 +126,7 @@ class SurfaceControlCompat internal constructor(
          * in order.
          */
         fun commit() {
-            nTransactionApply(mNativeSurfaceTransaction)
+            JniBindings.nTransactionApply(mNativeSurfaceTransaction)
         }
 
         // Suppression of PairedRegistration below is in order to match existing
@@ -128,7 +154,7 @@ class SurfaceControlCompat internal constructor(
                 }
             }
 
-            nTransactionSetOnComplete(mNativeSurfaceTransaction, listenerWrapper)
+            JniBindings.nTransactionSetOnComplete(mNativeSurfaceTransaction, listenerWrapper)
             return this
         }
 
@@ -156,7 +182,7 @@ class SurfaceControlCompat internal constructor(
                 }
             }
 
-            nTransactionSetOnCommit(mNativeSurfaceTransaction, listenerWrapper)
+            JniBindings.nTransactionSetOnCommit(mNativeSurfaceTransaction, listenerWrapper)
             return this
         }
 
@@ -165,32 +191,13 @@ class SurfaceControlCompat internal constructor(
          */
         fun close() {
             if (mNativeSurfaceTransaction != 0L) {
-                nTransactionDelete(mNativeSurfaceTransaction)
+                JniBindings.nTransactionDelete(mNativeSurfaceTransaction)
             }
             mNativeSurfaceTransaction = 0L
         }
 
         fun finalize() {
             close()
-        }
-
-        private external fun nTransactionCreate(): Long
-        private external fun nTransactionDelete(surfaceTransaction: Long)
-        private external fun nTransactionApply(surfaceTransaction: Long)
-        private external fun nTransactionSetOnComplete(
-            surfaceTransaction: Long,
-            listener: TransactionCompletedListener
-        )
-
-        private external fun nTransactionSetOnCommit(
-            surfaceTransaction: Long,
-            listener: TransactionCommittedListener
-        )
-
-        companion object {
-            init {
-                System.loadLibrary("graphics-core")
-            }
         }
     }
 
@@ -217,7 +224,7 @@ class SurfaceControlCompat internal constructor(
     }
 
     protected fun finalize() {
-        nRelease(mNativeSurfaceControl)
+        JniBindings.nRelease(mNativeSurfaceControl)
         mNativeSurfaceControl = 0
     }
 
@@ -246,16 +253,6 @@ class SurfaceControlCompat internal constructor(
          */
         fun build(): SurfaceControlCompat {
             return SurfaceControlCompat(mSurface, mSurfaceControl, mDebugName)
-        }
-    }
-
-    private external fun nCreate(surfaceControl: Long, debugName: String): Long
-    private external fun nCreateFromWindow(surface: Surface, debugName: String): Long
-    private external fun nRelease(surfaceControl: Long)
-
-    companion object {
-        init {
-            System.loadLibrary("graphics-core")
         }
     }
 }
