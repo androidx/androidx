@@ -31,6 +31,7 @@ import androidx.health.connect.client.metadata.DataOrigin
 import androidx.health.connect.client.metadata.Device
 import androidx.health.connect.client.metadata.Metadata
 import androidx.health.connect.client.permission.Permission
+import androidx.health.connect.client.permission.Permission.Companion.createReadPermission
 import androidx.health.connect.client.records.ActiveCaloriesBurned
 import androidx.health.connect.client.records.Nutrition
 import androidx.health.connect.client.records.Steps
@@ -182,9 +183,7 @@ class HealthConnectClientImplTest {
     @Test
     fun getGrantedPermissions_none() = runTest {
         val deferred = async {
-            healthConnectClient.getGrantedPermissions(
-                setOf(Permission.createReadPermission(Steps::class))
-            )
+            healthConnectClient.getGrantedPermissions(setOf(createReadPermission(Steps::class)))
         }
 
         advanceUntilIdle()
@@ -205,16 +204,14 @@ class HealthConnectClientImplTest {
             )
         )
         val deferred = async {
-            healthConnectClient.getGrantedPermissions(
-                setOf(Permission.createReadPermission(Steps::class))
-            )
+            healthConnectClient.getGrantedPermissions(setOf(createReadPermission(Steps::class)))
         }
 
         advanceUntilIdle()
         waitForMainLooperIdle()
 
         val response = deferred.await()
-        assertThat(response).containsExactly(Permission.createReadPermission(Steps::class))
+        assertThat(response).containsExactly(createReadPermission(Steps::class))
     }
 
     @Test

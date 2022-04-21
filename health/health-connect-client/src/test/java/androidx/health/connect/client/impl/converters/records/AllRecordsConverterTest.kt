@@ -19,6 +19,7 @@ import androidx.health.connect.client.metadata.DataOrigin
 import androidx.health.connect.client.metadata.Device
 import androidx.health.connect.client.metadata.Metadata
 import androidx.health.connect.client.records.ActiveCaloriesBurned
+import androidx.health.connect.client.records.ActiveEnergyBurned
 import androidx.health.connect.client.records.ActivityEvent
 import androidx.health.connect.client.records.ActivityEventTypes
 import androidx.health.connect.client.records.ActivityLap
@@ -63,6 +64,7 @@ import androidx.health.connect.client.records.OvulationTest
 import androidx.health.connect.client.records.OvulationTestResults
 import androidx.health.connect.client.records.OxygenSaturation
 import androidx.health.connect.client.records.Power
+import androidx.health.connect.client.records.RepetitionActivityTypes
 import androidx.health.connect.client.records.Repetitions
 import androidx.health.connect.client.records.RespiratoryRate
 import androidx.health.connect.client.records.RestingHeartRate
@@ -631,6 +633,21 @@ class AllRecordsConverterTest {
     }
 
     @Test
+    fun testActiveEnergyBurned() {
+        val data =
+            ActiveEnergyBurned(
+                energyKcal = 1.0,
+                startTime = START_TIME,
+                startZoneOffset = START_ZONE_OFFSET,
+                endTime = END_TIME,
+                endZoneOffset = END_ZONE_OFFSET,
+                metadata = TEST_METADATA
+            )
+
+        assertThat(toRecord(data.toProto())).isEqualTo(data)
+    }
+
+    @Test
     fun testActivityEvent() {
         val data =
             ActivityEvent(
@@ -800,6 +817,7 @@ class AllRecordsConverterTest {
         val data =
             Repetitions(
                 count = 1,
+                type = RepetitionActivityTypes.JUMPING_JACK,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
                 endTime = END_TIME,
