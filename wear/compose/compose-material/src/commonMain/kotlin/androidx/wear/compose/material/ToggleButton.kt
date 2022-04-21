@@ -77,7 +77,7 @@ import androidx.compose.ui.unit.dp
  * @param content The icon, image or text to be drawn inside the toggle button.
  */
 @Composable
-fun ToggleButton(
+public fun ToggleButton(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
@@ -124,7 +124,7 @@ fun ToggleButton(
  * primary-styled for a checked toggle button and surface-styled for unchecked.
  */
 @Stable
-interface ToggleButtonColors {
+public interface ToggleButtonColors {
     /**
      * Represents the background color for this toggle button, depending on [enabled] and [checked].
      *
@@ -132,7 +132,7 @@ interface ToggleButtonColors {
      * @param checked whether the toggle button is checked
      */
     @Composable
-    fun backgroundColor(enabled: Boolean, checked: Boolean): State<Color>
+    public fun backgroundColor(enabled: Boolean, checked: Boolean): State<Color>
 
     /**
      * Represents the content color for this toggle button, depending on [enabled] and [checked].
@@ -141,7 +141,7 @@ interface ToggleButtonColors {
      * @param checked whether the toggle button is checked
      */
     @Composable
-    fun contentColor(enabled: Boolean, checked: Boolean): State<Color>
+    public fun contentColor(enabled: Boolean, checked: Boolean): State<Color>
 }
 
 /**
