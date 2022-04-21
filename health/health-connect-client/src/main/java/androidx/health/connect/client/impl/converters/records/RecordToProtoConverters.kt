@@ -16,6 +16,7 @@
 package androidx.health.connect.client.impl.converters.records
 
 import androidx.health.connect.client.records.ActiveCaloriesBurned
+import androidx.health.connect.client.records.ActiveEnergyBurned
 import androidx.health.connect.client.records.ActivityEvent
 import androidx.health.connect.client.records.ActivityLap
 import androidx.health.connect.client.records.ActivitySession
@@ -288,6 +289,11 @@ fun Record.toProto(): DataProto.DataPoint =
                 .setDataType(protoDataType("ActiveCaloriesBurned"))
                 .apply { putValues("energy", doubleVal(energyKcal)) }
                 .build()
+        is ActiveEnergyBurned ->
+            intervalProto()
+                .setDataType(protoDataType("ActiveEnergyBurned"))
+                .apply { putValues("energy", doubleVal(energyKcal)) }
+                .build()
         is ActivityEvent ->
             intervalProto()
                 .setDataType(protoDataType("ActivityEvent"))
@@ -468,7 +474,10 @@ fun Record.toProto(): DataProto.DataPoint =
         is Repetitions ->
             intervalProto()
                 .setDataType(protoDataType("Repetitions"))
-                .apply { putValues("count", longVal(count)) }
+                .apply {
+                    putValues("count", longVal(count))
+                    putValues("type", enumVal(type))
+                }
                 .build()
         is SleepSession ->
             intervalProto()

@@ -16,6 +16,7 @@
 package androidx.health.connect.client.impl.converters.records
 
 import androidx.health.connect.client.records.ActiveCaloriesBurned
+import androidx.health.connect.client.records.ActiveEnergyBurned
 import androidx.health.connect.client.records.ActivityEvent
 import androidx.health.connect.client.records.ActivityLap
 import androidx.health.connect.client.records.ActivitySession
@@ -358,6 +359,15 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     endZoneOffset = endZoneOffset,
                     metadata = metadata
                 )
+            "ActiveEnergyBurned" ->
+                ActiveEnergyBurned(
+                    energyKcal = getDouble("energy"),
+                    startTime = startTime,
+                    startZoneOffset = startZoneOffset,
+                    endTime = endTime,
+                    endZoneOffset = endZoneOffset,
+                    metadata = metadata
+                )
             "ActivityEvent" ->
                 ActivityEvent(
                     eventType = getEnum("eventType") ?: "",
@@ -478,6 +488,7 @@ fun toRecord(proto: DataProto.DataPoint): Record =
             "Repetitions" ->
                 Repetitions(
                     count = getLong("count"),
+                    type = getEnum("type") ?: "",
                     startTime = startTime,
                     startZoneOffset = startZoneOffset,
                     endTime = endTime,

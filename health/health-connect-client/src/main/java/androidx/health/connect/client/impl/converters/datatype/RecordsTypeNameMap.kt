@@ -16,6 +16,7 @@
 package androidx.health.connect.client.impl.converters.datatype
 
 import androidx.health.connect.client.records.ActiveCaloriesBurned
+import androidx.health.connect.client.records.ActiveEnergyBurned
 import androidx.health.connect.client.records.ActivityEvent
 import androidx.health.connect.client.records.ActivityLap
 import androidx.health.connect.client.records.ActivitySession
@@ -74,6 +75,7 @@ import kotlin.reflect.KClass
 private val ALL_RECORDS_TYPES =
     setOf(
         ActiveCaloriesBurned::class,
+        ActiveEnergyBurned::class,
         ActivityEvent::class,
         ActivityLap::class,
         ActivitySession::class,
