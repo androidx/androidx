@@ -134,9 +134,6 @@ class TestScheduler(private val context: Context) : Scheduler, ExecutionListener
         synchronized(lock) {
             val oldState = pendingWorkStates[id]
                 ?: throw IllegalArgumentException("Work with id $workSpecId is not enqueued!")
-            if (!oldState.isPeriodic)
-                throw IllegalArgumentException("Work with id $workSpecId is not periodic!")
-
             state = oldState.copy(periodDelayMet = true)
             pendingWorkStates[id] = state
         }
