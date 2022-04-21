@@ -71,6 +71,7 @@
          <trusted-key id="1f8cf885d537a431" group="com.nhaarman.mockitokotlin2"/>
          <trusted-key id="1fa37fbe4453c1073e7ef61d6449005f96bc97a3" group="de.undercouch"/>
          <trusted-key id="205c8673dc742c7c" group="org.apache"/>
+         <trusted-key id="20723a6399bc060154283b37cfae163b64ac9189" group="org.jetbrains.skiko"/>
          <trusted-key id="21200d723f53ce38" group="com.squareup.leakcanary"/>
          <trusted-key id="218fa0f6a941a037" group="com.github.kevinstern"/>
          <trusted-key id="21939ff0ca2a6567" group="commons-codec"/>
