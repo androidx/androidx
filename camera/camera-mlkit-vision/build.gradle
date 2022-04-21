@@ -60,6 +60,7 @@ android {
 androidx {
     name = "Jetpack Camera MLKit Vision Library"
     publish = Publish.NONE
+    mavenVersion = LibraryVersions.Camera_MLKIT_VISION
     mavenGroup = LibraryGroups.CAMERA
     inceptionYear = "2022"
     runApiTasks = new RunApiTasks.Yes()
