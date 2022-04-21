@@ -426,6 +426,7 @@
          <trusted-key id="faabc3738b1f58da2d776fa2eb380dc13c39f675" group="com.intellij" name="annotations"/>
          <trusted-key id="fc411cd3cb7dcb0abc9801058118b3bcdb1a5000" group="jakarta.xml.bind"/>
          <trusted-key id="fd5dea07fcb690a8" group="org.codehaus.mojo"/>
+         <trusted-key id="ff460acf3266fdce8eb8fe3ba797295e9d87bdd0" group="androidx.build.gradle.gcpbuildcache" name="gcpbuildcache"/>
          <trusted-key id="ff6e2c001948c5f2f38b0cc385911f425ec61b51">
             <trusting group="junit"/>
             <trusting group="org.junit" name="junit-bom"/>
