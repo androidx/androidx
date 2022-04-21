@@ -738,6 +738,7 @@ public final class ComplicationData implements Parcelable, Serializable {
         ArrayList<ComplicationData> entries = new ArrayList<>();
         for (Parcelable parcelable : bundles) {
             Bundle bundle = (Bundle) parcelable;
+            bundle.setClassLoader(getClass().getClassLoader());
             // Use the serialized FIELD_TIMELINE_ENTRY_TYPE or the outer type if it's not there.
             // Usually the timeline entry type will be the same as the outer type, unless an entry
             // contains NoDataComplicationData.
