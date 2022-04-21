@@ -270,7 +270,7 @@ class XTypeTest {
             sources = listOf(missingTypeRef)
         ) {
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
-            assertThat(element.superType?.isError()).isTrue()
+            assertThat(element.superClass?.isError()).isTrue()
             it.assertCompilationResult {
                 compilationDidFail()
             }

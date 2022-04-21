@@ -118,12 +118,17 @@ class XTypeElementTest {
             }
             abstract class AbstractClass {}
             interface MyInterface {}
+            interface AnotherInterface : MyInterface {}
             """.trimIndent()
         )
         runProcessorTest(sources = listOf(src)) { invocation ->
             invocation.processingEnv.requireTypeElement("foo.bar.Baz").let {
-                assertThat(it.superType).isEqualTo(
+                assertThat(it.superClass).isEqualTo(
                     invocation.processingEnv.requireType("foo.bar.AbstractClass")
+                )
+                assertThat(it.superTypes).containsExactly(
+                    invocation.processingEnv.requireType("foo.bar.AbstractClass"),
+                    invocation.processingEnv.requireType("foo.bar.MyInterface")
                 )
                 assertThat(it.type).isEqualTo(
                     invocation.processingEnv.requireType("foo.bar.Baz")
@@ -133,11 +138,12 @@ class XTypeElementTest {
                 assertThat(it.isAbstract()).isFalse()
             }
             invocation.processingEnv.requireTypeElement("foo.bar.AbstractClass").let {
-                assertThat(it.superType).let {
-                    it.isEqualTo(
-                        invocation.processingEnv.requireType(TypeName.OBJECT)
-                    )
-                }
+                assertThat(it.superClass).isEqualTo(
+                    invocation.processingEnv.requireType(TypeName.OBJECT)
+                )
+                assertThat(it.superTypes).containsExactly(
+                    invocation.processingEnv.requireType(TypeName.OBJECT)
+                )
                 assertThat(it.isAbstract()).isTrue()
                 assertThat(it.isInterface()).isFalse()
                 assertThat(it.type).isEqualTo(
@@ -145,13 +151,23 @@ class XTypeElementTest {
                 )
             }
             invocation.processingEnv.requireTypeElement("foo.bar.MyInterface").let {
-                assertThat(it.superType).isAnyOf(
-                    null,
+                assertThat(it.superClass).isNull()
+                assertThat(it.superTypes).containsExactly(
                     invocation.processingEnv.requireType(TypeName.OBJECT)
                 )
                 assertThat(it.isInterface()).isTrue()
                 assertThat(it.type).isEqualTo(
                     invocation.processingEnv.requireType("foo.bar.MyInterface")
+                )
+            }
+            invocation.processingEnv.requireTypeElement("foo.bar.AnotherInterface").let {
+                assertThat(it.superClass).isNull()
+                assertThat(it.superTypes).containsExactly(
+                    invocation.processingEnv.requireType("foo.bar.MyInterface")
+                )
+                assertThat(it.isInterface()).isTrue()
+                assertThat(it.type).isEqualTo(
+                    invocation.processingEnv.requireType("foo.bar.AnotherInterface")
                 )
             }
         }
@@ -810,7 +826,7 @@ class XTypeElementTest {
         runProcessorTest(sources = listOf(src)) { invocation ->
             val base = invocation.processingEnv.requireTypeElement("DerivedInterface")
             val methodNames = base.getAllMethods().toList().jvmNames()
-            assertThat(methodNames).containsAtLeast(
+            assertThat(methodNames).containsExactly(
                 "get", "getAll", "putAll", "getAllWithDefault"
             )
         }
@@ -1211,21 +1227,21 @@ class XTypeElementTest {
                 assertThat(base.getDeclaredMethods().jvmNames()).containsExactly(
                     "getX"
                 )
-                assertThat(base.getAllMethods().jvmNames()).contains(
+                assertThat(base.getAllMethods().jvmNames()).containsExactly(
                     "getX"
                 )
-                assertThat(base.getAllNonPrivateInstanceMethods().jvmNames()).contains(
+                assertThat(base.getAllNonPrivateInstanceMethods().jvmNames()).containsExactly(
                     "getX"
                 )
             }
             invocation.processingEnv.requireTypeElement("GetterSetter").let { sub ->
-                assertThat(sub.getDeclaredMethods().jvmNames()).containsAtLeast(
+                assertThat(sub.getDeclaredMethods().jvmNames()).containsExactly(
                     "getY", "setY"
                 )
-                assertThat(sub.getAllMethods().jvmNames()).containsAtLeast(
+                assertThat(sub.getAllMethods().jvmNames()).containsExactly(
                     "getX", "getY", "setY"
                 )
-                assertThat(sub.getAllNonPrivateInstanceMethods().jvmNames()).containsAtLeast(
+                assertThat(sub.getAllNonPrivateInstanceMethods().jvmNames()).containsExactly(
                     "getX", "getY", "setY"
                 )
             }
