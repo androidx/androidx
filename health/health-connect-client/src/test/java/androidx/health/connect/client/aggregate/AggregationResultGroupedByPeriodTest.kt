@@ -23,27 +23,27 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class AggregateDataRowGroupByPeriodTest {
+class AggregationResultGroupedByPeriodTest {
     @Test
     fun constructor_endTimeNotAfterStartTime_throws() {
         assertThrows(IllegalArgumentException::class.java) {
-            AggregateDataRowGroupByPeriod(
-                data = AggregateDataRow(mapOf(), mapOf(), listOf()),
+            AggregationResultGroupedByPeriod(
+                result = AggregationResult(mapOf(), mapOf(), listOf()),
                 startTime = LocalDateTime.parse("2022-02-22T20:22:02"),
                 endTime = LocalDateTime.parse("2022-02-11T20:22:02"),
             )
         }
 
         assertThrows(IllegalArgumentException::class.java) {
-            AggregateDataRowGroupByPeriod(
-                data = AggregateDataRow(mapOf(), mapOf(), listOf()),
+            AggregationResultGroupedByPeriod(
+                result = AggregationResult(mapOf(), mapOf(), listOf()),
                 startTime = LocalDateTime.parse("2022-02-11T20:22:02"),
                 endTime = LocalDateTime.parse("2022-02-11T20:22:02"),
             )
         }
 
-        AggregateDataRowGroupByPeriod(
-            data = AggregateDataRow(mapOf(), mapOf(), listOf()),
+        AggregationResultGroupedByPeriod(
+            result = AggregationResult(mapOf(), mapOf(), listOf()),
             startTime = LocalDateTime.parse("2022-02-11T20:22:02"),
             endTime = LocalDateTime.parse("2022-02-22T20:22:02"),
         )

@@ -15,7 +15,7 @@
  */
 package androidx.health.connect.client.records
 
-import androidx.health.connect.client.aggregate.DoubleAggregateMetric
+import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
@@ -63,10 +63,17 @@ public class Distance(
         return result
     }
 
-    internal companion object {
-        /** Metric identifier to retrieve total distance from [AggregateDataRow]. */
+    companion object {
+        /**
+         * Metric identifier to retrieve total distance from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
         @JvmField
-        internal val DISTANCE_TOTAL: DoubleAggregateMetric =
-            DoubleAggregateMetric("Distance", "total", "distance")
+        val TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                "Distance",
+                AggregateMetric.AggregationType.TOTAL,
+                "distance"
+            )
     }
 }

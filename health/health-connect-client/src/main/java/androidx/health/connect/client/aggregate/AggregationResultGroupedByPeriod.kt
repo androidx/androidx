@@ -15,17 +15,24 @@
  */
 package androidx.health.connect.client.aggregate
 
-import androidx.annotation.RestrictTo
+import java.time.LocalDateTime
 
 /**
- * A aggregate metric identifier with value of type [Long].
+ * Contains an aggregation result within a period slice.
  *
- * See [AggregateDataRow.getMetric].
+ * @property result contains [AggregationResult] with metrics included in the request.
+ * @property startTime start time of the slice.
+ * @property endTime end time of the slice.
+ *
+ * @see [androidx.health.connect.client.HealthConnectClient.aggregateGroupByPeriod]
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-class LongAggregateMetric
+class AggregationResultGroupedByPeriod
 internal constructor(
-    override val dataTypeName: String,
-    override val aggregationSuffix: String,
-    override val aggregateFieldName: String? = null
-) : AggregateMetric
+    public val result: AggregationResult,
+    public val startTime: LocalDateTime,
+    public val endTime: LocalDateTime,
+) {
+    init {
+        require(startTime.isBefore(endTime)) { "start time must be before end time" }
+    }
+}

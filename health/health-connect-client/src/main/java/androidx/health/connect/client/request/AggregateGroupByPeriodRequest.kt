@@ -15,7 +15,6 @@
  */
 package androidx.health.connect.client.request
 
-import androidx.annotation.RestrictTo
 import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.metadata.DataOrigin
 import androidx.health.connect.client.time.TimeRangeFilter
@@ -31,9 +30,8 @@ import java.time.Period
  * sliced into several equal-sized time buckets (except for the last one).
  * @param dataOriginFilter List of [DataOrigin]s to read from, or empty for no filter.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 class AggregateGroupByPeriodRequest(
-    internal val metrics: Set<AggregateMetric>,
+    internal val metrics: Set<AggregateMetric<*>>,
     internal val timeRangeFilter: TimeRangeFilter,
     internal val timeRangeSlicer: Period,
     internal val dataOriginFilter: List<DataOrigin> = emptyList(),

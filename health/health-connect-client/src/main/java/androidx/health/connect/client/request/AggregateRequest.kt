@@ -15,7 +15,6 @@
  */
 package androidx.health.connect.client.request
 
-import androidx.annotation.RestrictTo
 import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.metadata.DataOrigin
 import androidx.health.connect.client.time.TimeRangeFilter
@@ -23,13 +22,12 @@ import androidx.health.connect.client.time.TimeRangeFilter
 /**
  * Request object to read aggregations for given [AggregateMetric]s in Android Health Platform.
  *
- * @property metrics Set of [AggregateMetric]s to aggregate, such as `Steps::STEPS_COUNT_TOTAL`.
- * @property timeRangeFilter The [TimeRangeFilter] to read from.
- * @property dataOriginFilter List of [DataOrigin]s to read from, or empty for no filter.
+ * @param metrics Set of [AggregateMetric]s to aggregate, such as `Steps::STEPS_COUNT_TOTAL`.
+ * @param timeRangeFilter The [TimeRangeFilter] to read from.
+ * @param dataOriginFilter List of [DataOrigin]s to read from, or empty for no filter.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 class AggregateRequest(
-    internal val metrics: Set<AggregateMetric>,
+    internal val metrics: Set<AggregateMetric<*>>,
     internal val timeRangeFilter: TimeRangeFilter,
     internal val dataOriginFilter: List<DataOrigin> = emptyList(),
 )

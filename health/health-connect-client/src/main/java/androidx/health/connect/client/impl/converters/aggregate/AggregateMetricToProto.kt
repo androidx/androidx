@@ -18,9 +18,9 @@ package androidx.health.connect.client.impl.converters.aggregate
 import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.platform.client.proto.RequestProto
 
-fun AggregateMetric.toProto(): RequestProto.AggregateMetricSpec =
+fun AggregateMetric<*>.toProto(): RequestProto.AggregateMetricSpec =
     RequestProto.AggregateMetricSpec.newBuilder()
         .setDataTypeName(dataTypeName)
-        .setAggregationType(aggregationSuffix)
-        .apply { aggregateFieldName?.let { fieldName = it } }
+        .setAggregationType(aggregationType.aggregationTypeString)
+        .apply { aggregationField?.let { fieldName = it } }
         .build()

@@ -17,9 +17,9 @@ package androidx.health.connect.client.impl
 
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.PermissionController
-import androidx.health.connect.client.aggregate.AggregateDataRow
-import androidx.health.connect.client.aggregate.AggregateDataRowGroupByDuration
-import androidx.health.connect.client.aggregate.AggregateDataRowGroupByPeriod
+import androidx.health.connect.client.aggregate.AggregationResult
+import androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration
+import androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod
 import androidx.health.connect.client.impl.converters.aggregate.retrieveAggregateDataRow
 import androidx.health.connect.client.impl.converters.aggregate.toAggregateDataRowGroupByDuration
 import androidx.health.connect.client.impl.converters.aggregate.toAggregateDataRowGroupByPeriod
@@ -158,21 +158,21 @@ class HealthConnectClientImpl(
         return toReadRecordsResponse(proto)
     }
 
-    override suspend fun aggregate(request: AggregateRequest): AggregateDataRow {
+    override suspend fun aggregate(request: AggregateRequest): AggregationResult {
         val responseProto = delegate.aggregate(request.toProto()).await()
         return responseProto.rowsList.first().retrieveAggregateDataRow()
     }
 
     override suspend fun aggregateGroupByDuration(
         request: AggregateGroupByDurationRequest,
-    ): List<AggregateDataRowGroupByDuration> {
+    ): List<AggregationResultGroupedByDuration> {
         val responseProto = delegate.aggregate(request.toProto()).await()
         return responseProto.rowsList.map { it.toAggregateDataRowGroupByDuration() }.toList()
     }
 
     override suspend fun aggregateGroupByPeriod(
         request: AggregateGroupByPeriodRequest
-    ): List<AggregateDataRowGroupByPeriod> {
+    ): List<AggregationResultGroupedByPeriod> {
         val responseProto = delegate.aggregate(request.toProto()).await()
         return responseProto.rowsList.map { it.toAggregateDataRowGroupByPeriod() }.toList()
     }

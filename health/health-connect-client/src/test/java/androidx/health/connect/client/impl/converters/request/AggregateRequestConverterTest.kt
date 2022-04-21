@@ -32,7 +32,7 @@ import java.time.Period
 import org.junit.Test
 import org.junit.runner.RunWith
 
-private val METRIC = Steps.STEPS_COUNT_TOTAL
+private val METRIC = Steps.TOTAL
 private val METRIC_PROTO =
     RequestProto.AggregateMetricSpec.newBuilder()
         .setDataTypeName("Steps")
