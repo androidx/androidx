@@ -32,7 +32,7 @@ internal constructor(
 ) {
     companion object {
         /**
-         * Creates permission to read provided [recordType], such as `Steps::class`.
+         * Creates [Permission] to read provided [recordType], such as `Steps::class`.
          *
          * @return Permission object to use with
          * [androidx.health.connect.client.PermissionController].
@@ -43,14 +43,14 @@ internal constructor(
         }
 
         /**
-         * Creates permission to write provided [recordType], such as `Steps::class`.
+         * Creates [Permission] to write provided [recordType], such as `Steps::class`.
          *
          * @return Permission object to use with
          * [androidx.health.connect.client.PermissionController].
          */
         @JvmStatic
         public fun createWritePermission(recordType: KClass<out Record>): Permission {
-            return Permission(recordType, AccessTypes.READ)
+            return Permission(recordType, AccessTypes.WRITE)
         }
     }
 
