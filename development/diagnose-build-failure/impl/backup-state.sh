@@ -36,7 +36,9 @@ stateDir="$(cd $stateDir && pwd)"
 if [ "$OUT_DIR" == "" ]; then
   OUT_DIR="$checkoutDir/out"
 else
-  GRADLE_USER_HOME="$OUT_DIR/.gradle"
+  if [ "$GRADLE_USER_HOME" == "" ]; then
+    GRADLE_USER_HOME="$OUT_DIR/.gradle"
+  fi
 fi
 
 if [ "$DIST_DIR" == "" ];then
