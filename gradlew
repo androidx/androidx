@@ -369,26 +369,6 @@ function removeCaches() {
   rm -rf $OUT_DIR
 }
 
-if [ "$cleanCaches" == true ]; then
-  echo "IF ./gradlew --clean FIXES YOUR BUILD; OPEN A BUG."
-  echo "In nearly all cases, it should not be necessary to run a clean build."
-  echo
-  # one case where it is convenient to have a clean build is for double-checking that a build failure isn't due to an incremental build failure
-  # another case where it is convenient to have a clean build is for performance testing
-  # another case where it is convenient to have a clean build is when you're modifying the build and may have introduced some errors but haven't shared your changes yet (at which point you should have fixed the errors)
-
-  backupDir=~/androidx-build-state-backup
-  ./development/diagnose-build-failure/impl/backup-state.sh "$backupDir" --move # prints that it is saving state into this dir"
-
-  echo "To restore this state later, run:"
-  echo
-  echo "  ./development/diagnose-build-failure/impl/restore-state.sh $backupDir"
-  echo
-  echo "Running Gradle"
-  echo
-fi
-
-
 function runGradle() {
   processOutput=false
   if [[ " ${@} " =~ " -Pandroidx.validateNoUnrecognizedMessages " ]]; then
@@ -433,6 +413,29 @@ function runGradle() {
   fi
   return $RETURN_VALUE
 }
+
+if [ "$cleanCaches" == true ]; then
+  echo "IF ./gradlew --clean FIXES YOUR BUILD; OPEN A BUG."
+  echo "In nearly all cases, it should not be necessary to run a clean build."
+  echo
+  # one case where it is convenient to have a clean build is for double-checking that a build failure isn't due to an incremental build failure
+  # another case where it is convenient to have a clean build is for performance testing
+  # another case where it is convenient to have a clean build is when you're modifying the build and may have introduced some errors but haven't shared your changes yet (at which point you should have fixed the errors)
+
+  echo "Stopping Gradle daemons"
+  runGradle --stop || true
+  echo
+
+  backupDir=~/androidx-build-state-backup
+  ./development/diagnose-build-failure/impl/backup-state.sh "$backupDir" --move # prints that it is saving state into this dir"
+
+  echo "To restore this state later, run:"
+  echo
+  echo "  ./development/diagnose-build-failure/impl/restore-state.sh $backupDir"
+  echo
+  echo "Running Gradle"
+  echo
+fi
 
 if [[ " ${@} " =~ " -PdisallowExecution " ]]; then
   echo "Passing '-PdisallowExecution' directly is forbidden. Did you mean -Pandroidx.verifyUpToDate ?"
