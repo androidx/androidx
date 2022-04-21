@@ -25,7 +25,6 @@
             android:exported="false"/>
         <receiver
             android:name=".notification.CarAppNotificationBroadcastReceiver"
-            android:process=""
             android:exported="false"/>
     </application>
     <queries>
