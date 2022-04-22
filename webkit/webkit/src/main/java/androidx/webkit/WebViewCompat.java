@@ -31,6 +31,7 @@ import android.webkit.WebViewClient;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresFeature;
+import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
 import androidx.webkit.internal.WebMessagePortImpl;
 import androidx.webkit.internal.WebViewFeatureInternal;
@@ -724,7 +725,11 @@ public class WebViewCompat {
      * @throws IllegalArgumentException If one of the {@code allowedOriginRules} is invalid.
      * @see #addWebMessageListener(WebView, String, Set, WebMessageListener)
      * @see ScriptHandler
+     *
+     * TODO(swestphal): unhide when ready.
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresFeature(
             name = WebViewFeature.DOCUMENT_START_SCRIPT,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
