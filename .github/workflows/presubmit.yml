@@ -102,8 +102,6 @@ jobs:
           gradle-home-cache-excludes: | 
             caches/jars-9
             caches/transforms-3
-          # disable cache to see if it will help with the dependency verification problem
-          cache-disabled: true
 
       - name: "ktlint"
         env:
