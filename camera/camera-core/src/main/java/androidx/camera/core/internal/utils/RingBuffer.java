@@ -52,11 +52,16 @@ public interface RingBuffer<T> {
     int getMaxCapacity();
 
     /**
+     * Checks if the RingBuffer is empty.
+     */
+    boolean isEmpty();
+
+    /**
      * Called when an element is removed from the buffer due to capacity.
      *
      * @param <T> the type of element stored in the RingBuffer.
      */
     interface OnRemoveCallback<T> {
-        void onRemove(T element);
+        void onRemove(@NonNull T element);
     }
 }
