@@ -34,6 +34,8 @@ dependencies {
     implementation(projectOrArtifact(":navigation:navigation-compose"))
     implementation("androidx.compose.material:material:1.0.1")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1")
+    implementation(projectOrArtifact(":lifecycle:lifecycle-runtime-ktx"))
+    implementation(projectOrArtifact(":savedstate:savedstate-ktx"))
 }
 
 androidx {
@@ -46,16 +48,4 @@ androidx {
 
 android {
     namespace "androidx.navigation.compose.samples"
-}
-
-// Workaround for https://github.com/gradle/gradle/issues/19882
-configurations.all {
-    resolutionStrategy.dependencySubstitution {
-        substitute(module("androidx.lifecycle:lifecycle-runtime:")).
-                using project(":lifecycle:lifecycle-runtime")
-        substitute(module("androidx.lifecycle:lifecycle-runtime-ktx:")).
-                using project(":lifecycle:lifecycle-runtime-ktx")
-        substitute(module("androidx.savedstate:savedstate-ktx:")).
-                using project(":savedstate:savedstate-ktx")
-    }
 }
