@@ -47,6 +47,8 @@ dependencies {
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy)
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.multidex)
+
+    lintPublish(project(':navigation:navigation-runtime-lint'))
 }
 
 android {
