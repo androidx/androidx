@@ -47,10 +47,6 @@ package androidx.benchmark.macro {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static boolean isSupportedWithVmSettings(androidx.benchmark.macro.CompilationMode);
   }
 
-  @RequiresApi(29) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class EnergyMetric extends androidx.benchmark.macro.Metric {
-    ctor public EnergyMetric();
-  }
-
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class FrameTimingGfxInfoMetric extends androidx.benchmark.macro.Metric {
     ctor public FrameTimingGfxInfoMetric();
   }
@@ -94,8 +90,38 @@ package androidx.benchmark.macro {
   public final class MetricResultExtensionsKt {
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public enum PowerCategory {
+    enum_constant public static final androidx.benchmark.macro.PowerCategory CPU;
+    enum_constant public static final androidx.benchmark.macro.PowerCategory DISPLAY;
+    enum_constant public static final androidx.benchmark.macro.PowerCategory GPS;
+    enum_constant public static final androidx.benchmark.macro.PowerCategory GPU;
+    enum_constant public static final androidx.benchmark.macro.PowerCategory MACHINE_LEARNING;
+    enum_constant public static final androidx.benchmark.macro.PowerCategory MEMORY;
+    enum_constant public static final androidx.benchmark.macro.PowerCategory NETWORK;
+    enum_constant public static final androidx.benchmark.macro.PowerCategory UNCATEGORIZED;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public enum PowerCategoryDisplayLevel {
+    enum_constant public static final androidx.benchmark.macro.PowerCategoryDisplayLevel BREAKDOWN;
+    enum_constant public static final androidx.benchmark.macro.PowerCategoryDisplayLevel TOTAL;
+  }
+
   @RequiresApi(29) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class PowerMetric extends androidx.benchmark.macro.Metric {
-    ctor public PowerMetric();
+    ctor public PowerMetric(androidx.benchmark.macro.PowerMetric.Type type);
+  }
+
+  public abstract static sealed class PowerMetric.Type {
+    method public final java.util.Map<androidx.benchmark.macro.PowerCategory,androidx.benchmark.macro.PowerCategoryDisplayLevel> getCategories();
+    method public final void setCategories(java.util.Map<androidx.benchmark.macro.PowerCategory,? extends androidx.benchmark.macro.PowerCategoryDisplayLevel>);
+    property public final java.util.Map<androidx.benchmark.macro.PowerCategory,androidx.benchmark.macro.PowerCategoryDisplayLevel> categories;
+  }
+
+  public static final class PowerMetric.Type.Energy extends androidx.benchmark.macro.PowerMetric.Type {
+    ctor public PowerMetric.Type.Energy(optional java.util.Map<androidx.benchmark.macro.PowerCategory,? extends androidx.benchmark.macro.PowerCategoryDisplayLevel> energyCategories);
+  }
+
+  public static final class PowerMetric.Type.Power extends androidx.benchmark.macro.PowerMetric.Type {
+    ctor public PowerMetric.Type.Power(optional java.util.Map<androidx.benchmark.macro.PowerCategory,? extends androidx.benchmark.macro.PowerCategoryDisplayLevel> powerCategories);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class PowerRail {
@@ -118,14 +144,6 @@ package androidx.benchmark.macro {
   }
 
   public final class TagKt {
-  }
-
-  @RequiresApi(29) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class TotalEnergyMetric extends androidx.benchmark.macro.Metric {
-    ctor public TotalEnergyMetric();
-  }
-
-  @RequiresApi(29) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class TotalPowerMetric extends androidx.benchmark.macro.Metric {
-    ctor public TotalPowerMetric();
   }
 
 }
