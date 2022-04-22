@@ -38,14 +38,14 @@ private val SELECT_RESOLUTION_JPEG = Size(1003, 1000)
 private val SUPPORTED_RESOLUTIONS = listOf(RESOLUTION_1, RESOLUTION_2)
 
 /**
- * Unit test for [ResolutionSelector].
+ * Unit test for [ResolutionCorrector].
  */
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-class ResolutionSelectorTest {
+class ResolutionCorrectorTest {
 
-    private val mResolutionSelector = ResolutionSelector(object : ExtraCroppingQuirk() {
+    private val mResolutionCorrector = ResolutionCorrector(object : ExtraCroppingQuirk() {
         override fun getVerifiedResolution(configType: SurfaceConfig.ConfigType): Size? {
             return when (configType) {
                 SurfaceConfig.ConfigType.YUV -> SELECT_RESOLUTION_YUV
@@ -77,7 +77,7 @@ class ResolutionSelectorTest {
     ) {
         val resolutions: MutableList<Size> = ArrayList<Size>(SUPPORTED_RESOLUTIONS)
         resolutions.add(resolution)
-        Truth.assertThat(mResolutionSelector.insertOrPrioritize(configType, resolutions))
+        Truth.assertThat(mResolutionCorrector.insertOrPrioritize(configType, resolutions))
             .containsExactly(resolution, RESOLUTION_1, RESOLUTION_2).inOrder()
     }
 
@@ -100,7 +100,7 @@ class ResolutionSelectorTest {
         configType: SurfaceConfig.ConfigType,
         resolution: Size
     ) {
-        Truth.assertThat(mResolutionSelector.insertOrPrioritize(configType, SUPPORTED_RESOLUTIONS))
+        Truth.assertThat(mResolutionCorrector.insertOrPrioritize(configType, SUPPORTED_RESOLUTIONS))
             .containsExactly(resolution, RESOLUTION_1, RESOLUTION_2).inOrder()
     }
 
@@ -117,8 +117,8 @@ class ResolutionSelectorTest {
     private fun noQuirk_returnsOriginalSupportedResolutions(
         quirk: ExtraCroppingQuirk?
     ) {
-        val resolutionSelector = ResolutionSelector(quirk)
-        val result = resolutionSelector.insertOrPrioritize(
+        val resolutionCorrector = ResolutionCorrector(quirk)
+        val result = resolutionCorrector.insertOrPrioritize(
             SurfaceConfig.ConfigType.PRIV,
             SUPPORTED_RESOLUTIONS
         )

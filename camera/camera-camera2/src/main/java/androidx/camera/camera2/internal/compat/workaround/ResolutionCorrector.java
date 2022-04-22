@@ -34,23 +34,23 @@ import java.util.List;
  * quirks.
  */
 @RequiresApi(21)
-public class ResolutionSelector {
+public class ResolutionCorrector {
 
     @Nullable
     private final ExtraCroppingQuirk mExtraCroppingQuirk;
 
     /**
-     * Constructs new {@link ResolutionSelector}.
+     * Constructs new {@link ResolutionCorrector}.
      */
-    public ResolutionSelector() {
+    public ResolutionCorrector() {
         this(DeviceQuirks.get(ExtraCroppingQuirk.class));
     }
 
     /**
-     * Constructs new {@link ResolutionSelector}.
+     * Constructs new {@link ResolutionCorrector}.
      */
     @VisibleForTesting
-    ResolutionSelector(@Nullable ExtraCroppingQuirk extraCroppingQuirk) {
+    ResolutionCorrector(@Nullable ExtraCroppingQuirk extraCroppingQuirk) {
         mExtraCroppingQuirk = extraCroppingQuirk;
     }
 
