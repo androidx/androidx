@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.camera.camera2.internal.util
+package androidx.camera.core.internal.utils
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -24,7 +24,7 @@ import androidx.camera.core.impl.CameraCaptureMetaData.AfState
 import androidx.camera.core.impl.CameraCaptureMetaData.AwbState
 import androidx.camera.core.impl.CameraCaptureResult
 import androidx.camera.core.internal.CameraCaptureResultImageInfo
-import androidx.camera.camera2.internal.util.RingBuffer.OnRemoveCallback
+import androidx.camera.core.internal.utils.RingBuffer.OnRemoveCallback
 import androidx.camera.testing.fakes.FakeImageProxy
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
@@ -55,7 +55,7 @@ class ZslRingBufferTest {
     fun enqueue_ensureOldFramesAreRemoved() {
         @Suppress("UNCHECKED_CAST")
         val onRemoveCallback = mock(OnRemoveCallback::class.java) as OnRemoveCallback<ImageProxy>
-        val ringBuffer = androidx.camera.camera2.internal.util.ZslRingBuffer(
+        val ringBuffer = ZslRingBuffer(
             2,
             onRemoveCallback
         )
@@ -75,7 +75,7 @@ class ZslRingBufferTest {
     fun enqueue_framesWithBad3AStatesNotQueued() {
         @Suppress("UNCHECKED_CAST")
         val onRemoveCallback = mock(OnRemoveCallback::class.java) as OnRemoveCallback<ImageProxy>
-        val ringBuffer = androidx.camera.camera2.internal.util.ZslRingBuffer(
+        val ringBuffer = ZslRingBuffer(
             2,
             onRemoveCallback
         )

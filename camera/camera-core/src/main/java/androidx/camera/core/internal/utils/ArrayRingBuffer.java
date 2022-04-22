@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.camera2.internal.util;
+package androidx.camera.core.internal.utils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -30,7 +30,7 @@ public class ArrayRingBuffer<T> implements RingBuffer<T> {
 
     private final int mRingBufferCapacity;
     private final ArrayDeque<T> mBuffer;
-    @Nullable  final OnRemoveCallback<T> mOnRemoveCallback;
+    @Nullable final OnRemoveCallback<T> mOnRemoveCallback;
 
     public ArrayRingBuffer(int ringBufferCapacity) {
         this(ringBufferCapacity, null);
