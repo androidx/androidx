@@ -25,4 +25,5 @@ internal actual class AtomicInt {
     actual fun getAndIncrement(): Int = delegate++
     actual fun decrementAndGet(): Int = --delegate
     actual fun get(): Int = delegate
+    actual fun incrementAndGet(): Int = ++delegate
 }

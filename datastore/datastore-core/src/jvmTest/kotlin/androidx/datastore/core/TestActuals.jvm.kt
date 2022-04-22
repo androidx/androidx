@@ -18,24 +18,27 @@ package androidx.datastore.core
 
 import java.nio.file.Files
 
-actual class TestIO {
+actual class TestIO actual constructor(dirName:String) {
     private val tmpDir = Files.createTempDirectory(
-        "datastore-test-io"
+        dirName
     ).also {
         it.toFile().deleteOnExit()
     }
-    actual fun <T> newFileStorage(serializer: Serializer<T>): Storage<T> {
+    internal actual fun <T> newFileStorage(serializer: Serializer<T>, prefix:String): StorageImpl<T> {
         return FileStorage(
             produceFile = {
+                onProduceFileCallback()
                 Files.createTempFile(
                     tmpDir,
-                    "test-file", // prefix
+                    prefix, // prefix
                     ""//suffix
                 ).toFile()
             },
             serializer = serializer
         )
     }
+
+    actual var onProduceFileCallback:()->Unit = {}
 
     actual fun cleanup() {
         tmpDir.toFile().deleteRecursively()

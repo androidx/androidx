@@ -16,9 +16,10 @@
 
 package androidx.datastore.core
 
-expect internal class AtomicInt {
+internal expect class AtomicInt {
     constructor(initialValue: Int)
     fun getAndIncrement(): Int
+    fun incrementAndGet(): Int
     fun decrementAndGet(): Int
     fun get(): Int
 }

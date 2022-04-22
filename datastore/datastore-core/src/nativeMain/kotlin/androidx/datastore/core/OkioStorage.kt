@@ -23,11 +23,11 @@ import okio.FileNotFoundException
 import okio.FileSystem
 import okio.Path
 
-class OkioStorage<T>(
+internal class OkioStorage<T>(
     private val fileSystem: FileSystem,
     private val producePath: () -> Path,
     private val serializer: Serializer<T>
-) : Storage<T> {
+) : StorageImpl<T>() {
     private val canonicalPath by lazy {
         val originalPath = producePath()
         check(originalPath.isAbsolute) {
@@ -111,5 +111,10 @@ class OkioStorage<T>(
 
     companion object {
         private val activePaths = atomic(emptySet<Path>())
+    }
+
+    override fun delete(): Boolean {
+        fileSystem.delete(canonicalPath)
+        return fileSystem.exists(canonicalPath)
     }
 }

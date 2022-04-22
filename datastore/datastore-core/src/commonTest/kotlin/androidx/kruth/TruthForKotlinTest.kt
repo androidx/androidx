@@ -17,10 +17,11 @@
 package androidx.kruth
 
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 // This mimics truth APis. not that we would merge it but makes moving tests and trying it
 // easier
-class KruthAssertion<T>(
+open class KruthAssertion<T>(
     val actual: T?
 ) {
     fun isEqualTo(
@@ -33,6 +34,59 @@ class KruthAssertion<T>(
         )
     }
 }
+
+open class KruthStringAssertion(
+    actual: String?
+) : KruthAssertion<String>(actual) {
+    fun startsWith(prefix:String):Boolean {
+        return actual?.startsWith(prefix) ?:false
+    }
+    fun endsWith(suffix:String):Boolean {
+        return actual?.endsWith(suffix) ?:false
+    }
+    fun contains(chars:CharSequence):Boolean {
+        return actual?.contains(chars) ?:false
+    }
+
+
+}
+
+class KruthBooleanAssertion(
+    actual: Boolean?
+) : KruthAssertion<Boolean>(actual) {
+    fun isTrue():Boolean {
+        return actual is Boolean && actual
+    }
+    fun isFalse():Boolean {
+        return actual is Boolean && !actual
+    }
+}
+
+class KTruthThrowableAssertion(
+    actual: Throwable?
+) : KruthAssertion<Throwable>(actual) {
+
+    fun hasMessageThat():KruthStringAssertion {
+        return KruthStringAssertion(actual?.message)
+    }
+}
+
 fun <T> assertThat(
     actual: T?
 ) = KruthAssertion(actual)
+
+fun  assertThat(
+    actual: Boolean?
+) = KruthBooleanAssertion(actual)
+
+inline fun <reified E : Exception>  assertThrows(test:()->Unit):KTruthThrowableAssertion {
+    try {
+        test()
+        assertTrue(false, "Exception ${E::class} not thrown")
+        throw AssertionError("Impossible to get here")
+    } catch (ex:Exception) {
+        assertTrue(ex is E, "Expected thrown ${E::class}, got ${ex::class}")
+        return KTruthThrowableAssertion(ex)
+    }
+
+}
