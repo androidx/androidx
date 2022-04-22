@@ -67,13 +67,13 @@ public class TimerConverterTest {
                 .setCreationTimestampMillis(1)
                 .setName("my timer")
                 .setDurationMillis(1000)
-                .setRemainingTimeMillisSinceUpdate(10000)
+                .setRemainingTimeMillis(10000)
                 .setRingtone(AlarmClock.VALUE_RINGTONE_SILENT)
                 .setStatus(Timer.STATUS_STARTED)
                 .setShouldVibrate(true)
-                .setStartTimeMillis(
-                        /*startTimeMillis=*/3000,
-                        /*startTimeMillisInElapsedRealtime=*/5000,
+                .setBaseTimeMillis(
+                        /*baseTimeMillis=*/3000,
+                        /*baseTimeMillisInElapsedRealtime=*/5000,
                         /*bootCount=*/1)
                 .setOriginalDurationMillis(800)
                 .build();
@@ -125,13 +125,13 @@ public class TimerConverterTest {
                 .setCreationTimestampMillis(1)
                 .setName("my timer")
                 .setDurationMillis(1000)
-                .setRemainingTimeMillisSinceUpdate(10000)
+                .setRemainingTimeMillis(10000)
                 .setRingtone(AlarmClock.VALUE_RINGTONE_SILENT)
                 .setStatus(Timer.STATUS_STARTED)
                 .setShouldVibrate(true)
-                .setStartTimeMillis(
-                        /*startTimeMillis=*/3000,
-                        /*startTimeMillisInElapsedRealtime=*/5000,
+                .setBaseTimeMillis(
+                        /*baseTimeMillis=*/3000,
+                        /*baseTimeMillisInElapsedRealtime=*/5000,
                         /*bootCount=*/1)
                 .setOriginalDurationMillis(800)
                 .build();
