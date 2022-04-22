@@ -456,6 +456,113 @@ public class AsWireComplicationDataTest {
     }
 
     @Test
+    @OptIn(ComplicationExperimental::class)
+    public fun listComplicationData() {
+        val data = ListComplicationData.Builder(
+            listOf(
+                ShortTextComplicationData.Builder("text".complicationText, ComplicationText.EMPTY)
+                    .build(),
+                RangedValueComplicationData.Builder(
+                    value = 95f,
+                    min = 0f,
+                    max = 100f,
+                    ComplicationText.EMPTY
+                ).build()
+            ),
+            ListComplicationData.StyleHint.RowOfColumns,
+            ComplicationText.EMPTY
+        ).setDataSource(dataSourceA).build()
+
+        ParcelableSubject.assertThat(data.asWireComplicationData())
+            .hasSameSerializationAs(
+                WireComplicationDataBuilder(WireComplicationData.TYPE_LIST)
+                    .setListEntryCollection(
+                        listOf(
+                            WireComplicationDataBuilder(WireComplicationData.TYPE_SHORT_TEXT)
+                                .setShortText(WireComplicationText.plainText("text"))
+                                .build(),
+                            WireComplicationDataBuilder(WireComplicationData.TYPE_RANGED_VALUE)
+                                .setRangedValue(95f)
+                                .setRangedMinValue(0f)
+                                .setRangedMaxValue(100f)
+                                .build()
+                        )
+                    )
+                    .setListStyleHint(ListComplicationData.StyleHint.RowOfColumns.ordinal)
+                    .setDataSource(dataSourceA)
+                    .build()
+            )
+        testRoundTripConversions(data)
+        val deserialized = serializeAndDeserialize(data) as ListComplicationData
+        assertThat(deserialized.complicationList).containsExactly(
+            ShortTextComplicationData.Builder("text".complicationText, ComplicationText.EMPTY)
+                .build(),
+            RangedValueComplicationData.Builder(
+                value = 95f,
+                min = 0f,
+                max = 100f,
+                ComplicationText.EMPTY
+            ).build()
+        )
+        assertThat(deserialized.styleHint).isEqualTo(ListComplicationData.StyleHint.RowOfColumns)
+
+        val data2 = ListComplicationData.Builder(
+            listOf(
+                ShortTextComplicationData.Builder("text".complicationText, ComplicationText.EMPTY)
+                    .build(),
+                RangedValueComplicationData.Builder(
+                    value = 95f,
+                    min = 0f,
+                    max = 100f,
+                    ComplicationText.EMPTY
+                ).build()
+            ),
+            ListComplicationData.StyleHint.RowOfColumns,
+            ComplicationText.EMPTY
+        ).setDataSource(dataSourceA).build()
+
+        val data3 = ListComplicationData.Builder(
+            listOf(
+                ShortTextComplicationData.Builder("text2".complicationText, ComplicationText.EMPTY)
+                    .build(),
+                RangedValueComplicationData.Builder(
+                    value = 95f,
+                    min = 0f,
+                    max = 100f,
+                    ComplicationText.EMPTY
+                ).build()
+            ),
+            ListComplicationData.StyleHint.RowOfColumns,
+            ComplicationText.EMPTY
+        ).setDataSource(dataSourceB).build()
+
+        assertThat(data).isEqualTo(data2)
+        assertThat(data).isNotEqualTo(data3)
+        assertThat(data.hashCode()).isEqualTo(data2.hashCode())
+        assertThat(data.hashCode()).isNotEqualTo(data3.hashCode())
+        assertThat(data.toString()).isEqualTo(
+            "ListComplicationData(complicationList=[ShortTextComplicationData(text=" +
+                "ComplicationText{mSurroundingText=text, mTimeDependentText=null}, title=null, " +
+                "monochromaticImage=null, contentDescription=ComplicationText{mSurroundingText=, " +
+                "mTimeDependentText=null}, tapActionLostDueToSerialization=false, tapAction=null," +
+                " validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
+                "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), dataSource=null), " +
+                "RangedValueComplicationData(value=95.0, min=0.0, max=100.0, " +
+                "monochromaticImage=null, title=null, text=null, contentDescription=" +
+                "ComplicationText{mSurroundingText=, mTimeDependentText=null}), " +
+                "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=" +
+                "TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
+                "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
+                "dataSource=null)], contentDescription=ComplicationText{mSurroundingText=, " +
+                "mTimeDependentText=null}, tapActionLostDueToSerialization=false, " +
+                "tapAction=null, validTimeRange=TimeRange(startDateTimeMillis=" +
+                "-1000000000-01-01T00:00:00Z, endDateTimeMillis=+1000000000-12-31T23:59:" +
+                "59.999999999Z), dataSource=ComponentInfo{com.pkg_a/com.a}, styleHint=" +
+                "ListComplicationLayoutStyleHint(wireType=1))"
+        )
+    }
+
+    @Test
     public fun noDataComplicationData_shortText() {
         val data = NoDataComplicationData(
             ShortTextComplicationData.Builder(
@@ -979,6 +1086,47 @@ public class FromWireComplicationDataTest {
     }
 
     @Test
+    @OptIn(ComplicationExperimental::class)
+    public fun protoLayoutComplicationData() {
+        val ambientLayout = ByteArray(1)
+        val interactiveLayout = ByteArray(2)
+        val resources = ByteArray(3)
+
+        assertRoundtrip(
+            WireComplicationDataBuilder(WireComplicationData.TYPE_PROTO_LAYOUT)
+                .setAmbientLayout(ambientLayout)
+                .setInteractiveLayout(interactiveLayout)
+                .setLayoutResources(resources)
+                .build(),
+            ComplicationType.PROTO_LAYOUT
+        )
+    }
+
+    @Test
+    @OptIn(ComplicationExperimental::class)
+    public fun listComplicationData() {
+        val wireShortText = WireComplicationDataBuilder(WireComplicationData.TYPE_SHORT_TEXT)
+            .setShortText(WireComplicationText.plainText("text"))
+            .build()
+
+        val wireRangedValue = WireComplicationDataBuilder(WireComplicationData.TYPE_RANGED_VALUE)
+            .setRangedValue(95f)
+            .setRangedMinValue(0f)
+            .setRangedMaxValue(100f)
+            .build()
+
+        assertRoundtrip(
+            WireComplicationDataBuilder(WireComplicationData.TYPE_LIST)
+                .setListEntryCollection(listOf(wireShortText, wireRangedValue))
+                .setListStyleHint(
+                    ListComplicationData.StyleHint.RowOfColumns.ordinal
+                )
+                .build(),
+            ComplicationType.LIST
+        )
+    }
+
+    @Test
     public fun noDataComplicationData_shortText() {
         val icon = Icon.createWithContentUri("someuri")
         assertRoundtrip(
@@ -1071,6 +1219,53 @@ public class FromWireComplicationDataTest {
                             WireComplicationText.plainText("content description")
                         )
                         .build()
+                )
+                .build(),
+            ComplicationType.NO_DATA
+        )
+    }
+
+    @Test
+    public fun noDataComplicationData_protoLayout() {
+        val ambientLayout = ByteArray(1)
+        val interactiveLayout = ByteArray(2)
+        val resources = ByteArray(3)
+        assertRoundtrip(
+            WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA)
+                .setPlaceholder(
+                    WireComplicationDataBuilder(WireComplicationData.TYPE_PROTO_LAYOUT)
+                        .setAmbientLayout(ambientLayout)
+                        .setInteractiveLayout(interactiveLayout)
+                        .setLayoutResources(resources)
+                        .build()
+                )
+                .build(),
+            ComplicationType.NO_DATA
+        )
+    }
+
+    @Test
+    @OptIn(ComplicationExperimental::class)
+    public fun noDataComplicationData_list() {
+        val wireShortText = WireComplicationDataBuilder(WireComplicationData.TYPE_SHORT_TEXT)
+        .setShortText(WireComplicationText.plainText("text"))
+        .build()
+
+        val wireRangedValue = WireComplicationDataBuilder(WireComplicationData.TYPE_RANGED_VALUE)
+            .setRangedValue(95f)
+            .setRangedMinValue(0f)
+            .setRangedMaxValue(100f)
+            .build()
+
+        assertRoundtrip(
+            WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA)
+                .setPlaceholder(
+                    WireComplicationDataBuilder(WireComplicationData.TYPE_LIST)
+                        .setListEntryCollection(listOf(wireShortText, wireRangedValue))
+                        .setListStyleHint(
+                            ListComplicationData.StyleHint.RowOfColumns.ordinal
+                        )
+                        .build(),
                 )
                 .build(),
             ComplicationType.NO_DATA
@@ -1170,6 +1365,44 @@ public class TapActionTest {
             ).asWireComplicationData().placeholder?.tapAction
         ).isEqualTo(mPendingIntent)
     }
+
+    @Test
+    @OptIn(ComplicationExperimental::class)
+    public fun protoLayoutComplicationData() {
+        val ambientLayout = ByteArray(1)
+        val interactiveLayout = ByteArray(2)
+        val resources = ByteArray(3)
+
+        assertThat(
+            ProtoLayoutComplicationData.Builder(
+                ambientLayout,
+                interactiveLayout,
+                resources,
+                ComplicationText.EMPTY
+            )
+                .setTapAction(mPendingIntent)
+                .build()
+                .tapAction
+        ).isEqualTo(mPendingIntent)
+    }
+
+    @OptIn(ComplicationExperimental::class)
+    @Test
+    public fun listComplicationData() {
+        val icon = Icon.createWithContentUri("someuri")
+        val image = SmallImage.Builder(icon, SmallImageType.PHOTO).build()
+        assertThat(
+            ListComplicationData.Builder(
+                listOf(
+                    SmallImageComplicationData.Builder(image, ComplicationText.EMPTY).build()
+                ),
+                ListComplicationData.StyleHint.RowOfColumns,
+                ComplicationText.EMPTY
+            )
+                .setTapAction(mPendingIntent).build()
+                .tapAction
+        ).isEqualTo(mPendingIntent)
+    }
 }
 
 @RunWith(SharedRobolectricTestRunner::class)
@@ -1251,7 +1484,7 @@ public class RoundtripTapActionTest {
     }
 
     @Test
-    public fun NoDataComplicationData() {
+    public fun noDataComplicationData() {
         assertThat(
             NoDataComplicationData(
                 MonochromaticImageComplicationData.Builder(
@@ -1259,6 +1492,46 @@ public class RoundtripTapActionTest {
                     ComplicationText.EMPTY
                 ).setTapAction(mPendingIntent).build()
             ).asWireComplicationData().toApiComplicationData().tapAction
+        ).isEqualTo(mPendingIntent)
+    }
+
+    @Test
+    @OptIn(ComplicationExperimental::class)
+    public fun protoLayoutComplicationData() {
+        val ambientLayout = ByteArray(1)
+        val interactiveLayout = ByteArray(2)
+        val resources = ByteArray(3)
+
+        assertThat(
+            ProtoLayoutComplicationData.Builder(
+                ambientLayout,
+                interactiveLayout,
+                resources,
+                ComplicationText.EMPTY
+            )
+                .setTapAction(mPendingIntent)
+                .build()
+                .asWireComplicationData().toApiComplicationData().tapAction
+        ).isEqualTo(mPendingIntent)
+    }
+
+    @OptIn(ComplicationExperimental::class)
+    @Test
+    public fun listComplicationData() {
+        val icon = Icon.createWithContentUri("someuri")
+        val image = SmallImage.Builder(icon, SmallImageType.PHOTO).build()
+        assertThat(
+            ListComplicationData.Builder(
+                listOf(
+                    SmallImageComplicationData.Builder(image, ComplicationText.EMPTY).build()
+                ),
+                ListComplicationData.StyleHint.RowOfColumns,
+                ComplicationText.EMPTY
+            )
+                .setTapAction(mPendingIntent).build()
+                .asWireComplicationData()
+                .toApiComplicationData()
+                .tapAction
         ).isEqualTo(mPendingIntent)
     }
 }
@@ -1365,6 +1638,80 @@ public class ValidTimeRangeTest {
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_LARGE_IMAGE)
                     .setLargeImage(photoImage)
+                    .setStartDateTimeMillis(testStartInstant.toEpochMilli())
+                    .setEndDateTimeMillis(testEndDateInstant.toEpochMilli())
+                    .build()
+            )
+    }
+
+    @Test
+    @OptIn(ComplicationExperimental::class)
+    public fun protoLayout() {
+        val ambientLayout = ByteArray(1)
+        val interactiveLayout = ByteArray(2)
+        val resources = ByteArray(3)
+
+        val data = ProtoLayoutComplicationData.Builder(
+            ambientLayout,
+            interactiveLayout,
+            resources,
+            ComplicationText.EMPTY
+        )
+            .setValidTimeRange(TimeRange.between(testStartInstant, testEndDateInstant))
+            .build()
+
+        ParcelableSubject.assertThat(data.asWireComplicationData())
+            .hasSameSerializationAs(
+                WireComplicationDataBuilder(WireComplicationData.TYPE_PROTO_LAYOUT)
+                    .setAmbientLayout(ambientLayout)
+                    .setInteractiveLayout(interactiveLayout)
+                    .setLayoutResources(resources)
+                    .setStartDateTimeMillis(testStartInstant.toEpochMilli())
+                    .setEndDateTimeMillis(testEndDateInstant.toEpochMilli())
+                    .build()
+            )
+    }
+
+    @Test
+    @OptIn(ComplicationExperimental::class)
+    public fun list() {
+        val data = ListComplicationData.Builder(
+            listOf(
+                ShortTextComplicationData.Builder(
+                    "text".complicationText,
+                    ComplicationText.EMPTY
+                )
+                    .build(),
+                RangedValueComplicationData.Builder(
+                    value = 95f,
+                    min = 0f,
+                    max = 100f,
+                    ComplicationText.EMPTY
+                ).build()
+            ),
+            ListComplicationData.StyleHint.RowOfColumns,
+            ComplicationText.EMPTY
+        )
+            .setValidTimeRange(TimeRange.between(testStartInstant, testEndDateInstant))
+            .build()
+
+        val wireShortText = WireComplicationDataBuilder(WireComplicationData.TYPE_SHORT_TEXT)
+            .setShortText(WireComplicationText.plainText("text"))
+            .build()
+
+        val wireRangedValue = WireComplicationDataBuilder(WireComplicationData.TYPE_RANGED_VALUE)
+            .setRangedValue(95f)
+            .setRangedMinValue(0f)
+            .setRangedMaxValue(100f)
+            .build()
+
+        ParcelableSubject.assertThat(data.asWireComplicationData())
+            .hasSameSerializationAs(
+                WireComplicationDataBuilder(WireComplicationData.TYPE_LIST)
+                    .setListEntryCollection(listOf(wireShortText, wireRangedValue))
+                    .setListStyleHint(
+                        ListComplicationData.StyleHint.RowOfColumns.ordinal
+                    )
                     .setStartDateTimeMillis(testStartInstant.toEpochMilli())
                     .setEndDateTimeMillis(testEndDateInstant.toEpochMilli())
                     .build()
@@ -1482,6 +1829,83 @@ public class ValidTimeRangeTest {
                     .setPlaceholder(
                         WireComplicationDataBuilder(WireComplicationData.TYPE_LARGE_IMAGE)
                             .setLargeImage(icon)
+                            .build()
+                    )
+                    .build()
+            )
+    }
+
+    @Test
+    @OptIn(ComplicationExperimental::class)
+    public fun noDataComplicationData_protoLayout() {
+        val ambientLayout = ByteArray(1)
+        val interactiveLayout = ByteArray(2)
+        val resources = ByteArray(3)
+
+        val data = NoDataComplicationData(
+            ProtoLayoutComplicationData.Builder(
+                ambientLayout,
+                interactiveLayout,
+                resources,
+                ComplicationText.EMPTY
+            ).build()
+        )
+        ParcelableSubject.assertThat(data.asWireComplicationData())
+            .hasSameSerializationAs(
+                WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA)
+                    .setPlaceholder(
+                        WireComplicationDataBuilder(WireComplicationData.TYPE_PROTO_LAYOUT)
+                            .setAmbientLayout(ambientLayout)
+                            .setInteractiveLayout(interactiveLayout)
+                            .setLayoutResources(resources)
+                            .build()
+                    )
+                    .build()
+            )
+    }
+
+    @Test
+    @OptIn(ComplicationExperimental::class)
+    public fun noDataComplicationData_list() {
+        val data = NoDataComplicationData(
+            ListComplicationData.Builder(
+                listOf(
+                    ShortTextComplicationData.Builder(
+                        "text".complicationText,
+                        ComplicationText.EMPTY
+                    )
+                        .build(),
+                    RangedValueComplicationData.Builder(
+                        value = 95f,
+                        min = 0f,
+                        max = 100f,
+                        ComplicationText.EMPTY
+                    ).build()
+                ),
+                ListComplicationData.StyleHint.RowOfColumns,
+                ComplicationText.EMPTY
+            ).build()
+        )
+
+        val wireShortText = WireComplicationDataBuilder(WireComplicationData.TYPE_SHORT_TEXT)
+            .setShortText(WireComplicationText.plainText("text"))
+            .build()
+
+        val wireRangedValue = WireComplicationDataBuilder(WireComplicationData.TYPE_RANGED_VALUE)
+            .setRangedValue(95f)
+            .setRangedMinValue(0f)
+            .setRangedMaxValue(100f)
+            .build()
+
+        ParcelableSubject.assertThat(data.asWireComplicationData())
+            .hasSameSerializationAs(
+                WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA)
+                    .setPlaceholder(
+                        WireComplicationDataBuilder(WireComplicationData.TYPE_LIST)
+                            .setListEntryCollection(listOf(wireShortText, wireRangedValue))
+                            .setListStyleHint(
+                                ListComplicationData.StyleHint.RowOfColumns.ordinal
+                            )
                             .build()
                     )
                     .build()

@@ -17,6 +17,7 @@
 import androidx.build.RunApiTasks
 
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -32,6 +33,8 @@ dependencies {
     implementation("androidx.core:core:1.1.0")
     implementation("androidx.preference:preference:1.1.0")
     implementation("androidx.annotation:annotation:1.2.0")
+    implementation("androidx.wear.tiles:tiles:1.0.0")
+    implementation("androidx.wear.tiles:tiles-proto:1.0.0")
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.testRules)
@@ -41,6 +44,13 @@ dependencies {
     testImplementation(libs.junit)
 
     annotationProcessor(project(":versionedparcelable:versionedparcelable-compiler"))
+}
+
+// Allow usage of Kotlin's @OptIn.
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
+    }
 }
 
 android {

@@ -81,7 +81,9 @@ public final class ComplicationData implements Parcelable, Serializable {
             TYPE_SMALL_IMAGE,
             TYPE_LARGE_IMAGE,
             TYPE_NO_PERMISSION,
-            TYPE_NO_DATA
+            TYPE_NO_DATA,
+            TYPE_PROTO_LAYOUT,
+            TYPE_LIST
     })
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Retention(RetentionPolicy.SOURCE)
@@ -217,6 +219,12 @@ public final class ComplicationData implements Parcelable, Serializable {
      */
     public static final int TYPE_NO_PERMISSION = 9;
 
+    /** Type that specifies a proto layout based complication. */
+    public static final int TYPE_PROTO_LAYOUT = 11;
+
+    /** Type that specifies a list of complication values. E.g. to support linear 3. */
+    public static final int TYPE_LIST = 12;
+
     /** @hide */
     @IntDef({IMAGE_STYLE_PHOTO, IMAGE_STYLE_ICON})
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -241,31 +249,38 @@ public final class ComplicationData implements Parcelable, Serializable {
      */
     public static final int IMAGE_STYLE_ICON = 2;
 
-    private static final String FIELD_START_TIME = "START_TIME";
+    // Originally it was planned to support both content and image content descriptions.
+    private static final String FIELD_DATA_SOURCE = "FIELD_DATA_SOURCE";
     private static final String FIELD_END_TIME = "END_TIME";
-    private static final String FIELD_SHORT_TITLE = "SHORT_TITLE";
-    private static final String FIELD_SHORT_TEXT = "SHORT_TEXT";
-    private static final String FIELD_LONG_TITLE = "LONG_TITLE";
-    private static final String FIELD_LONG_TEXT = "LONG_TEXT";
-    private static final String FIELD_VALUE = "VALUE";
-    private static final String FIELD_MIN_VALUE = "MIN_VALUE";
-    private static final String FIELD_MAX_VALUE = "MAX_VALUE";
     private static final String FIELD_ICON = "ICON";
     private static final String FIELD_ICON_BURN_IN_PROTECTION = "ICON_BURN_IN_PROTECTION";
+    private static final String FIELD_IMAGE_STYLE = "IMAGE_STYLE";
+    private static final String FIELD_LARGE_IMAGE = "LARGE_IMAGE";
+    private static final String FIELD_LIST_ENTRIES = "LIST_ENTRIES";
+    private static final String FIELD_LIST_ENTRY_TYPE = "LIST_ENTRY_TYPE";
+    private static final String FIELD_LIST_STYLE_HINT = "LIST_STYLE_HINT";
+    private static final String FIELD_LONG_TITLE = "LONG_TITLE";
+    private static final String FIELD_LONG_TEXT = "LONG_TEXT";
+    private static final String FIELD_MAX_VALUE = "MAX_VALUE";
+    private static final String FIELD_MIN_VALUE = "MIN_VALUE";
+    private static final String FIELD_PLACEHOLDER_FIELDS = "PLACEHOLDER_FIELDS";
+    private static final String FIELD_PLACEHOLDER_TYPE = "PLACEHOLDER_TYPE";
+    private static final String FIELD_PROTO_LAYOUT_AMBIENT = "FIELD_PROTO_LAYOUT_AMBIENT";
+    private static final String FIELD_PROTO_LAYOUT_INTERACTIVE = "FIELD_PROTO_LAYOUT_INTERACTIVE";
+    private static final String FIELD_PROTO_LAYOUT_RESOURCES = "FIELD_PROTO_LAYOUT_RESOURCES";
     private static final String FIELD_SMALL_IMAGE = "SMALL_IMAGE";
     private static final String FIELD_SMALL_IMAGE_BURN_IN_PROTECTION =
             "SMALL_IMAGE_BURN_IN_PROTECTION";
-    private static final String FIELD_LARGE_IMAGE = "LARGE_IMAGE";
+    private static final String FIELD_SHORT_TITLE = "SHORT_TITLE";
+    private static final String FIELD_SHORT_TEXT = "SHORT_TEXT";
+    private static final String FIELD_START_TIME = "START_TIME";
     private static final String FIELD_TAP_ACTION = "TAP_ACTION";
     private static final String FIELD_TAP_ACTION_LOST = "FIELD_TAP_ACTION_LOST";
-    private static final String FIELD_IMAGE_STYLE = "IMAGE_STYLE";
     private static final String FIELD_TIMELINE_START_TIME = "TIMELINE_START_TIME";
     private static final String FIELD_TIMELINE_END_TIME = "TIMELINE_END_TIME";
     private static final String FIELD_TIMELINE_ENTRIES = "TIMELINE";
     private static final String FIELD_TIMELINE_ENTRY_TYPE = "TIMELINE_ENTRY_TYPE";
-    private static final String FIELD_PLACEHOLDER_FIELDS = "PLACEHOLDER_FIELDS";
-    private static final String FIELD_PLACEHOLDER_TYPE = "PLACEHOLDER_TYPE";
-    private static final String FIELD_DATA_SOURCE = "FIELD_DATA_SOURCE";
+    private static final String FIELD_VALUE = "VALUE";
 
     // Originally it was planned to support both content and image content descriptions.
     private static final String FIELD_CONTENT_DESCRIPTION = "IMAGE_CONTENT_DESCRIPTION";
@@ -284,6 +299,12 @@ public final class ComplicationData implements Parcelable, Serializable {
             {FIELD_LARGE_IMAGE}, // LARGE_IMAGE
             {}, // TYPE_NO_PERMISSION
             {}, // TYPE_NO_DATA
+            { // TYPE_PROTO_LAYOUT
+                    FIELD_PROTO_LAYOUT_AMBIENT,
+                    FIELD_PROTO_LAYOUT_INTERACTIVE,
+                    FIELD_PROTO_LAYOUT_RESOURCES
+            },
+            {FIELD_LIST_ENTRIES} // TYPE_LIST
     };
 
     // Used for validation. OPTIONAL_FIELDS[i] is an array containing all the fields which are
@@ -362,6 +383,15 @@ public final class ComplicationData implements Parcelable, Serializable {
                     FIELD_TAP_ACTION,
                     FIELD_VALUE,
                     FIELD_DATA_SOURCE
+            },
+            { // TYPE_PROTO_LAYOUT
+                    FIELD_TAP_ACTION, FIELD_CONTENT_DESCRIPTION, FIELD_DATA_SOURCE
+            },
+            { // TYPE_LIST
+                    FIELD_TAP_ACTION,
+                    FIELD_LIST_STYLE_HINT,
+                    FIELD_CONTENT_DESCRIPTION,
+                    FIELD_DATA_SOURCE
             }
     };
 
@@ -383,8 +413,8 @@ public final class ComplicationData implements Parcelable, Serializable {
             };
 
     @ComplicationType
-    private final int mType;
-    private final Bundle mFields;
+    final int mType;
+    final Bundle mFields;
 
     ComplicationData(@NonNull Builder builder) {
         mType = builder.mType;
@@ -404,7 +434,7 @@ public final class ComplicationData implements Parcelable, Serializable {
 
     @RequiresApi(api = Build.VERSION_CODES.P)
     private static class SerializedForm implements Serializable {
-        private static final int VERSION_NUMBER = 6;
+        private static final int VERSION_NUMBER = 7;
 
         @NonNull
         ComplicationData mComplicationData;
@@ -446,7 +476,6 @@ public final class ComplicationData implements Parcelable, Serializable {
             }
             if (isFieldValidForType(FIELD_SMALL_IMAGE, type)) {
                 oos.writeObject(IconSerializableHelper.create(mComplicationData.getSmallImage()));
-
             }
             if (isFieldValidForType(FIELD_SMALL_IMAGE_BURN_IN_PROTECTION, type)) {
                 oos.writeObject(IconSerializableHelper.create(
@@ -473,6 +502,37 @@ public final class ComplicationData implements Parcelable, Serializable {
             if (isFieldValidForType(FIELD_END_TIME, type)) {
                 oos.writeLong(mComplicationData.getEndDateTimeMillis());
             }
+            oos.writeInt(mComplicationData.mFields.getInt(FIELD_LIST_ENTRY_TYPE));
+            if (isFieldValidForType(FIELD_LIST_STYLE_HINT, type)) {
+                oos.writeInt(mComplicationData.getListStyleHint());
+            }
+            if (isFieldValidForType(FIELD_PROTO_LAYOUT_INTERACTIVE, type)) {
+                byte[] bytes = mComplicationData.getInteractiveLayout();
+                if (bytes == null) {
+                    oos.writeInt(0);
+                } else {
+                    oos.writeInt(bytes.length);
+                    oos.write(bytes);
+                }
+            }
+            if (isFieldValidForType(FIELD_PROTO_LAYOUT_AMBIENT, type)) {
+                byte[] bytes = mComplicationData.getAmbientLayout();
+                if (bytes == null) {
+                    oos.writeInt(0);
+                } else {
+                    oos.writeInt(bytes.length);
+                    oos.write(bytes);
+                }
+            }
+            if (isFieldValidForType(FIELD_PROTO_LAYOUT_RESOURCES, type)) {
+                byte[] bytes = mComplicationData.getLayoutResources();
+                if (bytes == null) {
+                    oos.writeInt(0);
+                } else {
+                    oos.writeInt(bytes.length);
+                    oos.write(bytes);
+                }
+            }
             if (isFieldValidForType(FIELD_DATA_SOURCE, type)) {
                 ComponentName componentName = mComplicationData.getDataSource();
                 if (componentName == null) {
@@ -489,6 +549,15 @@ public final class ComplicationData implements Parcelable, Serializable {
             oos.writeLong(start);
             long end = mComplicationData.mFields.getLong(FIELD_TIMELINE_END_TIME, -1);
             oos.writeLong(end);
+
+            List<ComplicationData> listEntries = mComplicationData.getListEntries();
+            int listEntriesLength = (listEntries != null) ? listEntries.size() : 0;
+            oos.writeInt(listEntriesLength);
+            if (listEntries != null) {
+                for (ComplicationData data : listEntries) {
+                    new SerializedForm(data).writeObject(oos);
+                }
+            }
 
             if (isFieldValidForType(FIELD_PLACEHOLDER_FIELDS, type)) {
                 ComplicationData placeholder = mComplicationData.getPlaceholder();
@@ -511,6 +580,12 @@ public final class ComplicationData implements Parcelable, Serializable {
             }
         }
 
+        private static void putIfNotNull(Bundle fields, String field, Parcelable value) {
+            if (value != null) {
+                fields.putParcelable(field, value);
+            }
+        }
+
         @SuppressLint("SyntheticAccessor") // For mComplicationData.mFields
         private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
             int versionNumber = ois.readInt();
@@ -522,34 +597,34 @@ public final class ComplicationData implements Parcelable, Serializable {
             Bundle fields = new Bundle();
 
             if (isFieldValidForType(FIELD_LONG_TEXT, type)) {
-                fields.putParcelable(FIELD_LONG_TEXT, (ComplicationText) ois.readObject());
+                putIfNotNull(fields, FIELD_LONG_TEXT, (ComplicationText) ois.readObject());
             }
             if (isFieldValidForType(FIELD_LONG_TITLE, type)) {
-                fields.putParcelable(FIELD_LONG_TITLE, (ComplicationText) ois.readObject());
+                putIfNotNull(fields, FIELD_LONG_TITLE, (ComplicationText) ois.readObject());
             }
             if (isFieldValidForType(FIELD_SHORT_TEXT, type)) {
-                fields.putParcelable(FIELD_SHORT_TEXT, (ComplicationText) ois.readObject());
+                putIfNotNull(fields, FIELD_SHORT_TEXT, (ComplicationText) ois.readObject());
             }
             if (isFieldValidForType(FIELD_SHORT_TITLE, type)) {
-                fields.putParcelable(FIELD_SHORT_TITLE, (ComplicationText) ois.readObject());
+                putIfNotNull(fields, FIELD_SHORT_TITLE, (ComplicationText) ois.readObject());
             }
             if (isFieldValidForType(FIELD_CONTENT_DESCRIPTION, type)) {
-                fields.putParcelable(FIELD_CONTENT_DESCRIPTION,
+                putIfNotNull(fields, FIELD_CONTENT_DESCRIPTION,
                         (ComplicationText) ois.readObject());
             }
             if (isFieldValidForType(FIELD_ICON, type)) {
-                fields.putParcelable(FIELD_ICON, IconSerializableHelper.read(ois));
+                putIfNotNull(fields, FIELD_ICON, IconSerializableHelper.read(ois));
             }
             if (isFieldValidForType(FIELD_ICON_BURN_IN_PROTECTION, type)) {
-                fields.putParcelable(FIELD_ICON_BURN_IN_PROTECTION,
+                putIfNotNull(fields, FIELD_ICON_BURN_IN_PROTECTION,
                         IconSerializableHelper.read(ois));
             }
             if (isFieldValidForType(FIELD_SMALL_IMAGE, type)) {
-                fields.putParcelable(FIELD_SMALL_IMAGE, IconSerializableHelper.read(ois));
+                putIfNotNull(fields, FIELD_SMALL_IMAGE, IconSerializableHelper.read(ois));
             }
             if (isFieldValidForType(FIELD_SMALL_IMAGE_BURN_IN_PROTECTION, type)) {
-                fields.putParcelable(FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
-                        IconSerializableHelper.read(ois));
+                putIfNotNull(fields,
+                        FIELD_SMALL_IMAGE_BURN_IN_PROTECTION, IconSerializableHelper.read(ois));
             }
             if (isFieldValidForType(FIELD_IMAGE_STYLE, type)) {
                 fields.putInt(FIELD_IMAGE_STYLE, ois.readInt());
@@ -572,6 +647,37 @@ public final class ComplicationData implements Parcelable, Serializable {
             if (isFieldValidForType(FIELD_END_TIME, type)) {
                 fields.putLong(FIELD_END_TIME, ois.readLong());
             }
+            int listEntryType = ois.readInt();
+            if (listEntryType != 0) {
+                fields.putInt(FIELD_LIST_ENTRY_TYPE, listEntryType);
+            }
+            if (isFieldValidForType(FIELD_LIST_STYLE_HINT, type)) {
+                fields.putInt(FIELD_LIST_STYLE_HINT, ois.readInt());
+            }
+            if (isFieldValidForType(FIELD_PROTO_LAYOUT_INTERACTIVE, type)) {
+                int length = ois.readInt();
+                if (length > 0) {
+                    byte[] protoLayout = new byte[length];
+                    ois.readFully(protoLayout);
+                    fields.putByteArray(FIELD_PROTO_LAYOUT_INTERACTIVE, protoLayout);
+                }
+            }
+            if (isFieldValidForType(FIELD_PROTO_LAYOUT_AMBIENT, type)) {
+                int length = ois.readInt();
+                if (length > 0) {
+                    byte[] ambientProtoLayout = new byte[length];
+                    ois.readFully(ambientProtoLayout);
+                    fields.putByteArray(FIELD_PROTO_LAYOUT_AMBIENT, ambientProtoLayout);
+                }
+            }
+            if (isFieldValidForType(FIELD_PROTO_LAYOUT_RESOURCES, type)) {
+                int length = ois.readInt();
+                if (length > 0) {
+                    byte[] protoLayoutResources = new byte[length];
+                    ois.readFully(protoLayoutResources);
+                    fields.putByteArray(FIELD_PROTO_LAYOUT_RESOURCES, protoLayoutResources);
+                }
+            }
             if (isFieldValidForType(FIELD_DATA_SOURCE, type)) {
                 String componentName = ois.readUTF();
                 if (componentName.isEmpty()) {
@@ -591,6 +697,17 @@ public final class ComplicationData implements Parcelable, Serializable {
             long end = ois.readLong();
             if (end != -1) {
                 fields.putLong(FIELD_TIMELINE_END_TIME, end);
+            }
+
+            int listEntriesLength = ois.readInt();
+            if (listEntriesLength != 0) {
+                Parcelable[] parcels = new Parcelable[listEntriesLength];
+                for (int i = 0; i < listEntriesLength; i++) {
+                    SerializedForm entry = new SerializedForm();
+                    entry.readObject(ois);
+                    parcels[i] = entry.mComplicationData.mFields;
+                }
+                fields.putParcelableArray(FIELD_LIST_ENTRIES, parcels);
             }
 
             if (isFieldValidForType(FIELD_PLACEHOLDER_FIELDS, type)) {
@@ -763,6 +880,23 @@ public final class ComplicationData implements Parcelable, Serializable {
                             }
                     ).toArray(Parcelable[]::new));
         }
+    }
+
+    /** Returns the list of {@link ComplicationData} entries for a ListComplicationData. */
+    @Nullable
+    @SuppressWarnings("deprecation")
+    public List<ComplicationData> getListEntries() {
+        Parcelable[] bundles = mFields.getParcelableArray(FIELD_LIST_ENTRIES);
+        if (bundles == null) {
+            return null;
+        }
+        ArrayList<ComplicationData> entries = new ArrayList<>();
+        for (Parcelable parcelable : bundles) {
+            Bundle bundle = (Bundle) parcelable;
+            bundle.setClassLoader(getClass().getClassLoader());
+            entries.add(new ComplicationData(bundle.getInt(FIELD_LIST_ENTRY_TYPE), bundle));
+        }
+        return entries;
     }
 
     /**
@@ -1243,6 +1377,35 @@ public final class ComplicationData implements Parcelable, Serializable {
                 mFields.getBundle(FIELD_PLACEHOLDER_FIELDS));
     }
 
+    /** Returns the bytes of the proto layout. */
+    @Nullable
+    public byte[] getInteractiveLayout() {
+        return mFields.getByteArray(FIELD_PROTO_LAYOUT_INTERACTIVE);
+    }
+
+    /**
+     * Returns the list style hint.
+     *
+     * <p>Valid only if the type of this complication data is {@link #TYPE_LIST}. Otherwise returns
+     * zero.
+     */
+    public int getListStyleHint() {
+        checkFieldValidForType(FIELD_LIST_STYLE_HINT, mType);
+        return mFields.getInt(FIELD_LIST_STYLE_HINT);
+    }
+
+    /** Returns the bytes of the ambient proto layout. */
+    @Nullable
+    public byte[] getAmbientLayout() {
+        return mFields.getByteArray(FIELD_PROTO_LAYOUT_AMBIENT);
+    }
+
+    /** Returns the bytes of the proto layout resources. */
+    @Nullable
+    public byte[] getLayoutResources() {
+        return mFields.getByteArray(FIELD_PROTO_LAYOUT_RESOURCES);
+    }
+
     /**
      * Returns the start time for this complication data (i.e. the first time at which it should
      * be considered active and displayed), this may be 0. See also {@link #isActiveAt(long)}.
@@ -1655,6 +1818,19 @@ public final class ComplicationData implements Parcelable, Serializable {
         }
 
         /**
+         * Sets the list style hint
+         *
+         * <p>Valid only if the type of this complication data is {@link #TYPE_LIST}. Otherwise
+         * returns
+         * zero.
+         */
+        @NonNull
+        public Builder setListStyleHint(int listStyleHint) {
+            putIntField(FIELD_LIST_STYLE_HINT, listStyleHint);
+            return this;
+        }
+
+        /**
          * Sets the <i>tap action</i> field. This is optional for any non-empty type.
          *
          * <p>The provided {@link PendingIntent} may be fired if the complication is tapped on. Note
@@ -1735,6 +1911,63 @@ public final class ComplicationData implements Parcelable, Serializable {
         }
 
         /**
+         * Sets the ambient proto layout associated with this complication.
+         *
+         * <p>Returns this Builder to allow chaining.
+         */
+        @NonNull
+        public Builder setAmbientLayout(@NonNull byte[] ambientProtoLayout) {
+            putByteArrayField(FIELD_PROTO_LAYOUT_AMBIENT, ambientProtoLayout);
+            return this;
+        }
+
+        /**
+         * Sets the proto layout associated with this complication.
+         *
+         * <p>Returns this Builder to allow chaining.
+         */
+        @NonNull
+        public Builder setInteractiveLayout(@NonNull byte[] protoLayout) {
+            putByteArrayField(FIELD_PROTO_LAYOUT_INTERACTIVE, protoLayout);
+            return this;
+        }
+
+        /**
+         * Sets the proto layout resources associated with this complication.
+         *
+         * <p>Returns this Builder to allow chaining.
+         */
+        @NonNull
+        public Builder setLayoutResources(@NonNull byte[] resources) {
+            putByteArrayField(FIELD_PROTO_LAYOUT_RESOURCES, resources);
+            return this;
+        }
+
+        /**
+         * Sets the list of {@link ComplicationData} timeline entries.
+         *
+         * <p>Returns this Builder to allow chaining.
+         */
+        @NonNull
+        public Builder setListEntryCollection(
+                @Nullable Collection<ComplicationData> timelineEntries) {
+            if (timelineEntries == null) {
+                mFields.remove(FIELD_LIST_ENTRIES);
+            } else {
+                mFields.putParcelableArray(
+                        FIELD_LIST_ENTRIES,
+                        timelineEntries.stream()
+                                .map(
+                                        e -> {
+                                            e.mFields.putInt(FIELD_LIST_ENTRY_TYPE, e.mType);
+                                            return e.mFields;
+                                        })
+                                .toArray(Parcelable[]::new));
+            }
+            return this;
+        }
+
+        /**
          * Constructs and returns {@link ComplicationData} with the provided fields. All required
          * fields must be populated before this method is called.
          *
@@ -1778,6 +2011,12 @@ public final class ComplicationData implements Parcelable, Serializable {
         private void putFloatField(@NonNull String field, float value) {
             ComplicationData.checkFieldValidForType(field, mType);
             mFields.putFloat(field, value);
+        }
+
+        @SuppressLint("SyntheticAccessor")
+        private void putByteArrayField(@NonNull String field, @NonNull byte[] value) {
+            ComplicationData.checkFieldValidForType(field, mType);
+            mFields.putByteArray(field, value);
         }
 
         /** Sets the field with obj or removes it if null. */
