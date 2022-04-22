@@ -17,14 +17,15 @@
 package androidx.wear.compose.integration.macrobenchmark.test
 
 import android.content.Intent
-import android.graphics.Point
 import androidx.benchmark.macro.ExperimentalBaselineProfilesApi
 import androidx.benchmark.macro.junit4.BaselineProfileRule
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
+import androidx.test.uiautomator.BySelector
 import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.Until
 import androidx.testutils.createCompilationParams
 import org.junit.Before
 import org.junit.Rule
@@ -66,6 +67,13 @@ class BaselineProfile {
     private lateinit var device: UiDevice
     private val ALERT_DIALOG = "alert-dialog"
     private val CONFIRMATION_DIALOG = "confirmation-dialog"
+    private val BUTTONS = "buttons"
+    private val CARDS = "cards"
+    private val CHIPS = "chips"
+    private val DIALOGS = "dialogs"
+    private val PICKER = "picker"
+    private val PROGRESSINDICATORS = "progressindicators"
+    private val SLIDER = "slider"
     private val STEPPER = "stepper"
     private val PROGRESS_INDICATOR = "progress-indicator"
     private val PROGRESS_INDICATOR_INDETERMINATE = "progress-indicator-indeterminate"
@@ -84,37 +92,46 @@ class BaselineProfile {
                 val intent = Intent()
                 intent.action = ACTION
                 startActivityAndWait(intent)
-                testDestination(ALERT_DIALOG)
-                scrollDown()
-                testDestination(CONFIRMATION_DIALOG)
-                scrollDown()
-                testDestination(STEPPER)
-                scrollDown()
-                testDestination(PROGRESS_INDICATOR)
-                scrollDown()
-                testDestination(PROGRESS_INDICATOR_INDETERMINATE)
-
-                repeat(30) {
-                    scrollDown()
-                }
+                testDestination(description = BUTTONS)
+                testDestination(description = CARDS)
+                testDestination(description = CHIPS)
+                testDialogs()
+                testDestination(description = PICKER)
+                testProgressIndicators()
+                testDestination(description = SLIDER)
+                testDestination(description = STEPPER)
             }
         )
     }
 
-    private fun testDestination(name: String) {
-        device.findObject(By.desc(name)).click()
+    private fun testDialogs() {
+        findAndClick(By.desc(DIALOGS))
+        device.waitForIdle()
+        testDestination(description = ALERT_DIALOG)
+        testDestination(description = CONFIRMATION_DIALOG)
+        device.pressBack()
+        device.waitForIdle()
+    }
+
+    private fun testProgressIndicators() {
+        findAndClick(By.desc(PROGRESSINDICATORS))
+        device.waitForIdle()
+        testDestination(description = PROGRESS_INDICATOR)
+        testDestination(description = PROGRESS_INDICATOR_INDETERMINATE)
+        device.pressBack()
+        device.waitForIdle()
+    }
+
+    private fun testDestination(description: String) {
+        findAndClick(By.desc(description))
         device.waitForIdle()
         device.pressBack()
         device.waitForIdle()
     }
 
-    private fun scrollDown() {
-        // Scroll down to view remaining UI elements
-        // Setting a gesture margin is important otherwise gesture nav is triggered.
-        val list = device.findObject(By.desc(CONTENT_DESCRIPTION))
-        list.setGestureMargin(device.displayWidth / 5)
-        list.drag(Point(list.visibleCenter.x, list.visibleCenter.y / 3))
-        device.waitForIdle()
+    private fun findAndClick(selector: BySelector) {
+        device.wait(Until.findObject(selector), 3000)
+        device.findObject(selector).click()
     }
 
     companion object {
