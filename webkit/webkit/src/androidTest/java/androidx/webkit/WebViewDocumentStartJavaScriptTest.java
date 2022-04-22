@@ -59,11 +59,11 @@ public class WebViewDocumentStartJavaScriptTest {
     private static class TestWebMessageListener implements WebViewCompat.WebMessageListener {
         private BlockingQueue<Data> mQueue = new LinkedBlockingQueue<>();
 
-        public static class Data {
-            public WebMessageCompat mMessage;
-            public Uri mSourceOrigin;
-            public boolean mIsMainFrame;
-            public JavaScriptReplyProxy mReplyProxy;
+        static class Data {
+            WebMessageCompat mMessage;
+            Uri mSourceOrigin;
+            boolean mIsMainFrame;
+            JavaScriptReplyProxy mReplyProxy;
 
             Data(WebMessageCompat message, Uri sourceOrigin, boolean isMainFrame,
                     JavaScriptReplyProxy replyProxy) {

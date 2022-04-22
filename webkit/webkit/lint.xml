@@ -22,7 +22,18 @@
 
 
     <!-- Webkit-specific lint rules: -->
+
+    <!-- We cannot cause ClassVerificationFailure in embedding apps -->
     <issue id="ClassVerificationFailure" severity="fatal" />
+    <!-- Developers need to call our code from Kotlin code, so nullness is important.-->
+    <issue id="UnknownNullness" severity="fatal" >
+        <!-- The boundary interfaces are not annotated, and they represent external chromium code,
+             so skip them.
+             The catch-all ignore below does not disable this check,
+             so it needs to be done here too. -->
+        <ignore path="**/org/chromium/support_lib_boundary/**" />
+    </issue>
+
     <!-- Ignore all warnings for webview-support-interfaces, since it's external chromium code. -->
     <issue id="all" severity="ignore">
         <ignore path="**/org/chromium/support_lib_boundary/**" />

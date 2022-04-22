@@ -65,16 +65,16 @@ public class WebViewWebMessageListenerTest {
     private static final Set<String> MATCH_EXAMPLE_COM = new HashSet<>(Arrays.asList(BASE_URI));
 
     private WebViewOnUiThread mWebViewOnUiThread;
-    private TestWebMessageListener mListener = new TestWebMessageListener();
+    private final TestWebMessageListener mListener = new TestWebMessageListener();
 
     private static class TestWebMessageListener implements WebViewCompat.WebMessageListener {
-        private BlockingQueue<Data> mQueue = new LinkedBlockingQueue<>();
+        private final BlockingQueue<Data> mQueue = new LinkedBlockingQueue<>();
 
-        public static class Data {
-            public WebMessageCompat mMessage;
-            public Uri mSourceOrigin;
-            public boolean mIsMainFrame;
-            public JavaScriptReplyProxy mReplyProxy;
+        static class Data {
+            WebMessageCompat mMessage;
+            Uri mSourceOrigin;
+            boolean mIsMainFrame;
+            JavaScriptReplyProxy mReplyProxy;
 
             Data(WebMessageCompat message, Uri sourceOrigin, boolean isMainFrame,
                     JavaScriptReplyProxy replyProxy) {

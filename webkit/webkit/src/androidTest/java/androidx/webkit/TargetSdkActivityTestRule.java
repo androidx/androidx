@@ -23,6 +23,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 
+import androidx.annotation.NonNull;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 /**
@@ -34,7 +35,7 @@ public class TargetSdkActivityTestRule<T extends Activity> extends
     private int mTargetSdk;
     private Context mAppContext;
 
-    public TargetSdkActivityTestRule(Class<T> activityClass, int targetSdk) {
+    public TargetSdkActivityTestRule(@NonNull Class<T> activityClass, int targetSdk) {
         super(activityClass);
         mTargetSdk = targetSdk;
     }

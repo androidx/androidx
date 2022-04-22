@@ -66,7 +66,8 @@ public final class WebkitUtils {
      * @param callable the {@link Callable} to execute.
      * @return a {@link ListenableFuture} representing the result of {@code callable}.
      */
-    public static <T> ListenableFuture<T> onMainThread(final Callable<T> callable)  {
+    @NonNull
+    public static <T> ListenableFuture<T> onMainThread(final @NonNull Callable<T> callable)  {
         return onMainThreadDelayed(0, callable);
     }
 
@@ -75,7 +76,7 @@ public final class WebkitUtils {
      *
      * @param runnable the {@link Runnable} to execute.
      */
-    public static void onMainThread(final Runnable runnable)  {
+    public static void onMainThread(final @NonNull Runnable runnable)  {
         onMainThreadDelayed(0, runnable);
     }
 
@@ -86,8 +87,9 @@ public final class WebkitUtils {
      * @param callable the {@link Callable} to execute.
      * @return a {@link ListenableFuture} representing the result of {@code callable}.
      */
+    @NonNull
     public static <T> ListenableFuture<T> onMainThreadDelayed(
-            long delayMs, final Callable<T> callable)  {
+            long delayMs, final @NonNull Callable<T> callable)  {
         final ResolvableFuture<T> future = ResolvableFuture.create();
         sMainHandler.postDelayed(() -> {
             try {
@@ -105,7 +107,7 @@ public final class WebkitUtils {
      * @param delayMs the delay in milliseconds
      * @param runnable the {@link Runnable} to execute.
      */
-    public static void onMainThreadDelayed(long delayMs, final Runnable runnable) {
+    public static void onMainThreadDelayed(long delayMs, final @NonNull Runnable runnable) {
         sMainHandler.postDelayed(runnable, delayMs);
     }
 
@@ -120,7 +122,7 @@ public final class WebkitUtils {
      * @param callable the {@link Callable} to execute.
      * @return the result of the {@link Callable}.
      */
-    public static <T> T onMainThreadSync(final Callable<T> callable) {
+    public static <T> T onMainThreadSync(final @NonNull Callable<T> callable) {
         if (Looper.myLooper() == Looper.getMainLooper()) {
             throw new IllegalStateException("This cannot be called from the UI thread.");
         }
@@ -135,9 +137,9 @@ public final class WebkitUtils {
      *
      * <p class="note"><b>Note:</b> this should not be called from the UI thread.
      *
-     * @param Runnable the {@link Runnable} to execute.
+     * @param runnable the {@link Runnable} to execute.
      */
-    public static void onMainThreadSync(final Runnable runnable) {
+    public static void onMainThreadSync(final @NonNull Runnable runnable) {
         if (Looper.myLooper() == Looper.getMainLooper()) {
             throw new IllegalStateException("This cannot be called from the UI thread.");
         }
@@ -172,7 +174,7 @@ public final class WebkitUtils {
      * @param featureName the feature to be checked
      */
     @RequiresApi(21)
-    public static void checkFeature(String featureName) {
+    public static void checkFeature(@NonNull String featureName) {
         final String msg = "This device does not have the feature '" +  featureName + "'";
         final boolean hasFeature = WebViewFeature.isFeatureSupported(featureName);
         Assume.assumeTrue(msg, hasFeature);
@@ -187,7 +189,7 @@ public final class WebkitUtils {
      * @param future the {@link Future} representing a value of interest.
      * @return the value {@code future} represents.
      */
-    public static <T> T waitForFuture(Future<T> future) {
+    public static <T> T waitForFuture(@NonNull Future<T> future) {
         try {
             return future.get(TEST_TIMEOUT_MS, TimeUnit.MILLISECONDS);
         } catch (ExecutionException e) {
@@ -219,7 +221,7 @@ public final class WebkitUtils {
     /**
      * Takes an element out of the {@link BlockingQueue} (or times out).
      */
-    public static <T> T waitForNextQueueElement(BlockingQueue<T> queue) {
+    public static <T> T waitForNextQueueElement(@NonNull BlockingQueue<T> queue) {
         try {
             T value = queue.poll(TEST_TIMEOUT_MS, TimeUnit.MILLISECONDS);
             if (value == null) {
@@ -242,14 +244,11 @@ public final class WebkitUtils {
     /**
      * Write a string to a file, and create the whole parent directories if they don't exist.
      */
-    public static void writeToFile(File file, String content)
+    public static void writeToFile(@NonNull File file, @NonNull String content)
                   throws IOException {
         file.getParentFile().mkdirs();
-        FileOutputStream fos = new FileOutputStream(file);
-        try {
+        try (FileOutputStream fos = new FileOutputStream(file)) {
             fos.write(content.getBytes("utf-8"));
-        } finally {
-            fos.close();
         }
     }
 
@@ -258,7 +257,7 @@ public final class WebkitUtils {
      * @param currentFile The file or directory to delete. Does not need to exist.
      * @return Whether currentFile does not exist afterwards.
      */
-    public static boolean recursivelyDeleteFile(File currentFile) {
+    public static boolean recursivelyDeleteFile(@NonNull File currentFile) {
         if (!currentFile.exists()) {
             return true;
         }
@@ -271,8 +270,7 @@ public final class WebkitUtils {
             }
         }
 
-        boolean ret = currentFile.delete();
-        return ret;
+        return currentFile.delete();
     }
 
     /**

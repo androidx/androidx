@@ -68,7 +68,7 @@ public class WebSettingsCompatDarkModeTestBase<T extends Activity> {
     @Rule
     public final TargetSdkActivityTestRule<T> mActivityRule;
 
-    public WebSettingsCompatDarkModeTestBase(Class<T> activityClass, int targetSdk) {
+    public WebSettingsCompatDarkModeTestBase(@NonNull Class<T> activityClass, int targetSdk) {
         mActivityRule = new TargetSdkActivityTestRule<T>(activityClass,
                 targetSdk);
     }
@@ -154,6 +154,7 @@ public class WebSettingsCompatDarkModeTestBase<T extends Activity> {
     /**
      * Returns a matcher to check if a color int is mostly green.
      */
+    @NonNull
     public static Matcher<Integer> isGreen() {
         return new TypeSafeMatcher<Integer>() {
             private int mPageColor;

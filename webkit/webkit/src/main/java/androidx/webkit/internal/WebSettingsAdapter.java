@@ -16,6 +16,8 @@
 
 package androidx.webkit.internal;
 
+import androidx.annotation.NonNull;
+
 import org.chromium.support_lib_boundary.WebSettingsBoundaryInterface;
 
 /**
@@ -24,9 +26,9 @@ import org.chromium.support_lib_boundary.WebSettingsBoundaryInterface;
  * corresponding interface shared with the support library glue in the WebView APK).
  */
 public class WebSettingsAdapter {
-    private WebSettingsBoundaryInterface mBoundaryInterface;
+    private final WebSettingsBoundaryInterface mBoundaryInterface;
 
-    public WebSettingsAdapter(WebSettingsBoundaryInterface boundaryInterface) {
+    public WebSettingsAdapter(@NonNull WebSettingsBoundaryInterface boundaryInterface) {
         mBoundaryInterface = boundaryInterface;
     }
 
