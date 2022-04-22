@@ -1086,7 +1086,7 @@
       </component>
       <component group="org.jetbrains.kotlin" name="kotlin-serialization" version="1.6.21">
          <artifact name="kotlin-serialization-1.6.21.jar">
-            <sha256 value="da25598d1a5ab1a747fbdbbb61ac2f04cea7608fa01966d5712b7a93186cc225" origin="Signed artifact but Gradle is failing on Github CI. Manually added the sha."/>
+            <sha256 value="da25598d1a5ab1a747fbdbbb61ac2f04cea7608fa01966d5712b7a93186cc225" origin="GradlePluginPortal artifact is missing the signature. see: https://youtrack.jetbrains.com/issue/KT-52162"/>
          </artifact>
       </component>
       <component group="org.jetbrains.kotlinx" name="atomicfu" version="0.17.0">
