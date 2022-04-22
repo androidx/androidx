@@ -17,14 +17,19 @@
 pluginManagement {
     repositories {
         mavenCentral()
-        gradlePluginPortal()
+        gradlePluginPortal().content {
+            it.includeModule("org.jetbrains.kotlin.jvm", "org.jetbrains.kotlin.jvm.gradle.plugin")
+        }
     }
 }
 
 dependencyResolutionManagement {
     repositories {
         mavenCentral()
-        gradlePluginPortal()
+        gradlePluginPortal().content {
+            it.includeModule("com.gradle", "gradle-enterprise-gradle-plugin")
+            it.includeModule("com.gradle", "common-custom-user-data-gradle-plugin")
+        }
     }
 }
 
