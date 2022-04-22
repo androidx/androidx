@@ -32,7 +32,7 @@ internal class TestingSerializer(
         if (failReadWithCorruptionException) {
             throw CorruptionException(
                 "CorruptionException",
-                IOException()
+                IOException("I was asked to fail with corruption on reads")
             )
         }
 
