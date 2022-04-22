@@ -87,6 +87,8 @@ open class PlaygroundExtension @Inject constructor(
      * @param relativePathToRoot The relative path of the project to the root AndroidX project
      */
     fun setupPlayground(relativePathToRoot: String) {
+        // gradlePluginPortal has a variety of unsigned binaries that have proper signatures
+        // in mavenCentral, so prefer that over gradlePluginPortal.
         settings.pluginManagement.repositories {
             it.mavenCentral()
             it.gradlePluginPortal()
