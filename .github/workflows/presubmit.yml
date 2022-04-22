@@ -124,8 +124,6 @@ jobs:
     runs-on: ${{ matrix.custom-os || matrix.os }}
     needs: [setup, lint]
     env:
-      artifact-id: ${{matrix.project}}
-      project-root: ${{matrix.project-root || matrix.project}}
       GRADLE_BUILD_CACHE_PASSWORD: ${{ secrets.GRADLE_BUILD_CACHE_PASSWORD }}
       GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_ACCESS_KEY }}
     steps:
@@ -157,10 +155,12 @@ jobs:
         with:
           name: artifacts_${{ matrix.project }}
           path: ~/dist
-      - name: "Upload daemon logs"
+      - name: "Upload daemon logs and build reports"
         continue-on-error: true
         if: failure()
         uses: actions/upload-artifact@v2
         with:
           name: gradle-daemon-logs_${{ matrix.project }}
-          path: ~/.gradle/daemon
+          path: |
+            ~/.gradle/daemon
+            ${{matrix.project-root || matrix.project }}/build/reports
