@@ -333,6 +333,30 @@ package androidx.health.connect.client.records {
   public static final class ElevationGained.Companion {
   }
 
+  public final class HeartRate {
+    ctor public HeartRate(java.time.Instant time, long beatsPerMinute);
+    method public long getBeatsPerMinute();
+    method public java.time.Instant getTime();
+    property public final long beatsPerMinute;
+    property public final java.time.Instant time;
+  }
+
+  public final class HeartRateSeries implements androidx.health.connect.client.records.Record {
+    ctor public HeartRateSeries(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, java.util.List<androidx.health.connect.client.records.HeartRate> samples, optional androidx.health.connect.client.metadata.Metadata metadata);
+    method public java.time.Instant getEndTime();
+    method public java.time.ZoneOffset? getEndZoneOffset();
+    method public androidx.health.connect.client.metadata.Metadata getMetadata();
+    method public java.util.List<androidx.health.connect.client.records.HeartRate> getSamples();
+    method public java.time.Instant getStartTime();
+    method public java.time.ZoneOffset? getStartZoneOffset();
+    property public java.time.Instant endTime;
+    property public java.time.ZoneOffset? endZoneOffset;
+    property public androidx.health.connect.client.metadata.Metadata metadata;
+    property public java.util.List<androidx.health.connect.client.records.HeartRate> samples;
+    property public java.time.Instant startTime;
+    property public java.time.ZoneOffset? startZoneOffset;
+  }
+
   public final class Height implements androidx.health.connect.client.records.Record {
     ctor public Height(double heightMeters, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
     method public double getHeightMeters();
