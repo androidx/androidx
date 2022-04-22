@@ -25,7 +25,7 @@ plugins {
 
 dependencies {
     api(project(":navigation:navigation-common"))
-    api(projectOrArtifact(":activity:activity-ktx"))
+    api("androidx.activity:activity-ktx:1.5.0-beta01")
     api("androidx.lifecycle:lifecycle-runtime-ktx:2.5.0-beta01")
     api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.0-beta01")
     api("androidx.annotation:annotation-experimental:1.1.0")
