@@ -21,12 +21,12 @@ import androidx.build.dependencyTracker.ProjectGraph
 import androidx.build.gradle.isRoot
 import androidx.build.playground.FindAffectedModulesTask
 import groovy.xml.DOMBuilder
+import java.net.URI
+import java.net.URL
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.RepositoryHandler
-import java.net.URI
-import java.net.URL
 
 /**
  * This plugin is used in Playground projects and adds functionality like resolving to snapshot
@@ -39,7 +39,12 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
     /**
      * List of snapshot repositories to fetch AndroidX artifacts
      */
-    private lateinit var repos: PlaygroundRepositories
+    private lateinit var playgroundRepositories: PlaygroundRepositories
+
+    /**
+     * Proxy class to call methods declared in buildSrc/repos.gradle
+     */
+    private lateinit var reposProxy: ReposProxy
 
     /**
      * The configuration for the plugin read from the gradle properties
@@ -57,7 +62,8 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
         }
         rootProject = target
         config = PlaygroundProperties.load(rootProject)
-        repos = PlaygroundRepositories(config)
+        playgroundRepositories = PlaygroundRepositories(config)
+        reposProxy = ReposProxy(target)
         rootProject.repositories.addPlaygroundRepositories()
         rootProject.subprojects {
             configureSubProject(it)
@@ -102,7 +108,8 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
         return if (metadataCacheFile.exists()) {
             metadataCacheFile.readText(Charsets.UTF_8)
         } else {
-            val metadataUrl = "${repos.snapshots.url}/$groupPath/$modulePath/maven-metadata.xml"
+            val metadataUrl =
+                "${playgroundRepositories.snapshots.url}/$groupPath/$modulePath/maven-metadata.xml"
             URL(metadataUrl).openStream().use {
                 val parsedMetadata = DOMBuilder.parse(it.reader())
                 val versionNodes = parsedMetadata.getElementsByTagName("latest")
@@ -121,7 +128,7 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
     }
 
     private fun RepositoryHandler.addPlaygroundRepositories() {
-        repos.all.forEach { playgroundRepository ->
+        playgroundRepositories.all.forEach { playgroundRepository ->
             maven { repository ->
                 repository.url = URI(playgroundRepository.url)
                 repository.metadataSources {
@@ -133,9 +140,7 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
                 }
             }
         }
-        google()
-        mavenCentral()
-        gradlePluginPortal()
+        reposProxy.addMavenRepositories(this)
     }
 
     private class PlaygroundRepositories(
