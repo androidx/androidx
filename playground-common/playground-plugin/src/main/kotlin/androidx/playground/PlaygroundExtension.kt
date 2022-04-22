@@ -88,10 +88,9 @@ open class PlaygroundExtension @Inject constructor(
      */
     fun setupPlayground(relativePathToRoot: String) {
         // gradlePluginPortal has a variety of unsigned binaries that have proper signatures
-        // in mavenCentral, so prefer that over gradlePluginPortal.
+        // in mavenCentral, so don't use gradlePluginPortal()
         settings.pluginManagement.repositories {
             it.mavenCentral()
-            it.gradlePluginPortal()
         }
         val projectDir = settings.rootProject.projectDir
         val supportRoot = File(projectDir, relativePathToRoot).canonicalFile
