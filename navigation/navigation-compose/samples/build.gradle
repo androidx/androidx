@@ -47,3 +47,15 @@ androidx {
 android {
     namespace "androidx.navigation.compose.samples"
 }
+
+// Workaround for https://github.com/gradle/gradle/issues/19882
+configurations.all {
+    resolutionStrategy.dependencySubstitution {
+        substitute(module("androidx.lifecycle:lifecycle-runtime:")).
+                using project(":lifecycle:lifecycle-runtime")
+        substitute(module("androidx.lifecycle:lifecycle-runtime-ktx:")).
+                using project(":lifecycle:lifecycle-runtime-ktx")
+        substitute(module("androidx.savedstate:savedstate-ktx:")).
+                using project(":savedstate:savedstate-ktx")
+    }
+}
