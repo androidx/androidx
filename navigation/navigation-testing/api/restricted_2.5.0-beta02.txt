@@ -1,0 +1,23 @@
+// Signature format: 4.0
+package androidx.navigation.testing {
+
+  public final class TestNavHostController extends androidx.navigation.NavHostController {
+    ctor public TestNavHostController(android.content.Context context);
+    method public java.util.List<androidx.navigation.NavBackStackEntry> getBackStack();
+    method public void setCurrentDestination(@IdRes int destId, optional android.os.Bundle args);
+    method public void setCurrentDestination(@IdRes int destId);
+    method public void setCurrentDestination(String destRoute, optional android.os.Bundle args);
+    method public void setCurrentDestination(String destRoute);
+    property public final java.util.List<androidx.navigation.NavBackStackEntry> backStack;
+  }
+
+  public final class TestNavigatorState extends androidx.navigation.NavigatorState {
+    ctor public TestNavigatorState(optional android.content.Context? context, optional kotlinx.coroutines.CoroutineDispatcher coroutineDispatcher);
+    ctor public TestNavigatorState(optional android.content.Context? context);
+    ctor public TestNavigatorState();
+    method public androidx.navigation.NavBackStackEntry createBackStackEntry(androidx.navigation.NavDestination destination, android.os.Bundle? arguments);
+    method public androidx.navigation.NavBackStackEntry restoreBackStackEntry(androidx.navigation.NavBackStackEntry previouslySavedEntry);
+  }
+
+}
+
