@@ -40,6 +40,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
+import androidx.wear.watchface.BoundingArc
 import androidx.wear.watchface.CanvasComplication
 import androidx.wear.watchface.complications.ComplicationSlotBounds
 import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
@@ -69,6 +70,7 @@ import androidx.wear.watchface.client.InteractiveWatchFaceClient
 import androidx.wear.watchface.client.WatchFaceControlClient
 import androidx.wear.watchface.client.WatchUiState
 import androidx.wear.watchface.complications.data.ComplicationData
+import androidx.wear.watchface.complications.data.ComplicationExperimental
 import androidx.wear.watchface.complications.data.NoDataComplicationData
 import androidx.wear.watchface.control.IInteractiveWatchFace
 import androidx.wear.watchface.control.WatchFaceControlService
@@ -94,7 +96,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.android.asCoroutineDispatcher
 import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -1568,6 +1569,42 @@ class WatchFaceControlClientTest {
             headlessInstance2.getUserStyleSchemaDigestHash()
         )
     }
+
+    @Test
+    @OptIn(ComplicationExperimental::class)
+    fun edgeComplication_boundingArc() {
+        val wallpaperService = TestEdgeComplicationWatchFaceService(
+            context,
+            surfaceHolder
+        )
+        val deferredInteractiveInstance = handlerCoroutineScope.async {
+            service.getOrCreateInteractiveWatchFaceClient(
+                "testId",
+                deviceConfig,
+                systemState,
+                null,
+                complications
+            )
+        }
+        // Create the engine which triggers construction of the interactive instance.
+        handler.post {
+            engine = wallpaperService.onCreateEngine() as WatchFaceService.EngineWrapper
+        }
+
+        // Wait for the instance to be created.
+        val interactiveInstance = awaitWithTimeout(deferredInteractiveInstance)
+
+        try {
+            assertThat(interactiveInstance.complicationSlotsState.keys).containsExactly(123)
+
+            val slot = interactiveInstance.complicationSlotsState[123]!!
+            assertThat(slot.boundsType).isEqualTo(ComplicationSlotBoundsType.EDGE)
+            assertThat(slot.getBoundingArc()).isEqualTo(BoundingArc(45f, 90f, 0.1f))
+            assertThat(slot.bounds).isEqualTo(Rect(0, 0, 400, 400))
+        } finally {
+            interactiveInstance.close()
+        }
+    }
 }
 
 internal class TestExampleCanvasAnalogWatchFaceService(
@@ -1805,7 +1842,6 @@ internal class TestComplicationProviderDefaultsWatchFaceService(
     testContext: Context,
     private var surfaceHolderOverride: SurfaceHolder
 ) : WatchFaceService() {
-    internal lateinit var watchFace: WatchFace
 
     init {
         attachBaseContext(testContext)
@@ -1865,6 +1901,105 @@ internal class TestComplicationProviderDefaultsWatchFaceService(
                     ComplicationSlotBounds(
                         RectF(0.1f, 0.2f, 0.3f, 0.4f)
                     )
+                )
+                    .build()
+            ),
+            currentUserStyleRepository
+        )
+    }
+
+    override suspend fun createWatchFace(
+        surfaceHolder: SurfaceHolder,
+        watchState: WatchState,
+        complicationSlotsManager: ComplicationSlotsManager,
+        currentUserStyleRepository: CurrentUserStyleRepository
+    ) = WatchFace(
+        WatchFaceType.DIGITAL,
+        @Suppress("deprecation")
+        object : Renderer.CanvasRenderer(
+            surfaceHolder,
+            currentUserStyleRepository,
+            watchState,
+            CanvasType.HARDWARE,
+            16
+        ) {
+            override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {}
+
+            override fun renderHighlightLayer(
+                canvas: Canvas,
+                bounds: Rect,
+                zonedDateTime: ZonedDateTime
+            ) {
+            }
+        }
+    )
+}
+
+internal class TestEdgeComplicationWatchFaceService(
+    testContext: Context,
+    private var surfaceHolderOverride: SurfaceHolder
+) : WatchFaceService() {
+
+    init {
+        attachBaseContext(testContext)
+    }
+
+    override fun getWallpaperSurfaceHolderOverride() = surfaceHolderOverride
+
+    @OptIn(ComplicationExperimental::class)
+    override fun createComplicationSlotsManager(
+        currentUserStyleRepository: CurrentUserStyleRepository
+    ): ComplicationSlotsManager {
+        return ComplicationSlotsManager(
+            listOf(
+                ComplicationSlot.createEdgeComplicationSlotBuilder(
+                    123,
+                    { _, _ ->
+                        object : CanvasComplication {
+                            override fun render(
+                                canvas: Canvas,
+                                bounds: Rect,
+                                zonedDateTime: ZonedDateTime,
+                                renderParameters: RenderParameters,
+                                slotId: Int
+                            ) {
+                            }
+
+                            override fun drawHighlight(
+                                canvas: Canvas,
+                                bounds: Rect,
+                                boundsType: Int,
+                                zonedDateTime: ZonedDateTime,
+                                color: Int
+                            ) {
+                            }
+
+                            override fun getData() = NoDataComplicationData()
+
+                            override fun loadData(
+                                complicationData: ComplicationData,
+                                loadDrawablesAsynchronous: Boolean
+                            ) {
+                            }
+                        }
+                    },
+                    listOf(
+                        ComplicationType.PHOTO_IMAGE,
+                        ComplicationType.LONG_TEXT,
+                        ComplicationType.SHORT_TEXT
+                    ),
+                    DefaultComplicationDataSourcePolicy(
+                        ComponentName("com.package1", "com.app1"),
+                        ComplicationType.PHOTO_IMAGE,
+                        ComponentName("com.package2", "com.app2"),
+                        ComplicationType.LONG_TEXT,
+                        SystemDataSources.DATA_SOURCE_STEP_COUNT,
+                        ComplicationType.SHORT_TEXT
+                    ),
+                    ComplicationSlotBounds(
+                        RectF(0f, 0f, 1f, 1f)
+                    ),
+                    BoundingArc(45f, 90f, 0.1f)
                 )
                     .build()
             ),

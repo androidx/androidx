@@ -54,6 +54,7 @@ import androidx.annotation.WorkerThread
 import androidx.versionedparcelable.ParcelUtils
 import androidx.wear.watchface.complications.SystemDataSources.DataSourceId
 import androidx.wear.watchface.complications.data.ComplicationData
+import androidx.wear.watchface.complications.data.ComplicationExperimental
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.toApiComplicationData
 import androidx.wear.watchface.complications.data.toWireTypes
@@ -1645,6 +1646,7 @@ public abstract class WatchFaceService : WallpaperService() {
         }
 
         /** This will be called from a binder thread. */
+        @OptIn(ComplicationExperimental::class)
         @WorkerThread
         internal fun getComplicationSlotMetadataWireFormats() =
             createComplicationSlotsManager(
@@ -1671,7 +1673,8 @@ public abstract class WatchFaceService : WallpaperService() {
                         ?.toWireComplicationType() ?: systemDataSourceFallbackDefaultType,
                     it.value.initiallyEnabled,
                     it.value.fixedComplicationDataSource,
-                    it.value.configExtras
+                    it.value.configExtras,
+                    it.value.boundingArc?.toWireFormat()
                 )
             }.toTypedArray()
 
