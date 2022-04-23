@@ -1,10 +1,8 @@
 // Baseline format: 1.0
-AsyncSuffixFuture: androidx.health.services.client.ExerciseClient#getCapabilities():
-    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
-AsyncSuffixFuture: androidx.health.services.client.MeasureClient#getCapabilities():
-    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
-AsyncSuffixFuture: androidx.health.services.client.PassiveMonitoringClient#getCapabilities():
-    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AutoBoxing: androidx.health.services.client.data.LocationAccuracy#LocationAccuracy(double, Double) parameter #1:
+    Must avoid boxed primitives (`java.lang.Double`)
+AutoBoxing: androidx.health.services.client.data.LocationAccuracy#getVerticalPositionErrorMeters():
+    Must avoid boxed primitives (`java.lang.Double`)
 
 
 ExecutorRegistration: androidx.health.services.client.ExerciseClient#clearUpdateCallbackAsync(androidx.health.services.client.ExerciseUpdateCallback):
@@ -13,6 +11,8 @@ ExecutorRegistration: androidx.health.services.client.PassiveMonitoringClient#re
     Registration methods should have overload that accepts delivery Executor: `registerDataCallbackAsync`
 
 
+InvalidNullabilityOverride: androidx.health.services.client.VersionApiService#onBind(android.content.Intent):
+    Invalid nullability on method `onBind` return. Overrides of unannotated super method cannot be Nullable.
 InvalidNullabilityOverride: androidx.health.services.client.data.ProtoParcelable#writeToParcel(android.os.Parcel, int) parameter #0:
     Invalid nullability on parameter `dest` in method `writeToParcel`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 

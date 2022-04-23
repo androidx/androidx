@@ -94,5 +94,5 @@ public interface MeasureClient {
      *
      * @return a [ListenableFuture] containing the [MeasureCapabilities] for this device
      */
-    public val capabilities: ListenableFuture<MeasureCapabilities>
+    public fun getCapabilitiesAsync(): ListenableFuture<MeasureCapabilities>
 }

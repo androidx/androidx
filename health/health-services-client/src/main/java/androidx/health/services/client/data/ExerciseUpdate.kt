@@ -46,7 +46,7 @@ public class ExerciseUpdate(
     public val activeDuration: Duration,
 
     /** The duration since boot when this ExerciseUpdate was created. */
-    updateDurationFromBoot: Duration?,
+    private val updateDurationFromBoot: Duration?,
 
     /**
      * Returns the list of latest [DataPoint] for each metric keyed by data type name. This allows a
@@ -204,8 +204,8 @@ public class ExerciseUpdate(
                 .addAllMileStoneMarkerSummaries(latestMilestoneMarkerSummaries.map { it.proto })
 
         startTime?.let { builder.setStartTimeEpochMs(startTime.toEpochMilli()) }
-        _updateDurationFromBoot?.let {
-            builder.setUpdateDurationFromBootMs(_updateDurationFromBoot.toMillis())
+        updateDurationFromBoot?.let {
+            builder.setUpdateDurationFromBootMs(updateDurationFromBoot.toMillis())
         }
         exerciseConfig?.let { builder.setExerciseConfig(exerciseConfig.proto) }
         activeDurationCheckpoint?.let {
@@ -215,28 +215,25 @@ public class ExerciseUpdate(
         builder.build()
     }
 
-    private val _updateDurationFromBoot: Duration? = updateDurationFromBoot
-
     /**
      * Returns the duration since boot when this ExerciseUpdate was created.
      *
-     * Throws an @IllegalStateException if this ExerciseUpdate does not contain a valid
-     * [updateDurationFromBoot] which may happen if the Health Services app is out of date.
+     * @throws IllegalStateException if this [ExerciseUpdate] does not contain a valid
+     * `updateDurationFromBoot` which may happen if the Health Services app is out of date
      */
-    // TODO(b/227475943): open up visibility
-    internal val updateDurationFromBoot: Duration
-        get() =
-            _updateDurationFromBoot
-                ?: error(
-                    "updateDurationFromBoot unavailable; is the Health Services APK out of date?"
-                )
+    public fun getUpdateDurationFromBoot(): Duration =
+        updateDurationFromBoot
+            ?: error(
+                "updateDurationFromBoot unavailable; is the Health Services APK out of date?"
+            )
 
     /**
      * Returns the ActiveDuration of the exercise at the time of the provided [DataPoint]. The
      * provided [DataPoint] should be present in this [ExerciseUpdate].
      *
-     * Throws an @IllegalArgumentException if the dataPoint is not present in this ExerciseUpdate.
-     * This util should only be used with [DataPoint]s that come from the ExerciseUpdate itself.
+     * @throws IllegalArgumentException if [dataPoint] is not present in this [ExerciseUpdate]
+     * @throws IllegalStateException if this [ExerciseUpdate] does not contain a valid
+     * `updateDurationFromBoot` which may happen if the Health Services app is out of date
      */
     public fun getActiveDurationAtDataPoint(dataPoint: DataPoint): Duration {
         val dataPointList = latestMetrics[dataPoint.dataType]
@@ -251,7 +248,8 @@ public class ExerciseUpdate(
         // Active duration applies to when this update was generated so calculate for the given time
         // by working backwards.
         // First find time since this point was generated.
-        val durationSinceProvidedTime = updateDurationFromBoot.minus(dataPoint.endDurationFromBoot)
+        val durationSinceProvidedTime =
+            getUpdateDurationFromBoot().minus(dataPoint.endDurationFromBoot)
         return activeDuration.minus(durationSinceProvidedTime)
     }
 
@@ -260,7 +258,7 @@ public class ExerciseUpdate(
             "state=$state, " +
             "startTime=$startTime, " +
             "activeDuration=$activeDuration, " +
-            "updateDurationFromBoot=$_updateDurationFromBoot, " +
+            "updateDurationFromBoot=$updateDurationFromBoot, " +
             "latestMetrics=$latestMetrics, " +
             "latestAggregateMetrics=$latestAggregateMetrics, " +
             "latestAchievedGoals=$latestAchievedGoals, " +

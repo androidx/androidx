@@ -127,5 +127,5 @@ public interface PassiveMonitoringClient {
      *
      * @return a [ListenableFuture] containing the [PassiveMonitoringCapabilities] for this device
      */
-    public val capabilities: ListenableFuture<PassiveMonitoringCapabilities>
+    public fun getCapabilitiesAsync(): ListenableFuture<PassiveMonitoringCapabilities>
 }

@@ -38,8 +38,7 @@ public class PassiveMonitoringCapabilities(
     public val supportedDataTypesPassiveGoals: Set<DataType>,
 
     /** Set of supported [UserActivityState]s on this device. */
-    // TODO(b/227475943): open up visibility
-    internal val supportedUserActivityStates: Set<UserActivityState>,
+    public val supportedUserActivityStates: Set<UserActivityState>,
 ) : ProtoParcelable<PassiveMonitoringCapabilitiesProto>() {
     internal constructor(
         proto: DataProto.PassiveMonitoringCapabilities

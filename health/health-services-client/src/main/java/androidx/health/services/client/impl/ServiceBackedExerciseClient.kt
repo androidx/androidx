@@ -181,13 +181,12 @@ internal class ServiceBackedExerciseClient(
         )
     }
 
-    override val capabilities: ListenableFuture<ExerciseCapabilities>
-        get() =
-            Futures.transform(
-                execute { service -> service.getCapabilities(CapabilitiesRequest(packageName)) },
-                { response -> response!!.exerciseCapabilities },
-                ContextCompat.getMainExecutor(context)
-            )
+    override fun getCapabilitiesAsync(): ListenableFuture<ExerciseCapabilities> =
+        Futures.transform(
+            execute { service -> service.getCapabilities(CapabilitiesRequest(packageName)) },
+            { response -> response!!.exerciseCapabilities },
+            ContextCompat.getMainExecutor(context)
+        )
 
     internal companion object {
         private const val CLIENT = "HealthServicesExerciseClient"

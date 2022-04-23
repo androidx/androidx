@@ -274,5 +274,5 @@ public interface ExerciseClient {
      *
      * @return a [ListenableFuture] containing the [ExerciseCapabilities] for this device
      */
-    public val capabilities: ListenableFuture<ExerciseCapabilities>
+    public fun getCapabilitiesAsync(): ListenableFuture<ExerciseCapabilities>
 }

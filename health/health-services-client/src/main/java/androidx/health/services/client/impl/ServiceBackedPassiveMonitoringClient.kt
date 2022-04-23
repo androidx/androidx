@@ -208,13 +208,12 @@ public class ServiceBackedPassiveMonitoringClient(
         }
     }
 
-    override val capabilities: ListenableFuture<PassiveMonitoringCapabilities>
-        get() =
-            Futures.transform(
-                execute { service -> service.getCapabilities(CapabilitiesRequest(packageName)) },
-                { response -> response!!.passiveMonitoringCapabilities },
-                ContextCompat.getMainExecutor(applicationContext)
-            )
+    override fun getCapabilitiesAsync(): ListenableFuture<PassiveMonitoringCapabilities> =
+        Futures.transform(
+            execute { service -> service.getCapabilities(CapabilitiesRequest(packageName)) },
+            { response -> response!!.passiveMonitoringCapabilities },
+            ContextCompat.getMainExecutor(applicationContext)
+        )
 
     private companion object {
         const val CLIENT = "HealthServicesPassiveMonitoringClient"

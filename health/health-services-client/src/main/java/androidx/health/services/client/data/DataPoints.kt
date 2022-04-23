@@ -134,11 +134,17 @@ public object DataPoints {
             metadata ?: Bundle()
         )
 
-    /** Creates a new [DataPoint] of type [DataType.ELEVATION_GAIN] with the given `meters`. */
+    /**
+     * Creates a new [DataPoint] of type [DataType.ELEVATION_GAIN] with the given `meters`.
+     *
+     * @param meters meters gained between [startDurationFromBoot] and [endDurationFromBoot]
+     * @param startDurationFromBoot the point in time this data point begins
+     * @param endDurationFromBoot the point in time this data point ends
+     * @param metadata optional OEM specific data, not intended for broad consumption
+     */
     @JvmStatic
     @JvmOverloads
-    // TODO(b/227475943): open up visibility
-    internal fun elevationGain(
+    public fun elevationGain(
         meters: Double,
         startDurationFromBoot: Duration,
         endDurationFromBoot: Duration,

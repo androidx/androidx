@@ -108,15 +108,14 @@ public class ServiceBackedMeasureClient(
         }
     }
 
-    override val capabilities: ListenableFuture<MeasureCapabilities>
-        get() =
-            Futures.transform(
-                execute { service ->
-                    service.getCapabilities(CapabilitiesRequest(context.packageName))
-                },
-                { response -> response!!.measureCapabilities },
-                ContextCompat.getMainExecutor(context)
-            )
+    override fun getCapabilitiesAsync(): ListenableFuture<MeasureCapabilities> =
+        Futures.transform(
+            execute { service ->
+                service.getCapabilities(CapabilitiesRequest(context.packageName))
+            },
+            { response -> response!!.measureCapabilities },
+            ContextCompat.getMainExecutor(context)
+        )
 
     internal companion object {
         const val CLIENT = "HealthServicesMeasureClient"
