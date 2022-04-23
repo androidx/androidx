@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.health.services.client.impl.request;
+package androidx.health.services.client.impl.event;
 
 /** @hide */
-parcelable BackgroundUnregistrationRequest;
+parcelable PassiveListenerEvent;

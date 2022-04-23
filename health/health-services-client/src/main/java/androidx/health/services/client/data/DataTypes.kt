@@ -16,7 +16,7 @@
 
 package androidx.health.services.client.data
 
-/** Helper class to facilitate working with [DataTypes] [DataType]. */
+/** Helper class to facilitate working with [DataType]s. */
 public object DataTypes {
 
     /** Check if a [DataType] will be aggregated as a statistical value. */

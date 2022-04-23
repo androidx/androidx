@@ -18,6 +18,9 @@ package androidx.health.services.client.data
 
 import android.content.Intent
 import android.os.Parcelable
+import androidx.annotation.IntDef
+import androidx.annotation.RestrictTo
+import androidx.health.services.client.data.PassiveGoal.TriggerFrequency.Companion.toProto
 import androidx.health.services.client.proto.DataProto.PassiveGoal as PassiveGoalProto
 
 /** Defines an passive goal that will be triggered when the specified condition is met. */
@@ -25,22 +28,18 @@ import androidx.health.services.client.proto.DataProto.PassiveGoal as PassiveGoa
 public class PassiveGoal(
     /** [DataTypeCondition] which must be met for the passive goal to be triggered. */
     public val dataTypeCondition: DataTypeCondition,
-    public val triggerType: TriggerType,
+    @TriggerFrequency public val triggerFrequency: Int,
 ) : ProtoParcelable<PassiveGoalProto>() {
 
     internal constructor(
         proto: PassiveGoalProto
-    ) : this(
-        DataTypeCondition(proto.condition),
-        TriggerType.fromProto(proto.triggerType)
-            ?: throw IllegalStateException("Invalid TriggerType ${proto.triggerType}")
-    )
+    ) : this(DataTypeCondition(proto.condition), TriggerFrequency.fromProto(proto.triggerFrequency))
 
     /** @hide */
     override val proto: PassiveGoalProto by lazy {
         PassiveGoalProto.newBuilder()
             .setCondition(dataTypeCondition.proto)
-            .setTriggerType(triggerType.toProto())
+            .setTriggerFrequency(triggerFrequency.toProto())
             .build()
     }
 
@@ -53,31 +52,45 @@ public class PassiveGoal(
     }
 
     override fun toString(): String =
-        "PassiveGoal(dataTypeCondition=$dataTypeCondition, triggerType=$triggerType)"
+        "PassiveGoal(dataTypeCondition=$dataTypeCondition, triggerFrequency=$triggerFrequency)"
 
-    /** Whether or not repeated passive goals should be triggered. */
-    public enum class TriggerType(public val id: Int) {
-        /** The passive goal will trigger the first time the specified conditions are met. */
-        ONCE(1),
-
-        /**
-         * The passive goal will trigger each time the specified conditions *become* met. Repeated
-         * goals on daily metrics will trigger once per day.
-         */
-        REPEATED(2);
-
-        /** @hide */
-        public fun toProto(): PassiveGoalProto.TriggerType =
-            PassiveGoalProto.TriggerType.forNumber(id)
-                ?: PassiveGoalProto.TriggerType.TRIGGER_TYPE_UNKNOWN
+    /**
+     * The frequency at which passive goals should be triggered.
+     *
+     * @hide
+     */
+    @Retention(AnnotationRetention.SOURCE)
+    @IntDef(
+        TriggerFrequency.ONCE,
+        TriggerFrequency.REPEATED,
+    )
+    public annotation class TriggerFrequency {
 
         public companion object {
-            @JvmStatic
-            public fun fromId(id: Int): TriggerType? = values().firstOrNull { it.id == id }
+            /** TriggerFrequency is an unknown or unexpected value. */
+            public const val UNKNOWN: Int = 0
+
+            /** The passive goal will trigger the first time the specified conditions are met. */
+            public const val ONCE: Int = 1
+
+            /**
+             * The passive goal will trigger *each time* the specified conditions become met.
+             * Repeated goals on daily metrics will trigger once per day.
+             */
+            public const val REPEATED: Int = 2
 
             /** @hide */
-            public fun fromProto(proto: PassiveGoalProto.TriggerType): TriggerType? =
-                fromId(proto.number)
+            @RestrictTo(RestrictTo.Scope.LIBRARY)
+            internal fun @receiver:TriggerFrequency
+            Int.toProto(): PassiveGoalProto.TriggerFrequency =
+                PassiveGoalProto.TriggerFrequency.forNumber(this)
+                    ?: PassiveGoalProto.TriggerFrequency.TRIGGER_FREQUENCY_UNKNOWN
+
+            /** @hide */
+            @RestrictTo(RestrictTo.Scope.LIBRARY)
+            @TriggerFrequency
+            @Suppress("WrongConstant")
+            public fun fromProto(proto: PassiveGoalProto.TriggerFrequency): Int = proto.number
         }
     }
 
@@ -102,7 +115,7 @@ public class PassiveGoal(
         }
 
         /**
-         * Creates a [PassiveGoal] from an [Intent]. Returns null if no [PassiveGoal] is stored in
+         * Creates a [PassiveGoal] from an [Intent]. Returns `null` if no [PassiveGoal] is stored in
          * the given intent.
          */
         @Suppress("DEPRECATION")
