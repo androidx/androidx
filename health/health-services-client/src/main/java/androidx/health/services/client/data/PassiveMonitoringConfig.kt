@@ -20,14 +20,23 @@ import android.content.ComponentName
 import android.os.Parcelable
 import androidx.health.services.client.proto.DataProto
 
-/** Configuration that defines a request for passive monitoring using HealthServices. */
-@Suppress("DataClassPrivateConstructor", "ParcelCreator")
+/**
+ * Defines configuration for a passive monitoring request using Health Services.
+ *
+ * @constructor Creates a new PassiveMonitoringConfig which defines a request for passive monitoring
+ * using Health Services
+ *
+ * @property dataTypes set of [DataType]s which should be tracked
+ * @property componentName [ComponentName] which [PassiveMonitoringUpdate] intents should be sent to
+ * @property requestUserActivityState whether to request the [UserActivityState] to be included in
+ * [PassiveMonitoringUpdate]s
+ */
+@Suppress("ParcelCreator")
 public class PassiveMonitoringConfig
-protected constructor(
+constructor(
     public val dataTypes: Set<DataType>,
     public val componentName: ComponentName,
-    @get:JvmName("shouldIncludeUserActivityState")
-    public val shouldIncludeUserActivityState: Boolean,
+    @get:JvmName("requestUserActivityState") public val requestUserActivityState: Boolean = true,
 ) : ProtoParcelable<DataProto.PassiveMonitoringConfig>() {
 
     internal constructor(
@@ -42,16 +51,20 @@ protected constructor(
         require(dataTypes.isNotEmpty()) { "Must specify the desired data types." }
     }
 
-    /** Builder for [PassiveMonitoringConfig] instances. */
+    /**
+     * Builder for [PassiveMonitoringConfig] instances.
+     *
+     * @constructor Create empty Builder
+     */
     public class Builder {
         private var dataTypes: Set<DataType> = emptySet()
         private var componentName: ComponentName? = null
-        private var shouldIncludeUserActivityState: Boolean = false
+        private var requestUserActivityState: Boolean = false
 
         /**
-         * Sets the requested [DataType] s that should be passively tracked. It is required to
+         * Sets the requested [DataType]s that should be passively tracked. It is required to
          * specify a set of [DataType]s to create a valid configuration. Failure to do so will
-         * result in an exception thrown when `build` is called.
+         * result in an exception thrown when [build] is called.
          */
         public fun setDataTypes(dataTypes: Set<DataType>): Builder {
             this.dataTypes = dataTypes.toSet()
@@ -67,15 +80,13 @@ protected constructor(
         }
 
         /**
-         * Sets whether to include the [UserActivityState] with the [PassiveMonitoringUpdate]s. If
-         * not set they will not be included by default. [UserActivityState] requires
-         * [permission.ACTIVITY_RECOGNITION]
+         * Sets whether to request the [UserActivityState] to be included in
+         * [PassiveMonitoringUpdate]s. If not set they will not be included by default.
+         * [UserActivityState] requires [android.Manifest.permission.ACTIVITY_RECOGNITION].
          */
         @Suppress("MissingGetterMatchingBuilder")
-        public fun setShouldIncludeUserActivityState(
-            shouldIncludeUserActivityState: Boolean
-        ): Builder {
-            this.shouldIncludeUserActivityState = shouldIncludeUserActivityState
+        public fun setRequestUserActivityState(requestUserActivityState: Boolean): Builder {
+            this.requestUserActivityState = requestUserActivityState
             return this
         }
 
@@ -85,7 +96,7 @@ protected constructor(
             return PassiveMonitoringConfig(
                 dataTypes,
                 checkNotNull(componentName) { "No component name specified." },
-                shouldIncludeUserActivityState,
+                requestUserActivityState,
             )
         }
     }
@@ -96,7 +107,7 @@ protected constructor(
             .addAllDataTypes(dataTypes.map { it.proto })
             .setPackageName(componentName.getPackageName())
             .setReceiverClassName(componentName.getClassName())
-            .setIncludeUserActivityState(shouldIncludeUserActivityState)
+            .setIncludeUserActivityState(requestUserActivityState)
             .build()
     }
 

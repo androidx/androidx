@@ -24,7 +24,7 @@ import androidx.health.services.client.proto.DataProto.PassiveMonitoringUpdate a
 /**
  * Represents an update from Passive tracking.
  *
- * Provides [DataPoint] s associated with the Passive tracking, in addition to data related to the
+ * Provides [DataPoint]s associated with the Passive tracking, in addition to data related to the
  * user's [UserActivityState].
  */
 @Suppress("ParcelCreator")

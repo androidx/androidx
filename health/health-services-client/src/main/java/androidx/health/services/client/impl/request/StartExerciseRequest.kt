@@ -17,6 +17,7 @@
 package androidx.health.services.client.impl.request
 
 import android.os.Parcelable
+import androidx.annotation.RestrictTo
 import androidx.health.services.client.data.ExerciseConfig
 import androidx.health.services.client.data.ProtoParcelable
 import androidx.health.services.client.proto.RequestsProto
@@ -26,6 +27,7 @@ import androidx.health.services.client.proto.RequestsProto
  *
  * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class StartExerciseRequest(
     public val packageName: String,
     public val exerciseConfig: ExerciseConfig,

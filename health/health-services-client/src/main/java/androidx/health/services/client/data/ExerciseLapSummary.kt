@@ -17,6 +17,7 @@
 package androidx.health.services.client.data
 
 import android.os.Parcelable
+import androidx.annotation.RestrictTo
 import androidx.health.services.client.proto.DataProto
 import androidx.health.services.client.proto.DataProto.ExerciseLapSummary.LapMetricsEntry
 import java.time.Duration
@@ -41,14 +42,15 @@ public class ExerciseLapSummary(
     public val activeDuration: Duration,
 
     /**
-     * Returns the [DataPoint] s for each metric keyed by [DataType] tracked between [startTime] and
-     * [endTime] i.e. during the duration of this lap. This will only contain aggregated [DataType]
-     * s calculated over the duration of the lap.
+     * Returns the [DataPoint]s for each metric keyed by [DataType] tracked between [startTime] and
+     * [endTime] i.e. during the duration of this lap. This will only contain aggregated [DataType]s
+     * calculated over the duration of the lap.
      */
     public val lapMetrics: Map<DataType, AggregateDataPoint>,
 ) : ProtoParcelable<DataProto.ExerciseLapSummary>() {
 
     /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public constructor(
         proto: DataProto.ExerciseLapSummary
     ) : this(
