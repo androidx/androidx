@@ -71,6 +71,7 @@
          <trusted-key id="1f8cf885d537a431" group="com.nhaarman.mockitokotlin2"/>
          <trusted-key id="1fa37fbe4453c1073e7ef61d6449005f96bc97a3" group="de.undercouch"/>
          <trusted-key id="205c8673dc742c7c" group="org.apache"/>
+         <trusted-key id="20723a6399bc060154283b37cfae163b64ac9189" group="org.jetbrains.skiko"/>
          <trusted-key id="21200d723f53ce38" group="com.squareup.leakcanary"/>
          <trusted-key id="218fa0f6a941a037" group="com.github.kevinstern"/>
          <trusted-key id="21939ff0ca2a6567" group="commons-codec"/>
@@ -426,6 +427,7 @@
          <trusted-key id="faabc3738b1f58da2d776fa2eb380dc13c39f675" group="com.intellij" name="annotations"/>
          <trusted-key id="fc411cd3cb7dcb0abc9801058118b3bcdb1a5000" group="jakarta.xml.bind"/>
          <trusted-key id="fd5dea07fcb690a8" group="org.codehaus.mojo"/>
+         <trusted-key id="ff460acf3266fdce8eb8fe3ba797295e9d87bdd0" group="androidx.build.gradle.gcpbuildcache" name="gcpbuildcache"/>
          <trusted-key id="ff6e2c001948c5f2f38b0cc385911f425ec61b51">
             <trusting group="junit"/>
             <trusting group="org.junit" name="junit-bom"/>

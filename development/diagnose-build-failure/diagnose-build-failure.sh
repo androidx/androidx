@@ -160,7 +160,7 @@ function getTestStateCommand() {
 $scriptPath/impl/restore-state.sh . $workingDir --move && cd $workingDir
 "
   buildCommand="$*"
-  cleanupCommand="$scriptPath/impl/backup-state.sh \$testDir $workingDir --move >/dev/null"
+  cleanupCommand="$scriptPath/impl/backup-state.sh \$testDir --move >/dev/null"
 
   fullFiltererCommand="$setupCommand
 if $buildCommand >/dev/null 2>/dev/null; then
@@ -195,13 +195,13 @@ function backupState() {
   cd "$scriptPath"
   backupDir="$1"
   shift
-  ./impl/backup-state.sh "$backupDir" "$workingDir" "$@"
+  ./impl/backup-state.sh "$backupDir" "$@"
 }
 
 function restoreState() {
   cd "$scriptPath"
   backupDir="$1"
-  ./impl/restore-state.sh "$backupDir" "$workingDir"
+  ./impl/restore-state.sh "$backupDir"
 }
 
 function clearState() {
