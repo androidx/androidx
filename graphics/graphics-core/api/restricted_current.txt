@@ -49,6 +49,41 @@ package androidx.graphics.opengl {
 
 package androidx.graphics.opengl.egl {
 
+  public interface EGLHandle {
+    method public long getNativeHandle();
+    property public abstract long nativeHandle;
+  }
+
+  public final class EGLImageKHR implements androidx.graphics.opengl.egl.EGLHandle {
+    ctor public EGLImageKHR(long nativeHandle);
+    method public long getNativeHandle();
+    property public long nativeHandle;
+  }
+
+  public final class EGLSyncKHR implements androidx.graphics.opengl.egl.EGLHandle {
+    ctor public EGLSyncKHR(long nativeHandle);
+    method public long getNativeHandle();
+    property public long nativeHandle;
+  }
+
+  public final class EGLUtils {
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) public static androidx.graphics.opengl.egl.EGLImageKHR? eglCreateImageFromHardwareBuffer(android.opengl.EGLDisplay eglDisplay, android.hardware.HardwareBuffer hardwareBuffer);
+    method public static androidx.graphics.opengl.egl.EGLSyncKHR? eglCreateSyncKHR(android.opengl.EGLDisplay eglDisplay, int type, int[]? attributes);
+    method public static boolean eglDestroyImageKHR(android.opengl.EGLDisplay eglDisplay, androidx.graphics.opengl.egl.EGLImageKHR image);
+    method public static boolean eglDestroySyncKHR(android.opengl.EGLDisplay eglDisplay, androidx.graphics.opengl.egl.EGLSyncKHR eglSync);
+    method public static void glEGLImageTargetTexture2DOES(int target, androidx.graphics.opengl.egl.EGLImageKHR image);
+    field public static final androidx.graphics.opengl.egl.EGLUtils.Companion Companion;
+    field public static final int EGL_SYNC_NATIVE_FENCE_ANDROID = 12612; // 0x3144
+  }
+
+  public static final class EGLUtils.Companion {
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) public androidx.graphics.opengl.egl.EGLImageKHR? eglCreateImageFromHardwareBuffer(android.opengl.EGLDisplay eglDisplay, android.hardware.HardwareBuffer hardwareBuffer);
+    method public androidx.graphics.opengl.egl.EGLSyncKHR? eglCreateSyncKHR(android.opengl.EGLDisplay eglDisplay, int type, int[]? attributes);
+    method public boolean eglDestroyImageKHR(android.opengl.EGLDisplay eglDisplay, androidx.graphics.opengl.egl.EGLImageKHR image);
+    method public boolean eglDestroySyncKHR(android.opengl.EGLDisplay eglDisplay, androidx.graphics.opengl.egl.EGLSyncKHR eglSync);
+    method public void glEGLImageTargetTexture2DOES(int target, androidx.graphics.opengl.egl.EGLImageKHR image);
+  }
+
   public final inline class EglConfigAttributes {
     ctor public EglConfigAttributes();
   }
@@ -91,6 +126,7 @@ package androidx.graphics.opengl.egl {
   }
 
   public final class EglExtensionsKt {
+    field public static final String EglAndroidImageNativeBuffer = "EGL_ANDROID_image_native_buffer";
     field public static final String EglAndroidNativeFenceSync = "EGL_ANDROID_native_fence_sync";
     field public static final String EglExtBufferAge = "EGL_EXT_buffer_age";
     field public static final String EglExtColorSpaceDisplayP3Passthrough = "EGL_EXT_gl_colorspace_display_p3_passthrough";
@@ -100,6 +136,8 @@ package androidx.graphics.opengl.egl {
     field public static final String EglImgContextPriority = "EGL_IMG_context_priority";
     field public static final String EglKhrFenceSync = "EGL_KHR_fence_sync";
     field public static final String EglKhrGlColorSpace = "EGL_KHR_gl_colorspace";
+    field public static final String EglKhrImage = "EGL_KHR_image";
+    field public static final String EglKhrImageBase = "EGL_KHR_image_base";
     field public static final String EglKhrNoConfigContext = "EGL_KHR_no_config_context";
     field public static final String EglKhrPartialUpdate = "EGL_KHR_partial_update";
     field public static final String EglKhrSurfacelessContext = "EGL_KHR_surfaceless_context";
