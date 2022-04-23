@@ -1247,6 +1247,28 @@
     <issue
         id="BanUncheckedReflection"
         message="Calling `Method.invoke` without an SDK check"
+        errorLine1="                    return (IBinder) sGetIBinderMethod.invoke(bundle, key);"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/BundleCompat.java"
+            line="60"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling `Method.invoke` without an SDK check"
+        errorLine1="                    sPutIBinderMethod.invoke(bundle, key, binder);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/BundleCompat.java"
+            line="84"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="            return (String) getMethod.invoke(systemProperties, name);"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -2044,6 +2066,50 @@
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
             line="2852"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 33; however, the containing class androidx.core.view.accessibility.AccessibilityNodeInfoCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return mInfo.getUniqueId();"
+        errorLine2="                         ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            line="2915"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.core.view.accessibility.AccessibilityNodeInfoCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return mInfo.getExtras().getString(UNIQUE_ID_KEY);"
+        errorLine2="                         ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            line="2917"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 33; however, the containing class androidx.core.view.accessibility.AccessibilityNodeInfoCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            mInfo.setUniqueId(uniqueId);"
+        errorLine2="                  ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            line="2935"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.core.view.accessibility.AccessibilityNodeInfoCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            mInfo.getExtras().putString(UNIQUE_ID_KEY, uniqueId);"
+        errorLine2="                  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            line="2937"
             column="19"/>
     </issue>
 
@@ -3083,6 +3149,259 @@
 
     <issue
         id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.core.app.ActivityOptionsCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return new ActivityOptionsCompatImpl(ActivityOptions.makeCustomAnimation(context,"
+        errorLine2="                                                                 ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/ActivityOptionsCompat.java"
+            line="69"
+            column="66"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.core.app.ActivityOptionsCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return new ActivityOptionsCompatImpl(ActivityOptions.makeScaleUpAnimation("
+        errorLine2="                                                                 ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/ActivityOptionsCompat.java"
+            line="99"
+            column="66"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.core.app.ActivityOptionsCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return new ActivityOptionsCompatImpl(ActivityOptions.makeClipRevealAnimation("
+        errorLine2="                                                                 ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/ActivityOptionsCompat.java"
+            line="123"
+            column="66"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.core.app.ActivityOptionsCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return new ActivityOptionsCompatImpl(ActivityOptions.makeThumbnailScaleUpAnimation("
+        errorLine2="                                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/ActivityOptionsCompat.java"
+            line="152"
+            column="66"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.core.app.ActivityOptionsCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return new ActivityOptionsCompatImpl(ActivityOptions.makeSceneTransitionAnimation("
+        errorLine2="                                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/ActivityOptionsCompat.java"
+            line="180"
+            column="66"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.core.app.ActivityOptionsCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                    ActivityOptions.makeSceneTransitionAnimation(activity, pairs));"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/ActivityOptionsCompat.java"
+            line="217"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.core.app.ActivityOptionsCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return new ActivityOptionsCompatImpl(ActivityOptions.makeTaskLaunchBehind());"
+        errorLine2="                                                                 ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/ActivityOptionsCompat.java"
+            line="235"
+            column="66"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.core.app.ActivityOptionsCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return new ActivityOptionsCompatImpl(ActivityOptions.makeBasic());"
+        errorLine2="                                                                 ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/ActivityOptionsCompat.java"
+            line="247"
+            column="66"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.core.app.ActivityOptionsCompat.ActivityOptionsCompatImpl is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                mActivityOptions.requestUsageTimeReport(receiver);"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/ActivityOptionsCompat.java"
+            line="277"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class androidx.core.app.ActivityOptionsCompat.ActivityOptionsCompatImpl is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                    mActivityOptions.setLaunchBounds(screenSpacePixelRect));"
+        errorLine2="                                     ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/ActivityOptionsCompat.java"
+            line="288"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class androidx.core.app.ActivityOptionsCompat.ActivityOptionsCompatImpl is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return mActivityOptions.getLaunchBounds();"
+        errorLine2="                                    ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/ActivityOptionsCompat.java"
+            line="296"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.core.app.AlarmManagerCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            alarmManager.setAlarmClock(new AlarmManager.AlarmClockInfo(triggerTime, showIntent),"
+        errorLine2="                         ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/AlarmManagerCompat.java"
+            line="62"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.core.app.AlarmManagerCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            alarmManager.setAlarmClock(new AlarmManager.AlarmClockInfo(triggerTime, showIntent),"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/AlarmManagerCompat.java"
+            line="62"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.core.app.AlarmManagerCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            alarmManager.setAndAllowWhileIdle(type, triggerAtMillis, operation);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/AlarmManagerCompat.java"
+            line="120"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.core.app.AlarmManagerCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            alarmManager.setExact(type, triggerAtMillis, operation);"
+        errorLine2="                         ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/AlarmManagerCompat.java"
+            line="165"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.core.app.AlarmManagerCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            alarmManager.setExactAndAllowWhileIdle(type, triggerAtMillis, operation);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/AlarmManagerCompat.java"
+            line="225"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.core.app.AppOpsManagerCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return AppOpsManager.permissionToOp(permission);"
+        errorLine2="                                 ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/AppOpsManagerCompat.java"
+            line="79"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.core.app.AppOpsManagerCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return appOpsManager.noteOp(op, uid, packageName);"
+        errorLine2="                                 ~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/AppOpsManagerCompat.java"
+            line="110"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.core.app.AppOpsManagerCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return appOpsManager.noteOpNoThrow(op, uid, packageName);"
+        errorLine2="                                 ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/AppOpsManagerCompat.java"
+            line="130"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.core.app.AppOpsManagerCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            AppOpsManager appOpsManager = context.getSystemService(AppOpsManager.class);"
+        errorLine2="                                                  ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/AppOpsManagerCompat.java"
+            line="160"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.core.app.AppOpsManagerCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return appOpsManager.noteProxyOp(op, proxiedPackageName);"
+        errorLine2="                                 ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/AppOpsManagerCompat.java"
+            line="161"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.core.app.AppOpsManagerCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            AppOpsManager appOpsManager = context.getSystemService(AppOpsManager.class);"
+        errorLine2="                                                  ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/AppOpsManagerCompat.java"
+            line="179"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.core.app.AppOpsManagerCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return appOpsManager.noteProxyOpNoThrow(op, proxiedPackageName);"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/AppOpsManagerCompat.java"
+            line="180"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
         message="This call references a method added in API level 17; however, the containing class androidx.core.graphics.BitmapCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return bitmap.hasMipMap();"
         errorLine2="                          ~~~~~~~~~">
@@ -3123,6 +3442,28 @@
             file="src/main/java/androidx/core/graphics/BlendModeColorFilterCompat.java"
             line="45"
             column="23"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.core.app.BundleCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return bundle.getBinder(key);"
+        errorLine2="                          ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/BundleCompat.java"
+            line="106"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.core.app.BundleCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            bundle.putBinder(key, binder);"
+        errorLine2="                   ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/BundleCompat.java"
+            line="122"
+            column="20"/>
     </issue>
 
     <issue
@@ -3189,215 +3530,6 @@
             file="src/main/java/androidx/core/database/CursorWindowCompat.java"
             line="45"
             column="20"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.core.hardware.display.DisplayManagerCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    .getDisplay(displayId);"
-        errorLine2="                     ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/hardware/display/DisplayManagerCompat.java"
-            line="86"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.core.hardware.display.DisplayManagerCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    .getDisplays();"
-        errorLine2="                     ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/hardware/display/DisplayManagerCompat.java"
-            line="106"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.core.hardware.display.DisplayManagerCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    .getDisplays(category);"
-        errorLine2="                     ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/hardware/display/DisplayManagerCompat.java"
-            line="135"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.core.graphics.drawable.DrawableCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            drawable.setAutoMirrored(mirrored);"
-        errorLine2="                     ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/drawable/DrawableCompat.java"
-            line="79"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.core.graphics.drawable.DrawableCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return drawable.isAutoMirrored();"
-        errorLine2="                            ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/drawable/DrawableCompat.java"
-            line="96"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.graphics.drawable.DrawableCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            drawable.setHotspot(x, y);"
-        errorLine2="                     ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/drawable/DrawableCompat.java"
-            line="111"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.graphics.drawable.DrawableCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            drawable.setHotspotBounds(left, top, right, bottom);"
-        errorLine2="                     ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/drawable/DrawableCompat.java"
-            line="124"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.graphics.drawable.DrawableCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            drawable.setTint(tint);"
-        errorLine2="                     ~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/drawable/DrawableCompat.java"
-            line="136"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.graphics.drawable.DrawableCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            drawable.setTintList(tint);"
-        errorLine2="                     ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/drawable/DrawableCompat.java"
-            line="150"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.graphics.drawable.DrawableCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            drawable.setTintMode(tintMode);"
-        errorLine2="                     ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/drawable/DrawableCompat.java"
-            line="164"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.core.graphics.drawable.DrawableCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return drawable.getAlpha();"
-        errorLine2="                            ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/drawable/DrawableCompat.java"
-            line="178"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.graphics.drawable.DrawableCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            drawable.applyTheme(theme);"
-        errorLine2="                     ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/drawable/DrawableCompat.java"
-            line="189"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.graphics.drawable.DrawableCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return drawable.canApplyTheme();"
-        errorLine2="                            ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/drawable/DrawableCompat.java"
-            line="198"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.graphics.drawable.DrawableCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return drawable.getColorFilter();"
-        errorLine2="                            ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/drawable/DrawableCompat.java"
-            line="211"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.core.graphics.drawable.DrawableCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                clearColorFilter(((InsetDrawable) drawable).getDrawable());"
-        errorLine2="                                                            ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/drawable/DrawableCompat.java"
-            line="232"
-            column="61"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.core.graphics.drawable.DrawableCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        child = state.getChild(i);"
-        errorLine2="                                      ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/drawable/DrawableCompat.java"
-            line="242"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.graphics.drawable.DrawableCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            drawable.inflate(res, parser, attrs, theme);"
-        errorLine2="                     ~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/drawable/DrawableCompat.java"
-            line="269"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.core.graphics.drawable.DrawableCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return drawable.setLayoutDirection(layoutDirection);"
-        errorLine2="                            ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/drawable/DrawableCompat.java"
-            line="355"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.core.graphics.drawable.DrawableCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return drawable.getLayoutDirection();"
-        errorLine2="                            ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/drawable/DrawableCompat.java"
-            line="392"
-            column="29"/>
     </issue>
 
     <issue
@@ -3530,6 +3662,50 @@
             file="src/main/java/androidx/core/os/MessageCompat.java"
             line="104"
             column="32"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 33; however, the containing class androidx.core.os.LocaleListCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return LocaleList.matchesLanguageAndScript(supported, desired);"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/LocaleListCompat.java"
+            line="251"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.core.app.NavUtils is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return sourceActivity.shouldUpRecreateTask(targetIntent);"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NavUtils.java"
+            line="61"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.core.app.NavUtils is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            sourceActivity.navigateUpTo(upIntent);"
+        errorLine2="                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NavUtils.java"
+            line="109"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.core.app.NavUtils is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            Intent result = sourceActivity.getParentActivityIntent();"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NavUtils.java"
+            line="132"
+            column="44"/>
     </issue>
 
     <issue
@@ -4502,6 +4678,17 @@
 
     <issue
         id="ClassVerificationFailure"
+        message="This call references a method added in API level 31; however, the containing class androidx.core.app.NotificationCompat.Action.Builder is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                    builder.setAuthenticationRequired(action.isAuthenticationRequired());"
+        errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"
+            line="4811"
+            column="62"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
         message="This call references a method added in API level 23; however, the containing class androidx.core.app.NotificationCompat.WearableExtender is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                actionBuilder = new Notification.Action.Builder("
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -4530,6 +4717,17 @@
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
             line="5679"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 31; however, the containing class androidx.core.app.NotificationCompat.WearableExtender is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                actionBuilder.setAuthenticationRequired(actionCompat.isAuthenticationRequired());"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"
+            line="5686"
             column="31"/>
     </issue>
 
@@ -4861,6 +5059,17 @@
             file="src/main/java/androidx/core/app/NotificationCompat.java"
             line="7504"
             column="75"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 31; however, the containing class androidx.core.app.NotificationCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                Build.VERSION.SDK_INT >= 31 ? action.isAuthenticationRequired() : false;"
+        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"
+            line="7514"
+            column="54"/>
     </issue>
 
     <issue
@@ -5382,6 +5591,17 @@
 
     <issue
         id="ClassVerificationFailure"
+        message="This call references a method added in API level 31; however, the containing class androidx.core.app.NotificationCompatBuilder is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                mBuilder.setForegroundServiceBehavior(b.mFgsDeferBehavior);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
+            line="252"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
         message="This call references a method added in API level 20; however, the containing class androidx.core.app.NotificationCompatBuilder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    mBuilder.setGroup(NotificationCompat.GROUP_KEY_SILENT);"
         errorLine2="                             ~~~~~~~~">
@@ -5465,6 +5685,17 @@
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
             line="393"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 31; however, the containing class androidx.core.app.NotificationCompatBuilder is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                actionBuilder.setAuthenticationRequired(action.isAuthenticationRequired());"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
+            line="397"
             column="31"/>
     </issue>
 
