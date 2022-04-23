@@ -43,7 +43,6 @@ import java.util.Set;
  * This class represents the specification logic for AppSearch. It can be used to set the type of
  * search, like prefix or exact only or apply filters to search for a specific schema type only etc.
  */
-// TODO(sidchhabra) : AddResultSpec fields for Snippets etc.
 public final class SearchSpec {
     /**
      * Schema type to be used in {@link SearchSpec.Builder#addProjection} to apply

@@ -540,9 +540,6 @@ public final class SearchResult {
 
         /** Extracts the matching string from the document. */
         private static String getPropertyValues(GenericDocument document, String propertyName) {
-            // In IcingLib snippeting is available for only 3 data types i.e String, double and
-            // long, so we need to check which of these three are requested.
-            // TODO (tytytyww): support double[] and long[].
             String result = document.getPropertyString(propertyName);
             if (result == null) {
                 throw new IllegalStateException(
