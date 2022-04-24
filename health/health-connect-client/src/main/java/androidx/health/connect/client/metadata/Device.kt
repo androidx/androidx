@@ -22,13 +22,11 @@ package androidx.health.connect.client.metadata
  * Device needs to be populated by users of the API. Metadata fields not provided by clients will
  * remain absent.
  *
- * @property identifier an optional client supplied identifier for the device
  * @property manufacturer an optional client supplied manufacturer of the device
  * @property model an optional client supplied model of the device
  * @property type an optional client supplied type of the device
  */
 public class Device(
-    public val identifier: String? = null,
     public val manufacturer: String? = null,
     public val model: String? = null,
     @property:DeviceType public val type: String? = null
@@ -37,7 +35,6 @@ public class Device(
         if (this === other) return true
         if (other !is Device) return false
 
-        if (identifier != other.identifier) return false
         if (manufacturer != other.manufacturer) return false
         if (model != other.model) return false
         if (type != other.type) return false
@@ -46,7 +43,7 @@ public class Device(
     }
 
     override fun hashCode(): Int {
-        var result = identifier?.hashCode() ?: 0
+        var result = 0
         result = 31 * result + (manufacturer?.hashCode() ?: 0)
         result = 31 * result + (model?.hashCode() ?: 0)
         result = 31 * result + (type?.hashCode() ?: 0)
