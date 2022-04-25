@@ -117,7 +117,6 @@ if [ $darwin == "true" ]; then
 else
     plat="linux"
 fi
-DEFAULT_JVM_OPTS="-DLINT_API_DATABASE=$APP_HOME/../../prebuilts/fullsdk-$plat/platform-tools/api/api-versions.xml"
 
 # Tests for lint checks default to using sdk defined by this variable. This removes a lot of
 # setup from each lint module.
