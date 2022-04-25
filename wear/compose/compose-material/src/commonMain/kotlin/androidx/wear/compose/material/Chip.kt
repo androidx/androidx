@@ -158,6 +158,9 @@ public fun Chip(
  *
  * Chips can be enabled or disabled. A disabled chip will not respond to click events.
  *
+ * Example of a [Chip] with icon and a label only with longer text:
+ * @sample androidx.wear.compose.material.samples.ChipWithIconAndLabel
+ *
  * Example of a [Chip] with icon, label and secondary label:
  * @sample androidx.wear.compose.material.samples.ChipWithIconAndLabels
  *
