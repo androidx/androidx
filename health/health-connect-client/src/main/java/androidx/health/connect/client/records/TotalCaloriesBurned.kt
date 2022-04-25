@@ -15,7 +15,6 @@
  */
 package androidx.health.connect.client.records
 
-import androidx.annotation.RestrictTo
 import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.metadata.Metadata
 import java.time.Instant
@@ -25,7 +24,6 @@ import java.time.ZoneOffset
  * Total energy burned by the user (in kilocalories), including active & basal energy burned (BMR).
  * Each record represents the total kilocalories burned over a time interval.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class TotalCaloriesBurned(
     /** Energy in kilocalories. Required field. Valid range: 0-1000000. */
     public val energyKcal: Double,
@@ -65,7 +63,7 @@ public class TotalCaloriesBurned(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val TOTAL: AggregateMetric<Double> =
+        val CALORIES_TOTAL: AggregateMetric<Double> =
             AggregateMetric.doubleMetric(
                 "TotalCaloriesBurned",
                 AggregateMetric.AggregationType.TOTAL,

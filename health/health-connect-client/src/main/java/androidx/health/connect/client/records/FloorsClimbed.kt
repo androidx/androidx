@@ -58,11 +58,11 @@ public class FloorsClimbed(
 
     companion object {
         /**
-         * Metric identifier to retrieve total floors climbed from
+         * Metric identifier to retrieve the total floors climbed from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val TOTAL: AggregateMetric<Double> =
+        val FLOORS_CLIMBED_TOTAL: AggregateMetric<Double> =
             AggregateMetric.doubleMetric(
                 "FloorsClimbed",
                 AggregateMetric.AggregationType.TOTAL,

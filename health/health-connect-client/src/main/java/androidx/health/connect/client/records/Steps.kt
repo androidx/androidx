@@ -62,13 +62,13 @@ public class Steps(
         return result
     }
 
-    internal companion object {
+    companion object {
         /**
-         * Metric identifier to retrieve total steps count from
+         * Metric identifier to retrieve the total steps count from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        internal val TOTAL: AggregateMetric<Long> =
+        val COUNT_TOTAL: AggregateMetric<Long> =
             AggregateMetric.longMetric("Steps", AggregateMetric.AggregationType.TOTAL, "count")
     }
 }

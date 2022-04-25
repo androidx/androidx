@@ -54,11 +54,11 @@ public class Height(
         private const val HEIGHT_FIELD_NAME = "height"
 
         /**
-         * Metric identifier to retrieve average height from
+         * Metric identifier to retrieve the average height from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val AVG: AggregateMetric<Double> =
+        val HEIGHT_AVG: AggregateMetric<Double> =
             AggregateMetric.doubleMetric(
                 HEIGHT_NAME,
                 AggregateMetric.AggregationType.AVERAGE,
@@ -70,7 +70,7 @@ public class Height(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val MIN: AggregateMetric<Double> =
+        val HEIGHT_MIN: AggregateMetric<Double> =
             AggregateMetric.doubleMetric(
                 HEIGHT_NAME,
                 AggregateMetric.AggregationType.MINIMUM,
@@ -78,11 +78,11 @@ public class Height(
             )
 
         /**
-         * Metric identifier to retrieve maximum height from
+         * Metric identifier to retrieve the maximum height from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val MAX: AggregateMetric<Double> =
+        val HEIGHT_MAX: AggregateMetric<Double> =
             AggregateMetric.doubleMetric(
                 HEIGHT_NAME,
                 AggregateMetric.AggregationType.MAXIMUM,

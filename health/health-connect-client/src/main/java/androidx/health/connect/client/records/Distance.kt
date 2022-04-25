@@ -65,11 +65,11 @@ public class Distance(
 
     companion object {
         /**
-         * Metric identifier to retrieve total distance from
+         * Metric identifier to retrieve the total distance from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val TOTAL: AggregateMetric<Double> =
+        val DISTANCE_TOTAL: AggregateMetric<Double> =
             AggregateMetric.doubleMetric(
                 "Distance",
                 AggregateMetric.AggregationType.TOTAL,

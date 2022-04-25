@@ -15,13 +15,12 @@
  */
 package androidx.health.connect.client.records
 
-import androidx.annotation.RestrictTo
+import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
 
 /** Captures what nutrients were consumed as part of a meal or a food item. */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class Nutrition(
     /** Biotin in grams. Optional field. Valid range: 0-100. */
     public val biotinGrams: Double = 0.0,
@@ -228,5 +227,477 @@ public class Nutrition(
         result = 31 * result + (endZoneOffset?.hashCode() ?: 0)
         result = 31 * result + metadata.hashCode()
         return result
+    }
+
+    companion object {
+        private const val TYPE_NAME = "Nutrition"
+
+        /**
+         * Metric identifier to retrieve the total biotin from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val BIOTIN_TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(TYPE_NAME, AggregateMetric.AggregationType.TOTAL, "biotin")
+
+        /**
+         * Metric identifier to retrieve the total caffeine from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val CAFFEINE_TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                TYPE_NAME,
+                AggregateMetric.AggregationType.TOTAL,
+                "caffeine"
+            )
+
+        /**
+         * Metric identifier to retrieve the total calcium from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val CALCIUM_TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                TYPE_NAME,
+                AggregateMetric.AggregationType.TOTAL,
+                "calcium"
+            )
+
+        /**
+         * Metric identifier to retrieve the total calories from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val CALORIES_TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                TYPE_NAME,
+                AggregateMetric.AggregationType.TOTAL,
+                "calories"
+            )
+
+        /**
+         * Metric identifier to retrieve the total calories from fat from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val CALORIES_FROM_FAT_TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                TYPE_NAME,
+                AggregateMetric.AggregationType.TOTAL,
+                "caloriesFromFat"
+            )
+
+        /**
+         * Metric identifier to retrieve the total chloride from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val CHLORIDE_TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                TYPE_NAME,
+                AggregateMetric.AggregationType.TOTAL,
+                "chloride"
+            )
+
+        /**
+         * Metric identifier to retrieve the total cholesterol from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val CHOLESTEROL_TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                TYPE_NAME,
+                AggregateMetric.AggregationType.TOTAL,
+                "cholesterol"
+            )
+
+        /**
+         * Metric identifier to retrieve the total chromium from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val CHROMIUM_TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                TYPE_NAME,
+                AggregateMetric.AggregationType.TOTAL,
+                "chromium"
+            )
+
+        /**
+         * Metric identifier to retrieve the total copper from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val COPPER_TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(TYPE_NAME, AggregateMetric.AggregationType.TOTAL, "copper")
+
+        /**
+         * Metric identifier to retrieve the total dietary fiber from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val DIETARY_FIBER_TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                TYPE_NAME,
+                AggregateMetric.AggregationType.TOTAL,
+                "dietaryFiber"
+            )
+
+        /**
+         * Metric identifier to retrieve the total folate from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val FOLATE_TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(TYPE_NAME, AggregateMetric.AggregationType.TOTAL, "folate")
+
+        /**
+         * Metric identifier to retrieve the total folic acid from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val FOLIC_ACID_TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                TYPE_NAME,
+                AggregateMetric.AggregationType.TOTAL,
+                "folicAcid"
+            )
+
+        /**
+         * Metric identifier to retrieve the total iodine from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val IODINE_TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(TYPE_NAME, AggregateMetric.AggregationType.TOTAL, "iodine")
+
+        /**
+         * Metric identifier to retrieve the total iron from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val IRON_TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(TYPE_NAME, AggregateMetric.AggregationType.TOTAL, "iron")
+
+        /**
+         * Metric identifier to retrieve the total magnesium from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val MAGNESIUM_TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                TYPE_NAME,
+                AggregateMetric.AggregationType.TOTAL,
+                "magnesium"
+            )
+
+        /**
+         * Metric identifier to retrieve the total manganese from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val MANGANESE_TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                TYPE_NAME,
+                AggregateMetric.AggregationType.TOTAL,
+                "manganese"
+            )
+
+        /**
+         * Metric identifier to retrieve the total molybdenum from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val MOLYBDENUM_TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                TYPE_NAME,
+                AggregateMetric.AggregationType.TOTAL,
+                "molybdenum"
+            )
+
+        /**
+         * Metric identifier to retrieve the total monounsaturated fat from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val MONOUNSATURATED_FAT_TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                TYPE_NAME,
+                AggregateMetric.AggregationType.TOTAL,
+                "monounsaturatedFat"
+            )
+
+        /**
+         * Metric identifier to retrieve the total niacin from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val NIACIN_TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(TYPE_NAME, AggregateMetric.AggregationType.TOTAL, "niacin")
+
+        /**
+         * Metric identifier to retrieve the total pantothenic acid from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val PANTOTHENIC_ACID_TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                TYPE_NAME,
+                AggregateMetric.AggregationType.TOTAL,
+                "pantothenicAcid"
+            )
+
+        /**
+         * Metric identifier to retrieve the total phosphorus from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val PHOSPHORUS_TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                TYPE_NAME,
+                AggregateMetric.AggregationType.TOTAL,
+                "phosphorus"
+            )
+
+        /**
+         * Metric identifier to retrieve the total polyunsaturated fat from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val POLYUNSATURATED_FAT_TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                TYPE_NAME,
+                AggregateMetric.AggregationType.TOTAL,
+                "polyunsaturatedFat"
+            )
+
+        /**
+         * Metric identifier to retrieve the total potassium from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val POTASSIUM_TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                TYPE_NAME,
+                AggregateMetric.AggregationType.TOTAL,
+                "potassium"
+            )
+
+        /**
+         * Metric identifier to retrieve the total protein from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val PROTEIN_TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                TYPE_NAME,
+                AggregateMetric.AggregationType.TOTAL,
+                "protein"
+            )
+
+        /**
+         * Metric identifier to retrieve the total riboflavin from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val RIBOFLAVIN_TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                TYPE_NAME,
+                AggregateMetric.AggregationType.TOTAL,
+                "riboflavin"
+            )
+
+        /**
+         * Metric identifier to retrieve the total saturated fat from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val SATURATED_FAT_TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                TYPE_NAME,
+                AggregateMetric.AggregationType.TOTAL,
+                "saturatedFat"
+            )
+
+        /**
+         * Metric identifier to retrieve the total selenium from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val SELENIUM_TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                TYPE_NAME,
+                AggregateMetric.AggregationType.TOTAL,
+                "selenium"
+            )
+
+        /**
+         * Metric identifier to retrieve the total sodium from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val SODIUM_TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(TYPE_NAME, AggregateMetric.AggregationType.TOTAL, "sodium")
+
+        /**
+         * Metric identifier to retrieve the total sugar from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val SUGAR_TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(TYPE_NAME, AggregateMetric.AggregationType.TOTAL, "sugar")
+
+        /**
+         * Metric identifier to retrieve the total thiamin from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val THIAMIN_TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                TYPE_NAME,
+                AggregateMetric.AggregationType.TOTAL,
+                "thiamin"
+            )
+
+        /**
+         * Metric identifier to retrieve the total total carbohydrate from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val TOTAL_CARBOHYDRATE_TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                TYPE_NAME,
+                AggregateMetric.AggregationType.TOTAL,
+                "totalCarbohydrate"
+            )
+
+        /**
+         * Metric identifier to retrieve the total total fat from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val TOTAL_FAT_TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                TYPE_NAME,
+                AggregateMetric.AggregationType.TOTAL,
+                "totalFat"
+            )
+
+        /**
+         * Metric identifier to retrieve the total trans fat from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val TRANS_FAT_TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                TYPE_NAME,
+                AggregateMetric.AggregationType.TOTAL,
+                "transFat"
+            )
+
+        /**
+         * Metric identifier to retrieve the total unsaturated fat from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val UNSATURATED_FAT_TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                TYPE_NAME,
+                AggregateMetric.AggregationType.TOTAL,
+                "unsaturatedFat"
+            )
+
+        /**
+         * Metric identifier to retrieve the total vitamin a from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val VITAMIN_A_TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                TYPE_NAME,
+                AggregateMetric.AggregationType.TOTAL,
+                "vitaminA"
+            )
+
+        /**
+         * Metric identifier to retrieve the total vitamin b12 from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val VITAMIN_B12_TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                TYPE_NAME,
+                AggregateMetric.AggregationType.TOTAL,
+                "vitaminB12"
+            )
+
+        /**
+         * Metric identifier to retrieve the total vitamin b6 from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val VITAMIN_B6_TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                TYPE_NAME,
+                AggregateMetric.AggregationType.TOTAL,
+                "vitaminB6"
+            )
+
+        /**
+         * Metric identifier to retrieve the total vitamin c from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val VITAMIN_C_TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                TYPE_NAME,
+                AggregateMetric.AggregationType.TOTAL,
+                "vitaminC"
+            )
+
+        /**
+         * Metric identifier to retrieve the total vitamin d from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val VITAMIN_D_TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                TYPE_NAME,
+                AggregateMetric.AggregationType.TOTAL,
+                "vitaminD"
+            )
+
+        /**
+         * Metric identifier to retrieve the total vitamin e from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val VITAMIN_E_TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                TYPE_NAME,
+                AggregateMetric.AggregationType.TOTAL,
+                "vitaminE"
+            )
+
+        /**
+         * Metric identifier to retrieve the total vitamin k from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val VITAMIN_K_TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                TYPE_NAME,
+                AggregateMetric.AggregationType.TOTAL,
+                "vitaminK"
+            )
+
+        /**
+         * Metric identifier to retrieve the total zinc from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val ZINC_TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(TYPE_NAME, AggregateMetric.AggregationType.TOTAL, "zinc")
     }
 }
