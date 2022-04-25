@@ -44,6 +44,7 @@ import org.mockito.Mockito
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
+import kotlinx.coroutines.MainScope
 
 internal const val TIMEOUT_MILLIS = 1000L
 
@@ -64,7 +65,7 @@ public class WatchFaceControlTestService : Service() {
         override fun createServiceStub(): IWatchFaceInstanceServiceStub =
             object : IWatchFaceInstanceServiceStub(
                 ApplicationProvider.getApplicationContext<Context>(),
-                Handler(Looper.getMainLooper())
+                MainScope()
             ) {
                 @RequiresApi(Build.VERSION_CODES.O_MR1)
                 override fun getApiVersion(): Int = apiVersionOverride ?: super.getApiVersion()

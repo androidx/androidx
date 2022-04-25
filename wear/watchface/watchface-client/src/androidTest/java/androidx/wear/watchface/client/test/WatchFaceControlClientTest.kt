@@ -751,14 +751,9 @@ class WatchFaceControlClientTest {
             ]!!
         }
 
-        var isFirstCall = true
         handlerCoroutineScope.launch {
             leftComplicationSlot.complicationData.collect {
-                if (!isFirstCall) {
-                    updateCountDownLatch.countDown()
-                } else {
-                    isFirstCall = false
-                }
+                updateCountDownLatch.countDown()
             }
         }
 
