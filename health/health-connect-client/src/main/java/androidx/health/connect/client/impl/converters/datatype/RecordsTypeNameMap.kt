@@ -30,7 +30,7 @@ import androidx.health.connect.client.records.BodyWaterMass
 import androidx.health.connect.client.records.BoneMass
 import androidx.health.connect.client.records.CervicalMucus
 import androidx.health.connect.client.records.CervicalPosition
-import androidx.health.connect.client.records.CyclingPedalingCadence
+import androidx.health.connect.client.records.CyclingPedalingCadenceSeries
 import androidx.health.connect.client.records.Distance
 import androidx.health.connect.client.records.ElevationGained
 import androidx.health.connect.client.records.FloorsClimbed
@@ -52,7 +52,7 @@ import androidx.health.connect.client.records.Menstruation
 import androidx.health.connect.client.records.Nutrition
 import androidx.health.connect.client.records.OvulationTest
 import androidx.health.connect.client.records.OxygenSaturation
-import androidx.health.connect.client.records.Power
+import androidx.health.connect.client.records.PowerSeries
 import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.records.Repetitions
 import androidx.health.connect.client.records.RespiratoryRate
@@ -60,9 +60,9 @@ import androidx.health.connect.client.records.RestingHeartRate
 import androidx.health.connect.client.records.SexualActivity
 import androidx.health.connect.client.records.SleepSession
 import androidx.health.connect.client.records.SleepStage
-import androidx.health.connect.client.records.Speed
+import androidx.health.connect.client.records.SpeedSeries
 import androidx.health.connect.client.records.Steps
-import androidx.health.connect.client.records.StepsCadence
+import androidx.health.connect.client.records.StepsCadenceSeries
 import androidx.health.connect.client.records.SwimmingStrokes
 import androidx.health.connect.client.records.TotalCaloriesBurned
 import androidx.health.connect.client.records.TotalEnergyBurned
@@ -89,7 +89,7 @@ private val ALL_RECORDS_TYPES =
         BoneMass::class,
         CervicalMucus::class,
         CervicalPosition::class,
-        CyclingPedalingCadence::class,
+        CyclingPedalingCadenceSeries::class,
         Distance::class,
         ElevationGained::class,
         FloorsClimbed::class,
@@ -111,16 +111,16 @@ private val ALL_RECORDS_TYPES =
         Nutrition::class,
         OvulationTest::class,
         OxygenSaturation::class,
-        Power::class,
+        PowerSeries::class,
         Repetitions::class,
         RespiratoryRate::class,
         RestingHeartRate::class,
         SexualActivity::class,
         SleepSession::class,
         SleepStage::class,
-        Speed::class,
+        SpeedSeries::class,
         Steps::class,
-        StepsCadence::class,
+        StepsCadenceSeries::class,
         SwimmingStrokes::class,
         TotalCaloriesBurned::class,
         TotalEnergyBurned::class,
