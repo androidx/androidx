@@ -76,10 +76,10 @@ public final class Stopwatch {
     private final String mName;
 
     @Document.LongProperty
-    private final long mStartTimeMillis;
+    private final long mBaseTimeMillis;
 
     @Document.LongProperty
-    private final long mStartTimeMillisInElapsedRealtime;
+    private final long mBaseTimeMillisInElapsedRealtime;
 
     @Document.LongProperty
     private final int mBootCount;
@@ -88,27 +88,27 @@ public final class Stopwatch {
     private final int mStatus;
 
     @Document.LongProperty
-    private final long mElapsedDurationMillisSinceUpdate;
+    private final long mAccumulatedTimeMillis;
 
     @Document.DocumentProperty
     private final List<StopwatchLap> mLaps;
 
     Stopwatch(@NonNull String namespace, @NonNull String id, int documentScore,
             long creationTimestampMillis,
-            long documentTtlMillis, @Nullable String name, long startTimeMillis,
-            long startTimeMillisInElapsedRealtime, int bootCount, int status,
-            long elapsedDurationMillisSinceUpdate, @NonNull List<StopwatchLap> laps) {
+            long documentTtlMillis, @Nullable String name, long baseTimeMillis,
+            long baseTimeMillisInElapsedRealtime, int bootCount, int status,
+            long accumulatedTimeMillis, @NonNull List<StopwatchLap> laps) {
         mNamespace = Preconditions.checkNotNull(namespace);
         mId = Preconditions.checkNotNull(id);
         mDocumentScore = documentScore;
         mCreationTimestampMillis = creationTimestampMillis;
         mDocumentTtlMillis = documentTtlMillis;
         mName = name;
-        mStartTimeMillis = startTimeMillis;
-        mStartTimeMillisInElapsedRealtime = startTimeMillisInElapsedRealtime;
+        mBaseTimeMillis = baseTimeMillis;
+        mBaseTimeMillisInElapsedRealtime = baseTimeMillisInElapsedRealtime;
         mBootCount = bootCount;
         mStatus = status;
-        mElapsedDurationMillisSinceUpdate = elapsedDurationMillisSinceUpdate;
+        mAccumulatedTimeMillis = accumulatedTimeMillis;
         mLaps = Preconditions.checkNotNull(laps);
     }
 
@@ -170,29 +170,25 @@ public final class Stopwatch {
     }
 
     /**
-     * Returns the most recent time that the status transitioned to {@link #STATUS_RUNNING}. In
-     * milliseconds using the {@link System#currentTimeMillis()} time base.
+     * Returns the point in time that the {@link Stopwatch} counts up from. In milliseconds using
+     * the {@link System#currentTimeMillis()} time base.
      *
-     * <p>If the status is not {@link #STATUS_RUNNING}, then this value is undefined, and
-     * should not be used.
-     *
-     * <p>This value is used to calculate {@link #getCurrentElapsedDurationMillis(Context)}.
+     * <p>Use {@link #calculateBaseTimeMillis(Context)} to get a more accurate base time that
+     * accounts for the current boot count of the device.
      */
-    public long getStartTimeMillis() {
-        return mStartTimeMillis;
+    public long getBaseTimeMillis() {
+        return mBaseTimeMillis;
     }
 
     /**
-     * Returns the most recent time that the status transitioned to {@link #STATUS_RUNNING}. In
-     * milliseconds using the {@link android.os.SystemClock#elapsedRealtime()} time base.
+     * Returns the point in time that the {@link Stopwatch} counts up from. In milliseconds using
+     * the {@link android.os.SystemClock#elapsedRealtime()} time base.
      *
-     * <p>If the status is not {@link #STATUS_RUNNING}, then this value is undefined, and
-     * should not be used.
-     *
-     * <p>This value is used to calculate {@link #getCurrentElapsedDurationMillis(Context)}.
+     * <p>ElapsedRealtime should only be used if the {@link #getBootCount()} matches the
+     * bootCount of the current device.
      */
-    public long getStartTimeMillisInElapsedRealtime() {
-        return mStartTimeMillisInElapsedRealtime;
+    public long getBaseTimeMillisInElapsedRealtime() {
+        return mBaseTimeMillisInElapsedRealtime;
     }
 
     /**
@@ -202,9 +198,6 @@ public final class Stopwatch {
      * {@link android.provider.Settings.Global#BOOT_COUNT}.
      *
      * <p>On older APIs where boot count is not available, this value should not be used.
-     *
-     * <p>If available, this value is used to calculate
-     * {@link #getCurrentElapsedDurationMillis(Context)}.
      */
     public int getBootCount() {
         return mBootCount;
@@ -222,37 +215,14 @@ public final class Stopwatch {
     }
 
     /**
-     * Returns the elapsed duration in milliseconds since the last time the {@link Stopwatch} is
-     * running, paused, or reset.
+     * Returns the total duration in milliseconds accumulated by the {@link Stopwatch}.
      *
-     * <p>If in the {@link #STATUS_RUNNING} state, then the current elapsed duration might differ
-     * from this value. To get the current elapsed duration, use
-     * {@link #getCurrentElapsedDurationMillis(Context)}.
+     * <p>Use this method to get the static accumulated time stored in the document. Use
+     * {@link #calculateCurrentAccumulatedTimeMillis(Context)} to calculate the accumulated time
+     * in real time.
      */
-    public long getElapsedDurationMillisSinceUpdate() {
-        return mElapsedDurationMillisSinceUpdate;
-    }
-
-    /**
-     * Calculates the current elapsed duration in milliseconds.
-     */
-    public long getCurrentElapsedDurationMillis(@NonNull Context context) {
-        if (mStatus == STATUS_PAUSED || mStatus == STATUS_RESET) {
-            return mElapsedDurationMillisSinceUpdate;
-        }
-
-        int currentBootCount = BootCountUtil.getCurrentBootCount(context);
-        if (currentBootCount == -1 || currentBootCount != mBootCount) {
-            // Boot count doesn't exist or doesn't match current device boot count. Use wall
-            // clock time since elapsed realtime is no longer valid.
-            return System.currentTimeMillis() - mStartTimeMillis
-                    + mElapsedDurationMillisSinceUpdate;
-        } else {
-            // Boot count matches current device boot count. Therefore we can use elapsed
-            // realtime to do calculations.
-            return SystemClock.elapsedRealtime() - mStartTimeMillisInElapsedRealtime
-                    + mElapsedDurationMillisSinceUpdate;
-        }
+    public long getAccumulatedTimeMillis() {
+        return mAccumulatedTimeMillis;
     }
 
     /** Returns all the {@link StopwatchLap} instances. */
@@ -261,14 +231,55 @@ public final class Stopwatch {
         return mLaps;
     }
 
+    /**
+     * Calculates the base time in milliseconds using the {@link System#currentTimeMillis()} time
+     * base.
+     *
+     * <p>If the boot count retrieved from the context matches {@link #getBootCount()}, then
+     * {@link #getBaseTimeMillisInElapsedRealtime()} will be used to calculate the base time
+     * in the {@link System#currentTimeMillis()} time base. Otherwise return
+     * {@link #getBaseTimeMillis()}.
+     */
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
+    public long calculateBaseTimeMillis(@NonNull Context context) {
+        int currentBootCount = BootCountUtil.getCurrentBootCount(context);
+        if (currentBootCount == -1 || currentBootCount != mBootCount) {
+            // Boot count doesn't exist, or it doesn't match the current device boot count.
+            // Therefore return the wall clock time since elapsed realtime is not valid.
+            return mBaseTimeMillis;
+        } else {
+            // Boot count matches the current device boot count. Therefore calculate the wall
+            // clock base time using elapsed realtime.
+            long elapsedTime = SystemClock.elapsedRealtime() - mBaseTimeMillisInElapsedRealtime;
+            return System.currentTimeMillis() - elapsedTime;
+        }
+    }
+
+    /**
+     * Calculates the current accumulated time in milliseconds.
+     *
+     * <p>Use this method to calculate the accumulated time in real time. Use
+     * {@link #getAccumulatedTimeMillis()} to get the static accumulated time stored in the
+     * document.
+     */
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
+    public long calculateCurrentAccumulatedTimeMillis(@NonNull Context context) {
+        if (mStatus == STATUS_PAUSED || mStatus == STATUS_RESET) {
+            return mAccumulatedTimeMillis;
+        }
+
+        return System.currentTimeMillis() - calculateBaseTimeMillis(context)
+                + mAccumulatedTimeMillis;
+    }
+
     /** Builder for {@link Stopwatch}. */
     public static final class Builder extends BaseBuiltinTypeBuilder<Builder> {
         private String mName;
-        private long mStartTimeMillis;
-        private long mStartTimeMillisInElapsedRealtime;
+        private long mBaseTimeMillis;
+        private long mBaseTimeMillisInElapsedRealtime;
         private int mBootCount;
         private int mStatus;
-        private long mElapsedDurationMillisSinceUpdate;
+        private long mAccumulatedTimeMillis;
         private List<StopwatchLap> mLaps;
 
         /**
@@ -294,12 +305,12 @@ public final class Stopwatch {
             mCreationTimestampMillis = stopwatch.getCreationTimestampMillis();
             mDocumentTtlMillis = stopwatch.getDocumentTtlMillis();
             mName = stopwatch.getName();
-            mStartTimeMillis = stopwatch.getStartTimeMillis();
-            mStartTimeMillisInElapsedRealtime =
-                    stopwatch.getStartTimeMillisInElapsedRealtime();
+            mBaseTimeMillis = stopwatch.getBaseTimeMillis();
+            mBaseTimeMillisInElapsedRealtime =
+                    stopwatch.getBaseTimeMillisInElapsedRealtime();
             mBootCount = stopwatch.getBootCount();
             mStatus = stopwatch.getStatus();
-            mElapsedDurationMillisSinceUpdate = stopwatch.getElapsedDurationMillisSinceUpdate();
+            mAccumulatedTimeMillis = stopwatch.getAccumulatedTimeMillis();
             mLaps = stopwatch.getLaps();
         }
 
@@ -311,46 +322,46 @@ public final class Stopwatch {
         }
 
         /**
-         * Sets the most recent time that the status transitioned to {@link #STATUS_RUNNING}.
+         * Sets the point in time that the {@link Stopwatch} counts up from.
          *
-         * <p> Start time should be sampled in both the {@link System#currentTimeMillis()} and
+         * <p>Base time should be sampled in both the {@link System#currentTimeMillis()} and
          * {@link android.os.SystemClock#elapsedRealtime()} time base. In addition, the boot
          * count of the device is needed to check if the
          * {@link android.os.SystemClock#elapsedRealtime()} time base is valid.
          *
-         * @param startTimeMillis The start time in milliseconds using the
+         * @param baseTimeMillis The base time in milliseconds using the
          * {@link System#currentTimeMillis()} time base.
-         * @param startTimeMillisInElapsedRealtime The start time in milliseconds using the
+         * @param baseTimeMillisInElapsedRealtime The base time in milliseconds using the
          * {@link android.os.SystemClock#elapsedRealtime()} time base.
          * @param bootCount The current boot count of the device. See
          * {@link android.provider.Settings.Global#BOOT_COUNT}.
          */
         @NonNull
-        public Builder setStartTimeMillis(long startTimeMillis,
-                long startTimeMillisInElapsedRealtime, int bootCount) {
-            mStartTimeMillis = startTimeMillis;
-            mStartTimeMillisInElapsedRealtime = startTimeMillisInElapsedRealtime;
+        public Builder setBaseTimeMillis(long baseTimeMillis,
+                long baseTimeMillisInElapsedRealtime, int bootCount) {
+            mBaseTimeMillis = baseTimeMillis;
+            mBaseTimeMillisInElapsedRealtime = baseTimeMillisInElapsedRealtime;
             mBootCount = bootCount;
             return this;
         }
 
         /**
-         * Sets the most recent time that the status transitioned to {@link #STATUS_RUNNING}.
+         * Sets the point in time that the {@link Stopwatch} counts up from.
          *
-         * <p>See {@link #setStartTimeMillis(long, long, int)}.
+         * <p>See {@link #setBaseTimeMillis(long, long, int)}.
          *
          * @param context The app context used to fetch boot count.
-         * @param startTimeMillis The start time in milliseconds using the
+         * @param baseTimeMillis The base time in milliseconds using the
          * {@link System#currentTimeMillis()} time base.
-         * @param startTimeMillisInElapsedRealtime The start time in milliseconds using the
+         * @param baseTimeMillisInElapsedRealtime The base time in milliseconds using the
          * {@link android.os.SystemClock#elapsedRealtime()} time base.
          */
         @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
         @NonNull
-        public Builder setStartTimeMillis(@NonNull Context context, long startTimeMillis,
-                long startTimeMillisInElapsedRealtime) {
+        public Builder setBaseTimeMillis(@NonNull Context context, long baseTimeMillis,
+                long baseTimeMillisInElapsedRealtime) {
             int bootCount = BootCountUtil.getCurrentBootCount(context);
-            return setStartTimeMillis(startTimeMillis, startTimeMillisInElapsedRealtime, bootCount);
+            return setBaseTimeMillis(baseTimeMillis, baseTimeMillisInElapsedRealtime, bootCount);
         }
 
         /**
@@ -367,12 +378,11 @@ public final class Stopwatch {
         }
 
         /**
-         * Sets the elapsed duration in milliseconds since the last time the {@link Stopwatch} is
-         * running, paused, or reset.
+         * Sets the total duration in milliseconds accumulated by the {@link Stopwatch}.
          */
         @NonNull
-        public Builder setElapsedDurationMillisSinceUpdate(long elapsedDurationMillisSinceUpdate) {
-            mElapsedDurationMillisSinceUpdate = elapsedDurationMillisSinceUpdate;
+        public Builder setAccumulatedTimeMillis(long accumulatedTimeMillis) {
+            mAccumulatedTimeMillis = accumulatedTimeMillis;
             return this;
         }
 
@@ -387,9 +397,9 @@ public final class Stopwatch {
         @NonNull
         public Stopwatch build() {
             return new Stopwatch(mNamespace, mId, mDocumentScore,
-                    mCreationTimestampMillis, mDocumentTtlMillis, mName, mStartTimeMillis,
-                    mStartTimeMillisInElapsedRealtime, mBootCount, mStatus,
-                    mElapsedDurationMillisSinceUpdate, mLaps);
+                    mCreationTimestampMillis, mDocumentTtlMillis, mName, mBaseTimeMillis,
+                    mBaseTimeMillisInElapsedRealtime, mBootCount, mStatus,
+                    mAccumulatedTimeMillis, mLaps);
         }
     }
 }
