@@ -47,6 +47,7 @@ dependencies {
     androidTestImplementation(libs.kotlinTestJunit)
     androidTestImplementation(libs.kotlinCoroutinesTest)
     androidTestImplementation(libs.kotlinCoroutinesGuava)
+    androidTestImplementation(libs.guavaAndroid)
     androidTestImplementation("androidx.arch.core:core-testing:2.0.1")
     androidTestImplementation(project(":internal-testutils-common"))
     // depend on the shadowed version so that it tests with the shipped artifact
