@@ -31,6 +31,7 @@ import androidx.health.connect.client.records.BoneMass
 import androidx.health.connect.client.records.CervicalMucus
 import androidx.health.connect.client.records.CervicalPosition
 import androidx.health.connect.client.records.CyclingPedalingCadence
+import androidx.health.connect.client.records.CyclingPedalingCadenceSeries
 import androidx.health.connect.client.records.Distance
 import androidx.health.connect.client.records.ElevationGained
 import androidx.health.connect.client.records.FloorsClimbed
@@ -54,6 +55,7 @@ import androidx.health.connect.client.records.Nutrition
 import androidx.health.connect.client.records.OvulationTest
 import androidx.health.connect.client.records.OxygenSaturation
 import androidx.health.connect.client.records.Power
+import androidx.health.connect.client.records.PowerSeries
 import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.records.Repetitions
 import androidx.health.connect.client.records.RespiratoryRate
@@ -62,8 +64,10 @@ import androidx.health.connect.client.records.SexualActivity
 import androidx.health.connect.client.records.SleepSession
 import androidx.health.connect.client.records.SleepStage
 import androidx.health.connect.client.records.Speed
+import androidx.health.connect.client.records.SpeedSeries
 import androidx.health.connect.client.records.Steps
 import androidx.health.connect.client.records.StepsCadence
+import androidx.health.connect.client.records.StepsCadenceSeries
 import androidx.health.connect.client.records.SwimmingStrokes
 import androidx.health.connect.client.records.TotalCaloriesBurned
 import androidx.health.connect.client.records.TotalEnergyBurned
@@ -159,12 +163,20 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
-            "CyclingPedalingCadence" ->
-                CyclingPedalingCadence(
-                    revolutionsPerMinute = getDouble("rpm"),
-                    time = time,
-                    zoneOffset = zoneOffset,
-                    metadata = metadata
+            "CyclingPedalingCadenceSeries" ->
+                CyclingPedalingCadenceSeries(
+                    startTime = startTime,
+                    startZoneOffset = startZoneOffset,
+                    endTime = endTime,
+                    endZoneOffset = endZoneOffset,
+                    samples =
+                        seriesValuesList.map { value ->
+                            CyclingPedalingCadence(
+                                time = Instant.ofEpochMilli(value.instantTimeMillis),
+                                revolutionsPerMinute = value.getDouble("rpm"),
+                            )
+                        },
+                    metadata = metadata,
                 )
             "HeartRateSeries" ->
                 HeartRateSeries(
@@ -286,12 +298,20 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
-            "Power" ->
-                Power(
-                    power = getDouble("power"),
-                    time = time,
-                    zoneOffset = zoneOffset,
-                    metadata = metadata
+            "PowerSeries" ->
+                PowerSeries(
+                    startTime = startTime,
+                    startZoneOffset = startZoneOffset,
+                    endTime = endTime,
+                    endZoneOffset = endZoneOffset,
+                    samples =
+                        seriesValuesList.map { value ->
+                            Power(
+                                time = Instant.ofEpochMilli(value.instantTimeMillis),
+                                watts = value.getDouble("power"),
+                            )
+                        },
+                    metadata = metadata,
                 )
             "RespiratoryRate" ->
                 RespiratoryRate(
@@ -314,19 +334,35 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
-            "Speed" ->
-                Speed(
-                    speedMetersPerSecond = getDouble("speed"),
-                    time = time,
-                    zoneOffset = zoneOffset,
-                    metadata = metadata
+            "SpeedSeries" ->
+                SpeedSeries(
+                    startTime = startTime,
+                    startZoneOffset = startZoneOffset,
+                    endTime = endTime,
+                    endZoneOffset = endZoneOffset,
+                    samples =
+                        seriesValuesList.map { value ->
+                            Speed(
+                                time = Instant.ofEpochMilli(value.instantTimeMillis),
+                                metersPerSecond = value.getDouble("speed"),
+                            )
+                        },
+                    metadata = metadata,
                 )
-            "StepsCadence" ->
-                StepsCadence(
-                    rate = getDouble("rate"),
-                    time = time,
-                    zoneOffset = zoneOffset,
-                    metadata = metadata
+            "StepsCadenceSeries" ->
+                StepsCadenceSeries(
+                    startTime = startTime,
+                    startZoneOffset = startZoneOffset,
+                    endTime = endTime,
+                    endZoneOffset = endZoneOffset,
+                    samples =
+                        seriesValuesList.map { value ->
+                            StepsCadence(
+                                time = Instant.ofEpochMilli(value.instantTimeMillis),
+                                rate = value.getDouble("rate"),
+                            )
+                        },
+                    metadata = metadata,
                 )
             "Vo2Max" ->
                 Vo2Max(

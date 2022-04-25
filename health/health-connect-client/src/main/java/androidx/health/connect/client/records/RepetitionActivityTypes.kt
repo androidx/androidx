@@ -90,7 +90,8 @@ public object RepetitionActivityTypes {
             RepetitionActivityTypes.SHOULDER_PRESS,
             RepetitionActivityTypes.SINGLE_ARM_TRICEPS_EXTENSION,
             RepetitionActivityTypes.SIT_UP,
-            RepetitionActivityTypes.SQUAT]
+            RepetitionActivityTypes.SQUAT
+        ]
 )
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 annotation class RepetitionActivityType
