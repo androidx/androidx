@@ -396,10 +396,10 @@ public final class MessageTemplate implements Template {
          *
          * A non-empty message must be set on the template.
          *
-         * <p>Either a header {@link Action} or title must be set on the template.
+         * <p>If none of the header {@link Action}, the header title or the action strip have been
+         * set on the template, the header is hidden.
          *
-         * @throws IllegalStateException if the message is empty, if the template does not have
-         *                               either a title or header {@link Action} set, or if the
+         * @throws IllegalStateException if the message is empty, or if the
          *                               template is in loading state and an icon is specified.
          */
         @NonNull
@@ -419,10 +419,6 @@ public final class MessageTemplate implements Template {
             debugString += Log.getStackTraceString(mDebugCause);
             if (!debugString.isEmpty()) {
                 mDebugMessage = CarText.create(debugString);
-            }
-
-            if (CarText.isNullOrEmpty(mTitle) && mHeaderAction == null) {
-                throw new IllegalStateException("Either the title or header action must be set");
             }
 
             return new MessageTemplate(this);
