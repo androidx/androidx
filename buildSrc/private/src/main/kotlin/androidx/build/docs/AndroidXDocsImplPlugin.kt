@@ -22,16 +22,20 @@ import androidx.build.dependencies.KOTLIN_VERSION
 import androidx.build.doclava.DacOptions
 import androidx.build.doclava.DoclavaTask
 import androidx.build.doclava.GENERATE_DOCS_CONFIG
-import androidx.build.doclava.androidJarFile
 import androidx.build.doclava.createGenerateSdkApiTask
 import androidx.build.dokka.Dokka
+import androidx.build.getAndroidJar
 import androidx.build.getBuildId
 import androidx.build.getCheckoutRoot
 import androidx.build.getDistributionDirectory
 import androidx.build.getKeystore
+import androidx.build.getLibraryByName
 import com.android.build.api.attributes.BuildTypeAttr
 import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.LibraryPlugin
+import java.io.File
+import java.io.FileNotFoundException
+import javax.inject.Inject
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -43,6 +47,7 @@ import org.gradle.api.attributes.Attribute
 import org.gradle.api.attributes.Category
 import org.gradle.api.attributes.DocsType
 import org.gradle.api.attributes.Usage
+import org.gradle.api.file.ArchiveOperations
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.file.FileCollection
 import org.gradle.api.model.ObjectFactory
@@ -60,22 +65,20 @@ import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.register
 import org.jetbrains.dokka.gradle.DokkaAndroidTask
 import org.jetbrains.dokka.gradle.PackageOptions
-import java.io.File
-import java.io.FileNotFoundException
-import javax.inject.Inject
 
 /**
  * Plugin that allows to build documentation for a given set of prebuilt and tip of tree projects.
  */
-class AndroidXDocsImplPlugin : Plugin<Project> {
-    lateinit var project: Project
+abstract class AndroidXDocsImplPlugin : Plugin<Project> {
     lateinit var docsType: String
     lateinit var docsSourcesConfiguration: Configuration
     lateinit var samplesSourcesConfiguration: Configuration
     lateinit var dependencyClasspath: FileCollection
 
+    @get:javax.inject.Inject
+    abstract val archiveOperations: ArchiveOperations
+
     override fun apply(project: Project) {
-        this.project = project
         docsType = project.name.removePrefix("docs-")
         project.plugins.all { plugin ->
             when (plugin) {
@@ -94,8 +97,8 @@ class AndroidXDocsImplPlugin : Plugin<Project> {
                 }
             }
         }
-        disableUnneededTasks()
-        createConfigurations()
+        disableUnneededTasks(project)
+        createConfigurations(project)
         val buildOnServer = project.tasks.register<DocsBuildOnServer>("buildOnServer") {
             buildId = getBuildId()
             docsType = this@AndroidXDocsImplPlugin.docsType
@@ -104,12 +107,14 @@ class AndroidXDocsImplPlugin : Plugin<Project> {
 
         val unzippedSamplesSources = File(project.buildDir, "unzippedSampleSources")
         val unzipSamplesTask = configureUnzipTask(
+            project,
             "unzipSampleSources",
             unzippedSamplesSources,
             samplesSourcesConfiguration
         )
-        val unzippedDocsSources = File(project.buildDir, "unzippedDocsSources")
+        val unzippedDocsSources = File(project.buildDir, "srcs")
         val unzipDocsTask = configureUnzipTask(
+            project,
             "unzipDocsSources",
             unzippedDocsSources,
             docsSourcesConfiguration
@@ -117,11 +122,13 @@ class AndroidXDocsImplPlugin : Plugin<Project> {
 
         val unzippedSourcesForDackka = File(project.buildDir, "unzippedSourcesForDackka")
         val unzipSourcesForDackkaTask = configureDackkaUnzipTask(
+            project,
             unzippedSourcesForDackka,
             docsSourcesConfiguration
         )
 
         configureDackka(
+            project,
             unzippedSourcesForDackka,
             unzipSourcesForDackkaTask,
             unzippedSamplesSources,
@@ -130,6 +137,7 @@ class AndroidXDocsImplPlugin : Plugin<Project> {
             buildOnServer
         )
         configureDokka(
+            project,
             unzippedDocsSources,
             unzipDocsTask,
             unzippedSamplesSources,
@@ -138,6 +146,7 @@ class AndroidXDocsImplPlugin : Plugin<Project> {
             buildOnServer
         )
         configureDoclava(
+            project,
             unzippedDocsSources,
             unzipDocsTask,
             dependencyClasspath,
@@ -150,6 +159,7 @@ class AndroidXDocsImplPlugin : Plugin<Project> {
      * [docsConfiguration] configuration, resolve them and put them to [destinationDirectory].
      */
     private fun configureUnzipTask(
+        project: Project,
         taskName: String,
         destinationDirectory: File,
         docsConfiguration: Configuration
@@ -160,10 +170,13 @@ class AndroidXDocsImplPlugin : Plugin<Project> {
             Sync::class.java
         ) { task ->
             val sources = docsConfiguration.incoming.artifactView { }.files
+            // Store archiveOperations into a local variable to prevent access to the plugin
+            // during the task execution, as that breaks configuration caching.
+            val localVar = archiveOperations
             task.from(
                 sources.elements.map { jars ->
                     jars.map {
-                        project.zipTree(it).matching {
+                        localVar.zipTree(it).matching {
                             // Filter out files that documentation tools cannot process.
                             it.exclude("**/*.MF")
                             it.exclude("**/*.aidl")
@@ -192,17 +205,20 @@ class AndroidXDocsImplPlugin : Plugin<Project> {
      * This is a modified version of [configureUnzipTask], customized for Dackka usage.
      */
     private fun configureDackkaUnzipTask(
+        project: Project,
         destinationDirectory: File,
         docsConfiguration: Configuration
     ): TaskProvider<Sync> {
         return project.tasks.register("unzipSourcesForDackka", Sync::class.java) { task ->
-
             val sources = docsConfiguration.incoming.artifactView { }.files
 
+            // Store archiveOperations into a local variable to prevent access to the plugin
+            // during the task execution, as that breaks configuration caching.
+            val localVar = archiveOperations
             task.from(
                 sources.elements.map { jars ->
                     jars.map {
-                        project.zipTree(it)
+                        localVar.zipTree(it)
                     }
                 }
             )
@@ -219,7 +235,7 @@ class AndroidXDocsImplPlugin : Plugin<Project> {
      *   samples sources
      * - stubs(project(":foo:foo-stubs")) - stubs needed for a documented library
      */
-    private fun createConfigurations() {
+    private fun createConfigurations(project: Project) {
         project.dependencies.components.all<SourcesVariantRule>()
         val docsConfiguration = project.configurations.create("docs") {
             it.isCanBeResolved = false
@@ -238,11 +254,18 @@ class AndroidXDocsImplPlugin : Plugin<Project> {
             isTransitive = false
             isCanBeConsumed = false
             attributes {
-                it.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage.JAVA_RUNTIME))
                 it.attribute(
-                    Category.CATEGORY_ATTRIBUTE, project.objects.named(Category.DOCUMENTATION)
+                    Usage.USAGE_ATTRIBUTE,
+                    project.objects.named<Usage>(Usage.JAVA_RUNTIME)
                 )
-                it.attribute(DocsType.DOCS_TYPE_ATTRIBUTE, project.objects.named(DocsType.SOURCES))
+                it.attribute(
+                    Category.CATEGORY_ATTRIBUTE,
+                    project.objects.named<Category>(Category.DOCUMENTATION)
+                )
+                it.attribute(
+                    DocsType.DOCS_TYPE_ATTRIBUTE,
+                    project.objects.named<DocsType>(DocsType.SOURCES)
+                )
             }
         }
         docsSourcesConfiguration = project.configurations.create("docs-sources") {
@@ -257,11 +280,18 @@ class AndroidXDocsImplPlugin : Plugin<Project> {
         fun Configuration.setResolveClasspathForUsage(usage: String) {
             isCanBeConsumed = false
             attributes {
-                it.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(usage))
                 it.attribute(
-                    Category.CATEGORY_ATTRIBUTE, project.objects.named(Category.LIBRARY)
+                    Usage.USAGE_ATTRIBUTE,
+                    project.objects.named<Usage>(usage)
                 )
-                it.attribute(BuildTypeAttr.ATTRIBUTE, project.objects.named("release"))
+                it.attribute(
+                    Category.CATEGORY_ATTRIBUTE,
+                    project.objects.named<Category>(Category.LIBRARY)
+                )
+                it.attribute(
+                    BuildTypeAttr.ATTRIBUTE,
+                    project.objects.named<BuildTypeAttr>("release")
+                )
             }
             extendsFrom(docsConfiguration, samplesConfiguration, stubsConfiguration)
         }
@@ -297,6 +327,7 @@ class AndroidXDocsImplPlugin : Plugin<Project> {
     }
 
     private fun configureDackka(
+        project: Project,
         unzippedDocsSources: File,
         unzipDocsTask: TaskProvider<Sync>,
         unzippedSamplesSources: File,
@@ -307,12 +338,11 @@ class AndroidXDocsImplPlugin : Plugin<Project> {
         val generatedDocsDir = project.file("${project.buildDir}/dackkaDocs")
 
         val dackkaConfiguration = project.configurations.create("dackka").apply {
-            dependencies.add(project.dependencies.create(DACKKA_DEPENDENCY))
+            dependencies.add(project.dependencies.create(project.getLibraryByName("dackka")))
         }
 
         val dackkaTask = project.tasks.register("dackkaDocs", DackkaTask::class.java) { task ->
             task.apply {
-                dependsOn(dackkaConfiguration)
                 dependsOn(unzipDocsTask)
                 dependsOn(unzipSamplesTask)
 
@@ -326,7 +356,7 @@ class AndroidXDocsImplPlugin : Plugin<Project> {
                 samplesDir = unzippedSamplesSources
                 sourcesDir = unzippedDocsSources
                 docsProjectDir = File(project.rootDir, "docs-public")
-                dependenciesClasspath = androidJarFile(project) + dependencyClasspath
+                dependenciesClasspath = project.getAndroidJar() + dependencyClasspath
                 excludedPackages = hiddenPackages.toSet()
                 excludedPackagesForJava = hiddenPackagesJava
                 excludedPackagesForKotlin = emptySet()
@@ -356,6 +386,7 @@ class AndroidXDocsImplPlugin : Plugin<Project> {
     }
 
     private fun configureDokka(
+        project: Project,
         unzippedDocsSources: File,
         unzipDocsTask: TaskProvider<Sync>,
         unzippedSamplesSources: File,
@@ -376,7 +407,10 @@ class AndroidXDocsImplPlugin : Plugin<Project> {
             task.dependsOn(unzipDocsTask)
             task.dependsOn(unzipSamplesTask)
 
-            val androidJar = androidJarFile(project)
+            val androidJar = project.getAndroidJar()
+            val dokkaClasspath = project.provider({
+                project.files(androidJar).plus(dependencyClasspath)
+            })
             // DokkaTask tries to resolve DokkaTask#classpath right away for jars that might not
             // be there yet. Delay the setting of this property to before we run the task.
             task.inputs.files(androidJar, dependencyClasspath)
@@ -396,10 +430,7 @@ class AndroidXDocsImplPlugin : Plugin<Project> {
                     opts.suppress = true
                     dokkaTask.perPackageOptions.add(opts)
                 }
-
-                dokkaTask.classpath = project.files(dokkaTask.classpath)
-                    .plus(project.files(androidJar))
-                    .plus(dependencyClasspath)
+                dokkaTask.classpath = dokkaClasspath.get()
             }
         }
         val zipTask = project.tasks.register("zipDokkaDocs", Zip::class.java) {
@@ -425,6 +456,7 @@ class AndroidXDocsImplPlugin : Plugin<Project> {
     }
 
     private fun configureDoclava(
+        project: Project,
         unzippedDocsSources: File,
         unzipDocsTask: TaskProvider<Sync>,
         dependencyClasspath: FileCollection,
@@ -468,7 +500,7 @@ class AndroidXDocsImplPlugin : Plugin<Project> {
                 dependsOn(doclavaConfiguration)
                 setDocletpath(doclavaConfiguration)
                 destinationDir = destDir
-                classpath = androidJarFile(project) + dependencyClasspath
+                classpath = project.getAndroidJar() + dependencyClasspath
                 checksConfig = GENERATE_DOCS_CONFIG
                 extraArgumentsBuilder.apply {
                     addStringOption(
@@ -531,11 +563,13 @@ class AndroidXDocsImplPlugin : Plugin<Project> {
      * Replace all tests etc with empty task, so we don't run anything
      * it is more effective then task.enabled = false, because we avoid executing deps as well
      */
-    private fun disableUnneededTasks() {
+    private fun disableUnneededTasks(project: Project) {
         var reentrance = false
         project.tasks.whenTaskAdded { task ->
             if (task is Test || task.name.startsWith("assemble") ||
                 task.name == "lint" ||
+                task.name == "lintDebug" ||
+                task.name == "lintAnalyzeDebug" ||
                 task.name == "transformDexArchiveWithExternalLibsDexMergerForPublicDebug" ||
                 task.name == "transformResourcesWithMergeJavaResForPublicDebug" ||
                 task.name == "checkPublicDebugDuplicateClasses"
@@ -609,118 +643,22 @@ abstract class SourcesVariantRule : ComponentMetadataRule {
     }
 }
 
-private const val DACKKA_DEPENDENCY = "com.google.devsite:dackka:0.0.9"
 private const val DOCLAVA_DEPENDENCY = "com.android:doclava:1.0.6"
 
 // List of packages to exclude from both Java and Kotlin refdoc generation
 private val hiddenPackages = listOf(
     "androidx.camera.camera2.impl",
-    "androidx.camera.camera2.internal",
-    "androidx.camera.camera2.internal.compat",
-    "androidx.camera.camera2.internal.compat.params",
-    "androidx.camera.core.impl",
-    "androidx.camera.core.impl.annotation",
-    "androidx.camera.core.impl.utils",
-    "androidx.camera.core.impl.utils.executor",
-    "androidx.camera.core.impl.utils.futures",
-    "androidx.camera.core.internal",
-    "androidx.camera.core.internal.utils",
+    "androidx.camera.camera2.internal.*",
+    "androidx.camera.core.impl.*",
+    "androidx.camera.core.internal.*",
     "androidx.core.internal",
     "androidx.preference.internal",
     "androidx.wear.internal.widget.drawer",
     "androidx.webkit.internal",
-    "androidx.work.impl",
-    "androidx.work.impl.background",
-    "androidx.work.impl.background.gcm",
-    "androidx.work.impl.background.systemalarm",
-    "androidx.work.impl.background.systemjob",
-    "androidx.work.impl.constraints",
-    "androidx.work.impl.constraints.controllers",
-    "androidx.work.impl.constraints.trackers",
-    "androidx.work.impl.model",
-    "androidx.work.impl.utils",
-    "androidx.work.impl.utils.futures",
-    "androidx.work.impl.utils.taskexecutor"
+    "androidx.work.impl.*"
 )
 
 // Set of packages to exclude from Java refdoc generation
 private val hiddenPackagesJava = setOf(
-    "androidx.compose.animation",
-    "androidx.compose.animation.core",
-    "androidx.compose.animation.graphics",
-    "androidx.compose.animation.graphics.res",
-    "androidx.compose.animation.graphics.vector",
-    "androidx.compose.animation.graphics.vector.compat",
-    "androidx.compose.foundation",
-    "androidx.compose.foundation.gestures",
-    "androidx.compose.foundation.interaction",
-    "androidx.compose.foundation.layout",
-    "androidx.compose.foundation.lazy",
-    "androidx.compose.foundation.selection",
-    "androidx.compose.foundation.shape",
-    "androidx.compose.foundation.text",
-    "androidx.compose.foundation.text.selection",
-    "androidx.compose.material",
-    "androidx.compose.material.icons",
-    "androidx.compose.material.icons.filled",
-    "androidx.compose.material.icons.outlined",
-    "androidx.compose.material.icons.rounded",
-    "androidx.compose.material.icons.sharp",
-    "androidx.compose.material.icons.twotone",
-    "androidx.compose.material.ripple",
-    "androidx.compose.runtime",
-    "androidx.compose.runtime.collection",
-    "androidx.compose.runtime.internal",
-    "androidx.compose.runtime.livedata",
-    "androidx.compose.runtime.rxjava2",
-    "androidx.compose.runtime.rxjava3",
-    "androidx.compose.runtime.saveable",
-    "androidx.compose.runtime.snapshots",
-    "androidx.compose.runtime.tooling",
-    "androidx.compose.ui",
-    "androidx.compose.ui.autofill",
-    "androidx.compose.ui.draw",
-    "androidx.compose.ui.focus",
-    "androidx.compose.ui.geometry",
-    "androidx.compose.ui.graphics",
-    "androidx.compose.ui.graphics.colorspace",
-    "androidx.compose.ui.graphics.drawscope",
-    "androidx.compose.ui.graphics.painter",
-    "androidx.compose.ui.graphics.vector",
-    "androidx.compose.ui.hapticfeedback",
-    "androidx.compose.ui.input.key",
-    "androidx.compose.ui.input.nestedscroll",
-    "androidx.compose.ui.input.pointer",
-    "androidx.compose.ui.input.pointer.util",
-    "androidx.compose.ui.layout",
-    "androidx.compose.ui.node",
-    "androidx.compose.ui.platform",
-    "androidx.compose.ui.res",
-    "androidx.compose.ui.semantics",
-    "androidx.compose.ui.state",
-    "androidx.compose.ui.test",
-    "androidx.compose.ui.test.junit4",
-    "androidx.compose.ui.test.junit4.android",
-    "androidx.compose.ui.text",
-    "androidx.compose.ui.text.android",
-    "androidx.compose.ui.text.font",
-    "androidx.compose.ui.text.input",
-    "androidx.compose.ui.text.intl",
-    "androidx.compose.ui.text.platform.extensions",
-    "androidx.compose.ui.text.style",
-    "androidx.compose.ui.tooling",
-    "androidx.compose.ui.tooling.data",
-    "androidx.compose.ui.tooling.preview",
-    "androidx.compose.ui.tooling.preview.datasource",
-    "androidx.compose.ui.unit",
-    "androidx.compose.ui.util",
-    "androidx.compose.ui.viewinterop",
-    "androidx.compose.ui.window",
-    "androidx.activity.compose",
-    "androidx.hilt.navigation.compose",
-    "androidx.navigation.compose",
-    "androidx.paging.compose",
-    "androidx.wear.compose",
-    "androidx.wear.compose.foundation",
-    "androidx.wear.compose.material",
+    "androidx.*compose.*"
 )

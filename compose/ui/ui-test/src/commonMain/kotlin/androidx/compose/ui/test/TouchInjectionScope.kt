@@ -18,31 +18,12 @@ package androidx.compose.ui.test
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.lerp
+import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.util.lerp
-import kotlin.math.atan2
 import kotlin.math.ceil
-import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.roundToInt
-import kotlin.math.sign
-import kotlin.math.sin
-
-/**
- * The time between the last event of the first click and the first event of the second click in
- * a double click gesture. 145 milliseconds: both median and average of empirical data (33 samples)
- */
-private const val DoubleClickDelayMillis = 145L
-
-/** The time before a long press gesture attempts to win. */
-// remove after b/179281066
-private const val LongPressTimeoutMillis: Long = 500L
-
-/**
- * The maximum time from the start of the first tap to the start of the second
- * tap in a double-tap gesture.
- */
-// remove after b/179281066
-private const val DoubleTapTimeoutMillis: Long = 300L
+import kotlin.math.roundToLong
 
 /**
  * The receiver scope of the touch input injection lambda from [performTouchInput].
@@ -59,7 +40,7 @@ private const val DoubleTapTimeoutMillis: Long = 300L
  * multi-touch gestures. Most methods accept a pointerId to specify which pointer (finger) the
  * event applies to. Movement can be expressed absolutely with [moveTo] and [updatePointerTo], or
  * relative to the current pointer position with [moveBy] and [updatePointerBy]. The `moveTo/By`
- * methods send out an event immediately, while the `updatePointerTo/By` methods don't. This
+ * methods enqueue an event immediately, while the `updatePointerTo/By` methods don't. This
  * allows you to update the position of multiple pointers in a single [move] event for
  * multi-touch gestures. Touch gestures can be cancelled with [cancel]. All events, regardless
  * the method used, will always contain the current position of _all_ pointers.
@@ -76,32 +57,22 @@ private const val DoubleTapTimeoutMillis: Long = 300L
  * [performTouchInput] has executed its code block. Because gestures don't have to be defined all
  * in the same [performTouchInput] block, keep in mind that while the gesture is not complete,
  * all code you execute in between these blocks will be executed while imaginary fingers are
- * actively touching the screen.
+ * actively touching the screen. The events sent as part of the same batch will not be interrupted
+ * by recomposition, however, if a gesture spans multiple [performTouchInput] blocks it is
+ * important to remember that recomposition, layout and drawing could take place during the
+ * gesture, which may lead to events being injected into a moving target. As pointer positions are
+ * manipulated in the current node's local coordinate system, this could lead to issues caused by
+ * the fact that part of the gesture will take effect before the rest of the events have been
+ * enqueued.
  *
- * Example usage:
- * ```
- * onNodeWithTag("myWidget")
- *    .performTouchInput {
- *        click(center)
- *    }
+ * Example of performing a click:
+ * @sample androidx.compose.ui.test.samples.touchInputClick
  *
- * onNodeWithTag("myWidget")
- *    // Perform an L-shaped gesture
- *    .performTouchInput {
- *        down(topLeft)
- *        move(topLeft + percentOffset(0f, .1f))
- *        move(topLeft + percentOffset(0f, .2f))
- *        move(topLeft + percentOffset(0f, .3f))
- *        move(topLeft + percentOffset(0f, .4f))
- *        move(centerLeft)
- *        move(centerLeft + percentOffset(.1f, 0f))
- *        move(centerLeft + percentOffset(.2f, 0f))
- *        move(centerLeft + percentOffset(.3f, 0f))
- *        move(centerLeft + percentOffset(.4f, 0f))
- *        move(center)
- *        up()
- *    }
- * ```
+ * Example of performing a swipe up:
+ * @sample androidx.compose.ui.test.samples.touchInputSwipeUp
+ *
+ * Example of performing an L-shaped gesture:
+ * @sample androidx.compose.ui.test.samples.touchInputLShapedGesture
  *
  * @see InjectionScope
  */
@@ -252,6 +223,52 @@ interface TouchInjectionScope : InjectionScope {
     fun move(delayMillis: Long = eventPeriodMillis)
 
     /**
+     * Sends a move event [delayMillis] after the last sent event without updating any of the
+     * pointer positions.
+     *
+     * This overload supports gestures with multiple pointers.
+     *
+     * @param relativeHistoricalTimes Time of each historical event, as a millisecond relative to
+     * the time the actual event is sent. For example, -10L means 10ms earlier.
+     * @param historicalCoordinates Coordinates of each historical event, in the same coordinate
+     * space as [moveTo]. The outer list must have the same size as the number of pointers in the
+     * event, and each inner list must have the same size as [relativeHistoricalTimes].
+     * @param delayMillis The time between the last sent event and this event.
+     * [eventPeriodMillis] by default.
+     */
+    @ExperimentalTestApi
+    fun moveWithHistoryMultiPointer(
+        relativeHistoricalTimes: List<Long>,
+        historicalCoordinates: List<List<Offset>>,
+        delayMillis: Long = eventPeriodMillis
+    )
+
+    /**
+     * Sends a move event [delayMillis] after the last sent event without updating any of the
+     * pointer positions.
+     *
+     * This overload is a convenience method for the common case where the gesture only has one
+     * pointer.
+     *
+     * @param relativeHistoricalTimes Time of each historical event, as a millisecond relative to
+     * the time the actual event is sent. For example, -10L means 10ms earlier.
+     * @param historicalCoordinates Coordinates of each historical event, in the same coordinate
+     * space as [moveTo]. The list must have the same size as [relativeHistoricalTimes].
+     * @param delayMillis The time between the last sent event and this event.
+     * [eventPeriodMillis] by default.
+     */
+    @ExperimentalTestApi
+    fun moveWithHistory(
+        relativeHistoricalTimes: List<Long>,
+        historicalCoordinates: List<Offset>,
+        delayMillis: Long = eventPeriodMillis
+    ) = moveWithHistoryMultiPointer(
+        relativeHistoricalTimes,
+        listOf(historicalCoordinates),
+        delayMillis
+    )
+
+    /**
      * Sends an up event for the pointer with the given [pointerId], or the default pointer if
      * [pointerId] is omitted, on the associated node.
      *
@@ -267,6 +284,63 @@ interface TouchInjectionScope : InjectionScope {
      * [eventPeriodMillis] by default.
      */
     fun cancel(delayMillis: Long = eventPeriodMillis)
+}
+
+internal class TouchInjectionScopeImpl(
+    private val baseScope: MultiModalInjectionScopeImpl
+) : TouchInjectionScope, InjectionScope by baseScope {
+    private val inputDispatcher get() = baseScope.inputDispatcher
+    private fun localToRoot(position: Offset) = baseScope.localToRoot(position)
+
+    override fun currentPosition(pointerId: Int): Offset? {
+        val positionInRoot = inputDispatcher.getCurrentTouchPosition(pointerId) ?: return null
+        return baseScope.rootToLocal(positionInRoot)
+    }
+
+    override fun down(pointerId: Int, position: Offset) {
+        val positionInRoot = localToRoot(position)
+        inputDispatcher.enqueueTouchDown(pointerId, positionInRoot)
+    }
+
+    override fun updatePointerTo(pointerId: Int, position: Offset) {
+        val positionInRoot = localToRoot(position)
+        inputDispatcher.updateTouchPointer(pointerId, positionInRoot)
+    }
+
+    override fun move(delayMillis: Long) {
+        advanceEventTime(delayMillis)
+        inputDispatcher.enqueueTouchMove()
+    }
+
+    @ExperimentalTestApi
+    override fun moveWithHistoryMultiPointer(
+        relativeHistoricalTimes: List<Long>,
+        historicalCoordinates: List<List<Offset>>,
+        delayMillis: Long
+    ) {
+        repeat(relativeHistoricalTimes.size) {
+            check(relativeHistoricalTimes[it] < 0) {
+                "Relative historical times should be negative, in order to be in the past" +
+                    "(offset $it was: ${relativeHistoricalTimes[it]})"
+            }
+            check(relativeHistoricalTimes[it] >= -delayMillis) {
+                "Relative historical times should not be earlier than the previous event " +
+                    "(offset $it was: ${relativeHistoricalTimes[it]}, ${-delayMillis})"
+            }
+        }
+
+        advanceEventTime(delayMillis)
+        inputDispatcher.enqueueTouchMoves(relativeHistoricalTimes, historicalCoordinates)
+    }
+
+    override fun up(pointerId: Int) {
+        inputDispatcher.enqueueTouchUp(pointerId)
+    }
+
+    override fun cancel(delayMillis: Long) {
+        advanceEventTime(delayMillis)
+        inputDispatcher.enqueueTouchCancel()
+    }
 }
 
 /**
@@ -289,9 +363,9 @@ fun TouchInjectionScope.click(position: Offset = center) {
  * Performs a long click gesture (aka a long press) on the associated node.
  *
  * The long click is done at the given [position], or in the [center] if the [position] is
- * omitted. By default, the [durationMillis] of the press is [LongPressTimeoutMillis] + 100
- * milliseconds. The [position] is in the node's local coordinate system, where (0, 0) is the top
- * left corner of the node.
+ * omitted. By default, the [durationMillis] of the press is 100ms longer than the minimum
+ * required duration for a long press. The [position] is in the node's local coordinate system,
+ * where (0, 0) is the top left corner of the node.
  *
  * @param position The position of the long click, in the node's local coordinate system. If
  * omitted, the [center] of the node will be used.
@@ -299,21 +373,25 @@ fun TouchInjectionScope.click(position: Offset = center) {
  */
 fun TouchInjectionScope.longClick(
     position: Offset = center,
-    durationMillis: Long = LongPressTimeoutMillis + 100
+    durationMillis: Long = viewConfiguration.longPressTimeoutMillis + 100
 ) {
-    require(durationMillis >= LongPressTimeoutMillis) {
-        "Long click must have a duration of at least ${LongPressTimeoutMillis}ms"
+    require(durationMillis >= viewConfiguration.longPressTimeoutMillis) {
+        "Long click must have a duration of at least ${viewConfiguration.longPressTimeoutMillis}ms"
     }
     swipe(position, position, durationMillis)
 }
+
+// The average of min and max is a safe default
+private val ViewConfiguration.defaultDoubleTapDelayMillis: Long
+    get() = (doubleTapMinTimeMillis + doubleTapTimeoutMillis) / 2
 
 /**
  * Performs a double click gesture (aka a double tap) on the associated node.
  *
  * The double click is done at the given [position] or in the [center] if the [position] is
- * omitted. By default, the [delayMillis] between the first and the second click is 145
- * milliseconds. The [position] is in the node's local coordinate system, where (0, 0) is the top
- * left corner of the node.
+ * omitted. By default, the [delayMillis] between the first and the second click is half way in
+ * between the minimum and maximum required delay for a double click. The [position] is in the
+ * node's local coordinate system, where (0, 0) is the top left corner of the node.
  *
  * @param position The position of the double click, in the node's local coordinate system.
  * If omitted, the [center] position will be used.
@@ -322,10 +400,15 @@ fun TouchInjectionScope.longClick(
  */
 fun TouchInjectionScope.doubleClick(
     position: Offset = center,
-    delayMillis: Long = DoubleClickDelayMillis
+    delayMillis: Long = viewConfiguration.defaultDoubleTapDelayMillis
 ) {
-    require(delayMillis <= DoubleTapTimeoutMillis - 10) {
-        "Time between clicks in double click can be at most ${DoubleTapTimeoutMillis - 10}ms"
+    require(delayMillis >= viewConfiguration.doubleTapMinTimeMillis) {
+        "Time between clicks in double click must be at least " +
+            "${viewConfiguration.doubleTapMinTimeMillis}ms"
+    }
+    require(delayMillis < viewConfiguration.doubleTapTimeoutMillis) {
+        "Time between clicks in double click must be smaller than " +
+            "${viewConfiguration.doubleTapTimeoutMillis}ms"
     }
     click(position)
     advanceEventTime(delayMillis)
@@ -508,24 +591,36 @@ fun TouchInjectionScope.pinch(
 /**
  * Performs a swipe gesture on the associated node such that it ends with the given [endVelocity].
  *
- * The MotionEvents are linearly interpolated between [start] and [end]. The coordinates are in
- * the node's local coordinate system, where (0, 0) is the top left corner of the node. The
- * default duration is 200 milliseconds. Due to imprecision, no guarantees can be made for the
- * actual velocity at the end of the gesture, but generally it is within 0.1% of the desired
- * velocity.
+ * The swipe will go through [start] at t=0 and through [end] at t=[durationMillis]. In between,
+ * the swipe will go monotonically from [start] and [end], but not strictly. Due to imprecision,
+ * no guarantees can be made for the actual velocity at the end of the gesture, but generally it
+ * is within 0.1 of the desired velocity.
+ *
+ * When a swipe cannot be created that results in the desired velocity (because the input is too
+ * restrictive), an exception will be thrown with suggestions to fix the input.
+ *
+ * The coordinates are in the node's local coordinate system, where (0, 0) is the top left corner
+ * of the node. The default duration is calculated such that a feasible swipe can be created that
+ * ends in the given velocity.
  *
  * @param start The start position of the gesture, in the node's local coordinate system
  * @param end The end position of the gesture, in the node's local coordinate system
- * @param endVelocity The velocity of the gesture at the moment it ends. Must be positive.
+ * @param endVelocity The velocity of the gesture at the moment it ends in px/second. Must be
+ * positive.
  * @param durationMillis The duration of the gesture in milliseconds. Must be long enough that at
- * least 3 input events are generated, which happens with a duration of 25ms or more.
+ * least 3 input events are generated, which happens with a duration of 40ms or more. If omitted,
+ * a duration is calculated such that a valid swipe with velocity can be created.
+ *
+ * @throws IllegalArgumentException When no swipe can be generated that will result in the desired
+ * velocity. The error message will suggest changes to the input parameters such that a swipe
+ * will become feasible.
  */
 fun TouchInjectionScope.swipeWithVelocity(
     start: Offset,
     end: Offset,
     /*@FloatRange(from = 0.0)*/
     endVelocity: Float,
-    durationMillis: Long = 200
+    durationMillis: Long = VelocityPathFinder.calculateDefaultDuration(start, end, endVelocity)
 ) {
     require(endVelocity >= 0f) {
         "Velocity cannot be $endVelocity, it must be positive"
@@ -533,97 +628,14 @@ fun TouchInjectionScope.swipeWithVelocity(
     require(eventPeriodMillis < 40) {
         "InputDispatcher.eventPeriod must be smaller than 40ms in order to generate velocities"
     }
-    val minimumDuration = ceil(2.5f * eventPeriodMillis).roundToInt()
+    val minimumDuration = ceil(2.5f * eventPeriodMillis).roundToLong()
     require(durationMillis >= minimumDuration) {
         "Duration must be at least ${minimumDuration}ms because " +
             "velocity requires at least 3 input events"
     }
 
-    // Decompose v into it's x and y components
-    val delta = end - start
-    val theta = atan2(delta.y, delta.x)
-    // VelocityTracker internally calculates px/s, not px/ms
-    val vx = cos(theta) * endVelocity / 1000
-    val vy = sin(theta) * endVelocity / 1000
-
-    // Note: it would be more precise to do `theta = atan2(-y, x)`, because atan2 expects a
-    // coordinate system where positive y goes up and in our coordinate system positive y goes
-    // down. However, in that case we would also have to inverse `vy` to convert the velocity
-    // back to our own coordinate system. But then it's just a double negation, so we can skip
-    // both conversions entirely.
-
-    // To get the desired velocity, generate fx and fy such that VelocityTracker calculates
-    // the right velocity. VelocityTracker makes a polynomial fit through the points
-    // (-age, x) and (-age, y) for vx and vy respectively, which is accounted for in
-    // f(Long, Long, Float, Float, Float).
-    val fx = createFunctionForVelocity(durationMillis, start.x, end.x, vx)
-    val fy = createFunctionForVelocity(durationMillis, start.y, end.y, vy)
-
-    swipe({ t -> Offset(fx(t), fy(t)) }, durationMillis)
-}
-
-/**
- * Generate a function of the form `f(t) = a*(t-T)^2 + b*(t-T) + c` that satisfies
- * `f(0) = [start]`, `f([duration]) = [end]`, `T = [duration]` and `b = [velocity]`.
- *
- * Filling in `f([duration]) = [end]`, `T = [duration]` and `b = [velocity]` gives:
- * * `a * ([duration] - [duration])^2 + [velocity] * ([duration] - [duration]) + c = [end]`
- * * `c = [end]`
- *
- * Filling in `f(0) = [start]`, `T = [duration]` and `b = [velocity]` gives:
- * * `a * (0 - [duration])^2 + [velocity] * (0 - [duration]) + c = [start]`
- * * `a * [duration]^2 - [velocity] * [duration] + [end] = [start]`
- * * `a * [duration]^2 = [start] - [end] + [velocity] * [duration]`
- * * `a = ([start] - [end] + [velocity] * [duration]) / [duration]^2`
- *
- * @param duration The duration of the fling
- * @param start The start x or y position
- * @param end The end x or y position
- * @param velocity The desired velocity in the x or y direction at the [end] position
- */
-private fun createFunctionForVelocity(
-    duration: Long,
-    start: Float,
-    end: Float,
-    velocity: Float
-): (Long) -> Float {
-    val a = (start - end + velocity * duration) / (duration * duration)
-    val b = velocity
-    val c = end
-    val T = duration
-    val function = { t: Long ->
-        // `f(t) = a*(t-T)^2 + b*(t-T) + c`
-        a * (t - T) * (t - T) + b * (t - T) + c
-    }
-
-    // High velocities often result in curves that start off in the wrong direction, like a bow
-    // being strung, to reach a high velocity at the end coordinate. For a gesture, that is not
-    // desirable, and can be mitigated by using the fact that VelocityTracker only uses the last
-    // 100 ms of the gesture. Anything before that doesn't need to follow the curve.
-
-    // Does the function go in the correct direction at the start?
-    if (sign(function(1) - start) == sign(end - start)) {
-        return function
-    } else {
-        // If not, lerp between 0 and `duration - 100` in an attempt to prevent the function from
-        // going in the wrong direction. This does not affect the velocity at f(duration), as
-        // VelocityTracker only uses the last 100ms. This only works if f(duration - 100) is
-        // between from and to, log a warning if this is not the case.
-        val cutOffTime = duration - 100
-        val cutOffValue = function(cutOffTime)
-        require(sign(cutOffValue - start) == sign(end - start)) {
-            "Creating a gesture between $start and $end with a duration of $duration and a " +
-                "resulting velocity of $velocity results in a movement that goes outside " +
-                "of the range [$start..$end]"
-        }
-        return { t ->
-            if (t < cutOffTime) {
-                lerp(start, cutOffValue, t / cutOffTime.toFloat())
-            } else {
-                function(t)
-            }
-        }
-    }
+    val pathFinder = VelocityPathFinder(start, end, endVelocity, durationMillis)
+    swipe(pathFinder.generateFunction(), durationMillis)
 }
 
 /**

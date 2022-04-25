@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+
 package androidx.camera.camera2.pipe.compat
 
 import android.hardware.camera2.CameraDevice
@@ -120,6 +122,7 @@ internal fun CameraDevice?.closeWithTrace() {
     }
 }
 
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 internal class AndroidCameraDevice(
     private val cameraMetadata: CameraMetadata,
     private val cameraDevice: CameraDevice,
@@ -245,6 +248,7 @@ internal class AndroidCameraDevice(
         // Iterate template parameters and CHECK BY NAME, as there have been cases where equality
         // checks did not pass.
         for ((key, value) in config.sessionParameters) {
+            if (key !is CaptureRequest.Key<*>) continue
             if (sessionKeyNames.contains(key.name)) {
                 requestBuilder.writeParameter(key, value)
             }

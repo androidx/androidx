@@ -26,7 +26,7 @@ internal fun extenderSample() {
     RemoteInput.Builder("resultKey")
         .setAllowFreeFormInput(true)
         .wearableExtender {
-            disallowEmoji()
+            setEmojisAllowed(false)
             setInputActionType(EditorInfo.IME_ACTION_GO)
         }.build()
 }

@@ -16,7 +16,7 @@
 
 package androidx.glance.appwidget
 
-import androidx.glance.unit.DpSize
+import androidx.compose.ui.unit.DpSize
 import androidx.glance.LocalSize
 
 /**
@@ -60,11 +60,6 @@ public sealed interface SizeMode {
      * @param sizes List of sizes to use, must not be empty.
      */
     public class Responsive(val sizes: Set<DpSize>) : SizeMode {
-
-        /**
-         * Helper constructor using `vararg` rather than a set.
-         */
-        public constructor(vararg sizes: DpSize) : this(sizes.toSet())
 
         init {
             require(sizes.isNotEmpty()) { "The set of sizes cannot be empty" }

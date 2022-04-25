@@ -16,46 +16,10 @@
 
 package androidx.compose.ui.graphics
 
-import org.jetbrains.skia.PathEffect as SkiaPathEffect
-
-internal class DesktopPathEffect(val nativePathEffect: SkiaPathEffect) : PathEffect
+import org.jetbrains.skia.PathEffect as SkPathEffect
 
 /**
  * Obtain a reference to the desktop PathEffect type
  */
-fun PathEffect.asDesktopPathEffect(): SkiaPathEffect =
-    (this as DesktopPathEffect).nativePathEffect
-
-internal actual fun actualCornerPathEffect(radius: Float): PathEffect =
-    DesktopPathEffect(SkiaPathEffect.makeCorner(radius))
-
-internal actual fun actualDashPathEffect(
-    intervals: FloatArray,
-    phase: Float
-): PathEffect = DesktopPathEffect(SkiaPathEffect.makeDash(intervals, phase))
-
-internal actual fun actualChainPathEffect(outer: PathEffect, inner: PathEffect): PathEffect =
-    DesktopPathEffect(outer.asDesktopPathEffect().makeCompose(inner.asDesktopPathEffect()))
-
-internal actual fun actualStampedPathEffect(
-    shape: Path,
-    advance: Float,
-    phase: Float,
-    style: StampedPathEffectStyle
-): PathEffect =
-    DesktopPathEffect(
-        SkiaPathEffect.makePath1D(
-            shape.asDesktopPath(),
-            advance,
-            phase,
-            style.toSkiaStampedPathEffectStyle()
-        )
-    )
-
-internal fun StampedPathEffectStyle.toSkiaStampedPathEffectStyle(): SkiaPathEffect.Style =
-    when (this) {
-        StampedPathEffectStyle.Morph -> SkiaPathEffect.Style.MORPH
-        StampedPathEffectStyle.Rotate -> SkiaPathEffect.Style.ROTATE
-        StampedPathEffectStyle.Translate -> SkiaPathEffect.Style.TRANSLATE
-        else -> SkiaPathEffect.Style.TRANSLATE
-    }
+@Deprecated("Use asSkiaPathEffect()", replaceWith = ReplaceWith("asSkiaPathEffect()"))
+fun PathEffect.asDesktopPathEffect(): SkPathEffect = asSkiaPathEffect()

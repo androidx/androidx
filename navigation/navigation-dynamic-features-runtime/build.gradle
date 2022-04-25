@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -27,6 +27,7 @@ android {
     defaultConfig {
         multiDexEnabled true
     }
+    namespace "androidx.navigation.dynamicfeatures"
 }
 
 dependencies {
@@ -42,6 +43,7 @@ dependencies {
     testImplementation(libs.mockitoCore)
     testImplementation(libs.robolectric)
     testImplementation(libs.truth)
+    testImplementation(libs.kotlinCoroutinesTest)
 
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testExtJunit)
@@ -63,4 +65,10 @@ androidx {
     mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2019"
     description = "Android Dynamic Feature Navigation Runtime"
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
+    }
 }

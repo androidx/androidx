@@ -20,10 +20,12 @@ import android.graphics.ImageFormat;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import java.nio.ByteBuffer;
 
 /** Utility functions for downsampling an {@link ImageProxy}. */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class ImageProxyDownsampler {
 
     private ImageProxyDownsampler() {

@@ -38,11 +38,11 @@ import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.camera2.internal.compat.workaround.ExcludedSupportedSizesContainer;
 import androidx.camera.core.CameraUnavailableException;
-import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.InitializationException;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.testing.CameraUtil;
+import androidx.camera.testing.CameraXUtil;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraFactory;
 import androidx.camera.testing.fakes.FakeUseCase;
@@ -116,7 +116,7 @@ public class SupportedSizeConstraintsTest {
 
     @After
     public void tearDown() throws ExecutionException, InterruptedException, TimeoutException {
-        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
+        CameraXUtil.shutdown().get(10000, TimeUnit.MILLISECONDS);
     }
 
     @Test
@@ -222,6 +222,6 @@ public class SupportedSizeConstraintsTest {
                 .setDeviceSurfaceManagerProvider(surfaceManagerProvider)
                 .setCameraFactoryProvider((ignored0, ignored1, ignored2) -> cameraFactory)
                 .build();
-        CameraX.initialize(mContext, cameraXConfig);
+        CameraXUtil.initialize(mContext, cameraXConfig);
     }
 }

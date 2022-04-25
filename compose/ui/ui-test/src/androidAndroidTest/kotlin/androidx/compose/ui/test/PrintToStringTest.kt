@@ -130,8 +130,9 @@ class PrintToStringTest {
                     | [Disabled]
                     |  |-Node #X at (l=X, t=X, r=X, b=X)px
                     |    Role = 'Button'
+                    |    Focused = 'false'
                     |    Text = '[Button]'
-                    |    Actions = [OnClick, GetTextLayoutResult]
+                    |    Actions = [OnClick, RequestFocus, GetTextLayoutResult]
                     |    MergeDescendants = 'true'
                     |-Node #X at (l=X, t=X, r=X, b=X)px
                       Text = '[Hello]'

@@ -21,6 +21,7 @@ import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.ExperimentalGetImage;
 import androidx.camera.core.ImageProxy;
@@ -42,6 +43,7 @@ import java.util.concurrent.ExecutionException;
  *
  * @hide
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @RestrictTo(RestrictTo.Scope.TESTS)
 public class TimestampCaptureProcessor implements CaptureProcessor {
     private CaptureProcessor mCaptureProcessor;
@@ -62,6 +64,7 @@ public class TimestampCaptureProcessor implements CaptureProcessor {
      * Interface for receiving the timestamps of all {@link ImageProxy} which are processed by the
      * wrapped {@link CaptureProcessor}.
      */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public interface TimestampListener {
         /**
          * Called whenever an {@link ImageProxy} is processed.

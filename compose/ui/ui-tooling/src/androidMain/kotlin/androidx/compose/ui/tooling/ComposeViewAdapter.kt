@@ -33,7 +33,6 @@ import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.ActivityResultRegistryOwner
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.annotation.VisibleForTesting
-import androidx.compose.animation.core.InternalAnimationApi
 import androidx.compose.animation.core.Transition
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
@@ -45,8 +44,10 @@ import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.platform.LocalFontLoader
 import androidx.compose.ui.platform.ViewRootForTest
+import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.tooling.CommonPreviewUtils.invokeComposableViaReflection
 import androidx.compose.ui.tooling.animation.PreviewAnimationClock
 import androidx.compose.ui.tooling.data.Group
@@ -59,13 +60,14 @@ import androidx.compose.ui.unit.IntRect
 import androidx.core.app.ActivityOptionsCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.lifecycle.ViewTreeViewModelStoreOwner
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
-import androidx.savedstate.ViewTreeSavedStateRegistryOwner
+import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import java.lang.reflect.Method
 
 private const val TOOLS_NS_URI = "http://schemas.android.com/tools"
@@ -311,7 +313,6 @@ internal class ComposeViewAdapter : FrameLayout {
      * the ones we've got source information for.
      */
     @Suppress("UNCHECKED_CAST")
-    @OptIn(InternalAnimationApi::class)
     private fun findAndTrackTransitions() {
         @Suppress("UNCHECKED_CAST")
         fun List<Group>.findTransitionObjects(): List<Transition<Any>> {
@@ -326,6 +327,7 @@ internal class ComposeViewAdapter : FrameLayout {
         val slotTrees = slotTableRecord.store.map { it.asTree() }
         val transitions = mutableSetOf<Transition<Any>>()
         val animatedVisibilityParentTransitions = mutableSetOf<Transition<Any>>()
+        val animatedContentParentTransitions = mutableSetOf<Transition<Any>>()
         // Check all the slot tables, since some animations might not be present in the same
         // table as the one containing the `@Composable` being previewed, e.g. when they're
         // defined using sub-composition.
@@ -348,10 +350,24 @@ internal class ComposeViewAdapter : FrameLayout {
                 }.findTransitionObjects()
             )
 
+            animatedContentParentTransitions.addAll(
+                tree.findAll {
+                    it.name == "AnimatedContent" && it.location != null
+                }.mapNotNull {
+                    it.children.firstOrNull { updateTransitionCall ->
+                        updateTransitionCall.name == UPDATE_TRANSITION_FUNCTION_NAME
+                    }
+                }.findTransitionObjects()
+            )
+
             // Remove all AnimatedVisibility parent transitions from the transitions list,
             // otherwise we'd duplicate them in the Android Studio Animation Preview because we
             // will track them separately.
             transitions.removeAll(animatedVisibilityParentTransitions)
+
+            // Remove all AnimatedContent parent transitions from the transitions list, so we can
+            // ignore these animations while support is not added to Animation Preview.
+            transitions.removeAll(animatedContentParentTransitions)
         }
 
         hasAnimations = transitions.isNotEmpty() || animatedVisibilityParentTransitions.isNotEmpty()
@@ -359,7 +375,7 @@ internal class ComposeViewAdapter : FrameLayout {
         if (::clock.isInitialized) {
             transitions.forEach { clock.trackTransition(it) }
             animatedVisibilityParentTransitions.forEach {
-                clock.trackAnimatedVisibility(it)
+                clock.trackAnimatedVisibility(it, ::requestLayout)
             }
         }
     }
@@ -513,8 +529,10 @@ internal class ComposeViewAdapter : FrameLayout {
         // We need to replace the FontResourceLoader to avoid using ResourcesCompat.
         // ResourcesCompat can not load fonts within Layoutlib and, since Layoutlib always runs
         // the latest version, we do not need it.
+        @Suppress("DEPRECATION")
         CompositionLocalProvider(
             LocalFontLoader provides LayoutlibFontResourceLoader(context),
+            LocalFontFamilyResolver provides createFontFamilyResolver(context),
             LocalOnBackPressedDispatcherOwner provides FakeOnBackPressedDispatcherOwner,
             LocalActivityResultRegistryOwner provides FakeActivityResultRegistryOwner,
         ) {
@@ -628,6 +646,7 @@ internal class ComposeViewAdapter : FrameLayout {
         if (::clock.isInitialized) {
             clock.dispose()
         }
+        FakeViewModelStoreOwner.viewModelStore.clear()
     }
 
     /**
@@ -644,7 +663,7 @@ internal class ComposeViewAdapter : FrameLayout {
     private fun init(attrs: AttributeSet) {
         // ComposeView and lifecycle initialization
         ViewTreeLifecycleOwner.set(this, FakeSavedStateRegistryOwner)
-        ViewTreeSavedStateRegistryOwner.set(this, FakeSavedStateRegistryOwner)
+        setViewTreeSavedStateRegistryOwner(FakeSavedStateRegistryOwner)
         ViewTreeViewModelStoreOwner.set(this, FakeViewModelStoreOwner)
         addView(composeView)
 
@@ -709,12 +728,16 @@ internal class ComposeViewAdapter : FrameLayout {
             lifecycle.currentState = Lifecycle.State.RESUMED
         }
 
-        override fun getSavedStateRegistry(): SavedStateRegistry = controller.savedStateRegistry
+        override val savedStateRegistry: SavedStateRegistry
+            get() = controller.savedStateRegistry
+
         override fun getLifecycle(): Lifecycle = lifecycle
     }
 
-    private val FakeViewModelStoreOwner = ViewModelStoreOwner {
-        throw IllegalStateException("ViewModels creation is not supported in Preview")
+    private val FakeViewModelStoreOwner = object : ViewModelStoreOwner {
+        private val viewModelStore = ViewModelStore()
+
+        override fun getViewModelStore() = viewModelStore
     }
 
     private val FakeOnBackPressedDispatcherOwner = object : OnBackPressedDispatcherOwner {

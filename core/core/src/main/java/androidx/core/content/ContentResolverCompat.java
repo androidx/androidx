@@ -22,11 +22,15 @@ import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;
 
+import androidx.annotation.DoNotInline;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.os.CancellationSignal;
 import androidx.core.os.OperationCanceledException;
 
 /**
- * Helper for accessing features in {@link android.content.ContentResolver} in a backwards
+ * Helper for accessing features in {@link ContentResolver} in a backwards
  * compatible fashion.
  */
 public final class ContentResolverCompat {
@@ -68,9 +72,11 @@ public final class ContentResolverCompat {
      * @return A Cursor object, which is positioned before the first entry, or null
      * @see Cursor
      */
-    public static Cursor query(ContentResolver resolver,
-            Uri uri, String[] projection, String selection, String[] selectionArgs,
-            String sortOrder, CancellationSignal cancellationSignal) {
+    @Nullable
+    public static Cursor query(@NonNull ContentResolver resolver,
+            @NonNull Uri uri, @Nullable String[] projection, @Nullable String selection,
+            @Nullable String[] selectionArgs, @Nullable String sortOrder,
+            @Nullable CancellationSignal cancellationSignal) {
         if (SDK_INT >= 16) {
             try {
                 final android.os.CancellationSignal cancellationSignalObj =
@@ -78,8 +84,8 @@ public final class ContentResolverCompat {
                                 (cancellationSignal != null
                                         ? cancellationSignal.getCancellationSignalObject()
                                         : null);
-                return resolver.query(uri, projection, selection, selectionArgs, sortOrder,
-                        cancellationSignalObj);
+                return Api16Impl.query(resolver, uri, projection, selection, selectionArgs,
+                        sortOrder, cancellationSignalObj);
             } catch (Exception e) {
                 if (e instanceof android.os.OperationCanceledException) {
                     // query() can throw a framework OperationCanceledException if it has been
@@ -97,6 +103,21 @@ public final class ContentResolverCompat {
                 cancellationSignal.throwIfCanceled();
             }
             return resolver.query(uri, projection, selection, selectionArgs, sortOrder);
+        }
+    }
+
+    @RequiresApi(16)
+    static class Api16Impl {
+        private Api16Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static Cursor query(ContentResolver contentResolver, Uri uri, String[] projection,
+                String selection, String[] selectionArgs, String sortOrder,
+                android.os.CancellationSignal cancellationSignal) {
+            return contentResolver.query(uri, projection, selection, selectionArgs, sortOrder,
+                    cancellationSignal);
         }
     }
 }

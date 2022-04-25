@@ -24,6 +24,7 @@ import androidx.room.compiler.processing.util.runner.CompilationTestRunner
 import com.google.common.truth.Fact.fact
 import com.google.common.truth.Fact.simpleFact
 import com.google.common.truth.FailureMetadata
+import com.google.common.truth.StringSubject
 import com.google.common.truth.Subject
 import com.google.common.truth.Subject.Factory
 import com.google.common.truth.Truth
@@ -237,7 +238,7 @@ class CompilationResultSubject internal constructor(
      * @see hasWarning
      * @see hasNote
      */
-    fun hasError(expected: String): DiagnosticMessageSubject {
+    fun hasError(expected: String): DiagnosticMessagesSubject {
         shouldSucceed = false
         return hasDiagnosticWithMessage(
             kind = Diagnostic.Kind.ERROR,
@@ -254,7 +255,7 @@ class CompilationResultSubject internal constructor(
      * @see hasWarningContaining
      * @see hasNoteContaining
      */
-    fun hasErrorContaining(expected: String): DiagnosticMessageSubject {
+    fun hasErrorContaining(expected: String): DiagnosticMessagesSubject {
         shouldSucceed = false
         return hasDiagnosticWithMessage(
             kind = Diagnostic.Kind.ERROR,
@@ -285,16 +286,21 @@ class CompilationResultSubject internal constructor(
      *
      * @see generatedSource
      */
-    fun generatedSourceFileWithPath(relativePath: String) = apply {
-        val match = compilationResult.generatedSources.firstOrNull {
-            it.relativePath == relativePath
-        }
+    fun generatedSourceFileWithPath(relativePath: String): StringSubject {
+        val match = findGeneratedSource(relativePath)
         if (match == null) {
             failWithActual(
                 simpleFact("Didn't generate file with path: $relativePath")
             )
         }
+        return Truth.assertThat(match!!.contents)
     }
+
+    private fun findGeneratedSource(relativePath: String) = compilationResult.generatedSources
+        .firstOrNull {
+            it.relativePath == relativePath
+        }
+
     /**
      * Asserts that the given source file is generated.
      *
@@ -368,21 +374,19 @@ class CompilationResultSubject internal constructor(
         expected: String,
         acceptPartialMatch: Boolean,
         buildErrorMessage: () -> String
-    ): DiagnosticMessageSubject {
+    ): DiagnosticMessagesSubject {
         val diagnostics = compilationResult.diagnosticsOfKind(kind)
-        var diagnostic = diagnostics.firstOrNull {
-            it.msg == expected
-        }
-        if (diagnostic == null && acceptPartialMatch) {
-            diagnostic = diagnostics.firstOrNull {
+        val matches = diagnostics.filter {
+            if (acceptPartialMatch) {
                 it.msg.contains(expected)
+            } else {
+                it.msg == expected
             }
         }
-        diagnostic?.let {
-            return DiagnosticMessageSubject.assertThat(it)
+        if (matches.isEmpty()) {
+            failWithActual(simpleFact(buildErrorMessage()))
         }
-        failWithActual(simpleFact(buildErrorMessage()))
-        error("unreachable")
+        return DiagnosticMessagesSubject.assertThat(matches)
     }
 
     /**

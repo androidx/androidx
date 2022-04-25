@@ -22,6 +22,7 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.impl.CameraInfoInternal;
 
@@ -48,6 +49,7 @@ import androidx.camera.core.impl.CameraInfoInternal;
  *
  * @see MeteringPoint
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class DisplayOrientedMeteringPointFactory extends MeteringPointFactory {
     /** The logical width of FoV in current display orientation */
     private final float mWidth;

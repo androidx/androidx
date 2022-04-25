@@ -15,7 +15,6 @@
  */
 
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -29,10 +28,14 @@ dependencies {
 
 android {
     defaultConfig {
-        minSdkVersion 21
-        versionCode 1
         multiDexEnabled true
     }
+
+    lintOptions {
+        enable 'CameraXQuirksClassDetector'
+    }
+
+    namespace "androidx.camera.extensions.impl"
 }
 
 androidx {

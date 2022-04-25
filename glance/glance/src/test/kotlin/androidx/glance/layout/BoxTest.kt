@@ -16,66 +16,66 @@
 
 package androidx.glance.layout
 
-import androidx.glance.GlanceInternalApi
-import androidx.glance.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.glance.GlanceModifier
 import androidx.glance.findModifier
-import androidx.glance.unit.dp
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
+import kotlin.test.assertIs
 
-@OptIn(GlanceInternalApi::class, ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class BoxTest {
-    private lateinit var fakeCoroutineScope: TestCoroutineScope
+    private lateinit var fakeCoroutineScope: TestScope
 
     @Before
     fun setUp() {
-        fakeCoroutineScope = TestCoroutineScope()
+        fakeCoroutineScope = TestScope()
     }
 
     @Test
-    fun createComposableBox() = fakeCoroutineScope.runBlockingTest {
+    fun createComposableBox() = fakeCoroutineScope.runTest {
         val root = runTestingComposition {
             Box {}
         }
 
         // Outer box (added by runTestingComposition) should have a single child box.
         assertThat(root.children).hasSize(1)
-        assertThat(root.children[0]).isInstanceOf(EmittableBox::class.java)
+        val child = assertIs<EmittableBox>(root.children[0])
 
         // The Box added above should not have any other children.
-        assertThat((root.children[0] as EmittableBox).children).hasSize(0)
+        assertThat(child.children).hasSize(0)
     }
 
     @Test
-    fun createComposableBoxWithModifier() = fakeCoroutineScope.runBlockingTest {
+    fun createComposableBoxWithModifier() = fakeCoroutineScope.runTest {
         val root = runTestingComposition {
-            Box(modifier = Modifier.padding(1.dp)) {}
+            Box(modifier = GlanceModifier.padding(1.dp)) {}
         }
 
-        val innerBox = root.children[0] as EmittableBox
+        val innerBox = assertIs<EmittableBox>(root.children[0])
         val paddingModifier = requireNotNull(innerBox.modifier.findModifier<PaddingModifier>())
 
         // Don't need to test all elements, that's covered in PaddingTest
-        assertThat(paddingModifier.top).isEqualTo(1.dp)
+        assertThat(paddingModifier.top).isEqualTo(PaddingDimension(1.dp))
     }
 
     @Test
-    fun createComposableBoxWithAlignment() = fakeCoroutineScope.runBlockingTest {
+    fun createComposableBoxWithAlignment() = fakeCoroutineScope.runTest {
         val root = runTestingComposition {
             Box(contentAlignment = Alignment.Center) {}
         }
 
-        val innerBox = root.children[0] as EmittableBox
+        val innerBox = assertIs<EmittableBox>(root.children[0])
 
         assertThat(innerBox.contentAlignment).isEqualTo(Alignment.Center)
     }
 
     @Test
-    fun createComposableBoxWithChildren() = fakeCoroutineScope.runBlockingTest {
+    fun createComposableBoxWithChildren() = fakeCoroutineScope.runTest {
         val root = runTestingComposition {
             Box(contentAlignment = Alignment.Center) {
                 Box(contentAlignment = Alignment.BottomCenter) {}
@@ -83,12 +83,12 @@ class BoxTest {
             }
         }
 
-        val innerBox = root.children[0] as EmittableBox
+        val innerBox = assertIs<EmittableBox>(root.children[0])
 
         assertThat(innerBox.children).hasSize(2)
 
-        val leafBox0 = innerBox.children[0] as EmittableBox
-        val leafBox1 = innerBox.children[1] as EmittableBox
+        val leafBox0 = assertIs<EmittableBox>(innerBox.children[0])
+        val leafBox1 = assertIs<EmittableBox>(innerBox.children[1])
 
         assertThat(leafBox0.contentAlignment).isEqualTo(Alignment.BottomCenter)
         assertThat(leafBox1.contentAlignment).isEqualTo(Alignment.TopCenter)

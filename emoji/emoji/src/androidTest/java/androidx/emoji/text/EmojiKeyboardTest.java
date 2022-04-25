@@ -21,8 +21,8 @@ import static androidx.emoji.util.EmojiMatcher.hasEmojiAt;
 import static androidx.emoji.util.KeyboardUtil.del;
 import static androidx.emoji.util.KeyboardUtil.forwardDel;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsNot.not;
-import static org.junit.Assert.assertThat;
 
 import android.app.Instrumentation;
 import android.text.Editable;

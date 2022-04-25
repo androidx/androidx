@@ -16,23 +16,30 @@
 
 package androidx.room.compiler.processing.javac.kotlin
 
+import androidx.room.compiler.processing.util.sanitizeAsJavaParameterName
 import kotlinx.metadata.ClassName
 import kotlinx.metadata.Flag
 import kotlinx.metadata.Flags
+import kotlinx.metadata.KmAnnotation
 import kotlinx.metadata.KmClassVisitor
 import kotlinx.metadata.KmConstructorExtensionVisitor
 import kotlinx.metadata.KmConstructorVisitor
 import kotlinx.metadata.KmExtensionType
 import kotlinx.metadata.KmFunctionExtensionVisitor
 import kotlinx.metadata.KmFunctionVisitor
+import kotlinx.metadata.KmPropertyExtensionVisitor
 import kotlinx.metadata.KmPropertyVisitor
+import kotlinx.metadata.KmTypeExtensionVisitor
 import kotlinx.metadata.KmTypeParameterVisitor
 import kotlinx.metadata.KmTypeVisitor
 import kotlinx.metadata.KmValueParameterVisitor
 import kotlinx.metadata.KmVariance
 import kotlinx.metadata.jvm.JvmConstructorExtensionVisitor
+import kotlinx.metadata.jvm.JvmFieldSignature
 import kotlinx.metadata.jvm.JvmFunctionExtensionVisitor
 import kotlinx.metadata.jvm.JvmMethodSignature
+import kotlinx.metadata.jvm.JvmPropertyExtensionVisitor
+import kotlinx.metadata.jvm.JvmTypeExtensionVisitor
 import kotlinx.metadata.jvm.KotlinClassMetadata
 
 // represents a function or constructor
@@ -44,12 +51,22 @@ internal interface KmExecutable {
  * Represents the kotlin metadata of a function
  */
 internal data class KmFunction(
+    /**
+     * Name of the function in byte code
+     */
+    val jvmName: String,
+    /**
+     * Name of the function in source code
+     */
+    val name: String,
     val descriptor: String,
     private val flags: Flags,
     override val parameters: List<KmValueParameter>,
-    val returnType: KmType
+    val returnType: KmType,
+    val receiverType: KmType?
 ) : KmExecutable {
     fun isSuspend() = Flag.Function.IS_SUSPEND(flags)
+    fun isExtension() = receiverType != null
 }
 
 /**
@@ -65,7 +82,9 @@ internal data class KmConstructor(
 
 internal data class KmProperty(
     val name: String,
-    val type: KmType
+    val type: KmType,
+    val getter: KmFunction?,
+    val setter: KmFunction?
 ) {
     val typeParameters
         get() = type.typeArguments
@@ -76,10 +95,11 @@ internal data class KmProperty(
 internal data class KmType(
     val flags: Flags,
     val typeArguments: List<KmType>,
-    val extendsBound: KmType?
+    val extendsBound: KmType?,
+    val isExtensionType: Boolean
 ) {
     fun isNullable() = Flag.Type.IS_NULLABLE(flags)
-    fun erasure(): KmType = KmType(flags, emptyList(), extendsBound?.erasure())
+    fun erasure(): KmType = KmType(flags, emptyList(), extendsBound?.erasure(), isExtensionType)
 }
 
 private data class KmTypeParameter(
@@ -90,7 +110,8 @@ private data class KmTypeParameter(
     fun asKmType() = KmType(
         flags = flags,
         typeArguments = emptyList(),
-        extendsBound = extendsBound
+        extendsBound = extendsBound,
+        isExtensionType = false
     )
 }
 
@@ -118,9 +139,10 @@ private class FunctionReader(val result: MutableList<KmFunction>) : KmClassVisit
     override fun visitFunction(flags: Flags, name: String): KmFunctionVisitor {
         return object : KmFunctionVisitor() {
 
-            lateinit var descriptor: String
+            lateinit var methodSignature: JvmMethodSignature
             val parameters = mutableListOf<KmValueParameter>()
             lateinit var returnType: KmType
+            var receiverType: KmType? = null
 
             override fun visitValueParameter(
                 flags: Flags,
@@ -131,13 +153,19 @@ private class FunctionReader(val result: MutableList<KmFunction>) : KmClassVisit
                 }
             }
 
+            override fun visitReceiverParameterType(flags: Flags): KmTypeVisitor? {
+                return TypeReader(flags) {
+                    receiverType = it
+                }
+            }
+
             override fun visitExtensions(type: KmExtensionType): KmFunctionExtensionVisitor {
                 if (type != JvmFunctionExtensionVisitor.TYPE) {
                     error("Unsupported extension type: $type")
                 }
                 return object : JvmFunctionExtensionVisitor() {
                     override fun visit(signature: JvmMethodSignature?) {
-                        descriptor = signature!!.asString()
+                        methodSignature = signature!!
                     }
                 }
             }
@@ -149,7 +177,17 @@ private class FunctionReader(val result: MutableList<KmFunction>) : KmClassVisit
             }
 
             override fun visitEnd() {
-                result.add(KmFunction(descriptor, flags, parameters, returnType))
+                result.add(
+                    KmFunction(
+                        name = name,
+                        jvmName = methodSignature.name,
+                        descriptor = methodSignature.asString(),
+                        flags = flags,
+                        parameters = parameters,
+                        returnType = returnType,
+                        receiverType = receiverType
+                    )
+                )
             }
         }
     }
@@ -239,13 +277,47 @@ private class PropertyReader(
         getterFlags: Flags,
         setterFlags: Flags
     ): KmPropertyVisitor {
+        var setterParam: KmValueParameter? = null
+        var getter: JvmMethodSignature? = null
+        var setter: JvmMethodSignature? = null
         return object : KmPropertyVisitor() {
             lateinit var returnType: KmType
             override fun visitEnd() {
                 result.add(
                     KmProperty(
                         type = returnType,
-                        name = name
+                        name = name,
+                        setter = setter?.let { setterSignature ->
+                            // setter parameter visitor may not be invoked when not declared
+                            // explicitly
+                            val param = setterParam ?: KmValueParameter(
+                                // kotlinc will set this to set-? but it is better to not expose
+                                // it here since it is not valid name
+                                name = "set-?".sanitizeAsJavaParameterName(0),
+                                type = returnType,
+                                flags = 0
+                            )
+                            KmFunction(
+                                jvmName = setterSignature.name,
+                                name = JvmAbi.computeSetterName(name),
+                                descriptor = setterSignature.asString(),
+                                flags = 0,
+                                parameters = listOf(param),
+                                returnType = KM_VOID_TYPE,
+                                receiverType = null
+                            )
+                        },
+                        getter = getter?.let { getterSignature ->
+                            KmFunction(
+                                jvmName = getterSignature.name,
+                                name = JvmAbi.computeGetterName(name),
+                                descriptor = getterSignature.asString(),
+                                flags = flags,
+                                parameters = emptyList(),
+                                returnType = returnType,
+                                receiverType = null
+                            )
+                        }
                     )
                 )
             }
@@ -253,6 +325,35 @@ private class PropertyReader(
             override fun visitReturnType(flags: Flags): KmTypeVisitor {
                 return TypeReader(flags) {
                     returnType = it
+                }
+            }
+
+            override fun visitSetterParameter(
+                flags: Flags,
+                name: String
+            ): KmValueParameterVisitor {
+                return ValueParameterReader(
+                    name = name,
+                    flags = flags
+                ) {
+                    setterParam = it
+                }
+            }
+
+            override fun visitExtensions(type: KmExtensionType): KmPropertyExtensionVisitor? {
+                if (type != JvmPropertyExtensionVisitor.TYPE) {
+                    return null
+                }
+                return object : JvmPropertyExtensionVisitor() {
+                    override fun visit(
+                        jvmFlags: Flags,
+                        fieldSignature: JvmFieldSignature?,
+                        getterSignature: JvmMethodSignature?,
+                        setterSignature: JvmMethodSignature?
+                    ) {
+                        getter = getterSignature
+                        setter = setterSignature
+                    }
                 }
             }
         }
@@ -268,6 +369,7 @@ private class TypeReader(
 ) : KmTypeVisitor() {
     private val typeArguments = mutableListOf<KmType>()
     private var extendsBound: KmType? = null
+    private var isExtensionType = false
     override fun visitArgument(flags: Flags, variance: KmVariance): KmTypeVisitor {
         return TypeReader(flags) {
             typeArguments.add(it)
@@ -283,12 +385,24 @@ private class TypeReader(
         }
     }
 
+    override fun visitExtensions(type: KmExtensionType): KmTypeExtensionVisitor? {
+        if (type != JvmTypeExtensionVisitor.TYPE) return null
+        return object : JvmTypeExtensionVisitor() {
+            override fun visitAnnotation(annotation: KmAnnotation) {
+                if (annotation.className == "kotlin/ExtensionFunctionType") {
+                    isExtensionType = true
+                }
+            }
+        }
+    }
+
     override fun visitEnd() {
         output(
             KmType(
                 flags = flags,
                 typeArguments = typeArguments,
-                extendsBound = extendsBound
+                extendsBound = extendsBound,
+                isExtensionType = isExtensionType
             )
         )
     }
@@ -358,7 +472,8 @@ internal class ClassAsKmTypeReader(
                     typeArguments = typeParameters.map {
                         it.asKmType()
                     },
-                    extendsBound = null
+                    extendsBound = null,
+                    isExtensionType = false
                 ),
                 superType = superType
             )
@@ -388,3 +503,10 @@ private class TypeParameterReader(
         }
     }
 }
+
+private val KM_VOID_TYPE = KmType(
+    flags = 0,
+    typeArguments = emptyList(),
+    extendsBound = null,
+    isExtensionType = false
+)

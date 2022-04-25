@@ -21,6 +21,8 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
 
+import androidx.annotation.NonNull;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -39,7 +41,13 @@ public class ViewModelTest {
         }
     }
 
-    class ViewModel extends androidx.lifecycle.ViewModel {
+    static class ViewModel extends androidx.lifecycle.ViewModel {
+    }
+
+    static class ConstructorArgViewModel extends androidx.lifecycle.ViewModel {
+        ConstructorArgViewModel(@NonNull Closeable closeable) {
+            super(closeable);
+        }
     }
 
     @Test
@@ -72,5 +80,30 @@ public class ViewModelTest {
     public void testMockedGetTag() {
         ViewModel vm = Mockito.mock(ViewModel.class);
         assertThat(vm.getTag("Careless mocks =|"), nullValue());
+    }
+
+    @Test
+    public void testAddCloseable() {
+        ViewModel vm = new ViewModel();
+        CloseableImpl impl = new CloseableImpl();
+        vm.addCloseable(impl);
+        vm.clear();
+        assertTrue(impl.mWasClosed);
+    }
+
+    @Test
+    public void testConstructorCloseable() {
+        CloseableImpl impl = new CloseableImpl();
+        ConstructorArgViewModel vm = new ConstructorArgViewModel(impl);
+        vm.clear();
+        assertTrue(impl.mWasClosed);
+    }
+
+    @Test
+    public void testMockedAddCloseable() {
+        ViewModel vm = Mockito.mock(ViewModel.class);
+        CloseableImpl impl = new CloseableImpl();
+        // This shouldn't crash, even on a mocked object
+        vm.addCloseable(impl);
     }
 }

@@ -53,6 +53,7 @@ class MediaSessionManagerImplBase implements MediaSessionManager.MediaSessionMan
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public boolean isTrustedForMediaControl(
             @NonNull MediaSessionManager.RemoteUserInfoImpl userInfo) {
         try {

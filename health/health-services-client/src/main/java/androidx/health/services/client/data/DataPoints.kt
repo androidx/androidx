@@ -22,7 +22,7 @@ import androidx.annotation.Keep
 import java.time.Duration
 import java.util.ArrayList
 
-/** Helper class to facilitate working with [DataPoint] s. */
+/** Helper class to facilitate working with [DataPoint]s. */
 // TODO(b/177504986): Remove all @Keep annotations once we figure out why this class gets stripped
 // away by proguard.
 @Keep
@@ -59,14 +59,17 @@ public object DataPoints {
     /** Name of intent extra containing whether permissions are granted or not. */
     private const val EXTRA_PERMISSIONS_GRANTED: String = "hs.data_points_has_permissions"
 
-    /** Retrieves the [DataPoint] s that are contained in the given [Intent], if any. */
+    /** Retrieves the [DataPoint]s that are contained in the given [Intent], if any. */
+    @Suppress("DEPRECATION")
     @JvmStatic
     @Keep
+    // TODO(b/227475943): remove this function once new passive APIs are submitted
     public fun getDataPoints(intent: Intent): List<DataPoint> =
         intent.getParcelableArrayListExtra(EXTRA_DATA_POINTS) ?: listOf()
 
-    /** Puts the given [DataPoint] s in the given [Intent]. */
+    /** Puts the given [DataPoint]s in the given [Intent]. */
     @JvmStatic
+    // TODO(b/227475943): remove this function once new passive APIs are submitted
     public fun putDataPoints(intent: Intent, dataPoints: Collection<DataPoint>) {
         val copy = ArrayList(dataPoints)
         intent.putParcelableArrayListExtra(EXTRA_DATA_POINTS, copy)
@@ -74,12 +77,14 @@ public object DataPoints {
 
     /** Sets whether [DataPoint] permissions are `granted` in the given [Intent]. */
     @JvmStatic
+    // TODO(b/227475943): remove this function once new passive APIs are submitted
     public fun putPermissionsGranted(intent: Intent, granted: Boolean) {
         intent.putExtra(EXTRA_PERMISSIONS_GRANTED, granted)
     }
 
     /** Retrieves whether permissions are granted in this [Intent]. */
     @JvmStatic
+    // TODO(b/227475943): remove this function once new passive APIs are submitted
     public fun getPermissionsGranted(intent: Intent): Boolean =
         intent.getBooleanExtra(EXTRA_PERMISSIONS_GRANTED, true)
 
@@ -132,7 +137,8 @@ public object DataPoints {
     /** Creates a new [DataPoint] of type [DataType.ELEVATION_GAIN] with the given `meters`. */
     @JvmStatic
     @JvmOverloads
-    public fun elevationGain(
+    // TODO(b/227475943): open up visibility
+    internal fun elevationGain(
         meters: Double,
         startDurationFromBoot: Duration,
         endDurationFromBoot: Duration,
@@ -140,6 +146,24 @@ public object DataPoints {
     ): DataPoint =
         DataPoint.createInterval(
             DataType.ELEVATION_GAIN,
+            Value.ofDouble(meters),
+            startDurationFromBoot,
+            endDurationFromBoot,
+            metadata ?: Bundle()
+        )
+
+    /** Create a new [DataPoint] of type [DataType.ELEVATION_LOSS] with the given `meters`. */
+    @JvmStatic
+    @JvmOverloads
+    // TODO(b/227475943): open up visibility
+    internal fun elevationLoss(
+        meters: Double,
+        startDurationFromBoot: Duration,
+        endDurationFromBoot: Duration,
+        metadata: Bundle? = null
+    ): DataPoint =
+        DataPoint.createInterval(
+            DataType.ELEVATION_LOSS,
             Value.ofDouble(meters),
             startDurationFromBoot,
             endDurationFromBoot,
@@ -247,8 +271,12 @@ public object DataPoints {
 
     /** Creates a new [DataPoint] of type [DataType.PACE] with the given `millisPerKm`. */
     @JvmStatic
-    public fun pace(millisPerKm: Double, durationFromBoot: Duration): DataPoint =
-        DataPoint.createSample(DataType.PACE, Value.ofDouble(millisPerKm), durationFromBoot)
+    public fun pace(millisPerKm: Duration, durationFromBoot: Duration): DataPoint =
+        DataPoint.createSample(
+            DataType.PACE,
+            Value.ofDouble((millisPerKm.toMillis()).toDouble()),
+            durationFromBoot
+        )
 
     /**
      * Creates a new [DataPoint] of type [DataType.HEART_RATE_BPM] with the given `bpm` and
@@ -259,7 +287,7 @@ public object DataPoints {
     public fun heartRate(
         bpm: Double,
         durationFromBoot: Duration,
-        accuracy: HrAccuracy? = null
+        accuracy: HeartRateAccuracy? = null
     ): DataPoint =
         DataPoint.createSample(
             DataType.HEART_RATE_BPM,
@@ -310,16 +338,16 @@ public object DataPoints {
             endDurationFromBoot
         )
 
-    /** Creates a new [DataPoint] of type [DataType.DAILY_DISTANCE] with the given `distance`. */
+    /** Creates a new [DataPoint] of type [DataType.DAILY_DISTANCE] with the given `meters`. */
     @JvmStatic
     public fun dailyDistance(
-        distance: Double,
+        meters: Double,
         startDurationFromBoot: Duration,
         endDurationFromBoot: Duration
     ): DataPoint =
         DataPoint.createInterval(
             DataType.DAILY_DISTANCE,
-            Value.ofDouble(distance),
+            Value.ofDouble(meters),
             startDurationFromBoot,
             endDurationFromBoot
         )

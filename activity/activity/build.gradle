@@ -1,4 +1,3 @@
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -12,20 +11,21 @@ android {
         multiDexEnabled true
         testInstrumentationRunnerArgument "listener", "leakcanary.FailTestOnLeakRunListener"
     }
+    namespace "androidx.activity"
 }
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
     implementation("androidx.collection:collection:1.0.0")
-    api(projectOrArtifact(":core:core"))
-    api("androidx.lifecycle:lifecycle-runtime:2.3.1")
-    api("androidx.lifecycle:lifecycle-viewmodel:2.3.1")
-    api("androidx.savedstate:savedstate:1.1.0")
-    api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.3.1")
+    api("androidx.core:core:1.8.0-rc01")
+    api("androidx.lifecycle:lifecycle-runtime:2.5.0-rc01")
+    api("androidx.lifecycle:lifecycle-viewmodel:2.5.0-rc01")
+    api("androidx.savedstate:savedstate:1.2.0-rc01")
+    api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.5.0-rc01")
     implementation("androidx.tracing:tracing:1.0.0")
     api(libs.kotlinStdlib)
 
-    androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
+    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-runtime-testing"))
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.espressoCore, excludes.espresso)
     androidTestImplementation(libs.leakcanary)

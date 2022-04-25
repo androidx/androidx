@@ -18,7 +18,6 @@ package androidx.wear.compose.material.samples
 
 import android.annotation.SuppressLint
 import androidx.annotation.Sampled
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -30,12 +29,12 @@ import androidx.wear.compose.material.PositionIndicator
 import androidx.wear.compose.material.Scaffold
 import androidx.wear.compose.material.ScalingLazyColumn
 import androidx.wear.compose.material.Text
+import androidx.wear.compose.material.TimeText
 import androidx.wear.compose.material.Vignette
 import androidx.wear.compose.material.VignettePosition
 import androidx.wear.compose.material.rememberScalingLazyListState
 
 @SuppressLint("UnrememberedMutableState")
-@OptIn(ExperimentalAnimationApi::class)
 @Sampled
 @Composable
 fun SimpleScaffoldWithScrollIndicator() {
@@ -57,7 +56,7 @@ fun SimpleScaffoldWithScrollIndicator() {
             }
         },
         timeText = {
-            Text("12:30pm")
+            TimeText()
         }
     ) {
         ScalingLazyColumn(

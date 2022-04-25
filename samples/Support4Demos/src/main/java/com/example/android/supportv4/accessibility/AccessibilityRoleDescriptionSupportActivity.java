@@ -22,6 +22,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.core.view.AccessibilityDelegateCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
@@ -86,8 +87,8 @@ public class AccessibilityRoleDescriptionSupportActivity extends Activity {
         }
 
         @Override
-        public void onInitializeAccessibilityNodeInfo(View host,
-                AccessibilityNodeInfoCompat info) {
+        public void onInitializeAccessibilityNodeInfo(@NonNull View host,
+                @NonNull AccessibilityNodeInfoCompat info) {
             super.onInitializeAccessibilityNodeInfo(host, info);
             // This call will succeed on all platforms, but it will only set the role description
             // on devices running KitKat (API 19) or later. On older platforms the method call

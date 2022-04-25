@@ -24,11 +24,11 @@ import android.os.Build;
 import android.os.Handler;
 import android.view.Surface;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.camera.camera2.internal.SynchronizedCaptureSessionOpener.SynchronizedSessionFeature;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.CameraCaptureSessionCompat;
 import androidx.camera.camera2.internal.compat.CameraDeviceCompat;
@@ -61,6 +61,7 @@ import java.util.concurrent.ScheduledExecutorService;
  * {@link CameraCaptureSession.StateCallback} and convert the {@link CameraCaptureSession} to the
  * SynchronizedCaptureSession object.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.StateCallback implements
         SynchronizedCaptureSession, SynchronizedCaptureSessionOpener.OpenerImpl {
 
@@ -125,8 +126,7 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
 
     @NonNull
     @Override
-    public ListenableFuture<Void> getSynchronizedBlocker(
-            @SynchronizedSessionFeature @NonNull String feature) {
+    public ListenableFuture<Void> getOpeningBlocker() {
         return Futures.immediateFuture(null);
     }
 
@@ -366,6 +366,17 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
         return mCameraCaptureSessionCompat.toCameraCaptureSession().getDevice();
     }
 
+    @Nullable
+    @Override
+    public Surface getInputSurface() {
+        Preconditions.checkNotNull(mCameraCaptureSessionCompat);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return Api23Impl.getInputSurface(mCameraCaptureSessionCompat.toCameraCaptureSession());
+        } else {
+            return null;
+        }
+    }
+
     @Override
     public int captureSingleRequest(@NonNull CaptureRequest request,
             @NonNull CameraCaptureSession.CaptureCallback listener) throws CameraAccessException {
@@ -597,5 +608,20 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
     @Override
     public void finishClose() {
         releaseDeferrableSurfaces();
+    }
+
+    /**
+     * Nested class to avoid verification errors for methods introduced in Android 6.0 (API 23).
+     */
+    @RequiresApi(23)
+    private static class Api23Impl {
+
+        private Api23Impl() {
+        }
+
+        @DoNotInline
+        static Surface getInputSurface(CameraCaptureSession cameraCaptureSession) {
+            return cameraCaptureSession.getInputSurface();
+        }
     }
 }

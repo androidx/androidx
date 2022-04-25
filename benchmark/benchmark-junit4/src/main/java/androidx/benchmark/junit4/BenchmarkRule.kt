@@ -20,9 +20,16 @@ import android.Manifest
 import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.benchmark.BenchmarkState
+import androidx.benchmark.UserspaceTracing
+import androidx.benchmark.perfetto.PerfettoCaptureWrapper
+import androidx.benchmark.perfetto.UiState
+import androidx.benchmark.perfetto.appendUiState
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import androidx.tracing.Trace
 import androidx.tracing.trace
+import java.io.File
+import java.io.FileNotFoundException
 import org.junit.Assert.assertTrue
 import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
@@ -40,11 +47,9 @@ import org.junit.runners.model.Statement
  *
  * @Test
  * fun myBenchmark() {
- *     ...
  *     benchmarkRule.measureRepeated {
  *         doSomeWork()
  *     }
- *     ...
  * }
  * ```
  *
@@ -56,12 +61,10 @@ import org.junit.runners.model.Statement
  *
  * @Test
  * public void myBenchmark() {
- *     ...
  *     BenchmarkState state = benchmarkRule.getState();
  *     while (state.keepRunning()) {
  *         doSomeWork();
  *     }
- *     ...
  * }
  * ```
  *
@@ -69,9 +72,11 @@ import org.junit.runners.model.Statement
  * - Summary in AndroidStudio in the test log
  * - In JSON format, on the host
  * - In simple form in Logcat with the tag "Benchmark"
- * - To the instrumentation status result Bundle on the gradle command line
  *
  * Every test in the Class using this @Rule must contain a single benchmark.
+ *
+ * See the [Benchmark Guide](https://developer.android.com/studio/profile/benchmark)
+ * for more information on writing Benchmarks.
  */
 public class BenchmarkRule internal constructor(
     /**
@@ -195,18 +200,49 @@ public class BenchmarkRule internal constructor(
                 invokeMethodName = invokeMethodName.substring(4, 5).lowercase() +
                     invokeMethodName.substring(5)
             }
-            internalState.traceUniqueName = description.testClass.simpleName + "_" +
-                invokeMethodName
+            val uniqueName = description.testClass.simpleName + "_" + invokeMethodName
+            internalState.traceUniqueName = uniqueName
 
-            trace(description.displayName) {
-                base.evaluate()
+            var userspaceTrace: perfetto.protos.Trace? = null
+
+            val tracePath = PerfettoCaptureWrapper().record(
+                benchmarkName = uniqueName,
+                packages = emptyList(), // NOTE: intentionally don't pass app package!
+            ) {
+                UserspaceTracing.commitToTrace() // clear buffer
+
+                trace(description.displayName) { base.evaluate() }
+
+                // To avoid b/174007010, userspace tracing is cleared and saved *during* trace, so
+                // that events won't lie outside the bounds of the trace content.
+                userspaceTrace = UserspaceTracing.commitToTrace()
+            }?.apply {
+                // trace completed, and copied into app writeable dir
+
+                try {
+                    val file = File(this)
+
+                    file.appendBytes(userspaceTrace!!.encode())
+                    file.appendUiState(
+                        UiState(
+                            timelineStart = null,
+                            timelineEnd = null,
+                            highlightPackage = InstrumentationRegistry.getInstrumentation()
+                                .context.packageName
+                        )
+                    )
+                } catch (exception: FileNotFoundException) {
+                    // TODO(b/227510293): fix record to return a null in this case
+                    Log.d(TAG, "Unable to add additional detail to captured trace $this")
+                }
             }
 
             if (enableReport) {
                 internalState.report(
                     fullClassName = description.className,
                     simpleClassName = description.testClass.simpleName,
-                    methodName = invokeMethodName
+                    methodName = invokeMethodName,
+                    tracePath = tracePath
                 )
             }
         }

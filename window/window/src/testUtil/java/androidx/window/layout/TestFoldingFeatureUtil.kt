@@ -69,8 +69,20 @@ internal object TestFoldingFeatureUtil {
         return listOf(
             invalidZeroBound(),
             invalidBoundShortWidth(windowBounds),
-            invalidBoundShortHeight(windowBounds)
+            invalidBoundShortHeight(windowBounds),
+            windowBounds
         )
+    }
+
+    /**
+     * @param windowBounds the bounds of the window.
+     * @return a [List] of [Rect] of invalid bounds for folding features with non-zero bounds
+     */
+    @JvmStatic
+    fun invalidNonZeroFoldBounds(windowBounds: Rect): List<Rect> {
+        return invalidFoldBounds(windowBounds).filter { bounds ->
+            bounds.width() != 0 || bounds.height() != 0
+        }
     }
 
     /**

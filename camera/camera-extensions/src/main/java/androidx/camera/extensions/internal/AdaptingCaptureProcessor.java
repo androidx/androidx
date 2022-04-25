@@ -24,6 +24,7 @@ import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.impl.Camera2CameraCaptureResultConverter;
 import androidx.camera.core.ExperimentalGetImage;
 import androidx.camera.core.ImageInfo;
@@ -46,6 +47,7 @@ import java.util.concurrent.TimeoutException;
 /**
  * A {@link CaptureProcessor} that calls a vendor provided implementation.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class AdaptingCaptureProcessor implements CaptureProcessor {
     private final CaptureProcessorImpl mImpl;
 

@@ -19,11 +19,23 @@
 package androidx.build.lint
 
 import com.android.tools.lint.checks.infrastructure.ProjectDescription
-import org.junit.Ignore
+import com.android.tools.lint.checks.infrastructure.TestFile
+import com.android.tools.lint.checks.infrastructure.TestMode
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+/**
+ * Important:
+ *
+ * [BanInappropriateExperimentalUsage] uses the atomic library groups list generated from
+ * production data.  For tests, we want to overwrite this to provide a different list of
+ * atomic library groups; the file location is
+ * lint-checks/src/test/resources/atomic-library-groups.txt.
+ *
+ * Note that the filename must match
+ * [BanInappropriateExperimentalUsage.ATOMIC_LIBRARY_GROUPS_FILENAME].
+ */
 @RunWith(JUnit4::class)
 class BanInappropriateExperimentalUsageTest : AbstractLintDetectorTest(
     useDetector = BanInappropriateExperimentalUsage(),
@@ -32,7 +44,7 @@ class BanInappropriateExperimentalUsageTest : AbstractLintDetectorTest(
 ) {
 
     @Test
-    fun `Test within-module Experimental usage via Gradle model`() {
+    fun `Test same atomic module Experimental usage via Gradle model`() {
         val provider = project()
             .name("provider")
             .files(
@@ -55,16 +67,13 @@ No warnings.
         check(provider).expect(expected)
     }
 
-    @Ignore("b/188814760")
     @Test
-    fun `Test cross-module Experimental usage via Gradle model`() {
+    fun `Test same non-atomic module Experimental usage via Gradle model`() {
         val provider = project()
             .name("provider")
-            .type(ProjectDescription.Type.LIBRARY)
-            .report(false)
             .files(
+                ktSample("sample.annotation.provider.WithinGroupExperimentalAnnotatedClass"),
                 ktSample("sample.annotation.provider.ExperimentalSampleAnnotation"),
-                javaSample("sample.annotation.provider.ExperimentalSampleAnnotationJava"),
                 gradle(
                     """
                     apply plugin: 'com.android.library'
@@ -73,11 +82,47 @@ No warnings.
                 ).indented(),
             )
 
+        /* ktlint-disable max-line-length */
+        val expected = """
+No warnings.
+        """.trimIndent()
+        /* ktlint-enable max-line-length */
+
+        // TODO: Using TestMode.DEFAULT due to b/188814760; remove testModes once bug is resolved
+        check(provider, testModes = listOf(TestMode.DEFAULT)).expect(expected)
+    }
+
+    @Test
+    fun `Test cross-module Experimental usage via Gradle model`() {
+
+        /* ktlint-disable max-line-length */
+        val provider = project()
+            .name("provider")
+            .type(ProjectDescription.Type.LIBRARY)
+            .report(false)
+            .files(
+                ANDROIDX_REQUIRES_OPT_IN_KT,
+                ktSample("sample.annotation.provider.ExperimentalSampleAnnotation"),
+                javaSample("sample.annotation.provider.ExperimentalSampleAnnotationJava"),
+                javaSample("sample.annotation.provider.RequiresOptInSampleAnnotationJava"),
+                javaSample("sample.annotation.provider.RequiresOptInSampleAnnotationJavaDuplicate"),
+                javaSample("sample.annotation.provider.RequiresAndroidXOptInSampleAnnotationJava"),
+                javaSample("sample.annotation.provider.RequiresAndroidXOptInSampleAnnotationJavaDuplicate"),
+                gradle(
+                    """
+                    apply plugin: 'com.android.library'
+                    group=sample.annotation.provider
+                    """
+                ).indented(),
+            )
+        /* ktlint-enable max-line-length */
+
         val consumer = project()
             .name("consumer")
             .type(ProjectDescription.Type.LIBRARY)
             .dependsOn(provider)
             .files(
+                ANDROIDX_OPT_IN_KT,
                 ktSample("androidx.sample.consumer.OutsideGroupExperimentalAnnotatedClass"),
                 gradle(
                     """
@@ -89,13 +134,91 @@ No warnings.
 
         /* ktlint-disable max-line-length */
         val expected = """
-../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:25: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
+../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:35: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
     @ExperimentalSampleAnnotationJava
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-1 errors, 0 warnings
+../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:40: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
+    @RequiresOptInSampleAnnotationJava
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:45: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
+    @kotlin.OptIn(RequiresOptInSampleAnnotationJava::class)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:50: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
+    @kotlin.OptIn(
+    ^
+../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:59: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
+    @kotlin.OptIn(RequiresOptInSampleAnnotationJava::class, RequiresOptInSampleAnnotationJavaDuplicate::class)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:65: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
+    @androidx.annotation.OptIn(RequiresAndroidXOptInSampleAnnotationJava::class)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:70: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
+    @androidx.annotation.OptIn(
+    ^
+../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:79: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
+    @androidx.annotation.OptIn(RequiresAndroidXOptInSampleAnnotationJava::class, RequiresAndroidXOptInSampleAnnotationJavaDuplicate::class)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+8 errors, 0 warnings
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
-        check(provider, consumer).expect(expected)
+        // TODO: Using TestMode.DEFAULT due to b/188814760; remove testModes once bug is resolved
+        check(provider, consumer, testModes = listOf(TestMode.DEFAULT)).expect(expected)
+    }
+
+    companion object {
+        /**
+         * [TestFile] containing OptIn.kt from the AndroidX experimental annotation library.
+         */
+        val ANDROIDX_OPT_IN_KT: TestFile = kotlin(
+            """
+package androidx.annotation
+
+import kotlin.annotation.Retention
+import kotlin.annotation.Target
+import kotlin.reflect.KClass
+
+@Retention(AnnotationRetention.BINARY)
+@Target(
+    AnnotationTarget.CLASS,
+    AnnotationTarget.PROPERTY,
+    AnnotationTarget.LOCAL_VARIABLE,
+    AnnotationTarget.VALUE_PARAMETER,
+    AnnotationTarget.CONSTRUCTOR,
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER,
+    AnnotationTarget.FILE,
+    AnnotationTarget.TYPEALIAS
+)
+public annotation class OptIn(
+    @get:Suppress("ArrayReturn")
+    vararg val markerClass: KClass<out Annotation>
+)
+            """.trimIndent()
+        )
+
+        /**
+         * [TestFile] containing RequiresOptIn.kt from the AndroidX experimental annotation library.
+         */
+        val ANDROIDX_REQUIRES_OPT_IN_KT: TestFile = kotlin(
+            """
+package androidx.annotation
+
+import kotlin.annotation.Retention
+import kotlin.annotation.Target
+
+@Retention(AnnotationRetention.BINARY)
+@Target(AnnotationTarget.ANNOTATION_CLASS)
+public annotation class RequiresOptIn(
+    val level: Level = Level.ERROR
+) {
+    public enum class Level {
+        WARNING,
+        ERROR
+    }
+}
+            """.trimIndent()
+        )
     }
 }

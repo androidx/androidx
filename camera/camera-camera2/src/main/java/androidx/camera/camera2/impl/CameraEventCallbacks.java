@@ -18,6 +18,7 @@ package androidx.camera.camera2.impl;
 
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.MultiValueSet;
 
@@ -28,6 +29,7 @@ import java.util.List;
 /**
  * Different implementations of {@link CameraEventCallback}.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class CameraEventCallbacks extends MultiValueSet<CameraEventCallback> {
 
     public CameraEventCallbacks(@NonNull CameraEventCallback... callbacks) {

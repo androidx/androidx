@@ -182,9 +182,9 @@ private class TestPreference(context: Context) : Preference(context) {
     var titleColor: Int? = null
     var summaryColor: Int? = null
 
-    override fun onBindViewHolder(holder: PreferenceViewHolder?) {
+    override fun onBindViewHolder(holder: PreferenceViewHolder) {
         super.onBindViewHolder(holder)
-        background = holder!!.itemView.background
+        background = holder.itemView.background
         titleColor = (holder.findViewById(android.R.id.title) as TextView).currentTextColor
         summaryColor = (holder.findViewById(android.R.id.summary) as TextView).currentTextColor
     }

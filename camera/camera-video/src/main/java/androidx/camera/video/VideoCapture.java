@@ -21,7 +21,6 @@ import static androidx.camera.core.impl.ImageOutputConfig.OPTION_MAX_RESOLUTION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_SUPPORTED_RESOLUTIONS;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ROTATION;
-import static androidx.camera.core.impl.UseCaseConfig.OPTION_ATTACHED_USE_CASES_UPDATE_LISTENER;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAPTURE_CONFIG_UNPACKER;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_DEFAULT_CAPTURE_CONFIG;
@@ -32,6 +31,7 @@ import static androidx.camera.core.internal.TargetConfig.OPTION_TARGET_CLASS;
 import static androidx.camera.core.internal.TargetConfig.OPTION_TARGET_NAME;
 import static androidx.camera.core.internal.ThreadConfig.OPTION_BACKGROUND_EXECUTOR;
 import static androidx.camera.core.internal.UseCaseEventConfig.OPTION_USE_CASE_EVENT_CALLBACK;
+import static androidx.camera.video.StreamInfo.STREAM_ID_ERROR;
 import static androidx.camera.video.impl.VideoCaptureConfig.OPTION_VIDEO_OUTPUT;
 
 import android.graphics.Rect;
@@ -41,17 +41,21 @@ import android.util.Size;
 import android.view.Display;
 import android.view.Surface;
 
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.annotation.UiThread;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.ViewPort;
+import androidx.camera.core.impl.CameraCaptureCallback;
+import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CaptureConfig;
@@ -70,29 +74,33 @@ import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.impl.utils.futures.FutureCallback;
+import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.internal.ThreadConfig;
-import androidx.camera.video.VideoOutput.StreamState;
+import androidx.camera.video.StreamInfo.StreamState;
 import androidx.camera.video.impl.VideoCaptureConfig;
-import androidx.core.util.Consumer;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A use case that provides camera stream suitable for video application.
  *
- * <p>VideoCapture is used to create a camera stream suitable for video application. The camera
- * stream is used by the extended classes of {@link VideoOutput}.
+ * <p>VideoCapture is used to create a camera stream suitable for a video application such as
+ * recording a high-quality video to a file. The camera stream is used by the extended classes of
+ * {@link VideoOutput}.
  * {@link #withOutput(VideoOutput)} can be used to create a VideoCapture instance associated with
  * the given VideoOutput. Take {@link Recorder} as an example,
  * <pre>{@code
@@ -103,16 +111,25 @@ import java.util.concurrent.Executor;
  *
  * @param <T> the type of VideoOutput
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class VideoCapture<T extends VideoOutput> extends UseCase {
     private static final String TAG = "VideoCapture";
+    private static final String SURFACE_UPDATE_KEY =
+            "androidx.camera.video.VideoCapture.streamUpdate";
     private static final Defaults DEFAULT_CONFIG = new Defaults();
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     DeferrableSurface mDeferrableSurface;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    StreamInfo mStreamInfo = StreamInfo.STREAM_INFO_ANY_INACTIVE;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @NonNull
     SessionConfig.Builder mSessionConfigBuilder = new SessionConfig.Builder();
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    ListenableFuture<Void> mSurfaceUpdateFuture = null;
     private SurfaceRequest mSurfaceRequest;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    VideoOutput.SourceState mSourceState = VideoOutput.SourceState.INACTIVE;
 
     /**
      * Create a VideoCapture associated with the given {@link VideoOutput}.
@@ -175,7 +192,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
      * created. The use case is fully created once it has been attached to a camera.
      *
      * @param rotation Desired rotation of the output video.
-     *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -192,22 +208,11 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
-    public void onAttached() {
-        getOutput().getStreamState().addObserver(CameraXExecutors.mainThreadExecutor(),
-                mStreamStateObserver);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @hide
-     */
-    @SuppressWarnings("unchecked")
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Override
     public void onStateAttached() {
         super.onStateAttached();
-        getOutput().onSourceStateChanged(VideoOutput.SourceState.ACTIVE);
+        getOutput().getStreamInfo().addObserver(CameraXExecutors.mainThreadExecutor(),
+                mStreamInfoObserver);
+        setSourceState(VideoOutput.SourceState.ACTIVE_NON_STREAMING);
     }
 
     /**
@@ -251,7 +256,10 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             }
         }
 
+        mStreamInfo = fetchObservableValue(getOutput().getStreamInfo(),
+                StreamInfo.STREAM_INFO_ANY_INACTIVE);
         mSessionConfigBuilder = createPipeline(cameraId, config, suggestedResolution);
+        applyStreamInfoToSessionConfigBuilder(mSessionConfigBuilder, mStreamInfo);
         updateSessionConfig(mSessionConfigBuilder.build());
         // VideoCapture has to be active to apply SessionConfig's template type.
         notifyActive();
@@ -281,7 +289,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     @Override
     public void onDetached() {
         clearPipeline();
-        getOutput().getStreamState().removeObserver(mStreamStateObserver);
     }
 
     /**
@@ -289,11 +296,19 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
      *
      * @hide
      */
-    @SuppressWarnings("unchecked")
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public void onStateDetached() {
-        getOutput().onSourceStateChanged(VideoOutput.SourceState.INACTIVE);
+        Preconditions.checkState(Threads.isMainThread(), "VideoCapture can only be detached on "
+                + "the main thread.");
+        setSourceState(VideoOutput.SourceState.INACTIVE);
+        getOutput().getStreamInfo().removeObserver(mStreamInfoObserver);
+        if (mSurfaceUpdateFuture != null) {
+            if (mSurfaceUpdateFuture.cancel(false)) {
+                Logger.d(TAG, "VideoCapture is detached from the camera. Surface update "
+                        + "cancelled.");
+            }
+        }
     }
 
     @NonNull
@@ -312,7 +327,9 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     @Nullable
     public UseCaseConfig<?> getDefaultConfig(boolean applyDefaultConfig,
             @NonNull UseCaseConfigFactory factory) {
-        Config captureConfig = factory.getConfig(UseCaseConfigFactory.CaptureType.VIDEO_CAPTURE);
+        Config captureConfig = factory.getConfig(
+                UseCaseConfigFactory.CaptureType.VIDEO_CAPTURE,
+                ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY);
 
         if (applyDefaultConfig) {
             captureConfig = Config.mergeConfigs(captureConfig, DEFAULT_CONFIG.getConfig());
@@ -377,14 +394,15 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         return null;
     }
 
-    @UiThread
+    @MainThread
     @NonNull
     private SessionConfig.Builder createPipeline(@NonNull String cameraId,
             @NonNull VideoCaptureConfig<T> config,
             @NonNull Size resolution) {
         Threads.checkMainThread();
 
-        mSurfaceRequest = new SurfaceRequest(resolution, getCamera(), false);
+        mSurfaceRequest = new SurfaceRequest(resolution, Preconditions.checkNotNull(getCamera()),
+                false);
         config.getVideoOutput().onSurfaceRequested(mSurfaceRequest);
         sendTransformationInfoIfReady(resolution);
         mDeferrableSurface = mSurfaceRequest.getDeferrableSurface();
@@ -393,12 +411,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         mDeferrableSurface.setContainerClass(MediaCodec.class);
 
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
-        if (fetchObservableValue(getOutput().getStreamState(), StreamState.INACTIVE)
-                == StreamState.ACTIVE) {
-            sessionConfigBuilder.addSurface(mDeferrableSurface);
-        } else {
-            sessionConfigBuilder.addNonRepeatingSurface(mDeferrableSurface);
-        }
         sessionConfigBuilder.addErrorListener(
                 (sessionConfig, error) -> resetPipeline(cameraId, config, resolution));
 
@@ -408,7 +420,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     /**
      * Clear the internal pipeline so that the pipeline can be set up again.
      */
-    @UiThread
+    @MainThread
     private void clearPipeline() {
         Threads.checkMainThread();
 
@@ -418,9 +430,10 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         }
 
         mSurfaceRequest = null;
+        mStreamInfo = StreamInfo.STREAM_INFO_ANY_INACTIVE;
     }
 
-    @UiThread
+    @MainThread
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     void resetPipeline(@NonNull String cameraId,
             @NonNull VideoCaptureConfig<T> config,
@@ -433,6 +446,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         if (isCurrentCamera(cameraId)) {
             // Only reset the pipeline when the bound camera is the same.
             mSessionConfigBuilder = createPipeline(cameraId, config, resolution);
+            applyStreamInfoToSessionConfigBuilder(mSessionConfigBuilder, mStreamInfo);
             updateSessionConfig(mSessionConfigBuilder.build());
             notifyReset();
         }
@@ -473,22 +487,46 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         return fetchObservableValue(getOutput().getMediaSpec(), null);
     }
 
-    private final Observer<StreamState> mStreamStateObserver = new Observer<StreamState>() {
+    private final Observer<StreamInfo> mStreamInfoObserver = new Observer<StreamInfo>() {
+        @SuppressWarnings("unchecked")
         @Override
-        public void onNewData(@Nullable StreamState streamState) {
-            Logger.d(TAG, "Receive streamState = " + streamState);
-            if (getCamera() == null) {
+        public void onNewData(@Nullable StreamInfo streamInfo) {
+            if (streamInfo == null) {
+                throw new IllegalArgumentException("StreamInfo can't be null");
+            }
+            if (mSourceState == VideoOutput.SourceState.INACTIVE) {
                 // VideoCapture is unbound.
                 return;
             }
-            mSessionConfigBuilder.clearSurfaces();
-            if (streamState == StreamState.ACTIVE) {
-                mSessionConfigBuilder.addSurface(mDeferrableSurface);
-            } else {
-                mSessionConfigBuilder.addNonRepeatingSurface(mDeferrableSurface);
+            Logger.d(TAG, "Stream info update: old: " + mStreamInfo + " new: " + streamInfo);
+
+            StreamInfo currentStreamInfo = mStreamInfo;
+            mStreamInfo = streamInfo;
+
+            // Doing resetPipeline() includes notifyReset/notifyUpdated(). Doing NotifyReset()
+            // includes notifyUpdated(). So we just take actions on higher order item for
+            // optimization.
+            if (!StreamInfo.NON_SURFACE_STREAM_ID.contains(currentStreamInfo.getId())
+                    && !StreamInfo.NON_SURFACE_STREAM_ID.contains(streamInfo.getId())
+                    && currentStreamInfo.getId() != streamInfo.getId()) {
+                // Reset pipeline if the stream ids are different, which means there's a new
+                // surface ready to be requested.
+                resetPipeline(getCameraId(), (VideoCaptureConfig<T>) getCurrentConfig(),
+                        Preconditions.checkNotNull(getAttachedSurfaceResolution()));
+            } else if ((currentStreamInfo.getId() != STREAM_ID_ERROR
+                    && streamInfo.getId() == STREAM_ID_ERROR)
+                    || (currentStreamInfo.getId() == STREAM_ID_ERROR
+                    && streamInfo.getId() != STREAM_ID_ERROR)) {
+                // If id switch to STREAM_ID_ERROR, it means VideoOutput is failed to setup video
+                // stream. The surface should be removed from camera. Vice versa.
+                applyStreamInfoToSessionConfigBuilder(mSessionConfigBuilder, streamInfo);
+                updateSessionConfig(mSessionConfigBuilder.build());
+                notifyReset();
+            } else if (currentStreamInfo.getStreamState() != streamInfo.getStreamState()) {
+                applyStreamInfoToSessionConfigBuilder(mSessionConfigBuilder, streamInfo);
+                updateSessionConfig(mSessionConfigBuilder.build());
+                notifyUpdated();
             }
-            updateSessionConfig(mSessionConfigBuilder.build());
-            notifyUpdated();
         }
 
         @Override
@@ -496,6 +534,104 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             Logger.w(TAG, "Receive onError from StreamState observer", t);
         }
     };
+
+    @MainThread
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    void applyStreamInfoToSessionConfigBuilder(@NonNull SessionConfig.Builder sessionConfigBuilder,
+            @NonNull StreamInfo streamInfo) {
+        final boolean isStreamError = streamInfo.getId() == StreamInfo.STREAM_ID_ERROR;
+        final boolean isStreamActive = streamInfo.getStreamState() == StreamState.ACTIVE;
+        if (isStreamError && isStreamActive) {
+            throw new IllegalStateException(
+                    "Unexpected stream state, stream is error but active");
+        }
+
+        sessionConfigBuilder.clearSurfaces();
+        if (!isStreamError) {
+            if (isStreamActive) {
+                sessionConfigBuilder.addSurface(mDeferrableSurface);
+            } else {
+                sessionConfigBuilder.addNonRepeatingSurface(mDeferrableSurface);
+            }
+        } else {
+            // Don't attach surface when stream is invalid.
+        }
+
+        setupSurfaceUpdateNotifier(sessionConfigBuilder, isStreamActive);
+    }
+
+    @MainThread
+    private void setupSurfaceUpdateNotifier(@NonNull SessionConfig.Builder sessionConfigBuilder,
+            boolean isStreamActive) {
+        if (mSurfaceUpdateFuture != null) {
+            // A newer update is issued before the previous update is completed. Cancel the
+            // previous future.
+            if (mSurfaceUpdateFuture.cancel(false)) {
+                Logger.d(TAG,
+                        "A newer surface update is requested. Previous surface update cancelled.");
+            }
+        }
+
+        ListenableFuture<Void> surfaceUpdateFuture = mSurfaceUpdateFuture =
+                CallbackToFutureAdapter.getFuture(completer -> {
+                    // Use the completer as the tag to identify the update.
+                    sessionConfigBuilder.addTag(SURFACE_UPDATE_KEY, completer.hashCode());
+                    AtomicBoolean surfaceUpdateComplete = new AtomicBoolean(false);
+                    CameraCaptureCallback cameraCaptureCallback =
+                            new CameraCaptureCallback() {
+                                @Override
+                                public void onCaptureCompleted(
+                                        @NonNull CameraCaptureResult cameraCaptureResult) {
+                                    super.onCaptureCompleted(cameraCaptureResult);
+                                    if (!surfaceUpdateComplete.get()) {
+                                        Object tag = cameraCaptureResult.getTagBundle().getTag(
+                                                SURFACE_UPDATE_KEY);
+                                        if (tag != null
+                                                && (int) tag == completer.hashCode()
+                                                && completer.set(null)
+                                                && !surfaceUpdateComplete.getAndSet(true)) {
+                                            // Remove from builder so this callback doesn't get
+                                            // added to future SessionConfigs
+                                            CameraXExecutors.mainThreadExecutor().execute(() ->
+                                                    sessionConfigBuilder
+                                                            .removeCameraCaptureCallback(this));
+                                        }
+                                    }
+                                }
+                            };
+                    completer.addCancellationListener(() -> {
+                        Preconditions.checkState(Threads.isMainThread(), "Surface update "
+                                + "cancellation should only occur on main thread.");
+                        surfaceUpdateComplete.set(true);
+                        sessionConfigBuilder.removeCameraCaptureCallback(cameraCaptureCallback);
+                    }, CameraXExecutors.directExecutor());
+                    sessionConfigBuilder.addRepeatingCameraCaptureCallback(cameraCaptureCallback);
+
+                    return String.format("%s[0x%x]", SURFACE_UPDATE_KEY, completer.hashCode());
+                });
+
+        Futures.addCallback(surfaceUpdateFuture, new FutureCallback<Void>() {
+            @Override
+            public void onSuccess(@Nullable Void result) {
+                // If there is a new surface update request, we will wait to update the video
+                // output until that update is complete.
+                // Also, if the source state is inactive, then we are detached and should not tell
+                // the video output we're active.
+                if (surfaceUpdateFuture == mSurfaceUpdateFuture
+                        && mSourceState != VideoOutput.SourceState.INACTIVE) {
+                    setSourceState(isStreamActive ? VideoOutput.SourceState.ACTIVE_STREAMING
+                            : VideoOutput.SourceState.ACTIVE_NON_STREAMING);
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                if (!(t instanceof CancellationException)) {
+                    Logger.e(TAG, "Surface update completed with unexpected exception", t);
+                }
+            }
+        }, CameraXExecutors.mainThreadExecutor());
+    }
 
     /**
      * Set {@link ImageOutputConfig#OPTION_SUPPORTED_RESOLUTIONS} according to the resolution found
@@ -511,10 +647,10 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         Preconditions.checkArgument(mediaSpec != null,
                 "Unable to update target resolution by null MediaSpec.");
 
-        List<Integer> supportedQualities = QualitySelector.getSupportedQualities(cameraInfo);
+        List<Quality> supportedQualities = QualitySelector.getSupportedQualities(cameraInfo);
         if (supportedQualities.isEmpty()) {
             // When the device does not have any supported quality, even the most flexible
-            // QualitySelector such as QualitySelector.of(QUALITY_HIGHEST), still cannot
+            // QualitySelector such as QualitySelector.from(Quality.HIGHEST), still cannot
             // find any resolution. This should be a rare case but will cause VideoCapture
             // to always fail to bind. The workaround is not set any resolution and leave it to
             // auto resolution mechanism.
@@ -524,7 +660,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
         QualitySelector qualitySelector = mediaSpec.getVideoSpec().getQualitySelector();
 
-        List<Integer> selectedQualities = qualitySelector.getPrioritizedQualities(cameraInfo);
+        List<Quality> selectedQualities = qualitySelector.getPrioritizedQualities(cameraInfo);
 
         Logger.d(TAG,
                 "Found selectedQualities " + selectedQualities + " by " + qualitySelector);
@@ -535,12 +671,12 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         }
 
         List<Size> supportedResolutions = new ArrayList<>();
-        for (Integer selectedQuality : selectedQualities) {
+        for (Quality selectedQuality : selectedQualities) {
             supportedResolutions.add(QualitySelector.getResolution(cameraInfo, selectedQuality));
         }
         Logger.d(TAG, "Set supported resolutions = " + supportedResolutions);
         builder.getMutableConfig().insertOption(OPTION_SUPPORTED_RESOLUTIONS,
-                Arrays.asList(
+                Collections.singletonList(
                         Pair.create(getImageFormat(), supportedResolutions.toArray(new Size[0]))));
     }
 
@@ -571,12 +707,23 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         }
     }
 
+    @SuppressWarnings("WeakerAccess") // synthetic accessor
+    @MainThread
+    void setSourceState(@NonNull VideoOutput.SourceState newState) {
+        VideoOutput.SourceState oldState = mSourceState;
+        if (newState != oldState) {
+            mSourceState = newState;
+            getOutput().onSourceStateChanged(newState);
+        }
+    }
+
     /**
      * Builder for a {@link VideoCapture}.
      *
      * @param <T> the type of VideoOutput
      * @hide
      */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     @RestrictTo(Scope.LIBRARY_GROUP)
     @SuppressWarnings("ObjectToString")
     public static final class Builder<T extends VideoOutput> implements
@@ -890,17 +1037,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         public Builder<T> setUseCaseEventCallback(
                 @NonNull EventCallback useCaseEventCallback) {
             getMutableConfig().insertOption(OPTION_USE_CASE_EVENT_CALLBACK, useCaseEventCallback);
-            return this;
-        }
-
-        /** @hide */
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @Override
-        @NonNull
-        public Builder<T> setAttachedUseCasesUpdateListener(
-                @NonNull Consumer<Collection<UseCase>> attachedUseCasesUpdateListener) {
-            getMutableConfig().insertOption(OPTION_ATTACHED_USE_CASES_UPDATE_LISTENER,
-                    attachedUseCasesUpdateListener);
             return this;
         }
     }

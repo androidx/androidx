@@ -38,6 +38,10 @@ import androidx.core.graphics.component4
  * @param height Height of the desired bitmap. Defaults to [Drawable.getIntrinsicHeight].
  * @param config Bitmap config of the desired bitmap. Null attempts to use the native config, if
  * any. Defaults to [Config.ARGB_8888] otherwise.
+ * @throws IllegalArgumentException if the underlying drawable is a [BitmapDrawable] where
+ * [BitmapDrawable.getBitmap] returns `null` or the drawable cannot otherwise be represented as a
+ * bitmap
+ * @see toBitmapOrNull
  */
 public fun Drawable.toBitmap(
     @Px width: Int = intrinsicWidth,
@@ -45,6 +49,10 @@ public fun Drawable.toBitmap(
     config: Config? = null
 ): Bitmap {
     if (this is BitmapDrawable) {
+        if (bitmap == null) {
+            // This is slightly better than returning an empty, zero-size bitmap.
+            throw IllegalArgumentException("bitmap is null")
+        }
         if (config == null || bitmap.config == config) {
             // Fast-path to return original. Bitmap.createScaledBitmap will do this check, but it
             // involves allocation and two jumps into native code so we perform the check ourselves.
@@ -63,6 +71,34 @@ public fun Drawable.toBitmap(
 
     setBounds(oldLeft, oldTop, oldRight, oldBottom)
     return bitmap
+}
+
+/**
+ * Returns a [Bitmap] representation of this [Drawable] or `null` if the drawable cannot be
+ * represented as a bitmap.
+ *
+ * If this instance is a [BitmapDrawable] and the [width], [height], and [config] match, the
+ * underlying [Bitmap] instance will be returned directly. If any of those three properties differ
+ * then a new [Bitmap] is created. For all other [Drawable] types, a new [Bitmap] is created.
+ *
+ * If the result of [BitmapDrawable.getBitmap] is `null` or the drawable cannot otherwise be
+ * represented as a bitmap, returns `null`.
+ *
+ * @param width Width of the desired bitmap. Defaults to [Drawable.getIntrinsicWidth].
+ * @param height Height of the desired bitmap. Defaults to [Drawable.getIntrinsicHeight].
+ * @param config Bitmap config of the desired bitmap. Null attempts to use the native config, if
+ * any. Defaults to [Config.ARGB_8888] otherwise.
+ * @see toBitmap
+ */
+public fun Drawable.toBitmapOrNull(
+    @Px width: Int = intrinsicWidth,
+    @Px height: Int = intrinsicHeight,
+    config: Config? = null
+): Bitmap? {
+    if (this is BitmapDrawable && bitmap == null) {
+        return null
+    }
+    return toBitmap(width, height, config)
 }
 
 /**

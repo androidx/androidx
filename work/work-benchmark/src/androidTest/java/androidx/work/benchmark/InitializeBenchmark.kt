@@ -60,19 +60,11 @@ class InitializeBenchmark {
         val serialExecutor = SerialExecutor(executor)
 
         taskExecutor = object : TaskExecutor {
-            override fun postToMainThread(runnable: Runnable) {
-                serialExecutor.execute(runnable)
-            }
-
             override fun getMainThreadExecutor(): Executor {
                 return serialExecutor
             }
 
-            override fun executeOnBackgroundThread(runnable: Runnable) {
-                serialExecutor.execute(runnable)
-            }
-
-            override fun getBackgroundExecutor(): SerialExecutor {
+            override fun getSerialTaskExecutor(): SerialExecutor {
                 return serialExecutor
             }
         }

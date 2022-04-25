@@ -352,7 +352,8 @@ class OnBackPressedHandlerTest {
     fun testLifecycleCallback_whenDestroyed() {
         val lifecycleOnBackPressedCallback = CountingOnBackPressedCallback()
 
-        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.DESTROYED)
+        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.CREATED)
+        lifecycleOwner.lifecycle.currentState = Lifecycle.State.DESTROYED
 
         dispatcher.addCallback(lifecycleOwner, lifecycleOnBackPressedCallback)
 

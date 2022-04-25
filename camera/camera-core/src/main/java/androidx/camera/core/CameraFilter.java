@@ -17,6 +17,7 @@
 package androidx.camera.core;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.impl.CameraConfig;
 import androidx.camera.core.impl.ExtendedCameraConfigProviderStore;
@@ -27,6 +28,7 @@ import java.util.List;
 /**
  * An interface for filtering cameras.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface CameraFilter {
     /**
      * Default identifier of camera filter.

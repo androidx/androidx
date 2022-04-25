@@ -25,6 +25,8 @@ import androidx.compose.runtime.snapshots.fastMap
 import androidx.compose.runtime.snapshots.fastMapNotNull
 import androidx.compose.runtime.tooling.CompositionData
 import androidx.compose.runtime.external.kotlinx.collections.immutable.persistentSetOf
+import androidx.compose.runtime.snapshots.fastAny
+import androidx.compose.runtime.snapshots.fastGroupBy
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -78,6 +80,8 @@ interface RecomposerInfo {
     /**
      * The current [State] of the [Recomposer]. See each [State] value for its meaning.
      */
+    // TODO: Mirror the currentState/StateFlow API change here once we can safely add
+    // default interface methods. https://youtrack.jetbrains.com/issue/KT-47000
     val state: Flow<Recomposer.State>
 
     /**
@@ -234,6 +238,11 @@ class Recomposer(
     private val snapshotInvalidations = mutableListOf<Set<Any>>()
     private val compositionInvalidations = mutableListOf<ControlledComposition>()
     private val compositionsAwaitingApply = mutableListOf<ControlledComposition>()
+    private val compositionValuesAwaitingInsert = mutableListOf<MovableContentStateReference>()
+    private val compositionValuesRemoved =
+        mutableMapOf<MovableContent<Any?>, MutableList<MovableContentStateReference>>()
+    private val compositionValueStatesAvailable =
+        mutableMapOf<MovableContentStateReference, MovableContentState>()
     private var workContinuation: CancellableContinuation<Unit>? = null
     private var concurrentCompositionsOutstanding = 0
     private var isClosed: Boolean = false
@@ -251,6 +260,7 @@ class Recomposer(
             snapshotInvalidations.clear()
             compositionInvalidations.clear()
             compositionsAwaitingApply.clear()
+            compositionValuesAwaitingInsert.clear()
             workContinuation?.cancel()
             workContinuation = null
             return null
@@ -265,6 +275,7 @@ class Recomposer(
             compositionInvalidations.isNotEmpty() ||
                 snapshotInvalidations.isNotEmpty() ||
                 compositionsAwaitingApply.isNotEmpty() ||
+                compositionValuesAwaitingInsert.isNotEmpty() ||
                 concurrentCompositionsOutstanding > 0 ||
                 broadcastFrameClock.hasAwaiters -> State.PendingWork
             else -> State.Idle
@@ -288,18 +299,33 @@ class Recomposer(
     /**
      * The current [State] of this [Recomposer]. See each [State] value for its meaning.
      */
+    @Deprecated("Replaced by currentState as a StateFlow", ReplaceWith("currentState"))
     public val state: Flow<State>
+        get() = currentState
+
+    /**
+     * The current [State] of this [Recomposer], available synchronously.
+     */
+    public val currentState: StateFlow<State>
         get() = _state
 
     // A separate private object to avoid the temptation of casting a RecomposerInfo
     // to a Recomposer if Recomposer itself were to implement RecomposerInfo.
     private inner class RecomposerInfoImpl : RecomposerInfo {
         override val state: Flow<State>
-            get() = this@Recomposer.state
+            get() = this@Recomposer.currentState
         override val hasPendingWork: Boolean
             get() = this@Recomposer.hasPendingWork
         override val changeCount: Long
             get() = this@Recomposer.changeCount
+        fun invalidateGroupsWithKey(key: Int) {
+            val compositions: List<ControlledComposition> = synchronized(stateLock) {
+                knownCompositions.toMutableList()
+            }
+            compositions
+                .fastMapNotNull { it as? CompositionImpl }
+                .fastForEach { it.invalidateGroupsWithKey(key) }
+        }
         fun saveStateAndDisposeForHotReload(): List<HotReloadable> {
             val compositions: List<ControlledComposition> = synchronized(stateLock) {
                 knownCompositions.toMutableList()
@@ -393,7 +419,19 @@ class Recomposer(
      */
     suspend fun runRecomposeAndApplyChanges() = recompositionRunner { parentFrameClock ->
         val toRecompose = mutableListOf<ControlledComposition>()
+        val toInsert = mutableListOf<MovableContentStateReference>()
         val toApply = mutableListOf<ControlledComposition>()
+        val toLateApply = mutableSetOf<ControlledComposition>()
+        val toComplete = mutableSetOf<ControlledComposition>()
+
+        fun fillToInsert() {
+            toInsert.clear()
+            synchronized(stateLock) {
+                compositionValuesAwaitingInsert.fastForEach { toInsert += it }
+                compositionValuesAwaitingInsert.clear()
+            }
+        }
+
         while (shouldKeepRecomposing) {
             awaitWorkAvailable()
 
@@ -440,7 +478,7 @@ class Recomposer(
                     // Perform recomposition for any invalidated composers
                     val modifiedValues = IdentityArraySet<Any>()
                     val alreadyComposed = IdentityArraySet<ControlledComposition>()
-                    while (toRecompose.isNotEmpty()) {
+                    while (toRecompose.isNotEmpty() || toInsert.isNotEmpty()) {
                         try {
                             toRecompose.fastForEach { composition ->
                                 alreadyComposed.add(composition)
@@ -468,6 +506,14 @@ class Recomposer(
                                 }
                             }
                         }
+
+                        if (toRecompose.isEmpty()) {
+                            fillToInsert()
+                            while (toInsert.isNotEmpty()) {
+                                toLateApply += performInsertValues(toInsert, modifiedValues)
+                                fillToInsert()
+                            }
+                        }
                     }
 
                     if (toApply.isNotEmpty()) {
@@ -475,6 +521,7 @@ class Recomposer(
 
                         // Perform apply changes
                         try {
+                            toComplete += toApply
                             toApply.fastForEach { composition ->
                                 composition.applyChanges()
                             }
@@ -482,6 +529,29 @@ class Recomposer(
                             toApply.clear()
                         }
                     }
+
+                    if (toLateApply.isNotEmpty()) {
+                        try {
+                            toComplete += toLateApply
+                            toLateApply.forEach { composition ->
+                                composition.applyLateChanges()
+                            }
+                        } finally {
+                            toLateApply.clear()
+                        }
+                    }
+
+                    if (toComplete.isNotEmpty()) {
+                        try {
+                            toComplete.forEach { composition ->
+                                composition.changesApplied()
+                            }
+                        } finally {
+                            toComplete.clear()
+                        }
+                    }
+
+                    discardUnusedValues()
 
                     synchronized(stateLock) {
                         deriveStateLocked()
@@ -597,6 +667,8 @@ class Recomposer(
                         toRecompose.clear()
                     }
 
+                    // Perform any value inserts
+
                     if (toApply.isNotEmpty()) changeCount++
 
                     // Perform apply changes
@@ -686,14 +758,26 @@ class Recomposer(
     }
 
     /**
-     * Permanently shut down this [Recomposer] for future use. All ongoing recompositions will stop,
-     * new composer invalidations with this [Recomposer] at the root will no longer occur,
-     * and any [LaunchedEffect]s currently running in compositions managed by this [Recomposer]
-     * will be cancelled. Any [rememberCoroutineScope] scopes from compositions managed by this
-     * [Recomposer] will also be cancelled. See [join] to await the completion of all of these
-     * outstanding tasks.
+     * Permanently shut down this [Recomposer] for future use. [currentState] will immediately
+     * reflect [State.ShuttingDown] (or a lower state) before this call returns.
+     * All ongoing recompositions will stop, new composer invalidations with this [Recomposer] at
+     * the root will no longer occur, and any [LaunchedEffect]s currently running in compositions
+     * managed by this [Recomposer] will be cancelled. Any [rememberCoroutineScope] scopes from
+     * compositions managed by this [Recomposer] will also be cancelled. See [join] to await the
+     * completion of all of these outstanding tasks.
      */
     fun cancel() {
+        // Move to State.ShuttingDown immediately rather than waiting for effectJob to join
+        // if we're cancelling to shut down the Recomposer. This permits other client code
+        // to use `state.first { it < State.Idle }` or similar to reliably and immediately detect
+        // that the recomposer can no longer be used.
+        // It looks like a CAS loop would be more appropriate here, but other occurrences
+        // of taking stateLock assume that the state cannot change without holding it.
+        synchronized(stateLock) {
+            if (_state.value >= State.Idle) {
+                _state.value = State.ShuttingDown
+            }
+        }
         effectJob.cancel()
     }
 
@@ -715,7 +799,7 @@ class Recomposer(
      * Await the completion of a [cancel] operation.
      */
     suspend fun join() {
-        state.first { it == State.ShutDown }
+        currentState.first { it == State.ShutDown }
     }
 
     internal override fun composeInitial(
@@ -730,7 +814,6 @@ class Recomposer(
         if (!composerWasComposing) {
             Snapshot.notifyObjectsInitialized()
         }
-        composition.applyChanges()
 
         synchronized(stateLock) {
             if (_state.value > State.ShuttingDown) {
@@ -740,10 +823,39 @@ class Recomposer(
             }
         }
 
+        performInitialMovableContentInserts(composition)
+        composition.applyChanges()
+        composition.applyLateChanges()
+
         if (!composerWasComposing) {
             // Ensure that any state objects created during applyChanges are seen as changed
             // if modified after this call.
             Snapshot.notifyObjectsInitialized()
+        }
+    }
+
+    private fun performInitialMovableContentInserts(composition: ControlledComposition) {
+        synchronized(stateLock) {
+            if (!compositionValuesAwaitingInsert.fastAny { it.composition == composition }) return
+        }
+        val toInsert = mutableListOf<MovableContentStateReference>()
+        fun fillToInsert() {
+            toInsert.clear()
+            synchronized(stateLock) {
+                val iterator = compositionValuesAwaitingInsert.iterator()
+                while (iterator.hasNext()) {
+                    val value = iterator.next()
+                    if (value.composition == composition) {
+                        toInsert.add(value)
+                        iterator.remove()
+                    }
+                }
+            }
+        }
+        fillToInsert()
+        while (toInsert.isNotEmpty()) {
+            performInsertValues(toInsert, null)
+            fillToInsert()
         }
     }
 
@@ -764,6 +876,48 @@ class Recomposer(
                 composition.recompose()
             }
         ) composition else null
+    }
+
+    private fun performInsertValues(
+        references: List<MovableContentStateReference>,
+        modifiedValues: IdentityArraySet<Any>?
+    ): List<ControlledComposition> {
+        val tasks = references.fastGroupBy { it.composition }
+        for ((composition, refs) in tasks) {
+            runtimeCheck(!composition.isComposing)
+            composing(composition, modifiedValues) {
+                // Map insert movable content to movable content states that have been released
+                // during `performRecompose`.
+                // during `performRecompose`.
+                val pairs = synchronized(stateLock) {
+                    refs.fastMap { reference ->
+                        reference to
+                            compositionValuesRemoved.removeLastMultiValue(reference.content)
+                    }
+                }
+                composition.insertMovableContent(pairs)
+            }
+        }
+        return tasks.keys.toList()
+    }
+
+    private fun discardUnusedValues() {
+        val unusedValues = synchronized(stateLock) {
+            if (compositionValuesRemoved.isNotEmpty()) {
+                val references = compositionValuesRemoved.values.flatten()
+                compositionValuesRemoved.clear()
+                val unusedValues = references.fastMap {
+                    it to compositionValueStatesAvailable[it]
+                }
+                compositionValueStatesAvailable.clear()
+                unusedValues
+            } else emptyList()
+        }
+        unusedValues.fastForEach { (reference, state) ->
+            if (state != null) {
+                reference.composition.disposeUnusedMovableContent(state)
+            }
+        }
     }
 
     private fun readObserverOf(composition: ControlledComposition): (Any) -> Unit {
@@ -796,13 +950,17 @@ class Recomposer(
     }
 
     private fun applyAndCheck(snapshot: MutableSnapshot) {
-        val applyResult = snapshot.apply()
-        if (applyResult is SnapshotApplyResult.Failure) {
-            error(
-                "Unsupported concurrent change during composition. A state object was " +
-                    "modified by composition as well as being modified outside composition."
-            )
-            // TODO(chuckj): Consider lifting this restriction by forcing a recompose
+        try {
+            val applyResult = snapshot.apply()
+            if (applyResult is SnapshotApplyResult.Failure) {
+                error(
+                    "Unsupported concurrent change during composition. A state object was " +
+                        "modified by composition as well as being modified outside composition."
+                )
+                // TODO(chuckj): Consider lifting this restriction by forcing a recompose
+            }
+        } finally {
+            snapshot.dispose()
         }
     }
 
@@ -834,7 +992,7 @@ class Recomposer(
      * and this method will not suspend.
      */
     suspend fun awaitIdle() {
-        state.takeWhile { it > State.Idle }.collect()
+        currentState.takeWhile { it > State.Idle }.collect()
     }
 
     // Recomposer always starts with a constant compound hash
@@ -875,6 +1033,35 @@ class Recomposer(
             deriveStateLocked()
         }?.resume(Unit)
     }
+
+    internal override fun insertMovableContent(reference: MovableContentStateReference) {
+        synchronized(stateLock) {
+            compositionValuesAwaitingInsert += reference
+            deriveStateLocked()
+        }?.resume(Unit)
+    }
+
+    internal override fun deletedMovableContent(reference: MovableContentStateReference) {
+        synchronized(stateLock) {
+            compositionValuesRemoved.addMultiValue(reference.content, reference)
+        }
+    }
+
+    internal override fun movableContentStateReleased(
+        reference: MovableContentStateReference,
+        data: MovableContentState
+    ) {
+        synchronized(stateLock) {
+            compositionValueStatesAvailable[reference] = data
+        }
+    }
+
+    override fun movableContentStateResolve(
+        reference: MovableContentStateReference
+    ): MovableContentState? =
+        synchronized(stateLock) {
+            compositionValueStatesAvailable.remove(reference)
+        }
 
     /**
      * hack: the companion object is thread local in Kotlin/Native to avoid freezing
@@ -925,6 +1112,12 @@ class Recomposer(
             val holders = token as List<HotReloadable>
             holders.fastForEach { it.resetContent() }
             holders.fastForEach { it.recompose() }
+        }
+
+        internal fun invalidateGroupsWithKey(key: Int) {
+            _runningRecomposers.value.forEach {
+                it.invalidateGroupsWithKey(key)
+            }
         }
     }
 }
@@ -991,3 +1184,15 @@ private class ProduceFrameSignal {
         else -> error("invalid pendingFrameContinuation $co")
     }
 }
+
+// Allow treating a mutable map of shape MutableMap<K, MutableMap<V>> as a multi-value map
+internal fun <K, V> MutableMap<K, MutableList<V>>.addMultiValue(key: K, value: V) =
+    getOrPut(key) { mutableListOf() }.add(value)
+
+internal fun <K, V> MutableMap<K, MutableList<V>>.removeLastMultiValue(key: K): V? =
+    get(key)?.let { list ->
+        list.removeFirst().also {
+            if (list.isEmpty())
+                remove(key)
+        }
+    }

@@ -24,6 +24,7 @@ import android.util.Size;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,6 +34,7 @@ import org.junit.runner.RunWith;
  */
 @LargeTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 21)
 public class TransformUtilsDeviceTest {
 
     @Test

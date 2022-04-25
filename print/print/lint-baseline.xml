@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
         id="ClassVerificationFailure"
@@ -120,116 +120,6 @@
             file="src/main/java/androidx/print/PrintHelper.java"
             line="376"
             column="22"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    cancellationSignal.setOnCancelListener("
-        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="430"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                            mediaSize = mAttributes.getMediaSize();"
-        errorLine2="                                                    ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="461"
-            column="53"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                            if (mediaSize.isPortrait() != isPortrait(bitmap)) {"
-        errorLine2="                                          ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="465"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        PrintDocumentInfo info = new PrintDocumentInfo.Builder(mJobName)"
-        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="478"
-            column="50"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                                .setContentType(PrintDocumentInfo.CONTENT_TYPE_PHOTO)"
-        errorLine2="                                 ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="479"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                                .setPageCount(1)"
-        errorLine2="                                 ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="480"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                                .build();"
-        errorLine2="                                 ~~~~~">
-        <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="481"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        layoutResultCallback.onLayoutFinished(info, changed);"
-        errorLine2="                                             ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="485"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        layoutResultCallback.onLayoutFailed(null);"
-        errorLine2="                                             ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="488"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    layoutResultCallback.onLayoutCancelled();"
-        errorLine2="                                         ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="496"
-            column="42"/>
     </issue>
 
     <issue

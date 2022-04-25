@@ -16,8 +16,10 @@
 
 package androidx.compose.ui.window.dialog
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
@@ -38,10 +40,10 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.sendKey
+import androidx.compose.ui.sendKeyEvent
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.WindowSize
 import androidx.compose.ui.window.launchApplication
 import androidx.compose.ui.window.rememberDialogState
 import androidx.compose.ui.window.runApplicationTest
@@ -260,7 +262,7 @@ class DialogTest {
                 Dialog(
                     onCloseRequest = {},
                     state = rememberDialogState(
-                        size = WindowSize(600.dp, 600.dp),
+                        size = DpSize(600.dp, 600.dp),
                     )
                 ) {
                     window1 = this.window
@@ -270,7 +272,7 @@ class DialogTest {
                         Dialog(
                             onCloseRequest = {},
                             state = rememberDialogState(
-                                size = WindowSize(300.dp, 300.dp),
+                                size = DpSize(300.dp, 300.dp),
                             )
                         ) {
                             window2 = this.window
@@ -316,7 +318,7 @@ class DialogTest {
                     Dialog(
                         onCloseRequest = {},
                         state = rememberDialogState(
-                            size = WindowSize(600.dp, 600.dp),
+                            size = DpSize(600.dp, 600.dp),
                         )
                     ) {
                         actualValue1 = localTestValue.current
@@ -325,7 +327,7 @@ class DialogTest {
                         Dialog(
                             onCloseRequest = {},
                             state = rememberDialogState(
-                                size = WindowSize(300.dp, 300.dp),
+                                size = DpSize(300.dp, 300.dp),
                             )
                         ) {
                             actualValue2 = localTestValue.current
@@ -407,19 +409,19 @@ class DialogTest {
 
         awaitIdle()
 
-        window?.sendKey(KeyEvent.VK_Q)
+        window?.sendKeyEvent(KeyEvent.VK_Q)
         awaitIdle()
         assertThat(onPreviewKeyEventKeys).isEqualTo(setOf(Key.Q))
         assertThat(onKeyEventKeys).isEqualTo(emptySet<Key>())
 
         clear()
-        window?.sendKey(KeyEvent.VK_W)
+        window?.sendKeyEvent(KeyEvent.VK_W)
         awaitIdle()
         assertThat(onPreviewKeyEventKeys).isEqualTo(setOf(Key.W))
         assertThat(onKeyEventKeys).isEqualTo(setOf(Key.W))
 
         clear()
-        window?.sendKey(KeyEvent.VK_E)
+        window?.sendKeyEvent(KeyEvent.VK_E)
         awaitIdle()
         assertThat(onPreviewKeyEventKeys).isEqualTo(setOf(Key.E))
         assertThat(onKeyEventKeys).isEqualTo(setOf(Key.E))
@@ -479,7 +481,7 @@ class DialogTest {
 
         awaitIdle()
 
-        window?.sendKey(KeyEvent.VK_Q)
+        window?.sendKeyEvent(KeyEvent.VK_Q)
         awaitIdle()
         assertThat(onWindowPreviewKeyEventKeys).isEqualTo(setOf(Key.Q))
         assertThat(onNodePreviewKeyEventKeys).isEqualTo(emptySet<Key>())
@@ -487,7 +489,7 @@ class DialogTest {
         assertThat(onWindowKeyEventKeys).isEqualTo(emptySet<Key>())
 
         clear()
-        window?.sendKey(KeyEvent.VK_W)
+        window?.sendKeyEvent(KeyEvent.VK_W)
         awaitIdle()
         assertThat(onWindowPreviewKeyEventKeys).isEqualTo(setOf(Key.W))
         assertThat(onNodePreviewKeyEventKeys).isEqualTo(setOf(Key.W))
@@ -495,7 +497,7 @@ class DialogTest {
         assertThat(onWindowKeyEventKeys).isEqualTo(setOf(Key.W))
 
         clear()
-        window?.sendKey(KeyEvent.VK_E)
+        window?.sendKeyEvent(KeyEvent.VK_E)
         awaitIdle()
         assertThat(onWindowPreviewKeyEventKeys).isEqualTo(setOf(Key.E))
         assertThat(onNodePreviewKeyEventKeys).isEqualTo(setOf(Key.E))
@@ -503,7 +505,7 @@ class DialogTest {
         assertThat(onWindowKeyEventKeys).isEqualTo(emptySet<Key>())
 
         clear()
-        window?.sendKey(KeyEvent.VK_R)
+        window?.sendKeyEvent(KeyEvent.VK_R)
         awaitIdle()
         assertThat(onWindowPreviewKeyEventKeys).isEqualTo(setOf(Key.R))
         assertThat(onNodePreviewKeyEventKeys).isEqualTo(setOf(Key.R))
@@ -511,12 +513,42 @@ class DialogTest {
         assertThat(onWindowKeyEventKeys).isEqualTo(emptySet<Key>())
 
         clear()
-        window?.sendKey(KeyEvent.VK_T)
+        window?.sendKeyEvent(KeyEvent.VK_T)
         awaitIdle()
         assertThat(onWindowPreviewKeyEventKeys).isEqualTo(setOf(Key.T))
         assertThat(onNodePreviewKeyEventKeys).isEqualTo(setOf(Key.T))
         assertThat(onNodeKeyEventKeys).isEqualTo(setOf(Key.T))
         assertThat(onWindowKeyEventKeys).isEqualTo(setOf(Key.T))
+
+        exitApplication()
+    }
+
+    @Test(timeout = 30000)
+    fun `should draw before dialog is visible`() = runApplicationTest {
+        var isComposed = false
+        var isDrawn = false
+        var isVisibleOnFirstComposition = false
+        var isVisibleOnFirstDraw = false
+
+        launchApplication {
+            Dialog(onCloseRequest = ::exitApplication) {
+                if (!isComposed) {
+                    isVisibleOnFirstComposition = window.isVisible
+                    isComposed = true
+                }
+
+                Canvas(Modifier.fillMaxSize()) {
+                    if (!isDrawn) {
+                        isVisibleOnFirstDraw = window.isVisible
+                        isDrawn = true
+                    }
+                }
+            }
+        }
+
+        awaitIdle()
+        assertThat(isVisibleOnFirstComposition).isFalse()
+        assertThat(isVisibleOnFirstDraw).isFalse()
 
         exitApplication()
     }

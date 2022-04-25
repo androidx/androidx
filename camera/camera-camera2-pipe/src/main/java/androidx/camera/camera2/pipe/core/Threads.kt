@@ -17,18 +17,27 @@
 package androidx.camera.camera2.pipe.core
 
 import android.os.Handler
+import androidx.annotation.RequiresApi
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import java.util.concurrent.Executor
 
+/**
+ * This collection pre-configured executors, dispatchers, and scopes that are used throughout this
+ * library.
+ */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 internal class Threads(
     val globalScope: CoroutineScope,
 
-    val defaultExecutor: Executor,
-    val defaultDispatcher: CoroutineDispatcher,
+    val blockingExecutor: Executor,
+    val blockingDispatcher: CoroutineDispatcher,
 
-    val ioExecutor: Executor,
-    val ioDispatcher: CoroutineDispatcher,
+    val backgroundExecutor: Executor,
+    val backgroundDispatcher: CoroutineDispatcher,
+
+    val lightweightExecutor: Executor,
+    val lightweightDispatcher: CoroutineDispatcher,
 
     camera2Handler: () -> Handler,
     camera2Executor: () -> Executor

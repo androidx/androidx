@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.dependencies.DependenciesKt
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 import androidx.build.RunApiTasks
 
@@ -40,7 +38,7 @@ dependencies {
 
 protobuf {
     protoc {
-        artifact = DependenciesKt.getDependencyAsString(libs.protobufCompiler)
+        artifact = libs.protobufCompiler.get()
     }
     // Generates the java proto-lite code for the protos in this project. See
     // https://github.com/google/protobuf-gradle-plugin#customizing-protobuf-compilation
@@ -63,4 +61,8 @@ androidx {
     inceptionYear = "2020"
     description = "Android Proto DataStore"
     runApiTasks = new RunApiTasks.No("Unreleased library.")
+}
+
+android {
+    namespace "androidx.datastore.protodatastore"
 }

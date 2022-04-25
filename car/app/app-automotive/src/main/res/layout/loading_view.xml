@@ -28,8 +28,8 @@
         android:orientation="vertical">
         <ImageView
             android:id="@+id/app_icon"
-            android:layout_width="@dimen/car_app_icon_size"
-            android:layout_height="@dimen/car_app_icon_size"
+            android:layout_width="@dimen/car_app_automotive_icon_size"
+            android:layout_height="@dimen/car_app_automotive_icon_size"
             android:layout_gravity="center_horizontal"/>
     </LinearLayout>
 </androidx.car.app.activity.ui.LoadingView>

@@ -18,9 +18,9 @@ package androidx.room.compiler.processing
 
 import androidx.room.compiler.processing.testcode.OtherAnnotation
 import androidx.room.compiler.processing.util.Source
-import androidx.room.compiler.processing.util.getDeclaredMethod
+import androidx.room.compiler.processing.util.getDeclaredMethodByJvmName
 import androidx.room.compiler.processing.util.getField
-import androidx.room.compiler.processing.util.getMethod
+import androidx.room.compiler.processing.util.getMethodByJvmName
 import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.compiler.processing.util.runProcessorTest
 import com.google.common.truth.Truth.assertThat
@@ -63,13 +63,13 @@ class XRoundEnvTest {
                 containsExactlyElementsIn(annotatedElementsByName)
                 hasSize(3)
                 contains(targetElement)
-                contains(targetElement.getMethod("myFunction"))
+                contains(targetElement.getMethodByJvmName("myFunction"))
 
                 if (testInvocation.isKsp) {
                     contains(targetElement.getField("myProperty"))
                 } else {
                     // Javac sees a property annotation on the synthetic function
-                    contains(targetElement.getDeclaredMethod("getMyProperty\$annotations"))
+                    contains(targetElement.getDeclaredMethodByJvmName("getMyProperty\$annotations"))
                 }
             }
         }
@@ -104,8 +104,8 @@ class XRoundEnvTest {
             ).apply {
                 hasSize(3)
 
-                contains(targetElement.getDeclaredMethod("getMyProperty1"))
-                contains(targetElement.getDeclaredMethod("setMyProperty2"))
+                contains(targetElement.getDeclaredMethodByJvmName("getMyProperty1"))
+                contains(targetElement.getDeclaredMethodByJvmName("setMyProperty2"))
                 contains(targetElement.getField("myProperty3"))
             }
         }
@@ -146,7 +146,7 @@ class XRoundEnvTest {
             )
             assertThat(annotatedElements).hasSize(1)
             val subject = annotatedElements.filterIsInstance<XMethodElement>().first()
-            assertThat(subject.name).isEqualTo("myFun")
+            assertThat(subject.jvmName).isEqualTo("myFun")
             assertThat(subject.enclosingElement.className).isEqualTo(
                 ClassName.get("", "BazKt")
             )
@@ -178,7 +178,7 @@ class XRoundEnvTest {
             assertThat(annotatedElements).hasSize(3)
             val byName = annotatedElements.associateBy {
                 when (it) {
-                    is XMethodElement -> it.name
+                    is XMethodElement -> it.jvmName
                     is XFieldElement -> it.name
                     else -> error("unexpected type $it")
                 }
@@ -262,6 +262,70 @@ class XRoundEnvTest {
             )
 
             assertThat(kspElements).isEmpty()
+        }
+    }
+
+    @Test
+    fun getAnnotatedParamElements() {
+        runProcessorTest(
+            listOf(
+                Source.kotlin(
+                    "Baz.kt",
+                    """
+                    import androidx.room.compiler.processing.XRoundEnvTest.TopLevelAnnotation
+                    class Baz constructor(
+                        @param:TopLevelAnnotation val ctorProperty: String,
+                        @TopLevelAnnotation ctorParam: String
+                    ) {
+                        @setparam:TopLevelAnnotation
+                        var property: String = ""
+                        fun method(@TopLevelAnnotation methodParam: String) {}
+                    }
+                    """.trimIndent()
+                )
+            )
+        ) { testInvocation ->
+            val typeElement = testInvocation.processingEnv.requireTypeElement("Baz")
+            val annotatedElements =
+                testInvocation.roundEnv.getElementsAnnotatedWith(TopLevelAnnotation::class)
+            val annotatedParams = annotatedElements.filterIsInstance<XExecutableParameterElement>()
+            val ctorProperty = annotatedParams.first { it.name == "ctorProperty" }
+            assertThat(ctorProperty.enclosingElement).isEqualTo(
+                typeElement.findPrimaryConstructor()
+            )
+            val ctorParam = annotatedParams.first { it.name == "ctorParam" }
+            assertThat(ctorParam.enclosingElement).isEqualTo(
+                typeElement.findPrimaryConstructor()
+            )
+            val setterParam = annotatedParams.first { it.name == "p0" || it.name == "arg0" }
+            assertThat(setterParam.enclosingElement).isEqualTo(
+                typeElement.getDeclaredMethodByJvmName("setProperty")
+            )
+            val methodParam = annotatedParams.first { it.name == "methodParam" }
+            assertThat(methodParam.enclosingElement).isEqualTo(
+                typeElement.getDeclaredMethodByJvmName("method")
+            )
+        }
+    }
+
+    @Test
+    fun getElementsAnnotatedWithMissingTypeAnnotation() {
+        runProcessorTest(
+            listOf(
+                Source.kotlin(
+                    "Baz.kt",
+                    """
+                    class Foo {}
+                    """.trimIndent()
+                )
+            )
+        ) { testInvocation ->
+            // Expect zero elements to be returned from the round for an annotation whose type is
+            // missing. This is allowed since there are processors whose capabilities might be
+            // dynamic based on user classpath.
+            val annotatedElements =
+                testInvocation.roundEnv.getElementsAnnotatedWith("MissingTypeAnnotation")
+            assertThat(annotatedElements).hasSize(0)
         }
     }
 

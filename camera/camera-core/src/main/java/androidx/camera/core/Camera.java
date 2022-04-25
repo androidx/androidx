@@ -18,6 +18,7 @@ package androidx.camera.core;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.impl.CameraConfig;
 import androidx.camera.core.impl.CameraInternal;
@@ -34,6 +35,7 @@ import java.util.LinkedHashSet;
  *androidx.lifecycle.LifecycleOwner, CameraSelector, UseCase...) An example} of how to obtain an
  * instance of this class can be found in the {@link androidx.camera.lifecycle} package.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface Camera {
 
     /**
@@ -109,4 +111,16 @@ public interface Camera {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     void setExtendedConfig(@Nullable CameraConfig cameraConfig);
+
+    /**
+     * Checks whether the use cases combination is supported by the camera.
+     *
+     * @param useCases to be checked whether can be supported.
+     * @return whether the use cases combination is supported by the camera
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    default boolean isUseCasesCombinationSupported(@NonNull UseCase... useCases) {
+        return true;
+    }
 }

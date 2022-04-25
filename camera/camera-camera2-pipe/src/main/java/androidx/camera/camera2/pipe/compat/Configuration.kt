@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+
 package androidx.camera.camera2.pipe.compat
 
 import android.graphics.SurfaceTexture
-import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.params.OutputConfiguration
 import android.os.Build
 import android.util.Size
@@ -27,10 +28,10 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.OutputStream.OutputType
 import androidx.camera.camera2.pipe.UnsafeWrapper
+import androidx.camera.camera2.pipe.compat.OutputConfigurationWrapper.Companion.SURFACE_GROUP_ID_NONE
 import androidx.camera.camera2.pipe.core.checkNOrHigher
 import androidx.camera.camera2.pipe.core.checkOOrHigher
 import androidx.camera.camera2.pipe.core.checkPOrHigher
-import androidx.camera.camera2.pipe.compat.OutputConfigurationWrapper.Companion.SURFACE_GROUP_ID_NONE
 import java.util.concurrent.Executor
 
 /**
@@ -46,7 +47,7 @@ internal data class SessionConfigData(
     val stateCallback: CameraCaptureSessionWrapper.StateCallback,
 
     val sessionTemplateId: Int,
-    val sessionParameters: Map<CaptureRequest.Key<*>, Any>
+    val sessionParameters: Map<*, Any?>
 ) {
     companion object {
         /* NOTE: These must keep in sync with their SessionConfiguration values. */

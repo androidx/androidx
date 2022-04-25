@@ -45,10 +45,8 @@ package androidx.window.layout {
   }
 
   public interface WindowInfoRepository {
-    method public kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowMetrics> getCurrentWindowMetrics();
     method public default static androidx.window.layout.WindowInfoRepository getOrCreate(android.app.Activity);
     method public kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowLayoutInfo> getWindowLayoutInfo();
-    property public abstract kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowMetrics> currentWindowMetrics;
     property public abstract kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowLayoutInfo> windowLayoutInfo;
     field public static final androidx.window.layout.WindowInfoRepository.Companion Companion;
   }
@@ -62,14 +60,7 @@ package androidx.window.layout {
     property public final java.util.List<androidx.window.layout.DisplayFeature> displayFeatures;
   }
 
-  public static final class WindowLayoutInfo.Builder {
-    ctor public WindowLayoutInfo.Builder();
-    method public androidx.window.layout.WindowLayoutInfo build();
-    method public androidx.window.layout.WindowLayoutInfo.Builder setDisplayFeatures(java.util.List<? extends androidx.window.layout.DisplayFeature> displayFeatures);
-  }
-
   public final class WindowMetrics {
-    ctor public WindowMetrics(android.graphics.Rect bounds);
     method public android.graphics.Rect getBounds();
     property public final android.graphics.Rect bounds;
   }

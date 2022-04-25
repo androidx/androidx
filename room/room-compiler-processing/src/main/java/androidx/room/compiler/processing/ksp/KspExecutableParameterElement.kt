@@ -18,20 +18,25 @@ package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XAnnotated
 import androidx.room.compiler.processing.XExecutableParameterElement
+import androidx.room.compiler.processing.XMemberContainer
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE_OR_METHOD_PARAMETER
+import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.google.devtools.ksp.symbol.KSPropertySetter
 import com.google.devtools.ksp.symbol.KSValueParameter
 
 internal class KspExecutableParameterElement(
     env: KspProcessingEnv,
-    val method: KspExecutableElement,
-    val parameter: KSValueParameter
+    override val enclosingElement: KspExecutableElement,
+    val parameter: KSValueParameter,
+    val parameterIndex: Int
 ) : KspElement(env, parameter),
     XExecutableParameterElement,
     XAnnotated by KspAnnotated.create(env, parameter, NO_USE_SITE_OR_METHOD_PARAMETER) {
 
     override val equalityItems: Array<out Any?>
-        get() = arrayOf(method, parameter)
+        get() = arrayOf(enclosingElement, parameter)
 
     override val name: String
         get() = parameter.name?.asString() ?: "_no_param_name"
@@ -39,38 +44,82 @@ internal class KspExecutableParameterElement(
     override val hasDefaultValue: Boolean
         get() = parameter.hasDefault
 
+    private val jvmTypeResolver by lazy {
+        KspJvmTypeResolutionScope.MethodParameter(
+            kspExecutableElement = enclosingElement,
+            parameterIndex = parameterIndex,
+            annotated = parameter.type
+        )
+    }
+
     override val type: KspType by lazy {
         parameter.typeAsMemberOf(
-            functionDeclaration = method.declaration,
-            ksType = method.containing.type?.ksType
+            functionDeclaration = enclosingElement.declaration,
+            ksType = enclosingElement.containing.type?.ksType
         ).let {
             env.wrap(
                 originatingReference = parameter.type,
                 ksType = it
-            )
+            ).withJvmTypeResolver(jvmTypeResolver)
         }
     }
 
+    override val closestMemberContainer: XMemberContainer by lazy {
+        enclosingElement.closestMemberContainer
+    }
+
     override val fallbackLocationText: String
-        get() = "$name in ${method.fallbackLocationText}"
+        get() = "$name in ${enclosingElement.fallbackLocationText}"
 
     override fun asMemberOf(other: XType): KspType {
-        if (method.containing.type?.isSameType(other) != false) {
+        if (enclosingElement.containing.type?.isSameType(other) != false) {
             return type
         }
         check(other is KspType)
         return parameter.typeAsMemberOf(
-            functionDeclaration = method.declaration,
+            functionDeclaration = enclosingElement.declaration,
             ksType = other.ksType
         ).let {
             env.wrap(
                 originatingReference = parameter.type,
                 ksType = it
-            )
+            ).withJvmTypeResolver(jvmTypeResolver)
         }
     }
 
     override fun kindName(): String {
         return "function parameter"
+    }
+
+    companion object {
+        fun create(
+            env: KspProcessingEnv,
+            parameter: KSValueParameter
+        ): XExecutableParameterElement {
+            val parent = checkNotNull(parameter.parent) {
+                "Expected value parameter '$parameter' to contain a parent node."
+            }
+            return when (parent) {
+                is KSFunctionDeclaration -> {
+                    val parameterIndex = parent.parameters.indexOf(parameter)
+                    check(parameterIndex > -1) {
+                        "Cannot find $parameter in $parent"
+                    }
+                    KspExecutableParameterElement(
+                        env = env,
+                        enclosingElement = KspExecutableElement.create(env, parent),
+                        parameter = parameter,
+                        parameterIndex = parameterIndex,
+                    )
+                }
+                is KSPropertySetter -> KspSyntheticPropertyMethodElement.create(
+                    env, parent
+                ).parameters.single()
+                else -> error(
+                    "Don't know how to create a parameter element whose parent is a " +
+                        "'${parent::class}'"
+                )
+            }
+        }
     }
 }

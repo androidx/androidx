@@ -20,10 +20,13 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.testutils.TestViewConfiguration
+import androidx.compose.testutils.WithViewConfiguration
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.test.InputDispatcher.Companion.eventPeriodMillis
 import androidx.compose.ui.test.TouchInjectionScope
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.longClick
@@ -37,12 +40,13 @@ import androidx.compose.ui.test.util.isAlmostEqualTo
 import androidx.compose.ui.test.util.verify
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.Truth.assertWithMessage
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
+import kotlin.math.max
+import kotlin.math.roundToInt
+import kotlin.math.roundToLong
 
 /**
  * Tests [TouchInjectionScope.longClick] with arguments. Verifies that the click is in the middle
@@ -55,6 +59,11 @@ class LongClickTest(private val config: TestConfig) {
     data class TestConfig(val position: Offset?, val durationMillis: Long?)
 
     companion object {
+        private const val LongPressTimeoutMillis = 300L
+        private val testViewConfiguration = TestViewConfiguration(
+            longPressTimeoutMillis = LongPressTimeoutMillis
+        )
+
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
         fun createTestSet(): List<TestConfig> {
@@ -73,18 +82,10 @@ class LongClickTest(private val config: TestConfig) {
     private val recordedLongClicks = mutableListOf<Offset>()
     private val expectedClickPosition =
         config.position ?: Offset(defaultSize / 2, defaultSize / 2)
-    private val expectedDuration = config.durationMillis ?: 600L
+    private val expectedDuration = config.durationMillis ?: LongPressTimeoutMillis + 100L
 
     private fun recordLongPress(position: Offset) {
         recordedLongClicks.add(position)
-    }
-
-    @Before
-    fun checkDuration() {
-        assertWithMessage(
-            "Test must either use a duration that is a multiple of 10, or the assertion needs to " +
-                "be rewritten to support arbitrary durations"
-        ).that(expectedDuration % 10).isEqualTo(0)
     }
 
     @Test
@@ -92,14 +93,16 @@ class LongClickTest(private val config: TestConfig) {
         // Given some content
         val recorder = SinglePointerInputRecorder()
         rule.setContent {
-            Box(Modifier.fillMaxSize().wrapContentSize(Alignment.BottomEnd)) {
-                ClickableTestBox(
-                    Modifier
-                        .pointerInput(Unit) {
-                            detectTapGestures(onLongPress = ::recordLongPress)
-                        }
-                        .then(recorder)
-                )
+            WithViewConfiguration(testViewConfiguration) {
+                Box(Modifier.fillMaxSize().wrapContentSize(Alignment.BottomEnd)) {
+                    ClickableTestBox(
+                        Modifier
+                            .pointerInput(Unit) {
+                                detectTapGestures(onLongPress = ::recordLongPress)
+                            }
+                            .then(recorder)
+                    )
+                }
             }
         }
 
@@ -127,12 +130,15 @@ class LongClickTest(private val config: TestConfig) {
     }
 
     private fun SinglePointerInputRecorder.assertIsLongClick(position: Offset) {
-        assertThat(events.size).isAtLeast(2)
+        val steps = max(1, (expectedDuration / eventPeriodMillis.toDouble()).roundToInt())
         val t0 = events[0].timestamp
         val id = events[0].id
 
+        assertThat(events).hasSize(2)
         events.dropLast(1).forEachIndexed { i, event ->
-            event.verify(t0 + i * 10, id, true, position)
+            // Don't check the timestamp
+            val t = t0 + (expectedDuration * i / steps.toDouble()).roundToLong()
+            event.verify(t, id, true, position)
         }
         events.last().verify(t0 + expectedDuration, id, false, position)
     }

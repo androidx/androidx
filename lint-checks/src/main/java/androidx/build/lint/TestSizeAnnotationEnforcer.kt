@@ -22,6 +22,7 @@ import com.android.tools.lint.client.api.UElementHandler
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
+import com.android.tools.lint.detector.api.Incident
 import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Scope
@@ -69,12 +70,13 @@ class TestSizeAnnotationEnforcer : Detector(), SourceCodeScanner {
                 ?.type?.canonicalText ?: return
 
             if (testRunnerClassName !in ALLOWED_TEST_RUNNERS) {
-                context.report(
-                    UNSUPPORTED_TEST_RUNNER,
-                    testRunner,
-                    context.getNameLocation(testRunner),
-                    "Unsupported test runner. Supported runners are: $ALLOWED_TEST_RUNNERS"
-                )
+                val incident = Incident(context)
+                    .issue(UNSUPPORTED_TEST_RUNNER)
+                    .location(context.getNameLocation(testRunner))
+                    .message("Unsupported test runner." +
+                        " Supported runners are: $ALLOWED_TEST_RUNNERS")
+                    .scope(testRunner)
+                context.report(incident)
                 return
             }
 
@@ -95,12 +97,12 @@ class TestSizeAnnotationEnforcer : Detector(), SourceCodeScanner {
                 // Report an issue if neither the test method nor the surrounding class have a
                 // valid test size annotation
                 if (combinedAnnotations.none { it.qualifiedName in TEST_SIZE_ANNOTATIONS }) {
-                    context.report(
-                        MISSING_TEST_SIZE_ANNOTATION,
-                        method,
-                        context.getNameLocation(method),
-                        "Missing test size annotation"
-                    )
+                    val incident = Incident(context)
+                        .issue(MISSING_TEST_SIZE_ANNOTATION)
+                        .location(context.getNameLocation(method))
+                        .message("Missing test size annotation")
+                        .scope(method)
+                    context.report(incident)
                 }
             }
         }
@@ -113,12 +115,12 @@ class TestSizeAnnotationEnforcer : Detector(), SourceCodeScanner {
             node.uAnnotations
                 .find { it.qualifiedName in TEST_SIZE_ANNOTATIONS }
                 ?.let { annotation ->
-                    context.report(
-                        UNEXPECTED_TEST_SIZE_ANNOTATION,
-                        annotation,
-                        context.getNameLocation(annotation),
-                        "Unexpected test size annotation"
-                    )
+                    val incident = Incident(context)
+                        .issue(UNEXPECTED_TEST_SIZE_ANNOTATION)
+                        .location(context.getNameLocation(annotation))
+                        .message("Unexpected test size annotation")
+                        .scope(annotation)
+                    context.report(incident)
                 }
 
             node.methods.filter {
@@ -128,12 +130,12 @@ class TestSizeAnnotationEnforcer : Detector(), SourceCodeScanner {
                 method.uAnnotations
                     .find { it.qualifiedName in TEST_SIZE_ANNOTATIONS }
                     ?.let { annotation ->
-                        context.report(
-                            UNEXPECTED_TEST_SIZE_ANNOTATION,
-                            annotation,
-                            context.getNameLocation(annotation),
-                            "Unexpected test size annotation"
-                        )
+                        val incident = Incident(context)
+                            .issue(UNEXPECTED_TEST_SIZE_ANNOTATION)
+                            .location(context.getNameLocation(annotation))
+                            .message("Unexpected test size annotation")
+                            .scope(annotation)
+                        context.report(incident)
                     }
             }
         }

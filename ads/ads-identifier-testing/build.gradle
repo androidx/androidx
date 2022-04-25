@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import androidx.build.LibraryType
+
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
@@ -28,4 +31,9 @@ android {
     lintOptions {
         disable "InvalidPackage" // Lint is unhappy about mockito package
     }
+    namespace "androidx.ads.identifier.testing"
+}
+
+androidx {
+    type = LibraryType.INTERNAL_TEST_LIBRARY
 }

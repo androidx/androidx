@@ -18,6 +18,7 @@ package androidx.wear.compose.material
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,8 +27,8 @@ import androidx.compose.ui.layout.ContentScale
 /**
  * Possible combinations for vignette state.
  */
-@Suppress("INLINE_CLASS_DEPRECATED")
-public inline class VignettePosition constructor(private val key: Int) {
+@kotlin.jvm.JvmInline
+public value class VignettePosition constructor(private val key: Int) {
     internal fun drawTop(): Boolean {
         return when (key) {
             1 -> false
@@ -97,23 +98,23 @@ public fun Vignette(
         if (vignettePosition.drawTop()) {
             Image(
                 painter = imageResource(
-                    if (isRoundDevice()) "circular_vignette_top"
-                    else "rectangular_vignette_top"
+                    if (isRoundDevice()) ImageResources.CircularVignetteTop
+                    else ImageResources.RectangularVignetteTop
                 ),
                 contentScale = ContentScale.FillWidth,
                 contentDescription = null,
-                modifier = Modifier.align(Alignment.TopCenter),
+                modifier = Modifier.align(Alignment.TopCenter).fillMaxWidth(),
             )
         }
         if (vignettePosition.drawBottom()) {
             Image(
                 painter = imageResource(
-                    if (isRoundDevice()) "circular_vignette_bottom"
-                    else "rectangular_vignette_bottom"
+                    if (isRoundDevice()) ImageResources.CircularVignetteBottom
+                    else ImageResources.RectangularVignetteBottom
                 ),
                 contentScale = ContentScale.FillWidth,
                 contentDescription = null,
-                modifier = Modifier.align(Alignment.BottomCenter),
+                modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth(),
             )
         }
     }

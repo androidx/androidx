@@ -61,6 +61,7 @@ abstract class ListenableFutureRemoteMediator<Key : Any, Value : Any> :
      * @return [MediatorResult] signifying what [LoadState] to be passed to the UI, and whether
      * there's more data available.
      */
+    @Suppress("AsyncSuffixFuture")
     abstract fun loadFuture(
         loadType: LoadType,
         state: PagingState<Key, Value>
@@ -79,6 +80,7 @@ abstract class ListenableFutureRemoteMediator<Key : Any, Value : Any> :
      *  * [SKIP_INITIAL_REFRESH][InitializeAction.SKIP_INITIAL_REFRESH] to wait for a
      *  refresh request from the UI before dispatching a [load] with load type [LoadType.REFRESH].
      */
+    @Suppress("AsyncSuffixFuture")
     open fun initializeFuture(): ListenableFuture<InitializeAction> {
         return Futures.immediateFuture(LAUNCH_INITIAL_REFRESH)
     }

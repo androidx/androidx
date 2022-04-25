@@ -124,6 +124,7 @@ public class RemoteCallback {
         return intent;
     }
 
+    @SuppressWarnings("deprecation")
     private static Uri generateUri(Intent intent) {
         if (intent.getData() != null) {
             return intent.getData();

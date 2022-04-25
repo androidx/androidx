@@ -22,11 +22,13 @@ import static androidx.camera.core.ImageCapture.FLASH_MODE_ON;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageCapture.FlashMode;
 
 /**
  * Helper class that defines certain enum-like methods for {@link FlashMode}
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class FlashModeConverter {
 
     private FlashModeConverter() {

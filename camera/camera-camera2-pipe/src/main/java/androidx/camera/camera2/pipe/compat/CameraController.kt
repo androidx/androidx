@@ -16,8 +16,10 @@
 
 package androidx.camera.camera2.pipe.compat
 
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.RequestProcessor
 
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 internal interface CameraController {
     /**
      * Tell the graph to start and initialize a [RequestProcessor] instances.

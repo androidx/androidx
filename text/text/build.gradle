@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -28,7 +26,7 @@ plugins {
 dependencies {
     implementation(libs.kotlinStdlib)
 
-    api "androidx.annotation:annotation:1.1.0"
+    api "androidx.annotation:annotation:1.2.0"
 
     testImplementation(libs.testRules)
     testImplementation(libs.testRunner)
@@ -56,4 +54,8 @@ androidx {
     inceptionYear = "2020"
     description = "Text primitives and utilities"
     legacyDisableKotlinStrictApiMode = true
+}
+
+android {
+    namespace "androidx.compose.ui.text.android"
 }

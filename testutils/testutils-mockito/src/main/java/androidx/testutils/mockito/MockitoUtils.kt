@@ -21,13 +21,14 @@ import org.mockito.MockSettings
 import org.mockito.Mockito
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
+import org.mockito.stubbing.OngoingStubbing
 
 /**
  * [Answer] variant intended for [MockSettings.defaultAnswer] that logs the unmocked method
  * that was called, serializing the arguments used, to try and provide a more informative
  * error message.
  */
-val ANSWER_THROWS = Answer {
+val ANSWER_THROWS: Answer<Any> = Answer {
     when (val name = it.method.name) {
         // Delegate to the actual toString, since that will probably not be mocked by a test
         "toString" -> Answers.CALLS_REAL_METHODS.answer(it)
@@ -51,7 +52,7 @@ val ANSWER_THROWS = Answer {
     }
 }
 
-fun <Type : Any?> whenever(mock: Type, block: InvocationOnMock.() -> Type) =
+fun <Type : Any?> whenever(mock: Type, block: InvocationOnMock.() -> Type): OngoingStubbing<Type> =
     Mockito.`when`(mock).thenAnswer { block(it) }!!
 
 /**

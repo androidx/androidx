@@ -38,6 +38,7 @@ import androidx.room.vo.Database
 import androidx.room.vo.DatabaseView
 import androidx.room.vo.Entity
 import androidx.room.vo.FtsEntity
+import androidx.room.vo.Warning
 import androidx.room.vo.columnNames
 import androidx.room.vo.findFieldByColumnName
 import com.squareup.javapoet.TypeName
@@ -105,9 +106,16 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
                 )
                 null
             } else {
+                if (executable.hasAnnotation(JvmName::class)) {
+                    context.logger.w(
+                        Warning.JVM_NAME_ON_OVERRIDDEN_METHOD,
+                        executable,
+                        ProcessorErrors.JVM_NAME_ON_OVERRIDDEN_METHOD
+                    )
+                }
                 val dao = DaoProcessor(context, daoElement, declaredType, dbVerifier)
                     .process()
-                DaoMethod(executable, executable.name, dao)
+                DaoMethod(executable, dao)
             }
         }.toList()
 
@@ -209,7 +217,6 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
                 }
 
                 AutoMigrationProcessor(
-                    element = element,
                     context = context,
                     spec = it.getAsType("spec")!!,
                     fromSchemaBundle = fromSchemaBundle,
@@ -332,7 +339,9 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
         daoMethods.groupBy { it.dao.typeName }
             .forEach {
                 if (it.value.size > 1) {
-                    val error = ProcessorErrors.duplicateDao(it.key, it.value.map { it.name })
+                    val error = ProcessorErrors.duplicateDao(it.key,
+                        it.value.map { it.element.jvmName }
+                    )
                     it.value.forEach { daoMethod ->
                         context.logger.e(
                             daoMethod.element,

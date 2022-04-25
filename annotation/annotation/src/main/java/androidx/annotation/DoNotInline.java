@@ -28,12 +28,12 @@ import java.lang.annotation.Target;
  * intended to be in separate classes.
  * <p>
  * Example:
- * <pre><code>
+ * <pre>
  *  &#64;DoNotInline
  *  public void foo() {
  *      ...
  *  }
- * </code></pre>
+ * </pre>
  */
 @Retention(CLASS)
 @Target({METHOD})

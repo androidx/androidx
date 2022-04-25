@@ -23,8 +23,7 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -53,42 +52,42 @@ class ReplaceFileCorruptionHandlerTest {
     }
 
     @Test
-    fun testHandledRead() = runBlockingTest {
+    fun testHandledRead() = runTest {
         preSeedData(testFile, 1)
 
         val store = SingleProcessDataStore<Byte>(
             { testFile },
             TestingSerializer(failReadWithCorruptionException = true),
             corruptionHandler = ReplaceFileCorruptionHandler<Byte> { 10 },
-            scope = TestCoroutineScope()
+            scope = this
         )
 
         assertThat(store.data.first()).isEqualTo(10)
     }
 
     @Test
-    fun testHandledWrite() = runBlockingTest {
+    fun testHandledWrite() = runTest {
         preSeedData(testFile, 1)
 
         val store = SingleProcessDataStore<Byte>(
             { testFile },
             TestingSerializer(failReadWithCorruptionException = true),
             corruptionHandler = ReplaceFileCorruptionHandler<Byte> { 10 },
-            scope = TestCoroutineScope()
+            scope = this
         )
 
         assertThat(store.updateData { it.inc() }).isEqualTo(11)
     }
 
     @Test
-    fun testHandlerCalledOnce() = runBlockingTest {
+    fun testHandlerCalledOnce() = runTest {
         preSeedData(testFile, 1)
 
         val store = SingleProcessDataStore<Byte>(
             { testFile },
             TestingSerializer(failReadWithCorruptionException = true),
             corruptionHandler = ReplaceFileCorruptionHandler<Byte> { 10 },
-            scope = TestCoroutineScope()
+            scope = this
         )
 
         val plus1 = async { store.updateData { it.inc() } }
@@ -101,7 +100,7 @@ class ReplaceFileCorruptionHandlerTest {
     }
 
     @Test
-    fun testFailingWritePropagates() = runBlockingTest {
+    fun testFailingWritePropagates() = runTest {
 
         preSeedData(testFile, 1)
 
@@ -109,7 +108,7 @@ class ReplaceFileCorruptionHandlerTest {
             { testFile },
             TestingSerializer(failReadWithCorruptionException = true, failingWrite = true),
             corruptionHandler = ReplaceFileCorruptionHandler<Byte> { 10 },
-            scope = TestCoroutineScope()
+            scope = this
         )
 
         assertThrows<IOException> { store.data.first() }

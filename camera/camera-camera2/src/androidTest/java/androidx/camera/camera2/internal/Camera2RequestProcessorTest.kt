@@ -19,7 +19,6 @@ package androidx.camera.camera2.internal
 import android.content.Context
 import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
-import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CaptureRequest
@@ -28,7 +27,11 @@ import android.media.ImageReader
 import android.os.Handler
 import android.os.Looper
 import android.view.Surface
+import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.impl.Camera2CameraCaptureResultConverter
+import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat
+import androidx.camera.camera2.internal.compat.quirk.CameraQuirks
+import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks
 import androidx.camera.camera2.internal.util.RequestProcessorRequest
 import androidx.camera.camera2.interop.CaptureRequestOptions
 import androidx.camera.core.impl.CameraCaptureFailure
@@ -38,11 +41,16 @@ import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.SessionProcessorSurface
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.CameraUtil.PreTestCameraIdList
 import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Executor
+import java.util.concurrent.ScheduledExecutorService
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -52,9 +60,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.Executor
-import java.util.concurrent.ScheduledExecutorService
 
 const val CAMERA_ID = "0"
 const val PREVIEW_OUTPUT_CONFIG_ID = 1
@@ -65,9 +70,12 @@ const val ORIENTATION_2 = 270
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = 21)
 class Camera2RequestProcessorTest {
     @get:Rule
-    val cameraRule = CameraUtil.grantCameraPermissionAndPreTest()
+    val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
+        PreTestCameraIdList(Camera2Config.defaultConfig())
+    )
 
     private lateinit var cameraDeviceHolder: CameraUtil.CameraDeviceHolder
     private lateinit var captureSessionRepository: CaptureSessionRepository
@@ -80,12 +88,13 @@ class Camera2RequestProcessorTest {
     private var numOfCapturedImages = 0
     private val previewImageRetrieved = CompletableDeferred<Unit>()
 
-    private fun getHardwareLevel(cameraId: String): Int {
+    private fun getCameraCharacteristic(cameraId: String): CameraCharacteristicsCompat {
         val cameraManager = ApplicationProvider.getApplicationContext<Context>()
             .getSystemService(Context.CAMERA_SERVICE) as CameraManager
 
-        return cameraManager.getCameraCharacteristics(cameraId)
-            .get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)!!
+        return CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
+            cameraManager.getCameraCharacteristics(cameraId)
+        )
     }
 
     @Before
@@ -98,7 +107,8 @@ class Camera2RequestProcessorTest {
             mainThreadExecutor as ScheduledExecutorService,
             handler,
             captureSessionRepository,
-            getHardwareLevel(CAMERA_ID)
+            CameraQuirks.get(CAMERA_ID, getCameraCharacteristic(CAMERA_ID)),
+            DeviceQuirks.getAll()
         )
 
         cameraDeviceHolder = CameraUtil.getCameraDevice(
@@ -390,9 +400,9 @@ class Camera2RequestProcessorTest {
             previewImageRetrieved.await()
             val camera2CaptureResult =
                 Camera2CameraCaptureResultConverter.getCaptureResult(captureResult)!!
-            assertThat(camera2CaptureResult.get(CaptureResult.CONTROL_CAPTURE_INTENT))
+            assertThat(camera2CaptureResult.request.get(CaptureRequest.CONTROL_CAPTURE_INTENT))
                 .isEqualTo(CaptureResult.CONTROL_CAPTURE_INTENT_PREVIEW)
-            assertThat(camera2CaptureResult.get(CaptureResult.JPEG_ORIENTATION))
+            assertThat(camera2CaptureResult.request.get(CaptureRequest.JPEG_ORIENTATION))
                 .isEqualTo(ORIENTATION_1)
             assertThat(receivedRequest).isSameInstanceAs(request)
 
@@ -500,8 +510,8 @@ class Camera2RequestProcessorTest {
 
         suspend fun awaitCaptureResults():
             List<Pair<CameraCaptureResult, RequestProcessor.Request>> {
-                return deferredCaptureResults.await()
-            }
+            return deferredCaptureResults.await()
+        }
 
         suspend fun awaitCaptureSequenceId(): Int {
             return deferredCaptureSequenceReceived.await()

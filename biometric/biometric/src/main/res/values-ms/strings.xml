@@ -30,4 +30,18 @@
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"PIN, corak atau kata laluan tidak ditetapkan."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Peranti ini tidak menyokong PIN, corak atau kata laluan."</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"Ikon cap jari"</string>
+    <string name="use_fingerprint_label" msgid="6961788485681412417">"Gunakan cap jari"</string>
+    <string name="use_face_label" msgid="6533512708069459542">"Gunakan wajah"</string>
+    <string name="use_biometric_label" msgid="6524145989441579428">"Gunakan biometrik"</string>
+    <string name="use_screen_lock_label" msgid="5459869335976243512">"Gunakan kunci skrin"</string>
+    <string name="use_fingerprint_or_screen_lock_label" msgid="7577690399303139443">"Gunakan cap jari atau kunci skrin"</string>
+    <string name="use_face_or_screen_lock_label" msgid="2116180187159450292">"Gunakan kunci wajah atau skrin"</string>
+    <string name="use_biometric_or_screen_lock_label" msgid="5385448280139639016">"Gunakan biometrik atau kunci skrin"</string>
+    <string name="fingerprint_prompt_message" msgid="7449360011861769080">"Gunakan cap jari anda untuk meneruskan"</string>
+    <string name="face_prompt_message" msgid="2282389249605674226">"Gunakan wajah untuk meneruskan"</string>
+    <string name="biometric_prompt_message" msgid="1160635338192065472">"Gunakan biometrik anda untuk meneruskan"</string>
+    <string name="screen_lock_prompt_message" msgid="5659570757430909869">"Masukkan kunci skrin untuk meneruskan"</string>
+    <string name="fingerprint_or_screen_lock_prompt_message" msgid="8382576858490514495">"Gunakan cap jari atau kunci skrin anda untuk meneruskan"</string>
+    <string name="face_or_screen_lock_prompt_message" msgid="4562557128765735254">"Gunakan wajah atau kunci skrin anda untuk meneruskan"</string>
+    <string name="biometric_or_screen_lock_prompt_message" msgid="2102429900219199821">"Gunakan biometrik atau kunci skrin anda untuk meneruskan"</string>
 </resources>

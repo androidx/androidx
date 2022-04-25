@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -33,5 +32,9 @@ androidx {
     mavenGroup = LibraryGroups.MEDIAROUTER
     inceptionYear = "2021"
     description = "Test utilities for AndroidX MediaRouter"
+}
+
+android {
+    namespace "androidx.mediarouter.testing"
 }
 

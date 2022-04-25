@@ -20,15 +20,18 @@ import android.util.ArrayMap;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 
 /**
  * A MutableOptionsBundle is an {@link OptionsBundle} which allows for insertion/removal.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class MutableOptionsBundle extends OptionsBundle implements MutableConfig {
     @NonNull
     private static final OptionPriority DEFAULT_PRIORITY = OptionPriority.OPTIONAL;
@@ -102,7 +105,7 @@ public final class MutableOptionsBundle extends OptionsBundle implements Mutable
         OptionPriority priority2 = priority;
         Object value1 = values.get(priority1);
         ValueT value2 = value;
-        if (!value1.equals(value2) && Config.hasConflict(priority1, priority2)) {
+        if (!Objects.equals(value1, value2) && Config.hasConflict(priority1, priority2)) {
             throw new IllegalArgumentException("Option values conflicts: " + opt.getId()
                     + ", existing value (" + priority1 + ")=" + values.get(priority1)
                     + ", conflicting (" + priority2 + ")=" + value);

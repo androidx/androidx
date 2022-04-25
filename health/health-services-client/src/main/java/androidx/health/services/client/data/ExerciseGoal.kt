@@ -17,6 +17,7 @@
 package androidx.health.services.client.data
 
 import android.os.Parcelable
+import androidx.annotation.RestrictTo
 import androidx.health.services.client.proto.DataProto
 import java.util.Objects
 
@@ -98,6 +99,7 @@ private constructor(
      *
      * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public fun isEquivalentTo(other: ExerciseGoal): Boolean {
         if (this.exerciseGoalType != other.exerciseGoalType) {
             return false
@@ -108,7 +110,7 @@ private constructor(
             ExerciseGoalType.MILESTONE ->
                 this.dataTypeCondition.dataType == other.dataTypeCondition.dataType &&
                     this.dataTypeCondition.comparisonType ==
-                    other.dataTypeCondition.comparisonType &&
+                        other.dataTypeCondition.comparisonType &&
                     this.period == other.period &&
                     Value.isZero(
                         Value.modulo(
@@ -119,6 +121,7 @@ private constructor(
                             period!!
                         )
                     )
+            else -> equals(other)
         }
     }
 

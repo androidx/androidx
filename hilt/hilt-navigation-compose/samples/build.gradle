@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.LibraryType
 import androidx.build.Publish
 
@@ -42,4 +40,8 @@ androidx {
     mavenVersion = LibraryVersions.HILT_NAVIGATION_COMPOSE
     inceptionYear = "2021"
     description = "Samples for the Navigation Compose Hilt Integration"
+}
+
+android {
+    namespace "androidx.hilt.navigation.compose.samples"
 }

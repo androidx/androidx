@@ -16,22 +16,23 @@
 
 package androidx.camera.core.impl;
 
+import android.util.Range;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ExtendableBuilder;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.internal.TargetConfig;
 import androidx.camera.core.internal.UseCaseEventConfig;
-import androidx.core.util.Consumer;
-
-import java.util.Collection;
 
 /**
  * Configuration containing options for use cases.
  *
  * @param <T> The use case being configured.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, UseCaseEventConfig,
         ImageInputConfig {
     // Option Declarations:
@@ -75,12 +76,13 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, UseCa
      */
     Option<CameraSelector> OPTION_CAMERA_SELECTOR =
             Config.Option.create("camerax.core.useCase.cameraSelector", CameraSelector.class);
+
     /**
-     * Option: camerax.core.useCase.attachedUseCasesUpdateListener
+     * Option: camerax.core.useCase.targetFramerate
      */
-    Option<Consumer<Collection<UseCase>>> OPTION_ATTACHED_USE_CASES_UPDATE_LISTENER =
-            Config.Option.create("camerax.core.useCase.attachedUseCasesUpdateListener",
-                    Consumer.class);
+    Option<Range<Integer>> OPTION_TARGET_FRAME_RATE =
+            Config.Option.create("camerax.core.useCase.targetFrameRate", CameraSelector.class);
+
 
     // *********************************************************************************************
 
@@ -257,29 +259,25 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, UseCa
     }
 
     /**
-     * Retrieves the attached use cases update listener that will be updated when one or more use
-     * cases are attached or detached.
-     *
-     * @param valueIfMissing The value to return if this configuration option has not been set.
-     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
-     * configuration.
+     * Retrieves target frame rate
+     * @param valueIfMissing
+     * @return the stored value or <code>valueIfMissing</code> if the value does not exist in
+     * this configuration
      */
     @Nullable
-    default Consumer<Collection<UseCase>> getAttachedUseCasesUpdateListener(
-            @Nullable Consumer<Collection<UseCase>> valueIfMissing) {
-        return retrieveOption(OPTION_ATTACHED_USE_CASES_UPDATE_LISTENER, valueIfMissing);
+    default Range<Integer> getTargetFramerate(@Nullable Range<Integer> valueIfMissing) {
+        return retrieveOption(OPTION_TARGET_FRAME_RATE, valueIfMissing);
     }
 
     /**
-     * Retrieves the attached use cases update listener that will be updated when the use case is
-     * attached.
+     * Retrieves the target frame rate
      *
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
     @NonNull
-    default Consumer<Collection<UseCase>> getAttachedUseCasesUpdateListener() {
-        return retrieveOption(OPTION_ATTACHED_USE_CASES_UPDATE_LISTENER);
+    default Range<Integer> getTargetFramerate() {
+        return retrieveOption(OPTION_TARGET_FRAME_RATE);
     }
 
     /**
@@ -358,18 +356,6 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, UseCa
          */
         @NonNull
         B setCameraSelector(@NonNull CameraSelector cameraSelector);
-
-        /**
-         * Sets the attached use cases update listener that will be updated when the use case is
-         * attached.
-         *
-         * @param attachedUseCasesUpdateListener The attached use cases update listener appended
-         *                                       internally.
-         * @return The current Builder.
-         */
-        @NonNull
-        B setAttachedUseCasesUpdateListener(
-                @NonNull Consumer<Collection<UseCase>> attachedUseCasesUpdateListener);
 
         /**
          * Retrieves the configuration used by this builder.

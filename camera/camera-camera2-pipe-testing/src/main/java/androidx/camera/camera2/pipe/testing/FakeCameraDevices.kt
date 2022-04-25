@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.pipe.testing
 
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraDevices
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
@@ -24,9 +25,15 @@ import kotlinx.coroutines.runBlocking
 /**
  * This provides a fake implementation of [CameraDevices] for tests with a fixed list of Cameras.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class FakeCameraDevices(
     private val cameras: List<CameraMetadata>
 ) : CameraDevices {
+    @Deprecated(
+        message = "findAll may block the calling thread and is deprecated.",
+        replaceWith = ReplaceWith("ids"),
+        level = DeprecationLevel.WARNING
+    )
     override fun findAll(): List<CameraId> = runBlocking { ids() }
     override suspend fun ids(): List<CameraId> = cameras.map { it.camera }
 

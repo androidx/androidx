@@ -26,7 +26,8 @@ import static org.junit.Assume.assumeTrue;
 import android.content.Context;
 import android.content.Intent;
 
-import androidx.camera.core.CameraX;
+import androidx.camera.camera2.Camera2Config;
+import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.CoreAppTestUtil;
 import androidx.test.core.app.ApplicationProvider;
@@ -73,7 +74,9 @@ public final class NewActivityLifecycleTest {
             new ActivityTestRule<>(CameraXActivity.class, true, false);
 
     @Rule
-    public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest();
+    public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest(
+            new CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+    );
 
     @Rule
     public GrantPermissionRule mStoragePermissionRule =
@@ -105,7 +108,9 @@ public final class NewActivityLifecycleTest {
     @AfterClass
     public static void shutdownCameraX()
             throws InterruptedException, ExecutionException, TimeoutException {
-        CameraX.shutdown().get(10, TimeUnit.SECONDS);
+        ProcessCameraProvider cameraProvider = ProcessCameraProvider.getInstance(
+                ApplicationProvider.getApplicationContext()).get(10, TimeUnit.SECONDS);
+        cameraProvider.shutdown().get(10, TimeUnit.SECONDS);
     }
 
     @Test

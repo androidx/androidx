@@ -26,6 +26,49 @@ import androidx.paging.LoadType.REFRESH
  * Every event sent to the UI is a PageEvent, and will be processed atomically.
  */
 internal sealed class PageEvent<T : Any> {
+    /**
+     * Represents a fully-terminal, static list of data.
+     *
+     * This event should always be the first and only emission in a Flow<PageEvent> within a
+     * generation.
+     *
+     * @param sourceLoadStates source [LoadStates] to emit if non-null, ignored otherwise, allowing
+     * the presenter receiving this event to maintain the previous state.
+     * @param mediatorLoadStates mediator [LoadStates] to emit if non-null, ignored otherwise,
+     * allowing the presenter receiving this event to maintain its previous state.
+     */
+    data class StaticList<T : Any>(
+        val data: List<T>,
+        val sourceLoadStates: LoadStates? = null,
+        val mediatorLoadStates: LoadStates? = null
+    ) : PageEvent<T>() {
+        override suspend fun <R : Any> map(transform: suspend (T) -> R): PageEvent<R> {
+            return StaticList(
+                data = data.map { transform(it) },
+                sourceLoadStates = sourceLoadStates,
+                mediatorLoadStates = mediatorLoadStates,
+            )
+        }
+
+        override suspend fun <R : Any> flatMap(
+            transform: suspend (T) -> Iterable<R>
+        ): PageEvent<R> {
+            return StaticList(
+                data = data.flatMap { transform(it) },
+                sourceLoadStates = sourceLoadStates,
+                mediatorLoadStates = mediatorLoadStates,
+            )
+        }
+
+        override suspend fun filter(predicate: suspend (T) -> Boolean): PageEvent<T> {
+            return StaticList(
+                data = data.filter { predicate(it) },
+                sourceLoadStates = sourceLoadStates,
+                mediatorLoadStates = mediatorLoadStates,
+            )
+        }
+    }
+
     // Intentional to prefer Refresh, Prepend, Append constructors from Companion.
     @Suppress("DataClassPrivateConstructor")
     data class Insert<T : Any> private constructor(
@@ -175,6 +218,7 @@ internal sealed class PageEvent<T : Any> {
             )
         }
     }
+
     // TODO: b/195658070 consider refactoring Drop events to carry full source/mediator states.
     data class Drop<T : Any>(
         val loadType: LoadType,

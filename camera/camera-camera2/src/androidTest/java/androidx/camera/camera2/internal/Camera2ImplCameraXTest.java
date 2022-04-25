@@ -44,18 +44,19 @@ import androidx.camera.camera2.interop.Camera2Interop;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.CameraUtil;
+import androidx.camera.testing.CameraXUtil;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.After;
@@ -82,6 +83,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 @OptIn(markerClass = ExperimentalCamera2Interop.class)
+@SdkSuppress(minSdkVersion = 21)
 public final class Camera2ImplCameraXTest {
     @CameraSelector.LensFacing
     private static final int DEFAULT_LENS_FACING = CameraSelector.LENS_FACING_BACK;
@@ -89,7 +91,9 @@ public final class Camera2ImplCameraXTest {
             new CameraSelector.Builder().requireLensFacing(DEFAULT_LENS_FACING).build();
 
     @Rule
-    public TestRule mCameraRule = CameraUtil.grantCameraPermissionAndPreTest();
+    public TestRule mCameraRule = CameraUtil.grantCameraPermissionAndPreTest(
+            new CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+    );
 
     private CameraDevice.StateCallback mDeviceStateCallback;
     private FakeLifecycleOwner mLifecycle;
@@ -100,7 +104,7 @@ public final class Camera2ImplCameraXTest {
     @Before
     public void setUp() {
         mContext = ApplicationProvider.getApplicationContext();
-        CameraX.initialize(mContext, Camera2Config.defaultConfig());
+        CameraXUtil.initialize(mContext, Camera2Config.defaultConfig());
         mLifecycle = new FakeLifecycleOwner();
 
         mDeviceStateCallback = mock(CameraDevice.StateCallback.class);
@@ -116,7 +120,7 @@ public final class Camera2ImplCameraXTest {
             );
         }
 
-        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
+        CameraXUtil.shutdown().get(10000, TimeUnit.MILLISECONDS);
     }
 
     @Test

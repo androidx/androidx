@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -23,7 +22,7 @@ plugins {
 }
 
 dependencies {
-    api("androidx.core:core:1.3.2")
+    api("androidx.core:core:1.6.0")
     api("androidx.collection:collection:1.1.0")
     api(libs.guavaListenableFuture)
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
@@ -42,4 +41,8 @@ androidx {
     mavenGroup = LibraryGroups.SHARETARGET
     inceptionYear = "2018"
     description = "ShareTarget"
+}
+
+android {
+    namespace "androidx.sharetarget"
 }

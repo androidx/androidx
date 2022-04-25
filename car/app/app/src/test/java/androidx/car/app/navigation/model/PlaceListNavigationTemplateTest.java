@@ -19,10 +19,13 @@ package androidx.car.app.navigation.model;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import android.content.Context;
 import android.text.SpannableString;
 
+import androidx.car.app.OnDoneCallback;
 import androidx.car.app.TestUtils;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
@@ -33,6 +36,7 @@ import androidx.car.app.model.Distance;
 import androidx.car.app.model.DistanceSpan;
 import androidx.car.app.model.ItemList;
 import androidx.car.app.model.Metadata;
+import androidx.car.app.model.OnContentRefreshListener;
 import androidx.car.app.model.Place;
 import androidx.car.app.model.PlaceMarker;
 import androidx.car.app.model.Row;
@@ -52,6 +56,19 @@ public class PlaceListNavigationTemplateTest {
     private final DistanceSpan mDistanceSpan =
             DistanceSpan.create(
                     Distance.create(/* displayDistance= */ 1, Distance.UNIT_KILOMETERS_P1));
+    private final ActionStrip mActionStrip =
+            new ActionStrip.Builder().addAction(TestUtils.createAction("test", null)).build();
+    private final ActionStrip mMapActionStrip =
+            new ActionStrip.Builder().addAction(
+                    TestUtils.createAction(null, TestUtils.getTestCarIcon(
+                            ApplicationProvider.getApplicationContext(),
+                            "ic_test_1"))).build();
+
+    @Test
+    public void textButtonInMapActionStrip_throws() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new PlaceListNavigationTemplate.Builder().setMapActionStrip(mActionStrip));
+    }
 
     @Test
     public void createInstance_emptyList_notLoading_Throws() {
@@ -143,22 +160,12 @@ public class PlaceListNavigationTemplateTest {
     }
 
     @Test
-    public void createInstance_noHeaderTitleOrAction_throws() {
-        assertThrows(
-                IllegalStateException.class,
-                () ->
-                        new PlaceListNavigationTemplate.Builder().setItemList(
-                                new ItemList.Builder().build()).build());
-
-        // Positive cases.
-        new PlaceListNavigationTemplate.Builder()
-                .setTitle("Title")
-                .setItemList(new ItemList.Builder().build())
-                .build();
-        new PlaceListNavigationTemplate.Builder()
-                .setHeaderAction(Action.BACK)
-                .setItemList(new ItemList.Builder().build())
-                .build();
+    public void createInstance_emptyHeaderTitleOrAction() {
+        ItemList itemList = TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan);
+        PlaceListNavigationTemplate template =
+                new PlaceListNavigationTemplate.Builder().setItemList(itemList).build();
+        assertThat(template.getTitle()).isNull();
+        assertThat(template.getHeaderAction()).isNull();
     }
 
     @Test
@@ -193,6 +200,7 @@ public class PlaceListNavigationTemplateTest {
         assertThat(template.getItemList().getItems()).isEmpty();
         assertThat(template.getTitle().toString()).isEqualTo("Title");
         assertThat(template.getActionStrip()).isNull();
+        assertThat(template.getOnContentRefreshDelegate()).isNull();
     }
 
     @Test
@@ -205,10 +213,12 @@ public class PlaceListNavigationTemplateTest {
                         .setItemList(itemList)
                         .setTitle(title)
                         .setActionStrip(actionStrip)
+                        .setMapActionStrip(mMapActionStrip)
                         .build();
         assertThat(template.getItemList()).isEqualTo(itemList);
         assertThat(template.getActionStrip()).isEqualTo(actionStrip);
         assertThat(template.getTitle().toString()).isEqualTo(title);
+        assertThat(template.getMapActionStrip()).isEqualTo(mMapActionStrip);
     }
 
     @Test
@@ -317,14 +327,35 @@ public class PlaceListNavigationTemplateTest {
     }
 
     @Test
+    public void setOnContentRefreshListener_triggersListener() {
+        OnContentRefreshListener listener = mock(OnContentRefreshListener.class);
+        PlaceListNavigationTemplate template =
+                new PlaceListNavigationTemplate.Builder()
+                        .setTitle("title")
+                        .setItemList(new ItemList.Builder().build())
+                        .setOnContentRefreshListener(listener)
+                        .build();
+
+        OnDoneCallback onDoneCallback = mock(OnDoneCallback.class);
+        template.getOnContentRefreshDelegate().sendContentRefreshRequested(onDoneCallback);
+        verify(listener).onContentRefreshRequested();
+        verify(onDoneCallback).onSuccess(null);
+    }
+
+    @Test
     public void equals() {
+        OnContentRefreshListener listener = mock(OnContentRefreshListener.class);
         PlaceListNavigationTemplate template =
                 new PlaceListNavigationTemplate.Builder()
                         .setItemList(
                                 TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan))
                         .setHeaderAction(Action.BACK)
                         .setActionStrip(new ActionStrip.Builder().addAction(Action.BACK).build())
+                        .setMapActionStrip(mMapActionStrip)
+                        .setPanModeListener((panModechanged) -> {
+                        })
                         .setTitle("title")
+                        .setOnContentRefreshListener(listener)
                         .build();
 
         assertThat(template)
@@ -335,7 +366,11 @@ public class PlaceListNavigationTemplateTest {
                                 .setHeaderAction(Action.BACK)
                                 .setActionStrip(
                                         new ActionStrip.Builder().addAction(Action.BACK).build())
+                                .setMapActionStrip(mMapActionStrip)
+                                .setPanModeListener((panModechanged) -> {
+                                })
                                 .setTitle("title")
+                                .setOnContentRefreshListener(listener)
                                 .build());
     }
 
@@ -398,12 +433,84 @@ public class PlaceListNavigationTemplateTest {
     }
 
     @Test
+    public void notEquals_differentMapActionStrip() {
+        PlaceListNavigationTemplate template = new PlaceListNavigationTemplate.Builder()
+                .setTitle("Title")
+                .setItemList(
+                        TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan))
+                .setActionStrip(
+                        mActionStrip)
+                .setMapActionStrip(mMapActionStrip)
+                .build();
+
+        assertThat(template)
+                .isNotEqualTo(
+                        new PlaceListNavigationTemplate.Builder()
+                                .setTitle("Title")
+                                .setItemList(
+                                        TestUtils.createItemListWithDistanceSpan(6, false,
+                                                mDistanceSpan))
+                                .setActionStrip(mActionStrip)
+                                .setMapActionStrip(new ActionStrip.Builder().addAction(
+                                        TestUtils.createAction(null, TestUtils.getTestCarIcon(
+                                                ApplicationProvider.getApplicationContext(),
+                                                "ic_test_2"))).build())
+                                .build());
+    }
+
+    @Test
+    public void notEquals_panModeListenerChange() {
+        PlaceListNavigationTemplate template = new PlaceListNavigationTemplate.Builder()
+                .setTitle("Title")
+                .setItemList(
+                        TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan))
+                .setActionStrip(
+                        mActionStrip)
+                .setMapActionStrip(mMapActionStrip)
+                .setPanModeListener((panModechanged) -> {
+                })
+                .build();
+
+        assertThat(template)
+                .isNotEqualTo(
+                        new PlaceListNavigationTemplate.Builder()
+                                .setTitle("Title")
+                                .setItemList(
+                                        TestUtils.createItemListWithDistanceSpan(6, false,
+                                                mDistanceSpan))
+                                .setActionStrip(
+                                        mActionStrip)
+                                .setMapActionStrip(mMapActionStrip)
+                                .build());
+    }
+
+    @Test
     public void notEquals_differentTitle() {
         PlaceListNavigationTemplate template =
                 new PlaceListNavigationTemplate.Builder()
                         .setItemList(
                                 TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan))
                         .setTitle("title")
+                        .build();
+
+        assertThat(template)
+                .isNotEqualTo(
+                        new PlaceListNavigationTemplate.Builder()
+                                .setItemList(TestUtils.createItemListWithDistanceSpan(6, false,
+                                        mDistanceSpan))
+                                .setTitle("other")
+                                .build());
+    }
+
+    @Test
+    public void notEquals_nonAndNonNullOnContentRefreshListeners() {
+        OnContentRefreshListener listener = mock(OnContentRefreshListener.class);
+        PlaceListNavigationTemplate template =
+                new PlaceListNavigationTemplate.Builder()
+                        .setItemList(
+                                TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan))
+                        .setTitle("title")
+                        .setOnContentRefreshListener(listener)
                         .build();
 
         assertThat(template)

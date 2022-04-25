@@ -18,6 +18,7 @@ package androidx.health.services.client.impl
 
 import android.util.Log
 import androidx.annotation.GuardedBy
+import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.health.services.client.MeasureCallback
 import androidx.health.services.client.data.Availability
@@ -36,6 +37,7 @@ import java.util.concurrent.Executor
  *
  * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class MeasureCallbackStub
 private constructor(callbackKey: MeasureCallbackKey, private val callback: MeasureCallback) :
     IMeasureCallback.Stub() {
@@ -54,7 +56,7 @@ private constructor(callbackKey: MeasureCallbackKey, private val callback: Measu
         when (proto.eventCase) {
             EventCase.DATA_POINT_RESPONSE -> {
                 val dataPointsResponse = DataPointsResponse(proto.dataPointResponse)
-                callback.onData(dataPointsResponse.dataPoints)
+                callback.onDataReceived(dataPointsResponse.dataPoints)
             }
             EventCase.AVAILABILITY_RESPONSE ->
                 callback.onAvailabilityChanged(

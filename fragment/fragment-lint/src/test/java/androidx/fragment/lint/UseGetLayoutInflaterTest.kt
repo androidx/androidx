@@ -18,6 +18,7 @@ package androidx.fragment.lint
 
 import androidx.fragment.lint.stubs.DIALOG_FRAGMENT
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
+import com.android.tools.lint.checks.infrastructure.TestMode
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Issue
 import org.junit.Test
@@ -160,6 +161,7 @@ class UseGetLayoutInflaterTest : LintDetectorTest() {
     fun `java expect fail dialog fragment with fix`() {
         lint().files(dialogFragmentStubJava)
             .allowCompilationErrors(true) // b/193540422
+            .skipTestModes(TestMode.WHITESPACE) // b/203246909
             .run()
             .expect(
                 """

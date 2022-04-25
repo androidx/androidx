@@ -15,7 +15,6 @@
  */
 
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -46,4 +45,8 @@ androidx {
     mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2017"
     description = "Android Lifecycle Reactivestreams"
+}
+
+android {
+    namespace "androidx.lifecycle.reactivestreams"
 }

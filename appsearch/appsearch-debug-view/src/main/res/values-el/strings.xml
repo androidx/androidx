@@ -17,9 +17,9 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="appsearch_no_documents_error" msgid="2371906054857961621">"Δεν βρέθηκαν έγγραφα AppSearch στη βάση δεδομένων. Επαληθεύστε ότι το όνομα της βάσης δεδομένων είναι έγκυρο και ότι έχει επιλεγεί ο σωστός τύπος αποθηκευτικού χώρου."</string>
-    <string name="appsearch_no_schema_types_error" msgid="6040453370924007774">"Δεν βρέθηκαν τύποι σχήματος AppSearch. Επαληθεύστε ότι το όνομα της βάσης δεδομένων είναι έγκυρο και ότι έχει επιλεγεί ο σωστός τύπος αποθηκευτικού χώρου."</string>
-    <string name="appsearch_documents_loading" msgid="3079225167662255666">"Φόρτωση εγγράφων AppSearch…"</string>
-    <string name="appsearch_schema_types_loading" msgid="5223743742396711620">"Φόρτωση τύπων σχήματος AppSearch…"</string>
-    <string name="appsearch_schema_version" msgid="5289450345246068014">"Έκδοση σχήματος: %d"</string>
+    <string name="appsearch_no_documents_error" msgid="7957333381856121779">"Δεν βρέθηκαν έγγραφα AppSearch στη βάση δεδομένων. Επαληθεύστε ότι το όνομα της βάσης δεδομένων είναι έγκυρο και ότι έχει επιλεγεί ο σωστός τύπος αποθηκευτικού χώρου."</string>
+    <string name="appsearch_no_schema_types_error" msgid="5825283982305113887">"Δεν βρέθηκαν τύποι σχήματος AppSearch. Επαληθεύστε ότι το όνομα της βάσης δεδομένων είναι έγκυρο και ότι έχει επιλεγεί ο σωστός τύπος αποθηκευτικού χώρου."</string>
+    <string name="appsearch_documents_loading" msgid="1689893533003672860">"Φόρτωση εγγράφων AppSearch…"</string>
+    <string name="appsearch_schema_types_loading" msgid="4961123108404531766">"Φόρτωση τύπων σχήματος AppSearch…"</string>
+    <string name="appsearch_schema_version" msgid="7000254633719373917">"Έκδοση σχήματος: %d"</string>
 </resources>

@@ -21,6 +21,7 @@ import android.media.ImageReader;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.ImageAnalysis;
@@ -31,6 +32,7 @@ import androidx.camera.core.internal.ThreadConfig;
 /**
  * Configuration for an image analysis use case.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class ImageAnalysisConfig
         implements UseCaseConfig<ImageAnalysis>,
         ImageOutputConfig,
@@ -52,6 +54,9 @@ public final class ImageAnalysisConfig
                     ImageAnalysis.OutputImageFormat.class);
     public static final Option<Boolean> OPTION_ONE_PIXEL_SHIFT_ENABLED =
             Option.create("camerax.core.imageAnalysis.onePixelShiftEnabled",
+                    Boolean.class);
+    public static final Option<Boolean> OPTION_OUTPUT_IMAGE_ROTATION_ENABLED =
+            Option.create("camerax.core.imageAnalysis.outputImageRotationEnabled",
                     Boolean.class);
 
     // *********************************************************************************************
@@ -153,6 +158,17 @@ public final class ImageAnalysisConfig
     @Nullable
     public Boolean getOnePixelShiftEnabled(@Nullable Boolean valueIfMissing) {
         return retrieveOption(OPTION_ONE_PIXEL_SHIFT_ENABLED, valueIfMissing);
+    }
+
+    /**
+     * Gets if output image rotation is enabled or not.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public Boolean isOutputImageRotationEnabled(@Nullable Boolean valueIfMissing) {
+        return retrieveOption(OPTION_OUTPUT_IMAGE_ROTATION_ENABLED, valueIfMissing);
     }
 
     /**

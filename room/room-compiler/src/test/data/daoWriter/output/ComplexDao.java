@@ -54,8 +54,8 @@ public final class ComplexDao_Impl extends ComplexDao {
         __db.assertNotSuspendingTransaction();
         final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
         try {
-            final int _cursorIndexOfFullName = CursorUtil.getColumnIndexOrThrow(_cursor, "fullName");
-            final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+            final int _cursorIndexOfFullName = 0;
+            final int _cursorIndexOfId = 1;
             final List<ComplexDao.FullName> _result = new ArrayList<ComplexDao.FullName>(_cursor.getCount());
             while(_cursor.moveToNext()) {
                 final ComplexDao.FullName _item;
@@ -309,6 +309,62 @@ public final class ComplexDao_Impl extends ComplexDao {
     }
 
     @Override
+    public List<Integer> getAllAgesAsList(final List<Integer> ids1, final int[] ids2,
+            final int... ids3) {
+        StringBuilder _stringBuilder = StringUtil.newStringBuilder();
+        _stringBuilder.append("SELECT ageColumn FROM user where uid IN(");
+        final int _inputSize = ids1.size();
+        StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
+        _stringBuilder.append(") OR uid IN (");
+        final int _inputSize_1 = ids2.length;
+        StringUtil.appendPlaceholders(_stringBuilder, _inputSize_1);
+        _stringBuilder.append(") OR uid IN (");
+        final int _inputSize_2 = ids3.length;
+        StringUtil.appendPlaceholders(_stringBuilder, _inputSize_2);
+        _stringBuilder.append(")");
+        final String _sql = _stringBuilder.toString();
+        final int _argCount = 0 + _inputSize + _inputSize_1 + _inputSize_2;
+        final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, _argCount);
+        int _argIndex = 1;
+        for (Integer _item : ids1) {
+            if (_item == null) {
+                _statement.bindNull(_argIndex);
+            } else {
+                _statement.bindLong(_argIndex, _item);
+            }
+            _argIndex ++;
+        }
+        _argIndex = 1 + _inputSize;
+        for (int _item_1 : ids2) {
+            _statement.bindLong(_argIndex, _item_1);
+            _argIndex ++;
+        }
+        _argIndex = 1 + _inputSize + _inputSize_1;
+        for (int _item_2 : ids3) {
+            _statement.bindLong(_argIndex, _item_2);
+            _argIndex ++;
+        }
+        __db.assertNotSuspendingTransaction();
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        try {
+            final List<Integer> _result = new ArrayList<Integer>(_cursor.getCount());
+            while(_cursor.moveToNext()) {
+                final Integer _item_3;
+                if (_cursor.isNull(0)) {
+                    _item_3 = null;
+                } else {
+                    _item_3 = _cursor.getInt(0);
+                }
+                _result.add(_item_3);
+            }
+            return _result;
+        } finally {
+            _cursor.close();
+            _statement.release();
+        }
+    }
+
+    @Override
     public LiveData<User> getByIdLive(final int id) {
         final String _sql = "SELECT * FROM user where uid = ?";
         final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
@@ -411,62 +467,6 @@ public final class ComplexDao_Impl extends ComplexDao {
                 _statement.release();
             }
         });
-    }
-
-    @Override
-    public List<Integer> getAllAgesAsList(final List<Integer> ids1, final int[] ids2,
-            final int... ids3) {
-        StringBuilder _stringBuilder = StringUtil.newStringBuilder();
-        _stringBuilder.append("SELECT ageColumn FROM user where uid IN(");
-        final int _inputSize = ids1.size();
-        StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
-        _stringBuilder.append(") OR uid IN (");
-        final int _inputSize_1 = ids2.length;
-        StringUtil.appendPlaceholders(_stringBuilder, _inputSize_1);
-        _stringBuilder.append(") OR uid IN (");
-        final int _inputSize_2 = ids3.length;
-        StringUtil.appendPlaceholders(_stringBuilder, _inputSize_2);
-        _stringBuilder.append(")");
-        final String _sql = _stringBuilder.toString();
-        final int _argCount = 0 + _inputSize + _inputSize_1 + _inputSize_2;
-        final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, _argCount);
-        int _argIndex = 1;
-        for (Integer _item : ids1) {
-            if (_item == null) {
-                _statement.bindNull(_argIndex);
-            } else {
-                _statement.bindLong(_argIndex, _item);
-            }
-            _argIndex ++;
-        }
-        _argIndex = 1 + _inputSize;
-        for (int _item_1 : ids2) {
-            _statement.bindLong(_argIndex, _item_1);
-            _argIndex ++;
-        }
-        _argIndex = 1 + _inputSize + _inputSize_1;
-        for (int _item_2 : ids3) {
-            _statement.bindLong(_argIndex, _item_2);
-            _argIndex ++;
-        }
-        __db.assertNotSuspendingTransaction();
-        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
-        try {
-            final List<Integer> _result = new ArrayList<Integer>(_cursor.getCount());
-            while(_cursor.moveToNext()) {
-                final Integer _item_3;
-                if (_cursor.isNull(0)) {
-                    _item_3 = null;
-                } else {
-                    _item_3 = _cursor.getInt(0);
-                }
-                _result.add(_item_3);
-            }
-            return _result;
-        } finally {
-            _cursor.close();
-            _statement.release();
-        }
     }
 
     @Override
@@ -603,6 +603,34 @@ public final class ComplexDao_Impl extends ComplexDao {
                 }
             }
         }, _statement, true, _cancellationSignal);
+    }
+
+    @Override
+    public List<UserSummary> getUserNames() {
+        final String _sql = "SELECT `uid`, `name` FROM (SELECT * FROM User)";
+        final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
+        __db.assertNotSuspendingTransaction();
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        try {
+            final int _cursorIndexOfUid = 0;
+            final int _cursorIndexOfName = 1;
+            final List<UserSummary> _result = new ArrayList<UserSummary>(_cursor.getCount());
+            while(_cursor.moveToNext()) {
+                final UserSummary _item;
+                _item = new UserSummary();
+                _item.uid = _cursor.getInt(_cursorIndexOfUid);
+                if (_cursor.isNull(_cursorIndexOfName)) {
+                    _item.name = null;
+                } else {
+                    _item.name = _cursor.getString(_cursorIndexOfName);
+                }
+                _result.add(_item);
+            }
+            return _result;
+        } finally {
+            _cursor.close();
+            _statement.release();
+        }
     }
 
     public static List<Class<?>> getRequiredConverters() {

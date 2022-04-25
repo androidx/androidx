@@ -260,6 +260,7 @@ public abstract class NavType<T>(
                 bundle.putInt(key, value)
             }
 
+            @Suppress("DEPRECATION")
             override fun get(bundle: Bundle, key: String): Int {
                 return bundle[key] as Int
             }
@@ -289,6 +290,7 @@ public abstract class NavType<T>(
             }
 
             @AnyRes
+            @Suppress("DEPRECATION")
             override fun get(bundle: Bundle, key: String): Int {
                 return bundle[key] as Int
             }
@@ -318,6 +320,7 @@ public abstract class NavType<T>(
                 bundle.putIntArray(key, value)
             }
 
+            @Suppress("DEPRECATION")
             override fun get(bundle: Bundle, key: String): IntArray? {
                 return bundle[key] as IntArray?
             }
@@ -344,6 +347,7 @@ public abstract class NavType<T>(
                 bundle.putLong(key, value)
             }
 
+            @Suppress("DEPRECATION")
             override fun get(bundle: Bundle, key: String): Long {
                 return bundle[key] as Long
             }
@@ -380,6 +384,7 @@ public abstract class NavType<T>(
                 bundle.putLongArray(key, value)
             }
 
+            @Suppress("DEPRECATION")
             override fun get(bundle: Bundle, key: String): LongArray? {
                 return bundle[key] as LongArray?
             }
@@ -404,6 +409,7 @@ public abstract class NavType<T>(
                 bundle.putFloat(key, value)
             }
 
+            @Suppress("DEPRECATION")
             override fun get(bundle: Bundle, key: String): Float {
                 return bundle[key] as Float
             }
@@ -429,6 +435,7 @@ public abstract class NavType<T>(
                 bundle.putFloatArray(key, value)
             }
 
+            @Suppress("DEPRECATION")
             override fun get(bundle: Bundle, key: String): FloatArray? {
                 return bundle[key] as FloatArray?
             }
@@ -453,6 +460,7 @@ public abstract class NavType<T>(
                 bundle.putBoolean(key, value)
             }
 
+            @Suppress("DEPRECATION")
             override fun get(bundle: Bundle, key: String): Boolean? {
                 return bundle[key] as Boolean?
             }
@@ -486,6 +494,7 @@ public abstract class NavType<T>(
                 bundle.putBooleanArray(key, value)
             }
 
+            @Suppress("DEPRECATION")
             override fun get(bundle: Bundle, key: String): BooleanArray? {
                 return bundle[key] as BooleanArray?
             }
@@ -510,6 +519,7 @@ public abstract class NavType<T>(
                 bundle.putString(key, value)
             }
 
+            @Suppress("DEPRECATION")
             override fun get(bundle: Bundle, key: String): String? {
                 return bundle[key] as String?
             }
@@ -537,7 +547,7 @@ public abstract class NavType<T>(
                 bundle.putStringArray(key, value)
             }
 
-            @Suppress("UNCHECKED_CAST")
+            @Suppress("UNCHECKED_CAST", "DEPRECATION")
             override fun get(bundle: Bundle, key: String): Array<String>? {
                 return bundle[key] as Array<String>?
             }
@@ -571,7 +581,7 @@ public abstract class NavType<T>(
             }
         }
 
-        @Suppress("UNCHECKED_CAST")
+        @Suppress("UNCHECKED_CAST", "DEPRECATION")
         public override fun get(bundle: Bundle, key: String): D? {
             return bundle[key] as D?
         }
@@ -625,7 +635,7 @@ public abstract class NavType<T>(
             bundle.putParcelableArray(key, value)
         }
 
-        @Suppress("UNCHECKED_CAST")
+        @Suppress("UNCHECKED_CAST", "DEPRECATION")
         public override fun get(bundle: Bundle, key: String): Array<D>? {
             return bundle[key] as Array<D>?
         }
@@ -705,7 +715,7 @@ public abstract class NavType<T>(
             bundle.putSerializable(key, value)
         }
 
-        @Suppress("UNCHECKED_CAST")
+        @Suppress("UNCHECKED_CAST", "DEPRECATION")
         public override fun get(bundle: Bundle, key: String): D? {
             return bundle[key] as D?
         }
@@ -791,7 +801,7 @@ public abstract class NavType<T>(
             bundle.putSerializable(key, value)
         }
 
-        @Suppress("UNCHECKED_CAST")
+        @Suppress("UNCHECKED_CAST", "DEPRECATION")
         public override fun get(bundle: Bundle, key: String): Array<D>? {
             return bundle[key] as Array<D>?
         }

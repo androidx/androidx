@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="complication_config" msgid="3090406830927670356">"နာရီဒိုင်ခွက်ဝန်ဆောင်မှုများ စီစဉ်သတ်မှတ်ခြင်း"</string>
+    <string name="watchface_settings" msgid="9086980313887663299">"နာရီဒိုင်ခွက်ဆက်တင်များ စီစဉ်သတ်မှတ်ခြင်း"</string>
+    <string name="style_config" msgid="7270818527618953542">"နာရီဒိုင်ခွက်ပုံစံများ စီစဉ်သတ်မှတ်ခြင်း"</string>
+    <string name="none_background_image_provider" msgid="2763799590544856080">"မရှိ"</string>
+    <string name="settings_complications" msgid="1425815384891476600">"ဒေတာ"</string>
+    <string name="settings_background_image" msgid="496585675676995765">"နောက်ခံပုံရိပ်"</string>
+    <string name="settings_styles" msgid="3243144642316786428">"ပုံစံများ"</string>
+</resources>

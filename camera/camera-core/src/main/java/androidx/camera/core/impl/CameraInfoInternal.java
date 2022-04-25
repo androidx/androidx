@@ -18,6 +18,7 @@ package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.core.util.Preconditions;
@@ -30,6 +31,7 @@ import java.util.concurrent.Executor;
  *
  * <p>Contains methods for retrieving characteristics for a specific camera.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface CameraInfoInternal extends CameraInfo {
     /**
      * Returns the LensFacing of this camera.

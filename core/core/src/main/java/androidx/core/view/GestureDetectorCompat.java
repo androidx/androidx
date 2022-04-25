@@ -16,6 +16,7 @@
 
 package androidx.core.view;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
 import android.os.Handler;
@@ -27,6 +28,9 @@ import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * Detects various gestures and events using the supplied {@link MotionEvent}s.
@@ -99,7 +103,6 @@ public final class GestureDetectorCompat {
         private VelocityTracker mVelocityTracker;
 
         private class GestureHandler extends Handler {
-            @SuppressWarnings("deprecation")
             GestureHandler() {
                 super();
             }
@@ -223,6 +226,7 @@ public final class GestureDetectorCompat {
          * @return true if the {@link OnGestureListener} consumed the event,
          *              else false.
          */
+        @SuppressWarnings("ConstantConditions")
         @Override
         public boolean onTouchEvent(MotionEvent ev) {
             final int action = ev.getAction();
@@ -502,7 +506,7 @@ public final class GestureDetectorCompat {
      * @param listener the listener invoked for all the callbacks, this must
      * not be null.
      */
-    public GestureDetectorCompat(Context context, OnGestureListener listener) {
+    public GestureDetectorCompat(@NonNull Context context, @NonNull OnGestureListener listener) {
         this(context, listener, null);
     }
 
@@ -516,7 +520,8 @@ public final class GestureDetectorCompat {
      * not be null.
      * @param handler the handler that will be used for posting deferred messages
      */
-    public GestureDetectorCompat(Context context, OnGestureListener listener, Handler handler) {
+    public GestureDetectorCompat(@NonNull Context context, @NonNull OnGestureListener listener,
+            @Nullable Handler handler) {
         if (Build.VERSION.SDK_INT > 17) {
             mImpl = new GestureDetectorCompatImplJellybeanMr2(context, listener, handler);
         } else {
@@ -539,7 +544,7 @@ public final class GestureDetectorCompat {
      * @return true if the {@link OnGestureListener} consumed the event,
      *              else false.
      */
-    public boolean onTouchEvent(MotionEvent event) {
+    public boolean onTouchEvent(@NonNull MotionEvent event) {
         return mImpl.onTouchEvent(event);
     }
 
@@ -552,6 +557,7 @@ public final class GestureDetectorCompat {
      *
      * @param enabled whether longpress should be enabled.
      */
+    @SuppressLint("KotlinPropertyAccess")
     public void setIsLongpressEnabled(boolean enabled) {
         mImpl.setIsLongpressEnabled(enabled);
     }
@@ -563,7 +569,7 @@ public final class GestureDetectorCompat {
      * @param listener the listener invoked for all the callbacks, or
      *        null to stop listening for double-tap gestures.
      */
-    public void setOnDoubleTapListener(OnDoubleTapListener listener) {
+    public void setOnDoubleTapListener(@Nullable OnDoubleTapListener listener) {
         mImpl.setOnDoubleTapListener(listener);
     }
 }

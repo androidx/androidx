@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -38,4 +36,8 @@ androidx {
     mavenGroup = LibraryGroups.CORE
     inceptionYear = "2018"
     description = "This library provides functionalities for testing animations for API 14 and above."
+}
+
+android {
+    namespace "androidx.core.animation.testing"
 }

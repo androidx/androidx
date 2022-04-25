@@ -23,13 +23,14 @@ import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
 import androidx.paging.PageEvent.Drop
 import androidx.paging.PageEvent.Insert
+import androidx.paging.PageEvent.StaticList
 import androidx.paging.PagePresenter.ProcessPageEventCallback
+import androidx.paging.internal.BUGANIZER_URL
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow.DROP_OLDEST
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.withContext
@@ -44,8 +45,7 @@ public abstract class PagingDataDiffer<T : Any>(
 ) {
     private var presenter: PagePresenter<T> = PagePresenter.initial()
     private var receiver: UiReceiver? = null
-    private val combinedLoadStates = MutableCombinedLoadStateCollection()
-    private val loadStateListeners = CopyOnWriteArrayList<(CombinedLoadStates) -> Unit>()
+    private val combinedLoadStatesCollection = MutableCombinedLoadStateCollection()
     private val onPagesUpdatedListeners = CopyOnWriteArrayList<() -> Unit>()
 
     private val collectFromRunner = SingleRunner()
@@ -94,31 +94,27 @@ public abstract class PagingDataDiffer<T : Any>(
             fromMediator: Boolean,
             loadState: LoadState
         ) {
-            val currentLoadState = combinedLoadStates.get(loadType, fromMediator)
+            val currentLoadState = combinedLoadStatesCollection.get(loadType, fromMediator)
 
             // No change, skip update + dispatch.
             if (currentLoadState == loadState) return
 
-            combinedLoadStates.set(loadType, fromMediator, loadState)
-            val newLoadStates = combinedLoadStates.snapshot()
-            loadStateListeners.forEach { it(newLoadStates) }
+            combinedLoadStatesCollection.set(loadType, fromMediator, loadState)
         }
     }
 
     internal fun dispatchLoadStates(source: LoadStates, mediator: LoadStates?) {
         // No change, skip update + dispatch.
-        if (combinedLoadStates.source == source &&
-            combinedLoadStates.mediator == mediator
+        if (combinedLoadStatesCollection.source == source &&
+            combinedLoadStatesCollection.mediator == mediator
         ) {
             return
         }
 
-        combinedLoadStates.set(
+        combinedLoadStatesCollection.set(
             sourceLoadStates = source,
             remoteLoadStates = mediator
         )
-        val newLoadStates = combinedLoadStates.snapshot()
-        loadStateListeners.forEach { it(newLoadStates) }
     }
 
     /**
@@ -146,54 +142,32 @@ public abstract class PagingDataDiffer<T : Any>(
         collectFromRunner.runInIsolation {
             receiver = pagingData.receiver
 
-            // TODO: Validate only empty pages between separator pages and its dependent pages.
             pagingData.flow.collect { event ->
                 withContext(mainDispatcher) {
                     if (event is Insert && event.loadType == REFRESH) {
-                        lastAccessedIndexUnfulfilled = false
-
-                        val newPresenter = PagePresenter(event)
-                        var onListPresentableCalled = false
-                        val transformedLastAccessedIndex = presentNewList(
-                            previousList = presenter,
-                            newList = newPresenter,
-                            lastAccessedIndex = lastAccessedIndex,
-                            onListPresentable = {
-                                presenter = newPresenter
-                                onListPresentableCalled = true
-                            }
+                        presentNewList(
+                            pages = event.pages,
+                            placeholdersBefore = event.placeholdersBefore,
+                            placeholdersAfter = event.placeholdersAfter,
+                            dispatchLoadStates = true,
+                            sourceLoadStates = event.sourceLoadStates,
+                            mediatorLoadStates = event.mediatorLoadStates,
                         )
-                        check(onListPresentableCalled) {
-                            "Missing call to onListPresentable after new list was presented. If " +
-                                "you are seeing this exception, it is generally an indication of " +
-                                "an issue with Paging. Please file a bug so we can fix it at: " +
-                                "https://issuetracker.google.com/issues/new?component=413106"
-                        }
-
-                        // Dispatch LoadState updates as soon as we are done diffing, but after
-                        // setting presenter.
-                        dispatchLoadStates(event.sourceLoadStates, event.mediatorLoadStates)
-
-                        if (transformedLastAccessedIndex == null) {
-                            // Send an initialize hint in case the new list is empty, which would
-                            // prevent a ViewportHint.Access from ever getting sent since there are
-                            // no items to bind from initial load.
-                            receiver?.accessHint(newPresenter.initializeHint())
-                        } else {
-                            // Transform the last loadAround index from the old list to the new list
-                            // by passing it through the DiffResult, and pass it forward as a
-                            // ViewportHint within the new list to the next generation of Pager.
-                            // This ensures prefetch distance for the last ViewportHint from the old
-                            // list is respected in the new list, even if invalidation interrupts
-                            // the prepend / append load that would have fulfilled it in the old
-                            // list.
-                            lastAccessedIndex = transformedLastAccessedIndex
-                            receiver?.accessHint(
-                                newPresenter.accessHintForPresenterIndex(
-                                    transformedLastAccessedIndex
+                    } else if (event is StaticList) {
+                        presentNewList(
+                            pages = listOf(
+                                TransformablePage(
+                                    originalPageOffset = 0,
+                                    data = event.data,
                                 )
-                            )
-                        }
+                            ),
+                            placeholdersBefore = 0,
+                            placeholdersAfter = 0,
+                            dispatchLoadStates = event.sourceLoadStates != null ||
+                                event.mediatorLoadStates != null,
+                            sourceLoadStates = event.sourceLoadStates,
+                            mediatorLoadStates = event.mediatorLoadStates,
+                        )
                     } else {
                         if (postEvents()) {
                             yield()
@@ -211,9 +185,10 @@ public abstract class PagingDataDiffer<T : Any>(
                         // If index points to a placeholder after transformations, resend it unless
                         // there are no more items to load.
                         if (event is Insert) {
-                            val snapshot = combinedLoadStates.snapshot()
-                            val prependDone = snapshot.prepend.endOfPaginationReached
-                            val appendDone = snapshot.append.endOfPaginationReached
+                            val prependDone = combinedLoadStatesCollection.source.prepend
+                                .endOfPaginationReached
+                            val appendDone = combinedLoadStatesCollection.source.append
+                                .endOfPaginationReached
                             val canContinueLoading = !(event.loadType == PREPEND && prependDone) &&
                                 !(event.loadType == APPEND && appendDone)
 
@@ -254,7 +229,7 @@ public abstract class PagingDataDiffer<T : Any>(
                     // Note: This is not redundant with LoadStates because it does not de-dupe
                     // in cases where LoadState does not change, which would happen on cached
                     // PagingData collections.
-                    if (event is Insert || event is Drop) {
+                    if (event is Insert || event is Drop || event is StaticList) {
                         onPagesUpdatedListeners.forEach { it() }
                     }
                 }
@@ -335,19 +310,17 @@ public abstract class PagingDataDiffer<T : Any>(
     public val size: Int
         get() = presenter.size
 
-    private val _combinedLoadState = MutableStateFlow(combinedLoadStates.snapshot())
-
     /**
      * A hot [Flow] of [CombinedLoadStates] that emits a snapshot whenever the loading state of the
      * current [PagingData] changes.
      *
-     * This flow is conflated, so it buffers the last update to [CombinedLoadStates] and
-     * immediately delivers the current load states on collection.
+     * This flow is conflated. It buffers the last update to [CombinedLoadStates] and immediately
+     * delivers the current load states on collection, unless this [PagingDataDiffer] has not been
+     * hooked up to a [PagingData] yet, and thus has no state to emit.
      *
      * @sample androidx.paging.samples.loadStateFlowSample
      */
-    public val loadStateFlow: Flow<CombinedLoadStates>
-        get() = _combinedLoadState
+    public val loadStateFlow: Flow<CombinedLoadStates> = combinedLoadStatesCollection.flow
 
     private val _onPagesUpdatedFlow: MutableSharedFlow<Unit> = MutableSharedFlow(
         replay = 0,
@@ -379,10 +352,6 @@ public abstract class PagingDataDiffer<T : Any>(
     init {
         addOnPagesUpdatedListener {
             _onPagesUpdatedFlow.tryEmit(Unit)
-        }
-
-        addLoadStateListener {
-            _combinedLoadState.value = it
         }
     }
 
@@ -421,6 +390,10 @@ public abstract class PagingDataDiffer<T : Any>(
      * As new [PagingData] generations are submitted and displayed, the listener will be notified to
      * reflect the current [CombinedLoadStates].
      *
+     * When a new listener is added, it will be immediately called with the current
+     * [CombinedLoadStates], unless this [PagingDataDiffer] has not been hooked up to a [PagingData]
+     * yet, and thus has no state to emit.
+     *
      * @param listener [LoadStates] listener to receive updates.
      *
      * @see removeLoadStateListener
@@ -428,11 +401,7 @@ public abstract class PagingDataDiffer<T : Any>(
      * @sample androidx.paging.samples.addLoadStateListenerSample
      */
     public fun addLoadStateListener(listener: (CombinedLoadStates) -> Unit) {
-        // Note: Important to add the listener first before sending off events, in case the
-        // callback triggers removal, which could lead to a leak if the listener is added
-        // afterwards.
-        loadStateListeners.add(listener)
-        listener(combinedLoadStates.snapshot())
+        combinedLoadStatesCollection.addListener(listener)
     }
 
     /**
@@ -442,7 +411,73 @@ public abstract class PagingDataDiffer<T : Any>(
      * @see addLoadStateListener
      */
     public fun removeLoadStateListener(listener: (CombinedLoadStates) -> Unit) {
-        loadStateListeners.remove(listener)
+        combinedLoadStatesCollection.removeListener(listener)
+    }
+
+    private suspend fun presentNewList(
+        pages: List<TransformablePage<T>>,
+        placeholdersBefore: Int,
+        placeholdersAfter: Int,
+        dispatchLoadStates: Boolean,
+        sourceLoadStates: LoadStates?,
+        mediatorLoadStates: LoadStates?,
+    ) {
+        require(!dispatchLoadStates || sourceLoadStates != null) {
+            "Cannot dispatch LoadStates in PagingDataDiffer without source LoadStates set."
+        }
+
+        lastAccessedIndexUnfulfilled = false
+
+        val newPresenter = PagePresenter(
+            pages = pages,
+            placeholdersBefore = placeholdersBefore,
+            placeholdersAfter = placeholdersAfter,
+        )
+        var onListPresentableCalled = false
+        val transformedLastAccessedIndex = presentNewList(
+            previousList = presenter,
+            newList = newPresenter,
+            lastAccessedIndex = lastAccessedIndex,
+            onListPresentable = {
+                presenter = newPresenter
+                onListPresentableCalled = true
+            }
+        )
+        check(onListPresentableCalled) {
+            """Missing call to onListPresentable after new list was presented. If you are seeing
+                | this exception, it is generally an indication of an issue with Paging.
+                | Please file a bug so we can fix it at:
+                | $BUGANIZER_URL""".trimMargin()
+        }
+
+        // We may want to skip dispatching load states if triggered by a static list which wants to
+        // preserve the previous state.
+        if (dispatchLoadStates) {
+            // Dispatch LoadState updates as soon as we are done diffing, but after
+            // setting presenter.
+            dispatchLoadStates(sourceLoadStates!!, mediatorLoadStates)
+        }
+
+        if (transformedLastAccessedIndex == null) {
+            // Send an initialize hint in case the new list is empty, which would
+            // prevent a ViewportHint.Access from ever getting sent since there are
+            // no items to bind from initial load.
+            receiver?.accessHint(newPresenter.initializeHint())
+        } else {
+            // Transform the last loadAround index from the old list to the new list
+            // by passing it through the DiffResult, and pass it forward as a
+            // ViewportHint within the new list to the next generation of Pager.
+            // This ensures prefetch distance for the last ViewportHint from the old
+            // list is respected in the new list, even if invalidation interrupts
+            // the prepend / append load that would have fulfilled it in the old
+            // list.
+            lastAccessedIndex = transformedLastAccessedIndex
+            receiver?.accessHint(
+                newPresenter.accessHintForPresenterIndex(
+                    transformedLastAccessedIndex
+                )
+            )
+        }
     }
 }
 

@@ -26,6 +26,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 public class EditTextPreferenceDialogFragmentCompat extends PreferenceDialogFragmentCompat {
@@ -45,6 +46,7 @@ public class EditTextPreferenceDialogFragmentCompat extends PreferenceDialogFrag
     private long mShowRequestTime = -1;
     private static final int SHOW_REQUEST_TIMEOUT = 1000;
 
+    @NonNull
     public static EditTextPreferenceDialogFragmentCompat newInstance(String key) {
         final EditTextPreferenceDialogFragmentCompat
                 fragment = new EditTextPreferenceDialogFragmentCompat();
@@ -55,7 +57,7 @@ public class EditTextPreferenceDialogFragmentCompat extends PreferenceDialogFrag
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (savedInstanceState == null) {
             mText = getEditTextPreference().getText();
@@ -71,7 +73,7 @@ public class EditTextPreferenceDialogFragmentCompat extends PreferenceDialogFrag
     }
 
     @Override
-    protected void onBindDialogView(View view) {
+    protected void onBindDialogView(@NonNull View view) {
         super.onBindDialogView(view);
 
         mEditText = view.findViewById(android.R.id.edit);

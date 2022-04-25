@@ -27,6 +27,7 @@ import static org.junit.Assume.assumeTrue;
 import android.app.Instrumentation;
 
 import androidx.annotation.NonNull;
+import androidx.camera.camera2.Camera2Config;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.CoreAppTestUtil;
@@ -54,11 +55,13 @@ import java.util.concurrent.atomic.AtomicReference;
 @LargeTest
 public final class PreviewViewFragmentTest {
 
-    private static final int WAIT_TIMEOUT = 10000;
+    private static final int TIMEOUT_SECONDS = 10;
     private static final int PREVIEW_UPDATE_COUNT = 30;
 
     @Rule
-    public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest();
+    public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest(
+            new CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+    );
 
     @Rule
     public GrantPermissionRule mStoragePermissionRule =
@@ -239,7 +242,7 @@ public final class PreviewViewFragmentTest {
     }
 
     /**
-     * Waits at most for the duration {@link #WAIT_TIMEOUT} for the preview to update at least
+     * Waits at most for the duration {@link #TIMEOUT_SECONDS} for the preview to update at least
      * {@link #PREVIEW_UPDATE_COUNT} times.
      */
     private void assertPreviewUpdateState(@NonNull FragmentScenario<PreviewViewFragment> scenario,
@@ -252,7 +255,7 @@ public final class PreviewViewFragmentTest {
 
         boolean isPreviewUpdating;
         try {
-            isPreviewUpdating = latch.await(WAIT_TIMEOUT, TimeUnit.MILLISECONDS);
+            isPreviewUpdating = latch.await(TIMEOUT_SECONDS, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             isPreviewUpdating = false;
         }
@@ -267,10 +270,8 @@ public final class PreviewViewFragmentTest {
     @NonNull
     private PreviewView getPreviewView(@NonNull FragmentScenario<PreviewViewFragment> scenario) {
         final AtomicReference<PreviewView> previewView = new AtomicReference<>();
-        scenario.onFragment(fragment -> {
-            previewView.set(
-                    (PreviewView) fragment.requireActivity().findViewById(R.id.preview_view));
-        });
+        scenario.onFragment(fragment -> previewView.set(
+                (PreviewView) fragment.requireActivity().findViewById(R.id.preview_view)));
         return previewView.get();
     }
 }

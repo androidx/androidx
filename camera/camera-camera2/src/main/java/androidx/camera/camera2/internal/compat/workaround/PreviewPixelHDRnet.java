@@ -19,6 +19,7 @@ package androidx.camera.camera2.internal.compat.workaround;
 import android.hardware.camera2.CaptureRequest;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.camera2.internal.compat.quirk.PreviewPixelHDRnetQuirk;
@@ -29,6 +30,7 @@ import androidx.camera.core.impl.SessionConfig;
  *
  * @see PreviewPixelHDRnetQuirk
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class PreviewPixelHDRnet {
 
     private PreviewPixelHDRnet() {

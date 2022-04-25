@@ -27,6 +27,7 @@ import android.provider.MediaStore;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.VideoCapture;
 import androidx.core.util.Preconditions;
@@ -42,6 +43,7 @@ import java.io.File;
  * either a {@link File}, {@link MediaStore}. The metadata will be
  * stored with the saved video.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @ExperimentalVideo
 @AutoValue
 public abstract class OutputFileOptions {

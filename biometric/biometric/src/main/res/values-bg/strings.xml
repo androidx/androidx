@@ -30,4 +30,18 @@
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"Няма зададен ПИН код, фигура или парола."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Устройството не поддържа ПИН код, фигура или парола."</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"Икона за отпечатък"</string>
+    <string name="use_fingerprint_label" msgid="6961788485681412417">"Използване на отпечатък"</string>
+    <string name="use_face_label" msgid="6533512708069459542">"Използване на отключването с лице"</string>
+    <string name="use_biometric_label" msgid="6524145989441579428">"Използване на биометрични данни"</string>
+    <string name="use_screen_lock_label" msgid="5459869335976243512">"Използване на опцията за заключване на екрана"</string>
+    <string name="use_fingerprint_or_screen_lock_label" msgid="7577690399303139443">"Използване на отпечатък или опцията за заключване на екрана"</string>
+    <string name="use_face_or_screen_lock_label" msgid="2116180187159450292">"Използване на отключването с лице или опцията за заключване на екрана"</string>
+    <string name="use_biometric_or_screen_lock_label" msgid="5385448280139639016">"Използване на биометрични данни или опцията за заключване на екрана"</string>
+    <string name="fingerprint_prompt_message" msgid="7449360011861769080">"Използвайте отпечатъка си, за да продължите"</string>
+    <string name="face_prompt_message" msgid="2282389249605674226">"Използвайте лицето си, за да продължите"</string>
+    <string name="biometric_prompt_message" msgid="1160635338192065472">"Използвайте биометричните си данни, за да продължите"</string>
+    <string name="screen_lock_prompt_message" msgid="5659570757430909869">"Въведете опцията си за заключване на екрана, за да продължите"</string>
+    <string name="fingerprint_or_screen_lock_prompt_message" msgid="8382576858490514495">"Използвайте отпечатъка си или опцията за заключване на екрана, за да продължите"</string>
+    <string name="face_or_screen_lock_prompt_message" msgid="4562557128765735254">"Използвайте лицето си или опцията за заключване на екрана, за да продължите"</string>
+    <string name="biometric_or_screen_lock_prompt_message" msgid="2102429900219199821">"Използвайте биометричните си данни или опцията за заключване на екрана, за да продължите"</string>
 </resources>

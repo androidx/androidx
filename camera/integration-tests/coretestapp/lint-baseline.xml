@@ -1,49 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 24 (current min is 21): `java.lang.Double#isFinite`"
-        errorLine1="            if (Double.isFinite(actual[i])) {"
-        errorLine2="                       ~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/integration/core/FpsRecorderTest.java"
-            line="63"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 24 (current min is 21): `java.lang.Double#isFinite`"
-        errorLine1="            if (Double.isFinite(actual[i])) {"
-        errorLine2="                       ~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/integration/core/FpsRecorderTest.java"
-            line="138"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 23 (current min is 21): `android.media.ImageWriter#newInstance`"
-        errorLine1="            imageWriter = ImageWriter.newInstance(surface, 2)"
-        errorLine2="                                      ~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/camera/integration/core/ImageCaptureTest.kt"
-            line="1512"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 23 (current min is 21): `android.media.ImageWriter#queueInputImage`"
-        errorLine1="                imageWriter!!.queueInputImage(imageProxy.image)"
-        errorLine2="                              ~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/camera/integration/core/ImageCaptureTest.kt"
-            line="1520"
-            column="31"/>
-    </issue>
+<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
         id="SyntheticAccessor"
@@ -52,7 +8,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="180"
+            line="213"
             column="13"/>
     </issue>
 
@@ -63,7 +19,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="183"
+            line="216"
             column="22"/>
     </issue>
 
@@ -74,7 +30,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="184"
+            line="217"
             column="21"/>
     </issue>
 
@@ -85,7 +41,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="380"
+            line="572"
             column="25"/>
     </issue>
 
@@ -96,7 +52,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="383"
+            line="575"
             column="25"/>
     </issue>
 
@@ -107,7 +63,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="392"
+            line="584"
             column="33"/>
     </issue>
 
@@ -118,7 +74,7 @@
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="401"
+            line="593"
             column="45"/>
     </issue>
 
@@ -129,7 +85,7 @@
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="423"
+            line="615"
             column="45"/>
     </issue>
 
@@ -157,7 +113,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void onCreate(Bundle savedInstanceState) {"
         errorLine2="                         ~~~~~~">
         <location
@@ -168,35 +124,13 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static View chooseViewFinder(@Nullable Bundle intentExtras,"
         errorLine2="                  ~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/OpenGLActivity.java"
             line="202"
             column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public OutputFileOptions getNewVideoOutputFileOptions(ContentResolver resolver) {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/core/VideoFileSaver.java"
-            line="66"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public OutputFileOptions getNewVideoOutputFileOptions(ContentResolver resolver) {"
-        errorLine2="                                                          ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/core/VideoFileSaver.java"
-            line="66"
-            column="59"/>
     </issue>
 
 </issues>

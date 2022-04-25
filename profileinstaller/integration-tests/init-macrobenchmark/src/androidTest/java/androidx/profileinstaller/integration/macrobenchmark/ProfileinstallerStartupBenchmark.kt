@@ -20,6 +20,7 @@ import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.filters.LargeTest
+import androidx.testutils.BASIC_COMPILATION_MODES
 import androidx.testutils.createStartupCompilationParams
 import androidx.testutils.measureStartup
 import org.junit.Rule
@@ -48,6 +49,8 @@ class ProfileinstallerStartupBenchmark(
     companion object {
         @Parameterized.Parameters(name = "startup={0},compilation={1}")
         @JvmStatic
-        fun parameters() = createStartupCompilationParams()
+        fun parameters() = createStartupCompilationParams(
+            compilationModes = BASIC_COMPILATION_MODES
+        )
     }
 }

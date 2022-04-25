@@ -16,28 +16,29 @@
 
 package androidx.glance.layout
 
-import androidx.glance.GlanceInternalApi
-import androidx.glance.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.glance.GlanceModifier
 import androidx.glance.findModifier
-import androidx.glance.unit.dp
+import androidx.glance.unit.Dimension
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
+import kotlin.test.assertIs
 
-@OptIn(GlanceInternalApi::class, ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class RowTest {
-    private lateinit var fakeCoroutineScope: TestCoroutineScope
+    private lateinit var fakeCoroutineScope: TestScope
 
     @Before
     fun setUp() {
-        fakeCoroutineScope = TestCoroutineScope()
+        fakeCoroutineScope = TestScope()
     }
 
     @Test
-    fun createComposableRow() = fakeCoroutineScope.runBlockingTest {
+    fun createComposableRow() = fakeCoroutineScope.runTest {
         val root = runTestingComposition {
             Row {}
         }
@@ -48,10 +49,10 @@ class RowTest {
     }
 
     @Test
-    fun createComposableRowWithParams() = fakeCoroutineScope.runBlockingTest {
+    fun createComposableRowWithParams() = fakeCoroutineScope.runTest {
         val root = runTestingComposition {
             Row(
-                modifier = Modifier.padding(2.dp),
+                modifier = GlanceModifier.padding(2.dp),
                 verticalAlignment = Alignment.Bottom,
                 horizontalAlignment = Alignment.End
             ) {}
@@ -59,13 +60,13 @@ class RowTest {
 
         val innerRow = root.children[0] as EmittableRow
         val paddingModifier = requireNotNull(innerRow.modifier.findModifier<PaddingModifier>())
-        assertThat(paddingModifier.top).isEqualTo(2.dp)
+        assertThat(paddingModifier.top).isEqualTo(PaddingDimension(2.dp))
         assertThat(innerRow.verticalAlignment).isEqualTo(Alignment.Bottom)
         assertThat(innerRow.horizontalAlignment).isEqualTo(Alignment.End)
     }
 
     @Test
-    fun createComposableRowWithChildren() = fakeCoroutineScope.runBlockingTest {
+    fun createComposableRowWithChildren() = fakeCoroutineScope.runTest {
         val root = runTestingComposition {
             Row {
                 Box(contentAlignment = Alignment.BottomCenter) {}
@@ -79,5 +80,21 @@ class RowTest {
 
         assertThat(leafBox0.contentAlignment).isEqualTo(Alignment.BottomCenter)
         assertThat(leafBox1.contentAlignment).isEqualTo(Alignment.TopCenter)
+    }
+
+    @Test
+    fun createComposableRowWithWeightChildren() = fakeCoroutineScope.runTest {
+        val root = runTestingComposition {
+            Row {
+                Box(modifier = GlanceModifier.defaultWeight()) { }
+            }
+        }
+
+        val row = assertIs<EmittableRow>(root.children[0])
+        val box = assertIs<EmittableBox>(row.children[0])
+
+        val widthModifier = checkNotNull(box.modifier.findModifier<WidthModifier>())
+        assertThat(widthModifier.width).isSameInstanceAs(Dimension.Expand)
+        assertThat(box.modifier.findModifier<HeightModifier>()).isNull()
     }
 }

@@ -26,6 +26,7 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
+import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.impl.CameraEventCallback;
 import androidx.camera.camera2.impl.CameraEventCallbacks;
@@ -49,6 +50,7 @@ import java.util.List;
 /**
  * For providing extensions config for preview.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class PreviewConfigProvider implements ConfigProvider<PreviewConfig> {
     private static final String TAG = "PreviewConfigProvider";
     static final Config.Option<Integer> OPTION_PREVIEW_CONFIG_PROVIDER_MODE = Config.Option.create(
@@ -84,34 +86,44 @@ public class PreviewConfigProvider implements ConfigProvider<PreviewConfig> {
             @ExtensionMode.Mode int effectMode, @NonNull VendorExtender vendorExtender,
             @NonNull Context context) {
         if (vendorExtender instanceof BasicVendorExtender) {
-            PreviewEventAdapter previewEventAdapter;
             PreviewExtenderImpl previewExtenderImpl =
                     ((BasicVendorExtender) vendorExtender).getPreviewExtenderImpl();
-            switch (previewExtenderImpl.getProcessorType()) {
-                case PROCESSOR_TYPE_REQUEST_UPDATE_ONLY:
-                    AdaptingRequestUpdateProcessor adaptingRequestUpdateProcessor =
-                            new AdaptingRequestUpdateProcessor(previewExtenderImpl);
-                    builder.setImageInfoProcessor(adaptingRequestUpdateProcessor);
-                    previewEventAdapter = new PreviewEventAdapter(previewExtenderImpl, context,
-                            adaptingRequestUpdateProcessor);
-                    break;
-                case PROCESSOR_TYPE_IMAGE_PROCESSOR:
-                    AdaptingPreviewProcessor adaptingPreviewProcessor = new
-                            AdaptingPreviewProcessor(
-                            (PreviewImageProcessorImpl) previewExtenderImpl.getProcessor());
-                    builder.setCaptureProcessor(adaptingPreviewProcessor);
-                    previewEventAdapter = new PreviewEventAdapter(previewExtenderImpl, context,
-                            adaptingPreviewProcessor);
-                    break;
-                default:
-                    previewEventAdapter = new PreviewEventAdapter(previewExtenderImpl, context,
-                            null);
-            }
-            new Camera2ImplConfig.Extender<>(builder).setCameraEventCallback(
-                    new CameraEventCallbacks(previewEventAdapter));
-            builder.setUseCaseEventCallback(previewEventAdapter);
-        }
 
+            if (previewExtenderImpl != null) {
+                PreviewEventAdapter previewEventAdapter;
+
+                switch (previewExtenderImpl.getProcessorType()) {
+                    case PROCESSOR_TYPE_REQUEST_UPDATE_ONLY:
+                        AdaptingRequestUpdateProcessor adaptingRequestUpdateProcessor =
+                                new AdaptingRequestUpdateProcessor(previewExtenderImpl);
+                        builder.setImageInfoProcessor(adaptingRequestUpdateProcessor);
+                        previewEventAdapter = new PreviewEventAdapter(previewExtenderImpl, context,
+                                adaptingRequestUpdateProcessor);
+                        break;
+                    case PROCESSOR_TYPE_IMAGE_PROCESSOR:
+                        AdaptingPreviewProcessor adaptingPreviewProcessor = new
+                                AdaptingPreviewProcessor(
+                                (PreviewImageProcessorImpl) previewExtenderImpl.getProcessor());
+                        builder.setCaptureProcessor(adaptingPreviewProcessor);
+                        builder.setIsRgba8888SurfaceRequired(true);
+                        previewEventAdapter = new PreviewEventAdapter(previewExtenderImpl, context,
+                                adaptingPreviewProcessor);
+                        break;
+                    default:
+                        previewEventAdapter = new PreviewEventAdapter(previewExtenderImpl, context,
+                                null);
+                }
+                new Camera2ImplConfig.Extender<>(builder).setCameraEventCallback(
+                        new CameraEventCallbacks(previewEventAdapter));
+                builder.setUseCaseEventCallback(previewEventAdapter);
+            } else {
+                Logger.e(TAG, "PreviewExtenderImpl is null!");
+            }
+        } else { // Advanced extensions interface.
+            // Set RGB8888 = true always since we have no way to tell if the OEM implementation does
+            // the processing or not.
+            builder.setIsRgba8888SurfaceRequired(true);
+        }
 
         builder.getMutableConfig().insertOption(OPTION_PREVIEW_CONFIG_PROVIDER_MODE, effectMode);
         List<Pair<Integer, Size[]>> supportedResolutions =

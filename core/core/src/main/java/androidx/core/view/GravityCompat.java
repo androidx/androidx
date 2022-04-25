@@ -22,8 +22,12 @@ import static android.os.Build.VERSION.SDK_INT;
 import android.graphics.Rect;
 import android.view.Gravity;
 
+import androidx.annotation.DoNotInline;
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+
 /**
- * Compatibility shim for accessing newer functionality from {@link android.view.Gravity}.
+ * Compatibility shim for accessing newer functionality from {@link Gravity}.
  */
 public final class GravityCompat {
     /** Raw bit controlling whether the layout direction is relative or not (START/END instead of
@@ -59,10 +63,10 @@ public final class GravityCompat {
      * @see ViewCompat#LAYOUT_DIRECTION_LTR
      * @see ViewCompat#LAYOUT_DIRECTION_RTL
      */
-    public static void apply(int gravity, int w, int h, Rect container,
-            Rect outRect, int layoutDirection) {
+    public static void apply(int gravity, int w, int h, @NonNull Rect container,
+            @NonNull Rect outRect, int layoutDirection) {
         if (SDK_INT >= 17) {
-            Gravity.apply(gravity, w, h, container, outRect, layoutDirection);
+            Api17Impl.apply(gravity, w, h, container, outRect, layoutDirection);
         } else {
             Gravity.apply(gravity, w, h, container, outRect);
         }
@@ -93,10 +97,10 @@ public final class GravityCompat {
      * @see ViewCompat#LAYOUT_DIRECTION_LTR
      * @see ViewCompat#LAYOUT_DIRECTION_RTL
      */
-    public static void apply(int gravity, int w, int h, Rect container,
-            int xAdj, int yAdj, Rect outRect, int layoutDirection) {
+    public static void apply(int gravity, int w, int h, @NonNull Rect container,
+            int xAdj, int yAdj, @NonNull Rect outRect, int layoutDirection) {
         if (SDK_INT >= 17) {
-            Gravity.apply(gravity, w, h, container, xAdj, yAdj, outRect, layoutDirection);
+            Api17Impl.apply(gravity, w, h, container, xAdj, yAdj, outRect, layoutDirection);
         } else {
             Gravity.apply(gravity, w, h, container, xAdj, yAdj, outRect);
         }
@@ -105,11 +109,11 @@ public final class GravityCompat {
     /**
      * Apply additional gravity behavior based on the overall "display" that an
      * object exists in.  This can be used after
-     * {@link android.view.Gravity#apply(int, int, int, Rect, int, int, Rect)} to place the object
+     * {@link Gravity#apply(int, int, int, Rect, int, int, Rect)} to place the object
      * within a visible display.  By default this moves or clips the object
      * to be visible in the display; the gravity flags
-     * {@link android.view.Gravity#DISPLAY_CLIP_HORIZONTAL} and
-     * {@link android.view.Gravity#DISPLAY_CLIP_VERTICAL} can be used to change this behavior.
+     * {@link Gravity#DISPLAY_CLIP_HORIZONTAL} and
+     * {@link Gravity#DISPLAY_CLIP_VERTICAL} can be used to change this behavior.
      *
      * @param gravity Gravity constants to modify the placement within the
      * display.
@@ -122,9 +126,10 @@ public final class GravityCompat {
      * @see ViewCompat#LAYOUT_DIRECTION_LTR
      * @see ViewCompat#LAYOUT_DIRECTION_RTL
      */
-    public static void applyDisplay(int gravity, Rect display, Rect inoutObj, int layoutDirection) {
+    public static void applyDisplay(int gravity, @NonNull Rect display, @NonNull Rect inoutObj,
+            int layoutDirection) {
         if (SDK_INT >= 17) {
-            Gravity.applyDisplay(gravity, display, inoutObj, layoutDirection);
+            Api17Impl.applyDisplay(gravity, display, inoutObj, layoutDirection);
         } else {
             Gravity.applyDisplay(gravity, display, inoutObj);
         }
@@ -150,5 +155,30 @@ public final class GravityCompat {
         }
     }
 
-    private GravityCompat() {}
+    private GravityCompat() {
+    }
+
+    @RequiresApi(17)
+    static class Api17Impl {
+        private Api17Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void apply(int gravity, int w, int h, Rect container, Rect outRect,
+                int layoutDirection) {
+            Gravity.apply(gravity, w, h, container, outRect, layoutDirection);
+        }
+
+        @DoNotInline
+        static void apply(int gravity, int w, int h, Rect container, int xAdj, int yAdj,
+                Rect outRect, int layoutDirection) {
+            Gravity.apply(gravity, w, h, container, xAdj, yAdj, outRect, layoutDirection);
+        }
+
+        @DoNotInline
+        static void applyDisplay(int gravity, Rect display, Rect inoutObj, int layoutDirection) {
+            Gravity.applyDisplay(gravity, display, inoutObj, layoutDirection);
+        }
+    }
 }

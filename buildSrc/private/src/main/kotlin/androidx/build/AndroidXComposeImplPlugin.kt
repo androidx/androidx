@@ -16,6 +16,7 @@
 
 package androidx.build
 
+import androidx.build.dependencies.KOTLIN_NATIVE_VERSION
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.gradle.AppExtension
 import com.android.build.gradle.AppPlugin
@@ -34,6 +35,7 @@ import org.gradle.api.attributes.Attribute
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.tasks.ClasspathNormalizer
 import org.gradle.api.artifacts.ExternalModuleDependency
+import org.gradle.api.plugins.ExtraPropertiesExtension
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.withType
@@ -49,14 +51,17 @@ const val composeSourceOption =
     "plugin:androidx.compose.compiler.plugins.kotlin:sourceInformation=true"
 const val composeMetricsOption =
     "plugin:androidx.compose.compiler.plugins.kotlin:metricsDestination"
+const val composeReportsOption =
+    "plugin:androidx.compose.compiler.plugins.kotlin:reportsDestination"
 const val enableMetricsArg = "androidx.enableComposeCompilerMetrics"
+const val enableReportsArg = "androidx.enableComposeCompilerReports"
 
 /**
  * Plugin to apply common configuration for Compose projects.
  */
 class AndroidXComposeImplPlugin : Plugin<Project> {
     override fun apply(project: Project) {
-        val f: KFunction<Unit> = AndroidXComposeImplPlugin.Companion::applyAndConfigureKotlinPlugin
+        val f: KFunction<Unit> = Companion::applyAndConfigureKotlinPlugin
         project.extensions.add("applyAndConfigureKotlinPlugin", f)
         project.plugins.all { plugin ->
             when (plugin) {
@@ -95,6 +100,12 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
         ) {
             if (isMultiplatformEnabled) {
                 project.apply(plugin = "kotlin-multiplatform")
+
+                project.extensions.create(
+                    AndroidXComposeMultiplatformExtension::class.java,
+                    "androidXComposeMultiplatform",
+                    AndroidXComposeMultiplatformExtensionImpl::class.java
+                )
             } else {
                 project.apply(plugin = "org.jetbrains.kotlin.android")
             }
@@ -123,28 +134,28 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
             extensions.findByType(AndroidComponentsExtension::class.java)!!.finalizeDsl {
                 val isPublished = androidxExtension()?.type == LibraryType.PUBLISHED_LIBRARY
 
-                @Suppress("DEPRECATION") // lintOptions methods
-                testedExtension.lintOptions.apply {
+                it.lint {
                     // Too many Kotlin features require synthetic accessors - we want to rely on R8 to
                     // remove these accessors
-                    disable("SyntheticAccessor")
+                    disable.add("SyntheticAccessor")
                     // These lint checks are normally a warning (or lower), but we ignore (in AndroidX)
                     // warnings in Lint, so we make it an error here so it will fail the build.
                     // Note that this causes 'UnknownIssueId' lint warnings in the build log when
                     // Lint tries to apply this rule to modules that do not have this lint check, so
                     // we disable that check too
-                    disable("UnknownIssueId")
-                    error("ComposableNaming")
-                    error("ComposableLambdaParameterNaming")
-                    error("ComposableLambdaParameterPosition")
-                    error("CompositionLocalNaming")
-                    error("ComposableModifierFactory")
-                    error("InvalidColorHexValue")
-                    error("MissingColorAlphaChannel")
-                    error("ModifierFactoryReturnType")
-                    error("ModifierFactoryExtensionFunction")
-                    error("ModifierParameter")
-                    error("UnnecessaryComposedModifier")
+                    disable.add("UnknownIssueId")
+                    error.add("ComposableNaming")
+                    error.add("ComposableLambdaParameterNaming")
+                    error.add("ComposableLambdaParameterPosition")
+                    error.add("CompositionLocalNaming")
+                    error.add("ComposableModifierFactory")
+                    error.add("InvalidColorHexValue")
+                    error.add("MissingColorAlphaChannel")
+                    error.add("ModifierFactoryReturnType")
+                    error.add("ModifierFactoryExtensionFunction")
+                    error.add("ModifierParameter")
+                    error.add("MutableCollectionMutableState")
+                    error.add("UnnecessaryComposedModifier")
 
                     // Paths we want to enable ListIterator checks for - for higher level
                     // libraries it won't have a noticeable performance impact, and we don't want
@@ -171,21 +182,18 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
                         ignoreListIteratorFilter.any { path.contains(it) } ||
                         !isPublished
                     ) {
-                        disable("ListIterator")
+                        disable.add("ListIterator")
                     }
                 }
             }
 
-            // TODO(148540713): remove this exclusion when Lint can support using multiple lint jars
-            configurations.getByName("lintChecks").exclude(
-                mapOf("module" to "lint-checks")
-            )
             // TODO: figure out how to apply this to multiplatform modules
             dependencies.add(
                 "lintChecks",
                 project.dependencies.project(
                     mapOf(
                         "path" to ":compose:lint:internal-lint-checks",
+                        // TODO(b/206617878) remove this shadow configuration
                         "configuration" to "shadow"
                     )
                 )
@@ -230,8 +238,10 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
                     java.includes.add("**/*.kt")
                 }
                 sourceSets.findByName("test")?.apply {
-                    java.srcDirs("src/test/kotlin")
-                    res.srcDirs("src/test/res")
+                    java.srcDirs(
+                        "src/commonTest/kotlin", "src/jvmTest/kotlin"
+                    )
+                    res.srcDirs("src/commonTest/res", "src/jvmTest/res")
 
                     // Keep Kotlin files in java source sets so the source set is not empty when
                     // running unit tests which would prevent the tests from running in CI.
@@ -255,6 +265,10 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
          * resolved.
          */
         private fun Project.configureForMultiplatform() {
+            // This is to allow K/N not matching the kotlinVersion
+            (this.rootProject.property("ext") as ExtraPropertiesExtension)
+                .set("kotlin.native.version", KOTLIN_NATIVE_VERSION)
+
             val multiplatformExtension = checkNotNull(multiplatformExtension) {
                 "Unable to configureForMultiplatform() when " +
                     "multiplatformExtension is null (multiplatform plugin not enabled?)"
@@ -309,41 +323,56 @@ fun Project.configureComposeImplPluginForAndroidx() {
         }
     }.files
 
-    val isTipOfTreeComposeCompilerProvider = project.provider({
-        conf.dependencies.first() !is ExternalModuleDependency
-    })
+    val isTipOfTreeComposeCompilerProvider = project.provider {
+        (!conf.isEmpty) && (conf.dependencies.first() !is ExternalModuleDependency)
+    }
+    val enableMetricsProvider = project.providers.gradleProperty(enableMetricsArg)
+    val enableReportsProvider = project.providers.gradleProperty(enableReportsArg)
 
+    val libraryMetricsDirectory = project.rootProject.getLibraryMetricsDirectory()
+    val libraryReportsDirectory = project.rootProject.getLibraryReportsDirectory()
     project.tasks.withType(KotlinCompile::class.java).configureEach { compile ->
         // TODO(b/157230235): remove when this is enabled by default
-        compile.kotlinOptions.freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
+        compile.kotlinOptions.freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
         compile.inputs.files({ kotlinPlugin })
             .withPropertyName("composeCompilerExtension")
             .withNormalizer(ClasspathNormalizer::class.java)
-        compile.doFirst {
+        compile.onlyIf {
             if (!kotlinPlugin.isEmpty) {
                 compile.kotlinOptions.freeCompilerArgs +=
                     "-Xplugin=${kotlinPlugin.first()}"
 
-                val enableMetrics = project
-                    .findProperty(enableMetricsArg) == "true"
+                val enableMetrics = (enableMetricsProvider.orNull == "true")
+
+                val enableReports = (enableReportsProvider.orNull == "true")
 
                 // since metrics reports in compose compiler are a new feature, we only want to
                 // pass in this parameter for modules that are using the tip of tree compose
                 // compiler, or else we will run into an exception since the parameter will not
                 // be recognized.
                 if (isTipOfTreeComposeCompilerProvider.get() && enableMetrics) {
-                    val libMetrics = project
-                        .rootProject
-                        .getLibraryMetricsDirectory()
-                    val metricsDest = File(libMetrics, "compose")
-                        .absolutePath
+                    val metricsDest = File(libraryMetricsDirectory, "compose")
                     compile.kotlinOptions.freeCompilerArgs +=
                         listOf(
                             "-P",
-                            "$composeMetricsOption=$metricsDest"
+                            "$composeMetricsOption=${metricsDest.absolutePath}"
+                        )
+                }
+
+                // since metrics reports in compose compiler are a new feature, we only want to
+                // pass in this parameter for modules that are using the tip of tree compose
+                // compiler, or else we will run into an exception since the parameter will not
+                // be recognized.
+                if (isTipOfTreeComposeCompilerProvider.get() && enableReports) {
+                    val reportsDest = File(libraryReportsDirectory, "compose")
+                    compile.kotlinOptions.freeCompilerArgs +=
+                        listOf(
+                            "-P",
+                            "$composeReportsOption=${reportsDest.absolutePath}"
                         )
                 }
             }
+            true
         }
     }
 

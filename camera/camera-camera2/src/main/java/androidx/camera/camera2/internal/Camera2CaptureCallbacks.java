@@ -35,6 +35,7 @@ import java.util.List;
 /**
  * Different implementations of {@link CameraCaptureSession.CaptureCallback}.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class Camera2CaptureCallbacks {
     private Camera2CaptureCallbacks() {
     }
@@ -104,6 +105,7 @@ public final class Camera2CaptureCallbacks {
         }
     }
 
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     private static final class ComboSessionCaptureCallback
             extends CameraCaptureSession.CaptureCallback {
         private final List<CameraCaptureSession.CaptureCallback> mCallbacks = new ArrayList<>();

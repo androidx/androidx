@@ -24,6 +24,7 @@ import androidx.paging.DataSource.Params
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
+import androidx.paging.internal.BUGANIZER_URL
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.withContext
@@ -94,7 +95,7 @@ public class LegacyPagingSource<Key : Any, Value : Any>(
                 based on parameters.
 
                 If you are seeing this message despite using a Pager, please file a bug:
-                https://issuetracker.google.com/issues/new?component=413106
+                $BUGANIZER_URL
                 """.trimIndent()
             )
             pageSize = guessPageSize(params)

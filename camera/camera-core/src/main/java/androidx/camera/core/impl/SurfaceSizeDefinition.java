@@ -18,6 +18,8 @@ package androidx.camera.core.impl;
 
 import android.util.Size;
 
+import androidx.annotation.RequiresApi;
+
 import com.google.auto.value.AutoValue;
 
 /**
@@ -27,6 +29,7 @@ import com.google.auto.value.AutoValue;
  * guaranteed stream combinations for different hardware level devices.
  */
 @SuppressWarnings("AutoValueImmutableFields")
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @AutoValue
 public abstract class SurfaceSizeDefinition {
 

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -35,6 +34,8 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.kotlinTest)
     testImplementation(libs.kotlinCoroutinesTest)
+
+    samples(project(":paging:paging-samples"))
 }
 
 androidx {
@@ -46,9 +47,13 @@ androidx {
     legacyDisableKotlinStrictApiMode = true
 }
 
+android {
+    namespace "androidx.paging.guava"
+}
+
 // Allow usage of Kotlin's @OptIn.
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
-        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
+        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
     }
 }

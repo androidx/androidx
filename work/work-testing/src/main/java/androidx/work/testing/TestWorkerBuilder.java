@@ -66,8 +66,7 @@ public class TestWorkerBuilder<W extends Worker> extends TestListenableWorkerBui
         Class<Worker> workerClass = getWorkerClass(name);
         if (workerClass == null) {
             throw new IllegalArgumentException(
-                    String.format("Invalid worker class name or class does not extend Worker (%s)",
-                            name));
+                    "Invalid worker class name or class does not extend Worker (" + name + ")");
         }
 
         List<String> tags = new ArrayList<>(workRequest.getTags().size());

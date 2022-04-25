@@ -15,6 +15,7 @@
  */
 package androidx.wear.compose.material
 
+import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -47,8 +48,6 @@ import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onChild
-import androidx.compose.ui.test.onChildAt
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onRoot
@@ -58,6 +57,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
+import androidx.test.filters.SdkSuppress
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -94,7 +94,7 @@ class ChipBehaviourTest {
             }
         }
 
-        rule.onNodeWithTag("test-item").onChildAt(0).assertHasClickAction()
+        rule.onNodeWithTag("test-item").assertHasClickAction()
     }
 
     @Test
@@ -110,7 +110,7 @@ class ChipBehaviourTest {
             }
         }
 
-        rule.onNodeWithTag("test-item").onChildAt(0).assertHasClickAction()
+        rule.onNodeWithTag("test-item").assertHasClickAction()
     }
 
     @Test
@@ -126,7 +126,7 @@ class ChipBehaviourTest {
             }
         }
 
-        rule.onNodeWithTag("test-item").onChildAt(0).assertIsEnabled()
+        rule.onNodeWithTag("test-item").assertIsEnabled()
     }
 
     @Test
@@ -142,7 +142,7 @@ class ChipBehaviourTest {
             }
         }
 
-        rule.onNodeWithTag("test-item").onChildAt(0).assertIsNotEnabled()
+        rule.onNodeWithTag("test-item").assertIsNotEnabled()
     }
 
     @Test
@@ -160,7 +160,7 @@ class ChipBehaviourTest {
             }
         }
 
-        rule.onNodeWithTag("test-item").onChildAt(0).performClick()
+        rule.onNodeWithTag("test-item").performClick()
 
         rule.runOnIdle {
             assertEquals(true, clicked)
@@ -182,7 +182,7 @@ class ChipBehaviourTest {
             }
         }
 
-        rule.onNodeWithTag("test-item").onChildAt(0).performClick()
+        rule.onNodeWithTag("test-item").performClick()
 
         rule.runOnIdle {
             assertEquals(false, clicked)
@@ -202,7 +202,7 @@ class ChipBehaviourTest {
             }
         }
 
-        rule.onNodeWithTag("test-item").onChildAt(0)
+        rule.onNodeWithTag("test-item")
             .assert(
                 SemanticsMatcher.expectValue(
                     SemanticsProperties.Role,
@@ -544,6 +544,7 @@ class ChipColorTest {
             compactChip = true
         )
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun allows_custom_primary_enabled_background_color_override() {
         val overrideColor = Color.Yellow
@@ -560,11 +561,11 @@ class ChipColorTest {
         }
 
         rule.onNodeWithTag("test-item")
-            .onChild() // skip the 'outer' surface
             .captureToImage()
             .assertContainsColor(overrideColor, 50.0f)
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun allows_custom_primary_disabled_background_color_override() {
         val overrideColor = Color.Yellow
@@ -581,7 +582,6 @@ class ChipColorTest {
         }
 
         rule.onNodeWithTag("test-item")
-            .onChild() // skip the 'outer' surface
             .captureToImage()
             .assertContainsColor(overrideColor, 50.0f)
     }
@@ -638,27 +638,27 @@ class ChipColorTest {
     fun allows_custom_primary_enabled_icon_tint_color_override() {
         val overrideColor = Color.Red
         var actualContentColor = Color.Transparent
-        var actualIconTintColor = Color.Transparent
+        var actualIconColor = Color.Transparent
         var expectedContent = Color.Transparent
         rule.setContentWithTheme {
             expectedContent = MaterialTheme.colors.onPrimary
             Chip(
                 onClick = {},
                 colors = ChipDefaults.chipColors(
-                    iconTintColor = overrideColor
+                    iconColor = overrideColor
                 ),
                 label = {
                     actualContentColor = LocalContentColor.current
                 },
                 icon = {
-                    actualIconTintColor = LocalContentColor.current
+                    actualIconColor = LocalContentColor.current
                 },
                 enabled = true,
                 modifier = Modifier.testTag("test-item")
             )
         }
         assertEquals(expectedContent, actualContentColor)
-        assertEquals(overrideColor, actualIconTintColor)
+        assertEquals(overrideColor, actualIconColor)
     }
 
     @Test
@@ -715,6 +715,7 @@ class ChipColorTest {
         assertEquals(expectedContent, actualContent)
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     private fun verifyColors(
         testChipColors: TestChipColors,
         status: ChipStatus,
@@ -761,6 +762,7 @@ class ChipColorTest {
             )
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     private fun verifySlotColors(
         testChipColors: TestChipColors,
         status: ChipStatus,
@@ -958,6 +960,7 @@ private fun ComposeContentTestRule.verifyHeight(expected: Dp, content: @Composab
 
 // Determine whether the chip has stadium shape.
 // https://en.wikipedia.org/wiki/Stadium_(geometry)#:~:text=A%20stadium%20is%20a%20two,%2C%20obround%2C%20or%20sausage%20body.
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 private fun ComposeContentTestRule.isStadiumShape(
     layoutDirection: LayoutDirection,
     content: @Composable () -> Unit

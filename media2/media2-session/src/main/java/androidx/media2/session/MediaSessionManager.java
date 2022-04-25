@@ -83,9 +83,26 @@ public final class MediaSessionManager {
      * Gets {@link Set} of {@link SessionToken} for {@link MediaSessionService} regardless of
      * their activeness. This list represents media apps that support background playback.
      *
+     * <p>
+     * The app targeting API level 30 or higher must include a {@code <queries>} element in their
+     * manifest to get service tokens of other apps. See the following example and
+     * <a href="{@docRoot}training/package-visibility">this guide</a> for more information.
+     * <pre>{@code
+     * <intent>
+     *   <action android:name="androidx.media2.session.MediaSessionService" />
+     * </intent>
+     * <intent>
+     *   <action android:name="androidx.media2.session.MediaLibraryService" />
+     * </intent>
+     * <intent>
+     *   <action android:name="android.media.browse.MediaBrowserService" />
+     * </intent>
+     * }</pre>
+     *
      * @return set of tokens
      */
     @NonNull
+    @SuppressWarnings("deprecation")
     public Set<SessionToken> getSessionServiceTokens() {
         ArraySet<SessionToken> sessionServiceTokens = new ArraySet<>();
         PackageManager pm = mContext.getPackageManager();

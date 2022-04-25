@@ -16,7 +16,12 @@
 
 package androidx.camera.core.impl;
 
+import android.hardware.camera2.CameraDevice;
+import android.hardware.camera2.CaptureResult;
+import android.hardware.camera2.TotalCaptureResult;
+
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.CameraCaptureMetaData.AeState;
 import androidx.camera.core.impl.CameraCaptureMetaData.AfMode;
 import androidx.camera.core.impl.CameraCaptureMetaData.AfState;
@@ -28,6 +33,7 @@ import androidx.camera.core.impl.utils.ExifData;
  * The result of a single image capture.
  *
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface CameraCaptureResult {
 
     /** Returns the current auto focus mode of operation. */
@@ -64,6 +70,17 @@ public interface CameraCaptureResult {
     /** Populates the given Exif.Builder with attributes from this CameraCaptureResult. */
     default void populateExifData(@NonNull ExifData.Builder exifBuilder) {
         exifBuilder.setFlashState(getFlashState());
+    }
+
+    /**
+     * Returns the {@link CaptureResult} for reprocessable capture request.
+     * @return The {@link CaptureResult}.
+     *
+     * @see CameraDevice#createReprocessCaptureRequest(TotalCaptureResult)
+     */
+    @NonNull
+    default CaptureResult getCaptureResult() {
+        return CameraCaptureResult.EmptyCameraCaptureResult.create().getCaptureResult();
     }
 
     /** An implementation of CameraCaptureResult which always return default results. */

@@ -30,4 +30,18 @@
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"Geen pincode, patroon of wachtwoord ingesteld."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Dit apparaat ondersteunt geen pincode, patroon of wachtwoord."</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"Vingerafdrukicoon"</string>
+    <string name="use_fingerprint_label" msgid="6961788485681412417">"Vingerafdruk gebruiken"</string>
+    <string name="use_face_label" msgid="6533512708069459542">"Gezicht gebruiken"</string>
+    <string name="use_biometric_label" msgid="6524145989441579428">"Biometrische gegevens gebruiken"</string>
+    <string name="use_screen_lock_label" msgid="5459869335976243512">"Schermvergrendeling gebruiken"</string>
+    <string name="use_fingerprint_or_screen_lock_label" msgid="7577690399303139443">"Vingerafdruk of schermvergrendeling gebruiken"</string>
+    <string name="use_face_or_screen_lock_label" msgid="2116180187159450292">"Gezicht of schermgrendeling gebruiken"</string>
+    <string name="use_biometric_or_screen_lock_label" msgid="5385448280139639016">"Biometrische gegevens of schermvergrendeling gebruiken"</string>
+    <string name="fingerprint_prompt_message" msgid="7449360011861769080">"Gebruik je vingerafdruk om door te gaan"</string>
+    <string name="face_prompt_message" msgid="2282389249605674226">"Gebruik je gezicht om door te gaan"</string>
+    <string name="biometric_prompt_message" msgid="1160635338192065472">"Gebruik je biometrische gegevens om door te gaan"</string>
+    <string name="screen_lock_prompt_message" msgid="5659570757430909869">"Geef je schermvergrendeling op om door te gaan"</string>
+    <string name="fingerprint_or_screen_lock_prompt_message" msgid="8382576858490514495">"Gebruik je vingerafdruk of schermvergrendeling om door te gaan"</string>
+    <string name="face_or_screen_lock_prompt_message" msgid="4562557128765735254">"Gebruik je gezicht of schermvergrendeling om door te gaan"</string>
+    <string name="biometric_or_screen_lock_prompt_message" msgid="2102429900219199821">"Gebruik je biometrische gegevens of schermvergrendeling om door te gaan"</string>
 </resources>

@@ -18,19 +18,26 @@
 package androidx.window.layout
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.annotation.VisibleForTesting
 import androidx.window.core.Bounds
-import androidx.window.layout.ExtensionWindowBackend.Companion.DEBUG
+import androidx.window.core.SpecificationComputer.Companion.startSpecification
+import androidx.window.core.SpecificationComputer.VerificationMode
+import androidx.window.core.SpecificationComputer.VerificationMode.QUIET
+import androidx.window.layout.HardwareFoldingFeature.Type.Companion.FOLD
+import androidx.window.layout.HardwareFoldingFeature.Type.Companion.HINGE
+import androidx.window.layout.SidecarWindowBackend.Companion.DEBUG
 import androidx.window.sidecar.SidecarDeviceState
 import androidx.window.sidecar.SidecarDisplayFeature
+import androidx.window.sidecar.SidecarDisplayFeature.TYPE_FOLD
+import androidx.window.sidecar.SidecarDisplayFeature.TYPE_HINGE
 import androidx.window.sidecar.SidecarWindowLayoutInfo
 import java.lang.reflect.InvocationTargetException
 
 /**
  * A class for translating Sidecar data classes.
  */
-internal class SidecarAdapter {
+// TODO(b/206055949) convert to strict validation.
+internal class SidecarAdapter(private val verificationMode: VerificationMode = QUIET) {
 
     fun translate(
         sidecarDisplayFeatures: List<SidecarDisplayFeature>,
@@ -139,6 +146,48 @@ internal class SidecarAdapter {
         } else {
             true
         }
+    }
+
+    /**
+     * Converts the display feature from extension. Can return `null` if there is an issue
+     * with the value passed from extension.
+     */
+    internal fun translate(
+        feature: SidecarDisplayFeature,
+        deviceState: SidecarDeviceState
+    ): DisplayFeature? {
+        val checkedFeature = feature.startSpecification(TAG, verificationMode)
+            .require("Type must be either TYPE_FOLD or TYPE_HINGE") {
+                type == TYPE_FOLD || type == TYPE_HINGE
+            }
+            .require("Feature bounds must not be 0") { rect.width() != 0 || rect.height() != 0 }
+            .require("TYPE_FOLD must have 0 area") {
+                if (type == TYPE_FOLD) {
+                    rect.width() == 0 || rect.height() == 0
+                } else {
+                    true
+                }
+            }
+            .require("Feature be pinned to either left or top") {
+                rect.left == 0 || rect.top == 0
+            }
+            .compute() ?: return null
+        val type = when (checkedFeature.type) {
+            TYPE_FOLD -> FOLD
+            TYPE_HINGE -> HINGE
+            else -> {
+                return null
+            }
+        }
+        val state = when (getSidecarDevicePosture(deviceState)) {
+            SidecarDeviceState.POSTURE_CLOSED,
+            SidecarDeviceState.POSTURE_UNKNOWN,
+            SidecarDeviceState.POSTURE_FLIPPED -> return null
+            SidecarDeviceState.POSTURE_HALF_OPENED -> FoldingFeature.State.HALF_OPENED
+            SidecarDeviceState.POSTURE_OPENED -> FoldingFeature.State.FLAT
+            else -> FoldingFeature.State.FLAT
+        }
+        return HardwareFoldingFeature(Bounds(feature.rect), type, state)
     }
 
     companion object {
@@ -270,78 +319,6 @@ internal class SidecarAdapter {
                     }
                 }
             }
-        }
-
-        /**
-         * Converts the display feature from extension. Can return `null` if there is an issue
-         * with the value passed from extension.
-         */
-        internal fun translate(
-            feature: SidecarDisplayFeature,
-            deviceState: SidecarDeviceState
-        ): DisplayFeature? {
-            val bounds = feature.rect
-            if (bounds.width() == 0 && bounds.height() == 0) {
-                if (DEBUG) {
-                    Log.d(TAG, "Passed a display feature with empty rect, skipping: $feature")
-                }
-                return null
-            }
-            if (feature.type == SidecarDisplayFeature.TYPE_FOLD) {
-                if (bounds.width() != 0 && bounds.height() != 0) {
-                    // Bounds for fold types are expected to be zero-wide or zero-high.
-                    // See DisplayFeature#getBounds().
-                    if (DEBUG) {
-                        Log.d(
-                            TAG,
-                            "Passed a non-zero area display feature expected to be zero-area, " +
-                                "skipping: $feature"
-                        )
-                    }
-                    return null
-                }
-            }
-            if (feature.type == SidecarDisplayFeature.TYPE_HINGE ||
-                feature.type == SidecarDisplayFeature.TYPE_FOLD
-            ) {
-                // TODO(b/175507310): Reinstate after fix on the OEM side.
-                if (
-                    !(
-                        bounds.left == 0 /* && bounds.right == windowBounds.width()*/ ||
-                            bounds.top == 0 /* && bounds.bottom == windowBounds.height()*/
-                        )
-                ) {
-                    // Bounds for fold and hinge types are expected to span the entire window space.
-                    // See DisplayFeature#getBounds().
-                    if (DEBUG) {
-                        Log.d(
-                            TAG,
-                            "Passed a display feature expected to span the entire window but " +
-                                "does not, skipping: $feature"
-                        )
-                    }
-                    return null
-                }
-            }
-            val type = when (feature.type) {
-                SidecarDisplayFeature.TYPE_FOLD -> HardwareFoldingFeature.Type.FOLD
-                SidecarDisplayFeature.TYPE_HINGE -> HardwareFoldingFeature.Type.HINGE
-                else -> {
-                    if (DEBUG) {
-                        Log.d(TAG, "Unknown feature type: ${feature.type}, skipping feature.")
-                    }
-                    return null
-                }
-            }
-            val state = when (getSidecarDevicePosture(deviceState)) {
-                SidecarDeviceState.POSTURE_CLOSED,
-                SidecarDeviceState.POSTURE_UNKNOWN,
-                SidecarDeviceState.POSTURE_FLIPPED -> return null
-                SidecarDeviceState.POSTURE_HALF_OPENED -> FoldingFeature.State.HALF_OPENED
-                SidecarDeviceState.POSTURE_OPENED -> FoldingFeature.State.FLAT
-                else -> FoldingFeature.State.FLAT
-            }
-            return HardwareFoldingFeature(Bounds(feature.rect), type, state)
         }
     }
 }

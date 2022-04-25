@@ -18,6 +18,7 @@ package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
@@ -34,6 +35,7 @@ import java.util.LinkedHashSet;
  *
  * <p> It is a Camera instance backed by a single physical camera.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface CameraInternal extends Camera, UseCase.StateChangeCallback {
     /**
      * The state of a camera within the process.
@@ -116,6 +118,17 @@ public interface CameraInternal extends Camera, UseCase.StateChangeCallback {
      * reopened for it to produce data again.
      */
     void close();
+
+    /**
+     * When in active resuming mode, it will actively retry opening the camera periodically to
+     * resume regardless of the camera availability if the camera is interrupted in
+     * OPEN/OPENING/PENDING_OPEN state.
+     *
+     * When not in active resuming mode, it will retry opening camera only when camera
+     * becomes available.
+     */
+    default void setActiveResumingMode(boolean enabled) {
+    }
 
     /**
      * Release the camera.

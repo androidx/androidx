@@ -13,12 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+
 package androidx.camera.camera2.pipe.integration.impl
 
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraCaptureSession.CaptureCallback
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions
 import androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions.Builder.Companion.from
@@ -30,24 +34,25 @@ import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.OptionsBundle
 
 internal const val CAPTURE_REQUEST_ID_STEM = "camera2.captureRequest.option."
-internal val TEMPLATE_TYPE_OPTION = Config.Option.create<Int>(
+internal val TEMPLATE_TYPE_OPTION: Config.Option<Int> = Config.Option.create(
     "camera2.captureRequest.templateType",
     Int::class.javaPrimitiveType!!
 )
-internal val DEVICE_STATE_CALLBACK_OPTION = Config.Option.create<CameraDevice.StateCallback>(
-    "camera2.cameraDevice.stateCallback",
-    CameraDevice.StateCallback::class.java
-)
-internal val SESSION_STATE_CALLBACK_OPTION =
-    Config.Option.create<CameraCaptureSession.StateCallback>(
+internal val DEVICE_STATE_CALLBACK_OPTION: Config.Option<CameraDevice.StateCallback> =
+    Config.Option.create(
+        "camera2.cameraDevice.stateCallback",
+        CameraDevice.StateCallback::class.java
+    )
+internal val SESSION_STATE_CALLBACK_OPTION: Config.Option<CameraCaptureSession.StateCallback> =
+    Config.Option.create(
         "camera2.cameraCaptureSession.stateCallback",
         CameraCaptureSession.StateCallback::class.java
     )
-internal val SESSION_CAPTURE_CALLBACK_OPTION = Config.Option.create<CaptureCallback>(
+internal val SESSION_CAPTURE_CALLBACK_OPTION: Config.Option<CaptureCallback> = Config.Option.create(
     "camera2.cameraCaptureSession.captureCallback",
     CaptureCallback::class.java
 )
-internal val CAPTURE_REQUEST_TAG_OPTION = Config.Option.create<Any>(
+internal val CAPTURE_REQUEST_TAG_OPTION: Config.Option<Any> = Config.Option.create(
     "camera2.captureRequest.tag", Any::class.java
 )
 // TODO: Porting the CameraEventCallback option constant.

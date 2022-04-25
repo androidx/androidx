@@ -16,13 +16,13 @@
 package androidx.compose.ui.awt
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionContext
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.window.FrameWindowScope
-import androidx.compose.ui.window.UndecoratedWindowResizer
 import androidx.compose.ui.window.WindowPlacement
 import org.jetbrains.skiko.GraphicsApi
 import java.awt.Component
+import java.awt.GraphicsConfiguration
 import java.awt.event.MouseListener
 import java.awt.event.MouseMotionListener
 import java.awt.event.MouseWheelListener
@@ -31,10 +31,14 @@ import javax.swing.JFrame
 /**
  * ComposeWindow is a window for building UI using Compose for Desktop.
  * ComposeWindow inherits javax.swing.JFrame.
+ *
+ * @param graphicsConfiguration the GraphicsConfiguration that is used to construct the new window.
+ * If null, the system default GraphicsConfiguration is assumed.
  */
-class ComposeWindow : JFrame() {
-    private val delegate = ComposeWindowDelegate(this)
-    internal val layer get() = delegate.layer
+class ComposeWindow(
+    graphicsConfiguration: GraphicsConfiguration? = null
+) : JFrame(graphicsConfiguration) {
+    private val delegate = ComposeWindowDelegate(this, ::isUndecorated)
 
     init {
         contentPane.add(delegate.pane)
@@ -47,13 +51,20 @@ class ComposeWindow : JFrame() {
     /**
      * Composes the given composable into the ComposeWindow.
      *
-     * The new composition can be logically "linked" to an existing one, by providing a
-     * [parentComposition]. This will ensure that invalidations and CompositionLocals will flow
-     * through the two compositions as if they were not separate.
+     * @param content Composable content of the ComposeWindow.
+     */
+    @OptIn(ExperimentalComposeUiApi::class)
+    fun setContent(
+        content: @Composable FrameWindowScope.() -> Unit
+    ) = setContent(
+        onPreviewKeyEvent = { false },
+        onKeyEvent = { false },
+        content = content
+    )
+
+    /**
+     * Composes the given composable into the ComposeWindow.
      *
-     * @param parentComposition The parent composition reference to coordinate
-     * scheduling of composition updates.
-     * If null then default root composition will be used.
      * @param onPreviewKeyEvent This callback is invoked when the user interacts with the hardware
      * keyboard. It gives ancestors of a focused component the chance to intercept a [KeyEvent].
      * Return true to stop propagation of this event. If you return false, the key event will be
@@ -64,8 +75,8 @@ class ComposeWindow : JFrame() {
      * If you return false, the key event will be sent to this [onKeyEvent]'s parent.
      * @param content Composable content of the ComposeWindow.
      */
+    @ExperimentalComposeUiApi
     fun setContent(
-        parentComposition: CompositionContext? = null,
         onPreviewKeyEvent: (KeyEvent) -> Boolean = { false },
         onKeyEvent: (KeyEvent) -> Boolean = { false },
         content: @Composable FrameWindowScope.() -> Unit
@@ -74,7 +85,6 @@ class ComposeWindow : JFrame() {
             override val window: ComposeWindow get() = this@ComposeWindow
         }
         delegate.setContent(
-            parentComposition,
             onPreviewKeyEvent,
             onKeyEvent
         ) {
@@ -87,17 +97,22 @@ class ComposeWindow : JFrame() {
         super.dispose()
     }
 
-    private val undecoratedWindowResizer = UndecoratedWindowResizer(this, layer)
-
     override fun setUndecorated(value: Boolean) {
         super.setUndecorated(value)
-        undecoratedWindowResizer.enabled = isUndecorated && isResizable
+        delegate.undecoratedWindowResizer.enabled = isUndecorated && isResizable
     }
 
     override fun setResizable(value: Boolean) {
         super.setResizable(value)
-        undecoratedWindowResizer.enabled = isUndecorated && isResizable
+        delegate.undecoratedWindowResizer.enabled = isUndecorated && isResizable
     }
+
+    /**
+     * `true` if background of the window is transparent, `false` otherwise
+     * Transparency should be set only if window is not showing and `isUndecorated` is set to
+     * `true`, otherwise AWT will throw an exception.
+     */
+    var isTransparent: Boolean by delegate::isTransparent
 
     var placement: WindowPlacement
         get() = when {
@@ -123,11 +138,7 @@ class ComposeWindow : JFrame() {
     /**
      * `true` if the window is in fullscreen mode, `false` otherwise
      */
-    private var isFullscreen: Boolean
-        get() = layer.component.fullscreen
-        set(value) {
-            layer.component.fullscreen = value
-        }
+    private var isFullscreen: Boolean by delegate::fullscreen
 
     /**
      * `true` if the window is maximized to fill all available screen space, `false` otherwise
@@ -164,7 +175,7 @@ class ComposeWindow : JFrame() {
 
     /**
      * Retrieve underlying platform-specific operating system handle for the root window where
-     * ComposeWindow is rendered. Currently returns HWND on Windows, Display on X11 and NSWindow
+     * ComposeWindow is rendered. Currently returns HWND on Windows, Window on X11 and NSWindow
      * on macOS.
      */
     val windowHandle: Long get() = delegate.windowHandle

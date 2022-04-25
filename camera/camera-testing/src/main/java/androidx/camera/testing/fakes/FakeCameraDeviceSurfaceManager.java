@@ -19,6 +19,7 @@ package androidx.camera.testing.fakes;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.UseCaseConfig;
@@ -28,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 /** A CameraDeviceSurfaceManager which has no supported SurfaceConfigs. */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class FakeCameraDeviceSurfaceManager implements CameraDeviceSurfaceManager {
 
     public static final Size MAX_OUTPUT_SIZE = new Size(4032, 3024); // 12.2 MP

@@ -16,6 +16,11 @@
 
 package androidx.camera.integration.view;
 
+import static androidx.camera.integration.view.MainActivity.CAMERA_DIRECTION_BACK;
+import static androidx.camera.integration.view.MainActivity.CAMERA_DIRECTION_FRONT;
+import static androidx.camera.integration.view.MainActivity.INTENT_EXTRA_CAMERA_DIRECTION;
+import static androidx.camera.integration.view.MainActivity.INTENT_EXTRA_E2E_TEST_CASE;
+import static androidx.camera.integration.view.MainActivity.PREVIEW_TEST_CASE;
 import static androidx.camera.view.PreviewView.StreamState.IDLE;
 import static androidx.camera.view.PreviewView.StreamState.STREAMING;
 
@@ -74,12 +79,6 @@ public class PreviewViewFragment extends Fragment {
 
     private static final String TAG = "PreviewViewFragment";
 
-    // Possible values for this intent key are the name values of LensFacing encoded as
-    // strings (case-insensitive): "back", "front".
-    private static final String INTENT_EXTRA_CAMERA_DIRECTION = "camera_direction";
-    private static final String CAMERA_DIRECTION_BACK = "back";
-    private static final String CAMERA_DIRECTION_FRONT = "front";
-
     private ListenableFuture<ProcessCameraProvider> mCameraProviderFuture;
     @SuppressWarnings("WeakerAccess")
     PreviewView mPreviewView;
@@ -108,6 +107,17 @@ public class PreviewViewFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        Bundle bundle = requireActivity().getIntent().getExtras();
+        if (bundle != null) {
+            // Update the app UI according to the e2e test case.
+            String testCase = bundle.getString(INTENT_EXTRA_E2E_TEST_CASE);
+            if (PREVIEW_TEST_CASE.equals(testCase)) {
+                View controller = view.findViewById(R.id.controller);
+                if (controller != null) {
+                    controller.setVisibility(View.GONE);
+                }
+            }
+        }
         mPreviewView = view.findViewById(R.id.preview_view);
         mPreviewView.setImplementationMode(PreviewView.ImplementationMode.COMPATIBLE);
         mPreviewView.addOnLayoutChangeListener(
@@ -164,8 +174,6 @@ public class PreviewViewFragment extends Fragment {
         }
     }
 
-    // TODO(b/185869869) Remove the UnsafeOptInUsageError once view's version matches core's.
-    @SuppressLint("UnsafeOptInUsageError")
     void setUpTargetRotationButton(@NonNull final ProcessCameraProvider cameraProvider,
             @NonNull final View rootView) {
         Button button = rootView.findViewById(R.id.target_rotation);
@@ -327,8 +335,6 @@ public class PreviewViewFragment extends Fragment {
     }
 
     @SuppressWarnings("WeakerAccess")
-    // TODO(b/185869869) Remove the UnsafeOptInUsageError once view's version matches core's.
-    @SuppressLint("UnsafeOptInUsageError")
     void bindPreview(@NonNull ProcessCameraProvider cameraProvider) {
         if (mPreview == null) {
             return;

@@ -15,7 +15,7 @@
  */
 package androidx.emoji2.bundled;
 
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.app.Instrumentation;
 import android.text.Editable;

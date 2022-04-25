@@ -22,6 +22,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.AppSearchSession;
+import androidx.appsearch.app.Features;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.GetSchemaResponse;
@@ -47,6 +48,7 @@ import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
 
@@ -60,12 +62,15 @@ import java.util.concurrent.Executor;
 class SearchSessionImpl implements AppSearchSession {
     private final android.app.appsearch.AppSearchSession mPlatformSession;
     private final Executor mExecutor;
+    private final Features mFeatures;
 
     SearchSessionImpl(
             @NonNull android.app.appsearch.AppSearchSession platformSession,
-            @NonNull Executor executor) {
+            @NonNull Executor executor,
+            @NonNull Features features) {
         mPlatformSession = Preconditions.checkNotNull(platformSession);
         mExecutor = Preconditions.checkNotNull(executor);
+        mFeatures = Preconditions.checkNotNull(features);
     }
 
     @Override
@@ -207,12 +212,50 @@ class SearchSessionImpl implements AppSearchSession {
         Preconditions.checkNotNull(queryExpression);
         Preconditions.checkNotNull(searchSpec);
         ResolvableFuture<Void> future = ResolvableFuture.create();
-        mPlatformSession.remove(
-                queryExpression,
-                SearchSpecToPlatformConverter.toPlatformSearchSpec(searchSpec),
-                mExecutor,
-                result -> AppSearchResultToPlatformConverter.platformAppSearchResultToFuture(
-                        result, future));
+
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.S
+                && !searchSpec.getFilterNamespaces().isEmpty()) {
+            // This is a patch for b/197361770, framework-appsearch in Android S will
+            // disable the given namespace filter if it is not empty and none of given namespaces
+            // exist.
+            // And that will result in Icing remove documents under all namespaces if it matches
+            // query express and schema filter.
+            mPlatformSession.getNamespaces(
+                    mExecutor,
+                    namespaceResult -> {
+                        if (namespaceResult.isSuccess()) {
+                            Set<String> existingNamespaces = namespaceResult.getResultValue();
+                            List<String> filterNamespaces = searchSpec.getFilterNamespaces();
+                            for (int i = 0; i < filterNamespaces.size(); i++) {
+                                if (existingNamespaces.contains(filterNamespaces.get(i))) {
+                                    // There is a given namespace exist in AppSearch, we are fine.
+                                    mPlatformSession.remove(
+                                            queryExpression,
+                                            SearchSpecToPlatformConverter
+                                                    .toPlatformSearchSpec(searchSpec),
+                                            mExecutor,
+                                            removeResult -> AppSearchResultToPlatformConverter
+                                                    .platformAppSearchResultToFuture(removeResult,
+                                                            future));
+                                    return;
+                                }
+                            }
+                            // None of the namespace in the given namespace filter exists. Return
+                            // early.
+                            future.set(null);
+                        } else {
+                            handleFailedPlatformResult(namespaceResult, future);
+                        }
+                    });
+        } else {
+            // Handle normally for Android T and above.
+            mPlatformSession.remove(
+                    queryExpression,
+                    SearchSpecToPlatformConverter.toPlatformSearchSpec(searchSpec),
+                    mExecutor,
+                    removeResult -> AppSearchResultToPlatformConverter
+                            .platformAppSearchResultToFuture(removeResult, future));
+        }
         return future;
     }
 
@@ -243,6 +286,12 @@ class SearchSessionImpl implements AppSearchSession {
         // flush.
         future.set(null);
         return future;
+    }
+
+    @NonNull
+    @Override
+    public Features getFeatures() {
+        return mFeatures;
     }
 
     @Override

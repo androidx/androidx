@@ -30,7 +30,8 @@ class MapQueryResultAdapter(
     private val keyRowAdapter: RowAdapter,
     private val valueRowAdapter: RowAdapter,
     private val valueCollectionType: XType?,
-    isArrayMap: Boolean = false
+    isArrayMap: Boolean = false,
+    private val isSparseArray: ClassName? = null
 ) : QueryResultAdapter(listOf(keyRowAdapter, valueRowAdapter)), MultimapQueryResultAdapter {
     private val declaredToConcreteCollection = mapOf<ClassName, ClassName>(
         ClassName.get(List::class.java) to ClassName.get(ArrayList::class.java),
@@ -55,26 +56,40 @@ class MapQueryResultAdapter(
         valueTypeArg.typeName
     }
 
-    private val mapType = ParameterizedTypeName.get(
-        if (isArrayMap) ARRAY_MAP else ClassName.get(Map::class.java),
-        keyTypeArg.typeName,
-        declaredValueType
-    )
+    private val mapType = if (isSparseArray != null) {
+        ParameterizedTypeName.get(
+            isSparseArray,
+            declaredValueType
+        )
+    } else {
+        ParameterizedTypeName.get(
+            if (isArrayMap) ARRAY_MAP else ClassName.get(Map::class.java),
+            keyTypeArg.typeName,
+            declaredValueType
+        )
+    }
 
     // LinkedHashMap is used as impl to preserve key ordering for ordered query results.
-    private val mapImplType = ParameterizedTypeName.get(
-        if (isArrayMap) ARRAY_MAP else ClassName.get(LinkedHashMap::class.java),
-        keyTypeArg.typeName,
-        declaredValueType
-    )
+    private val mapImplType =
+        if (isSparseArray != null) {
+            ParameterizedTypeName.get(
+                isSparseArray,
+                declaredValueType
+            )
+        } else {
+            ParameterizedTypeName.get(
+                if (isArrayMap) ARRAY_MAP else ClassName.get(LinkedHashMap::class.java),
+                keyTypeArg.typeName,
+                declaredValueType
+            )
+        }
 
     override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
         scope.builder().apply {
             keyRowAdapter.onCursorReady(cursorVarName, scope)
             valueRowAdapter.onCursorReady(cursorVarName, scope)
 
-            val mapVarName = outVarName
-            addStatement("final $T $L = new $T()", mapType, mapVarName, mapImplType)
+            addStatement("final $T $L = new $T()", mapType, outVarName, mapImplType)
 
             val tmpKeyVarName = scope.getTmpVar("_key")
             val tmpValueVarName = scope.getTmpVar("_value")
@@ -82,18 +97,26 @@ class MapQueryResultAdapter(
                 addStatement("final $T $L", keyTypeArg.typeName, tmpKeyVarName)
                 keyRowAdapter.convert(tmpKeyVarName, cursorVarName, scope)
 
+                val columnNullCheckVarName = getColumnNullCheck(
+                    cursorVarName = cursorVarName,
+                    valueRowAdapter = valueRowAdapter
+                )
+
                 // If valueCollectionType is null, this means that we have a 1-to-1 mapping, as
                 // opposed to a 1-to-many mapping.
                 if (valueCollectionType != null) {
-                    addStatement("final $T $L", valueTypeArg.typeName, tmpValueVarName)
-                    valueRowAdapter.convert(tmpValueVarName, cursorVarName, scope)
                     val tmpCollectionVarName = scope.getTmpVar("_values")
                     addStatement("$T $L", declaredValueType, tmpCollectionVarName)
-                    beginControlFlow("if ($L.containsKey($L))", mapVarName, tmpKeyVarName).apply {
+
+                    if (isSparseArray != null) {
+                        beginControlFlow("if ($L.get($L) != null)", outVarName, tmpKeyVarName)
+                    } else {
+                        beginControlFlow("if ($L.containsKey($L))", outVarName, tmpKeyVarName)
+                    }.apply {
                         addStatement(
                             "$L = $L.get($L)",
                             tmpCollectionVarName,
-                            mapVarName,
+                            outVarName,
                             tmpKeyVarName
                         )
                     }
@@ -101,14 +124,28 @@ class MapQueryResultAdapter(
                         addStatement("$L = new $T()", tmpCollectionVarName, concreteValueType)
                         addStatement(
                             "$L.put($L, $L)",
-                            mapVarName,
+                            outVarName,
                             tmpKeyVarName,
                             tmpCollectionVarName
                         )
                     }
                     endControlFlow()
+
+                    // Perform column null check
+                    beginControlFlow("if ($L)", columnNullCheckVarName).apply {
+                        addStatement("continue")
+                    }.endControlFlow()
+
+                    addStatement("final $T $L", valueTypeArg.typeName, tmpValueVarName)
+                    valueRowAdapter.convert(tmpValueVarName, cursorVarName, scope)
                     addStatement("$L.add($L)", tmpCollectionVarName, tmpValueVarName)
                 } else {
+                    // Perform column null check
+                    beginControlFlow("if ($L)", columnNullCheckVarName).apply {
+                        addStatement("$L.put($L, null)", outVarName, tmpKeyVarName)
+                        addStatement("continue")
+                    }.endControlFlow()
+
                     addStatement(
                         "final $T $L",
                         valueTypeArg.typeElement?.className,
@@ -119,8 +156,12 @@ class MapQueryResultAdapter(
                     // For consistency purposes, in the one-to-one object mapping case, if
                     // multiple values are encountered for the same key, we will only consider
                     // the first ever encountered mapping.
-                    beginControlFlow("if (!$L.containsKey($L))", mapVarName, tmpKeyVarName).apply {
-                        addStatement("$L.put($L, $L)", mapVarName, tmpKeyVarName, tmpValueVarName)
+                    if (isSparseArray != null) {
+                        beginControlFlow("if ($L.get($L) == null)", outVarName, tmpKeyVarName)
+                    } else {
+                        beginControlFlow("if (!$L.containsKey($L))", outVarName, tmpKeyVarName)
+                    }.apply {
+                        addStatement("$L.put($L, $L)", outVarName, tmpKeyVarName, tmpValueVarName)
                     }
                     endControlFlow()
                 }

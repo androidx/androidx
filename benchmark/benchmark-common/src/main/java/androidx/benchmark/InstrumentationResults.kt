@@ -86,7 +86,13 @@ public object InstrumentationResults {
 
     // NOTE: this summary line will use default locale to determine separators. As
     // this line is only meant for human eyes, we don't worry about consistency here.
-    internal fun ideSummaryLine(key: String, nanos: Double, allocations: Double?): String {
+    internal fun ideSummaryLine(
+        key: String,
+        nanos: Double,
+        allocations: Double?,
+        traceRelPath: String?,
+        profilerResult: Profiler.ResultFile?
+    ): String {
         return listOfNotNull(
             // for readability, report nanos with 10ths only if less than 100
             if (nanos >= 100.0) {
@@ -99,6 +105,14 @@ public object InstrumentationResults {
             // 9 alignment is enough for ~10 million allocations
             allocations?.run {
                 "%8d allocs".format(allocations.toInt())
+            },
+            traceRelPath?.run {
+                // always fixed length
+                "[trace](file://$traceRelPath)"
+            },
+            profilerResult?.run {
+                // should be fixed length within a run, as each benchmark will use same profiler
+                "[$label](file://$outputRelativePath)"
             },
             key
         ).joinToString("    ")
@@ -132,10 +146,22 @@ public object InstrumentationResults {
         }
     }
 
-    internal fun ideSummaryLineWrapped(key: String, nanos: Double, allocations: Double?): String {
+    internal fun ideSummaryLineWrapped(
+        key: String,
+        nanos: Double,
+        allocations: Double?,
+        traceRelPath: String?,
+        profilerResult: Profiler.ResultFile?
+    ): String {
         val warningLines =
             Errors.acquireWarningStringForLogging()?.split("\n") ?: listOf()
-        return (warningLines + ideSummaryLine(key, nanos, allocations))
+        return (warningLines + ideSummaryLine(
+            key = key,
+            nanos = nanos,
+            allocations = allocations,
+            traceRelPath = traceRelPath,
+            profilerResult = profilerResult
+        ))
             // remove first line if empty
             .filterIndexed { index, it -> index != 0 || it.isNotBlank() }
             // join, prepending key to everything but first string,

@@ -80,7 +80,23 @@ public final class Action {
     public @interface ActionType {
     }
 
-    static final int FLAG_STANDARD = 1 << 16;
+    /**
+     * The flag of action represented by the {@link Action} instance.
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    @IntDef(
+            flag = true,
+            value = {
+                    FLAG_PRIMARY,
+                    FLAG_IS_PERSISTENT,
+            })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ActionFlag {
+    }
+
+    static final int TYPE_STANDARD = 1 << 16;
 
     /**
      * An app-defined custom action type.
@@ -92,19 +108,36 @@ public final class Action {
      *
      * @see #APP_ICON
      */
-    public static final int TYPE_APP_ICON = 2 | FLAG_STANDARD;
+    public static final int TYPE_APP_ICON = 2 | TYPE_STANDARD;
 
     /**
      * An action to navigate back in the user interface.
      *
      * @see #BACK
      */
-    public static final int TYPE_BACK = 3 | FLAG_STANDARD;
+    public static final int TYPE_BACK = 3 | TYPE_STANDARD;
 
     /**
      * An action to toggle the pan mode in a map-based template.
      */
-    public static final int TYPE_PAN = 4 | FLAG_STANDARD;
+    public static final int TYPE_PAN = 4 | TYPE_STANDARD;
+
+    /**
+     * Indicates that this action is the most important one, out of a set of other actions.
+     *
+     * <p>The action with this flag may be treated differently by the host depending on where they
+     * are used. For example, it may be colored or ordered differently to align with the vehicle's
+     * look and feel. See the documentation on where the {@link Action} is added for more details on
+     * any restriction(s) that might apply.
+     */
+    @RequiresCarApi(4)
+    public static final int FLAG_PRIMARY = 1 << 0;
+
+    /**
+     * Indicates that this action will not fade in/out inside an {@link ActionStrip}.
+     */
+    @RequiresCarApi(5)
+    public static final int FLAG_IS_PERSISTENT = 1 << 1;
 
     /**
      * A standard action to show the app's icon.
@@ -155,6 +188,9 @@ public final class Action {
     @Keep
     @ActionType
     private final int mType;
+    @Keep
+    @ActionFlag
+    private final int mFlags;
 
     /**
      * Returns the title displayed in the action or {@code null} if the action does not have a
@@ -192,6 +228,13 @@ public final class Action {
     @ActionType
     public int getType() {
         return mType;
+    }
+
+    /** Returns flags affecting how this action should be treated */
+    @RequiresCarApi(4)
+    @ActionFlag
+    public int getFlags() {
+        return mFlags;
     }
 
     /** Returns whether the action is a standard action such as {@link #BACK}. */
@@ -245,6 +288,7 @@ public final class Action {
         mBackgroundColor = DEFAULT;
         mOnClickDelegate = null;
         mType = type;
+        mFlags = 0;
     }
 
     Action(Builder builder) {
@@ -253,6 +297,7 @@ public final class Action {
         mBackgroundColor = builder.mBackgroundColor;
         mOnClickDelegate = builder.mOnClickDelegate;
         mType = builder.mType;
+        mFlags = builder.mFlags;
     }
 
     /** Constructs an empty instance, used by serialization code. */
@@ -262,6 +307,7 @@ public final class Action {
         mBackgroundColor = DEFAULT;
         mOnClickDelegate = null;
         mType = TYPE_CUSTOM;
+        mFlags = 0;
     }
 
     @Override
@@ -284,11 +330,12 @@ public final class Action {
         return Objects.equals(mTitle, otherAction.mTitle)
                 && mType == otherAction.mType
                 && Objects.equals(mIcon, otherAction.mIcon)
-                && Objects.equals(mOnClickDelegate == null, otherAction.mOnClickDelegate == null);
+                && Objects.equals(mOnClickDelegate == null, otherAction.mOnClickDelegate == null)
+                && Objects.equals(mFlags, otherAction.mFlags);
     }
 
     static boolean isStandardActionType(@ActionType int type) {
-        return 0 != (type & FLAG_STANDARD);
+        return 0 != (type & TYPE_STANDARD);
     }
 
     /** A builder of {@link Action}. */
@@ -302,6 +349,8 @@ public final class Action {
         CarColor mBackgroundColor = DEFAULT;
         @ActionType
         int mType = TYPE_CUSTOM;
+        @ActionFlag
+        int mFlags = 0;
 
         /**
          * Sets the title to display in the action.
@@ -395,6 +444,14 @@ public final class Action {
             return this;
         }
 
+        /** Sets flags affecting how this action should be treated. */
+        @NonNull
+        @RequiresCarApi(4)
+        public Builder setFlags(@ActionFlag int flags) {
+            mFlags |= flags;
+            return this;
+        }
+
         /**
          * Constructs the {@link Action} defined by this builder.
          *
@@ -454,6 +511,7 @@ public final class Action {
             mOnClickDelegate = action.getOnClickDelegate();
             CarColor backgroundColor = action.getBackgroundColor();
             mBackgroundColor = backgroundColor == null ? DEFAULT : backgroundColor;
+            mFlags = action.getFlags();
         }
     }
 }

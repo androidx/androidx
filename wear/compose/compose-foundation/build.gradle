@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.LibraryVersions
 import androidx.build.AndroidXComposePlugin
 
 plugins {
@@ -37,24 +35,29 @@ dependencies {
         api(project(":compose:runtime:runtime"))
 
         implementation(libs.kotlinStdlib)
-        implementation("androidx.compose.foundation:foundation-layout:1.0.0-rc02")
+        implementation(project(":compose:foundation:foundation-layout"))
+        implementation("androidx.profileinstaller:profileinstaller:1.2.0-alpha02")
 
         testImplementation(libs.testRules)
         testImplementation(libs.testRunner)
         testImplementation(libs.junit)
 
-        androidTestImplementation project(path: ':compose:ui:ui-test')
-        androidTestImplementation project(path: ':compose:ui:ui-test-junit4')
-        androidTestImplementation project(path: ':compose:test-utils')
+        androidTestImplementation(project(":compose:ui:ui-test"))
+        androidTestImplementation(project(":compose:ui:ui-test-junit4"))
+        androidTestImplementation(project(":compose:test-utils"))
         androidTestImplementation(libs.testRunner)
+
+        samples(project(":wear:compose:compose-foundation-samples"))
     }
 }
 
 if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-    kotlin {
+    androidXComposeMultiplatform {
         android()
-        jvm("desktop")
+        desktop()
+    }
 
+    kotlin {
         /*
          * When updating dependencies, make sure to make the an an analogous update in the
          * corresponding block above
@@ -72,23 +75,20 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             jvmMain.dependencies {
                 implementation(libs.kotlinStdlib)
             }
-            androidMain {
-                dependsOn(jvmMain)
-            }
-            desktopMain {
-                dependsOn(jvmMain)
-            }
 
             commonTest.dependencies {
                 implementation(kotlin("test-junit"))
             }
             androidAndroidTest.dependencies {
-                implementation(libs.testExtJunit)
-                implementation(libs.testRules)
+                implementation(project(":compose:ui:ui-test"))
+                implementation(project(":compose:ui:ui-test-junit4"))
+                implementation(project(":compose:test-utils"))
                 implementation(libs.testRunner)
-                implementation(libs.truth)
             }
         }
+    }
+    dependencies {
+        samples(project(":wear:compose:compose-foundation-samples"))
     }
 }
 
@@ -102,6 +102,7 @@ android {
     }
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
+    namespace "androidx.wear.compose.foundation"
 }
 
 androidx {

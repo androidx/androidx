@@ -21,6 +21,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.benchmark.Shell
 import perfetto.protos.DataSourceConfig
+import perfetto.protos.AndroidPowerConfig
 import perfetto.protos.FtraceConfig
 import perfetto.protos.MeminfoCounters
 import perfetto.protos.ProcessStatsConfig
@@ -36,10 +37,6 @@ private fun ftraceDataSource(
         name = "linux.ftrace",
         target_buffer = 0,
         ftrace_config = FtraceConfig(
-            // These parameters affect only the kernel trace buffer size and how
-            // frequently it gets moved into the userspace buffer defined above.
-            buffer_size_kb = 16384,
-            drain_period_ms = 250,
             ftrace_events = listOf(
                 // We need to do process tracking to ensure kernel ftrace events targeted at short-lived
                 // threads are associated correctly
@@ -61,6 +58,7 @@ private fun ftraceDataSource(
             ),
             atrace_categories = listOf(
                 AtraceTag.ActivityManager,
+                AtraceTag.Audio,
                 AtraceTag.BinderDriver,
                 AtraceTag.Camera,
                 AtraceTag.Dalvik,
@@ -85,7 +83,8 @@ private fun ftraceDataSource(
             }.map {
                 it.tag
             },
-            atrace_apps = atraceApps
+            atrace_apps = atraceApps,
+            compact_sched = FtraceConfig.CompactSchedConfig(enabled = true)
         )
     )
 )
@@ -95,7 +94,11 @@ private val PROCESS_STATS_DATASOURCE = TraceConfig.DataSource(
         name = "linux.process_stats",
         target_buffer = 1,
         process_stats_config = ProcessStatsConfig(
-            proc_stats_poll_ms = 10000
+            proc_stats_poll_ms = 10000,
+            // This flag appears to be unreliable on API 29 unbundled perfetto, so to avoid very
+            // frequent proc stats polling to name processes correctly, we currently use unbundled
+            // perfetto on API 29, even though the bundled version exists. (b/218668335)
+            scan_all_processes_on_start = true
         )
     )
 )
@@ -132,8 +135,23 @@ private val LINUX_SYS_STATS_DATASOURCE = TraceConfig.DataSource(
     )
 )
 
+private val ANDROID_POWER_DATASOURCE = TraceConfig.DataSource(
+    config = DataSourceConfig(
+        name = "android.power",
+        android_power_config = AndroidPowerConfig(
+            battery_poll_ms = 250,
+            battery_counters = listOf(
+                AndroidPowerConfig.BatteryCounters.BATTERY_COUNTER_CAPACITY_PERCENT,
+                AndroidPowerConfig.BatteryCounters.BATTERY_COUNTER_CHARGE,
+                AndroidPowerConfig.BatteryCounters.BATTERY_COUNTER_CURRENT
+            ),
+            collect_power_rails = true
+        )
+    )
+)
+
 /**
- * Global config for perfetto.
+ * Config for perfetto.
  *
  * Eventually, this should be more configurable.
  *
@@ -144,14 +162,23 @@ fun perfettoConfig(
     atraceApps: List<String>
 ) = TraceConfig(
     buffers = listOf(
-        BufferConfig(size_kb = 16384, FillPolicy.RING_BUFFER),
-        BufferConfig(size_kb = 16384, FillPolicy.RING_BUFFER)
+        BufferConfig(size_kb = 32768, FillPolicy.RING_BUFFER),
+        BufferConfig(size_kb = 4096, FillPolicy.RING_BUFFER)
     ),
     data_sources = listOf(
         ftraceDataSource(atraceApps),
         PROCESS_STATS_DATASOURCE,
         LINUX_SYS_STATS_DATASOURCE,
+        ANDROID_POWER_DATASOURCE,
+        TraceConfig.DataSource(DataSourceConfig("android.surfaceflinger.frametimeline"))
     ),
+    // periodically dump to file, so we don't overrun our ring buffer
+    // buffers are expected to be big enough for 5 seconds, so conservatively set 2.5 dump
+    write_into_file = true,
+    file_write_period_ms = 2500,
+
+    // multiple of file_write_period_ms, enables trace processor to work in batches
+    flush_period_ms = 5000
 )
 
 @RequiresApi(21) // needed for shell access
@@ -174,6 +201,14 @@ internal fun TraceConfig.validateAndEncode(): ByteArray {
     if (Build.VERSION.SDK_INT < 28) {
         check(!ftraceConfig.atrace_apps.contains("*")) {
             "Support for wildcard (*) app matching in atrace added in API 28"
+        }
+    }
+
+    if (Build.VERSION.SDK_INT < 24) {
+        val packageList = ftraceConfig.atrace_apps.joinToString(",")
+        check(packageList.length <= 91) {
+            "Unable to trace package list (\"$packageList\").length = " +
+                "${packageList.length} > 91 chars, which is the limit before API 24"
         }
     }
     return encode()

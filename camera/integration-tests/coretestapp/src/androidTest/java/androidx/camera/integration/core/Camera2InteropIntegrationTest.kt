@@ -19,19 +19,37 @@
 package androidx.camera.integration.core
 
 import android.content.Context
+import android.content.Context.CAMERA_SERVICE
+import android.hardware.camera2.CameraCaptureSession
+import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
+import android.hardware.camera2.CameraManager
+import android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE
+import android.hardware.camera2.CaptureRequest
+import android.hardware.camera2.TotalCaptureResult
+import androidx.camera.camera2.Camera2Config
+import androidx.camera.camera2.interop.Camera2CameraControl
+import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.camera2.interop.Camera2Interop
+import androidx.camera.camera2.interop.CaptureRequestOptions
+import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
+import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.CameraUtil.PreTestCameraIdList
 import androidx.concurrent.futures.await
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -41,10 +59,11 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.junit.After
+import org.junit.Assert.assertTrue
+import org.junit.Assume
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 
 @LargeTest
@@ -52,7 +71,9 @@ import org.junit.runner.RunWith
 class Camera2InteropIntegrationTest {
 
     @get:Rule
-    val mUseCameraRule: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
+    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
+        PreTestCameraIdList(Camera2Config.defaultConfig())
+    )
 
     private var processCameraProvider: ProcessCameraProvider? = null
 
@@ -60,6 +81,8 @@ class Camera2InteropIntegrationTest {
     fun setUp() = runBlocking {
         val context = ApplicationProvider.getApplicationContext<Context>()
         processCameraProvider = ProcessCameraProvider.getInstance(context).await()
+
+        Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))
     }
 
     @After
@@ -105,6 +128,142 @@ class Camera2InteropIntegrationTest {
         assertThat(lastState).isEqualTo(DeviceState.Closed)
     }
 
+    @Test
+    fun canUseCameraSelector_fromCamera2CameraIdAndCameraFilter(): Unit = runBlocking {
+        val camera2CameraManager = ApplicationProvider.getApplicationContext<Context>()
+            .getSystemService(CAMERA_SERVICE) as CameraManager
+        camera2CameraManager.cameraIdList.forEach continuing@{ id ->
+            if (!isBackwardCompatible(camera2CameraManager, id)) {
+                return@continuing
+            }
+
+            val cameraSelector = CameraSelector.Builder()
+                .addCameraFilter {
+                    it.filter { Camera2CameraInfo.from(it).cameraId == id }
+                }.build()
+
+            withContext(Dispatchers.Main) {
+                val camera = processCameraProvider!!.bindToLifecycle(
+                    TestLifecycleOwner(Lifecycle.State.CREATED),
+                    cameraSelector
+                )
+                assertThat(Camera2CameraInfo.from(camera.cameraInfo).cameraId).isEqualTo(id)
+            }
+        }
+    }
+
+    @Test
+    fun canUseCameraSelector_fromCamera2CameraIdAndAvailableCameraInfos(): Unit = runBlocking {
+        val camera2CameraManager = ApplicationProvider.getApplicationContext<Context>()
+            .getSystemService(CAMERA_SERVICE) as CameraManager
+        camera2CameraManager.cameraIdList.forEach continuing@{ id ->
+            if (!isBackwardCompatible(camera2CameraManager, id)) {
+                return@continuing
+            }
+            withContext(Dispatchers.Main) {
+                val cameraSelector =
+                    processCameraProvider!!.availableCameraInfos.find {
+                        Camera2CameraInfo.from(it).cameraId == id
+                    }?.cameraSelector
+
+                val camera = processCameraProvider!!.bindToLifecycle(
+                    TestLifecycleOwner(Lifecycle.State.CREATED),
+                    cameraSelector!!
+                )
+                assertThat(Camera2CameraInfo.from(camera.cameraInfo).cameraId).isEqualTo(id)
+            }
+        }
+    }
+
+    @Test
+    fun requestOptionsShouldExist_afterLifeCycleStopStart(): Unit = runBlocking {
+        // Arrange.
+        val testKey = CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION
+        val testValue = 1
+        val testLifecycle = TestLifecycleOwner(Lifecycle.State.RESUMED)
+        withContext(Dispatchers.Main) {
+            processCameraProvider!!.bindAnalysis(testLifecycle).setInteropOptions(
+                mapOf(testKey to testValue)
+            )
+        }
+        captureCallback.waitFor(numOfCaptures = 10) {}
+
+        // Act.
+        withContext(Dispatchers.Main) {
+            testLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
+            testLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_START)
+        }
+
+        // Assert.
+        captureCallback.waitFor(numOfCaptures = 20) {
+            assertThat(it.last().get(testKey)).isEqualTo(testValue)
+        }
+    }
+
+    private fun ProcessCameraProvider.bindAnalysis(lifecycleOwner: LifecycleOwner): Camera {
+        val imageAnalysis = ImageAnalysis.Builder().apply {
+            Camera2Interop.Extender(this).setSessionCaptureCallback(
+                captureCallback
+            )
+        }.build().apply {
+            // set analyzer to make it active.
+            setAnalyzer(
+                CameraXExecutors.highPriorityExecutor()
+            ) {
+                // Analyzer nothing to to
+            }
+        }
+
+        unbindAll()
+        return bindToLifecycle(
+            lifecycleOwner,
+            CameraSelector.DEFAULT_BACK_CAMERA,
+            imageAnalysis
+        )
+    }
+
+    private fun Camera.setInteropOptions(parameter: Map<CaptureRequest.Key<Int>, Int>) {
+        Camera2CameraControl.from(cameraControl).captureRequestOptions =
+            CaptureRequestOptions.Builder().apply {
+                parameter.forEach { (key, value) ->
+                    setCaptureRequestOption(key, value)
+                }
+            }.build()
+    }
+
+    private val captureCallback = object : CameraCaptureSession.CaptureCallback() {
+
+        val waitingList = mutableListOf<CaptureContainer>()
+
+        fun waitFor(
+            timeout: Long = TimeUnit.SECONDS.toMillis(5),
+            numOfCaptures: Int = 1,
+            verifyResults: (captureRequests: List<CaptureRequest>) -> Unit
+        ) {
+            val resultContainer = CaptureContainer(CountDownLatch(numOfCaptures))
+            waitingList.add(resultContainer)
+            assertTrue(resultContainer.countDownLatch.await(timeout, TimeUnit.MILLISECONDS))
+            verifyResults(resultContainer.captureRequests)
+            waitingList.remove(resultContainer)
+        }
+
+        override fun onCaptureCompleted(
+            session: CameraCaptureSession,
+            request: CaptureRequest,
+            result: TotalCaptureResult
+        ) {
+            waitingList.toList().forEach {
+                it.captureRequests.add(request)
+                it.countDownLatch.countDown()
+            }
+        }
+    }
+
+    data class CaptureContainer(
+        val countDownLatch: CountDownLatch,
+        val captureRequests: MutableList<CaptureRequest> = mutableListOf()
+    )
+
     // Sealed class for converting CameraDevice.StateCallback into a StateFlow
     sealed class DeviceState {
         object Unknown : DeviceState()
@@ -139,4 +298,16 @@ class Camera2InteropIntegrationTest {
             }
             setDeviceStateCallback(stateCallback)
         }.asStateFlow()
+
+    private fun isBackwardCompatible(cameraManager: CameraManager, cameraId: String): Boolean {
+        val cameraCharacteristics = cameraManager.getCameraCharacteristics(cameraId)
+        val capabilities =
+            cameraCharacteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES)
+
+        capabilities?.let {
+            return it.contains(REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE)
+        }
+
+        return false
+    }
 }

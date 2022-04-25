@@ -16,7 +16,10 @@
 
 package androidx.camera.testing.fakes;
 
+import android.graphics.Matrix;
+
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageInfo;
 import androidx.camera.core.impl.MutableTagBundle;
 import androidx.camera.core.impl.TagBundle;
@@ -25,8 +28,11 @@ import androidx.camera.core.impl.utils.ExifData;
 /**
  * A fake implementation of {@link ImageInfo} where the values are settable.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class FakeImageInfo implements ImageInfo {
-    private MutableTagBundle mTagBundle = MutableTagBundle.create();
+    @NonNull private MutableTagBundle mTagBundle = MutableTagBundle.create();
+    @NonNull private Matrix mSensorToBufferTransformMatrix = new Matrix();
+
     private long mTimestamp;
     private int mRotationDegrees;
 
@@ -40,12 +46,16 @@ public final class FakeImageInfo implements ImageInfo {
         mTagBundle.addTagBundle(tagBundle);
     }
 
-
     public void setTimestamp(long timestamp) {
         mTimestamp = timestamp;
     }
+
     public void setRotationDegrees(int rotationDegrees) {
         mRotationDegrees = rotationDegrees;
+    }
+
+    public void setSensorToBufferTransformMatrix(@NonNull Matrix sensorToBufferTransformMatrix) {
+        mSensorToBufferTransformMatrix = sensorToBufferTransformMatrix;
     }
 
     @NonNull
@@ -62,6 +72,12 @@ public final class FakeImageInfo implements ImageInfo {
     @Override
     public int getRotationDegrees() {
         return mRotationDegrees;
+    }
+
+    @NonNull
+    @Override
+    public Matrix getSensorToBufferTransformMatrix() {
+        return mSensorToBufferTransformMatrix;
     }
 
     @Override

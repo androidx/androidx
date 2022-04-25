@@ -20,6 +20,9 @@ import android.hardware.camera2.TotalCaptureResult;
 import android.util.Size;
 import android.view.Surface;
 
+import androidx.annotation.RequiresApi;
+
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class RequestUpdateProcessorImpls {
     private static final RequestUpdateProcessorImpl sNoUpdateProcessor =
             new RequestUpdateProcessorImpl() {

@@ -15,7 +15,6 @@
  */
 
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 
 plugins {
@@ -39,13 +38,19 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.truth)
+
+    samples(projectOrArtifact(":compose:runtime:runtime-livedata:runtime-livedata-samples"))
 }
 
 androidx {
     name = "Compose LiveData integration"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.Compose.RUNTIME
+    mavenGroup = LibraryGroups.COMPOSE_RUNTIME
     inceptionYear = "2020"
     description = "Compose integration with LiveData"
     legacyDisableKotlinStrictApiMode = true
+}
+
+android {
+    namespace "androidx.compose.runtime.livedata"
 }

@@ -22,11 +22,14 @@ import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.SessionConfiguration;
 
+import androidx.annotation.RequiresApi;
+
 /**
  * Provides interfaces that the OEM needs to implement to handle the state change.
  *
  * @since 1.0
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface ExtenderStateListener {
 
     /**

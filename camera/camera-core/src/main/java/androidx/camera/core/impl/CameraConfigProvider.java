@@ -20,11 +20,13 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraInfo;
 
 /**
  * Provides the ability to create a {@link CameraConfig} given a {@link CameraInfo}.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface CameraConfigProvider {
 
     CameraConfigProvider EMPTY = (cameraInfo, context) -> null;

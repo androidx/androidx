@@ -6,14 +6,17 @@ set -e
 
 cd "$(dirname $0)"
 
+if [ "$OUT_DIR" == "" ]; then
+  OUT_DIR=../../../../out
+fi
 if [ "$DIST_DIR" == "" ]; then
-  DIST_DIR=../../../../out/dist
+  DIST_DIR="$OUT_DIR/dist"
 fi
 
 METRICS_DIR="$DIST_DIR/librarymetrics/build"
 
 # If a profile file exists, parse it. If not, do nothing
-PROFILE_FILES="../../../../out/androidx/build/reports/profile/*.html"
+PROFILE_FILES="$OUT_DIR/androidx/build/reports/profile/*.html"
 if ls $PROFILE_FILES >/dev/null 2>&1 ; then
   ./parse_profile_html.py --input-profile "$(ls $PROFILE_FILES | sort | tail -n 2 | head -n 1)" --output-summary $METRICS_DIR/build_androidx.json
 fi

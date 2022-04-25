@@ -17,7 +17,7 @@
 package androidx.room.writer
 
 import androidx.annotation.NonNull
-import androidx.room.compiler.processing.XElement
+import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.addOriginatingElement
 import androidx.room.ext.L
 import androidx.room.ext.RoomTypeNames
@@ -38,9 +38,9 @@ import javax.lang.model.element.Modifier
  * Writes the implementation of migrations that were annotated with @AutoMigration.
  */
 class AutoMigrationWriter(
-    private val dbElement: XElement,
+    private val dbElement: XTypeElement,
     val autoMigration: AutoMigration
-) : ClassWriter(autoMigration.implTypeName) {
+) : ClassWriter(autoMigration.getImplTypeName(dbElement.className)) {
     private val addedColumns = autoMigration.schemaDiff.addedColumns
     private val addedTables = autoMigration.schemaDiff.addedTables
     private val renamedTables = autoMigration.schemaDiff.renamedTables
@@ -48,7 +48,7 @@ class AutoMigrationWriter(
     private val deletedTables = autoMigration.schemaDiff.deletedTables
 
     override fun createTypeSpecBuilder(): TypeSpec.Builder {
-        val builder = TypeSpec.classBuilder(autoMigration.implTypeName)
+        val builder = TypeSpec.classBuilder(autoMigration.getImplTypeName(dbElement.className))
         builder.apply {
             addOriginatingElement(dbElement)
             superclass(RoomTypeNames.MIGRATION)
@@ -242,9 +242,10 @@ class AutoMigrationWriter(
             migrateBuilder,
             buildString {
                 append(
-                    "INSERT INTO `${newTable.tableName}` (${newColumnSequence.joinToString(",")})" +
-                        " SELECT ${oldColumnSequence.joinToString(",")} FROM " +
-                        "`$selectFromTable`",
+                    "INSERT INTO `${newTable.tableName}` " +
+                        "(${newColumnSequence.joinToString(",") { "`$it`" }})" +
+                        " SELECT ${oldColumnSequence.joinToString(",") { "`$it`" }} " +
+                        "FROM `$selectFromTable`",
                 )
             }
         )
@@ -312,8 +313,8 @@ class AutoMigrationWriter(
             buildString {
                 append(
                     "INSERT INTO `$tableNameWithNewPrefix` " +
-                        "(${newColumnSequence.joinToString(",")})" +
-                        " SELECT ${oldColumnSequence.joinToString(",")} FROM " +
+                        "(${newColumnSequence.joinToString(",") { "`$it`" }})" +
+                        " SELECT ${oldColumnSequence.joinToString(",") { "`$it`" }} FROM " +
                         "`$oldTableName`",
                 )
             }
@@ -427,13 +428,19 @@ class AutoMigrationWriter(
         addedColumns.forEach {
             val addNewColumnSql = buildString {
                 append(
-                    "ALTER TABLE `${it.value.tableName}` ADD COLUMN `${it.key}` " +
-                        "${it.value.fieldBundle.affinity} "
+                    "ALTER TABLE `${it.tableName}` ADD COLUMN `${it.fieldBundle.columnName}` " +
+                        "${it.fieldBundle.affinity}"
                 )
-                if (it.value.fieldBundle.isNonNull) {
-                    append("NOT NULL DEFAULT ${it.value.fieldBundle.defaultValue}")
+                if (it.fieldBundle.isNonNull) {
+                    append(" NOT NULL")
+                }
+                if (it.fieldBundle.defaultValue?.isNotEmpty() == true) {
+                    append(" DEFAULT ${it.fieldBundle.defaultValue}")
                 } else {
-                    append("DEFAULT NULL")
+                    check(
+                        !it.fieldBundle.isNonNull
+                    ) { "A Non-Null field should always have a default value." }
+                    append(" DEFAULT NULL")
                 }
             }
             addDatabaseExecuteSqlStatement(

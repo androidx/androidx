@@ -20,7 +20,7 @@ package sample.optin;
  * Class which is experimental.
  */
 @ExperimentalJavaAnnotation
-class AnnotatedJavaClass {
+public class AnnotatedJavaClass {
     public static final int FIELD_STATIC = -1;
 
     public static int methodStatic() {

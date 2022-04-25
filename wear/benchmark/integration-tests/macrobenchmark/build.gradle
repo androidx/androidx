@@ -24,6 +24,7 @@ android {
     defaultConfig {
         minSdkVersion 29
     }
+    namespace "androidx.wear.benchmark.integration.macrobenchmark"
 }
 
 dependencies {

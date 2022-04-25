@@ -129,6 +129,7 @@ object AndroidTypeNames {
 object CollectionTypeNames {
     val ARRAY_MAP: ClassName = ClassName.get(COLLECTION_PACKAGE, "ArrayMap")
     val LONG_SPARSE_ARRAY: ClassName = ClassName.get(COLLECTION_PACKAGE, "LongSparseArray")
+    val INT_SPARSE_ARRAY: ClassName = ClassName.get(COLLECTION_PACKAGE, "SparseArrayCompat")
 }
 
 object CommonTypeNames {
@@ -210,6 +211,24 @@ object KotlinTypeNames {
     val SEND_CHANNEL = ClassName.get("kotlinx.coroutines.channels", "SendChannel")
     val FLOW = ClassName.get("kotlinx.coroutines.flow", "Flow")
 }
+
+val DEFERRED_TYPES = listOf(
+    LifecyclesTypeNames.LIVE_DATA,
+    LifecyclesTypeNames.COMPUTABLE_LIVE_DATA,
+    RxJava2TypeNames.FLOWABLE,
+    RxJava2TypeNames.OBSERVABLE,
+    RxJava2TypeNames.MAYBE,
+    RxJava2TypeNames.SINGLE,
+    RxJava2TypeNames.COMPLETABLE,
+    RxJava3TypeNames.FLOWABLE,
+    RxJava3TypeNames.OBSERVABLE,
+    RxJava3TypeNames.MAYBE,
+    RxJava3TypeNames.SINGLE,
+    RxJava3TypeNames.COMPLETABLE,
+    GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE,
+    KotlinTypeNames.FLOW,
+    ReactiveStreamsTypeNames.PUBLISHER
+)
 
 fun TypeName.defaultValue(): String {
     return if (!isPrimitive) {

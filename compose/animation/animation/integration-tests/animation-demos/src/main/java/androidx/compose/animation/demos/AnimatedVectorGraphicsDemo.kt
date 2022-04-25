@@ -25,6 +25,8 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.graphics.ExperimentalAnimationGraphicsApi
 import androidx.compose.animation.graphics.res.animatedVectorResource
+import androidx.compose.animation.graphics.res.rememberAnimatedVectorPainter
+import androidx.compose.animation.graphics.vector.AnimatedImageVector
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -56,10 +58,10 @@ fun AnimatedVectorGraphicsDemo() {
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        val image = animatedVectorResource(R.drawable.ic_hourglass_animated)
+        val image = AnimatedImageVector.animatedVectorResource(R.drawable.ic_hourglass_animated)
         var atEnd by remember { mutableStateOf(false) }
         Image(
-            painter = image.painterFor(atEnd),
+            painter = rememberAnimatedVectorPainter(image, atEnd),
             contentDescription = "AnimatedImageVector",
             modifier = Modifier.size(200.dp).clickable {
                 atEnd = !atEnd
@@ -86,7 +88,8 @@ fun createSampleVectorPainter(toggle: Boolean): Painter {
         defaultHeight = 24.dp,
         viewportWidth = 24f,
         viewportHeight = 24f,
-        name = "sample"
+        name = "sample",
+        autoMirror = true
     ) { _, _ ->
         val transition = updateTransition(targetState = toggle, label = "sample")
         val duration = 3000

@@ -37,9 +37,9 @@ fun Size(width: Float, height: Float) = Size(packFloats(width, height))
  *
  * You can think of this as an [Offset] from the origin.
  */
-@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
 @Immutable
-inline class Size internal constructor(@PublishedApi internal val packedValue: Long) {
+@kotlin.jvm.JvmInline
+value class Size internal constructor(@PublishedApi internal val packedValue: Long) {
 
     @Stable
     val width: Float
@@ -86,7 +86,7 @@ inline class Size internal constructor(@PublishedApi internal val packedValue: L
         /**
          * A size whose [width] and [height] are unspecified. This is a sentinel
          * value used to initialize a non-null parameter.
-         * Access to width or height on an unspecified size is not allowed
+         * Access to width or height on an unspecified size is not allowed.
          */
         @Stable
         val Unspecified = Size(Float.NaN, Float.NaN)
@@ -138,7 +138,9 @@ inline class Size internal constructor(@PublishedApi internal val packedValue: L
         if (isSpecified) {
             "Size(${width.toStringAsFixed(1)}, ${height.toStringAsFixed(1)})"
         } else {
-            "Size(UNSPECIFIED)"
+            // In this case reading the width or height properties will throw, and they don't
+            // contain meaningful values as strings anyway.
+            "Size.Unspecified"
         }
 }
 
@@ -157,7 +159,7 @@ inline val Size.isUnspecified: Boolean
     get() = packedValue == Size.Unspecified.packedValue
 
 /**
- * If this [Size] [isSpecified] then this is returned, otherwise [block] is executed
+ * If this [Size]&nbsp;[isSpecified] then this is returned, otherwise [block] is executed
  * and its result is returned.
  */
 inline fun Size.takeOrElse(block: () -> Size): Size =

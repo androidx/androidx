@@ -37,7 +37,7 @@ internal object JavacCompilationTestRunner : CompilationTestRunner {
     }
 
     override fun compile(workingDir: File, params: TestCompilationParameters): CompilationResult {
-        val syntheticJavacProcessor = SyntheticJavacProcessor(params.handlers)
+        val syntheticJavacProcessor = SyntheticJavacProcessor(params.config, params.handlers)
         val sources = if (params.sources.isEmpty()) {
             // synthesize a source to trigger compilation
             listOf(
@@ -59,7 +59,7 @@ internal object JavacCompilationTestRunner : CompilationTestRunner {
         val compiler = Compiler
             .javac()
             .withProcessors(syntheticJavacProcessor)
-            .withOptions(optionsArg + "-Xlint")
+            .withOptions(params.javacArguments + optionsArg + "-Xlint")
             .let {
                 if (params.classpath.isNotEmpty()) {
                     it.withClasspath(params.classpath)

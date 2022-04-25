@@ -18,12 +18,13 @@ package androidx.camera.camera2.internal;
 
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
-import android.hardware.camera2.TotalCaptureResult;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
+import androidx.camera.camera2.internal.compat.workaround.FlashAvailabilityChecker;
 import androidx.camera.core.CameraControl.OperationCanceledException;
 import androidx.camera.core.Logger;
 import androidx.camera.core.TorchState;
@@ -47,6 +48,7 @@ import java.util.concurrent.Executor;
  * camera device is ready to do torch operations and be deactivated when the camera device is
  * closing or closed.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class TorchControl {
     private static final String TAG = "TorchControl";
     static final int DEFAULT_TORCH_STATE = TorchState.OFF;
@@ -68,19 +70,33 @@ final class TorchControl {
      * Constructs a TorchControl.
      *
      * @param camera2CameraControlImpl the camera control this TorchControl belongs.
-     * @param cameraCharacteristics the characteristics for the camera being controlled.
-     * @param executor the camera executor used to run camera task.
+     * @param cameraCharacteristics    the characteristics for the camera being controlled.
+     * @param executor                 the camera executor used to run camera task.
      */
     TorchControl(@NonNull Camera2CameraControlImpl camera2CameraControlImpl,
             @NonNull CameraCharacteristicsCompat cameraCharacteristics,
             @CameraExecutor @NonNull Executor executor) {
         mCamera2CameraControlImpl = camera2CameraControlImpl;
         mExecutor = executor;
-        Boolean hasFlashUnit =
-                cameraCharacteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE);
-        mHasFlashUnit = hasFlashUnit != null && hasFlashUnit.booleanValue();
+
+        mHasFlashUnit = FlashAvailabilityChecker.isFlashAvailable(cameraCharacteristics);
         mTorchState = new MutableLiveData<>(DEFAULT_TORCH_STATE);
-        mCamera2CameraControlImpl.addCaptureResultListener(mCaptureResultListener);
+        Camera2CameraControlImpl.CaptureResultListener captureResultListener = captureResult -> {
+            if (mEnableTorchCompleter != null) {
+                CaptureRequest captureRequest = captureResult.getRequest();
+                Integer flashMode = captureRequest.get(CaptureRequest.FLASH_MODE);
+                boolean torchEnabled =
+                        flashMode != null && flashMode == CaptureRequest.FLASH_MODE_TORCH;
+
+                if (torchEnabled == mTargetTorchEnabled) {
+                    mEnableTorchCompleter.set(null);
+                    mEnableTorchCompleter = null;
+                }
+            }
+            // Return false to keep getting captureResult.
+            return false;
+        };
+        mCamera2CameraControlImpl.addCaptureResultListener(captureResultListener);
     }
 
     /**
@@ -117,7 +133,7 @@ final class TorchControl {
      * <p>The returned {@link ListenableFuture} will succeed when the request is sent to camera
      * device. But it may get an {@link OperationCanceledException} result when:
      * <ol>
-     * <li>There are multiple {@link #enableTorch(boolean)} requests in the same time, the older
+     * <li>There are multiple {@code enableTorch(boolean)} requests in the same time, the older
      * and incomplete futures will get cancelled.
      * <li>When the TorchControl is set to inactive.
      * </ol>
@@ -196,26 +212,4 @@ final class TorchControl {
             liveData.postValue(value);
         }
     }
-
-    private final Camera2CameraControlImpl.CaptureResultListener mCaptureResultListener =
-            new Camera2CameraControlImpl.CaptureResultListener() {
-
-        @ExecutedBy("mExecutor")
-        @Override
-        public boolean onCaptureResult(@NonNull TotalCaptureResult captureResult) {
-            if (mEnableTorchCompleter != null) {
-                CaptureRequest captureRequest = captureResult.getRequest();
-                Integer flashMode = captureRequest.get(CaptureRequest.FLASH_MODE);
-                boolean torchEnabled =
-                        flashMode != null && flashMode == CaptureRequest.FLASH_MODE_TORCH;
-
-                if (torchEnabled == mTargetTorchEnabled) {
-                    mEnableTorchCompleter.set(null);
-                    mEnableTorchCompleter = null;
-                }
-            }
-            // Return false to keep getting captureResult.
-            return false;
-        }
-    };
 }

@@ -18,7 +18,9 @@ package androidx.compose.ui.input.pointer
 
 import android.view.KeyEvent
 import android.view.MotionEvent
+import android.view.MotionEvent.ACTION_SCROLL
 import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastMap
 
 internal actual typealias NativePointerButtons = Int
 internal actual typealias NativePointerKeyboardModifiers = Int
@@ -26,22 +28,20 @@ internal actual typealias NativePointerKeyboardModifiers = Int
 /**
  * Describes a pointer input change event that has occurred at a particular point in time.
  */
-actual data class PointerEvent internal constructor(
+actual class PointerEvent internal actual constructor(
     /**
      * The changes.
      */
     actual val changes: List<PointerInputChange>,
-    internal val motionEvent: MotionEvent?
+    internal val internalPointerEvent: InternalPointerEvent?
 ) {
-    internal actual constructor(
-        changes: List<PointerInputChange>,
-        internalPointerEvent: InternalPointerEvent?
-    ) : this(changes, internalPointerEvent?.motionEvent)
+    internal val motionEvent: MotionEvent?
+        get() = internalPointerEvent?.motionEvent
 
     /**
      * @param changes The changes.
      */
-    actual constructor(changes: List<PointerInputChange>) : this(changes, motionEvent = null)
+    actual constructor(changes: List<PointerInputChange>) : this(changes, null)
 
     actual val buttons = PointerButtons(motionEvent?.buttonState ?: 0)
 
@@ -51,6 +51,7 @@ actual data class PointerEvent internal constructor(
         internal set
 
     private fun calculatePointerEventType(): PointerEventType {
+        val motionEvent = motionEvent
         if (motionEvent != null) {
             return when (motionEvent.actionMasked) {
                 MotionEvent.ACTION_DOWN,
@@ -61,6 +62,7 @@ actual data class PointerEvent internal constructor(
                 MotionEvent.ACTION_MOVE -> PointerEventType.Move
                 MotionEvent.ACTION_HOVER_ENTER -> PointerEventType.Enter
                 MotionEvent.ACTION_HOVER_EXIT -> PointerEventType.Exit
+                ACTION_SCROLL -> PointerEventType.Scroll
 
                 else -> PointerEventType.Unknown
             }
@@ -75,6 +77,39 @@ actual data class PointerEvent internal constructor(
             }
         }
         return PointerEventType.Move
+    }
+
+    // only because PointerEvent was a data class
+    fun component1(): List<PointerInputChange> = changes
+
+    // only because PointerEvent was a data class
+    fun copy(
+        changes: List<PointerInputChange>,
+        motionEvent: MotionEvent?
+    ): PointerEvent = when (motionEvent) {
+        null -> PointerEvent(changes, null)
+        this.motionEvent -> PointerEvent(changes, internalPointerEvent)
+        else -> {
+            val map = mutableMapOf<PointerId, PointerInputChange>()
+            changes.fastForEach { change ->
+                map[change.id] = change
+            }
+            val pointerEventData = changes.fastMap {
+                PointerInputEventData(
+                    it.id,
+                    it.uptimeMillis,
+                    it.position,
+                    it.position,
+                    it.pressed,
+                    it.type,
+                    this.internalPointerEvent?.issuesEnterExitEvent(it.id) == true
+                )
+            }
+            val pointerInputEvent =
+                PointerInputEvent(motionEvent.eventTime, pointerEventData, motionEvent)
+            val event = InternalPointerEvent(map, pointerInputEvent)
+            PointerEvent(changes, event)
+        }
     }
 }
 
@@ -110,31 +145,24 @@ actual fun PointerButtons.indexOfFirstPressed(): Int {
         return -1
     }
     var index = 0
-    var shifted = packedValue
+    // shift stylus primary and secondary to primary and secondary
+    var shifted = ((packedValue and 0x60) ushr 5) or (packedValue and 0x60.inv())
     while (shifted and 1 == 0) {
         index++
         shifted = shifted ushr 1
     }
-    return indexRemovingStylusPrimaryAndSecondary(index)
+    return index
 }
 
 actual fun PointerButtons.indexOfLastPressed(): Int {
-    var shifted = packedValue
+    // shift stylus primary and secondary to primary and secondary
+    var shifted = ((packedValue and 0x60) ushr 5) or (packedValue and 0x60.inv())
     var index = -1
     while (shifted != 0) {
         index++
         shifted = shifted ushr 1
     }
-    return indexRemovingStylusPrimaryAndSecondary(index)
-}
-
-private fun indexRemovingStylusPrimaryAndSecondary(buttonIndex: Int): Int {
-    return when (buttonIndex) {
-        -1, 0, 1, 2, 3, 4 -> buttonIndex
-        5 -> 0 // stylus primary is just primary
-        6 -> 1 // stylus secondary is just secondary
-        else -> buttonIndex - 2
-    }
+    return index
 }
 
 actual val PointerKeyboardModifiers.isCtrlPressed: Boolean

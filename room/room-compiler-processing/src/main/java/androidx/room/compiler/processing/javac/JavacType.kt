@@ -21,22 +21,37 @@ import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XRawType
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.javac.kotlin.KmType
+import androidx.room.compiler.processing.javac.kotlin.KotlinMetadataElement
 import androidx.room.compiler.processing.ksp.ERROR_TYPE_NAME
 import androidx.room.compiler.processing.safeTypeName
 import com.google.auto.common.MoreTypes
+import java.lang.IllegalStateException
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 import kotlin.reflect.KClass
 
 internal abstract class JavacType(
     protected val env: JavacProcessingEnv,
-    open val typeMirror: TypeMirror
+    open val typeMirror: TypeMirror,
+    private val maybeNullability: XNullability?,
 ) : XType, XEquality {
     // Kotlin type information about the type if this type is driven from kotlin code.
     abstract val kotlinType: KmType?
 
     override val rawType: XRawType by lazy {
         JavacRawType(env, this)
+    }
+
+    override val superTypes by lazy {
+        val superTypes = env.typeUtils.directSupertypes(typeMirror)
+        superTypes.map {
+            val element = MoreTypes.asTypeElement(it)
+            env.wrap<JavacType>(
+                typeMirror = it,
+                kotlinType = KotlinMetadataElement.createFor(element)?.kmType,
+                elementNullability = element.nullability
+            )
+        }
     }
 
     override val typeElement by lazy {
@@ -71,7 +86,8 @@ internal abstract class JavacType(
     override fun defaultValue(): String {
         return when (typeMirror.kind) {
             TypeKind.BOOLEAN -> "false"
-            TypeKind.BYTE, TypeKind.SHORT, TypeKind.INT, TypeKind.LONG, TypeKind.CHAR -> "0"
+            TypeKind.BYTE, TypeKind.SHORT, TypeKind.INT, TypeKind.CHAR -> "0"
+            TypeKind.LONG -> "0L"
             TypeKind.FLOAT -> "0f"
             TypeKind.DOUBLE -> "0.0"
             else -> "null"
@@ -112,7 +128,7 @@ internal abstract class JavacType(
             env.wrap<JavacType>(
                 typeMirror = it,
                 kotlinType = kotlinType?.extendsBound,
-                elementNullability = nullability
+                elementNullability = maybeNullability
             )
         }
     }
@@ -165,5 +181,13 @@ internal abstract class JavacType(
         // unlike makeNullable, we don't try to degrade to primitives here because it is valid for
         // a boxed primitive to be marked as non-null.
         return copyWithNullability(XNullability.NONNULL)
+    }
+
+    override val nullability: XNullability get() {
+        return maybeNullability
+            ?: throw IllegalStateException(
+                "XType#nullibility cannot be called from this type because it is missing " +
+                    "nullability information. Was this type derived from a type created with " +
+                    "TypeMirror#toXProcessing(XProcessingEnv)?")
     }
 }

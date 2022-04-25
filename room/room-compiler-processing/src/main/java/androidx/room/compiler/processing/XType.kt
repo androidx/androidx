@@ -46,6 +46,11 @@ interface XType {
     val nullability: XNullability
 
     /**
+     * The resolved types of the super classes/interfaces of this type.
+     */
+    val superTypes: List<XType>
+
+    /**
      * The [XTypeElement] that represents this type.
      *
      * Note that it might be null if the type is not backed by a type element (e.g. if it is a

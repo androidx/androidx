@@ -20,7 +20,7 @@ import androidx.room.compiler.processing.javac.JavacElement
 import androidx.room.compiler.processing.ksp.KSFileAsOriginatingElement
 import androidx.room.compiler.processing.ksp.KspElement
 import androidx.room.compiler.processing.ksp.KspMemberContainer
-import androidx.room.compiler.processing.ksp.containingFileAsOriginatingElement
+import androidx.room.compiler.processing.ksp.wrapAsOriginatingElement
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
 import javax.lang.model.element.Element
 import kotlin.contracts.contract
@@ -49,6 +49,26 @@ interface XElement : XAnnotated {
      * The documentation comment of the element, or null if there is none.
      */
     val docComment: String?
+
+    /**
+     * Returns true if all types referenced by this element are valid, i.e. resolvable.
+     */
+    fun validate(): Boolean
+
+    /**
+     * Returns the immediate enclosing element. This uses Element.getEnclosingElement() on the
+     * Java side, and KSNode.parent on the KSP side. For non-nested classes we return null as we
+     * don't model packages yet. For fields declared in primary constructors in Kotlin we return
+     * the enclosing type, not the constructor. For top-level properties or functions in Kotlin
+     * we return JavacTypeElement on the Java side and KspFileMemberContainer or
+     * KspSyntheticFileMemberContainer on the KSP side.
+     */
+    val enclosingElement: XElement?
+
+    /**
+     * Returns the closest member container. Could be the element if it's itself a member container.
+     */
+    val closestMemberContainer: XMemberContainer
 }
 
 /**
@@ -63,6 +83,16 @@ fun XElement.isTypeElement(): Boolean {
 }
 
 /**
+ * Checks whether this element represents an [XEnumTypeElement].
+ */
+fun XElement.isEnum(): Boolean {
+    contract {
+        returns(true) implies (this@isEnum is XEnumTypeElement)
+    }
+    return this is XEnumTypeElement
+}
+
+/**
  * Checks whether this element represents an [XVariableElement].
  */
 fun XElement.isVariableElement(): Boolean {
@@ -70,6 +100,16 @@ fun XElement.isVariableElement(): Boolean {
         returns(true) implies (this@isVariableElement is XVariableElement)
     }
     return this is XVariableElement
+}
+
+/**
+ * Checks whether this element represents an [XFieldElement].
+ */
+fun XElement.isField(): Boolean {
+    contract {
+        returns(true) implies (this@isField is XFieldElement)
+    }
+    return this is XFieldElement
 }
 
 /**
@@ -82,6 +122,19 @@ fun XElement.isMethod(): Boolean {
     return this is XMethodElement
 }
 
+/**
+ * Checks whether this element represents an [XExecutableParameterElement].
+ */
+fun XElement.isMethodParameter(): Boolean {
+    contract {
+        returns(true) implies (this@isMethodParameter is XExecutableParameterElement)
+    }
+    return this is XExecutableParameterElement
+}
+
+/**
+ * Checks whether this element represents an [XConstructorElement].
+ */
 fun XElement.isConstructor(): Boolean {
     contract {
         returns(true) implies (this@isConstructor is XConstructorElement)
@@ -101,13 +154,13 @@ internal fun XElement.originatingElementForPoet(): Element? {
     return when (this) {
         is JavacElement -> element
         is KspElement -> {
-            declaration.containingFileAsOriginatingElement()
+            declaration.wrapAsOriginatingElement()
         }
         is KspSyntheticPropertyMethodElement -> {
-            field.declaration.containingFileAsOriginatingElement()
+            field.declaration.wrapAsOriginatingElement()
         }
         is KspMemberContainer -> {
-            declaration?.containingFileAsOriginatingElement()
+            declaration?.wrapAsOriginatingElement()
         }
         else -> error("Originating element is not implemented for ${this.javaClass}")
     }

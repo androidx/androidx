@@ -19,12 +19,14 @@ package androidx.camera.core.impl;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import com.google.auto.value.AutoValue;
 
 /**
  * Container of the device properties.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @AutoValue
 public abstract class DeviceProperties {
     /** Creates an instance by querying the properties from {@link android.os.Build}. */

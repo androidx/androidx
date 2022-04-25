@@ -21,16 +21,21 @@ import static android.provider.OpenableColumns.SIZE;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.fail;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.content.pm.ProviderInfo;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 
 import androidx.core.content.FileProvider.SimplePathStrategy;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.core.test.R;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -407,6 +412,26 @@ public class FileProviderTest {
             assertEquals("Couldn't find meta-data for provider with authority example.nonexistent",
                     e.getMessage());
         }
+    }
+
+    @Test
+    public void testExplicitResourceId() {
+        ProviderInfo providerInfo = new ProviderInfo();
+        providerInfo.grantUriPermissions = true;
+        providerInfo.authority = TEST_AUTHORITY;
+
+        ProviderInfo resolvedProviderInfo = mContext.getPackageManager()
+                .resolveContentProvider(providerInfo.authority, PackageManager.GET_META_DATA);
+        resolvedProviderInfo.metaData = null;
+
+        // Should throw since there is no metadata.
+        assertThrows(IllegalArgumentException.class,
+                () -> FileProvider.getFileProviderPathsMetaData(mContext, TEST_AUTHORITY,
+                        resolvedProviderInfo, ResourcesCompat.ID_NULL));
+
+        // This should not throw even though there is no metadata, as we've explicitly provided it.
+        FileProvider.getFileProviderPathsMetaData(mContext, TEST_AUTHORITY,
+                resolvedProviderInfo, R.xml.paths);
     }
 
     private void assertContentsEquals(byte[] expected, Uri actual) throws Exception {

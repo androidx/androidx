@@ -16,55 +16,27 @@
 
 package androidx.camera.video;
 
-import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
+import androidx.annotation.RequiresApi;
 
 /**
- * Options for configuring output destination.
+ * Options for configuring output destination for generating a recording.
+ *
+ * <p>A {@link PendingRecording} can be generated with {@link Recorder#prepareRecording} for
+ * different types of output destination, such as {@link FileOutputOptions},
+ * {@link FileDescriptorOutputOptions} and {@link MediaStoreOutputOptions}.
+ *
+ * @see FileOutputOptions
+ * @see FileDescriptorOutputOptions
+ * @see MediaStoreOutputOptions
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public abstract class OutputOptions {
 
     /** Represents an unbound file size. */
     public static final int FILE_SIZE_UNLIMITED = 0;
 
-    /** Output options of {@link FileOutputOptions}. */
-    public static final int OPTIONS_TYPE_FILE = 0;
-    /** Output options of {@link FileDescriptorOutputOptions}. */
-    public static final int OPTIONS_TYPE_FILE_DESCRIPTOR = 1;
-    /** Output options of {@link MediaStoreOutputOptions}. */
-    public static final int OPTIONS_TYPE_MEDIA_STORE = 2;
-
-    /** @hide */
-    @IntDef({OPTIONS_TYPE_FILE, OPTIONS_TYPE_FILE_DESCRIPTOR, OPTIONS_TYPE_MEDIA_STORE})
-    @Retention(RetentionPolicy.SOURCE)
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public @interface OptionsType {
-    }
-
-    @OptionsType
-    private final int mType;
-
-    OutputOptions(@OptionsType int type) {
-        mType = type;
-    }
-
-    /**
-     * Returns the subclass type of this output options.
-     *
-     * <p>Output options are limited to a distinct number of subclasses. Each subclass is
-     * represented by a type. The type can be used to determine which class cast the output
-     * options to in order to obtain more detailed information about the particular output
-     * destination.
-     *
-     * @return the type of this output options.
-     */
-    @OptionsType
-    public int getType() {
-        return mType;
+    OutputOptions() {
     }
 
     /**
@@ -80,8 +52,7 @@ public abstract class OutputOptions {
     interface Builder<T extends OutputOptions, B> {
 
         /**
-         * Sets the limit for the file length in bytes. Zero or negative values are considered
-         * unlimited.
+         * Sets the limit for the file length in bytes.
          *
          * <p>If not set, defaults to {@link #FILE_SIZE_UNLIMITED}.
          */

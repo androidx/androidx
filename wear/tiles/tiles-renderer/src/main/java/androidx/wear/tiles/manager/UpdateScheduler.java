@@ -25,8 +25,6 @@ import android.util.Log;
 import androidx.annotation.MainThread;
 import androidx.annotation.VisibleForTesting;
 
-import java.lang.ref.WeakReference;
-
 class UpdateScheduler implements AlarmManager.OnAlarmListener {
     private static final String TAG = "UpdateScheduler";
 
@@ -35,7 +33,7 @@ class UpdateScheduler implements AlarmManager.OnAlarmListener {
 
     private final AlarmManager mAlarmManager;
     private final Clock mClock;
-    private WeakReference<UpdateReceiver> mUpdateReceiver;
+    private UpdateReceiver mUpdateReceiver;
 
     private boolean mUpdatesEnabled = false;
     private long mScheduledUpdateTimeMillis = NO_SCHEDULED_UPDATE;
@@ -53,7 +51,7 @@ class UpdateScheduler implements AlarmManager.OnAlarmListener {
     /** Sets the receiver for update notifications. */
     @MainThread
     public void setUpdateReceiver(UpdateReceiver receiver) {
-        this.mUpdateReceiver = new WeakReference<>(receiver);
+        this.mUpdateReceiver = receiver;
     }
 
     /**
@@ -160,7 +158,7 @@ class UpdateScheduler implements AlarmManager.OnAlarmListener {
     private void fireUpdate() {
         mLastUpdateRealtimeMillis = mClock.getElapsedTimeMillis();
 
-        UpdateReceiver receiver = mUpdateReceiver.get();
+        UpdateReceiver receiver = mUpdateReceiver;
 
         // Reset state now, as acceptUpdate may re-schedule an alarm.
         mScheduledUpdateTimeMillis = Long.MAX_VALUE;

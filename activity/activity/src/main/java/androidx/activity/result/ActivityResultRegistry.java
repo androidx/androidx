@@ -131,6 +131,7 @@ public abstract class ActivityResultRegistry {
         }
         LifecycleEventObserver observer = new LifecycleEventObserver() {
             @Override
+            @SuppressWarnings("deprecation")
             public void onStateChanged(
                     @NonNull LifecycleOwner lifecycleOwner,
                     @NonNull Lifecycle.Event event) {
@@ -170,7 +171,12 @@ public abstract class ActivityResultRegistry {
                             + "before calling launch().");
                 }
                 mLaunchedKeys.add(key);
-                onLaunch(innerCode, contract, input, options);
+                try {
+                    onLaunch(innerCode, contract, input, options);
+                } catch (Exception e) {
+                    mLaunchedKeys.remove(key);
+                    throw e;
+                }
             }
 
             @Override
@@ -203,6 +209,7 @@ public abstract class ActivityResultRegistry {
      * @return a launcher that can be used to execute an ActivityResultContract.
      */
     @NonNull
+    @SuppressWarnings("deprecation")
     public final <I, O> ActivityResultLauncher<I> register(
             @NonNull final String key,
             @NonNull final ActivityResultContract<I, O> contract,
@@ -258,6 +265,7 @@ public abstract class ActivityResultRegistry {
      * @param key the unique key used when registering a callback.
      */
     @MainThread
+    @SuppressWarnings("deprecation")
     final void unregister(@NonNull String key) {
         if (!mLaunchedKeys.contains(key)) {
             // Only remove the key -> requestCode mapping if there isn't a launch in flight
@@ -306,6 +314,7 @@ public abstract class ActivityResultRegistry {
      *
      * @param savedInstanceState the place to restore from
      */
+    @SuppressWarnings("deprecation")
     public final void onRestoreInstanceState(@Nullable Bundle savedInstanceState) {
         if (savedInstanceState == null) {
             return;
@@ -358,8 +367,6 @@ public abstract class ActivityResultRegistry {
         if (key == null) {
             return false;
         }
-        mLaunchedKeys.remove(key);
-
         doDispatch(key, resultCode, data, mKeyToCallback.get(key));
         return true;
     }
@@ -379,7 +386,6 @@ public abstract class ActivityResultRegistry {
         if (key == null) {
             return false;
         }
-        mLaunchedKeys.remove(key);
 
         CallbackAndContract<?> callbackAndContract = mKeyToCallback.get(key);
         if (callbackAndContract == null || callbackAndContract.mCallback == null) {
@@ -391,17 +397,21 @@ public abstract class ActivityResultRegistry {
             @SuppressWarnings("unchecked")
             ActivityResultCallback<O> callback =
                     (ActivityResultCallback<O>) callbackAndContract.mCallback;
-            callback.onActivityResult(result);
+            if (mLaunchedKeys.remove(key)) {
+                callback.onActivityResult(result);
+            }
         }
         return true;
     }
 
     private <O> void doDispatch(String key, int resultCode, @Nullable Intent data,
             @Nullable CallbackAndContract<O> callbackAndContract) {
-        if (callbackAndContract != null && callbackAndContract.mCallback != null) {
+        if (callbackAndContract != null && callbackAndContract.mCallback != null
+                && mLaunchedKeys.contains(key)) {
             ActivityResultCallback<O> callback = callbackAndContract.mCallback;
             ActivityResultContract<?, O> contract = callbackAndContract.mContract;
             callback.onActivityResult(contract.parseResult(resultCode, data));
+            mLaunchedKeys.remove(key);
         } else {
             // Remove any parsed pending result
             mParsedPendingResults.remove(key);

@@ -18,37 +18,42 @@ package androidx.camera.view
 
 import android.content.ContentValues
 import android.provider.MediaStore
+import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraSelector.LENS_FACING_BACK
 import androidx.camera.core.CameraSelector.LENS_FACING_FRONT
 import androidx.camera.core.ImageCapture
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.fakes.FakeLifecycleOwner
 import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TestRule
 import org.junit.runner.RunWith
-import java.util.concurrent.TimeUnit
 
 /**
  * Instrumentation tests for [CameraController].
  */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = 21)
 class CameraControllerDeviceTest {
 
     @get:Rule
-    val useCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
+    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
+        PreTestCameraIdList(Camera2Config.defaultConfig())
+    )
 
     private val controller = LifecycleCameraController(ApplicationProvider.getApplicationContext())
     private val instrumentation = InstrumentationRegistry.getInstrumentation()

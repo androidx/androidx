@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+
 package androidx.camera.camera2.pipe
 
 import android.hardware.camera2.CaptureFailure
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraDevice
+import androidx.annotation.RequiresApi
 
 /**
  * A [Request] is an immutable package of outputs and parameters needed to issue a [CaptureRequest]

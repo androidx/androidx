@@ -16,7 +16,6 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="androidx.car.app.sample.navigation"
     android:versionCode="1"
     android:versionName="1.0">
 
@@ -59,6 +58,11 @@
       <intent-filter>
         <action android:name="androidx.car.app.CarAppService" />
         <category android:name="androidx.car.app.category.NAVIGATION"/>
+      </intent-filter>
+      <intent-filter>
+        <action android:name="androidx.car.app.action.NAVIGATE" />
+        <category android:name="android.intent.category.DEFAULT"/>
+        <data android:scheme="geo" />
       </intent-filter>
     </service>
     <service

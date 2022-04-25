@@ -22,19 +22,25 @@ import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 @ExperimentalProcessingApi
 class SyntheticKspProcessor private constructor(
     symbolProcessorEnvironment: SymbolProcessorEnvironment,
-    private val impl: SyntheticProcessorImpl
-) : KspBasicAnnotationProcessor(symbolProcessorEnvironment), SyntheticProcessor by impl {
+    config: XProcessingEnvConfig,
+    private val impl: SyntheticProcessorImpl,
+) : KspBasicAnnotationProcessor(symbolProcessorEnvironment, config),
+    SyntheticProcessor by impl {
     constructor(
         symbolProcessorEnvironment: SymbolProcessorEnvironment,
-        handlers: List<(XTestInvocation) -> Unit>
+        config: XProcessingEnvConfig,
+        handlers: List<(XTestInvocation) -> Unit>,
     ) : this(
         symbolProcessorEnvironment,
+        config,
         SyntheticProcessorImpl(handlers)
     )
 
-    override fun finish() {}
-
     override fun processingSteps(): Iterable<XProcessingStep> = impl.processingSteps()
 
-    override fun postRound(env: XProcessingEnv, round: XRoundEnv) = impl.postRound(env, round)
+    override fun postRound(env: XProcessingEnv, round: XRoundEnv) {
+        if (!round.isProcessingOver) {
+            impl.postRound(env, round)
+        }
+    }
 }

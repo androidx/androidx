@@ -49,12 +49,6 @@
  * {@link androidx.leanback.media.PlaybackTransportControlGlue} and
  * {@link androidx.leanback.app.PlaybackSupportFragmentGlueHost}.
  * </p>
- * <p>
- * Many lower level building blocks are also provided in the {@link androidx.leanback.widget} package.
- * These allow applications to easily incorporate Leanback look and feel while allowing for a
- * high degree of customization.  Primary examples include the UI widget
- * {@link androidx.leanback.widget.HorizontalGridView} and
- * {@link androidx.leanback.widget.VerticalGridView}.
  */
 
 package androidx.leanback;

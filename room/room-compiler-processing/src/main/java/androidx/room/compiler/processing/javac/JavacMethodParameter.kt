@@ -17,6 +17,7 @@
 package androidx.room.compiler.processing.javac
 
 import androidx.room.compiler.processing.XExecutableParameterElement
+import androidx.room.compiler.processing.XMemberContainer
 import androidx.room.compiler.processing.javac.kotlin.KmType
 import androidx.room.compiler.processing.javac.kotlin.KmValueParameter
 import androidx.room.compiler.processing.util.sanitizeAsJavaParameterName
@@ -24,12 +25,14 @@ import javax.lang.model.element.VariableElement
 
 internal class JavacMethodParameter(
     env: JavacProcessingEnv,
-    private val executable: JavacExecutableElement,
+    override val enclosingElement: JavacExecutableElement,
     containing: JavacTypeElement,
     element: VariableElement,
-    val kotlinMetadata: KmValueParameter?,
+    kotlinMetadataFactory: () -> KmValueParameter?,
     val argIndex: Int
 ) : JavacVariableElement(env, containing, element), XExecutableParameterElement {
+
+    private val kotlinMetadata by lazy { kotlinMetadataFactory() }
 
     override val name: String
         get() = (kotlinMetadata?.name ?: super.name).sanitizeAsJavaParameterName(
@@ -43,11 +46,17 @@ internal class JavacMethodParameter(
         get() = kotlinMetadata?.hasDefault() ?: false
 
     override val fallbackLocationText: String
-        get() = if (executable is JavacMethodElement && executable.isSuspendFunction() &&
-            this === executable.parameters.last()
+        get() = if (
+            enclosingElement is JavacMethodElement &&
+            enclosingElement.isSuspendFunction() &&
+            this === enclosingElement.parameters.last()
         ) {
-            "return type of ${executable.fallbackLocationText}"
+            "return type of ${enclosingElement.fallbackLocationText}"
         } else {
-            "$name in ${executable.fallbackLocationText}"
+            "$name in ${enclosingElement.fallbackLocationText}"
         }
+
+    override val closestMemberContainer: XMemberContainer by lazy {
+        enclosingElement.enclosingElement
+    }
 }

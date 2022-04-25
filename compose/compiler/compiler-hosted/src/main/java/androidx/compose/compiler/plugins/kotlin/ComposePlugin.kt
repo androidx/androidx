@@ -41,10 +41,16 @@ object ComposeConfiguration {
         CompilerConfigurationKey<Boolean>(
             "Enable Live Literals code generation (with per-file enabled flags)"
         )
+    val GENERATE_FUNCTION_KEY_META_CLASSES_KEY =
+        CompilerConfigurationKey<Boolean>(
+            "Generate function key meta classes"
+        )
     val SOURCE_INFORMATION_ENABLED_KEY =
         CompilerConfigurationKey<Boolean>("Include source information in generated code")
     val METRICS_DESTINATION_KEY =
         CompilerConfigurationKey<String>("Directory to save compose build metrics")
+    val REPORTS_DESTINATION_KEY =
+        CompilerConfigurationKey<String>("Directory to save compose build reports")
     val INTRINSIC_REMEMBER_OPTIMIZATION_ENABLED_KEY =
         CompilerConfigurationKey<Boolean>("Enable optimization to treat remember as an intrinsic")
     val SUPPRESS_KOTLIN_VERSION_COMPATIBILITY_CHECK =
@@ -70,6 +76,14 @@ class ComposeCommandLineProcessor : CommandLineProcessor {
             required = false,
             allowMultipleOccurrences = false
         )
+        val GENERATE_FUNCTION_KEY_META_CLASSES_OPTION = CliOption(
+            "generateFunctionKeyMetaClasses",
+            "<true|false>",
+            "Generate function key meta classes with annotations indicating the " +
+                "functions and their group keys. Generally used for tooling.",
+            required = false,
+            allowMultipleOccurrences = false
+        )
         val SOURCE_INFORMATION_ENABLED_OPTION = CliOption(
             "sourceInformation",
             "<true|false>",
@@ -81,6 +95,13 @@ class ComposeCommandLineProcessor : CommandLineProcessor {
             "metricsDestination",
             "<path>",
             "Save compose build metrics to this folder",
+            required = false,
+            allowMultipleOccurrences = false
+        )
+        val REPORTS_DESTINATION_OPTION = CliOption(
+            "reportsDestination",
+            "<path>",
+            "Save compose build reports to this folder",
             required = false,
             allowMultipleOccurrences = false
         )
@@ -111,8 +132,10 @@ class ComposeCommandLineProcessor : CommandLineProcessor {
     override val pluginOptions = listOf(
         LIVE_LITERALS_ENABLED_OPTION,
         LIVE_LITERALS_V2_ENABLED_OPTION,
+        GENERATE_FUNCTION_KEY_META_CLASSES_OPTION,
         SOURCE_INFORMATION_ENABLED_OPTION,
         METRICS_DESTINATION_OPTION,
+        REPORTS_DESTINATION_OPTION,
         INTRINSIC_REMEMBER_OPTIMIZATION_ENABLED_OPTION,
         SUPPRESS_KOTLIN_VERSION_CHECK_ENABLED_OPTION,
         DECOYS_ENABLED_OPTION,
@@ -131,12 +154,20 @@ class ComposeCommandLineProcessor : CommandLineProcessor {
             ComposeConfiguration.LIVE_LITERALS_V2_ENABLED_KEY,
             value == "true"
         )
+        GENERATE_FUNCTION_KEY_META_CLASSES_OPTION -> configuration.put(
+            ComposeConfiguration.GENERATE_FUNCTION_KEY_META_CLASSES_KEY,
+            value == "true"
+        )
         SOURCE_INFORMATION_ENABLED_OPTION -> configuration.put(
             ComposeConfiguration.SOURCE_INFORMATION_ENABLED_KEY,
             value == "true"
         )
         METRICS_DESTINATION_OPTION -> configuration.put(
             ComposeConfiguration.METRICS_DESTINATION_KEY,
+            value
+        )
+        REPORTS_DESTINATION_OPTION -> configuration.put(
+            ComposeConfiguration.REPORTS_DESTINATION_KEY,
             value
         )
         INTRINSIC_REMEMBER_OPTIMIZATION_ENABLED_OPTION -> configuration.put(
@@ -173,7 +204,7 @@ class ComposeComponentRegistrar : ComponentRegistrar {
             project: Project,
             configuration: CompilerConfiguration
         ) {
-            val KOTLIN_VERSION_EXPECTATION = "1.5.30"
+            val KOTLIN_VERSION_EXPECTATION = "1.6.21"
             KotlinCompilerVersion.getVersion()?.let { version ->
                 val suppressKotlinVersionCheck = configuration.get(
                     ComposeConfiguration.SUPPRESS_KOTLIN_VERSION_COMPATIBILITY_CHECK,
@@ -206,6 +237,10 @@ class ComposeComponentRegistrar : ComponentRegistrar {
                 ComposeConfiguration.LIVE_LITERALS_V2_ENABLED_KEY,
                 false
             )
+            val generateFunctionKeyMetaClasses = configuration.get(
+                ComposeConfiguration.GENERATE_FUNCTION_KEY_META_CLASSES_KEY,
+                false
+            )
             val sourceInformationEnabled = configuration.get(
                 ComposeConfiguration.SOURCE_INFORMATION_ENABLED_KEY,
                 false
@@ -224,6 +259,12 @@ class ComposeComponentRegistrar : ComponentRegistrar {
             ).let {
                 if (it.isBlank()) null else it
             }
+            val reportsDestination = configuration.get(
+                ComposeConfiguration.REPORTS_DESTINATION_KEY,
+                ""
+            ).let {
+                if (it.isBlank()) null else it
+            }
 
             StorageComponentContainerContributor.registerExtension(
                 project,
@@ -233,11 +274,15 @@ class ComposeComponentRegistrar : ComponentRegistrar {
                 project,
                 ComposableDeclarationChecker()
             )
+            StorageComponentContainerContributor.registerExtension(
+                project,
+                ComposableTargetChecker()
+            )
             ComposeDiagnosticSuppressor.registerExtension(
                 project,
                 ComposeDiagnosticSuppressor()
             )
-            @Suppress("EXPERIMENTAL_API_USAGE_FUTURE_ERROR")
+            @Suppress("OPT_IN_USAGE_ERROR")
             TypeResolutionInterceptor.registerExtension(
                 project,
                 @Suppress("IllegalExperimentalApiUsage")
@@ -248,10 +293,12 @@ class ComposeComponentRegistrar : ComponentRegistrar {
                 ComposeIrGenerationExtension(
                     liveLiteralsEnabled = liveLiteralsEnabled,
                     liveLiteralsV2Enabled = liveLiteralsV2Enabled,
+                    generateFunctionKeyMetaClasses = generateFunctionKeyMetaClasses,
                     sourceInformationEnabled = sourceInformationEnabled,
                     intrinsicRememberEnabled = intrinsicRememberEnabled,
                     decoysEnabled = decoysEnabled,
                     metricsDestination = metricsDestination,
+                    reportsDestination = reportsDestination,
                 )
             )
             DescriptorSerializerPlugin.registerExtension(

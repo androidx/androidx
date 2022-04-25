@@ -21,6 +21,7 @@ import android.hardware.camera2.TotalCaptureResult;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.impl.Camera2CameraCaptureResultConverter;
 import androidx.camera.core.ImageInfo;
 import androidx.camera.core.impl.CameraCaptureResult;
@@ -35,6 +36,7 @@ import androidx.core.util.Preconditions;
 /**
  * A {@link ImageInfoProcessor} that calls a vendor provided preview processing implementation.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class AdaptingRequestUpdateProcessor implements ImageInfoProcessor,
         CloseableProcessor {
     private final PreviewExtenderImpl mPreviewExtenderImpl;

@@ -28,7 +28,7 @@ import java.lang.annotation.Target;
  * multiple constants can be combined.
  * <p>
  * Example:
- * <pre><code>
+ * <pre>
  *  &#64;Retention(SOURCE)
  *  &#64;LongDef({NAVIGATION_MODE_STANDARD, NAVIGATION_MODE_LIST, NAVIGATION_MODE_TABS})
  *  public @interface NavigationMode {}
@@ -39,13 +39,14 @@ import java.lang.annotation.Target;
  *  public abstract void setNavigationMode(@NavigationMode long mode);
  *  &#64;NavigationMode
  *  public abstract long getNavigationMode();
- * </code></pre>
+ * </pre>
  * For a flag, set the flag attribute:
- * <pre><code>
+ * <pre>
  *  &#64;LongDef(
  *      flag = true,
- *      value = {NAVIGATION_MODE_STANDARD, NAVIGATION_MODE_LIST, NAVIGATION_MODE_TABS})
- * </code></pre>
+ *      value = {NAVIGATION_MODE_STANDARD, NAVIGATION_MODE_LIST, NAVIGATION_MODE_TABS}
+ *  )
+ * </pre>
  *
  * @see IntDef
  */

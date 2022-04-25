@@ -439,6 +439,7 @@ public class IconCompatTest {
     }
 
     // Check if the created icon is valid and doesn't cause crashes for the public methods.
+    @SuppressWarnings("deprecation")
     private void verifyIconCompatValidity(IconCompat icon) {
         assertNotNull(icon);
 

@@ -1,0 +1,376 @@
+/*
+ * Copyright 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.core.splashscreen.test
+
+import android.content.Intent
+import android.graphics.Bitmap
+import android.os.Bundle
+import android.view.View
+import android.view.ViewTreeObserver
+import androidx.core.splashscreen.SplashScreenViewProvider
+import androidx.test.filters.FlakyTest
+import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.runner.screenshot.ScreenCapture
+import androidx.test.runner.screenshot.Screenshot
+import androidx.test.screenshot.matchers.MSSIMMatcher
+import androidx.test.uiautomator.UiDevice
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import kotlin.reflect.KClass
+
+@LargeTest
+@RunWith(Parameterized::class)
+public class SplashscreenParametrizedTest(
+    public val name: String,
+    public val activityClass: KClass<out SplashScreenTestControllerHolder>
+) {
+
+    private lateinit var device: UiDevice
+
+    public companion object {
+        @Parameterized.Parameters(name = "{0}")
+        @JvmStatic
+        public fun data(): Iterable<Array<Any>> {
+            return listOf(
+                arrayOf("Platform", SplashScreenWithIconBgTestActivity::class),
+                arrayOf("AppCompat", SplashScreenAppCompatTestActivity::class)
+            )
+        }
+    }
+
+    @Before
+    public fun setUp() {
+        device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+    }
+
+    @Test
+    public fun compatAttributePopulated() {
+        val activity = startActivityWithSplashScreen()
+        assertEquals(1234, activity.duration)
+        assertEquals(R.color.bg_launcher, activity.splashscreenBackgroundId)
+        val expectedTheme =
+            if (activity.isCompatActivity) R.style.Theme_Test_AppCompat else R.style.Theme_Test
+        assertEquals(expectedTheme, activity.finalAppTheme)
+        assertEquals(R.drawable.android, activity.splashscreenIconId)
+    }
+
+    @Test
+    public fun exitAnimationListenerCalled() {
+        val activity = startActivityWithSplashScreen {
+            // Clear out any previous instances
+            it.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            it.putExtra(EXTRA_ANIMATION_LISTENER, true)
+        }
+        assertTrue(activity.exitAnimationListenerLatch.await(2, TimeUnit.SECONDS))
+    }
+
+    @Test
+    public fun splashScreenWaited() {
+        val activity = startActivityWithSplashScreen {
+            // Clear out any previous instances
+            it.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            it.putExtra(EXTRA_SPLASHSCREEN_WAIT, true)
+        }
+        assertTrue(
+            "Waiting condition was never checked",
+            activity.waitedLatch.await(2, TimeUnit.SECONDS)
+        )
+        assertFalse(
+            "Activity should not have been drawn", activity.hasDrawn
+        )
+        activity.waitBarrier.set(false)
+        assertTrue(
+            "Activity was never drawn",
+            activity.drawnLatch.await(2, TimeUnit.SECONDS)
+        )
+    }
+
+    @Test
+    public fun exitAnimationListenerCalledAfterWait() {
+        val activity = startActivityWithSplashScreen {
+            // Clear out any previous instances
+            it.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            it.putExtra(EXTRA_SPLASHSCREEN_WAIT, true)
+            it.putExtra(EXTRA_ANIMATION_LISTENER, true)
+        }
+        activity.waitBarrier.set(false)
+        assertTrue(
+            "Activity was never drawn",
+            activity.drawnLatch.await(2, TimeUnit.SECONDS)
+        )
+        assertTrue(activity.exitAnimationListenerLatch.await(2, TimeUnit.SECONDS))
+    }
+
+    @Test
+    public fun splashScreenViewRemoved() {
+        val activity = startActivityWithSplashScreen {
+            // Clear out any previous instances
+            it.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            it.putExtra(EXTRA_ANIMATION_LISTENER, true)
+        }
+        activity.exitAnimationListenerLatch.await(2, TimeUnit.SECONDS)
+        assertNull(
+            "Splash screen view was not removed from its parent",
+            activity.splashScreenView!!.parent
+        )
+    }
+
+    // The vector drawable of the starting window isn't scaled
+    // correctly pre 23
+    @SdkSuppress(minSdkVersion = 23)
+    @Test
+    public fun splashscreenViewScreenshotComparison() {
+        val activity = startActivityWithSplashScreen {
+            // Clear out any previous instances
+            it.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            it.putExtra(EXTRA_SPLASHSCREEN_WAIT, true)
+            it.putExtra(EXTRA_ANIMATION_LISTENER, true)
+            it.putExtra(EXTRA_SPLASHSCREEN_VIEW_SCREENSHOT, true)
+        }
+        assertTrue(activity.waitedLatch.await(2, TimeUnit.SECONDS))
+        activity.waitBarrier.set(false)
+        activity.exitAnimationListenerLatch.await(2, TimeUnit.SECONDS)
+
+        compareBitmaps(activity.splashScreenScreenshot!!, activity.splashScreenViewScreenShot!!)
+    }
+
+    /**
+     * Checks that activity and especially the system bars, have the same appearance whether we set
+     * an OnExitAnimationListener or not. This allows us to check that the system ui is stable
+     * before and after the removal of the SplashScreenView.
+     */
+    @Test
+    @FlakyTest(bugId = 213634077)
+    fun endStateStableWithAndWithoutListener() {
+        // Take a screenshot of the activity when no OnExitAnimationListener is set.
+        // This is our reference.
+        var controller = startActivityWithSplashScreen(SplashScreenStability1::class, device) {
+            // Clear out any previous instances
+            it.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            it.putExtra(EXTRA_ANIMATION_LISTENER, false)
+        }
+        assertTrue(controller.drawnLatch.await(2, TimeUnit.SECONDS))
+        Thread.sleep(500)
+        val withoutListener = Screenshot.capture()
+
+        // Take a screenshot of the container view while the splash screen view is invisible but
+        // not removed
+        controller = startActivityWithSplashScreen(SplashScreenStability1::class, device) {
+            // Clear out any previous instances
+            it.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            it.putExtra(EXTRA_ANIMATION_LISTENER, true)
+            it.putExtra(EXTRA_SPLASHSCREEN_WAIT, true)
+        }
+        val withListener = screenshotContainerInExitListener(controller)
+
+        compareBitmaps(withoutListener.bitmap, withListener.bitmap, 0.999)
+
+        // Execute the same steps as above but with another set of theme attributes to check.
+        controller = startActivityWithSplashScreen(SplashScreenStability2::class, device) {
+            // Clear out any previous instances
+            it.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            it.putExtra(EXTRA_ANIMATION_LISTENER, false)
+        }
+        controller.waitForActivityDrawn()
+        Thread.sleep(500)
+        val withoutListener2 = Screenshot.capture()
+
+        controller = startActivityWithSplashScreen(SplashScreenStability2::class, device) {
+            // Clear out any previous instances
+            it.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            it.putExtra(EXTRA_ANIMATION_LISTENER, true)
+            it.putExtra(EXTRA_SPLASHSCREEN_WAIT, true)
+        }
+        val withListener2 = screenshotContainerInExitListener(controller)
+        compareBitmaps(withListener2.bitmap, withoutListener2.bitmap)
+    }
+
+    private fun screenshotContainerInExitListener(
+        controller: SplashScreenTestController
+    ): ScreenCapture {
+        lateinit var contentViewInListener: ScreenCapture
+        controller.doOnExitAnimation {
+            it.view.visibility = View.INVISIBLE
+            it.view.postDelayed({
+                contentViewInListener = Screenshot.capture()
+                it.remove()
+                controller.exitAnimationListenerLatch.countDown()
+            }, 100)
+            true
+        }
+        controller.waitBarrier.set(false)
+        controller.waitSplashScreenViewRemoved()
+        controller.activity.finishAndRemoveTask()
+        return contentViewInListener
+    }
+
+    /**
+     * The splash screen is drawn full screen. On Android 12, this is achieved using
+     * [Window.setDecorFitsSystemWindow(false)].
+     */
+    @Test
+    public fun decorFitSystemStableContentView() {
+        val activityController = startActivityWithSplashScreen {
+            // Clear out any previous instances
+            it.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            it.putExtra(EXTRA_ANIMATION_LISTENER, true)
+            it.putExtra(EXTRA_SPLASHSCREEN_WAIT, true)
+        }
+
+        // We wait for 2 draw passes and check that out content view's height is stable
+        val drawLatch = CountDownLatch(2)
+        val container = activityController.activity.findViewById<View>(R.id.container)
+        val contentViewHeights = mutableListOf<Int>()
+        var splashScreenViewProvider: SplashScreenViewProvider? = null
+
+        val onDrawListener = ViewTreeObserver.OnDrawListener {
+            contentViewHeights.add(container.height)
+            drawLatch.countDown()
+            if (drawLatch.count == 1L) {
+                splashScreenViewProvider!!.remove()
+            }
+        }
+
+        activityController.doOnExitAnimation {
+            splashScreenViewProvider = it
+            container.viewTreeObserver.addOnDrawListener(onDrawListener)
+            activityController.splashScreenView!!.alpha = 0f
+            true
+        }
+
+        activityController.waitBarrier.set(false)
+        assertTrue("Missing ${drawLatch.count} draw passes.", drawLatch.await(2, TimeUnit.SECONDS))
+        assertTrue(
+            "Content view height must be stable but was ${
+                contentViewHeights.joinToString(",")
+            }", contentViewHeights.all { it == contentViewHeights.first() })
+    }
+
+    private fun compareBitmaps(
+        beforeScreenshot: Bitmap,
+        afterScreenshot: Bitmap,
+        threshold: Double = 0.99
+    ) {
+        val beforeBuffer = IntArray(beforeScreenshot.width * beforeScreenshot.height)
+        beforeScreenshot.getPixels(
+            beforeBuffer, 0, beforeScreenshot.width, 0, 0,
+            beforeScreenshot.width, beforeScreenshot.height
+        )
+
+        val afterBuffer = IntArray(afterScreenshot.width * afterScreenshot.height)
+        afterScreenshot.getPixels(
+            afterBuffer, 0, afterScreenshot.width, 0, 0,
+            afterScreenshot.width, afterScreenshot.height
+        )
+
+        val matcher = MSSIMMatcher(threshold).compareBitmaps(
+            beforeBuffer, afterBuffer, afterScreenshot.width,
+            afterScreenshot.height
+        )
+
+        if (!matcher.matches) {
+            val bundle = Bundle()
+            val diff = matcher.diff?.writeToDevice("diff.png")
+            bundle.putString("splashscreen_diff", diff?.absolutePath)
+            bundle.putString(
+                "splashscreen_before",
+                beforeScreenshot.writeToDevice("before.png").absolutePath
+            )
+            bundle.putString(
+                "splashscreen_after",
+                afterScreenshot.writeToDevice("after.png").absolutePath
+            )
+            val path = diff?.parentFile?.path
+            InstrumentationRegistry.getInstrumentation().sendStatus(2, bundle)
+            fail(
+                "SplashScreenView and SplashScreen don't match\n${matcher.comparisonStatistics}" +
+                    "\nResult saved at $path"
+            )
+        }
+    }
+
+    private fun Bitmap.writeToDevice(name: String): File {
+        return writeToDevice(
+            {
+                compress(Bitmap.CompressFormat.PNG, 0 /*ignored for png*/, it)
+            },
+            name
+        )
+    }
+
+    private fun writeToDevice(
+        writeAction: (FileOutputStream) -> Unit,
+        name: String
+    ): File {
+        val deviceOutputDirectory = File(
+            InstrumentationRegistry.getInstrumentation().context.externalCacheDir,
+            "splashscreen_test"
+        )
+        if (!deviceOutputDirectory.exists() && !deviceOutputDirectory.mkdir()) {
+            throw IOException("Could not create folder.")
+        }
+
+        val file = File(deviceOutputDirectory, name)
+        try {
+            FileOutputStream(file).use {
+                writeAction(it)
+            }
+        } catch (e: Exception) {
+            throw IOException(
+                "Could not write file to storage (path: ${file.absolutePath}). " +
+                    " Stacktrace: " + e.stackTrace
+            )
+        }
+        return file
+    }
+
+    private fun startActivityWithSplashScreen(
+        intentModifier: ((Intent) -> Unit)? = null
+    ): SplashScreenTestController {
+        return startActivityWithSplashScreen(
+            activityClass, device, intentModifier
+        )
+    }
+
+    private fun SplashScreenTestController.waitForActivityDrawn() {
+        assertTrue(
+            "Activity was never drawn",
+            drawnLatch.await(2, TimeUnit.SECONDS)
+        )
+    }
+
+    private fun SplashScreenTestController.waitSplashScreenViewRemoved() {
+        assertTrue(
+            "Exit animation listener was not called",
+            exitAnimationListenerLatch.await(2, TimeUnit.SECONDS)
+        )
+    }
+}

@@ -17,6 +17,7 @@
 package androidx.health.services.client.impl.response
 
 import android.os.Parcelable
+import androidx.annotation.RestrictTo
 import androidx.health.services.client.data.Availability
 import androidx.health.services.client.data.DataType
 import androidx.health.services.client.data.DataTypeAvailability
@@ -33,6 +34,7 @@ import androidx.health.services.client.proto.ResponsesProto
  *
  * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class AvailabilityResponse(
     /** [DataType] of the [AvailabilityResponse]. */
     public val dataType: DataType,

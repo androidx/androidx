@@ -61,9 +61,11 @@ import androidx.camera.core.impl.SurfaceConfig.ConfigSize;
 import androidx.camera.core.impl.SurfaceConfig.ConfigType;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
+import androidx.camera.core.impl.utils.CompareSizesByArea;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.CameraUtil;
+import androidx.camera.testing.CameraXUtil;
 import androidx.camera.testing.Configs;
 import androidx.camera.testing.SurfaceTextureProvider;
 import androidx.camera.testing.fakes.FakeCamera;
@@ -168,6 +170,7 @@ public final class SupportedSurfaceCombinationTest {
     @Before
     @SuppressWarnings("deprecation") /* defaultDisplay */
     public void setUp() throws IllegalAccessException {
+        DisplayInfoManager.releaseInstance();
         WindowManager windowManager =
                 (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
         Shadows.shadowOf(windowManager.getDefaultDisplay()).setRealWidth(mDisplaySize.getWidth());
@@ -181,7 +184,7 @@ public final class SupportedSurfaceCombinationTest {
 
     @After
     public void tearDown() throws ExecutionException, InterruptedException, TimeoutException {
-        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
+        CameraXUtil.shutdown().get(10000, TimeUnit.MILLISECONDS);
     }
 
     @Test
@@ -1203,7 +1206,7 @@ public final class SupportedSurfaceCombinationTest {
         }
 
         // The testing sizes array will be equal to mSupportedSizes after sorting.
-        Arrays.sort(sizes, new SupportedSurfaceCombination.CompareSizesByArea(true));
+        Arrays.sort(sizes, new CompareSizesByArea(true));
         assertThat(Arrays.asList(sizes)).isEqualTo(Arrays.asList(mSupportedSizes));
     }
 
@@ -2372,10 +2375,9 @@ public final class SupportedSurfaceCombinationTest {
                 .setDeviceSurfaceManagerProvider(surfaceManagerProvider)
                 .setCameraFactoryProvider((ignored0, ignored1, ignored2) -> mCameraFactory)
                 .build();
-        CameraX.initialize(mContext, cameraXConfig);
         CameraX cameraX;
         try {
-            cameraX = CameraX.getOrCreateInstance(mContext).get();
+            cameraX = CameraXUtil.getOrCreateInstance(mContext, () -> cameraXConfig).get();
         } catch (ExecutionException | InterruptedException e) {
             throw new IllegalStateException("Unable to initialize CameraX for test.");
         }

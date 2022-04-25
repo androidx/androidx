@@ -27,6 +27,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
@@ -35,6 +36,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.isNull;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -283,6 +285,99 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestA
         verify(mShortcutInfoChangeListener).onAllShortcutsRemoved();
         verify(mShortcutInfoCompatSaver).addShortcuts(shortcuts);
         verify(mShortcutInfoChangeListener).onShortcutAdded(shortcuts);
+    }
+
+    @LargeTest
+    @Test
+    @SdkSuppress(minSdkVersion = 25)
+    public void testExcludedShortcuts() throws Throwable {
+        final ShortcutManager mockShortcutManager = mock(ShortcutManager.class);
+        doReturn(mockShortcutManager).when(mContext).getSystemService(eq(Context.SHORTCUT_SERVICE));
+        when(mockShortcutManager.getMaxShortcutCountPerActivity()).thenReturn(5);
+
+        final ShortcutInfoCompat excludedShortcut1 = new ShortcutInfoCompat.Builder(
+                mContext, "my-shortcut")
+                .setShortLabel("bitmap")
+                .setIcon(createBitmapIcon())
+                .setIntent(new Intent().setAction(Intent.ACTION_DEFAULT))
+                .setExcludedFromSurfaces(ShortcutInfoCompat.SURFACE_LAUNCHER)
+                .build();
+        final ShortcutInfoCompat excludedShortcut2 = new ShortcutInfoCompat.Builder(
+                mContext, "my-shortcut-2")
+                .setShortLabel("bitmap")
+                .setIcon(createBitmapIcon())
+                .setIntent(new Intent().setAction(Intent.ACTION_DEFAULT))
+                .setExcludedFromSurfaces(ShortcutInfoCompat.SURFACE_LAUNCHER)
+                .build();
+        final ShortcutInfoCompat excludedShortcut3 = new ShortcutInfoCompat.Builder(
+                mContext, "my-shortcut-3")
+                .setShortLabel("bitmap")
+                .setIcon(createBitmapIcon())
+                .setIntent(new Intent().setAction(Intent.ACTION_DEFAULT))
+                .setExcludedFromSurfaces(ShortcutInfoCompat.SURFACE_LAUNCHER)
+                .build();
+
+        final List<ShortcutInfoCompat> excludedShortcuts = new ArrayList<>();
+        excludedShortcuts.add(excludedShortcut1);
+        excludedShortcuts.add(excludedShortcut2);
+        excludedShortcuts.add(excludedShortcut3);
+
+        ShortcutManagerCompat.addDynamicShortcuts(mContext, excludedShortcuts);
+        if (Build.VERSION.SDK_INT > 31) {
+            verify(mockShortcutManager).addDynamicShortcuts(
+                    ArgumentMatchers.<ShortcutInfo>anyList());
+        } else {
+            verify(mockShortcutManager).addDynamicShortcuts(Collections.EMPTY_LIST);
+        }
+
+        reset(mockShortcutManager);
+        when(mockShortcutManager.setDynamicShortcuts(ArgumentMatchers.<ShortcutInfo>anyList()))
+                .thenReturn(true);
+        when(mockShortcutManager.getMaxShortcutCountPerActivity()).thenReturn(5);
+
+        ShortcutManagerCompat.setDynamicShortcuts(mContext, excludedShortcuts);
+        if (Build.VERSION.SDK_INT > 31) {
+            verify(mockShortcutManager).setDynamicShortcuts(
+                    ArgumentMatchers.<ShortcutInfo>anyList());
+        } else {
+            if (Build.VERSION.SDK_INT >= 25) {
+                verify(mockShortcutManager).setDynamicShortcuts(Collections.EMPTY_LIST);
+            }
+            verify(mShortcutInfoCompatSaver).removeAllShortcuts();
+            verify(mShortcutInfoCompatSaver).addShortcuts(Collections.EMPTY_LIST);
+        }
+        verify(mShortcutInfoChangeListener).onAllShortcutsRemoved();
+        verify(mShortcutInfoChangeListener).onShortcutAdded(excludedShortcuts);
+
+        reset(mockShortcutManager);
+        when(mockShortcutManager.getMaxShortcutCountPerActivity()).thenReturn(5);
+        ShortcutManagerCompat.pushDynamicShortcut(mContext, excludedShortcut1);
+        if (Build.VERSION.SDK_INT > 31) {
+            verify(mockShortcutManager).pushDynamicShortcut(any(ShortcutInfo.class));
+        } else if (Build.VERSION.SDK_INT >= 30) {
+            verify(mockShortcutManager, never())
+                    .pushDynamicShortcut(any(ShortcutInfo.class));
+        } else if (Build.VERSION.SDK_INT >= 25) {
+            verify(mockShortcutManager, never()).addDynamicShortcuts(anyList());
+        }
+
+        reset(mockShortcutManager);
+        when(mockShortcutManager.getMaxShortcutCountPerActivity()).thenReturn(5);
+        ShortcutManagerCompat.updateShortcuts(mContext, excludedShortcuts);
+        if (Build.VERSION.SDK_INT > 31) {
+            verify(mockShortcutManager).updateShortcuts(anyList());
+        } else if (Build.VERSION.SDK_INT >= 25) {
+            verify(mockShortcutManager).updateShortcuts(Collections.EMPTY_LIST);
+        }
+
+        reset(mockShortcutManager);
+        when(mockShortcutManager.getMaxShortcutCountPerActivity()).thenReturn(5);
+        ShortcutManagerCompat.enableShortcuts(mContext, excludedShortcuts);
+        if (Build.VERSION.SDK_INT > 31) {
+            verify(mockShortcutManager).enableShortcuts(anyList());
+        } else if (Build.VERSION.SDK_INT >= 25) {
+            verify(mockShortcutManager).enableShortcuts(Collections.EMPTY_LIST);
+        }
     }
 
     @MediumTest

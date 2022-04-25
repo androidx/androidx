@@ -14,33 +14,48 @@
  * limitations under the License.
  */
 
-
 import androidx.build.AndroidXComposePlugin
-import androidx.build.LibraryGroups
+import androidx.build.BundleInsideHelper
 import androidx.build.LibraryType
-import androidx.build.Publish
+import androidx.glance.appwidget.layoutgenerator.gradle.LayoutGeneratorTask
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
+    id("com.google.protobuf")
 }
 
+BundleInsideHelper.forInsideAar(
+        project,
+        /* from = */ "com.google.protobuf",
+        /* to =   */ "androidx.glance.appwidget.protobuf"
+)
+
 // Disable multi-platform; this will only be used on Android.
-AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project, /* isMultiplatformEnabled= */false)
+AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project, /* isMultiplatformEnabled= */ false)
 
 dependencies {
+    bundleInside(project(
+            path: ":glance:glance-appwidget-proto",
+            configuration: "export"
+    ))
     kotlinPlugin(project(":compose:compiler:compiler"))
 
     api(project(":glance:glance"))
     api("androidx.annotation:annotation:1.1.0")
-    api("androidx.compose.runtime:runtime:1.0.1")
+    api("androidx.compose.runtime:runtime:1.1.0-beta01")
+    api("androidx.compose.ui:ui-graphics:1.1.0-beta01")
+    api("androidx.compose.ui:ui-unit:1.1.0-beta01")
 
-    implementation project(path: ':annotation:annotation')
-    implementation project(path: ':core:core-remoteviews')
+    implementation('androidx.core:core-ktx:1.7.0')
+    implementation("androidx.datastore:datastore:1.0.0")
+    implementation("androidx.datastore:datastore-core:1.0.0")
+    implementation("androidx.datastore:datastore-preferences-core:1.0.0")
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
+    implementation(project(':core:core-remoteviews'))
     implementation(libs.kotlinStdlib)
 
-    testImplementation(project(":core:core-ktx"))
     testImplementation(libs.junit)
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.kotlinTest)
@@ -51,9 +66,15 @@ dependencies {
     testImplementation(libs.testRules)
     testImplementation(libs.testRunner)
     testImplementation(libs.truth)
+    testImplementation(libs.kotlinReflect)
+    testImplementation('androidx.core:core-ktx:1.7.0')
+    testImplementation("androidx.datastore:datastore-core:1.0.0")
+    testImplementation("androidx.datastore:datastore-preferences-core:1.0.0")
+    testImplementation("androidx.datastore:datastore-preferences:1.0.0")
 
     androidTestImplementation(project(":test:screenshot:screenshot"))
-    androidTestImplementation(project(":core:core-ktx"))
+    androidTestImplementation("androidx.test.uiautomator:uiautomator:2.2.0")
+    androidTestImplementation('androidx.core:core-ktx:1.7.0')
     androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.espressoIdlingResource)
     androidTestImplementation(libs.kotlinCoroutinesTest)
@@ -64,27 +85,41 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.kotlinReflect)
 }
 
 android {
-    defaultConfig {
-        minSdkVersion 23
-    }
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
 
     sourceSets {
         androidTest.assets.srcDirs += project.rootDir.absolutePath + "/../../golden/glance/glance-appwidget"
     }
+
+    buildTypes {
+        debug {
+            pseudoLocalesEnabled true
+        }
+    }
+    namespace "androidx.glance.appwidget"
+
+    buildTypes.all {
+        consumerProguardFiles "proguard-rules.pro"
+    }
 }
 
 androidx {
     name = "Glance For App Widgets"
     type = LibraryType.PUBLISHED_LIBRARY
-    publish = Publish.SNAPSHOT_ONLY
     mavenGroup = LibraryGroups.GLANCE
     inceptionYear = "2021"
     description = "Glance-appwidgets allows developers to build layouts for Android AppWidgets " +
             "using a Jetpack Compose-style API."
     targetsJavaConsumers = false
 }
+
+LayoutGeneratorTask.registerLayoutGenerator(
+        project,
+        android,
+        /* layoutDirectory= */ file("src/androidMain/layoutTemplates")
+)

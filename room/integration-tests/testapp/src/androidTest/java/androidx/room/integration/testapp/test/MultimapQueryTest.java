@@ -25,6 +25,8 @@ import android.content.Context;
 
 import androidx.arch.core.executor.testing.CountingTaskExecutorRule;
 import androidx.collection.ArrayMap;
+import androidx.collection.LongSparseArray;
+import androidx.collection.SparseArrayCompat;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.testing.TestLifecycleOwner;
@@ -129,32 +131,50 @@ public class MultimapQueryTest {
             false
     );
 
+    private final Artist mGlassAnimals = new Artist(
+            5,
+            "Glass Animals",
+            true
+    );
+
     private final Album mStadiumArcadium = new Album(
             1,
             "Stadium Arcadium",
             "Red Hot Chili Peppers",
-            2006
+            2006,
+            "N/A"
     );
 
     private final Album mCalifornication = new Album(
             2,
             "Californication",
             "Red Hot Chili Peppers",
-            1999
+            1999,
+            "N/A"
     );
 
     private final Album mHighwayToHell = new Album(
             3,
             "Highway to Hell",
             "AC/DC",
-            1979
+            1979,
+            null
     );
 
     private final Album mTheDarkSideOfTheMoon = new Album(
             4,
             "The Dark Side of the Moon",
             "Pink Floyd",
-            1973
+            1973,
+            "N/A"
+    );
+
+    private final Album mDreamland = new Album(
+            5,
+            "Dreamland",
+            null,
+            2020,
+            null
     );
 
     private final Image mPinkFloydAlbumCover = new Image(
@@ -936,6 +956,31 @@ public class MultimapQueryTest {
     }
 
     @Test
+    public void testImageYearToArtistLongSparseArray() {
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+        mMusicDao.addImages(mPinkFloydAlbumCover, mRhcpAlbumCover);
+
+        LongSparseArray<Artist> imageToArtistsMap =
+                mMusicDao.getAllAlbumCoverYearToArtistsWithLongSparseArray();
+
+        assertThat(imageToArtistsMap.size()).isEqualTo(2);
+        assertThat(imageToArtistsMap.get(2006L)).isEqualTo(mRhcp);
+    }
+
+    @Test
+    public void testImageYearToArtistSparseArrayCompat() {
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+        mMusicDao.addImages(mPinkFloydAlbumCover, mRhcpAlbumCover);
+
+        SparseArrayCompat<Artist> imageToArtistsMap =
+                mMusicDao.getAllAlbumCoverYearToArtistsWithIntSparseArray();
+
+        assertThat(imageToArtistsMap.size()).isEqualTo(2);
+        assertThat(imageToArtistsMap.get(2006)).isEqualTo(mRhcp);
+        assertThat(imageToArtistsMap.get(1973)).isEqualTo(mPinkFloyd);
+    }
+
+    @Test
     public void testImageYearToArtistRawQueryArrayMap() {
         mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
         mMusicDao.addImages(mPinkFloydAlbumCover, mRhcpAlbumCover);
@@ -1075,6 +1120,112 @@ public class MultimapQueryTest {
         } catch (IllegalArgumentException e) {
             assertThat(e.getMessage().contains("column 'cat' does not exist"));
         }
+    }
+
+    @Test
+    public void testLeftJoin() {
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+        mMusicDao.addAlbums(
+                mStadiumArcadium,
+                mCalifornication,
+                mTheDarkSideOfTheMoon,
+                mHighwayToHell
+        );
+
+        Map<Artist, List<Album>> map = mMusicDao.getArtistAndAlbumsLeftJoin();
+        assertThat(map.containsKey(mTheClash));
+        assertThat(map.get(mTheClash)).isEmpty();
+    }
+
+    @Test
+    public void testLeftJoinOneToOne() {
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+        mMusicDao.addAlbums(
+                mStadiumArcadium,
+                mCalifornication,
+                mTheDarkSideOfTheMoon,
+                mHighwayToHell
+        );
+
+        Map<Artist, Album> map = mMusicDao.getArtistAndAlbumsLeftJoinOneToOne();
+        assertThat(map.containsKey(mTheClash)).isTrue();
+        assertThat(map.get(mTheClash)).isEqualTo(null);
+    }
+
+    @Test
+    public void testLeftJoinGuava() {
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+        mMusicDao.addAlbums(
+                mStadiumArcadium,
+                mCalifornication,
+                mTheDarkSideOfTheMoon,
+                mHighwayToHell
+        );
+
+        ImmutableListMultimap<Artist, Album> map = mMusicDao.getArtistAndAlbumsLeftJoinGuava();
+        assertThat(map.containsKey(mTheClash));
+        assertThat(map.get(mTheClash)).isEmpty();
+    }
+
+    @Test
+    public void testNonPojoLeftJoin() {
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+        mMusicDao.addAlbums(
+                mStadiumArcadium,
+                mCalifornication,
+                mTheDarkSideOfTheMoon,
+                mHighwayToHell
+        );
+
+        Map<Artist, List<String>> map = mMusicDao.getArtistAndAlbumNamesLeftJoin();
+        assertThat(map.containsKey(mTheClash));
+        assertThat(map.get(mTheClash)).isEmpty();
+
+    }
+
+    @Test
+    public void nullKeyColumnLeftJoin() {
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+        mMusicDao.addAlbums(
+                mStadiumArcadium,
+                mCalifornication,
+                mTheDarkSideOfTheMoon,
+                mHighwayToHell
+        );
+
+        Map<Album, Artist> map = mMusicDao.getAlbumToArtistLeftJoin();
+        assertThat(map.containsKey(mHighwayToHell));
+        assertThat(map.get(mHighwayToHell)).isEqualTo(mAcDc);
+    }
+
+    @Test
+    public void nullValueColumnLeftJoin() {
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+        mMusicDao.addAlbums(
+                mStadiumArcadium,
+                mCalifornication,
+                mTheDarkSideOfTheMoon,
+                mHighwayToHell
+        );
+
+        Map<Artist, Album> map = mMusicDao.getArtistToAlbumLeftJoin();
+        assertThat(map.containsKey(mAcDc));
+        assertThat(map.get(mAcDc)).isEqualTo(mHighwayToHell);
+    }
+
+    @Test
+    public void nullAlbumAddedLeftJoin() {
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd, mGlassAnimals);
+        mMusicDao.addAlbums(
+                mStadiumArcadium,
+                mCalifornication,
+                mTheDarkSideOfTheMoon,
+                mHighwayToHell,
+                mDreamland
+        );
+
+        Map<Artist, Album> map = mMusicDao.getArtistToAlbumLeftJoin();
+        assertThat(map.containsKey(mGlassAnimals)).isFalse();
     }
 
     /**

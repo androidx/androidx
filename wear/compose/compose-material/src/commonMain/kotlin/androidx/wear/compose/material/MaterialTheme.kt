@@ -34,8 +34,10 @@ import androidx.compose.runtime.remember
  * Wear Material components from package/sub-packages in [androidx.wear.compose.material] use values
  * provided here when retrieving default values.
  *
- * It defines colors as specified in the [Wear Material Color theme spec](https://),
- * typography defined in the [Wear Material Type Scale spec](https://),
+ * It defines colors as specified in the
+ * [Wear Material Color theme spec](https://developer.android.com/training/wearables/components/theme#color),
+ * typography defined in the
+ * [Wear Material Type Scale spec](https://developer.android.com/training/wearables/components/theme#typography),
  * and shapes defined in the [Wear Shape scheme](https://).
  *
  * All values may be set by providing this component with the [colors][Colors],
@@ -46,6 +48,10 @@ import androidx.compose.runtime.remember
  * defaults if there is no parent MaterialTheme. This allows using a MaterialTheme at the
  * top of your application, and then separate MaterialTheme(s) for different screens / parts of
  * your UI, overriding only the parts of the theme definition that need to change.
+ *
+ * For more information, see the
+ * [Theming](https://developer.android.com/training/wearables/components/theme)
+ * guide.
  *
  * @param colors A complete definition of the Wear Material Color theme for this hierarchy
  * @param typography A set of text styles to be used as this hierarchy's typography system

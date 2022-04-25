@@ -20,9 +20,10 @@ import android.content.Context
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraDevice
 import android.view.Surface
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.integration.adapter.CameraControlAdapter
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.CameraX
+import androidx.camera.core.ImageCapture
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CameraCaptureFailure
 import androidx.camera.core.impl.CameraCaptureResult
@@ -32,11 +33,14 @@ import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.CameraXUtil
+import androidx.camera.testing.LabTestRule
 import androidx.camera.testing.fakes.FakeUseCase
 import androidx.camera.testing.fakes.FakeUseCaseConfig
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.CompletableDeferred
@@ -54,14 +58,20 @@ import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import java.util.concurrent.TimeUnit
 
+@RequiresApi(21)
 private const val DEFAULT_LENS_FACING_SELECTOR = CameraSelector.LENS_FACING_BACK
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = 21)
 class CaptureConfigAdapterDeviceTest {
 
     @get:Rule
     val useCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
+
+    // TODO(b/187015621): Remove the rule after the surface can be safely closed.
+    @get:Rule
+    val labTest: LabTestRule = LabTestRule()
 
     private var cameraControl: CameraControlAdapter? = null
     private var camera: CameraUseCaseAdapter? = null
@@ -82,7 +92,10 @@ class CaptureConfigAdapterDeviceTest {
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(DEFAULT_LENS_FACING_SELECTOR))
 
         val context: Context = ApplicationProvider.getApplicationContext()
-        CameraX.initialize(context, CameraPipeConfig.defaultConfig())
+        CameraXUtil.initialize(
+            context,
+            CameraPipeConfig.defaultConfig()
+        )
         camera = CameraUtil.createCameraUseCaseAdapter(
             context,
             CameraSelector.Builder().requireLensFacing(
@@ -101,10 +114,11 @@ class CaptureConfigAdapterDeviceTest {
     fun tearDown() {
         camera?.detachUseCases()
         testDeferrableSurface.close()
-        CameraX.shutdown()[10000, TimeUnit.MILLISECONDS]
+        CameraXUtil.shutdown()[10000, TimeUnit.MILLISECONDS]
     }
 
     @Test
+    @LabTestRule.LabTestOnly
     fun tagBundleTest() = runBlocking {
         // Arrange
         val deferred = CompletableDeferred<CameraCaptureResult>()
@@ -131,7 +145,11 @@ class CaptureConfigAdapterDeviceTest {
             }.build()
 
         // Act
-        cameraControl!!.submitStillCaptureRequests(listOf(captureConfig))
+        cameraControl!!.submitStillCaptureRequests(
+            listOf(captureConfig),
+            ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
+            ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH,
+        )
 
         // Assert
         Truth.assertThat(
@@ -142,6 +160,7 @@ class CaptureConfigAdapterDeviceTest {
     }
 }
 
+@RequiresApi(21)
 private class FakeTestUseCase(
     config: FakeUseCaseConfig,
 ) : FakeUseCase(config) {
@@ -152,6 +171,7 @@ private class FakeTestUseCase(
     }
 }
 
+@RequiresApi(21)
 private class TestDeferrableSurface : DeferrableSurface() {
     init {
         terminationFuture.addListener(

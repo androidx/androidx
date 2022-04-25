@@ -46,7 +46,9 @@ enum class Warning(val publicKey: String) {
     MISMATCHED_SETTER_TYPE("ROOM_MISMATCHED_SETTER_TYPE"),
     // NOTE there is no constant for this in RoomWarnings since this is a temporary case until
     // expand projection is removed.
-    EXPAND_PROJECTION_WITH_REMOVE_UNUSED_COLUMNS("ROOM_EXPAND_PROJECTION_WITH_UNUSED_COLUMNS");
+    EXPAND_PROJECTION_WITH_REMOVE_UNUSED_COLUMNS("ROOM_EXPAND_PROJECTION_WITH_UNUSED_COLUMNS"),
+    // We shouldn't let devs suppress this error via Room so there is no runtime constant for it
+    JVM_NAME_ON_OVERRIDDEN_METHOD("ROOM_JVM_NAME_IN_OVERRIDDEN_METHOD");
 
     companion object {
         val PUBLIC_KEY_MAP = values().associateBy { it.publicKey }

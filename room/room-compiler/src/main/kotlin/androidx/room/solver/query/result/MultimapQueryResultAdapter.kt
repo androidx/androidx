@@ -17,12 +17,19 @@
 package androidx.room.solver.query.result
 
 import androidx.room.compiler.processing.XType
+import androidx.room.ext.L
+import androidx.room.ext.RoomTypeNames
+import androidx.room.ext.S
+import androidx.room.ext.T
+import androidx.room.ext.W
 import androidx.room.ext.implementsEqualsAndHashcode
 import androidx.room.log.RLog
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.types.CursorValueReader
 import androidx.room.vo.MapInfo
 import androidx.room.vo.Warning
+import androidx.room.vo.columnNames
+import com.squareup.javapoet.CodeBlock
 
 /**
  * Common interface for Map and Multimap result adapters.
@@ -70,6 +77,50 @@ interface MultimapQueryResultAdapter {
                         valueTypeArg.typeName
                     )
                 )
+            }
+        }
+    }
+
+    /**
+     * Iterates over all matched fields to check if all are null. If so, we continue in the while
+     * loop to the next iteration.
+     */
+    fun getColumnNullCheck(cursorVarName: String, valueRowAdapter: RowAdapter): CodeBlock {
+        return when (valueRowAdapter) {
+            is PojoRowAdapter -> {
+                val conditions = valueRowAdapter.fieldsWithIndices.map {
+                    CodeBlock.of(
+                        "$L.isNull($L)",
+                        cursorVarName,
+                        it.indexVar
+                    )
+                }
+                CodeBlock.join(conditions, "$W&&$W")
+            }
+            is SingleNamedColumnRowAdapter -> {
+                val condition = listOf(
+                    CodeBlock.of(
+                        "$L.isNull($L)",
+                        cursorVarName,
+                        valueRowAdapter.indexVarName
+                    )
+                )
+                CodeBlock.join(condition, "")
+            }
+            is EntityRowAdapter -> {
+                val condition = valueRowAdapter.entity.columnNames.map { columnName ->
+                    CodeBlock.of(
+                        "$L.isNull($T.getColumnIndex($L, $S))",
+                        cursorVarName,
+                        RoomTypeNames.CURSOR_UTIL,
+                        cursorVarName,
+                        columnName
+                    )
+                }
+                CodeBlock.join(condition, "$W&&$W")
+            }
+            else -> {
+                throw IllegalStateException("Unexpected value row adapter found: $valueRowAdapter")
             }
         }
     }

@@ -18,6 +18,7 @@ package androidx.camera.core.internal.compat.quirk;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 import androidx.camera.core.impl.Quirks;
 
@@ -30,6 +31,7 @@ import androidx.camera.core.impl.Quirks;
  * <p>
  * Device specific quirks are lazily loaded, i.e. They are loaded the first time they're needed.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class DeviceQuirks {
 
     @NonNull

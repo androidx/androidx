@@ -44,7 +44,6 @@ import android.app.Instrumentation;
 import android.content.res.Resources;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.view.InputDevice;
@@ -601,9 +600,8 @@ public class PopupMenuTest {
         onView(withClassName(Matchers.is(DROP_DOWN_CLASS_NAME))).check(doesNotExist());
     }
 
-    // Broken on API 30 b/151920359
+    @SdkSuppress(minSdkVersion = 26) // Touch mode hides selection prior to SDK 26.
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O, maxSdkVersion = 29)
     public void testHoverSelectsMenuItem() throws Throwable {
         Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
 

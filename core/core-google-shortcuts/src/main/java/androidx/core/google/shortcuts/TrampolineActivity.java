@@ -17,8 +17,8 @@
 package androidx.core.google.shortcuts;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static androidx.core.google.shortcuts.ShortcutUtils.SHORTCUT_TAG_KEY;
-import static androidx.core.google.shortcuts.ShortcutUtils.SHORTCUT_URL_KEY;
+import static androidx.core.google.shortcuts.utils.ShortcutUtils.SHORTCUT_TAG_KEY;
+import static androidx.core.google.shortcuts.utils.ShortcutUtils.SHORTCUT_URL_KEY;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -28,6 +28,7 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.core.google.shortcuts.utils.ShortcutUtils;
 
 import com.google.crypto.tink.KeysetHandle;
 import com.google.crypto.tink.Mac;

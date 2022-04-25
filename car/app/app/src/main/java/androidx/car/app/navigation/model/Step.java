@@ -26,6 +26,7 @@ import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.CarText;
 import androidx.car.app.model.DistanceSpan;
 import androidx.car.app.model.DurationSpan;
+import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.car.app.model.constraints.CarTextConstraints;
 import androidx.car.app.utils.CollectionUtils;
 
@@ -155,6 +156,7 @@ public final class Step {
             @Nullable CarText road) {
         mManeuver = maneuver;
         mLanes = CollectionUtils.unmodifiableCopy(lanes);
+        CarIconConstraints.DEFAULT.validateOrThrow(lanesImage);
         mLanesImage = lanesImage;
         mCue = cue;
         mRoad = road;

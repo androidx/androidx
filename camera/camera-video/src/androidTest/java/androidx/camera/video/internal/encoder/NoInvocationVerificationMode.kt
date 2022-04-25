@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+
 package androidx.camera.video.internal.encoder
 
 import android.os.SystemClock
+import androidx.annotation.RequiresApi
 import org.mockito.exceptions.base.MockitoAssertionError
 import org.mockito.exceptions.base.MockitoException
 import org.mockito.internal.invocation.InvocationMarker

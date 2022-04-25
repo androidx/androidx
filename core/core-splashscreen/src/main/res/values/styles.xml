@@ -16,21 +16,44 @@
 
 <resources>
 
-    <style name="Theme.SplashScreenBase" parent="android:Theme.NoTitleBar">
-        <item name="android:windowBackground">@drawable/compat_splash_screen</item>
+    <style name="Base.v21.Theme.SplashScreen" parent="android:Theme.DeviceDefault.NoActionBar">
+    </style>
+
+    <style name="Base.v21.Theme.SplashScreen.Light" parent="android:Theme.DeviceDefault.Light.NoActionBar">
+    </style>
+
+    <style name="Base.Theme.SplashScreen.Light" parent="Base.v21.Theme.SplashScreen.Light" />
+    <style name="Base.Theme.SplashScreen" parent="Base.v21.Theme.SplashScreen" />
+
+    <style name="Base.Theme.SplashScreen.DayNight" parent="Base.Theme.SplashScreen.Light" />
+
+    <!-- Splash Screen attributes common to all versions -->
+    <style name="Theme.SplashScreen.Common" parent="Base.Theme.SplashScreen.DayNight">
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">
+            @drawable/compat_splash_screen_no_icon_background
+        </item>
         <item name="android:opacity">opaque</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:fitsSystemWindows">false</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="splashScreenIconSize">@dimen/splashscreen_icon_size_no_background</item>
     </style>
 
-    <style name="Theme.SplashScreen" parent="Theme.SplashScreenBase">
+    <style name="Theme.SplashScreen" parent="Theme.SplashScreen.Common">
         <item name="postSplashScreenTheme">?android:attr/theme</item>
         <item name="windowSplashScreenAnimationDuration">
             @integer/default_icon_animation_duration
         </item>
-        <item name="windowSplashScreenBackground">@android:color/background_light</item>
+        <item name="windowSplashScreenBackground">?android:colorBackground</item>
         <item name="windowSplashScreenAnimatedIcon">@android:drawable/sym_def_app_icon</item>
+
+    </style>
+
+    <style name="Theme.SplashScreen.IconBackground" parent="Theme.SplashScreen">
+        <item name="android:windowBackground">@drawable/compat_splash_screen</item>
+        <item name="splashScreenIconSize">@dimen/splashscreen_icon_size_with_background</item>
     </style>
 </resources>

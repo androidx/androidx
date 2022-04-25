@@ -18,12 +18,12 @@ package androidx.work
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import androidx.work.impl.utils.RawQueries
+import androidx.work.impl.utils.toRawQuery
 import androidx.work.worker.RetryWorker
 import androidx.work.worker.TestWorker
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.Matchers.containsInAnyOrder
-import org.junit.Assert.assertThat
+import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -48,13 +48,11 @@ class RawWorkInfoDaoTest : DatabaseTest() {
 
         val querySpec = WorkQuery.Builder.fromUniqueWorkNames(listOf("name"))
             .build()
-
-        val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(
-            RawQueries
-                .workQueryToRawQuery(querySpec)
-        )
-        assertThat(pojos.size, `is`(1))
-        assertThat(pojos[0].id, `is`(retry.stringId))
+        listOf(querySpec, WorkQuery.fromUniqueWorkNames("name")).forEach {
+            val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(it.toRawQuery())
+            assertThat(pojos.size, `is`(1))
+            assertThat(pojos[0].id, `is`(retry.stringId))
+        }
     }
 
     @Test
@@ -74,16 +72,18 @@ class RawWorkInfoDaoTest : DatabaseTest() {
         insertTags(retry)
         insertName("name2", retry)
 
-        val querySpec = WorkQuery.Builder
+        val builderSpec = WorkQuery.Builder
             .fromUniqueWorkNames(listOf("name1"))
             .addUniqueWorkNames(listOf("name2"))
             .build()
 
-        val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(
-            RawQueries
-                .workQueryToRawQuery(querySpec)
-        )
-        assertThat(pojos.size, `is`(2))
+        val varArgSpec = WorkQuery.fromUniqueWorkNames(listOf("name1", "name2"))
+        val listSpec = WorkQuery.fromUniqueWorkNames("name1", "name2")
+
+        listOf(builderSpec, varArgSpec, listSpec).forEach {
+            val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(it.toRawQuery())
+            assertThat(pojos.size, `is`(2))
+        }
     }
 
     @Test
@@ -99,12 +99,32 @@ class RawWorkInfoDaoTest : DatabaseTest() {
             .fromIds(listOf(test.id))
             .build()
 
-        val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(
-            RawQueries
-                .workQueryToRawQuery(querySpec)
-        )
-        assertThat(pojos.size, `is`(1))
-        assertThat(pojos[0].id, `is`(test.stringId))
+        listOf(querySpec, WorkQuery.fromIds(test.id)).forEach {
+            val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(it.toRawQuery())
+            assertThat(pojos.size, `is`(1))
+            assertThat(pojos[0].id, `is`(test.stringId))
+        }
+    }
+
+    @Test
+    @SmallTest
+    fun idsOnlyTest2() {
+        val test = OneTimeWorkRequest.from(TestWorker::class.java)
+        val retry = OneTimeWorkRequest.from(RetryWorker::class.java)
+
+        insertWork(test)
+        insertWork(retry)
+
+        val builderSpec = WorkQuery.Builder.fromIds(listOf(test.id, retry.id)).build()
+        val varArgSpec = WorkQuery.fromIds(test.id, retry.id)
+        val listSpec = WorkQuery.fromIds(listOf(test.id, retry.id))
+
+        listOf(builderSpec, varArgSpec, listSpec).forEach {
+            val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(it.toRawQuery())
+            val actualIds = pojos.map { it.id }
+            assertThat(pojos.size, `is`(2))
+            assertThat(actualIds, containsInAnyOrder("${test.id}", "${retry.id}"))
+        }
     }
 
     @Test
@@ -119,16 +139,15 @@ class RawWorkInfoDaoTest : DatabaseTest() {
         insertWork(retry)
         insertTags(retry)
 
-        val querySpec = WorkQuery.Builder
+        val builderSpec = WorkQuery.Builder
             .fromTags(listOf(TestWorker::class.java.name))
             .build()
 
-        val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(
-            RawQueries
-                .workQueryToRawQuery(querySpec)
-        )
-        assertThat(pojos.size, `is`(1))
-        assertThat(pojos[0].id, `is`(test.stringId))
+        listOf(builderSpec, WorkQuery.fromTags(TestWorker::class.java.name)).forEach {
+            val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(it.toRawQuery())
+            assertThat(pojos.size, `is`(1))
+            assertThat(pojos[0].id, `is`(test.stringId))
+        }
     }
 
     @Test
@@ -143,20 +162,58 @@ class RawWorkInfoDaoTest : DatabaseTest() {
         insertWork(retry)
         insertTags(retry)
 
-        val querySpec = WorkQuery.Builder
+        val builderSpec = WorkQuery.Builder
             .fromTags(listOf(TestWorker::class.java.name, RetryWorker::class.java.name))
             .build()
-
-        val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(
-            RawQueries
-                .workQueryToRawQuery(querySpec)
+        val varArgSpec = WorkQuery.fromTags(
+            TestWorker::class.java.name,
+            RetryWorker::class.java.name
         )
-        assertThat(pojos.size, `is`(2))
+        val listSpec = WorkQuery.fromTags(
+            listOf(
+                TestWorker::class.java.name,
+                RetryWorker::class.java.name
+            )
+        )
+
+        listOf(builderSpec, varArgSpec, listSpec).forEach {
+            val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(it.toRawQuery())
+            assertThat(pojos.size, `is`(2))
+        }
     }
 
     @Test
     @SmallTest
-    fun statesOnlyTest() {
+    fun statesOnlyTest1() {
+        val test1 = OneTimeWorkRequest.Builder(TestWorker::class.java)
+            .setInitialState(WorkInfo.State.RUNNING)
+            .build()
+
+        val test2 = OneTimeWorkRequest.Builder(TestWorker::class.java)
+            .setInitialState(WorkInfo.State.CANCELLED)
+            .build()
+
+        insertWork(test1)
+        insertTags(test1)
+
+        insertWork(test2)
+        insertTags(test2)
+
+        val builderSpec = WorkQuery.Builder
+            .fromStates(listOf(WorkInfo.State.RUNNING))
+            .build()
+
+        listOf(builderSpec, WorkQuery.fromStates(WorkInfo.State.RUNNING)).forEach {
+            val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(it.toRawQuery())
+            val ids = pojos.map { it.id }
+            assertThat(pojos.size, `is`(1))
+            assertThat(ids, containsInAnyOrder(test1.stringId))
+        }
+    }
+
+    @Test
+    @SmallTest
+    fun statesOnlyTest2() {
         val test1 = OneTimeWorkRequest.Builder(TestWorker::class.java)
             .setInitialState(WorkInfo.State.RUNNING)
             .build()
@@ -178,17 +235,21 @@ class RawWorkInfoDaoTest : DatabaseTest() {
         insertWork(test3)
         insertTags(test3)
 
-        val querySpec = WorkQuery.Builder
+        val builderSpec = WorkQuery.Builder
             .fromStates(listOf(WorkInfo.State.ENQUEUED, WorkInfo.State.CANCELLED))
             .build()
 
-        val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(
-            RawQueries
-                .workQueryToRawQuery(querySpec)
+        val varArgSpec = WorkQuery.fromStates(WorkInfo.State.ENQUEUED, WorkInfo.State.CANCELLED)
+        val listSpec = WorkQuery.fromStates(
+            listOf(WorkInfo.State.ENQUEUED, WorkInfo.State.CANCELLED)
         )
-        val ids = pojos.map { it.id }
-        assertThat(pojos.size, `is`(2))
-        assertThat(ids, containsInAnyOrder(test2.stringId, test3.stringId))
+
+        listOf(builderSpec, varArgSpec, listSpec).forEach {
+            val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(it.toRawQuery())
+            val ids = pojos.map { it.id }
+            assertThat(pojos.size, `is`(2))
+            assertThat(ids, containsInAnyOrder(test2.stringId, test3.stringId))
+        }
     }
 
     @Test
@@ -208,10 +269,7 @@ class RawWorkInfoDaoTest : DatabaseTest() {
             .addTags(listOf(TestWorker::class.java.name))
             .build()
 
-        val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(
-            RawQueries
-                .workQueryToRawQuery(querySpec)
-        )
+        val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(querySpec.toRawQuery())
         assertThat(pojos.size, `is`(1))
         assertThat(pojos[0].id, `is`(test.stringId))
     }
@@ -236,10 +294,7 @@ class RawWorkInfoDaoTest : DatabaseTest() {
             .addTags(listOf(TestWorker::class.java.name))
             .build()
 
-        val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(
-            RawQueries
-                .workQueryToRawQuery(querySpec)
-        )
+        val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(querySpec.toRawQuery())
         assertThat(pojos.size, `is`(0))
     }
 
@@ -263,10 +318,7 @@ class RawWorkInfoDaoTest : DatabaseTest() {
             .addTags(listOf(TestWorker::class.java.name))
             .build()
 
-        val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(
-            RawQueries
-                .workQueryToRawQuery(querySpec)
-        )
+        val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(querySpec.toRawQuery())
         assertThat(pojos.size, `is`(1))
         assertThat(pojos[0].id, `is`(test.stringId))
     }
@@ -292,10 +344,7 @@ class RawWorkInfoDaoTest : DatabaseTest() {
             .addUniqueWorkNames(listOf("name"))
             .build()
 
-        val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(
-            RawQueries
-                .workQueryToRawQuery(querySpec)
-        )
+        val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(querySpec.toRawQuery())
         assertThat(pojos.size, `is`(1))
         assertThat(pojos[0].id, `is`(retry.stringId))
     }
@@ -321,10 +370,7 @@ class RawWorkInfoDaoTest : DatabaseTest() {
             .addUniqueWorkNames(listOf("name"))
             .build()
 
-        val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(
-            RawQueries
-                .workQueryToRawQuery(querySpec)
-        )
+        val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(querySpec.toRawQuery())
         assertThat(pojos.size, `is`(1))
         assertThat(pojos[0].id, `is`(retry.stringId))
     }
@@ -350,10 +396,7 @@ class RawWorkInfoDaoTest : DatabaseTest() {
             .addUniqueWorkNames(listOf("name"))
             .build()
 
-        val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(
-            RawQueries
-                .workQueryToRawQuery(querySpec)
-        )
+        val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(querySpec.toRawQuery())
         assertThat(pojos.size, `is`(1))
         assertThat(pojos[0].id, `is`(retry.stringId))
     }
@@ -387,10 +430,7 @@ class RawWorkInfoDaoTest : DatabaseTest() {
             .addUniqueWorkNames(listOf("name"))
             .build()
 
-        val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(
-            RawQueries
-                .workQueryToRawQuery(querySpec)
-        )
+        val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(querySpec.toRawQuery())
         assertThat(pojos.size, `is`(1))
         assertThat(pojos[0].id, `is`(test1.stringId))
     }
@@ -425,10 +465,7 @@ class RawWorkInfoDaoTest : DatabaseTest() {
             .addUniqueWorkNames(listOf("name"))
             .build()
 
-        val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(
-            RawQueries
-                .workQueryToRawQuery(querySpec)
-        )
+        val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(querySpec.toRawQuery())
         assertThat(pojos.size, `is`(1))
         assertThat(pojos[0].id, `is`(test1.stringId))
     }

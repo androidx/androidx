@@ -86,12 +86,12 @@ public final class OneShotPreDrawListener implements ViewTreeObserver.OnPreDrawL
     }
 
     @Override
-    public void onViewAttachedToWindow(View v) {
+    public void onViewAttachedToWindow(@NonNull View v) {
         mViewTreeObserver = v.getViewTreeObserver();
     }
 
     @Override
-    public void onViewDetachedFromWindow(View v) {
+    public void onViewDetachedFromWindow(@NonNull View v) {
         removeListener();
     }
 }

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 import androidx.build.RunApiTasks
 
@@ -30,12 +29,18 @@ dependencies {
 
     implementation(libs.kotlinStdlib)
     implementation("androidx.compose.foundation:foundation-layout:1.0.1")
-    api("androidx.activity:activity-compose:1.3.1")
+    api("androidx.activity:activity-compose:1.5.0-rc01")
     api("androidx.compose.animation:animation:1.0.1")
     api("androidx.compose.runtime:runtime:1.0.1")
     api("androidx.compose.runtime:runtime-saveable:1.0.1")
     api("androidx.compose.ui:ui:1.0.1")
-    api(projectOrArtifact(":lifecycle:lifecycle-viewmodel-compose"))
+    api("androidx.lifecycle:lifecycle-viewmodel-compose:2.5.0-rc01")
+    // old version of common-java8 conflicts with newer version, because both have
+    // DefaultLifecycleEventObserver.
+    // Outside of androidx this is resolved via constraint added to lifecycle-common,
+    // but it doesn't work in androidx.
+    // See aosp/1804059
+    implementation "androidx.lifecycle:lifecycle-common-java8:2.5.0-rc01"
     api(projectOrArtifact(":navigation:navigation-runtime-ktx"))
 
     androidTestImplementation(projectOrArtifact(":compose:material:material"))
@@ -51,6 +56,8 @@ dependencies {
 
     lintChecks(projectOrArtifact(":navigation:navigation-compose-lint"))
     lintPublish(projectOrArtifact(":navigation:navigation-compose-lint"))
+
+    samples(projectOrArtifact(":navigation:navigation-compose:navigation-compose-samples"))
 }
 
 androidx {
@@ -61,4 +68,8 @@ androidx {
     description = "Compose integration with Navigation"
     runApiTasks = new RunApiTasks.Yes()
     legacyDisableKotlinStrictApiMode = true
+}
+
+android {
+    namespace "androidx.navigation.compose"
 }

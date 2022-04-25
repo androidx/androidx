@@ -16,8 +16,17 @@
 
 package androidx.compose.material3
 
+import androidx.compose.foundation.LocalIndication
+import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.foundation.text.selection.TextSelectionColors
+import androidx.compose.material.ripple.LocalRippleTheme
+import androidx.compose.material.ripple.RippleAlpha
+import androidx.compose.material.ripple.RippleTheme
+import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material3.tokens.StateTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.remember
 
@@ -33,7 +42,7 @@ import androidx.compose.runtime.remember
  * default values.
  *
  * All values may be set by providing this component with the [colorScheme][ColorScheme],
- * [typography][Typography], and [shapes][Shapes] attributes. Use this to configure the overall
+ * [typography][Typography] attributes. Use this to configure the overall
  * theme of elements within this MaterialTheme.
  *
  * Any values that are not set will inherit the current value from the theme, falling back to the
@@ -43,13 +52,13 @@ import androidx.compose.runtime.remember
  *
  * @param colorScheme A complete definition of the Material Color theme for this hierarchy
  * @param typography A set of text styles to be used as this hierarchy's typography system
- * @param shapes A set of shapes to be used by the components in this hierarchy
+ * @param shapes A set of corner shapes to be used as this hierarchy's shape system
  */
 @Composable
 fun MaterialTheme(
     colorScheme: ColorScheme = MaterialTheme.colorScheme,
-    typography: Typography = MaterialTheme.typography,
     shapes: Shapes = MaterialTheme.shapes,
+    typography: Typography = MaterialTheme.typography,
     content: @Composable () -> Unit
 ) {
     val rememberedColorScheme = remember {
@@ -59,10 +68,15 @@ fun MaterialTheme(
     }.apply {
         updateColorSchemeFrom(colorScheme)
     }
+    val rippleIndication = rememberRipple()
+    val selectionColors = rememberTextSelectionColors(rememberedColorScheme)
     CompositionLocalProvider(
         LocalColorScheme provides rememberedColorScheme,
-        LocalTypography provides typography,
+        LocalIndication provides rippleIndication,
+        LocalRippleTheme provides MaterialRippleTheme,
         LocalShapes provides shapes,
+        LocalTextSelectionColors provides selectionColors,
+        LocalTypography provides typography,
     ) {
         ProvideTextStyle(value = typography.bodyLarge, content = content)
     }
@@ -97,3 +111,34 @@ object MaterialTheme {
         @ReadOnlyComposable
         get() = LocalShapes.current
 }
+
+@Immutable
+private object MaterialRippleTheme : RippleTheme {
+    @Composable
+    override fun defaultColor() = LocalContentColor.current
+
+    @Composable
+    override fun rippleAlpha() = DefaultRippleAlpha
+}
+
+private val DefaultRippleAlpha = RippleAlpha(
+    pressedAlpha = StateTokens.PressedStateLayerOpacity,
+    focusedAlpha = StateTokens.FocusStateLayerOpacity,
+    draggedAlpha = StateTokens.DraggedStateLayerOpacity,
+    hoveredAlpha = StateTokens.HoverStateLayerOpacity
+)
+
+@Composable
+/*@VisibleForTesting*/
+internal fun rememberTextSelectionColors(colorScheme: ColorScheme): TextSelectionColors {
+    val primaryColor = colorScheme.primary
+    return remember(primaryColor) {
+        TextSelectionColors(
+            handleColor = primaryColor,
+            backgroundColor = primaryColor.copy(alpha = TextSelectionBackgroundOpacity),
+        )
+    }
+}
+
+/*@VisibleForTesting*/
+internal const val TextSelectionBackgroundOpacity = 0.4f

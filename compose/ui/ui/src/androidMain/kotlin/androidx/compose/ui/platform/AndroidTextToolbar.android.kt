@@ -37,10 +37,10 @@ internal class AndroidTextToolbar(private val view: View) : TextToolbar {
 
     override fun showMenu(
         rect: Rect,
-        onCopyRequested: ActionCallback?,
-        onPasteRequested: ActionCallback?,
-        onCutRequested: ActionCallback?,
-        onSelectAllRequested: ActionCallback?
+        onCopyRequested: (() -> Unit)?,
+        onPasteRequested: (() -> Unit)?,
+        onCutRequested: (() -> Unit)?,
+        onSelectAllRequested: (() -> Unit)?
     ) {
         textActionModeCallback.rect = rect
         textActionModeCallback.onCopyRequested = onCopyRequested
@@ -85,7 +85,7 @@ internal object TextToolbarHelperMethods {
         view: View,
         actionModeCallback: ActionMode.Callback,
         type: Int
-    ): ActionMode {
+    ): ActionMode? {
         return view.startActionMode(
             actionModeCallback,
             type
@@ -93,6 +93,7 @@ internal object TextToolbarHelperMethods {
     }
 
     @RequiresApi(23)
+    @DoNotInline
     fun invalidateContentRect(actionMode: ActionMode) {
         actionMode.invalidateContentRect()
     }

@@ -16,7 +16,7 @@
 
 package androidx.build.java
 
-import androidx.build.doclava.androidJarFile
+import androidx.build.getAndroidJar
 import androidx.build.multiplatformExtension
 import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
@@ -63,7 +63,7 @@ data class JavaCompileInputs(
                 }
             )
             val dependencyClasspath = sourceSet.compileClasspath
-            return JavaCompileInputs(sourcePaths, dependencyClasspath, androidJarFile(project))
+            return JavaCompileInputs(sourcePaths, dependencyClasspath, project.getAndroidJar())
         }
 
         @Suppress("DEPRECATION") // BaseVariant, SourceKind
@@ -80,7 +80,7 @@ data class JavaCompileInputs(
                 sourceSets
                     .filter { it.name.contains("main", ignoreCase = true) }
                     // TODO(igotti): come up with better filtering for non-Android sources.
-                    .filterNot { it.name == "desktopMain" }
+                    .filterNot { it.name == "desktopMain" || it.name == "skikoMain" }
                     .flatMap { it.kotlin.sourceDirectories }
                     .also { require(it.isNotEmpty()) }
             } ?: project.provider {

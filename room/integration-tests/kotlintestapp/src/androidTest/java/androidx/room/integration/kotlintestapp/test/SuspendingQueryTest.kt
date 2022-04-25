@@ -31,6 +31,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.async
@@ -51,6 +52,7 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
+import kotlinx.coroutines.DelicateCoroutinesApi
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
@@ -263,7 +265,6 @@ class SuspendingQueryTest : TestDatabaseTest() {
             }
 
             try {
-                @Suppress("IMPLICIT_NOTHING_AS_TYPE_PARAMETER")
                 database.withTransaction {
                     booksDao.insertBookSuspend(TestUtil.BOOK_2)
                     throw IOException("Boom!")
@@ -309,7 +310,6 @@ class SuspendingQueryTest : TestDatabaseTest() {
                 )
 
                 try {
-                    @Suppress("IMPLICIT_NOTHING_AS_TYPE_PARAMETER")
                     database.withTransaction {
                         booksDao.insertBookSuspend(TestUtil.BOOK_1.copy(salesCnt = 0))
                         throw IOException("Boom!")
@@ -334,7 +334,6 @@ class SuspendingQueryTest : TestDatabaseTest() {
             try {
                 database.withTransaction {
                     try {
-                        @Suppress("IMPLICIT_NOTHING_AS_TYPE_PARAMETER")
                         database.withTransaction {
                             throw IOException("Boom!")
                         }
@@ -626,6 +625,7 @@ class SuspendingQueryTest : TestDatabaseTest() {
                 TestUtil.PUBLISHER.name
             )
 
+            @OptIn(DelicateCoroutinesApi::class)
             async(newSingleThreadContext("asyncThread1")) {
                 database.withTransaction {
                     delay(100)
@@ -633,6 +633,7 @@ class SuspendingQueryTest : TestDatabaseTest() {
                 }
             }
 
+            @OptIn(DelicateCoroutinesApi::class)
             async(newSingleThreadContext("asyncThread2")) {
                 database.withTransaction {
                     delay(100)
@@ -851,7 +852,6 @@ class SuspendingQueryTest : TestDatabaseTest() {
     @Test
     @Suppress("DEPRECATION")
     fun withTransaction_endTransaction_error() {
-        @Suppress("IMPLICIT_NOTHING_AS_TYPE_PARAMETER")
         runBlocking {
             try {
                 database.withTransaction {
@@ -874,5 +874,101 @@ class SuspendingQueryTest : TestDatabaseTest() {
                 }
             }
         }
+    }
+
+    @Test
+    fun transactionFunctionWithSuspendFunctionalParamCommits() = runBlocking {
+        // GIVEN a database with a book
+        val bookPublisher = TestUtil.PUBLISHER
+        val addedBook = TestUtil.BOOK_1.copy(bookPublisherId = bookPublisher.publisherId)
+        booksDao.addPublishers(bookPublisher)
+        booksDao.addBooks(addedBook)
+
+        // WHEN a transaction is run
+        val output = kotlin.runCatching {
+            booksDao.functionWithSuspendFunctionalParam(addedBook) { book ->
+                booksDao.deleteBookSuspend(book)
+                return@functionWithSuspendFunctionalParam book
+            }
+        }
+
+        // THEN the change has been committed
+        assertWithMessage("The higher-order fun ran successfully")
+            .that(output.isSuccess)
+            .isEqualTo(true)
+        assertThat(booksDao.getBooksSuspend())
+            .doesNotContain(addedBook)
+    }
+
+    @Test
+    fun transactionFunctionWithSuspendFunctionalParamDoesntCommitWhenError() = runBlocking {
+        // GIVEN a database with a book
+        val bookPublisher = TestUtil.PUBLISHER
+        val addedBook = TestUtil.BOOK_1.copy(bookPublisherId = bookPublisher.publisherId)
+        booksDao.addPublishers(bookPublisher)
+        booksDao.addBooks(addedBook)
+
+        // WHEN a transaction is started and then fails before completing
+        val output = kotlin.runCatching {
+            booksDao.functionWithSuspendFunctionalParam(addedBook) { book ->
+                booksDao.deleteBookSuspend(book)
+                error("Fake error in transaction")
+            }
+        }
+
+        // THEN the change hasn't been committed
+        assertWithMessage("RunCatching caught the thrown error")
+            .that(output.isFailure)
+            .isEqualTo(true)
+        assertThat(booksDao.getBooksSuspend())
+            .contains(addedBook)
+    }
+
+    @Test
+    fun suspendTransactionFunctionWithSuspendFunctionalParamCommits() = runBlocking {
+        // GIVEN a database with a book
+        val bookPublisher = TestUtil.PUBLISHER
+        val addedBook = TestUtil.BOOK_1.copy(bookPublisherId = bookPublisher.publisherId)
+        booksDao.addPublishers(bookPublisher)
+        booksDao.addBooks(addedBook)
+
+        // WHEN a transaction is run
+        val output = kotlin.runCatching {
+            booksDao.functionWithSuspendFunctionalParam(addedBook) { book ->
+                booksDao.deleteBookSuspend(book)
+                return@functionWithSuspendFunctionalParam book
+            }
+        }
+
+        // THEN the change has been committed
+        assertWithMessage("The higher-order fun ran successfully")
+            .that(output.isSuccess)
+            .isEqualTo(true)
+        assertThat(booksDao.getBooksSuspend())
+            .doesNotContain(addedBook)
+    }
+
+    @Test
+    fun suspendTransactionFunctionWithSuspendFunctionalParamDoesntCommitWhenError() = runBlocking {
+        // GIVEN a database with a book
+        val bookPublisher = TestUtil.PUBLISHER
+        val addedBook = TestUtil.BOOK_1.copy(bookPublisherId = bookPublisher.publisherId)
+        booksDao.addPublishers(bookPublisher)
+        booksDao.addBooks(addedBook)
+
+        // WHEN a transaction is started and then fails before completing
+        val output = runCatching {
+            booksDao.suspendFunctionWithSuspendFunctionalParam(addedBook) { book ->
+                booksDao.deleteBookSuspend(book)
+                error("Fake error in transaction")
+            }
+        }
+
+        // THEN the change hasn't been committed
+        assertWithMessage("RunCatching caught the thrown error")
+            .that(output.isFailure)
+            .isEqualTo(true)
+        assertThat(booksDao.getBooksSuspend())
+            .contains(addedBook)
     }
 }

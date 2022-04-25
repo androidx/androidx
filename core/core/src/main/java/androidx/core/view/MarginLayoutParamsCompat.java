@@ -19,11 +19,16 @@ package androidx.core.view;
 
 import static android.os.Build.VERSION.SDK_INT;
 
+import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.DoNotInline;
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 /**
  * Helper for accessing API features in
- * {@link android.view.ViewGroup.MarginLayoutParams MarginLayoutParams} in a backwards compatible
+ * {@link ViewGroup.MarginLayoutParams MarginLayoutParams} in a backwards compatible
  * way.
  */
 public final class MarginLayoutParamsCompat {
@@ -38,9 +43,9 @@ public final class MarginLayoutParamsCompat {
      * @param lp LayoutParams to query
      * @return the margin along the starting edge in pixels
      */
-    public static int getMarginStart(ViewGroup.MarginLayoutParams lp) {
+    public static int getMarginStart(@NonNull ViewGroup.MarginLayoutParams lp) {
         if (SDK_INT >= 17) {
-            return lp.getMarginStart();
+            return Api17Impl.getMarginStart(lp);
         } else {
             return lp.leftMargin;
         }
@@ -57,9 +62,9 @@ public final class MarginLayoutParamsCompat {
      * @param lp LayoutParams to query
      * @return the margin along the ending edge in pixels
      */
-    public static int getMarginEnd(ViewGroup.MarginLayoutParams lp) {
+    public static int getMarginEnd(@NonNull ViewGroup.MarginLayoutParams lp) {
         if (SDK_INT >= 17) {
-            return lp.getMarginEnd();
+            return Api17Impl.getMarginEnd(lp);
         } else {
             return lp.rightMargin;
         }
@@ -76,9 +81,9 @@ public final class MarginLayoutParamsCompat {
      * @param lp LayoutParams to query
      * @param marginStart the desired start margin in pixels
      */
-    public static void setMarginStart(ViewGroup.MarginLayoutParams lp, int marginStart) {
+    public static void setMarginStart(@NonNull ViewGroup.MarginLayoutParams lp, int marginStart) {
         if (SDK_INT >= 17) {
-            lp.setMarginStart(marginStart);
+            Api17Impl.setMarginStart(lp, marginStart);
         } else {
             lp.leftMargin = marginStart;
         }
@@ -95,9 +100,9 @@ public final class MarginLayoutParamsCompat {
      * @param lp LayoutParams to query
      * @param marginEnd the desired end margin in pixels
      */
-    public static void setMarginEnd(ViewGroup.MarginLayoutParams lp, int marginEnd) {
+    public static void setMarginEnd(@NonNull ViewGroup.MarginLayoutParams lp, int marginEnd) {
         if (SDK_INT >= 17) {
-            lp.setMarginEnd(marginEnd);
+            Api17Impl.setMarginEnd(lp, marginEnd);
         } else {
             lp.rightMargin = marginEnd;
         }
@@ -108,9 +113,9 @@ public final class MarginLayoutParamsCompat {
      *
      * @return true if either marginStart or marginEnd has been set.
      */
-    public static boolean isMarginRelative(ViewGroup.MarginLayoutParams lp) {
+    public static boolean isMarginRelative(@NonNull ViewGroup.MarginLayoutParams lp) {
         if (SDK_INT >= 17) {
-            return lp.isMarginRelative();
+            return Api17Impl.isMarginRelative(lp);
         } else {
             return false;
         }
@@ -122,10 +127,10 @@ public final class MarginLayoutParamsCompat {
      *
      * @return the layout direction.
      */
-    public static int getLayoutDirection(ViewGroup.MarginLayoutParams lp) {
+    public static int getLayoutDirection(@NonNull ViewGroup.MarginLayoutParams lp) {
         int result;
         if (SDK_INT >= 17) {
-            result = lp.getLayoutDirection();
+            result = Api17Impl.getLayoutDirection(lp);
         } else {
             result = ViewCompat.LAYOUT_DIRECTION_LTR;
         }
@@ -146,22 +151,73 @@ public final class MarginLayoutParamsCompat {
      *        Should be either {@link ViewCompat#LAYOUT_DIRECTION_LTR}
      *                     or {@link ViewCompat#LAYOUT_DIRECTION_RTL}.
      */
-    public static void setLayoutDirection(ViewGroup.MarginLayoutParams lp, int layoutDirection) {
+    public static void setLayoutDirection(@NonNull ViewGroup.MarginLayoutParams lp,
+            int layoutDirection) {
         if (SDK_INT >= 17) {
-            lp.setLayoutDirection(layoutDirection);
+            Api17Impl.setLayoutDirection(lp, layoutDirection);
         }
     }
 
     /**
-     * This will be called by {@link android.view.View#requestLayout()}. Left and Right margins
+     * This will be called by {@link View#requestLayout()}. Left and Right margins
      * may be overridden depending on layout direction.
      */
-    public static void resolveLayoutDirection(ViewGroup.MarginLayoutParams lp,
+    public static void resolveLayoutDirection(@NonNull ViewGroup.MarginLayoutParams lp,
             int layoutDirection) {
         if (SDK_INT >= 17) {
-            lp.resolveLayoutDirection(layoutDirection);
+            Api17Impl.resolveLayoutDirection(lp, layoutDirection);
         }
     }
 
-    private MarginLayoutParamsCompat() {}
+    private MarginLayoutParamsCompat() {
+    }
+
+    @RequiresApi(17)
+    static class Api17Impl {
+        private Api17Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static int getMarginStart(ViewGroup.MarginLayoutParams marginLayoutParams) {
+            return marginLayoutParams.getMarginStart();
+        }
+
+        @DoNotInline
+        static int getMarginEnd(ViewGroup.MarginLayoutParams marginLayoutParams) {
+            return marginLayoutParams.getMarginEnd();
+        }
+
+        @DoNotInline
+        static void setMarginStart(ViewGroup.MarginLayoutParams marginLayoutParams, int start) {
+            marginLayoutParams.setMarginStart(start);
+        }
+
+        @DoNotInline
+        static void setMarginEnd(ViewGroup.MarginLayoutParams marginLayoutParams, int end) {
+            marginLayoutParams.setMarginEnd(end);
+        }
+
+        @DoNotInline
+        static boolean isMarginRelative(ViewGroup.MarginLayoutParams marginLayoutParams) {
+            return marginLayoutParams.isMarginRelative();
+        }
+
+        @DoNotInline
+        static int getLayoutDirection(ViewGroup.MarginLayoutParams marginLayoutParams) {
+            return marginLayoutParams.getLayoutDirection();
+        }
+
+        @DoNotInline
+        static void setLayoutDirection(ViewGroup.MarginLayoutParams marginLayoutParams,
+                int layoutDirection) {
+            marginLayoutParams.setLayoutDirection(layoutDirection);
+        }
+
+        @DoNotInline
+        static void resolveLayoutDirection(ViewGroup.MarginLayoutParams marginLayoutParams,
+                int layoutDirection) {
+            marginLayoutParams.resolveLayoutDirection(layoutDirection);
+        }
+    }
 }

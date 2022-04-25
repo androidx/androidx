@@ -19,6 +19,7 @@ package androidx.camera.core.internal.compat.workaround;
 import android.media.MediaCodec;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.Preview;
 import androidx.camera.core.VideoCapture;
 import androidx.camera.core.impl.DeferrableSurface;
@@ -29,14 +30,17 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Workaround that put {@link Preview} surface in front of the {@link MediaCodec} surface
+ * Workaround that put {@link Preview} surface in front of the list and {@link MediaCodec}
+ * surface in the end of list.
  *
  * @see SurfaceOrderQuirk
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class SurfaceSorter {
     // The larger priority value will be placed at the back of the list.
-    private static final int PRIORITY_MEDIA_CODEC_SURFACE = 1;
-    private static final int PRIORITY_OTHERS = 0;
+    private static final int PRIORITY_PREVIEW_SURFACE = 0;
+    private static final int PRIORITY_OTHERS = 1;
+    private static final int PRIORITY_MEDIA_CODEC_SURFACE = 2;
 
     private final boolean mHasQuirk = DeviceQuirks.get(SurfaceOrderQuirk.class) != null;
 
@@ -60,6 +64,8 @@ public class SurfaceSorter {
         if (surface.getContainerClass() == MediaCodec.class
                 || surface.getContainerClass() == VideoCapture.class) {
             return PRIORITY_MEDIA_CODEC_SURFACE;
+        } else if (surface.getContainerClass() == Preview.class) {
+            return PRIORITY_PREVIEW_SURFACE;
         }
         return PRIORITY_OTHERS;
     }

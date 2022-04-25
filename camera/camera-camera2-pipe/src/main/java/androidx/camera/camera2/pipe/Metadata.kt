@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+
 package androidx.camera.camera2.pipe
 
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
 import android.view.Surface
+import androidx.annotation.RequiresApi
 
 /**
  * A map-like interface used to describe or interact with metadata from CameraPipe and Camera2.
@@ -174,23 +177,36 @@ public data class MetadataTransform(
  * A [RequestTemplate] indicates which preset set list of parameters will be applied to a request by
  * default. These values are defined by camera2.
  */
-@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
-public inline class RequestTemplate(public val value: Int)
+@JvmInline
+public value class RequestTemplate(public val value: Int) {
+    val name: String
+        get() {
+            return when (value) {
+                1 -> "TEMPLATE_PREVIEW"
+                2 -> "TEMPLATE_STILL_CAPTURE"
+                3 -> "TEMPLATE_RECORD"
+                4 -> "TEMPLATE_VIDEO_SNAPSHOT"
+                5 -> "TEMPLATE_ZERO_SHUTTER_LAG"
+                6 -> "TEMPLATE_MANUAL"
+                else -> "UNKNOWN-$value"
+            }
+        }
+}
 
 /**
  * A [RequestNumber] is an artificial identifier that is created for each request that is submitted
  * to the Camera.
  */
-@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
-public inline class RequestNumber(public val value: Long)
+@JvmInline
+public value class RequestNumber(public val value: Long)
 
 /**
  * A [FrameNumber] is the identifier that represents a specific exposure by the Camera. FrameNumbers
  * increase within a specific CameraCaptureSession, and are not created until the HAL begins
  * processing a request.
  */
-@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
-public inline class FrameNumber(public val value: Long)
+@JvmInline
+public value class FrameNumber(public val value: Long)
 
 /**
  * This is a timestamp from the Camera, and corresponds to the nanosecond exposure time of a Frame.
@@ -203,8 +219,8 @@ public inline class FrameNumber(public val value: Long)
  * operate based on a real-time clock, while audio/visual systems commonly operate based on a
  * monotonic clock.
  */
-@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
-public inline class CameraTimestamp(public val value: Long)
+@JvmInline
+public value class CameraTimestamp(public val value: Long)
 
 /**
  * Utility function to help deal with the unsafe nature of the typed Key/Value pairs.
@@ -223,4 +239,13 @@ public fun CaptureRequest.Builder.writeParameter(key: Any?, value: Any?) {
         @Suppress("UNCHECKED_CAST")
         this.set(key as CaptureRequest.Key<Any>, value)
     }
+}
+
+/**
+ * Utility function to put all metadata in the current map through an unchecked cast. The unchecked
+ * cast is necessary since CameraGraph.Config uses Map<*, Any?> as the standard type for parameters.
+ */
+fun MutableMap<Any, Any?>.putAllMetadata(metadata: Map<*, Any?>) {
+    @Suppress("UNCHECKED_CAST")
+    this.putAll(metadata as Map<Any, Any?>)
 }

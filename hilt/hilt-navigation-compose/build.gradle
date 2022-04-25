@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 import androidx.build.RunApiTasks
 
@@ -32,6 +30,7 @@ android {
     defaultConfig {
         testInstrumentationRunner "androidx.hilt.navigation.compose.TestRunner"
     }
+    namespace "androidx.hilt.navigation.compose"
 }
 
 dependencies {
@@ -41,8 +40,8 @@ dependencies {
     api("androidx.hilt:hilt-navigation:1.0.0")
     api("androidx.compose.runtime:runtime:1.0.1")
     api("androidx.compose.ui:ui:1.0.1")
-    api("androidx.lifecycle:lifecycle-viewmodel-compose:1.0.0-alpha07")
-    api(projectOrArtifact(":navigation:navigation-compose"))
+    api("androidx.lifecycle:lifecycle-viewmodel-compose:2.4.0")
+    api("androidx.navigation:navigation-compose:2.4.0-rc01")
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
@@ -54,6 +53,8 @@ dependencies {
     kaptAndroidTest(libs.hiltCompiler)
     androidTestImplementation projectOrArtifact(":compose:material:material")
     androidTestImplementation projectOrArtifact(":compose:test-utils")
+
+    samples(projectOrArtifact(":hilt:hilt-navigation-compose-samples"))
 }
 
 hilt {

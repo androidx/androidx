@@ -24,6 +24,10 @@ import androidx.navigation.dynamicfeatures.DynamicGraphNavigator.DynamicNavGraph
 import androidx.navigation.dynamicfeatures.shared.TestDynamicInstallManager
 import androidx.navigation.testing.TestNavigatorState
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.setMain
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -44,8 +48,10 @@ public class DynamicNavGraphTest {
     private lateinit var noOpState: TestNavigatorState
     private lateinit var noOpNavigator: NoOpNavigator
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Before
     public fun setup() {
+        Dispatchers.setMain(UnconfinedTestDispatcher())
         provider = NavigatorProvider()
         noOpNavigator = NoOpNavigator()
         navigator = DynamicGraphNavigator(

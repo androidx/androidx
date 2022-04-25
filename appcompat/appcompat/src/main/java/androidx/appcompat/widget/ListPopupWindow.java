@@ -45,8 +45,10 @@ import android.widget.ListView;
 import android.widget.PopupWindow;
 
 import androidx.annotation.AttrRes;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StyleRes;
 import androidx.appcompat.R;
@@ -388,10 +390,10 @@ public class ListPopupWindow implements ShowableListMenu {
      * Sets the operating mode for the soft input area.
      *
      * @param mode The desired mode, see
-     *        {@link android.view.WindowManager.LayoutParams#softInputMode}
+     *        {@link WindowManager.LayoutParams#softInputMode}
      *        for the full list
      *
-     * @see android.view.WindowManager.LayoutParams#softInputMode
+     * @see WindowManager.LayoutParams#softInputMode
      * @see #getSoftInputMode()
      */
     public void setSoftInputMode(int mode) {
@@ -402,7 +404,7 @@ public class ListPopupWindow implements ShowableListMenu {
      * Returns the current value in {@link #setSoftInputMode(int)}.
      *
      * @see #setSoftInputMode(int)
-     * @see android.view.WindowManager.LayoutParams#softInputMode
+     * @see WindowManager.LayoutParams#softInputMode
      */
     public int getSoftInputMode() {
         return mPopup.getSoftInputMode();
@@ -614,7 +616,7 @@ public class ListPopupWindow implements ShowableListMenu {
      *
      * @param clickListener Listener to register
      *
-     * @see ListView#setOnItemClickListener(android.widget.AdapterView.OnItemClickListener)
+     * @see ListView#setOnItemClickListener(AdapterView.OnItemClickListener)
      */
     public void setOnItemClickListener(@Nullable AdapterView.OnItemClickListener clickListener) {
         mItemClickListener = clickListener;
@@ -750,7 +752,7 @@ public class ListPopupWindow implements ShowableListMenu {
                     }
                 }
             } else {
-                mPopup.setEpicenterBounds(mEpicenterBounds);
+                Api29Impl.setEpicenterBounds(mPopup, mEpicenterBounds);
             }
             PopupWindowCompat.showAsDropDown(mPopup, getAnchorView(), mDropDownHorizontalOffset,
                     mDropDownVerticalOffset, mDropDownGravity);
@@ -1438,7 +1440,7 @@ public class ListPopupWindow implements ShowableListMenu {
                 }
             }
         } else {
-            mPopup.setIsClippedToScreen(clip);
+            Api29Impl.setIsClippedToScreen(mPopup, clip);
         }
     }
 
@@ -1455,7 +1457,38 @@ public class ListPopupWindow implements ShowableListMenu {
             }
             return mPopup.getMaxAvailableHeight(anchor, yOffset);
         } else {
-            return mPopup.getMaxAvailableHeight(anchor, yOffset, ignoreBottomDecorations);
+            return Api24Impl.getMaxAvailableHeight(mPopup, anchor, yOffset,
+                    ignoreBottomDecorations);
+        }
+    }
+
+    @RequiresApi(29)
+    static class Api29Impl {
+        private Api29Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void setEpicenterBounds(PopupWindow popupWindow, Rect bounds) {
+            popupWindow.setEpicenterBounds(bounds);
+        }
+
+        @DoNotInline
+        static void setIsClippedToScreen(PopupWindow popupWindow, boolean enabled) {
+            popupWindow.setIsClippedToScreen(enabled);
+        }
+    }
+
+    @RequiresApi(24)
+    static class Api24Impl {
+        private Api24Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static int getMaxAvailableHeight(PopupWindow popupWindow, View anchor, int yOffset,
+                boolean ignoreBottomDecorations) {
+            return popupWindow.getMaxAvailableHeight(anchor, yOffset, ignoreBottomDecorations);
         }
     }
 }

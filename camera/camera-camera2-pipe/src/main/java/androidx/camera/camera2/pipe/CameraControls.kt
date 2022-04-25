@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+
 package androidx.camera.camera2.pipe
 
 import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
+import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.Result3A.Status
 
 // Public controls and enums used to interact with a CameraGraph.
 

@@ -45,11 +45,11 @@ public class SplashScreenViewProvider internal constructor(ctx: Activity) {
         (impl as ViewImpl31).platformView = platformView
     }
 
-    @SuppressLint("NewApi") // TODO(188897399) Remove once "S" is finalized
     private val impl: ViewImpl = when {
         Build.VERSION.SDK_INT >= 31 -> ViewImpl31(ctx)
-        Build.VERSION.SDK_INT == 30 && Build.VERSION.PREVIEW_SDK_INT > 0 -> ViewImpl31(ctx)
         else -> ViewImpl(ctx)
+    }.apply {
+        createSplashScreenView()
     }
 
     /**
@@ -98,22 +98,27 @@ public class SplashScreenViewProvider internal constructor(ctx: Activity) {
             ) as ViewGroup
         }
 
-        init {
+        open fun createSplashScreenView() {
             val content = activity.findViewById<ViewGroup>(android.R.id.content)
-            content.addView(_splashScreenView)
+            (content.rootView as? ViewGroup)?.addView(_splashScreenView)
         }
 
         open val splashScreenView: ViewGroup get() = _splashScreenView
         open val iconView: View get() = splashScreenView.findViewById(R.id.splashscreen_icon_view)
         open val iconAnimationStartMillis: Long get() = 0
         open val iconAnimationDurationMillis: Long get() = 0
-        open fun remove() =
-            activity.findViewById<ViewGroup>(android.R.id.content).removeView(splashScreenView)
+        open fun remove() {
+            (splashScreenView.parent as? ViewGroup)?.removeView(splashScreenView)
+        }
     }
 
     @RequiresApi(31)
     private class ViewImpl31(activity: Activity) : ViewImpl(activity) {
         lateinit var platformView: SplashScreenView
+
+        override fun createSplashScreenView() {
+            // Do nothing
+        }
 
         override val splashScreenView get() = platformView
 
@@ -125,6 +130,12 @@ public class SplashScreenViewProvider internal constructor(ctx: Activity) {
         override val iconAnimationDurationMillis: Long
             get() = platformView.iconAnimationDuration?.toMillis() ?: 0
 
-        override fun remove() = platformView.remove()
+        override fun remove() {
+            platformView.remove()
+            ThemeUtils.Api31.applyThemesSystemBarAppearance(
+                activity.theme,
+                activity.window.decorView
+            )
+        }
     }
 }

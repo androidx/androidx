@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 import androidx.build.RunApiTasks
 
@@ -58,4 +57,8 @@ androidx {
     inceptionYear = "2017"
     description = "Android Lifecycle Extensions"
     failOnDeprecationWarnings = false
+}
+
+android {
+    namespace "androidx.lifecycle.extensions"
 }

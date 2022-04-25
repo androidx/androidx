@@ -22,6 +22,7 @@ import android.media.Image;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -35,6 +36,7 @@ import java.util.Set;
  * <p>Listeners for the image close call can be added. When the image is closed, the listeners will
  * be notified.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 abstract class ForwardingImageProxy implements ImageProxy {
     @GuardedBy("this")
     protected final ImageProxy mImage;

@@ -35,6 +35,7 @@
             <argument android:name="intArrayArg" app:argType="integer[]"/>
             <argument android:name="stringArrayArg" app:argType="string[]"/>
             <argument android:name="objectArrayArg" app:argType="android.content.pm.ActivityInfo[]"/>
+            <argument android:name="booleanArrayArg" android:defaultValue="@null" app:argType="boolean[]" app:nullable="true" />
             <argument android:name="enumArg" app:argType="java.nio.file.AccessMode"
                       android:defaultValue="READ"/>
             <argument android:name="objectRelativeArg" app:argType=".pkg.ClassName"/>

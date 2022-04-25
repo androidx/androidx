@@ -110,7 +110,7 @@ class RoomIncrementalAnnotationProcessingTest(
      * prebuilts (SNAPSHOT).
      */
     private val roomVersion by lazy {
-        val metadataFile = File(projectSetup.props.localSupportRepo).resolve(
+        val metadataFile = File(projectSetup.props.tipOfTreeMavenRepoPath).resolve(
             "androidx/room/room-compiler/maven-metadata.xml"
         )
         check(metadataFile.exists()) {

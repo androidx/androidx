@@ -291,6 +291,7 @@ public final class SessionConfigurationCompat {
         Object getSessionConfiguration();
     }
 
+    @RequiresApi(21)
     private static final class SessionConfigurationCompatBaseImpl implements
             SessionConfigurationCompatImpl {
 

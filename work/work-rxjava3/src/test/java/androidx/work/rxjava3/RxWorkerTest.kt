@@ -151,19 +151,11 @@ class RxWorkerTest {
         private val mSynchronousExecutor = SynchronousExecutor()
         private val mSerialExecutor = SerialExecutor(mSynchronousExecutor)
 
-        override fun postToMainThread(runnable: Runnable) {
-            runnable.run()
-        }
-
         override fun getMainThreadExecutor(): Executor {
             return mSynchronousExecutor
         }
 
-        override fun executeOnBackgroundThread(runnable: Runnable) {
-            mSerialExecutor.execute(runnable)
-        }
-
-        override fun getBackgroundExecutor(): SerialExecutor {
+        override fun getSerialTaskExecutor(): SerialExecutor {
             return mSerialExecutor
         }
     }

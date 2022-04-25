@@ -18,6 +18,7 @@ package androidx.camera.camera2.internal.compat.workaround;
 
 import android.hardware.camera2.CaptureRequest;
 
+import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.quirk.CrashWhenTakingPhotoWithAutoFlashAEModeQuirk;
 import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks;
 
@@ -25,6 +26,7 @@ import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks;
  * A workaround to turn off the auto flash AE mode if device has the
  * {@link CrashWhenTakingPhotoWithAutoFlashAEModeQuirk}.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class AutoFlashAEModeDisabler {
     /**
      * Get AE mode corrected by the {@link CrashWhenTakingPhotoWithAutoFlashAEModeQuirk}.

@@ -22,6 +22,8 @@ import android.hardware.camera2.CameraManager
 import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
+import androidx.camera.camera2.AsyncCameraDevice
+import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.internal.compat.CameraManagerCompat
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.Logger
@@ -30,12 +32,17 @@ import androidx.camera.core.impl.CameraStateRegistry
 import androidx.camera.core.impl.Observable.Observer
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.CameraUtil.PreTestCameraIdList
 import androidx.core.os.HandlerCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import com.google.common.util.concurrent.ListenableFuture
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Semaphore
+import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.AfterClass
 import org.junit.Assume.assumeFalse
@@ -43,11 +50,7 @@ import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TestRule
 import org.junit.runner.RunWith
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Semaphore
-import java.util.concurrent.TimeUnit
 
 /**
  * Tests [Camera2CameraImpl]'s force opening camera behavior.
@@ -62,26 +65,29 @@ import java.util.concurrent.TimeUnit
  */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-public class Camera2CameraImplForceOpenCameraTest {
+@SdkSuppress(minSdkVersion = 21)
+class Camera2CameraImplForceOpenCameraTest {
 
     @get:Rule
-    public val mCameraRule: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
+    val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
+        PreTestCameraIdList(Camera2Config.defaultConfig())
+    )
 
-    private lateinit var mCameraId: String
-    private lateinit var mCamera2Camera: CameraDevice
+    private lateinit var cameraId: String
+    private lateinit var camera2Camera: AsyncCameraDevice
     private val mCameraXCameraToStateObserver = mutableMapOf<Camera2CameraImpl, Observer<State>>()
 
     @Before
-    public fun getCameraId() {
-        val cameraId = CameraUtil.getCameraIdWithLensFacing(CameraSelector.LENS_FACING_BACK)
-        assumeFalse("Device doesn't have a back facing camera", cameraId == null)
-        mCameraId = cameraId!!
+    fun getCameraId() {
+        val camId = CameraUtil.getCameraIdWithLensFacing(CameraSelector.LENS_FACING_BACK)
+        assumeFalse("Device doesn't have a back facing camera", camId == null)
+        cameraId = camId!!
     }
 
     @After
-    public fun releaseCameraResources() {
-        if (::mCamera2Camera.isInitialized) {
-            mCamera2Camera.close()
+    fun releaseCameraResources() {
+        if (::camera2Camera.isInitialized) {
+            camera2Camera.closeAsync()
         }
         for (entry in mCameraXCameraToStateObserver) {
             releaseCameraXCameraResource(entry)
@@ -90,40 +96,40 @@ public class Camera2CameraImplForceOpenCameraTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
     @Test
-    public fun openCameraImmediately_ifCameraCanBeStolen() {
+    fun openCameraImmediately_ifCameraCanBeStolen() {
         // Open the camera with Camera2
-        val camera2CameraOpen = openCamera_camera2(mCameraId)
-        camera2CameraOpen.await()
+        val camera2CameraOpen = openCamera_camera2(cameraId)
+        camera2CameraOpen.get()
 
         // Open the camera with CameraX, this steals it away from Camera2
-        val cameraXCameraOpen = openCamera_cameraX(mCameraId)
+        val cameraXCameraOpen = openCamera_cameraX(cameraId)
         cameraXCameraOpen.await()
     }
 
-    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.LOLLIPOP_MR1)
+    @SdkSuppress(minSdkVersion = 21, maxSdkVersion = Build.VERSION_CODES.LOLLIPOP_MR1)
     @Test
-    public fun openCameraWhenAvailable_ifCameraCannotBeStolen() {
+    fun openCameraWhenAvailable_ifCameraCannotBeStolen() {
         // Open the camera with Camera2
-        val camera2CameraOpen = openCamera_camera2(mCameraId)
-        camera2CameraOpen.await()
+        val camera2CameraOpen = openCamera_camera2(cameraId)
+        camera2CameraOpen.get()
 
         // Attempt to open the camera with CameraX, this will fail
-        val cameraXCameraOpen = openCamera_cameraX(mCameraId)
+        val cameraXCameraOpen = openCamera_cameraX(cameraId)
         assertThat(cameraXCameraOpen.timesOutWhileWaiting()).isTrue()
 
         // Close the camera with Camera2, and wait for it to be opened with CameraX
-        mCamera2Camera.close()
+        camera2Camera.closeAsync()
         cameraXCameraOpen.await()
     }
 
     @Test
-    public fun openCameraWhenAvailable_ifMaxAllowedOpenedCamerasReached() {
+    fun openCameraWhenAvailable_ifMaxAllowedOpenedCamerasReached() {
         // Open the camera with CameraX
-        val cameraOpen1 = openCamera_cameraX(mCameraId)
+        val cameraOpen1 = openCamera_cameraX(cameraId)
         cameraOpen1.await()
 
         // Open the camera again with CameraX
-        val cameraOpen2 = openCamera_cameraX(mCameraId)
+        val cameraOpen2 = openCamera_cameraX(cameraId)
         assertThat(cameraOpen2.timesOutWhileWaiting()).isTrue()
 
         // Close the first camera instance, and wait for it to be opened with the second instance
@@ -131,53 +137,33 @@ public class Camera2CameraImplForceOpenCameraTest {
         cameraOpen2.await()
     }
 
-    private fun openCamera_camera2(cameraId: String): Semaphore {
+    private fun openCamera_camera2(camId: String): ListenableFuture<CameraDevice> {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
-        val cameraOpenSemaphore = Semaphore(0)
-        cameraManager.openCamera(
-            cameraId,
-            object : CameraDevice.StateCallback() {
-                override fun onOpened(camera: CameraDevice) {
-                    Logger.d(TAG, "Camera2: Camera open")
-                    mCamera2Camera = camera
-                    cameraOpenSemaphore.release()
-                }
-
-                override fun onDisconnected(camera: CameraDevice) {
-                    Logger.d(TAG, "Camera2: Camera disconnected")
-                    mCamera2Camera = camera
-                }
-
-                override fun onError(camera: CameraDevice, error: Int) {
-                    Logger.d(TAG, "Camera2: Camera error $error")
-                    mCamera2Camera = camera
-                }
-            },
-            sCameraHandler
-        )
-        return cameraOpenSemaphore
+        camera2Camera = AsyncCameraDevice(cameraManager, camId, cameraHandler)
+        return camera2Camera.openAsync()
     }
 
-    private fun openCamera_cameraX(cameraId: String): Semaphore {
+    private fun openCamera_cameraX(camId: String): Semaphore {
         // Build camera manager wrapper
         val context = ApplicationProvider.getApplicationContext<Context>()
         val cameraManagerCompat = CameraManagerCompat.from(context)
 
         // Build camera info from cameraId
         val camera2CameraInfo = Camera2CameraInfoImpl(
-            cameraId,
+            camId,
             cameraManagerCompat
         )
 
         // Initialize camera instance
         val camera = Camera2CameraImpl(
             cameraManagerCompat,
-            cameraId,
+            camId,
             camera2CameraInfo,
-            mCameraRegistry,
-            sCameraExecutor,
-            sCameraHandler
+            cameraRegistry,
+            cameraExecutor,
+            cameraHandler,
+            DisplayInfoManager.getInstance(ApplicationProvider.getApplicationContext())
         )
 
         // Open the camera
@@ -195,7 +181,7 @@ public class Camera2CameraImplForceOpenCameraTest {
                 Logger.e(TAG, "CameraX: Camera error $throwable")
             }
         }
-        camera.cameraState.addObserver(sCameraExecutor, stateObserver)
+        camera.cameraState.addObserver(cameraExecutor, stateObserver)
         mCameraXCameraToStateObserver[camera] = stateObserver
         return cameraOpenSemaphore
     }
@@ -216,28 +202,27 @@ public class Camera2CameraImplForceOpenCameraTest {
         return !acquired
     }
 
-    public companion object {
+    companion object {
         private const val TAG = "ForceOpenCameraTest"
 
-        private lateinit var sCameraHandlerThread: HandlerThread
-        private lateinit var sCameraHandler: Handler
-        private lateinit var sCameraExecutor: ExecutorService
-        private lateinit var mCameraRegistry: CameraStateRegistry
+        private lateinit var cameraHandlerThread: HandlerThread
+        private lateinit var cameraHandler: Handler
+        private lateinit var cameraExecutor: ExecutorService
+        private val cameraRegistry: CameraStateRegistry by lazy { CameraStateRegistry(1) }
 
         @BeforeClass
         @JvmStatic
-        public fun classSetup() {
-            sCameraHandlerThread = HandlerThread("cameraThread")
-            sCameraHandlerThread.start()
-            sCameraHandler = HandlerCompat.createAsync(sCameraHandlerThread.looper)
-            sCameraExecutor = CameraXExecutors.newHandlerExecutor(sCameraHandler)
-            mCameraRegistry = CameraStateRegistry(1)
+        fun classSetup() {
+            cameraHandlerThread = HandlerThread("cameraThread")
+            cameraHandlerThread.start()
+            cameraHandler = HandlerCompat.createAsync(cameraHandlerThread.looper)
+            cameraExecutor = CameraXExecutors.newHandlerExecutor(cameraHandler)
         }
 
         @AfterClass
         @JvmStatic
-        public fun classTeardown() {
-            sCameraHandlerThread.quitSafely()
+        fun classTeardown() {
+            cameraHandlerThread.quitSafely()
         }
     }
 }

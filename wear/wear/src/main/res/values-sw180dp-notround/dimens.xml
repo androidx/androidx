@@ -14,18 +14,10 @@
      limitations under the License.
 -->
 <resources>
-
     <dimen name="ws_action_drawer_item_top_padding">10dp</dimen>
     <dimen name="ws_action_drawer_item_bottom_padding">10dp</dimen>
     <dimen name="ws_action_drawer_item_icon_right_margin">12dp</dimen>
     <dimen name="ws_action_drawer_item_icon_size">40dp</dimen>
     <dimen name="ws_action_drawer_item_icon_padding">8dp</dimen>
     <dimen name="ws_action_drawer_item_text_size">16sp</dimen>
-
-    <!-- ConfirmationOverlay sizes which have corresponding entries in:
-        values, values-round, values-sw210dp-round. -->
-    <dimen name="confirmation_overlay_image_size">80dp</dimen>
-    <item name="confirmation_overlay_margin_side" type="fraction">4.167%</item>
-    <item name="confirmation_overlay_margin_above_text" type="fraction">4.396%</item>
-
 </resources>

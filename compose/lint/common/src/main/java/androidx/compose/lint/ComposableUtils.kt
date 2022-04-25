@@ -32,6 +32,7 @@ import org.jetbrains.uast.UAnonymousClass
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UDeclaration
 import org.jetbrains.uast.UElement
+import org.jetbrains.uast.UExpression
 import org.jetbrains.uast.ULambdaExpression
 import org.jetbrains.uast.UMethod
 import org.jetbrains.uast.UParameter
@@ -44,32 +45,55 @@ import org.jetbrains.uast.toUElement
 import org.jetbrains.uast.withContainingElements
 
 /**
- * Returns whether this [UCallExpression] is invoked within the body of a Composable function or
- * lambda, and is not `remember`ed.
- *
- * This searches parent declarations until we find a lambda expression or a function, and looks
- * to see if these are Composable. If they are Composable, this function returns whether or not
- * this call expression is inside the block of a `remember` call.
+ * Returns whether this [UCallExpression] is directly invoked within the body of a Composable
+ * function or lambda without being `remember`ed.
  */
-fun UCallExpression.invokedInComposableBodyAndNotRemembered(): Boolean {
+fun UCallExpression.isNotRemembered(): Boolean = isNotRememberedWithKeys()
+
+/**
+ * Returns whether this [UCallExpression] is directly invoked within the body of a Composable
+ * function or lambda without being `remember`ed, or whether it is invoked inside a `remember call
+ * without the provided [keys][keyClassNames].
+ * - Returns true if this [UCallExpression] is directly invoked inside a Composable function or
+ * lambda without being `remember`ed
+ * - Returns true if this [UCallExpression] is invoked inside a call to `remember`, but without all
+ * of the provided [keys][keyClassNames] being used as key parameters to `remember`
+ * - Returns false if this [UCallExpression] is correctly `remember`ed with the provided
+ * [keys][keyClassNames], or is not called inside a `remember` block, and is not called inside a
+ * Composable function or lambda
+ *
+ * @param keyClassNames [Name]s representing the expected classes that should be used as a key
+ * parameter to the `remember` call
+ */
+fun UCallExpression.isNotRememberedWithKeys(vararg keyClassNames: Name): Boolean {
     val visitor = ComposableBodyVisitor(this)
-    if (!visitor.isComposable()) return false
-    return visitor.parentUElements().none {
-        (it as? UCallExpression)?.let { element ->
-            element.methodName == Names.Runtime.Remember.shortName &&
-                element.resolve()?.isInPackageName(Names.Runtime.PackageName) == true
-        } == true
+    // The nearest method or lambda expression that contains this call expression
+    val boundaryElement = visitor.parentUElements().last()
+    // Check if the nearest lambda expression is actually a call to remember
+    val rememberCall: UCallExpression? = (boundaryElement.uastParent as? UCallExpression)?.takeIf {
+        it.methodName == Names.Runtime.Remember.shortName &&
+            it.resolve()?.isInPackageName(Names.Runtime.PackageName) == true
+    }
+    return if (rememberCall == null) {
+        visitor.isComposable()
+    } else {
+        val parameterTypes = rememberCall.valueArguments.mapNotNull {
+            it.getExpressionType()?.canonicalText
+        }
+        !keyClassNames.all {
+            parameterTypes.contains(it.javaFqn)
+        }
     }
 }
 
 /**
- * Returns whether this [UCallExpression] is invoked within the body of a Composable function or
+ * Returns whether this [UExpression] is invoked within the body of a Composable function or
  * lambda.
  *
  * This searches parent declarations until we find a lambda expression or a function, and looks
  * to see if these are Composable.
  */
-fun UCallExpression.isInvokedWithinComposable(): Boolean {
+fun UExpression.isInvokedWithinComposable(): Boolean {
     return ComposableBodyVisitor(this).isComposable()
 }
 
@@ -114,14 +138,14 @@ private val PsiParameter.isComposable: Boolean
         // The parameter is in a class file. Currently type annotations aren't currently added to
         // the underlying type (https://youtrack.jetbrains.com/issue/KT-45307), so instead we use
         // the metadata annotation.
-        this is ClsParameterImpl
+        this is ClsParameterImpl ||
             // In some cases when a method is defined in bytecode and the call fails to resolve
             // to the ClsMethodImpl, we will instead get a LightParameter. Note that some Kotlin
             // declarations too will also appear as a LightParameter, so we can check to see if
             // the source language is Java, which means that this is a LightParameter for
             // bytecode, as opposed to for a Kotlin declaration.
             // https://youtrack.jetbrains.com/issue/KT-46883
-            || (this is LightParameter && this.language is JavaLanguage) -> {
+            (this is LightParameter && this.language is JavaLanguage) -> {
             // Find the containing method, so we can get metadata from the containing class
             val containingMethod = getParentOfType<PsiMethod>(true)
             val kmFunction = containingMethod!!.toKmFunction()
@@ -157,15 +181,15 @@ val ULambdaExpression.isComposable: Boolean
     }
 
 /**
- * Helper class that visits parent declarations above the provided [callExpression], until it
+ * Helper class that visits parent declarations above the provided [expression], until it
  * finds a lambda or method. This 'boundary' is used as the indicator for whether this
- * [callExpression] can be considered to be inside a Composable body or not.
+ * [expression] can be considered to be inside a Composable body or not.
  *
  * @see isComposable
  * @see parentUElements
  */
 private class ComposableBodyVisitor(
-    private val callExpression: UCallExpression
+    private val expression: UExpression
 ) {
     /**
      * @return whether the body can be considered Composable or not
@@ -183,7 +207,7 @@ private class ComposableBodyVisitor(
 
     /**
      * The outermost UElement that corresponds to the surrounding UDeclaration that contains
-     * [callExpression], with the following special cases:
+     * [expression], with the following special cases:
      *
      * - if the containing UDeclaration is a local property, we ignore it and search above as
      * it still could be created in the context of a Composable body
@@ -192,7 +216,7 @@ private class ComposableBodyVisitor(
      */
     private val boundaryUElement by lazy {
         // The nearest property / function / etc declaration that contains this call expression
-        var containingDeclaration = callExpression.getContainingDeclaration()
+        var containingDeclaration = expression.getContainingDeclaration()
 
         fun UDeclaration.isLocalProperty() = (sourcePsi as? KtProperty)?.isLocal == true
         fun UDeclaration.isAnonymousClass() = this is UAnonymousClass
@@ -217,7 +241,7 @@ private class ComposableBodyVisitor(
         val elements = mutableListOf<UElement>()
 
         // Look through containing elements until we find a lambda or a method
-        for (element in callExpression.withContainingElements) {
+        for (element in expression.withContainingElements) {
             elements += element
             when (element) {
                 // TODO: consider handling the case of a lambda inside an inline function call,

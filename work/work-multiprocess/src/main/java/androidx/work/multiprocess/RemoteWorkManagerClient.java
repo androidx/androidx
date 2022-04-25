@@ -41,6 +41,7 @@ import androidx.core.os.HandlerCompat;
 import androidx.work.Data;
 import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.ExistingWorkPolicy;
+import androidx.work.ForegroundInfo;
 import androidx.work.Logger;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
@@ -52,6 +53,7 @@ import androidx.work.impl.WorkContinuationImpl;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.utils.futures.SettableFuture;
 import androidx.work.multiprocess.parcelable.ParcelConverters;
+import androidx.work.multiprocess.parcelable.ParcelableForegroundRequestInfo;
 import androidx.work.multiprocess.parcelable.ParcelableUpdateRequest;
 import androidx.work.multiprocess.parcelable.ParcelableWorkContinuationImpl;
 import androidx.work.multiprocess.parcelable.ParcelableWorkInfos;
@@ -105,7 +107,7 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
             long sessionTimeout) {
         mContext = context.getApplicationContext();
         mWorkManager = workManager;
-        mExecutor = mWorkManager.getWorkTaskExecutor().getBackgroundExecutor();
+        mExecutor = mWorkManager.getWorkTaskExecutor().getSerialTaskExecutor();
         mLock = new Object();
         mSession = null;
         mSessionTracker = new SessionTracker(this);
@@ -274,6 +276,24 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
                     @NonNull IWorkManagerImplCallback callback) throws Throwable {
                 byte[] request = ParcelConverters.marshall(new ParcelableUpdateRequest(id, data));
                 iWorkManagerImpl.setProgress(request, callback);
+            }
+        });
+        return map(result, sVoidMapper, mExecutor);
+    }
+
+    @NonNull
+    @Override
+    public ListenableFuture<Void> setForegroundAsync(
+            @NonNull String id,
+            @NonNull ForegroundInfo foregroundInfo) {
+        ListenableFuture<byte[]> result = execute(new RemoteDispatcher<IWorkManagerImpl>() {
+            @Override
+            public void execute(
+                    @NonNull IWorkManagerImpl iWorkManagerImpl,
+                    @NonNull IWorkManagerImplCallback callback) throws Throwable {
+                byte[] request = ParcelConverters.marshall(
+                        new ParcelableForegroundRequestInfo(id, foregroundInfo));
+                iWorkManagerImpl.setForegroundAsync(request, callback);
             }
         });
         return map(result, sVoidMapper, mExecutor);
@@ -493,7 +513,7 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
         public void onNullBinding(@NonNull ComponentName name) {
             Logger.get().error(TAG, "Unable to bind to service");
             mFuture.setException(
-                    new RuntimeException(String.format("Cannot bind to service %s", name)));
+                    new RuntimeException("Cannot bind to service " + name));
         }
     }
 

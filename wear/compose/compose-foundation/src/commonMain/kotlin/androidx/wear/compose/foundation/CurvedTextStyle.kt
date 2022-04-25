@@ -35,16 +35,16 @@ internal val DefaultCurvedTextStyles = CurvedTextStyle(
  *
  * @sample androidx.wear.compose.foundation.samples.CurvedAndNormalText
  *
+ * @param background The background color for the text.
  * @param color The text color.
  * @param fontSize The size of glyphs (in logical pixels) to use when painting the text. This
  * may be [TextUnit.Unspecified] for inheriting from another [CurvedTextStyle].
- * @param background The background color for the text.
  *
  */
 class CurvedTextStyle(
+    val background: Color = Color.Unspecified,
     val color: Color = Color.Unspecified,
     val fontSize: TextUnit = TextUnit.Unspecified,
-    val background: Color = Color.Unspecified,
 ) {
     /**
      * Create a curved text style from the given text style.
@@ -52,7 +52,7 @@ class CurvedTextStyle(
      * Note that not all parameters in the text style will be used, only [TextStyle.color],
      * [TextStyle.fontSize] and [TextStyle.background]
      */
-    constructor(style: TextStyle) : this(style.color, style.fontSize, style.background)
+    constructor(style: TextStyle) : this(style.background, style.color, style.fontSize)
 
     /**
      * Returns a new curved text style that is a combination of this style and the given
@@ -80,14 +80,14 @@ class CurvedTextStyle(
     operator fun plus(other: CurvedTextStyle): CurvedTextStyle = this.merge(other)
 
     fun copy(
+        background: Color = this.background,
         color: Color = this.color,
         fontSize: TextUnit = this.fontSize,
-        background: Color = this.background,
     ): CurvedTextStyle {
         return CurvedTextStyle(
+            background = background,
             color = color,
             fontSize = fontSize,
-            background = background,
         )
     }
 
@@ -109,9 +109,9 @@ class CurvedTextStyle(
 
     override fun toString(): String {
         return "CurvedTextStyle(" +
+            "background=$background" +
             "color=$color, " +
             "fontSize=$fontSize, " +
-            "background=$background" +
             ")"
     }
 }

@@ -35,13 +35,12 @@ import androidx.core.graphics.drawable.IconCompat;
 
 /** Creates a screen that demonstrate the image loading in the library using a content provider. */
 public final class ContentProviderIconsDemoScreen extends Screen {
-    @Nullable
-    private final String mHostPackageName;
-
     private static final int[] ICON_DRAWABLES = {
             R.drawable.arrow_right_turn, R.drawable.arrow_straight, R.drawable.ic_i5,
             R.drawable.ic_520
     };
+    @Nullable
+    private final String mHostPackageName;
 
     public ContentProviderIconsDemoScreen(@NonNull CarContext carContext) {
         super(carContext);
@@ -58,7 +57,8 @@ public final class ContentProviderIconsDemoScreen extends Screen {
         String hostPackageName = mHostPackageName;
         if (hostPackageName == null) {
             // Cannot get the host package name, show an error message.
-            listBuilder.setNoItemsMessage("Images cannot be displayed for an unknown host");
+            listBuilder.setNoItemsMessage(
+                    getCarContext().getString(R.string.images_unknown_host_error));
         } else {
             for (int i = 0; i < ICON_DRAWABLES.length; i++) {
                 int resId = ICON_DRAWABLES[i];
@@ -70,7 +70,9 @@ public final class ContentProviderIconsDemoScreen extends Screen {
                                         new CarIcon.Builder(
                                                 IconCompat.createWithContentUri(uri))
                                                 .build())
-                                .setTitle("Icon " + i)
+                                .setTitle(
+                                        getCarContext().getString(R.string.icon_title_prefix) + " "
+                                                + i)
                                 .build());
             }
         }
@@ -78,7 +80,7 @@ public final class ContentProviderIconsDemoScreen extends Screen {
 
         return new ListTemplate.Builder()
                 .setSingleList(listBuilder.build())
-                .setTitle("Content Provider Icons Demo")
+                .setTitle(getCarContext().getString(R.string.content_provider_icons_demo_title))
                 .setHeaderAction(BACK)
                 .build();
     }

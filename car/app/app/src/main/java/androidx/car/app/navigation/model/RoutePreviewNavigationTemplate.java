@@ -17,10 +17,13 @@
 package androidx.car.app.navigation.model;
 
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_HEADER;
-import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_SIMPLE;
+import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_MAP;
+import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_NAVIGATION;
 import static androidx.car.app.model.constraints.RowListConstraints.ROW_LIST_CONSTRAINTS_ROUTE_PREVIEW;
 
 import static java.util.Objects.requireNonNull;
+
+import android.annotation.SuppressLint;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
@@ -28,6 +31,7 @@ import androidx.annotation.Nullable;
 import androidx.car.app.Screen;
 import androidx.car.app.SurfaceCallback;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarText;
@@ -97,6 +101,12 @@ public final class RoutePreviewNavigationTemplate implements Template {
     @Keep
     @Nullable
     private final ActionStrip mActionStrip;
+    @Keep
+    @Nullable
+    private final ActionStrip mMapActionStrip;
+    @Keep
+    @Nullable
+    private final PanModeDelegate mPanModeDelegate;
 
     /**
      * Returns the title of the template or {@code null} if not set.
@@ -127,6 +137,27 @@ public final class RoutePreviewNavigationTemplate implements Template {
     @Nullable
     public ActionStrip getActionStrip() {
         return mActionStrip;
+    }
+
+    /**
+     * Returns the map {@link ActionStrip} for this template or {@code null} if not set.
+     *
+     * @see Builder#setMapActionStrip(ActionStrip)
+     */
+    @RequiresCarApi(4)
+    @Nullable
+    public ActionStrip getMapActionStrip() {
+        return mMapActionStrip;
+    }
+
+    /**
+     * Returns the {@link PanModeDelegate} that should be called when the user interacts with
+     * pan mode on this template, or {@code null} if a {@link PanModeListener} was not set.
+     */
+    @RequiresCarApi(4)
+    @Nullable
+    public PanModeDelegate getPanModeDelegate() {
+        return mPanModeDelegate;
     }
 
     /**
@@ -169,7 +200,7 @@ public final class RoutePreviewNavigationTemplate implements Template {
     @Override
     public int hashCode() {
         return Objects.hash(mTitle, mIsLoading, mNavigateAction, mItemList, mHeaderAction,
-                mActionStrip);
+                mActionStrip, mMapActionStrip, mPanModeDelegate == null);
     }
 
     @Override
@@ -187,7 +218,9 @@ public final class RoutePreviewNavigationTemplate implements Template {
                 && Objects.equals(mNavigateAction, otherTemplate.mNavigateAction)
                 && Objects.equals(mItemList, otherTemplate.mItemList)
                 && Objects.equals(mHeaderAction, otherTemplate.mHeaderAction)
-                && Objects.equals(mActionStrip, otherTemplate.mActionStrip);
+                && Objects.equals(mActionStrip, otherTemplate.mActionStrip)
+                && Objects.equals(mMapActionStrip, otherTemplate.mMapActionStrip)
+                && Objects.equals(mPanModeDelegate == null, otherTemplate.mPanModeDelegate == null);
     }
 
     RoutePreviewNavigationTemplate(Builder builder) {
@@ -197,6 +230,8 @@ public final class RoutePreviewNavigationTemplate implements Template {
         mItemList = builder.mItemList;
         mHeaderAction = builder.mHeaderAction;
         mActionStrip = builder.mActionStrip;
+        mMapActionStrip = builder.mMapActionStrip;
+        mPanModeDelegate = builder.mPanModeDelegate;
     }
 
     /** Constructs an empty instance, used by serialization code. */
@@ -207,6 +242,8 @@ public final class RoutePreviewNavigationTemplate implements Template {
         mItemList = null;
         mHeaderAction = null;
         mActionStrip = null;
+        mMapActionStrip = null;
+        mPanModeDelegate = null;
     }
 
     /** A builder of {@link RoutePreviewNavigationTemplate}. */
@@ -222,6 +259,10 @@ public final class RoutePreviewNavigationTemplate implements Template {
         Action mHeaderAction;
         @Nullable
         ActionStrip mActionStrip;
+        @Nullable
+        ActionStrip mMapActionStrip;
+        @Nullable
+        PanModeDelegate mPanModeDelegate;
 
         /**
          * Sets the title of the template.
@@ -357,24 +398,80 @@ public final class RoutePreviewNavigationTemplate implements Template {
         }
 
         /**
-         * Sets the {@link ActionStrip} for this template, or {@code null} to not display an {@link
-         * ActionStrip}.
+         * Sets the {@link ActionStrip} for this template.
          *
          * <p>Unless set with this method, the template will not have an action strip.
          *
+         * <p>The {@link Action} buttons in Map Based Template are automatically adjusted based
+         * on the screen size. On narrow width screen, icon {@link Action}s show by
+         * default. If no icon specify, showing title {@link Action}s instead. On wider width
+         * screen, title {@link Action}s show by default. If no title specify, showing icon
+         * {@link Action}s instead.
+         *
          * <h4>Requirements</h4>
          *
-         * This template allows up to 2 {@link Action}s in its {@link ActionStrip}. Of the 2 allowed
-         * {@link Action}s, one of them can contain a title as set via
-         * {@link Action.Builder#setTitle}. Otherwise, only {@link Action}s with icons are allowed.
+         * This template allows up to 4 {@link Action}s in its {@link ActionStrip}. Of the 4
+         * allowed {@link Action}s, it can either be a title {@link Action} as set via
+         * {@link Action.Builder#setTitle}, or a icon {@link Action} as set via
+         * {@link Action.Builder#setIcon}.
          *
          * @throws IllegalArgumentException if {@code actionStrip} does not meet the requirements
          * @throws NullPointerException     if {@code actionStrip} is {@code null}
          */
         @NonNull
         public Builder setActionStrip(@NonNull ActionStrip actionStrip) {
-            ACTIONS_CONSTRAINTS_SIMPLE.validateOrThrow(requireNonNull(actionStrip).getActions());
+            ACTIONS_CONSTRAINTS_NAVIGATION
+                    .validateOrThrow(requireNonNull(actionStrip).getActions());
             mActionStrip = actionStrip;
+            return this;
+        }
+
+        /**
+         * Sets an {@link ActionStrip} with a list of map-control related actions for this
+         * template, such as pan or zoom.
+         *
+         * <p>The host will draw the buttons in an area that is associated with map controls.
+         *
+         * <p>If the app does not include the {@link Action#PAN} button in this
+         * {@link ActionStrip}, the app will not receive the user input for panning gestures from
+         * {@link SurfaceCallback} methods, and the host will exit any previously activated pan
+         * mode.
+         *
+         * <h4>Requirements</h4>
+         *
+         * This template allows up to 4 {@link Action}s in its map {@link ActionStrip}. Only
+         * {@link Action}s with icons set via {@link Action.Builder#setIcon} are allowed.
+         *
+         * @throws IllegalArgumentException if {@code actionStrip} does not meet the template's
+         *                                  requirements
+         * @throws NullPointerException     if {@code actionStrip} is {@code null}
+         */
+        @RequiresCarApi(4)
+        @NonNull
+        public Builder setMapActionStrip(@NonNull ActionStrip actionStrip) {
+            ACTIONS_CONSTRAINTS_MAP.validateOrThrow(
+                    requireNonNull(actionStrip).getActions());
+            mMapActionStrip = actionStrip;
+            return this;
+        }
+
+        /**
+         * Sets a {@link PanModeListener} that notifies when the user enters and exits
+         * the pan mode.
+         *
+         * <p>If the app does not include the {@link Action#PAN} button in the map
+         * {@link ActionStrip}, the app will not receive the user input for panning gestures from
+         * {@link SurfaceCallback} methods, and the host will exit any previously activated pan
+         * mode.
+         *
+         * @throws NullPointerException if {@code panModeListener} is {@code null}
+         */
+        @SuppressLint({"MissingGetterMatchingBuilder", "ExecutorRegistration"})
+        @RequiresCarApi(4)
+        @NonNull
+        public Builder setPanModeListener(@NonNull PanModeListener panModeListener) {
+            requireNonNull(panModeListener);
+            mPanModeDelegate = PanModeDelegateImpl.create(panModeListener);
             return this;
         }
 
@@ -383,12 +480,12 @@ public final class RoutePreviewNavigationTemplate implements Template {
          *
          * <h4>Requirements</h4>
          *
-         * Either a header {@link Action} or title must be set on the template.
+         * <p>If neither header {@link Action} nor title have been set on the template, the
+         * header is hidden.
          *
          * @throws IllegalStateException if the template is in a loading state but the list is
-         *                               set or vice versa, if the template is not loading and
-         *                               the navigation action is not set, or if the template
-         *                               does not have either a title or header {@link Action} set
+         *                               set or vice versa, or if the template is not loading and
+         *                               the navigation action is not set.
          */
         @NonNull
         public RoutePreviewNavigationTemplate build() {
@@ -404,10 +501,6 @@ public final class RoutePreviewNavigationTemplate implements Template {
                             "The navigation action cannot be null when the list is not in a "
                                     + "loading state");
                 }
-            }
-
-            if (CarText.isNullOrEmpty(mTitle) && mHeaderAction == null) {
-                throw new IllegalStateException("Either the title or header action must be set");
             }
 
             return new RoutePreviewNavigationTemplate(this);

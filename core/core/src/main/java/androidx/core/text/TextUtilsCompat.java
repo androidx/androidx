@@ -20,8 +20,10 @@ import static android.os.Build.VERSION.SDK_INT;
 
 import android.text.TextUtils;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.view.ViewCompat;
 
 import java.util.Locale;
@@ -88,7 +90,7 @@ public final class TextUtilsCompat {
      */
     public static int getLayoutDirectionFromLocale(@Nullable Locale locale) {
         if (SDK_INT >= 17) {
-            return TextUtils.getLayoutDirectionFromLocale(locale);
+            return Api17Impl.getLayoutDirectionFromLocale(locale);
         } else {
             if (locale != null && !locale.equals(ROOT)) {
                 final String scriptSubtag = ICUCompat.maximizeAndGetScript(locale);
@@ -127,5 +129,18 @@ public final class TextUtilsCompat {
         }
     }
 
-    private TextUtilsCompat() {}
+    private TextUtilsCompat() {
+    }
+
+    @RequiresApi(17)
+    static class Api17Impl {
+        private Api17Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static int getLayoutDirectionFromLocale(Locale locale) {
+            return TextUtils.getLayoutDirectionFromLocale(locale);
+        }
+    }
 }

@@ -15,5 +15,20 @@
   -->
 
 <resources>
-    <id name="glanceView"/>
+    <id name="checkBoxIcon" />
+    <id name="checkBoxText" />
+    <id name="glanceView" />
+    <id name="glanceViewStub" />
+    <id name="relativeLayout" />
+    <id name="sizeView" />
+    <id name="sizeViewStub" />
+    <id name="switchText" />
+    <id name="switchThumb" />
+    <id name="switchTrack" />
+    <id name="rootView" />
+    <id name="rootStubId" />
+    <id name="deletedViewId" />
+    <id name="radioIcon" />
+    <id name="radioText" />
+    <id name="checkBox" />
 </resources>

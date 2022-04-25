@@ -1,4 +1,3 @@
-@file:OptIn(GlanceInternalApi::class)
 /*
  * Copyright 2021 The Android Open Source Project
  *
@@ -18,12 +17,12 @@
 package androidx.glance.action
 
 import android.app.Activity
-import androidx.glance.GlanceInternalApi
-import androidx.glance.Modifier
+import androidx.annotation.RestrictTo
+import androidx.glance.GlanceModifier
 
 /**
  * An Action defines the actions a user can take. Implementations specify what operation will be
- * performed in response to the action, eg. [launchActivityAction] creates an Action that launches
+ * performed in response to the action, eg. [actionStartActivity] creates an Action that launches
  * the specified [Activity].
  */
 public interface Action
@@ -31,11 +30,12 @@ public interface Action
 /**
  * Apply an [Action], to be executed in response to a user click.
  */
-public fun Modifier.clickable(onClick: Action): Modifier =
+public fun GlanceModifier.clickable(onClick: Action): GlanceModifier =
     this.then(ActionModifier(onClick))
 
-@GlanceInternalApi
-class ActionModifier(public val action: Action) : Modifier.Element {
+/** @suppress */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+class ActionModifier(public val action: Action) : GlanceModifier.Element {
     override fun toString(): String {
         return "ActionModifier(action=$action)"
     }

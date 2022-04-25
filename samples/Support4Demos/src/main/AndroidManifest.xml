@@ -19,8 +19,7 @@
      supplies a unique name for the application.  When writing your
      own application, the package name must be changed from "com.example.*"
      to come from a domain that you own or have control over. -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.android.supportv4">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application
         android:hardwareAccelerated="true"
@@ -245,16 +244,6 @@
             android:name=".content.LocalServiceBroadcaster"
             android:exported="true"
             android:label="@string/local_service_broadcaster">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.example.android.supportv4.SUPPORT4_SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name=".content.SimpleWakefulController"
-            android:exported="true"
-            android:label="@string/simple_wakeful_controller">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv4.SUPPORT4_SAMPLE_CODE" />
@@ -532,10 +521,6 @@
         </provider>
 
         <receiver
-            android:name=".content.SimpleWakefulReceiver"
-            android:exported="true" />
-
-        <receiver
             android:name="androidx.media.session.MediaButtonReceiver"
             android:exported="true">
             <intent-filter>
@@ -560,8 +545,6 @@
             android:name=".content.LocalServiceBroadcaster$LocalService"
             android:exported="true"
             android:stopWithTask="true" />
-
-        <service android:name=".content.SimpleWakefulService" />
 
         <service
             android:name=".media.MediaBrowserServiceSupport"

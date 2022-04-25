@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+
 package androidx.camera.camera2.pipe.compat
 
 import android.hardware.camera2.CameraAccessException
@@ -21,6 +23,7 @@ import android.hardware.camera2.CaptureRequest
 import android.util.ArrayMap
 import android.view.Surface
 import androidx.annotation.GuardedBy
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.Metadata
 import androidx.camera.camera2.pipe.Request
@@ -71,6 +74,7 @@ private const val REQUIRE_SURFACE_FOR_ALL_STREAMS = false
 /**
  * This class is designed to synchronously handle interactions with a [CameraCaptureSessionWrapper].
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 internal class Camera2RequestProcessor(
     private val session: CameraCaptureSessionWrapper,
     private val threads: Threads,
@@ -363,6 +367,7 @@ internal class Camera2RequestProcessor(
 /**
  * This class packages together information about a request that was submitted to the camera.
  */
+@RequiresApi(21)
 @Suppress("SyntheticAccessor") // Using an inline class generates a synthetic constructor
 internal class RequestInfo(
     private val captureRequest: CaptureRequest,

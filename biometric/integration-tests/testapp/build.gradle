@@ -46,6 +46,7 @@ android {
     buildFeatures {
         viewBinding true
     }
+    namespace "androidx.biometric.integration.testapp"
 }
 
 dependencies {

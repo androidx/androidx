@@ -21,6 +21,7 @@ import android.util.Pair;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import java.util.Map;
 import java.util.Set;
@@ -28,6 +29,7 @@ import java.util.Set;
 /**
  * A TagBundle is an immutable tags collection which does not allow insertion/removal.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class TagBundle {
     /** It is used to store all the keys and Tags */
     protected final Map<String, Object> mTagMap;

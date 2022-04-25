@@ -47,8 +47,8 @@ public class RobolectricCameraPipeTestRunner(testClass: Class<*>) :
     }
 }
 
-@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
-public inline class TestValue(public val value: String)
+@JvmInline
+public value class TestValue(public val value: String)
 
 public data class TestData(
     val value1: TestValue,

@@ -128,22 +128,19 @@ public class RetryActivity extends AppCompatActivity {
             double errorRate = getInputData().getDouble(ERROR_RATE, 0.5);
 
             try {
-                Log.i(TAG,
-                        String.format("[%s] %s started (run attempt = %d)",
-                                name,
-                                getId(),
-                                getRunAttemptCount()));
+                Log.i(TAG, "[" + name + "] " + getId() +
+                        " started (run attempt = " + getRunAttemptCount() + ")");
                 for (int i = 0; i < timeTaken; i++) {
                     Thread.sleep(1000L);
-                    Log.v(TAG, String.format("[%s] %s completed stage = %d", name, getId(), i));
+                    Log.v(TAG, "[" + name + "] " + getId() + " completed stage = " + i);
                 }
                 if (Math.random() < errorRate) {
                     throw new RuntimeException("random failure");
                 }
-                Log.i(TAG, String.format("[%s] %s successful", name, getId()));
+                Log.i(TAG, "[" + name + "] " + getId() + " successful");
                 return Result.success();
             } catch (Exception e) {
-                Log.e(TAG, String.format("[%s] %s failed: %s", name, getId(), e.getMessage()));
+                Log.e(TAG, "[" + name + "] " + getId() + " failed: " + e.getMessage());
                 return Result.retry();
             }
         }

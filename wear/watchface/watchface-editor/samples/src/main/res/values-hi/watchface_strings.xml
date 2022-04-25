@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="complication_config" msgid="3090406830927670356">"स्मार्ट वॉच के फ़ेस को, Android घड़ी के संकेत की सुविधा के साथ कॉन्फ़िगर करें"</string>
+    <string name="watchface_settings" msgid="9086980313887663299">"स्मार्ट वॉच के फ़ेस की सेटिंग कॉन्फ़िगर करें"</string>
+    <string name="style_config" msgid="7270818527618953542">"स्मार्ट वॉच के फ़ेस के स्टाइल कॉन्फ़िगर करें"</string>
+    <string name="none_background_image_provider" msgid="2763799590544856080">"कोई नहीं"</string>
+    <string name="settings_complications" msgid="1425815384891476600">"डेटा"</string>
+    <string name="settings_background_image" msgid="496585675676995765">"बैकग्राउंड की इमेज"</string>
+    <string name="settings_styles" msgid="3243144642316786428">"स्टाइल"</string>
+</resources>

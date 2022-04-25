@@ -62,6 +62,7 @@ import androidx.media2.test.common.TestUtils;
 import androidx.media2.test.service.MediaTestUtils;
 import androidx.media2.test.service.RemoteMediaController;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.SmallTest;
 
 import org.junit.After;
@@ -462,6 +463,7 @@ public class MediaSessionCompatCallbackWithMediaControllerTest extends MediaSess
         assertEquals(true, mSessionCallback.mOnRewindCalled);
     }
 
+    @FlakyTest(bugId = 204596299)
     @Test
     public void setRating() throws Exception {
         final float ratingValue = 3.5f;

@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.core
 
 import android.util.Log
+import androidx.annotation.RequiresApi
 
 /**
  * This object provides a set of common log functions that are optimized for CameraPipe with
@@ -27,6 +28,7 @@ import android.util.Log
  *
  * Log.debug { "This is a log message with a $value" }
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public object Log {
     public const val TAG: String = "CXCP"
 

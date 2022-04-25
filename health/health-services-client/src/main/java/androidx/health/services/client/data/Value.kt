@@ -18,6 +18,7 @@ package androidx.health.services.client.data
 
 import android.os.Parcelable
 import androidx.health.services.client.proto.DataProto
+import com.google.protobuf.ByteString
 
 /** A [Parcelable] wrapper that can hold a value of a specified type. */
 @Suppress("DataClassPrivateConstructor", "ParcelCreator")
@@ -33,6 +34,7 @@ public class Value internal constructor(proto: DataProto.Value) :
             DataProto.Value.ValueCase.DOUBLE_VAL -> FORMAT_DOUBLE
             DataProto.Value.ValueCase.LONG_VAL -> FORMAT_LONG
             DataProto.Value.ValueCase.DOUBLE_ARRAY_VAL -> FORMAT_DOUBLE_ARRAY
+            DataProto.Value.ValueCase.BYTE_ARRAY_VAL -> FORMAT_BYTE_ARRAY
             else -> throw IllegalStateException("Unexpected format: ${proto.valueCase}")
         }
 
@@ -48,6 +50,7 @@ public class Value internal constructor(proto: DataProto.Value) :
                 FORMAT_LONG -> "longVal=${proto.longVal})"
                 FORMAT_DOUBLE -> "doubleVal=${proto.doubleVal})"
                 FORMAT_DOUBLE_ARRAY -> "doubleArrayVal=${proto.doubleArrayVal.doubleArrayList})"
+                FORMAT_BYTE_ARRAY -> "byteArrayVal=${proto.byteArrayVal})"
                 else -> throw IllegalStateException("Unexpected format: ${proto.valueCase}")
             }
 
@@ -82,6 +85,21 @@ public class Value internal constructor(proto: DataProto.Value) :
     }
 
     /**
+     * Returns this [Value] as a `ByteArray`.
+     *
+     * @throws IllegalStateException if [isByteArray] is `false`
+     */
+    // TODO(b/227475943): open up visibility
+    internal fun asByteArray(): ByteArray {
+        check(isByteArray) {
+            "Attempted to read value as ByteArray, but value is not of type ByteArray"
+        }
+        val byteArray = ByteArray(proto.byteArrayVal.size())
+        proto.byteArrayVal.copyTo(byteArray, 0)
+        return byteArray
+    }
+
+    /**
      * Returns this [Value] represented as a `double[]`.
      *
      * @throws IllegalStateException if [isDoubleArray] is `false`
@@ -109,6 +127,11 @@ public class Value internal constructor(proto: DataProto.Value) :
     public val isDoubleArray: Boolean
         get() = format == FORMAT_DOUBLE_ARRAY
 
+    /** Whether or not this [Value] can be represented as a `byteArray`. */
+    // TODO(b/227475943): open up visibility
+    internal val isByteArray: Boolean
+        get() = format == FORMAT_BYTE_ARRAY
+
     public companion object {
         /** The format used for a [Value] represented as a `double`. */
         public const val FORMAT_DOUBLE: Int = 1
@@ -121,6 +144,10 @@ public class Value internal constructor(proto: DataProto.Value) :
 
         /** The format used for a [Value] represented as a `double[]`. */
         public const val FORMAT_DOUBLE_ARRAY: Int = 3
+
+        /** The format used for a [Value] represented as a `ByteArray`. */
+        // TODO(b/227475943): open up visibility
+        internal const val FORMAT_BYTE_ARRAY: Int = 5
 
         @JvmField
         public val CREATOR: Parcelable.Creator<Value> = newCreator {
@@ -154,8 +181,14 @@ public class Value internal constructor(proto: DataProto.Value) :
                     .build()
             )
 
+        /** Creates a [Value] that represents a `ByteArray`. */
+        @JvmStatic
+        // TODO(b/227475943): open up visibility
+        internal fun ofByteArray(value: ByteArray): Value =
+            Value(DataProto.Value.newBuilder().setByteArrayVal(ByteString.copyFrom(value)).build())
+
         /**
-         * Compares two [Value] s based on their representation.
+         * Compares two [Value]s based on their representation.
          *
          * @throws IllegalStateException if `first` and `second` do not share the same format or are
          * represented as a `double[]`
@@ -173,13 +206,17 @@ public class Value internal constructor(proto: DataProto.Value) :
                     throw IllegalStateException(
                         "Attempted to compare Values with invalid format (double array)"
                     )
+                FORMAT_BYTE_ARRAY ->
+                    throw IllegalStateException(
+                        "Attempted to compate values with invalid format (byte array)"
+                    )
                 else -> {}
             }
             throw IllegalStateException(String.format("Unexpected format: %s", first.format))
         }
 
         /**
-         * Adds two [Value] s based on their representation.
+         * Adds two [Value]s based on their representation.
          *
          * @throws IllegalArgumentException if `first` and `second` do not share the same format or
          * are represented as a `double[]` or `boolean`
@@ -200,12 +237,16 @@ public class Value internal constructor(proto: DataProto.Value) :
                     throw IllegalArgumentException(
                         "Attempted to add Values with invalid format (double array)"
                     )
+                FORMAT_BYTE_ARRAY ->
+                    throw IllegalArgumentException(
+                        "Attempted to add Values with invalid format (ByteArray)"
+                    )
                 else -> throw IllegalArgumentException("Unexpected format: ${first.format}")
             }
         }
 
         /**
-         * Subtracts two [Value] s based on their representation (i.e. returns `first` - `second`).
+         * Subtracts two [Value]s based on their representation (i.e. returns `first` - `second`).
          *
          * @throws IllegalArgumentException if `first` and `second` do not share the same format or
          * are represented as a `double[]` or `boolean`
@@ -228,7 +269,7 @@ public class Value internal constructor(proto: DataProto.Value) :
         }
 
         /**
-         * Gets the modulo of two [Value] s based on their representation. (i.e. returns `first` %
+         * Gets the modulo of two [Value]s based on their representation. (i.e. returns `first` %
          * `second`)
          *
          * @throws IllegalArgumentException if `first` and `second` do not share the same format or
@@ -255,7 +296,7 @@ public class Value internal constructor(proto: DataProto.Value) :
         /**
          * Checks if a given [Value] is zero or not.
          *
-         * @throws IllegalArgumentException if `value` is a `double[]` or `bolean`
+         * @throws IllegalArgumentException if `value` is a `double[]` or `boolean`
          *
          * @hide
          */

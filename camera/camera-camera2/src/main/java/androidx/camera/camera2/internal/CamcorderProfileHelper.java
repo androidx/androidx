@@ -18,9 +18,12 @@ package androidx.camera.camera2.internal;
 
 import android.media.CamcorderProfile;
 
+import androidx.annotation.RequiresApi;
+
 /**
  * This is helper class to use {@link android.media.CamcorderProfile} that may be mocked.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 interface CamcorderProfileHelper {
     /** Returns true if the camcorder profile exists for the given camera and quality. */
     boolean hasProfile(int cameraId, int quality);

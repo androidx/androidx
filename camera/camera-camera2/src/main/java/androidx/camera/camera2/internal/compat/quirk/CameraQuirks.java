@@ -19,6 +19,7 @@ package androidx.camera.camera2.internal.compat.quirk;
 import android.hardware.camera2.CameraCharacteristics;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.core.impl.Quirk;
 import androidx.camera.core.impl.Quirks;
@@ -27,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Provider of camera specific quirks. */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class CameraQuirks {
 
     private CameraQuirks() {
@@ -67,6 +69,21 @@ public class CameraQuirks {
         }
         if (YuvImageOnePixelShiftQuirk.load(cameraCharacteristicsCompat)) {
             quirks.add(new YuvImageOnePixelShiftQuirk());
+        }
+        if (FlashTooSlowQuirk.load(cameraCharacteristicsCompat)) {
+            quirks.add(new FlashTooSlowQuirk());
+        }
+        if (AfRegionFlipHorizontallyQuirk.load(cameraCharacteristicsCompat)) {
+            quirks.add(new AfRegionFlipHorizontallyQuirk());
+        }
+        if (ConfigureSurfaceToSecondarySessionFailQuirk.load(cameraCharacteristicsCompat)) {
+            quirks.add(new ConfigureSurfaceToSecondarySessionFailQuirk());
+        }
+        if (PreviewOrientationIncorrectQuirk.load(cameraCharacteristicsCompat)) {
+            quirks.add(new PreviewOrientationIncorrectQuirk());
+        }
+        if (CaptureSessionStuckQuirk.load(cameraCharacteristicsCompat)) {
+            quirks.add(new CaptureSessionStuckQuirk());
         }
 
         return new Quirks(quirks);

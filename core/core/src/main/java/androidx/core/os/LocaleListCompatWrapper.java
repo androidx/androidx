@@ -18,9 +18,11 @@ package androidx.core.os;
 
 import android.os.Build;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 
 import java.util.ArrayList;
@@ -94,12 +96,13 @@ final class LocaleListCompatWrapper implements LocaleListInterface {
     @Override
     public int hashCode() {
         int result = 1;
-        for (int i = 0; i < mList.length; i++) {
-            result = 31 * result + mList[i].hashCode();
+        for (Locale locale : mList) {
+            result = 31 * result + locale.hashCode();
         }
         return result;
     }
 
+    @NonNull
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -125,15 +128,13 @@ final class LocaleListCompatWrapper implements LocaleListInterface {
             mStringRepresentation = "";
         } else {
             final List<Locale> localeList = new ArrayList<>();
-            final HashSet<Locale> seenLocales = new HashSet<Locale>();
+            final HashSet<Locale> seenLocales = new HashSet<>();
             final StringBuilder sb = new StringBuilder();
             for (int i = 0; i < list.length; i++) {
                 final Locale l = list[i];
                 if (l == null) {
                     throw new NullPointerException("list[" + i + "] is null");
-                } else if (seenLocales.contains(l)) {
-                    // Ignore repeated locale
-                } else {
+                } else if (!seenLocales.contains(l)) {
                     final Locale localeClone = (Locale) l.clone();
                     localeList.add(localeClone);
                     toLanguageTag(sb, localeClone);
@@ -143,7 +144,7 @@ final class LocaleListCompatWrapper implements LocaleListInterface {
                     seenLocales.add(localeClone);
                 }
             }
-            mList = localeList.toArray(new Locale[localeList.size()]);
+            mList = localeList.toArray(new Locale[0]);
             mStringRepresentation = sb.toString();
         }
     }
@@ -152,6 +153,8 @@ final class LocaleListCompatWrapper implements LocaleListInterface {
     static void toLanguageTag(StringBuilder builder, Locale locale) {
         builder.append(locale.getLanguage());
         final String country = locale.getCountry();
+        // No guarantee that getCountry() was non-null in earlier SDKs.
+        //noinspection ConstantConditions
         if (country != null && !country.isEmpty()) {
             builder.append('-');
             builder.append(locale.getCountry());
@@ -160,7 +163,7 @@ final class LocaleListCompatWrapper implements LocaleListInterface {
 
     private static String getLikelyScript(Locale locale) {
         if (Build.VERSION.SDK_INT >= 21) {
-            final String script = locale.getScript();
+            final String script = Api21Impl.getScript(locale);
             if (!script.isEmpty()) {
                 return script;
             } else {
@@ -266,5 +269,17 @@ final class LocaleListCompatWrapper implements LocaleListInterface {
     public Locale getFirstMatch(@NonNull String[] supportedLocales) {
         return computeFirstMatch(Arrays.asList(supportedLocales),
                 false /* assume English is not supported */);
+    }
+
+    @RequiresApi(21)
+    static class Api21Impl {
+        private Api21Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static String getScript(Locale locale) {
+            return locale.getScript();
+        }
     }
 }

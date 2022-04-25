@@ -19,12 +19,15 @@ package androidx.compose.compiler.plugins.kotlin
 import androidx.compose.compiler.plugins.kotlin.lower.ClassStabilityTransformer
 import androidx.compose.compiler.plugins.kotlin.lower.ComposableFunInterfaceLowering
 import androidx.compose.compiler.plugins.kotlin.lower.ComposableFunctionBodyTransformer
+import androidx.compose.compiler.plugins.kotlin.lower.ComposableTargetAnnotationsTransformer
 import androidx.compose.compiler.plugins.kotlin.lower.ComposableSymbolRemapper
 import androidx.compose.compiler.plugins.kotlin.lower.ComposerIntrinsicTransformer
 import androidx.compose.compiler.plugins.kotlin.lower.ComposerLambdaMemoization
 import androidx.compose.compiler.plugins.kotlin.lower.ComposerParamTransformer
+import androidx.compose.compiler.plugins.kotlin.lower.CopyDefaultValuesFromExpectLowering
 import androidx.compose.compiler.plugins.kotlin.lower.DurableKeyVisitor
 import androidx.compose.compiler.plugins.kotlin.lower.KlibAssignableParamTransformer
+import androidx.compose.compiler.plugins.kotlin.lower.DurableFunctionKeyTransformer
 import androidx.compose.compiler.plugins.kotlin.lower.LiveLiteralTransformer
 import androidx.compose.compiler.plugins.kotlin.lower.decoys.CreateDecoysTransformer
 import androidx.compose.compiler.plugins.kotlin.lower.decoys.RecordDecoySignaturesTransformer
@@ -45,10 +48,12 @@ import org.jetbrains.kotlin.resolve.DelegatingBindingTrace
 class ComposeIrGenerationExtension(
     @Suppress("unused") private val liveLiteralsEnabled: Boolean = false,
     @Suppress("unused") private val liveLiteralsV2Enabled: Boolean = false,
+    private val generateFunctionKeyMetaClasses: Boolean = false,
     private val sourceInformationEnabled: Boolean = true,
     private val intrinsicRememberEnabled: Boolean = true,
     private val decoysEnabled: Boolean = false,
-    private val metricsDestination: String? = null
+    private val metricsDestination: String? = null,
+    private val reportsDestination: String? = null
 ) : IrGenerationExtension {
     var metrics: ModuleMetrics = EmptyModuleMetrics
     @OptIn(ObsoleteDescriptorBasedAPI::class)
@@ -69,8 +74,11 @@ class ComposeIrGenerationExtension(
         // create a symbol remapper to be used across all transforms
         val symbolRemapper = ComposableSymbolRemapper()
 
-        if (metricsDestination != null) {
-            metrics = ModuleMetricsImpl(moduleFragment.name.asString(), pluginContext)
+        if (metricsDestination != null || reportsDestination != null) {
+            metrics = ModuleMetricsImpl(
+                moduleFragment.name.asString(),
+                pluginContext
+            )
         }
 
         ClassStabilityTransformer(
@@ -92,6 +100,15 @@ class ComposeIrGenerationExtension(
 
         ComposableFunInterfaceLowering(pluginContext).lower(moduleFragment)
 
+        val functionKeyTransformer = DurableFunctionKeyTransformer(
+            pluginContext,
+            symbolRemapper,
+            bindingTrace,
+            metrics
+        )
+
+        functionKeyTransformer.lower(moduleFragment)
+
         // Memoize normal lambdas and wrap composable lambdas
         ComposerLambdaMemoization(
             pluginContext,
@@ -99,6 +116,8 @@ class ComposeIrGenerationExtension(
             bindingTrace,
             metrics
         ).lower(moduleFragment)
+
+        CopyDefaultValuesFromExpectLowering().lower(moduleFragment)
 
         val mangler = when {
             pluginContext.platform.isJs() -> JsManglerIr
@@ -145,6 +164,13 @@ class ComposeIrGenerationExtension(
             metrics,
         ).lower(moduleFragment)
 
+        ComposableTargetAnnotationsTransformer(
+            pluginContext,
+            symbolRemapper,
+            bindingTrace,
+            metrics
+        ).lower(moduleFragment)
+
         // transform calls to the currentComposer to just use the local parameter from the
         // previous transform
         ComposerIntrinsicTransformer(pluginContext, decoysEnabled).lower(moduleFragment)
@@ -182,8 +208,17 @@ class ComposeIrGenerationExtension(
             ).lower(moduleFragment)
         }
 
+        if (generateFunctionKeyMetaClasses) {
+            functionKeyTransformer.realizeKeyMetaAnnotations(moduleFragment)
+        } else {
+            functionKeyTransformer.removeKeyMetaClasses(moduleFragment)
+        }
+
         if (metricsDestination != null) {
-            metrics.saveTo(metricsDestination)
+            metrics.saveMetricsTo(metricsDestination)
+        }
+        if (reportsDestination != null) {
+            metrics.saveReportsTo(reportsDestination)
         }
     }
 }

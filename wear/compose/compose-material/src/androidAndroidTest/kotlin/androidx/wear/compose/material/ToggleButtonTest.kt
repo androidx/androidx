@@ -15,6 +15,8 @@
  */
 package androidx.wear.compose.material
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertShape
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
@@ -51,6 +54,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.test.filters.SdkSuppress
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -255,6 +259,7 @@ class ToggleButtonBehaviourTest {
             )
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @Test
     fun is_circular_under_ltr() =
         rule.isCircular(LayoutDirection.Ltr) {
@@ -267,6 +272,7 @@ class ToggleButtonBehaviourTest {
             )
         }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @Test
     fun is_circular_under_rtl() =
         rule.isCircular(LayoutDirection.Rtl) {
@@ -327,6 +333,7 @@ class ToggleButtonColorTest {
     @get:Rule
     val rule = createComposeRule()
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @Test
     fun gives_checked_primary_colors() =
         verifyColors(
@@ -336,6 +343,7 @@ class ToggleButtonColorTest {
             { MaterialTheme.colors.onPrimary }
         )
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @Test
     fun gives_unchecked_secondary_colors() =
         verifyColors(
@@ -345,6 +353,7 @@ class ToggleButtonColorTest {
             { MaterialTheme.colors.onSurface }
         )
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @Test
     fun gives_checked_disabled_alpha() =
         verifyColors(
@@ -354,6 +363,7 @@ class ToggleButtonColorTest {
             { MaterialTheme.colors.onPrimary }
         )
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @Test
     fun gives_unchecked_disabled_alpha() =
         verifyColors(
@@ -363,6 +373,7 @@ class ToggleButtonColorTest {
             { MaterialTheme.colors.onSurface }
         )
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun allows_custom_checked_background_override() {
         val override = Color.Yellow
@@ -412,6 +423,7 @@ class ToggleButtonColorTest {
         assertEquals(override, actualContentColor)
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun allows_custom_unchecked_background_override() {
         val override = Color.Red
@@ -461,6 +473,7 @@ class ToggleButtonColorTest {
         assertEquals(override, actualContentColor)
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun allows_custom_checked_disabled_background_override() {
         val override = Color.Yellow
@@ -510,6 +523,7 @@ class ToggleButtonColorTest {
         assertEquals(override, actualContentColor)
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun allows_custom_unchecked_disabled_background_override() {
         val override = Color.Red
@@ -555,12 +569,14 @@ class ToggleButtonColorTest {
         assertEquals(override, actualContentColor)
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     private fun verifyColors(
         status: Status,
         checked: Boolean,
         backgroundColor: @Composable () -> Color,
         contentColor: @Composable () -> Color
     ) {
+        val testBackgroundColor = Color.Magenta
         var expectedBackground = Color.Transparent
         var expectedContent = Color.Transparent
         var actualContent = Color.Transparent
@@ -572,7 +588,7 @@ class ToggleButtonColorTest {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(expectedBackground)
+                    .background(testBackgroundColor)
             ) {
                 ToggleButton(
                     checked = checked,
@@ -589,13 +605,21 @@ class ToggleButtonColorTest {
 
         if (status.enabled()) {
             assertEquals(expectedContent, actualContent)
+            if (expectedBackground != Color.Transparent) {
+                rule.onNodeWithTag(TEST_TAG)
+                    .captureToImage()
+                    .assertContainsColor(expectedBackground, 50.0f)
+            }
         } else {
             assertEquals(expectedContent.copy(alpha = actualDisabledAlpha), actualContent)
-        }
-        if (expectedBackground != Color.Transparent) {
-            rule.onNodeWithTag(TEST_TAG)
-                .captureToImage()
-                .assertContainsColor(expectedBackground, 50.0f)
+            if (expectedBackground != Color.Transparent) {
+                rule.onNodeWithTag(TEST_TAG)
+                    .captureToImage()
+                    .assertContainsColor(
+                        expectedBackground.copy(alpha = actualDisabledAlpha)
+                            .compositeOver(testBackgroundColor), 50.0f
+                    )
+            }
         }
     }
 }
@@ -611,6 +635,7 @@ private fun ComposeContentTestRule.verifyTapSize(
         .assertWidthIsEqualTo(expected.size)
 }
 
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 private fun ComposeContentTestRule.isCircular(
     layoutDirection: LayoutDirection,
     padding: Dp = 0.dp,

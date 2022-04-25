@@ -23,32 +23,18 @@ import static java.util.Objects.requireNonNull;
 
 import android.app.Service;
 import android.content.Intent;
-import android.content.res.Configuration;
-import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
 import androidx.annotation.CallSuper;
-import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
-import androidx.car.app.CarContext.CarServiceType;
-import androidx.car.app.navigation.NavigationManager;
-import androidx.car.app.serialization.Bundleable;
-import androidx.car.app.serialization.BundlerException;
-import androidx.car.app.utils.RemoteUtils;
-import androidx.car.app.utils.ThreadUtils;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.validation.HostValidator;
-import androidx.car.app.versioning.CarAppApiLevels;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.Lifecycle.Event;
-import androidx.lifecycle.Lifecycle.State;
-import androidx.lifecycle.LifecycleRegistry;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
-import java.security.InvalidParameterException;
 
 /**
  * The base class for implementing a car app that runs in the car.
@@ -107,13 +93,32 @@ public abstract class CarAppService extends Service {
 
     /**
      * Used to declare that this app is a parking app in the manifest.
+     *
+     * @deprecated use {@link #CATEGORY_POI_APP} instead
      */
+    @Deprecated
     public static final String CATEGORY_PARKING_APP = "androidx.car.app.category.PARKING";
 
     /**
      * Used to declare that this app is a charging app in the manifest.
+     *
+     * @deprecated use {@link #CATEGORY_POI_APP} instead
      */
+    @Deprecated
     public static final String CATEGORY_CHARGING_APP = "androidx.car.app.category.CHARGING";
+
+    /**
+     * Used in the app manifest. It declares that this app finds points of interests (POI).
+     */
+    public static final String CATEGORY_POI_APP = "androidx.car.app.category.POI";
+
+    /**
+     * Used to declare that this app is a settings app in the manifest. This app can be used to
+     * provide screens corresponding to the settings page and/or any error resolution screens e.g.
+     * sign-in screen.
+     */
+    @ExperimentalCarApi
+    public static final String CATEGORY_SETTINGS_APP = "androidx.car.app.category.SETTINGS";
 
     private static final String AUTO_DRIVE = "AUTO_DRIVE";
 
@@ -121,16 +126,25 @@ public abstract class CarAppService extends Service {
     private AppInfo mAppInfo;
 
     @Nullable
-    private Session mCurrentSession;
-
-    @Nullable
-    private HostValidator mHostValidator;
-
-    @Nullable
     private HostInfo mHostInfo;
 
     @Nullable
-    private HandshakeInfo mHandshakeInfo;
+    private CarAppBinder mBinder;
+
+    @Override
+    @CallSuper
+    public void onCreate() {
+        mBinder = new CarAppBinder(this);
+    }
+
+    @Override
+    @CallSuper
+    public void onDestroy() {
+        if (mBinder != null) {
+            mBinder.destroy();
+            mBinder = null;
+        }
+    }
 
     /**
      * Handles the host binding to this car app.
@@ -144,7 +158,7 @@ public abstract class CarAppService extends Service {
     @CallSuper
     @NonNull
     public final IBinder onBind(@NonNull Intent intent) {
-        return mBinder;
+        return requireNonNull(mBinder);
     }
 
     /**
@@ -158,19 +172,10 @@ public abstract class CarAppService extends Service {
             Log.d(TAG, "onUnbind intent: " + intent);
         }
         runOnMain(() -> {
-            if (mCurrentSession != null) {
-                // Destroy the session
-                // The session's lifecycle is observed by some of the manager and they will
-                // perform cleanup on destroy.  For example, the ScreenManager can destroy all
-                // Screens it holds.
-                LifecycleRegistry lifecycleRegistry = getLifecycleIfValid();
-                if (lifecycleRegistry == null) {
-                    Log.e(TAG, "Null Session when unbinding");
-                } else {
-                    lifecycleRegistry.handleLifecycleEvent(Event.ON_DESTROY);
-                }
+            if (mBinder != null) {
+                mBinder.onDestroyLifecycle();
             }
-            mCurrentSession = null;
+            mBinder = null;
         });
 
         if (Log.isLoggable(TAG, Log.DEBUG)) {
@@ -246,9 +251,8 @@ public abstract class CarAppService extends Service {
                     Log.d(TAG, "Executing onAutoDriveEnabled");
                 }
                 runOnMain(() -> {
-                    if (mCurrentSession != null) {
-                        mCurrentSession.getCarContext().getCarService(
-                                NavigationManager.class).onAutoDriveEnabled();
+                    if (mBinder != null) {
+                        mBinder.onAutoDriveEnabled();
                     }
                 });
             }
@@ -274,13 +278,9 @@ public abstract class CarAppService extends Service {
      */
     @Nullable
     public final Session getCurrentSession() {
-        return mCurrentSession;
+        return mBinder == null ? null : mBinder.getCurrentSession();
     }
 
-    // Strictly to avoid synthetic accessor.
-    void setCurrentSession(@Nullable Session session) {
-        mCurrentSession = session;
-    }
 
     // Strictly to avoid synthetic accessor.
     @NonNull
@@ -301,280 +301,8 @@ public abstract class CarAppService extends Service {
         mAppInfo = appInfo;
     }
 
-    @NonNull
-    HostValidator getHostValidator() {
-        if (mHostValidator == null) {
-            mHostValidator = createHostValidator();
-        }
-        return mHostValidator;
-    }
-
-    /**
-     * Used by tests to verify the different behaviors when the app has different api level than
-     * the host.
-     */
     @VisibleForTesting
-    void setHandshakeInfo(@NonNull HandshakeInfo handshakeInfo) {
-        int apiLevel = handshakeInfo.getHostCarAppApiLevel();
-        if (!CarAppApiLevels.isValid(apiLevel)) {
-            throw new IllegalArgumentException("Invalid Car App API level received: " + apiLevel);
-        }
-
-        mHandshakeInfo = handshakeInfo;
-    }
-
-    // Strictly to avoid synthetic accessor.
-    @Nullable
-    HandshakeInfo getHandshakeInfo() {
-        return mHandshakeInfo;
-    }
-
-    @Nullable
-    LifecycleRegistry getLifecycleIfValid() {
-        Session session = getCurrentSession();
-        return session == null ? null : (LifecycleRegistry) session.getLifecycleInternal();
-    }
-
-    @NonNull
-    LifecycleRegistry getLifecycle() {
-        return requireNonNull(getLifecycleIfValid());
-    }
-
-    private final ICarApp.Stub mBinder =
-            new ICarApp.Stub() {
-                // incompatible argument for parameter context of attachBaseContext.
-                // call to onCreateScreen(android.content.Intent) not allowed on the given receiver.
-                @SuppressWarnings({
-                        "nullness:argument.type.incompatible",
-                        "nullness:method.invocation.invalid"
-                })
-                @Override
-                public void onAppCreate(
-                        ICarHost carHost,
-                        Intent intent,
-                        Configuration configuration,
-                        IOnDoneCallback callback) {
-                    if (Log.isLoggable(TAG, Log.DEBUG)) {
-                        Log.d(TAG, "onAppCreate intent: " + intent);
-                    }
-
-                    RemoteUtils.dispatchCallFromHost(callback, "onAppCreate", () -> {
-                        Session session = getCurrentSession();
-                        if (session == null
-                                || getLifecycle().getCurrentState() == State.DESTROYED) {
-                            session = onCreateSession();
-                            setCurrentSession(session);
-                        }
-
-                        session.configure(CarAppService.this,
-                                requireNonNull(getHandshakeInfo()),
-                                requireNonNull(getHostInfo()),
-                                carHost, configuration);
-
-                        // Whenever the host unbinds, the screens in the stack are destroyed.  If
-                        // there is another bind, before the OS has destroyed this Service, then
-                        // the stack will be empty, and we need to treat it as a new instance.
-                        LifecycleRegistry registry = getLifecycle();
-                        Lifecycle.State state = registry.getCurrentState();
-                        int screenStackSize = session.getCarContext().getCarService(
-                                ScreenManager.class).getScreenStack().size();
-                        if (!state.isAtLeast(State.CREATED) || screenStackSize < 1) {
-                            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                                Log.d(TAG, "onAppCreate the app was not yet created or the "
-                                        + "screen stack was empty state: "
-                                        + registry.getCurrentState()
-                                        + ", stack size: " + screenStackSize);
-                            }
-                            registry.handleLifecycleEvent(Event.ON_CREATE);
-                            session.getCarContext().getCarService(ScreenManager.class).push(
-                                    session.onCreateScreen(intent));
-                        } else {
-                            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                                Log.d(TAG, "onAppCreate the app was already created");
-                            }
-                            onNewIntentInternal(session, intent);
-                        }
-                        return null;
-                    });
-
-                    if (Log.isLoggable(TAG, Log.DEBUG)) {
-                        Log.d(TAG, "onAppCreate completed");
-                    }
-                }
-
-                @Override
-                public void onAppStart(IOnDoneCallback callback) {
-                    RemoteUtils.dispatchCallFromHost(
-                            getLifecycleIfValid(), callback,
-                            "onAppStart", () -> {
-                                getLifecycle().handleLifecycleEvent(Event.ON_START);
-                                return null;
-                            });
-                }
-
-                @Override
-                public void onAppResume(IOnDoneCallback callback) {
-                    RemoteUtils.dispatchCallFromHost(
-                            getLifecycleIfValid(), callback,
-                            "onAppResume", () -> {
-                                getLifecycle()
-                                        .handleLifecycleEvent(Event.ON_RESUME);
-                                return null;
-                            });
-                }
-
-                @Override
-                public void onAppPause(IOnDoneCallback callback) {
-                    RemoteUtils.dispatchCallFromHost(
-                            getLifecycleIfValid(), callback, "onAppPause",
-                            () -> {
-                                getLifecycle().handleLifecycleEvent(Event.ON_PAUSE);
-                                return null;
-                            });
-                }
-
-                @Override
-                public void onAppStop(IOnDoneCallback callback) {
-                    RemoteUtils.dispatchCallFromHost(
-                            getLifecycleIfValid(), callback, "onAppStop",
-                            () -> {
-                                getLifecycle().handleLifecycleEvent(Event.ON_STOP);
-                                return null;
-                            });
-                }
-
-                @Override
-                public void onNewIntent(Intent intent, IOnDoneCallback callback) {
-                    RemoteUtils.dispatchCallFromHost(
-                            getLifecycleIfValid(),
-                            callback,
-                            "onNewIntent",
-                            () -> {
-                                onNewIntentInternal(throwIfInvalid(getCurrentSession()), intent);
-                                return null;
-                            });
-                }
-
-                @Override
-                public void onConfigurationChanged(Configuration configuration,
-                        IOnDoneCallback callback) {
-                    RemoteUtils.dispatchCallFromHost(
-                            getLifecycleIfValid(),
-                            callback,
-                            "onConfigurationChanged",
-                            () -> {
-                                onConfigurationChangedInternal(
-                                        throwIfInvalid(getCurrentSession()), configuration);
-                                return null;
-                            });
-                }
-
-                @Override
-                public void getManager(@CarServiceType @NonNull String type,
-                        IOnDoneCallback callback) {
-                    ThreadUtils.runOnMain(() -> {
-                        Session session = throwIfInvalid(getCurrentSession());
-                        switch (type) {
-                            case CarContext.APP_SERVICE:
-                                RemoteUtils.sendSuccessResponseToHost(
-                                        callback,
-                                        "getManager",
-                                        session.getCarContext().getCarService(
-                                                AppManager.class).getIInterface());
-                                return;
-                            case CarContext.NAVIGATION_SERVICE:
-                                RemoteUtils.sendSuccessResponseToHost(
-                                        callback,
-                                        "getManager",
-                                        session.getCarContext().getCarService(
-                                                NavigationManager.class).getIInterface());
-                                return;
-                            default:
-                                Log.e(TAG, type + "%s is not a valid manager");
-                                RemoteUtils.sendFailureResponseToHost(callback, "getManager",
-                                        new InvalidParameterException(
-                                                type + " is not a valid manager type"));
-                        }
-                    });
-                }
-
-                @Override
-                public void getAppInfo(IOnDoneCallback callback) {
-                    try {
-                        RemoteUtils.sendSuccessResponseToHost(
-                                callback, "getAppInfo", CarAppService.this.getAppInfo());
-                    } catch (IllegalArgumentException e) {
-                        // getAppInfo() could fail with the specified API version is invalid.
-                        RemoteUtils.sendFailureResponseToHost(callback, "getAppInfo", e);
-                    }
-                }
-
-                @Override
-                public void onHandshakeCompleted(Bundleable handshakeInfo,
-                        IOnDoneCallback callback) {
-                    try {
-                        HandshakeInfo deserializedHandshakeInfo =
-                                (HandshakeInfo) handshakeInfo.get();
-                        String packageName = deserializedHandshakeInfo.getHostPackageName();
-                        int uid = Binder.getCallingUid();
-                        HostInfo hostInfo = new HostInfo(packageName, uid);
-                        if (!getHostValidator().isValidHost(hostInfo)) {
-                            RemoteUtils.sendFailureResponseToHost(callback, "onHandshakeCompleted",
-                                    new IllegalArgumentException("Unknown host '"
-                                            + packageName + "', uid:" + uid));
-                            return;
-                        }
-
-                        int appMinApiLevel =
-                                CarAppService.this.getAppInfo().getMinCarAppApiLevel();
-                        int hostApiLevel = deserializedHandshakeInfo.getHostCarAppApiLevel();
-                        if (appMinApiLevel > hostApiLevel) {
-                            RemoteUtils.sendFailureResponseToHost(callback, "onHandshakeCompleted",
-                                    new IllegalArgumentException(
-                                            "Host API level (" + hostApiLevel + ") is "
-                                                    + "less than the app's min API level ("
-                                                    + appMinApiLevel + ")"));
-                            return;
-                        }
-
-                        setHostInfo(hostInfo);
-                        setHandshakeInfo(deserializedHandshakeInfo);
-                        RemoteUtils.sendSuccessResponseToHost(callback, "onHandshakeCompleted",
-                                null);
-                    } catch (BundlerException | IllegalArgumentException e) {
-                        setHostInfo(null);
-                        RemoteUtils.sendFailureResponseToHost(callback, "onHandshakeCompleted", e);
-                    }
-                }
-
-                // call to onNewIntent(android.content.Intent) not allowed on the given receiver.
-                @SuppressWarnings("nullness:method.invocation.invalid")
-                @MainThread
-                private void onNewIntentInternal(Session session, Intent intent) {
-                    ThreadUtils.checkMainThread();
-                    session.onNewIntent(intent);
-                }
-
-                // call to onCarConfigurationChanged(android.content.res.Configuration) not
-                // allowed on the given receiver.
-                @SuppressWarnings("nullness:method.invocation.invalid")
-                @MainThread
-                private void onConfigurationChangedInternal(Session session,
-                        Configuration configuration) {
-                    ThreadUtils.checkMainThread();
-                    if (Log.isLoggable(TAG, Log.DEBUG)) {
-                        Log.d(TAG, "onCarConfigurationChanged configuration: " + configuration);
-                    }
-
-                    session.onCarConfigurationChangedInternal(configuration);
-                }
-            };
-
-    Session throwIfInvalid(@Nullable Session session) {
-        if (session == null) {
-            throw new IllegalStateException("Null session found when non-null expected");
-        }
-
-        return session;
+    void setCarAppbinder(@Nullable CarAppBinder carAppbinder) {
+        mBinder = carAppbinder;
     }
 }

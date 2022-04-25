@@ -15,7 +15,8 @@
  */
 package androidx.emoji2.bundled;
 
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
@@ -119,10 +120,19 @@ public class AllEmojisTest {
 
     @Test
     public void testEmoji() {
-        assertTrue("EmojiCompat should have emoji: " + mCodepoints,
-                EmojiCompat.get().hasEmojiGlyph(mString));
+        assertEquals("EmojiCompat should have emoji: " + mCodepoints + "(" + mString + ")",
+                EmojiCompat.EMOJI_SUPPORTED,
+                EmojiCompat.get().getEmojiMatch(mString, Integer.MAX_VALUE));
         assertEmojiCompatAddsEmoji(mString);
         assertSpanCanRenderEmoji(mString);
+    }
+
+    @SuppressWarnings("deprecation")
+    @Test
+    public void testEmoji_DeprecatedApiPath() {
+        assertTrue("EmojiCompat should have emoji (deprecated API): " + mCodepoints
+                        + "(" + mString + ")",
+                EmojiCompat.get().hasEmojiGlyph(mString, Integer.MAX_VALUE));
     }
 
     private void assertSpanCanRenderEmoji(final String str) {

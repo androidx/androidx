@@ -1,5 +1,3 @@
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -29,4 +27,8 @@ androidx {
     mavenGroup = LibraryGroups.CORE
     inceptionYear = "2018"
     description = "Kotlin extensions for 'core' artifact"
+}
+
+android {
+    namespace "androidx.core.ktx"
 }

@@ -30,3 +30,7 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.kotlinStdlib)
 }
+
+android {
+    namespace "androidx.appcompat.benchmark"
+}

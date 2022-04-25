@@ -35,10 +35,10 @@ import org.junit.runner.RunWith
 @RunWith(WearInputTestRunner::class)
 class WearableRemoteInputExtenderTest {
     @Test
-    fun testDisallowEmoji_setTrue() {
+    fun testDisallowEmoji() {
         val remoteInput = RemoteInput.Builder("resultKey")
             .wearableExtender {
-                disallowEmoji()
+                setEmojisAllowed(false)
             }.build()
 
         assertTrue(
@@ -51,7 +51,23 @@ class WearableRemoteInputExtenderTest {
     }
 
     @Test
-    fun testDisallowEmoji_notSet() {
+    fun testSetEmojisAllowed() {
+        val remoteInput: RemoteInput = RemoteInput.Builder("resultKey")
+            .wearableExtender {
+                setEmojisAllowed(true)
+            }.build()
+
+        assertFalse(
+            remoteInput.extras.getBoolean(WearableRemoteInputExtender.EXTRA_DISALLOW_EMOJI)
+        )
+        // Test that input action type is not set.
+        assertEquals(
+            -1, remoteInput.extras.getInt(WearableRemoteInputExtender.EXTRA_INPUT_ACTION_TYPE, -1)
+        )
+    }
+
+    @Test
+    fun testSetEmojisAllowed_notSet() {
         val remoteInput: RemoteInput = RemoteInput.Builder("resultKey")
             .wearableExtender {
                 // empty
@@ -90,7 +106,7 @@ class WearableRemoteInputExtenderTest {
     fun testDisallowEmoji_SetInputActionType() {
         val remoteInput = RemoteInput.Builder("resultKey")
             .wearableExtender {
-                disallowEmoji()
+                setEmojisAllowed(false)
                 setInputActionType(IME_ACTION_GO)
             }.build()
 

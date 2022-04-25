@@ -15,6 +15,8 @@
  */
 package androidx.compose.ui.test.junit4
 
+import org.jetbrains.skia.Image
+import androidx.compose.ui.test.InternalTestApi
 import org.jetbrains.skia.Surface
 import org.junit.rules.TestRule
 import org.junit.runner.Description
@@ -23,7 +25,10 @@ import java.io.File
 import java.security.MessageDigest
 import java.util.LinkedList
 
+// TODO(https://github.com/JetBrains/compose-jb/issues/1041): refactor API
+
 // TODO: replace with androidx.test.screenshot.proto.ScreenshotResultProto after MPP
+@InternalTestApi
 data class ScreenshotResultProto(
     val result: Status,
     val comparisonStatistics: String,
@@ -42,18 +47,24 @@ data class ScreenshotResultProto(
     }
 }
 
+@InternalTestApi
 data class GoldenConfig(
     val fsGoldenPath: String,
     val repoGoldenPath: String,
     val modulePrefix: String
 )
 
+@InternalTestApi
 class SkiaTestAlbum(val config: GoldenConfig) {
     data class Report(val screenshots: Map<String, ScreenshotResultProto>)
 
     private val screenshots: MutableMap<String, ScreenshotResultProto> = mutableMapOf()
     private val report = Report(screenshots)
     fun snap(surface: Surface, id: String) {
+        write(surface.makeImageSnapshot(), id)
+    }
+
+    fun write(image: Image, id: String) {
         if (!id.matches("^[A-Za-z0-9_-]+$".toRegex())) {
             throw IllegalArgumentException(
                 "The given golden identifier '$id' does not satisfy the naming " +
@@ -61,7 +72,7 @@ class SkiaTestAlbum(val config: GoldenConfig) {
             )
         }
 
-        val actual = surface.makeImageSnapshot().encodeToData()!!.bytes
+        val actual = image.encodeToData()!!.bytes
 
         val expected = readExpectedImage(id)
         if (expected == null) {
@@ -155,6 +166,7 @@ class SkiaTestAlbum(val config: GoldenConfig) {
     }
 }
 
+@InternalTestApi
 fun DesktopScreenshotTestRule(
     modulePath: String,
     fsGoldenPath: String = System.getProperty("GOLDEN_PATH"),
@@ -163,6 +175,7 @@ fun DesktopScreenshotTestRule(
     return ScreenshotTestRule(GoldenConfig(fsGoldenPath, repoGoldenPath, modulePath))
 }
 
+@InternalTestApi
 class ScreenshotTestRule internal constructor(val config: GoldenConfig) : TestRule {
     private lateinit var testIdentifier: String
     private lateinit var album: SkiaTestAlbum
@@ -189,8 +202,12 @@ class ScreenshotTestRule internal constructor(val config: GoldenConfig) : TestRu
     }
 
     fun snap(surface: Surface, idSuffix: String? = null) {
+        write(surface.makeImageSnapshot(), idSuffix)
+    }
+
+    fun write(image: Image, idSuffix: String? = null) {
         val id = testIdentifier + if (idSuffix != null) "_$idSuffix" else ""
-        album.snap(surface, id)
+        album.write(image, id)
     }
 
     private fun handleReport(report: SkiaTestAlbum.Report) {

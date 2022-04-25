@@ -63,7 +63,7 @@ public final class PlaceMarker {
      * Represents a marker image.
      *
      * <p>To minimize scaling artifacts across a wide range of car screens, apps should provide
-     * images targeting a 72 x 72 dp bounding box. If necessary, the icon will be scaled down while
+     * images targeting a 72 x 72 dp bounding box. If necessary, the image will be scaled down while
      * preserving its aspect ratio.
      */
     public static final int TYPE_IMAGE = 1;

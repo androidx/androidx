@@ -25,6 +25,7 @@ import android.provider.MediaStore;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.utils.Exif;
 import androidx.camera.core.internal.compat.workaround.ExifRotationAvailability;
 import androidx.camera.core.internal.utils.ImageUtil;
@@ -41,6 +42,7 @@ import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class ImageSaver implements Runnable {
     private static final String TAG = "ImageSaver";
 

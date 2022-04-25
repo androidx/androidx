@@ -18,6 +18,7 @@ package androidx.camera.video
 
 import androidx.camera.testing.asFlow
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.flow.first
@@ -27,6 +28,7 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = 21)
 class VideoOutputTest {
 
     @Test
@@ -35,8 +37,8 @@ class VideoOutputTest {
         // VideoOutput#getStreamState() so the default implementation is used.
         val videoOutput = VideoOutput { request -> request.willNotProvideSurface() }
 
-        val streamState = videoOutput.streamState.asFlow().first()
-        assertThat(streamState).isEqualTo(VideoOutput.StreamState.ACTIVE)
+        val streamState = videoOutput.streamInfo.asFlow().first()!!.streamState
+        assertThat(streamState).isEqualTo(StreamInfo.StreamState.ACTIVE)
     }
 
     @Test

@@ -26,6 +26,12 @@ configurations {
 }
 
 dependencies {
+    cacheableApi(libs.toml)
+    cacheableImplementation(libs.gson)
+    cacheableImplementation(libs.dom4j) {
+        // Optional dependency where Ivy fails to parse the POM file.
+        exclude(group:"net.java.dev.msv", module:"xsdlib")
+    }
     cacheableApi(libs.androidGradlePluginz)
     cacheableImplementation(libs.dexMemberList)
     cacheableApi(libs.kotlinGradlePluginz)
@@ -49,37 +55,6 @@ dependencies {
 // Exclude dokka coming from AGP. We don't need it and it conflicts with dackka: b/195305339
 configurations.configureEach { conf ->
   conf.exclude(group:"org.jetbrains.dokka", module:"dokka-core")
-}
-
-apply plugin: "java-gradle-plugin"
-
-sourceSets {
-    main.java.srcDirs += "../public/src/main/kotlin"
-    main.resources.srcDirs += "../public/src/main/resources"
-
-
-    main.java.srcDirs += "${supportRootFolder}/benchmark/gradle-plugin/src/main/kotlin"
-    main.resources.srcDirs += "${supportRootFolder}/benchmark/gradle-plugin/src/main/resources"
-
-    main.java.srcDirs += "${supportRootFolder}/inspection/inspection-gradle-plugin/src/main/kotlin"
-    main.resources.srcDirs += "${supportRootFolder}/inspection/inspection-gradle-plugin/src/main" +
-            "/resources"
-
-    main.java.srcDirs += "${supportRootFolder}/compose/material/material/icons/generator/src/main" +
-            "/kotlin"
-}
-
-gradlePlugin {
-    plugins {
-        benchmark {
-            id = "androidx.benchmark"
-            implementationClass = "androidx.benchmark.gradle.BenchmarkPlugin"
-        }
-        inspection {
-            id = "androidx.inspection"
-            implementationClass = "androidx.inspection.gradle.InspectionPlugin"
-        }
-    }
 }
 
 // Saves configuration into destFile

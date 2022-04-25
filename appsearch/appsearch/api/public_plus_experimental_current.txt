@@ -178,6 +178,7 @@ package androidx.appsearch.app {
   public interface AppSearchSession extends java.io.Closeable {
     method public void close();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchBatchResult<java.lang.String!,androidx.appsearch.app.GenericDocument!>!> getByDocumentId(androidx.appsearch.app.GetByDocumentIdRequest);
+    method public androidx.appsearch.app.Features getFeatures();
     method public com.google.common.util.concurrent.ListenableFuture<java.util.Set<java.lang.String!>!> getNamespaces();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.GetSchemaResponse!> getSchema();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.StorageInfo!> getStorageInfo();
@@ -195,6 +196,12 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.AppSearchSchema getSchema() throws androidx.appsearch.exceptions.AppSearchException;
     method public String getSchemaName();
     method public androidx.appsearch.app.GenericDocument toGenericDocument(T) throws androidx.appsearch.exceptions.AppSearchException;
+  }
+
+  public interface Features {
+    method public boolean isFeatureSupported(String);
+    field public static final String GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER = "GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER";
+    field public static final String SEARCH_RESULT_MATCH_INFO_SUBMATCH = "SEARCH_RESULT_MATCH_INFO_SUBMATCH";
   }
 
   public class GenericDocument {
@@ -271,7 +278,10 @@ package androidx.appsearch.app {
   }
 
   public interface GlobalSearchSession extends java.io.Closeable {
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER) public void addObserver(String, androidx.appsearch.observer.ObserverSpec, java.util.concurrent.Executor, androidx.appsearch.observer.AppSearchObserverCallback);
     method public void close();
+    method public androidx.appsearch.app.Features getFeatures();
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER) public void removeObserver(String, androidx.appsearch.observer.AppSearchObserverCallback);
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> reportSystemUsage(androidx.appsearch.app.ReportSystemUsageRequest);
     method public androidx.appsearch.app.SearchResults search(String, androidx.appsearch.app.SearchSpec);
   }
@@ -365,8 +375,8 @@ package androidx.appsearch.app {
     method public String getPropertyPath();
     method public CharSequence getSnippet();
     method public androidx.appsearch.app.SearchResult.MatchRange getSnippetRange();
-    method public CharSequence getSubmatch();
-    method public androidx.appsearch.app.SearchResult.MatchRange getSubmatchRange();
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH) public CharSequence getSubmatch();
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH) public androidx.appsearch.app.SearchResult.MatchRange getSubmatchRange();
   }
 
   public static final class SearchResult.MatchInfo.Builder {
@@ -519,6 +529,42 @@ package androidx.appsearch.exceptions {
     ctor public AppSearchException(int, String?, Throwable?);
     method public int getResultCode();
     method public <T> androidx.appsearch.app.AppSearchResult<T!> toAppSearchResult();
+  }
+
+}
+
+package androidx.appsearch.observer {
+
+  public interface AppSearchObserverCallback {
+    method public void onDocumentChanged(androidx.appsearch.observer.DocumentChangeInfo);
+    method public void onSchemaChanged(androidx.appsearch.observer.SchemaChangeInfo);
+  }
+
+  public final class DocumentChangeInfo {
+    ctor public DocumentChangeInfo(String, String, String, String);
+    method public String getDatabaseName();
+    method public String getNamespace();
+    method public String getPackageName();
+    method public String getSchemaName();
+  }
+
+  public final class ObserverSpec {
+    method public java.util.Set<java.lang.String!> getFilterSchemas();
+  }
+
+  public static final class ObserverSpec.Builder {
+    ctor public ObserverSpec.Builder();
+    method public androidx.appsearch.observer.ObserverSpec.Builder addFilterDocumentClasses(Class<?>!...) throws androidx.appsearch.exceptions.AppSearchException;
+    method public androidx.appsearch.observer.ObserverSpec.Builder addFilterDocumentClasses(java.util.Collection<? extends java.lang.Class<?>>) throws androidx.appsearch.exceptions.AppSearchException;
+    method public androidx.appsearch.observer.ObserverSpec.Builder addFilterSchemas(java.lang.String!...);
+    method public androidx.appsearch.observer.ObserverSpec.Builder addFilterSchemas(java.util.Collection<java.lang.String!>);
+    method public androidx.appsearch.observer.ObserverSpec build();
+  }
+
+  public final class SchemaChangeInfo {
+    ctor public SchemaChangeInfo(String, String);
+    method public String getDatabaseName();
+    method public String getPackageName();
   }
 
 }

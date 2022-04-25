@@ -16,6 +16,8 @@
 
 package androidx.car.app.model.signin;
 
+import static androidx.car.app.model.Action.FLAG_PRIMARY;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
@@ -49,6 +51,21 @@ public class SignInTemplateTest {
         // Positive cases.
         new SignInTemplate.Builder(signInMethod).setTitle("Title").build();
         new SignInTemplate.Builder(signInMethod).setHeaderAction(Action.BACK).build();
+    }
+
+    @Test
+    public void createInstance_addPrimaryAction_throws() {
+        PinSignInMethod signInMethod = new PinSignInMethod("ABC");
+
+        Action primaryAction = new Action.Builder().setTitle("primaryAction")
+                .setOnClickListener(ParkedOnlyOnClickListener.create(() -> { }))
+                .setFlags(FLAG_PRIMARY)
+                .build();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new  SignInTemplate.Builder(signInMethod)
+                              .addAction(primaryAction));
     }
 
     @Test

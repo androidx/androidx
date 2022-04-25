@@ -23,12 +23,12 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.room.util.CopyLock;
 import androidx.room.util.DBUtil;
 import androidx.room.util.FileUtil;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteOpenHelper;
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
+import androidx.sqlite.util.ProcessLock;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -129,7 +129,8 @@ class SQLiteCopyOpenHelper implements SupportSQLiteOpenHelper, DelegatingOpenHel
         File databaseFile = mContext.getDatabasePath(databaseName);
         boolean processLevelLock = mDatabaseConfiguration == null
                 || mDatabaseConfiguration.multiInstanceInvalidation;
-        CopyLock copyLock = new CopyLock(databaseName, mContext.getFilesDir(), processLevelLock);
+        ProcessLock copyLock = new ProcessLock(databaseName, mContext.getFilesDir(),
+                processLevelLock);
         try {
             // Acquire a copy lock, this lock works across threads and processes, preventing
             // concurrent copy attempts from occurring.
@@ -248,18 +249,16 @@ class SQLiteCopyOpenHelper implements SupportSQLiteOpenHelper, DelegatingOpenHel
     }
 
     private SupportSQLiteOpenHelper createFrameworkOpenHelper(File databaseFile) {
-        String databaseName = databaseFile.getName();
-        int version;
+        final int version;
         try {
             version = DBUtil.readVersion(databaseFile);
         } catch (IOException e) {
             throw new RuntimeException("Malformed database file, unable to read version.", e);
         }
-
         FrameworkSQLiteOpenHelperFactory factory = new FrameworkSQLiteOpenHelperFactory();
         Configuration configuration = Configuration.builder(mContext)
-                .name(databaseName)
-                .callback(new Callback(version) {
+                .name(databaseFile.getAbsolutePath())
+                .callback(new Callback(Math.max(version, 1)) {
                     @Override
                     public void onCreate(@NonNull SupportSQLiteDatabase db) {
                     }
@@ -267,6 +266,18 @@ class SQLiteCopyOpenHelper implements SupportSQLiteOpenHelper, DelegatingOpenHel
                     @Override
                     public void onUpgrade(@NonNull SupportSQLiteDatabase db, int oldVersion,
                             int newVersion) {
+                    }
+
+                    @Override
+                    public void onOpen(@NonNull SupportSQLiteDatabase db) {
+                        // If pre-packaged database has a version < 1 we will open it as if it was
+                        // version 1 because the framework open helper does not allow version < 1.
+                        // The database will be considered as newly created and onCreate() will be
+                        // invoked, but we do nothing and reset the version back so Room later runs
+                        // migrations as usual.
+                        if (version < 1) {
+                            db.setVersion(version);
+                        }
                     }
                 })
                 .build();

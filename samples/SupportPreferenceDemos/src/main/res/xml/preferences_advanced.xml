@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  Copyright 2021 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <PreferenceCategory
+        android:key="advanced"
+        android:title="@string/advanced_attributes"
+        app:initialExpandedChildrenCount="1">
+
+        <Preference
+            android:key="expandable"
+            android:title="@string/title_expandable_preference"
+            android:summary="@string/summary_expandable_preference"/>
+
+        <Preference
+            android:title="@string/title_intent_preference"
+            android:summary="@string/summary_intent_preference">
+
+            <intent android:action="android.intent.action.VIEW"
+                android:data="http://www.android.com"/>
+
+        </Preference>
+
+        <SwitchPreferenceCompat
+            android:key="parent"
+            android:title="@string/title_parent_preference"
+            android:summary="@string/summary_parent_preference"/>
+
+        <SwitchPreferenceCompat
+            android:key="child"
+            android:dependency="parent"
+            android:title="@string/title_child_preference"
+            android:summary="@string/summary_child_preference"/>
+
+        <SwitchPreferenceCompat
+            android:key="toggle_summary"
+            android:title="@string/title_toggle_summary_preference"
+            android:summaryOn="@string/summary_on_toggle_summary_preference"
+            android:summaryOff="@string/summary_off_toggle_summary_preference"/>
+
+        <Preference
+            android:key="copyable"
+            android:title="@string/title_copyable_preference"
+            android:summary="@string/summary_copyable_preference"
+            android:selectable="false"
+            app:enableCopying="true"/>
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:key="multi-screen"
+        android:title="@string/multi_preference_screen">
+        <Preference
+            android:title="@string/title_multi_preference_screen"
+            android:summary="@string/summary_multi_preference_screen"
+            android:fragment="com.example.androidx.preference.TwoPanePreferences$MultiPreferences"/>
+    </PreferenceCategory>
+</PreferenceScreen>

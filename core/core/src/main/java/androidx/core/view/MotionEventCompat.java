@@ -18,6 +18,8 @@ package androidx.core.view;
 
 import android.view.MotionEvent;
 
+import androidx.annotation.NonNull;
+
 /**
  * Helper for accessing features in {@link MotionEvent}.
  */
@@ -549,7 +551,7 @@ public final class MotionEventCompat {
      * @param source The input source to check against.
      * @return Whether the event is from the given source.
      */
-    public static boolean isFromSource(MotionEvent event, int source) {
+    public static boolean isFromSource(@NonNull MotionEvent event, int source) {
         return (event.getSource() & source) == source;
     }
 

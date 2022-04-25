@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.lazy
 
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.Placeable
@@ -36,9 +37,9 @@ import kotlin.math.sign
 internal fun measureLazyList(
     itemsCount: Int,
     itemProvider: LazyMeasuredItemProvider,
-    mainAxisMaxSize: Int,
-    startContentPadding: Int,
-    endContentPadding: Int,
+    mainAxisAvailableSize: Int,
+    beforeContentPadding: Int,
+    afterContentPadding: Int,
     firstVisibleItemIndex: DataIndex,
     firstVisibleItemScrollOffset: Int,
     scrollToBeConsumed: Float,
@@ -50,10 +51,11 @@ internal fun measureLazyList(
     reverseLayout: Boolean,
     density: Density,
     layoutDirection: LayoutDirection,
+    placementAnimator: LazyListItemPlacementAnimator,
     layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult
 ): LazyListMeasureResult {
-    require(startContentPadding >= 0)
-    require(endContentPadding >= 0)
+    require(beforeContentPadding >= 0)
+    require(afterContentPadding >= 0)
     if (itemsCount <= 0) {
         // empty data set. reset the current scroll and report zero size
         return LazyListMeasureResult(
@@ -61,12 +63,14 @@ internal fun measureLazyList(
             firstVisibleItemScrollOffset = 0,
             canScrollForward = false,
             consumedScroll = 0f,
-            composedButNotVisibleItems = null,
             measureResult = layout(constraints.minWidth, constraints.minHeight) {},
             visibleItemsInfo = emptyList(),
-            viewportStartOffset = -startContentPadding,
-            viewportEndOffset = endContentPadding,
+            viewportStartOffset = -beforeContentPadding,
+            viewportEndOffset = mainAxisAvailableSize + afterContentPadding,
             totalItemsCount = 0,
+            reverseLayout = reverseLayout,
+            orientation = if (isVertical) Orientation.Vertical else Orientation.Horizontal,
+            afterContentPadding = afterContentPadding
         )
     } else {
         var currentFirstItemIndex = firstVisibleItemIndex
@@ -96,11 +100,11 @@ internal fun measureLazyList(
 
         // include the start padding so we compose items in the padding area. before starting
         // scrolling forward we would remove it back
-        currentFirstItemScrollOffset -= startContentPadding
+        currentFirstItemScrollOffset -= beforeContentPadding
 
-        // define min and max offsets (min offset currently includes startPadding)
-        val minOffset = -startContentPadding
-        val maxOffset = mainAxisMaxSize
+        // define min and max offsets (min offset currently includes beforeContentPadding)
+        val minOffset = -beforeContentPadding
+        val maxOffset = mainAxisAvailableSize
 
         // max of cross axis sizes of all visible items
         var maxCrossAxis = 0
@@ -123,39 +127,32 @@ internal fun measureLazyList(
             currentFirstItemScrollOffset = minOffset
         }
 
-        // neutralize previously added start padding as we stopped filling the start padding area
-        currentFirstItemScrollOffset += startContentPadding
-
-        // remembers the composed MeasuredItem which we are not currently placing as they are out
-        // of screen. it is possible we will need to place them if the remaining items will
-        // not fill the whole viewport and we will need to scroll back
-        var notUsedButComposedItems: MutableList<LazyMeasuredItem>? = null
+        // neutralize previously added start padding as we stopped filling the before content padding
+        currentFirstItemScrollOffset += beforeContentPadding
 
         var index = currentFirstItemIndex
-        val maxMainAxis = maxOffset + endContentPadding
-        var mainAxisUsed = -currentFirstItemScrollOffset
+        val maxMainAxis = (maxOffset + afterContentPadding).coerceAtLeast(0)
+        var currentMainAxisOffset = -currentFirstItemScrollOffset
 
         // first we need to skip items we already composed while composing backward
         visibleItems.fastForEach {
             index++
-            mainAxisUsed += it.sizeWithSpacings
+            currentMainAxisOffset += it.sizeWithSpacings
         }
 
-        // then composing visible items forward until we fill the whole viewport
-        while (mainAxisUsed <= maxMainAxis && index.value < itemsCount) {
+        // then composing visible items forward until we fill the whole viewport.
+        // we want to have at least one item in visibleItems even if in fact all the items are
+        // offscreen, this can happen if the content padding is larger than the available size.
+        while ((currentMainAxisOffset <= maxMainAxis || visibleItems.isEmpty()) &&
+            index.value < itemsCount
+        ) {
             val measuredItem = itemProvider.getAndMeasure(index)
-            mainAxisUsed += measuredItem.sizeWithSpacings
+            currentMainAxisOffset += measuredItem.sizeWithSpacings
 
-            if (mainAxisUsed <= minOffset) {
+            if (currentMainAxisOffset <= minOffset && index.value != itemsCount - 1) {
                 // this item is offscreen and will not be placed. advance firstVisibleItemIndex
                 currentFirstItemIndex = index + 1
                 currentFirstItemScrollOffset -= measuredItem.sizeWithSpacings
-                // but remember the corresponding placeables in case we will be forced to
-                // scroll back as there were not enough items to fill the viewport
-                if (notUsedButComposedItems == null) {
-                    notUsedButComposedItems = mutableListOf()
-                }
-                notUsedButComposedItems.add(measuredItem)
             } else {
                 maxCrossAxis = maxOf(maxCrossAxis, measuredItem.crossAxisSize)
                 visibleItems.add(measuredItem)
@@ -166,27 +163,24 @@ internal fun measureLazyList(
 
         // we didn't fill the whole viewport with items starting from firstVisibleItemIndex.
         // lets try to scroll back if we have enough items before firstVisibleItemIndex.
-        if (mainAxisUsed < maxOffset) {
-            val toScrollBack = maxOffset - mainAxisUsed
+        if (currentMainAxisOffset < maxOffset) {
+            val toScrollBack = maxOffset - currentMainAxisOffset
             currentFirstItemScrollOffset -= toScrollBack
-            mainAxisUsed += toScrollBack
-            while (currentFirstItemScrollOffset < 0 && currentFirstItemIndex > DataIndex(0)) {
-                val previous = DataIndex(currentFirstItemIndex.value - 1)
-                val alreadyComposedIndex = notUsedButComposedItems?.lastIndex ?: -1
-                val measuredItem = if (alreadyComposedIndex >= 0) {
-                    notUsedButComposedItems!!.removeAt(alreadyComposedIndex)
-                } else {
-                    itemProvider.getAndMeasure(previous)
-                }
+            currentMainAxisOffset += toScrollBack
+            while (currentFirstItemScrollOffset < beforeContentPadding &&
+                currentFirstItemIndex > DataIndex(0)
+            ) {
+                val previousIndex = DataIndex(currentFirstItemIndex.value - 1)
+                val measuredItem = itemProvider.getAndMeasure(previousIndex)
                 visibleItems.add(0, measuredItem)
                 maxCrossAxis = maxOf(maxCrossAxis, measuredItem.crossAxisSize)
                 currentFirstItemScrollOffset += measuredItem.sizeWithSpacings
-                currentFirstItemIndex = previous
+                currentFirstItemIndex = previousIndex
             }
             scrollDelta += toScrollBack
             if (currentFirstItemScrollOffset < 0) {
                 scrollDelta += currentFirstItemScrollOffset
-                mainAxisUsed += currentFirstItemScrollOffset
+                currentMainAxisOffset += currentFirstItemScrollOffset
                 currentFirstItemScrollOffset = 0
             }
         }
@@ -205,11 +199,11 @@ internal fun measureLazyList(
 
         // the initial offset for items from visibleItems list
         val visibleItemsScrollOffset = -currentFirstItemScrollOffset
-        var firstItem = visibleItems.firstOrNull()
+        var firstItem = visibleItems.first()
 
-        // even if we compose items to fill the start padding area we should ignore items fully
+        // even if we compose items to fill before content padding we should ignore items fully
         // located there for the state's scroll position calculation (first item + first offset)
-        if (startContentPadding > 0) {
+        if (beforeContentPadding > 0) {
             for (i in visibleItems.indices) {
                 val size = visibleItems[i].sizeWithSpacings
                 if (size <= currentFirstItemScrollOffset && i != visibleItems.lastIndex) {
@@ -222,14 +216,16 @@ internal fun measureLazyList(
         }
 
         val layoutWidth =
-            constraints.constrainWidth(if (isVertical) maxCrossAxis else mainAxisUsed)
+            constraints.constrainWidth(if (isVertical) maxCrossAxis else currentMainAxisOffset)
         val layoutHeight =
-            constraints.constrainHeight(if (isVertical) mainAxisUsed else maxCrossAxis)
+            constraints.constrainHeight(if (isVertical) currentMainAxisOffset else maxCrossAxis)
 
-        calculateItemsOffsets(
+        val positionedItems = calculateItemsOffsets(
             items = visibleItems,
-            mainAxisLayoutSize = if (isVertical) layoutHeight else layoutWidth,
-            usedMainAxisSize = mainAxisUsed,
+            layoutWidth = layoutWidth,
+            layoutHeight = layoutHeight,
+            finalMainAxisOffset = currentMainAxisOffset,
+            maxOffset = maxOffset,
             itemsScrollOffset = visibleItemsScrollOffset,
             isVertical = isVertical,
             verticalArrangement = verticalArrangement,
@@ -241,37 +237,47 @@ internal fun measureLazyList(
 
         val headerItem = if (headerIndexes.isNotEmpty()) {
             findOrComposeLazyListHeader(
-                composedVisibleItems = visibleItems,
-                notUsedButComposedItems = notUsedButComposedItems,
+                composedVisibleItems = positionedItems,
                 itemProvider = itemProvider,
                 headerIndexes = headerIndexes,
-                startContentPadding = startContentPadding
+                beforeContentPadding = beforeContentPadding,
+                layoutWidth = layoutWidth,
+                layoutHeight = layoutHeight
             )
         } else {
             null
         }
 
-        val maximumVisibleOffset = minOf(mainAxisUsed, mainAxisMaxSize) + endContentPadding
+        placementAnimator.onMeasured(
+            consumedScroll = consumedScroll.toInt(),
+            layoutWidth = layoutWidth,
+            layoutHeight = layoutHeight,
+            reverseLayout = reverseLayout,
+            positionedItems = positionedItems,
+            itemProvider = itemProvider
+        )
 
         return LazyListMeasureResult(
             firstVisibleItem = firstItem,
             firstVisibleItemScrollOffset = currentFirstItemScrollOffset,
-            canScrollForward = mainAxisUsed > maxOffset,
+            canScrollForward = currentMainAxisOffset > maxOffset,
             consumedScroll = consumedScroll,
-            composedButNotVisibleItems = notUsedButComposedItems,
             measureResult = layout(layoutWidth, layoutHeight) {
-                visibleItems.fastForEach {
+                positionedItems.fastForEach {
                     if (it !== headerItem) {
-                        it.place(this, layoutWidth, layoutHeight)
+                        it.place(this)
                     }
                 }
                 // the header item should be placed (drawn) after all other items
-                headerItem?.place(this, layoutWidth, layoutHeight)
+                headerItem?.place(this)
             },
-            viewportStartOffset = -startContentPadding,
-            viewportEndOffset = maximumVisibleOffset,
-            visibleItemsInfo = visibleItems,
+            viewportStartOffset = -beforeContentPadding,
+            viewportEndOffset = maxOffset + afterContentPadding,
+            visibleItemsInfo = positionedItems,
             totalItemsCount = itemsCount,
+            reverseLayout = reverseLayout,
+            orientation = if (isVertical) Orientation.Vertical else Orientation.Horizontal,
+            afterContentPadding = afterContentPadding
         )
     }
 }
@@ -281,8 +287,10 @@ internal fun measureLazyList(
  */
 private fun calculateItemsOffsets(
     items: List<LazyMeasuredItem>,
-    mainAxisLayoutSize: Int,
-    usedMainAxisSize: Int,
+    layoutWidth: Int,
+    layoutHeight: Int,
+    finalMainAxisOffset: Int,
+    maxOffset: Int,
     itemsScrollOffset: Int,
     isVertical: Boolean,
     verticalArrangement: Arrangement.Vertical?,
@@ -290,11 +298,14 @@ private fun calculateItemsOffsets(
     reverseLayout: Boolean,
     density: Density,
     layoutDirection: LayoutDirection
-) {
-    val hasSpareSpace = usedMainAxisSize < mainAxisLayoutSize
+): MutableList<LazyListPositionedItem> {
+    val mainAxisLayoutSize = if (isVertical) layoutHeight else layoutWidth
+    val hasSpareSpace = finalMainAxisOffset < minOf(mainAxisLayoutSize, maxOffset)
     if (hasSpareSpace) {
         check(itemsScrollOffset == 0)
     }
+
+    val positionedItems = ArrayList<LazyListPositionedItem>(items.size)
 
     if (hasSpareSpace) {
         val itemsCount = items.size
@@ -320,13 +331,15 @@ private fun calculateItemsOffsets(
             } else {
                 absoluteOffset
             }
-            item.offset = relativeOffset
+            val addIndex = if (reverseLayout) 0 else positionedItems.size
+            positionedItems.add(addIndex, item.position(relativeOffset, layoutWidth, layoutHeight))
         }
     } else {
         var currentMainAxis = itemsScrollOffset
         items.fastForEach {
-            it.offset = currentMainAxis
+            positionedItems.add(it.position(currentMainAxis, layoutWidth, layoutHeight))
             currentMainAxis += it.sizeWithSpacings
         }
     }
+    return positionedItems
 }

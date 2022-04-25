@@ -16,23 +16,24 @@
 
 package androidx.room.solver.transaction.result
 
+import androidx.room.compiler.processing.XType
 import androidx.room.ext.DEFAULT_IMPLS_CLASS_NAME
 import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.T
-import androidx.room.compiler.processing.XType
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.TransactionMethod
 import com.squareup.javapoet.ClassName
 
 /**
- * Class that knows how to generate the transaction method delegate statement.
+ * Class that knows how to generate the transaction method delegate code. Callers should take
+ * care of using the invocation code in a statement or in another block (such as a lambda).
  */
 class TransactionMethodAdapter(
     private val methodName: String,
     private val callType: TransactionMethod.CallType
 ) {
-    fun createDelegateToSuperStatement(
+    fun createDelegateToSuperCode(
         returnType: XType,
         parameterNames: List<String>,
         daoName: ClassName,
@@ -56,7 +57,8 @@ class TransactionMethodAdapter(
                     append("return ")
                 }
                 when (callType) {
-                    TransactionMethod.CallType.CONCRETE -> {
+                    TransactionMethod.CallType.CONCRETE,
+                    TransactionMethod.CallType.INHERITED_DEFAULT_JAVA8 -> {
                         append("$T.super.$N(")
                         params.add(daoImplName)
                         params.add(methodName)
@@ -86,7 +88,7 @@ class TransactionMethodAdapter(
                 }
                 append(")")
             }
-            addStatement(format, *params.toTypedArray())
+            add(format, *params.toTypedArray())
         }
     }
 }

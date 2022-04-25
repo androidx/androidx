@@ -304,6 +304,7 @@ public final class CameraCaptureSessionCompat {
         CameraCaptureSession unwrap();
     }
 
+    @RequiresApi(21)
     static final class CaptureCallbackExecutorWrapper extends CameraCaptureSession.CaptureCallback {
 
         final CameraCaptureSession.CaptureCallback mWrappedCallback;
@@ -319,73 +320,40 @@ public final class CameraCaptureSessionCompat {
         public void onCaptureStarted(@NonNull final CameraCaptureSession session,
                 @NonNull final CaptureRequest request, final long timestamp,
                 final long frameNumber) {
-            mExecutor.execute(new Runnable() {
-
-                @Override
-                public void run() {
-                    mWrappedCallback.onCaptureStarted(session, request, timestamp, frameNumber);
-                }
-            });
+            mExecutor.execute(() -> mWrappedCallback.onCaptureStarted(session, request, timestamp,
+                    frameNumber));
         }
 
         @Override
         public void onCaptureProgressed(@NonNull final CameraCaptureSession session,
                 @NonNull final CaptureRequest request, @NonNull final CaptureResult partialResult) {
-            mExecutor.execute(new Runnable() {
-
-                @Override
-                public void run() {
-                    mWrappedCallback.onCaptureProgressed(session, request, partialResult);
-                }
-            });
+            mExecutor.execute(
+                    () -> mWrappedCallback.onCaptureProgressed(session, request, partialResult));
         }
 
         @Override
         public void onCaptureCompleted(@NonNull final CameraCaptureSession session,
                 @NonNull final CaptureRequest request, @NonNull final TotalCaptureResult result) {
-            mExecutor.execute(new Runnable() {
-
-                @Override
-                public void run() {
-                    mWrappedCallback.onCaptureCompleted(session, request, result);
-                }
-            });
+            mExecutor.execute(() -> mWrappedCallback.onCaptureCompleted(session, request, result));
         }
 
         @Override
         public void onCaptureFailed(@NonNull final CameraCaptureSession session,
                 @NonNull final CaptureRequest request, @NonNull final CaptureFailure failure) {
-            mExecutor.execute(new Runnable() {
-
-                @Override
-                public void run() {
-                    mWrappedCallback.onCaptureFailed(session, request, failure);
-                }
-            });
+            mExecutor.execute(() -> mWrappedCallback.onCaptureFailed(session, request, failure));
         }
 
         @Override
         public void onCaptureSequenceCompleted(@NonNull final CameraCaptureSession session,
                 final int sequenceId, final long frameNumber) {
-            mExecutor.execute(new Runnable() {
-
-                @Override
-                public void run() {
-                    mWrappedCallback.onCaptureSequenceCompleted(session, sequenceId, frameNumber);
-                }
-            });
+            mExecutor.execute(() -> mWrappedCallback.onCaptureSequenceCompleted(session, sequenceId,
+                    frameNumber));
         }
 
         @Override
         public void onCaptureSequenceAborted(@NonNull final CameraCaptureSession session,
                 final int sequenceId) {
-            mExecutor.execute(new Runnable() {
-
-                @Override
-                public void run() {
-                    mWrappedCallback.onCaptureSequenceAborted(session, sequenceId);
-                }
-            });
+            mExecutor.execute(() -> mWrappedCallback.onCaptureSequenceAborted(session, sequenceId));
         }
 
         @RequiresApi(24)
@@ -393,17 +361,13 @@ public final class CameraCaptureSessionCompat {
         public void onCaptureBufferLost(@NonNull final CameraCaptureSession session,
                 @NonNull final CaptureRequest request, @NonNull final Surface target,
                 final long frameNumber) {
-            mExecutor.execute(new Runnable() {
-
-                @Override
-                public void run() {
-                    ApiCompat.Api24Impl.onCaptureBufferLost(mWrappedCallback, session, request,
-                            target, frameNumber);
-                }
-            });
+            mExecutor.execute(
+                    () -> ApiCompat.Api24Impl.onCaptureBufferLost(mWrappedCallback, session,
+                            request, target, frameNumber));
         }
     }
 
+    @RequiresApi(21)
     static final class StateCallbackExecutorWrapper extends CameraCaptureSession.StateCallback {
 
         final CameraCaptureSession.StateCallback mWrappedCallback;
@@ -417,83 +381,43 @@ public final class CameraCaptureSessionCompat {
 
         @Override
         public void onConfigured(@NonNull final CameraCaptureSession session) {
-            mExecutor.execute(new Runnable() {
-
-                @Override
-                public void run() {
-                    mWrappedCallback.onConfigured(session);
-                }
-            });
+            mExecutor.execute(() -> mWrappedCallback.onConfigured(session));
         }
 
         @Override
         public void onConfigureFailed(@NonNull final CameraCaptureSession session) {
-            mExecutor.execute(new Runnable() {
-
-                @Override
-                public void run() {
-                    mWrappedCallback.onConfigureFailed(session);
-                }
-            });
+            mExecutor.execute(() -> mWrappedCallback.onConfigureFailed(session));
         }
 
         @Override
         public void onReady(@NonNull final CameraCaptureSession session) {
-            mExecutor.execute(new Runnable() {
-
-                @Override
-                public void run() {
-                    mWrappedCallback.onReady(session);
-                }
-            });
+            mExecutor.execute(() -> mWrappedCallback.onReady(session));
         }
 
         @Override
         public void onActive(@NonNull final CameraCaptureSession session) {
-            mExecutor.execute(new Runnable() {
-
-                @Override
-                public void run() {
-                    mWrappedCallback.onActive(session);
-                }
-            });
+            mExecutor.execute(() -> mWrappedCallback.onActive(session));
         }
 
         @RequiresApi(26)
         @Override
         public void onCaptureQueueEmpty(@NonNull final CameraCaptureSession session) {
-            mExecutor.execute(new Runnable() {
-
-                @Override
-                public void run() {
-                    ApiCompat.Api26Impl.onCaptureQueueEmpty(mWrappedCallback, session);
-                }
-            });
+            mExecutor.execute(
+                    () -> ApiCompat.Api26Impl.onCaptureQueueEmpty(mWrappedCallback, session));
         }
 
 
         @Override
         public void onClosed(@NonNull final CameraCaptureSession session) {
-            mExecutor.execute(new Runnable() {
-
-                @Override
-                public void run() {
-                    mWrappedCallback.onClosed(session);
-                }
-            });
+            mExecutor.execute(() -> mWrappedCallback.onClosed(session));
         }
 
         @RequiresApi(23)
         @Override
         public void onSurfacePrepared(@NonNull final CameraCaptureSession session,
                 @NonNull final Surface surface) {
-            mExecutor.execute(new Runnable() {
-
-                @Override
-                public void run() {
-                    ApiCompat.Api23Impl.onSurfacePrepared(mWrappedCallback, session, surface);
-                }
-            });
+            mExecutor.execute(() -> ApiCompat.Api23Impl.onSurfacePrepared(mWrappedCallback, session,
+                    surface));
         }
     }
 }

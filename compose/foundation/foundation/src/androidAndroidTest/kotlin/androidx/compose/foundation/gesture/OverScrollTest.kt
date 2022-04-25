@@ -22,6 +22,7 @@ import androidx.compose.foundation.gestures.OverScrollController
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.gestures.ScrollableState
+import androidx.compose.foundation.gestures.overScroll
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
@@ -231,11 +232,20 @@ class OverScrollTest {
             up()
         }
 
+        // ignores touch slop if overscroll animation is on progress while pointer goes down
+        assertThat(acummulatedScroll - lastAccScroll).isEqualTo(500f)
+
         rule.runOnIdle {
             assertThat(controller.stopAnimationCallsCount).isEqualTo(2)
-            // ignores touch slop if overscroll animation is on progress while pointer goes down
-            assertThat(acummulatedScroll - lastAccScroll).isEqualTo(500f)
         }
+    }
+
+    @Test
+    fun modifierIsProducingEqualsModifiersForTheSameInput() {
+        val overScrollController = TestOverScrollController()
+        val first = Modifier.overScroll(overScrollController)
+        val second = Modifier.overScroll(overScrollController)
+        assertThat(first).isEqualTo(second)
     }
 
     class TestOverScrollController(

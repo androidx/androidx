@@ -107,6 +107,12 @@ private class InternalQueryProcessor(
         val delegate = MethodProcessorDelegate.createFor(context, containing, executableElement)
         val returnType = delegate.extractReturnType()
 
+        context.checker.check(
+            !delegate.isSuspendAndReturnsDeferredType(),
+            executableElement,
+            ProcessorErrors.suspendReturnsDeferredType(returnType.rawType.typeName.toString())
+        )
+
         val query = if (input != null) {
             val query = SqlParser.parse(input)
             context.checker.check(
@@ -191,7 +197,6 @@ private class InternalQueryProcessor(
         return WriteQueryMethod(
             element = executableElement,
             query = query,
-            name = executableElement.name,
             returnType = returnType,
             parameters = parameters,
             preparedQueryResultBinder = resultBinder
@@ -280,7 +285,6 @@ private class InternalQueryProcessor(
         return ReadQueryMethod(
             element = executableElement,
             query = query,
-            name = executableElement.name,
             returnType = returnType,
             parameters = parameters,
             inTransaction = inTransaction,

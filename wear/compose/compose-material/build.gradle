@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.LibraryVersions
 import androidx.build.AndroidXComposePlugin
 
 plugins {
@@ -31,31 +29,38 @@ dependencies {
     kotlinPlugin(project(":compose:compiler:compiler"))
 
     if(!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-        api("androidx.compose.foundation:foundation:1.0.0-rc02")
-        api("androidx.compose.ui:ui:1.0.0-rc02")
-        api("androidx.compose.ui:ui-text:1.0.0-rc02")
+        api(project(":compose:foundation:foundation"))
+        api(project(":compose:ui:ui"))
+        api(project(":compose:ui:ui-text"))
         api(project(":compose:runtime:runtime"))
 
         implementation(libs.kotlinStdlib)
-        implementation("androidx.compose.material:material:1.0.0-rc02")
-        implementation("androidx.compose.material:material-ripple:1.0.0-rc02")
+        implementation(project(":compose:animation:animation"))
+        implementation(project(":compose:material:material"))
+        implementation(project(":compose:material:material-ripple"))
         implementation(project(":compose:ui:ui-util"))
         implementation(project(":wear:compose:compose-foundation"))
+        implementation("androidx.profileinstaller:profileinstaller:1.2.0-alpha02")
 
-        androidTestImplementation project(path: ':compose:ui:ui-test')
-        androidTestImplementation project(path: ':compose:ui:ui-test-junit4')
-        androidTestImplementation project(path: ':compose:test-utils')
-        androidTestImplementation project(":test:screenshot:screenshot")
+        androidTestImplementation(project(":compose:ui:ui-test"))
+        androidTestImplementation(project(":compose:ui:ui-test-junit4"))
+        androidTestImplementation(project(":compose:test-utils"))
+
+        androidTestImplementation(project(":test:screenshot:screenshot"))
         androidTestImplementation(libs.testRunner)
         androidTestImplementation(libs.truth)
+
+        samples(project(":wear:compose:compose-material-samples"))
     }
 }
 
 if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-    kotlin {
+    androidXComposeMultiplatform {
         android()
-        jvm("desktop")
+        desktop()
+    }
 
+    kotlin {
         /*
          * When updating dependencies, make sure to make the an an analogous update in the
          * corresponding block above
@@ -70,6 +75,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 api(project(":compose:runtime:runtime"))
                 api("androidx.annotation:annotation:1.1.0")
 
+                implementation(project(":compose:animation:animation"))
                 implementation(project(":compose:material:material"))
                 implementation(project(":compose:material:material-ripple"))
                 implementation(project(":compose:ui:ui-util"))
@@ -77,12 +83,6 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             }
             jvmMain.dependencies {
                 implementation(libs.kotlinStdlib)
-            }
-            androidMain {
-                dependsOn(jvmMain)
-            }
-            desktopMain {
-                dependsOn(jvmMain)
             }
 
             commonTest.dependencies {
@@ -94,12 +94,15 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 implementation(libs.testRunner)
                 implementation(libs.truth)
                 implementation(project(":compose:ui:ui-util"))
-                implementation(project(path: ':compose:ui:ui-test'))
-                implementation(project(path: ':compose:ui:ui-test-junit4'))
-                implementation(project(path: ':compose:test-utils'))
+                implementation(project(":compose:ui:ui-test"))
+                implementation(project(":compose:ui:ui-test-junit4"))
+                implementation(project(":compose:test-utils"))
                 implementation(project(":test:screenshot:screenshot"))
             }
         }
+    }
+    dependencies {
+        samples(project(":wear:compose:compose-material-samples"))
     }
 }
 
@@ -114,6 +117,7 @@ android {
     testOptions.unitTests.includeAndroidResources = true
     sourceSets.androidTest.assets.srcDirs +=
             project.rootDir.absolutePath + "/../../golden/wear/compose/material"
+    namespace "androidx.wear.compose.material"
 }
 
 androidx {

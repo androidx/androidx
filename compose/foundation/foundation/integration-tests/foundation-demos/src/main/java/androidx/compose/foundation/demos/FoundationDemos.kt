@@ -16,12 +16,36 @@
 
 package androidx.compose.foundation.demos
 
+import androidx.compose.foundation.demos.relocation.BringIntoViewAndroidInteropDemo
+import androidx.compose.foundation.demos.relocation.BringIntoViewDemo
+import androidx.compose.foundation.demos.relocation.BringIntoViewResponderDemo
+import androidx.compose.foundation.demos.relocation.BringNestedIntoViewDemo
+import androidx.compose.foundation.demos.relocation.BringRectangleIntoViewDemo
+import androidx.compose.foundation.demos.relocation.RequestRectangleOnScreenDemo
+import androidx.compose.foundation.samples.BringIntoViewResponderSample
+import androidx.compose.foundation.samples.BringPartOfComposableIntoViewSample
 import androidx.compose.foundation.samples.ControlledScrollableRowSample
+import androidx.compose.foundation.samples.CustomTouchSlopSample
 import androidx.compose.foundation.samples.InteractionSourceFlowSample
 import androidx.compose.foundation.samples.SimpleInteractionSourceSample
 import androidx.compose.foundation.samples.VerticalScrollExample
 import androidx.compose.integration.demos.common.ComposableDemo
 import androidx.compose.integration.demos.common.DemoCategory
+
+private val RelocationDemos = listOf(
+    ComposableDemo("Bring Into View") { BringIntoViewDemo() },
+    /** This gives [BringPartOfComposableIntoViewSample] some explanation text. */
+    ComposableDemo("Bring Rectangle Into View") { BringRectangleIntoViewDemo() },
+    /** This gives [BringIntoViewResponderSample] some explanation text. */
+    ComposableDemo("Custom responder") { BringIntoViewResponderDemo() },
+    ComposableDemo("Request Rectangle On Screen") { RequestRectangleOnScreenDemo() },
+    ComposableDemo("Android view interop") { BringIntoViewAndroidInteropDemo() },
+    ComposableDemo("Nested scrollables") { BringNestedIntoViewDemo() },
+)
+
+private val FocusDemos = listOf(
+    ComposableDemo("Focus Group") { FocusGroupDemo() },
+)
 
 val FoundationDemos = DemoCategory(
     "Foundation",
@@ -35,5 +59,11 @@ val FoundationDemos = DemoCategory(
         ComposableDemo("Flow InteractionSource") { InteractionSourceFlowSample() },
         DemoCategory("Suspending Gesture Detectors", CoroutineGestureDemos),
         ComposableDemo("NestedScroll") { NestedScrollDemo() },
+        DemoCategory("Relocation Demos", RelocationDemos),
+        DemoCategory("Focus Demos", FocusDemos),
+        DemoCategory("Magnifier Demos", MagnifierDemos),
+        ComposableDemo("Custom Touch Slop Demo - Composition Locals") { CustomTouchSlopSample() },
+        ComposableDemo("Focused bounds") { FocusedBoundsDemo() },
+        ComposableDemo("Scrollable with focused child") { ScrollableFocusedChildDemo() },
     )
 )

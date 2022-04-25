@@ -24,6 +24,7 @@ import androidx.compose.integration.demos.common.Demo
 import androidx.compose.integration.demos.common.DemoCategory
 import androidx.compose.integration.demos.common.allDemos
 import androidx.compose.integration.demos.common.allLaunchableDemos
+import androidx.compose.material3.demos.Material3Demos
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsNodeInteractionCollection
 import androidx.compose.ui.test.assertTextEquals
@@ -37,9 +38,11 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -48,6 +51,7 @@ private val ignoredDemos = listOf<String>(
     // Not ignoring any of them \o/
 )
 
+@FlakyTest(bugId = 204322457)
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 @OptIn(ExperimentalTestApi::class)
@@ -105,9 +109,22 @@ class DemoTest {
         navigateThroughAllDemos(SplitDemoCategories[2])
     }
 
+    // Broken: b/206811195
+    @Ignore
     @Test
     fun navigateThroughAllDemos_4() {
         navigateThroughAllDemos(SplitDemoCategories[3])
+    }
+
+    @Test
+    fun navigateThroughMaterial3Demos() {
+        val material3Demos = DemoCategory(
+            "Jetpack Compose Demos",
+            listOf(
+                Material3Demos,
+            )
+        )
+        navigateThroughAllDemos(material3Demos)
     }
 
     private fun navigateThroughAllDemos(root: DemoCategory, fastForwardClock: Boolean = false) {

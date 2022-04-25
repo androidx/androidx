@@ -24,8 +24,12 @@ import static org.junit.Assert.assertTrue;
 
 import android.os.Build;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
+import android.view.animation.Interpolator;
 
+import androidx.annotation.Nullable;
+import androidx.annotation.Px;
 import androidx.core.view.AccessibilityDelegateCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.test.filters.SdkSuppress;
@@ -38,6 +42,7 @@ import org.junit.runners.Parameterized;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @SmallTest
 @RunWith(Parameterized.class)
@@ -192,7 +197,7 @@ public class RecyclerViewAccessibilityTest extends BaseRecyclerViewInstrumentati
         hScrolledBack.set(false);
         vScrolledBack.set(false);
         hScrolledFwd.set(false);
-        vScrolledBack.set(false);
+        vScrolledFwd.set(false);
         performAccessibilityAction(delegateCompat, recyclerView,
                 AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD);
         assertEquals(mHorizontalScrollBefore, hScrolledBack.get());
@@ -203,7 +208,7 @@ public class RecyclerViewAccessibilityTest extends BaseRecyclerViewInstrumentati
         hScrolledBack.set(false);
         vScrolledBack.set(false);
         hScrolledFwd.set(false);
-        vScrolledBack.set(false);
+        vScrolledFwd.set(false);
         performAccessibilityAction(delegateCompat, recyclerView,
                 AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD);
         assertEquals(false, hScrolledBack.get());
@@ -343,6 +348,125 @@ public class RecyclerViewAccessibilityTest extends BaseRecyclerViewInstrumentati
             }
         });
         checkForMainThreadException();
+    }
+
+    @Test
+    public void performAction_scrollAction_rangeInVisibleRect() throws Throwable {
+        AtomicInteger hScrolledOffset = new AtomicInteger(0);
+        AtomicInteger vScrolledOffset = new AtomicInteger(0);
+
+        final RecyclerView recyclerView = new RecyclerView(getActivity()) {
+            @Override
+            void smoothScrollBy(@Px int dx, @Px int dy, @Nullable Interpolator interpolator,
+                    int duration, boolean withNestedScrolling) {
+                // Overrides duration to 0 to stop segmentation to get the complete scroll distance.
+                int overrideDuration = 0;
+                super.smoothScrollBy(dx, dy, interpolator, overrideDuration, withNestedScrolling);
+            }
+
+            @Override
+            public boolean canScrollHorizontally(int direction) {
+                return true;
+            }
+
+            @Override
+            public boolean canScrollVertically(int direction) {
+                return true;
+            }
+        };
+        final TestAdapter adapter = new TestAdapter(10);
+
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new TestLayoutManager() {
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                layoutRange(recycler, 0, 5);
+            }
+
+            @Override
+            public RecyclerView.LayoutParams generateDefaultLayoutParams() {
+                return new RecyclerView.LayoutParams(-1, -1);
+            }
+
+            @Override
+            public boolean canScrollVertically() {
+                return true;
+            }
+
+            @Override
+            public boolean canScrollHorizontally() {
+                return true;
+            }
+
+            @Override
+            public int scrollHorizontallyBy(int dx, RecyclerView.Recycler recycler,
+                    RecyclerView.State state) {
+                hScrolledOffset.set(dx);
+                return 0;
+            }
+
+            @Override
+            public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler,
+                    RecyclerView.State state) {
+                vScrolledOffset.set(dy);
+                return 0;
+            }
+        });
+        setRecyclerView(recyclerView);
+        final RecyclerViewAccessibilityDelegate delegateCompat = recyclerView
+                .getCompatAccessibilityDelegate();
+        final AccessibilityNodeInfoCompat info = AccessibilityNodeInfoCompat.obtain();
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                delegateCompat.onInitializeAccessibilityNodeInfo(recyclerView, info);
+            }
+        });
+        getInstrumentation().waitForIdleSync();
+
+        assertEquals(true, info.isScrollable());
+        assertEquals(true,
+                (info.getActions() & AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD) != 0);
+        assertEquals(true,
+                (info.getActions() & AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD) != 0);
+
+        int width = recyclerView.getWidth();
+        int height = recyclerView.getHeight();
+        performAccessibilityAction(delegateCompat, recyclerView,
+                AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD);
+        assertEquals(-width, hScrolledOffset.get());
+        assertEquals(-height, vScrolledOffset.get());
+
+        performAccessibilityAction(delegateCompat, recyclerView,
+                AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD);
+        assertEquals(width, hScrolledOffset.get());
+        assertEquals(height, vScrolledOffset.get());
+
+        final ViewGroup parent = getRecyclerViewContainer();
+        final ViewGroup.LayoutParams originalLayoutParams = parent.getLayoutParams();
+        try {
+            // Sets RecyclerView's parent to half size to limit the visible rect of RecyclerView.
+            final int halfWidth = width / 2;
+            final int halfHeight = height / 2;
+            final TestedFrameLayout.FullControlLayoutParams halfSizeLayoutParams =
+                    new TestedFrameLayout.FullControlLayoutParams(halfWidth, halfHeight);
+            mActivityRule.runOnUiThread(() -> parent.setLayoutParams(halfSizeLayoutParams));
+            getInstrumentation().waitForIdleSync();
+
+            performAccessibilityAction(delegateCompat, recyclerView,
+                    AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD);
+            assertEquals(-halfWidth, hScrolledOffset.get());
+            assertEquals(-halfHeight, vScrolledOffset.get());
+
+            performAccessibilityAction(delegateCompat, recyclerView,
+                    AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD);
+            assertEquals(halfWidth, hScrolledOffset.get());
+            assertEquals(halfHeight, vScrolledOffset.get());
+        } finally {
+            // Sets RecyclerView's parent to original size.
+            mActivityRule.runOnUiThread(() -> parent.setLayoutParams(originalLayoutParams));
+            getInstrumentation().waitForIdleSync();
+        }
     }
 
     boolean performAccessibilityAction(final AccessibilityDelegateCompat delegate,

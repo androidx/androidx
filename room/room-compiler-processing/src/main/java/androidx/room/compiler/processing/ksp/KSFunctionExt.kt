@@ -25,10 +25,10 @@ import com.google.devtools.ksp.symbol.KSPropertyDeclaration
  * A custom ReturnType that return an [XType] while also resolving boxing if necessary (might happen
  * due to overrides).
  */
-internal fun KSFunctionDeclaration.returnXType(
+internal fun KSFunctionDeclaration.returnKspType(
     env: KspProcessingEnv,
     containing: KspType?
-): XType {
+): KspType {
     // b/160258066
     // we may need to box the return type if it is overriding a generic, hence, we should
     // use the declaration of the overridee if available when deciding nullability

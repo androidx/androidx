@@ -30,4 +30,18 @@
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‎‏‏‎‏‎‎‏‎‎‏‏‏‏‏‎‎‏‎‎‎‎‎‏‎‏‎‏‎‎‎‎‏‏‏‏‎‎‎‏‎‏‏‏‏‏‏‎‎‏‎‎‏‎‏‏‏‎‎‏‎‎‏‎No PIN, pattern, or password set.‎‏‎‎‏‎"</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‎‏‏‏‎‎‏‎‎‎‏‎‏‎‏‎‏‎‎‏‏‎‏‏‏‎‎‏‏‎‏‎‎‎‏‎‎‏‏‏‏‎‎‏‏‎‏‎‎‏‏‏‏‎‎‎‏‎‏‏‏‎‎‎This device does not support PIN, pattern, or password.‎‏‎‎‏‎"</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‎‎‏‎‏‏‏‏‎‎‏‏‎‏‎‎‎‎‎‎‏‎‎‎‎‏‎‏‎‏‏‏‏‏‏‏‎‏‏‏‏‎‏‏‏‏‎‏‎‎‎‏‏‎‏‏‎‎‏‏‎‏‎Fingerprint icon‎‏‎‎‏‎"</string>
+    <string name="use_fingerprint_label" msgid="6961788485681412417">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‏‎‎‎‎‎‏‎‎‏‏‏‎‏‎‎‏‏‏‏‎‏‏‎‏‏‏‏‏‎‎‎‎‏‏‎‏‎‎‏‏‏‎‎‎‏‏‏‏‏‏‎‎‏‎‏‎‎‎‎‎‏‎Use fingerprint‎‏‎‎‏‎"</string>
+    <string name="use_face_label" msgid="6533512708069459542">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‎‏‏‎‏‎‏‎‏‎‏‎‏‏‏‎‏‏‎‎‏‏‎‎‏‏‎‎‎‏‎‎‏‎‎‎‏‏‏‏‏‏‏‎‏‏‎‎‎‎‎‏‏‎‎‏‎‏‎‏‏‎‎Use face‎‏‎‎‏‎"</string>
+    <string name="use_biometric_label" msgid="6524145989441579428">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‎‏‏‎‏‎‏‎‎‎‏‎‏‎‎‏‏‎‏‏‎‎‎‎‏‏‎‏‏‎‎‎‎‎‎‎‏‏‎‏‏‏‎‏‎‎‎‏‏‎‏‎‎‏‏‎‏‎‎‏‎‎‎Use biometrics‎‏‎‎‏‎"</string>
+    <string name="use_screen_lock_label" msgid="5459869335976243512">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‎‎‏‎‏‏‏‏‎‎‎‏‎‏‎‏‎‏‏‎‏‎‎‎‏‏‏‎‏‏‏‏‎‎‎‎‏‎‏‏‏‎‏‎‎‏‎‏‏‏‎‎‎‏‎‎‏‏‏‎‎‎‎Use screen lock‎‏‎‎‏‎"</string>
+    <string name="use_fingerprint_or_screen_lock_label" msgid="7577690399303139443">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‏‎‏‎‎‏‎‎‏‎‏‎‎‏‎‏‎‏‏‏‎‏‎‏‎‎‎‏‎‏‎‎‎‏‎‏‎‎‎‏‎‏‏‎‏‎‎‎‎‎‎‎‎‎‎‏‏‏‎‎‏‏‎Use fingerprint or screen lock‎‏‎‎‏‎"</string>
+    <string name="use_face_or_screen_lock_label" msgid="2116180187159450292">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‎‏‏‏‏‎‏‎‏‎‏‏‏‏‎‎‎‏‎‏‏‏‎‏‎‏‎‏‎‏‏‎‎‎‏‎‎‎‎‎‏‎‏‏‎‏‏‏‏‎‏‎‎‏‎‏‎‏‏‎‏‎‎‎Use face or screen lock‎‏‎‎‏‎"</string>
+    <string name="use_biometric_or_screen_lock_label" msgid="5385448280139639016">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‎‎‏‎‏‎‏‎‏‏‏‏‎‎‏‏‏‏‎‏‎‎‏‎‏‎‏‏‎‏‎‏‏‎‏‏‎‏‏‏‏‏‎‏‏‎‎‎‏‎‏‎‎‎‏‏‏‎‏‎‎‎‎Use biometrics or screen lock‎‏‎‎‏‎"</string>
+    <string name="fingerprint_prompt_message" msgid="7449360011861769080">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‏‎‎‏‏‏‎‏‏‎‎‎‎‏‎‏‏‏‎‎‎‏‎‏‏‏‎‏‏‎‎‏‎‏‏‏‏‏‎‎‎‎‎‏‎‏‎‎‏‏‏‎‏‏‎‏‏‏‏‎‎‎‎Use your fingerprint to continue‎‏‎‎‏‎"</string>
+    <string name="face_prompt_message" msgid="2282389249605674226">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‎‏‏‏‏‏‏‏‎‏‎‏‏‎‎‏‎‏‎‏‏‎‎‏‏‏‎‏‏‏‎‎‎‎‎‏‏‎‏‏‏‏‎‏‎‏‎‏‎‏‎‎‏‎‎‏‏‏‏‎‎‏‎‎Use your face to continue‎‏‎‎‏‎"</string>
+    <string name="biometric_prompt_message" msgid="1160635338192065472">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‎‏‏‎‎‎‎‎‎‎‏‏‎‏‏‎‏‏‎‎‏‏‏‏‎‏‏‎‎‎‎‏‏‎‏‎‏‏‎‏‎‏‏‎‏‎‎‎‎‎‏‎‎‏‏‏‏‎‎‎‎‎‎‎Use your biometric to continue‎‏‎‎‏‎"</string>
+    <string name="screen_lock_prompt_message" msgid="5659570757430909869">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‎‎‏‏‏‎‏‎‎‎‏‎‏‎‏‏‎‏‎‏‎‏‏‎‎‏‏‏‏‎‎‏‎‎‎‎‎‏‏‏‎‏‏‎‏‏‏‎‎‏‏‎‏‏‏‎‏‎‏‏‎‏‎Enter your screen lock to continue‎‏‎‎‏‎"</string>
+    <string name="fingerprint_or_screen_lock_prompt_message" msgid="8382576858490514495">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‎‏‎‎‎‏‎‏‎‏‎‎‏‏‏‎‎‏‎‏‎‎‏‏‏‏‎‏‎‏‏‏‎‎‎‎‏‎‏‏‏‏‎‎‏‎‏‎‏‏‎‎‎‎‏‏‏‏‏‏‎Use your fingerprint or screen lock to continue‎‏‎‎‏‎"</string>
+    <string name="face_or_screen_lock_prompt_message" msgid="4562557128765735254">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‎‏‏‏‏‏‏‎‏‎‏‎‎‎‏‎‏‏‏‎‏‎‏‏‎‎‎‏‎‎‎‏‏‏‏‏‏‏‏‏‎‎‎‎‎‏‎‎‎‎‎‎‎‎‏‎‏‎‏‎‏‏‎‎Use your face or screen lock to continue‎‏‎‎‏‎"</string>
+    <string name="biometric_or_screen_lock_prompt_message" msgid="2102429900219199821">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‎‏‏‏‏‎‏‎‎‏‎‏‏‎‏‎‏‎‏‎‏‎‎‏‏‎‏‏‎‏‎‏‏‏‎‎‏‏‏‏‎‏‏‏‎‎‏‏‎‏‏‎‎‎‏‎‏‎‎‏‏‎‏‎Use your biometric or screen lock to continue‎‏‎‎‏‎"</string>
 </resources>

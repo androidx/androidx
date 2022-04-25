@@ -34,7 +34,7 @@ import org.hamcrest.CoreMatchers
 import org.hamcrest.Matchers.closeTo
 import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.greaterThan
-import org.junit.Assert.assertThat
+import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith

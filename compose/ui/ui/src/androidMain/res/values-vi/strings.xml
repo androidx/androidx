@@ -28,8 +28,11 @@
     <string name="in_progress" msgid="6827826412747255547">"Đang thực hiện"</string>
     <string name="tab" msgid="1672349317127674378">"Thẻ"</string>
     <string name="navigation_menu" msgid="542007171693138492">"Trình đơn điều hướng"</string>
+    <string name="dropdown_menu" msgid="1890207353314751437">"Trình đơn thả xuống"</string>
     <string name="close_drawer" msgid="406453423630273620">"Đóng trình đơn điều hướng"</string>
     <string name="close_sheet" msgid="7573152094250666567">"Đóng trang tính"</string>
     <string name="default_error_message" msgid="8038256446254964252">"Giá trị nhập không hợp lệ"</string>
     <string name="default_popup_window_title" msgid="6312721426453364202">"Cửa sổ bật lên"</string>
+    <string name="range_start" msgid="7097486360902471446">"Điểm bắt đầu phạm vi"</string>
+    <string name="range_end" msgid="5941395253238309765">"Điểm kết thúc phạm vi"</string>
 </resources>

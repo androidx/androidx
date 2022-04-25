@@ -26,17 +26,21 @@ import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Bundle
+import android.os.LocaleList
 import android.util.Log
 import android.view.Gravity
+import android.view.View
 import android.view.WindowManager
 import android.widget.FrameLayout
 import android.widget.RemoteViews
 import androidx.annotation.RequiresApi
+import androidx.glance.appwidget.test.R
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 import org.junit.Assert.fail
+import java.util.Locale
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
-import androidx.glance.appwidget.test.R
-import androidx.glance.unit.DpSize
 
 @RequiresApi(26)
 class AppWidgetHostTestActivity : Activity() {
@@ -74,14 +78,20 @@ class AppWidgetHostTestActivity : Activity() {
         val wasBound = appWidgetManager.bindAppWidgetIdIfAllowed(
             appWidgetId,
             componentName,
-            optionsBundleOf(portraitSize, landscapeSize)
+            optionsBundleOf(listOf(portraitSize, landscapeSize))
         )
         if (!wasBound) {
             fail("Failed to bind the app widget")
         }
 
         val info = appWidgetManager.getAppWidgetInfo(appWidgetId)
-        val hostView = host.createView(this, appWidgetId, info) as TestAppWidgetHostView
+        val locale = Locale.getDefault()
+        val config = resources.configuration
+        config.setLocales(LocaleList(locale))
+        config.setLayoutDirection(locale)
+        val context = this.createConfigurationContext(config)
+
+        val hostView = host.createView(context, appWidgetId, info) as TestAppWidgetHostView
         hostView.setPadding(0, 0, 0, 0)
         val contentFrame = findViewById<FrameLayout>(R.id.content)
         contentFrame.addView(hostView)
@@ -91,14 +101,22 @@ class AppWidgetHostTestActivity : Activity() {
         return hostView
     }
 
+    fun deleteAppWidget(hostView: TestAppWidgetHostView) {
+        val appWidgetId = hostView.appWidgetId
+        mHost?.deleteAppWidgetId(appWidgetId)
+        mHostViews.remove(hostView)
+        val contentFrame = findViewById<FrameLayout>(R.id.content)
+        contentFrame.removeView(hostView)
+    }
+
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        updateAllSizes()
+        updateAllSizes(newConfig.orientation)
         reapplyRemoteViews()
     }
 
-    fun updateAllSizes() {
-        mHostViews.forEach { it.updateSize() }
+    fun updateAllSizes(orientation: Int) {
+        mHostViews.forEach { it.updateSize(orientation) }
     }
 
     fun reapplyRemoteViews() {
@@ -121,12 +139,13 @@ class TestAppWidgetHostView(context: Context) : AppWidgetHostView(context) {
     init {
         // Prevent asynchronous inflation of the App Widget
         setExecutor(null)
+        layoutDirection = View.LAYOUT_DIRECTION_LOCALE
     }
 
     private var mLatch: CountDownLatch? = null
     private var mRemoteViews: RemoteViews? = null
-    private lateinit var mPortraitSize: DpSize
-    private lateinit var mLandscapeSize: DpSize
+    private var mPortraitSize: DpSize = DpSize(0.dp, 0.dp)
+    private var mLandscapeSize: DpSize = DpSize(0.dp, 0.dp)
 
     /**
      * Wait for the new remote views to be received. If a remote views was already received, return
@@ -162,11 +181,11 @@ class TestAppWidgetHostView(context: Context) : AppWidgetHostView(context) {
     fun setSizes(portraitSize: DpSize, landscapeSize: DpSize) {
         mPortraitSize = portraitSize
         mLandscapeSize = landscapeSize
-        updateSize()
+        updateSize(resources.configuration.orientation)
     }
 
-    fun updateSize() {
-        val size = when (context.resources.configuration.orientation) {
+    fun updateSize(orientation: Int) {
+        val size = when (orientation) {
             Configuration.ORIENTATION_LANDSCAPE -> mLandscapeSize
             Configuration.ORIENTATION_PORTRAIT -> mPortraitSize
             else -> error("Unknown orientation ${context.resources.configuration.orientation}")

@@ -40,9 +40,23 @@ interface LazyListScope {
      * When you specify the key the scroll position will be maintained based on the key, which
      * means if you add/remove items before the current visible item the item with the given key
      * will be kept as the first visible one.
+     * @param contentType the type of the content of this item. The item compositions of the same
+     * type could be reused more efficiently. Note that null is a valid type and items of such
+     * type will be considered compatible.
      * @param content the content of the item
      */
-    fun item(key: Any? = null, content: @Composable LazyItemScope.() -> Unit)
+    fun item(
+        key: Any? = null,
+        contentType: Any? = null,
+        content: @Composable LazyItemScope.() -> Unit
+    ) {
+        error("The method is not implemented")
+    }
+
+    @Deprecated("Use the non deprecated overload", level = DeprecationLevel.HIDDEN)
+    fun item(key: Any? = null, content: @Composable LazyItemScope.() -> Unit) {
+        item(key, null, content)
+    }
 
     /**
      * Adds a [count] of items.
@@ -54,13 +68,28 @@ interface LazyListScope {
      * When you specify the key the scroll position will be maintained based on the key, which
      * means if you add/remove items before the current visible item the item with the given key
      * will be kept as the first visible one.
+     * @param contentType a factory of the content types for the item. The item compositions of
+     * the same type could be reused more efficiently. Note that null is a valid type and items of such
+     * type will be considered compatible.
      * @param itemContent the content displayed by a single item
      */
     fun items(
         count: Int,
         key: ((index: Int) -> Any)? = null,
+        contentType: (index: Int) -> Any? = { null },
         itemContent: @Composable LazyItemScope.(index: Int) -> Unit
-    )
+    ) {
+        error("The method is not implemented")
+    }
+
+    @Deprecated("Use the non deprecated overload", level = DeprecationLevel.HIDDEN)
+    fun items(
+        count: Int,
+        key: ((index: Int) -> Any)? = null,
+        itemContent: @Composable LazyItemScope.(index: Int) -> Unit
+    ) {
+        items(count, key, { null }, itemContent)
+    }
 
     /**
      * Adds a sticky header item, which will remain pinned even when scrolling after it.
@@ -74,10 +103,17 @@ interface LazyListScope {
      * When you specify the key the scroll position will be maintained based on the key, which
      * means if you add/remove items before the current visible item the item with the given key
      * will be kept as the first visible one.
+     * @param contentType the type of the content of this item. The item compositions of the same
+     * type could be reused more efficiently. Note that null is a valid type and items of such
+     * type will be considered compatible.
      * @param content the content of the header
      */
     @ExperimentalFoundationApi
-    fun stickyHeader(key: Any? = null, content: @Composable LazyItemScope.() -> Unit)
+    fun stickyHeader(
+        key: Any? = null,
+        contentType: Any? = null,
+        content: @Composable LazyItemScope.() -> Unit
+    )
 }
 
 /**
@@ -90,15 +126,30 @@ interface LazyListScope {
  * When you specify the key the scroll position will be maintained based on the key, which
  * means if you add/remove items before the current visible item the item with the given key
  * will be kept as the first visible one.
+ * @param contentType a factory of the content types for the item. The item compositions of
+ * the same type could be reused more efficiently. Note that null is a valid type and items of such
+ * type will be considered compatible.
  * @param itemContent the content displayed by a single item
  */
 inline fun <T> LazyListScope.items(
     items: List<T>,
     noinline key: ((item: T) -> Any)? = null,
+    noinline contentType: (item: T) -> Any? = { null },
     crossinline itemContent: @Composable LazyItemScope.(item: T) -> Unit
-) = items(items.size, if (key != null) { index: Int -> key(items[index]) } else null) {
+) = items(
+    count = items.size,
+    key = if (key != null) { index: Int -> key(items[index]) } else null,
+    contentType = { index: Int -> contentType(items[index]) }
+) {
     itemContent(items[it])
 }
+
+@Deprecated("Use the non deprecated overload", level = DeprecationLevel.HIDDEN)
+inline fun <T> LazyListScope.items(
+    items: List<T>,
+    noinline key: ((item: T) -> Any)? = null,
+    crossinline itemContent: @Composable LazyItemScope.(item: T) -> Unit
+) = items(items, key, itemContent = itemContent)
 
 /**
  * Adds a list of items where the content of an item is aware of its index.
@@ -110,15 +161,30 @@ inline fun <T> LazyListScope.items(
  * When you specify the key the scroll position will be maintained based on the key, which
  * means if you add/remove items before the current visible item the item with the given key
  * will be kept as the first visible one.
+ * @param contentType a factory of the content types for the item. The item compositions of
+ * the same type could be reused more efficiently. Note that null is a valid type and items of such
+ * type will be considered compatible.
  * @param itemContent the content displayed by a single item
  */
 inline fun <T> LazyListScope.itemsIndexed(
     items: List<T>,
     noinline key: ((index: Int, item: T) -> Any)? = null,
+    crossinline contentType: (index: Int, item: T) -> Any? = { _, _ -> null },
     crossinline itemContent: @Composable LazyItemScope.(index: Int, item: T) -> Unit
-) = items(items.size, if (key != null) { index: Int -> key(index, items[index]) } else null) {
+) = items(
+    count = items.size,
+    key = if (key != null) { index: Int -> key(index, items[index]) } else null,
+    contentType = { index -> contentType(index, items[index]) }
+) {
     itemContent(it, items[it])
 }
+
+@Deprecated("Use the non deprecated overload", level = DeprecationLevel.HIDDEN)
+inline fun <T> LazyListScope.itemsIndexed(
+    items: List<T>,
+    noinline key: ((index: Int, item: T) -> Any)? = null,
+    crossinline itemContent: @Composable LazyItemScope.(index: Int, item: T) -> Unit
+) = itemsIndexed(items, key, itemContent = itemContent)
 
 /**
  * Adds an array of items.
@@ -130,15 +196,30 @@ inline fun <T> LazyListScope.itemsIndexed(
  * When you specify the key the scroll position will be maintained based on the key, which
  * means if you add/remove items before the current visible item the item with the given key
  * will be kept as the first visible one.
+ * @param contentType a factory of the content types for the item. The item compositions of
+ * the same type could be reused more efficiently. Note that null is a valid type and items of such
+ * type will be considered compatible.
  * @param itemContent the content displayed by a single item
  */
 inline fun <T> LazyListScope.items(
     items: Array<T>,
     noinline key: ((item: T) -> Any)? = null,
+    noinline contentType: (item: T) -> Any? = { null },
     crossinline itemContent: @Composable LazyItemScope.(item: T) -> Unit
-) = items(items.size, if (key != null) { index: Int -> key(items[index]) } else null) {
+) = items(
+    count = items.size,
+    key = if (key != null) { index: Int -> key(items[index]) } else null,
+    contentType = { index: Int -> contentType(items[index]) }
+) {
     itemContent(items[it])
 }
+
+@Deprecated("Use the non deprecated overload", level = DeprecationLevel.HIDDEN)
+inline fun <T> LazyListScope.items(
+    items: Array<T>,
+    noinline key: ((item: T) -> Any)? = null,
+    crossinline itemContent: @Composable LazyItemScope.(item: T) -> Unit
+) = items(items, key, itemContent = itemContent)
 
 /**
  * Adds an array of items where the content of an item is aware of its index.
@@ -150,15 +231,30 @@ inline fun <T> LazyListScope.items(
  * When you specify the key the scroll position will be maintained based on the key, which
  * means if you add/remove items before the current visible item the item with the given key
  * will be kept as the first visible one.
+ * @param contentType a factory of the content types for the item. The item compositions of
+ * the same type could be reused more efficiently. Note that null is a valid type and items of such
+ * type will be considered compatible.
  * @param itemContent the content displayed by a single item
  */
 inline fun <T> LazyListScope.itemsIndexed(
     items: Array<T>,
     noinline key: ((index: Int, item: T) -> Any)? = null,
+    crossinline contentType: (index: Int, item: T) -> Any? = { _, _ -> null },
     crossinline itemContent: @Composable LazyItemScope.(index: Int, item: T) -> Unit
-) = items(items.size, if (key != null) { index: Int -> key(index, items[index]) } else null) {
+) = items(
+    count = items.size,
+    key = if (key != null) { index: Int -> key(index, items[index]) } else null,
+    contentType = { index -> contentType(index, items[index]) }
+) {
     itemContent(it, items[it])
 }
+
+@Deprecated("Use the non deprecated overload", level = DeprecationLevel.HIDDEN)
+inline fun <T> LazyListScope.itemsIndexed(
+    items: Array<T>,
+    noinline key: ((index: Int, item: T) -> Any)? = null,
+    crossinline itemContent: @Composable LazyItemScope.(index: Int, item: T) -> Unit
+) = itemsIndexed(items, key, itemContent = itemContent)
 
 /**
  * The horizontally scrolling list that only composes and lays out the currently visible items.
@@ -182,6 +278,8 @@ inline fun <T> LazyListScope.itemsIndexed(
  * of them to fill the whole minimum size.
  * @param verticalAlignment the vertical alignment applied to the items
  * @param flingBehavior logic describing fling behavior.
+ * @param userScrollEnabled whether the scrolling via the user gestures or accessibility actions
+ * is allowed. You can still scroll programmatically using the state even when it is disabled.
  * @param content a block which describes the content. Inside this block you can use methods like
  * [LazyListScope.item] to add a single item or [LazyListScope.items] to add a list of items.
  */
@@ -195,6 +293,7 @@ fun LazyRow(
         if (!reverseLayout) Arrangement.Start else Arrangement.End,
     verticalAlignment: Alignment.Vertical = Alignment.Top,
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
+    userScrollEnabled: Boolean = true,
     content: LazyListScope.() -> Unit
 ) {
     LazyList(
@@ -206,6 +305,7 @@ fun LazyRow(
         isVertical = false,
         flingBehavior = flingBehavior,
         reverseLayout = reverseLayout,
+        userScrollEnabled = userScrollEnabled,
         content = content
     )
 }
@@ -232,6 +332,8 @@ fun LazyRow(
  * of them to fill the whole minimum size.
  * @param horizontalAlignment the horizontal alignment applied to the items.
  * @param flingBehavior logic describing fling behavior.
+ * @param userScrollEnabled whether the scrolling via the user gestures or accessibility actions
+ * is allowed. You can still scroll programmatically using the state even when it is disabled.
  * @param content a block which describes the content. Inside this block you can use methods like
  * [LazyListScope.item] to add a single item or [LazyListScope.items] to add a list of items.
  */
@@ -245,6 +347,7 @@ fun LazyColumn(
         if (!reverseLayout) Arrangement.Top else Arrangement.Bottom,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
+    userScrollEnabled: Boolean = true,
     content: LazyListScope.() -> Unit
 ) {
     LazyList(
@@ -256,14 +359,59 @@ fun LazyColumn(
         verticalArrangement = verticalArrangement,
         isVertical = true,
         reverseLayout = reverseLayout,
+        userScrollEnabled = userScrollEnabled,
         content = content
     )
 }
 
-/**
- * This should create an object meeting following requirements:
- * 1) objects created for the same index are equals and never equals for different indexes
- * 2) this class is saveable via a default SaveableStateRegistry on the platform
- * 3) this objects can't be equals to any object which could be provided by a user as a custom key
- */
-internal expect fun getDefaultLazyKeyFor(index: Int): Any
+@Deprecated("Use the non deprecated overload", level = DeprecationLevel.HIDDEN)
+@Composable
+fun LazyColumn(
+    modifier: Modifier = Modifier,
+    state: LazyListState = rememberLazyListState(),
+    contentPadding: PaddingValues = PaddingValues(0.dp),
+    reverseLayout: Boolean = false,
+    verticalArrangement: Arrangement.Vertical =
+        if (!reverseLayout) Arrangement.Top else Arrangement.Bottom,
+    horizontalAlignment: Alignment.Horizontal = Alignment.Start,
+    flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
+    content: LazyListScope.() -> Unit
+) {
+    LazyColumn(
+        modifier = modifier,
+        state = state,
+        contentPadding = contentPadding,
+        reverseLayout = reverseLayout,
+        verticalArrangement = verticalArrangement,
+        horizontalAlignment = horizontalAlignment,
+        flingBehavior = flingBehavior,
+        userScrollEnabled = true,
+        content = content
+    )
+}
+
+@Deprecated("Use the non deprecated overload", level = DeprecationLevel.HIDDEN)
+@Composable
+fun LazyRow(
+    modifier: Modifier = Modifier,
+    state: LazyListState = rememberLazyListState(),
+    contentPadding: PaddingValues = PaddingValues(0.dp),
+    reverseLayout: Boolean = false,
+    horizontalArrangement: Arrangement.Horizontal =
+        if (!reverseLayout) Arrangement.Start else Arrangement.End,
+    verticalAlignment: Alignment.Vertical = Alignment.Top,
+    flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
+    content: LazyListScope.() -> Unit
+) {
+    LazyRow(
+        modifier = modifier,
+        state = state,
+        contentPadding = contentPadding,
+        reverseLayout = reverseLayout,
+        horizontalArrangement = horizontalArrangement,
+        verticalAlignment = verticalAlignment,
+        flingBehavior = flingBehavior,
+        userScrollEnabled = true,
+        content = content
+    )
+}

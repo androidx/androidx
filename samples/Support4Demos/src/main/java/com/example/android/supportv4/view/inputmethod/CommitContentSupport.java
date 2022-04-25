@@ -58,6 +58,7 @@ public class CommitContentSupport extends Activity {
     private int mCurrentFlags;
 
     @Override
+    @SuppressWarnings("deprecation")
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 

@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright 2021 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,23 +14,192 @@
   limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="androidx.glance.appwidget.demos">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <application
-        android:supportsRtl="true"
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/demos_label">
+        android:label="@string/demos_label"
+        android:supportsRtl="true">
+
+        <activity
+            android:name=".GlanceAppWidgetDemoActivity"
+            android:exported="true"
+            android:label="@string/demos_label"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".ActionDemoActivity" />
+        <service
+            android:name=".ActionDemoService"
+            tools:ignore="MissingServiceExportedEqualsTrue" />
+
+        <activity android:name=".ListClickDestinationActivity" android:exported="false" />
+
         <receiver
             android:name="androidx.glance.appwidget.demos.ResponsiveAppWidgetReceiver"
-            android:label="@string/responsive_widget_name"
-            android:exported="true">
+            android:enabled="@bool/glance_appwidget_available"
+            android:exported="false"
+            android:label="@string/responsive_widget_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/default_app_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name="androidx.glance.appwidget.demos.ExactAppWidgetReceiver"
+            android:enabled="@bool/glance_appwidget_available"
+            android:exported="false"
+            android:label="@string/exact_widget_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/default_app_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name="androidx.glance.appwidget.demos.ResizingAppWidgetReceiver"
+            android:enabled="@bool/glance_appwidget_available"
+            android:exported="false"
+            android:label="@string/resizing_widget_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/default_app_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name="androidx.glance.appwidget.demos.CompoundButtonAppWidgetReceiver"
+            android:enabled="@bool/glance_appwidget_available"
+            android:exported="false"
+            android:label="@string/compound_button_widget_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/responsive_app_widget_info" />
+                android:resource="@xml/default_app_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name="androidx.glance.appwidget.demos.SingleEntityWidgetReceiver"
+            android:enabled="@bool/glance_appwidget_available"
+            android:exported="false"
+            android:label="@string/single_entity_widget_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/default_app_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name="androidx.glance.appwidget.demos.ActionAppWidgetReceiver"
+            android:enabled="@bool/glance_appwidget_available"
+            android:exported="false"
+            android:label="@string/action_widget_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/action_app_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name="androidx.glance.appwidget.demos.ErrorUiAppWidgetReceiver"
+            android:label="@string/error_widget_name"
+            android:enabled="@bool/glance_appwidget_available"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/default_app_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name="androidx.glance.appwidget.demos.ScrollableAppWidgetReceiver"
+            android:label="@string/scrollable_widget_name"
+            android:enabled="@bool/glance_appwidget_available"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/default_app_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name="androidx.glance.appwidget.demos.ImageAppWidgetReceiver"
+            android:label="@string/image_widget_name"
+            android:enabled="@bool/glance_appwidget_available"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/default_app_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name="androidx.glance.appwidget.demos.VerticalGridAppWidgetReceiver"
+            android:label="@string/grid_widget_name"
+            android:enabled="@bool/glance_appwidget_available"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/default_app_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name="androidx.glance.appwidget.demos.DefaultStateAppWidgetReceiver"
+            android:label="@string/default_state_widget_name"
+            android:enabled="@bool/glance_appwidget_available"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/default_app_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name="androidx.glance.appwidget.demos.ProgressIndicatorAppWidgetReceiver"
+            android:label="@string/progress_indicator_widget_name"
+            android:enabled="@bool/glance_appwidget_available"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/default_app_widget_info" />
         </receiver>
     </application>
 </manifest>

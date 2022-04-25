@@ -289,6 +289,7 @@ class CryptoObjectUtils {
          * @param identityCredential The identity credential object to be wrapped.
          * @return An instance of {@link android.hardware.biometrics.BiometricPrompt.CryptoObject}.
          */
+        @SuppressWarnings("deprecation")
         @NonNull
         static android.hardware.biometrics.BiometricPrompt.CryptoObject create(
                 @NonNull android.security.identity.IdentityCredential identityCredential) {
@@ -302,6 +303,7 @@ class CryptoObjectUtils {
          *               {@link android.hardware.biometrics.BiometricPrompt.CryptoObject}.
          * @return The wrapped identity credential object, or {@code null}.
          */
+        @SuppressWarnings("deprecation")
         @Nullable
         static android.security.identity.IdentityCredential getIdentityCredential(
                 @NonNull android.hardware.biometrics.BiometricPrompt.CryptoObject crypto) {

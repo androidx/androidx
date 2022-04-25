@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.integration.adapter
 
 import android.hardware.camera2.CaptureResult
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameNumber
@@ -34,6 +35,7 @@ import androidx.camera.core.impl.TagBundle
 /**
  * Adapts the [CameraCaptureResult] interface to [CameraPipe].
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class CaptureResultAdapter(
     private val requestMetadata: RequestMetadata,
     private val frameNumber: FrameNumber,

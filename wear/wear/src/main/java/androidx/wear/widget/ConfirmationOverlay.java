@@ -343,26 +343,17 @@ public class ConfirmationOverlay {
         TextView messageView =
                 overlayView.findViewById(R.id.wearable_support_confirmation_overlay_message);
 
-        if (!mMessage.toString().isEmpty()) {
-            int screenWidthPx = ResourcesUtil.getScreenWidthPx(context);
-            int topMarginPx = ResourcesUtil.getFractionOfScreenPx(
-                    context, screenWidthPx, R.fraction.confirmation_overlay_margin_above_text);
-            int sideMarginPx =
-                    ResourcesUtil.getFractionOfScreenPx(
-                            context, screenWidthPx, R.fraction.confirmation_overlay_margin_side);
+        int screenWidthPx = ResourcesUtil.getScreenWidthPx(context);
+        int insetMarginPx = ResourcesUtil.getFractionOfScreenPx(
+                context, screenWidthPx, R.fraction.confirmation_overlay_text_inset_margin);
 
-            MarginLayoutParams layoutParams = (MarginLayoutParams) messageView.getLayoutParams();
-            layoutParams.topMargin = topMarginPx;
-            layoutParams.leftMargin = sideMarginPx;
-            layoutParams.rightMargin = sideMarginPx;
+        MarginLayoutParams layoutParams = (MarginLayoutParams) messageView.getLayoutParams();
+        layoutParams.leftMargin = insetMarginPx;
+        layoutParams.rightMargin = insetMarginPx;
 
-            messageView.setLayoutParams(layoutParams);
-            messageView.setText(mMessage);
-            messageView.setVisibility(View.VISIBLE);
-
-        } else {
-            messageView.setVisibility(View.GONE);
-        }
+        messageView.setLayoutParams(layoutParams);
+        messageView.setText(mMessage);
+        messageView.setVisibility(View.VISIBLE);
     }
 
     @MainThread
@@ -370,14 +361,14 @@ public class ConfirmationOverlay {
         switch (mType) {
             case SUCCESS_ANIMATION:
                 mOverlayDrawable = ContextCompat.getDrawable(context,
-                        R.drawable.generic_confirmation_animation);
+                        R.drawable.confirmation_animation);
                 break;
             case FAILURE_ANIMATION:
-                mOverlayDrawable = ContextCompat.getDrawable(context, R.drawable.ws_full_sad);
+                mOverlayDrawable = ContextCompat.getDrawable(context, R.drawable.failure_animation);
                 break;
             case OPEN_ON_PHONE_ANIMATION:
                 mOverlayDrawable =
-                        ContextCompat.getDrawable(context, R.drawable.ws_open_on_phone_animation);
+                        ContextCompat.getDrawable(context, R.drawable.open_on_phone_animation);
                 break;
             default:
                 String errorMessage =
@@ -392,10 +383,13 @@ public class ConfirmationOverlay {
 
     /**
      * Returns text to be read out if accessibility is turned on.
-     * @return Text from the {@link #mMessage} followed by predefined string for given animation
-     * type.
+     * @return Text from the {@link #mMessage} if not empty or predefined string for given
+     * animation type.
      */
     private CharSequence getAccessibilityText() {
+        if (!mMessage.toString().isEmpty()) {
+            return mMessage;
+        }
         Context context = mOverlayView.getContext();
         CharSequence imageDescription = "";
         switch (mType) {
@@ -416,7 +410,6 @@ public class ConfirmationOverlay {
                         String.format(Locale.US, "Invalid ConfirmationOverlay type [%d]", mType);
                 throw new IllegalStateException(errorMessage);
         }
-        return mMessage + "\n" + context.getString(R.string.confirmation_overlay_a11y_type_image)
-                + " " + imageDescription;
+        return imageDescription;
     }
 }

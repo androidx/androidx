@@ -53,6 +53,10 @@ ActionValue: androidx.mediarouter.media.MediaItemStatus#EXTRA_HTTP_STATUS_CODE:
     Inconsistent extra value; expected `androidx.mediarouter.media.extra.HTTP_STATUS_CODE`, was `android.media.status.extra.HTTP_STATUS_CODE`
 
 
+AsyncSuffixFuture: androidx.mediarouter.media.MediaRouter.OnPrepareTransferListener#onPrepareTransfer(androidx.mediarouter.media.MediaRouter.RouteInfo, androidx.mediarouter.media.MediaRouter.RouteInfo):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+
+
 ExecutorRegistration: androidx.mediarouter.media.MediaRouteProvider#setCallback(androidx.mediarouter.media.MediaRouteProvider.Callback):
     Registration methods should have overload that accepts delivery Executor: `setCallback`
 ExecutorRegistration: androidx.mediarouter.media.MediaRouter#addCallback(androidx.mediarouter.media.MediaRouteSelector, androidx.mediarouter.media.MediaRouter.Callback, int):
@@ -91,6 +95,24 @@ ExecutorRegistration: androidx.mediarouter.media.RemotePlaybackClient#stop(andro
 
 InterfaceConstant: androidx.mediarouter.media.MediaRouteProviderService#SERVICE_INTERFACE:
     Inconsistent interface constant; expected 'androidx.mediarouter.media.MediaRouteProviderService'`
+
+
+InvalidNullabilityOverride: androidx.mediarouter.app.MediaRouteButton#onDraw(android.graphics.Canvas) parameter #0:
+    Invalid nullability on parameter `canvas` in method `onDraw`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullabilityOverride: androidx.mediarouter.app.MediaRouteControllerDialog#onKeyDown(int, android.view.KeyEvent) parameter #1:
+    Invalid nullability on parameter `event` in method `onKeyDown`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullabilityOverride: androidx.mediarouter.app.MediaRouteControllerDialog#onKeyUp(int, android.view.KeyEvent) parameter #1:
+    Invalid nullability on parameter `event` in method `onKeyUp`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullabilityOverride: androidx.mediarouter.media.MediaRouteProviderService#attachBaseContext(android.content.Context) parameter #0:
+    Invalid nullability on parameter `context` in method `attachBaseContext`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullabilityOverride: androidx.mediarouter.media.MediaRouteProviderService#onBind(android.content.Intent):
+    Invalid nullability on method `onBind` return. Overrides of unannotated super method cannot be Nullable.
+InvalidNullabilityOverride: androidx.mediarouter.media.MediaRouteProviderService#onBind(android.content.Intent) parameter #0:
+    Invalid nullability on parameter `intent` in method `onBind`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullabilityOverride: androidx.mediarouter.media.MediaTransferReceiver#onReceive(android.content.Context, android.content.Intent) parameter #0:
+    Invalid nullability on parameter `context` in method `onReceive`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullabilityOverride: androidx.mediarouter.media.MediaTransferReceiver#onReceive(android.content.Context, android.content.Intent) parameter #1:
+    Invalid nullability on parameter `intent` in method `onReceive`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 
 
 KotlinOperator: androidx.mediarouter.media.MediaRouteSelector#contains(androidx.mediarouter.media.MediaRouteSelector):

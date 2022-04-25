@@ -327,6 +327,7 @@ class NavControllerRouteTest {
 
     @UiThreadTest
     @Test
+    @Suppress("DEPRECATION")
     fun testNavigateViaDeepLink() {
         val navController = createNavController()
         navController.graph = nav_simple_route_graph
@@ -387,6 +388,7 @@ class NavControllerRouteTest {
 
     @UiThreadTest
     @Test
+    @Suppress("DEPRECATION")
     fun testNavigateViaDeepLinkMimeType() {
         val navController = createNavController()
         navController.graph = nav_deeplink_route_graph
@@ -772,6 +774,7 @@ class NavControllerRouteTest {
 
     @UiThreadTest
     @Test
+    @Suppress("DEPRECATION")
     fun testBackstackArgsBundleParceled() {
         val context = ApplicationProvider.getApplicationContext() as Context
         var navController = NavController(context)
@@ -805,6 +808,7 @@ class NavControllerRouteTest {
     }
 
     @UiThreadTest
+    @Suppress("DEPRECATION")
     @Test
     fun testNavigateArgs() {
         val navController = createNavController()

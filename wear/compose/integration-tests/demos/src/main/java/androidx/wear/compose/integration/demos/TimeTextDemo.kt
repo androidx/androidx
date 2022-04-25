@@ -16,85 +16,44 @@
 
 package androidx.wear.compose.integration.demos
 
+import android.text.format.DateFormat
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
-import androidx.wear.compose.foundation.BasicCurvedText
-import androidx.wear.compose.material.ExperimentalWearMaterialApi
+import androidx.wear.compose.foundation.CurvedTextStyle
+import androidx.wear.compose.foundation.basicCurvedText
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.TimeText
 import androidx.wear.compose.material.TimeTextDefaults
+import java.util.Locale
 
-@OptIn(ExperimentalWearMaterialApi::class)
 @Composable
 fun TimeTextClockOnly() {
     TimeText()
 }
 
-@OptIn(ExperimentalWearMaterialApi::class)
 @Composable
 fun TimeTextWithLeadingText() {
+    val textStyle = TimeTextDefaults.timeTextStyle(color = AlternatePrimaryColor1)
     TimeText(
-        leadingLinearContent = {
+        startLinearContent = {
             Text(
-                text = "Leading content",
-                style = TimeTextDefaults.timeTextStyle(color = Color.Green)
+                text = "ETA 12:48",
+                style = textStyle
             )
         },
-        leadingCurvedContent = {
-            BasicCurvedText(
-                text = "Leading content",
-                style = TimeTextDefaults.timeCurvedTextStyle(color = Color.Green)
+        startCurvedContent = {
+            basicCurvedText(
+                text = "ETA 12:48",
+                style = CurvedTextStyle(textStyle)
             )
         }
     )
 }
 
-@OptIn(ExperimentalWearMaterialApi::class)
 @Composable
-fun TimeTextWithTrailingText() {
+fun TimeTextWithLocalisedFormat() {
     TimeText(
-        trailingLinearContent = {
-            Text(
-                text = "Trailing content",
-                style = TimeTextDefaults.timeTextStyle(color = Color.Yellow)
-            )
-        },
-        trailingCurvedContent = {
-            BasicCurvedText(
-                text = "Trailing content",
-                style = TimeTextDefaults.timeCurvedTextStyle(color = Color.Yellow)
-            )
-        }
-    )
-}
-
-@OptIn(ExperimentalWearMaterialApi::class)
-@Composable
-fun TimeTextWithLeadingAndTrailingText() {
-    TimeText(
-        leadingLinearContent = {
-            Text(
-                text = "Leading content",
-                style = TimeTextDefaults.timeTextStyle(color = Color.Green)
-            )
-        },
-        leadingCurvedContent = {
-            BasicCurvedText(
-                text = "Leading content",
-                style = TimeTextDefaults.timeCurvedTextStyle(color = Color.Green)
-            )
-        },
-        trailingLinearContent = {
-            Text(
-                text = "Trailing content",
-                style = TimeTextDefaults.timeTextStyle(color = Color.Yellow)
-            )
-        },
-        trailingCurvedContent = {
-            BasicCurvedText(
-                text = "Trailing content",
-                style = TimeTextDefaults.timeCurvedTextStyle(color = Color.Yellow)
-            )
-        }
+        timeSource = TimeTextDefaults.timeSource(
+            DateFormat.getBestDateTimePattern(Locale.getDefault(), "yyyy.MM.dd HH:mm:ss")
+        )
     )
 }

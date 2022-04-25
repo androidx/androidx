@@ -34,6 +34,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.concurrent.TimeUnit
 import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
@@ -151,10 +152,9 @@ public class BenchmarkStateTest {
     }
 
     private fun iterationCheck(checkingForThermalThrottling: Boolean) {
-        val state = BenchmarkState()
         // disable thermal throttle checks, since it can cause loops to be thrown out
         // note that this bypasses allocation count
-        state.simplifiedTimingOnlyMode = checkingForThermalThrottling
+        val state = BenchmarkState(simplifiedTimingOnlyMode = checkingForThermalThrottling)
         var total = 0
         while (state.keepRunning()) {
             total++
@@ -195,15 +195,25 @@ public class BenchmarkStateTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     public fun bundle() {
         val bundle = BenchmarkState().apply {
             while (keepRunning()) {
                 // nothing, we're ignoring numbers
             }
-        }.getFullStatusReport(key = "foo", reportMetrics = true)
+        }.getFullStatusReport(
+            key = "foo",
+            reportMetrics = true,
+            tracePath = Outputs.outputDirectory.absolutePath + "/bar"
+        )
 
+        val displayStringV1 = (bundle.get("android.studio.display.benchmark") as String)
+        val displayStringV2 = (bundle.get("android.studio.v2display.benchmark") as String)
+        assertTrue("$displayStringV1 should contain foo", displayStringV1.contains("foo"))
+        assertTrue("$displayStringV2 should contain foo", displayStringV2.contains("foo"))
         assertTrue(
-            (bundle.get("android.studio.display.benchmark") as String).contains("foo")
+            "$displayStringV2 should contain [trace](file://bar)",
+            displayStringV2.contains("[trace](file://bar)")
         )
 
         // check attribute presence and naming
@@ -248,7 +258,7 @@ public class BenchmarkStateTest {
     }
 
     @Suppress("DEPRECATION")
-    @UseExperimental(ExperimentalExternalReport::class)
+    @OptIn(ExperimentalExternalReport::class)
     @Test
     public fun reportResult() {
         BenchmarkState.reportData(
@@ -276,4 +286,51 @@ public class BenchmarkStateTest {
         )
         assertEquals(expectedReport, ResultWriter.reports.last())
     }
+
+    private fun validateProfilerUsage(simplifiedTimingOnlyMode: Boolean?) {
+        try {
+            profilerOverride = StackSamplingLegacy
+
+            val benchmarkState = if (simplifiedTimingOnlyMode != null) {
+                BenchmarkState(simplifiedTimingOnlyMode)
+            } else {
+                BenchmarkState()
+            }
+
+            // count iters with profiler enabled vs disabled
+            var profilerDisabledIterations = 0
+            var profilerEnabledIterations = 0
+            var profilerAllocationIterations = 0
+            while (benchmarkState.keepRunning()) {
+                if (StackSamplingLegacy.isRunning) {
+                    profilerEnabledIterations++
+                } else {
+                    profilerDisabledIterations++
+
+                    if (profilerEnabledIterations != 0) {
+                        // profiler will only be disabled after running during allocation phase
+                        profilerAllocationIterations++
+                    }
+                }
+            }
+
+            if (simplifiedTimingOnlyMode == true) {
+                // profiler should be always disabled
+                assertNotEquals(0, profilerDisabledIterations)
+                assertEquals(0, profilerEnabledIterations)
+                assertEquals(0, profilerAllocationIterations)
+            } else {
+                // first, profiler disabled, then enabled until end
+                assertNotEquals(0, profilerDisabledIterations)
+                assertNotEquals(0, profilerEnabledIterations)
+                assertNotEquals(0, profilerAllocationIterations)
+            }
+        } finally {
+            profilerOverride = null
+        }
+    }
+
+    @Test public fun profiler_default() = validateProfilerUsage(null)
+    @Test public fun profiler_false() = validateProfilerUsage(false)
+    @Test public fun profiler_true() = validateProfilerUsage(true)
 }

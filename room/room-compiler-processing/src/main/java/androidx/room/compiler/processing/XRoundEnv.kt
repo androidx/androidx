@@ -35,6 +35,14 @@ interface XRoundEnv {
     val rootElements: Set<XElement>
 
     /**
+     * Returns true if no further rounds of processing will be done.
+     *
+     * Sources generated in this round will not be not be subject to a subsequent round of
+     * annotation processing, however they will be compiled.
+     */
+    val isProcessingOver: Boolean
+
+    /**
      * Returns the set of [XElement]s that are annotated with the given annotation [klass].
      */
     fun getElementsAnnotatedWith(klass: KClass<out Annotation>): Set<XElement>
@@ -48,7 +56,8 @@ interface XRoundEnv {
         @JvmStatic
         fun create(
             processingEnv: XProcessingEnv,
-            roundEnvironment: RoundEnvironment? = null
+            roundEnvironment: RoundEnvironment? = null,
+            isProcessingOver: Boolean = roundEnvironment?.processingOver() ?: false,
         ): XRoundEnv {
             return when (processingEnv) {
                 is JavacProcessingEnv -> {
@@ -56,7 +65,7 @@ interface XRoundEnv {
                     JavacRoundEnv(processingEnv, roundEnvironment)
                 }
                 is KspProcessingEnv -> {
-                    KspRoundEnv(processingEnv)
+                    KspRoundEnv(processingEnv, isProcessingOver)
                 }
                 else -> error("invalid processing environment type: $processingEnv")
             }

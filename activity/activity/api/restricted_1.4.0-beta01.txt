@@ -1,0 +1,283 @@
+// Signature format: 4.0
+package androidx.activity {
+
+  public class ComponentActivity extends androidx.core.app.ComponentActivity implements androidx.activity.result.ActivityResultCaller androidx.activity.result.ActivityResultRegistryOwner androidx.activity.contextaware.ContextAware androidx.lifecycle.HasDefaultViewModelProviderFactory androidx.lifecycle.LifecycleOwner androidx.core.view.MenuHost androidx.activity.OnBackPressedDispatcherOwner androidx.savedstate.SavedStateRegistryOwner androidx.lifecycle.ViewModelStoreOwner {
+    ctor public ComponentActivity();
+    ctor @ContentView public ComponentActivity(@LayoutRes int);
+    method public void addMenuProvider(androidx.core.view.MenuProvider);
+    method public void addMenuProvider(androidx.core.view.MenuProvider, androidx.lifecycle.LifecycleOwner);
+    method public void addMenuProvider(androidx.core.view.MenuProvider, androidx.lifecycle.LifecycleOwner, androidx.lifecycle.Lifecycle.State);
+    method public final void addOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener);
+    method public final androidx.activity.result.ActivityResultRegistry getActivityResultRegistry();
+    method public androidx.lifecycle.ViewModelProvider.Factory getDefaultViewModelProviderFactory();
+    method @Deprecated public Object? getLastCustomNonConfigurationInstance();
+    method public final androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
+    method public final androidx.savedstate.SavedStateRegistry getSavedStateRegistry();
+    method public androidx.lifecycle.ViewModelStore getViewModelStore();
+    method public void invalidateMenu();
+    method @Deprecated @CallSuper protected void onActivityResult(int, int, android.content.Intent?);
+    method @Deprecated @CallSuper public void onRequestPermissionsResult(int, String![], int[]);
+    method @Deprecated public Object? onRetainCustomNonConfigurationInstance();
+    method public final Object? onRetainNonConfigurationInstance();
+    method public android.content.Context? peekAvailableContext();
+    method public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultRegistry, androidx.activity.result.ActivityResultCallback<O!>);
+    method public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultCallback<O!>);
+    method public void removeMenuProvider(androidx.core.view.MenuProvider);
+    method public final void removeOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener);
+    method @Deprecated public void startActivityForResult(android.content.Intent!, int);
+    method @Deprecated public void startActivityForResult(android.content.Intent!, int, android.os.Bundle?);
+    method @Deprecated public void startIntentSenderForResult(android.content.IntentSender!, int, android.content.Intent?, int, int, int) throws android.content.IntentSender.SendIntentException;
+    method @Deprecated public void startIntentSenderForResult(android.content.IntentSender!, int, android.content.Intent?, int, int, int, android.os.Bundle?) throws android.content.IntentSender.SendIntentException;
+  }
+
+  public abstract class OnBackPressedCallback {
+    ctor public OnBackPressedCallback(boolean);
+    method @MainThread public abstract void handleOnBackPressed();
+    method @MainThread public final boolean isEnabled();
+    method @MainThread public final void remove();
+    method @MainThread public final void setEnabled(boolean);
+  }
+
+  public final class OnBackPressedDispatcher {
+    ctor public OnBackPressedDispatcher();
+    ctor public OnBackPressedDispatcher(Runnable?);
+    method @MainThread public void addCallback(androidx.activity.OnBackPressedCallback);
+    method @MainThread public void addCallback(androidx.lifecycle.LifecycleOwner, androidx.activity.OnBackPressedCallback);
+    method @MainThread public boolean hasEnabledCallbacks();
+    method @MainThread public void onBackPressed();
+  }
+
+  public interface OnBackPressedDispatcherOwner extends androidx.lifecycle.LifecycleOwner {
+    method public androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
+  }
+
+}
+
+package androidx.activity.contextaware {
+
+  public interface ContextAware {
+    method public void addOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener);
+    method public android.content.Context? peekAvailableContext();
+    method public void removeOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener);
+  }
+
+  public final class ContextAwareHelper {
+    ctor public ContextAwareHelper();
+    method public void addOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener);
+    method public void clearAvailableContext();
+    method public void dispatchOnContextAvailable(android.content.Context);
+    method public android.content.Context? peekAvailableContext();
+    method public void removeOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener);
+  }
+
+  public interface OnContextAvailableListener {
+    method public void onContextAvailable(android.content.Context);
+  }
+
+}
+
+package androidx.activity.result {
+
+  public final class ActivityResult implements android.os.Parcelable {
+    ctor public ActivityResult(int, android.content.Intent?);
+    method public int describeContents();
+    method public android.content.Intent? getData();
+    method public int getResultCode();
+    method public static String resultCodeToString(int);
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<androidx.activity.result.ActivityResult!> CREATOR;
+  }
+
+  public interface ActivityResultCallback<O> {
+    method public void onActivityResult(O!);
+  }
+
+  public interface ActivityResultCaller {
+    method public <I, O> androidx.activity.result.ActivityResultLauncher<I!> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultCallback<O!>);
+    method public <I, O> androidx.activity.result.ActivityResultLauncher<I!> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultRegistry, androidx.activity.result.ActivityResultCallback<O!>);
+  }
+
+  public abstract class ActivityResultLauncher<I> {
+    ctor public ActivityResultLauncher();
+    method public abstract androidx.activity.result.contract.ActivityResultContract<I!,?> getContract();
+    method public void launch(I!);
+    method public abstract void launch(I!, androidx.core.app.ActivityOptionsCompat?);
+    method @MainThread public abstract void unregister();
+  }
+
+  public abstract class ActivityResultRegistry {
+    ctor public ActivityResultRegistry();
+    method @MainThread public final boolean dispatchResult(int, int, android.content.Intent?);
+    method @MainThread public final <O> boolean dispatchResult(int, O!);
+    method @MainThread public abstract <I, O> void onLaunch(int, androidx.activity.result.contract.ActivityResultContract<I!,O!>, I!, androidx.core.app.ActivityOptionsCompat?);
+    method public final void onRestoreInstanceState(android.os.Bundle?);
+    method public final void onSaveInstanceState(android.os.Bundle);
+    method public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> register(String, androidx.lifecycle.LifecycleOwner, androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultCallback<O!>);
+    method public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> register(String, androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultCallback<O!>);
+  }
+
+  public interface ActivityResultRegistryOwner {
+    method public androidx.activity.result.ActivityResultRegistry getActivityResultRegistry();
+  }
+
+  public final class IntentSenderRequest implements android.os.Parcelable {
+    method public int describeContents();
+    method public android.content.Intent? getFillInIntent();
+    method public int getFlagsMask();
+    method public int getFlagsValues();
+    method public android.content.IntentSender getIntentSender();
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<androidx.activity.result.IntentSenderRequest!> CREATOR;
+  }
+
+  public static final class IntentSenderRequest.Builder {
+    ctor public IntentSenderRequest.Builder(android.content.IntentSender);
+    ctor public IntentSenderRequest.Builder(android.app.PendingIntent);
+    method public androidx.activity.result.IntentSenderRequest build();
+    method public androidx.activity.result.IntentSenderRequest.Builder setFillInIntent(android.content.Intent?);
+    method public androidx.activity.result.IntentSenderRequest.Builder setFlags(int, int);
+  }
+
+}
+
+package androidx.activity.result.contract {
+
+  public abstract class ActivityResultContract<I, O> {
+    ctor public ActivityResultContract();
+    method public abstract android.content.Intent createIntent(android.content.Context context, I? input);
+    method public androidx.activity.result.contract.ActivityResultContract.SynchronousResult<O>? getSynchronousResult(android.content.Context context, I? input);
+    method public abstract O! parseResult(int resultCode, android.content.Intent? intent);
+  }
+
+  public static final class ActivityResultContract.SynchronousResult<T> {
+    ctor public ActivityResultContract.SynchronousResult(T? value);
+    method public T! getValue();
+    property public final T! value;
+  }
+
+  public final class ActivityResultContracts {
+  }
+
+  public static class ActivityResultContracts.CaptureVideo extends androidx.activity.result.contract.ActivityResultContract<android.net.Uri,java.lang.Boolean> {
+    ctor public ActivityResultContracts.CaptureVideo();
+    method @CallSuper public android.content.Intent createIntent(android.content.Context context, android.net.Uri input);
+    method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<java.lang.Boolean>? getSynchronousResult(android.content.Context context, android.net.Uri input);
+    method public final Boolean parseResult(int resultCode, android.content.Intent? intent);
+  }
+
+  @RequiresApi(19) public static class ActivityResultContracts.CreateDocument extends androidx.activity.result.contract.ActivityResultContract<java.lang.String,android.net.Uri> {
+    ctor public ActivityResultContracts.CreateDocument();
+    method @CallSuper public android.content.Intent createIntent(android.content.Context context, String input);
+    method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<android.net.Uri>? getSynchronousResult(android.content.Context context, String input);
+    method public final android.net.Uri? parseResult(int resultCode, android.content.Intent? intent);
+  }
+
+  public static class ActivityResultContracts.GetContent extends androidx.activity.result.contract.ActivityResultContract<java.lang.String,android.net.Uri> {
+    ctor public ActivityResultContracts.GetContent();
+    method @CallSuper public android.content.Intent createIntent(android.content.Context context, String input);
+    method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<android.net.Uri>? getSynchronousResult(android.content.Context context, String input);
+    method public final android.net.Uri? parseResult(int resultCode, android.content.Intent? intent);
+  }
+
+  @RequiresApi(18) public static class ActivityResultContracts.GetMultipleContents extends androidx.activity.result.contract.ActivityResultContract<java.lang.String,java.util.List<android.net.Uri>> {
+    ctor public ActivityResultContracts.GetMultipleContents();
+    method @CallSuper public android.content.Intent createIntent(android.content.Context context, String input);
+    method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<java.util.List<android.net.Uri>>? getSynchronousResult(android.content.Context context, String input);
+    method public final java.util.List<android.net.Uri> parseResult(int resultCode, android.content.Intent? intent);
+  }
+
+  @RequiresApi(19) public static class ActivityResultContracts.OpenDocument extends androidx.activity.result.contract.ActivityResultContract<java.lang.String[],android.net.Uri> {
+    ctor public ActivityResultContracts.OpenDocument();
+    method @CallSuper public android.content.Intent createIntent(android.content.Context context, String![] input);
+    method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<android.net.Uri>? getSynchronousResult(android.content.Context context, String![] input);
+    method public final android.net.Uri? parseResult(int resultCode, android.content.Intent? intent);
+  }
+
+  @RequiresApi(21) public static class ActivityResultContracts.OpenDocumentTree extends androidx.activity.result.contract.ActivityResultContract<android.net.Uri,android.net.Uri> {
+    ctor public ActivityResultContracts.OpenDocumentTree();
+    method @CallSuper public android.content.Intent createIntent(android.content.Context context, android.net.Uri? input);
+    method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<android.net.Uri>? getSynchronousResult(android.content.Context context, android.net.Uri? input);
+    method public final android.net.Uri? parseResult(int resultCode, android.content.Intent? intent);
+  }
+
+  @RequiresApi(19) public static class ActivityResultContracts.OpenMultipleDocuments extends androidx.activity.result.contract.ActivityResultContract<java.lang.String[],java.util.List<android.net.Uri>> {
+    ctor public ActivityResultContracts.OpenMultipleDocuments();
+    method @CallSuper public android.content.Intent createIntent(android.content.Context context, String![] input);
+    method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<java.util.List<android.net.Uri>>? getSynchronousResult(android.content.Context context, String![] input);
+    method public final java.util.List<android.net.Uri> parseResult(int resultCode, android.content.Intent? intent);
+  }
+
+  public static final class ActivityResultContracts.PickContact extends androidx.activity.result.contract.ActivityResultContract<java.lang.Void,android.net.Uri> {
+    ctor public ActivityResultContracts.PickContact();
+    method public android.content.Intent createIntent(android.content.Context context, Void? input);
+    method public android.net.Uri? parseResult(int resultCode, android.content.Intent? intent);
+  }
+
+  public static final class ActivityResultContracts.RequestMultiplePermissions extends androidx.activity.result.contract.ActivityResultContract<java.lang.String[],java.util.Map<java.lang.String,java.lang.Boolean>> {
+    ctor public ActivityResultContracts.RequestMultiplePermissions();
+    method public android.content.Intent createIntent(android.content.Context context, String![] input);
+    method public androidx.activity.result.contract.ActivityResultContract.SynchronousResult<java.util.Map<java.lang.String,java.lang.Boolean>>? getSynchronousResult(android.content.Context context, String![] input);
+    method public java.util.Map<java.lang.String,java.lang.Boolean> parseResult(int resultCode, android.content.Intent? intent);
+    field public static final String ACTION_REQUEST_PERMISSIONS = "androidx.activity.result.contract.action.REQUEST_PERMISSIONS";
+    field public static final androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions.Companion Companion;
+    field public static final String EXTRA_PERMISSIONS = "androidx.activity.result.contract.extra.PERMISSIONS";
+    field public static final String EXTRA_PERMISSION_GRANT_RESULTS = "androidx.activity.result.contract.extra.PERMISSION_GRANT_RESULTS";
+  }
+
+  public static final class ActivityResultContracts.RequestMultiplePermissions.Companion {
+  }
+
+  public static final class ActivityResultContracts.RequestPermission extends androidx.activity.result.contract.ActivityResultContract<java.lang.String,java.lang.Boolean> {
+    ctor public ActivityResultContracts.RequestPermission();
+    method public android.content.Intent createIntent(android.content.Context context, String input);
+    method public androidx.activity.result.contract.ActivityResultContract.SynchronousResult<java.lang.Boolean>? getSynchronousResult(android.content.Context context, String input);
+    method public Boolean parseResult(int resultCode, android.content.Intent? intent);
+  }
+
+  public static final class ActivityResultContracts.StartActivityForResult extends androidx.activity.result.contract.ActivityResultContract<android.content.Intent,androidx.activity.result.ActivityResult> {
+    ctor public ActivityResultContracts.StartActivityForResult();
+    method public android.content.Intent createIntent(android.content.Context context, android.content.Intent input);
+    method public androidx.activity.result.ActivityResult parseResult(int resultCode, android.content.Intent? intent);
+    field public static final androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult.Companion Companion;
+    field public static final String EXTRA_ACTIVITY_OPTIONS_BUNDLE = "androidx.activity.result.contract.extra.ACTIVITY_OPTIONS_BUNDLE";
+  }
+
+  public static final class ActivityResultContracts.StartActivityForResult.Companion {
+  }
+
+  public static final class ActivityResultContracts.StartIntentSenderForResult extends androidx.activity.result.contract.ActivityResultContract<androidx.activity.result.IntentSenderRequest,androidx.activity.result.ActivityResult> {
+    ctor public ActivityResultContracts.StartIntentSenderForResult();
+    method public android.content.Intent createIntent(android.content.Context context, androidx.activity.result.IntentSenderRequest input);
+    method public androidx.activity.result.ActivityResult parseResult(int resultCode, android.content.Intent? intent);
+    field public static final String ACTION_INTENT_SENDER_REQUEST = "androidx.activity.result.contract.action.INTENT_SENDER_REQUEST";
+    field public static final androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult.Companion Companion;
+    field public static final String EXTRA_INTENT_SENDER_REQUEST = "androidx.activity.result.contract.extra.INTENT_SENDER_REQUEST";
+    field public static final String EXTRA_SEND_INTENT_EXCEPTION = "androidx.activity.result.contract.extra.SEND_INTENT_EXCEPTION";
+  }
+
+  public static final class ActivityResultContracts.StartIntentSenderForResult.Companion {
+  }
+
+  public static class ActivityResultContracts.TakePicture extends androidx.activity.result.contract.ActivityResultContract<android.net.Uri,java.lang.Boolean> {
+    ctor public ActivityResultContracts.TakePicture();
+    method @CallSuper public android.content.Intent createIntent(android.content.Context context, android.net.Uri input);
+    method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<java.lang.Boolean>? getSynchronousResult(android.content.Context context, android.net.Uri input);
+    method public final Boolean parseResult(int resultCode, android.content.Intent? intent);
+  }
+
+  public static class ActivityResultContracts.TakePicturePreview extends androidx.activity.result.contract.ActivityResultContract<java.lang.Void,android.graphics.Bitmap> {
+    ctor public ActivityResultContracts.TakePicturePreview();
+    method @CallSuper public android.content.Intent createIntent(android.content.Context context, Void? input);
+    method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<android.graphics.Bitmap>? getSynchronousResult(android.content.Context context, Void? input);
+    method public final android.graphics.Bitmap? parseResult(int resultCode, android.content.Intent? intent);
+  }
+
+  @Deprecated public static class ActivityResultContracts.TakeVideo extends androidx.activity.result.contract.ActivityResultContract<android.net.Uri,android.graphics.Bitmap> {
+    ctor @Deprecated public ActivityResultContracts.TakeVideo();
+    method @Deprecated @CallSuper public android.content.Intent createIntent(android.content.Context context, android.net.Uri input);
+    method @Deprecated public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<android.graphics.Bitmap>? getSynchronousResult(android.content.Context context, android.net.Uri input);
+    method @Deprecated public final android.graphics.Bitmap? parseResult(int resultCode, android.content.Intent? intent);
+  }
+
+}
+

@@ -28,6 +28,7 @@ import androidx.core.util.Preconditions;
  *
  * <p>All operations will be no-ops on non-supported API levels.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class CloseGuardHelper {
 
     private final CloseGuardImpl mImpl;

@@ -19,11 +19,25 @@ package androidx.compose.ui.input.pointer
 import java.awt.event.MouseEvent
 
 internal actual class InternalPointerEvent constructor(
+    val type: PointerEventType,
     actual val changes: Map<PointerId, PointerInputChange>,
+    val buttons: PointerButtons,
+    val keyboardModifiers: PointerKeyboardModifiers,
     val mouseEvent: MouseEvent?
 ) {
     actual constructor(
         changes: Map<PointerId, PointerInputChange>,
         pointerInputEvent: PointerInputEvent
-    ) : this(changes, pointerInputEvent.mouseEvent)
+    ) : this(
+        pointerInputEvent.eventType,
+        changes,
+        pointerInputEvent.buttons,
+        pointerInputEvent.keyboardModifiers,
+        pointerInputEvent.mouseEvent
+    )
+
+    actual var suppressMovementConsumption: Boolean = false
+
+    // Assume that all changes are from mouse events for now
+    actual fun issuesEnterExitEvent(pointerId: PointerId): Boolean = true
 }

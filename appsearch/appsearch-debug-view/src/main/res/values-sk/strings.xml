@@ -17,9 +17,9 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="appsearch_no_documents_error" msgid="2371906054857961621">"V databáze sa nenašli žiadne dokumenty služby AppSearch. Overte, či je názov databázy platný a či bol vybraný správny typ priestoru."</string>
-    <string name="appsearch_no_schema_types_error" msgid="6040453370924007774">"Nenašli sa žiadne typy schém služby AppSearch. Overte, či je názov databázy platný a či bol vybraný správny typ priestoru."</string>
-    <string name="appsearch_documents_loading" msgid="3079225167662255666">"Načítavajú sa dokumenty služby AppSearch…"</string>
-    <string name="appsearch_schema_types_loading" msgid="5223743742396711620">"Načítavajú sa typy schém služby AppSearch…"</string>
-    <string name="appsearch_schema_version" msgid="5289450345246068014">"Verzia schémy: %d"</string>
+    <string name="appsearch_no_documents_error" msgid="7957333381856121779">"V databáze neboli nájdené žiadne dokumenty služby AppSearch. Overte, či je názov databázy platný a či bol vybraný správny typ priestoru."</string>
+    <string name="appsearch_no_schema_types_error" msgid="5825283982305113887">"Neboli nájdené žiadne typy schém služby AppSearch. Overte, či je názov databázy platný a či bol vybraný správny typ priestoru."</string>
+    <string name="appsearch_documents_loading" msgid="1689893533003672860">"Načítavajú sa dokumenty služby AppSearch…"</string>
+    <string name="appsearch_schema_types_loading" msgid="4961123108404531766">"Načítavajú sa typy schém služby AppSearch…"</string>
+    <string name="appsearch_schema_version" msgid="7000254633719373917">"Verzia schémy: %d"</string>
 </resources>

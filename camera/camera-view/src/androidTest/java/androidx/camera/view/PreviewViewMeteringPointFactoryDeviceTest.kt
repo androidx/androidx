@@ -21,6 +21,7 @@ import android.graphics.Rect
 import android.util.LayoutDirection
 import android.util.Size
 import androidx.camera.core.SurfaceRequest
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
@@ -33,7 +34,8 @@ import org.junit.runners.Parameterized
  */
 @SmallTest
 @RunWith(Parameterized::class)
-public class PreviewViewMeteringPointFactoryDeviceTest(
+@SdkSuppress(minSdkVersion = 21)
+class PreviewViewMeteringPointFactoryDeviceTest(
     private val cropRect: Rect,
     private val rotationDegrees: Int,
     private val surfaceSize: Size,
@@ -45,7 +47,7 @@ public class PreviewViewMeteringPointFactoryDeviceTest(
     private val expectedMeteringPoint: PointF
 ) {
 
-    public companion object {
+    companion object {
 
         private const val FRONT_CAMERA = true
         private const val BACK_CAMERA = false
@@ -55,25 +57,28 @@ public class PreviewViewMeteringPointFactoryDeviceTest(
         // A fake target rotation IntDef. Target rotation is already included in rotationDegrees.
         // The IntRef value convenience for PreviewTransformation to correct TextureView and
         // it doesn't affect the metering point calculation.
-        private const val FAKE_TARGET_ROTATION = -1
+        private const val FAKE_TARGET_ROTATION = -999
 
-        private val VIEW_SIZE = Size(48, 36)
+        private val VIEW_SIZE: Size by lazy { Size(48, 36) }
 
         // View size rotated 90°.
-        private val VIEW_SIZE_90 = Size(36, 48)
-        private val FULL_VIEW_CROP_RECT = Rect(0, 0, VIEW_SIZE.width, VIEW_SIZE.height)
-        private val FULL_VIEW_SURFACE_SIZE = VIEW_SIZE
+        private val VIEW_SIZE_90: Size by lazy { Size(36, 48) }
+        private val FULL_VIEW_CROP_RECT: Rect by lazy {
+            Rect(0, 0, VIEW_SIZE.width, VIEW_SIZE.height)
+        }
+        private val FULL_VIEW_SURFACE_SIZE: Size by lazy { VIEW_SIZE }
 
-        private val SQUARE_SURFACE_SIZE = Size(36, 36)
-        private val SQUARE_SURFACE_RECT =
+        private val SQUARE_SURFACE_SIZE: Size by lazy { Size(36, 36) }
+        private val SQUARE_SURFACE_RECT: Rect by lazy {
             Rect(0, 0, SQUARE_SURFACE_SIZE.width, SQUARE_SURFACE_SIZE.height)
+        }
 
         // Crop rect with the same aspect ratio as the view.
         private val VIEW_CROP_RECT = Rect(15, 10, 39, 28)
 
         @JvmStatic
         @Parameterized.Parameters
-        public fun data(): Collection<Array<Any>> {
+        fun data(): Collection<Array<Any>> {
 
             return listOf(
                 // Device in sensor orientation without crop rect.
@@ -195,7 +200,7 @@ public class PreviewViewMeteringPointFactoryDeviceTest(
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
 
     @Test
-    public fun verifyMeteringPoint() {
+    fun verifyMeteringPoint() {
         // Arrange.
         val previewTransformation = PreviewTransformation()
         previewTransformation.scaleType = scaleType

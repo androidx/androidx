@@ -22,12 +22,14 @@ import android.util.Rational;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.core.ExposureState;
 
 /**
  * An implementation of {@link ExposureState} where the values can be set.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class ExposureStateImpl implements ExposureState {
 
     private final Object mLock = new Object();

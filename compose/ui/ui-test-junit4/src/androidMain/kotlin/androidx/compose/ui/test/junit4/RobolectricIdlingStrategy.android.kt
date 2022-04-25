@@ -16,9 +16,6 @@
 
 package androidx.compose.ui.test.junit4
 
-import androidx.compose.ui.test.junit4.android.ComposeIdlingResource
-import androidx.compose.ui.test.junit4.android.ComposeRootRegistry
-import androidx.compose.ui.test.junit4.android.runEspressoOnIdle
 import androidx.test.espresso.AppNotIdleException
 import androidx.test.espresso.IdlingPolicies
 import kotlinx.coroutines.Dispatchers
@@ -91,7 +88,7 @@ internal class RobolectricIdlingStrategy(
      */
     private fun requestLayoutIfNeeded(): Boolean {
         val composeRoots = composeRootRegistry.getRegisteredComposeRoots()
-        return composeRoots.filter { it.hasPendingMeasureOrLayout }
+        return composeRoots.filter { it.hasPendingMeasureOrLayout && !it.view.isGone }
             .onEach { it.view.requestLayout() }
             .isNotEmpty()
     }

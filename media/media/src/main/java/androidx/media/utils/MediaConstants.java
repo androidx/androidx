@@ -255,6 +255,25 @@ public final class MediaConstants {
             "android.media.extras.MEDIA_ART_SIZE_HINT_PIXELS";
 
     /**
+     * Bundle key sent through {@link MediaBrowserCompat#getExtras()} to the {@link
+     * MediaBrowserCompat} to indicate that the {@link MediaBrowserServiceCompat} supports showing
+     * a settings page.  The intent should have the component name set to a Car App Library service
+     * which exists in the same package as the media browser service.
+     *
+     * <p>TYPE: {@link Intent}. Should be inserted into the Bundle {@link
+     * Bundle#putParcelable(String, Parcelable) as a Parcelable}.
+     *
+     * @see MediaBrowserCompat#getExtras()
+     * @see MediaBrowserServiceCompat.BrowserRoot#BrowserRoot(String, Bundle)
+     * @see #PLAYBACK_STATE_EXTRAS_KEY_ERROR_RESOLUTION_ACTION_INTENT
+     */
+    @SuppressLint("IntentName")
+    public static final String
+            BROWSER_SERVICE_EXTRAS_KEY_APPLICATION_PREFERENCES_USING_CAR_APP_LIBRARY_INTENT =
+            "androidx.media.BrowserRoot.Extras"
+                    + ".APPLICATION_PREFERENCES_USING_CAR_APP_LIBRARY_INTENT";
+
+    /**
      * Bundle key sent through {@link MediaBrowserCompat#getExtras()} to the hosting {@link
      * MediaBrowserCompat} to indicate that the {@link MediaBrowserServiceCompat} supports the
      * method {@link MediaBrowserServiceCompat#onSearch(String, Bundle,
@@ -321,6 +340,28 @@ public final class MediaConstants {
     @SuppressLint("IntentName")
     public static final String DESCRIPTION_EXTRAS_KEY_CONTENT_STYLE_BROWSABLE =
             "android.media.browse.CONTENT_STYLE_BROWSABLE_HINT";
+
+    /**
+     * Bundle key sent through {@link MediaDescriptionCompat#getExtras()} to the hosting {@link
+     * MediaBrowserCompat} to indicate a preference about how the corresponding {@link
+     * MediaBrowserCompat.MediaItem} is presented.
+     *
+     * <p>This preference takes precedence over those expressed by {@link
+     * #DESCRIPTION_EXTRAS_KEY_CONTENT_STYLE_PLAYABLE} and {@link
+     * #DESCRIPTION_EXTRAS_KEY_CONTENT_STYLE_BROWSABLE}.
+     *
+     * <p>TYPE: int. Possible values are separate constants.
+     *
+     * @see MediaDescriptionCompat#getExtras()
+     * @see MediaDescriptionCompat.Builder#setExtras(Bundle)
+     * @see #DESCRIPTION_EXTRAS_VALUE_CONTENT_STYLE_LIST_ITEM
+     * @see #DESCRIPTION_EXTRAS_VALUE_CONTENT_STYLE_GRID_ITEM
+     * @see #DESCRIPTION_EXTRAS_VALUE_CONTENT_STYLE_CATEGORY_LIST_ITEM
+     * @see #DESCRIPTION_EXTRAS_VALUE_CONTENT_STYLE_CATEGORY_GRID_ITEM
+     */
+    @SuppressLint("IntentName")
+    public static final String DESCRIPTION_EXTRAS_KEY_CONTENT_STYLE_SINGLE_ITEM =
+            "android.media.browse.CONTENT_STYLE_SINGLE_ITEM_HINT";
 
     /**
      * Bundle value passed from the {@link MediaBrowserServiceCompat} to the hosting {@link
@@ -432,6 +473,25 @@ public final class MediaConstants {
     public static final int DESCRIPTION_EXTRAS_VALUE_COMPLETION_STATUS_FULLY_PLAYED = 2;
 
     /**
+     * Bundle key sent through {@link MediaDescriptionCompat#getExtras()} to the hosting {@link
+     * MediaBrowserCompat} to indicate an amount of completion progress for the corresponding
+     * {@link MediaBrowserCompat.MediaItem}. This extra augments {@link
+     * #DESCRIPTION_EXTRAS_VALUE_COMPLETION_STATUS_PARTIALLY_PLAYED the partially played status} by
+     * indicating how much has been played by the user.
+     *
+     * <p>TYPE: double, a value between 0.0 and 1.0, inclusive. 0.0 indicates no completion progress
+     * (item is not started) and 1.0 indicates full completion progress (item is fully played).
+     * Values in between indicate partial progress (for example, 0.75 indicates the item is 75%
+     * complete).
+     *
+     * @see MediaDescriptionCompat#getExtras()
+     * @see MediaDescriptionCompat.Builder#setExtras(Bundle)
+     */
+    @SuppressLint("IntentName")
+    public static final String DESCRIPTION_EXTRAS_KEY_COMPLETION_PERCENTAGE =
+            "androidx.media.MediaItem.Extras.COMPLETION_PERCENTAGE";
+
+    /**
      * Bundle key used for the media id in {@link PlaybackStateCompat playback state} extras. It's
      * for associating the playback state with the media being played so the value is expected to be
      * same with {@link MediaMetadataCompat#METADATA_KEY_MEDIA_ID media id} of the current metadata.
@@ -469,7 +529,9 @@ public final class MediaConstants {
      * MediaControllerCompat} which maps to a pending intent. When launched, the intent should allow
      * users to resolve the current playback state error. {@link
      * #PLAYBACK_STATE_EXTRAS_KEY_ERROR_RESOLUTION_ACTION_LABEL A label} should be included in the
-     * same Bundle.
+     * same Bundle. The key {@link
+     * #BROWSER_SERVICE_EXTRAS_KEY_APPLICATION_PREFERENCES_USING_CAR_APP_LIBRARY_INTENT} should be
+     * used instead if the intent points to a Car App Library service.
      *
      * <p>TYPE: PendingIntent. Should be inserted into the Bundle {@link
      * Bundle#putParcelable(String, Parcelable) as a Parcelable}.
@@ -477,10 +539,30 @@ public final class MediaConstants {
      * @see PlaybackStateCompat#getExtras()
      * @see PlaybackStateCompat.Builder#setExtras(Bundle)
      * @see #PLAYBACK_STATE_EXTRAS_KEY_ERROR_RESOLUTION_ACTION_LABEL
+     * @see #BROWSER_SERVICE_EXTRAS_KEY_APPLICATION_PREFERENCES_USING_CAR_APP_LIBRARY_INTENT
      */
     @SuppressLint("IntentName")
     public static final String PLAYBACK_STATE_EXTRAS_KEY_ERROR_RESOLUTION_ACTION_INTENT =
             "android.media.extras.ERROR_RESOLUTION_ACTION_INTENT";
+
+    /**
+     * Bundle key passed through {@link PlaybackStateCompat#getExtras()} to the {@link
+     * MediaControllerCompat} which maps to an intent. When launched, the intent should allow
+     * users to resolve the current playback state error. The intent should have the component name
+     * set to a Car App Library service which exists in the same package as the media browser
+     * service.
+     *
+     * <p>TYPE: {@link Intent}. Should be inserted into the Bundle {@link
+     * Bundle#putParcelable(String, Parcelable) as a Parcelable}.
+     *
+     * @see PlaybackStateCompat#getExtras()
+     * @see PlaybackStateCompat.Builder#setExtras(Bundle)
+     */
+    @SuppressLint("IntentName")
+    public static final String
+            PLAYBACK_STATE_EXTRAS_KEY_ERROR_RESOLUTION_USING_CAR_APP_LIBRARY_INTENT =
+            "androidx.media.PlaybackStateCompat.Extras"
+                   + ".ERROR_RESOLUTION_USING_CAR_APP_LIBRARY_INTENT";
 
     /**
      * Bundle key passed through the {@code extras} of

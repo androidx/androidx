@@ -552,6 +552,7 @@ public abstract class FragmentStateAdapter extends
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public final void restoreState(@NonNull Parcelable savedState) {
         if (!mSavedStates.isEmpty() || !mFragments.isEmpty()) {
             throw new IllegalStateException(

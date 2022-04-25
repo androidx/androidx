@@ -17,163 +17,177 @@
 package androidx.glance.appwidget
 
 import android.annotation.TargetApi
+import android.app.Activity
+import android.content.ComponentName
 import android.content.Context
 import android.content.res.Configuration
-import android.graphics.Typeface
-import android.os.Build
 import android.text.SpannedString
-import android.text.TextUtils
 import android.text.style.StrikethroughSpan
-import android.text.style.StyleSpan
-import android.text.style.TextAppearanceSpan
 import android.text.style.UnderlineSpan
-import android.util.TypedValue
-import android.view.Gravity
+import android.util.Log
 import android.view.View
+import android.widget.FrameLayout
+import android.widget.GridView
+import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.RelativeLayout
+import android.widget.ListView
+import android.widget.RadioGroup
 import android.widget.RemoteViews
 import android.widget.TextView
-import androidx.compose.runtime.Composable
-import androidx.glance.GlanceInternalApi
-import androidx.glance.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.core.view.children
+import androidx.glance.Button
+import androidx.glance.GlanceModifier
+import androidx.glance.Visibility
+import androidx.glance.action.actionStartActivity
+import androidx.glance.action.clickable
+import androidx.glance.appwidget.FrameLayoutSubject.Companion.assertThat
+import androidx.glance.appwidget.LinearLayoutSubject.Companion.assertThat
+import androidx.glance.appwidget.TextViewSubject.Companion.assertThat
+import androidx.glance.appwidget.ViewSubject.Companion.assertThat
+import androidx.glance.appwidget.lazy.LazyColumn
+import androidx.glance.appwidget.lazy.LazyVerticalGrid
+import androidx.glance.appwidget.lazy.GridCells
+import androidx.glance.appwidget.lazy.ReservedItemIdRangeEnd
+import androidx.glance.appwidget.test.R
+import androidx.glance.background
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
-import androidx.glance.layout.FontStyle
-import androidx.glance.layout.FontWeight
 import androidx.glance.layout.Row
-import androidx.glance.layout.Text
-import androidx.glance.layout.TextDecoration
-import androidx.glance.layout.TextStyle
 import androidx.glance.layout.absolutePadding
 import androidx.glance.layout.padding
-import androidx.glance.unit.Dp
-import androidx.glance.unit.Sp
-import androidx.glance.unit.dp
-import androidx.glance.unit.sp
+import androidx.glance.text.Text
+import androidx.glance.text.TextDecoration
+import androidx.glance.text.TextStyle
+import androidx.glance.unit.ColorProvider
+import androidx.glance.visibility
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
+import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import java.util.Locale
+import org.robolectric.shadows.ShadowLog
+import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
 
-@OptIn(GlanceInternalApi::class, ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
 class RemoteViewsTranslatorKtTest {
 
-    private lateinit var fakeCoroutineScope: TestCoroutineScope
+    private lateinit var fakeCoroutineScope: TestScope
     private val context = ApplicationProvider.getApplicationContext<Context>()
+    private val lightContext = configurationContext { uiMode = Configuration.UI_MODE_NIGHT_NO }
+    private val darkContext = configurationContext { uiMode = Configuration.UI_MODE_NIGHT_YES }
     private val displayMetrics = context.resources.displayMetrics
 
     @Before
     fun setUp() {
-        fakeCoroutineScope = TestCoroutineScope()
+        fakeCoroutineScope = TestScope()
     }
 
     @Test
-    fun canTranslateBox() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslate { Box {} }
+    fun checkRootAliasCorrectness() {
+        assertThat(LastRootAlias - FirstRootAlias + 1).isEqualTo(RootAliasCount)
+    }
+
+    @Test
+    fun canTranslateBox() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate { Box {} }
         val view = context.applyRemoteViews(rv)
 
-        assertIs<RelativeLayout>(view)
+        assertIs<FrameLayout>(view)
         assertThat(view.childCount).isEqualTo(0)
     }
 
     @Test
-    fun canTranslateBoxWithAlignment() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslate {
-            Box(contentAlignment = Alignment.BottomEnd) { }
+    fun canTranslateBoxWithAlignment() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
+            Box(contentAlignment = Alignment.BottomEnd) { Text("text") }
         }
         val view = context.applyRemoteViews(rv)
 
-        assertIs<RelativeLayout>(view)
-        assertThat(view.gravity).isEqualTo(Gravity.BOTTOM or Gravity.END)
+        assertIs<FrameLayout>(view)
+        assertThat(view).hasContentAlignment(Alignment.BottomEnd)
     }
 
     @Test
-    fun canTranslateBoxWithChildren() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslate {
+    fun canTranslateBoxWithChildren() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
             Box {
-                Box(contentAlignment = Alignment.Center) {}
-                Box(contentAlignment = Alignment.BottomEnd) {}
+                Box(contentAlignment = Alignment.Center) { Text("text1") }
+                Box(contentAlignment = Alignment.BottomEnd) { Text("text2") }
             }
         }
         val view = context.applyRemoteViews(rv)
 
-        assertIs<RelativeLayout>(view)
-        assertThat(view.childCount).isEqualTo(2)
-        val child1 = view.getChildAt(0)
-        val child2 = view.getChildAt(1)
-        assertIs<RelativeLayout>(child1)
-        assertIs<RelativeLayout>(child2)
-        assertThat(child1.gravity).isEqualTo(Gravity.CENTER)
-        assertThat(child2.gravity).isEqualTo(Gravity.BOTTOM or Gravity.END)
+        assertIs<FrameLayout>(view)
+        assertThat(view.nonGoneChildCount).isEqualTo(2)
+        val (child1, child2) = view.nonGoneChildren.toList()
+        assertIs<FrameLayout>(child1)
+        assertIs<FrameLayout>(child2)
+        assertThat(child1).hasContentAlignment(Alignment.Center)
+        assertThat(child2).hasContentAlignment(Alignment.BottomEnd)
     }
 
     @Test
-    fun canReapplyTranslateBox() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslate {
+    fun canReapplyTranslateBox() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
             Box {
-                Box(contentAlignment = Alignment.Center) {}
-                Box(contentAlignment = Alignment.BottomEnd) {}
+                Box(contentAlignment = Alignment.Center) { Text("tex1") }
+                Box(contentAlignment = Alignment.BottomEnd) { Text("text2") }
             }
         }
         val view = context.applyRemoteViews(rv)
-        assertIs<RelativeLayout>(view)
-        assertThat(view.childCount).isEqualTo(2)
-        val child1 = view.getChildAt(0)
-        val child2 = view.getChildAt(1)
-        assertIs<RelativeLayout>(child1)
-        assertIs<RelativeLayout>(child2)
+        assertIs<FrameLayout>(view)
+        assertThat(view.nonGoneChildCount).isEqualTo(2)
+        val (child1, child2) = view.nonGoneChildren.toList()
+        assertIs<FrameLayout>(child1)
+        assertIs<FrameLayout>(child2)
 
         rv.reapply(context, view)
 
-        assertIs<RelativeLayout>(view)
-        assertThat(view.childCount).isEqualTo(2)
-        val newChild1 = view.getChildAt(0)
-        val newChild2 = view.getChildAt(1)
-        assertIs<RelativeLayout>(newChild1)
-        assertIs<RelativeLayout>(newChild2)
-        assertThat(newChild1.gravity).isEqualTo(Gravity.CENTER)
-        assertThat(newChild2.gravity).isEqualTo(Gravity.BOTTOM or Gravity.END)
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            assertThat(newChild1).isSameInstanceAs(child1)
-            assertThat(newChild2).isSameInstanceAs(child2)
-        }
+        assertIs<FrameLayout>(view)
+        assertThat(view.nonGoneChildCount).isEqualTo(2)
+        val (newChild1, newChild2) = view.nonGoneChildren.toList()
+        assertIs<FrameLayout>(newChild1)
+        assertIs<FrameLayout>(newChild2)
+        assertThat(newChild1).hasContentAlignment(Alignment.Center)
+        assertThat(newChild2).hasContentAlignment(Alignment.BottomEnd)
+        assertThat(newChild1).isSameInstanceAs(child1)
+        assertThat(newChild2).isSameInstanceAs(child2)
     }
 
     @Test
-    fun canTranslateMultipleNodes() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslate {
-            Box(contentAlignment = Alignment.Center) {}
-            Box(contentAlignment = Alignment.BottomEnd) {}
+    fun canTranslateMultipleNodes() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
+            Box(contentAlignment = Alignment.Center) { Text("text1") }
+            Box(contentAlignment = Alignment.BottomEnd) { Text("text2") }
         }
         val view = context.applyRemoteViews(rv)
 
-        assertIs<RelativeLayout>(view)
-        assertThat(view.childCount).isEqualTo(2)
-        val child1 = view.getChildAt(0)
-        val child2 = view.getChildAt(1)
-        assertIs<RelativeLayout>(child1)
-        assertIs<RelativeLayout>(child2)
-        assertThat(child1.gravity).isEqualTo(Gravity.CENTER)
-        assertThat(child2.gravity).isEqualTo(Gravity.BOTTOM or Gravity.END)
+        assertIs<FrameLayout>(view)
+        assertThat(view.nonGoneChildCount).isEqualTo(2)
+        val (child1, child2) = view.nonGoneChildren.toList()
+        assertIs<FrameLayout>(child1)
+        assertIs<FrameLayout>(child2)
+        assertThat(child1).hasContentAlignment(Alignment.Center)
+        assertThat(child2).hasContentAlignment(Alignment.BottomEnd)
     }
 
     @Test
-    fun canTranslatePaddingModifier() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslate {
+    fun canTranslatePaddingModifier() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
             Box(
-                modifier = Modifier.padding(
+                modifier = GlanceModifier.padding(
                     start = 4.dp,
                     end = 5.dp,
                     top = 6.dp,
@@ -183,7 +197,7 @@ class RemoteViewsTranslatorKtTest {
         }
         val view = context.applyRemoteViews(rv)
 
-        assertIs<RelativeLayout>(view)
+        assertIs<FrameLayout>(view)
         assertThat(view.paddingLeft).isEqualTo(4.dp.toPixels())
         assertThat(view.paddingRight).isEqualTo(5.dp.toPixels())
         assertThat(view.paddingTop).isEqualTo(6.dp.toPixels())
@@ -191,10 +205,10 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun canTranslatePaddingRTL() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslateInRtl {
+    fun canTranslatePaddingRTL() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslateInRtl {
             Box(
-                modifier = Modifier.padding(
+                modifier = GlanceModifier.padding(
                     start = 4.dp,
                     end = 5.dp,
                     top = 6.dp,
@@ -204,7 +218,7 @@ class RemoteViewsTranslatorKtTest {
         }
         val view = context.applyRemoteViews(rv)
 
-        assertIs<RelativeLayout>(view)
+        assertIs<FrameLayout>(view)
         assertThat(view.paddingLeft).isEqualTo(5.dp.toPixels())
         assertThat(view.paddingRight).isEqualTo(4.dp.toPixels())
         assertThat(view.paddingTop).isEqualTo(6.dp.toPixels())
@@ -212,10 +226,10 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun canTranslateAbsolutePaddingRTL() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslateInRtl {
+    fun canTranslateAbsolutePaddingRTL() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslateInRtl {
             Box(
-                modifier = Modifier.absolutePadding(
+                modifier = GlanceModifier.absolutePadding(
                     left = 4.dp,
                     right = 5.dp,
                     top = 6.dp,
@@ -225,7 +239,7 @@ class RemoteViewsTranslatorKtTest {
         }
         val view = context.applyRemoteViews(rv)
 
-        assertIs<RelativeLayout>(view)
+        assertIs<FrameLayout>(view)
         assertThat(view.paddingLeft).isEqualTo(4.dp.toPixels())
         assertThat(view.paddingRight).isEqualTo(5.dp.toPixels())
         assertThat(view.paddingTop).isEqualTo(6.dp.toPixels())
@@ -233,8 +247,8 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun canTranslateRow() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslate { Row { } }
+    fun canTranslateRow() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate { Row { } }
         val view = context.applyRemoteViews(rv)
 
         assertIs<LinearLayout>(view)
@@ -242,8 +256,8 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun canTranslateColumn() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslate { Column { } }
+    fun canTranslateColumn() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate { Column { } }
         val view = context.applyRemoteViews(rv)
 
         assertIs<LinearLayout>(view)
@@ -252,8 +266,8 @@ class RemoteViewsTranslatorKtTest {
 
     @Test
     @TargetApi(24)
-    fun canTranslateRowWithAlignment() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslate {
+    fun canTranslateRowWithAlignment() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
             Row(
                 horizontalAlignment = Alignment.End,
                 verticalAlignment = Alignment.Bottom
@@ -262,13 +276,14 @@ class RemoteViewsTranslatorKtTest {
         val view = context.applyRemoteViews(rv)
 
         assertIs<LinearLayout>(view)
-        assertThat(view.gravity).isEqualTo(Gravity.BOTTOM or Gravity.END)
+        assertThat(view).hasContentAlignment(Alignment.End)
+        assertThat(view).hasContentAlignment(Alignment.Bottom)
     }
 
     @Test
     @TargetApi(24)
-    fun canTranslateColumnWithAlignment() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslate {
+    fun canTranslateColumnWithAlignment() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
             Column(
                 horizontalAlignment = Alignment.Start,
                 verticalAlignment = Alignment.Bottom
@@ -277,13 +292,14 @@ class RemoteViewsTranslatorKtTest {
         val view = context.applyRemoteViews(rv)
 
         assertIs<LinearLayout>(view)
-        assertThat(view.gravity).isEqualTo(Gravity.BOTTOM or Gravity.START)
+        assertThat(view).hasContentAlignment(Alignment.Start)
+        assertThat(view).hasContentAlignment(Alignment.Bottom)
     }
 
     @Test
     @TargetApi(24)
-    fun canTranslateRowWithChildren() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslate {
+    fun canTranslateRowWithChildren() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
             Row {
                 Row(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -302,57 +318,53 @@ class RemoteViewsTranslatorKtTest {
         val view = context.applyRemoteViews(rv)
 
         assertIs<LinearLayout>(view)
-        assertThat(view.childCount).isEqualTo(3)
-        val child1 = view.getChildAt(0)
+        assertThat(view.nonGoneChildCount).isEqualTo(3)
+        val (child1, child2, child3) = view.nonGoneChildren.toList()
         assertIs<LinearLayout>(child1)
-        assertThat(child1.gravity).isEqualTo(Gravity.CENTER)
-        val child2 = view.getChildAt(1)
+        assertThat(child1).hasContentAlignment(Alignment.Center)
         assertIs<LinearLayout>(child2)
-        assertThat(child2.gravity).isEqualTo(Gravity.CENTER or Gravity.TOP)
-        val child3 = view.getChildAt(2)
+        assertThat(child2).hasContentAlignment(Alignment.TopCenter)
         assertIs<LinearLayout>(child3)
-        assertThat(child3.gravity).isEqualTo(Gravity.BOTTOM or Gravity.END)
+        assertThat(child3).hasContentAlignment(Alignment.BottomEnd)
     }
 
     @Test
     @TargetApi(24)
-    fun canTranslateColumnWithChildren() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslate {
+    fun canTranslateColumnWithChildren() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
             Column {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalAlignment = Alignment.CenterVertically
-                ) { }
+                ) { Text("text") }
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalAlignment = Alignment.Top
-                ) { }
+                ) { Text("text") }
                 Column(
                     horizontalAlignment = Alignment.End,
                     verticalAlignment = Alignment.Bottom
-                ) { }
+                ) { Text("text") }
             }
         }
         val view = context.applyRemoteViews(rv)
 
         assertIs<LinearLayout>(view)
-        assertThat(view.childCount).isEqualTo(3)
-        val child1 = view.getChildAt(0)
+        assertThat(view.nonGoneChildCount).isEqualTo(3)
+        val (child1, child2, child3) = view.nonGoneChildren.toList()
         assertIs<LinearLayout>(child1)
-        assertThat(child1.gravity).isEqualTo(Gravity.CENTER)
-        val child2 = view.getChildAt(1)
+        assertThat(child1).hasContentAlignment(Alignment.Center)
         assertIs<LinearLayout>(child2)
-        assertThat(child2.gravity).isEqualTo(Gravity.CENTER or Gravity.TOP)
-        val child3 = view.getChildAt(2)
+        assertThat(child2).hasContentAlignment(Alignment.TopCenter)
         assertIs<LinearLayout>(child3)
-        assertThat(child3.gravity).isEqualTo(Gravity.BOTTOM or Gravity.END)
+        assertThat(child3).hasContentAlignment(Alignment.BottomEnd)
     }
 
     @Test
-    fun canTranslateRowPaddingModifier() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslate {
+    fun canTranslateRowPaddingModifier() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
             Row(
-                modifier = Modifier.padding(
+                modifier = GlanceModifier.padding(
                     start = 17.dp,
                     end = 16.dp,
                     top = 15.dp,
@@ -370,10 +382,10 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun canTranslateColumnPaddingModifier() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslate {
+    fun canTranslateColumnPaddingModifier() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
             Column(
-                modifier = Modifier.padding(
+                modifier = GlanceModifier.padding(
                     start = 13.dp,
                     end = 12.dp,
                     top = 11.dp,
@@ -382,7 +394,6 @@ class RemoteViewsTranslatorKtTest {
             ) { }
         }
         val view = context.applyRemoteViews(rv)
-
         assertIs<LinearLayout>(view)
         assertThat(view.paddingLeft).isEqualTo(13.dp.toPixels())
         assertThat(view.paddingRight).isEqualTo(12.dp.toPixels())
@@ -391,10 +402,10 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun canTranslateRowPaddingRTL() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslateInRtl {
+    fun canTranslateRowPaddingRTL() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslateInRtl {
             Row(
-                modifier = Modifier.padding(
+                modifier = GlanceModifier.padding(
                     start = 4.dp,
                     end = 5.dp,
                     top = 6.dp,
@@ -412,10 +423,10 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun canTranslateColumnPaddingRTL() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslateInRtl {
+    fun canTranslateColumnPaddingRTL() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslateInRtl {
             Column(
-                modifier = Modifier.padding(
+                modifier = GlanceModifier.padding(
                     start = 8.dp,
                     end = 9.dp,
                     top = 10.dp,
@@ -433,10 +444,10 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun canTranslateRowAbsolutePaddingRTL() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslateInRtl {
+    fun canTranslateRowAbsolutePaddingRTL() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslateInRtl {
             Row(
-                modifier = Modifier.absolutePadding(
+                modifier = GlanceModifier.absolutePadding(
                     left = 12.dp,
                     right = 13.dp,
                     top = 14.dp,
@@ -454,10 +465,10 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun canTranslateColumnAbsolutePaddingRTL() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslateInRtl {
+    fun canTranslateColumnAbsolutePaddingRTL() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslateInRtl {
             Column(
-                modifier = Modifier.absolutePadding(
+                modifier = GlanceModifier.absolutePadding(
                     left = 16.dp,
                     right = 17.dp,
                     top = 18.dp,
@@ -475,116 +486,525 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun canTranslateText() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslate {
-            Text("test")
+    fun canTranslateLazyColumn_emptyList() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
+            LazyColumn { }
         }
-        val view = context.applyRemoteViews(rv)
 
-        assertIs<TextView>(view)
-        assertThat(view.text.toString()).isEqualTo("test")
+        assertIs<ListView>(context.applyRemoteViews(rv))
     }
 
     @Test
-    @Config(sdk = [23, 29])
-    fun canTranslateText_withStyleWeightAndSize() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslate {
-            Text(
-                "test",
-                style = TextStyle(fontWeight = FontWeight.Medium, size = 12.sp),
-            )
+    fun canTranslateLazyColumn_withItem() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
+            LazyColumn {
+                item { Text("First") }
+                item { Row { Text("Second") } }
+            }
         }
-        val view = context.applyRemoteViews(rv)
 
-        assertIs<TextView>(view)
-        assertThat(view.textSize).isEqualTo(12.sp.toPixels())
-        val content = view.text as SpannedString
-        assertThat(content.toString()).isEqualTo("test")
-        content.checkSingleSpan<TextAppearanceSpan> {
-            if (Build.VERSION.SDK_INT >= 29) {
-                assertThat(it.textFontWeight).isEqualTo(FontWeight.Medium.value)
-                // Note: textStyle is always set, but to NORMAL if unspecified
-                assertThat(it.textStyle).isEqualTo(Typeface.NORMAL)
-            } else {
-                assertThat(it.textStyle).isEqualTo(Typeface.BOLD)
+        assertIs<ListView>(context.applyRemoteViews(rv))
+    }
+
+    @Test
+    fun canTranslateLazyColumn_withMultiChildItem() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
+            LazyColumn {
+                item {
+                    Text("First")
+                    Text("Second")
+                }
+            }
+        }
+
+        assertIs<ListView>(context.applyRemoteViews(rv))
+    }
+
+    @Test
+    fun canTranslateLazyColumn_withMaximumUnreservedItemId() = fakeCoroutineScope.runTest {
+        context.runAndTranslate {
+            LazyColumn {
+                item(ReservedItemIdRangeEnd + 1) { Text("First") }
             }
         }
     }
 
     @Test
-    fun canTranslateText_withStyleStrikeThrough() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslate {
-            Text("test", style = TextStyle(textDecoration = TextDecoration.LineThrough))
-        }
-        val view = context.applyRemoteViews(rv)
-
-        assertIs<TextView>(view)
-        val content = view.text as SpannedString
-        assertThat(content.toString()).isEqualTo("test")
-        content.checkSingleSpan<StrikethroughSpan> { }
-    }
-
-    @Test
-    fun canTranslateText_withStyleUnderline() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslate {
-            Text("test", style = TextStyle(textDecoration = TextDecoration.Underline))
-        }
-        val view = context.applyRemoteViews(rv)
-
-        assertIs<TextView>(view)
-        val content = view.text as SpannedString
-        assertThat(content.toString()).isEqualTo("test")
-        content.checkSingleSpan<UnderlineSpan> { }
-    }
-
-    @Test
-    fun canTranslateText_withStyleItalic() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslate {
-            Text("test", style = TextStyle(fontStyle = FontStyle.Italic))
-        }
-        val view = context.applyRemoteViews(rv)
-
-        assertIs<TextView>(view)
-        val content = view.text as SpannedString
-        assertThat(content.toString()).isEqualTo("test")
-        content.checkSingleSpan<StyleSpan> {
-            assertThat(it.style).isEqualTo(Typeface.ITALIC)
+    fun cannotTranslateLazyColumn_failsWithReservedItemId() = fakeCoroutineScope.runTest {
+        assertFailsWith<IllegalArgumentException> {
+            context.runAndTranslate {
+                LazyColumn {
+                    item(ReservedItemIdRangeEnd) { Text("First") }
+                }
+            }
         }
     }
 
+    /* TODO(b/202868171): Restore after viewStub are implemented
     @Test
-    @Config(sdk = [23, 29])
-    fun canTranslateText_withComplexStyle() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateLazyColumn_maximumLists() = fakeCoroutineScope.runTest {
         val rv = runAndTranslate {
-            Text(
-                "test",
+            LazyColumn { }
+            LazyColumn { }
+            LazyColumn { }
+        }
+
+        val rootLayout = assertIs<ViewGroup>(context.applyRemoteViews(rv))
+        assertThat(rootLayout.childCount).isEqualTo(3)
+        assertThat(rootLayout.getChildAt(0).id).isEqualTo(R.id.glanceListView1)
+        assertThat(rootLayout.getChildAt(1).id).isEqualTo(R.id.glanceListView2)
+        assertThat(rootLayout.getChildAt(2).id).isEqualTo(R.id.glanceListView3)
+    }
+
+    @Test
+    fun cannotTranslateLazyColumn_tooManyLists() = fakeCoroutineScope.runTest {
+        assertFailsWith<IllegalArgumentException> {
+            runAndTranslate {
+                LazyColumn { }
+                LazyColumn { }
+                LazyColumn { }
+                LazyColumn { }
+            }
+        }
+    }
+     */
+
+    @Test
+    fun cannotTranslateNestedLists() = fakeCoroutineScope.runTest {
+        assertFailsWith<IllegalStateException> {
+            context.runAndTranslate {
+                LazyColumn {
+                    item {
+                        LazyColumn {
+                            item {
+                                Text("Crash expected")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun canTranslateLazyVerticalGrid_emptyList() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
+            LazyVerticalGrid(gridCells = GridCells.Fixed(3)) { }
+        }
+
+        assertIs<GridView>(context.applyRemoteViews(rv))
+    }
+
+    @Test
+    fun canTranslateLazyVerticalGrid_withItem() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
+            LazyVerticalGrid(gridCells = GridCells.Fixed(3)) {
+                item { Text("First") }
+                item { Row { Text("Second") } }
+            }
+        }
+
+        assertIs<GridView>(context.applyRemoteViews(rv))
+    }
+
+    @Test
+    fun canTranslateLazyVerticalGrid_withItems() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
+            LazyVerticalGrid(gridCells = GridCells.Fixed(3)) {
+                items(2, { it * 2L }) { index -> Text("Item $index") }
+            }
+        }
+
+        assertIs<GridView>(context.applyRemoteViews(rv))
+    }
+
+    @Test
+    fun canTranslateAndroidRemoteViews() = fakeCoroutineScope.runTest {
+        val result = context.runAndTranslate {
+            val providedViews = RemoteViews(context.packageName, R.layout.text_sample).also {
+                it.setTextViewText(R.id.text_view, "Android Remote Views")
+            }
+            AndroidRemoteViews(providedViews)
+        }
+
+        val boxView = assertIs<FrameLayout>(context.applyRemoteViews(result))
+        val actual = assertIs<TextView>(boxView.children.single())
+        assertThat(actual.id).isEqualTo(R.id.text_view)
+        assertThat(actual.text).isEqualTo("Android Remote Views")
+    }
+
+    @Test
+    fun canTranslateAndroidRemoteViews_Container() = fakeCoroutineScope.runTest {
+        val result = context.runAndTranslate {
+            val providedViews = RemoteViews(context.packageName, R.layout.raw_container)
+            AndroidRemoteViews(
+                providedViews,
+                R.id.raw_container_view
+            ) {
+                Text("inner text 1")
+                Text("inner text 2")
+            }
+        }
+
+        val rootLayout = assertIs<FrameLayout>(context.applyRemoteViews(result))
+        assertThat(rootLayout.childCount).isEqualTo(1)
+        val containerLayout = assertIs<LinearLayout>(rootLayout.getChildAt(0))
+        assertThat(containerLayout.orientation).isEqualTo(LinearLayout.VERTICAL)
+        assertThat(containerLayout.childCount).isEqualTo(2)
+        val boxChild1 = assertIs<FrameLayout>(containerLayout.getChildAt(0))
+        val child1 = assertIs<TextView>(boxChild1.getChildAt(0))
+        assertThat(child1.text.toString()).isEqualTo("inner text 1")
+        val boxChild2 = assertIs<FrameLayout>(containerLayout.getChildAt(1))
+        val child2 = assertIs<TextView>(boxChild2.getChildAt(0))
+        assertThat(child2.text.toString()).isEqualTo("inner text 2")
+    }
+
+    @Test
+    fun canTranslateAndroidRemoteViews_Container_BadSetupShouldFail() =
+        fakeCoroutineScope.runTest {
+            assertFailsWith<IllegalStateException> {
+                context.runAndTranslate {
+                    val providedViews = RemoteViews(context.packageName, R.layout.raw_container)
+                    AndroidRemoteViews(providedViews, View.NO_ID) {
+                        Text("inner text 1")
+                        Text("inner text 2")
+                    }
+                }
+            }
+        }
+
+    @Test
+    @Config(maxSdk = 30)
+    fun canTranslateCheckbox_pre31_unchecked() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
+            CheckBox(
+                checked = false,
+                onCheckedChange = null,
+                text = "test",
                 style = TextStyle(
-                    textDecoration = TextDecoration.Underline + TextDecoration.LineThrough,
-                    fontStyle = FontStyle.Italic,
-                    fontWeight = FontWeight.Bold,
+                    color = ColorProvider(Color.Red),
+                    textDecoration = TextDecoration.Underline
                 ),
             )
         }
         val view = context.applyRemoteViews(rv)
 
-        assertIs<TextView>(view)
-        val content = view.text as SpannedString
-        assertThat(content.toString()).isEqualTo("test")
-        assertThat(content.getSpans(0, content.length, Any::class.java)).hasLength(4)
-        content.checkHasSingleTypedSpan<UnderlineSpan> { }
-        content.checkHasSingleTypedSpan<StrikethroughSpan> { }
-        content.checkHasSingleTypedSpan<StyleSpan> {
-            assertThat(it.style).isEqualTo(Typeface.ITALIC)
+        assertIs<LinearLayout>(view)
+        val iconView = assertIs<ImageView>(view.getChildAt(0))
+        assertThat(iconView.isEnabled).isFalse()
+
+        val textView = assertIs<TextView>(view.getChildAt(1))
+        assertThat(textView).hasTextColor(android.graphics.Color.RED)
+        val textContent = assertIs<SpannedString>(textView.text)
+        assertThat(textContent.toString()).isEqualTo("test")
+        assertThat(textContent.getSpans(0, textContent.length, Any::class.java)).hasLength(1)
+        textContent.checkHasSingleTypedSpan<UnderlineSpan> { }
+    }
+
+    @Test
+    @Config(maxSdk = 30)
+    fun canTranslateCheckbox_pre31_checked() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
+            CheckBox(
+                checked = true,
+                onCheckedChange = null,
+                text = "test checked",
+                style = TextStyle(textDecoration = TextDecoration.LineThrough),
+            )
         }
-        content.checkHasSingleTypedSpan<TextAppearanceSpan> {
-            if (Build.VERSION.SDK_INT >= 29) {
-                assertThat(it.textFontWeight).isEqualTo(FontWeight.Bold.value)
-                // Note: textStyle is always set, but to NORMAL if unspecified
-                assertThat(it.textStyle).isEqualTo(Typeface.NORMAL)
-            } else {
-                assertThat(it.textStyle).isEqualTo(Typeface.BOLD)
+        val view = context.applyRemoteViews(rv)
+
+        assertIs<LinearLayout>(view)
+        val iconView = assertIs<ImageView>(view.getChildAt(0))
+        assertThat(iconView.isEnabled).isTrue()
+
+        val textView = assertIs<TextView>(view.getChildAt(1))
+        val textContent = assertIs<SpannedString>(textView.text)
+        assertThat(textContent.toString()).isEqualTo("test checked")
+        assertThat(textContent.getSpans(0, textContent.length, Any::class.java)).hasLength(1)
+        textContent.checkHasSingleTypedSpan<StrikethroughSpan> { }
+    }
+
+    @Test
+    fun canTranslateButton() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
+            Button(
+                "Button",
+                onClick = actionStartActivity<Activity>(),
+                enabled = true
+            )
+        }
+
+        val button = assertIs<android.widget.Button>(context.applyRemoteViews(rv))
+        assertThat(button.text).isEqualTo("Button")
+        assertThat(button.isEnabled).isTrue()
+        assertThat(button.hasOnClickListeners()).isTrue()
+    }
+
+    @Test
+    fun canTranslateButton_disabled() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
+            Button(
+                "Button",
+                onClick = actionStartActivity<Activity>(),
+                enabled = false
+            )
+        }
+
+        val button = assertIs<android.widget.Button>(context.applyRemoteViews(rv))
+        assertThat(button.text).isEqualTo("Button")
+        assertThat(button.isEnabled).isFalse()
+        assertThat(button.hasOnClickListeners()).isFalse()
+    }
+
+    @Test
+    fun canTranslateCircularProgressIndicator() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
+            CircularProgressIndicator()
+        }
+
+        val progressIndicator = assertIs<android.widget.ProgressBar>(context.applyRemoteViews(rv))
+        assertThat(progressIndicator.isIndeterminate()).isTrue()
+    }
+
+    @Test
+    fun canTranslateLinearProgressIndicator_determinate() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
+            LinearProgressIndicator(
+                progress = 0.5f,
+            )
+        }
+
+        val progressIndicator = assertIs<android.widget.ProgressBar>(context.applyRemoteViews(rv))
+        assertThat(progressIndicator.isIndeterminate()).isFalse()
+        assertThat(progressIndicator.getMax()).isEqualTo(100)
+        assertThat(progressIndicator.getProgress()).isEqualTo(50)
+    }
+
+    @Test
+    fun canTranslateLinearProgressIndicator_indeterminate() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
+            LinearProgressIndicator()
+        }
+
+        val progressIndicator = assertIs<android.widget.ProgressBar>(context.applyRemoteViews(rv))
+        assertThat(progressIndicator.isIndeterminate()).isTrue()
+    }
+
+    @Test
+    fun canTranslateBackground_red() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
+            Box(modifier = GlanceModifier.background(Color.Red)) {}
+        }
+
+        val view = context.applyRemoteViews(rv)
+
+        assertThat(view).hasBackgroundColor(android.graphics.Color.RED)
+    }
+
+    @Test
+    fun canTranslateBackground_partialColor() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
+            Box(
+                modifier = GlanceModifier.background(Color(red = 0.4f, green = 0.5f, blue = 0.6f))
+            ) {}
+        }
+
+        val view = context.applyRemoteViews(rv)
+
+        assertThat(view).hasBackgroundColor(android.graphics.Color.argb(255, 102, 128, 153))
+    }
+
+    @Test
+    fun canTranslateBackground_transparent() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
+            Box(modifier = GlanceModifier.background(Color.Transparent)) {}
+        }
+
+        val view = context.applyRemoteViews(rv)
+
+        assertThat(view).hasBackgroundColor(android.graphics.Color.TRANSPARENT)
+    }
+
+    @Config(minSdk = 29)
+    @Test
+    fun canTranslateBackground_resId() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
+            Box(modifier = GlanceModifier.background(R.color.my_color)) {}
+        }
+
+        assertThat(lightContext.applyRemoteViews(rv)).hasBackgroundColor("#EEEEEE")
+        assertThat(darkContext.applyRemoteViews(rv)).hasBackgroundColor("#111111")
+    }
+
+    @Config(sdk = [30])
+    @Test
+    fun canTranslateBackground_dayNight_light() = fakeCoroutineScope.runTest {
+        val rv = lightContext.runAndTranslate() {
+            Box(modifier = GlanceModifier.background(day = Color.Red, night = Color.Blue)) {}
+        }
+
+        val view = lightContext.applyRemoteViews(rv)
+
+        assertThat(view).hasBackgroundColor(android.graphics.Color.RED)
+    }
+
+    @Config(sdk = [30])
+    @Test
+    fun canTranslateBackground_dayNight_dark() = fakeCoroutineScope.runTest {
+        val rv = darkContext.runAndTranslate() {
+            Box(modifier = GlanceModifier.background(day = Color.Red, night = Color.Blue)) {}
+        }
+
+        val view = darkContext.applyRemoteViews(rv)
+
+        assertThat(view).hasBackgroundColor(android.graphics.Color.BLUE)
+    }
+
+    @Test
+    fun visibility() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
+            Column {
+                Text("first", modifier = GlanceModifier.visibility(Visibility.Invisible))
+                Text("second", modifier = GlanceModifier.visibility(Visibility.Gone))
+                Text("third")
             }
         }
+
+        val view = context.applyRemoteViews(rv)
+
+        val firstText = checkNotNull(view.findView<TextView> { it.text == "first" })
+        val secondText = checkNotNull(view.findView<TextView> { it.text == "second" })
+        val thirdText = checkNotNull(view.findView<TextView> { it.text == "third" })
+
+        assertThat(firstText.visibility).isEqualTo(View.INVISIBLE)
+        assertThat(secondText.visibility).isEqualTo(View.GONE)
+        assertThat(thirdText.visibility).isEqualTo(View.VISIBLE)
+    }
+
+    @Test
+    fun setAsAppWidgetBackground() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
+            Column(modifier = GlanceModifier.appWidgetBackground()) {
+                Text("text1")
+            }
+        }
+
+        val view = context.applyRemoteViews(rv)
+
+        val column =
+            checkNotNull(view.findView<LinearLayout> { it.id == android.R.id.background }) {
+                "No LinearLayout with `background` view id"
+            }
+        assertThat(column.nonGoneChildCount).isEqualTo(1)
+    }
+
+    @Test
+    fun setAsAppWidgetBackground_multipleTimes_shouldFail() = fakeCoroutineScope.runTest {
+        assertFailsWith<IllegalStateException> {
+            context.runAndTranslate {
+                Column(modifier = GlanceModifier.appWidgetBackground()) {
+                    Text("text1", modifier = GlanceModifier.appWidgetBackground())
+                }
+            }
+        }
+    }
+
+    @Test
+    fun multipleClickable_shouldLogWarning() = fakeCoroutineScope.runTest {
+        context.runAndTranslate {
+            Text(
+                "text1",
+                modifier = GlanceModifier.clickable(
+                    actionStartActivity(ComponentName("package", "class"))
+                ).clickable(
+                    actionStartActivity(ComponentName("package", "class2"))
+                )
+            )
+        }
+
+        expectGlanceLog(
+            Log.WARN,
+            "More than one clickable defined on the same GlanceModifier, " +
+                "only the last one will be used."
+        )
+    }
+
+    @Test
+    @Config(minSdk = 31)
+    fun canTranslateRowSelectableGroupToHorizontalRadioGroup() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
+            Row(modifier = GlanceModifier.selectableGroup()) {}
+        }
+
+        val view = context.applyRemoteViews(rv)
+        val group = assertIs<RadioGroup>(view)
+        assertThat(group.orientation).isEqualTo(LinearLayout.HORIZONTAL)
+    }
+
+    @Test
+    @Config(minSdk = 31)
+    fun canTranslateColumnSelectableGroupToVerticalRadioGroup() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
+            Column(modifier = GlanceModifier.selectableGroup()) {}
+        }
+
+        val view = context.applyRemoteViews(rv)
+        val group = assertIs<RadioGroup>(view)
+        assertThat(group.orientation).isEqualTo(LinearLayout.VERTICAL)
+    }
+
+    @Test
+    @Config(maxSdk = 30)
+    fun canTranslateRowSelectableGroupToLinearLayout() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
+            Row(modifier = GlanceModifier.selectableGroup()) {}
+        }
+
+        val view = context.applyRemoteViews(rv)
+        val group = assertIs<LinearLayout>(view)
+        assertThat(group.orientation).isEqualTo(LinearLayout.HORIZONTAL)
+    }
+
+    @Test
+    @Config(maxSdk = 30)
+    fun canTranslateColumnSelectableGroupToLinearLayout() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
+            Column(modifier = GlanceModifier.selectableGroup()) {}
+        }
+
+        val view = context.applyRemoteViews(rv)
+        val group = assertIs<LinearLayout>(view)
+        assertThat(group.orientation).isEqualTo(LinearLayout.VERTICAL)
+    }
+
+    @Test
+    fun cannotTranslateSelectableGroupThatIsNotRowOrColumn() = fakeCoroutineScope.runTest {
+        assertFailsWith<Exception> {
+            context.runAndTranslate {
+                Box(modifier = GlanceModifier.selectableGroup()) {}
+            }
+        }
+    }
+
+    @Test
+    fun cannotTranslateSelectableGroupWithMultipleCheckedButtons() = fakeCoroutineScope.runTest {
+        assertFailsWith<IllegalStateException> {
+            context.runAndTranslate {
+                Column(modifier = GlanceModifier.selectableGroup()) {
+                    RadioButton(onClick = null, checked = true)
+                    RadioButton(onClick = null, checked = true)
+                }
+            }
+        }
+    }
+
+    private fun expectGlanceLog(type: Int, message: String) {
+        ShadowLog.getLogsForTag(GlanceAppWidgetTag).forEach { logItem ->
+            if (logItem.type == type && logItem.msg == message)
+                return
+        }
+        fail("No warning message found")
     }
 
     // Check there is a single span, that it's of the correct type and passes the [check].
@@ -606,31 +1026,5 @@ class RemoteViewsTranslatorKtTest {
         check(obj)
     }
 
-    private suspend fun runAndTranslate(
-        context: Context = this.context,
-        appWidgetId: Int = 0,
-        content: @Composable () -> Unit
-    ): RemoteViews {
-        val root = runTestingComposition(content)
-        return translateComposition(context, appWidgetId, root)
-    }
-
-    private suspend fun runAndTranslateInRtl(
-        appWidgetId: Int = 0,
-        content: @Composable () -> Unit
-    ): RemoteViews {
-        val rtlLocale = Locale.getAvailableLocales().first {
-            TextUtils.getLayoutDirectionFromLocale(it) == View.LAYOUT_DIRECTION_RTL
-        }
-        val rtlContext = context.createConfigurationContext(
-            Configuration(context.resources.configuration).also {
-                it.setLayoutDirection(rtlLocale)
-            }
-        )
-        return runAndTranslate(rtlContext, appWidgetId, content = content)
-    }
-
     private fun Dp.toPixels() = toPixels(displayMetrics)
-    private fun Sp.toPixels() =
-        TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, value, displayMetrics).toInt()
 }

@@ -20,6 +20,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 
 import java.util.ArrayList;
@@ -46,6 +47,7 @@ public class MultiSelectListPreferenceDialogFragmentCompat extends PreferenceDia
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     CharSequence[] mEntryValues;
 
+    @NonNull
     public static MultiSelectListPreferenceDialogFragmentCompat newInstance(String key) {
         final MultiSelectListPreferenceDialogFragmentCompat fragment =
                 new MultiSelectListPreferenceDialogFragmentCompat();
@@ -56,7 +58,7 @@ public class MultiSelectListPreferenceDialogFragmentCompat extends PreferenceDia
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         if (savedInstanceState == null) {
@@ -96,7 +98,7 @@ public class MultiSelectListPreferenceDialogFragmentCompat extends PreferenceDia
     }
 
     @Override
-    protected void onPrepareDialogBuilder(AlertDialog.Builder builder) {
+    protected void onPrepareDialogBuilder(@NonNull AlertDialog.Builder builder) {
         super.onPrepareDialogBuilder(builder);
 
         final int entryCount = mEntryValues.length;

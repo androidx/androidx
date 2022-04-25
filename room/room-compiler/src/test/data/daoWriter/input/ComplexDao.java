@@ -77,4 +77,8 @@ abstract class ComplexDao {
 
     @Query("SELECT * FROM Child1")
     abstract public ListenableFuture<List<Child1>> getChild1ListListenableFuture();
+
+    @RewriteQueriesToDropUnusedColumns
+    @Query("SELECT * FROM User")
+    abstract public List<UserSummary> getUserNames();
 }

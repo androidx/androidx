@@ -29,6 +29,7 @@ import androidx.camera.testing.DeferrableSurfacesUtil;
 import androidx.camera.testing.fakes.FakeMultiValueSet;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 
 import com.google.common.collect.Lists;
 
@@ -41,6 +42,7 @@ import java.util.List;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 21)
 public class SessionConfigTest {
     private static final Option<Integer> OPTION = Option.create(
             "camerax.test.option_0", Integer.class);
@@ -491,6 +493,52 @@ public class SessionConfigTest {
                 .containsExactly(callback0, callback1);
         assertThat(configuration.getRepeatingCameraCaptureCallbacks())
                 .containsExactly(callback0, callback1);
+    }
+
+    @Test
+    public void removeCameraCaptureCallback_returnsFalseIfNotAdded() {
+        CameraCaptureCallback mockCallback = mock(CameraCaptureCallback.class);
+        SessionConfig.Builder builder = new SessionConfig.Builder();
+
+        assertThat(builder.removeCameraCaptureCallback(mockCallback)).isFalse();
+    }
+
+    @Test
+    public void canAddAndRemoveCameraCaptureCallback_withBuilder() {
+        // Arrange.
+        CameraCaptureCallback mockRepeatingCallback = mock(CameraCaptureCallback.class);
+        CameraCaptureCallback mockSingleCallback = mock(CameraCaptureCallback.class);
+        SessionConfig.Builder builder = new SessionConfig.Builder();
+
+        // Act.
+        builder.addRepeatingCameraCaptureCallback(mockRepeatingCallback);
+        builder.addCameraCaptureCallback(mockSingleCallback);
+        SessionConfig sessionConfigWithCallbacks = builder.build();
+
+        // Assert.
+        assertThat(sessionConfigWithCallbacks.getSingleCameraCaptureCallbacks()).contains(
+                mockSingleCallback);
+        assertThat(sessionConfigWithCallbacks.getSingleCameraCaptureCallbacks()).contains(
+                mockSingleCallback);
+
+        // Act.
+        boolean removedSingle = builder.removeCameraCaptureCallback(mockSingleCallback);
+        SessionConfig sessionConfigWithoutSingleCallback = builder.build();
+
+        // Assert.
+        assertThat(removedSingle).isTrue();
+        assertThat(sessionConfigWithoutSingleCallback.getSingleCameraCaptureCallbacks())
+                .doesNotContain(mockSingleCallback);
+
+        // Act.
+        boolean removedRepeating = builder.removeCameraCaptureCallback(mockRepeatingCallback);
+        SessionConfig sessionConfigWithoutCallbacks = builder.build();
+
+        // Assert.
+        assertThat(removedRepeating).isTrue();
+        assertThat(
+                sessionConfigWithoutCallbacks.getRepeatingCameraCaptureCallbacks()).doesNotContain(
+                mockRepeatingCallback);
     }
 
     @Test(expected = UnsupportedOperationException.class)

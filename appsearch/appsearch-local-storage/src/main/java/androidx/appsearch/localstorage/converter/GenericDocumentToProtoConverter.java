@@ -23,6 +23,7 @@ import androidx.appsearch.app.GenericDocument;
 import androidx.core.util.Preconditions;
 
 import com.google.android.icing.proto.DocumentProto;
+import com.google.android.icing.proto.DocumentProtoOrBuilder;
 import com.google.android.icing.proto.PropertyProto;
 import com.google.android.icing.proto.SchemaTypeConfigProto;
 import com.google.android.icing.protobuf.ByteString;
@@ -99,6 +100,9 @@ public final class GenericDocumentToProtoConverter {
                     DocumentProto proto = toDocumentProto(documentValues[j]);
                     propertyProto.addDocumentValues(proto);
                 }
+            } else if (property == null) {
+                throw new IllegalStateException(
+                        String.format("Property \"%s\" doesn't have any value!", name));
             } else {
                 throw new IllegalStateException(
                         String.format("Property \"%s\" has unsupported value type %s", name,
@@ -126,7 +130,7 @@ public final class GenericDocumentToProtoConverter {
      *                      that has all empty values.
      */
     @NonNull
-    public static GenericDocument toGenericDocument(@NonNull DocumentProto proto,
+    public static GenericDocument toGenericDocument(@NonNull DocumentProtoOrBuilder proto,
             @NonNull String prefix,
             @NonNull Map<String, SchemaTypeConfigProto> schemaTypeMap) {
         Preconditions.checkNotNull(proto);

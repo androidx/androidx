@@ -483,7 +483,7 @@ class DocumentModel {
         String fieldName = field.getSimpleName().toString();
         Set<Modifier> modifiers = field.getModifiers();
         if (modifiers.contains(Modifier.PRIVATE)) {
-            findGetter(fieldName);
+            findGetter(field);
             mReadKinds.put(field, ReadKind.GETTER);
         } else {
             mReadKinds.put(field, ReadKind.FIELD);
@@ -592,7 +592,8 @@ class DocumentModel {
     }
 
     /** Finds getter function for a private field. */
-    private void findGetter(@NonNull String fieldName) throws ProcessingException {
+    private void findGetter(@NonNull VariableElement field) throws ProcessingException {
+        String fieldName = field.getSimpleName().toString();
         ProcessingException e = new ProcessingException(
                 "Field cannot be read: it is private and we failed to find a suitable getter "
                         + "for field \"" + fieldName + "\"",
@@ -601,10 +602,18 @@ class DocumentModel {
         for (ExecutableElement method : mAllMethods) {
             String methodName = method.getSimpleName().toString();
             String normalizedFieldName = getNormalizedFieldName(fieldName);
+            // normalizedFieldName with first letter capitalized, to be paired with [is] or [get]
+            // prefix
+            String methodNameSuffix = normalizedFieldName.substring(0, 1).toUpperCase()
+                    + normalizedFieldName.substring(1);
+
             if (methodName.equals(normalizedFieldName)
-                    || methodName.equals("get"
-                    + normalizedFieldName.substring(0, 1).toUpperCase()
-                    + normalizedFieldName.substring(1))) {
+                    || methodName.equals("get" + methodNameSuffix)
+                    || (
+                    mHelper.isFieldOfExactType(
+                            field, mHelper.mBooleanBoxType, mHelper.mBooleanPrimitiveType)
+                            && methodName.equals("is" + methodNameSuffix))
+            ) {
                 if (method.getModifiers().contains(Modifier.PRIVATE)) {
                     e.addWarning(new ProcessingException(
                             "Getter cannot be used: private visibility", method));

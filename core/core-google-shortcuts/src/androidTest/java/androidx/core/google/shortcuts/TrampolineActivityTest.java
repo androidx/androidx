@@ -16,8 +16,8 @@
 
 package androidx.core.google.shortcuts;
 
-import static androidx.core.google.shortcuts.ShortcutUtils.SHORTCUT_TAG_KEY;
-import static androidx.core.google.shortcuts.ShortcutUtils.SHORTCUT_URL_KEY;
+import static androidx.core.google.shortcuts.utils.ShortcutUtils.SHORTCUT_TAG_KEY;
+import static androidx.core.google.shortcuts.utils.ShortcutUtils.SHORTCUT_URL_KEY;
 import static androidx.test.espresso.intent.Intents.intended;
 import static androidx.test.espresso.intent.Intents.times;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
@@ -31,6 +31,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 
 import androidx.core.google.shortcuts.test.TestActivity;
+import androidx.core.google.shortcuts.utils.ShortcutUtils;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.intent.Intents;
@@ -125,6 +126,7 @@ public class TrampolineActivityTest {
 
     @Test
     @SmallTest
+    @SuppressWarnings("deprecation")
     public void testManifest_canDiscoverMetadata() {
         PackageManager packageManager = mContext.getPackageManager();
         Intent activityIntent = new Intent(SHORTCUT_LISTENER_INTENT_FILTER_ACTION);

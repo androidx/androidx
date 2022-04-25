@@ -14,20 +14,24 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+
 package androidx.camera.camera2.pipe.integration.adapter
 
 import android.annotation.SuppressLint
 import android.hardware.camera2.CameraCharacteristics
 import android.util.Range
 import android.util.Rational
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.core.ExposureState
 
-internal val EMPTY_RANGE = Range(0, 0)
+internal val EMPTY_RANGE: Range<Int> = Range(0, 0)
 
 /** Adapt [ExposureState] to a [CameraMetadata] instance. */
 @SuppressLint("UnsafeOptInUsageError")
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class ExposureStateAdapter(
     private val cameraProperties: CameraProperties,
     private val exposureCompensation: Int

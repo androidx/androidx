@@ -336,6 +336,29 @@ public final class Preconditions {
         return value;
     }
 
+    /**
+     * Ensures that the argument floating point value is a finite number.
+     *
+     * <p>A finite number is defined to be both representable (that is, not NaN) and
+     * not infinite (that is neither positive or negative infinity).</p>
+     *
+     * @param value a floating point value
+     * @param valueName the name of the argument to use if the check fails
+     *
+     * @return the validated floating point value
+     *
+     * @throws IllegalArgumentException if {@code value} was not finite
+     */
+    public static float checkArgumentFinite(float value, @NonNull String valueName) {
+        if (Float.isNaN(value)) {
+            throw new IllegalArgumentException(valueName + " must not be NaN");
+        } else if (Float.isInfinite(value)) {
+            throw new IllegalArgumentException(valueName + " must not be infinite");
+        }
+
+        return value;
+    }
+
     private Preconditions() {
     }
 }

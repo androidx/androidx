@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+
 package androidx.camera.camera2.pipe.integration.adapter
 
 import android.view.Surface
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.core.Log.debug

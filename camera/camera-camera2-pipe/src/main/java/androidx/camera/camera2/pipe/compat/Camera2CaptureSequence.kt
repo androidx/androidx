@@ -22,6 +22,7 @@ import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
 import android.view.Surface
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.FrameNumber
@@ -35,6 +36,7 @@ import androidx.camera.camera2.pipe.StreamId
  * a [CaptureRequest] object to lookup and invoke per-request listeners so that a listener can be
  * defined on a specific request within a burst.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 internal class Camera2CaptureSequence(
     private val internalListeners: List<Request.Listener>,
     private val requests: Map<RequestNumber, RequestInfo>,

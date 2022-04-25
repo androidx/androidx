@@ -20,7 +20,7 @@ import kotlin.js.JsName
 import kotlin.jvm.JvmName
 
 /**
- * Static library version of {@code android.util.LruCache}. Used to write apps
+ * Static library version of `android.util.LruCache`. Used to write apps
  * that run on API levels prior to 12. When running on API level 12 or above,
  * this implementation is still used; it does not try to switch to the
  * framework's implementation. See the framework SDK documentation for a class
@@ -36,7 +36,7 @@ open class LruCache<K, V> {
     @get:JvmName("size")
     public var size: Int = 0
         /**
-         * For caches that do not override {@link #sizeOf}, this returns the number
+         * For caches that do not override [sizeOf], this returns the number
          * of entries in the cache. For all other caches, this returns the sum of
          * the sizes of the entries in this cache.
          */
@@ -52,7 +52,7 @@ open class LruCache<K, V> {
     private var missCount = 0
 
     /**
-     * @param maxSize for caches that do not override {@link #sizeOf}, this is
+     * @param maxSize for caches that do not override [sizeOf], this is
      *     the maximum number of entries in the cache. For all other caches,
      *     this is the maximum sum of the sizes of the entries in this cache.
      */
@@ -79,9 +79,9 @@ open class LruCache<K, V> {
     }
 
     /**
-     * Returns the value for {@code key} if it exists in the cache or can be
-     * created by {@code #create}. If a value was returned, it is moved to the
-     * head of the queue. This returns null if a value is not cached and cannot
+     * Returns the value for [key] if it exists in the cache or can be
+     * created by [create]. If a value was returned, it is moved to the
+     * head of the queue. This returns `null` if a value is not cached and cannot
      * be created.
      */
     @JsName("get")
@@ -239,17 +239,17 @@ open class LruCache<K, V> {
     /**
      * Called for entries that have been evicted or removed. This method is
      * invoked when a value is evicted to make space, removed by a call to
-     * {@link #remove}, or replaced by a call to {@link #put}. The default
+     * [remove], or replaced by a call to [put]. The default
      * implementation does nothing.
      *
      * The method is called without synchronization: other threads may
      * access the cache while this method is executing.
      *
-     * @param evicted true if the entry is being removed to make space, false
-     *     if the removal was caused by a {@link #put} or {@link #remove}.
-     * @param newValue the new value for {@code key}, if it exists. If non-null,
-     *     this removal was caused by a {@link #put}. Otherwise it was caused by
-     *     an eviction or a {@link #remove}.
+     * @param evicted `true` if the entry is being removed to make space, `false`
+     *     if the removal was caused by a [put] or [remove].
+     * @param newValue the new value for [key], if it exists. If non-null,
+     *     this removal was caused by a [put]. Otherwise it was caused by
+     *     an eviction or a [remove].
      */
     protected open fun entryRemoved(evicted: Boolean, key: K, oldValue: V, newValue: V?) {
     }
@@ -262,11 +262,11 @@ open class LruCache<K, V> {
      * The method is called without synchronization: other threads may
      * access the cache while this method is executing.
      *
-     * If a value for {@code key} exists in the cache when this method
-     * returns, the created value will be released with {@link #entryRemoved}
+     * If a value for [key] exists in the cache when this method
+     * returns, the created value will be released with [entryRemoved]
      * and discarded. This can occur when multiple threads request the same key
      * at the same time (causing multiple values to be created), or when one
-     * thread calls {@link #put} while another is creating a value for the same
+     * thread calls [put] while another is creating a value for the same
      * key.
      */
     @JsName("create")
@@ -279,7 +279,7 @@ open class LruCache<K, V> {
     }
 
     /**
-     * Returns the size of the entry for {@code key} and {@code value} in
+     * Returns the size of the entry for [key] and [value] in
      * user-defined units.  The default implementation returns 1 so that size
      * is the number of entries and max size is the maximum number of entries.
      *
@@ -288,38 +288,38 @@ open class LruCache<K, V> {
     protected open fun sizeOf(key: K, value: V) = 1
 
     /**
-     * Clear the cache, calling {@link #entryRemoved} on each removed entry.
+     * Clear the cache, calling [entryRemoved] on each removed entry.
      */
     fun evictAll() {
         trimToSize(-1) // -1 will evict 0-sized elements
     }
 
     /**
-     * For caches that do not override {@link #sizeOf}, this returns the maximum
+     * For caches that do not override [sizeOf], this returns the maximum
      * number of entries in the cache. For all other caches, this returns the
      * maximum sum of the sizes of the entries in this cache.
      */
     fun maxSize(): Int = synchronizedValue { maxSize }
 
     /**
-     * Returns the number of times {@link #get} returned a value that was
+     * Returns the number of times [get] returned a value that was
      * already present in the cache.
      */
     fun hitCount(): Int = synchronizedValue { hitCount }
 
     /**
-     * Returns the number of times {@link #get} returned null or required a new
+     * Returns the number of times [get] returned null or required a new
      * value to be created.
      */
     fun missCount(): Int = synchronizedValue { missCount }
 
     /**
-     * Returns the number of times {@link #create(Object)} returned a value.
+     * Returns the number of times [create] returned a value.
      */
     fun createCount(): Int = synchronizedValue { createCount }
 
     /**
-     * Returns the number of times {@link #put} was called.
+     * Returns the number of times [put] was called.
      */
     fun putCount(): Int = synchronizedValue { putCount }
 

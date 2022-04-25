@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+
 package androidx.camera.camera2.pipe.compat
 
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
 import android.os.Build
 import android.util.ArrayMap
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameMetadata
@@ -31,6 +34,7 @@ import androidx.camera.camera2.pipe.RequestMetadata
  * An implementation of [FrameMetadata] that retrieves values from a [CaptureResult] object
  */
 @Suppress("SyntheticAccessor") // Using an inline class generates a synthetic constructor
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 internal class AndroidFrameMetadata constructor(
     private val captureResult: CaptureResult,
     override val camera: CameraId
@@ -86,6 +90,7 @@ internal class CorrectedFrameMetadata(
  * An implementation of [FrameInfo] that retrieves values from a [TotalCaptureResult] object.
  */
 @Suppress("SyntheticAccessor") // Using an inline class generates a synthetic constructor
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 internal class AndroidFrameInfo(
     private val totalCaptureResult: TotalCaptureResult,
     override val camera: CameraId,

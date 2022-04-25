@@ -17,15 +17,32 @@
 package androidx.wear.compose.integration.demos
 
 import androidx.wear.compose.foundation.samples.CurvedAndNormalText
-import androidx.wear.compose.foundation.samples.SimpleCurvedRow
+import androidx.wear.compose.foundation.samples.CurvedBottomLayout
+import androidx.wear.compose.foundation.samples.CurvedBackground
+import androidx.wear.compose.foundation.samples.CurvedFixedSize
+import androidx.wear.compose.foundation.samples.CurvedRowAndColumn
+import androidx.wear.compose.foundation.samples.CurvedWeight
+import androidx.wear.compose.foundation.samples.SimpleCurvedWorld
 
 val WearFoundationDemos = DemoCategory(
     "Foundation",
     listOf(
-        ComposableDemo("Curved Row") { CurvedRowDemo() },
-        ComposableDemo("Simple") { SimpleCurvedRow() },
-        ComposableDemo("Alignment") { CurvedRowAlignmentDemo() },
-        ComposableDemo("Curved Text") { CurvedTextDemo() },
-        ComposableDemo("Curved and Normal Text") { CurvedAndNormalText() },
+        DemoCategory("CurvedLayout", listOf(
+            ComposableDemo("Curved Row") { CurvedWorldDemo() },
+            ComposableDemo("Curved Row and Column") { CurvedRowAndColumn() },
+            ComposableDemo("Simple") { SimpleCurvedWorld() },
+            ComposableDemo("Alignment") { CurvedRowAlignmentDemo() },
+            ComposableDemo("Curved Text") { BasicCurvedTextDemo() },
+            ComposableDemo("Curved and Normal Text") { CurvedAndNormalText() },
+            ComposableDemo("Fixed size") { CurvedFixedSize() },
+            ComposableDemo("Weights") { CurvedWeight() },
+            ComposableDemo("Ellipsis Demo") { CurvedEllipsis() },
+            ComposableDemo("Bottom layout") { CurvedBottomLayout() },
+            ComposableDemo("Curved layout direction") { CurvedLayoutDirection() },
+            ComposableDemo("Background") { CurvedBackground() },
+        )),
+        ComposableDemo("Scrollable Column") { ScrollableColumnDemo() },
+        ComposableDemo("Scrollable Row") { ScrollableRowDemo() },
+        DemoCategory("Rotary Input", RotaryInputDemos),
     ),
 )

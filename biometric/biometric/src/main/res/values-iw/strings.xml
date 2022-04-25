@@ -30,4 +30,18 @@
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"עוד לא הוגדרו קוד אימות, קו ביטול נעילה או סיסמה."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"המכשיר הזה לא תומך בקוד אימות, בקו ביטול נעילה או בסיסמה."</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"סמל טביעת אצבע"</string>
+    <string name="use_fingerprint_label" msgid="6961788485681412417">"שימוש בטביעת אצבע"</string>
+    <string name="use_face_label" msgid="6533512708069459542">"שימוש בזיהוי פנים"</string>
+    <string name="use_biometric_label" msgid="6524145989441579428">"שימוש במידע ביומטרי"</string>
+    <string name="use_screen_lock_label" msgid="5459869335976243512">"שימוש בנעילת מסך"</string>
+    <string name="use_fingerprint_or_screen_lock_label" msgid="7577690399303139443">"שימוש בטביעת אצבע או בנעילת מסך"</string>
+    <string name="use_face_or_screen_lock_label" msgid="2116180187159450292">"שימוש בזיהוי פנים או בנעילת מסך"</string>
+    <string name="use_biometric_or_screen_lock_label" msgid="5385448280139639016">"שימוש במידע ביומטרי או בנעילת מסך"</string>
+    <string name="fingerprint_prompt_message" msgid="7449360011861769080">"צריך להשתמש בטביעת האצבע כדי להמשיך"</string>
+    <string name="face_prompt_message" msgid="2282389249605674226">"צריך להשתמש בזיהוי הפנים כדי להמשיך"</string>
+    <string name="biometric_prompt_message" msgid="1160635338192065472">"צריך להשתמש במידע ביומטרי כדי להמשיך"</string>
+    <string name="screen_lock_prompt_message" msgid="5659570757430909869">"צריך לבטל את נעילת המסך כדי להמשיך"</string>
+    <string name="fingerprint_or_screen_lock_prompt_message" msgid="8382576858490514495">"צריך להשתמש בטביעת האצבע או בנעילת המסך כדי להמשיך"</string>
+    <string name="face_or_screen_lock_prompt_message" msgid="4562557128765735254">"צריך להשתמש בזיהוי הפנים או בנעילת המסך כדי להמשיך"</string>
+    <string name="biometric_or_screen_lock_prompt_message" msgid="2102429900219199821">"צריך להשתמש במידע הביומטרי או בנעילת המסך כדי להמשיך"</string>
 </resources>

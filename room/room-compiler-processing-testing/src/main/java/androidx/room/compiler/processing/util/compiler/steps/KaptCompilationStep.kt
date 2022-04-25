@@ -37,6 +37,7 @@ internal class KaptCompilationStep(
     override val name = "kapt"
     private fun createKaptArgs(
         workingDir: File,
+        javacArguments: List<String>,
     ): KaptOptions.Builder {
         return KaptOptions.Builder().also {
             it.stubsOutputDir = workingDir.resolve("kapt-stubs") // IGNORED
@@ -56,6 +57,11 @@ internal class KaptCompilationStep(
             // NOTE: this does not work very well until the following bug is fixed
             //  https://youtrack.jetbrains.com/issue/KT-47934
             it.flags.add(KaptFlag.MAP_DIAGNOSTIC_LOCATIONS)
+
+            javacArguments.forEach { javacArg ->
+                it.javacOptions[javacArg.substringBefore("=")] =
+                    javacArg.substringAfter("=", missingDelimiterValue = "")
+            }
         }
     }
 
@@ -73,7 +79,7 @@ internal class KaptCompilationStep(
             pluginRegistrars = listOf(
                 TestKapt3Registrar(
                     processors = annotationProcessors,
-                    baseOptions = createKaptArgs(workingDir),
+                    baseOptions = createKaptArgs(workingDir, arguments.javacArguments),
                     messageCollector = kaptMessages
                 )
             )

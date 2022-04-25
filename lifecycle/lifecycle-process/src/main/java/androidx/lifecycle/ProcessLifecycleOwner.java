@@ -23,6 +23,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -171,17 +172,18 @@ public class ProcessLifecycleOwner implements LifecycleOwner {
                 // callback added in onCreate(). By adding our own activity registered callback in
                 // onActivityPreCreated(), we get our callbacks first while still having the
                 // right relative order compared to the Activity's onStart()/onResume() callbacks.
-                activity.registerActivityLifecycleCallbacks(new EmptyActivityLifecycleCallbacks() {
-                    @Override
-                    public void onActivityPostStarted(@NonNull Activity activity) {
-                        activityStarted();
-                    }
+                Api29Impl.registerActivityLifecycleCallbacks(activity,
+                        new EmptyActivityLifecycleCallbacks() {
+                            @Override
+                            public void onActivityPostStarted(@NonNull Activity activity) {
+                                activityStarted();
+                            }
 
-                    @Override
-                    public void onActivityPostResumed(@NonNull Activity activity) {
-                        activityResumed();
-                    }
-                });
+                            @Override
+                            public void onActivityPostResumed(@NonNull Activity activity) {
+                                activityResumed();
+                            }
+                        });
             }
 
             @Override
@@ -210,5 +212,18 @@ public class ProcessLifecycleOwner implements LifecycleOwner {
     @Override
     public Lifecycle getLifecycle() {
         return mRegistry;
+    }
+
+    @RequiresApi(29)
+    static class Api29Impl {
+        private Api29Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void registerActivityLifecycleCallbacks(@NonNull Activity activity,
+                @NonNull Application.ActivityLifecycleCallbacks callback) {
+            activity.registerActivityLifecycleCallbacks(callback);
+        }
     }
 }

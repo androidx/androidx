@@ -39,6 +39,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.debugInspectorInfo
+import androidx.compose.ui.semantics.ScrollAxisRange
+import androidx.compose.ui.semantics.horizontalScrollAxisRange
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.verticalScrollAxisRange
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -46,16 +50,15 @@ import androidx.compose.ui.util.lerp
 import androidx.wear.compose.material.SwipeableDefaults.StandardResistanceFactor
 import androidx.wear.compose.material.SwipeableDefaults.VelocityThreshold
 import androidx.wear.compose.material.SwipeableDefaults.resistanceConfig
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.launch
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.sign
 import kotlin.math.sin
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.launch
 
 // TODO: temporary copy of Swipeable.kt from the compose-material package.
 // Don't forget to change it if the original is being changed.
@@ -381,7 +384,31 @@ open class SwipeableState<T>(
         }
     }
 
-    // performDrag omitted from Wear Compose copy of SwipeableState, not needed at this time.
+    /**
+     * Force [swipeable] to consume drag delta provided from outside of the regular [swipeable]
+     * gesture flow.
+     *
+     * Note: This method performs generic drag and it won't settle to any particular anchor,
+     * leaving swipeable in between anchors. When done dragging, [performFling] must be
+     * called as well to ensure swipeable will settle at the anchor.
+     *
+     * In general cases, [swipeable] drags by itself when being swiped. This method is to be
+     * used for nested scroll logic that wraps the [swipeable]. In nested scroll developer may
+     * want to force drag when the child scroll container reaches the bound.
+     *
+     * @param delta delta in pixels to drag by
+     *
+     * @return the amount of [delta] consumed
+     */
+    internal fun performDrag(delta: Float): Float {
+        val potentiallyConsumed = absoluteOffset.value + delta
+        val clamped = potentiallyConsumed.coerceIn(minBound, maxBound)
+        val deltaToConsume = clamped - absoluteOffset.value
+        if (abs(deltaToConsume) > 0) {
+            draggableState.dispatchRawDelta(deltaToConsume)
+        }
+        return deltaToConsume
+    }
 
     companion object {
         /**
@@ -553,7 +580,40 @@ fun <T> Modifier.swipeable(
         state.processNewAnchors(oldAnchors, anchors)
     }
 
-    Modifier.draggable(
+    // Swipeables publish scroll range semantics so they look like they can scroll between values
+    // of 0 and 1, inclusive, so that AndroidComposeView can report a value from its canScroll
+    // methods that correctly tells the system's ScrollDismissLayout whether it should intercept
+    // touch values (see b/199908428). This logic is *not* duplicated in the non-Wear swipeable
+    // because it's a bit of a hack to fix navigation in WearOS. Once swipeable implements proper
+    // nested scrolling, and the two swipeable implementations are merged, this fake scrolling stuff
+    // should be gone anyway. Also note that the regular Android swipe-to-go-back gesture works very
+    // differently than the wear gesture so we don't need this workaround to support it.
+    // TODO(b/201009199): Modifier.swipeable should coordinate with the nested scrolling system.
+    val semantics = if (!enabled) Modifier else Modifier.semantics {
+        // Set a fake scroll range axis so that the AndroidComposeView can correctly report whether
+        // scrolling is supported via canScroll{Horizontally,Vertically}.
+        val range = ScrollAxisRange(
+            value = {
+                // Avoid dividing by 0.
+                if (state.minBound == state.maxBound) {
+                    0f
+                } else {
+                    val clampedOffset = state.offset.value.coerceIn(state.minBound, state.maxBound)
+                    // [0f, 1f] representing the fraction between the swipe bounds.
+                    // Return the remaining fraction available to swipe.
+                    (state.maxBound - clampedOffset) / (state.maxBound - state.minBound)
+                }
+            },
+            maxValue = { 1f },
+            reverseScrolling = reverseDirection
+        )
+        when (orientation) {
+            Orientation.Horizontal -> horizontalScrollAxisRange = range
+            Orientation.Vertical -> verticalScrollAxisRange = range
+        }
+    }
+
+    Modifier.then(semantics).draggable(
         orientation = orientation,
         enabled = enabled,
         reverseDirection = reverseDirection,

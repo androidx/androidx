@@ -31,12 +31,21 @@ import kotlin.concurrent.withLock
  * Interface provided to the snapshot to trigger load events.
  */
 internal interface RemoteMediatorConnection<Key : Any, Value : Any> {
+    fun requestRefreshIfAllowed(
+        pagingState: PagingState<Key, Value>
+    )
+
     fun requestLoad(
         loadType: LoadType,
         pagingState: PagingState<Key, Value>
     )
 
     fun retryFailed(pagingState: PagingState<Key, Value>)
+
+    /**
+     * Allow a single call to [requestRefreshIfAllowed] to successfully get enqueued.
+     */
+    fun allowRefresh()
 }
 
 @OptIn(ExperimentalPagingApi::class)
@@ -59,10 +68,13 @@ internal fun <Key : Any, Value : Any> RemoteMediatorAccessor(
  */
 private class AccessorStateHolder<Key : Any, Value : Any> {
     private val lock = ReentrantLock()
+
     private val _loadStates = MutableStateFlow(LoadStates.IDLE)
     val loadStates
         get(): StateFlow<LoadStates> = _loadStates
+
     private val internalState = AccessorState<Key, Value>()
+
     fun <R> use(block: (AccessorState<Key, Value>) -> R): R {
         return lock.withLock {
             block(internalState).also {
@@ -93,6 +105,21 @@ private class AccessorState<Key : Any, Value : Any> {
     }
     private val pendingRequests = ArrayDeque<PendingRequest<Key, Value>>()
 
+    /**
+     * Whether [RemoteMediatorAccessor.requestLoad] with [LoadType.REFRESH] is allowed to
+     * successfully enqueue.
+     *
+     * NOTE: [refreshAllowed] must be tracked within [AccessorState] because it is
+     * multi-generational state that should only be flipped once
+     * [RemoteMediatorAccessor.requestLoad] has successfully been enqueued.
+     *
+     * NOTE: We may receive redundant calls to [RemoteMediatorAccessor.requestLoad] with
+     * [LoadType.REFRESH] because it must be triggered within each generation of
+     * [PageFetcherSnapshot], to prevent dropping remote emissions for [PageEvent.LoadStateUpdate]
+     * due to waiting for a valid emissions from [PagingSource].
+     */
+    var refreshAllowed: Boolean = false
+
     fun computeLoadStates(): LoadStates {
         return LoadStates(
             refresh = computeLoadTypeState(LoadType.REFRESH),
@@ -119,7 +146,10 @@ private class AccessorState<Key : Any, Value : Any> {
         // b) it might be blocked due to refresh being required first -> Incomplete
         // c) it might have never run -> Incomplete
         return when (blockState) {
-            COMPLETED -> LoadState.NotLoading.Complete
+            COMPLETED -> when (loadType) {
+                LoadType.REFRESH -> LoadState.NotLoading.Incomplete
+                else -> LoadState.NotLoading.Complete
+            }
             REQUIRES_REFRESH -> LoadState.NotLoading.Incomplete
             UNBLOCKED -> LoadState.NotLoading.Incomplete
         }
@@ -235,9 +265,6 @@ private class RemoteMediatorAccessImpl<Key : Any, Value : Any>(
     private val scope: CoroutineScope,
     private val remoteMediator: RemoteMediator<Key, Value>
 ) : RemoteMediatorAccessor<Key, Value> {
-    override val state: StateFlow<LoadStates>
-        get() = accessorState.loadStates
-
     // all internal state is kept in accessorState to avoid concurrent access
     private val accessorState = AccessorStateHolder<Key, Value>()
 
@@ -245,10 +272,34 @@ private class RemoteMediatorAccessImpl<Key : Any, Value : Any>(
     // it also handles cancelling lower priority calls with higher priority calls.
     private val isolationRunner = SingleRunner(cancelPreviousInEqualPriority = false)
 
+    override val state: StateFlow<LoadStates>
+        get() = accessorState.loadStates
+
+    override fun requestRefreshIfAllowed(pagingState: PagingState<Key, Value>) {
+        accessorState.use {
+            if (it.refreshAllowed) {
+                it.refreshAllowed = false
+                accessorState.requestLoad(LoadType.REFRESH, pagingState)
+            }
+        }
+    }
+
+    override fun allowRefresh() {
+        accessorState.use { it.refreshAllowed = true }
+    }
+
     override fun requestLoad(loadType: LoadType, pagingState: PagingState<Key, Value>) {
-        val newRequest = accessorState.use {
+        accessorState.requestLoad(loadType, pagingState)
+    }
+
+    private fun AccessorStateHolder<Key, Value>.requestLoad(
+        loadType: LoadType,
+        pagingState: PagingState<Key, Value>,
+    ) {
+        val newRequest = use {
             it.add(loadType, pagingState)
         }
+
         if (newRequest) {
             when (loadType) {
                 LoadType.REFRESH -> launchRefresh()

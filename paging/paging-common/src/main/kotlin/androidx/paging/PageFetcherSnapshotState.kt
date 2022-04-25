@@ -18,6 +18,7 @@ package androidx.paging
 
 import androidx.annotation.CheckResult
 import androidx.paging.LoadState.NotLoading
+import androidx.paging.LoadState.Loading
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
@@ -104,8 +105,17 @@ internal class PageFetcherSnapshotState<Key : Any, Value : Any> private construc
      */
     internal val failedHintsByLoadType = mutableMapOf<LoadType, ViewportHint>()
 
-    // only the local load states
-    internal var sourceLoadStates = MutableLoadStateCollection()
+    // Only track the local load states, remote states are injected from PageFetcher. This class
+    // only tracks state within a single generation from source side.
+    internal var sourceLoadStates = MutableLoadStateCollection().apply {
+        // Synchronously initialize REFRESH with Loading.
+        // NOTE: It is important that we do this synchronously on init, since PageFetcherSnapshot
+        // expects to send this initial state immediately. It is always correct for a new
+        // generation to immediately begin loading refresh, so rather than start with NotLoading
+        // then updating to Loading, we simply start with Loading immediately to create less
+        // churn downstream.
+        set(REFRESH, Loading)
+    }
         private set
 
     fun consumePrependGenerationIdAsFlow(): Flow<Int> {

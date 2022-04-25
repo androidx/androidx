@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
         id="BanUncheckedReflection"
@@ -8,7 +8,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/lifecycle/ClassesInfoCache.java"
-            line="216"
+            line="222"
             column="25"/>
     </issue>
 
@@ -19,7 +19,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/lifecycle/ClassesInfoCache.java"
-            line="219"
+            line="225"
             column="25"/>
     </issue>
 
@@ -30,7 +30,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/lifecycle/ClassesInfoCache.java"
-            line="222"
+            line="228"
             column="25"/>
     </issue>
 
@@ -58,7 +58,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    void callMethods(LifecycleOwner source, Lifecycle.Event event, boolean onAny,"
         errorLine2="                     ~~~~~~~~~~~~~~">
         <location
@@ -69,7 +69,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    void callMethods(LifecycleOwner source, Lifecycle.Event event, boolean onAny,"
         errorLine2="                                            ~~~~~~~~~~~~~~~">
         <location
@@ -80,7 +80,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="            MethodCallsLogger logger);"
         errorLine2="            ~~~~~~~~~~~~~~~~~">
         <location
@@ -91,29 +91,29 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static String getAdapterName(String className) {"
         errorLine2="                  ~~~~~~">
         <location
             file="src/main/java/androidx/lifecycle/Lifecycling.java"
-            line="206"
+            line="208"
             column="19"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static String getAdapterName(String className) {"
         errorLine2="                                        ~~~~~~">
         <location
             file="src/main/java/androidx/lifecycle/Lifecycling.java"
-            line="206"
+            line="208"
             column="41"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public boolean approveCall(String name, int type) {"
         errorLine2="                               ~~~~~~">
         <location

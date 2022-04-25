@@ -21,6 +21,7 @@ import androidx.room.compiler.processing.javac.JavacTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.compileFiles
+import androidx.testutils.generateAllEnumerations
 import androidx.room.compiler.processing.util.javaTypeUtils
 import androidx.room.compiler.processing.util.runKaptTest
 import androidx.room.compiler.processing.util.runProcessorTest
@@ -41,7 +42,8 @@ import javax.lang.model.util.Types
 class MethodSpecHelperTest(
     // if true, pre-compile sources then run the test to account for changes between .class files
     // and source files
-    val preCompiledCode: Boolean
+    val preCompiledCode: Boolean,
+    val shouldMarkParamsFinal: Boolean
 ) {
     @Test
     fun javaOverrides() {
@@ -189,6 +191,22 @@ class MethodSpecHelperTest(
                 fun noArg_returnsInt(operation: () -> Int) {
                 }
                 fun singleArg_returnsInterface(operation: (Int) -> MyInterface) {
+                }
+
+                fun noArg_suspend_returnsUnit(operation: suspend () -> Unit) {
+                }
+
+                suspend fun suspend_noArg_suspend_returnsUnit(operation: suspend () -> Unit) {
+                }
+                suspend fun suspend_no_arg_suspend_returnsString(operation: suspend () -> String) {
+                }
+                suspend fun suspend_singleArg_suspend_returnsUnit(operation: suspend (arg: String) -> Unit) {
+                }
+                suspend fun suspend_threeArgs_suspend_returnsUnit(operation: suspend (one: String, two: Int, three: Boolean) -> Unit) {
+                }
+                suspend fun suspend_singleArg_suspend_returnsString(operation: suspend (arg: String) -> String) {
+                }
+                suspend fun suspend_threeArgs_suspend_returnsString(operation: suspend (one: String, two: Int, three: Boolean) -> String) {
                 }
             }
             """.trimIndent()
@@ -442,16 +460,17 @@ class MethodSpecHelperTest(
         ) { invocation ->
             val (target, methods) = invocation.getOverrideTestTargets(ignoreInheritedMethods)
             methods.forEachIndexed { index, method ->
-                if (invocation.isKsp && method.name == "throwsException" && preCompiledCode) {
-                    // TODO b/171572318
-                    //  https://github.com/google/ksp/issues/507
-                } else {
-                    val subject = MethodSpecHelper.overridingWithFinalParams(
-                        method,
-                        target.type
-                    ).toSignature()
-                    assertThat(subject).isEqualTo(golden[index])
-                }
+                val func = if (shouldMarkParamsFinal)
+                    MethodSpecHelper::overridingWithFinalParams
+                else
+                    MethodSpecHelper::overriding
+
+                val subject = func(
+                    method,
+                    target.type
+                ).toSignature()
+
+                assertThat(subject).isEqualTo(golden[index])
             }
         }
     }
@@ -495,7 +514,7 @@ class MethodSpecHelperTest(
             .requireTypeElement("java.lang.Object")
             .getAllNonPrivateInstanceMethods()
             .map {
-                it.name
+                it.jvmName
             }
         val target = processingEnv.requireTypeElement("foo.bar.Baz")
         val methods = if (ignoreInheritedMethods) {
@@ -506,7 +525,7 @@ class MethodSpecHelperTest(
         val selectedMethods = methods.filter {
             it.isOverrideableIgnoringContainer()
         }.filterNot {
-            it.name in objectMethodNames
+            it.jvmName in objectMethodNames
         }
         return target to selectedMethods
     }
@@ -557,9 +576,15 @@ class MethodSpecHelperTest(
         val baseSpec = MethodSpec.overriding(elm, owner, typeUtils)
             .build()
 
-        // make all the params final
-        val params = baseSpec.parameters.map {
-            it.toBuilder().addModifiers(Modifier.FINAL).build()
+        val params = if (shouldMarkParamsFinal) {
+            // make all the params final
+            baseSpec.parameters.map {
+                it.toBuilder().apply {
+                    addModifiers(Modifier.FINAL)
+                }.build()
+            }
+        } else {
+            baseSpec.parameters
         }
 
         return MethodSpec.methodBuilder(baseSpec.name).apply {
@@ -575,7 +600,7 @@ class MethodSpecHelperTest(
 
     companion object {
         @JvmStatic
-        @Parameterized.Parameters(name = "preCompiledCode={0}")
-        fun params() = listOf(false, true)
+        @Parameterized.Parameters(name = "preCompiledCode={0}, shouldMarkParamsFinal={1}")
+        fun params() = generateAllEnumerations(listOf(false, true), listOf(false, true))
     }
 }

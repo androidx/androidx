@@ -82,7 +82,9 @@ internal class TestKspRegistrar(
             )
         }
         val logger = MessageCollectorBasedKSPLogger(
-            messageCollector = messageCollector
+            messageCollector = messageCollector,
+            wrappedMessageCollector = messageCollector,
+            allWarningsAsErrors = baseOptions.allWarningsAsErrors
         )
         val options = baseOptions.build()
         AnalysisHandlerExtension.registerExtension(

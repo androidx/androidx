@@ -18,6 +18,7 @@ package androidx.room;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 import android.os.Build;
@@ -103,7 +104,7 @@ public class InvalidationTracker {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     volatile SupportSQLiteStatement mCleanupStatement;
 
-    private ObservedTableTracker mObservedTableTracker;
+    private final ObservedTableTracker mObservedTableTracker;
 
     private final InvalidationLiveDataContainer mInvalidationLiveDataContainer;
 
@@ -113,6 +114,8 @@ public class InvalidationTracker {
     final SafeIterableMap<Observer, ObserverWrapper> mObserverMap = new SafeIterableMap<>();
 
     private MultiInstanceInvalidationClient mMultiInstanceInvalidationClient;
+
+    private final Object mSyncTriggersLock = new Object();
 
     /**
      * Used by the generated code.
@@ -210,9 +213,9 @@ public class InvalidationTracker {
         }
     }
 
-    void startMultiInstanceInvalidation(Context context, String name) {
-        mMultiInstanceInvalidationClient = new MultiInstanceInvalidationClient(context, name, this,
-                mDatabase.getQueryExecutor());
+    void startMultiInstanceInvalidation(Context context, String name, Intent serviceIntent) {
+        mMultiInstanceInvalidationClient = new MultiInstanceInvalidationClient(context, name,
+                serviceIntent, this, mDatabase.getQueryExecutor());
     }
 
     void stopMultiInstanceInvalidation() {
@@ -536,14 +539,13 @@ public class InvalidationTracker {
             return;
         }
         try {
-            // This method runs in a while loop because while changes are synced to db, another
-            // runnable may be skipped. If we cause it to skip, we need to do its work.
-            while (true) {
-                Lock closeLock = mDatabase.getCloseLock();
-                closeLock.lock();
-                try {
-                    // there is a potential race condition where another mSyncTriggers runnable
-                    // can start running right after we get the tables list to sync.
+            Lock closeLock = mDatabase.getCloseLock();
+            closeLock.lock();
+            try {
+                // Serialize adding and removing table trackers, this is specifically important
+                // to avoid missing invalidation before a transaction starts but there are
+                // pending (possibly concurrent) observer changes.
+                synchronized (mSyncTriggersLock) {
                     final int[] tablesToSync = mObservedTableTracker.getTablesToSync();
                     if (tablesToSync == null) {
                         return;
@@ -565,10 +567,9 @@ public class InvalidationTracker {
                     } finally {
                         database.endTransaction();
                     }
-                    mObservedTableTracker.onSyncCompleted();
-                } finally {
-                    closeLock.unlock();
                 }
+            } finally {
+                closeLock.unlock();
             }
         } catch (IllegalStateException | SQLiteException exception) {
             // may happen if db is closed. just log.
@@ -788,13 +789,6 @@ public class InvalidationTracker {
 
         boolean mNeedsSync;
 
-        /**
-         * After we return non-null value from getTablesToSync, we expect a onSyncCompleted before
-         * returning any non-null value from getTablesToSync.
-         * This allows us to workaround any multi-threaded state syncing issues.
-         */
-        boolean mPendingSync;
-
         ObservedTableTracker(int tableCount) {
             mTableObservers = new long[tableCount];
             mTriggerStates = new boolean[tableCount];
@@ -851,7 +845,7 @@ public class InvalidationTracker {
         }
 
         /**
-         * If this returns non-null, you must call onSyncCompleted.
+         * If this returns non-null there are no pending sync operations.
          *
          * @return int[] An int array where the index for each tableId has the action for that
          * table.
@@ -859,7 +853,7 @@ public class InvalidationTracker {
         @Nullable
         int[] getTablesToSync() {
             synchronized (this) {
-                if (!mNeedsSync || mPendingSync) {
+                if (!mNeedsSync) {
                     return null;
                 }
                 final int tableCount = mTableObservers.length;
@@ -872,19 +866,8 @@ public class InvalidationTracker {
                     }
                     mTriggerStates[i] = newState;
                 }
-                mPendingSync = true;
                 mNeedsSync = false;
-                return mTriggerStateChanges;
-            }
-        }
-
-        /**
-         * if getTablesToSync returned non-null, the called should call onSyncCompleted once it
-         * is done.
-         */
-        void onSyncCompleted() {
-            synchronized (this) {
-                mPendingSync = false;
+                return mTriggerStateChanges.clone();
             }
         }
     }

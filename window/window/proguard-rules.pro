@@ -12,18 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Some methods in androidx.window.extensions are accessed through reflection and need to be kept.
-# Failure to do so can cause bugs such as b/157286362. This could be overly broad too and should
-# ideally be trimmed down to only the classes/methods that actually need to be kept. This should
-# be tracked in b/165268619.
--keep class androidx.window.extensions.** { *; }
--dontwarn androidx.window.extensions.**
-
-# Keep the whole library for now since there is a crash with a missing method.
-# TODO(b/165268619) Make a narrow rule
--keep class androidx.window.** { *; }
-
-# We also neep to keep sidecar.** for the same reason.
--keep class androidx.window.sidecar.** { *; }
--dontwarn androidx.window.sidecar.**
-
+# A rule that will keep classes that implement SidecarInterface$SidecarCallback if Sidecar seems
+# be used. See b/157286362 and b/165268619 for details.
+# TODO(b/208543178) investigate how to pass header jar to R8 so we don't need this rule
+-if class androidx.window.layout.SidecarCompat {
+  public void setExtensionCallback(androidx.window.layout.ExtensionInterfaceCompat$ExtensionCallbackInterface);
+}
+-keep class androidx.window.layout.SidecarCompat$TranslatingCallback,
+ androidx.window.layout.SidecarCompat$DistinctSidecarElementCallback {
+  public void onDeviceStateChanged(androidx.window.sidecar.SidecarDeviceState);
+  public void onWindowLayoutChanged(android.os.IBinder, androidx.window.sidecar.SidecarWindowLayoutInfo);
+}

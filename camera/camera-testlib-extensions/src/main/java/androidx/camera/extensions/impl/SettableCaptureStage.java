@@ -19,11 +19,14 @@ package androidx.camera.extensions.impl;
 import android.hardware.camera2.CaptureRequest;
 import android.util.Pair;
 
+import androidx.annotation.RequiresApi;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class SettableCaptureStage implements CaptureStageImpl {
     private final int mId;
 

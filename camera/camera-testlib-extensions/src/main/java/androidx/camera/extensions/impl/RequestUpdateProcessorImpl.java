@@ -18,11 +18,14 @@ package androidx.camera.extensions.impl;
 
 import android.hardware.camera2.TotalCaptureResult;
 
+import androidx.annotation.RequiresApi;
+
 /**
  * Processes a {@link TotalCaptureResult} to update a CaptureStage.
  *
  * @since 1.0
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface RequestUpdateProcessorImpl extends ProcessorImpl {
     /**
      * Process the {@link TotalCaptureResult} to update the {@link CaptureStageImpl}

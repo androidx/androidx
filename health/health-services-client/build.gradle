@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.LibraryVersions
 import androidx.build.dependencies.DependenciesKt
 
 plugins {
@@ -32,21 +30,22 @@ dependencies {
     implementation(libs.guavaListenableFuture)
     implementation(libs.guavaAndroid)
     implementation("androidx.core:core-ktx:1.5.0-alpha04")
-    implementation "com.google.protobuf:protobuf-javalite:3.10.0"
+    implementation(libs.protobufLite)
 }
 
 android {
     defaultConfig {
-        minSdkVersion 26
+        minSdkVersion 30
     }
     buildFeatures {
         aidl = true
     }
+    namespace "androidx.health.services.client"
 }
 
 protobuf {
     protoc {
-        artifact = "com.google.protobuf:protoc:3.10.0"
+        artifact = libs.protobufCompiler.get()
     }
 
     // Generates the java proto-lite code for the protos in this project. See

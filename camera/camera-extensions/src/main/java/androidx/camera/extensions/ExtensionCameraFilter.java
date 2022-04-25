@@ -20,6 +20,7 @@ import android.hardware.camera2.CameraCharacteristics;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.OptIn;
+import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.interop.Camera2CameraInfo;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraFilter;
@@ -37,6 +38,7 @@ import java.util.Map;
  * A filter that filters camera based on extender implementation. If the implementation is
  * unavailable, the camera will be considered available.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class ExtensionCameraFilter implements CameraFilter {
     private final Identifier mId;
     private final VendorExtender mVendorExtender;

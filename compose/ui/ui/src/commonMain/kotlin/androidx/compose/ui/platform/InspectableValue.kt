@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.platform
 
-import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.ui.Modifier
 
 /**
@@ -121,12 +120,16 @@ abstract class InspectorValueInfo(private val info: InspectorInfo.() -> Unit) : 
 }
 
 /**
- * Factory method for avoiding DSL allocation when no debug inspector info is needed.
+ * Use this to specify modifier information for compose tooling.
+ *
+ * This factory method allows the specified information to be stripped out by ProGuard in
+ * release builds.
+ *
+ * @sample androidx.compose.ui.samples.InspectableModifierSample
  */
 inline fun debugInspectorInfo(
     crossinline definitions: InspectorInfo.() -> Unit
 ): InspectorInfo.() -> Unit =
-    @OptIn(InternalComposeApi::class)
     if (isDebugInspectorInfoEnabled) ({ definitions() }) else NoInspectorInfo
 
 /**

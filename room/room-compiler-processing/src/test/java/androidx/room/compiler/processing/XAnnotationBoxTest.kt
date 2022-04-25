@@ -30,7 +30,7 @@ import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.getField
-import androidx.room.compiler.processing.util.getMethod
+import androidx.room.compiler.processing.util.getMethodByJvmName
 import androidx.room.compiler.processing.util.getParameter
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.compiler.processing.util.runProcessorTestWithoutKsp
@@ -334,31 +334,31 @@ class XAnnotationBoxTest(
             val subject = invocation.processingEnv.requireTypeElement("Subject")
 
             subject.getField("prop1").assertHasSuppressWithValue("onProp1")
-            subject.getMethod("getProp1").assertDoesNotHaveAnnotation()
-            subject.getMethod("setProp1").assertDoesNotHaveAnnotation()
-            subject.getMethod("setProp1").parameters.first().assertDoesNotHaveAnnotation()
+            subject.getMethodByJvmName("getProp1").assertDoesNotHaveAnnotation()
+            subject.getMethodByJvmName("setProp1").assertDoesNotHaveAnnotation()
+            subject.getMethodByJvmName("setProp1").parameters.first().assertDoesNotHaveAnnotation()
 
             subject.getField("prop2").assertHasSuppressWithValue("onField2")
-            subject.getMethod("getProp2").assertHasSuppressWithValue("onGetter2")
-            subject.getMethod("setProp2").assertHasSuppressWithValue("onSetter2")
-            subject.getMethod("setProp2").parameters.first().assertHasSuppressWithValue(
+            subject.getMethodByJvmName("getProp2").assertHasSuppressWithValue("onGetter2")
+            subject.getMethodByJvmName("setProp2").assertHasSuppressWithValue("onSetter2")
+            subject.getMethodByJvmName("setProp2").parameters.first().assertHasSuppressWithValue(
                 "onSetterParam2"
             )
 
-            subject.getMethod("getProp3").assertHasSuppressWithValue("onGetter3")
-            subject.getMethod("setProp3").assertHasSuppressWithValue("onSetter3")
-            subject.getMethod("setProp3").parameters.first().assertHasSuppressWithValue(
+            subject.getMethodByJvmName("getProp3").assertHasSuppressWithValue("onGetter3")
+            subject.getMethodByJvmName("setProp3").assertHasSuppressWithValue("onSetter3")
+            subject.getMethodByJvmName("setProp3").parameters.first().assertHasSuppressWithValue(
                 "onSetterParam3"
             )
 
             assertThat(
-                subject.getMethod("getProp3").getOtherAnnotationValue()
+                subject.getMethodByJvmName("getProp3").getOtherAnnotationValue()
             ).isEqualTo("_onGetter3")
             assertThat(
-                subject.getMethod("setProp3").getOtherAnnotationValue()
+                subject.getMethodByJvmName("setProp3").getOtherAnnotationValue()
             ).isEqualTo("_onSetter3")
             val otherAnnotationValue =
-                subject.getMethod("setProp3").parameters.first().getOtherAnnotationValue()
+                subject.getMethodByJvmName("setProp3").parameters.first().getOtherAnnotationValue()
             assertThat(
                 otherAnnotationValue
             ).isEqualTo("_onSetterParam3")
@@ -384,11 +384,11 @@ class XAnnotationBoxTest(
         )
         runTest(sources = listOf(src)) { invocation ->
             val subject = invocation.processingEnv.requireTypeElement("Subject")
-            subject.getMethod("noAnnotations").let { method ->
+            subject.getMethodByJvmName("noAnnotations").let { method ->
                 method.assertDoesNotHaveAnnotation()
                 method.getParameter("x").assertDoesNotHaveAnnotation()
             }
-            subject.getMethod("methodAnnotation").let { method ->
+            subject.getMethodByJvmName("methodAnnotation").let { method ->
                 method.assertHasSuppressWithValue("onMethod")
                 method.getParameter("annotated").assertHasSuppressWithValue("onParam")
                 method.getParameter("notAnnotated").assertDoesNotHaveAnnotation()
@@ -418,8 +418,8 @@ class XAnnotationBoxTest(
             assertThat(subject.getConstructors()).hasSize(1)
             val constructor = subject.getConstructors().single()
             constructor.getParameter("x").assertHasSuppressWithValue("onConstructorParam")
-            subject.getMethod("getX").assertHasSuppressWithValue("onGetter")
-            subject.getMethod("setX").assertHasSuppressWithValue("onSetter")
+            subject.getMethodByJvmName("getX").assertHasSuppressWithValue("onGetter")
+            subject.getMethodByJvmName("setX").assertHasSuppressWithValue("onSetter")
             subject.getField("x").assertHasSuppressWithValue("onField")
         }
     }
@@ -772,7 +772,7 @@ class XAnnotationBoxTest(
             .that(this.hasAnnotation(TestSuppressWarnings::class))
             .isTrue()
         assertWithMessage("has suppress annotation $this")
-            .that(this.hasAnyOf(TestSuppressWarnings::class))
+            .that(this.hasAnyAnnotation(TestSuppressWarnings::class))
             .isTrue()
         assertWithMessage("$this")
             .that(this.hasAnnotationWithPackage(TestSuppressWarnings::class.java.packageName))
@@ -787,7 +787,7 @@ class XAnnotationBoxTest(
             .that(this.hasAnnotation(TestSuppressWarnings::class))
             .isFalse()
         assertWithMessage("$this")
-            .that(this.hasAnyOf(TestSuppressWarnings::class))
+            .that(this.hasAnyAnnotation(TestSuppressWarnings::class))
             .isFalse()
         assertWithMessage("$this")
             .that(this.hasAnnotationWithPackage(TestSuppressWarnings::class.java.packageName))

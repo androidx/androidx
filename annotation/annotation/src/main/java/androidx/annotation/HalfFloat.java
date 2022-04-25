@@ -33,9 +33,9 @@ import java.lang.annotation.Target;
  *
  * <p>Example:</p>
  *
- * <pre>{@code
+ * <pre>
  * public abstract void setPosition(@HalfFloat short x, @HalfFloat short y, @HalfFloat short z);
- * }</pre>
+ * </pre>
  */
 @Documented
 @Retention(SOURCE)

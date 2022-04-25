@@ -17,35 +17,36 @@
 package androidx.work.impl.utils.taskexecutor;
 
 import androidx.annotation.RestrictTo;
+import androidx.work.Configuration;
 import androidx.work.impl.utils.SerialExecutor;
 
 import java.util.concurrent.Executor;
 
 /**
  * Interface for executing common tasks in WorkManager.
+ *
  * @hide
  */
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface TaskExecutor {
-
-    /**
-     * @param runnable {@link Runnable} to post to the main thread
-     */
-    void postToMainThread(Runnable runnable);
-
     /**
      * @return The {@link Executor} for main thread task processing
      */
     Executor getMainThreadExecutor();
 
     /**
-     * @param runnable {@link Runnable} to execute on a background thread pool
+     * @param runnable {@link Runnable} to execute on a thread pool used
+     *                 for internal book-keeping.
      */
-    void executeOnBackgroundThread(Runnable runnable);
+    default void executeOnTaskThread(Runnable runnable) {
+        getSerialTaskExecutor().execute(runnable);
+    }
 
     /**
-     * @return The {@link SerialExecutor} for background task processing
+     * It wraps an executor passed in {@link Configuration#getTaskExecutor()}
+     *
+     * @return The {@link SerialExecutor} for internal book-keeping
      */
-    SerialExecutor getBackgroundExecutor();
+    SerialExecutor getSerialTaskExecutor();
 }

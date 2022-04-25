@@ -24,6 +24,7 @@ import androidx.core.graphics.createBitmap
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Test
 
 @SmallTest
@@ -107,6 +108,22 @@ class DrawableTest {
         assertEquals(10, bitmap.height)
         assertEquals(Config.ARGB_8888, bitmap.config)
         assertEquals(Color.RED, bitmap.getPixel(5, 5))
+    }
+
+    @Test
+    fun drawableOrNullEmptyBitmap() {
+        @Suppress("DEPRECATION") val drawable = BitmapDrawable()
+
+        val bitmap = drawable.toBitmapOrNull()
+        assertNull(bitmap)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun drawableEmptyBitmapThrowsIAE() {
+        @Suppress("DEPRECATION") val drawable = BitmapDrawable()
+
+        val bitmap = drawable.toBitmap()
+        assertNull(bitmap)
     }
 
     @Test fun drawableConfig() {

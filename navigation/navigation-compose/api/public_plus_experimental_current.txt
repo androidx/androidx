@@ -35,7 +35,7 @@ package androidx.navigation.compose {
 
   public final class NavHostControllerKt {
     method @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<androidx.navigation.NavBackStackEntry> currentBackStackEntryAsState(androidx.navigation.NavController);
-    method @androidx.compose.runtime.Composable public static androidx.navigation.NavHostController rememberNavController();
+    method @androidx.compose.runtime.Composable public static androidx.navigation.NavHostController rememberNavController(androidx.navigation.Navigator<? extends androidx.navigation.NavDestination>... navigators);
   }
 
   public final class NavHostKt {

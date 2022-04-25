@@ -19,6 +19,8 @@ package androidx.preference;
 import android.content.Context;
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,7 +33,7 @@ import java.util.List;
 final class ExpandButton extends Preference {
     private long mId;
 
-    ExpandButton(Context context, List<Preference> collapsedPreferences, long parentId) {
+    ExpandButton(@NonNull Context context, List<Preference> collapsedPreferences, long parentId) {
         super(context);
         initLayout();
         setSummary(collapsedPreferences);
@@ -82,7 +84,7 @@ final class ExpandButton extends Preference {
     }
 
     @Override
-    public void onBindViewHolder(PreferenceViewHolder holder) {
+    public void onBindViewHolder(@NonNull PreferenceViewHolder holder) {
         super.onBindViewHolder(holder);
         holder.setDividerAllowedAbove(false);
     }

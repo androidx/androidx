@@ -20,6 +20,7 @@ import android.util.Pair;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CaptureConfig;
@@ -31,13 +32,12 @@ import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
-import androidx.core.util.Consumer;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
 /** A fake configuration for {@link FakeUseCase}. */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class FakeUseCaseConfig implements UseCaseConfig<FakeUseCase>, ImageOutputConfig {
 
     private final Config mConfig;
@@ -59,6 +59,7 @@ public class FakeUseCaseConfig implements UseCaseConfig<FakeUseCase>, ImageOutpu
     }
 
     /** Builder for an empty Config */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static final class Builder implements
             UseCaseConfig.Builder<FakeUseCase, FakeUseCaseConfig, FakeUseCaseConfig.Builder>,
             ImageOutputConfig.Builder<FakeUseCaseConfig.Builder> {
@@ -218,15 +219,6 @@ public class FakeUseCaseConfig implements UseCaseConfig<FakeUseCase>, ImageOutpu
         @NonNull
         public Builder setBufferFormat(int imageFormat) {
             getMutableConfig().insertOption(OPTION_INPUT_FORMAT, imageFormat);
-            return this;
-        }
-
-        @NonNull
-        @Override
-        public Builder setAttachedUseCasesUpdateListener(
-                @NonNull Consumer<Collection<UseCase>> attachedUseCasesUpdateListener) {
-            getMutableConfig().insertOption(OPTION_ATTACHED_USE_CASES_UPDATE_LISTENER,
-                    attachedUseCasesUpdateListener);
             return this;
         }
     }

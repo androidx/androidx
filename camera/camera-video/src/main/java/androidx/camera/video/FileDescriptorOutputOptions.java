@@ -19,81 +19,138 @@ package androidx.camera.video;
 import android.os.ParcelFileDescriptor;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.core.util.Preconditions;
 
 import com.google.auto.value.AutoValue;
 
 /**
- * A class to store the result to a given file descriptor.
+ * A class providing options for storing the result to a given file descriptor.
  *
- * <p>The file descriptor must be seekable and writable. And the caller should be responsible for
- * closing the file descriptor.
+ * <p>The file descriptor must be seekable and writable. The caller is responsible for closing
+ * the file descriptor, which can be safely closed after the recording starts. That is, after
+ * {@link PendingRecording#start(java.util.concurrent.Executor, androidx.core.util.Consumer)} returns. Application should not use the file referenced by
+ * this file descriptor until the recording is complete.
  *
  * <p>To use a {@link java.io.File} as an output destination instead of a file descriptor, use
  * {@link FileOutputOptions}.
  */
-@AutoValue
-public abstract class FileDescriptorOutputOptions extends OutputOptions {
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+public final class FileDescriptorOutputOptions extends OutputOptions {
 
-    FileDescriptorOutputOptions() {
-        super(OPTIONS_TYPE_FILE_DESCRIPTOR);
+    private final FileDescriptorOutputOptionsInternal mFileDescriptorOutputOptionsInternal;
+
+    FileDescriptorOutputOptions(
+            @NonNull FileDescriptorOutputOptionsInternal fileDescriptorOutputOptionsInternal) {
+        Preconditions.checkNotNull(fileDescriptorOutputOptionsInternal,
+                "FileDescriptorOutputOptionsInternal can't be null.");
+        mFileDescriptorOutputOptionsInternal = fileDescriptorOutputOptionsInternal;
     }
 
-    /** Returns a builder for this FileDescriptorOutputOptions. */
+    /**
+     * Gets the file descriptor instance.
+     *
+     * @return the file descriptor used as the output destination.
+     */
     @NonNull
-    public static Builder builder() {
-        return new AutoValue_FileDescriptorOutputOptions.Builder()
-                .setFileSizeLimit(FILE_SIZE_UNLIMITED);
+    public ParcelFileDescriptor getParcelFileDescriptor() {
+        return mFileDescriptorOutputOptionsInternal.getParcelFileDescriptor();
     }
 
     /**
      * Gets the limit for the file length in bytes.
      */
     @Override
-    public abstract long getFileSizeLimit();
+    public long getFileSizeLimit() {
+        return mFileDescriptorOutputOptionsInternal.getFileSizeLimit();
+    }
 
-    /**
-     * Gets the file descriptor instance.
-     * @return the file descriptor used as the output destination.
-     */
+    @Override
     @NonNull
-    public abstract ParcelFileDescriptor getParcelFileDescriptor();
+    public String toString() {
+        // Don't use Class.getSimpleName(), class name will be changed by proguard obfuscation.
+        return mFileDescriptorOutputOptionsInternal.toString().replaceFirst(
+                "FileDescriptorOutputOptionsInternal", "FileDescriptorOutputOptions");
+    }
 
-    /** The builder of the {@link FileDescriptorOutputOptions}. */
-    @AutoValue.Builder
-    @SuppressWarnings("StaticFinalBuilder")
-    public abstract static class Builder implements
-            OutputOptions.Builder<FileDescriptorOutputOptions, Builder> {
-        Builder() {
+    @Override
+    public boolean equals(@Nullable Object o) {
+        if (this == o) {
+            return true;
         }
+        if (!(o instanceof FileDescriptorOutputOptions)) {
+            return false;
+        }
+        return mFileDescriptorOutputOptionsInternal.equals(
+                ((FileDescriptorOutputOptions) o).mFileDescriptorOutputOptionsInternal);
+    }
+
+    @Override
+    public int hashCode() {
+        return mFileDescriptorOutputOptionsInternal.hashCode();
+    }
+
+    /** The builder of the {@link FileDescriptorOutputOptions} object. */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+    public static final class Builder implements
+            OutputOptions.Builder<FileDescriptorOutputOptions, Builder> {
+        private final FileDescriptorOutputOptionsInternal.Builder mInternalBuilder =
+                new AutoValue_FileDescriptorOutputOptions_FileDescriptorOutputOptionsInternal
+                        .Builder()
+                        .setFileSizeLimit(FILE_SIZE_UNLIMITED);
 
         /**
-         * Defines the file descriptor used to store the result.
+         * Creates a builder of the {@link FileDescriptorOutputOptions} with a file descriptor.
          *
          * @param fileDescriptor the file descriptor to use as the output destination.
          */
-        @NonNull
-        public abstract Builder setParcelFileDescriptor(
-                @NonNull ParcelFileDescriptor fileDescriptor);
+        public Builder(@NonNull ParcelFileDescriptor fileDescriptor) {
+            Preconditions.checkNotNull(fileDescriptor, "File descriptor can't be null.");
+            mInternalBuilder.setParcelFileDescriptor(fileDescriptor);
+        }
 
         /**
-         * Sets the limit for the file length in bytes. Zero or negative values are considered
-         * unlimited.
+         * Sets the limit for the file length in bytes.
          *
          * <p>When used to
-         * {@link Recorder#prepareRecording(FileDescriptorOutputOptions) generate} recording, if the
-         * specified file size limit is reached while the recording is being recorded, the
-         * recording will be finalized with
+         * {@link Recorder#prepareRecording(android.content.Context, FileDescriptorOutputOptions)
+         * generate} recording, if the specified file size limit is reached while the recording
+         * is being recorded, the recording will be finalized with
          * {@link VideoRecordEvent.Finalize#ERROR_FILE_SIZE_LIMIT_REACHED}.
          *
          * <p>If not set, defaults to {@link #FILE_SIZE_UNLIMITED}.
          */
         @Override
         @NonNull
-        public abstract Builder setFileSizeLimit(long bytes);
+        public Builder setFileSizeLimit(long fileSizeLimitBytes) {
+            mInternalBuilder.setFileSizeLimit(fileSizeLimitBytes);
+            return this;
+        }
 
         /** Builds the {@link FileDescriptorOutputOptions} instance. */
         @Override
         @NonNull
-        public abstract FileDescriptorOutputOptions build();
+        public FileDescriptorOutputOptions build() {
+            return new FileDescriptorOutputOptions(mInternalBuilder.build());
+        }
+    }
+
+    @AutoValue
+    abstract static class FileDescriptorOutputOptionsInternal {
+        @NonNull
+        abstract ParcelFileDescriptor getParcelFileDescriptor();
+        abstract long getFileSizeLimit();
+
+        @AutoValue.Builder
+        abstract static class Builder {
+            @NonNull
+            abstract Builder setParcelFileDescriptor(
+                    @NonNull ParcelFileDescriptor parcelFileDescriptor);
+            @NonNull
+            abstract Builder setFileSizeLimit(long fileSizeLimitBytes);
+            @NonNull
+            abstract FileDescriptorOutputOptionsInternal build();
+        }
     }
 }

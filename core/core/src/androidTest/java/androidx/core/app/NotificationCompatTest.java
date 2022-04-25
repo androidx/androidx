@@ -749,6 +749,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void testNotificationActionBuilder_assignsColorized() throws Throwable {
         Notification n = newNotificationBuilder().setColorized(true).build();
         if (Build.VERSION.SDK_INT >= 26) {
@@ -757,6 +758,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void testNotificationActionBuilder_unassignesColorized() throws Throwable {
         Notification n = newNotificationBuilder().setColorized(false).build();
         if (Build.VERSION.SDK_INT >= 26) {
@@ -1357,6 +1359,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @SdkSuppress(minSdkVersion = 16)
+    @SuppressWarnings("deprecation")
     @Test
     public void testBigPictureStyle_withNullBigLargeIcon() {
         Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(),
@@ -1380,6 +1383,28 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
 
     @SdkSuppress(minSdkVersion = 31)
     @Test
+    public void testBigPictureStyle_encodesAndRecoversSetContentDescription() {
+        String contentDesc = "content!";
+        Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(),
+                R.drawable.notification_bg_low_pressed);
+        Notification n = new NotificationCompat.Builder(mContext, "channelId")
+                .setSmallIcon(1)
+                .setStyle(new NotificationCompat.BigPictureStyle()
+                        .bigPicture(bitmap)
+                        .bigLargeIcon(bitmap)
+                        .setContentDescription(contentDesc)
+                        .setBigContentTitle("Big Content Title")
+                        .setSummaryText("Summary Text"))
+                .build();
+        assertEquals(contentDesc,
+                n.extras.getCharSequence(Notification.EXTRA_PICTURE_CONTENT_DESCRIPTION));
+        Notification recovered = Notification.Builder.recoverBuilder(mContext, n).build();
+        assertEquals(contentDesc,
+                recovered.extras.getCharSequence(Notification.EXTRA_PICTURE_CONTENT_DESCRIPTION));
+    }
+
+    @SdkSuppress(minSdkVersion = 31)
+    @Test
     public void testBigPictureStyle_encodesAndRecoversShowBigPictureWhenCollapsed() {
         Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(),
                 R.drawable.notification_bg_low_pressed);
@@ -1398,6 +1423,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @SdkSuppress(minSdkVersion = 24)
+    @SuppressWarnings("deprecation")
     @Test
     public void testBigPictureStyle_isRecovered() {
         Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(),
@@ -1422,6 +1448,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @SdkSuppress(minSdkVersion = 19)
+    @SuppressWarnings("deprecation")
     @Test
     public void testBigPictureStyle_recoverStyleWithBitmap() {
         Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(),
@@ -1459,6 +1486,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @SdkSuppress(minSdkVersion = 23)
+    @SuppressWarnings("deprecation")
     @Test
     public void testBigPictureStyle_recoverStyleWithResIcon() {
         Notification n = new Notification.Builder(mContext)
@@ -1813,6 +1841,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @SdkSuppress(minSdkVersion = 28)
+    @SuppressWarnings("deprecation")
     @Test
     public void testMessagingStyle_apply_writesMessagePerson() {
         Notification msNotification = newMsNotification(true, true);
@@ -1824,6 +1853,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @SdkSuppress(minSdkVersion = 24, maxSdkVersion = 27)
+    @SuppressWarnings("deprecation")
     @Test
     public void testMessagingStyle_apply_writesMessagePerson_legacy() {
         Notification msNotification = newMsNotification(true, true);
@@ -1936,7 +1966,8 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     public void action_builder_setContextual() {
         // Without a PendingIntent the Action.Builder class throws an NPE when building a contextual
         // action.
-        PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0, new Intent(), 0);
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                mContext, 0, new Intent(), PendingIntent.FLAG_IMMUTABLE);
         NotificationCompat.Action action =
                 new NotificationCompat.Action.Builder(0, "Test Title", pendingIntent)
                         .setContextual(true)
@@ -1962,7 +1993,8 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         if (Build.VERSION.SDK_INT < 29) return;
         // Without a PendingIntent the Action.Builder class throws an NPE when building a contextual
         // action.
-        PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0, new Intent(), 0);
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                mContext, 0, new Intent(), PendingIntent.FLAG_IMMUTABLE);
         NotificationCompat.Action action = new NotificationCompat.Action.Builder(
                 R.drawable.notification_bg, "Test Title", pendingIntent)
                 .setContextual(true)
@@ -1993,16 +2025,49 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @Test
+    public void action_builder_defaultNoAuthRequired() {
+        NotificationCompat.Action action = newActionBuilder().build();
+        assertFalse(action.isAuthenticationRequired());
+    }
+
+    @Test
+    public void action_builder_setAuthRequired() {
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                mContext, 0, new Intent(), PendingIntent.FLAG_IMMUTABLE);
+        NotificationCompat.Action action =
+                new NotificationCompat.Action.Builder(0, "Test Title", pendingIntent)
+                        .setAuthenticationRequired(true)
+                        .build();
+        assertTrue(action.isAuthenticationRequired());
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 31)
+    public void action_authRequired_toAndFromNotification() {
+        if (Build.VERSION.SDK_INT < 31) return;
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                mContext, 0, new Intent(), PendingIntent.FLAG_IMMUTABLE);
+        NotificationCompat.Action action = new NotificationCompat.Action.Builder(
+                R.drawable.notification_bg, "Test Title", pendingIntent)
+                .setAuthenticationRequired(true)
+                .build();
+        Notification notification = newNotificationBuilder().addAction(action).build();
+        NotificationCompat.Action result = NotificationCompat.getAction(notification, 0);
+
+        assertTrue(result.isAuthenticationRequired());
+    }
+
+    @Test
     public void setBubbleMetadataIntent() {
         IconCompat icon = IconCompat.createWithAdaptiveBitmap(BitmapFactory.decodeResource(
                 mContext.getResources(),
                 R.drawable.notification_bg_normal));
 
         PendingIntent intent =
-                PendingIntent.getActivity(mContext, 0, new Intent(), 0);
+                PendingIntent.getActivity(mContext, 0, new Intent(), PendingIntent.FLAG_IMMUTABLE);
 
         PendingIntent deleteIntent =
-                PendingIntent.getActivity(mContext, 1, new Intent(), 0);
+                PendingIntent.getActivity(mContext, 1, new Intent(), PendingIntent.FLAG_IMMUTABLE);
 
         NotificationCompat.BubbleMetadata originalBubble =
                 new NotificationCompat.BubbleMetadata.Builder(intent, icon)
@@ -2042,7 +2107,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     public void setBubbleMetadataShortcut() {
         String shortcutId = "someShortcut";
         PendingIntent deleteIntent =
-                PendingIntent.getActivity(mContext, 1, new Intent(), 0);
+                PendingIntent.getActivity(mContext, 1, new Intent(), PendingIntent.FLAG_IMMUTABLE);
 
         NotificationCompat.BubbleMetadata originalBubble =
                 new NotificationCompat.BubbleMetadata.Builder(shortcutId)
@@ -2087,7 +2152,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
                 R.drawable.notification_bg_normal));
 
         PendingIntent intent =
-                PendingIntent.getActivity(mContext, 0, new Intent(), 0);
+                PendingIntent.getActivity(mContext, 0, new Intent(), PendingIntent.FLAG_IMMUTABLE);
 
         NotificationCompat.BubbleMetadata originalBubble =
                 new NotificationCompat.BubbleMetadata.Builder()
@@ -2128,6 +2193,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void testPeopleField() {
         final Person person1 = new Person.Builder().setName("test name").setKey("key").build();
         final Person person2 = new Person.Builder()

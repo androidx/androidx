@@ -19,6 +19,7 @@ package androidx.camera.video.internal.encoder;
 import android.media.MediaCodec;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
@@ -30,6 +31,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 /** {@inheritDoc} */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class EncodedDataImpl implements EncodedData {
     private final MediaCodec mMediaCodec;
     private final MediaCodec.BufferInfo mBufferInfo;

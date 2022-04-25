@@ -21,12 +21,12 @@ import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_IMAGE_QUEUE_D
 import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_IMAGE_READER_PROXY_PROVIDER;
 import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_ONE_PIXEL_SHIFT_ENABLED;
 import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_OUTPUT_IMAGE_FORMAT;
+import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_OUTPUT_IMAGE_ROTATION_ENABLED;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_MAX_RESOLUTION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_SUPPORTED_RESOLUTIONS;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_RESOLUTION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ROTATION;
-import static androidx.camera.core.impl.UseCaseConfig.OPTION_ATTACHED_USE_CASES_UPDATE_LISTENER;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAPTURE_CONFIG_UNPACKER;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_DEFAULT_CAPTURE_CONFIG;
@@ -39,7 +39,9 @@ import static androidx.camera.core.impl.UseCaseConfig.OPTION_USE_CASE_EVENT_CALL
 import static androidx.camera.core.internal.ThreadConfig.OPTION_BACKGROUND_EXECUTOR;
 
 import android.graphics.ImageFormat;
+import android.graphics.Matrix;
 import android.graphics.PixelFormat;
+import android.graphics.Rect;
 import android.media.CamcorderProfile;
 import android.media.ImageReader;
 import android.util.Pair;
@@ -51,6 +53,8 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.impl.CameraInfoInternal;
@@ -74,13 +78,11 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.TargetConfig;
 import androidx.camera.core.internal.ThreadConfig;
 import androidx.camera.core.internal.compat.quirk.OnePixelShiftQuirk;
-import androidx.core.util.Consumer;
 import androidx.core.util.Preconditions;
 import androidx.lifecycle.LifecycleOwner;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Executor;
@@ -96,6 +98,7 @@ import java.util.concurrent.Executor;
  * Failing to close the image will cause future images to be stalled or dropped depending on the
  * backpressure strategy.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class ImageAnalysis extends UseCase {
 
     ////////////////////////////////////////////////////////////////////////////////////////////
@@ -181,6 +184,8 @@ public final class ImageAnalysis extends UseCase {
     private static final int DEFAULT_OUTPUT_IMAGE_FORMAT = OUTPUT_IMAGE_FORMAT_YUV_420_888;
     // One pixel shift for YUV.
     private static final Boolean DEFAULT_ONE_PIXEL_SHIFT_ENABLED = null;
+    // Default to disabled for rotation.
+    private static final boolean DEFAULT_OUTPUT_IMAGE_ROTATION_ENABLED = false;
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final ImageAnalysisAbstractAnalyzer mImageAnalysisAbstractAnalyzer;
@@ -221,6 +226,8 @@ public final class ImageAnalysis extends UseCase {
                     config.getBackgroundExecutor(CameraXExecutors.highPriorityExecutor()));
         }
         mImageAnalysisAbstractAnalyzer.setOutputImageFormat(getOutputImageFormat());
+        mImageAnalysisAbstractAnalyzer.setOutputImageRotationEnabled(
+                isOutputImageRotationEnabled());
     }
 
     /**
@@ -231,6 +238,7 @@ public final class ImageAnalysis extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     @Override
+    @OptIn(markerClass = ExperimentalAnalyzer.class)
     protected UseCaseConfig<?> onMergeConfig(@NonNull CameraInfoInternal cameraInfo,
             @NonNull UseCaseConfig.Builder<?, ?, ?> builder) {
 
@@ -244,7 +252,18 @@ public final class ImageAnalysis extends UseCase {
         mImageAnalysisAbstractAnalyzer.setOnePixelShiftEnabled(
                 isOnePixelShiftEnabled == null ? isOnePixelShiftIssueDevice
                         : isOnePixelShiftEnabled);
-        return super.onMergeConfig(cameraInfo, builder);
+
+        // Override the target resolution with the value provided by the analyzer.
+        Size analyzerResolution;
+        synchronized (mAnalysisLock) {
+            analyzerResolution = mSubscribedAnalyzer != null
+                    ? mSubscribedAnalyzer.getTargetResolutionOverride() : null;
+        }
+        if (analyzerResolution != null) {
+            builder.getMutableConfig().insertOption(OPTION_TARGET_RESOLUTION, analyzerResolution);
+        }
+
+        return builder.getUseCaseConfig();
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -273,20 +292,31 @@ public final class ImageAnalysis extends UseCase {
                             imageQueueDepth));
         }
 
+        boolean flipWH = getCamera() != null ? isFlipWH(getCamera()) : false;
+        int width = flipWH ? resolution.getHeight() : resolution.getWidth();
+        int height = flipWH ? resolution.getWidth() : resolution.getHeight();
+        int format = getOutputImageFormat() == OUTPUT_IMAGE_FORMAT_RGBA_8888
+                ? PixelFormat.RGBA_8888 : ImageFormat.YUV_420_888;
+
+        boolean isYuv2Rgb = getImageFormat() == ImageFormat.YUV_420_888
+                && getOutputImageFormat() == OUTPUT_IMAGE_FORMAT_RGBA_8888;
+        boolean isYuvRotationOrPixelShift = getImageFormat() == ImageFormat.YUV_420_888
+                && ((getCamera() != null && getRelativeRotation(getCamera()) != 0)
+                || Boolean.TRUE.equals(getOnePixelShiftEnabled()));
+
         // TODO(b/195021586): to support RGB format input for image analysis for devices already
         // supporting RGB natively. The logic here will check if the specific configured size is
         // available in RGB and if not, fall back to YUV-RGB conversion.
-        final SafeCloseImageReaderProxy rgbImageReaderProxy =
-                (getImageFormat() == ImageFormat.YUV_420_888
-                        && getOutputImageFormat() == OUTPUT_IMAGE_FORMAT_RGBA_8888)
+        final SafeCloseImageReaderProxy processedImageReaderProxy =
+                (isYuv2Rgb || isYuvRotationOrPixelShift)
                         ? new SafeCloseImageReaderProxy(
-                                ImageReaderProxys.createIsolatedReader(
-                                        resolution.getWidth(),
-                                        resolution.getHeight(),
-                                        PixelFormat.RGBA_8888,
-                                        imageReaderProxy.getMaxImages())) : null;
-        if (rgbImageReaderProxy != null) {
-            mImageAnalysisAbstractAnalyzer.setRGBImageReaderProxy(rgbImageReaderProxy);
+                        ImageReaderProxys.createIsolatedReader(
+                                width,
+                                height,
+                                format,
+                                imageReaderProxy.getMaxImages())) : null;
+        if (processedImageReaderProxy != null) {
+            mImageAnalysisAbstractAnalyzer.setProcessedImageReaderProxy(processedImageReaderProxy);
         }
 
         tryUpdateRelativeRotation();
@@ -304,8 +334,8 @@ public final class ImageAnalysis extends UseCase {
         mDeferrableSurface.getTerminationFuture().addListener(
                 () -> {
                     imageReaderProxy.safeClose();
-                    if (rgbImageReaderProxy != null) {
-                        rgbImageReaderProxy.safeClose();
+                    if (processedImageReaderProxy != null) {
+                        processedImageReaderProxy.safeClose();
                     }
                 },
                 CameraXExecutors.mainThreadExecutor());
@@ -443,17 +473,40 @@ public final class ImageAnalysis extends UseCase {
      */
     public void setAnalyzer(@NonNull Executor executor, @NonNull Analyzer analyzer) {
         synchronized (mAnalysisLock) {
-            mImageAnalysisAbstractAnalyzer.setAnalyzer(executor, image -> {
-                if (getViewPortCropRect() != null) {
-                    image.setCropRect(getViewPortCropRect());
-                }
-                analyzer.analyze(image);
-            });
+            mImageAnalysisAbstractAnalyzer.setAnalyzer(executor, image -> analyzer.analyze(image));
             if (mSubscribedAnalyzer == null) {
                 notifyActive();
             }
             mSubscribedAnalyzer = analyzer;
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public void setViewPortCropRect(@NonNull Rect viewPortCropRect) {
+        super.setViewPortCropRect(viewPortCropRect);
+        mImageAnalysisAbstractAnalyzer.setViewPortCropRect(viewPortCropRect);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public void setSensorToBufferTransformMatrix(@NonNull Matrix matrix) {
+        mImageAnalysisAbstractAnalyzer.setSensorToBufferTransformMatrix(matrix);
+    }
+
+    private boolean isFlipWH(@NonNull CameraInternal cameraInternal) {
+        return isOutputImageRotationEnabled()
+                ? ((getRelativeRotation(cameraInternal) % 180) != 0) : false;
     }
 
     /**
@@ -502,11 +555,23 @@ public final class ImageAnalysis extends UseCase {
      * {@link ImageAnalysis#OUTPUT_IMAGE_FORMAT_RGBA_8888}.
      *
      * @return output image format.
+     * @see ImageAnalysis.Builder#setOutputImageFormat(int)
      */
     @ImageAnalysis.OutputImageFormat
     public int getOutputImageFormat() {
         return ((ImageAnalysisConfig) getCurrentConfig()).getOutputImageFormat(
                 DEFAULT_OUTPUT_IMAGE_FORMAT);
+    }
+
+    /**
+     * Checks if output image rotation is enabled. It returns false by default.
+     *
+     * @return true if enabled, false otherwise.
+     * @see ImageAnalysis.Builder#setOutputImageRotationEnabled(boolean)
+     */
+    public boolean isOutputImageRotationEnabled() {
+        return ((ImageAnalysisConfig) getCurrentConfig()).isOutputImageRotationEnabled(
+                DEFAULT_OUTPUT_IMAGE_ROTATION_ENABLED);
     }
 
     /**
@@ -532,8 +597,8 @@ public final class ImageAnalysis extends UseCase {
      * {@link ResolutionInfo} for the changes.
      *
      * @return the resolution information if the use case has been bound by the
-     * {@link androidx.camera.lifecycle.ProcessCameraProvider#bindToLifecycle(LifecycleOwner
-     * , CameraSelector, UseCase...)} API, or null if the use case is not bound yet.
+     * {@link androidx.camera.lifecycle.ProcessCameraProvider#bindToLifecycle(LifecycleOwner,
+     * CameraSelector, UseCase...)} API, or null if the use case is not bound yet.
      */
     @Nullable
     @Override
@@ -569,7 +634,9 @@ public final class ImageAnalysis extends UseCase {
     @Nullable
     public UseCaseConfig<?> getDefaultConfig(boolean applyDefaultConfig,
             @NonNull UseCaseConfigFactory factory) {
-        Config captureConfig = factory.getConfig(UseCaseConfigFactory.CaptureType.IMAGE_ANALYSIS);
+        Config captureConfig = factory.getConfig(
+                UseCaseConfigFactory.CaptureType.IMAGE_ANALYSIS,
+                ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY);
 
         if (applyDefaultConfig) {
             captureConfig = Config.mergeConfigs(captureConfig, DEFAULT_CONFIG.getConfig());
@@ -712,7 +779,83 @@ public final class ImageAnalysis extends UseCase {
          * @see android.hardware.camera2.CaptureResult#SENSOR_TIMESTAMP
          */
         void analyze(@NonNull ImageProxy image);
+
+        /**
+         * Implement this method to override the target resolution of {@link ImageAnalysis}.
+         *
+         * <p> Implement this method if the {@link Analyzer} requires a specific resolution to
+         * work. The return value will be used to override the target resolution of the
+         * {@link ImageAnalysis}. Return {@code null} if no overriding is needed. By default,
+         * this method returns {@code null}.
+         *
+         * <p> Note that this method is invoked by CameraX at the time of binding to lifecycle. In
+         * order for this value to be effective, the {@link Analyzer} has to be set before
+         * {@link ImageAnalysis} is bound to a lifecycle. Otherwise, the value will be ignored.
+         *
+         * @return the resolution to override the target resolution of {@link ImageAnalysis}, or
+         * {@code null} if no overriding is needed.
+         */
+        @ExperimentalAnalyzer
+        @Nullable
+        default Size getTargetResolutionOverride() {
+            return null;
+        }
+
+        /**
+         * Implement this method to return the target coordinate system.
+         *
+         * <p>The coordinates detected by analyzing camera frame usually needs to be transformed.
+         * For example, in order to highlight a detected face, the app needs to transform the
+         * bounding box from the {@link ImageAnalysis}'s coordinate system to the View's coordinate
+         * system. This method allows the implementer to set a target coordinate system.
+         *
+         * <p>The value will be used by CameraX to calculate the transformation {@link Matrix} and
+         * forward it to the {@link Analyzer} via {@link #updateTransform}. By default, this
+         * method returns {@link ImageAnalysis#COORDINATE_SYSTEM_ORIGINAL}.
+         *
+         * <p>For now, camera-core only supports {@link ImageAnalysis#COORDINATE_SYSTEM_ORIGINAL},
+         * please see libraries derived from camera-core, for example, camera-view.
+         *
+         * @see #updateTransform(Matrix)
+         */
+        @ExperimentalAnalyzer
+        default int getTargetCoordinateSystem() {
+            return COORDINATE_SYSTEM_ORIGINAL;
+        }
+
+        /**
+         * Implement this method to receive the {@link Matrix} for coordinate transformation.
+         *
+         * <p>The value represents the transformation from the camera sensor to the target
+         * coordinate system defined in {@link #getTargetCoordinateSystem()}. It should be used
+         * by the implementation to transform the coordinates detected in the camera frame. For
+         * example, the coordinates of the detected face.
+         *
+         * <p>If the value is {@code null}, it could either mean value of the target coordinate
+         * system is {@link #COORDINATE_SYSTEM_ORIGINAL}, or currently there is no valid
+         * transformation for the target coordinate system, for example, if currently the view
+         * finder is not visible in UI.
+         *
+         * <p>This method is invoked whenever a new transformation is ready. For example, when
+         * the view finder is first a launched as well as when it's resized.
+         *
+         * @see #getTargetCoordinateSystem()
+         */
+        @ExperimentalAnalyzer
+        default void updateTransform(@Nullable Matrix matrix) {
+            // no-op
+        }
     }
+
+    /**
+     * {@link ImageAnalysis.Analyzer} option for returning the original coordinates.
+     *
+     * <p> Use this option if no additional transformation is needed by the {@link Analyzer}
+     * implementation. By using this option, CameraX will pass {@code null} to
+     * {@link Analyzer#updateTransform(Matrix)}.
+     */
+    @ExperimentalAnalyzer
+    public static final int COORDINATE_SYSTEM_ORIGINAL = 0;
 
     /**
      * Provides a base static default configuration for the ImageAnalysis.
@@ -870,6 +1013,32 @@ public final class ImageAnalysis extends UseCase {
         @NonNull
         public Builder setOutputImageFormat(@OutputImageFormat int outputImageFormat) {
             getMutableConfig().insertOption(OPTION_OUTPUT_IMAGE_FORMAT, outputImageFormat);
+            return this;
+        }
+
+        /**
+         * Enable or disable output image rotation.
+         *
+         * <p>{@link ImageAnalysis#setTargetRotation(int)} is to adjust the rotation
+         * degree information returned by {@link ImageInfo#getRotationDegrees()} based on
+         * sensor rotation and user still needs to rotate the output image to achieve the target
+         * rotation. Once this is enabled, user doesn't need to handle the rotation, the output
+         * image will be a rotated {@link ImageProxy} and {@link ImageInfo#getRotationDegrees()}
+         * will return 0.
+         *
+         * <p>Turning this on will add more processing overhead to every image analysis
+         * frame. The average processing time is about 10-15ms for 640x480 image on a mid-range
+         * device.
+         *
+         * By default, the rotation is disabled.
+         *
+         * @param outputImageRotationEnabled flag to enable or disable.
+         * @return The current Builder.
+         */
+        @NonNull
+        public Builder setOutputImageRotationEnabled(boolean outputImageRotationEnabled) {
+            getMutableConfig().insertOption(OPTION_OUTPUT_IMAGE_ROTATION_ENABLED,
+                    outputImageRotationEnabled);
             return this;
         }
 
@@ -1207,17 +1376,6 @@ public final class ImageAnalysis extends UseCase {
                 @NonNull ImageReaderProxyProvider imageReaderProxyProvider) {
             getMutableConfig().insertOption(OPTION_IMAGE_READER_PROXY_PROVIDER,
                     imageReaderProxyProvider);
-            return this;
-        }
-
-        /** @hide */
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @Override
-        @NonNull
-        public Builder setAttachedUseCasesUpdateListener(
-                @NonNull Consumer<Collection<UseCase>> attachedUseCasesUpdateListener) {
-            getMutableConfig().insertOption(OPTION_ATTACHED_USE_CASES_UPDATE_LISTENER,
-                    attachedUseCasesUpdateListener);
             return this;
         }
     }

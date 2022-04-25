@@ -29,8 +29,9 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.TestCoroutineDispatcher
-import kotlinx.coroutines.test.TestCoroutineScope
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runCurrent
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
@@ -42,9 +43,9 @@ import java.util.concurrent.CountDownLatch
 class CoroutineRoomCancellationTest {
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private val testDispatcher = TestCoroutineDispatcher()
+    private val testDispatcher = StandardTestDispatcher()
     @OptIn(ExperimentalCoroutinesApi::class)
-    val testScope = TestCoroutineScope(testDispatcher)
+    val testScope = TestScope(testDispatcher)
 
     private val database = TestDatabase()
 
@@ -100,9 +101,6 @@ class CoroutineRoomCancellationTest {
             // Coroutine started so now we can cancel it
             inCoroutineLatch.countDown()
 
-            // We're using a different dispatcher for queries.
-            // Pausing it, to simulate that we're cancelling the query before it's triggered
-            testDispatcher.pauseDispatcher()
             CoroutinesRoom.execute(
                 db = database,
                 inTransaction = false,
@@ -115,7 +113,7 @@ class CoroutineRoomCancellationTest {
         }
         inCoroutineLatch.await()
         job.cancelAndJoin()
-        testDispatcher.resumeDispatcher()
+        testDispatcher.scheduler.runCurrent()
 
         assertThat(cancellationSignal.isCanceled).isTrue()
     }
@@ -159,6 +157,7 @@ class CoroutineRoomCancellationTest {
                 callable = Callable { /* nothing to do */ }
             )
         }
+        testScope.runCurrent()
         // wait for the job to be finished
         job.join()
 

@@ -19,16 +19,17 @@ package androidx.room.compiler.processing.ksp
 import androidx.room.compiler.processing.XRawType
 import androidx.room.compiler.processing.rawTypeName
 import com.squareup.javapoet.TypeName
-import com.google.devtools.ksp.symbol.KSType
 
-internal class KspRawType private constructor(
-    private val ksType: KSType,
-    override val typeName: TypeName
+internal class KspRawType constructor(
+    private val original: KspType
 ) : XRawType {
-    constructor(original: KspType) : this(
-        ksType = original.ksType.starProjection().makeNotNullable(),
-        typeName = original.typeName.rawTypeName()
-    )
+    private val ksType by lazy {
+        original.ksType.starProjection().makeNotNullable()
+    }
+
+    override val typeName: TypeName by lazy {
+        original.typeName.rawTypeName()
+    }
 
     override fun isAssignableFrom(other: XRawType): Boolean {
         check(other is KspRawType)

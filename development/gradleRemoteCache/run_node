@@ -1,1 +1,1 @@
-java -jar /home/YOURUSERNAME/Workspace/gradle-node/build-cache-node-9.3.jar --data-dir /home/$USER/Workspace/data --port 80
+java -jar /home/YOURUSERNAME/Workspace/gradle-node/build-cache-node-11.1.jar start --data-dir /home/YOURUSERNAME/Workspace/data --port 80 --no-warn-anon-cache-write --no-warn-anon-ui-access

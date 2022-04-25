@@ -16,18 +16,36 @@
 
 package androidx.glance.layout
 
+import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ComposeNode
-import androidx.glance.Applier
 import androidx.glance.EmittableWithChildren
-import androidx.glance.GlanceInternalApi
-import androidx.glance.Modifier
+import androidx.glance.GlanceModifier
+import androidx.glance.GlanceNode
+import androidx.glance.unit.Dimension
 
-@GlanceInternalApi
+/** @suppress */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class EmittableRow : EmittableWithChildren() {
-    override var modifier: Modifier = Modifier
+    override var modifier: GlanceModifier = GlanceModifier
     public var horizontalAlignment: Alignment.Horizontal = Alignment.Start
     public var verticalAlignment: Alignment.Vertical = Alignment.Top
+}
+
+/** Scope defining modifiers only available on rows. */
+public interface RowScope {
+    /**
+     * Size the element's width to split the available space with other weighted sibling elements
+     * in the [Row]. The parent will divide the horizontal space remaining after measuring
+     * unweighted child elements and distribute it according to the weights, the default weight
+     * being 1.
+     */
+    fun GlanceModifier.defaultWeight(): GlanceModifier
+}
+
+private object RowScopeImplInstance : RowScope {
+    override fun GlanceModifier.defaultWeight(): GlanceModifier {
+        return this.then(WidthModifier(Dimension.Expand))
+    }
 }
 
 /**
@@ -45,21 +63,20 @@ public class EmittableRow : EmittableWithChildren() {
  *  than the height of the [Row]
  * @param content The content inside the [Row]
  */
-@OptIn(GlanceInternalApi::class)
 @Composable
 public fun Row(
-    modifier: Modifier = Modifier,
+    modifier: GlanceModifier = GlanceModifier,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     verticalAlignment: Alignment.Vertical = Alignment.Top,
-    content: @Composable () -> Unit
+    content: @Composable RowScope.() -> Unit
 ) {
-    ComposeNode<EmittableRow, Applier>(
+    GlanceNode(
         factory = ::EmittableRow,
         update = {
             this.set(modifier) { this.modifier = it }
             this.set(verticalAlignment) { this.verticalAlignment = it }
             this.set(horizontalAlignment) { this.horizontalAlignment = it }
         },
-        content = content
+        content = { RowScopeImplInstance.content() }
     )
 }

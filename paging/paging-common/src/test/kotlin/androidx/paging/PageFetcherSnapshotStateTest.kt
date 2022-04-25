@@ -16,17 +16,17 @@
 
 package androidx.paging
 
+import androidx.paging.LoadState.Loading
+import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
-import androidx.paging.LoadState.NotLoading
-import androidx.paging.LoadState.Loading
 import androidx.paging.PagingSource.LoadResult.Page
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -35,10 +35,10 @@ import kotlin.test.assertEquals
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(JUnit4::class)
 class PageFetcherSnapshotStateTest {
-    val testScope = TestCoroutineScope()
+    val testScope = TestScope()
 
     @Test
-    fun placeholders_uncounted() = testScope.runBlockingTest {
+    fun placeholders_uncounted() = testScope.runTest {
         val pagerState = PageFetcherSnapshotState.Holder<Int, Int>(
             config = PagingConfig(2, enablePlaceholders = false)
         ).withLock { it }
@@ -131,7 +131,7 @@ class PageFetcherSnapshotStateTest {
     }
 
     @Test
-    fun placeholders_counted() = testScope.runBlockingTest {
+    fun placeholders_counted() = testScope.runTest {
         val pagerState = PageFetcherSnapshotState.Holder<Int, Int>(
             config = PagingConfig(2, enablePlaceholders = true)
         ).withLock { it }
@@ -229,7 +229,7 @@ class PageFetcherSnapshotStateTest {
     }
 
     @Test
-    fun currentPagingState() = testScope.runBlockingTest {
+    fun currentPagingState() = testScope.runTest {
         val config = PagingConfig(pageSize = 2)
         val state = PageFetcherSnapshotState.Holder<Int, Int>(config = config).withLock { it }
 
@@ -459,30 +459,30 @@ class PageFetcherSnapshotStateTest {
     }
 
     @Test
-    fun loadStates() = testScope.runBlockingTest {
+    fun loadStates() = testScope.runTest {
         val config = PagingConfig(pageSize = 2)
         val state = PageFetcherSnapshotState.Holder<Int, Int>(config = config).withLock { it }
 
-        // assert initial IDLE state
-        assertThat(state.sourceLoadStates.snapshot()).isEqualTo(LoadStates.IDLE)
-
-        state.sourceLoadStates.set(APPEND, NotLoading.Complete)
+        // assert initial state
+        assertThat(state.sourceLoadStates.snapshot()).isEqualTo(loadStates(refresh = Loading))
 
         // assert APPEND state is updated
-        assertThat(state.sourceLoadStates.snapshot()).isEqualTo(
-            loadStates(append = NotLoading.Complete)
-        )
-
-        state.sourceLoadStates.set(REFRESH, Loading)
-
-        // assert REFRESH state is incrementally updated
+        state.sourceLoadStates.set(APPEND, NotLoading.Complete)
         assertThat(state.sourceLoadStates.snapshot()).isEqualTo(
             loadStates(
                 refresh = Loading,
-                append = NotLoading.Complete,
+                append = NotLoading.Complete
             )
         )
 
+        // assert REFRESH state is incrementally updated
+        state.sourceLoadStates.set(REFRESH, NotLoading.Incomplete)
+        assertThat(state.sourceLoadStates.snapshot()).isEqualTo(
+            loadStates(
+                refresh = NotLoading.Incomplete,
+                append = NotLoading.Complete,
+            )
+        )
         assertThat(state.sourceLoadStates.get(APPEND)).isEqualTo(NotLoading.Complete)
     }
 

@@ -16,8 +16,6 @@
 
 package androidx.compose.foundation.gestures
 
-import androidx.compose.ui.input.pointer.consumeDownChange
-import androidx.compose.ui.input.pointer.consumePositionChange
 import kotlinx.coroutines.delay
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -111,14 +109,16 @@ class TapGestureDetectorTest {
     @Test
     fun normalTap() = util.executeInComposition {
         val down = down(5f, 5f)
-        assertTrue(down.consumed.downChange)
+        assertTrue(down.isConsumed)
+        assertTrue(down.isConsumed)
 
         assertTrue(pressed)
         assertFalse(tapped)
         assertFalse(released)
 
         val up = down.up(50)
-        assertTrue(up.consumed.downChange)
+        assertTrue(up.isConsumed)
+        assertTrue(up.isConsumed)
 
         assertTrue(tapped)
         assertTrue(released)
@@ -131,14 +131,14 @@ class TapGestureDetectorTest {
     @Test
     fun normalTap_withShortcut() = utilWithShortcut.executeInComposition {
         val down = down(5f, 5f)
-        assertTrue(down.consumed.downChange)
+        assertTrue(down.isConsumed)
 
         assertTrue(pressed)
         assertFalse(tapped)
         assertFalse(released)
 
         val up = down.up(50)
-        assertTrue(up.consumed.downChange)
+        assertTrue(up.isConsumed)
 
         assertTrue(tapped)
         assertTrue(released)
@@ -151,12 +151,12 @@ class TapGestureDetectorTest {
     @Test
     fun normalTapWithAllGestures() = allGestures.executeInComposition {
         val down = down(5f, 5f)
-        assertTrue(down.consumed.downChange)
+        assertTrue(down.isConsumed)
 
         assertTrue(pressed)
 
         val up = down.up(50)
-        assertTrue(up.consumed.downChange)
+        assertTrue(up.isConsumed)
 
         assertTrue(released)
 
@@ -178,7 +178,7 @@ class TapGestureDetectorTest {
     fun normalDoubleTap() = allGestures.executeInComposition {
         val up = down(5f, 5f)
             .up()
-        assertTrue(up.consumed.downChange)
+        assertTrue(up.isConsumed)
 
         assertTrue(pressed)
         assertTrue(released)
@@ -190,7 +190,7 @@ class TapGestureDetectorTest {
 
         val up2 = down(5f, 5f, 50)
             .up()
-        assertTrue(up2.consumed.downChange)
+        assertTrue(up2.isConsumed)
 
         assertFalse(tapped)
         assertTrue(doubleTapped)
@@ -204,7 +204,7 @@ class TapGestureDetectorTest {
     @Test
     fun normalLongPress() = allGestures.executeInComposition {
         val down = down(5f, 5f)
-        assertTrue(down.consumed.downChange)
+        assertTrue(down.isConsumed)
 
         assertTrue(pressed)
         delay(LongPressTimeoutMillis + 10)
@@ -212,7 +212,7 @@ class TapGestureDetectorTest {
         assertTrue(longPressed)
 
         val up = down.up(500)
-        assertTrue(up.consumed.downChange)
+        assertTrue(up.isConsumed)
 
         assertFalse(tapped)
         assertFalse(doubleTapped)
@@ -234,7 +234,8 @@ class TapGestureDetectorTest {
         assertTrue(canceled)
         assertFalse(released)
         assertFalse(tapped)
-        assertFalse(up.consumed.downChange)
+        assertFalse(up.isConsumed)
+        assertFalse(up.isConsumed)
     }
 
     /**
@@ -251,7 +252,7 @@ class TapGestureDetectorTest {
         assertTrue(canceled)
         assertFalse(released)
         assertFalse(tapped)
-        assertFalse(up.consumed.downChange)
+        assertFalse(up.isConsumed)
     }
 
     /**
@@ -265,7 +266,7 @@ class TapGestureDetectorTest {
 
         delay(DoubleTapTimeoutMillis + 10)
         val up = pointer.up()
-        assertFalse(up.consumed.downChange)
+        assertFalse(up.isConsumed)
 
         assertTrue(pressed)
         assertFalse(released)
@@ -282,7 +283,7 @@ class TapGestureDetectorTest {
     @Test
     fun doubleTapMiss() = allGestures.executeInComposition {
         val up1 = down(5f, 5f).up()
-        assertTrue(up1.consumed.downChange)
+        assertTrue(up1.isConsumed)
 
         assertTrue(pressed)
         assertTrue(released)
@@ -295,7 +296,7 @@ class TapGestureDetectorTest {
             .moveTo(15f, 15f)
             .up()
 
-        assertFalse(up2.consumed.downChange)
+        assertFalse(up2.isConsumed)
 
         assertTrue(pressed)
         assertFalse(released)
@@ -317,7 +318,7 @@ class TapGestureDetectorTest {
             .up()
 
         assertFalse(tapped)
-        assertFalse(up.consumed.downChange)
+        assertFalse(up.isConsumed)
         assertTrue(pressed)
         assertFalse(released)
         assertTrue(canceled)
@@ -335,7 +336,7 @@ class TapGestureDetectorTest {
             .up()
 
         assertFalse(tapped)
-        assertFalse(up.consumed.downChange)
+        assertFalse(up.isConsumed)
         assertTrue(pressed)
         assertFalse(released)
         assertTrue(canceled)
@@ -360,7 +361,7 @@ class TapGestureDetectorTest {
         val up2 = down(4f, 4f)
             .up()
         assertTrue(tapped)
-        assertTrue(up2.consumed.downChange)
+        assertTrue(up2.isConsumed)
         assertTrue(pressed)
         assertTrue(released)
         assertFalse(canceled)
@@ -385,7 +386,7 @@ class TapGestureDetectorTest {
         val up2 = down(4f, 4f)
             .up()
         assertTrue(tapped)
-        assertTrue(up2.consumed.downChange)
+        assertTrue(up2.isConsumed)
         assertTrue(pressed)
         assertTrue(released)
         assertFalse(canceled)
@@ -403,7 +404,7 @@ class TapGestureDetectorTest {
         assertTrue(pressed)
 
         down.up {
-            consumeDownChange()
+            if (pressed != previousPressed) consume()
         }
 
         assertFalse(tapped)
@@ -423,7 +424,7 @@ class TapGestureDetectorTest {
         assertTrue(pressed)
 
         down.up {
-            consumeDownChange()
+            if (pressed != previousPressed) consume()
         }
 
         assertFalse(tapped)
@@ -439,7 +440,7 @@ class TapGestureDetectorTest {
     fun consumedMotionTap() = util.executeInComposition {
         down(5f, 5f)
             .moveTo(6f, 2f) {
-                consumePositionChange()
+                consume()
             }
             .up(50)
 
@@ -457,7 +458,21 @@ class TapGestureDetectorTest {
     fun consumedMotionTap_withShortcut() = utilWithShortcut.executeInComposition {
         down(5f, 5f)
             .moveTo(6f, 2f) {
-                consumePositionChange()
+                consume()
+            }
+            .up(50)
+
+        assertFalse(tapped)
+        assertTrue(pressed)
+        assertFalse(released)
+        assertTrue(canceled)
+    }
+
+    @Test
+    fun consumedChange_MotionTap() = util.executeInComposition {
+        down(5f, 5f)
+            .moveTo(6f, 2f) {
+                consume()
             }
             .up(50)
 
@@ -468,28 +483,51 @@ class TapGestureDetectorTest {
     }
 
     /**
+     * Clicking in the region with the up already consumed should result in the callback not
+     * being invoked.
+     */
+    @Test
+    fun consumedChange_upTap() = util.executeInComposition {
+        val down = down(5f, 5f)
+
+        assertFalse(tapped)
+        assertTrue(pressed)
+
+        down.up {
+            consume()
+        }
+
+        assertFalse(tapped)
+        assertFalse(released)
+        assertTrue(canceled)
+    }
+
+    /**
      * Ensure that two-finger taps work.
      */
     @Test
     fun twoFingerTap() = util.executeInComposition {
         val down = down(1f, 1f)
-        assertTrue(down.consumed.downChange)
+        assertTrue(down.isConsumed)
 
         assertTrue(pressed)
         pressed = false
 
         val down2 = down(9f, 5f)
-        assertFalse(down2.consumed.downChange)
+        assertFalse(down2.isConsumed)
+        assertFalse(down2.isConsumed)
 
         assertFalse(pressed)
 
         val up = down.up()
-        assertFalse(up.consumed.downChange)
+        assertFalse(up.isConsumed)
+        assertFalse(up.isConsumed)
         assertFalse(tapped)
         assertFalse(released)
 
         val up2 = down2.up()
-        assertTrue(up2.consumed.downChange)
+        assertTrue(up2.isConsumed)
+        assertTrue(up2.isConsumed)
 
         assertTrue(tapped)
         assertTrue(released)
@@ -502,23 +540,23 @@ class TapGestureDetectorTest {
     @Test
     fun twoFingerTap_withShortcut() = utilWithShortcut.executeInComposition {
         val down = down(1f, 1f)
-        assertTrue(down.consumed.downChange)
+        assertTrue(down.isConsumed)
 
         assertTrue(pressed)
         pressed = false
 
         val down2 = down(9f, 5f)
-        assertFalse(down2.consumed.downChange)
+        assertFalse(down2.isConsumed)
 
         assertFalse(pressed)
 
         val up = down.up()
-        assertFalse(up.consumed.downChange)
+        assertFalse(up.isConsumed)
         assertFalse(tapped)
         assertFalse(released)
 
         val up2 = down2.up()
-        assertTrue(up2.consumed.downChange)
+        assertTrue(up2.isConsumed)
 
         assertTrue(tapped)
         assertTrue(released)
@@ -537,15 +575,15 @@ class TapGestureDetectorTest {
         val down2 = down(9f, 5f)
 
         val up = down.moveTo(5f, 5f) {
-            consumePositionChange()
+            consume()
         }.up()
-        assertFalse(up.consumed.downChange)
+        assertFalse(up.isConsumed)
 
         assertFalse(tapped)
         assertTrue(canceled)
 
         val up2 = down2.up(50)
-        assertFalse(up2.consumed.downChange)
+        assertFalse(up2.isConsumed)
 
         assertFalse(tapped)
         assertFalse(released)
@@ -563,15 +601,15 @@ class TapGestureDetectorTest {
         val down2 = down(9f, 5f)
 
         val up = down.moveTo(5f, 5f) {
-            consumePositionChange()
+            consume()
         }.up()
-        assertFalse(up.consumed.downChange)
+        assertFalse(up.isConsumed)
 
         assertFalse(tapped)
         assertTrue(canceled)
 
         val up2 = down2.up(50)
-        assertFalse(up2.consumed.downChange)
+        assertFalse(up2.isConsumed)
 
         assertFalse(tapped)
         assertFalse(released)

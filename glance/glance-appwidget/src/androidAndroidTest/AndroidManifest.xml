@@ -13,15 +13,15 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="androidx.glance.appwidget">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.BIND_APPWIDGET" />
 
-    <application>
+    <application
+        android:supportsRtl="true">
         <uses-library android:name="android.test.runner" />
         <activity
             android:name="androidx.glance.appwidget.AppWidgetHostTestActivity"
-            android:configChanges="orientation"
+            android:configChanges="orientation|screenLayout|screenSize"
             android:exported="true"/>
 
         <receiver

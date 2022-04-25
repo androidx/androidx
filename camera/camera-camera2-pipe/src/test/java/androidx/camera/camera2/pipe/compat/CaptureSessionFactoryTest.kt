@@ -43,13 +43,13 @@ import dagger.Component
 import dagger.Module
 import dagger.Provides
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runBlockingTest
 import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Shadows
 import org.robolectric.annotation.Config
 import javax.inject.Singleton
+import kotlinx.coroutines.test.runTest
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
@@ -67,7 +67,7 @@ internal class CaptureSessionFactoryTest {
     }
 
     @Test
-    fun canCreateSessionFactoryTestComponent() = runBlockingTest {
+    fun canCreateSessionFactoryTestComponent() = runTest {
         val component: CameraSessionTestComponent = DaggerCameraSessionTestComponent.builder()
             .fakeCameraPipeModule(FakeCameraPipeModule(context, testCamera))
             .threadConfigModule(ThreadConfigModule(CameraPipe.ThreadConfig()))
@@ -78,7 +78,7 @@ internal class CaptureSessionFactoryTest {
     }
 
     @Test
-    fun createCameraCaptureSession() = runBlockingTest {
+    fun createCameraCaptureSession() = runTest {
         val component: CameraSessionTestComponent = DaggerCameraSessionTestComponent.builder()
             .fakeCameraPipeModule(FakeCameraPipeModule(context, testCamera))
             .threadConfigModule(ThreadConfigModule(CameraPipe.ThreadConfig()))

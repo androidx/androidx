@@ -15,14 +15,16 @@
  */
 package androidx.camera.camera2.pipe.integration
 
-import androidx.camera.core.CameraXConfig
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.integration.adapter.CameraFactoryAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CameraSurfaceAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CameraUseCaseAdapter
+import androidx.camera.core.CameraXConfig
 
 /**
  * Convenience class for generating a pre-populated CameraPipe based [CameraXConfig].
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 object CameraPipeConfig {
     /**
      * Creates a [CameraXConfig] containing a default CameraPipe implementation for CameraX.

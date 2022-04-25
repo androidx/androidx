@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Wear Compose Integration Macrobenchmark Target</string>
+    <style name="AppTheme" parent="@android:style/Theme.DeviceDefault"/>
+</resources>

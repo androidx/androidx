@@ -45,7 +45,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.TooltipCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
-import androidx.core.os.BuildCompat;
 import androidx.core.view.ViewCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
@@ -399,7 +398,7 @@ public class MediaRouteButton extends View {
      */
     private boolean showOutputSwitcher() {
         boolean result = false;
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             result = showOutputSwitcherForAndroidSAndAbove();
             if (!result) {
                 // The intent action and related string constants are changed in S,
@@ -413,6 +412,7 @@ public class MediaRouteButton extends View {
         return result;
     }
 
+    @SuppressWarnings("deprecation")
     private boolean showOutputSwitcherForAndroidR() {
         Context context = getContext();
 

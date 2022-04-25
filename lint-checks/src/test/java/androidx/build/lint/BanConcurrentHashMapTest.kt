@@ -18,6 +18,7 @@
 
 package androidx.build.lint
 
+import com.android.tools.lint.checks.infrastructure.TestMode
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -61,6 +62,13 @@ import java.util.concurrent.ConcurrentHashMap
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
-        check(*input).expect(expected)
+        lint()
+            .files(
+                *stubs,
+                *input
+            )
+            .skipTestModes(TestMode.IMPORT_ALIAS) // b/203124716
+            .run()
+            .expect(expected)
     }
 }

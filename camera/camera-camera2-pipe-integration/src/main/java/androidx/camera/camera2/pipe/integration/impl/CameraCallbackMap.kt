@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.integration.impl
 
 import android.hardware.camera2.CaptureFailure
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Request
@@ -31,6 +32,7 @@ import javax.inject.Inject
 /**
  * A map of [CameraCaptureCallback] that are invoked on each [Request].
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @CameraScope
 class CameraCallbackMap @Inject constructor() : Request.Listener {
     private val callbackMap = mutableMapOf<CameraCaptureCallback, Executor>()
