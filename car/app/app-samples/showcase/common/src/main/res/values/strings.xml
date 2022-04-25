@@ -44,6 +44,8 @@
   <string name="commute_action_title">Commute</string>
   <string name="sign_out_action_title">Sign out</string>
   <string name="try_anyway_action_title">Try Anyway</string>
+  <string name="yes_action_title">Yes</string>
+  <string name="no_action_title">No</string>
 
   <!-- Toast Messages -->
   <string name="bug_reported_toast_msg">Bug reported!</string>
@@ -69,6 +71,9 @@
   <string name="grant_location_permission_toast_msg">Grant location Permission to see current location</string>
   <string name="sign_in_with_google_toast_msg">Sign-in with Google starts here</string>
   <string name="changes_selection_to_index_toast_msg_prefix">Changed selection to index</string>
+  <string name="yes_action_toast_msg">Yes button pressed!</string>
+  <string name="no_action_toast_msg">No button pressed!</string>
+  <string name="alert_timeout_toast_msg">Alert is timed out!</string>
 
   <!-- Row text -->
   <string name="first_row_title">Row with a large image and long text long text long text long text long text</string>
@@ -212,6 +217,8 @@
   <string name="notification_template_demo_title">Notification Template Demo</string>
   <string name="nav_map_template_demo_title">Navigation Template with map only Demo</string>
   <string name="nav_demos_title">Navigation Demos</string>
+  <string name="navigation_alert_title">Still a speed trap?</string>
+  <string name="navigation_alert_subtitle">Reported 10m ago</string>
 
   <!-- CarHardwareRenderer -->
   <string name="no_toll_card_permission">No TollCard Permission.</string>
