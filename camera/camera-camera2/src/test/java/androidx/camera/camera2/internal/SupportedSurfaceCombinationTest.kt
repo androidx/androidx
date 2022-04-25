@@ -43,6 +43,7 @@ import androidx.camera.core.UseCase
 import androidx.camera.core.impl.AttachedSurfaceInfo
 import androidx.camera.core.impl.CameraDeviceSurfaceManager
 import androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
+import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.SurfaceCombination
 import androidx.camera.core.impl.SurfaceConfig
 import androidx.camera.core.impl.SurfaceConfig.ConfigSize
@@ -1332,7 +1333,8 @@ class SupportedSurfaceCombinationTest {
         attachedSurfaceInfoList: List<AttachedSurfaceInfo> = emptyList(),
         hardwareLevel: Int = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
         capabilities: IntArray? = null,
-        compareWithAtMost: Boolean = false
+        compareWithAtMost: Boolean = false,
+        compareExpectedFps: Range<Int>? = null
     ) {
         setupCameraAndInitCameraX(
             hardwareLevel = hardwareLevel,
@@ -1359,6 +1361,11 @@ class SupportedSurfaceCombinationTest {
             } else {
                 assertThat(sizeIsAtMost(resultSize, expectedSize)).isTrue()
             }
+
+            if (compareExpectedFps != null) {
+                assertThat(suggestedStreamSpecs[useCaseConfigMap[it]]!!.expectedFrameRateRange
+                == compareExpectedFps)
+            }
         }
     }
 
@@ -1383,14 +1390,6 @@ class SupportedSurfaceCombinationTest {
         return resultMap
     }
 
-    /**
-     * Helper function that returns whether size is <= maxSize
-     *
-     */
-    private fun sizeIsAtMost(size: Size, maxSize: Size): Boolean {
-        return (size.height * size.width) <= (maxSize.height * maxSize.width)
-    }
-
     // //////////////////////////////////////////////////////////////////////////////////////////
     //
     // Resolution selection tests for FPS settings
@@ -1411,7 +1410,7 @@ class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    fun getSupportedOutputSizes_single_invalid_targetFPS() {
+    fun getSuggestedStreamSpec_single_invalid_targetFPS() {
         // an invalid target means the device would neve be able to reach that fps
         val useCase = createUseCase(CaptureType.PREVIEW, targetFrameRate = Range<Int>(65, 70))
         val useCaseExpectedResultMap = mutableMapOf<UseCase, Size>().apply {
@@ -1424,7 +1423,7 @@ class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    fun getSupportedOutputSizes_multiple_targetFPS_first_is_larger() {
+    fun getSuggestedStreamSpec_multiple_targetFPS_first_is_larger() {
         // a valid target means the device is capable of that fps
         val useCase1 = createUseCase(CaptureType.PREVIEW, targetFrameRate = Range<Int>(30, 35))
         val useCase2 = createUseCase(CaptureType.PREVIEW, targetFrameRate = Range<Int>(15, 25))
@@ -1441,7 +1440,7 @@ class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    fun getSupportedOutputSizes_multiple_targetFPS_first_is_smaller() {
+    fun getSuggestedStreamSpec_multiple_targetFPS_first_is_smaller() {
         // a valid target means the device is capable of that fps
         val useCase1 = createUseCase(CaptureType.PREVIEW, targetFrameRate = Range<Int>(30, 35))
         val useCase2 = createUseCase(CaptureType.PREVIEW, targetFrameRate = Range<Int>(45, 50))
@@ -1458,7 +1457,7 @@ class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    fun getSupportedOutputSizes_multiple_targetFPS_intersect() {
+    fun getSuggestedStreamSpec_multiple_targetFPS_intersect() {
         // first and second new use cases have target fps that intersect each other
         val useCase1 = createUseCase(CaptureType.PREVIEW, targetFrameRate = Range<Int>(30, 40))
         val useCase2 = createUseCase(CaptureType.PREVIEW, targetFrameRate = Range<Int>(35, 45))
@@ -1476,7 +1475,7 @@ class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    fun getSupportedOutputSizes_multiple_cases_first_has_targetFPS() {
+    fun getSuggestedStreamSpec_multiple_cases_first_has_targetFPS() {
         // first new use case has a target fps, second new use case does not
         val useCase1 = createUseCase(CaptureType.PREVIEW, targetFrameRate = Range<Int>(30, 35))
         val useCase2 = createUseCase(CaptureType.PREVIEW)
@@ -1493,7 +1492,7 @@ class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    fun getSupportedOutputSizes_multiple_cases_second_has_targetFPS() {
+    fun getSuggestedStreamSpec_multiple_cases_second_has_targetFPS() {
         // second new use case does not have a target fps, first new use case does not
         val useCase1 = createUseCase(CaptureType.PREVIEW)
         val useCase2 = createUseCase(CaptureType.PREVIEW, targetFrameRate = Range<Int>(30, 35))
@@ -1510,7 +1509,7 @@ class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    fun getSupportedOutputSizes_attached_with_targetFPS_no_new_targetFPS() {
+    fun getSuggestedStreamSpec_attached_with_targetFPS_no_new_targetFPS() {
         // existing surface with target fps + new use case without a target fps
         val useCase = createUseCase(CaptureType.PREVIEW)
         val useCaseExpectedResultMap = mutableMapOf<UseCase, Size>().apply {
@@ -1534,7 +1533,7 @@ class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    fun getSupportedOutputSizes_attached_with_targetFPS_and_new_targetFPS_no_intersect() {
+    fun getSuggestedStreamSpec_attached_with_targetFPS_and_new_targetFPS_no_intersect() {
         // existing surface with target fps + new use case with target fps that does not intersect
         val useCase = createUseCase(CaptureType.PREVIEW, targetFrameRate = Range<Int>(30, 35))
         val useCaseExpectedResultMap = mutableMapOf<UseCase, Size>().apply {
@@ -1558,7 +1557,7 @@ class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    fun getSupportedOutputSizes_attached_with_targetFPS_and_new_targetFPS_with_intersect() {
+    fun getSuggestedStreamSpec_attached_with_targetFPS_and_new_targetFPS_with_intersect() {
         // existing surface with target fps + new use case with target fps that intersect each other
         val useCase = createUseCase(CaptureType.PREVIEW, targetFrameRate = Range<Int>(45, 50))
         val useCaseExpectedResultMap = mutableMapOf<UseCase, Size>().apply {
@@ -1579,6 +1578,154 @@ class SupportedSurfaceCombinationTest {
             hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
             compareWithAtMost = true
         )
+    }
+
+    @Test
+    fun getSuggestedStreamSpec_has_device_supported_expectedFrameRateRange() {
+        // use case with target fps
+        val useCase1 = createUseCase(CaptureType.PREVIEW, targetFrameRate = Range<Int>(15, 25))
+        val useCaseExpectedResultMap = mutableMapOf<UseCase, Size>().apply {
+            put(useCase1, Size(4032, 3024))
+        }
+        getSuggestedSpecsAndVerify(
+            useCaseExpectedResultMap,
+            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
+            compareWithAtMost = true,
+            compareExpectedFps = Range(10, 22)
+        )
+        // expected fps 10,22 because it has the largest intersection
+    }
+
+    @Test
+    fun getSuggestedStreamSpec_has_exact_device_supported_expectedFrameRateRange() {
+        // use case with target fps
+        val useCase1 = createUseCase(CaptureType.PREVIEW, targetFrameRate = Range<Int>(30, 40))
+        val useCaseExpectedResultMap = mutableMapOf<UseCase, Size>().apply {
+            put(useCase1, Size(1920, 1440))
+        }
+        getSuggestedSpecsAndVerify(
+            useCaseExpectedResultMap,
+            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
+            compareWithAtMost = true,
+            compareExpectedFps = Range(30, 40)
+        )
+        // expected fps 30,40 because it is an exact intersection
+    }
+
+    @Test
+    fun getSuggestedStreamSpec_has_no_device_supported_expectedFrameRateRange() {
+        // use case with target fps
+        val useCase1 = createUseCase(
+            CaptureType.PREVIEW,
+            targetFrameRate = Range<Int>(65, 65)
+        )
+
+        val useCaseExpectedResultMap = mutableMapOf<UseCase, Size>().apply {
+            put(useCase1, Size(800, 450))
+        }
+        getSuggestedSpecsAndVerify(
+            useCaseExpectedResultMap,
+            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
+            compareWithAtMost = true,
+            compareExpectedFps = Range(60, 60)
+        )
+        // expected fps 60,60 because it is the closest range available
+    }
+
+    @Test
+    fun getSuggestedStreamSpec_has_multiple_device_supported_expectedFrameRateRange() {
+
+        // use case with target fps
+        val useCase1 = createUseCase(
+            CaptureType.PREVIEW,
+            targetFrameRate = Range<Int>(36, 45)
+        )
+
+        val useCaseExpectedResultMap = mutableMapOf<UseCase, Size>().apply {
+            put(useCase1, Size(1280, 960))
+        }
+        getSuggestedSpecsAndVerify(
+            useCaseExpectedResultMap,
+            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
+            compareWithAtMost = true,
+            compareExpectedFps = Range(30, 40)
+        )
+        // expected size will give a maximum of 40 fps
+        // expected range 30,40. another range with the same intersection size was 30,50, but 30,40
+        // was selected instead because its range has a larger ratio of intersecting value vs
+        // non-intersecting
+    }
+
+    @Test
+    fun getSuggestedStreamSpec_has_no_device_intersection_expectedFrameRateRange() {
+        // target fps is between ranges, but within device capability (for some reason lol)
+
+        // use case with target fps
+        val useCase1 = createUseCase(
+            CaptureType.PREVIEW,
+            targetFrameRate = Range<Int>(26, 27)
+        )
+
+        val useCaseExpectedResultMap = mutableMapOf<UseCase, Size>().apply {
+            put(useCase1, Size(1920, 1440))
+        }
+        getSuggestedSpecsAndVerify(
+            useCaseExpectedResultMap,
+            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
+            compareWithAtMost = true,
+            compareExpectedFps = Range(30, 30)
+        )
+        // 30,30 was expected because it is the closest and shortest range to our target fps
+    }
+
+    @Test
+    fun getSuggestedStreamSpec_has_no_device_intersection_equidistant_expectedFrameRateRange() {
+
+        // use case with target fps
+        val useCase1 = createUseCase(
+            CaptureType.PREVIEW,
+            targetFrameRate = Range<Int>(26, 26)
+        )
+
+        val useCaseExpectedResultMap = mutableMapOf<UseCase, Size>().apply {
+            put(useCase1, Size(1920, 1440))
+        }
+        getSuggestedSpecsAndVerify(
+            useCaseExpectedResultMap,
+            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
+            compareWithAtMost = true,
+            compareExpectedFps = Range(30, 30)
+        )
+        // 30,30 selected because although there are other ranges that  have the same distance to
+        // the target, 30,30 is the shortest range that also happens to be on the upper side of the
+        // target range
+    }
+
+    @Test
+    fun getSuggestedStreamSpec_has_no_expectedFrameRateRange() {
+        // a valid target means the device is capable of that fps
+
+        // use case with no target fps
+        val useCase1 = createUseCase(CaptureType.PREVIEW)
+
+        val useCaseExpectedResultMap = mutableMapOf<UseCase, Size>().apply {
+            put(useCase1, Size(4032, 3024))
+        }
+        getSuggestedSpecsAndVerify(
+            useCaseExpectedResultMap,
+            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
+            compareExpectedFps = StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED
+        )
+        // since no target fps present, no specific device fps will be selected, and is set to
+        // unspecified: (0,0)
+    }
+
+    /**
+     * Helper function that returns whether size is <= maxSize
+     *
+     */
+    private fun sizeIsAtMost(size: Size, maxSize: Size): Boolean {
+        return (size.height * size.width) <= (maxSize.height * maxSize.width)
     }
 
     // //////////////////////////////////////////////////////////////////////////////////////////
@@ -1751,13 +1898,13 @@ class SupportedSurfaceCombinationTest {
                 ArgumentMatchers.anyInt(),
                 ArgumentMatchers.eq(Size(1920, 1440))
             ))
-                .thenReturn(30000000L) // 30
+                .thenReturn(33333333L) // 30
 
             Mockito.`when`(it.getOutputMinFrameDuration(
                 ArgumentMatchers.anyInt(),
                 ArgumentMatchers.eq(Size(1920, 1080))
             ))
-                .thenReturn(28000000L) // 35
+                .thenReturn(28571428L) // 35
 
             Mockito.`when`(it.getOutputMinFrameDuration(
                 ArgumentMatchers.anyInt(),
@@ -1769,7 +1916,7 @@ class SupportedSurfaceCombinationTest {
                 ArgumentMatchers.anyInt(),
                 ArgumentMatchers.eq(Size(1280, 720))
             ))
-                .thenReturn(22000000L) // 45, size preview/display
+                .thenReturn(22222222L) // 45, size preview/display
 
             Mockito.`when`(it.getOutputMinFrameDuration(
                 ArgumentMatchers.anyInt(),
@@ -1781,13 +1928,13 @@ class SupportedSurfaceCombinationTest {
                 ArgumentMatchers.anyInt(),
                 ArgumentMatchers.eq(Size(800, 450))
             ))
-                .thenReturn(16666000L) // 60fps
+                .thenReturn(16666666L) // 60fps
 
             Mockito.`when`(it.getOutputMinFrameDuration(
                 ArgumentMatchers.anyInt(),
                 ArgumentMatchers.eq(Size(640, 480))
             ))
-                .thenReturn(16666000L) // 60fps
+                .thenReturn(16666666L) // 60fps
 
             // Sets up the supported high resolution sizes
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -1796,6 +1943,16 @@ class SupportedSurfaceCombinationTest {
             }
         }
 
+        val deviceFPSRanges: Array<Range<Int>?> = arrayOf(
+            Range(10, 22),
+            Range(22, 22),
+            Range(30, 30),
+            Range(30, 50),
+            Range(30, 40),
+            Range(30, 60),
+            Range(50, 60),
+            Range(60, 60))
+
         val characteristics = ShadowCameraCharacteristics.newCameraCharacteristics()
         Shadow.extract<ShadowCameraCharacteristics>(characteristics).apply {
             set(CameraCharacteristics.LENS_FACING, CameraCharacteristics.LENS_FACING_BACK)
@@ -1803,6 +1960,8 @@ class SupportedSurfaceCombinationTest {
             set(CameraCharacteristics.SENSOR_ORIENTATION, sensorOrientation)
             set(CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE, pixelArraySize)
             set(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP, mockMap)
+            set(CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES, deviceFPSRanges)
+
             capabilities?.let {
                 set(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES, it)
             }

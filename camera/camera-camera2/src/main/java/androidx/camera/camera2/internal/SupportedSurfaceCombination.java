@@ -17,6 +17,7 @@
 package androidx.camera.camera2.internal;
 
 import static android.content.pm.PackageManager.FEATURE_CAMERA_CONCURRENT;
+import static android.hardware.camera2.CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES;
 
 import static androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_1080P;
 import static androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_480P;
@@ -201,6 +202,164 @@ final class SupportedSurfaceCombination {
             // incompatible for getOutputMinFrameDuration...  put into a Quirk
         }
         return maxFramerate;
+    }
+
+    /**
+     *
+     * @param range
+     * @return the length of the range
+     */
+    private static int getRangeLength(Range<Integer> range) {
+        return (range.getUpper() - range.getLower()) + 1;
+    }
+
+    /**
+     * @return the distance between the nearest limits of two non-intersecting ranges
+     */
+    private static int getRangeDistance(Range<Integer> firstRange, Range<Integer> secondRange) {
+        Preconditions.checkState(
+                !firstRange.contains(secondRange.getUpper())
+                        && !firstRange.contains(secondRange.getLower()),
+                "Ranges must not intersect");
+        if (firstRange.getLower() > secondRange.getUpper()) {
+            return firstRange.getLower() - secondRange.getUpper();
+        } else {
+            return secondRange.getLower() - firstRange.getUpper();
+        }
+    }
+
+    /**
+     * @param targetFps the target frame rate range used while comparing to device-supported ranges
+     * @param storedRange the device-supported range that is currently saved and intersects with
+     *                    targetFps
+     * @param newRange a new potential device-supported range that intersects with targetFps
+     * @return the device-supported range that better matches the target fps
+     */
+    private static Range<Integer> compareIntersectingRanges(Range<Integer> targetFps,
+            Range<Integer> storedRange, Range<Integer> newRange) {
+        // TODO(b/272075984): some ranges may may have a larger intersection but may also have an
+        //  excessively large portion that is non-intersecting. Will want to do further
+        //  investigation to find a more optimized way to decide when a potential range has too
+        //  much non-intersecting value and discard it
+
+        double storedIntersectionsize = getRangeLength(storedRange.intersect(targetFps));
+        double newIntersectionSize = getRangeLength(newRange.intersect(targetFps));
+
+        double newRangeRatio = newIntersectionSize / getRangeLength(newRange);
+        double storedRangeRatio = storedIntersectionsize / getRangeLength(storedRange);
+
+        if (newIntersectionSize > storedIntersectionsize) {
+            // if new, the new range must have at least 50% of its range intersecting, OR has a
+            // larger percentage of intersection than the previous stored range
+            if (newRangeRatio >= .5 || newRangeRatio >= storedRangeRatio) {
+                return newRange;
+            }
+        } else if (newIntersectionSize == storedIntersectionsize) {
+            // if intersecting ranges have same length... pick the one that has the higher
+            // intersection ratio
+            if (newRangeRatio > storedRangeRatio) {
+                return newRange;
+            } else if (newRangeRatio == storedRangeRatio
+                    && newRange.getLower() > storedRange.getLower()) {
+                // if equal intersection size AND ratios pick the higher range
+                return newRange;
+            }
+
+        } else if (storedRangeRatio < .5
+                && newRangeRatio > storedRangeRatio) {
+            // if the new one has a smaller range... only change if existing has an intersection
+            // ratio < 50% and the new one has an intersection ratio > than the existing one
+            return newRange;
+        }
+        return storedRange;
+    }
+
+    /**
+     * Finds a frame rate range supported by the device that is closest to the target framerate
+     *
+     * @param targetFrameRate the Target Frame Rate resolved from all current existing surfaces
+     *                        and incoming new use cases
+     * @return a frame rate range supported by the device that is closest to targetFrameRate
+     */
+
+    @NonNull
+    private Range<Integer> getClosestSupportedDeviceFrameRate(Range<Integer> targetFrameRate,
+            int maxFps) {
+        if (targetFrameRate == null) {
+            return StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED;
+        }
+
+        // get all fps ranges supported by device
+        Range<Integer>[] availableFpsRanges =
+                mCharacteristics.get(CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES);
+
+        if (availableFpsRanges == null) {
+            return StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED;
+        }
+        // if  whole target framerate range > maxFps of configuration, the target for this
+        // calculation will be [max,max].
+
+        // if the range is partially larger than  maxFps, the target for this calculation will be
+        // [target.lower, max] for the sake of this calculation
+        targetFrameRate = new Range<>(
+                Math.min(targetFrameRate.getLower(), maxFps),
+                Math.min(targetFrameRate.getUpper(), maxFps)
+        );
+
+        Range<Integer> bestRange = StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED;
+        int currentIntersectSize = 0;
+
+
+        for (Range<Integer> potentialRange : availableFpsRanges) {
+            // ignore ranges completely larger than configuration's maximum fps
+            if (maxFps >= potentialRange.getLower()) {
+                if (bestRange.equals(StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED)) {
+                    bestRange = potentialRange;
+                }
+                // take if range is a perfect match
+                if (potentialRange.equals(targetFrameRate)) {
+                    bestRange = potentialRange;
+                    break;
+                }
+
+                try {
+                    // bias towards a range that intersects on the upper end
+                    Range<Integer> newIntersection = potentialRange.intersect(targetFrameRate);
+                    int newIntersectSize = getRangeLength(newIntersection);
+                    // if this range intersects our target + no other range was already
+                    if (currentIntersectSize == 0) {
+                        bestRange = potentialRange;
+                        currentIntersectSize = newIntersectSize;
+                    } else if (newIntersectSize >= currentIntersectSize) {
+                        // if the currently stored range + new range both intersect, check to see
+                        // which one should be picked over the other
+                        bestRange = compareIntersectingRanges(targetFrameRate, bestRange,
+                                potentialRange);
+                        currentIntersectSize = getRangeLength(targetFrameRate.intersect(bestRange));
+                    }
+                } catch (IllegalArgumentException e) {
+                    // if no intersection is present, pick the range that is closer to our target
+                    if (currentIntersectSize == 0) {
+                        if (getRangeDistance(potentialRange, targetFrameRate)
+                                < getRangeDistance(bestRange, targetFrameRate)) {
+                            bestRange = potentialRange;
+                        } else if (getRangeDistance(potentialRange, targetFrameRate)
+                                == getRangeDistance(bestRange, targetFrameRate)) {
+                            if (potentialRange.getLower() > bestRange.getUpper()) {
+                                // if they both have the same distance, pick the higher range
+                                bestRange = potentialRange;
+                            } else if (getRangeLength(potentialRange) < getRangeLength(bestRange)) {
+                                // if one isn't higher than the other, pick the range with the
+                                // shorter length
+                                bestRange = potentialRange;
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
+        return bestRange;
     }
 
     /**
@@ -405,12 +564,22 @@ final class SupportedSurfaceCombination {
 
         // Map the saved supported SurfaceConfig combination
         if (savedSizes != null) {
+            Range<Integer> targetFramerateForDevice = null;
+            if (targetFramerateForConfig != null) {
+                targetFramerateForDevice =
+                        getClosestSupportedDeviceFrameRate(targetFramerateForConfig,
+                                savedConfigMaxFps);
+            }
             suggestedStreamSpecMap = new HashMap<>();
             for (UseCaseConfig<?> useCaseConfig : newUseCaseConfigs) {
                 suggestedStreamSpecMap.put(
                         useCaseConfig,
-                        StreamSpec.builder(savedSizes.get(useCasesPriorityOrder.indexOf(
-                                newUseCaseConfigs.indexOf(useCaseConfig)))).build());
+                        targetFramerateForDevice != null
+                                ? StreamSpec.builder(savedSizes.get(useCasesPriorityOrder.indexOf(
+                                        newUseCaseConfigs.indexOf(useCaseConfig))))
+                                .setExpectedFrameRateRange(targetFramerateForDevice).build()
+                                : StreamSpec.builder(savedSizes.get(useCasesPriorityOrder.indexOf(
+                                        newUseCaseConfigs.indexOf(useCaseConfig)))).build());
             }
         } else {
             throw new IllegalArgumentException(
