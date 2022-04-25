@@ -63,7 +63,7 @@ internal class OkioStorage<T>(
                 serializer.readFrom(this.toInputStream())
             }
         } catch (th: FileNotFoundException) {
-            println("CAUGHT EXCEPTION ${th} /${th::class.qualifiedName}")
+            println("CAUGHT EXCEPTION $th /${th::class.qualifiedName}")
             if (fileSystem.exists(path = canonicalPath)) {
                 throw th
             }

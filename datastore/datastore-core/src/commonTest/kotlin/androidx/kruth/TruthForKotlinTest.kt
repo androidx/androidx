@@ -39,18 +39,16 @@ open class KruthAssertion<T>(
 open class KruthStringAssertion(
     actual: String?
 ) : KruthAssertion<String>(actual) {
-    fun startsWith(prefix:String) {
-        assertTrue(actual?.startsWith(prefix) ?:false)
+    fun startsWith(prefix: String) {
+        assertTrue(actual?.startsWith(prefix) ?: false)
     }
-    fun endsWith(suffix:String) {
-        assertTrue(actual?.endsWith(suffix) ?:false)
+    fun endsWith(suffix: String) {
+        assertTrue(actual?.endsWith(suffix) ?: false)
     }
-    fun contains(chars:CharSequence) {
+    fun contains(chars: CharSequence) {
         assertTrue(actual is CharSequence)
         assertContains(actual, chars)
     }
-
-
 }
 
 class KruthBooleanAssertion(
@@ -68,7 +66,7 @@ class KTruthThrowableAssertion(
     actual: Throwable?
 ) : KruthAssertion<Throwable>(actual) {
 
-    fun hasMessageThat():KruthStringAssertion {
+    fun hasMessageThat(): KruthStringAssertion {
         return KruthStringAssertion(actual?.message)
     }
 }
@@ -77,18 +75,17 @@ fun <T> assertThat(
     actual: T?
 ) = KruthAssertion(actual)
 
-fun  assertThat(
+fun assertThat(
     actual: Boolean?
 ) = KruthBooleanAssertion(actual)
 
-inline fun <reified E : Exception>  assertThrows(test:()->Unit):KTruthThrowableAssertion {
+inline fun <reified E : Exception> assertThrows(test: () -> Unit): KTruthThrowableAssertion {
     try {
         test()
         assertTrue(false, "Exception ${E::class} not thrown")
         throw AssertionError("Impossible to get here")
-    } catch (ex:Exception) {
+    } catch (ex: Exception) {
         assertTrue(ex is E, "Expected thrown ${E::class}, got ${ex::class}")
         return KTruthThrowableAssertion(ex)
     }
-
 }

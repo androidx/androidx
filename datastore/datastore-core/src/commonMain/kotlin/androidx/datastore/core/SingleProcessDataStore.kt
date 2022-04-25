@@ -24,7 +24,6 @@ import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.completeWith
 import kotlinx.coroutines.flow.Flow
@@ -64,7 +63,6 @@ internal class ReadException<T>(val readException: Throwable) : State<T>()
  * The scope has been cancelled. This DataStore cannot process any new reads or writes.
  */
 internal class Final<T>(val finalException: Throwable) : State<T>()
-
 
 internal expect fun ioDispatcher(): CoroutineDispatcher
 

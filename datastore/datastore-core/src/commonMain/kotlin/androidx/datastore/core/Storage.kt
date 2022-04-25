@@ -23,6 +23,5 @@ interface Storage<T> {
 
     companion object {
         internal val SCRATCH_SUFFIX = ".tmp"
-
     }
 }

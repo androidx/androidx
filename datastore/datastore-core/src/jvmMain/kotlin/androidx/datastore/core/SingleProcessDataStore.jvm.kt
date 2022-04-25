@@ -22,12 +22,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 
-
 internal actual fun ioDispatcher(): CoroutineDispatcher = Dispatchers.IO
 
 // we can rename this since it is internal but also used a lot in tests so nice to have :)
 @Suppress("FunctionName")
-internal fun<T> SingleProcessDataStore(
+internal fun <T> SingleProcessDataStore(
     produceFile: () -> File,
     serializer: Serializer<T>,
     initTasksList: List<suspend (api: InitializerApi<T>) -> Unit> = emptyList(),

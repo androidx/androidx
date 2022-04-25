@@ -16,7 +16,7 @@
 
 package androidx.datastore.core
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicInteger
 internal actual class AtomicInt {
     private val delegate: AtomicInteger
     actual constructor(initialValue: Int) {

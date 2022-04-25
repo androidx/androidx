@@ -17,5 +17,5 @@
 package androidx.datastore.core
 
 internal abstract class StorageImpl<T> : Storage<T> {
-    abstract fun delete():Boolean
+    abstract fun delete(): Boolean
 }

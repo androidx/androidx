@@ -16,13 +16,13 @@
 
 package androidx.datastore.core
 
-expect class TestIO(dirName:String = "datastore-test-dir") {
+expect class TestIO(dirName: String = "datastore-test-dir") {
     internal fun <T> newFileStorage(
         serializer: Serializer<T>,
-        prefix:String = "temp-file"
+        prefix: String = "temp-file"
     ): StorageImpl<T>
 
-    var onProduceFileCallback:()->Unit
+    var onProduceFileCallback: () -> Unit
 
     fun cleanup()
 }

@@ -19,7 +19,7 @@ package androidx.datastore.core
 import kotlin.random.Random
 import okio.FileSystem
 
-actual class TestIO actual constructor(dirName:String) {
+actual class TestIO actual constructor(dirName: String) {
     // TODO could use fake filesysyem but we actually rather test with real filesystem
     private val fileSystem = FileSystem.SYSTEM
     private fun randomFileName( // LAME :)
@@ -30,8 +30,10 @@ actual class TestIO actual constructor(dirName:String) {
         }
     }
     private val tmpDir = FileSystem.SYSTEM_TEMPORARY_DIRECTORY / randomFileName(dirName)
-    internal actual fun <T> newFileStorage(serializer: Serializer<T>,
-        prefix:String): StorageImpl<T> {
+    internal actual fun <T> newFileStorage(
+        serializer: Serializer<T>,
+        prefix: String
+    ): StorageImpl<T> {
         val storage = OkioStorage(
             fileSystem = fileSystem,
             producePath = {
@@ -43,10 +45,9 @@ actual class TestIO actual constructor(dirName:String) {
         return storage
     }
 
-    actual var onProduceFileCallback:()->Unit = {}
+    actual var onProduceFileCallback: () -> Unit = {}
 
     actual fun cleanup() {
         fileSystem.deleteRecursively(tmpDir)
     }
-
 }

@@ -142,7 +142,7 @@ internal class FileStorage<T>(
         internal val activeFilesLock = Any()
     }
 
-    override fun delete():Boolean {
+    override fun delete(): Boolean {
         return file.delete()
     }
 }

@@ -52,7 +52,7 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 
 @ExperimentalCoroutinesApi
-class SingleProcessDataStoreTestCommon {
+class SingleProcessDataStoreTest {
 
     // TODO add timeout
 //    @get:Rule
@@ -64,7 +64,6 @@ class SingleProcessDataStoreTestCommon {
     private lateinit var dataStoreScope: TestScope
     private lateinit var testScope: TestScope
     private lateinit var testStorage: StorageImpl<Byte>
-
 
     @BeforeTest
     fun setUp() {
@@ -96,7 +95,7 @@ class SingleProcessDataStoreTestCommon {
         }
     }
 
-    //Unable to convert these as okio doesn't support file permissions.
+    // Unable to convert these as okio doesn't support file permissions.
 //    @Test
 //    fun testReadUnreadableFile() = runBlockingTest {
 //        testFile.setReadable(false)
@@ -350,15 +349,15 @@ class SingleProcessDataStoreTestCommon {
 
     @Test
     fun testCanWriteFromInitTask() = testScope.runTest {
-        store = newDataStore(initTasksList = listOf ({ api -> api.updateData { 1 } }))
-        val one:Byte = 1
+        store = newDataStore(initTasksList = listOf({ api -> api.updateData { 1 } }))
+        val one: Byte = 1
 
         assertThat(store.data.first()).isEqualTo(one)
     }
 
     @Test
     fun testInitTaskFailsFirstTimeDueToReadFail() = testScope.runTest {
-        store = newDataStore(initTasksList = listOf ({ api -> api.updateData { 1 } }))
+        store = newDataStore(initTasksList = listOf({ api -> api.updateData { 1 } }))
 
         testingSerializer.failingRead = true
         assertThrows<IOException> { store.updateData { 2 } }
@@ -373,7 +372,7 @@ class SingleProcessDataStoreTestCommon {
     fun testInitTaskFailsFirstTimeDueToException() = testScope.runTest {
         val failInit = AtomicInt(0)
         store = newDataStore(
-            initTasksList = listOf( {
+            initTasksList = listOf({
                 if (failInit.get() == 0) {
                     throw IOException("I was asked to fail init")
                 }
@@ -391,7 +390,7 @@ class SingleProcessDataStoreTestCommon {
     fun testInitTaskOnlyRunsOnce() = testScope.runTest {
         val count = AtomicInt(0)
         val newStore = newDataStore(
-            initTasksList = listOf ({
+            initTasksList = listOf({
                 count.incrementAndGet()
             })
         )
@@ -409,7 +408,7 @@ class SingleProcessDataStoreTestCommon {
         val continueInit = CompletableDeferred<Unit>()
 
         store = newDataStore(
-            initTasksList = listOf ({ api ->
+            initTasksList = listOf({ api ->
                 continueInit.await()
                 api.updateData { 1 }
             })
@@ -433,7 +432,7 @@ class SingleProcessDataStoreTestCommon {
         val continueInit = CompletableDeferred<Unit>()
 
         store = newDataStore(
-            initTasksList = listOf ({ api ->
+            initTasksList = listOf({ api ->
                 continueInit.await()
                 api.updateData { 1 }
             })
@@ -562,7 +561,7 @@ class SingleProcessDataStoreTestCommon {
         assertThat(bytesFromSecondCollect).isEqualTo(mutableListOf<Byte>(0, 1, 2, 3, 4, 5, 6, 7))
     }
 
-    //coroutine failure issue
+    // coroutine failure issue
 //    @Test
 //    fun testExceptionInFlowDoesNotBreakUpstream() = testScope.runTest {
 //        val flowOf8 = store.data.take(8)
@@ -714,7 +713,7 @@ class SingleProcessDataStoreTestCommon {
     fun testMutatingDataStoreFails() = testScope.runTest {
 
         val dataStore = DataStoreFactory.create(
-            testIO.newFileStorage( ByteWrapper.ByteWrapperSerializer()),
+            testIO.newFileStorage(ByteWrapper.ByteWrapperSerializer()),
             scope = dataStoreScope
         )
 
@@ -781,7 +780,7 @@ class SingleProcessDataStoreTestCommon {
         companion object Key : CoroutineContext.Key<TestElement>
     }
 
-    //figure out common coroutine equiv
+    // figure out common coroutine equiv
 //    @Test
 //    fun testCancelInflightWrite() = runBlocking<Unit> {
 //        val myScope =
