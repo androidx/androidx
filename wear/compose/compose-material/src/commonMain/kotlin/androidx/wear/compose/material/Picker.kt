@@ -221,7 +221,7 @@ public class PickerState constructor(
     /**
      * Index of the item selected (i.e., at the center)
      */
-    val selectedOption: Int
+    public val selectedOption: Int
         get() = (scalingLazyListState.centerItemIndex + optionsOffset) % numberOfOptions
 
     /**
@@ -233,7 +233,7 @@ public class PickerState constructor(
      *
      * @param index The index of the option to scroll to.
      */
-    suspend fun scrollToOption(index: Int) {
+    public suspend fun scrollToOption(index: Int) {
         val itemIndex =
             if (!repeatItems) {
                 index
@@ -244,7 +244,7 @@ public class PickerState constructor(
         scalingLazyListState.scrollToItem(itemIndex, 0)
     }
 
-    companion object {
+    public companion object {
         /**
          * The default [Saver] implementation for [PickerState].
          */
@@ -267,18 +267,18 @@ public class PickerState constructor(
         )
     }
 
-    override suspend fun scroll(
+    public override suspend fun scroll(
         scrollPriority: MutatePriority,
         block: suspend ScrollScope.() -> Unit
     ) {
         scalingLazyListState.scroll(scrollPriority, block)
     }
 
-    override fun dispatchRawDelta(delta: Float): Float {
+    public override fun dispatchRawDelta(delta: Float): Float {
         return scalingLazyListState.dispatchRawDelta(delta)
     }
 
-    override val isScrollInProgress: Boolean
+    public override val isScrollInProgress: Boolean
         get() = scalingLazyListState.isScrollInProgress
 
     private fun verifyNumberOfOptions(numberOfOptions: Int) {
@@ -298,7 +298,7 @@ public object PickerDefaults {
      * Scaling params are used to determine when items start to be scaled down and alpha applied,
      * and how much. For details, see [ScalingParams]
      */
-    fun scalingParams(
+    public fun scalingParams(
         edgeScale: Float = 0.45f,
         edgeAlpha: Float = 1.0f,
         minElementHeight: Float = 0.0f,
@@ -339,7 +339,11 @@ public object PickerDefaults {
         }
     }
 
-    val DefaultGradientRatio = 0.33f
+    /**
+     * Default Picker gradient ratio - the proportion of the Picker height allocated to each of the
+     * of the top and bottom gradients.
+     */
+    public val DefaultGradientRatio = 0.33f
 }
 
 /**
@@ -349,7 +353,7 @@ public interface PickerScope {
     /**
      * Index of the item selected (i.e., at the center)
      */
-    val selectedOption: Int
+    public val selectedOption: Int
 }
 
 @Stable
