@@ -72,12 +72,22 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
              */
             if (signature != null && APPLICATION_OPT_IN_ANNOTATIONS.contains(signature)) {
                 if (DEBUG) {
-                    println("Processing $signature annotation")
+                    println("Found an @OptIn annotation. Attempting to find markerClass element(s)")
                 }
 
                 val markerClass: UExpression? = node.findAttributeValue("markerClass")
                 if (markerClass != null) {
-                    getUElementsFromOptInMarkerClass(markerClass).forEach { uElement ->
+                    val markerClasses = getUElementsFromOptInMarkerClass(markerClass)
+
+                    if (DEBUG && markerClasses.isNotEmpty()) {
+                        println("Found ${markerClasses.size} markerClass(es): ")
+                    }
+
+                    markerClasses.forEach { uElement ->
+                        if (DEBUG) {
+                            println("Inspecting markerClass annotation " +
+                                uElement.getQualifiedName())
+                        }
                         inspectAnnotation(uElement, node)
                     }
                 }
@@ -130,8 +140,8 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
                 if (annotations.any { APPLICABLE_ANNOTATIONS.contains(it.qualifiedName) }) {
                     if (DEBUG) {
                         println(
-                            "${context.driver.mode}: used ${node.qualifiedName} in " +
-                                "${context.project}"
+                            "${context.driver.mode}: used ${annotation.getQualifiedName()} in " +
+                                context.project.mavenCoordinate.groupId
                         )
                     }
                     verifyUsageOfElementIsWithinSameGroup(
@@ -169,30 +179,46 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
         atomicGroupList: List<String>,
     ) {
         val evaluator = context.evaluator
+
+        // The location where the annotation is used
         val usageCoordinates = evaluator.getLibrary(usage) ?: context.project.mavenCoordinate
         val usageGroupId = usageCoordinates?.groupId
-        val annotationGroup = evaluator.getLibrary(annotation) ?: return
-        val annotationGroupId = annotationGroup.groupId
 
-        val isUsedInSameGroup = annotationGroupId == usageGroupId
-        val isUsedInDifferentArtifact = usageCoordinates.artifactId != annotationGroup.artifactId
+        // The location where the annotation is declared
+        // TODO (b/222554358): annotationGroup is (unexpectedly) null sometimes; fix this
+        val annotationCoordinates = evaluator.getLibrary(annotation) ?: return
+        val annotationGroupId = annotationCoordinates.groupId
+
+        val isUsedInSameGroup = usageCoordinates.groupId == annotationCoordinates.groupId
+        val isUsedInSameArtifact = usageCoordinates.artifactId == annotationCoordinates.artifactId
         val isAtomic = atomicGroupList.contains(usageGroupId)
-        if (!isUsedInSameGroup || (isUsedInSameGroup && isUsedInDifferentArtifact && !isAtomic)) {
-            if (DEBUG) {
-                println(
-                    "${context.driver.mode}: report usage of $annotationGroupId in $usageGroupId"
-                )
-            }
-            Incident(context)
-                .issue(issue)
-                .at(usage)
-                .message(
-                    "`Experimental` and `RequiresOptIn` APIs may only be used within the " +
-                        "same-version group where they were defined."
-                )
-                .report()
+
+        /**
+         * Usage of experimental APIs is allowed in either of the following conditions:
+         *
+         * - Both the group ID and artifact ID in `usageCoordinates` and
+         *   `annotationCoordinates` match
+         * - The group IDs match, and that group ID is atomic
+         */
+        if ((isUsedInSameGroup && isUsedInSameArtifact) || (isUsedInSameGroup && isAtomic)) return
+
+        // Log inappropriate experimental usage
+        if (DEBUG) {
+            println(
+                "${context.driver.mode}: report usage of $annotationGroupId in $usageGroupId"
+            )
         }
+        Incident(context)
+            .issue(issue)
+            .at(usage)
+            .message(
+                "`Experimental` and `RequiresOptIn` APIs may only be used within the " +
+                    "same-version group where they were defined."
+            )
+            .report()
     }
+
+    private fun UElement.getQualifiedName() = (this as UClass).qualifiedName
 
     companion object {
         private const val DEBUG = false
