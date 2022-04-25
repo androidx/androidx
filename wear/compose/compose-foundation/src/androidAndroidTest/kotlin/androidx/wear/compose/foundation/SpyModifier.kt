@@ -112,6 +112,23 @@ internal fun CapturedInfo.checkPositionOnParent(
     )
 }
 
+internal fun CapturedInfo.checkPositionRelativeTo(
+    target: CapturedInfo,
+    expectedAngularPositionDegrees: Float,
+    expectedRadialPositionPx: Float
+) {
+    Assert.assertEquals(
+        expectedAngularPositionDegrees,
+        lastLayoutInfo!!.startAngleRadians - target.lastLayoutInfo!!.startAngleRadians,
+        FINE_FLOAT_TOLERANCE
+    )
+    Assert.assertEquals(
+        expectedRadialPositionPx,
+        target.lastLayoutInfo!!.outerRadius - lastLayoutInfo!!.outerRadius,
+        FINE_FLOAT_TOLERANCE
+    )
+}
+
 internal fun CurvedModifier.spy(capturedInfo: CapturedInfo) =
     this.then { wrapped -> SpyCurvedChildWrapper(capturedInfo, wrapped) }
 
