@@ -197,19 +197,34 @@ public class BuildCompat {
     /**
      * Checks if the device is running on a pre-release version of Android Tiramisu or a release
      * version of Android Tiramisu or newer.
+     * <p>
+     * <strong>Note:</strong> When Android Tiramisu is finalized for release, this method will be
+     * removed and all calls must be replaced with {@code Build.VERSION.SDK_INT >= 33}.
      *
      * @return {@code true} if Tiramisu APIs are available for use, {@code false} otherwise
-     * @deprecated Android Tiramisu is a finalized release and this method is no longer necessary.
-     *             It will be removed in a future release of this library. Instead, use
-     *             {@code Build.VERSION.SDK_INT >= 33}.
      */
     @PrereleaseSdkCheck
     @ChecksSdkIntAtLeast(api = 33, codename = "Tiramisu")
-    @Deprecated
     public static boolean isAtLeastT() {
         return VERSION.SDK_INT >= 33
                 || (VERSION.SDK_INT >= 32
                 && isAtLeastPreReleaseCodename("Tiramisu", VERSION.CODENAME));
+    }
+
+    /**
+     * Checks if the device is running on a pre-release version of Android U.
+     * <p>
+     * <strong>Note:</strong> When Android U is finalized for release, this method will be
+     * removed and all calls must be replaced with {@code Build.VERSION.SDK_INT >=
+     * Build.VERSION_CODES.U}.
+     *
+     * @return {@code true} if U APIs are available for use, {@code false} otherwise
+     */
+    @PrereleaseSdkCheck
+    @ChecksSdkIntAtLeast(codename = "UpsideDownCake")
+    public static boolean isAtLeastU() {
+        return VERSION.SDK_INT >= 33
+                && isAtLeastPreReleaseCodename("UpsideDownCake", VERSION.CODENAME);
     }
 
     /**
