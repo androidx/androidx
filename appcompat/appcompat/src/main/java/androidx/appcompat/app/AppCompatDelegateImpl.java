@@ -254,7 +254,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
     /**
      * The configuration from the most recent call to either onConfigurationChanged or onCreate.
-     * May be null neither method has been called yet.
+     * May be null if neither method has been called yet.
      */
     private Configuration mEffectiveConfiguration;
 
@@ -378,7 +378,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         if (sCanApplyOverrideConfiguration
                 && baseContext instanceof android.view.ContextThemeWrapper) {
             final Configuration config = createOverrideAppConfiguration(
-                    baseContext, modeToApply, localesToApply, null);
+                    baseContext, modeToApply, localesToApply, null, false);
             if (DEBUG) {
                 Log.d(TAG, String.format("Attempting to apply config to base context: %s",
                         config.toString()));
@@ -398,7 +398,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         // Again, but using the AppCompat version of ContextThemeWrapper.
         if (baseContext instanceof ContextThemeWrapper) {
             final Configuration config = createOverrideAppConfiguration(
-                    baseContext, modeToApply, localesToApply, null);
+                    baseContext, modeToApply, localesToApply, null, false);
             if (DEBUG) {
                 Log.d(TAG, String.format("Attempting to apply config to base context: %s",
                         config.toString()));
@@ -455,7 +455,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         }
 
         final Configuration config = createOverrideAppConfiguration(
-                baseContext, modeToApply, localesToApply, configOverlay);
+                baseContext, modeToApply, localesToApply, configOverlay, true);
         if (DEBUG) {
             Log.d(TAG, String.format("Applying night mode using ContextThemeWrapper and "
                     + "applyOverrideConfiguration(). Config: %s", config.toString()));
@@ -464,7 +464,8 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         // Next, we'll wrap the base context to ensure any method overrides or themes are left
         // intact. Since ThemeOverlay.AppCompat theme is empty, we'll get the base context's theme.
         final ContextThemeWrapper wrappedContext = new ContextThemeWrapper(baseContext,
-                R.style.Theme_AppCompat_Empty);
+                R.style.Theme_AppCompat_Empty,
+                getActivityHandlesConfigChangesFlags(baseContext) != 0);
         wrappedContext.applyOverrideConfiguration(config);
 
         // Check whether the base context has an explicit theme or is able to obtain one
@@ -2578,7 +2579,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     @NonNull
     private Configuration createOverrideAppConfiguration(@NonNull Context context,
             @ApplyableNightMode int mode, @Nullable LocaleListCompat locales,
-            @Nullable Configuration configOverlay) {
+            @Nullable Configuration configOverlay, boolean ignoreFollowSystem) {
         int newNightMode;
         switch (mode) {
             case MODE_NIGHT_YES:
@@ -2589,11 +2590,15 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                 break;
             default:
             case MODE_NIGHT_FOLLOW_SYSTEM:
-                // If we're following the system, we just use the system default from the
-                // application context
-                final Configuration appConfig =
-                        context.getApplicationContext().getResources().getConfiguration();
-                newNightMode = appConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK;
+                if (ignoreFollowSystem) {
+                    newNightMode = 0;
+                } else {
+                    // If we're following the system, we just use the system default from the
+                    // application context
+                    final Configuration appConfig =
+                            context.getApplicationContext().getResources().getConfiguration();
+                    newNightMode = appConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK;
+                }
                 break;
         }
 
@@ -2626,9 +2631,9 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         boolean handled = false;
 
         final Configuration overrideConfig =
-                createOverrideAppConfiguration(mContext, nightMode, locales, null);
+                createOverrideAppConfiguration(mContext, nightMode, locales, null, false);
 
-        final int activityHandlingConfigChange = getActivityHandlesConfigChangesFlags();
+        final int activityHandlingConfigChange = getActivityHandlesConfigChangesFlags(mContext);
         final Configuration currentConfiguration = mEffectiveConfiguration == null
                 ? mContext.getResources().getConfiguration() : mEffectiveConfiguration;
         final int currentNightMode = currentConfiguration.uiMode
@@ -2813,10 +2818,10 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         return mAutoBatteryNightModeManager;
     }
 
-    private int getActivityHandlesConfigChangesFlags() {
+    private int getActivityHandlesConfigChangesFlags(Context baseContext) {
         if (!mActivityHandlesConfigFlagsChecked
                 && mHost instanceof Activity) {
-            final PackageManager pm = mContext.getPackageManager();
+            final PackageManager pm = baseContext.getPackageManager();
             if (pm == null) {
                 // If we don't have a PackageManager, return 0. Don't set
                 // the checked flag though so we still check again later
@@ -2836,7 +2841,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                             | PackageManager.MATCH_DIRECT_BOOT_UNAWARE;
                 }
                 final ActivityInfo info = pm.getActivityInfo(
-                        new ComponentName(mContext, mHost.getClass()), flags);
+                        new ComponentName(baseContext, mHost.getClass()), flags);
                 if (info != null) {
                     mActivityHandlesConfigFlags = info.configChanges;
                 }

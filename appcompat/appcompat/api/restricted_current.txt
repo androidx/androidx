@@ -585,6 +585,7 @@ package androidx.appcompat.view {
     ctor public ContextThemeWrapper();
     ctor public ContextThemeWrapper(android.content.Context!, @StyleRes int);
     ctor public ContextThemeWrapper(android.content.Context!, android.content.res.Resources.Theme!);
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public ContextThemeWrapper(android.content.Context!, int, boolean);
     method public void applyOverrideConfiguration(android.content.res.Configuration!);
     method public int getThemeResId();
     method protected void onApplyThemeResource(android.content.res.Resources.Theme!, int, boolean);
