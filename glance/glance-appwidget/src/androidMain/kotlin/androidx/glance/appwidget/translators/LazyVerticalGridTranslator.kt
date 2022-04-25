@@ -109,7 +109,7 @@ private fun RemoteViews.translateEmittableLazyVerticalGrid(
                              value = gridCells.minSize.value,
                              unit = android.util.TypedValue.COMPLEX_UNIT_DIP)
     }
-    applyModifiers(translationContext, this, element.modifier, viewDef)
+    applyModifiers(translationContext.forAdapterView(), this, element.modifier, viewDef)
 }
 
 /**
