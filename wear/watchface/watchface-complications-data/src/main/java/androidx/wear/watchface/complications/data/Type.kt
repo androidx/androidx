@@ -35,7 +35,13 @@ public enum class ComplicationType(private val wireType: Int) {
     MONOCHROMATIC_IMAGE(WireComplicationData.TYPE_ICON),
     SMALL_IMAGE(WireComplicationData.TYPE_SMALL_IMAGE),
     PHOTO_IMAGE(WireComplicationData.TYPE_LARGE_IMAGE),
-    NO_PERMISSION(WireComplicationData.TYPE_NO_PERMISSION);
+    NO_PERMISSION(WireComplicationData.TYPE_NO_PERMISSION),
+
+    @ComplicationExperimental
+    PROTO_LAYOUT(WireComplicationData.TYPE_PROTO_LAYOUT),
+
+    @ComplicationExperimental
+    LIST(WireComplicationData.TYPE_LIST);
 
     /**
      * Converts this value to the integer value used for serialization.
@@ -57,6 +63,7 @@ public enum class ComplicationType(private val wireType: Int) {
          *
          * @hide
          */
+        @OptIn(ComplicationExperimental::class)
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
         public fun fromWireType(wireType: Int): ComplicationType =
@@ -71,6 +78,8 @@ public enum class ComplicationType(private val wireType: Int) {
                 SMALL_IMAGE.wireType -> SMALL_IMAGE
                 PHOTO_IMAGE.wireType -> PHOTO_IMAGE
                 NO_PERMISSION.wireType -> NO_PERMISSION
+                PROTO_LAYOUT.wireType -> PROTO_LAYOUT
+                LIST.wireType -> LIST
                 else -> EMPTY
             }
 
