@@ -49,7 +49,7 @@ internal class PassiveListenerCallbackStub(
         when (proto.eventCase) {
             PASSIVE_UPDATE_RESPONSE -> {
                 val response = PassiveMonitoringUpdateResponse(proto.passiveUpdateResponse)
-                if (!response.passiveMonitoringUpdate.dataPoints.isEmpty()) {
+                if (response.passiveMonitoringUpdate.dataPoints.dataPoints.isNotEmpty()) {
                     callback.onNewDataPointsReceived(response.passiveMonitoringUpdate.dataPoints)
                 }
                 for (userActivityInfo in response.passiveMonitoringUpdate.userActivityInfoUpdates) {

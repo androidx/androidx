@@ -29,17 +29,16 @@ import androidx.health.services.client.proto.DataProto
  * @property dataTypes set of [DataType]s which should be tracked. Requested data will be returned
  * by [PassiveListenerCallback.onNewDataPointsReceived].
  * @property shouldRequestUserActivityState whether to request [UserActivityInfo] updates. Data will
- * be returned by [PassiveListenerCallback.onUserActivityInfoReceived]. If set to true, calling app must
- * have [android.Manifest.permission.ACTIVITY_RECOGNITION].
+ * be returned by [PassiveListenerCallback.onUserActivityInfoReceived]. If set to true, calling app
+ * must have [android.Manifest.permission.ACTIVITY_RECOGNITION].
  * @property passiveGoals set of [PassiveGoal]s which should be tracked. Achieved goals will be
  * returned by [PassiveListenerCallback.onGoalCompleted].
  * @property healthEventTypes set of [HealthEvent.Type] which should be tracked. Detected health
  * events will be returned by [PassiveListenerCallback.onHealthEventReceived].
  */
 @Suppress("ParcelCreator")
-public class PassiveListenerConfig
-public constructor(
-    public val dataTypes: Set<DataType>,
+public class PassiveListenerConfig(
+    public val dataTypes: Set<DataType<out Any, out DataPoint<out Any>>>,
     @get:JvmName("shouldRequestUserActivityState")
     public val shouldRequestUserActivityState: Boolean,
     public val passiveGoals: Set<PassiveGoal>,
@@ -49,7 +48,7 @@ public constructor(
     internal constructor(
         proto: DataProto.PassiveListenerConfig
     ) : this(
-        proto.dataTypesList.map { DataType(it) }.toSet(),
+        proto.dataTypesList.map { DataType.deltaFromProto(it) }.toSet(),
         proto.includeUserActivityState,
         proto.passiveGoalsList.map { PassiveGoal(it) }.toSet(),
         proto.healthEventTypesList
@@ -59,13 +58,13 @@ public constructor(
 
     /** Builder for [PassiveListenerConfig] instances. */
     public class Builder {
-        private var dataTypes: Set<DataType> = emptySet()
+        private var dataTypes: Set<DataType<*, *>> = emptySet()
         private var requestUserActivityState: Boolean = false
         private var passiveGoals: Set<PassiveGoal> = emptySet()
         private var healthEventTypes: Set<HealthEvent.Type> = emptySet()
 
         /** Sets the requested [DataType]s that should be passively tracked. */
-        public fun setDataTypes(dataTypes: Set<DataType>): Builder {
+        public fun setDataTypes(dataTypes: Set<DataType<*, *>>): Builder {
             this.dataTypes = dataTypes.toSet()
             return this
         }

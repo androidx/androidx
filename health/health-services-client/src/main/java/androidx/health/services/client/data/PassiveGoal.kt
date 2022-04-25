@@ -16,39 +16,45 @@
 
 package androidx.health.services.client.data
 
-import android.content.Intent
-import android.os.Parcelable
+import androidx.health.services.client.proto.DataProto.PassiveGoal as PassiveGoalProto
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 import androidx.health.services.client.data.PassiveGoal.TriggerFrequency.Companion.toProto
-import androidx.health.services.client.proto.DataProto.PassiveGoal as PassiveGoalProto
 
 /** Defines an passive goal that will be triggered when the specified condition is met. */
 @Suppress("ParcelCreator")
-public class PassiveGoal(
+class PassiveGoal(
     /** [DataTypeCondition] which must be met for the passive goal to be triggered. */
-    public val dataTypeCondition: DataTypeCondition,
-    @TriggerFrequency public val triggerFrequency: Int,
-) : ProtoParcelable<PassiveGoalProto>() {
+    val dataTypeCondition: DataTypeCondition<out Number, out DeltaDataType<out Number, *>>,
+    /** Frequency this goal should trigger, which is expected to be a  */
+    @TriggerFrequency val triggerFrequency: Int,
+) {
 
     internal constructor(
         proto: PassiveGoalProto
-    ) : this(DataTypeCondition(proto.condition), TriggerFrequency.fromProto(proto.triggerFrequency))
+    ) : this(
+        DataTypeCondition.deltaFromProto(proto.condition),
+        TriggerFrequency.fromProto(proto.triggerFrequency)
+    )
 
-    /** @hide */
-    override val proto: PassiveGoalProto by lazy {
-        PassiveGoalProto.newBuilder()
-            .setCondition(dataTypeCondition.proto)
-            .setTriggerFrequency(triggerFrequency.toProto())
-            .build()
+    internal val proto: PassiveGoalProto by lazy {
+        PassiveGoalProto.newBuilder().setCondition(dataTypeCondition.proto)
+            .setTriggerFrequency(triggerFrequency.toProto()).build()
     }
 
-    /**
-     * Puts the goal as an extra into a given [Intent]. The state can then be obtained from the
-     * intent via [PassiveGoal.fromIntent].
-     */
-    public fun putToIntent(intent: Intent) {
-        intent.putExtra(EXTRA_KEY, this)
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is PassiveGoal) return false
+        if (dataTypeCondition != other.dataTypeCondition) return false
+        if (triggerFrequency != other.triggerFrequency) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = dataTypeCondition.hashCode()
+        result = 31 * result + triggerFrequency
+        return result
     }
 
     override fun toString(): String =
@@ -64,20 +70,20 @@ public class PassiveGoal(
         TriggerFrequency.ONCE,
         TriggerFrequency.REPEATED,
     )
-    public annotation class TriggerFrequency {
+    annotation class TriggerFrequency {
 
-        public companion object {
+        companion object {
             /** TriggerFrequency is an unknown or unexpected value. */
-            public const val UNKNOWN: Int = 0
+            const val UNKNOWN: Int = 0
 
             /** The passive goal will trigger the first time the specified conditions are met. */
-            public const val ONCE: Int = 1
+            const val ONCE: Int = 1
 
             /**
              * The passive goal will trigger *each time* the specified conditions become met.
              * Repeated goals on daily metrics will trigger once per day.
              */
-            public const val REPEATED: Int = 2
+            const val REPEATED: Int = 2
 
             /** @hide */
             @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -90,36 +96,7 @@ public class PassiveGoal(
             @RestrictTo(RestrictTo.Scope.LIBRARY)
             @TriggerFrequency
             @Suppress("WrongConstant")
-            public fun fromProto(proto: PassiveGoalProto.TriggerFrequency): Int = proto.number
+            fun fromProto(proto: PassiveGoalProto.TriggerFrequency): Int = proto.number
         }
-    }
-
-    /**
-     * Does the provided [DataPoint] satisfy the passive goal condition.
-     *
-     * @throws IllegalArgumentException if the provided data point is not of the same data type as
-     * the condition itself.
-     */
-    public fun isTriggered(dataPoint: DataPoint): Boolean {
-        return dataTypeCondition.isSatisfied(dataPoint)
-    }
-
-    public companion object {
-        private const val EXTRA_KEY = "hs.passive_goal"
-        @Suppress("ActionValue") public const val ACTION_GOAL: String = "hs.passivemonitoring.GOAL"
-
-        @JvmField
-        public val CREATOR: Parcelable.Creator<PassiveGoal> = newCreator { bytes ->
-            val proto = PassiveGoalProto.parseFrom(bytes)
-            PassiveGoal(proto)
-        }
-
-        /**
-         * Creates a [PassiveGoal] from an [Intent]. Returns `null` if no [PassiveGoal] is stored in
-         * the given intent.
-         */
-        @Suppress("DEPRECATION")
-        @JvmStatic
-        public fun fromIntent(intent: Intent): PassiveGoal? = intent.getParcelableExtra(EXTRA_KEY)
     }
 }

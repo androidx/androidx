@@ -17,6 +17,7 @@
 package androidx.health.services.client.data
 
 import androidx.health.services.client.proto.DataProto
+import androidx.health.services.client.proto.DataProto.HealthEvent.MetricsEntry
 import java.time.Instant
 
 /** Represents a user's health event. */
@@ -28,7 +29,7 @@ public class HealthEvent(
     public val eventTime: Instant,
 
     /** Gets metrics associated to the event. */
-    public val metrics: Map<DataType, List<DataPoint>>,
+    public val metrics: DataPointContainer,
 ) {
 
     /** Health event types. */
@@ -75,26 +76,77 @@ public class HealthEvent(
     ) : this(
         Type.fromProto(proto.type),
         Instant.ofEpochMilli(proto.eventTimeEpochMs),
-        proto
-            .metricsList
-            .map { entry -> DataType(entry.dataType) to entry.dataPointsList.map { DataPoint(it) } }
-            .toMap()
+        fromHealthEventProto(proto)
     )
 
     internal val proto: DataProto.HealthEvent by lazy {
         DataProto.HealthEvent.newBuilder()
             .setType(type.toProto())
             .setEventTimeEpochMs(eventTime.toEpochMilli())
-            .addAllMetrics(
-                metrics
-                    .map { entry ->
-                        DataProto.HealthEvent.MetricsEntry.newBuilder()
-                            .setDataType(entry.key.proto)
-                            .addAllDataPoints(entry.value.map { it.proto })
-                            .build()
-                    }
-                    .sortedBy { it.dataType.name } // Required to ensure equals() works
-            )
+            .addAllMetrics(toEventProtoList(metrics))
             .build()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is HealthEvent) return false
+        if (type != other.type) return false
+        if (eventTime != other.eventTime) return false
+        if (metrics != other.metrics) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = type.hashCode()
+        result = 31 * result + eventTime.hashCode()
+        result = 31 * result + metrics.hashCode()
+        return result
+    }
+
+    internal companion object {
+        internal fun toEventProtoList(container: DataPointContainer): List<MetricsEntry> {
+            val list = mutableListOf<MetricsEntry>()
+
+            for (entry in container.dataPoints) {
+                if (entry.value.isEmpty()) {
+                    continue
+                }
+
+                when (entry.key.timeType) {
+                    DataType.TimeType.SAMPLE -> {
+                        list.add(
+                            MetricsEntry.newBuilder()
+                                .setDataType(entry.key.proto)
+                                .addAllDataPoints(entry.value.map { (it as SampleDataPoint).proto })
+                                .build()
+                        )
+                    }
+                    DataType.TimeType.INTERVAL -> {
+                        list.add(
+                            MetricsEntry.newBuilder()
+                                .setDataType(entry.key.proto)
+                                .addAllDataPoints(entry.value.map {
+                                    (it as IntervalDataPoint).proto
+                                })
+                                .build()
+                        )
+                    }
+                }
+            }
+            return list.sortedBy { it.dataType.name } // Required to ensure equals() works
+        }
+
+        internal fun fromHealthEventProto(
+            proto: DataProto.HealthEvent
+        ): DataPointContainer {
+            val dataTypeToDataPoints: Map<DataType<*, *>, List<DataPoint<*>>> =
+                proto.metricsList.associate { entry ->
+                    DataType.deltaFromProto(entry.dataType) to entry.dataPointsList.map {
+                        DataPoint.fromProto(it)
+                    }
+                }
+            return DataPointContainer(dataTypeToDataPoints)
+        }
     }
 }
