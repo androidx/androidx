@@ -83,6 +83,7 @@ public class DrawerLayoutDoubleActivity extends BaseTestActivity {
         mToolbar.setBackgroundColor(metalBlueColor);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onBackPressed() {
         // Is the start drawer open?

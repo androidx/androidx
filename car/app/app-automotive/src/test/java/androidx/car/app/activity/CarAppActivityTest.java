@@ -215,6 +215,7 @@ public class CarAppActivityTest {
         });
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void testLegacySurfacePackageEvents() {
         runOnActivity((scenario, activity) -> {

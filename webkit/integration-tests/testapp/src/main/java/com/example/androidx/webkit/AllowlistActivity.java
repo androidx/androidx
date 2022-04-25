@@ -82,6 +82,7 @@ public class AllowlistActivity extends AppCompatActivity {
         clearAllowlist();
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onBackPressed() {
         if (mAllowlistWebView.canGoBack()) {
