@@ -16,6 +16,7 @@
 
 package androidx.car.app.sample.showcase.common.navigation.routing;
 
+import static androidx.car.app.model.Action.FLAG_PRIMARY;
 import static androidx.car.app.navigation.model.LaneDirection.SHAPE_NORMAL_RIGHT;
 import static androidx.car.app.navigation.model.LaneDirection.SHAPE_STRAIGHT;
 
@@ -23,10 +24,13 @@ import android.text.SpannableString;
 import android.text.Spanned;
 
 import androidx.annotation.NonNull;
+import androidx.car.app.AppManager;
 import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
+import androidx.car.app.model.Alert;
+import androidx.car.app.model.AlertCallback;
 import androidx.car.app.model.CarColor;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.CarIconSpan;
@@ -40,6 +44,7 @@ import androidx.car.app.navigation.model.Maneuver;
 import androidx.car.app.navigation.model.Step;
 import androidx.car.app.navigation.model.TravelEstimate;
 import androidx.car.app.sample.showcase.common.R;
+import androidx.car.app.versioning.CarAppApiLevels;
 import androidx.core.graphics.drawable.IconCompat;
 
 import java.util.TimeZone;
@@ -49,6 +54,56 @@ import java.util.concurrent.TimeUnit;
 public abstract class RoutingDemoModels {
 
     private RoutingDemoModels() {
+    }
+
+    /** Returns a sample {@link Alert}. */
+    @NonNull
+    private static Alert createAlert(@NonNull CarContext carContext) {
+        CarText title =
+                CarText.create(carContext.getString(R.string.navigation_alert_title));
+        CarText subtitle =
+                CarText.create(carContext.getString(R.string.navigation_alert_subtitle));
+        CarIcon icon = CarIcon.APP_ICON;
+
+        CarText yesTitle = CarText.create(carContext.getString(R.string.yes_action_title));
+        Action yesAction = new Action.Builder().setTitle(yesTitle).setOnClickListener(
+                () -> CarToast.makeText(
+                                carContext,
+                                carContext.getString(
+                                        R.string.yes_action_toast_msg),
+                                CarToast.LENGTH_SHORT)
+                        .show()).setFlags(FLAG_PRIMARY).build();
+
+        CarText noTitle = CarText.create(carContext.getString(R.string.no_action_title));
+        Action noAction = new Action.Builder().setTitle(noTitle).setOnClickListener(
+                () -> CarToast.makeText(
+                                carContext,
+                                carContext.getString(
+                                        R.string.no_action_toast_msg),
+                                CarToast.LENGTH_SHORT)
+                        .show()).build();
+
+        return new Alert.Builder(/* alertId: */ 0, title, /* durationMillis: */ 10000)
+                .setSubtitle(subtitle)
+                .setIcon(icon)
+                .addAction(yesAction)
+                .addAction(noAction).setCallback(new AlertCallback() {
+                    @Override
+                    public void onCancel(int reason) {
+                        if (reason == AlertCallback.REASON_TIMEOUT) {
+                            CarToast.makeText(
+                                            carContext,
+                                            carContext.getString(
+                                                    R.string.alert_timeout_toast_msg),
+                                            CarToast.LENGTH_SHORT)
+                                    .show();
+                        }
+                    }
+
+                    @Override
+                    public void onDismiss() {
+                    }
+                }).build();
     }
 
     /** Returns the current {@link Step} with information such as the cue text and images. */
@@ -131,30 +186,43 @@ public abstract class RoutingDemoModels {
     @NonNull
     public static ActionStrip getActionStrip(
             @NonNull CarContext carContext, @NonNull OnClickListener onStopNavigation) {
-        return new ActionStrip.Builder()
-                .addAction(
-                        new Action.Builder()
-                                .setOnClickListener(
-                                        () -> CarToast.makeText(
-                                                        carContext,
-                                                        carContext.getString(
-                                                                R.string.bug_reported_toast_msg),
-                                                        CarToast.LENGTH_SHORT)
-                                                .show())
-                                .setIcon(
-                                        new CarIcon.Builder(
-                                                IconCompat.createWithResource(
-                                                        carContext,
-                                                        R.drawable.ic_bug_report_24px))
-                                                .build())
-                                .build())
-                .addAction(
-                        new Action.Builder()
-                                .setTitle(carContext.getString(R.string.stop_action_title))
-                                .setOnClickListener(onStopNavigation)
-                                .setFlags(Action.FLAG_IS_PERSISTENT)
-                                .build())
-                .build();
+        ActionStrip.Builder builder = new ActionStrip.Builder();
+        if (carContext.getCarAppApiLevel() >= CarAppApiLevels.LEVEL_5) {
+            builder.addAction(
+                    new Action.Builder()
+                            .setOnClickListener(
+                                    () ->  carContext.getCarService(AppManager.class)
+                                            .showAlert(createAlert(carContext)))
+                            .setIcon(new CarIcon.Builder(
+                                    IconCompat.createWithResource(
+                                            carContext,
+                                            R.drawable.ic_baseline_add_alert_24))
+                                    .build())
+                            .build());
+        }
+        builder.addAction(
+                new Action.Builder()
+                        .setOnClickListener(
+                                () -> CarToast.makeText(
+                                                carContext,
+                                                carContext.getString(
+                                                        R.string.bug_reported_toast_msg),
+                                                CarToast.LENGTH_SHORT)
+                                        .show())
+                        .setIcon(
+                                new CarIcon.Builder(
+                                        IconCompat.createWithResource(
+                                                carContext,
+                                                R.drawable.ic_bug_report_24px))
+                                        .build())
+                        .build());
+        builder.addAction(
+                new Action.Builder()
+                        .setTitle(carContext.getString(R.string.stop_action_title))
+                        .setOnClickListener(onStopNavigation)
+                        .setFlags(Action.FLAG_IS_PERSISTENT)
+                        .build());
+        return builder.build();
     }
 
     /**
