@@ -207,7 +207,7 @@ internal class PaddingWrapper(
             partialLayoutInfo.sweepRadians + angularPadding,
             partialLayoutInfo.outerRadius + outerPx,
             partialLayoutInfo.thickness + innerPx + outerPx,
-            partialLayoutInfo.measureRadius + outerPx
+            partialLayoutInfo.measureRadius
         )
     }
 
