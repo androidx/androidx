@@ -86,13 +86,16 @@ public final class Timer {
     private final long mStartTimeMillis;
 
     @Document.LongProperty
-    private final long mStartTimeMillisInElapsedRealtime;
+    private final long mBaseTimeMillis;
+
+    @Document.LongProperty
+    private final long mBaseTimeMillisInElapsedRealtime;
 
     @Document.LongProperty
     private final int mBootCount;
 
     @Document.LongProperty
-    private final long mRemainingTimeMillisSinceUpdate;
+    private final long mRemainingTimeMillis;
 
     @Document.StringProperty
     private final String mRingtone;
@@ -106,8 +109,8 @@ public final class Timer {
     Timer(@NonNull String namespace, @NonNull String id, int documentScore,
             long creationTimestampMillis, long documentTtlMillis, @Nullable String name,
             long durationMillis, long originalDurationMillis, long startTimeMillis,
-            long startTimeMillisInElapsedRealtime, int bootCount,
-            long remainingTimeMillisSinceUpdate, @Nullable String ringtone, int status,
+            long baseTimeMillis, long baseTimeMillisInElapsedRealtime, int bootCount,
+            long remainingTimeMillis, @Nullable String ringtone, int status,
             boolean shouldVibrate) {
         mNamespace = Preconditions.checkNotNull(namespace);
         mId = Preconditions.checkNotNull(id);
@@ -118,9 +121,10 @@ public final class Timer {
         mDurationMillis = durationMillis;
         mOriginalDurationMillis = originalDurationMillis;
         mStartTimeMillis = startTimeMillis;
-        mStartTimeMillisInElapsedRealtime = startTimeMillisInElapsedRealtime;
+        mBaseTimeMillis = baseTimeMillis;
+        mBaseTimeMillisInElapsedRealtime = baseTimeMillisInElapsedRealtime;
         mBootCount = bootCount;
-        mRemainingTimeMillisSinceUpdate = remainingTimeMillisSinceUpdate;
+        mRemainingTimeMillis = remainingTimeMillis;
         mRingtone = ringtone;
         mStatus = status;
         mShouldVibrate = shouldVibrate;
@@ -205,29 +209,45 @@ public final class Timer {
     }
 
     /**
-     * Returns the most recent time that the status transitioned to {@link #STATUS_STARTED}. In
-     * milliseconds using the {@link System#currentTimeMillis()} time base.
+     * Returns the start time in milliseconds using the {@link System#currentTimeMillis()} time
+     * base.
      *
-     * <p>If the status is not {@link #STATUS_STARTED}, then this value is undefined, and
-     * should not be used.
-     *
-     * <p>This value is used to calculate {@link #getExpirationTimeMillis(Context)}.
+     * <p>The start time is the first time that a new Timer, or a Timer that has been reset is
+     * started. Pausing and resuming should not change its start time.
      */
     public long getStartTimeMillis() {
         return mStartTimeMillis;
     }
 
     /**
-     * Returns the most recent real time that the status transitioned to {@link #STATUS_STARTED}.
-     * In milliseconds using the {@link android.os.SystemClock#elapsedRealtime()} time base.
+     * Returns the point in time that the {@link Timer} counts down from, relative to its
+     * {@link #getRemainingTimeMillis()}. In milliseconds using the
+     * {@link System#currentTimeMillis()} time base.
      *
-     * <p>If the status is not {@link #STATUS_STARTED}, then this value is undefined, and
-     * should not be used.
+     * <p>The expire time of the Timer can be calculated using the sum of its base time and
+     * remaining time.
      *
-     * <p>This value is used to calculate {@link #getExpirationTimeMillis(Context)}.
+     * <p>Use {@link #calculateBaseTimeMillis(Context)} to get a more accurate base time that
+     * accounts for the current boot count of the device.
      */
-    public long getStartTimeMillisInElapsedRealtime() {
-        return mStartTimeMillisInElapsedRealtime;
+    public long getBaseTimeMillis() {
+        return mBaseTimeMillis;
+    }
+
+    /**
+     * Returns the point in time that the {@link Timer} counts down from, relative to its
+     * {@link #getRemainingTimeMillis()}. In milliseconds using the
+     * {@link android.os.SystemClock#elapsedRealtime()} time base.
+     *
+     * <p>ElapsedRealtime should only be used if the {@link #getBootCount()} matches the
+     * bootCount of the current device. It is used to calculate
+     * {@link #calculateExpirationTimeMillis(Context).
+     *
+     * <p>The expire time of the Timer can be calculated using the sum of its base time and
+     * remaining time.
+     */
+    public long getBaseTimeMillisInElapsedRealtime() {
+        return mBaseTimeMillisInElapsedRealtime;
     }
 
     /**
@@ -238,23 +258,26 @@ public final class Timer {
      *
      * <p>On older APIs where boot count is not available, this value should not be used.
      *
-     * <p>If available, this value is used to calculate {@link #getExpirationTimeMillis(Context)}
-     * and {@link #getCurrentRemainingTime(Context)}.
+     * <p>If available, this value is used to calculate
+     * {@link #calculateExpirationTimeMillis(Context)}.
      */
     public int getBootCount() {
         return mBootCount;
     }
 
     /**
-     * Returns the amount of time remaining in milliseconds for the {@link Timer} since its state
-     * last changed.
+     * Returns the amount of time remaining in milliseconds for the {@link Timer} relative to its
+     * {@link #getBaseTimeMillis()}.
      *
-     * <p>If it is in the {@link #STATUS_STARTED} state, then the current remaining time will be
-     * different from this value. To get the current remaining time, use
-     * {@link #getCurrentRemainingTime(Context)}.
+     * <p>The expire time of the Timer can be calculated using the sum of its base time and
+     * remaining time.
+     *
+     * <p>Use this method to get the static remaining time stored in the document. Use
+     * {@link #calculateCurrentRemainingTimeMillis(Context)} to calculate the remaining time at
+     * runtime.
      */
-    public long getRemainingTimeMillisSinceUpdate() {
-        return mRemainingTimeMillisSinceUpdate;
+    public long getRemainingTimeMillis() {
+        return mRemainingTimeMillis;
     }
 
     /**
@@ -283,6 +306,30 @@ public final class Timer {
     }
 
     /**
+     * Calculates the base time in milliseconds using the {@link System#currentTimeMillis()} time
+     * base.
+     *
+     * <p>If the boot count retrieved from the context matches {@link #getBootCount()}, then
+     * {@link #getBaseTimeMillisInElapsedRealtime()} will be used to calculate the base time
+     * in the {@link System#currentTimeMillis()} time base. Otherwise return
+     * {@link #getBaseTimeMillis()}.
+     */
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
+    public long calculateBaseTimeMillis(@NonNull Context context) {
+        int currentBootCount = BootCountUtil.getCurrentBootCount(context);
+        if (currentBootCount == -1 || currentBootCount != mBootCount) {
+            // Boot count doesn't exist, or it doesn't match the current device boot count.
+            // Therefore return the wall clock time since elapsed realtime is not valid.
+            return mBaseTimeMillis;
+        } else {
+            // Boot count matches the current device boot count. Therefore calculate the wall
+            // clock base time using elapsed realtime.
+            long elapsedTime = SystemClock.elapsedRealtime() - mBaseTimeMillisInElapsedRealtime;
+            return System.currentTimeMillis() - elapsedTime;
+        }
+    }
+
+    /**
      * Calculates the expire time in milliseconds in the {@link System#currentTimeMillis()} time
      * base.
      *
@@ -294,23 +341,13 @@ public final class Timer {
      *
      * @param context The app context
      */
-    public long getExpirationTimeMillis(@NonNull Context context) {
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
+    public long calculateExpirationTimeMillis(@NonNull Context context) {
         if (mStatus == STATUS_PAUSED || mStatus == STATUS_RESET) {
             return Long.MAX_VALUE;
         }
 
-        int currentBootCount = BootCountUtil.getCurrentBootCount(context);
-
-        if (currentBootCount == -1 || currentBootCount != mBootCount) {
-            // Boot count doesn't exist or doesn't match current device boot count. Use wall
-            // clock time since elapsed realtime is no longer valid.
-            return mStartTimeMillis + mRemainingTimeMillisSinceUpdate;
-        } else {
-            // Boot count matches current device boot count. Therefore we can use elapsed
-            // realtime to do calculations.
-            long elapsedTime = SystemClock.elapsedRealtime() - mStartTimeMillisInElapsedRealtime;
-            return System.currentTimeMillis() + mRemainingTimeMillisSinceUpdate - elapsedTime;
-        }
+        return calculateBaseTimeMillis(context) + mRemainingTimeMillis;
     }
 
     /**
@@ -319,27 +356,20 @@ public final class Timer {
      * <p>A negative value may be returned if the {@link Timer} is {@link #STATUS_MISSED} or
      * {@link #STATUS_EXPIRED} to indicate it has already fired.
      *
+     * <p>Use this method to calculate the remaining time at runtime. Use
+     * {@link #getRemainingTimeMillis()} to get the static remaining time stored in the document.
+     *
      * @param context The app context
      */
-    public long getCurrentRemainingTime(@NonNull Context context) {
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
+    public long calculateCurrentRemainingTimeMillis(@NonNull Context context) {
         if (mStatus == STATUS_PAUSED || mStatus == STATUS_RESET) {
             // The timer has not started, so the remaining time is the same as the last updated one.
-            return mRemainingTimeMillisSinceUpdate;
+            return mRemainingTimeMillis;
         }
 
-        int currentBootCount = BootCountUtil.getCurrentBootCount(context);
-
-        long elapsedTime;
-        if (currentBootCount == -1 || currentBootCount != mBootCount) {
-            // Boot count doesn't exist or doesn't match current device boot count. Use wall
-            // clock time since elapsed realtime is no longer valid.
-            elapsedTime = System.currentTimeMillis() - mStartTimeMillis;
-        } else {
-            // Boot count matches current device boot count. Therefore we can use elapsed
-            // realtime to do calculations.
-            elapsedTime = SystemClock.elapsedRealtime() - mStartTimeMillisInElapsedRealtime;
-        }
-        return mRemainingTimeMillisSinceUpdate - elapsedTime;
+        long elapsedTime = System.currentTimeMillis() - calculateBaseTimeMillis(context);
+        return mRemainingTimeMillis - elapsedTime;
     }
 
     /** Builder for {@link Timer}. */
@@ -348,9 +378,10 @@ public final class Timer {
         private long mDurationMillis;
         private long mOriginalDurationMillis;
         private long mStartTimeMillis;
-        private long mStartTimeMillisInElapsedRealtime;
+        private long mBaseTimeMillis;
+        private long mBaseTimeMillisInElapsedRealtime;
         private int mBootCount;
-        private long mRemainingTimeMillisSinceUpdate;
+        private long mRemainingTimeMillis;
         private String mRingtone;
         private int mStatus;
         private boolean mShouldVibrate;
@@ -377,9 +408,10 @@ public final class Timer {
             mDurationMillis = timer.getDurationMillis();
             mOriginalDurationMillis = timer.getOriginalDurationMillis();
             mStartTimeMillis = timer.getStartTimeMillis();
-            mStartTimeMillisInElapsedRealtime = timer.getStartTimeMillisInElapsedRealtime();
+            mBaseTimeMillis = timer.getBaseTimeMillis();
+            mBaseTimeMillisInElapsedRealtime = timer.getBaseTimeMillisInElapsedRealtime();
             mBootCount = timer.getBootCount();
-            mRemainingTimeMillisSinceUpdate = timer.getRemainingTimeMillisSinceUpdate();
+            mRemainingTimeMillis = timer.getRemainingTimeMillis();
             mRingtone = timer.getRingtone();
             mStatus = timer.getStatus();
             mShouldVibrate = timer.shouldVibrate();
@@ -411,55 +443,79 @@ public final class Timer {
         }
 
         /**
-         * Sets the most recent time that the status transitioned to {@link #STATUS_STARTED}.
+         * Sets the start time in milliseconds using the {@link System#currentTimeMillis()} time
+         * base.
          *
-         * <p> Start time should be sampled in both the {@link System#currentTimeMillis()} and
+         * <p>The start time is the first time that a new Timer, or a Timer that has been reset is
+         * started. Pausing and resuming should not change its start time.
+         */
+        @NonNull
+        public Builder setStartTimeMillis(long startTimeMillis) {
+            mStartTimeMillis = startTimeMillis;
+            return this;
+        }
+
+        /**
+         * Sets the point in time that the {@link Timer} counts down from, relative to its
+         * {@link #setRemainingTimeMillis(long)}.
+         *
+         * <p>The expire time of the Timer can be calculated using the sum of its base time and
+         * remaining time.
+         *
+         * <p>Base time should be sampled in both the {@link System#currentTimeMillis()} and
          * {@link android.os.SystemClock#elapsedRealtime()} time base. In addition, the boot
          * count of the device is needed to check if the
          * {@link android.os.SystemClock#elapsedRealtime()} time base is valid.
          *
-         * @param startTimeMillis The start time in milliseconds using the
+         * @param baseTimeMillis The base time in milliseconds using the
          * {@link System#currentTimeMillis()} time base.
-         * @param startTimeMillisInElapsedRealtime The start time in milliseconds using the
+         * @param baseTimeMillisInElapsedRealtime The base time in milliseconds using the
          * {@link android.os.SystemClock#elapsedRealtime()} time base.
          * @param bootCount The current boot count of the device. See
          * {@link android.provider.Settings.Global#BOOT_COUNT}.
          */
         @NonNull
-        public Builder setStartTimeMillis(long startTimeMillis,
-                long startTimeMillisInElapsedRealtime, int bootCount) {
-            mStartTimeMillis = startTimeMillis;
-            mStartTimeMillisInElapsedRealtime = startTimeMillisInElapsedRealtime;
+        public Builder setBaseTimeMillis(long baseTimeMillis,
+                long baseTimeMillisInElapsedRealtime, int bootCount) {
+            mBaseTimeMillis = baseTimeMillis;
+            mBaseTimeMillisInElapsedRealtime = baseTimeMillisInElapsedRealtime;
             mBootCount = bootCount;
             return this;
         }
 
         /**
-         * Sets the most recent time that the status transitioned to {@link #STATUS_STARTED}.
+         * Sets the point in time that the {@link Timer} counts down from, relative to its
+         * {@link #setRemainingTimeMillis(long)}.
          *
-         * <p>See {@link #setStartTimeMillis(long, long, int)}.
+         * <p>The expire time of the Timer can be calculated using the sum of its base time and
+         * remaining time.
+         *
+         * <p>See {@link #setBaseTimeMillis(long, long, int)}.
          *
          * @param context The app context used to fetch boot count.
-         * @param startTimeMillis The start time in milliseconds using the
+         * @param baseTimeMillis The base time in milliseconds using the
          * {@link System#currentTimeMillis()} time base.
-         * @param startTimeMillisInElapsedRealtime The start time in milliseconds using the
+         * @param baseTimeMillisInElapsedRealtime The base time in milliseconds using the
          * {@link android.os.SystemClock#elapsedRealtime()} time base.
          */
         @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
         @NonNull
-        public Builder setStartTimeMillis(@NonNull Context context, long startTimeMillis,
-                long startTimeMillisInElapsedRealtime) {
+        public Builder setBaseTimeMillis(@NonNull Context context, long baseTimeMillis,
+                long baseTimeMillisInElapsedRealtime) {
             int bootCount = BootCountUtil.getCurrentBootCount(context);
-            return setStartTimeMillis(startTimeMillis, startTimeMillisInElapsedRealtime, bootCount);
+            return setBaseTimeMillis(baseTimeMillis, baseTimeMillisInElapsedRealtime, bootCount);
         }
 
         /**
-         * Sets the amount of time remaining in milliseconds for the {@link Timer} since its
-         * state last changed.
+         * Sets the amount of time remaining in milliseconds for the {@link Timer} relative to its
+         * {@link #setBaseTimeMillis(long, long, int)}.
+         *
+         * <p>The expire time of the Timer can be calculated using the sum of its base time and
+         * remaining time.
          */
         @NonNull
-        public Builder setRemainingTimeMillisSinceUpdate(long remainingTimeMillisSinceUpdate) {
-            mRemainingTimeMillisSinceUpdate = remainingTimeMillisSinceUpdate;
+        public Builder setRemainingTimeMillis(long remainingTimeMillis) {
+            mRemainingTimeMillis = remainingTimeMillis;
             return this;
         }
 
@@ -499,8 +555,8 @@ public final class Timer {
             return new Timer(mNamespace, mId, mDocumentScore,
                     mCreationTimestampMillis, mDocumentTtlMillis, mName, mDurationMillis,
                     mOriginalDurationMillis, mStartTimeMillis,
-                    mStartTimeMillisInElapsedRealtime, mBootCount,
-                    mRemainingTimeMillisSinceUpdate, mRingtone, mStatus, mShouldVibrate);
+                    mBaseTimeMillis, mBaseTimeMillisInElapsedRealtime, mBootCount,
+                    mRemainingTimeMillis, mRingtone, mStatus, mShouldVibrate);
         }
     }
 }
