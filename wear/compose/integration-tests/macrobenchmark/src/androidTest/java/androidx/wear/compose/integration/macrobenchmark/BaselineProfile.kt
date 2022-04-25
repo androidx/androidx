@@ -34,22 +34,16 @@ import org.junit.runners.Parameterized
 
 // This test generates a baseline profile rules file that can be parsed to produce the
 // baseline-prof.txt files for the Wear Compose libraries.
-// 1) Build and install debug build of androidx.wear.compose.integration.macrobenchmark-target
-//    onto a device (not minified, because we need non-obsfuscated method/class names)
-// 2) Run this test on the device - search for Benchmark in logcat to discover the location
-//    of the generated file
-//    e.g. /sdcard/Android/media/androidx.wear.compose.integration.macrobenchmark.test/
-//         additional_test_output/BaselineProfile_profile-baseline-prof.txt
-// 3) Copy the generated file to your workspace:
-//    adb pull <path-to-file-from-step-2 e.g. xxx/BaselineProfile_profile-baseline-prof.txt>
-//             <workspace path e.g. xxx/frameworks/support/wear/compose/>
-// 4) Build profileparser:
+// 1) Build and run debug build of androidx.wear.compose.integration.macrobenchmark-target
+//    (not minified, because we need non-obsfuscated method/class names)
+// 2) Run this BaselineProfile test then click 'Baseline profile results' link
+// 3) Build profileparser:
 //    If necessary, include it in settings.gradle:
 //      includeProject(":wear:compose:integration-tests:profileparser",
 //                     "wear/compose/integration-tests/profileparser",
 //                     [BuildType.MAIN])
 //    ./gradlew :wear:compose:integration-tests:profileparser:assemble
-// 5) Run profileparser for each of wear.compose.material, wear.compose.foundation and
+// 4) Run profileparser for each of wear.compose.material, wear.compose.foundation and
 //    wear.compose.navigation. From <workspace>/frameworks/support:
 //    java -jar
 //      ../../out/androidx/wear/compose/integration-tests/profileparser/build/libs/profileparser-all.jar
