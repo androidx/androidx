@@ -29,7 +29,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
-import com.google.firebase.appindexing.Indexable;
+import com.google.android.gms.appindex.Indexable;
 
 import org.junit.Before;
 import org.junit.Test;
