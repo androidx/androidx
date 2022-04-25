@@ -15,7 +15,9 @@ package androidx.health.connect.client {
     method public suspend Object? insertRecords(java.util.List<? extends androidx.health.connect.client.records.Record> records, kotlin.coroutines.Continuation<? super androidx.health.connect.client.response.InsertRecordsResponse>);
     method public default static boolean isAvailable(android.content.Context context, optional java.util.List<java.lang.String> packageNames);
     method public default static boolean isAvailable(android.content.Context context);
+    method public suspend <T extends androidx.health.connect.client.records.Record> Object? readRecord(kotlin.reflect.KClass<T> recordType, String uid, kotlin.coroutines.Continuation<? super androidx.health.connect.client.response.ReadRecordResponse<T>>);
     method public suspend <T extends androidx.health.connect.client.records.Record> Object? readRecords(androidx.health.connect.client.request.ReadRecordsRequest<T> request, kotlin.coroutines.Continuation<? super androidx.health.connect.client.response.ReadRecordsResponse<T>>);
+    method public suspend Object? updateRecords(java.util.List<? extends androidx.health.connect.client.records.Record> records, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public abstract androidx.health.connect.client.PermissionController permissionController;
     field public static final androidx.health.connect.client.HealthConnectClient.Companion Companion;
   }
@@ -467,6 +469,11 @@ package androidx.health.connect.client.response {
   public final class InsertRecordsResponse {
     method public java.util.List<java.lang.String> getRecordUidsList();
     property public final java.util.List<java.lang.String> recordUidsList;
+  }
+
+  public final class ReadRecordResponse<T extends androidx.health.connect.client.records.Record> {
+    method public T getRecord();
+    property public final T record;
   }
 
   public final class ReadRecordsResponse<T extends androidx.health.connect.client.records.Record> {
