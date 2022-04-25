@@ -28,6 +28,7 @@ import androidx.wear.compose.material.samples.AlertWithChips
 import androidx.wear.compose.material.samples.AppCardWithIcon
 import androidx.wear.compose.material.samples.ButtonWithIcon
 import androidx.wear.compose.material.samples.ButtonWithText
+import androidx.wear.compose.material.samples.ChipWithIconAndLabel
 import androidx.wear.compose.material.samples.ChipWithIconAndLabels
 import androidx.wear.compose.material.samples.CircularProgressIndicatorFullscreenWithGap
 import androidx.wear.compose.material.samples.CircularProgressIndicatorWithAnimation
@@ -260,6 +261,11 @@ val WearMaterialDemos = DemoCategory(
                 DemoCategory(
                     "Samples",
                     listOf(
+                        ComposableDemo("Chip With Icon And long Label") {
+                            Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                ChipWithIconAndLabel()
+                            }
+                        },
                         ComposableDemo("Chip With Icon And Labels") {
                             Centralize(Modifier.padding(horizontal = 10.dp)) {
                                 ChipWithIconAndLabels()
