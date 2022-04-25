@@ -21,12 +21,20 @@ import androidx.annotation.RequiresApi;
 public class TestEmojiMetadata extends EmojiMetadata {
     private final int[] mCodePoints;
     private int mId;
+    private short mCompatAdded;
 
     TestEmojiMetadata(int[] codePoints, int id) {
+        this(codePoints, id, (short) 0);
+    }
+
+    TestEmojiMetadata(int[] codePoints, int id, short compatAdded) {
         super(null, 0);
         mCodePoints = codePoints;
         mId = id;
+        mCompatAdded = compatAdded;
     }
+
+
 
     TestEmojiMetadata(int[] codePoints) {
         this(codePoints, 0);
@@ -45,5 +53,23 @@ public class TestEmojiMetadata extends EmojiMetadata {
     @Override
     public int getCodepointsLength() {
         return mCodePoints.length;
+    }
+
+    @Override
+    public short getCompatAdded() {
+        return mCompatAdded;
+    }
+
+    @Override
+    public boolean isDefaultEmoji() {
+        return true;
+    }
+
+    public CharSequence asCharSequence() {
+        StringBuilder sb = new StringBuilder(mCodePoints.length);
+        for (int i = 0; i < mCodePoints.length; i++) {
+            sb.append(Character.toChars(mCodePoints[i]));
+        }
+        return sb.toString();
     }
 }

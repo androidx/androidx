@@ -24,12 +24,14 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.ComponentName;
 import android.content.Intent;
+import android.graphics.Insets;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.car.app.activity.renderer.ICarAppActivity;
+import androidx.car.app.activity.renderer.IInsetsListener;
 import androidx.car.app.activity.renderer.IRendererCallback;
 import androidx.car.app.utils.ThreadUtils;
 import androidx.lifecycle.AndroidViewModel;
@@ -37,6 +39,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import java.lang.ref.WeakReference;
+import java.util.Objects;
 
 /**
  * The view model to keep track of the CarAppActivity data.
@@ -54,6 +57,8 @@ public class CarAppViewModel extends AndroidViewModel implements
     private final MutableLiveData<State> mState = new MutableLiveData<>(State.IDLE);
     private ServiceConnectionManager mServiceConnectionManager;
     @Nullable private IRendererCallback mIRendererCallback;
+    @Nullable private IInsetsListener mIInsetsListener;
+    @Nullable private Insets mInsets = Insets.NONE;
     private static WeakReference<Activity> sActivity = new WeakReference<>(null);
 
     /** Possible view states */
@@ -122,6 +127,8 @@ public class CarAppViewModel extends AndroidViewModel implements
     /** Closes the connection to the renderer service if any. */
     void unbind() {
         mServiceConnectionManager.unbind();
+        mIInsetsListener = null;
+        mIRendererCallback = null;
     }
 
     @Override
@@ -221,5 +228,37 @@ public class CarAppViewModel extends AndroidViewModel implements
             return activity.getCallingActivity();
         }
         return null;
+    }
+
+    /**
+     * Updates the insets for this {@link CarAppActivity}
+     *
+     * @param insets latest received {@link Insets}
+     */
+    public void updateWindowInsets(@NonNull Insets insets) {
+        if (!Objects.equals(mInsets, insets)) {
+            mInsets = insets;
+            // If listener is not set yet, the inset will be dispatched once the listener is set.
+            if (mIInsetsListener != null) {
+                dispatchInsetsUpdates();
+            }
+        }
+    }
+
+    @SuppressWarnings("NullAway")
+    private void dispatchInsetsUpdates() {
+        getServiceDispatcher().dispatch("onInsetsChanged",
+                () -> requireNonNull(mIInsetsListener).onInsetsChanged(mInsets)
+        );
+    }
+
+    /**
+     * Updates the listener that will handle insets changes. If a non-null listener is set, it will
+     * be assumed that inset changes are handled by the host, and
+     * {@link #updateWindowInsets(Insets)} will return <code>false</code>
+     */
+    public void setInsetsListener(@Nullable IInsetsListener listener) {
+        mIInsetsListener = listener;
+        dispatchInsetsUpdates();
     }
 }

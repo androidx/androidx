@@ -21,6 +21,8 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import android.content.Context;
 import android.util.AttributeSet;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.res.TypedArrayUtils;
 
@@ -49,7 +51,7 @@ public final class PreferenceScreen extends PreferenceGroup {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public PreferenceScreen(Context context, AttributeSet attrs) {
+    public PreferenceScreen(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs, TypedArrayUtils.getAttr(context, R.attr.preferenceScreenStyle,
                 android.R.attr.preferenceScreenStyle));
     }

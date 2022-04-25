@@ -40,3 +40,7 @@ dependencies {
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.espressoCore)
 }
+
+android {
+    namespace "androidx.viewpager2.integration.testapp"
+}

@@ -15,15 +15,24 @@
  */
 
 // see ../playground-common/README.md for details on how this works
-rootProject.name = "navigation-playground"
-apply from: "../playground-common/playground-include-settings.gradle"
-setupPlayground(this, "..")
-selectProjectsFromAndroidX({ name ->
-    if (name.startsWith(":lifecycle")) return true
-    if (name == ":annotation:annotation") return true
-    if (name == ":internal-testutils-runtime") return true
-    if (name == ":internal-testutils-truth") return true
-    if (isNeededForComposePlayground(name)) return true
-    return false
-})
+pluginManagement {
+    includeBuild "../playground-common/playground-plugin"
+}
+plugins {
+    id "playground"
+}
+
+rootProject.name = "lifecycle-playground"
+
+playground {
+    setupPlayground("..")
+    selectProjectsFromAndroidX({ name ->
+        if (name.startsWith(":lifecycle")) return true
+        if (name == ":annotation:annotation") return true
+        if (name == ":internal-testutils-runtime") return true
+        if (name == ":internal-testutils-truth") return true
+        if (isNeededForComposePlayground(name)) return true
+        return false
+    })
+}
 

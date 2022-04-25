@@ -27,6 +27,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraSelector;
@@ -36,6 +37,7 @@ import androidx.camera.core.Preview;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.CameraUtil;
+import androidx.camera.testing.CameraXUtil;
 import androidx.camera.testing.R;
 import androidx.camera.testing.SurfaceTextureProvider;
 import androidx.test.espresso.idling.CountingIdlingResource;
@@ -45,6 +47,7 @@ import java.util.LinkedHashSet;
 import java.util.concurrent.ExecutionException;
 
 /** An activity which starts CameraX preview for testing. */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class CameraXTestActivity extends AppCompatActivity {
 
     private static final String TAG = "CameraXTestActivity";
@@ -139,26 +142,11 @@ public class CameraXTestActivity extends AppCompatActivity {
                     }
                 });
 
-        mPreview.setSurfaceProvider(createSurfaceTextureProvider(
-                new SurfaceTextureProvider.SurfaceTextureCallback() {
-                    @Override
-                    public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture,
-                            @NonNull Size resolution) {
-                        ViewGroup viewGroup = (ViewGroup) textureView.getParent();
-                        viewGroup.removeView(textureView);
-                        viewGroup.addView(textureView, resolution.getWidth(),
-                                resolution.getHeight());
-                        textureView.setSurfaceTexture(surfaceTexture);
-                    }
-
-                    @Override
-                    public void onSafeToRelease(@NonNull SurfaceTexture surfaceTexture) {
-                        surfaceTexture.release();
-                    }
-                }));
+        mPreview.setSurfaceProvider(
+                createSurfaceTextureProvider(new SurfaceTextureCallbackImpl(textureView)));
 
         try {
-            final CameraX cameraX = CameraX.getOrCreateInstance(this).get();
+            final CameraX cameraX = CameraXUtil.getOrCreateInstance(this, null).get();
             final LinkedHashSet<CameraInternal> cameras =
                     cameraSelector.filter(cameraX.getCameraRepository().getCameras());
             mCameraUseCaseAdapter = new CameraUseCaseAdapter(cameras,
@@ -185,5 +173,30 @@ public class CameraXTestActivity extends AppCompatActivity {
     @NonNull
     public CountingIdlingResource getPreviewReady() {
         return mPreviewReady;
+    }
+
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+    private static final class SurfaceTextureCallbackImpl implements
+            SurfaceTextureProvider.SurfaceTextureCallback {
+        private final TextureView mTextureView;
+
+        SurfaceTextureCallbackImpl(@NonNull TextureView textureView) {
+            mTextureView = textureView;
+        }
+
+        @Override
+        public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture,
+                @NonNull Size resolution) {
+            ViewGroup viewGroup = (ViewGroup) mTextureView.getParent();
+            viewGroup.removeView(mTextureView);
+            viewGroup.addView(mTextureView, resolution.getWidth(),
+                    resolution.getHeight());
+            mTextureView.setSurfaceTexture(surfaceTexture);
+        }
+
+        @Override
+        public void onSafeToRelease(@NonNull SurfaceTexture surfaceTexture) {
+            surfaceTexture.release();
+        }
     }
 }

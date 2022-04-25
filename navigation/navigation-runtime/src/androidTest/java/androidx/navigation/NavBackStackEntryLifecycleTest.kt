@@ -30,7 +30,13 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.testutils.TestNavigator
 import androidx.testutils.test
+import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.withIndex
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.inOrder
@@ -100,6 +106,63 @@ class NavBackStackEntryLifecycleTest {
         assertWithMessage("The start destination should be destroyed after pop")
             .that(startBackStackEntry.lifecycle.currentState)
             .isEqualTo(Lifecycle.State.DESTROYED)
+    }
+
+    @UiThreadTest
+    @Test
+    @Suppress("DEPRECATION", "EXPERIMENTAL_API_USAGE")
+    fun visibleEntriesFlow() = runBlocking {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = 1) {
+            test(1)
+            test(2)
+            test(3)
+        }
+
+        navController.visibleEntries
+            .take(navController.graph.count())
+            .withIndex()
+            .onEach { (index, list) ->
+                val expectedDestination = index + 1
+                assertWithMessage("Flow emitted unexpected back stack entry (wrong destination)")
+                    .that(list)
+                    .containsExactly(navController.currentBackStackEntry)
+
+                if (expectedDestination < navController.graph.count()) {
+                    navController.navigate(expectedDestination + 1)
+                }
+            }
+            .collect()
+    }
+
+    @UiThreadTest
+    @Test
+    @Suppress("DEPRECATION", "EXPERIMENTAL_API_USAGE")
+    fun visibleEntriesFlowChangedLifecycle() = runBlocking {
+        val owner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+        val navController = createNavController(owner)
+        navController.graph = navController.createGraph(startDestination = 1) {
+            test(1)
+            test(2)
+            test(3)
+        }
+
+        owner.currentState = Lifecycle.State.CREATED
+
+        navController.visibleEntries
+            .take(navController.graph.count())
+            .withIndex()
+            .onEach { (index, list) ->
+                val expectedDestination = index + 1
+                assertWithMessage("Flow emitted unexpected back stack entry (wrong destination)")
+                    .that(list)
+                    .containsExactly(navController.currentBackStackEntry)
+
+                if (expectedDestination < navController.graph.count()) {
+                    navController.navigate(expectedDestination + 1)
+                }
+            }
+            .collect()
     }
 
     /**
@@ -228,6 +291,30 @@ class NavBackStackEntryLifecycleTest {
         assertWithMessage("The popped destination should be destroyed")
             .that(secondBackStackEntry.lifecycle.currentState)
             .isEqualTo(Lifecycle.State.DESTROYED)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateOptionSingleTopNestedGraph() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_multiple_navigation)
+        assertThat(navController.currentDestination?.id ?: 0)
+            .isEqualTo(R.id.simple_child_start_test)
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+
+        val graphEntry = navController.getBackStackEntry(R.id.simple_child_start)
+
+        navController.navigate(
+            R.id.simple_child_start_test, null,
+            navOptions {
+                launchSingleTop = true
+            }
+        )
+
+        navController.popBackStack()
+
+        assertThat(graphEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
     }
 
     /**

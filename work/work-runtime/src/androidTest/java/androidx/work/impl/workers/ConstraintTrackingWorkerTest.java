@@ -16,6 +16,8 @@
 
 package androidx.work.impl.workers;
 
+import static androidx.work.impl.workers.ConstraintTrackingWorkerKt.ARGUMENT_CLASS_NAME;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -52,9 +54,10 @@ import androidx.work.WorkerParameters;
 import androidx.work.impl.Scheduler;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.WorkerWrapper;
+import androidx.work.impl.constraints.NetworkState;
 import androidx.work.impl.constraints.trackers.BatteryChargingTracker;
 import androidx.work.impl.constraints.trackers.BatteryNotLowTracker;
-import androidx.work.impl.constraints.trackers.NetworkStateTracker;
+import androidx.work.impl.constraints.trackers.ConstraintTracker;
 import androidx.work.impl.constraints.trackers.StorageNotLowTracker;
 import androidx.work.impl.constraints.trackers.Trackers;
 import androidx.work.impl.foreground.ForegroundProcessor;
@@ -108,13 +111,14 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
     private Trackers mTracker;
     private BatteryChargingTracker mBatteryChargingTracker;
     private BatteryNotLowTracker mBatteryNotLowTracker;
-    private NetworkStateTracker mNetworkStateTracker;
+    private ConstraintTracker<NetworkState> mNetworkStateTracker;
     private StorageNotLowTracker mStorageNotLowTracker;
 
     @Rule
     public final RepeatRule mRepeatRule = new RepeatRule();
 
     @Before
+    @SuppressWarnings("unchecked")
     public void setUp() {
         mContext = ApplicationProvider.getApplicationContext().getApplicationContext();
         mHandlerThread = new HandlerThread("ConstraintTrackingHandler");
@@ -135,11 +139,12 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
         when(mWorkManagerImpl.getWorkDatabase()).thenReturn(mDatabase);
         when(mWorkManagerImpl.getWorkTaskExecutor()).thenReturn(mWorkTaskExecutor);
         when(mWorkManagerImpl.getConfiguration()).thenReturn(mConfiguration);
+        when(mWorkManagerImpl.getTrackers()).thenReturn(mTracker);
 
         mBatteryChargingTracker = spy(new BatteryChargingTracker(mContext, mWorkTaskExecutor));
         mBatteryNotLowTracker = spy(new BatteryNotLowTracker(mContext, mWorkTaskExecutor));
         // Requires API 24+ types.
-        mNetworkStateTracker = mock(NetworkStateTracker.class);
+        mNetworkStateTracker = mock(ConstraintTracker.class);
         mStorageNotLowTracker = spy(new StorageNotLowTracker(mContext, mWorkTaskExecutor));
         mTracker = mock(Trackers.class);
 
@@ -147,9 +152,6 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
         when(mTracker.getBatteryNotLowTracker()).thenReturn(mBatteryNotLowTracker);
         when(mTracker.getNetworkStateTracker()).thenReturn(mNetworkStateTracker);
         when(mTracker.getStorageNotLowTracker()).thenReturn(mStorageNotLowTracker);
-
-        // Override Trackers being used by WorkConstraintsProxy
-        Trackers.setInstance(mTracker);
     }
 
     @After
@@ -167,7 +169,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
         builder.withWorker(mWorker).withSchedulers(Collections.singletonList(mScheduler));
 
         mWorkerWrapper = builder.build();
-        mWorkTaskExecutor.getBackgroundExecutor().execute(mWorkerWrapper);
+        mWorkTaskExecutor.getSerialTaskExecutor().execute(mWorkerWrapper);
 
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(mWork.getStringId());
         assertThat(workSpec.state, is(WorkInfo.State.SUCCEEDED));
@@ -184,7 +186,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
         builder.withWorker(mWorker).withSchedulers(Collections.singletonList(mScheduler));
 
         mWorkerWrapper = builder.build();
-        mWorkTaskExecutor.getBackgroundExecutor().execute(mWorkerWrapper);
+        mWorkTaskExecutor.getSerialTaskExecutor().execute(mWorkerWrapper);
 
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(mWork.getStringId());
         assertThat(workSpec.state, is(WorkInfo.State.ENQUEUED));
@@ -306,7 +308,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
 
         mWorkerWrapper.interrupt();
         executorService.shutdown();
-        assertThat(mWorker.isRunInForeground(), is(true));
+        verify(mForegroundProcessor).isEnqueuedInForeground(mWork.getStringId());
         assertThat(mWorker.isStopped(), is(true));
         assertThat(mWorker.getDelegate(), is(notNullValue()));
         assertThat(mWorker.getDelegate().isStopped(), is(true));
@@ -318,7 +320,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
                 .build();
 
         Data input = new Data.Builder()
-                .putString(ConstraintTrackingWorker.ARGUMENT_CLASS_NAME, delegateName)
+                .putString(ARGUMENT_CLASS_NAME, delegateName)
                 .putBoolean(TEST_ARGUMENT_NAME, true)
                 .build();
 
@@ -350,7 +352,6 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
                 is(CoreMatchers.<ListenableWorker>instanceOf(ConstraintTrackingWorker.class)));
         // mWorker is already a spy
         mWorker = (ConstraintTrackingWorker) worker;
-        when(mWorker.getWorkDatabase()).thenReturn(mDatabase);
     }
 
     private WorkerWrapper.Builder createWorkerWrapperBuilder() {

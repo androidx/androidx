@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+
 package androidx.camera.camera2.pipe.graph
 
 import android.view.Surface
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.StreamGraph
@@ -49,7 +52,7 @@ internal class CameraGraphImpl @Inject constructor(
     // Only one session can be active at a time.
     private val sessionLock = TokenLockImpl(1)
 
-    private val controller3A = Controller3A(graphProcessor, graphState3A, listener3A)
+    private val controller3A = Controller3A(graphProcessor, metadata, graphState3A, listener3A)
 
     init {
         // Log out the configuration of the camera graph when it is created.

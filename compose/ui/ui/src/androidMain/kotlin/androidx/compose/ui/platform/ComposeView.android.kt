@@ -24,25 +24,23 @@ import android.view.ViewGroup
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
 import androidx.compose.runtime.CompositionContext
+import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.node.InternalCoreApi
 import androidx.compose.ui.node.Owner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewTreeLifecycleOwner
+import java.lang.ref.WeakReference
 
 /**
  * Base class for custom [android.view.View]s implemented using Jetpack Compose UI.
  * Subclasses should implement the [Content] function with the appropriate content.
  * Calls to [addView] and its variants and overloads will fail with [IllegalStateException].
  *
- * This [android.view.View] requires that the window it is attached to contains a
- * [ViewTreeLifecycleOwner]. This [androidx.lifecycle.LifecycleOwner] is used to
- * [dispose][androidx.compose.runtime.Composition.dispose] of the underlying composition
- * when the host [Lifecycle] is destroyed, permitting the view to be attached and
- * detached repeatedly while preserving the composition. Call [disposeComposition]
- * to dispose of the underlying composition earlier, or if the view is never initially
- * attached to a window. (The requirement to dispose of the composition explicitly
+ * By default, the composition is disposed according to [ViewCompositionStrategy.Default].
+ * Call [disposeComposition] to dispose of the underlying composition earlier, or if the view is
+ * never initially attached to a window. (The requirement to dispose of the composition explicitly
  * in the event that the view is never (re)attached is temporary.)
  */
 abstract class AbstractComposeView @JvmOverloads constructor(
@@ -61,8 +59,10 @@ abstract class AbstractComposeView @JvmOverloads constructor(
      * If this View moves to the [android.view.ViewOverlay] we won't be able
      * to find view tree dependencies; this happens when using transition APIs
      * to animate views out in particular.
+     *
+     * We only ever set this when we're attached to a window.
      */
-    private var cachedViewTreeCompositionContext: CompositionContext? = null
+    private var cachedViewTreeCompositionContext: WeakReference<CompositionContext>? = null
 
     /**
      * The [getWindowToken] of the window this view was last attached to.
@@ -120,11 +120,11 @@ abstract class AbstractComposeView @JvmOverloads constructor(
     // this particular ViewCompositionStrategy is not going to do something harmful with it.
     @Suppress("LeakingThis")
     private var disposeViewCompositionStrategy: (() -> Unit)? =
-        ViewCompositionStrategy.DisposeOnDetachedFromWindow.installFor(this)
+        ViewCompositionStrategy.Default.installFor(this)
 
     /**
      * Set the strategy for managing disposal of this View's internal composition.
-     * Defaults to [ViewCompositionStrategy.DisposeOnDetachedFromWindow].
+     * Defaults to [ViewCompositionStrategy.Default].
      *
      * This View's composition is a live resource that must be disposed to ensure that
      * long-lived references to it do not persist
@@ -203,6 +203,24 @@ abstract class AbstractComposeView @JvmOverloads constructor(
     }
 
     /**
+     * `true` if the [CompositionContext] can be considered to be "alive" for the purposes
+     * of locally caching it in case the view is placed into a ViewOverlay.
+     * [Recomposer]s that are in the [Recomposer.State.ShuttingDown] state or lower should
+     * not be cached or reusedif currently cached, as they will never recompose content.
+     */
+    private val CompositionContext.isAlive: Boolean
+        get() = this !is Recomposer || currentState.value > Recomposer.State.ShuttingDown
+
+    /**
+     * Cache this [CompositionContext] in [cachedViewTreeCompositionContext] if it [isAlive]
+     * and return the [CompositionContext] itself either way.
+     */
+    private fun CompositionContext.cacheIfAlive(): CompositionContext = also { context ->
+        context.takeIf { it.isAlive }
+            ?.let { cachedViewTreeCompositionContext = WeakReference(it) }
+    }
+
+    /**
      * Determine the correct [CompositionContext] to use as the parent of this view's
      * composition. This can result in caching a looked-up [CompositionContext] for use
      * later. See [cachedViewTreeCompositionContext] for more details.
@@ -217,9 +235,9 @@ abstract class AbstractComposeView @JvmOverloads constructor(
      * to do it, as well as still locate any view tree dependencies.
      */
     private fun resolveParentCompositionContext() = parentContext
-        ?: findViewTreeCompositionContext()?.also { cachedViewTreeCompositionContext = it }
-        ?: cachedViewTreeCompositionContext
-        ?: windowRecomposer.also { cachedViewTreeCompositionContext = it }
+        ?: findViewTreeCompositionContext()?.cacheIfAlive()
+        ?: cachedViewTreeCompositionContext?.get()?.takeIf { it.isAlive }
+        ?: windowRecomposer.cacheIfAlive()
 
     @Suppress("DEPRECATION") // Still using ViewGroup.setContent for now
     private fun ensureCompositionCreated() {
@@ -354,19 +372,17 @@ abstract class AbstractComposeView @JvmOverloads constructor(
         checkAddView()
         return super.addViewInLayout(child, index, params, preventRequestLayout)
     }
+
+    override fun shouldDelayChildPressedState(): Boolean = false
 }
 
 /**
  * A [android.view.View] that can host Jetpack Compose UI content.
  * Use [setContent] to supply the content composable function for the view.
  *
- * This [android.view.View] requires that the window it is attached to contains a
- * [ViewTreeLifecycleOwner]. This [androidx.lifecycle.LifecycleOwner] is used to
- * [dispose][androidx.compose.runtime.Composition.dispose] of the underlying composition
- * when the host [Lifecycle] is destroyed, permitting the view to be attached and
- * detached repeatedly while preserving the composition. Call [disposeComposition]
- * to dispose of the underlying composition earlier, or if the view is never initially
- * attached to a window. (The requirement to dispose of the composition explicitly
+ * By default, the composition is disposed according to [ViewCompositionStrategy.Default].
+ * Call [disposeComposition] to dispose of the underlying composition earlier, or if the view is
+ * never initially attached to a window. (The requirement to dispose of the composition explicitly
  * in the event that the view is never (re)attached is temporary.)
  */
 class ComposeView @JvmOverloads constructor(

@@ -158,8 +158,8 @@ class FragmentContainerViewTest {
 
         var dispatchedToChild = 0
         childView.setOnApplyWindowInsetsListener(object : View.OnApplyWindowInsetsListener {
-            override fun onApplyWindowInsets(p0: View?, insets: WindowInsets?): WindowInsets {
-                assertThat(insets!!.systemWindowInsets).isEqualTo(sentInsets.systemWindowInsets)
+            override fun onApplyWindowInsets(p0: View, insets: WindowInsets): WindowInsets {
+                assertThat(insets.systemWindowInsets).isEqualTo(sentInsets.systemWindowInsets)
                 dispatchedToChild++
                 return insets
             }
@@ -189,8 +189,8 @@ class FragmentContainerViewTest {
 
         var dispatchedToChild = 0
         childView.setOnApplyWindowInsetsListener(object : View.OnApplyWindowInsetsListener {
-            override fun onApplyWindowInsets(p0: View?, insets: WindowInsets?): WindowInsets {
-                assertThat(insets!!.systemWindowInsets).isEqualTo(sentInsets.systemWindowInsets)
+            override fun onApplyWindowInsets(p0: View, insets: WindowInsets): WindowInsets {
+                assertThat(insets.systemWindowInsets).isEqualTo(sentInsets.systemWindowInsets)
                 dispatchedToChild++
                 return WindowInsets.Builder()
                     .setSystemWindowInsets(Insets.of(0, 0, 0, 0))
@@ -200,8 +200,8 @@ class FragmentContainerViewTest {
 
         var dispatchedToChild2 = 0
         childView2.setOnApplyWindowInsetsListener(object : View.OnApplyWindowInsetsListener {
-            override fun onApplyWindowInsets(p0: View?, insets: WindowInsets?): WindowInsets {
-                assertThat(insets!!.systemWindowInsets).isEqualTo(sentInsets.systemWindowInsets)
+            override fun onApplyWindowInsets(p0: View, insets: WindowInsets): WindowInsets {
+                assertThat(insets.systemWindowInsets).isEqualTo(sentInsets.systemWindowInsets)
                 dispatchedToChild2++
                 return insets
             }
@@ -234,11 +234,11 @@ class FragmentContainerViewTest {
             fragmentContainerView,
             object : OnApplyWindowInsetsListener {
                 override fun onApplyWindowInsets(
-                    v: View?,
-                    insets: WindowInsetsCompat?
+                    v: View,
+                    insets: WindowInsetsCompat
                 ): WindowInsetsCompat {
                     calledListener = true
-                    return insets!!
+                    return insets
                 }
             }
         )

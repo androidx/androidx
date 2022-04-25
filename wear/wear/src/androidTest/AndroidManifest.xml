@@ -14,8 +14,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="androidx.wear.test">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application
         android:requestLegacyExternalStorage="true"
@@ -31,7 +30,7 @@
         <activity
             android:name="androidx.wear.widget.DismissibleFrameLayoutTestActivity"
             android:exported="false"
-            android:theme="@style/AppThemeNoSwipe">
+            android:theme="@android:style/Theme.DeviceDefault.Light">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

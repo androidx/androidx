@@ -325,6 +325,13 @@ class FragmentTransactionCallbackTest : BaseTest() {
                 log.append("Lifecycle:onFragmentPreCreated(${f.name})")
             }
 
+            @Deprecated("To get a callback specifically when a Fragment activity's\n" +
+                " {@link android.app.Activity#onCreate(Bundle)} is called, register a\n" +
+                " {@link androidx.lifecycle.LifecycleObserver} on the Activity's\n" +
+                " {@link Lifecycle} in" +
+                " {@link #onFragmentAttached(FragmentManager, Fragment, Context)}, removing it\n" +
+                " when it receives the {@link Lifecycle.State#CREATED} callback."
+            )
             override fun onFragmentActivityCreated(
                 fm: FragmentManager,
                 f: Fragment,

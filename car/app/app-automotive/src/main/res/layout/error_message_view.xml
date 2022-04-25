@@ -39,8 +39,8 @@
 
             <ImageView
                 android:id="@+id/message_icon"
-                android:layout_width="@dimen/car_app_icon_size"
-                android:layout_height="@dimen/car_app_icon_size"
+                android:layout_width="@dimen/car_app_automotive_icon_size"
+                android:layout_height="@dimen/car_app_automotive_icon_size"
                 android:src="@drawable/car_app_icon_error"
                 tools:ignore="ContentDescription" />
 
@@ -49,19 +49,19 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginTop="@dimen/car_app_default_padding_4"
+                android:layout_marginTop="@dimen/car_app_automotive_default_padding_4"
                 android:foreground="@drawable/car_app_no_content_view_focus_ring"
-                android:textSize="@dimen/car_app_error_message_font_size" />
+                android:textSize="@dimen/car_app_automotive_error_message_font_size" />
 
             <Button
                 android:id="@+id/action_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/car_app_default_padding_5"
+                android:layout_marginTop="@dimen/car_app_automotive_default_padding_5"
                 android:background="@drawable/car_app_rounded_corner"
                 android:backgroundTint="@color/action_button"
                 android:textColor="@color/default_white"
-                android:textSize="@dimen/car_app_error_message_font_size" />
+                android:textSize="@dimen/car_app_automotive_error_message_font_size" />
         </LinearLayout>
     </FrameLayout>
 </androidx.car.app.activity.ui.ErrorMessageView>

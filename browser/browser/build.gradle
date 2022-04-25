@@ -1,4 +1,3 @@
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -14,6 +13,7 @@ android {
         aidl = true
     }
     testOptions.unitTests.includeAndroidResources = true
+    namespace "androidx.browser"
 }
 
 dependencies {

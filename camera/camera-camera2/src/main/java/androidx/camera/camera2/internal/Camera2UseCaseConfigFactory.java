@@ -24,13 +24,13 @@ import static androidx.camera.core.impl.UseCaseConfig.OPTION_DEFAULT_SESSION_CON
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_SESSION_CONFIG_UNPACKER;
 
 import android.content.Context;
-import android.graphics.Point;
 import android.hardware.camera2.CameraDevice;
-import android.util.Size;
-import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.workaround.PreviewPixelHDRnet;
+import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCapture.CaptureMode;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.MutableOptionsBundle;
@@ -42,12 +42,12 @@ import androidx.camera.core.impl.UseCaseConfigFactory;
  * Implementation of UseCaseConfigFactory to provide the default camera2 configurations for use
  * cases.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class Camera2UseCaseConfigFactory implements UseCaseConfigFactory {
-    private static final Size MAX_PREVIEW_SIZE = new Size(1920, 1080);
-    final WindowManager mWindowManager;
+    final DisplayInfoManager mDisplayInfoManager;
 
     public Camera2UseCaseConfigFactory(@NonNull Context context) {
-        mWindowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        mDisplayInfoManager = DisplayInfoManager.getInstance(context);
     }
 
     /**
@@ -56,13 +56,19 @@ public final class Camera2UseCaseConfigFactory implements UseCaseConfigFactory {
      */
     @NonNull
     @Override
-    @SuppressWarnings("deprecation") /* getDefaultDisplay */
-    public Config getConfig(@NonNull CaptureType captureType) {
+    public Config getConfig(
+            @NonNull CaptureType captureType,
+            @CaptureMode int captureMode) {
         final MutableOptionsBundle mutableConfig = MutableOptionsBundle.create();
 
         SessionConfig.Builder sessionBuilder = new SessionConfig.Builder();
         switch (captureType) {
             case IMAGE_CAPTURE:
+                sessionBuilder.setTemplateType(
+                        captureMode == ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG
+                                ? CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG :
+                                CameraDevice.TEMPLATE_PREVIEW);
+                break;
             case PREVIEW:
             case IMAGE_ANALYSIS:
                 sessionBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
@@ -86,7 +92,10 @@ public final class Camera2UseCaseConfigFactory implements UseCaseConfigFactory {
 
         switch (captureType) {
             case IMAGE_CAPTURE:
-                captureBuilder.setTemplateType(CameraDevice.TEMPLATE_STILL_CAPTURE);
+                captureBuilder.setTemplateType(
+                        captureMode == ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG
+                                ? CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG :
+                        CameraDevice.TEMPLATE_STILL_CAPTURE);
                 break;
             case PREVIEW:
             case IMAGE_ANALYSIS:
@@ -105,32 +114,13 @@ public final class Camera2UseCaseConfigFactory implements UseCaseConfigFactory {
                         : Camera2CaptureOptionUnpacker.INSTANCE);
 
         if (captureType == CaptureType.PREVIEW) {
-            mutableConfig.insertOption(OPTION_MAX_RESOLUTION, getPreviewSize());
+            mutableConfig.insertOption(OPTION_MAX_RESOLUTION,
+                    mDisplayInfoManager.getPreviewSize());
         }
 
-        int targetRotation = mWindowManager.getDefaultDisplay().getRotation();
+        int targetRotation = mDisplayInfoManager.getMaxSizeDisplay().getRotation();
         mutableConfig.insertOption(OPTION_TARGET_ROTATION, targetRotation);
 
         return OptionsBundle.from(mutableConfig);
-    }
-
-    /**
-     * Returns the device's screen resolution, or 1080p, whichever is smaller.
-     */
-    @SuppressWarnings("deprecation") /* getDefaultDisplay */
-    private Size getPreviewSize() {
-        Point displaySize = new Point();
-        mWindowManager.getDefaultDisplay().getRealSize(displaySize);
-
-        Size displayViewSize;
-        if (displaySize.x > displaySize.y) {
-            displayViewSize = new Size(displaySize.x, displaySize.y);
-        } else {
-            displayViewSize = new Size(displaySize.y, displaySize.x);
-        }
-
-        return displayViewSize.getWidth() * displayViewSize.getHeight()
-                > MAX_PREVIEW_SIZE.getWidth() * MAX_PREVIEW_SIZE.getHeight() ? MAX_PREVIEW_SIZE
-                : displayViewSize;
     }
 }

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="complication_config" msgid="3090406830927670356">"వాచ్ లుక్ సంక్లిష్టతలను కాన్ఫిగర్ చేయండి"</string>
+    <string name="watchface_settings" msgid="9086980313887663299">"వాచ్ లుక్ సెట్టింగ్‌లను కాన్ఫిగర్ చేయండి"</string>
+    <string name="style_config" msgid="7270818527618953542">"వాచ్ లుక్ స్టయిల్స్‌ను కాన్ఫిగర్ చేయండి"</string>
+    <string name="none_background_image_provider" msgid="2763799590544856080">"ఏదీ లేదు"</string>
+    <string name="settings_complications" msgid="1425815384891476600">"డేటా"</string>
+    <string name="settings_background_image" msgid="496585675676995765">"బ్యాక్‌గ్రౌండ్ ఇమేజ్"</string>
+    <string name="settings_styles" msgid="3243144642316786428">"స్టయిల్స్"</string>
+</resources>

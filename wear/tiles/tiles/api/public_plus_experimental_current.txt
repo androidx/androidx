@@ -151,6 +151,7 @@ package androidx.wear.tiles {
     method public static androidx.wear.tiles.DimensionBuilders.DegreesProp degrees(float);
     method public static androidx.wear.tiles.DimensionBuilders.DpProp dp(@Dimension(unit=androidx.annotation.Dimension.DP) float);
     method public static androidx.wear.tiles.DimensionBuilders.EmProp em(int);
+    method public static androidx.wear.tiles.DimensionBuilders.EmProp em(float);
     method public static androidx.wear.tiles.DimensionBuilders.ExpandedDimensionProp expand();
     method public static androidx.wear.tiles.DimensionBuilders.SpProp sp(@Dimension(unit=androidx.annotation.Dimension.SP) float);
     method public static androidx.wear.tiles.DimensionBuilders.WrappedDimensionProp wrap();
@@ -545,8 +546,8 @@ package androidx.wear.tiles {
   }
 
   public static final class LayoutElementBuilders.Image implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method public androidx.wear.tiles.LayoutElementBuilders.ColorFilter? getColorFilter();
     method public androidx.wear.tiles.LayoutElementBuilders.ContentScaleModeProp? getContentScaleMode();
-    method @androidx.wear.tiles.TilesExperimental public androidx.wear.tiles.LayoutElementBuilders.ColorFilter? getFilter();
     method public androidx.wear.tiles.DimensionBuilders.ImageDimension? getHeight();
     method public androidx.wear.tiles.ModifiersBuilders.Modifiers? getModifiers();
     method public androidx.wear.tiles.TypeBuilders.StringProp? getResourceId();
@@ -556,9 +557,9 @@ package androidx.wear.tiles {
   public static final class LayoutElementBuilders.Image.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
     ctor public LayoutElementBuilders.Image.Builder();
     method public androidx.wear.tiles.LayoutElementBuilders.Image build();
+    method public androidx.wear.tiles.LayoutElementBuilders.Image.Builder setColorFilter(androidx.wear.tiles.LayoutElementBuilders.ColorFilter);
     method public androidx.wear.tiles.LayoutElementBuilders.Image.Builder setContentScaleMode(androidx.wear.tiles.LayoutElementBuilders.ContentScaleModeProp);
     method public androidx.wear.tiles.LayoutElementBuilders.Image.Builder setContentScaleMode(int);
-    method @androidx.wear.tiles.TilesExperimental public androidx.wear.tiles.LayoutElementBuilders.Image.Builder setFilter(androidx.wear.tiles.LayoutElementBuilders.ColorFilter);
     method public androidx.wear.tiles.LayoutElementBuilders.Image.Builder setHeight(androidx.wear.tiles.DimensionBuilders.ImageDimension);
     method public androidx.wear.tiles.LayoutElementBuilders.Image.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.Modifiers);
     method public androidx.wear.tiles.LayoutElementBuilders.Image.Builder setResourceId(androidx.wear.tiles.TypeBuilders.StringProp);
@@ -567,6 +568,7 @@ package androidx.wear.tiles {
   }
 
   public static final class LayoutElementBuilders.Layout {
+    method public static androidx.wear.tiles.LayoutElementBuilders.Layout fromLayoutElement(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getRoot();
   }
 
@@ -1017,6 +1019,7 @@ package androidx.wear.tiles {
   }
 
   public static final class TimelineBuilders.Timeline {
+    method public static androidx.wear.tiles.TimelineBuilders.Timeline fromLayoutElement(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
     method public java.util.List<androidx.wear.tiles.TimelineBuilders.TimelineEntry!> getTimelineEntries();
   }
 
@@ -1027,6 +1030,7 @@ package androidx.wear.tiles {
   }
 
   public static final class TimelineBuilders.TimelineEntry {
+    method public static androidx.wear.tiles.TimelineBuilders.TimelineEntry fromLayoutElement(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.tiles.LayoutElementBuilders.Layout? getLayout();
     method public androidx.wear.tiles.TimelineBuilders.TimeInterval? getValidity();
   }

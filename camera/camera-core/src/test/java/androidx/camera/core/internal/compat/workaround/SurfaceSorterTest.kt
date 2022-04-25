@@ -32,10 +32,6 @@ import org.mockito.Mockito.mock
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
-import org.robolectric.shadows.ShadowBuild
-
-private const val BRAND = "SAMSUNG"
-private const val HARDWARE = "samsungexynos7570"
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
@@ -50,9 +46,8 @@ class SurfaceSorterTest {
     }
 
     @Test
-    fun sort_mediaCodecSurfaceIsInTheLast() {
+    fun sort_previewSurfaceIsInTheFirstAndMediaCodecSurfaceIsInTheLast() {
         // Arrange.
-        setupQuirkDevice()
         val videoSurface = createSurface(containerClass = MediaCodec::class.java)
         val previewSurface = createSurface(containerClass = Preview::class.java)
         val imageSurface = createSurface(containerClass = ImageCapture::class.java)
@@ -75,6 +70,13 @@ class SurfaceSorterTest {
         surfaceSorter.sort(surfaces6)
 
         // Assert.
+        assertThat(surfaces1.first()).isEqualTo(previewSurface)
+        assertThat(surfaces2.first()).isEqualTo(previewSurface)
+        assertThat(surfaces3.first()).isEqualTo(previewSurface)
+        assertThat(surfaces4.first()).isEqualTo(previewSurface)
+        assertThat(surfaces5.first()).isEqualTo(previewSurface)
+        assertThat(surfaces6.first()).isEqualTo(previewSurface)
+
         assertThat(surfaces1.last()).isEqualTo(videoSurface)
         assertThat(surfaces2.last()).isEqualTo(videoSurface)
         assertThat(surfaces3.last()).isEqualTo(videoSurface)
@@ -84,9 +86,8 @@ class SurfaceSorterTest {
     }
 
     @Test
-    fun sort_videoCaptureSurfaceIsInTheLast() {
+    fun sort_previewSurfaceIsInTheFirstAndVideoCaptureSurfaceIsInTheLast() {
         // Arrange.
-        setupQuirkDevice()
         val videoSurface = createSurface(containerClass = VideoCapture::class.java)
         val previewSurface = createSurface(containerClass = Preview::class.java)
         val imageSurface = createSurface(containerClass = ImageCapture::class.java)
@@ -109,28 +110,19 @@ class SurfaceSorterTest {
         surfaceSorter.sort(surfaces6)
 
         // Assert.
+        assertThat(surfaces1.first()).isEqualTo(previewSurface)
+        assertThat(surfaces2.first()).isEqualTo(previewSurface)
+        assertThat(surfaces3.first()).isEqualTo(previewSurface)
+        assertThat(surfaces4.first()).isEqualTo(previewSurface)
+        assertThat(surfaces5.first()).isEqualTo(previewSurface)
+        assertThat(surfaces6.first()).isEqualTo(previewSurface)
+
         assertThat(surfaces1.last()).isEqualTo(videoSurface)
         assertThat(surfaces2.last()).isEqualTo(videoSurface)
         assertThat(surfaces3.last()).isEqualTo(videoSurface)
         assertThat(surfaces4.last()).isEqualTo(videoSurface)
         assertThat(surfaces5.last()).isEqualTo(videoSurface)
         assertThat(surfaces6.last()).isEqualTo(videoSurface)
-    }
-
-    @Test
-    fun notQuirkDevice_wontSort() {
-        // Arrange.
-        val videoSurface = createSurface(containerClass = VideoCapture::class.java)
-        val previewSurface = createSurface(containerClass = Preview::class.java)
-        val imageSurface = createSurface(containerClass = ImageCapture::class.java)
-        val surfaceSorter = SurfaceSorter()
-        val surfaces = mutableListOf(videoSurface, previewSurface, imageSurface)
-
-        // Act.
-        surfaceSorter.sort(surfaces)
-
-        // Assert.
-        assertThat(surfaces).isEqualTo(listOf(videoSurface, previewSurface, imageSurface))
     }
 
     private fun createSurface(
@@ -140,10 +132,5 @@ class SurfaceSorterTest {
         deferrableSurface.setContainerClass(containerClass)
         deferrableSurfaces.add(deferrableSurface)
         return deferrableSurface
-    }
-
-    private fun setupQuirkDevice() {
-        ShadowBuild.setBrand(BRAND)
-        ShadowBuild.setHardware(HARDWARE)
     }
 }

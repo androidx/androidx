@@ -1,4 +1,3 @@
-@file:OptIn(GlanceInternalApi::class)
 /*
  * Copyright 2021 The Android Open Source Project
  *
@@ -20,10 +19,9 @@ package androidx.glance
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Test
-import java.lang.IllegalArgumentException
 import kotlin.test.assertFailsWith
 
-@OptIn(GlanceInternalApi::class, ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class ApplierTest {
 
     @Test
@@ -108,6 +106,28 @@ class ApplierTest {
         )
     }
 
+    @Test
+    fun resetDepth() {
+        val root = RootEmittable(maxDepth = 1)
+        val applier = Applier(root)
+
+        applier.insertTopDown(0, LeafEmittable())
+        val r = ResetsDepthEmittable()
+        applier.insertTopDown(1, r)
+        applier.down(r)
+        val m = MiddleEmittable()
+        applier.insertTopDown(0, m)
+        applier.down(m)
+
+        val ex = assertFailsWith<IllegalArgumentException> {
+            applier.insertTopDown(0, LeafEmittable())
+        }
+
+        assertThat(ex.message).isEqualTo(
+            "Too many embedded views for the current surface. The maximum depth is: 1"
+        )
+    }
+
     private companion object {
         fun updateApplier(applier: Applier) {
             val middle = MiddleEmittable()
@@ -121,13 +141,17 @@ class ApplierTest {
 }
 
 private class RootEmittable(maxDepth: Int = Int.MAX_VALUE) : EmittableWithChildren(maxDepth) {
-    override var modifier: Modifier = Modifier
+    override var modifier: GlanceModifier = GlanceModifier
 }
 
 private class MiddleEmittable : EmittableWithChildren() {
-    override var modifier: Modifier = Modifier
+    override var modifier: GlanceModifier = GlanceModifier
 }
 
 private class LeafEmittable : Emittable {
-    override var modifier: Modifier = Modifier
+    override var modifier: GlanceModifier = GlanceModifier
+}
+
+private class ResetsDepthEmittable : EmittableWithChildren(resetsDepthForChildren = true) {
+    override var modifier: GlanceModifier = GlanceModifier
 }

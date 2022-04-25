@@ -16,6 +16,7 @@
 
 package androidx.car.app.model;
 
+import static androidx.car.app.model.Action.FLAG_PRIMARY;
 import static androidx.car.app.model.CarIcon.BACK;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -105,6 +106,18 @@ public class MessageTemplateTest {
                         .addAction(mAction)
                         .addAction(mAction)
                         .addAction(mAction));
+    }
+
+    @Test
+    public void twoPrimaryActions_throws() {
+        Action primaryAction = new Action.Builder().setTitle("primaryAction")
+                .setOnClickListener(() -> {})
+                .setFlags(FLAG_PRIMARY).build();
+        assertThrows(IllegalArgumentException.class,
+                () -> new MessageTemplate.Builder(mMessage)
+                        .addAction(primaryAction)
+                        .addAction(primaryAction)
+                .build());
     }
 
     @Test

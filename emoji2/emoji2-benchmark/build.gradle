@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -36,6 +35,7 @@ android {
             }
         }
     }
+    namespace "androidx.emoji2.benchmark"
 
 }
 

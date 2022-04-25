@@ -17,9 +17,12 @@
 package androidx.compose.ui.test.injectionscope.touch
 
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.testutils.TestViewConfiguration
+import androidx.compose.testutils.WithViewConfiguration
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.test.InputDispatcher.Companion.eventPeriodMillis
 import androidx.compose.ui.test.TouchInjectionScope
 import androidx.compose.ui.test.doubleClick
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -46,6 +49,14 @@ class DoubleClickTest(private val config: TestConfig) {
     data class TestConfig(val position: Offset?, val delayMillis: Long?)
 
     companion object {
+        private const val DoubleTapMin = 40L
+        private const val DoubleTapMax = 200L
+        private const val DefaultDoubleTapTimeMillis = (DoubleTapMin + DoubleTapMax) / 2
+        private val testViewConfiguration = TestViewConfiguration(
+            doubleTapMinTimeMillis = DoubleTapMin,
+            doubleTapTimeoutMillis = DoubleTapMax
+        )
+
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
         fun createTestSet(): List<TestConfig> {
@@ -65,7 +76,7 @@ class DoubleClickTest(private val config: TestConfig) {
 
     private val expectedClickPosition =
         config.position ?: Offset(defaultSize / 2, defaultSize / 2)
-    private val expectedDelay = config.delayMillis ?: 145L
+    private val expectedDelay = config.delayMillis ?: DefaultDoubleTapTimeMillis
 
     private fun recordDoubleClick(position: Offset) {
         recordedDoubleClicks.add(position)
@@ -76,11 +87,13 @@ class DoubleClickTest(private val config: TestConfig) {
         // Given some content
         val recorder = SinglePointerInputRecorder()
         rule.setContent {
-            ClickableTestBox(
-                Modifier
-                    .pointerInput(Unit) { detectTapGestures(onDoubleTap = ::recordDoubleClick) }
-                    .then(recorder)
-            )
+            WithViewConfiguration(testViewConfiguration) {
+                ClickableTestBox(
+                    Modifier
+                        .pointerInput(Unit) { detectTapGestures(onDoubleTap = ::recordDoubleClick) }
+                        .then(recorder)
+                )
+            }
         }
 
         // When we inject a double click
@@ -106,19 +119,17 @@ class DoubleClickTest(private val config: TestConfig) {
     }
 
     private fun SinglePointerInputRecorder.assertIsDoubleClick(position: Offset) {
-        assertThat(events).hasSize(6)
+        assertThat(events).hasSize(4)
         val t0 = events[0].timestamp
         val id0 = events[0].id
 
         events[0].verify(t0 + 0, id0, true, position)
-        events[1].verify(t0 + 10, id0, true, position)
-        events[2].verify(t0 + 10, id0, false, position)
+        events[1].verify(t0 + eventPeriodMillis, id0, false, position)
 
-        val t1 = events[2].timestamp + expectedDelay
-        val id1 = events[3].id
+        val t1 = events[1].timestamp + expectedDelay
+        val id1 = events[2].id
 
-        events[3].verify(t1 + 0, id1, true, position)
-        events[4].verify(t1 + 10, id1, true, position)
-        events[5].verify(t1 + 10, id1, false, position)
+        events[2].verify(t1 + 0, id1, true, position)
+        events[3].verify(t1 + eventPeriodMillis, id1, false, position)
     }
 }

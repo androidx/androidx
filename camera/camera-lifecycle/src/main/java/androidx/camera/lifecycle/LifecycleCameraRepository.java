@@ -19,6 +19,7 @@ package androidx.camera.lifecycle;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.ViewPort;
 import androidx.camera.core.impl.CameraInternal;
@@ -64,6 +65,7 @@ import java.util.Set;
  * When it is released, all UseCases bound to the LifecycleCamera will be unbound and the
  * LifecycleCamera will be released.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class LifecycleCameraRepository {
     private final Object mLock = new Object();
 
@@ -428,6 +430,15 @@ final class LifecycleCameraRepository {
         synchronized (mLock) {
             LifecycleCameraRepositoryObserver observer =
                     getLifecycleCameraRepositoryObserver(lifecycleOwner);
+
+            // An observer should be created when the lifecycleOwner was first time used to bind
+            // use cases to a camera. It should be removed from the mLifecycleObserverMap when an
+            // ON_DESTROY event is received from the observer. Normally, this should be not null
+            // when this function is called from LifecycleCameraRepositoryObserver#onStop, but it
+            // seems like it might happen in the real world. See b/222105787.
+            if (observer == null) {
+                return;
+            }
 
             for (Key key : mLifecycleObserverMap.get(observer)) {
                 Preconditions.checkNotNull(mCameraMap.get(key)).suspend();

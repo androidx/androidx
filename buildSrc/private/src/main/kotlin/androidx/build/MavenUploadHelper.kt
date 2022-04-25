@@ -18,11 +18,13 @@ package androidx.build
 
 import androidx.build.Multiplatform.Companion.isMultiplatformEnabled
 import com.android.build.gradle.LibraryPlugin
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonObject
+import com.google.gson.stream.JsonWriter
 import groovy.util.Node
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.XmlProvider
-import org.gradle.api.artifacts.Dependency
 import org.gradle.api.component.SoftwareComponent
 import org.gradle.api.provider.Provider
 import org.gradle.api.publish.PublishingExtension
@@ -35,6 +37,12 @@ import org.gradle.kotlin.dsl.findByType
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
 import java.io.File
+import java.io.StringWriter
+import org.dom4j.DocumentFactory
+import org.dom4j.DocumentHelper
+import org.dom4j.Element
+import org.dom4j.io.XMLWriter
+import org.gradle.api.publish.maven.tasks.GenerateMavenPom
 
 fun Project.configureMavenArtifactUpload(extension: AndroidXExtension) {
     apply(mapOf("plugin" to "maven-publish"))
@@ -92,11 +100,13 @@ private fun Project.configureComponent(
                         removePreviouslyUploadedArchives(projectArchiveDir)
                     }
                 } else {
-                    it.create<MavenPublication>("maven") {
-                        from(component)
-                    }
-                    tasks.getByName("publishMavenPublicationToMavenRepository").doFirst {
-                        removePreviouslyUploadedArchives(projectArchiveDir)
+                    if (!project.isMultiplatformPublicationEnabled()) {
+                        it.create<MavenPublication>("maven") {
+                            from(component)
+                        }
+                        tasks.getByName("publishMavenPublicationToMavenRepository").doFirst {
+                            removePreviouslyUploadedArchives(projectArchiveDir)
+                        }
                     }
                 }
             }
@@ -111,11 +121,35 @@ private fun Project.configureComponent(
         // Register it as part of release so that we create a Zip file for it
         Release.register(this, extension)
 
+        // Workarounds for https://github.com/gradle/gradle/issues/20011
+        project.tasks.withType(GenerateModuleMetadata::class.java).configureEach { task ->
+            task.doLast {
+                val metadataFile = task.outputFile.asFile.get()
+                val metadata = metadataFile.readText()
+                val sortedMetadata = sortGradleMetadataDependencies(metadata)
+
+                if (metadata != sortedMetadata) {
+                    metadataFile.writeText(sortedMetadata)
+                }
+            }
+        }
+        project.tasks.withType(GenerateMavenPom::class.java).configureEach { task ->
+            task.doLast {
+                val pomFile = task.destination
+                val pom = pomFile.readText()
+                val sortedPom = sortPomDependencies(pom)
+
+                if (pom != sortedPom) {
+                    pomFile.writeText(sortedPom)
+                }
+            }
+        }
+
         // Workaround for https://github.com/gradle/gradle/issues/11717
         project.tasks.withType(GenerateModuleMetadata::class.java).configureEach { task ->
             task.doLast {
                 val metadata = task.outputFile.asFile.get()
-                var text = metadata.readText()
+                val text = metadata.readText()
                 metadata.writeText(
                     text.replace(
                         "\"buildId\": .*".toRegex(),
@@ -125,18 +159,84 @@ private fun Project.configureComponent(
             }
         }
 
-        if (project.isMultiplatformEnabled()) {
+        if (project.isMultiplatformPublicationEnabled()) {
             configureMultiplatformPublication()
         }
     }
 }
 
-private fun Project.configureMultiplatformPublication() {
-    val multiplatformExtension = extensions.findByType<KotlinMultiplatformExtension>() ?: return
+/**
+ * Looks for a dependencies XML element within [pom] and sorts its contents.
+ */
+fun sortPomDependencies(pom: String): String {
+    // Workaround for using the default namespace in dom4j.
+    val namespaceUris = mapOf("ns" to "http://maven.apache.org/POM/4.0.0")
+    DocumentFactory.getInstance().xPathNamespaceURIs = namespaceUris
+    val document = DocumentHelper.parseText(pom)
 
-    // publishMavenPublicationToMavenRepository will produce conflicting artifacts with the same
-    // name as the artifacts producing by publishKotlinMultiplatformPublicationToMavenRepository
-    project.tasks.findByName("publishMavenPublicationToMavenRepository")?.enabled = false
+    // For each <dependencies> element, sort the contained elements in-place.
+    document.rootElement
+        .selectNodes("ns:dependencies")
+        .filterIsInstance<Element>()
+        .forEach { element ->
+            val deps = element.elements()
+            val sortedDeps = deps.toSortedSet(compareBy { it.stringValue }).toList()
+
+            // Content contains formatting nodes, so to avoid modifying those we replace
+            // each element with the sorted element from its respective index. Note this
+            // will not move adjacent elements, so any comments would remain in their
+            // original order.
+            element.content().replaceAll {
+                val index = deps.indexOf(it)
+                if (index >= 0) {
+                    sortedDeps[index]
+                } else {
+                    it
+                }
+            }
+        }
+
+    // Write to string. Note that this does not preserve the original indent level, but it
+    // does preserve line breaks -- not that any of this matters for client XML parsing.
+    val stringWriter = StringWriter()
+    XMLWriter(stringWriter).apply {
+        setIndentLevel(2)
+        write(document)
+        close()
+    }
+
+    return stringWriter.toString()
+}
+
+/**
+ * Looks for a dependencies JSON element within [metadata] and sorts its contents.
+ */
+fun sortGradleMetadataDependencies(metadata: String): String {
+    val gson = GsonBuilder().create()
+    val jsonObj = gson.fromJson(metadata, JsonObject::class.java)!!
+    jsonObj.getAsJsonArray("variants").forEach { entry ->
+        (entry as? JsonObject)?.getAsJsonArray("dependencies")?.let { jsonArray ->
+            val sortedSet = jsonArray.toSortedSet(compareBy { it.toString() })
+            jsonArray.removeAll { true }
+            sortedSet.forEach { element -> jsonArray.add(element) }
+        }
+    }
+
+    val stringWriter = StringWriter()
+    val jsonWriter = JsonWriter(stringWriter)
+    jsonWriter.setIndent("  ")
+    gson.toJson(jsonObj, jsonWriter)
+    return stringWriter.toString()
+}
+
+private fun Project.isMultiplatformPublicationEnabled(): Boolean {
+    if (!project.isMultiplatformEnabled())
+        return false
+    return extensions.findByType<KotlinMultiplatformExtension>() != null
+}
+
+private fun Project.configureMultiplatformPublication() {
+    val multiplatformExtension = extensions.findByType<KotlinMultiplatformExtension>()!!
 
     multiplatformExtension.targets.all { target ->
         if (target is KotlinAndroidTarget) {
@@ -152,7 +252,11 @@ private fun Project.validateCoordinatesAndGetGroup(extension: AndroidXExtension)
     val mavenGroup = extension.mavenGroup
         ?: throw Exception("You must specify mavenGroup for $name project")
     val strippedGroupId = mavenGroup.group.substringAfterLast(".")
-    if (mavenGroup.group.startsWith("androidx") && !name.startsWith(strippedGroupId)) {
+    if (
+        !extension.bypassCoordinateValidation &&
+        mavenGroup.group.startsWith("androidx") &&
+        !name.startsWith(strippedGroupId)
+    ) {
         throw Exception("Your artifactId must start with '$strippedGroupId'. (currently is $name)")
     }
     return mavenGroup
@@ -219,6 +323,7 @@ private fun tweakDependenciesMetadata(
         // https://android-review.googlesource.com/c/platform/frameworks/support/+/1144664/8/buildSrc/src/main/kotlin/androidx/build/MavenUploadHelper.kt#177
         assignSingleVersionDependenciesInGroupForPom(xml, mavenGroup)
         assignAarTypes(xml, androidLibrariesSetProvider)
+        ensureConsistentJvmSuffix(xml)
     }
 }
 
@@ -302,14 +407,31 @@ private fun isVersionRange(text: String): Boolean {
         text.contains(",")
 }
 
-private fun Project.collectDependenciesForConfiguration(
-    androidxDependencies: MutableSet<Dependency>,
-    name: String
+/**
+ * Ensures that artifactIds are consistent when using configuration caching.
+ * A workaround for https://github.com/gradle/gradle/issues/18369
+ */
+private fun ensureConsistentJvmSuffix(
+    xml: XmlProvider
 ) {
-    val config = configurations.findByName(name)
-    config?.dependencies?.forEach { dep ->
-        if (dep.group?.startsWith("androidx.") == true) {
-            androidxDependencies.add(dep)
+    val dependencies = xml.asNode().children().find {
+        it is Node && it.name().toString().endsWith("dependencies")
+    } as Node?
+    dependencies?.children()?.forEach { dep ->
+        if (dep !is Node) {
+            return@forEach
+        }
+        val artifactIdNode = dep.children().first {
+            it is Node && it.name().toString().endsWith("artifactId")
+        } as Node
+        val artifactId = artifactIdNode.children()[0].toString()
+        // kotlinx-coroutines-core is only a .pom and only depends on kotlinx-coroutines-core-jvm,
+        // so the two artifacts should be approximately equivalent. However,
+        // when loading from configuration cache, Gradle often returns a different resolution.
+        // We replace it here to ensure consistency and predictability, and
+        // to avoid having to rerun any zip tasks that include it
+        if (artifactId == "kotlinx-coroutines-core-jvm") {
+            artifactIdNode.setValue("kotlinx-coroutines-core")
         }
     }
 }

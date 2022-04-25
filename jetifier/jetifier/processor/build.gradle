@@ -14,9 +14,7 @@
  * limitations under the License
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.LibraryVersions
 
 plugins {
     id("AndroidXPlugin")
@@ -31,7 +29,7 @@ dependencies {
     api("org.jdom:jdom2:2.0.6")
     api(libs.kotlinStdlib)
     api(libs.kotlinMetadataJvm)
-    testImplementation("junit:junit:4.12")
+    testImplementation(libs.junit)
     testImplementation(libs.truth)
     testImplementation(libs.kotlinReflect)
     testImplementation(libs.kotlinCompileTesting)

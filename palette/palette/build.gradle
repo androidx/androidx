@@ -1,4 +1,3 @@
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -23,4 +22,8 @@ androidx {
     mavenGroup = LibraryGroups.PALETTE
     inceptionYear = "2014"
     description = "Android Support Palette"
+}
+
+android {
+    namespace "androidx.palette"
 }

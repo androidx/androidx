@@ -16,15 +16,11 @@
 
 package androidx.camera.video;
 
-import static androidx.camera.video.QualitySelector.FALLBACK_STRATEGY_HIGHER;
-import static androidx.camera.video.QualitySelector.QUALITY_FHD;
-import static androidx.camera.video.QualitySelector.QUALITY_HD;
-import static androidx.camera.video.QualitySelector.QUALITY_SD;
-
 import android.util.Range;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 
@@ -32,11 +28,13 @@ import com.google.auto.value.AutoValue;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Arrays;
 
 /**
  * Video specification that is options to config video encoding.
  * @hide
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @RestrictTo(Scope.LIBRARY)
 @AutoValue
 public abstract class VideoSpec {
@@ -69,10 +67,8 @@ public abstract class VideoSpec {
      */
     @NonNull
     public static final QualitySelector QUALITY_SELECTOR_AUTO =
-            QualitySelector.firstTry(QUALITY_FHD)
-                    .thenTry(QUALITY_HD)
-                    .thenTry(QUALITY_SD)
-                    .finallyTry(QUALITY_FHD, FALLBACK_STRATEGY_HIGHER);
+            QualitySelector.fromOrderedList(Arrays.asList(Quality.FHD, Quality.HD, Quality.SD),
+                    FallbackStrategy.higherQualityOrLowerThan(Quality.FHD));
 
     /**
      * The aspect ratio representing no preference for aspect ratio.

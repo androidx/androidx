@@ -17,19 +17,24 @@
 package androidx.paging
 
 import androidx.annotation.VisibleForTesting
+import androidx.paging.CombineSource.RECEIVER
+import androidx.paging.PageEvent.Drop
+import androidx.paging.PageEvent.Insert
+import androidx.paging.PageEvent.LoadStateUpdate
 import androidx.paging.RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
+import androidx.paging.internal.BUGANIZER_URL
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.launch
 
 internal class PageFetcher<Key : Any, Value : Any>(
     private val pagingSourceFactory: suspend () -> PagingSource<Key, Value>,
     private val initialKey: Key?,
     private val config: PagingConfig,
     @OptIn(ExperimentalPagingApi::class)
-    private val remoteMediator: RemoteMediator<Key, Value>? = null
+    remoteMediator: RemoteMediator<Key, Value>? = null
 ) {
     /**
      * Channel of refresh signals that would trigger a new instance of [PageFetcherSnapshot].
@@ -46,10 +51,11 @@ internal class PageFetcher<Key : Any, Value : Any>(
     // The object built by paging builder can maintain the scope so that on rotation we don't stop
     // the paging.
     val flow: Flow<PagingData<Value>> = simpleChannelFlow {
-        @OptIn(androidx.paging.ExperimentalPagingApi::class)
+        @OptIn(ExperimentalPagingApi::class)
         val remoteMediatorAccessor = remoteMediator?.let {
             RemoteMediatorAccessor(this, it)
         }
+
         refreshEvents
             .flow
             .onStart {
@@ -58,6 +64,12 @@ internal class PageFetcher<Key : Any, Value : Any>(
             }
             .simpleScan(null) { previousGeneration: GenerationInfo<Key, Value>?,
                 triggerRemoteRefresh: Boolean ->
+                // Enable refresh if this is the first generation and we have LAUNCH_INITIAL_REFRESH
+                // or if this generation was started due to [refresh] being invoked.
+                if (triggerRemoteRefresh) {
+                    remoteMediatorAccessor?.allowRefresh()
+                }
+
                 val pagingSource = generateNewPagingSource(
                     previousPagingSource = previousGeneration?.snapshot?.pagingSource
                 )
@@ -87,6 +99,7 @@ internal class PageFetcher<Key : Any, Value : Any>(
                     ?: initialKey
 
                 previousGeneration?.snapshot?.close()
+                previousGeneration?.job?.cancel()
 
                 GenerationInfo(
                     snapshot = PageFetcherSnapshot(
@@ -96,84 +109,25 @@ internal class PageFetcher<Key : Any, Value : Any>(
                         retryFlow = retryEvents.flow,
                         // Only trigger remote refresh on refresh signals that do not originate from
                         // initialization or PagingSource invalidation.
-                        triggerRemoteRefresh = triggerRemoteRefresh,
                         remoteMediatorConnection = remoteMediatorAccessor,
                         invalidate = this@PageFetcher::refresh,
                         previousPagingState = previousPagingState,
                     ),
                     state = previousPagingState,
+                    job = Job(),
                 )
             }
             .filterNotNull()
             .simpleMapLatest { generation ->
                 val downstreamFlow = generation.snapshot
-                    .injectRemoteEvents(remoteMediatorAccessor)
+                    .injectRemoteEvents(generation.job, remoteMediatorAccessor)
 
                 PagingData(
                     flow = downstreamFlow,
                     receiver = PagerUiReceiver(generation.snapshot, retryEvents)
                 )
             }
-            .collect { send(it) }
-    }
-
-    // TODO(b/195028524) add logic to inject the correct source states upon new generation
-    private fun PageFetcherSnapshot<Key, Value>.injectRemoteEvents(
-        accessor: RemoteMediatorAccessor<Key, Value>?
-    ): Flow<PageEvent<Value>> {
-        if (accessor == null) return pageEventFlow
-
-        return simpleChannelFlow<PageEvent<Value>> {
-            val sourceStates = MutableLoadStateCollection()
-            var mediatorStates = LoadStates.IDLE
-
-            launch {
-                var prev = LoadStates.IDLE
-                accessor.state.collect { newStates ->
-                    if (prev != newStates) {
-                        mediatorStates = newStates
-                        send(
-                            PageEvent.LoadStateUpdate(
-                                source = sourceStates.snapshot(),
-                                mediator = mediatorStates
-                            )
-                        )
-                    }
-                    prev = newStates
-                }
-            }
-
-            this@injectRemoteEvents.pageEventFlow.collect { event ->
-                when (event) {
-                    is PageEvent.Insert -> {
-                        sourceStates.set(event.sourceLoadStates)
-                        mediatorStates = accessor.state.value
-                        send(
-                            event.copy(
-                                sourceLoadStates = event.sourceLoadStates,
-                                mediatorLoadStates = mediatorStates
-                            )
-                        )
-                    }
-                    is PageEvent.Drop -> {
-                        sourceStates.set(
-                            type = event.loadType,
-                            state = LoadState.NotLoading.Incomplete
-                        )
-                        send(event)
-                    }
-                    is PageEvent.LoadStateUpdate -> {
-                        sourceStates.set(event.source)
-                        send(
-                            PageEvent.LoadStateUpdate(
-                                source = event.source,
-                                mediator = mediatorStates
-                            )
-                        )
-                    }
-                }
-            }
-        }
+            .collect(::send)
     }
 
     fun refresh() {
@@ -182,6 +136,67 @@ internal class PageFetcher<Key : Any, Value : Any>(
 
     private fun invalidate() {
         refreshEvents.send(false)
+    }
+
+    private fun PageFetcherSnapshot<Key, Value>.injectRemoteEvents(
+        job: Job,
+        accessor: RemoteMediatorAccessor<Key, Value>?
+    ): Flow<PageEvent<Value>> {
+        if (accessor == null) return pageEventFlow
+
+        val sourceStates = MutableLoadStateCollection()
+        // We wrap this in a cancelableChannelFlow to allow co-operative cancellation, otherwise
+        // RemoteMediatorAccessor's StateFlow will keep this Flow running on old generations.
+        return cancelableChannelFlow(job) {
+            accessor.state
+                // Note: Combine waits for PageFetcherSnapshot to emit an event before sending
+                // anything. This avoids sending the initial idle state, since it would cause
+                // load state flickering on rapid invalidation.
+                .combineWithoutBatching(pageEventFlow) { remoteState, sourceEvent, updateFrom ->
+                    if (updateFrom != RECEIVER) {
+                        when (sourceEvent) {
+                            is Insert -> {
+                                sourceStates.set(sourceEvent.sourceLoadStates)
+                                sourceEvent.copy(
+                                    sourceLoadStates = sourceEvent.sourceLoadStates,
+                                    mediatorLoadStates = remoteState,
+                                )
+                            }
+                            is Drop -> {
+                                sourceStates.set(
+                                    type = sourceEvent.loadType,
+                                    state = LoadState.NotLoading.Incomplete
+                                )
+                                sourceEvent
+                            }
+                            is LoadStateUpdate -> {
+                                sourceStates.set(sourceEvent.source)
+                                LoadStateUpdate(
+                                    source = sourceEvent.source,
+                                    mediator = remoteState,
+                                )
+                            }
+                            is PageEvent.StaticList -> {
+
+                                throw IllegalStateException(
+                                    """Paging generated an event to display a static list that
+                                        | originated from a paginated source. If you see this
+                                        | exception, it is most likely a bug in the library.
+                                        | Please file a bug so we can fix it at:
+                                        | $BUGANIZER_URL"""
+                                        .trimMargin()
+                                )
+                            }
+                        }
+                    } else {
+                        LoadStateUpdate(
+                            source = sourceStates.snapshot(),
+                            mediator = remoteState,
+                        )
+                    }
+                }
+                .collect { send(it) }
+        }
     }
 
     private suspend fun generateNewPagingSource(
@@ -226,6 +241,7 @@ internal class PageFetcher<Key : Any, Value : Any>(
 
     private class GenerationInfo<Key : Any, Value : Any>(
         val snapshot: PageFetcherSnapshot<Key, Value>,
-        val state: PagingState<Key, Value>?
+        val state: PagingState<Key, Value>?,
+        val job: Job,
     )
 }

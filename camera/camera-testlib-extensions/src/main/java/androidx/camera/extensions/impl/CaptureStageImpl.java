@@ -19,6 +19,8 @@ package androidx.camera.extensions.impl;
 import android.hardware.camera2.CaptureRequest;
 import android.util.Pair;
 
+import androidx.annotation.RequiresApi;
+
 import java.util.List;
 
 /**
@@ -26,6 +28,7 @@ import java.util.List;
  *
  * @since 1.0
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface CaptureStageImpl {
     /** Returns the identifier for the {@link CaptureStageImpl}. */
     int getId();

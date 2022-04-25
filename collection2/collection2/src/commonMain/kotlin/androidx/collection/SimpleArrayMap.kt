@@ -246,18 +246,18 @@ open class SimpleArrayMap<K, V> {
      * or null if there is no such key.
      */
     @Suppress("UNCHECKED_CAST")
-    open fun get(key: K): V? {
+    open operator fun get(key: K): V? {
         // TODO: Explain why re-impl instead of using getOrDefault()
         val index = indexOfKey(key)
         return if (index >= 0) keyValues[(index shl 1) + 1] as V else null
     }
 
     /**
-     * Retrieve a value from the array, or {@code defaultValue} if there is no mapping for the key.
+     * Retrieve a value from the array, or [defaultValue] if there is no mapping for the key.
      * @param key The key of the value to retrieve.
      * @param defaultValue The default mapping of the key
      * @return Returns the value associated with the given key,
-     * or {@code defaultValue} if there is no mapping for the key.
+     * or [defaultValue] if there is no mapping for the key.
      */
     @Suppress("UNCHECKED_CAST")
     open fun getOrDefault(key: K, defaultValue: V): V {
@@ -267,7 +267,7 @@ open class SimpleArrayMap<K, V> {
 
     /**
      * Return the key at the given index in the array.
-     * @param index The desired index, must be between 0 and {@link #size()}-1.
+     * @param index The desired index, must be between 0 and [size]-1.
      * @return Returns the key stored at the given index.
      */
     @Suppress("UNCHECKED_CAST")
@@ -275,7 +275,7 @@ open class SimpleArrayMap<K, V> {
 
     /**
      * Return the value at the given index in the array.
-     * @param index The desired index, must be between 0 and {@link #size()}-1.
+     * @param index The desired index, must be between 0 and [size]-1.
      * @return Returns the value stored at the given index.
      */
     @Suppress("UNCHECKED_CAST")
@@ -283,7 +283,7 @@ open class SimpleArrayMap<K, V> {
 
     /**
      * Set the value at a given index in the array.
-     * @param index The desired index, must be between 0 and {@link #size()}-1.
+     * @param index The desired index, must be between 0 and [size]-1.
      * @param value The new value to store at this index.
      * @return Returns the previous value at the given index.
      */
@@ -369,7 +369,7 @@ open class SimpleArrayMap<K, V> {
     }
 
     /**
-     * Perform a {@link #put(Object, Object)} of all key/value pairs in <var>array</var>
+     * Perform a [put] of all key/value pairs in <var>array</var>
      * @param array The array whose contents are to be retrieved.
      */
     open fun putAll(array: SimpleArrayMap<out K, out V>) {
@@ -390,7 +390,7 @@ open class SimpleArrayMap<K, V> {
 
     /**
      * Add a new value to the array map only if the key does not already have a value or it is
-     * mapped to {@code null}.
+     * mapped to `null`.
      * @param key The key under which to store the value.
      * @param value The value to store for the given key.
      * @return Returns the value that was stored for the given key, or null if there
@@ -416,7 +416,7 @@ open class SimpleArrayMap<K, V> {
     }
 
     /**
-     * Remove an existing key from the array map only if it is currently mapped to {@code value}.
+     * Remove an existing key from the array map only if it is currently mapped to [value].
      * @param key The key of the mapping to remove.
      * @param value The value expected to be mapped to the key.
      * @return Returns true if the mapping was removed.
@@ -435,7 +435,7 @@ open class SimpleArrayMap<K, V> {
 
     /**
      * Remove the key/value mapping at the given index.
-     * @param index The desired index, must be between 0 and {@link #size()}-1.
+     * @param index The desired index, must be between 0 and [size]-1.
      * @return Returns the value that was stored at this index.
      * @throws ConcurrentModificationException if the map has been concurrently modified.
      */
@@ -501,7 +501,7 @@ open class SimpleArrayMap<K, V> {
     }
 
     /**
-     * Replace the mapping for {@code key} only if it is already mapped to a value.
+     * Replace the mapping for [key] only if it is already mapped to a value.
      * @param key The key of the mapping to replace.
      * @param value The value to store for the given key.
      * @return Returns the previous mapped value or null.
@@ -512,7 +512,7 @@ open class SimpleArrayMap<K, V> {
     }
 
     /**
-     * Replace the mapping for {@code key} only if it is already mapped to a value.
+     * Replace the mapping for [key] only if it is already mapped to a value.
      *
      * @param key The key of the mapping to replace.
      * @param oldValue The value expected to be mapped to the key.
@@ -532,9 +532,7 @@ open class SimpleArrayMap<K, V> {
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * <p>This implementation returns false if the object is not a Map or
+     * This implementation returns false if the object is not a Map or
      * SimpleArrayMap, or if the maps have different sizes. Otherwise, for each
      * key in this map, values of both maps are compared. If the values for any
      * key are not equal, the method returns false, otherwise it returns true.
@@ -591,9 +589,6 @@ open class SimpleArrayMap<K, V> {
         return false
     }
 
-    /**
-     * {@inheritDoc}
-     */
     open override fun hashCode(): Int {
         val hashes = hashes
         val array: Array<Any?> = keyValues
@@ -611,9 +606,7 @@ open class SimpleArrayMap<K, V> {
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * <p>This implementation composes a string by iterating over its mappings. If
+     * This implementation composes a string by iterating over its mappings. If
      * this map contains itself as a key or a value, the string "(this Map)"
      * will appear in its place.
      */

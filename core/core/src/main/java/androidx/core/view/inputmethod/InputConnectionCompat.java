@@ -21,7 +21,9 @@ import static androidx.core.view.ContentInfoCompat.SOURCE_INPUT_METHOD;
 import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ClipDescription;
+import android.content.ContentProvider;
 import android.net.Uri;
+import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.ResultReceiver;
@@ -29,15 +31,19 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputBinding;
 import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputConnectionWrapper;
 import android.view.inputmethod.InputContentInfo;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Preconditions;
 import androidx.core.view.ContentInfoCompat;
+import androidx.core.view.OnReceiveContentListener;
 import androidx.core.view.ViewCompat;
 
 /**
@@ -77,6 +83,7 @@ public final class InputConnectionCompat {
     private static final String COMMIT_CONTENT_RESULT_INTEROP_RECEIVER_KEY =
             "android.support.v13.view.inputmethod.InputConnectionCompat.CONTENT_RESULT_RECEIVER";
 
+    @SuppressWarnings("deprecation")
     static boolean handlePerformPrivateCommand(
             @Nullable String action,
             @Nullable Bundle data,
@@ -141,20 +148,8 @@ public final class InputConnectionCompat {
     public static boolean commitContent(@NonNull InputConnection inputConnection,
             @NonNull EditorInfo editorInfo, @NonNull InputContentInfoCompat inputContentInfo,
             int flags, @Nullable Bundle opts) {
-        final ClipDescription description = inputContentInfo.getDescription();
-        boolean supported = false;
-        for (String mimeType : EditorInfoCompat.getContentMimeTypes(editorInfo)) {
-            if (description.hasMimeType(mimeType)) {
-                supported = true;
-                break;
-            }
-        }
-        if (!supported) {
-            return false;
-        }
-
         if (Build.VERSION.SDK_INT >= 25) {
-            return inputConnection.commitContent(
+            return Api25Impl.commitContent(inputConnection,
                     (InputContentInfo) inputContentInfo.unwrap(), flags, opts);
         } else {
             final int protocol = EditorInfoCompat.getProtocol(editorInfo);
@@ -216,16 +211,16 @@ public final class InputConnectionCompat {
      * <p>On API &lt;= 24 devices, IME developers need to ensure that the content URI is accessible
      * only from the target application, for example, by generating a URL with a unique name that
      * others cannot guess. IME developers can also rely on the following information of the target
-     * application to do additional access checks in their {@link android.content.ContentProvider}.
+     * application to do additional access checks in their {@link ContentProvider}.
      * </p>
      * <ul>
      *     <li>On API &gt;= 23 {@link EditorInfo#packageName} is guaranteed to not be spoofed, which
-     *     can later be compared with {@link android.content.ContentProvider#getCallingPackage()} in
-     *     the {@link android.content.ContentProvider}.
+     *     can later be compared with {@link ContentProvider#getCallingPackage()} in
+     *     the {@link ContentProvider}.
      *     </li>
-     *     <li>{@link android.view.inputmethod.InputBinding#getUid()} is guaranteed to not be
-     *     spoofed, which can later be compared with {@link android.os.Binder#getCallingUid()} in
-     *     the {@link android.content.ContentProvider}.</li>
+     *     <li>{@link InputBinding#getUid()} is guaranteed to not be
+     *     spoofed, which can later be compared with {@link Binder#getCallingUid()} in
+     *     the {@link ContentProvider}.</li>
      * </ul>
      */
     public static final int INPUT_CONTENT_GRANT_READ_URI_PERMISSION = 0x00000001;
@@ -244,7 +239,6 @@ public final class InputConnectionCompat {
          * request is already handled or still being handled in background. {@code false} to use the
          * default implementation
          */
-        @SuppressWarnings("NullableProblems") // Not useful here
         boolean onCommitContent(@NonNull InputContentInfoCompat inputContentInfo, int flags,
                 @Nullable Bundle opts);
     }
@@ -346,6 +340,7 @@ public final class InputConnectionCompat {
      *
      * @return A wrapper {@link InputConnection} object that can be returned to the IME.
      */
+    @SuppressWarnings("deprecation")
     @NonNull
     public static InputConnection createWrapper(@NonNull View view,
             @NonNull InputConnection inputConnection, @NonNull EditorInfo editorInfo) {
@@ -357,44 +352,40 @@ public final class InputConnectionCompat {
     /**
      * Creates an {@link OnCommitContentListener} that uses
      * {@link ViewCompat#performReceiveContent} to insert content. This is useful for widgets
-     * that support content insertion using an {@link androidx.core.view.OnReceiveContentListener}.
+     * that support content insertion using an {@link OnReceiveContentListener}.
      */
     @NonNull
     private static OnCommitContentListener createOnCommitContentListenerUsingPerformReceiveContent(
             @NonNull View view) {
         Preconditions.checkNotNull(view);
-        return new OnCommitContentListener() {
-            @Override
-            public boolean onCommitContent(InputContentInfoCompat inputContentInfo, int flags,
-                    Bundle opts) {
-                Bundle extras = opts;
-                if (Build.VERSION.SDK_INT >= 25
-                        && (flags & INPUT_CONTENT_GRANT_READ_URI_PERMISSION) != 0) {
-                    try {
-                        inputContentInfo.requestPermission();
-                    } catch (Exception e) {
-                        Log.w(LOG_TAG,
-                                "Can't insert content from IME; requestPermission() failed", e);
-                        return false;
-                    }
-                    // Permissions granted above are revoked automatically by the platform when the
-                    // corresponding InputContentInfo object is garbage collected. To prevent
-                    // this from happening prematurely (before the receiving app has had a chance
-                    // to process the content), we set the InputContentInfo object into the
-                    // extras of the payload passed to OnReceiveContentListener.
-                    InputContentInfo inputContentInfoFmk =
-                            (InputContentInfo) inputContentInfo.unwrap();
-                    extras = (opts == null) ? new Bundle() : new Bundle(opts);
-                    extras.putParcelable(EXTRA_INPUT_CONTENT_INFO, inputContentInfoFmk);
+        return (inputContentInfo, flags, opts) -> {
+            Bundle extras = opts;
+            if (Build.VERSION.SDK_INT >= 25
+                    && (flags & INPUT_CONTENT_GRANT_READ_URI_PERMISSION) != 0) {
+                try {
+                    inputContentInfo.requestPermission();
+                } catch (Exception e) {
+                    Log.w(LOG_TAG,
+                            "Can't insert content from IME; requestPermission() failed", e);
+                    return false;
                 }
-                ClipData clip = new ClipData(inputContentInfo.getDescription(),
-                        new ClipData.Item(inputContentInfo.getContentUri()));
-                ContentInfoCompat payload = new ContentInfoCompat.Builder(clip, SOURCE_INPUT_METHOD)
-                        .setLinkUri(inputContentInfo.getLinkUri())
-                        .setExtras(extras)
-                        .build();
-                return ViewCompat.performReceiveContent(view, payload) == null;
+                // Permissions granted above are revoked automatically by the platform when the
+                // corresponding InputContentInfo object is garbage collected. To prevent
+                // this from happening prematurely (before the receiving app has had a chance
+                // to process the content), we set the InputContentInfo object into the
+                // extras of the payload passed to OnReceiveContentListener.
+                InputContentInfo inputContentInfoFmk =
+                        (InputContentInfo) inputContentInfo.unwrap();
+                extras = (opts == null) ? new Bundle() : new Bundle(opts);
+                extras.putParcelable(EXTRA_INPUT_CONTENT_INFO, inputContentInfoFmk);
             }
+            ClipData clip = new ClipData(inputContentInfo.getDescription(),
+                    new ClipData.Item(inputContentInfo.getContentUri()));
+            ContentInfoCompat payload = new ContentInfoCompat.Builder(clip, SOURCE_INPUT_METHOD)
+                    .setLinkUri(inputContentInfo.getLinkUri())
+                    .setExtras(extras)
+                    .build();
+            return ViewCompat.performReceiveContent(view, payload) == null;
         };
     }
 
@@ -410,5 +401,18 @@ public final class InputConnectionCompat {
     /** @deprecated This type should not be instantiated as it contains only static methods. */
     @Deprecated
     public InputConnectionCompat() {
+    }
+
+    @RequiresApi(25)
+    static class Api25Impl {
+        private Api25Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static boolean commitContent(InputConnection inputConnection,
+                InputContentInfo inputContentInfo, int i, Bundle bundle) {
+            return inputConnection.commitContent(inputContentInfo, i, bundle);
+        }
     }
 }

@@ -20,6 +20,7 @@ import android.media.ImageReader;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraInfo;
 
 /**
@@ -37,6 +38,7 @@ import androidx.camera.core.CameraInfo;
  * <p>The SessionProcessor is expected to release all intermediate {@link ImageReader}s when
  * {@link #deInitSession()} is called.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface SessionProcessor {
     /**
      * Initializes the session and returns a transformed {@link SessionConfig} which should be

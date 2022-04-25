@@ -20,7 +20,9 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.camera.core.ImageCapture;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.UseCaseConfig;
@@ -29,6 +31,7 @@ import androidx.camera.core.impl.UseCaseConfigFactory;
 /**
  * A fake {@link UseCase}.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class FakeUseCase extends UseCase {
     private volatile boolean mIsDetached = false;
 
@@ -69,7 +72,9 @@ public class FakeUseCase extends UseCase {
     @Override
     public UseCaseConfig<?> getDefaultConfig(boolean applyDefaultConfig,
             @NonNull UseCaseConfigFactory factory) {
-        Config config = factory.getConfig(UseCaseConfigFactory.CaptureType.PREVIEW);
+        Config config = factory.getConfig(
+                UseCaseConfigFactory.CaptureType.PREVIEW,
+                ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY);
         return config == null ? null : getUseCaseConfigBuilder(config).getUseCaseConfig();
     }
 

@@ -137,6 +137,9 @@ public class ServiceWorkerClientCompatTest {
         if (mOnUiThread != null) {
             mOnUiThread.cleanUp();
         }
+        if (WebViewFeature.isFeatureSupported(WebViewFeature.SERVICE_WORKER_BASIC_USAGE)) {
+            ServiceWorkerControllerCompat.getInstance().setServiceWorkerClient(null);
+        }
     }
 
     /**
@@ -179,6 +182,29 @@ public class ServiceWorkerClientCompatTest {
         PollingCheck.check("JS could not unregister Service Worker", POLLING_TIMEOUT,
                 unregisterSuccess);
     }
+
+    /**
+     * This should remain functionally equivalent to
+     * android.webkit.cts.ServiceWorkerClientTest#testSetNullServiceWorkerClient.
+     * Modifications to this test should be reflected in that test as necessary. See
+     * http://go/modifying-webview-cts.
+     */
+    // Test setting a null ServiceWorkerClient.
+    @Test
+    public void testSetNullServiceWorkerClient() throws Exception {
+        WebkitUtils.checkFeature(WebViewFeature.SERVICE_WORKER_BASIC_USAGE);
+        WebkitUtils.checkFeature(WebViewFeature.SERVICE_WORKER_SHOULD_INTERCEPT_REQUEST);
+
+        ServiceWorkerControllerCompat swController = ServiceWorkerControllerCompat.getInstance();
+        swController.setServiceWorkerClient(null);
+        mOnUiThread.loadUrlAndWaitForCompletion(INDEX_URL);
+
+        Callable<Boolean> registrationFailure =
+                () -> !mJavascriptStatusReceiver.mRegistrationSuccess;
+        PollingCheck.check("JS unexpectedly registered the Service Worker", POLLING_TIMEOUT,
+                registrationFailure);
+    }
+
 
     // Object added to the page via AddJavascriptInterface() that is used by the test Javascript to
     // notify back to Java if the Service Worker registration was successful.

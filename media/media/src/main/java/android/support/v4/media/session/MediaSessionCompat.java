@@ -73,7 +73,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.BundleCompat;
-import androidx.core.os.BuildCompat;
 import androidx.media.MediaSessionManager;
 import androidx.media.MediaSessionManager.RemoteUserInfo;
 import androidx.media.VolumeProviderCompat;
@@ -559,7 +558,7 @@ public class MediaSessionCompat {
             mediaButtonIntent.setComponent(mbrComponent);
             mbrIntent = PendingIntent.getBroadcast(context,
                     0/* requestCode, ignored */, mediaButtonIntent,
-                    BuildCompat.isAtLeastS() ? PendingIntent.FLAG_MUTABLE : 0);
+                    Build.VERSION.SDK_INT >= 31 ? PendingIntent.FLAG_MUTABLE : 0);
         }
 
         if (android.os.Build.VERSION.SDK_INT >= 21) {
@@ -1548,6 +1547,7 @@ public class MediaSessionCompat {
             }
 
             @Override
+            @SuppressWarnings("deprecation")
             public void onCommand(String command, Bundle extras, ResultReceiver cb) {
                 MediaSessionImplApi21 sessionImpl = getSessionImplIfCallbackIsSet();
                 if (sessionImpl == null) {
@@ -1763,6 +1763,7 @@ public class MediaSessionCompat {
             }
 
             @Override
+            @SuppressWarnings("deprecation")
             public void onCustomAction(String action, Bundle extras) {
                 MediaSessionImplApi21 sessionImpl = getSessionImplIfCallbackIsSet();
                 if (sessionImpl == null) {
@@ -2130,6 +2131,7 @@ public class MediaSessionCompat {
          * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX) // accessed by media2-session
+        @SuppressWarnings("deprecation")
         public static Token fromBundle(Bundle tokenBundle) {
             if (tokenBundle == null) {
                 return null;
@@ -2145,6 +2147,7 @@ public class MediaSessionCompat {
 
         public static final Parcelable.Creator<Token> CREATOR
                 = new Parcelable.Creator<Token>() {
+                    @SuppressWarnings("deprecation")
                     @Override
                     public Token createFromParcel(Parcel in) {
                         Object inner;
@@ -2291,7 +2294,7 @@ public class MediaSessionCompat {
             if (itemList == null || Build.VERSION.SDK_INT < 21) {
                 return null;
             }
-            List<QueueItem> items = new ArrayList<>();
+            List<QueueItem> items = new ArrayList<>(itemList.size());
             for (Object itemObj : itemList) {
                 items.add(fromQueueItem(itemObj));
             }
@@ -2761,6 +2764,7 @@ public class MediaSessionCompat {
             editor.apply();
         }
 
+        @SuppressWarnings("deprecation")
         RemoteControlClient.MetadataEditor buildRccMetadata(Bundle metadata) {
             RemoteControlClient.MetadataEditor editor = mRcc.editMetadata(true);
             if (metadata == null) {
@@ -3854,6 +3858,7 @@ public class MediaSessionCompat {
         }
 
         @Override
+        @SuppressWarnings("deprecation")
         RemoteControlClient.MetadataEditor buildRccMetadata(Bundle metadata) {
             RemoteControlClient.MetadataEditor editor = super.buildRccMetadata(metadata);
             long actions = mState == null ? 0 : mState.getActions();
@@ -4084,7 +4089,7 @@ public class MediaSessionCompat {
                 mSessionFwk.setQueue(null);
                 return;
             }
-            ArrayList<MediaSession.QueueItem> queueItemFwks = new ArrayList<>();
+            ArrayList<MediaSession.QueueItem> queueItemFwks = new ArrayList<>(queue.size());
             for (QueueItem item : queue) {
                 queueItemFwks.add((MediaSession.QueueItem) item.getQueueItem());
             }

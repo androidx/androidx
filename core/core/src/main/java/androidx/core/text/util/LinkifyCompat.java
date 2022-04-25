@@ -31,9 +31,11 @@ import android.text.util.Linkify.TransformFilter;
 import android.webkit.WebView;
 import android.widget.TextView;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.util.PatternsCompat;
 
@@ -55,27 +57,16 @@ import java.util.regex.Pattern;
 public final class LinkifyCompat {
     private static final String[] EMPTY_STRING = new String[0];
 
-    private static final Comparator<LinkSpec>  COMPARATOR = new Comparator<LinkSpec>() {
-        @Override
-        public int compare(LinkSpec a, LinkSpec b) {
-            if (a.start < b.start) {
-                return -1;
-            }
-
-            if (a.start > b.start) {
-                return 1;
-            }
-
-            if (a.end < b.end) {
-                return 1;
-            }
-
-            if (a.end > b.end) {
-                return -1;
-            }
-
-            return 0;
+    private static final Comparator<LinkSpec>  COMPARATOR = (a, b) -> {
+        if (a.start < b.start) {
+            return -1;
         }
+
+        if (a.start > b.start) {
+            return 1;
+        }
+
+        return Integer.compare(b.end, a.end);
     };
 
     /** @hide */
@@ -97,6 +88,7 @@ public final class LinkifyCompat {
      *
      *  @return True if at least one link is found and applied.
      */
+    @SuppressWarnings("deprecation")
     public static boolean addLinks(@NonNull Spannable text, @LinkifyMask int mask) {
         if (shouldAddLinksFallbackToFramework()) {
             return Linkify.addLinks(text, mask);
@@ -175,7 +167,6 @@ public final class LinkifyCompat {
                 return true;
             }
 
-            return false;
         } else {
             SpannableString s = SpannableString.valueOf(t);
 
@@ -186,8 +177,8 @@ public final class LinkifyCompat {
                 return true;
             }
 
-            return false;
         }
+        return false;
     }
 
     /**
@@ -255,7 +246,7 @@ public final class LinkifyCompat {
             @Nullable String defaultScheme, @Nullable String[] schemes,
             @Nullable MatchFilter matchFilter, @Nullable TransformFilter transformFilter) {
         if (shouldAddLinksFallbackToFramework()) {
-            Linkify.addLinks(text, pattern, defaultScheme, schemes, matchFilter, transformFilter);
+            Api24Impl.addLinks(text, pattern, defaultScheme, schemes, matchFilter, transformFilter);
             return;
         }
         SpannableString spannable = SpannableString.valueOf(text.getText());
@@ -330,7 +321,7 @@ public final class LinkifyCompat {
             @Nullable  String defaultScheme, @Nullable String[] schemes,
             @Nullable MatchFilter matchFilter, @Nullable TransformFilter transformFilter) {
         if (shouldAddLinksFallbackToFramework()) {
-            return Linkify.addLinks(spannable, pattern, defaultScheme, schemes, matchFilter,
+            return Api24Impl.addLinks(spannable, pattern, defaultScheme, schemes, matchFilter,
                     transformFilter);
         }
         final String[] schemesCopy;
@@ -352,14 +343,15 @@ public final class LinkifyCompat {
         while (m.find()) {
             int start = m.start();
             int end = m.end();
+            String match = m.group(0);
             boolean allowed = true;
 
             if (matchFilter != null) {
                 allowed = matchFilter.acceptMatch(spannable, start, end);
             }
 
-            if (allowed) {
-                String url = makeUrl(m.group(0), schemesCopy, m, transformFilter);
+            if (allowed && match != null) {
+                String url = makeUrl(match, schemesCopy, m, transformFilter);
 
                 applyLink(url, start, end, spannable);
                 hasMatches = true;
@@ -384,20 +376,20 @@ public final class LinkifyCompat {
     }
 
     private static String makeUrl(@NonNull String url, @NonNull String[] prefixes,
-            Matcher matcher, @Nullable Linkify.TransformFilter filter) {
+            Matcher matcher, @Nullable TransformFilter filter) {
         if (filter != null) {
             url = filter.transformUrl(matcher, url);
         }
 
         boolean hasPrefix = false;
 
-        for (int i = 0; i < prefixes.length; i++) {
-            if (url.regionMatches(true, 0, prefixes[i], 0, prefixes[i].length())) {
+        for (String prefix : prefixes) {
+            if (url.regionMatches(true, 0, prefix, 0, prefix.length())) {
                 hasPrefix = true;
 
                 // Fix capitalization if necessary
-                if (!url.regionMatches(false, 0, prefixes[i], 0, prefixes[i].length())) {
-                    url = prefixes[i] + url.substring(prefixes[i].length());
+                if (!url.regionMatches(false, 0, prefix, 0, prefix.length())) {
+                    url = prefix + url.substring(prefix.length());
                 }
 
                 break;
@@ -411,20 +403,20 @@ public final class LinkifyCompat {
         return url;
     }
 
+    @SuppressWarnings("SameParameterValue")
     private static void gatherLinks(ArrayList<LinkSpec> links,
             Spannable s, Pattern pattern, String[] schemes,
-            Linkify.MatchFilter matchFilter, Linkify.TransformFilter transformFilter) {
+            MatchFilter matchFilter, TransformFilter transformFilter) {
         Matcher m = pattern.matcher(s);
 
         while (m.find()) {
             int start = m.start();
             int end = m.end();
+            String match = m.group(0);
 
-            if (matchFilter == null || matchFilter.acceptMatch(s, start, end)) {
+            if ((matchFilter == null || matchFilter.acceptMatch(s, start, end)) && match != null) {
                 LinkSpec spec = new LinkSpec();
-                String url = makeUrl(m.group(0), schemes, m, transformFilter);
-
-                spec.url = url;
+                spec.url = makeUrl(match, schemes, m, transformFilter);
                 spec.start = start;
                 spec.end = end;
 
@@ -461,7 +453,7 @@ public final class LinkifyCompat {
                 string = string.substring(end);
                 base += end;
 
-                String encodedAddress = null;
+                String encodedAddress;
 
                 try {
                     encodedAddress = URLEncoder.encode(address,"UTF-8");
@@ -476,10 +468,10 @@ public final class LinkifyCompat {
             // findAddress may fail with an unsupported exception on platforms without a WebView.
             // In this case, we will not append anything to the links variable: it would have died
             // in WebView.findAddress.
-            return;
         }
     }
 
+    @SuppressWarnings("deprecation")
     private static String findAddress(String addr) {
         if (Build.VERSION.SDK_INT >= 28) {
             return WebView.findAddress(addr);
@@ -490,11 +482,11 @@ public final class LinkifyCompat {
     private static void pruneOverlaps(ArrayList<LinkSpec> links, Spannable text) {
         // Append spans added by framework
         URLSpan[] urlSpans = text.getSpans(0, text.length(), URLSpan.class);
-        for (int i = 0; i < urlSpans.length; i++) {
+        for (URLSpan urlSpan : urlSpans) {
             LinkSpec spec = new LinkSpec();
-            spec.frameworkAddedSpan = urlSpans[i];
-            spec.start = text.getSpanStart(urlSpans[i]);
-            spec.end = text.getSpanEnd(urlSpans[i]);
+            spec.frameworkAddedSpan = urlSpan;
+            spec.start = text.getSpanStart(urlSpan);
+            spec.end = text.getSpanEnd(urlSpan);
             links.add(spec);
         }
 
@@ -545,6 +537,26 @@ public final class LinkifyCompat {
         int end;
 
         LinkSpec() {
+        }
+    }
+
+    @RequiresApi(24)
+    static class Api24Impl {
+        private Api24Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void addLinks(TextView text, Pattern pattern, String defaultScheme, String[] schemes,
+                MatchFilter matchFilter, TransformFilter transformFilter) {
+            Linkify.addLinks(text, pattern, defaultScheme, schemes, matchFilter, transformFilter);
+        }
+
+        @DoNotInline
+        static boolean addLinks(Spannable spannable, Pattern pattern, String defaultScheme,
+                String[] schemes, MatchFilter matchFilter, TransformFilter transformFilter) {
+            return Linkify.addLinks(spannable, pattern, defaultScheme, schemes, matchFilter,
+                    transformFilter);
         }
     }
 }

@@ -16,18 +16,19 @@
 
 package androidx.compose.foundation.text
 
+import androidx.compose.foundation.text.TextDelegate.Companion.paint
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.MultiParagraph
 import androidx.compose.ui.text.MultiParagraphIntrinsics
 import androidx.compose.ui.text.Placeholder
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLayoutInput
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextPainter
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.resolveDefaults
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -87,15 +88,18 @@ class TextDelegate(
     val softWrap: Boolean = true,
     val overflow: TextOverflow = TextOverflow.Clip,
     val density: Density,
-    val resourceLoader: Font.ResourceLoader,
+    val fontFamilyResolver: FontFamily.Resolver,
     val placeholders: List<AnnotatedString.Range<Placeholder>> = emptyList()
 ) {
     /*@VisibleForTesting*/
+    // NOTE(text-perf-review): it seems like TextDelegate essentially guarantees that we use
+    // MultiParagraph. Can we have a fast-path that uses just Paragraph in simpler cases (ie,
+    // String)?
     internal var paragraphIntrinsics: MultiParagraphIntrinsics? = null
     internal var intrinsicsLayoutDirection: LayoutDirection? = null
 
     private val nonNullIntrinsics: MultiParagraphIntrinsics get() = paragraphIntrinsics
-        ?: throw IllegalStateException("layoutForIntrinsics must be called first")
+        ?: throw IllegalStateException("layoutIntrinsics must be called first")
 
     /**
      * The width for text if all soft wrap opportunities were taken.
@@ -116,20 +120,22 @@ class TextDelegate(
     }
 
     fun layoutIntrinsics(layoutDirection: LayoutDirection) {
+        val localIntrinsics = paragraphIntrinsics
         val intrinsics = if (
-            paragraphIntrinsics == null ||
-            layoutDirection != intrinsicsLayoutDirection
+            localIntrinsics == null ||
+            layoutDirection != intrinsicsLayoutDirection ||
+            localIntrinsics.hasStaleResolvedFonts
         ) {
             intrinsicsLayoutDirection = layoutDirection
             MultiParagraphIntrinsics(
                 annotatedString = text,
                 style = resolveDefaults(style, layoutDirection),
                 density = density,
-                resourceLoader = resourceLoader,
+                fontFamilyResolver = fontFamilyResolver,
                 placeholders = placeholders
             )
         } else {
-            paragraphIntrinsics
+            localIntrinsics
         }
 
         paragraphIntrinsics = intrinsics
@@ -147,12 +153,12 @@ class TextDelegate(
     ): MultiParagraph {
         layoutIntrinsics(layoutDirection)
 
-        val minWidth = constraints.minWidth.toFloat()
+        val minWidth = constraints.minWidth
         val widthMatters = softWrap || overflow == TextOverflow.Ellipsis
         val maxWidth = if (widthMatters && constraints.hasBoundedWidth) {
-            constraints.maxWidth.toFloat()
+            constraints.maxWidth
         } else {
-            Float.POSITIVE_INFINITY
+            Constraints.Infinity
         }
 
         // This is a fallback behavior because native text layout doesn't support multiple
@@ -184,15 +190,15 @@ class TextDelegate(
         val width = if (minWidth == maxWidth) {
             maxWidth
         } else {
-            nonNullIntrinsics.maxIntrinsicWidth.coerceIn(minWidth, maxWidth)
+            maxIntrinsicWidth.coerceIn(minWidth, maxWidth)
         }
 
         return MultiParagraph(
             intrinsics = nonNullIntrinsics,
+            constraints = Constraints(maxWidth = width, maxHeight = constraints.maxHeight),
             // This is a fallback behavior for ellipsis. Native
             maxLines = finalMaxLines,
-            ellipsis = overflow == TextOverflow.Ellipsis,
-            width = width
+            ellipsis = overflow == TextOverflow.Ellipsis
         )
     }
 
@@ -203,14 +209,24 @@ class TextDelegate(
     ): TextLayoutResult {
         if (prevResult != null && prevResult.canReuse(
                 text, style, placeholders, maxLines, softWrap, overflow, density, layoutDirection,
-                resourceLoader, constraints
+                fontFamilyResolver, constraints
             )
         ) {
+            // NOTE(text-perf-review): seems like there's a nontrivial chance for us to be able
+            // to just return prevResult here directly?
             return with(prevResult) {
                 copy(
-                    layoutInput = layoutInput.copy(
-                        style = style,
-                        constraints = constraints
+                    layoutInput = TextLayoutInput(
+                        layoutInput.text,
+                        style,
+                        layoutInput.placeholders,
+                        layoutInput.maxLines,
+                        layoutInput.softWrap,
+                        layoutInput.overflow,
+                        layoutInput.density,
+                        layoutInput.layoutDirection,
+                        layoutInput.fontFamilyResolver,
+                        constraints
                     ),
                     size = constraints.constrain(
                         IntSize(
@@ -234,6 +250,10 @@ class TextDelegate(
             )
         )
 
+        // NOTE(text-perf-review): it feels odd to create the input + result at the same time. if
+        // the allocation of these objects is 1:1 then it might make sense to just merge them?
+        // Alternatively, we might be able to save some effort here by having a common object for
+        // the types that go into the result here that are less likely to change
         return TextLayoutResult(
             TextLayoutInput(
                 text,
@@ -244,7 +264,7 @@ class TextDelegate(
                 overflow,
                 density,
                 layoutDirection,
-                resourceLoader,
+                fontFamilyResolver,
                 constraints
             ),
             multiParagraph,

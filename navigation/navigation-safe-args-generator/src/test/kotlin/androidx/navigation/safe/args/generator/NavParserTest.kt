@@ -69,6 +69,7 @@ class NavParserTest {
                                 "android.content.pm.ActivityInfo"
                             )
                         ),
+                        Argument("booleanArrayArg", BoolArrayType, NullValue, true),
                         Argument(
                             "enumArg",
                             ObjectType("java.nio.file.AccessMode"),

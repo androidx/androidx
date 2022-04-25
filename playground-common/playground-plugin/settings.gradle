@@ -1,0 +1,70 @@
+/*
+ * Copyright 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+pluginManagement {
+    repositories {
+        mavenCentral()
+        gradlePluginPortal().content {
+            it.includeModule("org.jetbrains.kotlin.jvm", "org.jetbrains.kotlin.jvm.gradle.plugin")
+        }
+    }
+}
+
+dependencyResolutionManagement {
+    repositories {
+        mavenCentral()
+        gradlePluginPortal().content {
+            it.includeModule("com.gradle", "gradle-enterprise-gradle-plugin")
+            it.includeModule("com.gradle", "common-custom-user-data-gradle-plugin")
+        }
+    }
+}
+
+rootProject.name = "playground-plugin"
+
+// Build cache configuration is duplicated here from the GradleEnterpriseConventionsPlugin,
+// so that when building the `playground-plugin` included build the same build cache settings will be used.
+// Without this, Gradle Enterprise erroneously reports a problem with 'buildSrc' build cache configuration.
+def isCI = System.getenv("CI") == "true"
+buildCache {
+    local {
+        // Aggressively clean up stale build cache entries on CI
+        if (isCI) {
+            removeUnusedEntriesAfterDays = 1
+        }
+    }
+    remote(HttpBuildCache) {
+        url = "https://ge.androidx.dev/cache/"
+        var buildCachePassword = System.getenv("GRADLE_BUILD_CACHE_PASSWORD")
+        if (isCI && buildCachePassword != null && !buildCachePassword.empty) {
+            push = true
+            credentials {
+                username = "ci"
+                password = buildCachePassword
+            }
+        } else {
+            push = false
+        }
+    }
+}
+
+dependencyResolutionManagement {
+    versionCatalogs {
+        libs {
+            from(files("../../gradle/libs.versions.toml"))
+        }
+    }
+}

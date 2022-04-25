@@ -20,10 +20,10 @@ plugins {
 }
 
 android {
-    buildToolsVersion buildTools
-    compileSdkVersion compileSdk
+    buildToolsVersion rootProject.ext.buildTools
+    compileSdkVersion rootProject.ext.compileSdk
     defaultConfig {
-        minSdkVersion minSdk
+        minSdkVersion rootProject.ext.minSdk
     }
     signingConfigs {
         debug {

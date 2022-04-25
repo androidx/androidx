@@ -17,8 +17,8 @@
 package androidx.build
 
 import androidx.build.gradle.isRoot
-import org.gradle.api.Project
 import java.io.File
+import org.gradle.api.Project
 
 /**
  * @return build id string for current build
@@ -53,11 +53,11 @@ fun isPresubmitBuild(): Boolean {
  * the contents of DIST_DIR to somewhere and make it available.
  */
 fun Project.getDistributionDirectory(): File {
-    return if (System.getenv("DIST_DIR") != null) {
-        File(System.getenv("DIST_DIR"))
+    val envVar = project.providers.environmentVariable("DIST_DIR").getOrElse("")
+    return if (envVar != "") {
+        File(envVar)
     } else {
-        val subdir = System.getenv("DIST_SUBDIR") ?: ""
-        File(getRootOutDirectory(), "dist$subdir")
+        File(getRootOutDirectory(), "dist")
     }.also { distDir ->
         distDir.mkdirs()
     }
@@ -107,6 +107,18 @@ fun Project.getHostTestResultDirectory(): File =
  */
 fun Project.getLibraryMetricsDirectory(): File =
     File(getDistributionDirectory(), "librarymetrics")
+
+/**
+ * Directory to put test apk hash json files.
+ */
+fun Project.getApkHashDumpDirectory(): File =
+    File(getDistributionDirectory(), "test-apk-hashes")
+
+/**
+ * Directory to put json metrics so they can be consumed by the metrics dashboards.
+ */
+fun Project.getLibraryReportsDirectory(): File =
+    File(getDistributionDirectory(), "libraryreports")
 
 /**
  * Whether the build should force all versions to be snapshots.

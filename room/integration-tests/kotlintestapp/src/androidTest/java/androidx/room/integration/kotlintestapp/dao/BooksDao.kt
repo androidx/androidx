@@ -46,6 +46,7 @@ import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.Single
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.runBlocking
 import java.util.Date
 
 @Dao
@@ -434,6 +435,24 @@ interface BooksDao {
 
     suspend fun concreteSuspendFunctionWithParams(num: Int, text: String) = "$num - $text"
 
+    @Transaction
+    fun functionWithSuspendFunctionalParam(
+        input: Book,
+        action: suspend (input: Book) -> Book
+    ): Book = runBlocking { action(input) }
+
+    @Transaction
+    suspend fun suspendFunctionWithSuspendFunctionalParam(
+        input: Book,
+        action: suspend (input: Book) -> Book
+    ): Book = action(input)
+
     // This is a private method to validate b/194706278
     private fun getNullAuthor(): Author? = null
+
+    @Query("SELECT * FROM Publisher JOIN Book ON (Publisher.publisherId == Book.bookPublisherId)")
+    fun getBooksByPublisher(): Map<Publisher, List<Book>>
+
+    @get:Query("SELECT * FROM Book")
+    val allBooks: List<Book>
 }

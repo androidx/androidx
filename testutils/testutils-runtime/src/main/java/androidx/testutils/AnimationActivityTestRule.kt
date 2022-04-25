@@ -25,6 +25,7 @@ import androidx.test.runner.intercepting.SingleActivityFactory
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 import java.lang.RuntimeException
+import java.lang.reflect.Method
 
 /**
  * To solve the issue that androidx changes system settings to make animation duration to 0:
@@ -49,7 +50,7 @@ open class AnimationActivityTestRule<T : Activity> : androidx.test.rule.Activity
         ValueAnimator::class.java.getDeclaredMethod("setDurationScale", Float::class.java)
 
     @SuppressLint("DiscouragedPrivateApi")
-    val durationGetter =
+    val durationGetter: Method =
         ValueAnimator::class.java.getDeclaredMethod("getDurationScale")
 
     private lateinit var testType: TestType

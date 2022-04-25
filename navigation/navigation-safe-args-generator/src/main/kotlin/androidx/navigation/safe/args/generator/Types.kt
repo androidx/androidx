@@ -121,7 +121,7 @@ object BoolArrayType : NavType {
     override fun bundlePutMethod() = "putBooleanArray"
     override fun bundleGetMethod() = "getBooleanArray"
     override fun toString() = "boolean"
-    override fun allowsNullable() = false
+    override fun allowsNullable() = true
 }
 
 object ReferenceType : NavType {

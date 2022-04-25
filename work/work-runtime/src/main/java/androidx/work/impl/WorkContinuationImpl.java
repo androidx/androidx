@@ -173,7 +173,7 @@ public class WorkContinuationImpl extends WorkContinuation {
         StatusRunnable<List<WorkInfo>> runnable =
                 StatusRunnable.forStringIds(mWorkManagerImpl, mAllIds);
 
-        mWorkManagerImpl.getWorkTaskExecutor().executeOnBackgroundThread(runnable);
+        mWorkManagerImpl.getWorkTaskExecutor().executeOnTaskThread(runnable);
         return runnable.getFuture();
     }
 
@@ -184,11 +184,11 @@ public class WorkContinuationImpl extends WorkContinuation {
             // The runnable walks the hierarchy of the continuations
             // and marks them enqueued using the markEnqueued() method, parent first.
             EnqueueRunnable runnable = new EnqueueRunnable(this);
-            mWorkManagerImpl.getWorkTaskExecutor().executeOnBackgroundThread(runnable);
+            mWorkManagerImpl.getWorkTaskExecutor().executeOnTaskThread(runnable);
             mOperation = runnable.getOperation();
         } else {
             Logger.get().warning(TAG,
-                    String.format("Already enqueued work ids (%s)", TextUtils.join(", ", mIds)));
+                    "Already enqueued work ids (" + TextUtils.join(", ", mIds) + ")");
         }
         return mOperation;
     }

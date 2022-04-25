@@ -32,6 +32,7 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -47,6 +48,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @since 1.0
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderImpl {
     private static final String TAG = "HdrImageCaptureExtender";
     private static final int UNDER_STAGE_ID = 0;
@@ -128,126 +130,11 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
 
     @Override
     public CaptureProcessorImpl getCaptureProcessor() {
-        CaptureProcessorImpl captureProcessor =
-                new CaptureProcessorImpl() {
-                    private ImageWriter mImageWriter;
-
-                    @Override
-                    public void onOutputSurface(Surface surface, int imageFormat) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                            mImageWriter = ImageWriter.newInstance(surface, 1);
-                        }
-                    }
-
-                    @Override
-                    public void process(Map<Integer, Pair<Image, TotalCaptureResult>> results) {
-                        Log.d(TAG, "Started HDR CaptureProcessor");
-
-                        // Check for availability of all requested images
-                        if (!results.containsKey(UNDER_STAGE_ID)) {
-                            Log.w(TAG,
-                                    "Unable to process since images does not contain "
-                                            + "underexposed image.");
-                            return;
-                        }
-
-                        if (!results.containsKey(NORMAL_STAGE_ID)) {
-                            Log.w(TAG,
-                                    "Unable to process since images does not contain normal "
-                                            + "exposed image.");
-                            return;
-                        }
-
-                        if (!results.containsKey(OVER_STAGE_ID)) {
-                            Log.w(TAG,
-                                    "Unable to process since images does not contain "
-                                            + "overexposed image.");
-                            return;
-                        }
-
-                        // Do processing of images, our placeholder logic just copies the first
-                        // Image into the output buffer.
-                        List<Pair<Image, TotalCaptureResult>> imageDataPairs = new ArrayList<>(
-                                results.values());
-                        if (android.os.Build.VERSION.SDK_INT
-                                >= android.os.Build.VERSION_CODES.M) {
-                            Image outputImage = mImageWriter.dequeueInputImage();
-
-                            // Do processing here
-                            // The sample here simply returns the normal image result
-                            Image normalImage = imageDataPairs.get(NORMAL_STAGE_ID).first;
-
-                            if (outputImage.getWidth() != normalImage.getWidth()
-                                    || outputImage.getHeight() != normalImage.getHeight()) {
-                                throw new IllegalStateException(String.format("input image "
-                                                + "resolution [%d, %d] not the same as the "
-                                                + "output image[%d, %d]", normalImage.getWidth(),
-                                        normalImage.getHeight(), outputImage.getWidth(),
-                                        outputImage.getHeight()));
-                            }
-
-                            try {
-                                // copy y plane
-                                Image.Plane inYPlane = normalImage.getPlanes()[0];
-                                Image.Plane outYPlane = outputImage.getPlanes()[0];
-                                ByteBuffer inYBuffer = inYPlane.getBuffer();
-                                ByteBuffer outYBuffer = outYPlane.getBuffer();
-                                int inYPixelStride = inYPlane.getPixelStride();
-                                int inYRowStride = inYPlane.getRowStride();
-                                int outYPixelStride = outYPlane.getPixelStride();
-                                int outYRowStride = outYPlane.getRowStride();
-                                for (int x = 0; x < outputImage.getHeight(); x++) {
-                                    for (int y = 0; y < outputImage.getWidth(); y++) {
-                                        int inIndex = x * inYRowStride + y * inYPixelStride;
-                                        int outIndex = x * outYRowStride + y * outYPixelStride;
-                                        outYBuffer.put(outIndex, inYBuffer.get(inIndex));
-                                    }
-                                }
-
-                                // Copy UV
-                                for (int i = 1; i < 3; i++) {
-                                    Image.Plane inPlane = normalImage.getPlanes()[i];
-                                    Image.Plane outPlane = outputImage.getPlanes()[i];
-                                    ByteBuffer inBuffer = inPlane.getBuffer();
-                                    ByteBuffer outBuffer = outPlane.getBuffer();
-                                    int inPixelStride = inPlane.getPixelStride();
-                                    int inRowStride = inPlane.getRowStride();
-                                    int outPixelStride = outPlane.getPixelStride();
-                                    int outRowStride = outPlane.getRowStride();
-                                    // UV are half width compared to Y
-                                    for (int x = 0; x < outputImage.getHeight() / 2; x++) {
-                                        for (int y = 0; y < outputImage.getWidth() / 2; y++) {
-                                            int inIndex = x * inRowStride + y * inPixelStride;
-                                            int outIndex = x * outRowStride + y * outPixelStride;
-                                            byte b = inBuffer.get(inIndex);
-                                            outBuffer.put(outIndex, b);
-                                        }
-                                    }
-                                }
-                            } catch (IllegalStateException e) {
-                                Log.e(TAG, "Error accessing the Image: " + e);
-                                // Since something went wrong, don't try to queue up the image.
-                                // Instead let the Image writing get dropped.
-                                return;
-                            }
-
-                            mImageWriter.queueInputImage(outputImage);
-                        }
-
-                        Log.d(TAG, "Completed HDR CaptureProcessor");
-                    }
-
-                    @Override
-                    public void onResolutionUpdate(Size size) {
-
-                    }
-
-                    @Override
-                    public void onImageFormatUpdate(int imageFormat) {
-
-                    }
-                };
-        return captureProcessor;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return new HdrImageCaptureExtenderCaptureProcessorImpl();
+        } else {
+            return new NoOpCaptureProcessorImpl();
+        }
     }
 
     @Override
@@ -299,5 +186,120 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
     @Override
     public Range<Long> getEstimatedCaptureLatencyRange(@Nullable Size captureOutputSize) {
         return new Range<>(300L, 1000L);
+    }
+
+    @RequiresApi(23)
+    static final class HdrImageCaptureExtenderCaptureProcessorImpl implements CaptureProcessorImpl {
+        private ImageWriter mImageWriter;
+
+        @Override
+        public void onOutputSurface(Surface surface, int imageFormat) {
+            mImageWriter = ImageWriter.newInstance(surface, 1);
+        }
+
+        @Override
+        public void process(Map<Integer, Pair<Image, TotalCaptureResult>> results) {
+            Log.d(TAG, "Started HDR CaptureProcessor");
+
+            // Check for availability of all requested images
+            if (!results.containsKey(UNDER_STAGE_ID)) {
+                Log.w(TAG,
+                        "Unable to process since images does not contain "
+                                + "underexposed image.");
+                return;
+            }
+
+            if (!results.containsKey(NORMAL_STAGE_ID)) {
+                Log.w(TAG,
+                        "Unable to process since images does not contain normal "
+                                + "exposed image.");
+                return;
+            }
+
+            if (!results.containsKey(OVER_STAGE_ID)) {
+                Log.w(TAG,
+                        "Unable to process since images does not contain "
+                                + "overexposed image.");
+                return;
+            }
+
+            // Do processing of images, our placeholder logic just copies the first
+            // Image into the output buffer.
+            List<Pair<Image, TotalCaptureResult>> imageDataPairs = new ArrayList<>(
+                    results.values());
+            Image outputImage = mImageWriter.dequeueInputImage();
+
+            // Do processing here
+            // The sample here simply returns the normal image result
+            Image normalImage = imageDataPairs.get(NORMAL_STAGE_ID).first;
+
+            if (outputImage.getWidth() != normalImage.getWidth()
+                    || outputImage.getHeight() != normalImage.getHeight()) {
+                throw new IllegalStateException(String.format("input image "
+                                + "resolution [%d, %d] not the same as the "
+                                + "output image[%d, %d]", normalImage.getWidth(),
+                        normalImage.getHeight(), outputImage.getWidth(),
+                        outputImage.getHeight()));
+            }
+
+            try {
+                // copy y plane
+                Image.Plane inYPlane = normalImage.getPlanes()[0];
+                Image.Plane outYPlane = outputImage.getPlanes()[0];
+                ByteBuffer inYBuffer = inYPlane.getBuffer();
+                ByteBuffer outYBuffer = outYPlane.getBuffer();
+                int inYPixelStride = inYPlane.getPixelStride();
+                int inYRowStride = inYPlane.getRowStride();
+                int outYPixelStride = outYPlane.getPixelStride();
+                int outYRowStride = outYPlane.getRowStride();
+                for (int x = 0; x < outputImage.getHeight(); x++) {
+                    for (int y = 0; y < outputImage.getWidth(); y++) {
+                        int inIndex = x * inYRowStride + y * inYPixelStride;
+                        int outIndex = x * outYRowStride + y * outYPixelStride;
+                        outYBuffer.put(outIndex, inYBuffer.get(inIndex));
+                    }
+                }
+
+                // Copy UV
+                for (int i = 1; i < 3; i++) {
+                    Image.Plane inPlane = normalImage.getPlanes()[i];
+                    Image.Plane outPlane = outputImage.getPlanes()[i];
+                    ByteBuffer inBuffer = inPlane.getBuffer();
+                    ByteBuffer outBuffer = outPlane.getBuffer();
+                    int inPixelStride = inPlane.getPixelStride();
+                    int inRowStride = inPlane.getRowStride();
+                    int outPixelStride = outPlane.getPixelStride();
+                    int outRowStride = outPlane.getRowStride();
+                    // UV are half width compared to Y
+                    for (int x = 0; x < outputImage.getHeight() / 2; x++) {
+                        for (int y = 0; y < outputImage.getWidth() / 2; y++) {
+                            int inIndex = x * inRowStride + y * inPixelStride;
+                            int outIndex = x * outRowStride + y * outPixelStride;
+                            byte b = inBuffer.get(inIndex);
+                            outBuffer.put(outIndex, b);
+                        }
+                    }
+                }
+            } catch (IllegalStateException e) {
+                Log.e(TAG, "Error accessing the Image: " + e);
+                // Since something went wrong, don't try to queue up the image.
+                // Instead let the Image writing get dropped.
+                return;
+            }
+
+            mImageWriter.queueInputImage(outputImage);
+
+            Log.d(TAG, "Completed HDR CaptureProcessor");
+        }
+
+        @Override
+        public void onResolutionUpdate(Size size) {
+
+        }
+
+        @Override
+        public void onImageFormatUpdate(int imageFormat) {
+
+        }
     }
 }

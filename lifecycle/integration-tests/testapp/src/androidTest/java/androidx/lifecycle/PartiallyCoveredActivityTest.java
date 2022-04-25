@@ -46,6 +46,7 @@ import androidx.lifecycle.testapp.CollectingSupportFragment;
 import androidx.lifecycle.testapp.NavigationDialogActivity;
 import androidx.lifecycle.testapp.TestEvent;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -126,6 +127,7 @@ public class PartiallyCoveredActivityTest {
         runTest(activity);
     }
 
+    @FlakyTest(bugId = 206645367)
     @Test
     public void coveredWithDialog_fragment() throws Throwable {
         CollectingSupportFragment fragment = new CollectingSupportFragment();

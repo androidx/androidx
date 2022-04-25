@@ -24,6 +24,7 @@ import androidx.work.Configuration;
 import androidx.work.WorkManager;
 import androidx.work.impl.Scheduler;
 import androidx.work.impl.WorkManagerImpl;
+import androidx.work.impl.constraints.trackers.Trackers;
 import androidx.work.impl.utils.SerialExecutor;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
@@ -66,22 +67,12 @@ class TestWorkManagerImpl extends WorkManagerImpl implements TestDriver {
                             new SerialExecutor(configuration.getTaskExecutor());
 
                     @Override
-                    public void postToMainThread(Runnable runnable) {
-                        runnable.run();
-                    }
-
-                    @Override
                     public Executor getMainThreadExecutor() {
                         return mSynchronousExecutor;
                     }
 
                     @Override
-                    public void executeOnBackgroundThread(Runnable runnable) {
-                        mSerialExecutor.execute(runnable);
-                    }
-
-                    @Override
-                    public SerialExecutor getBackgroundExecutor() {
+                    public SerialExecutor getSerialTaskExecutor() {
                         return mSerialExecutor;
                     }
                 },
@@ -93,11 +84,8 @@ class TestWorkManagerImpl extends WorkManagerImpl implements TestDriver {
 
     @Override
     @NonNull
-    public List<Scheduler> createSchedulers(
-            @NonNull Context context,
-            @NonNull Configuration configuration,
-            @NonNull TaskExecutor taskExecutor) {
-
+    public List<Scheduler> createSchedulers(@NonNull Context context,
+            @NonNull Configuration configuration, @NonNull Trackers trackers) {
         mScheduler = new TestScheduler(context);
         return Collections.singletonList((Scheduler) mScheduler);
     }

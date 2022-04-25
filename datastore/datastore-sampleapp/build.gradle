@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-
-import androidx.build.dependencies.DependenciesKt
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -23,8 +21,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.protobuf")
-    id 'org.jetbrains.kotlin.plugin.serialization' version '1.4.21'
-
+    alias(libs.plugins.kotlinSerialization)
 }
 
 dependencies {
@@ -48,13 +45,11 @@ dependencies {
 
     // For kotlin serialization
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1")
-
-    compileOnly(project(":annotation:annotation-sampled"))
 }
 
 protobuf {
     protoc {
-        artifact = DependenciesKt.getDependencyAsString(libs.protobufCompiler)
+        artifact = libs.protobufCompiler.get()
     }
 
     // Generates the java proto-lite code for the protos in this project. See
@@ -71,9 +66,13 @@ protobuf {
     }
 }
 
+android {
+    namespace "com.example.datastoresampleapp"
+}
+
 // Allow usage of Kotlin's @OptIn.
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
-        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
+        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
     }
 }

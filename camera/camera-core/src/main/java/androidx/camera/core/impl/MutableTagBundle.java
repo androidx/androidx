@@ -19,12 +19,14 @@ package androidx.camera.core.impl;
 import android.util.ArrayMap;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import java.util.Map;
 
 /**
  * A mutable {@link TagBundle} which allows insertion/removal.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class MutableTagBundle extends TagBundle {
 
     private MutableTagBundle(Map<String, Object> source) {

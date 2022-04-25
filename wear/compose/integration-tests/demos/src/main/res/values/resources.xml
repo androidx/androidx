@@ -1,6 +1,3 @@
 <resources>
     <string name="app_name">Wear Compose Integration Demos</string>
-    <style name="AppThemeNoSwipe" parent="@android:style/Theme.DeviceDefault">
-        <item name="android:windowSwipeToDismiss">false</item>
-    </style>
 </resources>

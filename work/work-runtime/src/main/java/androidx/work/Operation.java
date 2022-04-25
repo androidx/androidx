@@ -142,7 +142,7 @@ public interface Operation {
             @Override
             @NonNull
             public String toString() {
-                return String.format("FAILURE (%s)", mThrowable.getMessage());
+                return "FAILURE (" + mThrowable.getMessage() + ")";
             }
         }
     }

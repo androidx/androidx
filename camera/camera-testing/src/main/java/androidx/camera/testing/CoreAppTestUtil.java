@@ -16,6 +16,8 @@
 
 package androidx.camera.testing;
 
+import static org.junit.Assume.assumeTrue;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Instrumentation;
@@ -24,9 +26,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.RemoteException;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 import androidx.camera.testing.activity.ForegroundTestActivity;
 import androidx.test.espresso.Espresso;
@@ -39,6 +43,7 @@ import org.junit.AssumptionViolatedException;
 import java.io.IOException;
 
 /** Utility functions of tests on CoreTestApp. */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class CoreAppTestUtil {
 
     /** ADB shell input key code for dismissing keyguard for device with API level <= 22. */
@@ -141,7 +146,7 @@ public final class CoreAppTestUtil {
      *
      * @param instrumentation The instrumentation instance.
      * @throws ForegroundOccupiedError throw the exception when the test app cannot get
-     *                                 foreground of the device window.
+     *                                 foreground of the device window in CameraX lab.
      */
     public static void prepareDeviceUI(@NonNull Instrumentation instrumentation)
             throws ForegroundOccupiedError {
@@ -181,6 +186,10 @@ public final class CoreAppTestUtil {
                 instrumentation.waitForIdleSync();
             }
         }
+
+        // Throw AssumptionViolatedException to skip the test if not in the CameraX lab
+        // environment. The loggable tag will be set when running the CameraX daily testing.
+        assumeTrue(Log.isLoggable("MH", Log.DEBUG));
 
         throw new ForegroundOccupiedError("CameraX_fail_to_start_foreground, model:" + Build.MODEL);
     }

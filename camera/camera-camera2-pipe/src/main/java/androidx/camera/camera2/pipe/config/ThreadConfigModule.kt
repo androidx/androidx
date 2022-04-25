@@ -19,89 +19,101 @@ package androidx.camera.camera2.pipe.config
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.Process
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraPipe
+import androidx.camera.camera2.pipe.core.AndroidThreads
+import androidx.camera.camera2.pipe.core.AndroidThreads.asCachedThreadPool
+import androidx.camera.camera2.pipe.core.AndroidThreads.asFixedSizeThreadPool
+import androidx.camera.camera2.pipe.core.AndroidThreads.asScheduledThreadPool
+import androidx.camera.camera2.pipe.core.AndroidThreads.withAndroidPriority
+import androidx.camera.camera2.pipe.core.AndroidThreads.withPrefix
 import androidx.camera.camera2.pipe.core.Threads
 import dagger.Module
 import dagger.Provides
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asCoroutineDispatcher
-import java.util.concurrent.Executors
 import javax.inject.Singleton
 
 /**
  * Configure and provide a single [Threads] object to other parts of the library.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @Module
 internal class ThreadConfigModule(private val threadConfig: CameraPipe.ThreadConfig) {
+    // Lightweight executors are for CPU bound work that should take less than ~10ms to operate and
+    // do not block the calling thread.
+    private val lightweightThreadCount: Int =
+        maxOf(2, Runtime.getRuntime().availableProcessors() - 2)
+
+    // Background thread count is for operations that are not latency sensitive and may take more
+    // than a few milliseconds to run.
+    private val backgroundThreadCount: Int = 4
+
+    // High priority threads for interrupt and rendering sensitive operations. This is set to have
+    // slightly (1) lower priority than the display rendering thread should have.
+    private val cameraThreadPriority: Int =
+        Process.THREAD_PRIORITY_DISPLAY + Process.THREAD_PRIORITY_LESS_FAVORABLE
+
+    // Default thread priorities are slightly higher than the default priorities since most camera
+    // operations are latency sensitive and should take precedence over other background work.
+    private val defaultThreadPriority: Int =
+        Process.THREAD_PRIORITY_DEFAULT + Process.THREAD_PRIORITY_MORE_FAVORABLE
+
     @Singleton
     @Provides
     fun provideThreads(): Threads {
-        val threadIds = atomic(0)
-        val cameraThreadPriority =
-            Process.THREAD_PRIORITY_DISPLAY + Process.THREAD_PRIORITY_LESS_FAVORABLE
-        val defaultExecutor =
-            threadConfig.defaultLightweightExecutor ?: Executors.newFixedThreadPool(2) {
-                object : Thread(it) {
-                    init {
-                        val number = threadIds.incrementAndGet().toString().padStart(2, '0')
-                        name = "CXCP-$number"
-                    }
+        val blockingExecutor =
+            threadConfig.defaultBlockingExecutor ?: AndroidThreads.factory
+                .withPrefix("CXCP-IO-")
+                .withAndroidPriority(defaultThreadPriority)
+                .asCachedThreadPool()
+        val blockingDispatcher = blockingExecutor.asCoroutineDispatcher()
 
-                    override fun run() {
-                        Process.setThreadPriority(cameraThreadPriority)
-                        super.run()
-                    }
-                }
-            }
-        val defaultDispatcher = defaultExecutor.asCoroutineDispatcher()
+        val backgroundExecutor =
+            threadConfig.defaultBackgroundExecutor ?: AndroidThreads.factory
+                .withPrefix("CXCP-BG-")
+                .withAndroidPriority(defaultThreadPriority)
+                .asScheduledThreadPool(backgroundThreadCount)
+        val backgroundDispatcher = backgroundExecutor.asCoroutineDispatcher()
 
-        val ioExecutor =
-            threadConfig.defaultBackgroundExecutor ?: Executors.newFixedThreadPool(8) {
-                object : Thread(it) {
-                    init {
-                        val number = threadIds.incrementAndGet().toString().padStart(2, '0')
-                        name = "CXCP-IO-$number"
-                    }
-                }
-            }
-        val ioDispatcher = ioExecutor.asCoroutineDispatcher()
+        val lightweightExecutor =
+            threadConfig.defaultLightweightExecutor ?: AndroidThreads.factory
+                .withPrefix("CXCP-")
+                .withAndroidPriority(cameraThreadPriority)
+                .asScheduledThreadPool(lightweightThreadCount)
+        val lightweightDispatcher = lightweightExecutor.asCoroutineDispatcher()
 
         val cameraHandlerFn =
             {
-                threadConfig.defaultCameraHandler?.let { Handler(it.looper) }
-                    ?: Handler(
-                        HandlerThread("CXCP-Camera2-H").also {
-                            it.start()
-                        }.looper
-                    )
+                val handlerThread = threadConfig.defaultCameraHandler ?: HandlerThread(
+                    "CXCP-Camera-H",
+                    cameraThreadPriority
+                ).also {
+                    it.start()
+                }
+                Handler(handlerThread.looper)
             }
         val cameraExecutorFn = {
-            threadConfig.defaultCameraExecutor ?: Executors.newFixedThreadPool(1) {
-                object : Thread(it) {
-                    init {
-                        name = "CXCP-Camera2-E"
-                    }
-
-                    override fun run() {
-                        Process.setThreadPriority(cameraThreadPriority)
-                        super.run()
-                    }
-                }
-            }
+            threadConfig.defaultCameraExecutor ?: AndroidThreads.factory
+                .withPrefix("CXCP-Camera-E")
+                .withAndroidPriority(cameraThreadPriority)
+                .asFixedSizeThreadPool(1)
         }
 
         val globalScope = CoroutineScope(
-            defaultDispatcher.plus(CoroutineName("CXCP-Pipe"))
+            SupervisorJob() + lightweightDispatcher + CoroutineName("CXCP")
         )
 
         return Threads(
             globalScope = globalScope,
-            defaultExecutor = defaultExecutor,
-            defaultDispatcher = defaultDispatcher,
-            ioExecutor = ioExecutor,
-            ioDispatcher = ioDispatcher,
+            blockingExecutor = blockingExecutor,
+            blockingDispatcher = blockingDispatcher,
+            backgroundExecutor = backgroundExecutor,
+            backgroundDispatcher = backgroundDispatcher,
+            lightweightExecutor = lightweightExecutor,
+            lightweightDispatcher = lightweightDispatcher,
             camera2Handler = cameraHandlerFn,
             camera2Executor = cameraExecutorFn
         )

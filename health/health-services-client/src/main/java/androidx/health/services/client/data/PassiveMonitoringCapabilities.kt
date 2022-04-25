@@ -21,27 +21,32 @@ import androidx.health.services.client.proto.DataProto
 import androidx.health.services.client.proto.DataProto.PassiveMonitoringCapabilities as PassiveMonitoringCapabilitiesProto
 
 /**
- * A place holder class that represents the capabilities of the
- * [androidx.health.services.client.PassiveMonitoringClient] on the device.
+ * Contains the capabilities supported by [androidx.health.services.client.PassiveMonitoringClient]
+ * on this device.
  */
 @Suppress("ParcelCreator")
 public class PassiveMonitoringCapabilities(
 
     /**
-     * Set of supported [DataType] s for background capture on this device.
+     * Set of supported [DataType]s for background capture on this device.
      *
      * Some data types are only available during exercise (e.g. location) or for measurements.
      */
     public val supportedDataTypesPassiveMonitoring: Set<DataType>,
 
-    /** Set of supported [DataType] s for event callbacks on this device. */
-    public val supportedDataTypesEvents: Set<DataType>,
+    /** Set of supported [DataType]s for goal callbacks on this device. */
+    public val supportedDataTypesPassiveGoals: Set<DataType>,
+
+    /** Set of supported [UserActivityState]s on this device. */
+    // TODO(b/227475943): open up visibility
+    internal val supportedUserActivityStates: Set<UserActivityState>,
 ) : ProtoParcelable<PassiveMonitoringCapabilitiesProto>() {
     internal constructor(
         proto: DataProto.PassiveMonitoringCapabilities
     ) : this(
         proto.supportedDataTypesPassiveMonitoringList.map { DataType(it) }.toSet(),
-        proto.supportedDataTypesEventsList.map { DataType(it) }.toSet()
+        proto.supportedDataTypesPassiveGoalsList.map { DataType(it) }.toSet(),
+        proto.supportedUserActivityStatesList.mapNotNull { UserActivityState.fromProto(it) }.toSet()
     )
 
     /** @hide */
@@ -50,14 +55,16 @@ public class PassiveMonitoringCapabilities(
             .addAllSupportedDataTypesPassiveMonitoring(
                 supportedDataTypesPassiveMonitoring.map { it.proto }
             )
-            .addAllSupportedDataTypesEvents(supportedDataTypesEvents.map { it.proto })
+            .addAllSupportedDataTypesPassiveGoals(supportedDataTypesPassiveGoals.map { it.proto })
+            .addAllSupportedUserActivityStates(supportedUserActivityStates.map { it.toProto() })
             .build()
     }
 
     override fun toString(): String =
         "PassiveMonitoringCapabilities(" +
             "supportedDataTypesPassiveMonitoring=$supportedDataTypesPassiveMonitoring, " +
-            "supportedDataTypesEvents=$supportedDataTypesEvents)"
+            "supportedDataTypesPassiveGoals=$supportedDataTypesPassiveGoals, " +
+            "supportedUserActivityStates=$supportedUserActivityStates)"
 
     public companion object {
         @JvmField

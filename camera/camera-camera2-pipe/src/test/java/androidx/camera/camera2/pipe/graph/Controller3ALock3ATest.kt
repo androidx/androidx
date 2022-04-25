@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.pipe.graph
 
+import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.params.MeteringRectangle
@@ -26,12 +27,17 @@ import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.camera2.pipe.testing.FakeRequestProcessor
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
@@ -42,6 +48,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 internal class Controller3ALock3ATest {
@@ -49,7 +56,13 @@ internal class Controller3ALock3ATest {
     private val graphProcessor = FakeGraphProcessor(graphState3A = graphState3A)
     private val requestProcessor = FakeRequestProcessor()
     private val listener3A = Listener3A()
-    private val controller3A = Controller3A(graphProcessor, graphState3A, listener3A)
+    private val fakeMetadata = FakeCameraMetadata(
+        mapOf(
+            CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES to
+                intArrayOf(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE)
+        ),
+    )
+    private val controller3A = Controller3A(graphProcessor, fakeMetadata, graphState3A, listener3A)
 
     @OptIn(DelicateCoroutinesApi::class)
     @Test
@@ -137,7 +150,9 @@ internal class Controller3ALock3ATest {
     fun testAfImmediateAeAfterCurrentScan(): Unit = runBlocking {
         initGraphProcessor()
 
-        val lock3AAsyncTask = GlobalScope.async {
+        val globalScope = CoroutineScope(UnconfinedTestDispatcher())
+
+        val lock3AAsyncTask = globalScope.async {
             controller3A.lock3A(
                 afLockBehavior = Lock3ABehavior.IMMEDIATE,
                 aeLockBehavior = Lock3ABehavior.AFTER_CURRENT_SCAN
@@ -145,7 +160,7 @@ internal class Controller3ALock3ATest {
         }
         assertThat(lock3AAsyncTask.isCompleted).isFalse()
         // Launch a task to repeatedly invoke a given capture result.
-        GlobalScope.launch {
+        globalScope.launch {
             while (true) {
                 listener3A.onRequestSequenceCreated(
                     FakeRequestMetadata(
@@ -182,7 +197,7 @@ internal class Controller3ALock3ATest {
             true
         )
 
-        GlobalScope.launch {
+        globalScope.launch {
             listener3A.onRequestSequenceCreated(
                 FakeRequestMetadata(
                     requestNumber = RequestNumber(1)
@@ -211,6 +226,7 @@ internal class Controller3ALock3ATest {
         assertThat(request2!!.requiredParameters[CaptureRequest.CONTROL_AF_TRIGGER]).isEqualTo(
             CaptureRequest.CONTROL_AF_TRIGGER_START
         )
+        globalScope.cancel()
     }
 
     @OptIn(DelicateCoroutinesApi::class)
@@ -218,14 +234,17 @@ internal class Controller3ALock3ATest {
     fun testAfImmediateAeAfterNewScan(): Unit = runBlocking {
         initGraphProcessor()
 
-        val lock3AAsyncTask = GlobalScope.async {
+        val globalScope = CoroutineScope(UnconfinedTestDispatcher())
+
+        val lock3AAsyncTask = globalScope.async {
             controller3A.lock3A(
                 afLockBehavior = Lock3ABehavior.IMMEDIATE,
                 aeLockBehavior = Lock3ABehavior.AFTER_NEW_SCAN
             )
         }
         assertThat(lock3AAsyncTask.isCompleted).isFalse()
-        GlobalScope.launch {
+
+        globalScope.launch {
             while (true) {
                 listener3A.onRequestSequenceCreated(
                     FakeRequestMetadata(
@@ -259,7 +278,7 @@ internal class Controller3ALock3ATest {
             false
         )
 
-        GlobalScope.launch {
+        globalScope.launch {
             listener3A.onRequestSequenceCreated(
                 FakeRequestMetadata(
                     requestNumber = RequestNumber(1)
@@ -297,6 +316,8 @@ internal class Controller3ALock3ATest {
         assertThat(request3.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(
             true
         )
+
+        globalScope.cancel()
     }
 
     @OptIn(DelicateCoroutinesApi::class)
@@ -304,14 +325,16 @@ internal class Controller3ALock3ATest {
     fun testAfAfterCurrentScanAeImmediate(): Unit = runBlocking {
         initGraphProcessor()
 
-        val lock3AAsyncTask = GlobalScope.async {
+        val globalScope = CoroutineScope(UnconfinedTestDispatcher())
+
+        val lock3AAsyncTask = globalScope.async {
             controller3A.lock3A(
                 afLockBehavior = Lock3ABehavior.AFTER_CURRENT_SCAN,
                 aeLockBehavior = Lock3ABehavior.IMMEDIATE
             )
         }
         assertThat(lock3AAsyncTask.isCompleted).isFalse()
-        GlobalScope.launch {
+        globalScope.launch {
             while (true) {
                 listener3A.onRequestSequenceCreated(
                     FakeRequestMetadata(
@@ -338,7 +361,7 @@ internal class Controller3ALock3ATest {
         val result = lock3AAsyncTask.await()
         assertThat(result.isCompleted).isFalse()
 
-        GlobalScope.launch {
+        globalScope.launch {
             listener3A.onRequestSequenceCreated(
                 FakeRequestMetadata(
                     requestNumber = RequestNumber(1)
@@ -378,6 +401,7 @@ internal class Controller3ALock3ATest {
         assertThat(request3.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(
             true
         )
+        globalScope.cancel()
     }
 
     @OptIn(DelicateCoroutinesApi::class)
@@ -385,14 +409,16 @@ internal class Controller3ALock3ATest {
     fun testAfAfterNewScanScanAeImmediate(): Unit = runBlocking {
         initGraphProcessor()
 
-        val lock3AAsyncTask = GlobalScope.async {
+        val globalScope = CoroutineScope(UnconfinedTestDispatcher())
+
+        val lock3AAsyncTask = globalScope.async {
             controller3A.lock3A(
                 afLockBehavior = Lock3ABehavior.AFTER_NEW_SCAN,
                 aeLockBehavior = Lock3ABehavior.IMMEDIATE
             )
         }
         assertThat(lock3AAsyncTask.isCompleted).isFalse()
-        GlobalScope.launch {
+        globalScope.launch {
             while (true) {
                 listener3A.onRequestSequenceCreated(
                     FakeRequestMetadata(
@@ -419,7 +445,7 @@ internal class Controller3ALock3ATest {
         val result = lock3AAsyncTask.await()
         assertThat(result.isCompleted).isFalse()
 
-        GlobalScope.launch {
+        globalScope.launch {
             listener3A.onRequestSequenceCreated(
                 FakeRequestMetadata(
                     requestNumber = RequestNumber(1)
@@ -465,6 +491,7 @@ internal class Controller3ALock3ATest {
         assertThat(request3.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(
             true
         )
+        globalScope.cancel()
     }
 
     @OptIn(DelicateCoroutinesApi::class)
@@ -472,14 +499,16 @@ internal class Controller3ALock3ATest {
     fun testAfAfterCurrentScanAeAfterCurrentScan(): Unit = runBlocking {
         initGraphProcessor()
 
-        val lock3AAsyncTask = GlobalScope.async {
+        val globalScope = CoroutineScope(UnconfinedTestDispatcher())
+
+        val lock3AAsyncTask = globalScope.async {
             controller3A.lock3A(
                 afLockBehavior = Lock3ABehavior.AFTER_CURRENT_SCAN,
                 aeLockBehavior = Lock3ABehavior.AFTER_CURRENT_SCAN
             )
         }
         assertThat(lock3AAsyncTask.isCompleted).isFalse()
-        GlobalScope.launch {
+        globalScope.launch {
             while (true) {
                 listener3A.onRequestSequenceCreated(
                     FakeRequestMetadata(
@@ -506,7 +535,7 @@ internal class Controller3ALock3ATest {
         val result = lock3AAsyncTask.await()
         assertThat(result.isCompleted).isFalse()
 
-        GlobalScope.launch {
+        globalScope.launch {
             listener3A.onRequestSequenceCreated(
                 FakeRequestMetadata(
                     requestNumber = RequestNumber(1)
@@ -560,6 +589,8 @@ internal class Controller3ALock3ATest {
         assertThat(request3.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(
             true
         )
+
+        globalScope.cancel()
     }
 
     @OptIn(DelicateCoroutinesApi::class)
@@ -567,14 +598,15 @@ internal class Controller3ALock3ATest {
     fun testAfAfterNewScanScanAeAfterNewScan(): Unit = runBlocking {
         initGraphProcessor()
 
-        val lock3AAsyncTask = GlobalScope.async {
+        val globalScope = CoroutineScope(UnconfinedTestDispatcher())
+        val lock3AAsyncTask = globalScope.async {
             controller3A.lock3A(
                 afLockBehavior = Lock3ABehavior.AFTER_NEW_SCAN,
                 aeLockBehavior = Lock3ABehavior.AFTER_NEW_SCAN
             )
         }
         assertThat(lock3AAsyncTask.isCompleted).isFalse()
-        GlobalScope.launch {
+        globalScope.launch {
             while (true) {
                 listener3A.onRequestSequenceCreated(
                     FakeRequestMetadata(
@@ -601,7 +633,7 @@ internal class Controller3ALock3ATest {
         val result = lock3AAsyncTask.await()
         assertThat(result.isCompleted).isFalse()
 
-        GlobalScope.launch {
+        globalScope.launch {
             listener3A.onRequestSequenceCreated(
                 FakeRequestMetadata(
                     requestNumber = RequestNumber(1)
@@ -650,6 +682,7 @@ internal class Controller3ALock3ATest {
         assertThat(request4.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(
             true
         )
+        globalScope.cancel()
     }
 
     @OptIn(DelicateCoroutinesApi::class)
@@ -743,6 +776,23 @@ internal class Controller3ALock3ATest {
         assertThat(request2.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(
             true
         )
+    }
+
+    @OptIn(DelicateCoroutinesApi::class)
+    @Test
+    fun testLock3AWithUnsupportedAutoFocusTrigger(): Unit = runBlocking {
+        initGraphProcessor()
+
+        val fakeMetadata = FakeCameraMetadata(
+            mapOf(
+                CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES to
+                    intArrayOf(CaptureRequest.CONTROL_AF_MODE_OFF)
+            ),
+        )
+        val controller3A = Controller3A(graphProcessor, fakeMetadata, graphState3A, listener3A)
+        val result = controller3A.lock3A(afLockBehavior = Lock3ABehavior.AFTER_NEW_SCAN).await()
+        assertThat(result.status).isEqualTo(Result3A.Status.OK)
+        assertThat(result.frameMetadata).isEqualTo(null)
     }
 
     private fun initGraphProcessor() {

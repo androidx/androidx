@@ -20,12 +20,13 @@ package androidx.camera.camera2.pipe.integration.impl
 
 import android.hardware.camera2.CaptureRequest
 import androidx.annotation.GuardedBy
-import androidx.camera.camera2.pipe.CameraGraph
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.Metadata
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraScope
+import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
@@ -42,12 +43,15 @@ import javax.inject.Inject
  * of primitive rate limiting that ensures that updates arriving too quickly are only sent to the
  * underlying camera graph as fast as the camera is capable of consuming them.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @UseCaseCameraScope
 class UseCaseCameraState @Inject constructor(
-    private val cameraGraph: CameraGraph,
+    useCaseGraphConfig: UseCaseGraphConfig,
     private val threads: UseCaseThreads
 ) {
     private val lock = Any()
+
+    private val cameraGraph = useCaseGraphConfig.graph
 
     @GuardedBy("lock")
     private var updateSignal: CompletableDeferred<Unit>? = null

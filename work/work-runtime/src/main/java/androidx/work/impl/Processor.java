@@ -63,6 +63,8 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
     private WorkDatabase mWorkDatabase;
     private Map<String, WorkerWrapper> mForegroundWorkMap;
     private Map<String, WorkerWrapper> mEnqueuedWorkMap;
+    //  workSpecId  to a  Set<WorkRunId>
+    private Map<String, Set<WorkRunId>> mWorkRuns;
     private List<Scheduler> mSchedulers;
 
     private Set<String> mCancelledIds;
@@ -87,6 +89,7 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
         mOuterListeners = new ArrayList<>();
         mForegroundLock = null;
         mLock = new Object();
+        mWorkRuns = new HashMap<>();
     }
 
     /**
@@ -95,29 +98,30 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
      * @param id The work id to execute.
      * @return {@code true} if the work was successfully enqueued for processing
      */
-    public boolean startWork(@NonNull String id) {
+    public boolean startWork(@NonNull WorkRunId id) {
         return startWork(id, null);
     }
 
     /**
      * Starts a given unit of work in the background.
      *
-     * @param id The work id to execute.
+     * @param workRunId The work id to execute.
      * @param runtimeExtras The {@link WorkerParameters.RuntimeExtras} for this work, if any.
      * @return {@code true} if the work was successfully enqueued for processing
      */
+    @SuppressWarnings("ConstantConditions")
     public boolean startWork(
-            @NonNull String id,
+            @NonNull WorkRunId workRunId,
             @Nullable WorkerParameters.RuntimeExtras runtimeExtras) {
-
+        String id = workRunId.getWorkSpecId();
         WorkerWrapper workWrapper;
         synchronized (mLock) {
             // Work may get triggered multiple times if they have passing constraints
             // and new work with those constraints are added.
             if (isEnqueued(id)) {
-                Logger.get().debug(
-                        TAG,
-                        String.format("Work %s is already enqueued for processing", id));
+                // there must be another run if it is enqueued.
+                mWorkRuns.get(workRunId.getWorkSpecId()).add(workRunId);
+                Logger.get().debug(TAG, "Work " + id + " is already enqueued for processing");
                 return false;
             }
 
@@ -137,9 +141,12 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
                     new FutureListener(this, id, future),
                     mWorkTaskExecutor.getMainThreadExecutor());
             mEnqueuedWorkMap.put(id, workWrapper);
+            HashSet<WorkRunId> set = new HashSet<>();
+            set.add(workRunId);
+            mWorkRuns.put(id, set);
         }
-        mWorkTaskExecutor.getBackgroundExecutor().execute(workWrapper);
-        Logger.get().debug(TAG, String.format("%s: processing %s", getClass().getSimpleName(), id));
+        mWorkTaskExecutor.getSerialTaskExecutor().execute(workWrapper);
+        Logger.get().debug(TAG, getClass().getSimpleName() + ": processing " + id);
         return true;
     }
 
@@ -147,8 +154,7 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
     public void startForeground(@NonNull String workSpecId,
             @NonNull ForegroundInfo foregroundInfo) {
         synchronized (mLock) {
-            Logger.get().info(TAG, String.format("Moving WorkSpec (%s) to the foreground",
-                    workSpecId));
+            Logger.get().info(TAG, "Moving WorkSpec (" + workSpecId + ") to the foreground");
             WorkerWrapper wrapper = mEnqueuedWorkMap.remove(workSpecId);
             if (wrapper != null) {
                 if (mForegroundLock == null) {
@@ -170,25 +176,46 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
      * @return {@code true} if the work was stopped successfully
      */
     public boolean stopForegroundWork(@NonNull String id) {
+        WorkerWrapper wrapper = null;
         synchronized (mLock) {
-            Logger.get().debug(TAG, String.format("Processor stopping foreground work %s", id));
-            WorkerWrapper wrapper = mForegroundWorkMap.remove(id);
-            return interrupt(id, wrapper);
+            Logger.get().debug(TAG, "Processor stopping foreground work " + id);
+            wrapper = mForegroundWorkMap.remove(id);
+            mWorkRuns.remove(id);
         }
+        // Move interrupt() outside the critical section.
+        // This is because calling interrupt() eventually calls ListenableWorker.onStopped()
+        // If onStopped() takes too long, there is a good chance this causes an ANR
+        // in Processor.onExecuted().
+        return interrupt(id, wrapper);
     }
 
     /**
      * Stops a unit of work.
      *
-     * @param id The work id to stop
+     * @param runId The work id to stop
      * @return {@code true} if the work was stopped successfully
      */
-    public boolean stopWork(@NonNull String id) {
+    public boolean stopWork(@NonNull WorkRunId runId) {
+        String id = runId.getWorkSpecId();
+        WorkerWrapper wrapper = null;
         synchronized (mLock) {
-            Logger.get().debug(TAG, String.format("Processor stopping background work %s", id));
-            WorkerWrapper wrapper = mEnqueuedWorkMap.remove(id);
-            return interrupt(id, wrapper);
+            // Processor _only_ receives stopWork() requests from the schedulers that originally
+            // scheduled the work, and not others. This means others are still notified about
+            // completion, but we avoid a accidental "stops" and lot of redundant work when
+            // attempting to stop.
+            Set<WorkRunId> runs = mWorkRuns.get(runId.getWorkSpecId());
+            if (runs == null || !runs.contains(runId)) {
+                return false;
+            }
+            Logger.get().debug(TAG, "Processor stopping background work " + id);
+            mWorkRuns.remove(id);
+            wrapper = mEnqueuedWorkMap.remove(id);
         }
+        // Move interrupt() outside the critical section.
+        // This is because calling interrupt() eventually calls ListenableWorker.onStopped()
+        // If onStopped() takes too long, there is a good chance this causes an ANR
+        // in Processor.onExecuted().
+        return interrupt(id, wrapper);
     }
 
     /**
@@ -198,23 +225,28 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
      * @return {@code true} if the work was stopped successfully
      */
     public boolean stopAndCancelWork(@NonNull String id) {
+        WorkerWrapper wrapper = null;
+        boolean isForegroundWork = false;
         synchronized (mLock) {
-            Logger.get().debug(TAG, String.format("Processor cancelling %s", id));
+            Logger.get().debug(TAG, "Processor cancelling " + id);
             mCancelledIds.add(id);
-            WorkerWrapper wrapper;
             // Check if running in the context of a foreground service
             wrapper = mForegroundWorkMap.remove(id);
-            boolean isForegroundWork = wrapper != null;
+            isForegroundWork = wrapper != null;
             if (wrapper == null) {
                 // Fallback to enqueued Work
                 wrapper = mEnqueuedWorkMap.remove(id);
             }
-            boolean interrupted = interrupt(id, wrapper);
-            if (isForegroundWork) {
-                stopForegroundService();
-            }
-            return interrupted;
         }
+        // Move interrupt() outside the critical section.
+        // This is because calling interrupt() eventually calls ListenableWorker.onStopped()
+        // If onStopped() takes too long, there is a good chance this causes an ANR
+        // in Processor.onExecuted().
+        boolean interrupted = interrupt(id, wrapper);
+        if (isForegroundWork) {
+            stopForegroundService();
+        }
+        return interrupted;
     }
 
     @Override
@@ -262,6 +294,7 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
      * @param workSpecId The {@link androidx.work.impl.model.WorkSpec} id
      * @return {@code true} if the id was enqueued as foreground work in the processor.
      */
+    @Override
     public boolean isEnqueuedInForeground(@NonNull String workSpecId) {
         synchronized (mLock) {
             return mForegroundWorkMap.containsKey(workSpecId);
@@ -297,9 +330,9 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
 
         synchronized (mLock) {
             mEnqueuedWorkMap.remove(workSpecId);
-            Logger.get().debug(TAG, String.format("%s %s executed; reschedule = %s",
-                    getClass().getSimpleName(), workSpecId, needsReschedule));
-
+            Logger.get().debug(TAG,
+                    getClass().getSimpleName() + " " + workSpecId +
+                            " executed; reschedule = " + needsReschedule);
             for (ExecutionListener executionListener : mOuterListeners) {
                 executionListener.onExecuted(workSpecId, needsReschedule);
             }
@@ -338,10 +371,10 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
     private static boolean interrupt(@NonNull String id, @Nullable WorkerWrapper wrapper) {
         if (wrapper != null) {
             wrapper.interrupt();
-            Logger.get().debug(TAG, String.format("WorkerWrapper interrupted for %s", id));
+            Logger.get().debug(TAG, "WorkerWrapper interrupted for " + id);
             return true;
         } else {
-            Logger.get().debug(TAG, String.format("WorkerWrapper could not be found for %s", id));
+            Logger.get().debug(TAG, "WorkerWrapper could not be found for " + id);
             return false;
         }
     }

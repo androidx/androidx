@@ -154,7 +154,6 @@ public class AppSearchLoggerTest {
                 .setDocumentSize(nativeDocumentSize)
                 .setTokenizationStats(PutDocumentStatsProto.TokenizationStats.newBuilder()
                         .setNumTokensIndexed(nativeNumTokensIndexed)
-                        .setExceededMaxTokenNum(nativeExceededMaxNumTokens)
                         .build())
                 .build();
         PutDocumentStats.Builder pBuilder = new PutDocumentStats.Builder(PACKAGE_NAME, DATABASE);
@@ -170,7 +169,6 @@ public class AppSearchLoggerTest {
                 nativeIndexMergeLatencyMillis);
         assertThat(pStats.getNativeDocumentSizeBytes()).isEqualTo(nativeDocumentSize);
         assertThat(pStats.getNativeNumTokensIndexed()).isEqualTo(nativeNumTokensIndexed);
-        assertThat(pStats.getNativeExceededMaxNumTokens()).isEqualTo(nativeExceededMaxNumTokens);
     }
 
     @Test
@@ -729,6 +727,7 @@ public class AppSearchLoggerTest {
     }
 
     @Test
+    @SuppressWarnings("deprecation") // DEPRECATED_QUERY_VALUE
     public void testLoggingStats_removeByQuery_success() throws Exception {
         // Insert schema
         final String testPackageName = "testPackage";

@@ -19,11 +19,13 @@ package androidx.camera.camera2.impl;
 import android.hardware.camera2.CameraCaptureSession;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.CaptureConfig;
 
 /**
  * A callback object for tracking the camera capture session event and get request data.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public abstract class CameraEventCallback {
 
     /**

@@ -16,18 +16,15 @@
 
 package androidx.navigation.compose
 
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.remember
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.createGraph
 import androidx.navigation.get
-import androidx.navigation.plusAssign
-import androidx.navigation.testing.TestNavHostController
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.testutils.TestNavigator
@@ -48,7 +45,7 @@ class NavHostControllerTest {
     fun testCurrentBackStackEntrySetGraph() {
         var currentBackStackEntry: State<NavBackStackEntry?> = mutableStateOf(null)
         composeTestRule.setContent {
-            val navController = createNavController()
+            val navController = rememberNavController(remember { TestNavigator() })
 
             navController.graph = navController.createGraph(startDestination = FIRST_DESTINATION) {
                 test(FIRST_DESTINATION)
@@ -67,7 +64,7 @@ class NavHostControllerTest {
         var currentBackStackEntry: State<NavBackStackEntry?> = mutableStateOf(null)
         lateinit var navController: NavController
         composeTestRule.setContent {
-            navController = createNavController()
+            navController = rememberNavController(remember { TestNavigator() })
 
             navController.graph = navController.createGraph(startDestination = FIRST_DESTINATION) {
                 test(FIRST_DESTINATION)
@@ -93,9 +90,9 @@ class NavHostControllerTest {
     @Test
     fun testCurrentBackStackEntryPop() {
         var currentBackStackEntry: State<NavBackStackEntry?> = mutableStateOf(null)
-        lateinit var navController: TestNavHostController
+        lateinit var navController: NavHostController
         composeTestRule.setContent {
-            navController = createNavController()
+            navController = rememberNavController(remember { TestNavigator() })
 
             navController.graph = navController.createGraph(startDestination = FIRST_DESTINATION) {
                 test(FIRST_DESTINATION)
@@ -106,7 +103,7 @@ class NavHostControllerTest {
         }
 
         composeTestRule.runOnUiThread {
-            navController.setCurrentDestination(SECOND_DESTINATION)
+            navController.navigate(SECOND_DESTINATION)
             navController.popBackStack()
         }
 
@@ -120,7 +117,7 @@ class NavHostControllerTest {
         var currentBackStackEntry: State<NavBackStackEntry?> = mutableStateOf(null)
         lateinit var navController: NavController
         composeTestRule.setContent {
-            navController = createNavController()
+            navController = rememberNavController(remember { TestNavigator() })
 
             navController.graph = navController.createGraph(startDestination = FIRST_DESTINATION) {
                 test(FIRST_DESTINATION)
@@ -156,7 +153,7 @@ class NavHostControllerTest {
         var currentBackStackEntry: State<NavBackStackEntry?> = mutableStateOf(null)
         lateinit var navController: NavController
         composeTestRule.setContent {
-            navController = createNavController()
+            navController = rememberNavController(remember { TestNavigator() })
 
             navController.graph = navController.createGraph(startDestination = FIRST_DESTINATION) {
                 test(FIRST_DESTINATION)
@@ -227,7 +224,7 @@ class NavHostControllerTest {
     fun testGetBackStackEntry() {
         lateinit var navController: NavController
         composeTestRule.setContent {
-            navController = createNavController()
+            navController = rememberNavController(remember { TestNavigator() })
 
             navController.graph = navController.createGraph(startDestination = FIRST_DESTINATION) {
                 test(FIRST_DESTINATION)
@@ -256,7 +253,7 @@ class NavHostControllerTest {
     fun testGetBackStackEntryNoEntryFound() {
         lateinit var navController: NavController
         composeTestRule.setContent {
-            navController = createNavController()
+            navController = rememberNavController(remember { TestNavigator() })
 
             navController.graph = navController.createGraph(startDestination = FIRST_DESTINATION) {
                 test(FIRST_DESTINATION)
@@ -278,14 +275,6 @@ class NavHostControllerTest {
                         navController.currentBackStackEntry?.destination
                 )
         }
-    }
-
-    @Composable
-    private fun createNavController(): TestNavHostController {
-        val navController = TestNavHostController(LocalContext.current)
-        val navigator = TestNavigator()
-        navController.navigatorProvider += navigator
-        return navController
     }
 }
 

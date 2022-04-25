@@ -16,14 +16,15 @@
 package androidx.camera.video.internal
 
 import androidx.annotation.GuardedBy
+import androidx.annotation.RequiresApi
 import androidx.camera.core.impl.Observable
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.video.internal.encoder.InputBuffer
 import com.google.common.util.concurrent.ListenableFuture
-import java.lang.IllegalStateException
 import java.util.concurrent.Callable
 import java.util.concurrent.Executor
 
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class FakeBufferProvider(private val bufferFactory: Callable<InputBuffer>) :
     BufferProvider<InputBuffer> {
 

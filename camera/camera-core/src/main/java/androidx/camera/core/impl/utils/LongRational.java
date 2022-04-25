@@ -17,11 +17,13 @@
 package androidx.camera.core.impl.utils;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 /**
  * The rational data type of EXIF tag. Contains a pair of longs representing the
  * numerator and denominator of a Rational number.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class LongRational {
 
     private final long mNumerator;

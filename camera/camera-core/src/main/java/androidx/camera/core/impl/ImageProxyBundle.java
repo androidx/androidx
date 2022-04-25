@@ -17,6 +17,7 @@
 package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageProxy;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -26,6 +27,7 @@ import java.util.List;
 /**
  * A set of {@link ImageProxy} which are mapped an identifier.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface ImageProxyBundle {
     /**
      * Get a {@link ListenableFuture} for a {@link ImageProxy}.

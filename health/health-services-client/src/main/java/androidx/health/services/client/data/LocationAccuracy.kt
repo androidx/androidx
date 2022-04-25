@@ -22,30 +22,52 @@ import androidx.health.services.client.proto.DataProto.DataPointAccuracy.Locatio
 
 /** Accuracy for a [DataType.LOCATION] data point. */
 @Suppress("ParcelCreator")
-public class LocationAccuracy(
+public class LocationAccuracy
+@JvmOverloads
+constructor(
     /** Represents the estimated horizontal accuracy of the location, radial, in meters. */
-    public val horizontalPositionError: Double
+    public val horizontalPositionErrorMeters: Double,
+    /**
+     * Represents the estimated vertical accuracy of the location, radial, in meters, or it will
+     * equal [LocationAccuracy.UNAVAILABLE] if it cannot be provided.
+     */
+    // TODO(b/227475943): open up visibility
+    internal val verticalPositionErrorMeters: Double = -1.0,
 ) : DataPointAccuracy() {
 
     internal constructor(
         proto: DataProto.DataPointAccuracy
-    ) : this(proto.locationAccuracy.horizontalPositionError)
+    ) : this(
+        proto.locationAccuracy.horizontalPositionError,
+        if (proto.locationAccuracy.hasVerticalPositionError()) {
+            proto.locationAccuracy.verticalPositionError
+        } else {
+            UNAVAILABLE
+        }
+    )
 
     /** @hide */
     override val proto: DataProto.DataPointAccuracy by lazy {
         DataProto.DataPointAccuracy.newBuilder()
             .setLocationAccuracy(
                 LocationAccuracyProto.newBuilder()
-                    .setHorizontalPositionError(horizontalPositionError)
+                    .setHorizontalPositionError(horizontalPositionErrorMeters)
+                    .setVerticalPositionError(verticalPositionErrorMeters)
                     .build()
             )
             .build()
     }
 
     override fun toString(): String =
-        "LocationAccuracy(horizontalPositionError=$horizontalPositionError)"
+        "LocationAccuracy(horizontalPositionErrorMeters=$horizontalPositionErrorMeters," +
+            "verticalPositionErrorMeters=$verticalPositionErrorMeters)"
 
     public companion object {
+
+        /** Value used when a `verticalPositionError` is not available. */
+        // TODO(b/227475943): open up visibility
+        internal const val UNAVAILABLE: Double = -1.0
+
         @JvmField
         public val CREATOR: Parcelable.Creator<LocationAccuracy> = newCreator {
             val proto = DataProto.DataPointAccuracy.parseFrom(it)

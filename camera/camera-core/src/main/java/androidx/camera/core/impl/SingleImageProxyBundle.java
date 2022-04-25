@@ -17,6 +17,7 @@
 package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageInfo;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -29,6 +30,7 @@ import java.util.List;
 /**
  * An {@link ImageProxyBundle} that contains a single {@link ImageProxy}.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class SingleImageProxyBundle implements ImageProxyBundle {
     private final int mCaptureId;
     private final ImageProxy mImageProxy;

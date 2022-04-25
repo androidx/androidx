@@ -16,55 +16,75 @@
 
 package androidx.room.compiler.processing.javac
 
+import androidx.room.compiler.processing.XAnnotationValue
 import androidx.room.compiler.processing.XEnumTypeElement
 import androidx.room.compiler.processing.XNullability
-import androidx.room.compiler.processing.XAnnotationValue
 import com.google.auto.common.MoreTypes
 import javax.lang.model.element.AnnotationMirror
 import javax.lang.model.element.AnnotationValue
-import javax.lang.model.element.ElementKind
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.VariableElement
+import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
+import javax.lang.model.util.AbstractAnnotationValueVisitor8
 
 internal class JavacAnnotationValue(
     val env: JavacProcessingEnv,
-    val element: ExecutableElement,
-    val annotationValue: AnnotationValue
+    val method: ExecutableElement,
+    val annotationValue: AnnotationValue,
+    private val valueProvider: () -> Any? = {
+        UNWRAP_VISITOR.visit(annotationValue, VisitorData(env, method))
+    }
 ) : XAnnotationValue {
     override val name: String
-        get() = element.simpleName.toString()
+        get() = method.simpleName.toString()
 
-    override val value: Any? by lazy { annotationValue.unwrap() }
+    override val value: Any? by lazy { valueProvider.invoke() }
+}
 
-    private fun AnnotationValue.unwrap(): Any? {
-        val value = this.value
-        fun Any?.unwrapIfNeeded(): Any? {
-            return if (this is AnnotationValue) this.unwrap() else this
+private data class VisitorData(val env: JavacProcessingEnv, val method: ExecutableElement)
+
+private val UNWRAP_VISITOR = object : AbstractAnnotationValueVisitor8<Any?, VisitorData>() {
+    override fun visitBoolean(b: Boolean, data: VisitorData) = b
+    override fun visitByte(b: Byte, data: VisitorData) = b
+    override fun visitChar(c: Char, data: VisitorData) = c
+    override fun visitDouble(d: Double, data: VisitorData) = d
+    override fun visitFloat(f: Float, data: VisitorData) = f
+    override fun visitInt(i: Int, data: VisitorData) = i
+    override fun visitLong(i: Long, data: VisitorData) = i
+    override fun visitShort(s: Short, data: VisitorData) = s
+
+    override fun visitString(s: String?, data: VisitorData) =
+        if (s == "<error>") {
+            throw TypeNotPresentException(s, null)
+        } else {
+            s
         }
-        return when {
-            // The List implementation further wraps each value as a AnnotationValue.
-            // We don't expose arrays because we don't have a reified type to instantiate the array
-            // with, and using "Any" prevents the array from being cast to the correct
-            // type later on.
-            value is List<*> -> value.map { it.unwrapIfNeeded() }
-            value is TypeMirror -> env.wrap(value, kotlinType = null, XNullability.NONNULL)
-            value is AnnotationMirror -> JavacAnnotation(env, value)
-            // Enums are wrapped in a variable element with kind ENUM_CONSTANT
-            value is VariableElement -> {
-                when {
-                    value.kind == ElementKind.ENUM_CONSTANT -> {
-                        val enumTypeElement = MoreTypes.asTypeElement(value.asType())
-                        JavacEnumEntry(
-                            env,
-                            value,
-                            JavacTypeElement.create(env, enumTypeElement) as XEnumTypeElement
-                        )
-                    }
-                    else -> error("Unexpected annotation value $value for argument $name")
-                }
-            }
-            else -> value
+
+    override fun visitType(t: TypeMirror, data: VisitorData): JavacType {
+        if (t.kind == TypeKind.ERROR) {
+            throw TypeNotPresentException(t.toString(), null)
         }
+        return data.env.wrap(t, kotlinType = null, XNullability.NONNULL)
     }
+
+    override fun visitEnumConstant(c: VariableElement, data: VisitorData): JavacEnumEntry {
+        val type = c.asType()
+        if (type.kind == TypeKind.ERROR) {
+            throw TypeNotPresentException(type.toString(), null)
+        }
+        val enumTypeElement = MoreTypes.asTypeElement(type)
+        return JavacEnumEntry(
+            env = data.env,
+            entryElement = c,
+            enclosingElement = JavacTypeElement.create(data.env, enumTypeElement)
+                as XEnumTypeElement
+        )
+    }
+
+    override fun visitAnnotation(a: AnnotationMirror, data: VisitorData) =
+        JavacAnnotation(data.env, a)
+
+    override fun visitArray(vals: MutableList<out AnnotationValue>, data: VisitorData) =
+        vals.map { JavacAnnotationValue(data.env, data.method, it) { it.accept(this, data) } }
 }

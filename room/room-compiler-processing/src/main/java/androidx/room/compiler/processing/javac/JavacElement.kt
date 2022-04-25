@@ -24,6 +24,7 @@ import androidx.room.compiler.processing.XEquality
 import androidx.room.compiler.processing.unwrapRepeatedAnnotationsFromContainer
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreElements.isAnnotationPresent
+import com.google.auto.common.SuperficialValidation
 import java.util.Locale
 import javax.lang.model.element.Element
 import kotlin.reflect.KClass
@@ -98,5 +99,9 @@ internal abstract class JavacElement(
 
     override val docComment: String? by lazy {
         env.elementUtils.getDocComment(element)
+    }
+
+    override fun validate(): Boolean {
+        return SuperficialValidation.validateElement(element)
     }
 }

@@ -71,7 +71,7 @@ public class DelayedWorkTracker {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                Logger.get().debug(TAG, String.format("Scheduling work %s", workSpec.id));
+                Logger.get().debug(TAG, "Scheduling work " + workSpec.id);
                 mGreedyScheduler.schedule(workSpec);
             }
         };

@@ -15,8 +15,8 @@
  */
 
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -28,28 +28,22 @@ android {
     buildTypes.all {
         consumerProguardFiles("proguard-rules.pro")
     }
+    namespace "androidx.lifecycle.viewmodel.savedstate"
 }
 
 dependencies {
     api("androidx.annotation:annotation:1.0.0")
-    api("androidx.savedstate:savedstate:1.0.0")
+    api("androidx.core:core-ktx:1.2.0")
+    api("androidx.savedstate:savedstate:1.2.0-rc01")
     api(projectOrArtifact(":lifecycle:lifecycle-livedata-core"))
     api(projectOrArtifact(":lifecycle:lifecycle-viewmodel"))
+    api(libs.kotlinStdlib)
+    api(libs.kotlinCoroutinesAndroid)
 
     androidTestImplementation projectOrArtifact(":lifecycle:lifecycle-runtime")
     androidTestImplementation projectOrArtifact(":lifecycle:lifecycle-livedata-core")
-    androidTestImplementation ("androidx.fragment:fragment:1.3.0") {
-        exclude group: "androidx.lifecycle", module: "lifecycle-runtime"
-        exclude group: "androidx.lifecycle", module: "lifecycle-livedata-core"
-        exclude group: "androidx.lifecycle", module: "lifecycle-viewmodel-savedstate"
-        exclude group: "androidx.lifecycle", module: "lifecycle-viewmodel"
-    }
-    androidTestImplementation project(":internal-testutils-runtime"), {
-        exclude group: "androidx.lifecycle", module: "lifecycle-runtime"
-        exclude group: "androidx.lifecycle", module: "lifecycle-livedata-core"
-        exclude group: "androidx.lifecycle", module: "lifecycle-viewmodel-savedstate"
-        exclude group: "androidx.lifecycle", module: "lifecycle-viewmodel"
-    }
+    androidTestImplementation ("androidx.fragment:fragment:1.3.0")
+    androidTestImplementation project(":internal-testutils-runtime")
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)

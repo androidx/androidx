@@ -35,10 +35,10 @@ import java.lang.annotation.Target;
  * or class have more strict threading requirements.
  * <p>
  * Example:
- * <pre><code>
+ * <pre>
  *  &#64;AnyThread
  *  public void deliverResult(D data) { ... }
- * </code></pre>
+ * </pre>
  */
 @Documented
 @Retention(CLASS)

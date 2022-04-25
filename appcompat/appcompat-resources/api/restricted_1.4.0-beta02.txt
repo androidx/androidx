@@ -1,0 +1,103 @@
+// Signature format: 4.0
+package androidx.appcompat.content.res {
+
+  public final class AppCompatResources {
+    method public static android.content.res.ColorStateList! getColorStateList(android.content.Context, @ColorRes int);
+    method public static android.graphics.drawable.Drawable? getDrawable(android.content.Context, @DrawableRes int);
+  }
+
+}
+
+package androidx.appcompat.graphics.drawable {
+
+  public class AnimatedStateListDrawableCompat extends android.graphics.drawable.Drawable implements android.graphics.drawable.Drawable.Callback androidx.core.graphics.drawable.TintAwareDrawable {
+    ctor public AnimatedStateListDrawableCompat();
+    method public void addState(int[], android.graphics.drawable.Drawable, int);
+    method public void addState(int[]!, android.graphics.drawable.Drawable!);
+    method public <T extends android.graphics.drawable.Drawable & android.graphics.drawable.Animatable> void addTransition(int, int, T, boolean);
+    method public static androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat? create(android.content.Context, @DrawableRes int, android.content.res.Resources.Theme?);
+    method public static androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat! createFromXmlInner(android.content.Context, android.content.res.Resources, org.xmlpull.v1.XmlPullParser, android.util.AttributeSet, android.content.res.Resources.Theme?) throws java.io.IOException, org.xmlpull.v1.XmlPullParserException;
+    method public void draw(android.graphics.Canvas);
+    method public final android.graphics.drawable.Drawable.ConstantState! getConstantState();
+    method public int getOpacity();
+    method public void inflate(android.content.Context, android.content.res.Resources, org.xmlpull.v1.XmlPullParser, android.util.AttributeSet, android.content.res.Resources.Theme?) throws java.io.IOException, org.xmlpull.v1.XmlPullParserException;
+    method public void invalidateDrawable(android.graphics.drawable.Drawable);
+    method public void scheduleDrawable(android.graphics.drawable.Drawable, Runnable, long);
+    method public void setAlpha(int);
+    method public void setColorFilter(android.graphics.ColorFilter!);
+    method public void setDither(boolean);
+    method public void setEnterFadeDuration(int);
+    method public void setExitFadeDuration(int);
+    method public void unscheduleDrawable(android.graphics.drawable.Drawable, Runnable);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class DrawableWrapper extends android.graphics.drawable.Drawable implements android.graphics.drawable.Drawable.Callback {
+    ctor public DrawableWrapper(android.graphics.drawable.Drawable!);
+    method public void draw(android.graphics.Canvas!);
+    method public int getOpacity();
+    method public android.graphics.drawable.Drawable! getWrappedDrawable();
+    method public void invalidateDrawable(android.graphics.drawable.Drawable!);
+    method public void scheduleDrawable(android.graphics.drawable.Drawable!, Runnable!, long);
+    method public void setAlpha(int);
+    method public void setColorFilter(android.graphics.ColorFilter!);
+    method public void setDither(boolean);
+    method public void setWrappedDrawable(android.graphics.drawable.Drawable!);
+    method public void unscheduleDrawable(android.graphics.drawable.Drawable!, Runnable!);
+  }
+
+}
+
+package androidx.appcompat.widget {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class DrawableUtils {
+    method public static boolean canSafelyMutateDrawable(android.graphics.drawable.Drawable);
+    method public static android.graphics.Rect getOpticalBounds(android.graphics.drawable.Drawable);
+    method public static android.graphics.PorterDuff.Mode! parseTintMode(int, android.graphics.PorterDuff.Mode!);
+    field public static final android.graphics.Rect! INSETS_NONE;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class ResourceManagerInternal {
+    ctor public ResourceManagerInternal();
+    method public static androidx.appcompat.widget.ResourceManagerInternal! get();
+    method public android.graphics.drawable.Drawable! getDrawable(android.content.Context, @DrawableRes int);
+    method public static android.graphics.PorterDuffColorFilter! getPorterDuffColorFilter(int, android.graphics.PorterDuff.Mode!);
+    method public void onConfigurationChanged(android.content.Context);
+    method public void setHooks(androidx.appcompat.widget.ResourceManagerInternal.ResourceManagerHooks!);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static interface ResourceManagerInternal.ResourceManagerHooks {
+    method public android.graphics.drawable.Drawable? createDrawableFor(androidx.appcompat.widget.ResourceManagerInternal, android.content.Context, @DrawableRes int);
+    method public android.content.res.ColorStateList? getTintListForDrawableRes(android.content.Context, @DrawableRes int);
+    method public android.graphics.PorterDuff.Mode? getTintModeForDrawableRes(int);
+    method public boolean tintDrawable(android.content.Context, @DrawableRes int, android.graphics.drawable.Drawable);
+    method public boolean tintDrawableUsingColorFilter(android.content.Context, @DrawableRes int, android.graphics.drawable.Drawable);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class TintContextWrapper extends android.content.ContextWrapper {
+    method public static android.content.Context! wrap(android.content.Context);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class TintInfo {
+    ctor public TintInfo();
+    field public boolean mHasTintList;
+    field public boolean mHasTintMode;
+    field public android.content.res.ColorStateList! mTintList;
+    field public android.graphics.PorterDuff.Mode! mTintMode;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class VectorEnabledTintResources extends android.content.res.Resources {
+    ctor public VectorEnabledTintResources(android.content.Context, android.content.res.Resources);
+    method public int getColor(int) throws android.content.res.Resources.NotFoundException;
+    method public android.content.res.ColorStateList! getColorStateList(int) throws android.content.res.Resources.NotFoundException;
+    method public android.graphics.drawable.Drawable! getDrawable(int) throws android.content.res.Resources.NotFoundException;
+    method @RequiresApi(15) public android.graphics.drawable.Drawable! getDrawableForDensity(int, int) throws android.content.res.Resources.NotFoundException;
+    method public android.graphics.Movie! getMovie(int) throws android.content.res.Resources.NotFoundException;
+    method public static boolean isCompatVectorFromResourcesEnabled();
+    method public static void setCompatVectorFromResourcesEnabled(boolean);
+    method public static boolean shouldBeUsed();
+    method public void updateConfiguration(android.content.res.Configuration!, android.util.DisplayMetrics!);
+    field public static final int MAX_SDK_WHERE_REQUIRED = 20; // 0x14
+  }
+
+}
+

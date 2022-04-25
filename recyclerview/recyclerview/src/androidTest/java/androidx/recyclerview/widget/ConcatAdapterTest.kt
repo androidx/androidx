@@ -44,6 +44,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -1406,7 +1407,7 @@ class ConcatAdapterTest {
     }
 
     @Test
-    public fun builderDefaults() {
+    fun builderDefaults() {
         val defaultBuilder = Builder().build()
         assertThat(defaultBuilder.isolateViewTypes).isEqualTo(
             ConcatAdapter.Config.DEFAULT.isolateViewTypes
@@ -1414,6 +1415,31 @@ class ConcatAdapterTest {
         assertThat(defaultBuilder.stableIdMode).isEqualTo(
             ConcatAdapter.Config.DEFAULT.stableIdMode
         )
+    }
+
+    @Test
+    fun getWrappedAdapterAndPositionTest() {
+        val adapter1 = NestedTestAdapter(10)
+        val adapter2 = NestedTestAdapter(10)
+        val concatAdapter = ConcatAdapter(adapter1, adapter2)
+        val result0 = concatAdapter.getWrappedAdapterAndPosition(0)
+        assertThat(result0.first).isEqualTo(adapter1)
+        assertThat(result0.second).isEqualTo(0)
+        val result5 = concatAdapter.getWrappedAdapterAndPosition(5)
+        assertThat(result5.first).isEqualTo(adapter1)
+        assertThat(result5.second).isEqualTo(5)
+        val result10 = concatAdapter.getWrappedAdapterAndPosition(10)
+        assertThat(result10.first).isEqualTo(adapter2)
+        assertThat(result10.second).isEqualTo(0)
+        val result15 = concatAdapter.getWrappedAdapterAndPosition(15)
+        assertThat(result15.first).isEqualTo(adapter2)
+        assertThat(result15.second).isEqualTo(5)
+        try {
+            val result20 = concatAdapter.getWrappedAdapterAndPosition(20)
+            fail("Should throw exception on invalid position, instead got $result20")
+        } catch (e: IllegalArgumentException) {
+            // Expected, pass
+        }
     }
 
     private var itemCounter = 0

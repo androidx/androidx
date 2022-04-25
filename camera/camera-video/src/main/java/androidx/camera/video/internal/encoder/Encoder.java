@@ -19,6 +19,7 @@ package androidx.camera.video.internal.encoder;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.video.internal.BufferProvider;
 
 import java.util.concurrent.Executor;
@@ -29,6 +30,7 @@ import java.util.concurrent.Executor;
  * <p>An encoder could be either a video encoder or an audio encoder. The interface defines the
  * common APIs to communicate with an encoder.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface Encoder {
 
     /** Returns the encoder's input instance. */
@@ -53,6 +55,19 @@ public interface Encoder {
      * call {@link #start} to start again.
      */
     void stop();
+
+    /**
+     * Stops the encoder with an expected stop time.
+     *
+     * <p>It will trigger {@link EncoderCallback#onEncodeStop} after the last encoded data. It can
+     * call {@link #start} to start again.
+     *
+     * <p>The encoder will try to provide the last {@link EncodedData} with a timestamp as close
+     * as to the given stop timestamp.
+     *
+     * @param expectedStopTimeUs The desired stop time.
+     */
+    void stop(long expectedStopTimeUs);
 
     /**
      * Pauses the encoder.

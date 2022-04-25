@@ -17,9 +17,9 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="appsearch_no_documents_error" msgid="2371906054857961621">"Walang nakitang dokumento ng AppSearch sa database. I-verify na valid ang pangalan ng database at tamang uri ng storage ang napili."</string>
-    <string name="appsearch_no_schema_types_error" msgid="6040453370924007774">"Walang nakitang uri ng schema ng AppSearch. I-verify na valid ang pangalan ng database at tamang uri ng storage ang napili."</string>
-    <string name="appsearch_documents_loading" msgid="3079225167662255666">"Nilo-load ang mga dokumento ng AppSearch..."</string>
-    <string name="appsearch_schema_types_loading" msgid="5223743742396711620">"Naglo-load ng mga uri ng schema ng AppSearch..."</string>
-    <string name="appsearch_schema_version" msgid="5289450345246068014">"Bersyon ng Schema: %d"</string>
+    <string name="appsearch_no_documents_error" msgid="7957333381856121779">"Walang nakitang dokumento ng AppSearch sa database. I-verify na valid ang pangalan ng database at tamang uri ng storage ang napili."</string>
+    <string name="appsearch_no_schema_types_error" msgid="5825283982305113887">"Walang nakitang uri ng schema ng AppSearch. I-verify na valid ang pangalan ng database at tamang uri ng storage ang napili."</string>
+    <string name="appsearch_documents_loading" msgid="1689893533003672860">"Nilo-load ang mga dokumento ng AppSearch..."</string>
+    <string name="appsearch_schema_types_loading" msgid="4961123108404531766">"Naglo-load ng mga uri ng schema ng AppSearch..."</string>
+    <string name="appsearch_schema_version" msgid="7000254633719373917">"Bersyon ng Schema: %d"</string>
 </resources>

@@ -16,9 +16,12 @@
 
 package androidx.camera.core.impl;
 
+import androidx.annotation.RequiresApi;
+
 /**
  * A {@link CaptureConfig} with an identifier.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface CaptureStage {
 
     /** Returns the identifier for the capture. */

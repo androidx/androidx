@@ -20,6 +20,7 @@ import android.os.Looper;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.DeferrableSurfaces;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
@@ -32,6 +33,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 
 /** Utility functions for DeferrableSurfaces. */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class DeferrableSurfacesUtil {
     private DeferrableSurfacesUtil() {
     }

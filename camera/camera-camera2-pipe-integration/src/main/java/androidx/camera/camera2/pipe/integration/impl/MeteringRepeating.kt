@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+
 package androidx.camera.camera2.pipe.integration.impl
 
 import android.graphics.ImageFormat
@@ -23,6 +25,7 @@ import android.hardware.camera2.CameraDevice
 import android.os.Build
 import android.util.Size
 import android.view.Surface
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.core.Log.error
 import androidx.camera.camera2.pipe.integration.adapter.CameraUseCaseAdapter
 import androidx.camera.core.CameraSelector
@@ -39,7 +42,6 @@ import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.UseCaseConfig.OPTION_SESSION_CONFIG_UNPACKER
 import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
-import androidx.core.util.Consumer
 
 private val DEFAULT_PREVIEW_SIZE = Size(0, 0)
 
@@ -48,6 +50,7 @@ private val DEFAULT_PREVIEW_SIZE = Size(0, 0)
  * enabled, since taking a picture may require a repeating surface to perform pre-capture checks,
  * mainly around 3A.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class MeteringRepeating(
     private val cameraProperties: CameraProperties,
     config: MeteringRepeatingConfig,
@@ -169,10 +172,6 @@ class MeteringRepeating(
         override fun setSurfaceOccupancyPriority(priority: Int) = this
 
         override fun setCameraSelector(cameraSelector: CameraSelector) = this
-
-        override fun setAttachedUseCasesUpdateListener(
-            attachedUseCasesUpdateListener: Consumer<MutableCollection<UseCase>>
-        ): Builder = this
 
         override fun build(): MeteringRepeating {
             return MeteringRepeating(cameraProperties, useCaseConfig)

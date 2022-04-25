@@ -748,6 +748,19 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * It doesn't use MediaRouter2
+     */
+    public static class LegacyMediaRouterActivity extends SampleMediaRouterActivity {
+        @NonNull
+        @Override
+        public MediaRouterParams getRouterParams() {
+            return new MediaRouterParams.Builder(super.getRouterParams())
+                    .setMediaTransferReceiverEnabled(false)
+                    .build();
+        }
+    }
+
     public static class ControllerDialogFragment extends MediaRouteControllerDialogFragment {
         private SampleMediaRouterActivity mSampleMediaRouterActivity;
         private MediaRouteControllerDialog mControllerDialog;

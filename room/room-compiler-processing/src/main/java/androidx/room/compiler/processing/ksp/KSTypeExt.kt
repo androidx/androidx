@@ -22,8 +22,10 @@ import androidx.room.compiler.processing.tryBox
 import androidx.room.compiler.processing.util.ISSUE_TRACKER_LINK
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.processing.Resolver
+import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSName
+import com.google.devtools.ksp.symbol.KSNode
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSTypeAlias
 import com.google.devtools.ksp.symbol.KSTypeArgument
@@ -37,7 +39,7 @@ import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeVariableName
 import com.squareup.javapoet.WildcardTypeName
-import kotlin.IllegalStateException
+import kotlin.coroutines.Continuation
 
 // Catch-all type name when we cannot resolve to anything. This is what KAPT uses as error type
 // and we use the same type in KSP for consistency.
@@ -116,10 +118,8 @@ private fun KSDeclaration.typeName(
  * Turns a KSTypeArgument into a TypeName in java's type system.
  */
 internal fun KSTypeArgument.typeName(
-    param: KSTypeParameter,
     resolver: Resolver
 ): TypeName = typeName(
-    param = param,
     resolver = resolver,
     typeArgumentTypeLookup = TypeArgumentTypeLookup()
 )
@@ -147,26 +147,23 @@ private fun KSTypeParameter.typeName(
 }
 
 private fun KSTypeArgument.typeName(
-    param: KSTypeParameter,
     resolver: Resolver,
     typeArgumentTypeLookup: TypeArgumentTypeLookup
 ): TypeName {
     fun resolveTypeName() = type.typeName(resolver, typeArgumentTypeLookup).tryBox()
-
     return when (variance) {
         Variance.CONTRAVARIANT -> WildcardTypeName.supertypeOf(resolveTypeName())
         Variance.COVARIANT -> WildcardTypeName.subtypeOf(resolveTypeName())
         Variance.STAR -> {
-            // for star projected types, JavaPoet uses the name from the declaration if
-            // * is not given explicitly
-            if (type == null) {
-                // explicit *
-                WildcardTypeName.subtypeOf(TypeName.OBJECT)
+            WildcardTypeName.subtypeOf(TypeName.OBJECT)
+        }
+        else -> {
+            if (hasJvmWildcardAnnotation()) {
+                WildcardTypeName.subtypeOf(resolveTypeName())
             } else {
-                param.typeName(resolver, typeArgumentTypeLookup)
+                resolveTypeName()
             }
         }
-        else -> resolveTypeName()
     }
 }
 
@@ -183,16 +180,21 @@ private fun KSType.typeName(
     resolver: Resolver,
     typeArgumentTypeLookup: TypeArgumentTypeLookup
 ): TypeName {
-    return if (this.arguments.isNotEmpty()) {
-        val args: Array<TypeName> = this.arguments.mapIndexed { index, typeArg ->
-            typeArg.typeName(
-                param = this.declaration.typeParameters[index],
-                resolver = resolver,
-                typeArgumentTypeLookup = typeArgumentTypeLookup
-            )
-        }.map {
-            it.tryBox()
-        }.toTypedArray()
+    return if (this.arguments.isNotEmpty() && !isRaw()) {
+        val args: Array<TypeName> = this.arguments
+            .map { typeArg ->
+                typeArg.typeName(
+                    resolver = resolver,
+                    typeArgumentTypeLookup = typeArgumentTypeLookup
+                )
+            }
+            .map { it.tryBox() }
+            .let { args ->
+                if (this.isSuspendFunctionType) args.convertToSuspendSignature()
+                else args
+            }
+            .toTypedArray()
+
         when (
             val typeName = declaration
                 .typeName(resolver, typeArgumentTypeLookup).tryBox()
@@ -207,6 +209,29 @@ private fun KSType.typeName(
     } else {
         this.declaration.typeName(resolver, typeArgumentTypeLookup)
     }
+}
+
+/**
+ * Transforms [this] list of arguments to a suspend signature. For a [suspend] functional type, we
+ * need to transform it to be a FunctionX with a [Continuation] with the correct return type. A
+ * transformed SuspendFunction looks like this:
+ *
+ * FunctionX<[? super $params], ? super Continuation<? super $ReturnType>, ?>
+ */
+private fun List<TypeName>.convertToSuspendSignature(): List<TypeName> {
+    val args = this
+
+    // The last arg is the return type, so take everything except the last arg
+    val actualArgs = args.subList(0, args.size - 1)
+    val continuationReturnType = WildcardTypeName.supertypeOf(args.last())
+    val continuationType = ParameterizedTypeName.get(
+        ClassName.get(Continuation::class.java),
+        continuationReturnType
+    )
+    return actualArgs + listOf(
+        WildcardTypeName.supertypeOf(continuationType),
+        WildcardTypeName.subtypeOf(TypeName.OBJECT)
+    )
 }
 
 /**
@@ -276,3 +301,34 @@ private fun createModifiableTypeVariableName(
     name,
     bounds
 ) as TypeVariableName
+
+private fun KSAnnotated.hasAnnotation(
+    qName: String
+) = annotations.any {
+    it.annotationType.resolve().declaration.qualifiedName?.asString() == qName
+}
+
+internal fun KSAnnotated.hasJvmWildcardAnnotation() = hasAnnotation(
+    JvmWildcard::class.java.canonicalName
+)
+
+internal fun KSAnnotated.hasSuppressJvmWildcardAnnotation() = hasAnnotation(
+    JvmSuppressWildcards::class.java.canonicalName
+)
+
+internal fun KSNode.hasSuppressWildcardsAnnotationInHierarchy(): Boolean {
+    (this as? KSAnnotated)?.let {
+        if (hasSuppressJvmWildcardAnnotation()) {
+            return true
+        }
+    }
+    val parent = parent ?: return false
+    return parent.hasSuppressWildcardsAnnotationInHierarchy()
+}
+
+internal fun KSType.isRaw(): Boolean {
+    // yes this is gross but KSP itself seems to be doing it as well
+    // https://github.com/google/ksp/blob/main/compiler-plugin/
+    // src/main/kotlin/com/google/devtools/ksp/symbol/impl/kotlin/KSTypeImpl.kt#L85
+    return toString().startsWith("raw ")
+}

@@ -19,6 +19,7 @@ package androidx.camera.view.video;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.VideoCapture;
 
@@ -26,6 +27,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /** Listener containing callbacks for video file I/O events. */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @ExperimentalVideo
 public interface OnVideoSavedCallback {
     /**

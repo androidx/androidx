@@ -168,8 +168,8 @@ public data class MainFragmentArgs(
       } else {
         __enumArg = AccessMode.READ
       }
-      return MainFragmentArgs(__main, __optional, __reference, __referenceZeroDefaultValue,
-          __floatArg, __floatArrayArg, __objectArrayArg, __boolArg, __optionalParcelable, __enumArg)
+      return MainFragmentArgs(__main, __floatArrayArg, __objectArrayArg, __optional, __reference,
+          __referenceZeroDefaultValue, __floatArg, __boolArg, __optionalParcelable, __enumArg)
     }
 
     @JvmStatic
@@ -230,7 +230,8 @@ public data class MainFragmentArgs(
       }
       val __objectArrayArg : Array<ActivityInfo>?
       if (savedStateHandle.contains("objectArrayArg")) {
-        __objectArrayArg = savedStateHandle["objectArrayArg"]
+        __objectArrayArg = savedStateHandle.get<Array<Parcelable>>("objectArrayArg")?.map { it as
+            ActivityInfo }?.toTypedArray()
         if (__objectArrayArg == null) {
           throw IllegalArgumentException("Argument \"objectArrayArg\" is marked as non-null but was passed a null value")
         }
@@ -248,21 +249,33 @@ public data class MainFragmentArgs(
       }
       val __optionalParcelable : ActivityInfo?
       if (savedStateHandle.contains("optionalParcelable")) {
-        __optionalParcelable = savedStateHandle["optionalParcelable"]
+        if (Parcelable::class.java.isAssignableFrom(ActivityInfo::class.java) ||
+            Serializable::class.java.isAssignableFrom(ActivityInfo::class.java)) {
+          __optionalParcelable = savedStateHandle.get<ActivityInfo?>("optionalParcelable")
+        } else {
+          throw UnsupportedOperationException(ActivityInfo::class.java.name +
+              " must implement Parcelable or Serializable or must be an Enum.")
+        }
       } else {
         __optionalParcelable = null
       }
       val __enumArg : AccessMode?
       if (savedStateHandle.contains("enumArg")) {
-        __enumArg = savedStateHandle["enumArg"]
+        if (Parcelable::class.java.isAssignableFrom(AccessMode::class.java) ||
+            Serializable::class.java.isAssignableFrom(AccessMode::class.java)) {
+          __enumArg = savedStateHandle.get<AccessMode?>("enumArg")
+        } else {
+          throw UnsupportedOperationException(AccessMode::class.java.name +
+              " must implement Parcelable or Serializable or must be an Enum.")
+        }
         if (__enumArg == null) {
           throw IllegalArgumentException("Argument \"enumArg\" is marked as non-null but was passed a null value")
         }
       } else {
         __enumArg = AccessMode.READ
       }
-      return MainFragmentArgs(__main, __optional, __reference, __referenceZeroDefaultValue,
-          __floatArg, __floatArrayArg, __objectArrayArg, __boolArg, __optionalParcelable, __enumArg)
+      return MainFragmentArgs(__main, __floatArrayArg, __objectArrayArg, __optional, __reference,
+          __referenceZeroDefaultValue, __floatArg, __boolArg, __optionalParcelable, __enumArg)
     }
   }
 }

@@ -41,9 +41,9 @@ import kotlin.math.min
  *     val lineThicknessPx = lineThickness.toPx(context)
  * [toPx] is normally needed only for painting operations.
  */
-@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
 @Immutable
-inline class Dp(val value: Float) : Comparable<Dp> {
+@kotlin.jvm.JvmInline
+value class Dp(val value: Float) : Comparable<Dp> {
     /**
      * Add two [Dp]s together.
      */
@@ -257,24 +257,35 @@ fun DpOffset(x: Dp, y: Dp): DpOffset = DpOffset(packFloats(x.value, y.value))
 /**
  * A two-dimensional offset using [Dp] for units
  */
-@OptIn(ExperimentalUnsignedTypes::class)
-@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
 @Immutable
-inline class DpOffset internal constructor(@PublishedApi internal val packedValue: Long) {
+@kotlin.jvm.JvmInline
+value class DpOffset internal constructor(@PublishedApi internal val packedValue: Long) {
 
     /**
      * The horizontal aspect of the offset in [Dp]
      */
     @Stable
-    /*inline*/ val x: Dp
-        get() = unpackFloat1(packedValue).dp
+        /*inline*/ val x: Dp
+        get() {
+            // Explicitly compare against packed values to avoid auto-boxing of DpOffset.Unspecified
+            check(this.packedValue != Unspecified.packedValue) {
+                "DpOffset is unspecified"
+            }
+            return unpackFloat1(packedValue).dp
+        }
 
     /**
      * The vertical aspect of the offset in [Dp]
      */
     @Stable
-    /*inline*/ val y: Dp
-        get() = unpackFloat2(packedValue).dp
+        /*inline*/ val y: Dp
+        get() {
+            // Explicitly compare against packed values to avoid auto-boxing of DpOffset.Unspecified
+            check(this.packedValue != Unspecified.packedValue) {
+                "DpOffset is unspecified"
+            }
+            return unpackFloat2(packedValue).dp
+        }
 
     /**
      * Returns a copy of this [DpOffset] instance optionally overriding the
@@ -297,15 +308,48 @@ inline class DpOffset internal constructor(@PublishedApi internal val packedValu
         DpOffset(x + other.x, y + other.y)
 
     @Stable
-    override fun toString(): String = "($x, $y)"
+    override fun toString(): String =
+        if (isSpecified) {
+            "($x, $y)"
+        } else {
+            "DpOffset.Unspecified"
+        }
 
     companion object {
         /**
          * A [DpOffset] with 0 DP [x] and 0 DP [y] values.
          */
         val Zero = DpOffset(0.dp, 0.dp)
+
+        /**
+         * Represents an offset whose [x] and [y] are unspecified. This is usually a replacement for
+         * `null` when a primitive value is desired.
+         * Access to [x] or [y] on an unspecified offset is not allowed.
+         */
+        val Unspecified = DpOffset(Dp.Unspecified, Dp.Unspecified)
     }
 }
+
+/**
+ * `false` when this is [DpOffset.Unspecified].
+ */
+@Stable
+inline val DpOffset.isSpecified: Boolean
+    get() = packedValue != DpOffset.Unspecified.packedValue
+
+/**
+ * `true` when this is [DpOffset.Unspecified].
+ */
+@Stable
+inline val DpOffset.isUnspecified: Boolean
+    get() = packedValue == DpOffset.Unspecified.packedValue
+
+/**
+ * If this [DpOffset]&nbsp;[isSpecified] then this is returned, otherwise [block] is executed
+ * and its result is returned.
+ */
+inline fun DpOffset.takeOrElse(block: () -> DpOffset): DpOffset =
+    if (isSpecified) this else block()
 
 /**
  * Linearly interpolate between two [DpOffset]s.
@@ -331,24 +375,35 @@ fun DpSize(width: Dp, height: Dp): DpSize = DpSize(packFloats(width.value, heigh
 /**
  * A two-dimensional Size using [Dp] for units
  */
-@OptIn(ExperimentalUnsignedTypes::class)
-@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
 @Immutable
-inline class DpSize internal constructor(@PublishedApi internal val packedValue: Long) {
+@kotlin.jvm.JvmInline
+value class DpSize internal constructor(@PublishedApi internal val packedValue: Long) {
 
     /**
      * The horizontal aspect of the Size in [Dp]
      */
     @Stable
-    /*inline*/ val width: Dp
-        get() = unpackFloat1(packedValue).dp
+        /*inline*/ val width: Dp
+        get() {
+            // Explicitly compare against packed values to avoid auto-boxing of DpSize.Unspecified
+            check(this.packedValue != Unspecified.packedValue) {
+                "DpSize is unspecified"
+            }
+            return unpackFloat1(packedValue).dp
+        }
 
     /**
      * The vertical aspect of the Size in [Dp]
      */
     @Stable
-    /*inline*/ val height: Dp
-        get() = unpackFloat2(packedValue).dp
+        /*inline*/ val height: Dp
+        get() {
+            // Explicitly compare against packed values to avoid auto-boxing of DpSize.Unspecified
+            check(this.packedValue != Unspecified.packedValue) {
+                "DpSize is unspecified"
+            }
+            return unpackFloat2(packedValue).dp
+        }
 
     /**
      * Returns a copy of this [DpSize] instance optionally overriding the
@@ -389,15 +444,48 @@ inline class DpSize internal constructor(@PublishedApi internal val packedValue:
     operator fun div(other: Float): DpSize = DpSize(width / other, height / other)
 
     @Stable
-    override fun toString(): String = "$width x $height"
+    override fun toString(): String =
+        if (isSpecified) {
+            "$width x $height"
+        } else {
+            "DpSize.Unspecified"
+        }
 
     companion object {
         /**
          * A [DpSize] with 0 DP [width] and 0 DP [height] values.
          */
         val Zero = DpSize(0.dp, 0.dp)
+
+        /**
+         * A size whose [width] and [height] are unspecified. This is usually a replacement for
+         * `null` when a primitive value is desired.
+         * Access to [width] or [height] on an unspecified size is not allowed.
+         */
+        val Unspecified = DpSize(Dp.Unspecified, Dp.Unspecified)
     }
 }
+
+/**
+ * `false` when this is [DpSize.Unspecified].
+ */
+@Stable
+inline val DpSize.isSpecified: Boolean
+    get() = packedValue != DpSize.Unspecified.packedValue
+
+/**
+ * `true` when this is [DpSize.Unspecified].
+ */
+@Stable
+inline val DpSize.isUnspecified: Boolean
+    get() = packedValue == DpSize.Unspecified.packedValue
+
+/**
+ * If this [DpSize]&nbsp;[isSpecified] then this is returned, otherwise [block] is executed
+ * and its result is returned.
+ */
+inline fun DpSize.takeOrElse(block: () -> DpSize): DpSize =
+    if (isSpecified) this else block()
 
 /**
  * Returns the [DpOffset] of the center of the rect from the point of [0, 0]

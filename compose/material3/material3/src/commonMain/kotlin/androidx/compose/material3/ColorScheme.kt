@@ -16,10 +16,11 @@
 
 package androidx.compose.material3
 
-import androidx.compose.material3.tokens.ColorDark
-import androidx.compose.material3.tokens.ColorLight
-import androidx.compose.material3.tokens.ColorSchemeKey
-import androidx.compose.material3.tokens.Elevation
+import androidx.compose.material3.tokens.ColorDarkTokens
+import androidx.compose.material3.tokens.ColorLightTokens
+import androidx.compose.material3.tokens.ColorSchemeKeyTokens
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,7 +29,9 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import kotlin.math.ln
 
 /**
@@ -37,6 +40,11 @@ import kotlin.math.ln
  * Color schemes are designed to be harmonious, ensure accessible text, and distinguish UI
  * elements and surfaces from one another. There are two built-in baseline schemes,
  * [lightColorScheme] and a [darkColorScheme], that can be used as-is or customized.
+ *
+ * The Material color system and custom schemes provide default values for color as a starting point
+ * for customization.
+ *
+ * To learn more about colors, see [Material Design colors](https://m3.material.io/styles/color/overview).
  *
  * @property primary The primary color is the color displayed most frequently across your app’s
  * screens and components.
@@ -66,26 +74,16 @@ import kotlin.math.ln
  * @property onBackground Color used for text and icons displayed on top of the background color.
  * @property surface The surface color that affect surfaces of components, such as cards, sheets,
  * and menus.
- * @property surface1 Variation of [surface] with an overlay color or colors blended on top of it,
- * giving it a slightly more tonal color.
- * @property surface2 Variation of [surface] with an overlay color or colors blended on top of it,
- * giving it a slightly more tonal color.
- * @property surface3 Variation of [surface] with an overlay color or colors blended on top of it,
- * giving it a slightly more tonal color.
- * @property surface4 Variation of [surface] with an overlay color or colors blended on top of it,
- * giving it a slightly more tonal color.
- * @property surface5 Variation of [surface] with an overlay color or colors blended on top of it,
- * giving it a slightly more tonal color.
  * @property onSurface Color used for text and icons displayed on top of the surface color.
  * @property surfaceVariant Another option for a color with similar uses of [surface].
  * @property onSurfaceVariant The color (and state variants) that can be used for content on top of
  * [surface].
+ * @property surfaceTint This color will be used by components that apply tonal elevation and is
+ * applied on top of [surface]. The higher the elevation the more this color is used.
  * @property inverseSurface A color that contrasts sharply with [surface]. Useful for surfaces that
  * sit on top of other surfaces with [surface] color.
  * @property inverseOnSurface A color that contrasts well with [inverseSurface]. Useful for content
  * that sits on top of containers that are [inverseSurface].
- * @property disabled A disabled color.
- * @property onDisabled Color used for text and icons displayed on top of the disabled color.
  * @property error The error color is used to indicate errors in components, such as invalid text in
  * a text field.
  * @property onError Color used for text and icons displayed on top of the error color.
@@ -113,18 +111,12 @@ class ColorScheme(
     background: Color,
     onBackground: Color,
     surface: Color,
-    surface1: Color,
-    surface2: Color,
-    surface3: Color,
-    surface4: Color,
-    surface5: Color,
     onSurface: Color,
     surfaceVariant: Color,
     onSurfaceVariant: Color,
+    surfaceTint: Color,
     inverseSurface: Color,
     inverseOnSurface: Color,
-    disabled: Color,
-    onDisabled: Color,
     error: Color,
     onError: Color,
     errorContainer: Color,
@@ -163,29 +155,17 @@ class ColorScheme(
         internal set
     var surface by mutableStateOf(surface, structuralEqualityPolicy())
         internal set
-    var surface1 by mutableStateOf(surface1, structuralEqualityPolicy())
-        internal set
-    var surface2 by mutableStateOf(surface2, structuralEqualityPolicy())
-        internal set
-    var surface3 by mutableStateOf(surface3, structuralEqualityPolicy())
-        internal set
-    var surface4 by mutableStateOf(surface4, structuralEqualityPolicy())
-        internal set
-    var surface5 by mutableStateOf(surface5, structuralEqualityPolicy())
-        internal set
     var onSurface by mutableStateOf(onSurface, structuralEqualityPolicy())
         internal set
     var surfaceVariant by mutableStateOf(surfaceVariant, structuralEqualityPolicy())
         internal set
     var onSurfaceVariant by mutableStateOf(onSurfaceVariant, structuralEqualityPolicy())
         internal set
+    var surfaceTint by mutableStateOf(surfaceTint, structuralEqualityPolicy())
+        internal set
     var inverseSurface by mutableStateOf(inverseSurface, structuralEqualityPolicy())
         internal set
     var inverseOnSurface by mutableStateOf(inverseOnSurface, structuralEqualityPolicy())
-        internal set
-    var disabled by mutableStateOf(disabled, structuralEqualityPolicy())
-        internal set
-    var onDisabled by mutableStateOf(onDisabled, structuralEqualityPolicy())
         internal set
     var error by mutableStateOf(error, structuralEqualityPolicy())
         internal set
@@ -216,18 +196,12 @@ class ColorScheme(
         background: Color = this.background,
         onBackground: Color = this.onBackground,
         surface: Color = this.surface,
-        surface1: Color = this.surface1,
-        surface2: Color = this.surface2,
-        surface3: Color = this.surface3,
-        surface4: Color = this.surface4,
-        surface5: Color = this.surface5,
         onSurface: Color = this.onSurface,
         surfaceVariant: Color = this.surfaceVariant,
         onSurfaceVariant: Color = this.onSurfaceVariant,
+        surfaceTint: Color = this.surfaceTint,
         inverseSurface: Color = this.inverseSurface,
         inverseOnSurface: Color = this.inverseOnSurface,
-        disabled: Color = this.disabled,
-        onDisabled: Color = this.onDisabled,
         error: Color = this.error,
         onError: Color = this.onError,
         errorContainer: Color = this.errorContainer,
@@ -251,18 +225,12 @@ class ColorScheme(
             background = background,
             onBackground = onBackground,
             surface = surface,
-            surface1 = surface1,
-            surface2 = surface2,
-            surface3 = surface3,
-            surface4 = surface4,
-            surface5 = surface5,
             onSurface = onSurface,
             surfaceVariant = surfaceVariant,
             onSurfaceVariant = onSurfaceVariant,
+            surfaceTint = surfaceTint,
             inverseSurface = inverseSurface,
             inverseOnSurface = inverseOnSurface,
-            disabled = disabled,
-            onDisabled = onDisabled,
             error = error,
             onError = onError,
             errorContainer = errorContainer,
@@ -288,18 +256,12 @@ class ColorScheme(
             "background=$background" +
             "onBackground=$onBackground" +
             "surface=$surface" +
-            "surface1=$surface1" +
-            "surface2=$surface2" +
-            "surface3=$surface3" +
-            "surface4=$surface4" +
-            "surface5=$surface5" +
             "onSurface=$onSurface" +
             "surfaceVariant=$surfaceVariant" +
             "onSurfaceVariant=$onSurfaceVariant" +
+            "surfaceTint=$surfaceTint" +
             "inverseSurface=$inverseSurface" +
             "inverseOnSurface=$inverseOnSurface" +
-            "disabled=$disabled" +
-            "onDisabled=$onDisabled" +
             "error=$error" +
             "onError=$onError" +
             "errorContainer=$errorContainer" +
@@ -313,59 +275,33 @@ class ColorScheme(
  * Returns a light Material color scheme.
  */
 fun lightColorScheme(
-    primary: Color = ColorLight.Primary,
-    onPrimary: Color = ColorLight.OnPrimary,
-    primaryContainer: Color = ColorLight.PrimaryContainer,
-    onPrimaryContainer: Color = ColorLight.OnPrimaryContainer,
-    inversePrimary: Color = ColorLight.InversePrimary,
-    secondary: Color = ColorLight.Secondary,
-    onSecondary: Color = ColorLight.OnSecondary,
-    secondaryContainer: Color = ColorLight.SecondaryContainer,
-    onSecondaryContainer: Color = ColorLight.OnSecondaryContainer,
-    tertiary: Color = ColorLight.Tertiary,
-    onTertiary: Color = ColorLight.OnTertiary,
-    tertiaryContainer: Color = ColorLight.TertiaryContainer,
-    onTertiaryContainer: Color = ColorLight.OnTertiaryContainer,
-    background: Color = ColorLight.Background,
-    onBackground: Color = ColorLight.OnBackground,
-    surface: Color = ColorLight.Surface,
-    surface1: Color = colorAtElevation(
-        elevation = Elevation.Level1,
-        surface = surface,
-        surfaceOverlay = BaselineTonalPalette.primary40
-    ),
-    surface2: Color = colorAtElevation(
-        elevation = Elevation.Level2,
-        surface = surface,
-        surfaceOverlay = BaselineTonalPalette.primary40
-    ),
-    surface3: Color = colorAtElevation(
-        elevation = Elevation.Level3,
-        surface = surface,
-        surfaceOverlay = BaselineTonalPalette.primary40
-    ),
-    surface4: Color = colorAtElevation(
-        elevation = Elevation.Level4,
-        surface = surface,
-        surfaceOverlay = BaselineTonalPalette.primary40
-    ),
-    surface5: Color = colorAtElevation(
-        elevation = Elevation.Level5,
-        surface = surface,
-        surfaceOverlay = BaselineTonalPalette.primary40
-    ),
-    onSurface: Color = ColorLight.OnSurface,
-    surfaceVariant: Color = ColorLight.SurfaceVariant,
-    onSurfaceVariant: Color = ColorLight.OnSurfaceVariant,
-    inverseSurface: Color = ColorLight.InverseSurface,
-    inverseOnSurface: Color = ColorLight.InverseOnSurface,
-    disabled: Color = ColorLight.Disabled,
-    onDisabled: Color = ColorLight.OnDisabled,
-    error: Color = ColorLight.Error,
-    onError: Color = ColorLight.OnError,
-    errorContainer: Color = ColorLight.ErrorContainer,
-    onErrorContainer: Color = ColorLight.OnErrorContainer,
-    outline: Color = ColorLight.Outline,
+    primary: Color = ColorLightTokens.Primary,
+    onPrimary: Color = ColorLightTokens.OnPrimary,
+    primaryContainer: Color = ColorLightTokens.PrimaryContainer,
+    onPrimaryContainer: Color = ColorLightTokens.OnPrimaryContainer,
+    inversePrimary: Color = ColorLightTokens.InversePrimary,
+    secondary: Color = ColorLightTokens.Secondary,
+    onSecondary: Color = ColorLightTokens.OnSecondary,
+    secondaryContainer: Color = ColorLightTokens.SecondaryContainer,
+    onSecondaryContainer: Color = ColorLightTokens.OnSecondaryContainer,
+    tertiary: Color = ColorLightTokens.Tertiary,
+    onTertiary: Color = ColorLightTokens.OnTertiary,
+    tertiaryContainer: Color = ColorLightTokens.TertiaryContainer,
+    onTertiaryContainer: Color = ColorLightTokens.OnTertiaryContainer,
+    background: Color = ColorLightTokens.Background,
+    onBackground: Color = ColorLightTokens.OnBackground,
+    surface: Color = ColorLightTokens.Surface,
+    onSurface: Color = ColorLightTokens.OnSurface,
+    surfaceVariant: Color = ColorLightTokens.SurfaceVariant,
+    onSurfaceVariant: Color = ColorLightTokens.OnSurfaceVariant,
+    surfaceTint: Color = primary,
+    inverseSurface: Color = ColorLightTokens.InverseSurface,
+    inverseOnSurface: Color = ColorLightTokens.InverseOnSurface,
+    error: Color = ColorLightTokens.Error,
+    onError: Color = ColorLightTokens.OnError,
+    errorContainer: Color = ColorLightTokens.ErrorContainer,
+    onErrorContainer: Color = ColorLightTokens.OnErrorContainer,
+    outline: Color = ColorLightTokens.Outline,
 ): ColorScheme =
     ColorScheme(
         primary = primary,
@@ -384,18 +320,12 @@ fun lightColorScheme(
         background = background,
         onBackground = onBackground,
         surface = surface,
-        surface1 = surface1,
-        surface2 = surface2,
-        surface3 = surface3,
-        surface4 = surface4,
-        surface5 = surface5,
         onSurface = onSurface,
         surfaceVariant = surfaceVariant,
         onSurfaceVariant = onSurfaceVariant,
+        surfaceTint = surfaceTint,
         inverseSurface = inverseSurface,
         inverseOnSurface = inverseOnSurface,
-        disabled = disabled,
-        onDisabled = onDisabled,
         error = error,
         onError = onError,
         errorContainer = errorContainer,
@@ -407,59 +337,33 @@ fun lightColorScheme(
  * Returns a dark Material color scheme.
  */
 fun darkColorScheme(
-    primary: Color = ColorDark.Primary,
-    onPrimary: Color = ColorDark.OnPrimary,
-    primaryContainer: Color = ColorDark.PrimaryContainer,
-    onPrimaryContainer: Color = ColorDark.OnPrimaryContainer,
-    inversePrimary: Color = ColorDark.InversePrimary,
-    secondary: Color = ColorDark.Secondary,
-    onSecondary: Color = ColorDark.OnSecondary,
-    secondaryContainer: Color = ColorDark.SecondaryContainer,
-    onSecondaryContainer: Color = ColorDark.OnSecondaryContainer,
-    tertiary: Color = ColorDark.Tertiary,
-    onTertiary: Color = ColorDark.OnTertiary,
-    tertiaryContainer: Color = ColorDark.TertiaryContainer,
-    onTertiaryContainer: Color = ColorDark.OnTertiaryContainer,
-    background: Color = ColorDark.Background,
-    onBackground: Color = ColorDark.OnBackground,
-    surface: Color = ColorDark.Surface,
-    surface1: Color = colorAtElevation(
-        elevation = Elevation.Level1,
-        surface = surface,
-        surfaceOverlay = BaselineTonalPalette.primary80
-    ),
-    surface2: Color = colorAtElevation(
-        elevation = Elevation.Level2,
-        surface = surface,
-        surfaceOverlay = BaselineTonalPalette.primary80
-    ),
-    surface3: Color = colorAtElevation(
-        elevation = Elevation.Level3,
-        surface = surface,
-        surfaceOverlay = BaselineTonalPalette.primary80
-    ),
-    surface4: Color = colorAtElevation(
-        elevation = Elevation.Level4,
-        surface = surface,
-        surfaceOverlay = BaselineTonalPalette.primary80
-    ),
-    surface5: Color = colorAtElevation(
-        elevation = Elevation.Level5,
-        surface = surface,
-        surfaceOverlay = BaselineTonalPalette.primary80
-    ),
-    onSurface: Color = ColorDark.OnSurface,
-    surfaceVariant: Color = ColorDark.SurfaceVariant,
-    onSurfaceVariant: Color = ColorDark.OnSurfaceVariant,
-    inverseSurface: Color = ColorDark.InverseSurface,
-    inverseOnSurface: Color = ColorDark.InverseOnSurface,
-    disabled: Color = ColorDark.Disabled,
-    onDisabled: Color = ColorDark.OnDisabled,
-    error: Color = ColorDark.Error,
-    onError: Color = ColorDark.OnError,
-    errorContainer: Color = ColorDark.ErrorContainer,
-    onErrorContainer: Color = ColorDark.OnErrorContainer,
-    outline: Color = ColorDark.Outline,
+    primary: Color = ColorDarkTokens.Primary,
+    onPrimary: Color = ColorDarkTokens.OnPrimary,
+    primaryContainer: Color = ColorDarkTokens.PrimaryContainer,
+    onPrimaryContainer: Color = ColorDarkTokens.OnPrimaryContainer,
+    inversePrimary: Color = ColorDarkTokens.InversePrimary,
+    secondary: Color = ColorDarkTokens.Secondary,
+    onSecondary: Color = ColorDarkTokens.OnSecondary,
+    secondaryContainer: Color = ColorDarkTokens.SecondaryContainer,
+    onSecondaryContainer: Color = ColorDarkTokens.OnSecondaryContainer,
+    tertiary: Color = ColorDarkTokens.Tertiary,
+    onTertiary: Color = ColorDarkTokens.OnTertiary,
+    tertiaryContainer: Color = ColorDarkTokens.TertiaryContainer,
+    onTertiaryContainer: Color = ColorDarkTokens.OnTertiaryContainer,
+    background: Color = ColorDarkTokens.Background,
+    onBackground: Color = ColorDarkTokens.OnBackground,
+    surface: Color = ColorDarkTokens.Surface,
+    onSurface: Color = ColorDarkTokens.OnSurface,
+    surfaceVariant: Color = ColorDarkTokens.SurfaceVariant,
+    onSurfaceVariant: Color = ColorDarkTokens.OnSurfaceVariant,
+    surfaceTint: Color = primary,
+    inverseSurface: Color = ColorDarkTokens.InverseSurface,
+    inverseOnSurface: Color = ColorDarkTokens.InverseOnSurface,
+    error: Color = ColorDarkTokens.Error,
+    onError: Color = ColorDarkTokens.OnError,
+    errorContainer: Color = ColorDarkTokens.ErrorContainer,
+    onErrorContainer: Color = ColorDarkTokens.OnErrorContainer,
+    outline: Color = ColorDarkTokens.Outline,
 ): ColorScheme =
     ColorScheme(
         primary = primary,
@@ -478,18 +382,12 @@ fun darkColorScheme(
         background = background,
         onBackground = onBackground,
         surface = surface,
-        surface1 = surface1,
-        surface2 = surface2,
-        surface3 = surface3,
-        surface4 = surface4,
-        surface5 = surface5,
         onSurface = onSurface,
         surfaceVariant = surfaceVariant,
         onSurfaceVariant = onSurfaceVariant,
+        surfaceTint = surfaceTint,
         inverseSurface = inverseSurface,
         inverseOnSurface = inverseOnSurface,
-        disabled = disabled,
-        onDisabled = onDisabled,
         error = error,
         onError = onError,
         errorContainer = errorContainer,
@@ -497,23 +395,90 @@ fun darkColorScheme(
         outline = outline,
     )
 
-/*
- * Returns the [surface] color with a combination of an overlay layered on top of it.
+/**
+ * The Material color system contains pairs of colors that are typically used for the background and
+ * content color inside a component. For example, a [Button] typically uses `primary` for its
+ * background, and `onPrimary` for the color of its content (usually text or iconography).
  *
- * Used to compute the values of surface1 through surface5.
+ * This function tries to match the provided [backgroundColor] to a 'background' color in this
+ * [ColorScheme], and then will return the corresponding color used for content. For example, when
+ * [backgroundColor] is [ColorScheme.primary], this will return [ColorScheme.onPrimary].
  *
- * The color is computed using the following 2 layers:
- * - Bottom layer: [surface] at 100% opacity.
- * - Overlay: [surfaceOverlay] at varying opacities for each level.
+ * If [backgroundColor] does not match a background color in the theme, this will return
+ * [Color.Unspecified].
+ *
+ * @return the matching content color for [backgroundColor]. If [backgroundColor] is not present in
+ * the theme's [ColorScheme], then returns [Color.Unspecified].
+ *
+ * @see contentColorFor
  */
-internal fun colorAtElevation(
+fun ColorScheme.contentColorFor(backgroundColor: Color): Color =
+    when (backgroundColor) {
+        primary -> onPrimary
+        secondary -> onSecondary
+        tertiary -> onTertiary
+        background -> onBackground
+        error -> onError
+        surface -> onSurface
+        surfaceVariant -> onSurfaceVariant
+        primaryContainer -> onPrimaryContainer
+        secondaryContainer -> onSecondaryContainer
+        tertiaryContainer -> onTertiaryContainer
+        errorContainer -> onErrorContainer
+        inverseSurface -> inverseOnSurface
+        else -> Color.Unspecified
+    }
+
+/**
+ * The Material color system contains pairs of colors that are typically used for the background and
+ * content color inside a component. For example, a [Button] typically uses `primary` for its
+ * background, and `onPrimary` for the color of its content (usually text or iconography).
+ *
+ * This function tries to match the provided [backgroundColor] to a 'background' color in this
+ * [ColorScheme], and then will return the corresponding color used for content. For example, when
+ * [backgroundColor] is [ColorScheme.primary], this will return [ColorScheme.onPrimary].
+ *
+ * If [backgroundColor] does not match a background color in the theme, this will return the current
+ * value of [LocalContentColor] as a best-effort color.
+ *
+ * @return the matching content color for [backgroundColor]. If [backgroundColor] is not present in
+ * the theme's [ColorScheme], then returns the current value of [LocalContentColor].
+ *
+ * @see ColorScheme.contentColorFor
+ */
+@Composable
+@ReadOnlyComposable
+fun contentColorFor(backgroundColor: Color) =
+    MaterialTheme.colorScheme.contentColorFor(backgroundColor).takeOrElse {
+        LocalContentColor.current
+    }
+
+/**
+ * Returns the new background [Color] to use, representing the original background [color] with an
+ * overlay corresponding to [elevation] applied. The overlay will only be applied to
+ * [ColorScheme.surface].
+ */
+internal fun ColorScheme.applyTonalElevation(backgroundColor: Color, elevation: Dp): Color {
+    return if (backgroundColor == surface) {
+        surfaceColorAtElevation(elevation)
+    } else {
+        backgroundColor
+    }
+}
+
+/**
+ * Returns the [ColorScheme.surface] color with an alpha of the [ColorScheme.surfaceTint] color
+ * overlaid on top of it.
+ * Computes the surface tonal color at different elevation levels e.g. surface1 through surface5.
+ *
+ * @param elevation Elevation value used to compute alpha of the color overlay layer.
+ */
+internal fun ColorScheme.surfaceColorAtElevation(
     elevation: Dp,
-    surface: Color,
-    surfaceOverlay: Color,
 ): Color {
+    if (elevation == 0.dp) return surface
     val alpha = ((4.5f * ln(elevation.value + 1)) + 2f) / 100f
-    val surfaceOverlayWithElevation = surfaceOverlay.copy(alpha = alpha)
-    return surfaceOverlayWithElevation.compositeOver(surface)
+    return surfaceTint.copy(alpha = alpha).compositeOver(surface)
 }
 
 /**
@@ -547,18 +512,12 @@ internal fun ColorScheme.updateColorSchemeFrom(other: ColorScheme) {
     background = other.background
     onBackground = other.onBackground
     surface = other.surface
-    surface1 = other.surface1
-    surface2 = other.surface2
-    surface3 = other.surface3
-    surface4 = other.surface4
-    surface5 = other.surface5
     onSurface = other.onSurface
     surfaceVariant = other.surfaceVariant
     onSurfaceVariant = other.onSurfaceVariant
+    surfaceTint = other.surfaceTint
     inverseSurface = other.inverseSurface
     inverseOnSurface = other.inverseOnSurface
-    disabled = other.disabled
-    onDisabled = other.onDisabled
     error = other.error
     onError = other.onError
     errorContainer = other.errorContainer
@@ -571,41 +530,35 @@ internal fun ColorScheme.updateColorSchemeFrom(other: ColorScheme) {
  * tokens:
  * ``MaterialTheme.colorScheme.fromToken(ExtendedFabBranded.BrandedContainerColor)``
  */
-internal fun ColorScheme.fromToken(value: ColorSchemeKey): Color {
+internal fun ColorScheme.fromToken(value: ColorSchemeKeyTokens): Color {
     return when (value) {
-        ColorSchemeKey.Background -> background
-        ColorSchemeKey.Disabled -> disabled
-        ColorSchemeKey.Error -> error
-        ColorSchemeKey.ErrorContainer -> errorContainer
-        ColorSchemeKey.InverseOnSurface -> inverseOnSurface
-        ColorSchemeKey.InversePrimary -> inversePrimary
-        ColorSchemeKey.InverseSurface -> inverseSurface
-        ColorSchemeKey.OnBackground -> onBackground
-        ColorSchemeKey.OnDisabled -> onDisabled
-        ColorSchemeKey.OnError -> onError
-        ColorSchemeKey.OnErrorContainer -> onErrorContainer
-        ColorSchemeKey.OnPrimary -> onPrimary
-        ColorSchemeKey.OnPrimaryContainer -> onPrimaryContainer
-        ColorSchemeKey.OnSecondary -> onSecondary
-        ColorSchemeKey.OnSecondaryContainer -> onSecondaryContainer
-        ColorSchemeKey.OnSurface -> onSurface
-        ColorSchemeKey.OnSurfaceVariant -> onSurfaceVariant
-        ColorSchemeKey.OnTertiary -> onTertiary
-        ColorSchemeKey.OnTertiaryContainer -> onTertiaryContainer
-        ColorSchemeKey.Outline -> outline
-        ColorSchemeKey.Primary -> primary
-        ColorSchemeKey.PrimaryContainer -> primaryContainer
-        ColorSchemeKey.Secondary -> secondary
-        ColorSchemeKey.SecondaryContainer -> secondaryContainer
-        ColorSchemeKey.Surface -> surface
-        ColorSchemeKey.SurfaceVariant -> surfaceVariant
-        ColorSchemeKey.Tertiary -> tertiary
-        ColorSchemeKey.TertiaryContainer -> tertiaryContainer
-        ColorSchemeKey.Surface1 -> surface1
-        ColorSchemeKey.Surface2 -> surface2
-        ColorSchemeKey.Surface3 -> surface3
-        ColorSchemeKey.Surface4 -> surface4
-        ColorSchemeKey.Surface5 -> surface5
+        ColorSchemeKeyTokens.Background -> background
+        ColorSchemeKeyTokens.Error -> error
+        ColorSchemeKeyTokens.ErrorContainer -> errorContainer
+        ColorSchemeKeyTokens.InverseOnSurface -> inverseOnSurface
+        ColorSchemeKeyTokens.InversePrimary -> inversePrimary
+        ColorSchemeKeyTokens.InverseSurface -> inverseSurface
+        ColorSchemeKeyTokens.OnBackground -> onBackground
+        ColorSchemeKeyTokens.OnError -> onError
+        ColorSchemeKeyTokens.OnErrorContainer -> onErrorContainer
+        ColorSchemeKeyTokens.OnPrimary -> onPrimary
+        ColorSchemeKeyTokens.OnPrimaryContainer -> onPrimaryContainer
+        ColorSchemeKeyTokens.OnSecondary -> onSecondary
+        ColorSchemeKeyTokens.OnSecondaryContainer -> onSecondaryContainer
+        ColorSchemeKeyTokens.OnSurface -> onSurface
+        ColorSchemeKeyTokens.OnSurfaceVariant -> onSurfaceVariant
+        ColorSchemeKeyTokens.SurfaceTint -> surfaceTint
+        ColorSchemeKeyTokens.OnTertiary -> onTertiary
+        ColorSchemeKeyTokens.OnTertiaryContainer -> onTertiaryContainer
+        ColorSchemeKeyTokens.Outline -> outline
+        ColorSchemeKeyTokens.Primary -> primary
+        ColorSchemeKeyTokens.PrimaryContainer -> primaryContainer
+        ColorSchemeKeyTokens.Secondary -> secondary
+        ColorSchemeKeyTokens.SecondaryContainer -> secondaryContainer
+        ColorSchemeKeyTokens.Surface -> surface
+        ColorSchemeKeyTokens.SurfaceVariant -> surfaceVariant
+        ColorSchemeKeyTokens.Tertiary -> tertiary
+        ColorSchemeKeyTokens.TertiaryContainer -> tertiaryContainer
     }
 }
 
@@ -623,3 +576,9 @@ internal val LocalColorScheme = staticCompositionLocalOf { lightColorScheme() }
  * A low level of alpha used to represent disabled components, such as text in a disabled Button.
  */
 internal const val DisabledAlpha = 0.38f
+
+/** Converts a color token key to the local color scheme provided by the theme */
+@Composable
+internal fun ColorSchemeKeyTokens.toColor(): Color {
+    return MaterialTheme.colorScheme.fromToken(this)
+}

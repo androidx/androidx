@@ -28,6 +28,9 @@ package androidx.paging
  * should continue to make requests for additional data in this direction or if it should
  * halt as the end of the dataset has been reached.
  *
+ * Note: The [LoadType] [REFRESH][LoadType.REFRESH] always has [LoadState.endOfPaginationReached]
+ * set to `false`.
+ *
  * @see LoadType
  */
 public sealed class LoadState(

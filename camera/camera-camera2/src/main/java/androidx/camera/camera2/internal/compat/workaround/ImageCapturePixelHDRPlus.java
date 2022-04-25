@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.hardware.camera2.CaptureRequest;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.camera2.internal.compat.quirk.ImageCapturePixelHDRPlusQuirk;
@@ -30,6 +31,7 @@ import androidx.camera.core.ImageCapture;
  *
  * @see ImageCapturePixelHDRPlusQuirk
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ImageCapturePixelHDRPlus {
 
     /**

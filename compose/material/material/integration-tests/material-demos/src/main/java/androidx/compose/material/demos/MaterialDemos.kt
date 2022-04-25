@@ -54,6 +54,7 @@ val MaterialDemos = DemoCategory(
             )
         ),
         ComposableDemo("Buttons & FABs") { ButtonDemo() },
+        ComposableDemo("Chips") { ChipDemo() },
         DemoCategory(
             "Navigation drawer",
             listOf(
@@ -71,7 +72,13 @@ val MaterialDemos = DemoCategory(
             )
         ),
         ComposableDemo("Material Theme") { MaterialThemeDemo() },
-        ComposableDemo("Menus") { MenuDemo() },
+        DemoCategory(
+            "Menus",
+            listOf(
+                ComposableDemo("Dropdown Menu positioning") { MenuDemo() },
+                ComposableDemo("ExposedDropdownMenu") { ExposedDropdownMenuDemo() }
+            )
+        ),
         ComposableDemo("Navigation Rail") { NavigationRailDemo() },
         DemoCategory(
             "Playground",
@@ -99,6 +106,7 @@ val MaterialDemos = DemoCategory(
             listOf(
                 ComposableDemo("FilledTextField/OutlinedTextField") { MaterialTextFieldDemo() },
                 ComposableDemo("Multiple text fields") { TextFieldsDemo() },
+                ComposableDemo("Textfield decoration box") { DecorationBoxDemos() },
                 ComposableDemo("Alignment inside text fields") { VerticalAlignmentsInTextField() }
             )
         )

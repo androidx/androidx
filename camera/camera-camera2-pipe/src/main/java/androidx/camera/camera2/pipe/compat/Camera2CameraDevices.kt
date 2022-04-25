@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.pipe.compat
 
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraDevices
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
@@ -26,11 +27,17 @@ import javax.inject.Singleton
 /**
  * Provides utilities for querying cameras and accessing metadata about those cameras.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @Singleton
 internal class Camera2CameraDevices @Inject constructor(
     private val deviceCache: Camera2DeviceCache,
     private val metadataCache: Camera2MetadataCache
 ) : CameraDevices {
+    @Deprecated(
+        message = "findAll may block the calling thread and is deprecated.",
+        replaceWith = ReplaceWith("ids"),
+        level = DeprecationLevel.WARNING
+    )
     override fun findAll(): List<CameraId> = runBlocking { deviceCache.getCameras() }
     override suspend fun ids(): List<CameraId> = deviceCache.getCameras()
 

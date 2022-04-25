@@ -5,6 +5,7 @@ package androidx.biometric {
     method @Deprecated public int canAuthenticate();
     method public int canAuthenticate(int);
     method public static androidx.biometric.BiometricManager from(android.content.Context);
+    method @RequiresPermission(android.Manifest.permission.USE_BIOMETRIC) public androidx.biometric.BiometricManager.Strings? getStrings(int);
     field public static final int BIOMETRIC_ERROR_HW_UNAVAILABLE = 1; // 0x1
     field public static final int BIOMETRIC_ERROR_NONE_ENROLLED = 11; // 0xb
     field public static final int BIOMETRIC_ERROR_NO_HARDWARE = 12; // 0xc
@@ -18,6 +19,12 @@ package androidx.biometric {
     field public static final int BIOMETRIC_STRONG = 15; // 0xf
     field public static final int BIOMETRIC_WEAK = 255; // 0xff
     field public static final int DEVICE_CREDENTIAL = 32768; // 0x8000
+  }
+
+  public static class BiometricManager.Strings {
+    method @RequiresPermission(android.Manifest.permission.USE_BIOMETRIC) public CharSequence? getButtonLabel();
+    method @RequiresPermission(android.Manifest.permission.USE_BIOMETRIC) public CharSequence? getPromptMessage();
+    method @RequiresPermission(android.Manifest.permission.USE_BIOMETRIC) public CharSequence? getSettingName();
   }
 
   public class BiometricPrompt {

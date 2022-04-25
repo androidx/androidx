@@ -16,6 +16,7 @@
 
 package androidx.activity.compose
 
+import androidx.activity.result.ActivityResultCaller
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.ActivityResultRegistryOwner
 import androidx.activity.result.contract.ActivityResultContract
@@ -112,8 +113,8 @@ public fun <I, O> rememberLauncherForActivityResult(
 }
 
 /**
- * A launcher for a previously-{@link ActivityResultCaller#registerForActivityResult prepared call}
- * to start the process of executing an {@link ActivityResultContract}.
+ * A launcher for a previously-[prepared call][ActivityResultCaller.registerForActivityResult]
+ * to start the process of executing an [ActivityResultContract].
  *
  * This launcher does not support the [unregister] function. Attempting to use [unregister] will
  * result in an [IllegalStateException].

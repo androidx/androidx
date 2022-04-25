@@ -26,6 +26,7 @@ import static androidx.camera.core.impl.utils.ExifData.IFD_TYPE_INTEROPERABILITY
 import static androidx.camera.core.impl.utils.ExifData.IFD_TYPE_PRIMARY;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 import androidx.core.util.Preconditions;
 
@@ -68,6 +69,7 @@ import java.util.Map;
  * }
  * </pre>
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class ExifOutputStream extends FilterOutputStream {
     private static final String TAG = "ExifOutputStream";
     private static final boolean DEBUG = false;

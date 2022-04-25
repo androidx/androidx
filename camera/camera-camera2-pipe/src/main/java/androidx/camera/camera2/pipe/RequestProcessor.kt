@@ -16,6 +16,8 @@
 
 package androidx.camera.camera2.pipe
 
+import androidx.annotation.RequiresApi
+
 /**
  * An instance of a [RequestProcessor] exists for the duration of a CameraCaptureSession and must be
  * created for each new CameraCaptureSession. It is responsible for low level interactions with the
@@ -32,6 +34,7 @@ package androidx.camera.camera2.pipe
  * - Callbacks are expected to be invoked at *very* high frequency.
  * - One RequestProcessor instance per CameraCaptureSession
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 interface RequestProcessor {
 
     /**

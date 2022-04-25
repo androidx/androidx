@@ -44,7 +44,7 @@ public class TestProgressUpdater implements ProgressUpdater {
             @NonNull Context context,
             @NonNull UUID id,
             @NonNull Data data) {
-        Logger.get().info(TAG, String.format("Updating progress for %s (%s)", id, data));
+        Logger.get().info(TAG, "Updating progress for " + id + " (" + data + ")");
         SettableFuture<Void> future = SettableFuture.create();
         future.set(null);
         return future;

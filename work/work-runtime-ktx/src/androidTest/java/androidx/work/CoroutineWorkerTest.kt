@@ -261,19 +261,11 @@ class CoroutineWorkerTest {
         private val mSynchronousExecutor = SynchronousExecutor()
         private val mSerialExecutor = SerialExecutor(mSynchronousExecutor)
 
-        override fun postToMainThread(runnable: Runnable) {
-            runnable.run()
-        }
-
         override fun getMainThreadExecutor(): Executor {
             return mSynchronousExecutor
         }
 
-        override fun executeOnBackgroundThread(runnable: Runnable) {
-            mSerialExecutor.execute(runnable)
-        }
-
-        override fun getBackgroundExecutor(): SerialExecutor {
+        override fun getSerialTaskExecutor(): SerialExecutor {
             return mSerialExecutor
         }
     }
@@ -285,6 +277,7 @@ class CoroutineWorkerTest {
             return Result.success(workDataOf("output" to 999L))
         }
 
+        @Deprecated(message = "use withContext(...) inside doWork() instead.")
         override val coroutineContext = SynchronousExecutor().asCoroutineDispatcher()
     }
 }

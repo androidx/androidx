@@ -20,10 +20,13 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.app.Features;
 import androidx.appsearch.app.GlobalSearchSession;
 import androidx.appsearch.app.ReportSystemUsageRequest;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
+import androidx.appsearch.observer.AppSearchObserverCallback;
+import androidx.appsearch.observer.ObserverSpec;
 import androidx.appsearch.platformstorage.converter.AppSearchResultToPlatformConverter;
 import androidx.appsearch.platformstorage.converter.RequestToPlatformConverter;
 import androidx.appsearch.platformstorage.converter.SearchSpecToPlatformConverter;
@@ -44,12 +47,15 @@ import java.util.concurrent.Executor;
 class GlobalSearchSessionImpl implements GlobalSearchSession {
     private final android.app.appsearch.GlobalSearchSession mPlatformSession;
     private final Executor mExecutor;
+    private final Features mFeatures;
 
     GlobalSearchSessionImpl(
             @NonNull android.app.appsearch.GlobalSearchSession platformSession,
-            @NonNull Executor executor) {
+            @NonNull Executor executor,
+            @NonNull Features features) {
         mPlatformSession = Preconditions.checkNotNull(platformSession);
         mExecutor = Preconditions.checkNotNull(executor);
+        mFeatures = Preconditions.checkNotNull(features);
     }
 
     @Override
@@ -77,6 +83,36 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
                 result -> AppSearchResultToPlatformConverter.platformAppSearchResultToFuture(
                         result, future));
         return future;
+    }
+
+    @NonNull
+    @Override
+    public Features getFeatures() {
+        return mFeatures;
+    }
+
+    @Override
+    public void addObserver(
+            @NonNull String observedPackage,
+            @NonNull ObserverSpec spec,
+            @NonNull Executor executor,
+            @NonNull AppSearchObserverCallback observer) {
+        Preconditions.checkNotNull(observedPackage);
+        Preconditions.checkNotNull(spec);
+        Preconditions.checkNotNull(executor);
+        Preconditions.checkNotNull(observer);
+        // TODO(b/193494000): Support change notifications in the platform backend once the
+        //  feature is exposed in the Android SDK.
+        throw new UnsupportedOperationException("addObserver not supported for platform yet");
+    }
+
+    @Override
+    public void removeObserver(
+            @NonNull String observedPackage, @NonNull AppSearchObserverCallback observer) {
+        Preconditions.checkNotNull(observedPackage);
+        Preconditions.checkNotNull(observer);
+        // TODO(b/193494000): Implement removeObserver
+        throw new UnsupportedOperationException("removeObserver not supported for platform yet");
     }
 
     @Override

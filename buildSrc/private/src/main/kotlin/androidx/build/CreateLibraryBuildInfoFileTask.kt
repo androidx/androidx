@@ -17,27 +17,30 @@
 package androidx.build
 
 import androidx.build.gitclient.Commit
-import androidx.build.gitclient.GitClientImpl
+import androidx.build.gitclient.GitClient
 import androidx.build.gitclient.GitCommitRange
 import androidx.build.jetpad.LibraryBuildInfoFile
 import com.google.gson.GsonBuilder
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.artifacts.ProjectDependency
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.TaskProvider
 import java.io.File
-import java.util.ArrayList
+import org.jetbrains.kotlin.gradle.plugin.getKotlinPluginVersion
 
 /**
  * This task generates a library build information file containing the artifactId, groupId, and
  * version of public androidx dependencies and release checklist of the library for consumption
  * by the Jetpack Release Service (JetPad).
  */
+@CacheableTask
 abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
     init {
         group = "Help"
@@ -75,26 +78,15 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
     @get:Input
     abstract val projectZipPath: Property<String>
 
-    /**
-     * Returns the local project directory without the full framework/support root directory path
-     * <p>
-     * Note: `project.projectDir.toString().removePrefix(project.rootDir.toString())` does not work
-     * because the project rootDir is not guaranteed to be a substring of the projectDir
-     */
-    private fun getProjectSpecificDirectory(): String {
-        return project.projectDir.absolutePath.removePrefix(
-            project.getSupportRootFolder().absolutePath
-        )
-    }
+    @get:Input
+    val dependencyList: ListProperty<LibraryBuildInfoFile.Dependency> =
+        project.objects.listProperty(LibraryBuildInfoFile.Dependency::class.java)
 
     /**
-     * Returns whether or not the groupId of the project requires the same version for all
-     * artifactIds.
+     * the local project directory without the full framework/support root directory path
      */
-    private fun requiresSameVersion(): Boolean {
-        val library = project.extensions.findByType(AndroidXExtension::class.java)
-        return library?.mavenGroup?.requireSameVersion ?: false
-    }
+    @get:Input
+    abstract val projectSpecificDirectory: Property<String>
 
     private fun writeJsonToFile(info: LibraryBuildInfoFile) {
         val resolvedOutputFile: File = outputFile.get()
@@ -103,7 +95,7 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
             if (!outputDir.mkdirs()) {
                 throw RuntimeException(
                     "Failed to create " +
-                        "output directory: ${project.getBuildInfoDirectory()}"
+                        "output directory: $outputDir"
                 )
             }
         }
@@ -131,54 +123,10 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
         libraryBuildInfoFile.groupIdRequiresSameVersion = groupIdRequiresSameVersion.get()
         libraryBuildInfoFile.groupZipPath = groupZipPath.get()
         libraryBuildInfoFile.projectZipPath = projectZipPath.get()
-        val libraryDependencies = ArrayList<LibraryBuildInfoFile.Dependency>()
-        val checks = ArrayList<LibraryBuildInfoFile.Check>()
-        libraryBuildInfoFile.checks = checks
-        project.configurations.filter {
-            it.name == "releaseRuntimeElements"
-        }.forEach { configuration ->
-            configuration.allDependencies.forEach { dep ->
-                // For Kotlin libraries, populate the Kotlin version. Note that
-                // we assume all of androidx uses the same version of the Kotlin
-                // stdlib.
-                if (dep.group.toString().startsWith("org.jetbrains.kotlin")) {
-                    libraryBuildInfoFile.kotlinVersion = kotlinVersion.getOrNull()
-                }
-                // Only consider androidx dependencies
-                if (dep.group != null &&
-                    dep.group.toString().startsWith("androidx.") &&
-                    !dep.group.toString().startsWith("androidx.test")
-                ) {
-                    val androidXPublishedDependency = LibraryBuildInfoFile().Dependency()
-                    androidXPublishedDependency.artifactId = dep.name.toString()
-                    androidXPublishedDependency.groupId = dep.group.toString()
-                    androidXPublishedDependency.version = dep.version.toString()
-                    androidXPublishedDependency.isTipOfTree = dep is ProjectDependency
-                    addDependencyToListIfNotAlreadyAdded(
-                        libraryDependencies,
-                        androidXPublishedDependency
-                    )
-                }
-            }
-        }
-        libraryBuildInfoFile.dependencies = libraryDependencies
+        libraryBuildInfoFile.kotlinVersion = kotlinVersion.orNull
+        libraryBuildInfoFile.checks = ArrayList()
+        libraryBuildInfoFile.dependencies = ArrayList(dependencyList.get())
         return libraryBuildInfoFile
-    }
-
-    private fun addDependencyToListIfNotAlreadyAdded(
-        dependencyList: ArrayList<LibraryBuildInfoFile.Dependency>,
-        dependency: LibraryBuildInfoFile.Dependency
-    ) {
-        for (existingDependency in dependencyList) {
-            if (existingDependency.groupId == dependency.groupId &&
-                existingDependency.artifactId == dependency.artifactId &&
-                existingDependency.version == dependency.version &&
-                existingDependency.isTipOfTree == dependency.isTipOfTree
-            ) {
-                return
-            }
-        }
-        dependencyList.add(dependency)
     }
 
     /**
@@ -201,32 +149,68 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
                 return project.tasks.register(
                     TASK_NAME,
                     CreateLibraryBuildInfoFileTask::class.java
-                ) {
+                ) { task ->
                     val group = project.group.toString()
                     val name = project.name.toString()
-                    it.outputFile.set(
+                    task.outputFile.set(
                         File(
                             project.getBuildInfoDirectory(),
                             "${group}_${name}_build_info.txt"
                         )
                     )
-                    it.artifactId.set(name)
-                    it.groupId.set(group)
-                    it.version.set(project.version.toString())
-                    it.kotlinVersion.set(androidx.build.dependencies.kotlinVersion)
-                    it.projectDir.set(
+                    task.artifactId.set(name)
+                    task.groupId.set(group)
+                    task.version.set(project.version.toString())
+                    task.kotlinVersion.set(project.getKotlinPluginVersion())
+                    task.projectDir.set(
                         project.projectDir.absolutePath.removePrefix(
                             project.getSupportRootFolder().absolutePath
                         )
                     )
-                    it.commit.set(
-                        project.provider({
+                    task.commit.set(
+                        project.provider {
                             project.getFrameworksSupportCommitShaAtHead()
-                        })
+                        }
                     )
-                    it.groupIdRequiresSameVersion.set(extension.mavenGroup?.requireSameVersion)
-                    it.groupZipPath.set(project.getGroupZipPath())
-                    it.projectZipPath.set(project.getProjectZipPath())
+                    task.groupIdRequiresSameVersion.set(extension.mavenGroup?.requireSameVersion)
+                    task.groupZipPath.set(project.getGroupZipPath())
+                    task.projectZipPath.set(project.getProjectZipPath())
+
+                    // Note:
+                    // `project.projectDir.toString().removePrefix(project.rootDir.toString())`
+                    // does not work because the project rootDir is not guaranteed to be a
+                    // substring of the projectDir
+                    task.projectSpecificDirectory.set(
+                        project.projectDir.absolutePath.removePrefix(
+                            project.getSupportRootFolder().absolutePath
+                        )
+                    )
+                    task.dependencyList.set(project.provider {
+                        val libraryDependencies = HashSet<LibraryBuildInfoFile.Dependency>()
+                        project.configurations.filter {
+                            it.name == "releaseRuntimeElements"
+                        }.forEach { configuration ->
+                            configuration.allDependencies.forEach { dep ->
+                                // Only consider androidx dependencies
+                                if (dep.group != null &&
+                                    dep.group.toString().startsWith("androidx.") &&
+                                    !dep.group.toString().startsWith("androidx.test")
+                                ) {
+                                    val androidXPublishedDependency =
+                                        LibraryBuildInfoFile.Dependency()
+                                    androidXPublishedDependency.artifactId = dep.name.toString()
+                                    androidXPublishedDependency.groupId = dep.group.toString()
+                                    androidXPublishedDependency.version = dep.version.toString()
+                                    androidXPublishedDependency.isTipOfTree =
+                                        dep is ProjectDependency
+                                    libraryDependencies.add(androidXPublishedDependency)
+                                }
+                            }
+                        }
+                        ArrayList(libraryDependencies).sortedWith(
+                            compareBy({ it.groupId }, { it.artifactId }, { it.version })
+                        )
+                    })
                 }
             }
 
@@ -234,7 +218,14 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
          * of the build that is released.  Thus, we use frameworks/support to get the sha
          */
         private fun Project.getFrameworksSupportCommitShaAtHead(): String {
-            val commitList: List<Commit> = GitClientImpl(project.getSupportRootFolder(), logger)
+            val gitClient = GitClient.create(
+                project.getSupportRootFolder(),
+                logger,
+                GitClient.getChangeInfoPath(project).get(),
+                GitClient.getManifestPath(project).get()
+            )
+            val commitList: List<Commit> =
+                gitClient
                 .getGitLog(
                     GitCommitRange(
                         fromExclusive = "",

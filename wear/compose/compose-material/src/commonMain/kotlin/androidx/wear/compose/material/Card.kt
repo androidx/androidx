@@ -16,22 +16,23 @@
 
 package androidx.wear.compose.material
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.Image
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -48,6 +49,7 @@ import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -67,14 +69,24 @@ import kotlin.math.min
  *
  * Cards can be enabled or disabled. A disabled card will not respond to click events.
  *
+ * For more information, see the
+ * [Cards](https://developer.android.com/training/wearables/components/cards)
+ * Wear OS Material design guide.
+ *
+ * Note that the Wear OS design guidance recommends a gradient or image background for Cards which
+ * is not the case for Mobile Cards. As a result you will see a backgroundPainter rather than a
+ * backgroundColor for Cards. If you want to workaround this recommendation you could use a
+ * [ColorPainter] to produce a solid colored background.
+ *
  * @param onClick Will be called when the user clicks the card
  * @param modifier Modifier to be applied to the card
  * @param backgroundPainter A painter used to paint the background of the card. A card will
  * normally have a gradient background. Use [CardDefaults.cardBackgroundPainter()] to obtain an
  * appropriate painter
  * @param contentColor The default color to use for content() unless explicitly set.
- * @param enabled Controls the enabled state of the card. When `false`, this card will not
- * be clickable
+ * @param enabled Controls the enabled state of the card. When false, this card will not
+ * be clickable and there will be no ripple effect on click. Wear cards do not have any specific
+ * elevation or alpha differences when not enabled - they are simply not clickable.
  * @param contentPadding The spacing values to apply internally between the container and the
  * content
  * @param shape Defines the card's shape. It is strongly recommended to use the default as this
@@ -91,31 +103,23 @@ public fun Card(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     backgroundPainter: Painter = CardDefaults.cardBackgroundPainter(),
-    contentColor: Color = MaterialTheme.colors.onSurfaceVariant2,
+    contentColor: Color = MaterialTheme.colors.onSurfaceVariant,
     enabled: Boolean = true,
     contentPadding: PaddingValues = CardDefaults.ContentPadding,
     shape: Shape = MaterialTheme.shapes.large,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     role: Role? = null,
-    content: @Composable () -> Unit,
+    content: @Composable ColumnScope.() -> Unit,
 ) {
-    Box(
+    Column(
         modifier = modifier
             .fillMaxWidth()
+            .height(IntrinsicSize.Min)
             .clip(shape = shape)
-    ) {
-        // TODO: Due to b/178201337 the paint() modifier on the box doesn't make a call to draw the
-        //  box contents. As a result we need to have stacked boxes to enable us to paint the
-        //  background
-        val painterModifier =
-            Modifier
-                .matchParentSize()
-                .paint(
-                    painter = backgroundPainter,
-                    contentScale = ContentScale.Crop
-                )
-
-        val contentBoxModifier = Modifier
+            .paint(
+                painter = backgroundPainter,
+                contentScale = ContentScale.Crop
+            )
             .clickable(
                 enabled = enabled,
                 onClick = onClick,
@@ -124,20 +128,12 @@ public fun Card(
                 interactionSource = interactionSource,
             )
             .padding(contentPadding)
-
-        Box(
-            modifier = painterModifier
-        )
+    ) {
         CompositionLocalProvider(
             LocalContentColor provides contentColor,
-            LocalTextStyle provides MaterialTheme.typography.button
-        ) {
-            Box(
-                modifier = contentBoxModifier,
-            ) {
-                content()
-            }
-        }
+            LocalTextStyle provides MaterialTheme.typography.button,
+            content = content
+        )
     }
 }
 
@@ -157,49 +153,63 @@ public fun Card(
  *
  * The second row shows a title, this is expected to be a single row of start aligned [Text].
  *
- * The rest of the [Card] contains the body content which can be either [Text] or an [Image].
+ * The rest of the [Card] contains the content which can be either [Text] or an [Image].
+ * If the content is text it can be single or multiple line and is expected to be Top and Start
+ * aligned.
+ *
+ * If more than one composable is provided in the content slot it is the responsibility of the
+ * caller to determine how to layout the contents, e.g. provide either a row or a column.
+ *
+ * Example of an [AppCard] with icon, title, time and two lines of body text:
+ * @sample androidx.wear.compose.material.samples.AppCardWithIcon
+ *
+ * For more information, see the
+ * [Cards](https://developer.android.com/training/wearables/components/cards)
+ * guide.
  *
  * @param onClick Will be called when the user clicks the card
- * @param appName A slot for displaying the application name, expected to be a single line of text
- * of [Typography.title3]
+ * @param appName A slot for displaying the application name, expected to be a single line of start
+ * aligned text of [Typography.title3]
  * @param time A slot for displaying the time relevant to the contents of the card, expected to be a
  * short piece of end aligned text.
- * @param title A slot for displaying the title of the card, expected to be one or two lines of text
- * of [Typography.button]
- * @param body A slot for displaying the details of the [Card], expected to be either [Text]
- * (single or multiple-line) or an [Image]
+ * @param title A slot for displaying the title of the card, expected to be one or two lines of
+ * start aligned text of [Typography.button]
  * @param modifier Modifier to be applied to the card
+ * @param enabled Controls the enabled state of the card. When false, this card will not
+ * be clickable and there will be no ripple effect on click. Wear cards do not have any specific
+ * elevation or alpha differences when not enabled - they are simply not clickable.
  * @param appImage A slot for a small ([CardDefaults.AppImageSize]x[CardDefaults.AppImageSize] )
  * [Image] associated with the application.
  * @param backgroundPainter A painter used to paint the background of the card. A card will
  * normally have a gradient background. Use [CardDefaults.cardBackgroundPainter()] to obtain an
  * appropriate painter
+ * @param contentColor The default color to use for content() slot unless explicitly set.
  * @param appColor The default color to use for appName() and appImage() slots unless explicitly
  * set.
  * @param timeColor The default color to use for time() slot unless explicitly set.
  * @param titleColor The default color to use for title() slot unless explicitly set.
- * @param bodyColor The default color to use for body() slot unless explicitly set.
  */
 @Composable
 public fun AppCard(
     onClick: () -> Unit,
-    appName: @Composable () -> Unit,
-    time: @Composable () -> Unit,
-    title: @Composable () -> Unit,
-    body: @Composable () -> Unit,
+    appName: @Composable RowScope.() -> Unit,
+    time: @Composable RowScope.() -> Unit,
+    title: @Composable RowScope.() -> Unit,
     modifier: Modifier = Modifier,
-    appImage: @Composable (() -> Unit)? = null,
+    enabled: Boolean = true,
+    appImage: @Composable (RowScope.() -> Unit)? = null,
     backgroundPainter: Painter = CardDefaults.cardBackgroundPainter(),
-    appColor: Color = MaterialTheme.colors.onSurfaceVariant,
-    timeColor: Color = MaterialTheme.colors.onSurfaceVariant,
+    contentColor: Color = MaterialTheme.colors.onSurfaceVariant,
+    appColor: Color = contentColor,
+    timeColor: Color = contentColor,
     titleColor: Color = MaterialTheme.colors.onSurface,
-    bodyColor: Color = MaterialTheme.colors.onSurfaceVariant2,
+    content: @Composable ColumnScope.() -> Unit,
 ) {
     Card(
         onClick = onClick,
         modifier = modifier,
         backgroundPainter = backgroundPainter,
-        enabled = true,
+        enabled = enabled,
     ) {
         Column {
             Row(
@@ -218,25 +228,25 @@ public fun AppCard(
                         content = appName
                     )
                 }
-                Spacer(modifier = Modifier.width(4.dp))
-                Box(modifier = Modifier.weight(1.0f), contentAlignment = Alignment.CenterEnd) {
-                    CompositionLocalProvider(
-                        LocalContentColor provides timeColor,
-                        LocalTextStyle provides MaterialTheme.typography.caption1,
-                        content = time
-                    )
-                }
+                Spacer(modifier = Modifier.weight(1.0f))
+                CompositionLocalProvider(
+                    LocalContentColor provides timeColor,
+                    LocalTextStyle provides MaterialTheme.typography.caption1,
+                    content = time
+                )
             }
             Spacer(modifier = Modifier.height(4.dp))
+            Row {
+                CompositionLocalProvider(
+                    LocalContentColor provides titleColor,
+                    LocalTextStyle provides MaterialTheme.typography.title3,
+                    content = title
+                )
+            }
             CompositionLocalProvider(
-                LocalContentColor provides titleColor,
-                LocalTextStyle provides MaterialTheme.typography.title3,
-                content = title
-            )
-            CompositionLocalProvider(
-                LocalContentColor provides bodyColor,
+                LocalContentColor provides contentColor,
                 LocalTextStyle provides MaterialTheme.typography.body1,
-                content = body
+                content = content
             )
         }
     }
@@ -253,45 +263,62 @@ public fun AppCard(
  * end of the row, expected to be an end aligned [Text] composable showing a time relevant to the
  * contents of the [Card].
  *
- * The rest of the [Card] contains the body content which is expected to be [Text] or a contained
+ * The rest of the [Card] contains the content which is expected to be [Text] or a contained
  * [Image].
  *
- * Overall the [title] and [body] text should be no more than 5 rows of text combined.
+ * If the content is text it can be single or multiple line and is expected to be Top and Start
+ * aligned and of type of [Typography.body1].
+ *
+ * Overall the [title] and [content] text should be no more than 5 rows of text combined.
+ *
+ * If more than one composable is provided in the content slot it is the responsibility of the
+ * caller to determine how to layout the contents, e.g. provide either a row or a column.
+ *
+ * Example of a [TitleCard] with two lines of body text:
+ * @sample androidx.wear.compose.material.samples.TitleCardStandard
+ *
+ * Example of a title card with a background image:
+ * @sample androidx.wear.compose.material.samples.TitleCardWithImage
+ *
+ * For more information, see the
+ * [Cards](https://developer.android.com/training/wearables/components/cards)
+ * guide.
  *
  * @param onClick Will be called when the user clicks the card
  * @param title A slot for displaying the title of the card, expected to be one or two lines of text
  * of [Typography.button]
- * @param body A slot for displaying the details of the [Card], expected to be either [Text]
- * (single or multiple-line) or an [Image]. If [Text] then it is expected to be a maximum of 4 lines
- * of text of [Typography.body1]
  * @param modifier Modifier to be applied to the card
+ * @param enabled Controls the enabled state of the card. When false, this card will not
+ * be clickable and there will be no ripple effect on click. Wear cards do not have any specific
+ * elevation or alpha differences when not enabled - they are simply not clickable.
  * @param time An optional slot for displaying the time relevant to the contents of the card,
  * expected to be a short piece of end aligned text.
  * @param backgroundPainter A painter used to paint the background of the card. A title card can
  * have either a gradient background or an image background, use
  * [CardDefaults.cardBackgroundPainter()] or [CardDefaults.imageBackgroundPainter()] to obtain an
  * appropriate painter
+ * @param contentColor The default color to use for content() slot unless explicitly set.
  * @param titleColor The default color to use for title() slot unless explicitly set.
  * @param timeColor The default color to use for time() slot unless explicitly set.
- * @param bodyColor The default color to use for body() slot unless explicitly set.
  */
 @Composable
 public fun TitleCard(
     onClick: () -> Unit,
-    title: @Composable () -> Unit,
-    body: @Composable () -> Unit,
+    title: @Composable RowScope.() -> Unit,
     modifier: Modifier = Modifier,
-    time: @Composable (() -> Unit)? = null,
+    enabled: Boolean = true,
+    time: @Composable (RowScope.() -> Unit)? = null,
     backgroundPainter: Painter = CardDefaults.cardBackgroundPainter(),
+    contentColor: Color = MaterialTheme.colors.onSurfaceVariant,
     titleColor: Color = MaterialTheme.colors.onSurface,
-    timeColor: Color = MaterialTheme.colors.onSurfaceVariant,
-    bodyColor: Color = MaterialTheme.colors.onSurfaceVariant2,
+    timeColor: Color = contentColor,
+    content: @Composable ColumnScope.() -> Unit,
 ) {
     Card(
         onClick = onClick,
         modifier = modifier,
         backgroundPainter = backgroundPainter,
-        enabled = true,
+        enabled = enabled,
     ) {
         Column {
             Row(
@@ -304,21 +331,19 @@ public fun TitleCard(
                     content = title
                 )
                 if (time != null) {
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Box(modifier = Modifier.weight(1.0f), contentAlignment = Alignment.CenterEnd) {
-                        CompositionLocalProvider(
-                            LocalContentColor provides timeColor,
-                            LocalTextStyle provides MaterialTheme.typography.caption1,
-                            content = time
-                        )
-                    }
+                    Spacer(modifier = Modifier.weight(1.0f))
+                    CompositionLocalProvider(
+                        LocalContentColor provides timeColor,
+                        LocalTextStyle provides MaterialTheme.typography.caption1,
+                        content = time
+                    )
                 }
             }
             Spacer(modifier = Modifier.height(2.dp))
             CompositionLocalProvider(
-                LocalContentColor provides bodyColor,
+                LocalContentColor provides contentColor,
                 LocalTextStyle provides MaterialTheme.typography.body1,
-                content = body
+                content = content
             )
         }
     }
@@ -348,7 +373,7 @@ public object CardDefaults {
             MaterialTheme.colors.onSurfaceVariant.copy(alpha = 0.20f)
                 .compositeOver(MaterialTheme.colors.background),
         endBackgroundColor: Color =
-            MaterialTheme.colors.onSurfaceVariant2.copy(alpha = 0.13f)
+            MaterialTheme.colors.onSurfaceVariant.copy(alpha = 0.10f)
                 .compositeOver(MaterialTheme.colors.background),
         gradientDirection: LayoutDirection = LocalLayoutDirection.current
     ): Painter {

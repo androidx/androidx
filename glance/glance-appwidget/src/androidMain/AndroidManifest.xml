@@ -14,4 +14,44 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<manifest package="androidx.glance.appwidget" />
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <activity
+            android:name=".action.ActionTrampolineActivity"
+            android:exported="false"
+            android:enabled="true">
+            <intent-filter>
+                <data android:scheme="glance-action" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".action.InvisibleActionTrampolineActivity"
+            android:exported="false"
+            android:taskAffinity="androidx.glance.appwidget.ListAdapterCallbackTrampoline"
+            android:theme="@style/Widget.Glance.AppWidget.CallbackTrampoline"
+            android:launchMode="singleInstance"
+            android:noHistory="true"
+            android:enabled="true">
+            <intent-filter>
+                <data android:scheme="glance-action" />
+            </intent-filter>
+        </activity>
+        <receiver
+            android:name=".action.ActionCallbackBroadcastReceiver"
+            android:exported="false"
+            android:enabled="true">
+            <intent-filter>
+                <data android:scheme="glance-action" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".MyPackageReplacedReceiver"
+            android:exported="false"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>

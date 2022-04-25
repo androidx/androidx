@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.lazy
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.mutableStateOf
 
 /**
@@ -59,9 +60,11 @@ internal class LazyListScrollPosition(
         // state would be lost and overridden with zeros.
         if (hadFirstNotEmptyLayout || measureResult.totalItemsCount > 0) {
             hadFirstNotEmptyLayout = true
+            val scrollOffset = measureResult.firstVisibleItemScrollOffset
+            check(scrollOffset >= 0f) { "scrollOffset should be non-negative ($scrollOffset)" }
             update(
                 DataIndex(measureResult.firstVisibleItem?.index ?: 0),
-                measureResult.firstVisibleItemScrollOffset
+                scrollOffset
             )
         }
     }
@@ -69,9 +72,9 @@ internal class LazyListScrollPosition(
     /**
      * Updates the scroll position - the passed values will be used as a start position for
      * composing the items during the next measure pass and will be updated by the real
-     * position calculated during the measurement. This means that there is guarantee that
+     * position calculated during the measurement. This means that there is no guarantee that
      * exactly this index and offset will be applied as it is possible that:
-     * a) there will no item at this index in reality
+     * a) there will be no item at this index in reality
      * b) item at this index will be smaller than the asked scrollOffset, which means we would
      * switch to the next item
      * c) there will be not enough items to fill the viewport after the requested index, so we
@@ -90,13 +93,13 @@ internal class LazyListScrollPosition(
      * there were items added or removed before our current first visible item and keep this item
      * as the first visible one even given that its index has been changed.
      */
+    @ExperimentalFoundationApi
     fun updateScrollPositionIfTheFirstItemWasMoved(itemsProvider: LazyListItemsProvider) {
         update(findLazyListIndexByKey(lastKnownFirstItemKey, index, itemsProvider), scrollOffset)
     }
 
     private fun update(index: DataIndex, scrollOffset: Int) {
         require(index.value >= 0f) { "Index should be non-negative (${index.value})" }
-        require(scrollOffset >= 0f) { "scrollOffset should be non-negative ($scrollOffset)" }
         if (index != this.index) {
             this.index = index
             indexState.value = index.value
@@ -112,6 +115,7 @@ internal class LazyListScrollPosition(
          * Finds a position of the item with the given key in the lists. This logic allows us to
          * detect when there were items added or removed before our current first item.
          */
+        @ExperimentalFoundationApi
         private fun findLazyListIndexByKey(
             key: Any?,
             lastKnownIndex: DataIndex,
@@ -121,30 +125,17 @@ internal class LazyListScrollPosition(
                 // there were no real item during the previous measure
                 return lastKnownIndex
             }
-            val totalCount = itemsProvider.itemsCount
-            if (lastKnownIndex.value < totalCount &&
+            if (lastKnownIndex.value < itemsProvider.itemsCount &&
                 key == itemsProvider.getKey(lastKnownIndex.value)
             ) {
                 // this item is still at the same index
                 return lastKnownIndex
             }
-            // lets try to find where this item was moved
-            var before = minOf(totalCount - 1, lastKnownIndex.value - 1)
-            var after = lastKnownIndex.value + 1
-            while (before >= 0 || after < totalCount) {
-                if (before >= 0) {
-                    if (key == itemsProvider.getKey(before)) {
-                        return DataIndex(before)
-                    }
-                    before--
-                }
-                if (after < totalCount) {
-                    if (key == itemsProvider.getKey(after)) {
-                        return DataIndex(after)
-                    }
-                    after++
-                }
+            val newIndex = itemsProvider.keyToIndexMap[key]
+            if (newIndex != null) {
+                return DataIndex(newIndex)
             }
+            // fallback to the previous index if we don't know the new index of the item
             return lastKnownIndex
         }
     }

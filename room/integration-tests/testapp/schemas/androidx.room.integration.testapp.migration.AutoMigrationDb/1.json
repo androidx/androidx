@@ -503,7 +503,7 @@
       },
       {
         "tableName": "Entity16",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT, `addedInV1` INTEGER NOT NULL DEFAULT 1, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT, `index` INTEGER NOT NULL DEFAULT 1, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -518,8 +518,8 @@
             "notNull": false
           },
           {
-            "fieldPath": "addedInV1",
-            "columnName": "addedInV1",
+            "fieldPath": "index",
+            "columnName": "index",
             "affinity": "INTEGER",
             "notNull": true,
             "defaultValue": "1"

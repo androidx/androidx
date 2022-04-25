@@ -31,6 +31,15 @@ internal class MetricsContainer(
     internal val data: Array<LongArray> = Array(metrics.size) {
         LongArray(REPEAT_COUNT)
     }
+
+    /**
+     * Array of start / stop time, per measurement, to be passed to [UserspaceTracing].
+     *
+     * These values are used both in metric calculation and trace data, so tracing is extremely low
+     * overhead - just the cost of storing the timing data in an additional place in memory.
+     */
+    private val traceTiming = LongArray(REPEAT_COUNT * 2)
+
     private var runNum: Int = 0
 
     /**
@@ -48,8 +57,10 @@ internal class MetricsContainer(
      * Must be called at the start of each run.
      */
     fun captureStart() {
+        val timeNs = System.nanoTime()
+        traceTiming[runNum * 2] = timeNs
         for (i in 0..metrics.lastIndex) {
-            metrics[i].captureStart() // put the most sensitive benchmark last to avoid overhead
+            metrics[i].captureStart(timeNs) // put the most sensitive metric last to avoid overhead
         }
     }
 
@@ -59,9 +70,11 @@ internal class MetricsContainer(
      * Should be called when a run stops.
      */
     fun captureStop() {
+        val timeNs = System.nanoTime()
         for (i in metrics.lastIndex downTo 0) { // stop in reverse order
-            data[i][runNum] = metrics[i].captureStop()
+            data[i][runNum] = metrics[i].captureStop(timeNs)
         }
+        traceTiming[runNum * 2 + 1] = timeNs
         runNum += 1
     }
 
@@ -93,6 +106,10 @@ internal class MetricsContainer(
      * Call exactly once at the end of a benchmark.
      */
     fun captureFinished(maxIterations: Int): List<MetricResult> {
+        for (i in 0..traceTiming.lastIndex step 2) {
+            UserspaceTracing.beginSection("measurement ${i / 2}", nanoTime = traceTiming[i])
+            UserspaceTracing.endSection(nanoTime = traceTiming[i + 1])
+        }
         return data.mapIndexed { index, longMeasurementArray ->
             val metric = metrics[index]
 

@@ -19,10 +19,12 @@ package androidx.camera.testing;
 import android.view.Surface;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 /**
  * Surface format related utility functions.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class SurfaceFormatUtil {
     private SurfaceFormatUtil() {}
 

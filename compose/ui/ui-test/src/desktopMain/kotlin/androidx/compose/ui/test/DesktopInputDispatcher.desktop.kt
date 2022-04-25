@@ -14,23 +14,27 @@
  * limitations under the License.
  */
 
+@file:OptIn(InternalComposeUiApi::class)
+
 package androidx.compose.ui.test
 
+import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.TestPointerInputEventData
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.node.RootForTest
-import androidx.compose.ui.platform.DesktopRootForTest
+import androidx.compose.ui.platform.SkiaRootForTest
 
 internal actual fun createInputDispatcher(
     testContext: TestContext,
     root: RootForTest
 ): InputDispatcher {
-    return DesktopInputDispatcher(testContext, root as DesktopRootForTest)
+    return DesktopInputDispatcher(testContext, root as SkiaRootForTest)
 }
 
 internal class DesktopInputDispatcher(
     testContext: TestContext,
-    val root: DesktopRootForTest
+    val root: SkiaRootForTest
 ) : InputDispatcher(testContext, root) {
     companion object {
         var gesturePointerId = 0L
@@ -48,6 +52,14 @@ internal class DesktopInputDispatcher(
         enqueueEvent(pointerInputEvent(isMousePressed))
     }
 
+    override fun PartialGesture.enqueueMoves(
+        relativeHistoricalTimes: List<Long>,
+        historicalCoordinates: List<List<Offset>>
+    ) {
+        // TODO: add support for historical events
+        enqueueMove()
+    }
+
     override fun PartialGesture.enqueueUp(pointerId: Int) {
         isMousePressed = false
         enqueueEvent(pointerInputEvent(isMousePressed))
@@ -56,6 +68,43 @@ internal class DesktopInputDispatcher(
 
     override fun PartialGesture.enqueueCancel() {
         println("PartialGesture.sendCancel")
+    }
+
+    override fun MouseInputState.enqueuePress(buttonId: Int) {
+        TODO("Not yet implemented")
+    }
+
+    override fun MouseInputState.enqueueMove() {
+        TODO("Not yet implemented")
+    }
+
+    override fun MouseInputState.enqueueRelease(buttonId: Int) {
+        TODO("Not yet implemented")
+    }
+
+    override fun MouseInputState.enqueueEnter() {
+        TODO("Not yet implemented")
+    }
+
+    override fun MouseInputState.enqueueExit() {
+        TODO("Not yet implemented")
+    }
+
+    override fun MouseInputState.enqueueCancel() {
+        TODO("Not yet implemented")
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    override fun MouseInputState.enqueueScroll(delta: Float, scrollWheel: ScrollWheel) {
+        TODO("Not yet implemented")
+    }
+
+    override fun RotaryInputState.enqueueRotaryScrollHorizontally(horizontalScrollPixels: Float) {
+        TODO("Not yet implemented")
+    }
+
+    override fun RotaryInputState.enqueueRotaryScrollVertically(verticalScrollPixels: Float) {
+        TODO("Not yet implemented")
     }
 
     private fun enqueueEvent(event: List<TestPointerInputEventData>) {
@@ -76,7 +125,7 @@ internal class DesktopInputDispatcher(
         return event
     }
 
-    override fun sendAllSynchronous() {
+    override fun flush() {
         val copy = batchedEvents.toList()
         batchedEvents.clear()
         copy.forEach {

@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
+import androidx.car.app.constraints.ConstraintManager;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.CarText;
 import androidx.car.app.model.DurationSpan;
@@ -31,6 +32,9 @@ import androidx.car.app.model.ItemList;
 import androidx.car.app.model.Row;
 import androidx.car.app.model.Template;
 import androidx.car.app.navigation.model.RoutePreviewNavigationTemplate;
+import androidx.car.app.sample.showcase.common.R;
+import androidx.car.app.sample.showcase.common.navigation.routing.RoutingDemoModels;
+import androidx.car.app.versioning.CarAppApiLevels;
 
 import java.util.concurrent.TimeUnit;
 
@@ -40,73 +44,111 @@ public final class RoutePreviewDemoScreen extends Screen {
         super(carContext);
     }
 
+    private CarText createRouteText(int index) {
+        switch (index) {
+            case 0:
+                // Set text variants for the first route.
+                SpannableString shortRouteLongText = new SpannableString(
+                        "   \u00b7 ---------------- " + getCarContext().getString(
+                                R.string.short_route)
+                                + " -------------------");
+                shortRouteLongText.setSpan(DurationSpan.create(TimeUnit.HOURS.toSeconds(26)), 0, 1,
+                        0);
+                SpannableString firstRouteShortText = new SpannableString(
+                        "   \u00b7 " + getCarContext().getString(R.string.short_route));
+                firstRouteShortText.setSpan(DurationSpan.create(TimeUnit.HOURS.toSeconds(26)), 0, 1,
+                        0);
+                return new CarText.Builder(shortRouteLongText)
+                        .addVariant(firstRouteShortText)
+                        .build();
+            case 1:
+                SpannableString lessBusyRouteText =
+                        new SpannableString(
+                                "   \u00b7 " + getCarContext().getString(R.string.less_busy));
+                lessBusyRouteText.setSpan(DurationSpan.create(TimeUnit.HOURS.toSeconds(24)), 0, 1,
+                        0);
+                return new CarText.Builder(lessBusyRouteText).build();
+            case 2:
+                SpannableString hovRouteText =
+                        new SpannableString(
+                                "   \u00b7 " + getCarContext().getString(R.string.hov_friendly));
+                hovRouteText.setSpan(DurationSpan.create(TimeUnit.MINUTES.toSeconds(867)), 0, 1, 0);
+                return new CarText.Builder(hovRouteText).build();
+            default:
+                SpannableString routeText =
+                        new SpannableString(
+                                "   \u00b7 " + getCarContext().getString(R.string.long_route));
+                routeText.setSpan(DurationSpan.create(TimeUnit.MINUTES.toSeconds(867L + index)),
+                        0, 1, 0);
+                return new CarText.Builder(routeText).build();
+        }
+    }
+
+    private Row createRow(int index) {
+        CarText route = createRouteText(index);
+        String titleText = "Via NE " + (index + 4) + "th Street";
+
+        return new Row.Builder()
+                .setTitle(route)
+                .addText(titleText)
+                .build();
+    }
+
     @NonNull
     @Override
     public Template onGetTemplate() {
-        // Set text variants for the first route.
-        SpannableString firstRouteLongText = new SpannableString(
-                "   \u00b7 ---------------- Short" + "  " + "route " + "-------------------");
-        firstRouteLongText.setSpan(DurationSpan.create(TimeUnit.HOURS.toSeconds(26)), 0, 1, 0);
-        SpannableString firstRouteShortText = new SpannableString("   \u00b7 Short Route");
-        firstRouteShortText.setSpan(DurationSpan.create(TimeUnit.HOURS.toSeconds(26)), 0, 1, 0);
-        CarText firstRoute = new CarText.Builder(firstRouteLongText)
-                .addVariant(firstRouteShortText)
-                .build();
+        int itemLimit = 3;
+        // Adjust the item limit according to the car constrains.
+        if (getCarContext().getCarAppApiLevel() > CarAppApiLevels.LEVEL_1) {
+            itemLimit = getCarContext().getCarService(ConstraintManager.class).getContentLimit(
+                    ConstraintManager.CONTENT_LIMIT_TYPE_ROUTE_LIST);
+        }
 
-        SpannableString secondRoute = new SpannableString("   \u00b7 Less busy");
-        secondRoute.setSpan(DurationSpan.create(TimeUnit.HOURS.toSeconds(24)), 0, 1, 0);
-        SpannableString thirdRoute = new SpannableString("   \u00b7 HOV friendly");
-        thirdRoute.setSpan(DurationSpan.create(TimeUnit.MINUTES.toSeconds(867)), 0, 1, 0);
+        ItemList.Builder itemListBuilder = new ItemList.Builder()
+                .setOnSelectedListener(this::onRouteSelected)
+                .setOnItemsVisibilityChangedListener(this::onRoutesVisible);
+
+        for (int i = 0; i < itemLimit; i++) {
+            itemListBuilder.addItem(createRow(i));
+        }
 
         // Set text variants for the navigate action text.
         CarText navigateActionText =
-                new CarText.Builder("Continue to start navigation").addVariant("Continue to "
-                        + "route").build();
+                new CarText.Builder(getCarContext().getString(R.string.continue_start_nav))
+                        .addVariant(getCarContext().getString(R.string.continue_route))
+                        .build();
 
         return new RoutePreviewNavigationTemplate.Builder()
-                .setItemList(
-                        new ItemList.Builder()
-                                .setOnSelectedListener(this::onRouteSelected)
-                                .addItem(
-                                        new Row.Builder()
-                                                .setTitle(firstRoute)
-                                                .addText("Via NE 8th Street")
-                                                .build())
-                                .addItem(
-                                        new Row.Builder()
-                                                .setTitle(secondRoute)
-                                                .addText("Via NE 1st Ave")
-                                                .build())
-                                .addItem(
-                                        new Row.Builder()
-                                                .setTitle(thirdRoute)
-                                                .addText("Via NE 4th Street")
-                                                .build())
-                                .setOnItemsVisibilityChangedListener(this::onRoutesVisible)
-                                .build())
+                .setItemList(itemListBuilder.build())
                 .setNavigateAction(
                         new Action.Builder()
                                 .setTitle(navigateActionText)
                                 .setOnClickListener(this::onNavigate)
                                 .build())
-                .setTitle("Routes")
+                .setTitle(getCarContext().getString(R.string.routes_title))
+                .setMapActionStrip(RoutingDemoModels.getMapActionStrip(getCarContext()))
                 .setHeaderAction(Action.BACK)
                 .build();
     }
 
     private void onNavigate() {
-        CarToast.makeText(getCarContext(), "Navigation Requested", LENGTH_LONG * 2).show();
+        CarToast.makeText(getCarContext(),
+                getCarContext().getString(R.string.nav_requested_toast_msg),
+                LENGTH_LONG * 2).show();
     }
 
     private void onRouteSelected(int index) {
-        CarToast.makeText(getCarContext(), "Selected route: " + index, LENGTH_LONG).show();
+        CarToast.makeText(getCarContext(),
+                getCarContext().getString(R.string.selected_route_toast_msg) + ": " + index,
+                LENGTH_LONG).show();
     }
 
     private void onRoutesVisible(int startIndex, int endIndex) {
         CarToast.makeText(
-                getCarContext(),
-                "Visible routes: [" + startIndex + "," + endIndex + "]",
-                LENGTH_LONG)
+                        getCarContext(),
+                        getCarContext().getString(R.string.visible_routes_toast_msg)
+                                + ": [" + startIndex + "," + endIndex + "]",
+                        LENGTH_LONG)
                 .show();
     }
 }

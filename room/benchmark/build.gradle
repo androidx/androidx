@@ -37,4 +37,9 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.kotlinStdlib)
+    androidTestImplementation(project(":internal-testutils-common"))
+}
+
+android {
+    namespace "androidx.room.benchmark"
 }

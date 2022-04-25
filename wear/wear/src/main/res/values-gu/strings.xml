@@ -21,5 +21,4 @@
     <string name="confirmation_overlay_a11y_description_success" msgid="2936753235333429892">"સફળ રહ્યાં"</string>
     <string name="confirmation_overlay_a11y_description_fail" msgid="6412144553299494336">"નિષ્ફળ રહ્યાં"</string>
     <string name="confirmation_overlay_a11y_description_phone" msgid="8809042819843332546">"તમારા ફોન પર ખોલી"</string>
-    <string name="confirmation_overlay_a11y_type_image" msgid="4327971892987955014">"છબી"</string>
 </resources>

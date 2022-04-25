@@ -16,21 +16,23 @@
 
 package androidx.camera.camera2.pipe
 
-import android.hardware.camera2.CaptureRequest
-import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraConstrainedHighSpeedCaptureSession
-import android.hardware.camera2.params.SessionConfiguration
+import android.hardware.camera2.CameraDevice
+import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.params.MeteringRectangle
+import android.hardware.camera2.params.SessionConfiguration
 import android.view.Surface
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_FRAME_LIMIT
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_TIME_LIMIT_NS
-import kotlinx.coroutines.Deferred
 import java.io.Closeable
+import kotlinx.coroutines.Deferred
 
 /**
  * A [CameraGraph] represents the combined configuration and state of a camera.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface CameraGraph : Closeable {
     public val streams: StreamGraph
 
@@ -69,6 +71,7 @@ public interface CameraGraph : Closeable {
 
     /**
      * This defines the configuration, flags, and pre-defined structure of a [CameraGraph] instance.
+     * Note that for parameters, null is considered a valid value, and unset keys are ignored.
      *
      * @param camera The Camera2 [CameraId] that this [CameraGraph] represents.
      * @param streams A list of [CameraStream]s to use when building the configuration.
@@ -94,12 +97,12 @@ public interface CameraGraph : Closeable {
         val streamSharingGroups: List<List<CameraStream.Config>> = listOf(),
         val input: InputStream.Config? = null,
         val sessionTemplate: RequestTemplate = RequestTemplate(1),
-        val sessionParameters: Map<CaptureRequest.Key<*>, Any> = emptyMap(),
+        val sessionParameters: Map<*, Any?> = emptyMap<Any, Any?>(),
         val sessionMode: OperatingMode = OperatingMode.NORMAL,
         val defaultTemplate: RequestTemplate = RequestTemplate(1),
-        val defaultParameters: Map<*, Any> = emptyMap<Any, Any>(),
+        val defaultParameters: Map<*, Any?> = emptyMap<Any, Any?>(),
         val defaultListeners: List<Request.Listener> = listOf(),
-        val requiredParameters: Map<Any, Any?> = emptyMap(),
+        val requiredParameters: Map<*, Any?> = emptyMap<Any, Any?>(),
 
         val metadataTransform: MetadataTransform = MetadataTransform(),
         val flags: Flags = Flags()
@@ -122,6 +125,7 @@ public interface CameraGraph : Closeable {
         HIGH_SPEED,
     }
 
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public object Constants3A {
         // Constants related to controlling the time or frame budget a 3A operation should get.
         public const val DEFAULT_FRAME_LIMIT: Int = 60

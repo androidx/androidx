@@ -19,6 +19,7 @@ package androidx.camera.camera2.internal.compat.workaround;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.camera2.internal.compat.quirk.ExcludedSupportedSizesQuirk;
 
@@ -31,6 +32,7 @@ import java.util.List;
  *
  * @see ExcludedSupportedSizesQuirk
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ExcludedSupportedSizesContainer {
 
     @NonNull

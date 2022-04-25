@@ -17,10 +17,12 @@
 package androidx.camera.video.internal.encoder;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 /**
  * The encoder callback event.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface EncoderCallback {
 
     /** The method called before the first encoded data. */

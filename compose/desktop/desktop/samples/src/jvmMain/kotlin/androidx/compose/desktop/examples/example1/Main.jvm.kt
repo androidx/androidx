@@ -18,8 +18,8 @@ package androidx.compose.desktop.examples.example1
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.TweenSpec
-import androidx.compose.desktop.DesktopMaterialTheme
-import androidx.compose.foundation.ExperimentalDesktopApi
+import androidx.compose.foundation.ContextMenuDataProvider
+import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
@@ -49,6 +49,7 @@ import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.window.WindowDraggableArea
 import androidx.compose.material.BottomAppBar
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
@@ -60,6 +61,7 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Slider
+import androidx.compose.material.Switch
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TopAppBar
@@ -73,8 +75,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusOrder
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
@@ -91,7 +94,12 @@ import androidx.compose.ui.input.key.isMetaPressed
 import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.input.pointer.pointerMoveFilter
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.PointerIconDefaults
+import androidx.compose.ui.input.pointer.isBackPressed
+import androidx.compose.ui.input.pointer.isForwardPressed
+import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.Placeholder
@@ -100,18 +108,18 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.platform.Font
-import androidx.compose.ui.text.platform.FontLoader
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextDecoration.Companion.Underline
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.FrameWindowScope
-import androidx.compose.ui.window.WindowSize
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.launchApplication
 import androidx.compose.ui.window.rememberWindowState
@@ -122,16 +130,14 @@ import kotlin.random.Random
 
 private const val title = "Desktop Compose Elements"
 
-val italicFont = try {
-    FontFamily(
-        Font("NotoSans-Italic.ttf").also {
-            // Check that font is loadable.
-            FontLoader().load(it)
-        }
-    )
-} catch (e: Exception) {
-    FontFamily.SansSerif
-}
+val italicFont = FontFamily(
+    Font("NotoSans-Italic.ttf")
+)
+
+val dispatchedFonts = FontFamily(
+    Font("NotoSans-Italic.ttf", style = FontStyle.Italic),
+    Font("NotoSans-Regular.ttf", style = FontStyle.Normal)
+)
 
 fun main() = singleWindowApplication(
     title = title,
@@ -143,20 +149,22 @@ fun main() = singleWindowApplication(
 @Composable
 private fun FrameWindowScope.App() {
     val uriHandler = LocalUriHandler.current
-    DesktopMaterialTheme {
+    MaterialTheme {
         Scaffold(
             topBar = {
-                TopAppBar(
-                    title = {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Image(
-                                painterResource("androidx/compose/desktop/example/star.svg"),
-                                contentDescription = "Star"
-                            )
-                            Text(title)
+                WindowDraggableArea {
+                    TopAppBar(
+                        title = {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Image(
+                                    painterResource("androidx/compose/desktop/example/star.svg"),
+                                    contentDescription = "Star"
+                                )
+                                Text(title)
+                            }
                         }
-                    }
-                )
+                    )
+                }
             },
             floatingActionButton = {
                 ExtendedFloatingActionButton(
@@ -176,8 +184,8 @@ private fun FrameWindowScope.App() {
                     }
                 }
             },
-            content = {
-                Row(Modifier.padding(bottom = 56.dp)) {
+            content = { innerPadding ->
+                Row(Modifier.padding(innerPadding)) {
                     LeftColumn(Modifier.weight(1f))
                     RightColumn(Modifier.width(200.dp))
                 }
@@ -197,10 +205,7 @@ private fun FrameWindowScope.LeftColumn(modifier: Modifier) = Box(modifier.fillM
     )
 }
 
-@OptIn(
-    ExperimentalComposeUiApi::class,
-    ExperimentalDesktopApi::class
-)
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun FrameWindowScope.ScrollableContent(scrollState: ScrollState) {
     val amount = remember { mutableStateOf(0f) }
@@ -346,26 +351,43 @@ private fun FrameWindowScope.ScrollableContent(scrollState: ScrollState) {
                     "   }\n" +
                     "}",
                 fontFamily = italicFont,
-                modifier = Modifier.padding(10.dp).pointerMoveFilter(
-                    onMove = {
-                        overText = "Move position: $it"
-                        false
-                    },
-                    onEnter = {
-                        overText = "Over enter"
-                        false
-                    },
-                    onExit = {
-                        overText = "Over exit"
-                        false
+                modifier = Modifier.padding(10.dp).pointerInput(Unit) {
+                    awaitPointerEventScope {
+                        while (true) {
+                            val event = awaitPointerEvent()
+                            val position = event.changes.first().position
+                            when (event.type) {
+                                PointerEventType.Move -> {
+                                    overText = "Move position: $position"
+                                }
+                                PointerEventType.Enter -> {
+                                    overText = "Over enter"
+                                }
+                                PointerEventType.Exit -> {
+                                    overText = "Over exit"
+                                }
+                            }
+                        }
                     }
-                )
+                }
             )
         }
+        Text(
+            text = buildAnnotatedString {
+                append("resolved: NotoSans-Regular.ttf ")
+                pushStyle(
+                    SpanStyle(
+                        fontStyle = FontStyle.Italic
+                    )
+                )
+                append("NotoSans-italic.ttf.")
+            },
+            fontFamily = dispatchedFonts,
+        )
 
         Row(verticalAlignment = Alignment.CenterVertically) {
             Button(
-                modifier = Modifier.padding(4.dp),
+                modifier = Modifier.padding(4.dp).pointerHoverIcon(PointerIconDefaults.Hand),
                 onClick = {
                     amount.value++
                 }
@@ -374,7 +396,7 @@ private fun FrameWindowScope.ScrollableContent(scrollState: ScrollState) {
             }
 
             var clickableText by remember { mutableStateOf("Click me!") }
-
+            @OptIn(ExperimentalFoundationApi::class)
             Text(
                 modifier = Modifier.mouseClickable(
                     onClick = {
@@ -383,6 +405,9 @@ private fun FrameWindowScope.ScrollableContent(scrollState: ScrollState) {
                             append("primary: ${buttons.isPrimaryPressed}\t")
                             append("secondary: ${buttons.isSecondaryPressed}\t")
                             append("tertiary: ${buttons.isTertiaryPressed}\t")
+                            append("primary: ${buttons.isPrimaryPressed}\t")
+                            append("back: ${buttons.isBackPressed}\t")
+                            append("forward: ${buttons.isForwardPressed}\t")
 
                             append("\n\nKeyboard modifiers pressed:\n")
 
@@ -402,14 +427,25 @@ private fun FrameWindowScope.ScrollableContent(scrollState: ScrollState) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row {
-                Row(modifier = Modifier.padding(4.dp)) {
-                    Checkbox(
+                Column {
+                    Switch(
                         animation.value,
                         onCheckedChange = {
                             animation.value = it
                         }
                     )
-                    Text("Animation")
+                    Row(
+                        modifier = Modifier.padding(4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Checkbox(
+                            animation.value,
+                            onCheckedChange = {
+                                animation.value = it
+                            }
+                        )
+                        Text("Animation")
+                    }
                 }
 
                 Button(
@@ -419,7 +455,7 @@ private fun FrameWindowScope.ScrollableContent(scrollState: ScrollState) {
                         GlobalScope.launchApplication {
                             Window(
                                 onCloseRequest = ::exitApplication,
-                                state = rememberWindowState(size = WindowSize(400.dp, 200.dp)),
+                                state = rememberWindowState(size = DpSize(400.dp, 200.dp)),
                                 onPreviewKeyEvent = {
                                     if (it.key == Key.Escape) {
                                         exitApplication()
@@ -455,30 +491,37 @@ private fun FrameWindowScope.ScrollableContent(scrollState: ScrollState) {
         val text = remember {
             mutableStateOf("Hello \uD83E\uDDD1\uD83C\uDFFF\u200D\uD83E\uDDB0")
         }
-        TextField(
-            value = text.value,
-            onValueChange = { text.value = it },
-            label = { Text(text = "Input2") },
-            placeholder = {
-                Text(text = "Important input")
-            },
-            maxLines = 1,
-            modifier = Modifier.onPreviewKeyEvent {
-                when {
-                    (it.isMetaPressed && it.key == Key.Enter) -> {
-                        if (it.isShiftPressed) {
-                            text.value = "Cleared with shift!"
-                        } else {
-                            text.value = "Cleared!"
-                        }
-                        true
-                    }
-                    else -> false
-                }
-            }.focusOrder(focusItem1) {
-                next = focusItem2
+        ContextMenuDataProvider(
+            items = {
+                listOf(ContextMenuItem("Clear") { text.value = ""; focusItem1.requestFocus() })
             }
-        )
+        ) {
+            TextField(
+                value = text.value,
+                onValueChange = { text.value = it },
+                label = { Text(text = "Input2") },
+                placeholder = {
+                    Text(text = "Important input")
+                },
+                maxLines = 1,
+                modifier = Modifier.onPreviewKeyEvent {
+                    when {
+                        (it.isMetaPressed && it.key == Key.Enter) -> {
+                            if (it.isShiftPressed) {
+                                text.value = "Cleared with shift!"
+                            } else {
+                                text.value = "Cleared!"
+                            }
+                            true
+                        }
+                        else -> false
+                    }
+                }.focusRequester(focusItem1)
+                .focusProperties {
+                    next = focusItem2
+                }
+            )
+        }
 
         var text2 by remember {
             val initText = buildString {
@@ -490,9 +533,12 @@ private fun FrameWindowScope.ScrollableContent(scrollState: ScrollState) {
         }
         TextField(
             text2,
-            modifier = Modifier.height(200.dp).focusOrder(focusItem2) {
-                previous = focusItem1
-            },
+            modifier = Modifier
+                .height(200.dp)
+                .focusRequester(focusItem2)
+                .focusProperties {
+                    previous = focusItem1
+                },
             onValueChange = { text2 = it }
         )
 

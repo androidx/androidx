@@ -18,6 +18,9 @@ package androidx.camera.testing.fakes;
 
 import android.app.Activity;
 
+import androidx.annotation.RequiresApi;
+
 /** A fake {@link Activity} that can be used in tests. */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class FakeActivity extends Activity {
 }

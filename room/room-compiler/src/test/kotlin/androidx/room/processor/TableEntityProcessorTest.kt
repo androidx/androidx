@@ -358,7 +358,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 @Ignore public int id(){ return id; }
                 """
         ) { entity, _ ->
-            assertThat(entity.fields.first().getter.name, `is`("getId"))
+            assertThat(entity.fields.first().getter.jvmName, `is`("getId"))
         }
     }
 
@@ -373,7 +373,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 protected int id(){ return id; }
                 """
         ) { entity, _ ->
-            assertThat(entity.fields.first().getter.name, `is`("getId"))
+            assertThat(entity.fields.first().getter.jvmName, `is`("getId"))
         }
     }
 
@@ -387,7 +387,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 public int getId(){ return id; }
                 """
         ) { entity, _ ->
-            assertThat(entity.fields.first().getter.name, `is`("id"))
+            assertThat(entity.fields.first().getter.jvmName, `is`("id"))
             assertThat(entity.fields.first().getter.callType, `is`(CallType.FIELD))
         }
     }
@@ -420,7 +420,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 public int getId(){ return id; }
                 """
         ) { entity, _ ->
-            assertThat(entity.fields.first().setter.name, `is`("setId"))
+            assertThat(entity.fields.first().setter.jvmName, `is`("setId"))
         }
     }
 
@@ -435,7 +435,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 public int getId(){ return id; }
                 """
         ) { entity, _ ->
-            assertThat(entity.fields.first().setter.name, `is`("setId"))
+            assertThat(entity.fields.first().setter.jvmName, `is`("setId"))
         }
     }
 
@@ -449,7 +449,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 public int getId(){ return id; }
                 """
         ) { entity, _ ->
-            assertThat(entity.fields.first().setter.name, `is`("id"))
+            assertThat(entity.fields.first().setter.jvmName, `is`("id"))
             assertThat(entity.fields.first().setter.callType, `is`(CallType.FIELD))
         }
     }
@@ -464,8 +464,8 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 public int getId(){ return id; }
                 """
         ) { entity, _ ->
-            assertThat(entity.fields.first().setter.name, `is`("setId"))
-            assertThat(entity.fields.first().getter.name, `is`("getId"))
+            assertThat(entity.fields.first().setter.jvmName, `is`("setId"))
+            assertThat(entity.fields.first().getter.jvmName, `is`("getId"))
         }
     }
 
@@ -2083,16 +2083,17 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             attributes = annotation, sources = listOf(COMMON.USER)
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                // KSP runs processors even when java code is not valid hence we'll get the
-                // error from room. For JavaP and Kapt, they don't run the processor when
-                // the java code has an error
+                // TODO: https://github.com/google/ksp/issues/603
+                // KSP validator does not validate annotation types so we will get another error
+                // down the line.
                 if (invocation.isKsp) {
                     hasErrorContaining(
                         ProcessorErrors.foreignKeyNotAnEntity("<Error>")
                     ).onLine(11)
                 } else {
-                    hasErrorContaining("cannot find symbol")
-                        .onLine(7)
+                    hasErrorContaining(
+                        "Element 'foo.bar.MyEntity' references a type that is not present"
+                    )
                 }
             }
         }

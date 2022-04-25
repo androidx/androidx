@@ -87,6 +87,11 @@ internal data class CompilationStepArguments(
      * compilation is run by javac.
      */
     val javacArguments: List<String>,
+
+    /**
+     * Arguments to pass to the kotlin compiler.
+     */
+    val kotlincArguments: List<String>,
 )
 
 /**

@@ -17,11 +17,8 @@
 package androidx.compose.ui.inspection.inspector
 
 import android.view.View
-import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
-import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.tooling.CompositionData
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.R
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.GraphicLayerInfo
@@ -69,6 +66,17 @@ val systemPackages = setOf(
     packageNameHash("androidx.compose.ui.window"),
 )
 
+/**
+ * The [InspectorNode.id] will be populated with:
+ * - the layerId from a LayoutNode if this exists
+ * - an id generated from an Anchor instance from the SlotTree if this exists
+ * - a generated id if none of the above ids are available
+ *
+ * The interval -10000..-2 is reserved for the generated ids.
+ */
+@VisibleForTesting
+const val RESERVED_FOR_GENERATED_IDS = -10000L
+
 private val unwantedCalls = setOf(
     "CompositionLocalProvider",
     "Content",
@@ -77,7 +85,6 @@ private val unwantedCalls = setOf(
     "ProvideCommonCompositionLocals",
 )
 
-@OptIn(ExperimentalStdlibApi::class)
 @VisibleForTesting
 fun packageNameHash(packageName: String) =
     packageName.fold(0) { hash, char -> hash * 31 + char.code }.absoluteValue
@@ -85,7 +92,6 @@ fun packageNameHash(packageName: String) =
 /**
  * Generator of a tree for the Layout Inspector.
  */
-@RequiresApi(29)
 class LayoutInspectorTree {
     @Suppress("MemberVisibilityCanBePrivate")
     var hideSystemNodes = true
@@ -109,7 +115,6 @@ class LayoutInspectorTree {
     /**
      * Converts the [CompositionData] set held by [view] into a list of root nodes.
      */
-    @OptIn(InternalComposeApi::class)
     fun convert(view: View): List<InspectorNode> {
         parameterFactory.density = Density(view.context)
         @Suppress("UNCHECKED_CAST")
@@ -222,7 +227,6 @@ class LayoutInspectorTree {
         subCompositions.clear()
     }
 
-    @OptIn(InternalComposeApi::class)
     private fun convert(tables: Set<CompositionData>, view: View): List<InspectorNode> {
         val trees = tables.mapNotNull { convert(it, view) }
         return when (trees.size) {
@@ -331,7 +335,7 @@ class LayoutInspectorTree {
         return out
     }
 
-    @OptIn(InternalComposeApi::class, UiToolingDataApi::class)
+    @OptIn(UiToolingDataApi::class)
     private fun convert(table: CompositionData, view: View): MutableInspectorNode? {
         val fakeParent = newNode()
         addToParent(fakeParent, listOf(convert(table.asTree())), buildFakeChildNodes = true)
@@ -392,7 +396,7 @@ class LayoutInspectorTree {
         input.forEach { node ->
             if (node.name.isEmpty() && !(buildFakeChildNodes && node.layoutNodes.isNotEmpty())) {
                 parentNode.children.addAll(node.children)
-                if (node.id != UNDEFINED_ID) {
+                if (node.id > UNDEFINED_ID) {
                     // If multiple siblings with a render ids are dropped:
                     // Ignore them all. And delegate the drawing to a parent in the inspector.
                     id = if (id == null) node.id else UNDEFINED_ID
@@ -419,13 +423,15 @@ class LayoutInspectorTree {
         }
         val nodeId = id
         parentNode.id =
-            if (parentNode.id == UNDEFINED_ID && nodeId != null) nodeId else parentNode.id
+            if (parentNode.id <= UNDEFINED_ID && nodeId != null) nodeId else parentNode.id
     }
 
     @OptIn(UiToolingDataApi::class)
     private fun parse(group: Group, overrideBox: IntRect? = null): MutableInspectorNode {
         val node = newNode()
-        node.id = getRenderNode(group)
+        node.id = parseId(group)
+        node.anchorHash = group.identity?.hashCode() ?: 0
+        node.key = group.key as? Int ?: 0
         node.name = group.name ?: ""
         parsePosition(group, node, overrideBox)
         parseLayoutInfo(group, node)
@@ -523,14 +529,20 @@ class LayoutInspectorTree {
     }
 
     @OptIn(UiToolingDataApi::class)
-    private fun getRenderNode(group: Group): Long =
+    private fun parseId(group: Group): Long =
         group.modifierInfo.asSequence()
             .map { it.extra }
             .filterIsInstance<GraphicLayerInfo>()
             .map { it.layerId }
-            .firstOrNull() ?: 0
+            .firstOrNull() ?: syntheticId(group)
 
-    @OptIn(ExperimentalComposeUiApi::class)
+    @OptIn(UiToolingDataApi::class)
+    private fun syntheticId(group: Group): Long {
+        val id = group.identity?.hashCode() ?: return UNDEFINED_ID
+        // The hashCode is an Int
+        return id.toLong() - Int.MAX_VALUE.toLong() + RESERVED_FOR_GENERATED_IDS
+    }
+
     private fun belongsToView(layoutNodes: List<LayoutInfo>, view: View): Boolean =
         layoutNodes.asSequence().flatMap { node ->
             node.getModifierInfo().asSequence()
@@ -673,7 +685,6 @@ class LayoutInspectorTree {
          * When "remember" is found in the slot tree and we are currently capturing,
          * the data of the [group] may contain the owner of the sub-composition.
          */
-        @OptIn(ExperimentalComposeUiApi::class)
         fun remember(group: Group) {
             if (!capturing) {
                 return

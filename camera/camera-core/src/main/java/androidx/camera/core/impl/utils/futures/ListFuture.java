@@ -22,6 +22,7 @@ import static androidx.core.util.Preconditions.checkState;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
@@ -49,6 +50,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * each component future to fill out the value in the List when that future
  * completes.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class ListFuture<V> implements ListenableFuture<List<V>> {
     @Nullable
     List<? extends ListenableFuture<? extends V>> mFutures;

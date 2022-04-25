@@ -30,10 +30,12 @@ import com.squareup.javapoet.TypeName
  */
 internal class KspPrimitiveType(
     env: KspProcessingEnv,
-    ksType: KSType
-) : KspType(env, ksType) {
-    override val typeName: TypeName
-        get() = ksType.typeName(env.resolver).tryUnbox()
+    ksType: KSType,
+    jvmTypeResolver: KspJvmTypeResolver?
+) : KspType(env, ksType, jvmTypeResolver) {
+    override fun resolveTypeName(): TypeName {
+        return ksType.typeName(env.resolver).tryUnbox()
+    }
 
     override fun boxed(): KspType {
         return env.wrap(
@@ -57,5 +59,13 @@ internal class KspPrimitiveType(
                 error("cannot set nullability to unknown in KSP")
             }
         }
+    }
+
+    override fun copyWithJvmTypeResolver(jvmTypeResolver: KspJvmTypeResolver): KspType {
+        return KspPrimitiveType(
+            env = env,
+            ksType = ksType,
+            jvmTypeResolver = jvmTypeResolver
+        )
     }
 }

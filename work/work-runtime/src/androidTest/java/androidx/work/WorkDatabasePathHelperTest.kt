@@ -24,9 +24,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.work.impl.WorkDatabasePathHelper
 import androidx.work.impl.WorkDatabase
-import androidx.work.impl.WorkDatabaseMigrations.VERSION_9
+import androidx.work.impl.WorkDatabasePathHelper
+import androidx.work.impl.WorkDatabaseVersions.VERSION_9
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Before
@@ -37,13 +37,12 @@ import java.io.File
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-@Suppress("DEPRECATION")
-// TODO: (b/189268580) Update this test to use the new constructors in MigrationTestHelper.
 class WorkDatabasePathHelperTest {
     @get:Rule
     val migrationTestHelper = MigrationTestHelper(
         InstrumentationRegistry.getInstrumentation(),
-        WorkDatabase::class.java.canonicalName,
+        WorkDatabase::class.java,
+        emptyList(),
         FrameworkSQLiteOpenHelperFactory()
     )
 

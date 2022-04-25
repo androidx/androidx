@@ -42,7 +42,9 @@ import org.jetbrains.uast.UElement
 import org.jetbrains.uast.UIfExpression
 import org.jetbrains.uast.ULambdaExpression
 import org.jetbrains.uast.UMethod
+import org.jetbrains.uast.USwitchClauseExpression
 import org.jetbrains.uast.UTryExpression
+import org.jetbrains.uast.kotlin.KotlinUSwitchEntry
 import org.jetbrains.uast.toUElement
 import org.jetbrains.uast.tryResolve
 import org.jetbrains.uast.visitor.AbstractUastVisitor
@@ -187,6 +189,23 @@ internal class LifecycleWhenVisitor(
             withNewState(checkUIAccess = false) { node.thenExpression?.accept(this) }
             node.elseExpression?.accept(this)
             return true
+        }
+        return false
+    }
+
+    override fun visitSwitchClauseExpression(node: USwitchClauseExpression): Boolean {
+        // check each case in the switch statement
+        node.caseValues.forEach { expression ->
+            val method = expression.tryResolve() as? PsiMethod ?: return false
+            if (method.isLifecycleIsAtLeastMethod(context)) {
+                // If the case containing the lifecycle check evaluates to true, check the body
+                withNewState(checkUIAccess = false) {
+                    (node as? KotlinUSwitchEntry)?.body?.expressions?.forEach {
+                        it.accept(this)
+                    }
+                }
+                return true
+            }
         }
         return false
     }

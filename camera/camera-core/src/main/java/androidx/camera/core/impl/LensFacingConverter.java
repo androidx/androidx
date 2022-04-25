@@ -18,11 +18,13 @@ package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraSelector;
 
 /**
  * Helper class that defines certain enum-like methods for {@link CameraSelector.LensFacing}
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class LensFacingConverter {
 
     private LensFacingConverter() {

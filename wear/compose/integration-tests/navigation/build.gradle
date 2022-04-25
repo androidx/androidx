@@ -42,21 +42,27 @@ android {
     buildFeatures {
         viewBinding true
     }
+    namespace "androidx.wear.compose.integration.navigation"
 }
 
 dependencies {
     kotlinPlugin(project(":compose:compiler:compiler"))
 
-    implementation 'androidx.wear:wear:1.1.0'
+    implementation(project(":activity:activity-compose"))
     implementation(project(":compose:ui:ui"))
     implementation(project(':compose:integration-tests:demos:common'))
     implementation(project(":compose:foundation:foundation"))
     implementation(project(":compose:foundation:foundation-layout"))
     implementation(project(":compose:runtime:runtime"))
-    implementation(project(":navigation:navigation-compose"))
     implementation(project(':wear:compose:compose-material'))
     implementation(project(':wear:compose:compose-foundation'))
     implementation(project(":wear:compose:compose-foundation-samples"))
     implementation(project(":wear:compose:compose-material-samples"))
     implementation(project(':wear:compose:compose-navigation'))
+    // old version of common-java8 conflicts with newer version, because both have
+    // DefaultLifecycleEventObserver.
+    // Outside of androidx this is resolved via constraint added to lifecycle-common,
+    // but it doesn't work in androidx.
+    // See aosp/1804059
+    androidTestImplementation projectOrArtifact(":lifecycle:lifecycle-common-java8")
 }

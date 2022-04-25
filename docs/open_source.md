@@ -4,7 +4,7 @@ go/androidx/open_source
 
 <!--*
 # Document freshness: For more information, see go/fresh-source.
-freshness: { owner: 'alanv' reviewed: '2021-07-15' }
+freshness: { owner: 'alanv' reviewed: '2022-01-14' }
 *-->
 
 [TOC]
@@ -23,12 +23,17 @@ library.
 
 ### Exceptions
 
-The only exception to this definition is the Android platform SDK, which does
-not release sources until well after its API surface has been finalized.
+The only unconditional exception to this definition is the Android platform SDK,
+which does not release sources until well after its API surface has been
+finalized.
 
 Libraries which are developed against the pre-release Android platform SDK _may_
 remain closed-source until the platform SDK's API surface is finalized, at which
 they **must** move to open-source.
+
+In specific cases, libraries *may* include closed-source dependencies. See the
+[Open-source compatibility](api_guidelines.md#dependencies-aosp) section of the
+API Guidelines for implementation details.
 
 ### Examples of products that are _not_ open-source
 
@@ -117,11 +122,11 @@ be provided; only that it is possible to write one.
         limiting developer choice. Features in primary artifacts which may
         delegate to proprietary services must allow developers to choose a
         different delegate. Reflection on a fully-qualified class name does
-        _not_ allow multiple delegates to exist on the classpath and is not a
+        *not* allow multiple delegates to exist on the classpath and is not a
         suitable service discovery mechanism.
     *   **How to fix?** This library should use a more suitable service
         discovery mechanism that allows multiple providers to coexist and
-        ensures the the developer is able to choose among them.
+        ensures the developer is able to choose among them.
 *   A primary artifact provides a service discovery mechanism that allows
     multiple providers and exposes an API that lets the developer specify a
     preference. Communication with the service is managed through a `Bundle`

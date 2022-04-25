@@ -166,15 +166,24 @@ public final class CameraManagerCompat {
         synchronized (mCameraCharacteristicsMap) {
             characteristics = mCameraCharacteristicsMap.get(cameraId);
             if (characteristics == null) {
-                characteristics =
-                        CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
-                                mImpl.getCameraCharacteristics(cameraId));
-                mCameraCharacteristicsMap.put(cameraId, characteristics);
+                try {
+                    characteristics =
+                            CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
+                                    mImpl.getCameraCharacteristics(cameraId));
+                    mCameraCharacteristicsMap.put(cameraId, characteristics);
+                } catch (AssertionError e) {
+                    // Some devices may throw AssertionError when creating CameraCharacteristics
+                    // and FPS ranges are null. Catch the AssertionError and throw a
+                    // CameraAccessExceptionCompat to make the app be able to receive an
+                    // exception to gracefully handle it.
+                    throw new CameraAccessExceptionCompat(
+                            CameraAccessExceptionCompat.CAMERA_CHARACTERISTICS_CREATION_ERROR,
+                            e.getMessage(), e);
+                }
             }
         }
         return characteristics;
     }
-
 
     /**
      * Open a connection to a camera with the given ID.
@@ -269,6 +278,7 @@ public final class CameraManagerCompat {
         }
     }
 
+    @RequiresApi(21)
     static final class AvailabilityCallbackExecutorWrapper extends
             CameraManager.AvailabilityCallback {
 
@@ -297,12 +307,8 @@ public final class CameraManagerCompat {
         public void onCameraAccessPrioritiesChanged() {
             synchronized (mLock) {
                 if (!mDisabled) {
-                    mExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            ApiCompat.Api29Impl.onCameraAccessPrioritiesChanged(mWrappedCallback);
-                        }
-                    });
+                    mExecutor.execute(() -> ApiCompat.Api29Impl.onCameraAccessPrioritiesChanged(
+                            mWrappedCallback));
                 }
             }
         }
@@ -311,12 +317,7 @@ public final class CameraManagerCompat {
         public void onCameraAvailable(@NonNull final String cameraId) {
             synchronized (mLock) {
                 if (!mDisabled) {
-                    mExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            mWrappedCallback.onCameraAvailable(cameraId);
-                        }
-                    });
+                    mExecutor.execute(() -> mWrappedCallback.onCameraAvailable(cameraId));
                 }
             }
         }
@@ -325,12 +326,7 @@ public final class CameraManagerCompat {
         public void onCameraUnavailable(@NonNull final String cameraId) {
             synchronized (mLock) {
                 if (!mDisabled) {
-                    mExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            mWrappedCallback.onCameraUnavailable(cameraId);
-                        }
-                    });
+                    mExecutor.execute(() -> mWrappedCallback.onCameraUnavailable(cameraId));
                 }
             }
         }

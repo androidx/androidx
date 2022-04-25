@@ -21,6 +21,7 @@ import android.os.SystemClock;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
@@ -47,6 +48,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @param <T> The data type used for
  *            {@link Observable.Observer#onNewData(Object)}.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class LiveDataObservable<T> implements Observable<T> {
 
 

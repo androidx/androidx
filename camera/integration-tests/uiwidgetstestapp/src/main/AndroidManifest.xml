@@ -14,8 +14,7 @@
   limitations under the License.
   -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="androidx.camera.integration.uiwidgets">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application
         android:label="@string/app_name"
@@ -56,6 +55,10 @@
             android:configChanges="orientation|screenSize"
             android:label="Rotation - ConfigChanges overridden" />
 
+        <activity
+            android:exported="false"
+            android:name=".foldable.FoldableCameraActivity"
+            android:label="Foldable Test" />
     </application>
 
     <uses-permission android:name="android.permission.CAMERA" />

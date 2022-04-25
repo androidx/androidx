@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 
 plugins {
@@ -47,7 +46,7 @@ dependencies {
 androidx {
     name = "AndroidX Compose UI Simple Unit Classes Samples"
     type = LibraryType.SAMPLES
-    mavenGroup = LibraryGroups.Compose.UI
+    mavenGroup = LibraryGroups.COMPOSE_UI
     inceptionYear = "2019"
     description = "Contains the sample code for the Androidx Compose UI Simple Unit Classes"
 }
@@ -55,5 +54,14 @@ androidx {
 android {
     buildFeatures {
         viewBinding true
+    }
+    namespace "androidx.compose.ui.viewbinding.samples"
+}
+
+// Workaround for https://github.com/gradle/gradle/issues/19882
+configurations.all {
+    resolutionStrategy.dependencySubstitution {
+        substitute(module("androidx.lifecycle:lifecycle-common-java8:")).
+                using project(":lifecycle:lifecycle-common-java8")
     }
 }

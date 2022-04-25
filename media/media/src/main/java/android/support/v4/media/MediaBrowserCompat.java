@@ -97,12 +97,23 @@ import java.util.Map;
 
 /**
  * Browses media content offered by a {@link MediaBrowserServiceCompat}.
- * <p>
- * This object is not thread-safe. All calls should happen on the thread on which the browser
- * was constructed.
- * </p><p>
- * All callback methods will be called from the thread on which the browser was constructed.
- * </p>
+ *
+ * <p>The app targeting API level 30 or higher must include a {@code <queries>} element in their
+ * manifest to connect to a media browser service in another app. See the following example and
+ * <a href="{@docRoot}training/package-visibility">this guide</a> for more information.</p>
+ *
+ * <pre>{@code
+ * <!-- As an intent action -->
+ * <intent>
+ *   <action android:name="android.media.browse.MediaBrowserService" />
+ * </intent>
+ * <!-- Or, as a package name -->
+ * <package android:name="package_name_of_the_other_app" />
+ * }</pre>
+ *
+ * <p>This object is not thread-safe. All calls should happen on the thread on which the browser was
+ * constructed. All callback methods will be called from the thread on which the browser was
+ * constructed.</p>
  *
  * <div class="special reference">
  * <h3>Developer Guides</h3>
@@ -2115,6 +2126,7 @@ public final class MediaBrowserCompat {
         }
 
         @Override
+        @SuppressWarnings("deprecation")
         public void handleMessage(@NonNull Message msg) {
             if (mCallbacksMessengerRef == null || mCallbacksMessengerRef.get() == null ||
                     mCallbackImplRef.get() == null) {
@@ -2275,6 +2287,7 @@ public final class MediaBrowserCompat {
         }
 
         @Override
+        @SuppressWarnings("deprecation")
         protected void onReceiveResult(int resultCode, Bundle resultData) {
             if (resultData != null) {
                 resultData = MediaSessionCompat.unparcelWithClassLoader(resultData);
@@ -2307,6 +2320,7 @@ public final class MediaBrowserCompat {
         }
 
         @Override
+        @SuppressWarnings("deprecation")
         protected void onReceiveResult(int resultCode, Bundle resultData) {
             if (resultData != null) {
                 resultData = MediaSessionCompat.unparcelWithClassLoader(resultData);
@@ -2319,7 +2333,7 @@ public final class MediaBrowserCompat {
             Parcelable[] items = resultData.getParcelableArray(
                     MediaBrowserServiceCompat.KEY_SEARCH_RESULTS);
             if (items != null) {
-                List<MediaItem> results = new ArrayList<>();
+                List<MediaItem> results = new ArrayList<>(items.length);
                 for (Parcelable item : items) {
                     results.add((MediaItem) item);
                 }

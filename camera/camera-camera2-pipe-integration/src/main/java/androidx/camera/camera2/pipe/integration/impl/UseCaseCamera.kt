@@ -14,30 +14,28 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+
 package androidx.camera.camera2.pipe.integration.impl
 
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.params.MeteringRectangle
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
-import androidx.camera.camera2.pipe.CameraPipe
-import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.Result3A
-import androidx.camera.camera2.pipe.StreamFormat
-import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
-import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraScope
+import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
 import androidx.camera.core.UseCase
-import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
-import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.SessionConfig
+import dagger.Binds
 import dagger.Module
-import dagger.Provides
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.Deferred
+import javax.inject.Inject
 
 internal val useCaseCameraIds = atomic(0)
 internal val defaultOptionPriority = Config.OptionPriority.OPTIONAL
@@ -63,15 +61,11 @@ interface UseCaseCamera {
     ): Deferred<Unit>
 
     // 3A
-    suspend fun setTorchAsync(enabled: Boolean): Deferred<Result3A>
     suspend fun startFocusAndMeteringAsync(
         aeRegions: List<MeteringRectangle>,
         afRegions: List<MeteringRectangle>,
         awbRegions: List<MeteringRectangle>
     ): Deferred<Result3A>
-
-    // Capture
-    fun capture(captureSequence: List<CaptureConfig>)
 
     // Lifecycle
     fun close()
@@ -80,9 +74,10 @@ interface UseCaseCamera {
 /**
  * API for interacting with a [CameraGraph] that has been configured with a set of [UseCase]'s
  */
-class UseCaseCameraImpl(
-    private val cameraGraph: CameraGraph,
-    private val useCases: List<UseCase>,
+@UseCaseCameraScope
+class UseCaseCameraImpl @Inject constructor(
+    private val useCaseGraphConfig: UseCaseGraphConfig,
+    private val useCases: java.util.ArrayList<UseCase>,
     private val threads: UseCaseThreads,
     override val requestControl: UseCaseCameraRequestControl,
 ) : UseCaseCamera {
@@ -111,11 +106,8 @@ class UseCaseCameraImpl(
 
     override fun close() {
         debug { "Closing $this" }
-        cameraGraph.close()
+        useCaseGraphConfig.graph.close()
     }
-
-    override suspend fun setTorchAsync(enabled: Boolean): Deferred<Result3A> =
-        requestControl.setTorchAsync(enabled)
 
     override suspend fun startFocusAndMeteringAsync(
         aeRegions: List<MeteringRectangle>,
@@ -133,82 +125,17 @@ class UseCaseCameraImpl(
     override fun setParametersAsync(
         values: Map<CaptureRequest.Key<*>, Any>,
         priority: Config.OptionPriority,
-    ): Deferred<Unit> = requestControl.appendParametersAsync(
+    ): Deferred<Unit> = requestControl.addParametersAsync(
         values = values,
         optionPriority = priority
     )
 
-    override fun capture(captureSequence: List<CaptureConfig>) =
-        requestControl.issueSingleCapture(captureSequence)
-
     override fun toString(): String = "UseCaseCamera-$debugId"
 
     @Module
-    class Bindings {
-        companion object {
-            @UseCaseCameraScope
-            @Provides
-            fun provideCameraGraphController(
-                cameraPipe: CameraPipe,
-                useCases: java.util.ArrayList<UseCase>,
-                cameraConfig: CameraConfig,
-                callbackMap: CameraCallbackMap,
-                requestListener: ComboRequestListener,
-                threads: UseCaseThreads,
-            ): UseCaseCamera {
-                val streamConfigMap = mutableMapOf<CameraStream.Config, DeferrableSurface>()
-
-                // TODO: This may need to combine outputs that are (or will) share the same output
-                //  imageReader or surface.
-                val adapter = SessionConfigAdapter(useCases, threads)
-                adapter.getValidSessionConfigOrNull()?.surfaces?.forEach {
-                    val outputConfig = CameraStream.Config.create(
-                        size = it.prescribedSize,
-                        format = StreamFormat(it.prescribedStreamFormat),
-                        camera = cameraConfig.cameraId
-                    )
-                    streamConfigMap[outputConfig] = it
-                    debug {
-                        "Prepare config for: $it " +
-                            "(${it.prescribedSize}, ${it.prescribedStreamFormat})"
-                    }
-                }
-
-                // Build up a config (using TEMPLATE_PREVIEW by default)
-                val config = CameraGraph.Config(
-                    camera = cameraConfig.cameraId,
-                    streams = streamConfigMap.keys.toList(),
-                    defaultListeners = listOf(callbackMap, requestListener),
-                )
-                val graph = cameraPipe.create(config)
-
-                val surfaceToStreamMap = mutableMapOf<DeferrableSurface, StreamId>()
-                streamConfigMap.forEach { (streamConfig, deferrableSurface) ->
-                    graph.streams[streamConfig]?.let {
-                        surfaceToStreamMap[deferrableSurface] = it.id
-                    }
-                }
-
-                if (adapter.isSessionConfigValid()) {
-                    adapter.setupSurfaceAsync(graph, surfaceToStreamMap)
-                } else {
-                    debug { "Unable to create capture session due to conflicting configurations" }
-                }
-
-                val requestControl = UseCaseCameraRequestControlImpl(
-                    graph,
-                    surfaceToStreamMap,
-                    threads
-                )
-
-                graph.start()
-                return UseCaseCameraImpl(
-                    graph,
-                    useCases,
-                    threads,
-                    requestControl,
-                )
-            }
-        }
+    abstract class Bindings {
+        @UseCaseCameraScope
+        @Binds
+        abstract fun provideUseCaseCamera(useCaseCamera: UseCaseCameraImpl): UseCaseCamera
     }
 }

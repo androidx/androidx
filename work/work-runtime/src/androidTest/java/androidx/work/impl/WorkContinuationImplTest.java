@@ -277,8 +277,8 @@ public class WorkContinuationImplTest extends WorkManagerTest {
                 .build();
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
-        workSpecDao.insertWorkSpec(getWorkSpec(firstWork));
-        workSpecDao.insertWorkSpec(getWorkSpec(secondWork));
+        workSpecDao.insertWorkSpec(firstWork.getWorkSpec());
+        workSpecDao.insertWorkSpec(secondWork.getWorkSpec());
 
         workSpecDao.setOutput(
                 firstWork.getStringId(),

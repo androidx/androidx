@@ -17,8 +17,7 @@
 include ":jetpad-integration"
 include ":plugins"
 include ":private"
-
-enableFeaturePreview("VERSION_CATALOGS")
+include ":public"
 
 dependencyResolutionManagement {
     versionCatalogs {

@@ -30,4 +30,18 @@
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"ပင်နံပါတ်၊ လော့ခ်ပုံစံ သို့မဟုတ် စကားဝှက် သတ်မှတ်မထားပါ။"</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"ဤစက်သည် ပင်နံပါတ်၊ ပုံစံ သို့မဟုတ် စကားဝှက်ကို မပံ့ပိုးပါ။"</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"လက်ဗွေ သင်္ကေတ"</string>
+    <string name="use_fingerprint_label" msgid="6961788485681412417">"လက်ဗွေ သုံးရန်"</string>
+    <string name="use_face_label" msgid="6533512708069459542">"မျက်နှာမှတ်သော့ဖွင့်ခြင်းကို သုံးရန်"</string>
+    <string name="use_biometric_label" msgid="6524145989441579428">"ဇီဝမက်ထရစ် အချက်အလက်များ သုံးရန်"</string>
+    <string name="use_screen_lock_label" msgid="5459869335976243512">"ဖန်သားပြင်လော့ခ်ကို သုံးရန်"</string>
+    <string name="use_fingerprint_or_screen_lock_label" msgid="7577690399303139443">"လက်ဗွေ (သို့) ဖန်သားပြင်လော့ခ်ကို သုံးရန်"</string>
+    <string name="use_face_or_screen_lock_label" msgid="2116180187159450292">"မျက်နှာမှတ်သော့ဖွင့်ခြင်း (သို့) ဖန်သားပြင်လော့ခ်ကို သုံးရန်"</string>
+    <string name="use_biometric_or_screen_lock_label" msgid="5385448280139639016">"ဇီဝမက်ထရစ် အချက်အလက်များ (သို့) ဖန်သားပြင်လော့ခ်ကို သုံးရန်"</string>
+    <string name="fingerprint_prompt_message" msgid="7449360011861769080">"ရှေ့ဆက်ရန် သင့်လက်ဗွေကို သုံးပါ"</string>
+    <string name="face_prompt_message" msgid="2282389249605674226">"ရှေ့ဆက်ရန် သင့်မျက်နှာမှတ်သော့ဖွင့်ခြင်းကို သုံးပါ"</string>
+    <string name="biometric_prompt_message" msgid="1160635338192065472">"ရှေ့ဆက်ရန် သင်၏ ဇီဝမက်ထရစ် အချက်အလက်ကို သုံးပါ"</string>
+    <string name="screen_lock_prompt_message" msgid="5659570757430909869">"ရှေ့ဆက်ရန် ဖန်သားပြင်လော့ခ်ကို ထည့်ပါ"</string>
+    <string name="fingerprint_or_screen_lock_prompt_message" msgid="8382576858490514495">"ရှေ့ဆက်ရန် သင့်လက်ဗွေ (သို့) ဖန်သားပြင်လော့ခ်ကို သုံးပါ"</string>
+    <string name="face_or_screen_lock_prompt_message" msgid="4562557128765735254">"ရှေ့ဆက်ရန် သင့်မျက်နှာမှတ်သော့ဖွင့်ခြင်း (သို့) ဖန်သားပြင်လော့ခ်ကို သုံးပါ"</string>
+    <string name="biometric_or_screen_lock_prompt_message" msgid="2102429900219199821">"ရှေ့ဆက်ရန် သင်၏ ဇီဝမက်ထရစ် အချက်အလက် (သို့) ဖန်သားပြင်လော့ခ်ကို သုံးပါ"</string>
 </resources>

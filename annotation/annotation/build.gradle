@@ -1,10 +1,13 @@
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
     id("java-library")
+    id("kotlin")
+}
+
+dependencies {
+    api(libs.kotlinStdlib)
 }
 
 jar {

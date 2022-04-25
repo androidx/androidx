@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -28,16 +28,16 @@ dependencies {
     api("androidx.core:core-ktx:1.1.0") {
         because "Mirror activity dependency graph for -ktx artifacts"
     }
-    api("androidx.lifecycle:lifecycle-runtime-ktx:2.3.1") {
+    api("androidx.lifecycle:lifecycle-runtime-ktx:2.5.0-rc01") {
         because 'Mirror activity dependency graph for -ktx artifacts'
     }
-    api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1")
-    api("androidx.savedstate:savedstate-ktx:1.1.0") {
+    api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.0-rc01")
+    api("androidx.savedstate:savedstate-ktx:1.2.0-rc01") {
         because 'Mirror activity dependency graph for -ktx artifacts'
     }
     api(libs.kotlinStdlib)
 
-    androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
+    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-runtime-testing"))
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.testExtJunit)
@@ -55,4 +55,8 @@ androidx {
     mavenGroup = LibraryGroups.ACTIVITY
     inceptionYear = "2018"
     description = "Kotlin extensions for 'activity' artifact"
+}
+
+android {
+    namespace "androidx.activity.ktx"
 }

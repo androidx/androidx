@@ -19,20 +19,22 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.withTimeout
 import java.util.concurrent.Executor
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
-import kotlinx.coroutines.withTimeout
 
 /**
  * An executor that can block some known runnables. We use it to slow down database
  * invalidation events.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
-class FilteringExecutor : Executor {
-    private val delegate = Executors.newSingleThreadExecutor()
+class FilteringExecutor(
+    private val delegate: ExecutorService = Executors.newSingleThreadExecutor()
+) : Executor {
     private val deferred = mutableListOf<Runnable>()
     private val deferredSize = MutableStateFlow(0)
     private val lock = ReentrantLock()

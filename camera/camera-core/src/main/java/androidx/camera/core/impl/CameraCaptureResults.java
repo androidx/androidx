@@ -18,12 +18,14 @@ package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageInfo;
 import androidx.camera.core.internal.CameraCaptureResultImageInfo;
 
 /**
  * Utility functionality for {@link CameraCaptureResult}.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class CameraCaptureResults {
     /**
      * Retrieves the underlying {@link CameraCaptureResult} from the {@link ImageInfo} if the

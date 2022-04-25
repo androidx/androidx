@@ -34,10 +34,14 @@ class CameraDeviceCompatApi28Impl extends CameraDeviceCompatApi24Impl {
 
     @Override
     public void createCaptureSession(@NonNull SessionConfigurationCompat config)
-            throws CameraAccessException {
+            throws CameraAccessExceptionCompat {
         SessionConfiguration sessionConfig = (SessionConfiguration) config.unwrap();
         Preconditions.checkNotNull(sessionConfig);
 
-        mCameraDevice.createCaptureSession(sessionConfig);
+        try {
+            mCameraDevice.createCaptureSession(sessionConfig);
+        } catch (CameraAccessException e) {
+            throw CameraAccessExceptionCompat.toCameraAccessExceptionCompat(e);
+        }
     }
 }

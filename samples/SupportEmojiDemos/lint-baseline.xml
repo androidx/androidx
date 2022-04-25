@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
         id="BanSynchronizedMethods"
@@ -30,7 +30,7 @@
         errorLine2="        ~~~~~">
         <location
             file="src/main/java/com/example/android/support/text/emoji/ConfigLayout.java"
-            line="61"
+            line="60"
             column="9"/>
     </issue>
 
@@ -63,24 +63,13 @@
         errorLine2="            ~~~~">
         <location
             file="src/main/java/com/example/android/support/text/emoji/MainFragment.java"
-            line="59"
+            line="75"
             column="13"/>
     </issue>
 
     <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mRegularTextView` of class `MainFragment` requires synthetic accessor"
-        errorLine1="                    mRegularTextView.setText("
-        errorLine2="                    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/support/text/emoji/MainFragment.java"
-            line="140"
-            column="21"/>
-    </issue>
-
-    <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public ConfigLayout(Context context) {"
         errorLine2="                        ~~~~~~~">
         <location
@@ -91,7 +80,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public ConfigLayout(Context context, AttributeSet attrs) {"
         errorLine2="                        ~~~~~~~">
         <location
@@ -102,7 +91,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public ConfigLayout(Context context, AttributeSet attrs) {"
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
@@ -113,51 +102,51 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public ConfigLayout(Context context, AttributeSet attrs,"
         errorLine2="                        ~~~~~~~">
         <location
             file="src/main/java/com/example/android/support/text/emoji/ConfigLayout.java"
-            line="52"
+            line="51"
             column="25"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public ConfigLayout(Context context, AttributeSet attrs,"
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/support/text/emoji/ConfigLayout.java"
-            line="52"
+            line="51"
             column="42"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public ConfigLayout(Context context, AttributeSet attrs,"
         errorLine2="                        ~~~~~~~">
         <location
             file="src/main/java/com/example/android/support/text/emoji/ConfigLayout.java"
-            line="59"
+            line="58"
             column="25"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public ConfigLayout(Context context, AttributeSet attrs,"
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/support/text/emoji/ConfigLayout.java"
-            line="59"
+            line="58"
             column="42"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public CustomTextView(Context context) {"
         errorLine2="                          ~~~~~~~">
         <location
@@ -168,7 +157,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public CustomTextView(Context context, @Nullable AttributeSet attrs) {"
         errorLine2="                          ~~~~~~~">
         <location
@@ -179,7 +168,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public CustomTextView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {"
         errorLine2="                          ~~~~~~~">
         <location
@@ -190,18 +179,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setFilters(InputFilter[] filters) {"
-        errorLine2="                           ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/support/text/emoji/CustomTextView.java"
-            line="52"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public View onCreateView(LayoutInflater inflater, ViewGroup container,"
         errorLine2="           ~~~~">
         <location
@@ -212,7 +190,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public View onCreateView(LayoutInflater inflater, ViewGroup container,"
         errorLine2="                             ~~~~~~~~~~~~~~">
         <location
@@ -223,7 +201,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public View onCreateView(LayoutInflater inflater, ViewGroup container,"
         errorLine2="                                                      ~~~~~~~~~">
         <location
@@ -234,7 +212,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="            Bundle savedInstanceState) {"
         errorLine2="            ~~~~~~">
         <location
@@ -245,7 +223,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
@@ -256,45 +234,45 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public View onCreateView(LayoutInflater inflater, ViewGroup container,"
         errorLine2="           ~~~~">
         <location
             file="src/main/java/com/example/android/support/text/emoji/MainFragment.java"
-            line="69"
+            line="85"
             column="12"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public View onCreateView(LayoutInflater inflater, ViewGroup container,"
         errorLine2="                             ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/support/text/emoji/MainFragment.java"
-            line="69"
+            line="85"
             column="30"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public View onCreateView(LayoutInflater inflater, ViewGroup container,"
         errorLine2="                                                      ~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/support/text/emoji/MainFragment.java"
-            line="69"
+            line="85"
             column="55"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="            Bundle savedInstanceState) {"
         errorLine2="            ~~~~~~">
         <location
             file="src/main/java/com/example/android/support/text/emoji/MainFragment.java"
-            line="70"
+            line="86"
             column="13"/>
     </issue>
 

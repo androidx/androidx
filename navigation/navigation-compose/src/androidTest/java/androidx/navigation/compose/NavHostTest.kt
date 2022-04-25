@@ -21,6 +21,9 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.OnBackPressedDispatcher
+import androidx.activity.OnBackPressedDispatcherOwner
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.animation.core.AnimationConstants.DefaultDurationMillis
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,6 +31,8 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,13 +41,17 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph
@@ -242,29 +251,50 @@ class NavHostTest {
     }
 
     @Test
+    fun testDialogSavedAfterConfigChange() {
+        lateinit var navController: NavHostController
+        val defaultText = "dialogText"
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            NavHost(navController, startDestination = "dialog") {
+                dialog("dialog") {
+                    Text(defaultText)
+                }
+            }
+        }
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithText(defaultText).assertIsDisplayed()
+    }
+
+    @Test
     fun testViewModelSavedAfterConfigChange() {
         lateinit var navController: NavHostController
+        var lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
         lateinit var state: MutableState<Int>
         lateinit var viewModel: TestViewModel
         var savedState: Bundle? = null
         composeTestRule.setContent {
             val context = LocalContext.current
             state = remember { mutableStateOf(0) }
-            navController = if (savedState == null) {
-                rememberNavController()
-            } else {
-                NavHostController(context).apply {
-                    restoreState(savedState)
-                    setViewModelStore(LocalViewModelStoreOwner.current!!.viewModelStore)
-                    navigatorProvider += ComposeNavigator()
-                    navigatorProvider += DialogNavigator()
+            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
+                navController = if (savedState == null) {
+                    rememberNavController()
+                } else {
+                    NavHostController(context).apply {
+                        restoreState(savedState)
+                        setViewModelStore(LocalViewModelStoreOwner.current!!.viewModelStore)
+                        navigatorProvider += ComposeNavigator()
+                        navigatorProvider += DialogNavigator()
+                    }
                 }
-            }
-            if (state.value == 0) {
-                NavHost(navController, startDestination = "first") {
-                    composable("first") {
-                        val provider = ViewModelProvider(it)
-                        viewModel = provider.get("key", TestViewModel::class.java)
+                if (state.value == 0) {
+                    NavHost(navController, startDestination = "first") {
+                        composable("first") {
+                            val provider = ViewModelProvider(it)
+                            viewModel = provider.get("key", TestViewModel::class.java)
+                        }
                     }
                 }
             }
@@ -276,17 +306,78 @@ class NavHostTest {
         runOnUiThread {
             // dispose the NavHost
             state.value = 1
+            lifecycleOwner.currentState = Lifecycle.State.DESTROYED
         }
 
         // wait for recompose without NavHost then recompose with the NavHost
         composeTestRule.runOnIdle {
             state.value = 0
+            lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
         }
 
         composeTestRule.runOnIdle {
             assertWithMessage("First destination should be current")
                 .that(navController.currentDestination?.route).isEqualTo("first")
             assertThat(savedViewModel.value).isEqualTo(viewModel.value)
+        }
+    }
+
+    @Test
+    fun testSaveableStateClearedAfterConfigChange() {
+        lateinit var navController: NavHostController
+        var lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+        lateinit var state: MutableState<Int>
+        var viewModel: BackStackEntryIdViewModel? = null
+        var savedState: Bundle? = null
+        composeTestRule.setContent {
+            val context = LocalContext.current
+            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
+                state = remember { mutableStateOf(0) }
+                navController = if (savedState == null) {
+                    rememberNavController()
+                } else {
+                    NavHostController(context).apply {
+                        restoreState(savedState)
+                        setViewModelStore(LocalViewModelStoreOwner.current!!.viewModelStore)
+                        navigatorProvider += ComposeNavigator()
+                        navigatorProvider += DialogNavigator()
+                    }
+                }
+                if (state.value == 0) {
+                    NavHost(navController, startDestination = "first") {
+                        composable("first") {
+                            viewModel = viewModel()
+                        }
+                        composable("second") { }
+                    }
+                }
+            }
+        }
+
+        assertThat(viewModel?.saveableStateHolder).isNotNull()
+
+        composeTestRule.runOnIdle {
+            navController.navigate("second")
+        }
+
+        savedState = navController.saveState()
+
+        runOnUiThread {
+            // dispose the NavHost
+            state.value = 1
+            lifecycleOwner.currentState = Lifecycle.State.DESTROYED
+        }
+
+        // wait for recompose without NavHost then recompose with the NavHost
+        composeTestRule.runOnIdle {
+            state.value = 0
+            lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+        }
+
+        composeTestRule.runOnIdle {
+            assertWithMessage("Second destination should be current")
+                .that(navController.currentDestination?.route).isEqualTo("second")
+            assertThat(viewModel?.saveableStateHolder).isNull()
         }
     }
 
@@ -480,6 +571,13 @@ class NavHostTest {
         composeTestRule.onNodeWithText(first).assertExists()
         composeTestRule.onNodeWithText(second).assertExists()
 
+        assertThat(navController.visibleEntries.value)
+            .containsExactly(
+                firstEntry,
+                navController.currentBackStackEntry
+            )
+            .inOrder()
+
         composeTestRule.mainClock.autoAdvance = true
 
         composeTestRule.runOnIdle {
@@ -644,6 +742,36 @@ class NavHostTest {
     }
 
     @Test
+    fun testGetDialogViewModel() {
+        lateinit var navController: NavHostController
+        lateinit var model: TestViewModel
+
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            NavHost(navController, first) {
+                composable(first) { }
+                dialog(second) {
+                    model = viewModel(it)
+                }
+            }
+        }
+
+        composeTestRule.runOnIdle {
+            navController.navigate(second)
+        }
+
+        composeTestRule.runOnIdle {
+            navController.popBackStack()
+        }
+
+        assertThat(model.wasCleared).isFalse()
+
+        composeTestRule.waitForIdle()
+
+        assertThat(model.wasCleared).isTrue()
+    }
+
+    @Test
     fun testGetGraphViewModelAfterRecompose() {
         lateinit var navController: NavHostController
         lateinit var model: TestViewModel
@@ -678,6 +806,108 @@ class NavHostTest {
         composeTestRule.waitForIdle()
 
         assertThat(model.wasCleared).isTrue()
+    }
+
+    @Test
+    fun testNestedNavHostOnBackPressed() {
+        val lifecycleOwner = TestLifecycleOwner()
+        var innerLifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+        val onBackPressedDispatcher = OnBackPressedDispatcher()
+        val dispatcherOwner = object : OnBackPressedDispatcherOwner {
+            override fun getLifecycle() = lifecycleOwner.lifecycle
+            override fun getOnBackPressedDispatcher() = onBackPressedDispatcher
+        }
+        lateinit var navController: NavHostController
+        lateinit var innerNavController: NavHostController
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalOnBackPressedDispatcherOwner provides dispatcherOwner) {
+                navController = rememberNavController()
+                NavHost(navController, first) {
+                    composable(first) {
+                        CompositionLocalProvider(LocalLifecycleOwner provides innerLifecycleOwner) {
+                            // Note: you should not ever do this. Use the state of the single
+                            // NavHost to control the visibility of global UI
+                            innerNavController = rememberNavController()
+                            NavHost(innerNavController, "innerFirst") {
+                                composable("innerFirst") {}
+                                composable("innerSecond") {}
+                            }
+                        }
+                    }
+                    composable(second) {}
+                }
+            }
+        }
+
+        composeTestRule.runOnIdle {
+            assertThat(onBackPressedDispatcher.hasEnabledCallbacks()).isFalse()
+            innerNavController.navigate("innerSecond")
+            assertThat(onBackPressedDispatcher.hasEnabledCallbacks()).isTrue()
+        }
+
+        // Now navigate to a second destination in the outer NavHost
+        composeTestRule.runOnIdle {
+            navController.navigate(second)
+        }
+
+        composeTestRule.runOnIdle {
+            innerLifecycleOwner.currentState = Lifecycle.State.DESTROYED
+        }
+
+        // Now trigger the back button
+        composeTestRule.runOnIdle {
+            onBackPressedDispatcher.onBackPressed()
+            innerLifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+        }
+
+        composeTestRule.waitForIdle()
+        assertThat(navController.currentDestination?.route).isEqualTo(first)
+        assertThat(innerNavController.currentDestination?.route).isEqualTo("innerSecond")
+
+        // Now trigger the back button
+        composeTestRule.runOnIdle {
+            onBackPressedDispatcher.onBackPressed()
+        }
+
+        composeTestRule.waitForIdle()
+        assertThat(navController.currentDestination?.route).isEqualTo(first)
+        assertThat(innerNavController.currentDestination?.route).isEqualTo("innerFirst")
+        // Assert that there's no enabled callbacks left when all of the NavControllers
+        // are on their start destination
+        assertThat(onBackPressedDispatcher.hasEnabledCallbacks()).isFalse()
+    }
+
+    @Test
+    fun navBackStackEntryLifecycleTest() {
+        var stopCount = 0
+        lateinit var navController: NavHostController
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            NavHost(navController, startDestination = "First") {
+                composable("First") {
+                    val lifecycleOwner = LocalLifecycleOwner.current
+                    DisposableEffect(lifecycleOwner) {
+                        val observer = LifecycleEventObserver { _, event ->
+                            if (event == Lifecycle.Event.ON_STOP) {
+                                stopCount++
+                            }
+                        }
+                        lifecycleOwner.lifecycle.addObserver(observer)
+
+                        onDispose {
+                            lifecycleOwner.lifecycle.removeObserver(observer)
+                        }
+                    }
+                }
+            }
+        }
+
+        composeTestRule.runOnIdle {
+            assertWithMessage("Lifecycle should not have been stopped")
+                .that(stopCount)
+                .isEqualTo(0)
+        }
     }
 
     private fun createNavController(context: Context): TestNavHostController {

@@ -1,4 +1,60 @@
 // Baseline format: 1.0
+AsyncSuffixFuture: androidx.media2.player.MediaPlayer#addPlaylistItem(int, androidx.media2.common.MediaItem):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.media2.player.MediaPlayer#attachAuxEffect(int):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.media2.player.MediaPlayer#deselectTrack(androidx.media2.common.SessionPlayer.TrackInfo):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.media2.player.MediaPlayer#movePlaylistItem(int, int):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.media2.player.MediaPlayer#pause():
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.media2.player.MediaPlayer#play():
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.media2.player.MediaPlayer#prepare():
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.media2.player.MediaPlayer#removePlaylistItem(int):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.media2.player.MediaPlayer#replacePlaylistItem(int, androidx.media2.common.MediaItem):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.media2.player.MediaPlayer#seekTo(long):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.media2.player.MediaPlayer#seekTo(long, int):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.media2.player.MediaPlayer#selectTrack(androidx.media2.common.SessionPlayer.TrackInfo):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.media2.player.MediaPlayer#setAudioAttributes(androidx.media.AudioAttributesCompat):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.media2.player.MediaPlayer#setAudioSessionId(int):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.media2.player.MediaPlayer#setAuxEffectSendLevel(float):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.media2.player.MediaPlayer#setMediaItem(androidx.media2.common.MediaItem):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.media2.player.MediaPlayer#setPlaybackParams(androidx.media2.player.PlaybackParams):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.media2.player.MediaPlayer#setPlaybackSpeed(float):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.media2.player.MediaPlayer#setPlayerVolume(float):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.media2.player.MediaPlayer#setPlaylist(java.util.List<androidx.media2.common.MediaItem>, androidx.media2.common.MediaMetadata):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.media2.player.MediaPlayer#setRepeatMode(int):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.media2.player.MediaPlayer#setShuffleMode(int):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.media2.player.MediaPlayer#setSurface(android.view.Surface):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.media2.player.MediaPlayer#skipToNextPlaylistItem():
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.media2.player.MediaPlayer#skipToPlaylistItem(int):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.media2.player.MediaPlayer#skipToPreviousPlaylistItem():
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.media2.player.MediaPlayer#updatePlaylistMetadata(androidx.media2.common.MediaMetadata):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+
+
 AutoBoxing: androidx.media2.player.PlaybackParams#getAudioFallbackMode():
     Must avoid boxed primitives (`java.lang.Integer`)
 AutoBoxing: androidx.media2.player.PlaybackParams#getPitch():

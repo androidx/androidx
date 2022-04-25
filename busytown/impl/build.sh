@@ -18,6 +18,12 @@ if [ "$DIST_DIR" == "" ]; then
 fi
 mkdir -p "$DIST_DIR"
 export DIST_DIR="$DIST_DIR"
+if [ "$CHANGE_INFO" != "" ]; then
+  cp "$CHANGE_INFO" "$DIST_DIR/"
+fi
+if [ "$MANIFEST" == "" ]; then
+  export MANIFEST="$DIST_DIR/manifest_${BUILD_NUMBER}.xml"
+fi
 
 # parse arguments
 if [ "$1" == "--diagnose" ]; then
@@ -54,9 +60,6 @@ function run() {
   fi
 }
 
-# Confirm the existence of .git dirs. TODO(b/170634430) remove this
-(echo "top commit:" && git --no-pager log -1)
-
 # export some variables
 ANDROID_HOME=../../prebuilts/fullsdk-linux
 
@@ -67,8 +70,20 @@ else
   if [ "$DIAGNOSE" == "true" ]; then
     # see if diagnose-build-failure.sh can identify the root cauase
     echo "running diagnose-build-failure.sh, see build.log" >&2
-    # specify a timeout in case we're running on a remote server, so we don't take too long
-    ./development/diagnose-build-failure/diagnose-build-failure.sh --timeout 14400 "--ci saveSystemStats $*"
+    # Specify a short timeout in case we're running on a remote server, so we don't take too long.
+    # We probably won't have enough time to fully diagnose the problem given this timeout, but
+    # we might be able to determine whether this problem is reproducible enough for a developer to
+    # more easily investigate further
+    ./development/diagnose-build-failure/diagnose-build-failure.sh --timeout 600 "--ci saveSystemStats $*"
+  fi
+  if grep "/prefab" "$DIST_DIR/logs/gradle.log" >/dev/null 2>/dev/null; then
+    # error looks like it might have involved prefab, copy the prefab dir to DIST where we can find it
+    if [ -e "$OUT_DIR/androidx/external/libyuv/build" ]; then
+      cd "$OUT_DIR/androidx/external/libyuv/build"
+      echo "Zipping $PWD into $DIST_DIR/libyuv-build.zip"
+      zip -qr "$DIST_DIR/libyuv-build.zip" .
+      cd -
+    fi
   fi
   exit 1
 fi

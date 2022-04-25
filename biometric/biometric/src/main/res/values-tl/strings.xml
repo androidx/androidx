@@ -30,4 +30,18 @@
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"Walang itinakdang PIN, pattern, o password."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Hindi sinusuportahan ng device na ito ang PIN, pattern, o password."</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"Icon ng fingerprint"</string>
+    <string name="use_fingerprint_label" msgid="6961788485681412417">"Gumamit ng fingerprint"</string>
+    <string name="use_face_label" msgid="6533512708069459542">"Gumamit ng mukha"</string>
+    <string name="use_biometric_label" msgid="6524145989441579428">"Gumamit ng biometrics"</string>
+    <string name="use_screen_lock_label" msgid="5459869335976243512">"Gumamit ng lock ng screen"</string>
+    <string name="use_fingerprint_or_screen_lock_label" msgid="7577690399303139443">"Gumamit ng fingerprint o lock ng screen"</string>
+    <string name="use_face_or_screen_lock_label" msgid="2116180187159450292">"Gumamit ng mukha o lock ng screen"</string>
+    <string name="use_biometric_or_screen_lock_label" msgid="5385448280139639016">"Gumamit ng biometrics o lock ng screen"</string>
+    <string name="fingerprint_prompt_message" msgid="7449360011861769080">"Gamitin ang iyong fingerprint para magpatuloy"</string>
+    <string name="face_prompt_message" msgid="2282389249605674226">"Gamitin ang iyong mukha para magpatuloy"</string>
+    <string name="biometric_prompt_message" msgid="1160635338192065472">"Gamitin ang iyong biometric para magpatuloy"</string>
+    <string name="screen_lock_prompt_message" msgid="5659570757430909869">"Ilagay ang iyong lock ng screen para magpatuloy"</string>
+    <string name="fingerprint_or_screen_lock_prompt_message" msgid="8382576858490514495">"Gamitin ang iyong fingerprint o lock ng screen para magpatuloy"</string>
+    <string name="face_or_screen_lock_prompt_message" msgid="4562557128765735254">"Gamitin ang iyong mukha o lock ng screen para magpatuloy"</string>
+    <string name="biometric_or_screen_lock_prompt_message" msgid="2102429900219199821">"Gamitin ang iyong biometric o lock ng screen para magpatuloy"</string>
 </resources>

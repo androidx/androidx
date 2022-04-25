@@ -67,11 +67,11 @@ package androidx.navigation {
     method public android.net.Uri? getData();
     method public String? getDataPattern();
     method public String? getTargetPackage();
-    method public void setAction(String? action);
-    method public void setActivityClass(kotlin.reflect.KClass<? extends android.app.Activity>? activityClass);
-    method public void setData(android.net.Uri? data);
-    method public void setDataPattern(String? dataPattern);
-    method public void setTargetPackage(String? targetPackage);
+    method public void setAction(String?);
+    method public void setActivityClass(kotlin.reflect.KClass<? extends android.app.Activity>?);
+    method public void setData(android.net.Uri?);
+    method public void setDataPattern(String?);
+    method public void setTargetPackage(String?);
     property public final String? action;
     property public final kotlin.reflect.KClass<? extends android.app.Activity>? activityClass;
     property public final android.net.Uri? data;
@@ -104,6 +104,7 @@ package androidx.navigation {
     method public androidx.navigation.NavigatorProvider getNavigatorProvider();
     method public androidx.navigation.NavBackStackEntry? getPreviousBackStackEntry();
     method public androidx.lifecycle.ViewModelStoreOwner getViewModelStoreOwner(@IdRes int navGraphId);
+    method public final kotlinx.coroutines.flow.StateFlow<java.util.List<androidx.navigation.NavBackStackEntry>> getVisibleEntries();
     method @MainThread public boolean handleDeepLink(android.content.Intent? intent);
     method @MainThread public void navigate(@IdRes int resId);
     method @MainThread public void navigate(@IdRes int resId, android.os.Bundle? args);
@@ -131,7 +132,7 @@ package androidx.navigation {
     method public void removeOnDestinationChangedListener(androidx.navigation.NavController.OnDestinationChangedListener listener);
     method @CallSuper public void restoreState(android.os.Bundle? navState);
     method @CallSuper public android.os.Bundle? saveState();
-    method @CallSuper @MainThread public void setGraph(androidx.navigation.NavGraph graph);
+    method @CallSuper @MainThread public void setGraph(androidx.navigation.NavGraph);
     method @CallSuper @MainThread public void setGraph(@NavigationRes int graphResId);
     method @CallSuper @MainThread public void setGraph(@NavigationRes int graphResId, android.os.Bundle? startDestinationArgs);
     method @CallSuper @MainThread public void setGraph(androidx.navigation.NavGraph graph, android.os.Bundle? startDestinationArgs);
@@ -142,6 +143,7 @@ package androidx.navigation {
     property public androidx.navigation.NavInflater navInflater;
     property public androidx.navigation.NavigatorProvider navigatorProvider;
     property public androidx.navigation.NavBackStackEntry? previousBackStackEntry;
+    property public final kotlinx.coroutines.flow.StateFlow<java.util.List<androidx.navigation.NavBackStackEntry>> visibleEntries;
     field public static final androidx.navigation.NavController.Companion Companion;
     field public static final String KEY_DEEP_LINK_INTENT = "android-support-nav:controller:deepLinkIntent";
   }

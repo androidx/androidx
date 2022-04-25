@@ -180,7 +180,8 @@ public class ServiceConnection implements android.content.ServiceConnection {
         return (200 << retryNumber);
     }
 
-    private void clearConnection(Throwable throwable) {
+    @VisibleForTesting
+    void clearConnection(Throwable throwable) {
         if (mIsServiceBound) {
             try {
                 mContext.unbindService(this);
@@ -336,6 +337,6 @@ public class ServiceConnection implements android.content.ServiceConnection {
                         + mConnectionConfiguration.getClientName()
                         + "', binder is null");
         // This connection will never be usable, don't bother with retries.
-        handleNonRetriableDisconnection(new CancellationException("Null binding"));
+        handleRetriableDisconnection(new CancellationException("Null binding"));
     }
 }

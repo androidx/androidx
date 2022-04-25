@@ -220,14 +220,10 @@ public class FragmentStrictModeTest {
             val fragment = withActivity {
                 supportFragmentManager.findFragmentById(R.id.inflated_fragment)!!
             }
-            // TODO: Since we now create the message when we construct the violation instead of
-            //  dynamically, the container instance here has not yet been inflated and causes
-            //  this test to fail cause the one in the violation is inflated so the view bounds
-            //  in the toString() are different.
-//            val container = withActivity { findViewById(R.id.inflated_layout) }
+            val container = withActivity { findViewById(R.id.inflated_layout) }
             assertThat(violation).isInstanceOf(FragmentTagUsageViolation::class.java)
             assertThat(violation).hasMessageThat().contains(
-                "Attempting to use <fragment> tag to add fragment $fragment to container "
+                "Attempting to use <fragment> tag to add fragment $fragment to container $container"
             )
         }
     }
@@ -364,6 +360,42 @@ public class FragmentStrictModeTest {
             .penaltyListener { violation = it }
         for (violationClass in violationClassList) {
             policyBuilder = policyBuilder.allowViolation(fragmentClass, violationClass)
+        }
+        FragmentStrictMode.defaultPolicy = policyBuilder.build()
+
+        StrictFragment().retainInstance = true
+        assertThat(violation).isNotInstanceOf(violationClass1)
+        assertThat(violation).isNotInstanceOf(SetRetainInstanceUsageViolation::class.java)
+
+        violation = null
+        StrictFragment().retainInstance
+        assertThat(violation).isNotInstanceOf(violationClass1)
+        assertThat(violation).isNotInstanceOf(GetRetainInstanceUsageViolation::class.java)
+
+        violation = null
+        StrictFragment().userVisibleHint = true
+        assertThat(violation).isNotInstanceOf(violationClass2)
+
+        violation = null
+        StrictFragment().targetFragment
+        assertThat(violation).isNotInstanceOf(violationClass3)
+    }
+
+    @Suppress("DEPRECATION")
+    @Test
+    public fun detectAllowedViolationByClassString() {
+        val violationClass1 = RetainInstanceUsageViolation::class.java
+        val violationClass2 = SetUserVisibleHintViolation::class.java
+        val violationClass3 = GetTargetFragmentUsageViolation::class.java
+        val violationClassList = listOf(violationClass1, violationClass2, violationClass3)
+
+        var violation: Violation? = null
+        var policyBuilder = FragmentStrictMode.Policy.Builder()
+            .detectRetainInstanceUsage()
+            .detectSetUserVisibleHint()
+            .penaltyListener { violation = it }
+        for (violationClass in violationClassList) {
+            policyBuilder = policyBuilder.allowViolation(fragmentClass.name, violationClass)
         }
         FragmentStrictMode.defaultPolicy = policyBuilder.build()
 

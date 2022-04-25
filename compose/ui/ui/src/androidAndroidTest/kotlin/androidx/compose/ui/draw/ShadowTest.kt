@@ -22,11 +22,13 @@ import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.testutils.first
 import androidx.compose.ui.AtLeastSize
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.DefaultShadowColor
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
@@ -193,6 +195,37 @@ class ShadowTest {
         }
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    @Test
+    fun colorsAppliedForTheShadow() {
+        rule.runOnUiThreadIR {
+            activity.setContent {
+                AtLeastSize(size = 12, modifier = Modifier.background(Color.White)) {
+                    val elevation = with(LocalDensity.current) { 4.dp.toPx() }
+                    AtLeastSize(
+                        size = 10,
+                        modifier = Modifier.graphicsLayer(
+                            shadowElevation = elevation,
+                            shape = rectShape,
+                            ambientShadowColor = Color(0xFFFF00FF),
+                            spotShadowColor = Color(0xFFFF00FF),
+                        )
+                    ) {
+                    }
+                }
+            }
+        }
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+        takeScreenShot(12).apply {
+            val shadowColor = color(width / 2, height - 1)
+            // assert the shadow is still visible
+            assertNotEquals(shadowColor, Color.White)
+            // The shadow should have a magenta hue
+            assertTrue(shadowColor.red > shadowColor.green)
+            assertTrue(shadowColor.blue > shadowColor.green)
+        }
+    }
+
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun emitShadowLater() {
@@ -226,13 +259,15 @@ class ShadowTest {
     @Test
     fun testInspectorValue() {
         rule.runOnUiThreadIR {
-            val modifier = Modifier.shadow(4.0.dp).toList().first() as InspectableValue
+            val modifier = Modifier.shadow(4.0.dp).first() as InspectableValue
             assertThat(modifier.nameFallback).isEqualTo("shadow")
             assertThat(modifier.valueOverride).isNull()
             assertThat(modifier.inspectableElements.asIterable()).containsExactly(
                 ValueElement("elevation", 4.0.dp),
                 ValueElement("shape", RectangleShape),
-                ValueElement("clip", true)
+                ValueElement("clip", true),
+                ValueElement("ambientColor", DefaultShadowColor),
+                ValueElement("spotColor", DefaultShadowColor)
             )
         }
     }
@@ -344,7 +379,4 @@ class ShadowTest {
         assertEquals(height, bitmap.height)
         return bitmap
     }
-
-    private fun Modifier.toList(): List<Modifier.Element> =
-        foldIn(mutableListOf()) { acc, e -> acc.apply { acc.add(e) } }
 }

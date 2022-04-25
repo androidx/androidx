@@ -48,7 +48,8 @@ public abstract class DialogPreference extends Preference {
     private int mDialogLayoutResId;
 
     public DialogPreference(
-            Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+            @NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr,
+            int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
 
         final TypedArray a = context.obtainStyledAttributes(attrs,
@@ -83,16 +84,17 @@ public abstract class DialogPreference extends Preference {
         a.recycle();
     }
 
-    public DialogPreference(Context context, AttributeSet attrs, int defStyleAttr) {
+    public DialogPreference(@NonNull Context context, @Nullable AttributeSet attrs,
+            int defStyleAttr) {
         this(context, attrs, defStyleAttr, 0);
     }
 
-    public DialogPreference(Context context, AttributeSet attrs) {
+    public DialogPreference(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, TypedArrayUtils.getAttr(context, R.attr.dialogPreferenceStyle,
                 android.R.attr.dialogPreferenceStyle));
     }
 
-    public DialogPreference(Context context) {
+    public DialogPreference(@NonNull Context context) {
         this(context, null);
     }
 
@@ -101,7 +103,7 @@ public abstract class DialogPreference extends Preference {
      *
      * @param dialogTitle The title
      */
-    public void setDialogTitle(CharSequence dialogTitle) {
+    public void setDialogTitle(@Nullable CharSequence dialogTitle) {
         mDialogTitle = dialogTitle;
     }
 
@@ -118,6 +120,7 @@ public abstract class DialogPreference extends Preference {
      *
      * @return The title
      */
+    @Nullable
     public CharSequence getDialogTitle() {
         return mDialogTitle;
     }
@@ -132,7 +135,7 @@ public abstract class DialogPreference extends Preference {
      *
      * @param dialogMessage The message
      */
-    public void setDialogMessage(CharSequence dialogMessage) {
+    public void setDialogMessage(@Nullable CharSequence dialogMessage) {
         mDialogMessage = dialogMessage;
     }
 
@@ -149,6 +152,7 @@ public abstract class DialogPreference extends Preference {
      *
      * @return The message
      */
+    @Nullable
     public CharSequence getDialogMessage() {
         return mDialogMessage;
     }
@@ -158,7 +162,7 @@ public abstract class DialogPreference extends Preference {
      *
      * @param dialogIcon The icon, as a {@link Drawable}
      */
-    public void setDialogIcon(Drawable dialogIcon) {
+    public void setDialogIcon(@Nullable Drawable dialogIcon) {
         mDialogIcon = dialogIcon;
     }
 
@@ -176,6 +180,7 @@ public abstract class DialogPreference extends Preference {
      *
      * @return The icon, as a {@link Drawable}
      */
+    @Nullable
     public Drawable getDialogIcon() {
         return mDialogIcon;
     }
@@ -185,7 +190,7 @@ public abstract class DialogPreference extends Preference {
      *
      * @param positiveButtonText The text of the positive button
      */
-    public void setPositiveButtonText(CharSequence positiveButtonText) {
+    public void setPositiveButtonText(@Nullable CharSequence positiveButtonText) {
         mPositiveButtonText = positiveButtonText;
     }
 
@@ -202,6 +207,7 @@ public abstract class DialogPreference extends Preference {
      *
      * @return The text of the positive button
      */
+    @Nullable
     public CharSequence getPositiveButtonText() {
         return mPositiveButtonText;
     }
@@ -211,7 +217,7 @@ public abstract class DialogPreference extends Preference {
      *
      * @param negativeButtonText The text of the negative button
      */
-    public void setNegativeButtonText(CharSequence negativeButtonText) {
+    public void setNegativeButtonText(@Nullable CharSequence negativeButtonText) {
         mNegativeButtonText = negativeButtonText;
     }
 
@@ -228,6 +234,7 @@ public abstract class DialogPreference extends Preference {
      *
      * @return The text of the negative button
      */
+    @Nullable
     public CharSequence getNegativeButtonText() {
         return mNegativeButtonText;
     }

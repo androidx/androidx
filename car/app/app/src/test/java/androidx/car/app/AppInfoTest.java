@@ -48,6 +48,7 @@ public class AppInfoTest {
     private final ApplicationInfo mApplicationInfo = new ApplicationInfo();
 
     @Before
+    @SuppressWarnings("deprecation")
     public void setUp() throws PackageManager.NameNotFoundException {
         MockitoAnnotations.initMocks(this);
 

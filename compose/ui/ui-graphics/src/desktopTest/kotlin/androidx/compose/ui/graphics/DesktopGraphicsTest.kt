@@ -16,11 +16,13 @@
 
 package androidx.compose.ui.graphics
 
+import androidx.compose.ui.test.InternalTestApi
 import androidx.compose.ui.test.junit4.DesktopScreenshotTestRule
 import org.jetbrains.skia.Surface
 import org.junit.After
 import org.junit.Rule
 
+@OptIn(InternalTestApi::class)
 abstract class DesktopGraphicsTest {
     @get:Rule
     val screenshotRule = DesktopScreenshotTestRule("compose/ui/ui-desktop/graphics")
@@ -39,7 +41,7 @@ abstract class DesktopGraphicsTest {
     protected fun initCanvas(widthPx: Int, heightPx: Int): Canvas {
         require(_surface == null)
         _surface = Surface.makeRasterN32Premul(widthPx, heightPx)
-        return DesktopCanvas(_surface!!.canvas)
+        return SkiaBackedCanvas(_surface!!.canvas)
     }
 
     @After

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 
 plugins {
@@ -37,8 +36,5 @@ androidx {
 }
 
 android {
-    lintOptions {
-        // Crashes due tob/187418637
-        disable "EnforceSampledAnnotation"
-    }
+    namespace "androidx.biometric.samples"
 }

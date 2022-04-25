@@ -972,6 +972,7 @@ public class Toolbar extends ViewGroup implements MenuHost {
         }
         if (mNavButtonView != null) {
             mNavButtonView.setContentDescription(description);
+            TooltipCompat.setTooltipText(mNavButtonView, description);
         }
     }
 
@@ -1522,6 +1523,17 @@ public class Toolbar extends ViewGroup implements MenuHost {
             lp.gravity = GravityCompat.START | (mButtonGravity & Gravity.VERTICAL_GRAVITY_MASK);
             mNavButtonView.setLayoutParams(lp);
         }
+    }
+
+    /**
+     * Returns the navigation button view.
+     *
+     * @hide Only for use in tests.
+     */
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    @Nullable
+    View getNavButtonView() {
+        return mNavButtonView;
     }
 
     void ensureCollapseButtonView() {
@@ -2364,12 +2376,15 @@ public class Toolbar extends ViewGroup implements MenuHost {
     }
 
     private void onCreateMenu() {
+        Menu menu = getMenu();
         ArrayList<MenuItem> oldMenuItemList = getCurrentMenuItems();
-        mMenuHostHelper.onCreateMenu(getMenu(), getMenuInflater());
+        mMenuHostHelper.onCreateMenu(menu, getMenuInflater());
 
         ArrayList<MenuItem> newMenuItemList = getCurrentMenuItems();
         newMenuItemList.removeAll(oldMenuItemList);
         mProvidedMenuItems = newMenuItemList;
+
+        mMenuHostHelper.onPrepareMenu(menu);
     }
 
     @Override

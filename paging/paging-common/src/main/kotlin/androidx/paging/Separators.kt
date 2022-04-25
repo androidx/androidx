@@ -22,6 +22,7 @@ import androidx.paging.LoadType.PREPEND
 import androidx.paging.PageEvent.Drop
 import androidx.paging.PageEvent.Insert
 import androidx.paging.PageEvent.LoadStateUpdate
+import androidx.paging.PageEvent.StaticList
 import androidx.paging.TerminalSeparatorType.FULLY_COMPLETE
 import androidx.paging.TerminalSeparatorType.SOURCE_COMPLETE
 import kotlinx.coroutines.flow.Flow
@@ -213,6 +214,7 @@ private class SeparatorState<R : Any, T : R>(
         is Insert<T> -> onInsert(event)
         is Drop -> onDrop(event)
         is LoadStateUpdate -> onLoadStateUpdate(event)
+        is StaticList -> onStaticList(event)
     }.also {
         // validate internal state after each modification
         if (endTerminalSeparatorDeferred) {
@@ -551,6 +553,28 @@ private class SeparatorState<R : Any, T : R>(
         }
         @Suppress("UNCHECKED_CAST")
         return event as PageEvent<R>
+    }
+
+    suspend fun onStaticList(event: StaticList<T>): PageEvent<R> {
+        val data = mutableListOf<R>()
+        // Intentionally including lastIndex + 1 for the footer.
+        for (i in 0..event.data.size) {
+            val itemBefore = event.data.getOrNull(i - 1)
+            val item = event.data.getOrNull(i)
+            val separator = generator(itemBefore, item)
+            if (separator != null) {
+                data.add(separator)
+            }
+            if (item != null) {
+                data.add(item)
+            }
+        }
+
+        return StaticList(
+            data = data,
+            sourceLoadStates = event.sourceLoadStates,
+            mediatorLoadStates = event.mediatorLoadStates,
+        )
     }
 
     private fun <T : Any> transformablePageToStash(

@@ -27,6 +27,7 @@ import android.util.Size;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
+import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.interop.Camera2CameraInfo;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraInfo;
@@ -45,6 +46,7 @@ import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.NightImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.NightPreviewExtenderImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
+import androidx.camera.extensions.internal.compat.workaround.ExtensionDisabledValidator;
 import androidx.core.util.Preconditions;
 
 import java.util.Arrays;
@@ -54,11 +56,14 @@ import java.util.Map;
 /**
  * Basic vendor interface implementation
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class BasicVendorExtender implements VendorExtender {
     private static final String TAG = "BasicVendorExtender";
+    private final ExtensionDisabledValidator mExtensionDisabledValidator =
+            new ExtensionDisabledValidator();
     private final @ExtensionMode.Mode int mMode;
-    private final PreviewExtenderImpl mPreviewExtenderImpl;
-    private final ImageCaptureExtenderImpl mImageCaptureExtenderImpl;
+    private PreviewExtenderImpl mPreviewExtenderImpl = null;
+    private ImageCaptureExtenderImpl mImageCaptureExtenderImpl = null;
     private CameraInfo mCameraInfo;
 
     public BasicVendorExtender(@ExtensionMode.Mode int mode) {
@@ -90,24 +95,26 @@ public class BasicVendorExtender implements VendorExtender {
                     throw new IllegalArgumentException("Should not activate ExtensionMode.NONE");
             }
         } catch (NoClassDefFoundError e) {
-            throw new IllegalArgumentException("Extension mode does not exist: " + mode);
+            Logger.e(TAG, "OEM implementation for extension mode " + mode + "does not exist!");
         }
     }
 
     /**
-     * Return the {@link PreviewExtenderImpl} instance. This method will be removed once the
-     * existing basic extender implementation is migrated to the unified vendor extender.
+     * Return the {@link PreviewExtenderImpl} instance which could be null if the implementation
+     * doesn't exist. This method will be removed once the existing basic extender implementation
+     * is migrated to the unified vendor extender.
      */
-    @NonNull
+    @Nullable
     public PreviewExtenderImpl getPreviewExtenderImpl() {
         return mPreviewExtenderImpl;
     }
 
     /**
-     * Return the {@link ImageCaptureExtenderImpl} instance. This method will be removed once the
-     * existing basic extender implementation is migrated to the unified vendor extender.
+     * Return the {@link ImageCaptureExtenderImpl} instance which could be null if the
+     * implementation doesn't exist.. This method will be removed once the existing basic
+     * extender implementation is migrated to the unified vendor extender.
      */
-    @NonNull
+    @Nullable
     public ImageCaptureExtenderImpl getImageCaptureExtenderImpl() {
         return mImageCaptureExtenderImpl;
     }
@@ -115,6 +122,16 @@ public class BasicVendorExtender implements VendorExtender {
     @Override
     public boolean isExtensionAvailable(@NonNull String cameraId,
             @NonNull Map<String, CameraCharacteristics> characteristicsMap) {
+
+        if (mExtensionDisabledValidator.shouldDisableExtension(cameraId, mMode)) {
+            return false;
+        }
+
+        // Returns false if implementation classes do not exist.
+        if (mPreviewExtenderImpl == null || mImageCaptureExtenderImpl == null) {
+            return false;
+        }
+
         CameraCharacteristics cameraCharacteristics = characteristicsMap.get(cameraId);
         return mPreviewExtenderImpl.isExtensionAvailable(cameraId, cameraCharacteristics)
                 && mImageCaptureExtenderImpl.isExtensionAvailable(cameraId, cameraCharacteristics);
@@ -124,6 +141,11 @@ public class BasicVendorExtender implements VendorExtender {
     @Override
     public void init(@NonNull CameraInfo cameraInfo) {
         mCameraInfo = cameraInfo;
+
+        if (mPreviewExtenderImpl == null || mImageCaptureExtenderImpl == null) {
+            return;
+        }
+
         String cameraId = Camera2CameraInfo.from(cameraInfo).getCameraId();
         CameraCharacteristics cameraCharacteristics =
                 Camera2CameraInfo.extractCameraCharacteristics(cameraInfo);
@@ -140,7 +162,8 @@ public class BasicVendorExtender implements VendorExtender {
     @Override
     public Range<Long> getEstimatedCaptureLatencyRange(@Nullable Size size) {
         Preconditions.checkNotNull(mCameraInfo, "VendorExtender#init() must be called first");
-        if (ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_2) >= 0) {
+        if (mImageCaptureExtenderImpl != null && ExtensionVersion.getRuntimeVersion().compareTo(
+                Version.VERSION_1_2) >= 0) {
             try {
                 return mImageCaptureExtenderImpl.getEstimatedCaptureLatencyRange(size);
             } catch (NoSuchMethodError e) {
@@ -157,17 +180,13 @@ public class BasicVendorExtender implements VendorExtender {
         return map.getOutputSizes(imageFormat);
     }
 
-    private int getPreviewInputImageFormat() {
-        if (mPreviewExtenderImpl.getProcessorType()
-                == PreviewExtenderImpl.ProcessorType.PROCESSOR_TYPE_IMAGE_PROCESSOR) {
-            return ImageFormat.YUV_420_888;
-        } else {
-            return ImageFormat.PRIVATE;
-        }
+    private int getPreviewOutputImageFormat() {
+        return ImageFormat.PRIVATE;
     }
 
-    private int getCaptureInputImageFormat() {
-        if (mImageCaptureExtenderImpl.getCaptureProcessor() != null) {
+    private int getCaptureOutputImageFormat() {
+        if (mImageCaptureExtenderImpl != null
+                && mImageCaptureExtenderImpl.getCaptureProcessor() != null) {
             return ImageFormat.YUV_420_888;
         } else {
             return ImageFormat.JPEG;
@@ -179,7 +198,8 @@ public class BasicVendorExtender implements VendorExtender {
     public List<Pair<Integer, Size[]>> getSupportedPreviewOutputResolutions() {
         Preconditions.checkNotNull(mCameraInfo, "VendorExtender#init() must be called first");
 
-        if (ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_1) >= 0) {
+        if (mPreviewExtenderImpl != null && ExtensionVersion.getRuntimeVersion().compareTo(
+                Version.VERSION_1_1) >= 0) {
             try {
                 List<Pair<Integer, Size[]>> result =
                         mPreviewExtenderImpl.getSupportedResolutions();
@@ -193,7 +213,7 @@ public class BasicVendorExtender implements VendorExtender {
         // Returns output sizes from stream configuration map if OEM returns null or OEM does not
         // implement the function. It is required to return all supported sizes so it must fetch
         // all sizes from the stream configuration map here.
-        int imageformat = getPreviewInputImageFormat();
+        int imageformat = getPreviewOutputImageFormat();
         return Arrays.asList(new Pair<>(imageformat, getOutputSizes(imageformat)));
     }
 
@@ -202,7 +222,8 @@ public class BasicVendorExtender implements VendorExtender {
     @Override
     public List<Pair<Integer, Size[]>> getSupportedCaptureOutputResolutions() {
         Preconditions.checkNotNull(mCameraInfo, "VendorExtender#init() must be called first");
-        if (ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_1) >= 0) {
+        if (mImageCaptureExtenderImpl != null && ExtensionVersion.getRuntimeVersion().compareTo(
+                Version.VERSION_1_1) >= 0) {
             try {
                 List<Pair<Integer, Size[]>> result =
                         mImageCaptureExtenderImpl.getSupportedResolutions();
@@ -216,7 +237,7 @@ public class BasicVendorExtender implements VendorExtender {
         // Returns output sizes from stream configuration map if OEM returns null or OEM does not
         // implement the function. It is required to return all supported sizes so it must fetch
         // all sizes from the stream configuration map here.
-        int imageFormat = getCaptureInputImageFormat();
+        int imageFormat = getCaptureOutputImageFormat();
         return Arrays.asList(new Pair<>(imageFormat, getOutputSizes(imageFormat)));
     }
 

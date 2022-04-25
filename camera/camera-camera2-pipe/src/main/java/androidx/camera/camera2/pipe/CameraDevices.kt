@@ -15,9 +15,11 @@
  */
 
 @file:Suppress("NOTHING_TO_INLINE")
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 
 package androidx.camera.camera2.pipe
 
+import androidx.annotation.RequiresApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -58,8 +60,8 @@ public interface CameraDevices {
     public fun awaitMetadata(camera: CameraId): CameraMetadata
 }
 
-@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
-public inline class CameraId(public val value: String) {
+@JvmInline
+public value class CameraId(public val value: String) {
     public companion object {
         public inline fun fromCamera2Id(value: String): CameraId = CameraId(value)
         public inline fun fromCamera1Id(value: Int): CameraId = CameraId("$value")

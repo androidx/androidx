@@ -41,6 +41,7 @@ import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.camera2.internal.util.SemaphoreReleasingCamera2Callbacks;
 import androidx.camera.camera2.interop.Camera2Interop;
@@ -65,6 +66,7 @@ import androidx.core.os.HandlerCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -92,6 +94,7 @@ import java.util.concurrent.TimeoutException;
  */
 @LargeTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 21)
 public class ExposureDeviceTest {
 
     @CameraSelector.LensFacing
@@ -100,7 +103,9 @@ public class ExposureDeviceTest {
     private static final int DEFAULT_AVAILABLE_CAMERA_COUNT = 1;
 
     @Rule
-    public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest();
+    public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest(
+            new CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+    );
 
     private final ArrayList<FakeTestUseCase> mFakeTestUseCases = new ArrayList<>();
     private Camera2CameraImpl mCamera2CameraImpl;
@@ -152,7 +157,9 @@ public class ExposureDeviceTest {
                 CameraManagerCompat.from((Context) ApplicationProvider.getApplicationContext()),
                 mCameraId,
                 camera2CameraInfo,
-                mCameraStateRegistry, sCameraExecutor, sCameraHandler);
+                mCameraStateRegistry, sCameraExecutor, sCameraHandler,
+                DisplayInfoManager.getInstance(ApplicationProvider.getApplicationContext())
+        );
 
         mCameraInfoInternal = mCamera2CameraImpl.getCameraInfoInternal();
         mCameraControlInternal = mCamera2CameraImpl.getCameraControlInternal();
@@ -280,70 +287,6 @@ public class ExposureDeviceTest {
         TotalCaptureResult result = totalCaptureResults.get(totalCaptureResults.size() - 1);
 
         // Verify the exposure compensation target result is in the capture result.
-        assertThat(result.get(CaptureResult.CONTROL_AE_EXPOSURE_COMPENSATION)).isEqualTo(upper);
-    }
-
-    @Test
-    public void setExposureAndStartFlashSequence_theExposureSettingShouldApply()
-            throws InterruptedException, ExecutionException, TimeoutException,
-            CameraUseCaseAdapter.CameraException {
-        ExposureState exposureState = mCameraInfoInternal.getExposureState();
-        assumeTrue(exposureState.isExposureCompensationSupported());
-
-        FakeTestUseCase useCase = openUseCase();
-        ArgumentCaptor<TotalCaptureResult> captureResultCaptor = ArgumentCaptor.forClass(
-                TotalCaptureResult.class);
-        CameraCaptureSession.CaptureCallback callback = mock(
-                CameraCaptureSession.CaptureCallback.class);
-        useCase.setCameraCaptureCallback(callback);
-
-        // Wait a little bit for the camera to open.
-        assertTrue(mSessionStateCallback.waitForOnConfigured(1));
-
-        // Set the exposure compensation
-        int upper = exposureState.getExposureCompensationRange().getUpper();
-        mCameraControlInternal.setExposureCompensationIndex(upper).get(3000, TimeUnit.MILLISECONDS);
-        mCameraControlInternal.startFlashSequence(ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH).get(3000,
-                TimeUnit.MILLISECONDS);
-
-        // Verify the exposure compensation target result is in the capture result.
-        verify(callback, timeout(3000).atLeastOnce()).onCaptureCompleted(
-                any(CameraCaptureSession.class),
-                any(CaptureRequest.class),
-                captureResultCaptor.capture());
-        List<TotalCaptureResult> totalCaptureResults = captureResultCaptor.getAllValues();
-        TotalCaptureResult result = totalCaptureResults.get(totalCaptureResults.size() - 1);
-        assertThat(result.get(CaptureResult.CONTROL_AE_EXPOSURE_COMPENSATION)).isEqualTo(upper);
-    }
-
-    @Test
-    public void setExposureAndTriggerAf_theExposureSettingShouldApply()
-            throws InterruptedException, ExecutionException, TimeoutException,
-            CameraUseCaseAdapter.CameraException {
-        ExposureState exposureState = mCameraInfoInternal.getExposureState();
-        assumeTrue(exposureState.isExposureCompensationSupported());
-
-        FakeTestUseCase useCase = openUseCase();
-        ArgumentCaptor<TotalCaptureResult> captureResultCaptor = ArgumentCaptor.forClass(
-                TotalCaptureResult.class);
-        CameraCaptureSession.CaptureCallback callback = mock(
-                CameraCaptureSession.CaptureCallback.class);
-        useCase.setCameraCaptureCallback(callback);
-
-        // Wait a little bit for the camera to open.
-        assertTrue(mSessionStateCallback.waitForOnConfigured(1));
-
-        int upper = exposureState.getExposureCompensationRange().getUpper();
-        mCameraControlInternal.setExposureCompensationIndex(upper).get(3000, TimeUnit.MILLISECONDS);
-        mCameraControlInternal.triggerAf().get(3000, TimeUnit.MILLISECONDS);
-
-        // Verify the exposure compensation target result is in the capture result.
-        verify(callback, timeout(3000).atLeastOnce()).onCaptureCompleted(
-                any(CameraCaptureSession.class),
-                any(CaptureRequest.class),
-                captureResultCaptor.capture());
-        List<TotalCaptureResult> totalCaptureResults = captureResultCaptor.getAllValues();
-        TotalCaptureResult result = totalCaptureResults.get(totalCaptureResults.size() - 1);
         assertThat(result.get(CaptureResult.CONTROL_AE_EXPOSURE_COMPENSATION)).isEqualTo(upper);
     }
 

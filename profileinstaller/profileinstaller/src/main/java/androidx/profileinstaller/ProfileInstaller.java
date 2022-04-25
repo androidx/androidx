@@ -53,9 +53,12 @@ public class ProfileInstaller {
     // cannot construct
     private ProfileInstaller() {}
 
+    private static final String TAG = "ProfileInstaller";
+
     private static final String PROFILE_BASE_DIR = "/data/misc/profiles/cur/0";
     private static final String PROFILE_FILE = "primary.prof";
     private static final String PROFILE_SOURCE_LOCATION = "dexopt/baseline.prof";
+    private static final String PROFILE_META_LOCATION = "dexopt/baseline.profm";
     private static final String PROFILE_INSTALLER_SKIP_FILE_NAME =
             "profileinstaller_profileWrittenFor_lastUpdateTime.dat";
 
@@ -158,6 +161,10 @@ public class ProfileInstaller {
                     break;
                 case RESULT_PARSE_EXCEPTION: msg = "RESULT_PARSE_EXCEPTION";
                     break;
+                case RESULT_INSTALL_SKIP_FILE_SUCCESS: msg = "RESULT_INSTALL_SKIP_FILE_SUCCESS";
+                    break;
+                case RESULT_DELETE_SKIP_FILE_SUCCESS: msg = "RESULT_DELETE_SKIP_FILE_SUCCESS";
+                    break;
             }
 
             switch (code) {
@@ -225,7 +232,10 @@ public class ProfileInstaller {
             RESULT_DESIRED_FORMAT_UNSUPPORTED,
             RESULT_BASELINE_PROFILE_NOT_FOUND,
             RESULT_IO_EXCEPTION,
-            RESULT_PARSE_EXCEPTION
+            RESULT_PARSE_EXCEPTION,
+            RESULT_META_FILE_REQUIRED_BUT_NOT_FOUND,
+            RESULT_INSTALL_SKIP_FILE_SUCCESS,
+            RESULT_DELETE_SKIP_FILE_SUCCESS
     })
     public @interface ResultCode {}
 
@@ -280,6 +290,22 @@ public class ProfileInstaller {
     @ResultCode public static final int RESULT_PARSE_EXCEPTION = 8;
 
     /**
+     * Indicates that the device requires a metadata file in order to install the profile
+     * successfully, but there was not one included in the APK.
+     */
+    @ResultCode public static final int RESULT_META_FILE_REQUIRED_BUT_NOT_FOUND = 9;
+
+    /**
+     * Indicates that a skip file was successfully written and profile installation will be skipped.
+     */
+    @ResultCode public static final int RESULT_INSTALL_SKIP_FILE_SUCCESS = 10;
+
+    /**
+     * Indicates that a skip file was successfully deleted and profile installation will resume.
+     */
+    @ResultCode public static final int RESULT_DELETE_SKIP_FILE_SUCCESS = 11;
+
+    /**
      * Check if we've already installed a profile for this app installation.
      *
      * @hide
@@ -316,13 +342,26 @@ public class ProfileInstaller {
         return result;
     }
 
-    static void noteProfileWrittenFor(PackageInfo packageInfo, File appFilesDir) {
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    static void noteProfileWrittenFor(@NonNull PackageInfo packageInfo, @NonNull File appFilesDir) {
         File skipFile = new File(appFilesDir, PROFILE_INSTALLER_SKIP_FILE_NAME);
         try (DataOutputStream os = new DataOutputStream(new FileOutputStream(skipFile))) {
             os.writeLong(packageInfo.lastUpdateTime);
         } catch (IOException e) {
             /* nothing */
         }
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    static boolean deleteProfileWrittenFor(@NonNull File appFilesDir) {
+        File skipFile = new File(appFilesDir, PROFILE_INSTALLER_SKIP_FILE_NAME);
+        return skipFile.delete();
     }
 
     /**
@@ -334,7 +373,6 @@ public class ProfileInstaller {
      * @param filesDir for noting successful installation
      * @param apkName The apk file name the profile is targeting
      * @param diagnostics The diagnostics callback to pass diagnostics to
-     * @return true iff the profile was successfully written
      */
     private static void transcodeAndWrite(
             @NonNull AssetManager assets,
@@ -352,7 +390,7 @@ public class ProfileInstaller {
         File curProfile = new File(new File(PROFILE_BASE_DIR, packageName), PROFILE_FILE);
 
         DeviceProfileWriter deviceProfileWriter = new DeviceProfileWriter(assets, executor,
-                diagnostics, apkName, PROFILE_SOURCE_LOCATION, curProfile);
+                diagnostics, apkName, PROFILE_SOURCE_LOCATION, PROFILE_META_LOCATION, curProfile);
 
         if (!deviceProfileWriter.deviceAllowsProfileInstallerAotWrites()) {
             return; /* nothing else to do here */
@@ -460,6 +498,7 @@ public class ProfileInstaller {
      *
      */
     @WorkerThread
+    @SuppressWarnings("deprecation")
     static void writeProfile(
             @NonNull Context context,
             @NonNull Executor executor,
@@ -482,8 +521,61 @@ public class ProfileInstaller {
         File filesDir = context.getFilesDir();
         if (forceWriteProfile
                 || !hasAlreadyWrittenProfileForThisInstall(packageInfo, filesDir, diagnostics)) {
+            Log.d(TAG, "Installing profile for " + context.getPackageName());
             transcodeAndWrite(assetManager, packageName, packageInfo, filesDir, apkName, executor,
                     diagnostics);
+        } else {
+            Log.d(TAG, "Skipping profile installation for " + context.getPackageName());
         }
+    }
+
+    /**
+     * Writes a profile installation skip file, which makes {@link  ProfileInstaller} skip profile
+     * installation. This is being done so that Macrobenchmarks can request a skip file for
+     * `CompilationMode.None()`, and avoid any interference from {@link  ProfileInstaller}.
+     *
+     * @param context     context to read assets from
+     * @param diagnostics an object which will receive diagnostic information
+     * @param executor    the executor to run the diagnostic events through
+     */
+    @WorkerThread
+    @SuppressWarnings("deprecation")
+    static void writeSkipFile(
+            @NonNull Context context,
+            @NonNull Executor executor,
+            @NonNull DiagnosticsCallback diagnostics
+    ) {
+        Context appContext = context.getApplicationContext();
+        String packageName = appContext.getPackageName();
+        PackageManager packageManager = context.getPackageManager();
+        PackageInfo packageInfo;
+        try {
+            packageInfo = packageManager.getPackageInfo(packageName, 0);
+        } catch (PackageManager.NameNotFoundException e) {
+            result(executor, diagnostics, RESULT_IO_EXCEPTION, e);
+            return;
+        }
+        File filesDir = context.getFilesDir();
+        ProfileInstaller.noteProfileWrittenFor(packageInfo, filesDir);
+        result(executor, diagnostics, RESULT_INSTALL_SKIP_FILE_SUCCESS, null);
+    }
+
+    /**
+     * Deletes a profile installation skip so profile installation can continue after
+     * CompilationMode.None()`.
+     *
+     * @param context     context to read assets from
+     * @param diagnostics an object which will receive diagnostic information
+     * @param executor    the executor to run the diagnostic events through
+     */
+    @WorkerThread
+    static void deleteSkipFile(
+            @NonNull Context context,
+            @NonNull Executor executor,
+            @NonNull DiagnosticsCallback diagnostics
+    ) {
+        File filesDir = context.getFilesDir();
+        ProfileInstaller.deleteProfileWrittenFor(filesDir);
+        result(executor, diagnostics, RESULT_DELETE_SKIP_FILE_SUCCESS, null);
     }
 }

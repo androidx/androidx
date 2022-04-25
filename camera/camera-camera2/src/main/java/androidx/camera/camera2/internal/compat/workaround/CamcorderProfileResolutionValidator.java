@@ -20,6 +20,7 @@ import android.media.CamcorderProfile;
 import android.util.Size;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.quirk.CamcorderProfileResolutionQuirk;
 import androidx.camera.core.impl.CamcorderProfileProxy;
 
@@ -32,6 +33,7 @@ import java.util.Set;
  *
  * @see CamcorderProfileResolutionQuirk
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class CamcorderProfileResolutionValidator {
 
     private final CamcorderProfileResolutionQuirk mQuirk;

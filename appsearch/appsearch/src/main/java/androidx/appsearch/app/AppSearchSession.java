@@ -262,6 +262,13 @@ public interface AppSearchSession extends Closeable {
     ListenableFuture<Void> requestFlush();
 
     /**
+     * Returns the {@link Features} to check for the availability of certain features
+     * for this session.
+     */
+    @NonNull
+    Features getFeatures();
+
+    /**
      * Closes the {@link AppSearchSession} to persist all schema and document updates, additions,
      * and deletes to disk.
      */

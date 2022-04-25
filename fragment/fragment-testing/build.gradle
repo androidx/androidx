@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -46,4 +46,8 @@ androidx {
     mavenGroup = LibraryGroups.FRAGMENT
     inceptionYear = "2018"
     description = "Extensions for testing 'fragment' artifact"
+}
+
+android {
+    namespace "androidx.fragment.testing"
 }

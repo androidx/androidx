@@ -93,7 +93,6 @@ public class VectorDrawableTest {
             R.drawable.vector_icon_filltype_evenodd,
             R.drawable.vector_icon_filltype_nonzero,
             R.drawable.vector_icon_clip_filltype_evenodd,
-            R.drawable.vector_icon_clip_filltype_nonzero,
     };
 
     private static final int[] GOLDEN_IMAGES = new int[]{
@@ -126,7 +125,6 @@ public class VectorDrawableTest {
             R.drawable.vector_icon_filltype_evenodd_golden,
             R.drawable.vector_icon_filltype_nonzero_golden,
             R.drawable.vector_icon_clip_filltype_evenodd_golden,
-            R.drawable.vector_icon_clip_filltype_nonzero_golden,
     };
 
     private static final int[] EDGES = new int[]{
@@ -156,7 +154,6 @@ public class VectorDrawableTest {
             -1,
             -1,
             R.drawable.vector_icon_five_bars_edge,
-            -1,
             -1,
             -1,
             -1,
@@ -473,23 +470,17 @@ public class VectorDrawableTest {
         // d1 will be mutated, while d2 / d3 will not.
         int originalAlpha = d2.getAlpha();
 
-        d1.setAlpha(0x80);
-        assertEquals(0x80, d1.getAlpha());
-        assertEquals(0x80, d2.getAlpha());
-        assertEquals(0x80, d3.getAlpha());
-
         d1.mutate();
         d1.setAlpha(0x40);
         assertEquals(0x40, d1.getAlpha());
-        assertEquals(0x80, d2.getAlpha());
-        assertEquals(0x80, d3.getAlpha());
+        assertEquals(originalAlpha, d2.getAlpha());
+        assertEquals(originalAlpha, d3.getAlpha());
 
+        d2.mutate();
         d2.setAlpha(0x20);
         assertEquals(0x40, d1.getAlpha());
         assertEquals(0x20, d2.getAlpha());
-        assertEquals(0x20, d3.getAlpha());
-
-        d2.setAlpha(originalAlpha);
+        assertEquals(originalAlpha, d3.getAlpha());
     }
 
     @Test

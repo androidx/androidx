@@ -18,6 +18,7 @@ package androidx.camera.camera2.interop;
 
 import static androidx.camera.camera2.impl.Camera2ImplConfig.DEVICE_STATE_CALLBACK_OPTION;
 import static androidx.camera.camera2.impl.Camera2ImplConfig.SESSION_CAPTURE_CALLBACK_OPTION;
+import static androidx.camera.camera2.impl.Camera2ImplConfig.SESSION_PHYSICAL_CAMERA_ID_OPTION;
 import static androidx.camera.camera2.impl.Camera2ImplConfig.SESSION_STATE_CALLBACK_OPTION;
 import static androidx.camera.camera2.impl.Camera2ImplConfig.TEMPLATE_TYPE_OPTION;
 
@@ -28,6 +29,7 @@ import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
@@ -36,6 +38,7 @@ import androidx.camera.core.impl.Config;
 
 /** Utilities related to interoperability with the {@link android.hardware.camera2} APIs. */
 @ExperimentalCamera2Interop
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class Camera2Interop {
 
     /**
@@ -43,6 +46,7 @@ public final class Camera2Interop {
      *
      * @param <T> the type being built by the extendable builder.
      */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static final class Extender<T> {
 
         ExtendableBuilder<T> mBaseBuilder;
@@ -170,6 +174,34 @@ public final class Camera2Interop {
                 @NonNull CameraCaptureSession.CaptureCallback captureCallback) {
             mBaseBuilder.getMutableConfig().insertOption(SESSION_CAPTURE_CALLBACK_OPTION,
                     captureCallback);
+            return this;
+        }
+
+        /**
+         * Set the ID of the physical camera to get output from.
+         *
+         * <p>In the case one logical camera is made up of multiple physical cameras, this call
+         * forces the physical camera with the specified camera ID to produce image.
+         *
+         * <p>The valid physical camera IDs can be queried by {@code CameraCharacteristics
+         * .getPhysicalCameraIds} on API &gt;= 28. Passing in an invalid physical camera ID will
+         * be ignored.
+         *
+         * <p>On API &lt;= 27, the physical camera ID will be ignored since logical camera is not
+         * supported on these API levels.
+         *
+         * <p>Currently it doesn't support binding use cases with different physical camera IDs. If
+         * use cases with different physical camera IDs are bound at the same time, an
+         * {@link IllegalArgumentException} will be thrown.
+         *
+         * @param cameraId The desired camera ID.
+         * @return The current Extender.
+         */
+        @RequiresApi(28)
+        @NonNull
+        public Extender<T> setPhysicalCameraId(@NonNull String cameraId) {
+            mBaseBuilder.getMutableConfig().insertOption(SESSION_PHYSICAL_CAMERA_ID_OPTION,
+                    cameraId);
             return this;
         }
     }

@@ -18,11 +18,17 @@ package androidx.compose.foundation
 
 import androidx.compose.foundation.gestures.forEachGesture
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.KeyEventType.Companion.KeyUp
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.nativeKeyCode
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.AwaitPointerEventScope
 import androidx.compose.ui.input.pointer.PointerButtons
 import androidx.compose.ui.input.pointer.PointerEvent
@@ -30,24 +36,37 @@ import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.input.pointer.changedToDown
 import androidx.compose.ui.input.pointer.changedToUp
-import androidx.compose.ui.input.pointer.consumeDownChange
 import androidx.compose.ui.input.pointer.isOutOfBounds
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.util.fastAll
+import java.awt.event.KeyEvent.VK_ENTER
 import kotlinx.coroutines.coroutineScope
+
+@Composable
+internal actual fun isComposeRootInScrollableContainer(): () -> Boolean = { false }
 
 // TODO: b/168524931 - should this depend on the input device?
 internal actual val TapIndicationDelay: Long = 0L
 
-@Immutable @ExperimentalDesktopApi
+/**
+ * Whether the specified [KeyEvent] represents a user intent to perform a click.
+ * (eg. When you press Enter on a focused button, it should perform a click).
+ */
+internal actual val KeyEvent.isClick: Boolean
+    get() = type == KeyUp && when (key.nativeKeyCode) {
+        VK_ENTER -> true
+        else -> false
+    }
+
+@Immutable @ExperimentalFoundationApi
 class MouseClickScope constructor(
     val buttons: PointerButtons,
     val keyboardModifiers: PointerKeyboardModifiers
 )
 
-@ExperimentalDesktopApi
+@ExperimentalFoundationApi
 internal val EmptyClickContext = MouseClickScope(
     PointerButtons(0), PointerKeyboardModifiers(0)
 )
@@ -57,7 +76,7 @@ internal val EmptyClickContext = MouseClickScope(
  * information about pressed buttons and keyboard modifiers
  *
  */
-@ExperimentalDesktopApi
+@ExperimentalFoundationApi
 fun Modifier.mouseClickable(
     enabled: Boolean = true,
     onClickLabel: String? = null,
@@ -104,7 +123,7 @@ fun Modifier.mouseClickable(
     }
 )
 
-@OptIn(ExperimentalDesktopApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 internal suspend fun PointerInputScope.detectTapWithContext(
     onTap: ((PointerEvent, PointerEvent) -> Unit)? = null
 ) {
@@ -113,12 +132,12 @@ internal suspend fun PointerInputScope.detectTapWithContext(
             awaitPointerEventScope {
 
                 val down = awaitEventFirstDown().also {
-                    it.changes.forEach { it.consumeDownChange() }
+                    it.changes.forEach { it.consume() }
                 }
 
                 val up = waitForFirstInboundUp()
                 if (up != null) {
-                    up.changes.forEach { it.consumeDownChange() }
+                    up.changes.forEach { it.consume() }
                     onTap?.invoke(down, up)
                 }
             }
@@ -126,8 +145,7 @@ internal suspend fun PointerInputScope.detectTapWithContext(
     }
 }
 
-@ExperimentalDesktopApi
-suspend fun AwaitPointerEventScope.awaitEventFirstDown(): PointerEvent {
+private suspend fun AwaitPointerEventScope.awaitEventFirstDown(): PointerEvent {
     var event: PointerEvent
     do {
         event = awaitPointerEvent()

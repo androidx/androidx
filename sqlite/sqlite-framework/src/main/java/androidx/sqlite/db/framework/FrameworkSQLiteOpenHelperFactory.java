@@ -33,6 +33,7 @@ public final class FrameworkSQLiteOpenHelperFactory implements SupportSQLiteOpen
                 configuration.context,
                 configuration.name,
                 configuration.callback,
-                configuration.useNoBackupDirectory);
+                configuration.useNoBackupDirectory,
+                configuration.allowDataLossOnRecovery);
     }
 }

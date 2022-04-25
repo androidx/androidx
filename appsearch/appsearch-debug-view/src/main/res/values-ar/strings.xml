@@ -17,9 +17,9 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="appsearch_no_documents_error" msgid="2371906054857961621">"‏لم يتم العثور على مستندات AppSearch في قاعدة البيانات. تأكّد من أن اسم قاعدة البيانات صالح ومن اختيار نوع وحدة تخزين صحيح."</string>
-    <string name="appsearch_no_schema_types_error" msgid="6040453370924007774">"‏لم يتم العثور على أنواع مخططات AppSearch. تأكّد من أن اسم قاعدة البيانات صالح ومن اختيار نوع وحدة تخزين صحيح."</string>
-    <string name="appsearch_documents_loading" msgid="3079225167662255666">"‏جارٍ تحميل مستندات AppSearch…"</string>
-    <string name="appsearch_schema_types_loading" msgid="5223743742396711620">"‏جارٍ تحميل أنواع مخططات AppSearch…"</string>
-    <string name="appsearch_schema_version" msgid="5289450345246068014">"‏إصدار المخطط: %d"</string>
+    <string name="appsearch_no_documents_error" msgid="7957333381856121779">"‏لم يتم العثور على مستندات AppSearch في قاعدة البيانات. تأكّد من أن اسم قاعدة البيانات صالح ومن اختيار نوع وحدة تخزين صحيح."</string>
+    <string name="appsearch_no_schema_types_error" msgid="5825283982305113887">"‏لم يتم العثور على أنواع مخططات AppSearch. تأكّد من أن اسم قاعدة البيانات صالح ومن اختيار نوع وحدة تخزين صحيح."</string>
+    <string name="appsearch_documents_loading" msgid="1689893533003672860">"‏جارٍ تحميل مستندات AppSearch…"</string>
+    <string name="appsearch_schema_types_loading" msgid="4961123108404531766">"‏جارٍ تحميل أنواع مخططات AppSearch…"</string>
+    <string name="appsearch_schema_version" msgid="7000254633719373917">"‏إصدار المخطط: %d"</string>
 </resources>

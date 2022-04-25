@@ -22,6 +22,7 @@
     <!--Fragment titles-->
     <string name="preferences">Preferences</string>
     <string name="leanback_preferences">Leanback Preferences</string>
+    <string name="twopane_preferences">TwoPane Preferences</string>
 
     <!--This section is for basic attributes -->
     <string name="basic_preferences">Basic attributes</string>
@@ -85,4 +86,18 @@
 
     <string name="title_copyable_preference">Copyable preference</string>
     <string name="summary_copyable_preference">Long press on this preference to copy its summary</string>
+    <string name="summary_dialogs">Dialog preferences</string>
+    <string name="summary_basic_preferences">Basic preferences</string>
+    <string name="summary_widgets">widgets</string>
+    <string name="summary_advanced_attributes">Advanced attributes of preferences</string>
+
+    <string name="multi_preference_screen">Multi Preference Screens</string>
+    <string name="title_multi_preference_screen">Next Preference Screen</string>
+    <string name="summary_multi_preference_screen">Click to launch another preference screen</string>
+
+    <string name="title_next_preference_screen">Next Preference Screen</string>
+    <string name="title_information">Basic Information</string>
+    <string name="summary_information">Basic Information about the demo app</string>
+    <string name="title_details">Details</string>
+    <string name="summary_details">Detailed Information about the demo app</string>
 </resources>

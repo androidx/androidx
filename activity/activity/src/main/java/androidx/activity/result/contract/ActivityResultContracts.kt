@@ -48,7 +48,7 @@ class ActivityResultContracts private constructor() {
      */
     class StartActivityForResult : ActivityResultContract<Intent, ActivityResult>() {
 
-        internal companion object {
+        companion object {
             /**
              * Key for the extra containing a [android.os.Bundle] generated from
              * [androidx.core.app.ActivityOptionsCompat.toBundle] or
@@ -86,7 +86,7 @@ class ActivityResultContracts private constructor() {
     class StartIntentSenderForResult :
         ActivityResultContract<IntentSenderRequest, ActivityResult>() {
 
-        internal companion object {
+        companion object {
             /**
              * An [Intent] action for making a request via the
              * [Activity.startIntentSenderForResult] API.
@@ -127,7 +127,7 @@ class ActivityResultContracts private constructor() {
     class RequestMultiplePermissions :
         ActivityResultContract<Array<String>, Map<String, @JvmSuppressWildcards Boolean>>() {
 
-        internal companion object {
+        companion object {
             /**
              * An [Intent] action for making a permission request via a regular
              * [Activity.startActivityForResult] API.
@@ -411,7 +411,8 @@ class ActivityResultContracts private constructor() {
      * extras to the Intent created by `super.createIntent()`.
      */
     @RequiresApi(18)
-    open class GetMultipleContents : ActivityResultContract<String, List<Uri>>() {
+    open class GetMultipleContents :
+        ActivityResultContract<String, List<@JvmSuppressWildcards Uri>>() {
         @CallSuper
         override fun createIntent(context: Context, input: String): Intent {
             return Intent(Intent.ACTION_GET_CONTENT)
@@ -498,7 +499,8 @@ class ActivityResultContracts private constructor() {
      * @see DocumentsContract
      */
     @RequiresApi(19)
-    open class OpenMultipleDocuments : ActivityResultContract<Array<String>, List<Uri>>() {
+    open class OpenMultipleDocuments :
+        ActivityResultContract<Array<String>, List<@JvmSuppressWildcards Uri>>() {
         @CallSuper
         override fun createIntent(context: Context, input: Array<String>): Intent {
             return Intent(Intent.ACTION_OPEN_DOCUMENT)
@@ -557,7 +559,8 @@ class ActivityResultContracts private constructor() {
 
     /**
      * An [ActivityResultContract] to prompt the user to select a path for creating a new
-     * document, returning the `content:` [Uri] of the item that was created.
+     * document of the given [mimeType], returning the `content:` [Uri] of the item that was
+     * created.
      *
      * The input is the suggested name for the new file.
      *
@@ -565,11 +568,23 @@ class ActivityResultContracts private constructor() {
      * extras to the Intent created by `super.createIntent()`.
      */
     @RequiresApi(19)
-    open class CreateDocument : ActivityResultContract<String, Uri?>() {
+    open class CreateDocument(
+        private val mimeType: String
+    ) : ActivityResultContract<String, Uri?>() {
+
+        @Deprecated(
+            "Using a wildcard mime type with CreateDocument is not recommended as it breaks " +
+                "the automatic handling of file extensions. Instead, specify the mime type by " +
+                "using the constructor that takes an concrete mime type (e.g.., " +
+                "CreateDocument(\"image/png\")).",
+            ReplaceWith("CreateDocument(\"todo/todo\")")
+        )
+        constructor() : this("*/*")
+
         @CallSuper
         override fun createIntent(context: Context, input: String): Intent {
             return Intent(Intent.ACTION_CREATE_DOCUMENT)
-                .setType("*/*")
+                .setType(mimeType)
                 .putExtra(Intent.EXTRA_TITLE, input)
         }
 

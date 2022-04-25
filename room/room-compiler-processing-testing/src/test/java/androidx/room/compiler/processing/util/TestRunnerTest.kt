@@ -19,6 +19,7 @@ package androidx.room.compiler.processing.util
 import androidx.room.compiler.processing.ExperimentalProcessingApi
 import androidx.room.compiler.processing.SyntheticJavacProcessor
 import androidx.room.compiler.processing.SyntheticKspProcessor
+import androidx.room.compiler.processing.XProcessingEnvConfig
 import androidx.room.compiler.processing.util.compiler.TestCompilationArguments
 import androidx.room.compiler.processing.util.compiler.compile
 import com.google.common.truth.Truth.assertThat
@@ -59,6 +60,7 @@ class TestRunnerTest {
             override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
                 return SyntheticKspProcessor(
                     environment,
+                    XProcessingEnvConfig.DEFAULT,
                     listOf { invocation ->
                         if (
                             invocation.processingEnv.findTypeElement("gen.GeneratedKotlin")
@@ -79,6 +81,7 @@ class TestRunnerTest {
         }
 
         val javaProcessor = SyntheticJavacProcessor(
+            XProcessingEnvConfig.DEFAULT,
             listOf { invocation ->
                 if (
                     invocation.processingEnv.findTypeElement("gen.GeneratedJava")
@@ -310,6 +313,78 @@ class TestRunnerTest {
             }
             assertThat(kspResult.exceptionOrNull()).hasMessageThat()
                 .contains(errorMessage)
+        }
+    }
+
+    @Test
+    fun javacArguments() {
+        val src = Source.java(
+            "Foo",
+            """
+            public class Foo {
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(
+            sources = listOf(src),
+            javacArguments = listOf("-Werror"),
+        ) { invocation ->
+            invocation.processingEnv.messager.printMessage(
+                Diagnostic.Kind.WARNING,
+                "some warning"
+            )
+            invocation.assertCompilationResult {
+                if (invocation.isKsp) {
+                    // warning happens during ksp but Werror is only passed into javac so this
+                    // shouldn't fail
+                } else {
+                    compilationDidFail()
+                }
+            }
+        }
+    }
+
+    @Test
+    fun kotlincArguments() {
+        val src = Source.kotlin(
+            "Foo.kt",
+            """
+            class Foo
+            """.trimIndent()
+        )
+        runProcessorTest(
+            sources = listOf(src),
+            kotlincArguments = listOf("-Werror"),
+            javacArguments = listOf("-Werror") // needed for kapt as it uses javac,
+        ) { invocation ->
+            invocation.processingEnv.messager.printMessage(
+                Diagnostic.Kind.WARNING,
+                "some warning"
+            )
+            invocation.assertCompilationResult {
+                // either kapt or ksp, compilation should still fail due to the warning printed
+                // by the processor
+                compilationDidFail()
+            }
+        }
+    }
+
+    @Test
+    fun generatedSourceSubject() {
+        runProcessorTest { invocation ->
+            if (invocation.processingEnv.findTypeElement("Subject") == null) {
+                invocation.processingEnv.filer.write(
+                    JavaFile.builder(
+                        "",
+                        TypeSpec.classBuilder("Subject").build()
+                    ).build()
+                )
+            }
+            invocation.assertCompilationResult {
+                generatedSourceFileWithPath("Subject.java").contains(
+                    "class Subject"
+                )
+            }
         }
     }
 }

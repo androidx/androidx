@@ -1,0 +1,122 @@
+// Signature format: 4.0
+package androidx.benchmark.macro {
+
+  @RequiresApi(29) public final class Api29Kt {
+  }
+
+  @RequiresApi(23) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class AudioUnderrunMetric extends androidx.benchmark.macro.Metric {
+    ctor public AudioUnderrunMetric();
+  }
+
+  public enum BaselineProfileMode {
+    enum_constant public static final androidx.benchmark.macro.BaselineProfileMode Disable;
+    enum_constant public static final androidx.benchmark.macro.BaselineProfileMode Require;
+    enum_constant public static final androidx.benchmark.macro.BaselineProfileMode UseIfAvailable;
+  }
+
+  public final class BaselineProfilesKt {
+    method @RequiresApi(28) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void collectBaselineProfile(String uniqueName, String packageName, kotlin.jvm.functions.Function1<? super androidx.benchmark.macro.MacrobenchmarkScope,kotlin.Unit> setupBlock, kotlin.jvm.functions.Function1<? super androidx.benchmark.macro.MacrobenchmarkScope,kotlin.Unit> profileBlock);
+  }
+
+  public abstract sealed class CompilationMode {
+    field public static final androidx.benchmark.macro.CompilationMode.Companion Companion;
+    field public static final androidx.benchmark.macro.CompilationMode DEFAULT;
+  }
+
+  public static final class CompilationMode.Companion {
+  }
+
+  public static final class CompilationMode.Full extends androidx.benchmark.macro.CompilationMode {
+    ctor public CompilationMode.Full();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final class CompilationMode.Interpreted extends androidx.benchmark.macro.CompilationMode {
+  }
+
+  @RequiresApi(24) public static final class CompilationMode.None extends androidx.benchmark.macro.CompilationMode {
+    ctor public CompilationMode.None();
+  }
+
+  @RequiresApi(24) public static final class CompilationMode.Partial extends androidx.benchmark.macro.CompilationMode {
+    ctor public CompilationMode.Partial(optional androidx.benchmark.macro.BaselineProfileMode baselineProfileMode, optional @IntRange(from=0) int warmupIterations);
+    ctor public CompilationMode.Partial(optional androidx.benchmark.macro.BaselineProfileMode baselineProfileMode);
+    ctor public CompilationMode.Partial();
+    method public androidx.benchmark.macro.BaselineProfileMode getBaselineProfileMode();
+    method public int getWarmupIterations();
+    property public final androidx.benchmark.macro.BaselineProfileMode baselineProfileMode;
+    property public final int warmupIterations;
+  }
+
+  public final class CompilationModeKt {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static boolean isSupportedWithVmSettings(androidx.benchmark.macro.CompilationMode);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class FrameTimingGfxInfoMetric extends androidx.benchmark.macro.Metric {
+    ctor public FrameTimingGfxInfoMetric();
+  }
+
+  public final class FrameTimingMetric extends androidx.benchmark.macro.Metric {
+    ctor public FrameTimingMetric();
+  }
+
+  public final class IdeSummaryStringKt {
+  }
+
+  public final class IterationResultKt {
+  }
+
+  public final class MacrobenchmarkKt {
+  }
+
+  public final class MacrobenchmarkScope {
+    ctor public MacrobenchmarkScope(String packageName, boolean launchWithClearTask);
+    method public void dropKernelPageCache();
+    method public androidx.test.uiautomator.UiDevice getDevice();
+    method public Integer? getIteration();
+    method public String getPackageName();
+    method public void killProcess();
+    method public void pressHome(optional long delayDurationMs);
+    method public void pressHome();
+    method public void startActivityAndWait(optional kotlin.jvm.functions.Function1<? super android.content.Intent,kotlin.Unit> block);
+    method public void startActivityAndWait();
+    method public void startActivityAndWait(android.content.Intent intent);
+    property public final androidx.test.uiautomator.UiDevice device;
+    property public final Integer? iteration;
+    property public final String packageName;
+  }
+
+  public abstract sealed class Metric {
+  }
+
+  public final class MetricKt {
+  }
+
+  public final class MetricResultExtensionsKt {
+  }
+
+  public enum StartupMode {
+    enum_constant public static final androidx.benchmark.macro.StartupMode COLD;
+    enum_constant public static final androidx.benchmark.macro.StartupMode HOT;
+    enum_constant public static final androidx.benchmark.macro.StartupMode WARM;
+  }
+
+  @RequiresApi(29) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class StartupTimingLegacyMetric extends androidx.benchmark.macro.Metric {
+    ctor public StartupTimingLegacyMetric();
+  }
+
+  public final class StartupTimingMetric extends androidx.benchmark.macro.Metric {
+    ctor public StartupTimingMetric();
+  }
+
+  public final class TagKt {
+  }
+
+}
+
+package androidx.benchmark.macro.perfetto {
+
+  public final class ForceTracingKt {
+  }
+
+}
+

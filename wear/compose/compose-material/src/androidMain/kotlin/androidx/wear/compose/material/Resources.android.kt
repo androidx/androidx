@@ -16,32 +16,38 @@
 
 package androidx.wear.compose.material
 
+import android.provider.Settings
 import android.text.format.DateFormat
+import android.view.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 
 @Composable
-internal actual fun isRoundDevice(): Boolean {
-    return LocalContext.current.resources.configuration.isScreenRound
-}
+internal actual fun isRoundDevice(): Boolean = LocalConfiguration.current.isScreenRound
 
 @Composable
-internal actual fun imageResource(res: String): Painter {
-    val id = drawableId(res)
-    return painterResource(id)
-}
-
-// TODO: improve resource loading
-private fun drawableId(res: String): Int {
-    val imageName = res.substringAfterLast("/").substringBeforeLast(".")
-    val drawableClass = R.drawable::class.java
-    val field = drawableClass.getDeclaredField(imageName)
-    return field.get(drawableClass) as Int
-}
+internal actual fun imageResource(image: ImageResources): Painter =
+    painterResource(
+        when (image) {
+            ImageResources.CircularVignetteBottom -> R.drawable.circular_vignette_bottom
+            ImageResources.CircularVignetteTop -> R.drawable.circular_vignette_top
+            ImageResources.RectangularVignetteBottom -> R.drawable.rectangular_vignette_bottom
+            ImageResources.RectangularVignetteTop -> R.drawable.rectangular_vignette_top
+        }
+    )
 
 @Composable
 internal actual fun is24HourFormat(): Boolean = DateFormat.is24HourFormat(LocalContext.current)
 
 internal actual fun currentTimeMillis(): Long = System.currentTimeMillis()
+
+@Composable
+internal actual fun isLeftyModeEnabled() =
+    Settings.System.getInt(
+        LocalContext.current.contentResolver,
+        Settings.System.USER_ROTATION,
+        Surface.ROTATION_0
+    ) == Surface.ROTATION_180

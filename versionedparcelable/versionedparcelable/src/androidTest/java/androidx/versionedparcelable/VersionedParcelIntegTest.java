@@ -71,6 +71,7 @@ public class VersionedParcelIntegTest {
         mUseStream = useStream;
     }
 
+    @SuppressWarnings("deprecation")
     private ParcelizableImpl parcelCopy(ParcelizableImpl obj) {
         if (mUseStream) {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

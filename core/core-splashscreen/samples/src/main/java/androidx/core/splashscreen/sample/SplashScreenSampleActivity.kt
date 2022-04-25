@@ -55,7 +55,7 @@ class SplashScreenSampleActivity : AppCompatActivity() {
         setContentView(R.layout.main_activity)
 
         // (Optional) We can keep the splash screen visible until our app is ready.
-        splashScreen.setKeepVisibleCondition { !appReady }
+        splashScreen.setKeepOnScreenCondition { !appReady }
 
         // (Optional) Setting an OnExitAnimationListener on the SplashScreen indicates
         // to the system that the application will handle the exit animation.

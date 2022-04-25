@@ -39,6 +39,13 @@ internal class DiagnosticsMessageCollector : MessageCollector {
         diagnostics.clear()
     }
 
+    /**
+     * Returns `true` if this collector has any warning messages.
+     */
+    fun hasWarnings() = diagnostics.any {
+        it.kind == Diagnostic.Kind.WARNING || it.kind == Diagnostic.Kind.MANDATORY_WARNING
+    }
+
     override fun hasErrors(): Boolean {
         return diagnostics.any {
             it.kind == Diagnostic.Kind.ERROR
@@ -50,6 +57,10 @@ internal class DiagnosticsMessageCollector : MessageCollector {
         message: String,
         location: CompilerMessageSourceLocation?
     ) {
+        if (message == KSP_ADDITIONAL_ERROR_MESSAGE) {
+            // ignore this as it will impact error counts.
+            return
+        }
         // Both KSP and KAPT reports null location but instead put the location into the message.
         // We parse it back here to recover the location.
         val (strippedMessage, rawLocation) = if (location == null) {
@@ -143,5 +154,10 @@ internal class DiagnosticsMessageCollector : MessageCollector {
         private val KIND_REGEX = """^\w+: """.toRegex()
         // example: "[ksp] the real message"
         private val KSP_PREFIX_REGEX = """^\[ksp] """.toRegex()
+
+        // KSP always prints an additional error if any other error occurred.
+        // We drop that additional message to provide a more consistent error count with KAPT/javac.
+        private const val KSP_ADDITIONAL_ERROR_MESSAGE =
+            "Error occurred in KSP, check log for detail"
     }
 }

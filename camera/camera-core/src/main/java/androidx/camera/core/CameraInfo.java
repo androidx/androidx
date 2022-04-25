@@ -16,9 +16,11 @@
 
 package androidx.camera.core;
 
+import android.graphics.ImageFormat;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.StringDef;
@@ -35,6 +37,7 @@ import java.lang.annotation.RetentionPolicy;
  *
  * <p>Applications can retrieve an instance via {@link Camera#getCameraInfo()}.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface CameraInfo {
 
     /**
@@ -198,6 +201,34 @@ public interface CameraInfo {
      * {@link FocusMeteringAction} will always fail.
      */
     default boolean isFocusMeteringSupported(@NonNull FocusMeteringAction action) {
+        return false;
+    }
+
+    /**
+     * Returns if {@link ImageFormat#YUV_420_888} reprocessing is supported on the device.
+     *
+     * @return True if supported, otherwise false.
+     *
+     * @See CameraMetadata#REQUEST_AVAILABLE_CAPABILITIES_YUV_REPROCESSING
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    default boolean isYuvReprocessingSupported() {
+        return false;
+    }
+
+    /**
+     * Returns if {@link ImageFormat#PRIVATE} reprocessing is supported on the device.
+     *
+     * @return True if supported, otherwise false.
+     *
+     * @See CameraMetadata#REQUEST_AVAILABLE_CAPABILITIES_PRIVATE_REPROCESSING
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    default boolean isPrivateReprocessingSupported() {
         return false;
     }
 

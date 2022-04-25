@@ -1,4 +1,3 @@
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -24,4 +23,8 @@ androidx {
     inceptionYear = "2013"
     description = "Android Support Grid Layout"
     failOnDeprecationWarnings = false
+}
+
+android {
+    namespace "androidx.gridlayout"
 }

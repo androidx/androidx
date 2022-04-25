@@ -17,8 +17,10 @@
 package androidx.room.compiler.processing.util
 
 import androidx.room.compiler.processing.ExperimentalProcessingApi
+import androidx.room.compiler.processing.XProcessingEnvConfig
 import androidx.room.compiler.processing.XProcessingStep
 import androidx.room.compiler.processing.XTypeElement
+import androidx.room.compiler.processing.XProcessingEnvironmentTestConfigProvider
 import androidx.room.compiler.processing.util.compiler.TestCompilationArguments
 import androidx.room.compiler.processing.util.compiler.compile
 import androidx.room.compiler.processing.util.runner.CompilationTestRunner
@@ -34,6 +36,10 @@ import java.io.File
 import java.util.jar.JarEntry
 import java.util.jar.JarOutputStream
 import javax.annotation.processing.Processor
+
+private fun defaultTestConfig(
+    options: Map<String, String>
+) = XProcessingEnvironmentTestConfigProvider.createConfig(options)
 
 @ExperimentalProcessingApi
 private fun runTests(
@@ -84,6 +90,9 @@ fun runProcessorTestWithoutKsp(
     sources: List<Source> = emptyList(),
     classpath: List<File> = emptyList(),
     options: Map<String, String> = emptyMap(),
+    javacArguments: List<String> = emptyList(),
+    kotlincArguments: List<String> = emptyList(),
+    config: XProcessingEnvConfig = defaultTestConfig(options),
     handler: (XTestInvocation) -> Unit
 ) {
     runTests(
@@ -91,6 +100,9 @@ fun runProcessorTestWithoutKsp(
             sources = sources,
             classpath = classpath,
             options = options,
+            javacArguments = javacArguments,
+            kotlincArguments = kotlincArguments,
+            config = config,
             handlers = listOf(handler),
         ),
         JavacCompilationTestRunner,
@@ -118,11 +130,17 @@ fun runProcessorTest(
     sources: List<Source> = emptyList(),
     classpath: List<File> = emptyList(),
     options: Map<String, String> = emptyMap(),
+    javacArguments: List<String> = emptyList(),
+    kotlincArguments: List<String> = emptyList(),
+    config: XProcessingEnvConfig = defaultTestConfig(options),
     handler: (XTestInvocation) -> Unit
 ) = runProcessorTest(
     sources = sources,
     classpath = classpath,
     options = options,
+    javacArguments = javacArguments,
+    kotlincArguments = kotlincArguments,
+    config = config,
     handlers = listOf(handler)
 )
 
@@ -144,13 +162,19 @@ fun runProcessorTest(
     sources: List<Source> = emptyList(),
     classpath: List<File> = emptyList(),
     options: Map<String, String> = emptyMap(),
+    javacArguments: List<String> = emptyList(),
+    kotlincArguments: List<String> = emptyList(),
+    config: XProcessingEnvConfig = defaultTestConfig(options),
     createProcessingStep: () -> XProcessingStep,
     onCompilationResult: (CompilationResultSubject) -> Unit
 ) {
     runProcessorTest(
         sources = sources,
         classpath = classpath,
-        options = options
+        options = options,
+        javacArguments = javacArguments,
+        kotlincArguments = kotlincArguments,
+        config = config,
     ) { invocation ->
         val step = createProcessingStep()
         val elements =
@@ -162,7 +186,8 @@ fun runProcessorTest(
                 }
         step.process(
             env = invocation.processingEnv,
-            elementsByAnnotation = elements
+            elementsByAnnotation = elements,
+            isLastRound = false
         )
         invocation.assertCompilationResult(onCompilationResult)
     }
@@ -176,6 +201,9 @@ fun runProcessorTest(
     sources: List<Source> = emptyList(),
     classpath: List<File> = emptyList(),
     options: Map<String, String> = emptyMap(),
+    javacArguments: List<String> = emptyList(),
+    kotlincArguments: List<String> = emptyList(),
+    config: XProcessingEnvConfig = defaultTestConfig(options),
     handlers: List<(XTestInvocation) -> Unit>
 ) {
     val javaApRunner = if (sources.any { it is Source.KotlinSource }) {
@@ -188,7 +216,10 @@ fun runProcessorTest(
             sources = sources,
             classpath = classpath.distinct(),
             options = options,
-            handlers = handlers
+            handlers = handlers,
+            javacArguments = javacArguments,
+            kotlincArguments = kotlincArguments,
+            config = config
         ),
         javaApRunner,
         KspCompilationTestRunner
@@ -205,11 +236,13 @@ fun runJavaProcessorTest(
     sources: List<Source>,
     classpath: List<File> = emptyList(),
     options: Map<String, String> = emptyMap(),
+    config: XProcessingEnvConfig = defaultTestConfig(options),
     handler: (XTestInvocation) -> Unit
 ) = runJavaProcessorTest(
     sources = sources,
     classpath = classpath,
     options = options,
+    config = config,
     handlers = listOf(handler)
 )
 
@@ -221,6 +254,7 @@ fun runJavaProcessorTest(
     sources: List<Source>,
     classpath: List<File> = emptyList(),
     options: Map<String, String> = emptyMap(),
+    config: XProcessingEnvConfig = defaultTestConfig(options),
     handlers: List<(XTestInvocation) -> Unit>
 ) {
     runTests(
@@ -228,7 +262,8 @@ fun runJavaProcessorTest(
             sources = sources,
             classpath = classpath,
             options = options,
-            handlers = handlers
+            handlers = handlers,
+            config = config,
         ),
         JavacCompilationTestRunner
     )
@@ -242,11 +277,17 @@ fun runKaptTest(
     sources: List<Source>,
     classpath: List<File> = emptyList(),
     options: Map<String, String> = emptyMap(),
+    javacArguments: List<String> = emptyList(),
+    kotlincArguments: List<String> = emptyList(),
+    config: XProcessingEnvConfig = defaultTestConfig(options),
     handler: (XTestInvocation) -> Unit
 ) = runKaptTest(
     sources = sources,
     classpath = classpath,
     options = options,
+    javacArguments = javacArguments,
+    kotlincArguments = kotlincArguments,
+    config = config,
     handlers = listOf(handler)
 )
 
@@ -258,6 +299,9 @@ fun runKaptTest(
     sources: List<Source>,
     classpath: List<File> = emptyList(),
     options: Map<String, String> = emptyMap(),
+    javacArguments: List<String> = emptyList(),
+    kotlincArguments: List<String> = emptyList(),
+    config: XProcessingEnvConfig = defaultTestConfig(options),
     handlers: List<(XTestInvocation) -> Unit>
 ) {
     runTests(
@@ -265,7 +309,10 @@ fun runKaptTest(
             sources = sources,
             classpath = classpath,
             options = options,
-            handlers = handlers
+            handlers = handlers,
+            javacArguments = javacArguments,
+            kotlincArguments = kotlincArguments,
+            config = config,
         ),
         KaptCompilationTestRunner
     )
@@ -279,11 +326,17 @@ fun runKspTest(
     sources: List<Source>,
     classpath: List<File> = emptyList(),
     options: Map<String, String> = emptyMap(),
+    javacArguments: List<String> = emptyList(),
+    kotlincArguments: List<String> = emptyList(),
+    config: XProcessingEnvConfig = defaultTestConfig(options),
     handler: (XTestInvocation) -> Unit
 ) = runKspTest(
     sources = sources,
     classpath = classpath,
     options = options,
+    javacArguments = javacArguments,
+    kotlincArguments = kotlincArguments,
+    config = config,
     handlers = listOf(handler)
 )
 
@@ -295,6 +348,9 @@ fun runKspTest(
     sources: List<Source>,
     classpath: List<File> = emptyList(),
     options: Map<String, String> = emptyMap(),
+    javacArguments: List<String> = emptyList(),
+    kotlincArguments: List<String> = emptyList(),
+    config: XProcessingEnvConfig = defaultTestConfig(options),
     handlers: List<(XTestInvocation) -> Unit>
 ) {
     runTests(
@@ -302,7 +358,10 @@ fun runKspTest(
             sources = sources,
             classpath = classpath,
             options = options,
-            handlers = handlers
+            handlers = handlers,
+            javacArguments = javacArguments,
+            kotlincArguments = kotlincArguments,
+            config = config,
         ),
         KspCompilationTestRunner
     )
@@ -318,6 +377,7 @@ fun runKspTest(
  * @param symbolProcessorProviders The list of Kotlin symbol processor providers to run with
  * compilation
  * @param javacArguments The command line arguments that will be passed into javac
+ * @param kotlincArguments The command line arguments that will be passed into kotlinc
  */
 fun compileFiles(
     sources: List<Source>,
@@ -325,6 +385,7 @@ fun compileFiles(
     annotationProcessors: List<Processor> = emptyList(),
     symbolProcessorProviders: List<SymbolProcessorProvider> = emptyList(),
     javacArguments: List<String> = emptyList(),
+    kotlincArguments: List<String> = emptyList(),
     includeSystemClasspath: Boolean = true
 ): List<File> {
     val workingDir = Files.createTempDir()
@@ -335,10 +396,19 @@ fun compileFiles(
             kaptProcessors = annotationProcessors,
             symbolProcessorProviders = symbolProcessorProviders,
             processorOptions = options,
-            javacArguments = javacArguments
+            javacArguments = javacArguments,
+            kotlincArguments = kotlincArguments
         )
     )
-    assertThat(result.success).isTrue()
+    if (!result.success) {
+        throw AssertionError(
+            """
+            Compilation failed:
+            $result
+            """.trimIndent()
+        )
+    }
+
     return result.outputClasspath.let {
         if (includeSystemClasspath) {
             it + getSystemClasspathFiles()

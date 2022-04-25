@@ -29,15 +29,46 @@ import androidx.annotation.RestrictTo
 public data class BenchmarkResult(
     val className: String,
     val testName: String,
-    @JvmField // Suppress API lint (using JvmField instead of @Suppress to workaround b/175063229))
     val totalRunTimeNs: Long,
-    val metrics: List<MetricResult>,
+    val metrics: Measurements,
     val repeatIterations: Int,
-    @JvmField // Suppress API lint (using JvmField instead of @Suppress to workaround b/175063229))
     val thermalThrottleSleepSeconds: Long,
     val warmupIterations: Int
 ) {
+    /**
+     * Simplified constructor, without sampled metrics, for micro benchmarks.
+     */
+    constructor(
+        className: String,
+        testName: String,
+        totalRunTimeNs: Long,
+        metrics: List<MetricResult>,
+        repeatIterations: Int,
+        thermalThrottleSleepSeconds: Long,
+        warmupIterations: Int
+    ) : this(
+        className = className,
+        testName = testName,
+        totalRunTimeNs = totalRunTimeNs,
+        metrics = Measurements(
+            singleMetrics = metrics,
+            sampledMetrics = emptyList()
+        ),
+        repeatIterations = repeatIterations,
+        thermalThrottleSleepSeconds = thermalThrottleSleepSeconds,
+        warmupIterations = warmupIterations
+    )
     public fun getMetricResult(which: String): MetricResult {
-        return metrics.first { it.name == which }
+        return metrics.singleMetrics.first { it.name == which }
+    }
+
+    /**
+     * Final metric results from a full benchmark test, merged across multiple iterations.
+     */
+    data class Measurements(
+        val singleMetrics: List<MetricResult>,
+        val sampledMetrics: List<MetricResult>
+    ) {
+        fun isNotEmpty() = singleMetrics.isNotEmpty() || sampledMetrics.isNotEmpty()
     }
 }

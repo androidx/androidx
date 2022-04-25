@@ -16,10 +16,11 @@
 
 package androidx.activity
 
+import android.os.Build
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
-import androidx.core.R
+import androidx.activity.test.R
 import androidx.core.view.MenuProvider
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
@@ -30,11 +31,13 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN_MR2) // b/229013665
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class ComponentActivityMenuTest {
@@ -69,6 +72,33 @@ class ComponentActivityMenuTest {
             onView(withText("Item2")).check(matches(isDisplayed()))
             onView(withText("Item3")).check(matches(isDisplayed()))
             onView(withText("Item4")).check(matches(isDisplayed()))
+        }
+    }
+
+    @Test
+    fun onPrepareMenu() {
+        with(ActivityScenario.launch(ComponentActivity::class.java)) {
+            val menuHost: ComponentActivity = withActivity { this }
+            var menuPrepared: Boolean
+
+            menuHost.addMenuProvider(object : MenuProvider {
+                override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                    menuInflater.inflate(R.menu.example_menu, menu)
+                }
+
+                override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                    return true
+                }
+
+                override fun onPrepareMenu(menu: Menu) {
+                    menuPrepared = true
+                }
+            })
+
+            menuPrepared = false
+            openActionBarOverflowOrOptionsMenu(menuHost)
+            onView(withText("Item1")).perform(click())
+            assertThat(menuPrepared).isTrue()
         }
     }
 
@@ -118,6 +148,32 @@ class ComponentActivityMenuTest {
             openActionBarOverflowOrOptionsMenu(menuHost)
             onView(withText("Item3")).perform(click())
             assertThat(itemSelectedId).isEqualTo(R.id.item3)
+        }
+    }
+
+    @Test
+    fun onMenuClosed() {
+        with(ActivityScenario.launch(ComponentActivity::class.java)) {
+            val menuHost: ComponentActivity = withActivity { this }
+            var menuClosed = false
+
+            menuHost.addMenuProvider(object : MenuProvider {
+                override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                    menuInflater.inflate(R.menu.example_menu, menu)
+                }
+
+                override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                    return true
+                }
+
+                override fun onMenuClosed(menu: Menu) {
+                    menuClosed = true
+                }
+            })
+
+            openActionBarOverflowOrOptionsMenu(menuHost)
+            withActivity { closeOptionsMenu() }
+            assertThat(menuClosed).isTrue()
         }
     }
 }

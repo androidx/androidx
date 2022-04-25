@@ -16,7 +16,6 @@
 
 
 import androidx.build.AndroidXComposePlugin
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 
 plugins {
@@ -59,14 +58,18 @@ dependencies {
         androidTestImplementation(libs.mockitoCore)
 
         lintPublish(project(":compose:runtime:runtime-saveable-lint"))
+
+        samples(projectOrArtifact(":compose:runtime:runtime-saveable:runtime-saveable-samples"))
     }
 }
 
 if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-    kotlin {
+    androidXComposeMultiplatform {
         android()
-        jvm("desktop")
+        desktop()
+    }
 
+    kotlin {
         /* When updating dependencies, make sure to make the an an analogous update in the
             corresponding block above */
         sourceSets {
@@ -81,6 +84,10 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 api "androidx.annotation:annotation:1.1.0"
             }
 
+            // TODO(b/214407011): These dependencies leak into instrumented tests as well. If you
+            //  need to add Robolectric (which must be kept out of androidAndroidTest), use a top
+            //  level dependencies block instead:
+            //  `dependencies { testImplementation(libs.robolectric) }`
             androidTest.dependencies {
                 implementation(libs.testRules)
                 implementation(libs.testRunner)
@@ -106,13 +113,20 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             }
         }
     }
+    dependencies {
+        samples(projectOrArtifact(":compose:runtime:runtime-saveable:runtime-saveable-samples"))
+    }
 }
 
 androidx {
     name = "Compose Saveable"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.Compose.RUNTIME
+    mavenGroup = LibraryGroups.COMPOSE_RUNTIME
     inceptionYear = "2020"
     description = "Compose components that allow saving and restoring the local ui state"
     legacyDisableKotlinStrictApiMode = true
+}
+
+android {
+    namespace "androidx.compose.runtime.saveable"
 }

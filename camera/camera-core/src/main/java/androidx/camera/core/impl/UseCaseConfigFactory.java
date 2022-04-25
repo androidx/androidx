@@ -20,11 +20,14 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.camera.core.ImageCapture.CaptureMode;
 import androidx.camera.core.InitializationException;
 
 /**
  * A Repository for generating use case configurations.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface UseCaseConfigFactory {
 
     enum CaptureType {
@@ -68,14 +71,18 @@ public interface UseCaseConfigFactory {
     /**
      * Returns the configuration for the given capture type, or <code>null</code> if the
      * configuration cannot be produced.
+     *
+     * @param captureType The {@link CaptureType} for the configuration.
+     * @param captureMode The {@link CaptureMode} for the configuration.
+     * @return The use case configuration.
      */
     @Nullable
-    Config getConfig(@NonNull CaptureType captureType);
+    Config getConfig(@NonNull CaptureType captureType, @CaptureMode int captureMode);
 
     UseCaseConfigFactory EMPTY_INSTANCE = new UseCaseConfigFactory() {
         @Nullable
         @Override
-        public Config getConfig(@NonNull CaptureType captureType) {
+        public Config getConfig(@NonNull CaptureType captureType, @CaptureMode int captureMode) {
             return null;
         }
     };

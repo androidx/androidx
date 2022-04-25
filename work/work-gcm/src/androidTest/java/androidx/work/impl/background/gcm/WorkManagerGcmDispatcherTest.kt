@@ -75,19 +75,12 @@ class WorkManagerGcmDispatcherTest {
         val workTaskExecutor: androidx.work.impl.utils.taskexecutor.TaskExecutor =
             object : androidx.work.impl.utils.taskexecutor.TaskExecutor {
                 private val mSerialExecutor = SerialExecutor(mExecutor)
-                override fun postToMainThread(runnable: Runnable) {
-                    mExecutor.execute(runnable)
-                }
 
                 override fun getMainThreadExecutor(): Executor {
                     return mExecutor
                 }
 
-                override fun executeOnBackgroundThread(runnable: Runnable) {
-                    mSerialExecutor.execute(runnable)
-                }
-
-                override fun getBackgroundExecutor(): SerialExecutor {
+                override fun getSerialTaskExecutor(): SerialExecutor {
                     return mSerialExecutor
                 }
             }
@@ -99,8 +92,8 @@ class WorkManagerGcmDispatcherTest {
 
         mWorkManager = WorkManagerImpl(mContext, configuration, workTaskExecutor, true)
         WorkManagerImpl.setDelegate(mWorkManager)
-        mWorkTimer = spy(WorkTimer())
-        mDispatcher = WorkManagerGcmDispatcher(mContext, mWorkTimer)
+        mWorkTimer = spy(WorkTimer(configuration.runnableScheduler))
+        mDispatcher = WorkManagerGcmDispatcher(mWorkManager, mWorkTimer)
     }
 
     @Test

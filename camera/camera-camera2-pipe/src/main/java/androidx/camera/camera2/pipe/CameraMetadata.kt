@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+
 package androidx.camera.camera2.pipe
 
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
+import androidx.annotation.RequiresApi
 
 /**
  * [CameraMetadata] is a compatibility wrapper around [CameraCharacteristics].
@@ -118,3 +121,17 @@ val CameraMetadata.supportsSystemCamera: Boolean
 
 val CameraMetadata.supportsOfflineReprocessing: Boolean
     get() = this.availableCapabilities.contains(CAPABILITIES_OFFLINE_REPROCESSING)
+
+val CameraMetadata.supportsAutoFocusTrigger: Boolean
+    get() {
+        val minFocusDistance = this[CameraCharacteristics.LENS_INFO_MINIMUM_FOCUS_DISTANCE]
+        if (minFocusDistance != null) {
+            return minFocusDistance > 0
+        }
+        val availableAfModes =
+            this[CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES] ?: return false
+        return availableAfModes.contains(CaptureRequest.CONTROL_AF_MODE_AUTO) ||
+            availableAfModes.contains(CaptureRequest.CONTROL_AF_MODE_MACRO) ||
+            availableAfModes.contains(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE) ||
+            availableAfModes.contains(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_VIDEO)
+    }

@@ -15,4 +15,7 @@
   -->
 
 <resources>
+    <string name="extensions_app">Extensions App</string>
+    <string name="extensions_validator">Extensions Validator</string>
+    <string name="error_msg_no_camera_support_extension">No camera supports any extension modes!</string>
 </resources>

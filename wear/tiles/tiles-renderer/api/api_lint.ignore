@@ -1,0 +1,29 @@
+// Baseline format: 1.0
+AsyncSuffixFuture: androidx.wear.tiles.client.TileClient#requestApiVersion():
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.wear.tiles.client.TileClient#requestResources(androidx.wear.tiles.RequestBuilders.ResourcesRequest):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.wear.tiles.client.TileClient#requestTile(androidx.wear.tiles.RequestBuilders.TileRequest):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.wear.tiles.client.TileClient#sendOnTileAddedEvent():
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.wear.tiles.client.TileClient#sendOnTileEnterEvent():
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.wear.tiles.client.TileClient#sendOnTileLeaveEvent():
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.wear.tiles.client.TileClient#sendOnTileRemovedEvent():
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.wear.tiles.connection.DefaultTileClient#requestApiVersion():
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.wear.tiles.connection.DefaultTileClient#requestResources(androidx.wear.tiles.RequestBuilders.ResourcesRequest):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.wear.tiles.connection.DefaultTileClient#requestTile(androidx.wear.tiles.RequestBuilders.TileRequest):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.wear.tiles.connection.DefaultTileClient#sendOnTileAddedEvent():
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.wear.tiles.connection.DefaultTileClient#sendOnTileEnterEvent():
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.wear.tiles.connection.DefaultTileClient#sendOnTileLeaveEvent():
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.wear.tiles.connection.DefaultTileClient#sendOnTileRemovedEvent():
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function

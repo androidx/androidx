@@ -16,12 +16,17 @@
 
 package androidx.camera.core;
 
+import android.graphics.Matrix;
+import android.hardware.camera2.CameraCharacteristics;
+
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.impl.TagBundle;
 import androidx.camera.core.impl.utils.ExifData;
 
 /** Metadata for an image. */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface ImageInfo {
     /**
      * Returns all tags stored in the metadata.
@@ -65,6 +70,55 @@ public interface ImageInfo {
      */
     // TODO(b/122806727) Need to correctly set EXIF in JPEG images
     int getRotationDegrees();
+
+    /**
+     * Returns the sensor to image buffer transform matrix.
+     *
+     * <p>The returned matrix is a mapping from sensor coordinates to buffer coordinates,
+     * which is, from the value of {@link CameraCharacteristics#SENSOR_INFO_ACTIVE_ARRAY_SIZE} to
+     * {@code (0, 0, image.getWidth, image.getHeight)}. The matrix can be used to map the
+     * coordinates from one {@link UseCase} to another. For example, mapping coordinates of the
+     * face detected with {@link ImageAnalysis} to {@link ImageCapture}.
+     *
+     * If {@link ImageAnalysis.Builder#setOutputImageRotationEnabled} is set to false,
+     * {@link ImageInfo#getRotationDegrees()} will return the rotation degree that needs to be
+     * applied to the image buffer to user. In this case, the transform matrix can be
+     * calculated using rotation degrees.
+     *
+     * If {@link ImageAnalysis.Builder#setOutputImageRotationEnabled} is set to true, the
+     * ImageAnalysis pipeline will apply the rotation to the image buffer and
+     * {@link ImageInfo#getRotationDegrees()} will always return 0. In this case, the transform
+     * matrix cannot be calculated.
+     *
+     * This API provides the transform matrix which could handle both cases.
+     *
+     * <pre>
+     *     <code>
+     *         // Calculate the matrix
+     *         Matrix analysisToSensor = new Matrix();
+     *         analysisToSensor.invert(
+     *             imageAnalysisImageProxy.getImageInfo()
+     *                                    .getSensorToBufferTransformMatrix());
+     *         Matrix sensorToCapture = captureImageProxy.getImageInfo()
+     *                                                   .getSensorToBufferTransformMatrix();
+     *         Matrix analysisToCapture = new Matrix();
+     *         analysisToCapture.setConcat(analysisToSensor, sensorToCapture);
+     *
+     *         // Transforming the coordinates
+     *         Rect faceBoundingBoxInAnalysis;
+     *         Rect faceBoundingBoxInCapture;
+     *         analysisToCapture.mapRect(faceBoundingBoxInAnalysis, faceBoundingBoxInCapture);
+     *
+     *         // faceBoundingBoxInCapture is the desired value
+     *     </code>
+     * </pre>
+     *
+     * @return the transform matrix.
+     */
+    @NonNull
+    default Matrix getSensorToBufferTransformMatrix() {
+        return new Matrix();
+    }
 
     /**
      * Adds any stored EXIF information in this ImageInfo into the provided ExifData builder.

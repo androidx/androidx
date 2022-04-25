@@ -43,12 +43,14 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.camera2.internal.util.SemaphoreReleasingCamera2Callbacks;
 import androidx.camera.camera2.interop.Camera2Interop;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.ImageCapture;
 import androidx.camera.core.InitializationException;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraCaptureCallback;
@@ -71,6 +73,7 @@ import androidx.core.os.HandlerCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -104,6 +107,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 @LargeTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 21)
 public final class Camera2CameraImplTest {
     @CameraSelector.LensFacing
     private static final int DEFAULT_LENS_FACING = CameraSelector.LENS_FACING_BACK;
@@ -117,8 +121,9 @@ public final class Camera2CameraImplTest {
     static ExecutorService sCameraExecutor;
 
     @Rule
-    public TestRule mCameraRule = CameraUtil.grantCameraPermissionAndPreTest();
-
+    public TestRule mCameraRule = CameraUtil.grantCameraPermissionAndPreTest(
+            new CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+    );
 
     private ArrayList<FakeUseCase> mFakeUseCases = new ArrayList<>();
     private Camera2CameraImpl mCamera2CameraImpl;
@@ -156,9 +161,11 @@ public final class Camera2CameraImplTest {
                 CameraManagerCompat.from((Context) ApplicationProvider.getApplicationContext());
         Camera2CameraInfoImpl camera2CameraInfo = new Camera2CameraInfoImpl(
                 mCameraId, cameraManagerCompat);
-        mCamera2CameraImpl = new Camera2CameraImpl(cameraManagerCompat, mCameraId,
-                camera2CameraInfo,
-                mCameraStateRegistry, sCameraExecutor, sCameraHandler);
+        mCamera2CameraImpl = new Camera2CameraImpl(
+                cameraManagerCompat, mCameraId, camera2CameraInfo,
+                mCameraStateRegistry, sCameraExecutor, sCameraHandler,
+                DisplayInfoManager.getInstance(ApplicationProvider.getApplicationContext())
+        );
     }
 
     @After
@@ -400,7 +407,9 @@ public final class Camera2CameraImplTest {
         captureConfigBuilder.addCameraCaptureCallback(captureCallback);
 
         mCamera2CameraImpl.getCameraControlInternal().submitStillCaptureRequests(
-                Arrays.asList(captureConfigBuilder.build()));
+                Arrays.asList(captureConfigBuilder.build()),
+                ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
+                ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH);
 
         UseCase useCase2 = createUseCase();
         mCamera2CameraImpl.attachUseCases(Arrays.asList(useCase2));
@@ -437,7 +446,9 @@ public final class Camera2CameraImplTest {
         captureConfigBuilder.addCameraCaptureCallback(captureCallback);
 
         mCamera2CameraImpl.getCameraControlInternal().submitStillCaptureRequests(
-                Arrays.asList(captureConfigBuilder.build()));
+                Arrays.asList(captureConfigBuilder.build()),
+                ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
+                ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH);
         mCamera2CameraImpl.detachUseCases(Arrays.asList(useCase1));
 
         // Unblock camera handle to make camera operation run quickly .

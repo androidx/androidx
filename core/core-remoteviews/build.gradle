@@ -17,8 +17,6 @@
 
 import androidx.build.LibraryType
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -30,8 +28,10 @@ plugins {
 dependencies {
     api(libs.kotlinStdlib)
     api("androidx.annotation:annotation:1.2.0")
-    implementation(project(":core:core"))
+    implementation project(":core:core")
 
+    androidTestImplementation project(":core:core")
+    androidTestImplementation project(":core:core-ktx")
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(libs.testExtJunit)
@@ -40,9 +40,12 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)
 
+    testImplementation project(":core:core")
+    testImplementation project(":core:core-ktx")
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinTest)
     testImplementation(libs.robolectric)
     testImplementation(libs.truth)
 }
@@ -53,6 +56,7 @@ android {
             includeAndroidResources = true
         }
     }
+    namespace "androidx.core.remoteviews"
 }
 
 androidx {

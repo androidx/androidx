@@ -20,6 +20,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -31,6 +32,7 @@ import java.util.regex.Pattern;
  *
  * @since 1.1
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class InitializerImpl {
     private InitializerImpl() {
     }
@@ -116,6 +118,7 @@ public class InitializerImpl {
     /**
      * Callback that gets called when the library has finished initializing and is ready for used.
      */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public interface OnExtensionsInitializedCallback {
         /** Called if the library successfully initializes. */
         void onSuccess();
@@ -135,6 +138,7 @@ public class InitializerImpl {
      * {@link #init(String, Context, OnExtensionsInitializedCallback, Executor)} can be called
      * again regardless of whether or not the deinitialization has succeeded or failed.
      */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public interface OnExtensionsDeinitializedCallback {
         /** Called if the library successfully deinitializes. */
         void onSuccess();

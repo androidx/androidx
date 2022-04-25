@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="complication_config" msgid="3090406830927670356">"ಗಡಿಯಾರದ ಮುಖಭಾಗದ ತೊಡಕುಗಳನ್ನು ಕಾನ್ಫಿಗರ್ ಮಾಡಿ"</string>
+    <string name="watchface_settings" msgid="9086980313887663299">"ಗಡಿಯಾರದ ಮುಖಭಾಗದ ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ಕಾನ್ಫಿಗರ್ ಮಾಡಿ"</string>
+    <string name="style_config" msgid="7270818527618953542">"ಗಡಿಯಾರದ ಮುಖಭಾಗದ ಶೈಲಿಗಳನ್ನು ಕಾನ್ಫಿಗರ್ ಮಾಡಿ"</string>
+    <string name="none_background_image_provider" msgid="2763799590544856080">"ಯಾವುದೂ ಅಲ್ಲ"</string>
+    <string name="settings_complications" msgid="1425815384891476600">"ಡೇಟಾ"</string>
+    <string name="settings_background_image" msgid="496585675676995765">"ಹಿನ್ನೆಲೆಯ ಚಿತ್ರ"</string>
+    <string name="settings_styles" msgid="3243144642316786428">"ಶೈಲಿಗಳು"</string>
+</resources>

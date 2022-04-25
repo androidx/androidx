@@ -57,9 +57,11 @@ import androidx.media2.test.client.MediaTestUtils;
 import androidx.media2.test.common.MediaBrowserConstants;
 import androidx.media2.test.common.TestUtils;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.versionedparcelable.ParcelUtils;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -76,6 +78,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * {@link MediaController} works cleanly.
  */
 // TODO: (internal cleanup) Move tests that aren't related with callbacks.
+@FlakyTest(bugId = 202942942)
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
@@ -115,6 +118,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
         return (MediaBrowser) createController(token, true, connectionHints, callback);
     }
 
+    @Ignore("b/202942942")
     @Test
     public void getLibraryRoot() throws Exception {
         final LibraryParams params = new LibraryParams.Builder()
@@ -176,6 +180,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
         }
     }
 
+    @Ignore("b/202942942")
     @Test
     public void getChildren() throws Exception {
         final String parentId = MediaBrowserConstants.PARENT_ID;
@@ -219,6 +224,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
         }
     }
 
+    @Ignore("b/202942942")
     @Test
     public void getChildren_emptyResult() throws Exception {
         final String parentId = MediaBrowserConstants.PARENT_ID_NO_CHILDREN;
@@ -241,6 +247,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
         assertNull(result.getMediaItems());
     }
 
+    @Ignore("b/202942942")
     @Test
     public void searchCallbacks() throws Exception {
         final String query = MediaBrowserConstants.SEARCH_QUERY;
@@ -310,6 +317,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
         }
     }
 
+    @Ignore("b/202942942")
     @Test
     @LargeTest
     public void onSearchResultChanged_searchTakesTime() throws Exception {
@@ -336,6 +344,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
         assertEquals(RESULT_SUCCESS, result.getResultCode());
     }
 
+    @Ignore("b/202942942")
     @Test
     public void onSearchResultChanged_emptyResult() throws Exception {
         final String query = MediaBrowserConstants.SEARCH_QUERY_EMPTY_RESULT;
@@ -387,6 +396,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
+    @Ignore("b/202942942")
     @Test
     public void onChildrenChanged_calledWhenSubscribed2() throws Exception {
         // This test uses MediaLibrarySession.notifyChildrenChanged(ControllerInfo).

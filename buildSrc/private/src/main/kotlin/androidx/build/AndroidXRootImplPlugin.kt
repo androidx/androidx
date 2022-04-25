@@ -21,27 +21,24 @@ import androidx.build.AndroidXImplPlugin.Companion.ZIP_TEST_CONFIGS_WITH_APKS_TA
 import androidx.build.dependencyTracker.AffectedModuleDetector
 import androidx.build.gradle.isRoot
 import androidx.build.license.CheckExternalDependencyLicensesTask
-import androidx.build.playground.VerifyPlaygroundGradlePropertiesTask
+import androidx.build.playground.VerifyPlaygroundGradleConfigurationTask
 import androidx.build.studio.StudioTask.Companion.registerStudioTask
 import androidx.build.testConfiguration.registerOwnersServiceTasks
 import androidx.build.uptodatedness.TaskUpToDateValidator
 import com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION
 import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.LibraryPlugin
-import org.gradle.api.GradleException
+import java.io.File
+import java.util.Locale
+import java.util.concurrent.ConcurrentHashMap
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.artifacts.component.ModuleComponentSelector
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.api.tasks.bundling.ZipEntryCompression
 import org.gradle.build.event.BuildEventsListenerRegistry
-import org.gradle.kotlin.dsl.KotlinClosure1
 import org.gradle.kotlin.dsl.extra
-import java.io.File
-import java.util.Locale
-import java.util.concurrent.ConcurrentHashMap
 
 abstract class AndroidXRootImplPlugin : Plugin<Project> {
     @Suppress("UnstableApiUsage")
@@ -55,7 +52,6 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
         project.configureRootProject()
     }
 
-    @OptIn(ExperimentalStdlibApi::class) // string extensions
     private fun Project.configureRootProject() {
         project.validateAllAndroidxArgumentsAreRecognized()
         tasks.register("listAndroidXProperties", ListAndroidXPropertiesTask::class.java)
@@ -77,6 +73,11 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
             BUILD_ON_SERVER_TASK,
             BuildOnServerTask::class.java
         )
+        buildOnServerTask.distributionDirectory = getDistributionDirectory()
+        buildOnServerTask.repositoryDirectory = getRepositoryDirectory()
+        buildOnServerTask.buildId = getBuildId()
+        buildOnServerTask.jetifierProjectPresent =
+            project.findProject(":jetifier:jetifier-standalone") != null
         buildOnServerTask.dependsOn(
             tasks.register(
                 AndroidXImplPlugin.CREATE_AGGREGATE_BUILD_INFO_FILES_TASK,
@@ -87,14 +88,14 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
             tasks.register(AndroidXImplPlugin.CREATE_LIBRARY_BUILD_INFO_FILES_TASK)
         )
 
-        VerifyPlaygroundGradlePropertiesTask.createIfNecessary(project)?.let {
+        VerifyPlaygroundGradleConfigurationTask.createIfNecessary(project)?.let {
             buildOnServerTask.dependsOn(it)
         }
 
         val createArchiveTask = Release.getGlobalFullZipTask(this)
         buildOnServerTask.dependsOn(createArchiveTask)
         val partiallyDejetifyArchiveTask = partiallyDejetifyArchiveTask(
-            createArchiveTask.flatMap { it.archiveFile }
+            getGlobalZipFile()
         )
         if (partiallyDejetifyArchiveTask != null)
             buildOnServerTask.dependsOn(partiallyDejetifyArchiveTask)
@@ -109,25 +110,7 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
         )
 
         extra.set("projects", ConcurrentHashMap<String, String>())
-        buildOnServerTask.dependsOn(tasks.named(CheckExternalDependencyLicensesTask.TASK_NAME))
-        // Anchor task that invokes running all subprojects :validateProperties tasks which ensure that
-        // Android Studio sync is able to succeed.
-        val validateAllProperties = tasks.register("validateAllProperties")
         subprojects { project ->
-            // Add a method for each sub project where they can declare an optional
-            // dependency on a project or its latest snapshot artifact.
-            // In AndroidX build, this is always enforsed to the project while in Playground
-            // builds, they are converted to the latest SNAPSHOT artifact if the project is
-            // not included in that playground. see: AndroidXPlaygroundRootPlugin
-            project.extra.set(
-                PROJECT_OR_ARTIFACT_EXT_NAME,
-                KotlinClosure1<String, Project>(
-                    function = {
-                        // this refers to the first parameter of the closure.
-                        project.project(this)
-                    }
-                )
-            )
             project.afterEvaluate {
                 if (project.plugins.hasPlugin(LibraryPlugin::class.java) ||
                     project.plugins.hasPlugin(AppPlugin::class.java)
@@ -137,8 +120,8 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
                     if (!project.usingMaxDepVersions()) {
                         project.agpVariants.all { variant ->
                             // in AndroidX, release and debug variants are essentially the same,
-                            // so we don't run the lintDebug task on the build server
-                            if (!variant.name.lowercase(Locale.getDefault()).contains("debug")) {
+                            // so we don't run the lintRelease task on the build server
+                            if (!variant.name.lowercase(Locale.getDefault()).contains("release")) {
                                 val taskName = "lint${variant.name.replaceFirstChar {
                                     if (it.isLowerCase()) {
                                         it.titlecase(Locale.getDefault())
@@ -156,14 +139,9 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
                 buildOnServerTask.dependsOn("${project.path}:jar")
             }
 
-            val validateProperties = project.tasks.register(
-                "validateProperties",
-                ValidatePropertiesTask::class.java
-            )
-            validateAllProperties.configure {
-                it.dependsOn(validateProperties)
-            }
+            project.tasks.register("validateProperties", ValidatePropertiesTask::class.java)
         }
+        project.configureRootProjectForLint()
 
         if (partiallyDejetifyArchiveTask != null) {
             project(":jetifier:jetifier-standalone").afterEvaluate { standAloneProject ->
@@ -178,6 +156,8 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
 
         tasks.register(AndroidXImplPlugin.BUILD_TEST_APKS_TASK)
 
+        // NOTE: this task is used by the Github CI as well. If you make any changes here,
+        // please update the .github/workflows files as well, if necessary.
         project.tasks.register(
             ZIP_TEST_CONFIGS_WITH_APKS_TASK, Zip::class.java
         ) {
@@ -186,6 +166,8 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
             it.from(project.getTestConfigDirectory())
             // We're mostly zipping a bunch of .apk files that are already compressed
             it.entryCompression = ZipEntryCompression.STORED
+            // Archive is greater than 4Gb :O
+            it.isZip64 = true
         }
         project.tasks.register(
             ZIP_CONSTRAINED_TEST_CONFIGS_WITH_APKS_TASK, Zip::class.java
@@ -195,6 +177,8 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
             it.from(project.getConstrainedTestConfigDirectory())
             // We're mostly zipping a bunch of .apk files that are already compressed
             it.entryCompression = ZipEntryCompression.STORED
+            // Archive is greater than 4Gb :O
+            it.isZip64 = true
         }
 
         AffectedModuleDetector.configure(gradle, this)
@@ -232,7 +216,7 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
                     subproject.configurations.all { configuration ->
                         configuration.resolutionStrategy.dependencySubstitution.apply {
                             all { dep ->
-                                val requested = dep.getRequested()
+                                val requested = dep.requested
                                 if (requested is ModuleComponentSelector) {
                                     val module = requested.group + ":" + requested.module
                                     if (projectModules.containsKey(module)) {
@@ -256,26 +240,11 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
         }
     }
 
-    @Suppress("UnstableApiUsage")
     private fun Project.setDependencyVersions() {
-        val libs = project.extensions.getByType(
-            VersionCatalogsExtension::class.java
-        ).find("libs").get()
-        fun getVersion(key: String): String {
-            val version = libs.findVersion(key)
-            return if (version.isPresent) {
-                version.get().requiredVersion
-            } else {
-                throw GradleException("Could not find a version for `$key`")
-            }
-        }
-        androidx.build.dependencies.kotlinVersion = getVersion("kotlin")
-        androidx.build.dependencies.kspVersion = getVersion("ksp")
-        androidx.build.dependencies.agpVersion = getVersion("androidGradlePlugin")
-        androidx.build.dependencies.guavaVersion = getVersion("guavaJre")
-    }
-
-    companion object {
-        const val PROJECT_OR_ARTIFACT_EXT_NAME = "projectOrArtifact"
+        androidx.build.dependencies.kotlinVersion = getVersionByName("kotlin")
+        androidx.build.dependencies.kotlinNativeVersion = getVersionByName("kotlinNative")
+        androidx.build.dependencies.kspVersion = getVersionByName("ksp")
+        androidx.build.dependencies.agpVersion = getVersionByName("androidGradlePlugin")
+        androidx.build.dependencies.guavaVersion = getVersionByName("guavaJre")
     }
 }

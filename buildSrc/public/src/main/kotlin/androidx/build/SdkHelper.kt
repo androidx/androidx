@@ -34,7 +34,7 @@ fun Project.writeSdkPathToLocalPropertiesFile() {
         // Gradle always separates directories with '/' regardless of the OS, so convert here.
         val gradlePath = sdkPath.absolutePath.replace(File.separator, "/")
         var expectedContents = "sdk.dir=$gradlePath"
-        expectedContents += "\ncmake.dir=$gradlePath/cmake"
+        expectedContents += "\ncmake.dir=$gradlePath/native-build-tools"
         if (!props.exists() || props.readText(Charsets.UTF_8).trim() != expectedContents) {
             props.printWriter().use { out ->
                 out.println(expectedContents)
@@ -91,7 +91,31 @@ fun Project.getSdkPath(): File {
  * @return the root project's platform-specific NDK path as a file.
  */
 fun Project.getNdkPath(): File {
-    return File(getSdkPath(), "ndk")
+    val sdkPath = getSdkPath()
+    return getPathFromEnvironmentVariableOrNull("ANDROID_NDK_ROOT")
+        // One of the default paths when ndk is installed for the first time via sdkmanager.
+        ?: fileIfExistsOrNull(sdkPath, "ndk-bundle")
+        ?: File(sdkPath, "ndk")
+}
+
+/**
+ * @return [File] representing the path stored in [envValue] if it exists, `null` otherwise.
+ */
+private fun getPathFromEnvironmentVariableOrNull(envVar: String): File? {
+    val envValue = System.getenv(envVar)
+    if (envValue != null) {
+        val dir = File(envValue)
+        if (dir.isDirectory) {
+            return dir
+        }
+    }
+
+    return null
+}
+
+private fun fileIfExistsOrNull(parent: File, child: String): File? {
+    val file = File(parent, child)
+    return if (file.exists()) file else null
 }
 
 private fun getSdkPathFromEnvironmentVariable(): File {

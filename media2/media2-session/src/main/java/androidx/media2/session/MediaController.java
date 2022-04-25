@@ -85,6 +85,7 @@ import java.util.concurrent.Executors;
  * <li><a href="#ControllerLifeCycle">Controller Lifecycle</a>
  * <li><a href="#MediaSessionInTheSameProcess">Controlling the {@link MediaSession} in the same
  * process</a>
+ * <li><a href="#PackageVisibilityFilter">Package Visibility Filter</a>
  * </ol>
  * <h3 id="ControllerLifeCycle">Controller Lifecycle</h3>
  * <p>
@@ -139,6 +140,27 @@ import java.util.concurrent.Executors;
  * To avoid such issue, don't block the session callback executor's thread. Creating a dedicated
  * thread for the session callback executor would be helpful. See
  * {@link Executors#newSingleThreadExecutor} for creating a new thread.
+ * <h3 id="PackageVisibilityFilter">Package Visibility Filter</h3>
+ * <p>
+ * The app targeting API level 30 or higher must include a {@code <queries>} element in their
+ * manifest to connect to a service component of another app like {@link MediaSessionService},
+ * {@link MediaLibraryService}, or {@link androidx.media.MediaBrowserServiceCompat}). See the
+ * following example and <a href="{@docRoot}training/package-visibility">this guide</a> for more
+ * information.
+ * <pre>{@code
+ * <!-- As intent actions -->
+ * <intent>
+ *   <action android:name="androidx.media2.session.MediaSessionService" />
+ * </intent>
+ * <intent>
+ *   <action android:name="androidx.media2.session.MediaLibraryService" />
+ * </intent>
+ * <intent>
+ *   <action android:name="android.media.browse.MediaBrowserService" />
+ * </intent>
+ * <!-- Or, as a package name -->
+ * <package android:name="package_name_of_the_other_app" />
+ * }</pre>
  *
  * @see MediaSession
  * @see MediaSessionService

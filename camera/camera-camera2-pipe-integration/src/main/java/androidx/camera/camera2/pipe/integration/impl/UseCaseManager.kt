@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.pipe.integration.impl
 
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.config.CameraScope
@@ -28,6 +29,7 @@ import javax.inject.Inject
 /**
  * This class keeps track of the currently attached and active [UseCase]'s for a specific camera.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @CameraScope
 class UseCaseManager @Inject constructor(
     private val cameraConfig: CameraConfig,

@@ -27,7 +27,7 @@ import com.android.tools.lint.detector.api.CURRENT_API
  */
 class RuntimeIssueRegistry : IssueRegistry() {
     // Tests are run with this version. We ensure that with ApiLintVersionsTest
-    override val api = 11
+    override val api = 13
     override val minApi = CURRENT_API
     override val issues get() = listOf(
         ComposableCoroutineCreationDetector.CoroutineCreationDuringComposition,
@@ -35,7 +35,10 @@ class RuntimeIssueRegistry : IssueRegistry() {
         ComposableLambdaParameterDetector.ComposableLambdaParameterNaming,
         ComposableLambdaParameterDetector.ComposableLambdaParameterPosition,
         ComposableNamingDetector.ComposableNaming,
+        ComposableStateFlowValueDetector.StateFlowValueCalledInComposition,
         CompositionLocalNamingDetector.CompositionLocalNaming,
+        MutableCollectionMutableStateDetector.MutableCollectionMutableState,
+        ProduceStateDetector.ProduceStateDoesNotAssignValue,
         RememberDetector.RememberReturnType,
         UnrememberedMutableStateDetector.UnrememberedMutableState
     )

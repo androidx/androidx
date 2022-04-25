@@ -17,6 +17,7 @@
 package androidx.camera.extensions.internal;
 
 import androidx.annotation.GuardedBy;
+import androidx.annotation.RequiresApi;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
@@ -45,6 +46,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * }
  * }</pre>
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class BlockingCloseAccessCounter {
     @GuardedBy("mLock")
     private AtomicInteger mAccessCount = new AtomicInteger(0);

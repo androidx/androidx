@@ -66,6 +66,7 @@ public class LoadingView extends FrameLayout {
         mAppIcon.setImageDrawable(getActivityIcon());
     }
 
+    @SuppressWarnings("deprecation")
     private Drawable getActivityIcon() {
         PackageManager packageManager = getContext().getPackageManager();
 

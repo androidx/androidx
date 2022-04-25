@@ -306,10 +306,10 @@ public final class HostValidator {
             return false;
         }
         for (int i = 0; i < packageInfo.requestedPermissionsFlags.length; i++) {
-            if (packageInfo.requestedPermissionsFlags[i]
-                    == PackageInfo.REQUESTED_PERMISSION_GRANTED
-                    && i < packageInfo.requestedPermissions.length
-                    && permission.equals(packageInfo.requestedPermissions[i])) {
+            if (((packageInfo.requestedPermissionsFlags[i]
+                          & PackageInfo.REQUESTED_PERMISSION_GRANTED) != 0)
+                        && i < packageInfo.requestedPermissions.length
+                        && permission.equals(packageInfo.requestedPermissions[i])) {
                 return true;
             }
         }
@@ -336,6 +336,7 @@ public final class HostValidator {
 
         @DoNotInline
         @NonNull
+        @SuppressWarnings("deprecation")
         static PackageInfo getPackageInfo(@NonNull PackageManager packageManager,
                 @NonNull String packageName) throws PackageManager.NameNotFoundException {
             return packageManager.getPackageInfo(packageName,

@@ -47,6 +47,7 @@ package androidx.datastore.preferences.core {
 
   public final class PreferencesKeys {
     method public static androidx.datastore.preferences.core.Preferences.Key<java.lang.Boolean> booleanKey(String name);
+    method public static androidx.datastore.preferences.core.Preferences.Key<byte[]> byteArrayKey(String name);
     method public static androidx.datastore.preferences.core.Preferences.Key<java.lang.Double> doubleKey(String name);
     method public static androidx.datastore.preferences.core.Preferences.Key<java.lang.Float> floatKey(String name);
     method public static androidx.datastore.preferences.core.Preferences.Key<java.lang.Integer> intKey(String name);
@@ -56,7 +57,7 @@ package androidx.datastore.preferences.core {
   }
 
   public final class PreferencesKt {
-    method public static suspend Object? edit(androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences>, kotlin.jvm.functions.Function2<? super androidx.datastore.preferences.core.MutablePreferences,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> transform, kotlin.coroutines.Continuation<? super androidx.datastore.preferences.core.Preferences> p);
+    method public static suspend Object? edit(androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences>, kotlin.jvm.functions.Function2<? super androidx.datastore.preferences.core.MutablePreferences,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> transform, kotlin.coroutines.Continuation<? super androidx.datastore.preferences.core.Preferences>);
   }
 
 }

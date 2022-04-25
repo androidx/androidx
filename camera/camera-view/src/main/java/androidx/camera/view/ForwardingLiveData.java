@@ -17,6 +17,7 @@
 package androidx.camera.view;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 
@@ -28,6 +29,7 @@ import androidx.lifecycle.MediatorLiveData;
  *
  * <p> Setting a new source will remove the previous source.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class ForwardingLiveData<T> extends MediatorLiveData<T> {
 
     private LiveData<T> mLiveDataSource;

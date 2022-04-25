@@ -66,6 +66,7 @@ class ProfileInstallerTranscodeBenchmark {
                 Diagnostics(),
                 APK_NAME,
                 PROFILE_LOCATION,
+                PROFILE_META_LOCATION,
                 mTempCurFile!!
             ).also(block)
         }
@@ -80,6 +81,7 @@ class ProfileInstallerTranscodeBenchmark {
             Diagnostics(),
             APK_NAME,
             PROFILE_LOCATION,
+            PROFILE_META_LOCATION,
             mTempCurFile!!
         )
         assumeTrue(
@@ -97,6 +99,7 @@ class ProfileInstallerTranscodeBenchmark {
             Diagnostics(),
             APK_NAME,
             PROFILE_LOCATION,
+            PROFILE_META_LOCATION,
             mTempCurFile!!
         )
         benchmarkRule.measureRepeated {
@@ -153,6 +156,7 @@ class ProfileInstallerTranscodeBenchmark {
                 Diagnostics(),
                 APK_NAME,
                 PROFILE_LOCATION,
+                PROFILE_META_LOCATION,
                 mTempCurFile!!
             )
             transcoder.deviceAllowsProfileInstallerAotWrites()
@@ -165,6 +169,7 @@ class ProfileInstallerTranscodeBenchmark {
 
     companion object {
         const val PROFILE_LOCATION = "golden/profileinstaller.prof"
+        const val PROFILE_META_LOCATION = "golden/profileinstaller.profm"
     }
 
     class Diagnostics : ProfileInstaller.DiagnosticsCallback {

@@ -17,6 +17,7 @@
 package androidx.camera.video.internal.encoder;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -29,6 +30,7 @@ import java.nio.ByteBuffer;
  * {@link #cancel} must be called to return the request to the encoder, otherwise, it will cause
  * leakage or failure.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface InputBuffer {
 
     /**

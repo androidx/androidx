@@ -18,6 +18,8 @@ package androidx.core.view;
 
 import android.view.View;
 
+import androidx.annotation.NonNull;
+
 /**
  * Implementors of this interface can add themselves as update listeners
  * to an <code>ViewPropertyAnimatorCompat</code> instance to receive callbacks on every animation
@@ -31,6 +33,6 @@ public interface ViewPropertyAnimatorUpdateListener {
      *
      * @param view The view associated with the ViewPropertyAnimatorCompat
      */
-    void onAnimationUpdate(View view);
+    void onAnimationUpdate(@NonNull View view);
 
 }

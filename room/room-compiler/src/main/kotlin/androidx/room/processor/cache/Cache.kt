@@ -21,6 +21,7 @@ package androidx.room.processor.cache
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XType
 import androidx.room.processor.FieldProcessor
+import androidx.room.vo.BuiltInConverterFlags
 import androidx.room.vo.EmbeddedField
 import androidx.room.vo.Entity
 import androidx.room.vo.Pojo
@@ -36,7 +37,8 @@ import java.util.LinkedHashSet
 class Cache(
     val parent: Cache?,
     val converters: LinkedHashSet<XType>,
-    val suppressedWarnings: Set<Warning>
+    val suppressedWarnings: Set<Warning>,
+    val builtInConverterFlags: BuiltInConverterFlags
 ) {
     val entities: Bucket<EntityKey, Entity> = Bucket(parent?.entities)
     val pojos: Bucket<PojoKey, Pojo> = Bucket(parent?.pojos)
@@ -44,7 +46,7 @@ class Cache(
     inner class Bucket<K, T>(source: Bucket<K, T>?) {
         private val entries: MutableMap<FullKey<K>, T> = source?.entries ?: mutableMapOf()
         fun get(key: K, calculate: () -> T): T {
-            val fullKey = FullKey(converters, suppressedWarnings, key)
+            val fullKey = FullKey(converters, suppressedWarnings, builtInConverterFlags, key)
             return entries.getOrPut(
                 fullKey,
                 {
@@ -76,6 +78,7 @@ class Cache(
     private data class FullKey<T>(
         val converters: LinkedHashSet<XType>,
         val suppressedWarnings: Set<Warning>,
+        val builtInConverterFlags: BuiltInConverterFlags,
         val key: T
     )
 }

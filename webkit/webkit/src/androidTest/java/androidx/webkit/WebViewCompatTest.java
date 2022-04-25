@@ -253,19 +253,22 @@ public class WebViewCompatTest {
         // Create a new WebView because WebViewOnUiThread sets a WebViewClient during
         // construction.
         WebView webView = WebViewOnUiThread.createWebView();
+        try {
+            // getWebViewClient should return a default WebViewClient if it hasn't been set yet
+            WebViewClient client = WebViewOnUiThread.getWebViewClient(webView);
+            assertNotNull(client);
+            assertTrue(client instanceof WebViewClient);
 
-        // getWebViewClient should return a default WebViewClient if it hasn't been set yet
-        WebViewClient client = WebViewOnUiThread.getWebViewClient(webView);
-        assertNotNull(client);
-        assertTrue(client instanceof WebViewClient);
+            // getWebViewClient should return the client after it has been set
+            WebViewClient client2 = new WebViewClient();
+            assertNotSame(client, client2);
+            WebViewOnUiThread.setWebViewClient(webView, client2);
+            assertSame(client2, WebViewOnUiThread.getWebViewClient(webView));
 
-        // getWebViewClient should return the client after it has been set
-        WebViewClient client2 = new WebViewClient();
-        assertNotSame(client, client2);
-        WebViewOnUiThread.setWebViewClient(webView, client2);
-        assertSame(client2, WebViewOnUiThread.getWebViewClient(webView));
-
-        WebViewOnUiThread.destroy(webView);
+        } finally {
+            // Destroy the WebView instance to avoid leaking state into other tests.
+            WebViewOnUiThread.destroy(webView);
+        }
     }
 
     /**
@@ -280,18 +283,20 @@ public class WebViewCompatTest {
         // Create a new WebView because WebViewOnUiThread sets a WebChromeClient during
         // construction.
         WebView webView = WebViewOnUiThread.createWebView();
+        try {
+            // getWebChromeClient should return null if the client hasn't been set yet
+            WebChromeClient client = WebViewOnUiThread.getWebChromeClient(webView);
+            assertNull(client);
 
-        // getWebChromeClient should return null if the client hasn't been set yet
-        WebChromeClient client = WebViewOnUiThread.getWebChromeClient(webView);
-        assertNull(client);
-
-        // getWebChromeClient should return the client after it has been set
-        WebChromeClient client2 = new WebChromeClient();
-        assertNotSame(client, client2);
-        WebViewOnUiThread.setWebChromeClient(webView, client2);
-        assertSame(client2, WebViewOnUiThread.getWebChromeClient(webView));
-
-        WebViewOnUiThread.destroy(webView);
+            // getWebChromeClient should return the client after it has been set
+            WebChromeClient client2 = new WebChromeClient();
+            assertNotSame(client, client2);
+            WebViewOnUiThread.setWebChromeClient(webView, client2);
+            assertSame(client2, WebViewOnUiThread.getWebChromeClient(webView));
+        } finally {
+            // Destroy the WebView instance to avoid leaking state into other tests.
+            WebViewOnUiThread.destroy(webView);
+        }
     }
 
     /**
@@ -304,13 +309,26 @@ public class WebViewCompatTest {
 
         // Creates a new WebView for non static getWebViewRenderProcess method
         WebView webView = WebViewOnUiThread.createWebView();
+        try {
+            // Asserts that if WebView is running in multi process, render process is not null
+            WebViewRenderProcess renderer = WebkitUtils.onMainThreadSync(
+                    () -> WebViewCompat.getWebViewRenderProcess(webView));
+            assertEquals(WebViewCompat.isMultiProcessEnabled(), renderer != null);
 
-        // Asserts that if WebView is running in multi process, render process is not null
-        WebViewRenderProcess renderer = WebkitUtils.onMainThreadSync(
-                () -> WebViewCompat.getWebViewRenderProcess(webView));
-        assertEquals(WebViewCompat.isMultiProcessEnabled(), renderer != null);
+        } finally {
+            // Destroy the WebView instance to avoid leaking state into other tests.
+            WebViewOnUiThread.destroy(webView);
+        }
+    }
 
-        WebViewOnUiThread.destroy(webView);
+    /**
+     * Test to make sure variations header is not null.
+     */
+    @Test
+    public void testGetVariationsHeader() {
+        WebkitUtils.checkFeature(WebViewFeature.GET_VARIATIONS_HEADER);
+
+        assertNotNull(WebViewCompat.getVariationsHeader());
     }
 
     /**

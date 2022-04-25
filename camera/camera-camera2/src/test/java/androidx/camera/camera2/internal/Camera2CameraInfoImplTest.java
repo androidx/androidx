@@ -89,6 +89,12 @@ public class Camera2CameraInfoImplTest {
     private static final int CAMERA1_LENS_FACING_INT = CameraCharacteristics.LENS_FACING_FRONT;
     private static final boolean CAMERA1_FLASH_INFO_BOOLEAN = false;
 
+    private static final int CAMERA0_SUPPORTED_YUV_REPROCESSING =
+            CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_YUV_REPROCESSING;
+    private static final int[] CAMERA0_SUPPORTED_CAPABILITIES = new int[] {
+            CAMERA0_SUPPORTED_YUV_REPROCESSING,
+    };
+
     private CameraCharacteristicsCompat mCameraCharacteristics0;
     private CameraCharacteristicsCompat mCameraCharacteristics1;
     private CameraManagerCompat mCameraManagerCompat;
@@ -434,6 +440,24 @@ public class Camera2CameraInfoImplTest {
                 .isSameInstanceAs(mCameraCharacteristics0.toCameraCharacteristics());
     }
 
+    @Test
+    public void cameraInfoWithCameraControl_canReturnIsYuvReprocessingSupported()
+            throws CameraAccessExceptionCompat {
+        final Camera2CameraInfoImpl cameraInfo = new Camera2CameraInfoImpl(
+                CAMERA0_ID, mCameraManagerCompat);
+
+        assertThat(cameraInfo.isYuvReprocessingSupported()).isTrue();
+    }
+
+    @Test
+    public void cameraInfoWithCameraControl_canReturnIsPrivateReprocessingSupported()
+            throws CameraAccessExceptionCompat {
+        final Camera2CameraInfoImpl cameraInfo = new Camera2CameraInfoImpl(
+                CAMERA0_ID, mCameraManagerCompat);
+
+        assertThat(cameraInfo.isPrivateReprocessingSupported()).isFalse();
+    }
+
     private CameraManagerCompat initCameraManagerWithPhysicalIds(
             List<Pair<String, CameraCharacteristics>> cameraIdsAndCharacteristicsList) {
         FakeCameraManagerImpl cameraManagerImpl = new FakeCameraManagerImpl();
@@ -467,6 +491,10 @@ public class Camera2CameraInfoImplTest {
         // Mock the flash unit availability
         shadowCharacteristics0.set(
                 CameraCharacteristics.FLASH_INFO_AVAILABLE, CAMERA0_FLASH_INFO_BOOLEAN);
+
+        // Mock the request capability
+        shadowCharacteristics0.set(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES,
+                CAMERA0_SUPPORTED_CAPABILITIES);
 
         // Add the camera to the camera service
         ((ShadowCameraManager)

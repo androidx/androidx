@@ -5,7 +5,7 @@ A service that makes license files readable using headless Chrome.
 ### Setup
 
 * This project uses TypeScript and Node.
-* Download `nvm` and run `nvm install` to install a suitable version of Node.
+* Download `fnm` and run `fnm install` to install a suitable version of Node.
 * Run `npm install` to setup dependencies.
 * Use Visual Studio code to debug and test.
 

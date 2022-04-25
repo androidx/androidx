@@ -19,6 +19,7 @@ package androidx.appcompat.demo.receivecontent;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
+import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import androidx.annotation.NonNull;
@@ -71,7 +72,9 @@ final class AttachmentsRepo {
             try (OutputStream os = new FileOutputStream(newAttachment);) {
                 ByteStreams.copy(is, os);
             }
-            return getUriForFile(newAttachment);
+            Uri resultUri = getUriForFile(newAttachment);
+            Log.i(Logcat.TAG, "Saved content: originalUri=" + uri + ", resultUri=" + resultUri);
+            return resultUri;
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }

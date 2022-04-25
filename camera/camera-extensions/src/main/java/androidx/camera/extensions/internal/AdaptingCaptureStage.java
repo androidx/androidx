@@ -20,12 +20,14 @@ import android.hardware.camera2.CaptureRequest;
 import android.util.Pair;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.CaptureStage;
 import androidx.camera.extensions.impl.CaptureStageImpl;
 
 /** A {@link CaptureStage} that calls a vendor provided implementation. */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class AdaptingCaptureStage implements CaptureStage {
 
     private final CaptureConfig mCaptureRequestConfiguration;

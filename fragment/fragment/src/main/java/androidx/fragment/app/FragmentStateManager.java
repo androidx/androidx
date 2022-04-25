@@ -373,6 +373,7 @@ class FragmentStateManager {
                 }
                 mFragment.mHiddenChanged = false;
                 mFragment.onHiddenChanged(mFragment.mHidden);
+                mFragment.mChildFragmentManager.dispatchOnHiddenChanged();
             }
         } finally {
             mMovingToState = false;
@@ -398,6 +399,7 @@ class FragmentStateManager {
         }
     }
 
+    @SuppressWarnings("deprecation")
     void restoreState(@NonNull ClassLoader classLoader) {
         if (mFragment.mSavedFragmentState == null) {
             return;

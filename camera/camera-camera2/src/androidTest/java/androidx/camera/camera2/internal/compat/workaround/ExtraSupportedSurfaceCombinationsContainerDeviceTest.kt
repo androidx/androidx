@@ -20,22 +20,24 @@ import android.content.Context
 import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCharacteristics
-import android.hardware.camera2.CameraManager
+import android.os.Handler
+import android.os.Looper
 import android.util.Size
 import android.view.Surface
 import androidx.camera.camera2.Camera2Config
+import androidx.camera.camera2.internal.Camera2CameraFactory
 import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks
 import androidx.camera.camera2.internal.compat.quirk.ExtraSupportedSurfaceCombinationsQuirk
 import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.CameraX
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.core.impl.CameraInfoInternal
+import androidx.camera.core.impl.CameraThreadConfig
 import androidx.camera.core.impl.CaptureProcessor
 import androidx.camera.core.impl.ImageProxyBundle
 import androidx.camera.core.impl.SurfaceCombination
@@ -43,10 +45,16 @@ import androidx.camera.core.impl.SurfaceConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.CameraUtil.PreTestCameraIdList
+import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.SurfaceTextureProvider
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import java.util.Arrays
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -56,34 +64,37 @@ import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.util.Arrays
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
 private const val CAPTURE_TIMEOUT = 10_000.toLong() //  10 seconds
 
 @LargeTest
 @RunWith(Parameterized::class)
+@SdkSuppress(minSdkVersion = 21)
 class ExtraSupportedSurfaceCombinationsContainerDeviceTest(val cameraId: String) {
 
     @get:Rule
-    val useCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
+    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
+        PreTestCameraIdList(Camera2Config.defaultConfig())
+    )
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "cameraId = {0}")
-        fun initParameters(): List<String> = getCameraIds()
+        fun initParameters(): MutableSet<String> = getCameraIds()
 
-        private fun getCameraIds(): List<String> {
-            val cameraManager = ApplicationProvider.getApplicationContext<Context>()
-                .getSystemService(Context.CAMERA_SERVICE) as CameraManager
-
-            return cameraManager.cameraIdList.asList()
+        private fun getCameraIds(): MutableSet<String> {
+            val camera2CameraFactory = Camera2CameraFactory(
+                ApplicationProvider.getApplicationContext(),
+                CameraThreadConfig.create(
+                    CameraXExecutors.mainThreadExecutor(),
+                    Handler(Looper.getMainLooper())
+                ),
+                null)
+            return camera2CameraFactory.availableCameraIds
         }
     }
 
@@ -94,7 +105,10 @@ class ExtraSupportedSurfaceCombinationsContainerDeviceTest(val cameraId: String)
     @Before
     fun setUp() {
         assumeTrue(CameraUtil.deviceHasCamera())
-        CameraX.initialize(context, Camera2Config.defaultConfig()).get()
+        CameraXUtil.initialize(
+            context,
+            Camera2Config.defaultConfig()
+        ).get()
 
         // Only runs the test when the ExtraSupportedSurfaceCombinationsQuirk is applied for the
         // device.
@@ -103,7 +117,7 @@ class ExtraSupportedSurfaceCombinationsContainerDeviceTest(val cameraId: String)
 
     @After
     fun tearDown() {
-        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS)
+        CameraXUtil.shutdown().get(10000, TimeUnit.MILLISECONDS)
     }
 
     @Test

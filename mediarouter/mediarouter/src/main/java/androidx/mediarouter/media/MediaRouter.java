@@ -344,7 +344,7 @@ public final class MediaRouter {
     public List<RouteInfo> getRoutes() {
         checkCallingThread();
         GlobalMediaRouter globalMediaRouter = getGlobalRouter();
-        return globalMediaRouter == null ? Collections.<RouteInfo>emptyList() :
+        return globalMediaRouter == null ? Collections.emptyList() :
                 globalMediaRouter.getRoutes();
     }
 
@@ -363,7 +363,7 @@ public final class MediaRouter {
     public List<ProviderInfo> getProviders() {
         checkCallingThread();
         GlobalMediaRouter globalMediaRouter = getGlobalRouter();
-        return globalMediaRouter == null ? Collections.<ProviderInfo>emptyList() :
+        return globalMediaRouter == null ? Collections.emptyList() :
                 globalMediaRouter.getProviders();
     }
 
@@ -2420,7 +2420,7 @@ public final class MediaRouter {
         SystemMediaRouteProvider mSystemProvider;
         @VisibleForTesting
         RegisteredMediaRouteProviderWatcher mRegisteredProviderWatcher;
-        boolean mMediaTransferEnabled;
+        boolean mTransferReceiverDeclared;
         MediaRoute2Provider mMr2Provider;
 
         final ArrayList<WeakReference<MediaRouter>> mRouters = new ArrayList<>();
@@ -2488,12 +2488,12 @@ public final class MediaRouter {
             mIsInitialized = true;
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                mMediaTransferEnabled = MediaTransferReceiver.isDeclared(mApplicationContext);
+                mTransferReceiverDeclared = MediaTransferReceiver.isDeclared(mApplicationContext);
             } else {
-                mMediaTransferEnabled = false;
+                mTransferReceiverDeclared = false;
             }
 
-            if (mMediaTransferEnabled) {
+            if (mTransferReceiverDeclared) {
                 mMr2Provider = new MediaRoute2Provider(
                         mApplicationContext, new Mr2ProviderCallback());
             } else {
@@ -2643,11 +2643,22 @@ public final class MediaRouter {
             return mRouterParams;
         }
 
+        // isMediaTransferEnabled() is true only on R+ device.
+        @SuppressLint("NewApi")
         void setRouterParams(@Nullable MediaRouterParams params) {
             MediaRouterParams oldParams = mRouterParams;
             mRouterParams = params;
 
             if (isMediaTransferEnabled()) {
+                if (mMr2Provider == null) {
+                    mMr2Provider = new MediaRoute2Provider(
+                            mApplicationContext, new Mr2ProviderCallback());
+                    addProvider(mMr2Provider);
+                    // Make sure mDiscoveryRequestForMr2Provider is updated
+                    updateDiscoveryRequest();
+                    mRegisteredProviderWatcher.rescan();
+                }
+
                 boolean oldTransferToLocalEnabled = oldParams == null ? false :
                         oldParams.isTransferToLocalEnabled();
                 boolean newTransferToLocalEnabled = params == null ? false :
@@ -2657,6 +2668,12 @@ public final class MediaRouter {
                     // Since the discovery request itself is not changed,
                     // call setDiscoveryRequestInternal to avoid the equality check.
                     mMr2Provider.setDiscoveryRequestInternal(mDiscoveryRequestForMr2Provider);
+                }
+            } else {
+                if (mMr2Provider != null) {
+                    removeProvider(mMr2Provider);
+                    mMr2Provider = null;
+                    mRegisteredProviderWatcher.rescan();
                 }
             }
             mCallbackHandler.post(CallbackHandler.MSG_ROUTER_PARAMS_CHANGED, params);
@@ -2923,7 +2940,9 @@ public final class MediaRouter {
         }
 
         boolean isMediaTransferEnabled() {
-            return mMediaTransferEnabled;
+            // The default value for isMediaTransferReceiverEnabled() is {@code true}.
+            return mTransferReceiverDeclared
+                    && (mRouterParams == null || mRouterParams.isMediaTransferReceiverEnabled());
         }
 
         boolean isTransferToLocalEnabled() {
@@ -3535,7 +3554,7 @@ public final class MediaRouter {
                 mPlaybackInfo.volumeHandling = mSelectedRoute.getVolumeHandling();
                 mPlaybackInfo.playbackStream = mSelectedRoute.getPlaybackStream();
                 mPlaybackInfo.playbackType = mSelectedRoute.getPlaybackType();
-                if (mMediaTransferEnabled
+                if (isMediaTransferEnabled()
                         && mSelectedRoute.getProviderInstance() == mMr2Provider) {
                     mPlaybackInfo.volumeControlId = MediaRoute2Provider
                             .getSessionIdForRouteController(mSelectedRouteController);

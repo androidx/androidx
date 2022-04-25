@@ -16,6 +16,9 @@
 
 package androidx.compose.ui.test
 
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import android.os.Build
 import android.view.View
 import android.view.Window
@@ -38,8 +41,7 @@ import kotlin.math.roundToInt
 @RequiresApi(Build.VERSION_CODES.O)
 fun SemanticsNodeInteraction.captureToImage(): ImageBitmap {
     val node = fetchSemanticsNode("Failed to capture a node to bitmap.")
-    // TODO(pavlis): Consider doing assertIsDisplayed here. Will need to move things around.
-    var windowToUse: Window? = null
+    // TODO(b/207828394): Consider doing assertIsDisplayed here. Will need to move things around.
 
     // Validate we are not in popup
     val popupParentMaybe = node.findClosestParentNode(includeSelf = true) {
@@ -59,19 +61,20 @@ fun SemanticsNodeInteraction.captureToImage(): ImageBitmap {
     val dialogParentNodeMaybe = node.findClosestParentNode(includeSelf = true) {
         it.config.contains(SemanticsProperties.IsDialog)
     }
+    var dialogWindow: Window? = null
     if (dialogParentNodeMaybe != null) {
-        val dialogProvider = findDialogWindowProviderInParent(view)
-            ?: throw IllegalArgumentException(
-                "Could not find a dialog window provider to capture" +
-                    " its bitmap"
-            )
-        windowToUse = dialogProvider.window
-
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
-            // b/163023027
+            // TODO(b/163023027)
             throw IllegalArgumentException("Cannot currently capture dialogs on API lower than 28!")
         }
+
+        dialogWindow = findDialogWindowProviderInParent(view)?.window
+            ?: throw IllegalArgumentException(
+                "Could not find a dialog window provider to capture its bitmap"
+            )
     }
+
+    val windowToUse = dialogWindow ?: view.context.getActivityWindow()
 
     val nodeBounds = node.boundsInRoot
     val nodeBoundsRect = android.graphics.Rect(
@@ -89,7 +92,7 @@ fun SemanticsNodeInteraction.captureToImage(): ImageBitmap {
     // Now these are bounds in window
     nodeBoundsRect.offset(x, y)
 
-    return captureRegionToImage(testContext, nodeBoundsRect, view, windowToUse)
+    return windowToUse.captureRegionToImage(testContext, nodeBoundsRect)
 }
 
 private fun findDialogWindowProviderInParent(view: View): DialogWindowProvider? {
@@ -101,4 +104,18 @@ private fun findDialogWindowProviderInParent(view: View): DialogWindowProvider? 
         return findDialogWindowProviderInParent(parent)
     }
     return null
+}
+
+private fun Context.getActivityWindow(): Window {
+    fun Context.getActivity(): Activity {
+        return when (this) {
+            is Activity -> this
+            is ContextWrapper -> this.baseContext.getActivity()
+            else -> throw IllegalStateException(
+                "Context is not an Activity context, but a ${javaClass.simpleName} context. " +
+                    "An Activity context is required to get a Window instance"
+            )
+        }
+    }
+    return getActivity().window
 }

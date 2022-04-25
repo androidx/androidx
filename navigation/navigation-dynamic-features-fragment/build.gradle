@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -60,6 +60,7 @@ android {
     defaultConfig {
         multiDexEnabled = true
     }
+    namespace "androidx.navigation.dynamicfeatures.fragment"
 }
 
 androidx {

@@ -25,11 +25,14 @@ import static org.mockito.Mockito.verify;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
+import androidx.concurrent.futures.ResolvableFuture;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -49,6 +52,7 @@ import java.util.concurrent.TimeoutException;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 21)
 public class DeferrableSurfacesTest {
 
     private ScheduledExecutorService mScheduledExecutorService;
@@ -94,6 +98,28 @@ public class DeferrableSurfacesTest {
         // Expect get an TimeoutException since the fake getSurface task might take over 50
         // milliseconds.
         assertThat(throwableCaptor.getValue()).isInstanceOf(TimeoutException.class);
+    }
+
+    @Test
+    public void surfaceListWithTimeout_cancelReturnedFutureWontCancelDeferrableSurfaces() {
+        DeferrableSurface deferrableSurface = new DeferrableSurface() {
+            private final ListenableFuture<Surface> mSurfaceFuture = ResolvableFuture.create();
+            @NonNull
+            @Override
+            protected ListenableFuture<Surface> provideSurface() {
+                // Return a never complete future.
+                return mSurfaceFuture;
+            }
+        };
+        List<DeferrableSurface> surfaces = Arrays.asList(deferrableSurface);
+        ListenableFuture<List<Surface>> listenableFuture =
+                DeferrableSurfaces.surfaceListWithTimeout(surfaces, false,
+                        /*timeout=*/Long.MAX_VALUE, CameraXExecutors.directExecutor(),
+                        mScheduledExecutorService);
+
+        listenableFuture.cancel(true);
+
+        assertThat(deferrableSurface.getSurface().isCancelled()).isFalse();
     }
 
     @Test

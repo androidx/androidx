@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import androidx.build.LibraryType
+
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
@@ -32,4 +34,9 @@ android {
     lintOptions {
         disable "InvalidPackage" // Lint is unhappy about junit package
     }
+    namespace "androidx.testutils.espresso"
+}
+
+androidx {
+    type = LibraryType.INTERNAL_TEST_LIBRARY
 }

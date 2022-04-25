@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+
 package androidx.camera.camera2.pipe.integration.config
 
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraPipe
@@ -28,6 +31,8 @@ import androidx.camera.camera2.pipe.integration.compat.ZoomCompat
 import androidx.camera.camera2.pipe.integration.impl.CameraPipeCameraProperties
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.camera2.pipe.integration.impl.EvCompControl
+import androidx.camera.camera2.pipe.integration.impl.FlashControl
+import androidx.camera.camera2.pipe.integration.impl.TorchControl
 import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 import androidx.camera.camera2.pipe.integration.impl.ZoomControl
 import androidx.camera.camera2.pipe.integration.interop.Camera2CameraControl
@@ -57,6 +62,8 @@ annotation class CameraScope
         ZoomControl.Bindings::class,
         EvCompCompat.Bindings::class,
         EvCompControl.Bindings::class,
+        FlashControl.Bindings::class,
+        TorchControl.Bindings::class,
         Camera2CameraControl.Bindings::class,
         Camera2CameraControlCompat.Bindings::class,
     ],

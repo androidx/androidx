@@ -9,6 +9,7 @@ SNAPSHOT=true impl/build.sh \
     createArchive \
     -Pandroidx.enableAffectedModuleDetection=false \
     -Pandroidx.enableComposeCompilerMetrics=true \
+    -Pandroidx.enableComposeCompilerReports=true \
     "$@"
 
 echo "Completing $0 at $(date)"

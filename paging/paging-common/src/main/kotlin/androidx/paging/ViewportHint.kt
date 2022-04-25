@@ -63,6 +63,19 @@ internal sealed class ViewportHint(
             originalPageOffsetLast == other.originalPageOffsetLast
     }
 
+    /**
+     * @return Count of presented items between this hint, and either:
+     *  * the beginning of the list if [loadType] == PREPEND
+     *  * the end of the list if loadType == APPEND
+     */
+    internal fun presentedItemsBeyondAnchor(loadType: LoadType): Int = when (loadType) {
+        LoadType.REFRESH -> throw IllegalArgumentException(
+            "Cannot get presentedItems for loadType: REFRESH"
+        )
+        LoadType.PREPEND -> presentedItemsBefore
+        LoadType.APPEND -> presentedItemsAfter
+    }
+
     override fun hashCode(): Int {
         return presentedItemsBefore.hashCode() + presentedItemsAfter.hashCode() +
             originalPageOffsetFirst.hashCode() + originalPageOffsetLast.hashCode()

@@ -44,13 +44,6 @@ internal class OuterMeasurablePlaceable(
     private var lastLayerBlock: (GraphicsLayerScope.() -> Unit)? = null
     private var lastZIndex: Float = 0f
 
-    /**
-     * A local version of [Owner.measureIteration] to ensure that [MeasureBlocks.measure]
-     * is not called multiple times within a measure pass.
-     */
-    var measureIteration = -1L
-        private set
-
     override var parentData: Any? = null
         private set
 
@@ -59,14 +52,25 @@ internal class OuterMeasurablePlaceable(
      */
     override fun measure(constraints: Constraints): Placeable {
         // when we measure the root it is like the virtual parent is currently laying out
-        val parentState = layoutNode.parent?.layoutState ?: LayoutState.LayingOut
-        layoutNode.measuredByParent = when (parentState) {
-            LayoutState.Measuring -> LayoutNode.UsageByParent.InMeasureBlock
-            LayoutState.LayingOut -> LayoutNode.UsageByParent.InLayoutBlock
-            else -> throw IllegalStateException(
-                "Measurable could be only measured from the parent's measure or layout block." +
-                    "Parents state is $parentState"
-            )
+        val parent = layoutNode.parent
+        if (parent != null) {
+            check(
+                layoutNode.measuredByParent == LayoutNode.UsageByParent.NotUsed ||
+                    @Suppress("DEPRECATION") layoutNode.canMultiMeasure
+            ) {
+                "measure() may not be called multiple times on the same Measurable. Current " +
+                    "state ${layoutNode.measuredByParent}. Parent state ${parent.layoutState}."
+            }
+            layoutNode.measuredByParent = when (parent.layoutState) {
+                LayoutState.Measuring -> LayoutNode.UsageByParent.InMeasureBlock
+                LayoutState.LayingOut -> LayoutNode.UsageByParent.InLayoutBlock
+                else -> throw IllegalStateException(
+                    "Measurable could be only measured from the parent's measure or layout block." +
+                        "Parents state is ${parent.layoutState}"
+                )
+            }
+        } else {
+            layoutNode.measuredByParent = LayoutNode.UsageByParent.NotUsed
         }
         remeasure(constraints)
         return this
@@ -77,40 +81,29 @@ internal class OuterMeasurablePlaceable(
      */
     fun remeasure(constraints: Constraints): Boolean {
         val owner = layoutNode.requireOwner()
-        val iteration = owner.measureIteration
         val parent = layoutNode.parent
         @Suppress("Deprecation")
         layoutNode.canMultiMeasure = layoutNode.canMultiMeasure ||
             (parent != null && parent.canMultiMeasure)
-        @Suppress("Deprecation")
-        check(measureIteration != iteration || layoutNode.canMultiMeasure) {
-            "measure() may not be called multiple times on the same Measurable"
-        }
-        measureIteration = owner.measureIteration
-        if (layoutNode.layoutState == LayoutState.NeedsRemeasure ||
-            measurementConstraints != constraints
-        ) {
+        if (layoutNode.measurePending || measurementConstraints != constraints) {
             layoutNode.alignmentLines.usedByModifierMeasurement = false
             layoutNode._children.forEach { it.alignmentLines.usedDuringParentMeasurement = false }
             measuredOnce = true
-            layoutNode.layoutState = LayoutState.Measuring
-            measurementConstraints = constraints
             val outerWrapperPreviousMeasuredSize = outerWrapper.size
-            owner.snapshotObserver.observeMeasureSnapshotReads(layoutNode) {
-                outerWrapper.measure(constraints)
-            }
-            // The resulting layout state might be Ready. This can happen when the layout node's
-            // own modifier is querying an alignment line during measurement, therefore we
-            // need to also layout the layout node.
-            if (layoutNode.layoutState == LayoutState.Measuring) {
-                layoutNode.layoutState = LayoutState.NeedsRelayout
-            }
+            measurementConstraints = constraints
+            layoutNode.performMeasure(constraints)
             val sizeChanged = outerWrapper.size != outerWrapperPreviousMeasuredSize ||
                 outerWrapper.width != width ||
                 outerWrapper.height != height
             // We are using the coerced wrapper size here to avoid double offset in layout coop.
             measuredSize = IntSize(outerWrapper.width, outerWrapper.height)
             return sizeChanged
+        } else {
+            // this node doesn't require being remeasured. however in order to make sure we have
+            // the final size we need to also make sure the whole subtree is remeasured as it can
+            // trigger extra remeasure request on our node. we do it now in order to report the
+            // final measured size to our parent without doing extra pass later.
+            owner.forceMeasureTheSubtree(layoutNode)
         }
         return false
     }

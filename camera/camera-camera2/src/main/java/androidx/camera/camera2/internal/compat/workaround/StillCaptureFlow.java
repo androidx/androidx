@@ -19,6 +19,7 @@ package androidx.camera.camera2.internal.compat.workaround;
 import android.hardware.camera2.CaptureRequest;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.camera2.internal.compat.quirk.StillCaptureFlashStopRepeatingQuirk;
 
@@ -28,6 +29,7 @@ import java.util.List;
  * Workaround to fix device issues such as calling stopRepeating ahead of still
  * capture on some devices when flash is on or auto. See b/172036589.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class StillCaptureFlow {
     private final boolean mShouldStopRepeatingBeforeStillCapture;
     public StillCaptureFlow() {

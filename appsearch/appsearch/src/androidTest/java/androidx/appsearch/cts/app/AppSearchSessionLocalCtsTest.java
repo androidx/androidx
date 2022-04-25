@@ -28,6 +28,7 @@ import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.AppSearchSession;
+import androidx.appsearch.app.Features;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.Migrator;
 import androidx.appsearch.app.PutDocumentsRequest;
@@ -65,12 +66,6 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
         return LocalStorage.createSearchSession(
                 new LocalStorage.SearchContext.Builder(context, dbName)
                         .setWorkerExecutor(executor).build());
-    }
-
-    @Override
-    protected int getAppSearchApiTarget() {
-        // Any feature available in AppSearchSession is always available in the local backend.
-        return Integer.MAX_VALUE;
     }
 
     // TODO(b/194207451) This test can be moved to CtsTestBase if customized logger is
@@ -414,7 +409,8 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
 
         db2.setSchema(new SetSchemaRequest.Builder().addSchemas(
                 schema).setForceOverride(true).build()).get();
-        db2.put(new PutDocumentsRequest.Builder().addGenericDocuments(doc).build());
+        checkIsBatchResultSuccess(db2.put(
+                new PutDocumentsRequest.Builder().addGenericDocuments(doc).build()));
         db2.setSchema(new SetSchemaRequest.Builder().addSchemas(newSchema)
                 .setMigrator("testSchema", migrator)
                 .setVersion(2)     // upgrade version
@@ -492,5 +488,15 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
         assertThat(result.getFailures()).containsKey("id1");
         assertThat(result.getFailures().get("id1").getErrorMessage())
                 .contains("was too large to write. Max is 16777215");
+    }
+
+    @Test
+    public void testCapabilities() throws Exception {
+        Context context = ApplicationProvider.getApplicationContext();
+        AppSearchSession db2 = LocalStorage.createSearchSession(
+                new LocalStorage.SearchContext.Builder(context, DB_NAME_2).build()).get();
+
+        assertThat(db2.getFeatures().isFeatureSupported(
+                Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH)).isTrue();
     }
 }

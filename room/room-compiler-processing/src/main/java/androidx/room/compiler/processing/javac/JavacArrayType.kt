@@ -25,14 +25,24 @@ import javax.lang.model.type.ArrayType
 internal class JavacArrayType private constructor(
     env: JavacProcessingEnv,
     override val typeMirror: ArrayType,
-    override val nullability: XNullability,
+    nullability: XNullability?,
     private val knownComponentNullability: XNullability?,
     override val kotlinType: KmType?
 ) : JavacType(
-    env,
-    typeMirror
-),
-    XArrayType {
+    env, typeMirror, nullability
+), XArrayType {
+
+    constructor(
+        env: JavacProcessingEnv,
+        typeMirror: ArrayType
+    ) : this(
+        env = env,
+        typeMirror = typeMirror,
+        kotlinType = null,
+        nullability = null,
+        knownComponentNullability = null
+    )
+
     constructor(
         env: JavacProcessingEnv,
         typeMirror: ArrayType,

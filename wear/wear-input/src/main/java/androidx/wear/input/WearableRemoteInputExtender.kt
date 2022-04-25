@@ -33,15 +33,16 @@ public class WearableRemoteInputExtender(private var remoteInput: RemoteInput.Bu
     private var extras = Bundle()
 
     /**
-     * Adding extra to a [RemoteInput] that causes emoji-only options (e.g. the Draw Emoji option)
-     * to not be shown.
+     * Adding extra to a [RemoteInput] for allowing or disallowing showing emoji-only options (e.g.
+     * the Draw Emoji option).
      *
-     * If it is set, the Draw Emoji option will not be shown. If it is not set, the Draw Emoji
-     * option will be shown as long as the [RemoteInput] allows free form input.
+     * If set to false, the Draw Emoji option will not be shown. If set to true or not set, the
+     * Draw Emoji option will be shown as long as the [RemoteInput] allows free form input.
+     *
+     * @param emojisAllowed Whether the emoji-only options is shown. If not set, it will be allowed.
      */
-    public fun disallowEmoji(): WearableRemoteInputExtender = apply {
-        extras.putBoolean(EXTRA_DISALLOW_EMOJI, true)
-    }
+    public fun setEmojisAllowed(emojisAllowed: Boolean): WearableRemoteInputExtender =
+        apply { extras.putBoolean(EXTRA_DISALLOW_EMOJI, !emojisAllowed) }
 
     /**
      * Adding specified input action type to a [RemoteInput] to modify the action type of the

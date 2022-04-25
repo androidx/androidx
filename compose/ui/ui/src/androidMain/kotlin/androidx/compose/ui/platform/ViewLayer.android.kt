@@ -21,17 +21,19 @@ import android.os.Build
 import android.view.View
 import android.view.ViewOutlineProvider
 import androidx.annotation.RequiresApi
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.MutableRect
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.CanvasHolder
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.RenderEffect
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.layout.GraphicLayerInfo
 import androidx.compose.ui.node.OwnedLayer
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
@@ -46,15 +48,22 @@ import java.lang.reflect.Method
 internal class ViewLayer(
     val ownerView: AndroidComposeView,
     val container: DrawChildContainer,
-    val drawBlock: (Canvas) -> Unit,
-    val invalidateParentLayer: () -> Unit
-) : View(ownerView.context), OwnedLayer {
+    drawBlock: (Canvas) -> Unit,
+    invalidateParentLayer: () -> Unit
+) : View(ownerView.context), OwnedLayer, GraphicLayerInfo {
+    private var drawBlock: ((Canvas) -> Unit)? = drawBlock
+    private var invalidateParentLayer: (() -> Unit)? = invalidateParentLayer
+
     private val outlineResolver = OutlineResolver(ownerView.density)
     // Value of the layerModifier's clipToBounds property
     private var clipToBounds = false
     private var clipBoundsCache: android.graphics.Rect? = null
     private val manualClipPath: Path? get() =
-        if (!clipToOutline) null else outlineResolver.clipPath
+        if (!clipToOutline || outlineResolver.outlineClipSupported) {
+            null
+        } else {
+            outlineResolver.clipPath
+        }
     var isInvalidated = false
         private set(value) {
             if (value != field) {
@@ -83,7 +92,6 @@ internal class ViewLayer(
     override val layerId: Long
         get() = id.toLong()
 
-    @ExperimentalComposeUiApi
     override val ownerViewId: Long
         get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             UniqueDrawingIdApi29.getUniqueDrawingId(ownerView)
@@ -92,12 +100,10 @@ internal class ViewLayer(
         }
 
     @RequiresApi(29)
-    private class UniqueDrawingIdApi29 {
-        @RequiresApi(29)
-        companion object {
-            @JvmStatic
-            fun getUniqueDrawingId(view: View) = view.uniqueDrawingId
-        }
+    private object UniqueDrawingIdApi29 {
+        @JvmStatic
+        @androidx.annotation.DoNotInline
+        fun getUniqueDrawingId(view: View) = view.uniqueDrawingId
     }
 
     /**
@@ -131,6 +137,8 @@ internal class ViewLayer(
         shape: Shape,
         clip: Boolean,
         renderEffect: RenderEffect?,
+        ambientShadowColor: Color,
+        spotShadowColor: Color,
         layoutDirection: LayoutDirection,
         density: Density
     ) {
@@ -165,11 +173,18 @@ internal class ViewLayer(
             invalidate() // have to redraw the content
         }
         if (!drawnWithZ && elevation > 0) {
-            invalidateParentLayer()
+            invalidateParentLayer?.invoke()
         }
         matrixCache.invalidate()
+        if (Build.VERSION.SDK_INT >= 28) {
+            ViewLayerVerificationHelper28.setOutlineAmbientShadowColor(
+                this,
+                ambientShadowColor.toArgb()
+            )
+            ViewLayerVerificationHelper28.setOutlineSpotShadowColor(this, spotShadowColor.toArgb())
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            ViewLayerVerificationHelper.setRenderEffect(this, renderEffect)
+            ViewLayerVerificationHelper31.setRenderEffect(this, renderEffect)
         }
     }
 
@@ -250,13 +265,15 @@ internal class ViewLayer(
     override fun dispatchDraw(canvas: android.graphics.Canvas) {
         isInvalidated = false
         canvasHolder.drawInto(canvas) {
+            var didClip = false
             val clipPath = manualClipPath
-            if (clipPath != null) {
+            if (clipPath != null || !canvas.isHardwareAccelerated) {
+                didClip = true
                 save()
-                clipPath(clipPath)
+                outlineResolver.clipToOutline(this)
             }
-            drawBlock(this)
-            if (clipPath != null) {
+            drawBlock?.invoke(this)
+            if (didClip) {
                 restore()
             }
         }
@@ -274,11 +291,23 @@ internal class ViewLayer(
     }
 
     override fun destroy() {
-        container.postOnAnimation {
-            container.removeView(this)
-        }
         isInvalidated = false
         ownerView.requestClearInvalidObservations()
+        drawBlock = null
+        invalidateParentLayer = null
+
+        // L throws during RenderThread when reusing the Views. The stack trace
+        // wasn't easy to decode, so this work-around keeps up to 10 Views active
+        // only for L. On other versions, it uses the WeakHashMap to retain as many
+        // as are convenient.
+
+        val recycle = ownerView.recycle(this@ViewLayer)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M || shouldUseDispatchDraw || !recycle) {
+            container.removeViewInLayout(this)
+        } else {
+            visibility = GONE
+        }
     }
 
     override fun updateDisplayList() {
@@ -312,6 +341,19 @@ internal class ViewLayer(
         } else {
             matrixCache.calculateMatrix(this).map(rect)
         }
+    }
+
+    override fun reuseLayer(drawBlock: (Canvas) -> Unit, invalidateParentLayer: () -> Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M || shouldUseDispatchDraw) {
+            container.addView(this)
+        } else {
+            visibility = VISIBLE
+        }
+        clipToBounds = false
+        drawnWithZ = false
+        mTransformOrigin = TransformOrigin.Center
+        this.drawBlock = drawBlock
+        this.invalidateParentLayer = invalidateParentLayer
     }
 
     companion object {
@@ -376,10 +418,24 @@ internal class ViewLayer(
 }
 
 @RequiresApi(Build.VERSION_CODES.S)
-private object ViewLayerVerificationHelper {
+private object ViewLayerVerificationHelper31 {
 
     @androidx.annotation.DoNotInline
     fun setRenderEffect(view: View, target: RenderEffect?) {
         view.setRenderEffect(target?.asAndroidRenderEffect())
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.P)
+private object ViewLayerVerificationHelper28 {
+
+    @androidx.annotation.DoNotInline
+    fun setOutlineAmbientShadowColor(view: View, target: Int) {
+        view.outlineAmbientShadowColor = target
+    }
+
+    @androidx.annotation.DoNotInline
+    fun setOutlineSpotShadowColor(view: View, target: Int) {
+        view.outlineSpotShadowColor = target
     }
 }

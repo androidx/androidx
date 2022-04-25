@@ -46,6 +46,7 @@ android {
             useSupportLibrary = true
         }
     }
+    namespace "androidx.work.integration.testapp"
 }
 
 dependencies {
@@ -55,8 +56,8 @@ dependencies {
         annotationProcessor(projectOrArtifact(":room:room-compiler"))
         implementation(projectOrArtifact(":room:room-runtime"))
     } else {
-        annotationProcessor("androidx.room:room-compiler:2.2.5")
-        implementation("androidx.room:room-runtime:2.2.5")
+        annotationProcessor("androidx.room:room-compiler:2.4.0-rc01")
+        implementation("androidx.room:room-runtime:2.4.0-rc01")
     }
 
     implementation(libs.constraintLayout)

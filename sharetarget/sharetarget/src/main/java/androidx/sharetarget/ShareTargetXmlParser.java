@@ -82,6 +82,7 @@ class ShareTargetXmlParser {
         /* Hide the constructor */
     }
 
+    @SuppressWarnings("deprecation")
     private static ArrayList<ShareTargetCompat> parseShareTargets(Context context) {
         ArrayList<ShareTargetCompat> targets = new ArrayList<>();
 

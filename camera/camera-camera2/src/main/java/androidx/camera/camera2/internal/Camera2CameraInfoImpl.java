@@ -16,6 +16,11 @@
 
 package androidx.camera.camera2.internal;
 
+import static android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_PRIVATE_REPROCESSING;
+import static android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_YUV_REPROCESSING;
+
+import static androidx.camera.camera2.internal.ZslUtil.isCapabilitySupported;
+
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraMetadata;
 import android.util.Pair;
@@ -25,10 +30,12 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
+import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.camera2.internal.compat.quirk.CameraQuirks;
+import androidx.camera.camera2.internal.compat.workaround.FlashAvailabilityChecker;
 import androidx.camera.camera2.interop.Camera2CameraInfo;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraSelector;
@@ -68,6 +75,7 @@ import java.util.concurrent.Executor;
  * to the {@link Camera2CameraControlImpl}.
  */
 @OptIn(markerClass = ExperimentalCamera2Interop.class)
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class Camera2CameraInfoImpl implements CameraInfoInternal {
 
     private static final String TAG = "Camera2CameraInfo";
@@ -253,10 +261,7 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
 
     @Override
     public boolean hasFlashUnit() {
-        Boolean hasFlashUnit = mCameraCharacteristicsCompat.get(
-                CameraCharacteristics.FLASH_INFO_AVAILABLE);
-        Preconditions.checkNotNull(hasFlashUnit);
-        return hasFlashUnit;
+        return FlashAvailabilityChecker.isFlashAvailable(mCameraCharacteristicsCompat);
     }
 
     @NonNull
@@ -346,6 +351,18 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
             return mCamera2CameraControlImpl.getFocusMeteringControl().isFocusMeteringSupported(
                     action);
         }
+    }
+
+    @Override
+    public boolean isYuvReprocessingSupported() {
+        return isCapabilitySupported(mCameraCharacteristicsCompat,
+                REQUEST_AVAILABLE_CAPABILITIES_YUV_REPROCESSING);
+    }
+
+    @Override
+    public boolean isPrivateReprocessingSupported() {
+        return isCapabilitySupported(mCameraCharacteristicsCompat,
+                REQUEST_AVAILABLE_CAPABILITIES_PRIVATE_REPROCESSING);
     }
 
     /** {@inheritDoc} */

@@ -32,11 +32,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.window.layout.FoldingFeature
-import androidx.window.layout.WindowInfoRepository
-import androidx.window.layout.WindowInfoRepository.Companion.windowInfoRepository
+import androidx.window.layout.WindowInfoTracker
 import androidx.window.layout.WindowLayoutInfo
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 /**
@@ -46,14 +44,11 @@ import kotlinx.coroutines.launch
 class PresentationActivity : AppCompatActivity() {
     private val TAG = "FoldablePresentation"
 
-    private lateinit var mWindowInfoRepository: WindowInfoRepository
     private var presentation: DemoPresentation? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_foldin)
-
-        mWindowInfoRepository = windowInfoRepository()
 
         lifecycleScope.launch(Dispatchers.Main) {
             // The block passed to repeatOnLifecycle is executed when the lifecycle
@@ -62,7 +57,8 @@ class PresentationActivity : AppCompatActivity() {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 // Safely collect from windowInfoRepo when the lifecycle is STARTED
                 // and stops collection when the lifecycle is STOPPED
-                mWindowInfoRepository.windowLayoutInfo
+                WindowInfoTracker.getOrCreate(this@PresentationActivity)
+                    .windowLayoutInfo(this@PresentationActivity)
                     .collect { newLayoutInfo ->
                         // New posture information
                         updateCurrentState(newLayoutInfo)
@@ -71,7 +67,7 @@ class PresentationActivity : AppCompatActivity() {
         }
     }
 
-    internal fun startPresentation(context: Context) {
+    private fun startPresentation(context: Context) {
         if (presentation != null) {
             val message = "Trying to show presentation that's already showing"
             Toast.makeText(context, message, Toast.LENGTH_LONG).show()
@@ -151,7 +147,7 @@ class PresentationActivity : AppCompatActivity() {
     /**
      * Updates the display of the current fold feature state.
      */
-    internal fun updateCurrentState(info: WindowLayoutInfo) {
+    private fun updateCurrentState(info: WindowLayoutInfo) {
         val stateStringBuilder = StringBuilder()
 
         stateStringBuilder.append(getString(R.string.deviceState))

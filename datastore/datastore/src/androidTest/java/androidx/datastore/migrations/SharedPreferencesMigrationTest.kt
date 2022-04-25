@@ -29,8 +29,9 @@ import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -74,7 +75,7 @@ class SharedPreferencesMigrationTest {
     }
 
     @Test
-    fun testShouldMigrateSkipsMigration() = runBlockingTest {
+    fun testShouldMigrateSkipsMigration() = runTest {
         val sharedPrefsMigration = SharedPreferencesMigration<Byte>(
             context = context,
             sharedPreferencesName = sharedPrefsName,
@@ -90,7 +91,7 @@ class SharedPreferencesMigrationTest {
     }
 
     @Test
-    fun testSharedPrefsViewContainsSpecifiedKeys() = runBlockingTest {
+    fun testSharedPrefsViewContainsSpecifiedKeys() = runTest {
         val includedKey = "key1"
         val includedVal = 1
         val notMigratedKey = "key2"
@@ -121,7 +122,7 @@ class SharedPreferencesMigrationTest {
     }
 
     @Test
-    fun testSharedPrefsViewWithAllKeysSpecified() = runBlockingTest {
+    fun testSharedPrefsViewWithAllKeysSpecified() = runTest {
         val key1 = "key1"
         val val1 = 1
         val key2 = "key2"
@@ -155,7 +156,7 @@ class SharedPreferencesMigrationTest {
 
     @Test
     fun testSharedPrefsViewWithAllKeysSpecified_doesntThrowErrorWhenKeyDoesntExist() =
-        runBlockingTest {
+        runTest {
             assertThat(sharedPrefs.edit().putInt("unrelated_key", -123).commit()).isTrue()
 
             val migration = SharedPreferencesMigration(
@@ -169,7 +170,7 @@ class SharedPreferencesMigrationTest {
         }
 
     @Test
-    fun producedSharedPreferencesIsUsed() = runBlockingTest {
+    fun producedSharedPreferencesIsUsed() = runTest {
         assertThat(sharedPrefs.edit().putInt("integer_key", 123).commit()).isTrue()
 
         val migration = SharedPreferencesMigration(
@@ -198,7 +199,7 @@ class SharedPreferencesMigrationTest {
         return DataStoreFactory.create(
             serializer = TestingSerializer(),
             migrations = migrations,
-            scope = TestCoroutineScope()
+            scope = TestScope(UnconfinedTestDispatcher())
         ) { datastoreFile }
     }
 }

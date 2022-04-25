@@ -18,22 +18,41 @@ package androidx.camera.view.internal.compat.quirk;
 
 import android.os.Build;
 
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 
 /**
  * A quirk where SurfaceView is stretched.
  *
- * <p> On Samsung Galaxy Z Fold2, transform APIs (e.g. View#setScaleX) do not work as intended.
- * b/129403806
+ * <p>
+ * <p>QuirkSummary
+ *     Bug Id: 129403806
+ *     Description: On certain Samsung devices, transform APIs (e.g. View#setScaleX) result in an
+ *                  incorrect transformation.
+ *     Device(s): Samsung Fold2 F2Q, Samsung Fold3 Q2Q, Oppo Find N OP4E75L1
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class SurfaceViewStretchedQuirk implements Quirk {
 
     // Samsung Galaxy Z Fold2 b/129403806
     private static final String SAMSUNG = "SAMSUNG";
     private static final String GALAXY_Z_FOLD_2 = "F2Q";
+    private static final String GALAXY_Z_FOLD_3 = "Q2Q";
+    private static final String OPPO = "OPPO";
+    private static final String OPPO_FIND_N = "OP4E75L1";
 
     static boolean load() {
-        return SAMSUNG.equals(Build.MANUFACTURER.toUpperCase()) && GALAXY_Z_FOLD_2.equals(
-                Build.DEVICE.toUpperCase());
+        return isSamsungFold2OrFold3() || isOppoFoldable();
+    }
+
+    private static boolean isSamsungFold2OrFold3() {
+        return SAMSUNG.equalsIgnoreCase(Build.MANUFACTURER)
+                && (GALAXY_Z_FOLD_2.equalsIgnoreCase(Build.DEVICE)
+                || GALAXY_Z_FOLD_3.equalsIgnoreCase(Build.DEVICE));
+    }
+
+    private static boolean isOppoFoldable() {
+        return OPPO.equalsIgnoreCase(Build.MANUFACTURER)
+                && OPPO_FIND_N.equalsIgnoreCase(Build.DEVICE);
     }
 }

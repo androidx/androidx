@@ -55,6 +55,19 @@ class GuavaImmutableMultimapQueryResultAdapter(
             beginControlFlow("while ($L.moveToNext())", cursorVarName).apply {
                 addStatement("final $T $L", keyTypeArg.typeName, tmpKeyVarName)
                 keyRowAdapter.convert(tmpKeyVarName, cursorVarName, scope)
+
+                // Iterate over all matched fields to check if all are null. If so, we continue in
+                // the while loop to the next iteration.
+                val columnNullCheckVarName = getColumnNullCheck(
+                    cursorVarName = cursorVarName,
+                    valueRowAdapter = valueRowAdapter
+                )
+
+                // Perform column null check
+                beginControlFlow("if ($L)", columnNullCheckVarName).apply {
+                    addStatement("continue")
+                }.endControlFlow()
+
                 addStatement("final $T $L", valueTypeArg.typeName, tmpValueVarName)
                 valueRowAdapter.convert(tmpValueVarName, cursorVarName, scope)
                 addStatement("$L.put($L, $L)", mapVarName, tmpKeyVarName, tmpValueVarName)

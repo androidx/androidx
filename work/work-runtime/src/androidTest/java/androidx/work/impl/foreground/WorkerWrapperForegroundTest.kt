@@ -89,22 +89,15 @@ class WorkerWrapperForegroundTest {
                 handler.post(runnable)
             }
             val serialExecutor = SerialExecutor(internalExecutor)
-            override fun postToMainThread(runnable: Runnable) {
-                handler.post(runnable)
-            }
 
             override fun getMainThreadExecutor(): Executor {
                 return main
             }
 
-            override fun executeOnBackgroundThread(runnable: Runnable) {
-                serialExecutor.execute(runnable)
-            }
-
-            override fun getBackgroundExecutor() = serialExecutor
+            override fun getSerialTaskExecutor() = serialExecutor
         }
 
-        workDatabase = WorkDatabase.create(context, taskExecutor.backgroundExecutor, true)
+        workDatabase = WorkDatabase.create(context, taskExecutor.serialTaskExecutor, true)
         val scheduler = mock(Scheduler::class.java)
         schedulers = Collections.singletonList(scheduler)
         processor = Processor(context, config, taskExecutor, workDatabase, schedulers)

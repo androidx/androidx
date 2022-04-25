@@ -21,7 +21,8 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.single
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -55,7 +56,7 @@ class HeaderFooterTest {
         .single()
 
     @Test
-    fun insertHeader_prepend() = runBlockingTest {
+    fun insertHeader_prepend() = runTest(UnconfinedTestDispatcher()) {
         val actual = localPrepend(
             pages = listOf(
                 TransformablePage(
@@ -86,7 +87,7 @@ class HeaderFooterTest {
     }
 
     @Test
-    fun insertHeader_refresh() = runBlockingTest {
+    fun insertHeader_refresh() = runTest(UnconfinedTestDispatcher()) {
         val actual = localRefresh(
             pages = listOf(
                 TransformablePage(
@@ -117,7 +118,7 @@ class HeaderFooterTest {
     }
 
     @Test
-    fun insertHeader_empty() = runBlockingTest {
+    fun insertHeader_empty() = runTest(UnconfinedTestDispatcher()) {
         val actual = localRefresh(
             pages = listOf(
                 TransformablePage(
@@ -144,7 +145,7 @@ class HeaderFooterTest {
     }
 
     @Test
-    fun insertFooter_append() = runBlockingTest {
+    fun insertFooter_append() = runTest(UnconfinedTestDispatcher()) {
         val actual = localAppend(
             pages = listOf(
                 TransformablePage(
@@ -175,7 +176,7 @@ class HeaderFooterTest {
     }
 
     @Test
-    fun insertFooter_refresh() = runBlockingTest {
+    fun insertFooter_refresh() = runTest(UnconfinedTestDispatcher()) {
         val actual = localRefresh(
             pages = listOf(
                 TransformablePage(
@@ -206,7 +207,7 @@ class HeaderFooterTest {
     }
 
     @Test
-    fun insertFooter_empty() = runBlockingTest {
+    fun insertFooter_empty() = runTest(UnconfinedTestDispatcher()) {
         val actual = localRefresh(
             pages = listOf(
                 TransformablePage(

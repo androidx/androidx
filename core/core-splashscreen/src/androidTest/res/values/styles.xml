@@ -16,11 +16,28 @@
 
 <resources>
 
-    <style name="Theme.Test" parent="android:Theme.Material.Light.NoActionBar">
+    <!--
+     Two important point that we care about in the tests:
+     1. That the SplashScreen View, used for the OnExitAnimationListener is the same as the system
+     provided splash screen window.
+     2. That for the system bars, the transition between the system's theme and the app themes is
+     smooth and happens when the app is drawn.
+
+    Because handling of system bars colors differs between API, tests related to the SplashScreen
+    View and doing screenshot comparison are using themes with fixed system bar style, hence the
+    presence of the windowLight*Bar attribute.
+
+    The Stability* tests and associated themes are testing the expected behavior when the system
+    bars have different values on the splash screen theme and the app theme.
+    -->
+
+    <style name="Theme.Test" parent="android:Theme.DeviceDefault.Light.NoActionBar">
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:fitsSystemWindows">false</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 
     <style name="Theme.Test.Starting" parent="Theme.SplashScreen">
@@ -28,6 +45,18 @@
         <item name="windowSplashScreenAnimatedIcon">@drawable/android</item>
         <item name="windowSplashScreenAnimationDuration">1234</item>
         <item name="postSplashScreenTheme">@style/Theme.Test</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+
+    <style name="Theme.Test.Starting.IconBackground" parent="Theme.SplashScreen.IconBackground">
+        <item name="windowSplashScreenBackground">@color/bg_launcher</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/android</item>
+        <item name="windowSplashScreenAnimationDuration">1234</item>
+        <item name="windowSplashScreenIconBackgroundColor">@color/icon_bg</item>
+        <item name="postSplashScreenTheme">@style/Theme.Test</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 
     <!-- Themes for AppCompat Tests -->
@@ -36,12 +65,47 @@
         <item name="android:fitsSystemWindows">false</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 
-    <style name="Theme.Test.Starting.AppCompat" parent="Theme.SplashScreen">
+    <style name="Theme.Test.AppCompat.Starting" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/bg_launcher</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/android</item>
         <item name="windowSplashScreenAnimationDuration">1234</item>
         <item name="postSplashScreenTheme">@style/Theme.Test.AppCompat</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
+
+    <!-- Themes for system ui stability -->
+    <style name="Theme.Test.Stability1.Starting" parent="Theme.SplashScreen">
+        <item name="postSplashScreenTheme">@style/Theme.Test.Stability1</item>
+    </style>
+
+    <style name="Theme.Test.Stability2.Starting" parent="Theme.SplashScreen">
+        <item name="postSplashScreenTheme">@style/Theme.Test.Stability2</item>
+    </style>
+
+    <style name="Theme.Test.Stability1" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:fitsSystemWindows">false</item>
+        <item name="android:statusBarColor">#AAFF0000</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:enforceNavigationBarContrast">true</item>
+        <item name="android:enforceStatusBarContrast">true</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+    </style>
+
+    <style name="Theme.Test.Stability2" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:fitsSystemWindows">false</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">#AAFF0000</item>
+        <item name="android:enforceStatusBarContrast">true</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+    </style>
+
 </resources>

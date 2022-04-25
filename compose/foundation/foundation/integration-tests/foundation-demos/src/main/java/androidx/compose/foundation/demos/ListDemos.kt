@@ -44,11 +44,11 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -80,17 +80,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.paging.compose.demos.PagingDemos
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.random.Random
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.launch
 
 val LazyListDemos = listOf(
     ComposableDemo("Simple column") { LazyColumnDemo() },
@@ -110,6 +111,9 @@ val LazyListDemos = listOf(
     ComposableDemo("LazyGrid with Spacing") { LazyGridWithSpacingDemo() },
     ComposableDemo("Custom keys") { ReorderWithCustomKeys() },
     ComposableDemo("Fling Config") { LazyWithFlingConfig() },
+    ComposableDemo("Item reordering") { PopularBooksDemo() },
+    ComposableDemo("List drag and drop") { LazyColumnDragAndDropDemo() },
+    ComposableDemo("Grid drag and drop") { LazyGridDragAndDropDemo() },
     PagingDemos
 )
 
@@ -610,7 +614,6 @@ private fun NestedLazyDemo() {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun LazyGridDemo() {
     val columnModes = listOf(
@@ -631,12 +634,9 @@ private fun LazyGridDemo() {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun LazyGridForMode(mode: GridCells) {
-    LazyVerticalGrid(
-        cells = mode
-    ) {
+    LazyVerticalGrid(columns = mode) {
         items(100) {
             Text(
                 text = "$it",
@@ -649,12 +649,22 @@ private fun LazyGridForMode(mode: GridCells) {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun LazyGridWithSpacingDemo() {
     val columnModes = listOf(
         GridCells.Fixed(3),
-        GridCells.Adaptive(minSize = 60.dp)
+        GridCells.Adaptive(minSize = 60.dp),
+        object : GridCells {
+            // columns widths have ratio 1:1:2:3
+            override fun Density.calculateCrossAxisCellSizes(
+                availableSize: Int,
+                spacing: Int,
+            ): List<Int> {
+                val totalSlots = 1 + 1 + 2 + 3
+                val slotWidth = (availableSize - spacing * 3) / totalSlots
+                return listOf(slotWidth, slotWidth, slotWidth * 2, slotWidth * 3)
+            }
+        }
     )
     var currentMode by remember { mutableStateOf(0) }
     var horizontalSpacing by remember { mutableStateOf(8) }
@@ -774,7 +784,6 @@ private fun LazyGridWithSpacingDemo() {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun LazyGridWithSpacingForMode(
     mode: GridCells,
@@ -782,7 +791,7 @@ private fun LazyGridWithSpacingForMode(
     verticalSpacing: Dp
 ) {
     LazyVerticalGrid(
-        cells = mode,
+        columns = mode,
         horizontalArrangement = Arrangement.spacedBy(horizontalSpacing),
         verticalArrangement = Arrangement.spacedBy(verticalSpacing)
     ) {
@@ -798,6 +807,7 @@ private fun LazyGridWithSpacingForMode(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ReorderWithCustomKeys() {
     var names by remember { mutableStateOf(listOf("John", "Sara", "Dan")) }
@@ -817,7 +827,7 @@ private fun ReorderWithCustomKeys() {
                 key = { it }
             ) {
                 var counter by rememberSaveable { mutableStateOf(0) }
-                Button(onClick = { counter++ }) {
+                Button(onClick = { counter++ }, modifier = Modifier.animateItemPlacement()) {
                     Text("$it has $counter")
                 }
             }

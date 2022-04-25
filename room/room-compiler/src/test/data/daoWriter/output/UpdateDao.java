@@ -26,6 +26,8 @@ public final class UpdateDao_Impl implements UpdateDao {
 
   private final EntityDeletionOrUpdateAdapter<User> __updateAdapterOfUser;
 
+  private final EntityDeletionOrUpdateAdapter<User> __updateAdapterOfUser_1;
+
   private final EntityDeletionOrUpdateAdapter<MultiPKeyEntity> __updateAdapterOfMultiPKeyEntity;
 
   private final EntityDeletionOrUpdateAdapter<Book> __updateAdapterOfBook;
@@ -40,6 +42,29 @@ public final class UpdateDao_Impl implements UpdateDao {
       @Override
       public String createQuery() {
         return "UPDATE OR ABORT `User` SET `uid` = ?,`name` = ?,`lastName` = ?,`ageColumn` = ? WHERE `uid` = ?";
+      }
+
+      @Override
+      public void bind(SupportSQLiteStatement stmt, User value) {
+        stmt.bindLong(1, value.uid);
+        if (value.name == null) {
+          stmt.bindNull(2);
+        } else {
+          stmt.bindString(2, value.name);
+        }
+        if (value.getLastName() == null) {
+          stmt.bindNull(3);
+        } else {
+          stmt.bindString(3, value.getLastName());
+        }
+        stmt.bindLong(4, value.age);
+        stmt.bindLong(5, value.uid);
+      }
+    };
+    this.__updateAdapterOfUser_1 = new EntityDeletionOrUpdateAdapter<User>(__db) {
+      @Override
+      public String createQuery() {
+        return "UPDATE `User` SET `uid` = ?,`name` = ?,`lastName` = ?,`ageColumn` = ? WHERE `uid` = ?";
       }
 
       @Override
@@ -149,6 +174,19 @@ public final class UpdateDao_Impl implements UpdateDao {
     __db.beginTransaction();
     try {
       __updateAdapterOfUser.handleMultiple(users);
+      __db.setTransactionSuccessful();
+    } finally {
+      __db.endTransaction();
+    }
+  }
+
+  @Override
+  public void updateTwoUsers(final User userOne, final User userTwo) {
+    __db.assertNotSuspendingTransaction();
+    __db.beginTransaction();
+    try {
+      __updateAdapterOfUser_1.handle(userOne);
+      __updateAdapterOfUser_1.handle(userTwo);
       __db.setTransactionSuccessful();
     } finally {
       __db.endTransaction();

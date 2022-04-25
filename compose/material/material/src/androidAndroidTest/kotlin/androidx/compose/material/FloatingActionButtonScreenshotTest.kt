@@ -23,11 +23,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -94,8 +98,6 @@ class FloatingActionButtonScreenshotTest {
 
     @Test
     fun ripple() {
-        rule.mainClock.autoAdvance = false
-
         rule.setMaterialContent {
             Box(Modifier.requiredSize(100.dp, 100.dp).wrapContentSize()) {
                 FloatingActionButton(onClick = { }) {
@@ -108,9 +110,6 @@ class FloatingActionButtonScreenshotTest {
         rule.onNode(hasClickAction())
             .performTouchInput { down(center) }
 
-        // Advance past the tap timeout
-        rule.mainClock.advanceTimeBy(100)
-
         rule.waitForIdle()
         // Ripples are drawn on the RenderThread, not the main (UI) thread, so we can't
         // properly wait for synchronization. Instead just wait until after the ripples are
@@ -120,5 +119,55 @@ class FloatingActionButtonScreenshotTest {
         rule.onRoot()
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "fab_ripple")
+    }
+
+    @Test
+    fun hover() {
+        rule.setMaterialContent {
+            Box(Modifier.requiredSize(100.dp, 100.dp).wrapContentSize()) {
+                FloatingActionButton(onClick = { }) {
+                    Icon(Icons.Filled.Favorite, contentDescription = null)
+                }
+            }
+        }
+
+        rule.onNode(hasClickAction())
+            .performMouseInput { enter(center) }
+
+        rule.waitForIdle()
+
+        rule.onRoot()
+            .captureToImage()
+            .assertAgainstGolden(screenshotRule, "fab_hover")
+    }
+
+    @Test
+    fun focus() {
+        val focusRequester = FocusRequester()
+
+        rule.setMaterialContent {
+            Box(Modifier.requiredSize(100.dp, 100.dp).wrapContentSize()) {
+                FloatingActionButton(
+                    onClick = { },
+                    modifier = Modifier
+                        // Normally this is only focusable in non-touch mode, so let's force it to
+                        // always be focusable so we can test how it appears
+                        .focusProperties { canFocus = true }
+                        .focusRequester(focusRequester)
+                ) {
+                    Icon(Icons.Filled.Favorite, contentDescription = null)
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            focusRequester.requestFocus()
+        }
+
+        rule.waitForIdle()
+
+        rule.onRoot()
+            .captureToImage()
+            .assertAgainstGolden(screenshotRule, "fab_focus")
     }
 }

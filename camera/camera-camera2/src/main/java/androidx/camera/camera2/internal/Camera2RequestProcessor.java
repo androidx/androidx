@@ -25,13 +25,16 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
+import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureFailure;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.RequestProcessor;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.SessionProcessorSurface;
+import androidx.camera.core.impl.TagBundle;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
@@ -56,11 +59,16 @@ import java.util.concurrent.ExecutionException;
  * <p>This class is thread-safe. It is safe to invoke methods of {@link Camera2RequestProcessor}
  * from any threads.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class Camera2RequestProcessor implements RequestProcessor {
     private static final String TAG = "Camera2RequestProcessor";
+    @NonNull
     private final CaptureSession mCaptureSession;
+    @NonNull
     private final List<SessionProcessorSurface> mProcessorSurfaces;
     private volatile boolean mIsClosed = false;
+    @Nullable
+    private volatile SessionConfig mSessionConfig;
 
     public Camera2RequestProcessor(@NonNull CaptureSession captureSession,
             @NonNull List<SessionProcessorSurface> processorSurfaces) {
@@ -75,6 +83,14 @@ public class Camera2RequestProcessor implements RequestProcessor {
      */
     public void close() {
         mIsClosed = true;
+    }
+
+    /**
+     * Update the SessionConfig to get the tags and the capture callback attached to the
+     * repeating request.
+     */
+    public void updateSessionConfig(@Nullable SessionConfig sessionConfig) {
+        mSessionConfig = sessionConfig;
     }
 
     private boolean areRequestsValid(@NonNull List<RequestProcessor.Request> requests) {
@@ -152,7 +168,22 @@ public class Camera2RequestProcessor implements RequestProcessor {
         sessionConfigBuilder.setTemplateType(request.getTemplateId());
         sessionConfigBuilder.setImplementationOptions(request.getParameters());
         sessionConfigBuilder.addCameraCaptureCallback(CaptureCallbackContainer.create(
-                new Camera2CallbackWrapper(request, callback, true)));
+                        new Camera2CallbackWrapper(request, callback, true)));
+
+        if (mSessionConfig != null) {
+            // Attach the CameraX camera capture callback so that CameraControl can get the capture
+            // results it needs.
+            for (CameraCaptureCallback cameraCaptureCallback :
+                    mSessionConfig.getRepeatingCameraCaptureCallbacks()) {
+                sessionConfigBuilder.addCameraCaptureCallback(cameraCaptureCallback);
+            }
+
+            // Set the tag (key, value) from CameraX.
+            TagBundle tagBundle =  mSessionConfig.getRepeatingCaptureConfig().getTagBundle();
+            for (String key : tagBundle.listKeys()) {
+                sessionConfigBuilder.addTag(key, tagBundle.getTag(key));
+            }
+        }
 
         for (Integer outputConfigId : request.getTargetOutputConfigIds()) {
             sessionConfigBuilder.addSurface(findSurface(outputConfigId));

@@ -16,6 +16,8 @@
 
 package androidx.camera.testing;
 
+import androidx.annotation.RequiresApi;
+
 import java.lang.ref.PhantomReference;
 import java.lang.ref.ReferenceQueue;
 import java.util.concurrent.TimeoutException;
@@ -23,6 +25,7 @@ import java.util.concurrent.TimeoutException;
 /**
  * Utility class for tests containing methods related to garbage collection.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class GarbageCollectionUtil {
 
     private static final long FINALIZE_TIMEOUT_MILLIS = 200L;

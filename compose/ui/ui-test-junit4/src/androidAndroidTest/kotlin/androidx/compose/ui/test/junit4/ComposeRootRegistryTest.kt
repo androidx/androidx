@@ -22,7 +22,6 @@ import android.view.ViewGroup
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.ui.platform.ViewRootForTest
-import androidx.compose.ui.test.junit4.android.ComposeRootRegistry
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
@@ -30,6 +29,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.RuleChain
+import org.junit.runners.model.Statement
 
 @LargeTest
 class ComposeRootRegistryTest {
@@ -39,7 +39,15 @@ class ComposeRootRegistryTest {
 
     @get:Rule
     val testRule: RuleChain = RuleChain
-        .outerRule { base, _ -> composeRootRegistry.getStatementFor(base) }
+        .outerRule { base, _ ->
+            object : Statement() {
+                override fun evaluate() {
+                    composeRootRegistry.withRegistry {
+                        base.evaluate()
+                    }
+                }
+            }
+        }
         .around(activityRule)
 
     private val onRegistrationChangedListener =

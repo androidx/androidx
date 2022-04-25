@@ -35,8 +35,10 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.widget.TextView;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
 import androidx.core.content.res.ResourcesCompat;
@@ -232,15 +234,15 @@ class AppCompatTextHelper {
             }
         }
         if (fontVariation != null) {
-            mView.setFontVariationSettings(fontVariation);
+            Api26Impl.setFontVariationSettings(mView, fontVariation);
         }
         if (localeListString != null) {
             if (Build.VERSION.SDK_INT >= 24) {
-                mView.setTextLocales(LocaleList.forLanguageTags(localeListString));
+                Api24Impl.setTextLocales(mView, Api24Impl.forLanguageTags(localeListString));
             } else if (Build.VERSION.SDK_INT >= 21) {
-                final String firstLanTag =
-                        localeListString.substring(0, localeListString.indexOf(','));
-                mView.setTextLocale(Locale.forLanguageTag(firstLanTag));
+                @SuppressWarnings("StringSplitter")
+                final String firstLanTag = localeListString.split(",")[0];
+                Api17Impl.setTextLocale(mView, Api21Impl.forLanguageTag(firstLanTag));
             }
         }
 
@@ -253,16 +255,17 @@ class AppCompatTextHelper {
                 final int[] autoSizeTextSizesInPx =
                         mAutoSizeTextHelper.getAutoSizeTextAvailableSizes();
                 if (autoSizeTextSizesInPx.length > 0) {
-                    if (mView.getAutoSizeStepGranularity() != AppCompatTextViewAutoSizeHelper
+                    if (Api26Impl.getAutoSizeStepGranularity(mView)
+                            != AppCompatTextViewAutoSizeHelper
                             .UNSET_AUTO_SIZE_UNIFORM_CONFIGURATION_VALUE) {
                         // Configured with granularity, preserve details.
-                        mView.setAutoSizeTextTypeUniformWithConfiguration(
+                        Api26Impl.setAutoSizeTextTypeUniformWithConfiguration(mView,
                                 mAutoSizeTextHelper.getAutoSizeMinTextSize(),
                                 mAutoSizeTextHelper.getAutoSizeMaxTextSize(),
                                 mAutoSizeTextHelper.getAutoSizeStepGranularity(),
                                 TypedValue.COMPLEX_UNIT_PX);
                     } else {
-                        mView.setAutoSizeTextTypeUniformWithPresetSizes(
+                        Api26Impl.setAutoSizeTextTypeUniformWithPresetSizes(mView,
                                 autoSizeTextSizesInPx, TypedValue.COMPLEX_UNIT_PX);
                     }
                 }
@@ -364,7 +367,7 @@ class AppCompatTextHelper {
                     public void onFontRetrieved(@NonNull Typeface typeface) {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                             if (fontWeight != TEXT_FONT_WEIGHT_UNSPECIFIED) {
-                                typeface = Typeface.create(typeface, fontWeight,
+                                typeface = Api28Impl.create(typeface, fontWeight,
                                         (style & Typeface.ITALIC) != 0);
                             }
                         }
@@ -382,7 +385,7 @@ class AppCompatTextHelper {
                     if (typeface != null) {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
                                 && mFontWeight != TEXT_FONT_WEIGHT_UNSPECIFIED) {
-                            mFontTypeface = Typeface.create(
+                            mFontTypeface = Api28Impl.create(
                                     Typeface.create(typeface, Typeface.NORMAL), mFontWeight,
                                     (mStyle & Typeface.ITALIC) != 0);
                         } else {
@@ -401,7 +404,7 @@ class AppCompatTextHelper {
                 if (fontFamilyName != null) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
                             && mFontWeight != TEXT_FONT_WEIGHT_UNSPECIFIED) {
-                        mFontTypeface = Typeface.create(
+                        mFontTypeface = Api28Impl.create(
                                 Typeface.create(fontFamilyName, Typeface.NORMAL), mFontWeight,
                                 (mStyle & Typeface.ITALIC) != 0);
                     } else {
@@ -502,7 +505,7 @@ class AppCompatTextHelper {
             final String fontVariation = a.getString(
                     R.styleable.TextAppearance_fontVariationSettings);
             if (fontVariation != null) {
-                mView.setFontVariationSettings(fontVariation);
+                Api26Impl.setFontVariationSettings(mView, fontVariation);
             }
         }
         a.recycle();
@@ -530,7 +533,7 @@ class AppCompatTextHelper {
         }
         if (Build.VERSION.SDK_INT >= 17) {
             if (mDrawableStartTint != null || mDrawableEndTint != null) {
-                final Drawable[] compoundDrawables = mView.getCompoundDrawablesRelative();
+                final Drawable[] compoundDrawables = Api17Impl.getCompoundDrawablesRelative(mView);
                 applyCompoundDrawableTint(compoundDrawables[0], mDrawableStartTint);
                 applyCompoundDrawableTint(compoundDrawables[2], mDrawableEndTint);
             }
@@ -670,25 +673,21 @@ class AppCompatTextHelper {
             Drawable drawableEnd) {
         // Mirror TextView logic: if start/end drawables supplied, ignore left/right
         if (Build.VERSION.SDK_INT >= 17 && (drawableStart != null || drawableEnd != null)) {
-            final Drawable[] existingRel = mView.getCompoundDrawablesRelative();
-            mView.setCompoundDrawablesRelativeWithIntrinsicBounds(
+            final Drawable[] existingRel = Api17Impl.getCompoundDrawablesRelative(mView);
+            Api17Impl.setCompoundDrawablesRelativeWithIntrinsicBounds(mView,
                     drawableStart != null ? drawableStart : existingRel[0],
                     drawableTop != null ? drawableTop : existingRel[1],
                     drawableEnd != null ? drawableEnd : existingRel[2],
-                    drawableBottom != null ? drawableBottom : existingRel[3]
-            );
+                    drawableBottom != null ? drawableBottom : existingRel[3]);
         } else if (drawableLeft != null || drawableTop != null
                 || drawableRight != null || drawableBottom != null) {
             // If have non-compat relative drawables, then ignore leftCompat/rightCompat
             if (Build.VERSION.SDK_INT >= 17) {
-                final Drawable[] existingRel = mView.getCompoundDrawablesRelative();
+                final Drawable[] existingRel = Api17Impl.getCompoundDrawablesRelative(mView);
                 if (existingRel[0] != null || existingRel[2] != null) {
-                    mView.setCompoundDrawablesRelativeWithIntrinsicBounds(
-                            existingRel[0],
-                            drawableTop != null ? drawableTop : existingRel[1],
-                            existingRel[2],
-                            drawableBottom != null ? drawableBottom : existingRel[3]
-                    );
+                    Api17Impl.setCompoundDrawablesRelativeWithIntrinsicBounds(mView, existingRel[0],
+                            drawableTop != null ? drawableTop : existingRel[1], existingRel[2],
+                            drawableBottom != null ? drawableBottom : existingRel[3]);
                     return;
                 }
             }
@@ -722,5 +721,102 @@ class AppCompatTextHelper {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R && inputConnection != null) {
             EditorInfoCompat.setInitialSurroundingText(editorInfo, textView.getText());
         }
+    }
+
+    @RequiresApi(26)
+    static class Api26Impl {
+        private Api26Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static boolean setFontVariationSettings(TextView textView, String fontVariationSettings) {
+            return textView.setFontVariationSettings(fontVariationSettings);
+        }
+
+        @DoNotInline
+        static int getAutoSizeStepGranularity(TextView textView) {
+            return textView.getAutoSizeStepGranularity();
+        }
+
+        @DoNotInline
+        static void setAutoSizeTextTypeUniformWithConfiguration(TextView textView,
+                int autoSizeMinTextSize, int autoSizeMaxTextSize, int autoSizeStepGranularity,
+                int unit) {
+            textView.setAutoSizeTextTypeUniformWithConfiguration(autoSizeMinTextSize,
+                    autoSizeMaxTextSize, autoSizeStepGranularity, unit);
+        }
+
+        @DoNotInline
+        static void setAutoSizeTextTypeUniformWithPresetSizes(TextView textView, int[] presetSizes,
+                int unit) {
+            textView.setAutoSizeTextTypeUniformWithPresetSizes(presetSizes, unit);
+        }
+    }
+
+    @RequiresApi(24)
+    static class Api24Impl {
+        private Api24Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void setTextLocales(TextView textView, LocaleList locales) {
+            textView.setTextLocales(locales);
+        }
+
+        @DoNotInline
+        static LocaleList forLanguageTags(String list) {
+            return LocaleList.forLanguageTags(list);
+        }
+    }
+
+    @RequiresApi(17)
+    static class Api17Impl {
+        private Api17Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void setTextLocale(TextView textView, Locale locale) {
+            textView.setTextLocale(locale);
+        }
+
+        @DoNotInline
+        static void setCompoundDrawablesRelativeWithIntrinsicBounds(TextView textView,
+                Drawable start, Drawable top, Drawable end, Drawable bottom) {
+            textView.setCompoundDrawablesRelativeWithIntrinsicBounds(start, top, end, bottom);
+        }
+
+        @DoNotInline
+        static Drawable[] getCompoundDrawablesRelative(TextView textView) {
+            return textView.getCompoundDrawablesRelative();
+        }
+    }
+
+    @RequiresApi(21)
+    static class Api21Impl {
+        private Api21Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static Locale forLanguageTag(String languageTag) {
+            return Locale.forLanguageTag(languageTag);
+        }
+
+    }
+
+    @RequiresApi(28)
+    static class Api28Impl {
+        private Api28Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static Typeface create(Typeface family, int weight, boolean italic) {
+            return Typeface.create(family, weight, italic);
+        }
+
     }
 }

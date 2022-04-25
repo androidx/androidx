@@ -29,12 +29,12 @@ import java.lang.annotation.Target;
  * has misunderstood what the method does.
  * <p>
  * Example:
- * <pre>{@code
+ * <pre>
  *  public @CheckResult String trim(String s) { return s.trim(); }
  *  ...
  *  s.trim(); // this is probably an error
  *  s = s.trim(); // ok
- * }</pre>
+ * </pre>
  */
 @Documented
 @Retention(CLASS)

@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.dependencies.DependenciesKt
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -31,7 +29,7 @@ dependencies {
 
 protobuf {
     protoc {
-        artifact = DependenciesKt.getDependencyAsString(libs.protobufCompiler)
+        artifact = libs.protobufCompiler.get()
     }
 
     // Generates the java proto-lite code for the protos in this project. See

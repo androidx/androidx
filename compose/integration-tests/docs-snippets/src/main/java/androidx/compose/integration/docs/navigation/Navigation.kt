@@ -22,6 +22,7 @@ package androidx.compose.integration.docs.navigation
 import android.app.PendingIntent
 import android.content.Intent
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Button
@@ -32,6 +33,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.core.app.TaskStackBuilder
@@ -98,7 +100,6 @@ private fun NavigationSnippet5(navController: NavHostController) {
     }
 }
 
-@Composable
 private fun NavGraphBuilder.NavigationSnippet6(navController: NavHostController) {
     composable("profile/{userId}") { backStackEntry ->
         Profile(navController, backStackEntry.arguments?.getString("userId"))
@@ -110,7 +111,6 @@ private fun NavigationSnippet7(navController: NavHostController) {
     navController.navigate("profile/user1234")
 }
 
-@Composable
 private fun NavGraphBuilder.NavigationSnippet8(navController: NavHostController) {
     composable(
         "profile?userId={userId}",
@@ -122,7 +122,6 @@ private fun NavGraphBuilder.NavigationSnippet8(navController: NavHostController)
 
 /* Deep links */
 
-@Composable
 private fun NavGraphBuilder.NavigationSnippet9(navController: NavHostController) {
     val uri = "https://example.com"
 
@@ -180,16 +179,18 @@ private fun NavigationSnippet11(items: List<Screen>) {
                 }
             }
         }
-    ) {
-
-        NavHost(navController, startDestination = Screen.Profile.route) {
+    ) { innerPadding ->
+        NavHost(
+            navController,
+            startDestination = Screen.Profile.route,
+            modifier = Modifier.padding(innerPadding)
+        ) {
             composable(Screen.Profile.route) { Profile(navController) }
             composable(Screen.FriendsList.route) { FriendsList(navController) }
         }
     }
 }
 
-@Composable
 private fun NavGraphBuilder.NavigationSnippet12(navController: NavHostController) {
     composable(
         "profile?userId={userId}",

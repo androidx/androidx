@@ -16,6 +16,8 @@
 
 package androidx.car.app.model;
 
+import static androidx.car.app.model.Action.FLAG_PRIMARY;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
@@ -112,6 +114,14 @@ public class ActionTest {
     }
 
     @Test
+    public void create_primaryIsTrue() {
+        OnClickListener onClickListener = mock(OnClickListener.class);
+        Action action = new Action.Builder().setTitle("foo").setOnClickListener(
+                onClickListener).setFlags(FLAG_PRIMARY).build();
+        assertThat(action.getFlags() & FLAG_PRIMARY).isEqualTo(FLAG_PRIMARY);
+    }
+
+    @Test
     public void createInstance() {
         OnClickListener onClickListener = mock(OnClickListener.class);
         Context context = ApplicationProvider.getApplicationContext();
@@ -161,10 +171,10 @@ public class ActionTest {
 
         Action action1 =
                 new Action.Builder().setOnClickListener(() -> {
-                }).setTitle(title).setIcon(icon).build();
+                }).setTitle(title).setIcon(icon).setFlags(FLAG_PRIMARY).build();
         Action action2 =
                 new Action.Builder().setOnClickListener(() -> {
-                }).setTitle(title).setIcon(icon).build();
+                }).setTitle(title).setIcon(icon).setFlags(FLAG_PRIMARY).build();
 
         assertThat(action2).isEqualTo(action1);
     }
@@ -190,6 +200,21 @@ public class ActionTest {
         }).setTitle(title).setIcon(icon1).build();
         Action action2 = new Action.Builder().setOnClickListener(() -> {
         }).setTitle(title).setIcon(icon2).build();
+
+        assertThat(action2).isNotEqualTo(action1);
+    }
+
+    @Test
+    public void notEquals_nonMatchingFlags() {
+        String title = "foo";
+        CarIcon icon = CarIcon.ALERT;
+
+        Action action1 =
+                new Action.Builder().setOnClickListener(() -> {
+                }).setTitle(title).setIcon(icon).setFlags(FLAG_PRIMARY).build();
+        Action action2 =
+                new Action.Builder().setOnClickListener(() -> {
+                }).setTitle(title).setIcon(icon).build();
 
         assertThat(action2).isNotEqualTo(action1);
     }

@@ -16,6 +16,8 @@
 package androidx.core.widget
 import android.content.Context
 import android.content.res.Configuration
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.text.SpannableString
 import android.text.SpannedString
 import android.text.style.UnderlineSpan
@@ -28,6 +30,12 @@ import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
 import androidx.core.remoteviews.test.R
+import androidx.core.widget.RemoteViewsCompat.setLinearLayoutWeightSum
+import androidx.core.widget.RemoteViewsCompat.setTextViewError
+import androidx.core.widget.RemoteViewsCompat.setTextViewHint
+import androidx.core.widget.RemoteViewsCompat.setTextViewMaxLines
+import androidx.core.widget.RemoteViewsCompat.setViewBackgroundColorResource
+import androidx.core.widget.RemoteViewsCompat.setViewEnabled
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
@@ -37,6 +45,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 import java.util.Locale
+import kotlin.test.assertIs
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
@@ -125,6 +134,17 @@ class RemoteViewsTest {
         mRemoteViews.setLinearLayoutWeightSum(R.id.linear_layout, 4.2f)
         reapplyRemoteViews()
         assertThat(mLinearLayout.weightSum).isEqualTo(4.2f)
+    }
+
+    @Test
+    fun setViewBackgroundColorResource() {
+        mRemoteViews.setViewBackgroundColorResource(R.id.text, R.color.my_color)
+
+        reapplyRemoteViews()
+
+        val background = mTextView.background
+        assertIs<ColorDrawable>(background)
+        assertThat(background.color).isEqualTo(Color.RED)
     }
 
     // Note: createConfigurationContext was added in API 17, but only seems to work properly in

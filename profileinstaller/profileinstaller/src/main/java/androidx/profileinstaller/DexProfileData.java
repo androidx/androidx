@@ -18,32 +18,37 @@ package androidx.profileinstaller;
 
 import androidx.annotation.NonNull;
 
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.TreeMap;
 
 class DexProfileData {
-    final @NonNull
-    String key;
+    @NonNull
+    final String apkName;
+    @NonNull
+    final String dexName;
     final long dexChecksum;
-    final int classSetSize;
+    long mTypeIdCount;
+    int classSetSize;
     final int hotMethodRegionSize;
     final int numMethodIds;
+    @NonNull int[] classes;
     final @NonNull
-    HashSet<Integer> classes;
-    final @NonNull
-    HashMap<Integer, Integer> methods;
+    TreeMap<Integer, Integer> methods;
 
     DexProfileData(
-            @NonNull String key,
+            @NonNull String apkName,
+            @NonNull String dexName,
             long dexChecksum,
+            long typeIdCount,
             int classSetSize,
             int hotMethodRegionSize,
             int numMethodIds,
-            @NonNull HashSet<Integer> classes,
-            @NonNull HashMap<Integer, Integer> methods
+            @NonNull int[] classes,
+            @NonNull TreeMap<Integer, Integer> methods
     ) {
-        this.key = key;
+        this.apkName = apkName;
+        this.dexName = dexName;
         this.dexChecksum = dexChecksum;
+        this.mTypeIdCount = typeIdCount;
         this.classSetSize = classSetSize;
         this.hotMethodRegionSize = hotMethodRegionSize;
         this.numMethodIds = numMethodIds;

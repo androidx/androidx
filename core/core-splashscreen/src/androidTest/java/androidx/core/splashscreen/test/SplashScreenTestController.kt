@@ -18,31 +18,56 @@ package androidx.core.splashscreen.test
 
 import android.app.Activity
 import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
+import android.os.Bundle
 import android.util.TypedValue
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.core.splashscreen.R as SR
+import androidx.core.splashscreen.SplashScreenViewProvider
 import androidx.test.runner.screenshot.Screenshot
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.atomic.AtomicBoolean
+import androidx.core.splashscreen.R as SR
 
+/**
+ * If true, sets an [androidx.core.splashscreen.SplashScreen.OnExitAnimationListener] on the
+ * Activity
+ */
 internal const val EXTRA_ANIMATION_LISTENER = "AnimationListener"
+
+/**
+ * If true, sets a [androidx.core.splashscreen.SplashScreen.KeepOnScreenCondition] waiting until
+ * [SplashScreenTestController.waitBarrier] is set to `false`.
+ * Activity
+ */
 internal const val EXTRA_SPLASHSCREEN_WAIT = "splashscreen_wait"
+
+/**
+ * If set to true, takes a screenshot of the splash screen and saves it in
+ * [SplashScreenTestController.splashScreenScreenshot] and a second screenshot of
+ * [androidx.core.splashscreen.SplashScreenViewProvider.view]
+ * and saves it in [SplashScreenTestController.splashScreenViewScreenShot]
+ */
 internal const val EXTRA_SPLASHSCREEN_VIEW_SCREENSHOT = "SplashScreenViewScreenShot"
 
 public interface SplashScreenTestControllerHolder {
     public var controller: SplashScreenTestController
 }
 
-public class SplashScreenTestController(private val activity: Activity) {
+public class SplashScreenTestController(internal val activity: Activity) {
 
     public var splashScreenViewScreenShot: Bitmap? = null
     public var splashScreenScreenshot: Bitmap? = null
     public var splashscreenIconId: Int = 0
     public var splashscreenBackgroundId: Int = 0
+    public var splashscreenIconBackgroundId: Int = 0
     public var finalAppTheme: Int = 0
     public var duration: Int = 0
     public var exitAnimationListenerLatch: CountDownLatch = CountDownLatch(1)
+    public var splashScreenView: View? = null
+    public var splashScreenIconView: View? = null
+    public var splashScreenIconViewBackground: Drawable? = null
     public var drawnLatch: CountDownLatch = CountDownLatch(1)
     public val isCompatActivity: Boolean
         get() = activity is AppCompatActivity
@@ -52,14 +77,27 @@ public class SplashScreenTestController(private val activity: Activity) {
     public val waitBarrier: AtomicBoolean = AtomicBoolean(true)
     public var hasDrawn: Boolean = false
 
+    private var onExitAnimationListener: (SplashScreenViewProvider) -> Boolean = { false }
+
+    /**
+     * Call [onExitAnimation] when the
+     * [androidx.core.splashscreen.SplashScreen.OnExitAnimationListener] is called. This requires
+     * [EXTRA_ANIMATION_LISTENER] to be set to true.
+     * If [onExitAnimation] returns true, [SplashScreenViewProvider] won't be removed and the
+     * OnExitAnimationListener returns immediately.
+     */
+    fun doOnExitAnimation(onExitAnimation: (SplashScreenViewProvider) -> Boolean) {
+        onExitAnimationListener = onExitAnimation
+    }
+
     public fun onCreate() {
         val intent = activity.intent
         val theme = activity.theme
+        val extras = intent.extras ?: Bundle.EMPTY
 
-        val useListener = intent.extras?.getBoolean(EXTRA_ANIMATION_LISTENER) ?: false
-        val takeScreenShot =
-            intent.extras?.getBoolean(EXTRA_SPLASHSCREEN_VIEW_SCREENSHOT) ?: false
-        val waitForSplashscreen = intent.extras?.getBoolean(EXTRA_SPLASHSCREEN_WAIT) ?: false
+        val useListener = extras.getBoolean(EXTRA_ANIMATION_LISTENER)
+        val takeScreenShot = extras.getBoolean(EXTRA_SPLASHSCREEN_VIEW_SCREENSHOT)
+        val waitForSplashscreen = extras.getBoolean(EXTRA_SPLASHSCREEN_WAIT)
 
         val tv = TypedValue()
         theme.resolveAttribute(SR.attr.windowSplashScreenAnimatedIcon, tv, true)
@@ -68,6 +106,9 @@ public class SplashScreenTestController(private val activity: Activity) {
         theme.resolveAttribute(SR.attr.windowSplashScreenBackground, tv, true)
         splashscreenBackgroundId = tv.resourceId
 
+        theme.resolveAttribute(SR.attr.windowSplashScreenIconBackgroundColor, tv, true)
+        splashscreenIconBackgroundId = tv.resourceId
+
         theme.resolveAttribute(SR.attr.postSplashScreenTheme, tv, true)
         finalAppTheme = tv.resourceId
 
@@ -75,10 +116,11 @@ public class SplashScreenTestController(private val activity: Activity) {
         duration = tv.data
 
         val splashScreen = activity.installSplashScreen()
+
         activity.setContentView(R.layout.main_activity)
 
         if (waitForSplashscreen) {
-            splashScreen.setKeepVisibleCondition {
+            splashScreen.setKeepOnScreenCondition {
                 waitedLatch.countDown()
                 val shouldWait = waitBarrier.get() || waitedLatch.count > 0L
                 if (!shouldWait && takeScreenShot && splashScreenScreenshot == null) {
@@ -90,11 +132,25 @@ public class SplashScreenTestController(private val activity: Activity) {
 
         if (useListener) {
             splashScreen.setOnExitAnimationListener { splashScreenViewProvider ->
-                if (takeScreenShot) {
-                    splashScreenViewScreenShot = Screenshot.capture().bitmap
+                splashScreenView = splashScreenViewProvider.view
+                splashScreenIconView = splashScreenViewProvider.iconView
+                splashScreenIconViewBackground = splashScreenViewProvider.iconView.background
+                if (onExitAnimationListener(splashScreenViewProvider)) {
+                    return@setOnExitAnimationListener
                 }
-                exitAnimationListenerLatch.countDown()
-                splashScreenViewProvider.remove()
+                if (takeScreenShot) {
+                    splashScreenViewProvider.view.postDelayed(
+                        {
+                            splashScreenViewScreenShot = Screenshot.capture().bitmap
+                            splashScreenViewProvider.remove()
+                            exitAnimationListenerLatch.countDown()
+                        },
+                        100
+                    )
+                } else {
+                    splashScreenViewProvider.remove()
+                    exitAnimationListenerLatch.countDown()
+                }
             }
         }
 

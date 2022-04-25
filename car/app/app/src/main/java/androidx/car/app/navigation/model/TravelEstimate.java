@@ -28,9 +28,13 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.CarColor;
+import androidx.car.app.model.CarIcon;
+import androidx.car.app.model.CarText;
 import androidx.car.app.model.DateTimeWithZone;
 import androidx.car.app.model.Distance;
 import androidx.car.app.model.constraints.CarColorConstraints;
+import androidx.car.app.model.constraints.CarIconConstraints;
+import androidx.car.app.model.constraints.CarTextConstraints;
 
 import java.time.Duration;
 import java.time.ZonedDateTime;
@@ -58,6 +62,12 @@ public final class TravelEstimate {
     private final CarColor mRemainingTimeColor;
     @Keep
     private final CarColor mRemainingDistanceColor;
+    @Keep
+    @Nullable
+    private final CarText mTripText;
+    @Keep
+    @Nullable
+    private final CarIcon mTripIcon;
 
     /**
      * Returns the remaining {@link Distance} until arriving at the destination,  or {@code null}
@@ -91,7 +101,7 @@ public final class TravelEstimate {
     }
 
     /**
-     * Sets the color of the remaining time text or {@code null} if not set.
+     * Returns the color of the remaining time text or {@code null} if not set.
      *
      * @see Builder#setRemainingTimeColor(CarColor)
      */
@@ -101,13 +111,33 @@ public final class TravelEstimate {
     }
 
     /**
-     * Sets the color of the remaining distance text or {@code null} if not set.
+     * Returns the color of the remaining distance text or {@code null} if not set.
      *
      * @see Builder#setRemainingDistanceColor(CarColor)
      */
     @Nullable
     public CarColor getRemainingDistanceColor() {
         return mRemainingDistanceColor;
+    }
+
+    /**
+     * Returns the trip text or {@code null} if not set.
+     *
+     * @see Builder#setTripText(CarText)
+     */
+    @Nullable
+    public CarText getTripText() {
+        return mTripText;
+    }
+
+    /**
+     * Returns the trip icon or {@code null} if not set.
+     *
+     * @see Builder#setTripIcon(CarIcon)
+     */
+    @Nullable
+    public CarIcon getTripIcon() {
+        return mTripIcon;
     }
 
     @Override
@@ -127,7 +157,9 @@ public final class TravelEstimate {
                 mRemainingTimeSeconds,
                 mArrivalTimeAtDestination,
                 mRemainingTimeColor,
-                mRemainingDistanceColor);
+                mRemainingDistanceColor,
+                mTripText,
+                mTripIcon);
     }
 
     @Override
@@ -144,7 +176,9 @@ public final class TravelEstimate {
                 && mRemainingTimeSeconds == otherInfo.mRemainingTimeSeconds
                 && Objects.equals(mArrivalTimeAtDestination, otherInfo.mArrivalTimeAtDestination)
                 && Objects.equals(mRemainingTimeColor, otherInfo.mRemainingTimeColor)
-                && Objects.equals(mRemainingDistanceColor, otherInfo.mRemainingDistanceColor);
+                && Objects.equals(mRemainingDistanceColor, otherInfo.mRemainingDistanceColor)
+                && Objects.equals(mTripText, otherInfo.mTripText)
+                && Objects.equals(mTripIcon, otherInfo.mTripIcon);
     }
 
     /** Constructs an empty instance, used by serialization code. */
@@ -154,6 +188,8 @@ public final class TravelEstimate {
         mArrivalTimeAtDestination = null;
         mRemainingTimeColor = CarColor.DEFAULT;
         mRemainingDistanceColor = CarColor.DEFAULT;
+        mTripText = null;
+        mTripIcon = null;
     }
 
     TravelEstimate(Builder builder) {
@@ -162,6 +198,8 @@ public final class TravelEstimate {
         mArrivalTimeAtDestination = builder.mArrivalTimeAtDestination;
         mRemainingTimeColor = builder.mRemainingTimeColor;
         mRemainingDistanceColor = builder.mRemainingDistanceColor;
+        mTripText = builder.mTripText;
+        mTripIcon = builder.mTripIcon;
     }
 
     /** A builder of {@link TravelEstimate}. */
@@ -171,6 +209,11 @@ public final class TravelEstimate {
         final DateTimeWithZone mArrivalTimeAtDestination;
         CarColor mRemainingTimeColor = CarColor.DEFAULT;
         CarColor mRemainingDistanceColor = CarColor.DEFAULT;
+
+        @Nullable
+        CarText mTripText;
+        @Nullable
+        CarIcon mTripIcon;
 
         /**
          * Constructs a new builder of {@link TravelEstimate}.
@@ -281,6 +324,43 @@ public final class TravelEstimate {
             CarColorConstraints.STANDARD_ONLY.validateOrThrow(
                     requireNonNull(remainingDistanceColor));
             mRemainingDistanceColor = remainingDistanceColor;
+            return this;
+        }
+
+        /**
+         * Sets the trip text.
+         *
+         * <p>A text that provides additional information about this {@link TravelEstimate},
+         * such as drop off/pick up information, and battery level, that should be displayed on
+         * the screen alongside the remaining distance and time.
+         *
+         * <p>For example "Pick up Alice", "Drop off Susan", or "Battery Level is Low".
+         *
+         * @throws NullPointerException     if {@code tripText} is {@code null}
+         * @throws IllegalArgumentException if {@code tripText} contains unsupported spans
+         * @see CarText
+         */
+        // TODO(b/221086935): Document the ColorSpan requirement once we have the UX spec
+        @NonNull
+        public Builder setTripText(@NonNull CarText tripText) {
+            mTripText = requireNonNull(tripText);
+            CarTextConstraints.TEXT_WITH_COLORS.validateOrThrow(mTripText);
+            return this;
+        }
+
+        /**
+         * Sets a {@link CarIcon} that is associated with the current {@link TravelEstimate}
+         *
+         * <p>See {@link CarIcon} for more details related to providing icon and image resources
+         * that work with different car screen pixel densities.
+         *
+         * @throws NullPointerException if {@code tripIcon} is {@code null}
+         */
+        // TODO(b/221086935): Document the image size requirement once we have the UX spec
+        @NonNull
+        public Builder setTripIcon(@NonNull CarIcon tripIcon) {
+            CarIconConstraints.DEFAULT.validateOrThrow(requireNonNull(tripIcon));
+            mTripIcon = tripIcon;
             return this;
         }
 

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 import androidx.build.RunApiTasks
 
@@ -30,7 +29,7 @@ dependencies {
 androidx {
     name = "Compose Animation Tooling"
     description = "Compose Animation APIs for tooling support. Internal use only."
-    publish = Publish.SNAPSHOT_ONLY
-    mavenGroup = LibraryGroups.Compose.ANIMATION
+    publish = Publish.SNAPSHOT_AND_RELEASE
+    mavenGroup = LibraryGroups.COMPOSE_ANIMATION
     runApiTasks = new RunApiTasks.Yes()
 }

@@ -30,22 +30,17 @@ public class InstantWorkTaskExecutor implements TaskExecutor {
     private SerialExecutor mBackgroundExecutor = new SerialExecutor(mSynchronousExecutor);
 
     @Override
-    public void postToMainThread(Runnable runnable) {
-        runnable.run();
-    }
-
-    @Override
     public Executor getMainThreadExecutor() {
         return mSynchronousExecutor;
     }
 
     @Override
-    public void executeOnBackgroundThread(Runnable runnable) {
+    public void executeOnTaskThread(Runnable runnable) {
         runnable.run();
     }
 
     @Override
-    public SerialExecutor getBackgroundExecutor() {
+    public SerialExecutor getSerialTaskExecutor() {
         return mBackgroundExecutor;
     }
 }

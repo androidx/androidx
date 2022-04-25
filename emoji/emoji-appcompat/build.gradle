@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -35,4 +33,8 @@ androidx {
     mavenGroup = LibraryGroups.EMOJI
     inceptionYear = "2017"
     description = "EmojiCompat Widgets for AppCompat integration"
+}
+
+android {
+    namespace "androidx.emoji.appcompat"
 }

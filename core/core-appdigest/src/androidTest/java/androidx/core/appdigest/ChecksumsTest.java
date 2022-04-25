@@ -53,7 +53,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.concurrent.futures.ResolvableFuture;
-import androidx.core.os.BuildCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -273,7 +272,7 @@ public class ChecksumsTest {
     public void testDefaultChecksums() throws Exception {
         Checksum[] checksums = getChecksums(V2V3_PACKAGE_NAME, true, 0, TRUST_NONE);
         assertNotNull(checksums);
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             assertEquals(1, checksums.length);
             assertEquals(checksums[0].getType(),
                     android.content.pm.Checksum.TYPE_PARTIAL_MERKLE_ROOT_1M_SHA256);
@@ -300,7 +299,7 @@ public class ChecksumsTest {
 
         Checksum[] checksums = getChecksums(V4_PACKAGE_NAME, true, 0, TRUST_NONE);
         assertNotNull(checksums);
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             assertEquals(checksums.length, 6);
             // v2/v3 signature use 1M merkle tree.
             assertEquals(null, checksums[0].getSplitName());
@@ -344,7 +343,7 @@ public class ChecksumsTest {
         Checksum[] checksums = getChecksums(V4_PACKAGE_NAME, true, TYPE_WHOLE_SHA256,
                 TRUST_NONE);
         assertNotNull(checksums);
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             assertEquals(checksums.length, 12);
             // v2/v3 signature use 1M merkle tree.
             assertEquals(null, checksums[0].getSplitName());
@@ -440,7 +439,7 @@ public class ChecksumsTest {
         Checksum[] checksums = getChecksums(FIXED_PACKAGE_NAME, true, 0,
                 TRUST_NONE);
         assertNotNull(checksums);
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             assertEquals(1, checksums.length);
             // v2/v3 signature use 1M merkle tree.
             assertEquals(TYPE_PARTIAL_MERKLE_ROOT_1M_SHA256, checksums[0].getType());
@@ -498,7 +497,7 @@ public class ChecksumsTest {
         Checksum[] checksums = getChecksums(FIXED_PACKAGE_NAME, true, 0,
                 TRUST_NONE);
         assertNotNull(checksums);
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             assertEquals(1, checksums.length);
             // v2/v3 signature use 1M merkle tree.
             assertEquals(TYPE_PARTIAL_MERKLE_ROOT_1M_SHA512, checksums[0].getType());
@@ -556,7 +555,7 @@ public class ChecksumsTest {
         Checksum[] checksums = getChecksums(V2V3_PACKAGE_NAME, true, ALL_CHECKSUMS,
                 TRUST_NONE);
         assertNotNull(checksums);
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             assertEquals(checksums.length, 7);
             assertEquals(TYPE_WHOLE_MERKLE_ROOT_4K_SHA256, checksums[0].getType());
             assertEquals(TYPE_WHOLE_MD5, checksums[1].getType());
@@ -632,6 +631,7 @@ public class ChecksumsTest {
     @SdkSuppress(minSdkVersion = 29)
     @LargeTest
     @Test
+    @SuppressWarnings("deprecation")
     public void testFixedAllFileChecksumsDirectExecutor() throws Exception {
         installPackage(TEST_FIXED_APK);
         assertTrue(isAppInstalled(FIXED_PACKAGE_NAME));
@@ -896,7 +896,7 @@ public class ChecksumsTest {
     }
 
     private void validateFixedAllChecksums(Checksum[] checksums) {
-        if (!BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT < 31) {
             validateFixedAllChecksumsFallback(checksums);
             return;
         }
@@ -1049,6 +1049,7 @@ public class ChecksumsTest {
             }
         }
 
+        @SuppressWarnings("deprecation")
         void commitSession(PackageInstaller.Session session) throws Exception {
             final ResolvableFuture<Intent> result = ResolvableFuture.create();
 

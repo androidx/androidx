@@ -45,7 +45,7 @@ abstract class BaseMenuWrapper {
             }
 
             // First check if we already have a wrapper for this item
-            MenuItem wrappedItem = mMenuItems.get(menuItem);
+            MenuItem wrappedItem = mMenuItems.get(supportMenuItem);
 
             if (null == wrappedItem) {
                 // ... if not, create one and add it to our map

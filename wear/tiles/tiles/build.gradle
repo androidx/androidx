@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.LibraryVersions
 
 plugins {
     id("AndroidXPlugin")
@@ -24,10 +22,10 @@ plugins {
 }
 
 dependencies {
-    api("androidx.annotation:annotation:1.1.0")
+    api("androidx.annotation:annotation:1.2.0")
     api(libs.guavaListenableFuture)
 
-    implementation("androidx.annotation:annotation-experimental:1.1.0")
+    implementation("androidx.annotation:annotation-experimental:1.2.0")
     implementation(project(path: ":wear:tiles:tiles-proto"))
 
     compileOnly(libs.kotlinStdlib) // For annotation-experimental
@@ -55,6 +53,7 @@ android {
 
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
+    namespace "androidx.wear.tiles"
 }
 
 androidx {

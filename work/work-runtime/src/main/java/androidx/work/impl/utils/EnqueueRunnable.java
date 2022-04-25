@@ -25,7 +25,7 @@ import static androidx.work.WorkInfo.State.ENQUEUED;
 import static androidx.work.WorkInfo.State.FAILED;
 import static androidx.work.WorkInfo.State.RUNNING;
 import static androidx.work.WorkInfo.State.SUCCEEDED;
-import static androidx.work.impl.workers.ConstraintTrackingWorker.ARGUMENT_CLASS_NAME;
+import static androidx.work.impl.workers.ConstraintTrackingWorkerKt.ARGUMENT_CLASS_NAME;
 
 import android.content.Context;
 import android.os.Build;
@@ -84,7 +84,7 @@ public class EnqueueRunnable implements Runnable {
         try {
             if (mWorkContinuation.hasCycles()) {
                 throw new IllegalStateException(
-                        String.format("WorkContinuation has cycles (%s)", mWorkContinuation));
+                        "WorkContinuation has cycles (" + mWorkContinuation + ")");
             }
             boolean needsScheduling = addToDatabase();
             if (needsScheduling) {
@@ -148,8 +148,9 @@ public class EnqueueRunnable implements Runnable {
                 if (!parent.isEnqueued()) {
                     needsScheduling |= processContinuation(parent);
                 } else {
-                    Logger.get().warning(TAG, String.format("Already enqueued work ids (%s).",
-                            TextUtils.join(", ", parent.getIds())));
+                    Logger.get().warning(TAG,
+                            "Already enqueued work ids (" +
+                                    TextUtils.join(", ", parent.getIds()) + ")");
                 }
             }
         }
@@ -200,8 +201,7 @@ public class EnqueueRunnable implements Runnable {
             for (String id : prerequisiteIds) {
                 WorkSpec prerequisiteWorkSpec = workDatabase.workSpecDao().getWorkSpec(id);
                 if (prerequisiteWorkSpec == null) {
-                    Logger.get().error(TAG,
-                            String.format("Prerequisite %s doesn't exist; not enqueuing", id));
+                    Logger.get().error(TAG, "Prerequisite " + id + " doesn't exist; not enqueuing");
                     return false;
                 }
 
@@ -301,21 +301,10 @@ public class EnqueueRunnable implements Runnable {
                     workSpec.state = BLOCKED;
                 }
             } else {
-                // Set scheduled times only for work without prerequisites and that are
-                // not periodic. Dependent work will set their scheduled times when they are
+                // Set scheduled times only for work without prerequisites.
+                // Dependent work will set their scheduled times when they are
                 // unblocked.
-
-                // We only set the periodStartTime for OneTimeWorkRequest's here. For
-                // PeriodicWorkRequests the first interval duration is effective immediately, and
-                // WorkerWrapper special cases the first run for a PeriodicWorkRequest. This is
-                // essential because we de-dupe multiple runs of the same PeriodicWorkRequest for a
-                // given interval. JobScheduler has bugs that cause PeriodicWorkRequests to run too
-                // frequently otherwise.
-                if (!workSpec.isPeriodic()) {
-                    workSpec.periodStartTime = currentTimeMillis;
-                } else {
-                    workSpec.periodStartTime = 0L;
-                }
+                workSpec.lastEnqueueTime = currentTimeMillis;
             }
 
             if (Build.VERSION.SDK_INT >= WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL

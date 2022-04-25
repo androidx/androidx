@@ -20,6 +20,7 @@ import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
 import android.os.Handler
 import android.os.HandlerThread
+import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat
 import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat.CAMERA_UNAVAILABLE_DO_NOT_DISTURB
 import androidx.camera.camera2.internal.compat.CameraManagerCompat
@@ -34,12 +35,17 @@ import androidx.camera.core.impl.Observable
 import androidx.camera.core.impl.utils.MainThreadAsyncHandler
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.core.os.HandlerCompat
 import androidx.lifecycle.Observer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
+import java.util.concurrent.Executor
+import java.util.concurrent.Semaphore
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -54,16 +60,16 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
-import java.util.concurrent.Executor
-import java.util.concurrent.Semaphore
-import java.util.concurrent.TimeUnit
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = 21)
 internal class Camera2CameraImplStateTest {
 
     @get:Rule
-    val cameraRule = CameraUtil.grantCameraPermissionAndPreTest()
+    val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
+        PreTestCameraIdList(Camera2Config.defaultConfig())
+    )
 
     private lateinit var cameraId: String
     private lateinit var camera: Camera2CameraImpl
@@ -346,7 +352,8 @@ internal class Camera2CameraImplStateTest {
             camera2CameraInfo,
             cameraStateRegistry,
             CameraXExecutors.directExecutor(),
-            cameraHandler
+            cameraHandler,
+            DisplayInfoManager.getInstance(ApplicationProvider.getApplicationContext())
         )
     }
 

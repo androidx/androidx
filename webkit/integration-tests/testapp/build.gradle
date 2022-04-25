@@ -25,6 +25,7 @@ plugins {
 dependencies {
     implementation("androidx.appcompat:appcompat:1.1.0")
     implementation("androidx.core:core:1.1.0")
+    implementation("androidx.annotation:annotation:1.3.0")
     implementation(project(":webkit:webkit"))
     implementation(libs.guavaAndroid)
     implementation(libs.espressoIdlingNet)
@@ -51,12 +52,13 @@ def copyReleaseApk = tasks.register("copyReleaseApk", Copy) { task ->
         }
     }
     task.include("*.apk")
+    String projectPath = project.path
     task.rename { fileName ->
-        "${project.path.substring(1).replace(':', '-')}_$fileName"
+        "${projectPath.substring(1).replace(':', '-')}_$fileName"
     }
     task.destinationDir =
             new File(BuildServerConfigurationKt.getDistributionDirectory(project), "apks")
-    task.dependsOn(project.path + ":assembleRelease")
+    task.dependsOn(projectPath + ":assembleRelease")
 }
 
 BuildOnServerKt.addToBuildOnServer(project, copyReleaseApk)
@@ -74,4 +76,5 @@ android {
             minifyEnabled true
         }
     }
+    namespace "com.example.androidx.webkit"
 }

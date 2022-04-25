@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 import androidx.build.Publish
-import androidx.build.RunApiTasks
 import androidx.build.AndroidXComposePlugin
 
 plugins {
@@ -32,30 +30,42 @@ AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project, /* isMultiplatformE
 dependencies {
     kotlinPlugin(project(":compose:compiler:compiler"))
 
-    api("androidx.compose.runtime:runtime:1.0.1")
+    api("androidx.annotation:annotation:1.2.0")
+    api("androidx.compose.runtime:runtime:1.1.0-beta01")
+    api("androidx.compose.ui:ui-graphics:1.1.0-beta01")
+    api("androidx.compose.ui:ui-unit:1.1.0-beta01")
+    api("androidx.datastore:datastore-core:1.0.0")
+    api("androidx.datastore:datastore-preferences-core:1.0.0")
+    api("androidx.datastore:datastore-preferences:1.0.0")
 
+    implementation("androidx.annotation:annotation:1.1.0")
     implementation(libs.kotlinStdlib)
 
+    testImplementation(libs.robolectric)
+    testImplementation(libs.testCore)
     testImplementation(libs.testRules)
     testImplementation(libs.testRunner)
     testImplementation(libs.truth)
     testImplementation(libs.junit)
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.kotlinTest)
+    testImplementation(libs.kotlinReflect)
+    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoKotlin)
+    testImplementation("androidx.datastore:datastore-core:1.0.0")
+    testImplementation("androidx.datastore:datastore-preferences-core:1.0.0")
+    testImplementation("androidx.datastore:datastore-preferences:1.0.0-rc02")
 }
 
 android {
-    defaultConfig {
-        minSdkVersion 23
-    }
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
+    namespace "androidx.glance"
 }
 
 androidx {
     name = "Glance Core Library"
     type = LibraryType.PUBLISHED_LIBRARY
-    publish = Publish.SNAPSHOT_ONLY
     mavenGroup = LibraryGroups.GLANCE
     inceptionYear = "2021"
     description = "Glance allows developers to build layouts for remote surfaces using a Jetpack " +

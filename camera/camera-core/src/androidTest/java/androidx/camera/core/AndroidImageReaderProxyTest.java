@@ -33,6 +33,7 @@ import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -41,6 +42,7 @@ import org.mockito.ArgumentCaptor;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 21)
 public final class AndroidImageReaderProxyTest {
     private final ImageReader mImageReader = mock(ImageReader.class);
     private ImageReaderProxy mImageReaderProxy;

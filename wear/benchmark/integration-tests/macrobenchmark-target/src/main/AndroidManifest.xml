@@ -17,11 +17,10 @@
 
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="androidx.wear.benchmark.integration.macrobenchmark.target">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <application
-        android:label="wear Macrobenchmark Target"
+        android:label="Wear Macrobenchmark Target"
         android:allowBackup="false"
         android:supportsRtl="true"
         android:theme="@android:style/Theme.DeviceDefault"
@@ -38,15 +37,36 @@
             android:name=".StartActivity"
             android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-            <intent-filter>
                 <action
                   android:name=
                     "androidx.wear.benchmark.integration.macrobenchmark.target.STARTUP_ACTIVITY" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".SwipeActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name=
+                    "androidx.wear.benchmark.integration.macrobenchmark.target.SWIPE_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".ScrollActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name=
+                    "androidx.wear.benchmark.integration.macrobenchmark.target.SCROLL_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
     </application>
 </manifest>

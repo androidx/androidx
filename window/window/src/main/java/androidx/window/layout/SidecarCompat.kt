@@ -32,7 +32,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.window.core.Version
 import androidx.window.core.Version.Companion.parse
 import androidx.window.layout.ExtensionInterfaceCompat.ExtensionCallbackInterface
-import androidx.window.layout.ExtensionWindowBackend.Companion.DEBUG
+import androidx.window.layout.SidecarWindowBackend.Companion.DEBUG
 import androidx.window.sidecar.SidecarDeviceState
 import androidx.window.sidecar.SidecarDisplayFeature
 import androidx.window.sidecar.SidecarInterface
@@ -60,7 +60,7 @@ internal class SidecarCompat @VisibleForTesting constructor(
     private var extensionCallback: ExtensionCallbackInterface? = null
 
     constructor(context: Context) : this(
-        SidecarProvider.getSidecarImpl(context),
+        getSidecarCompat(context),
         SidecarAdapter()
     )
 
@@ -326,6 +326,11 @@ internal class SidecarCompat @VisibleForTesting constructor(
         override fun onViewDetachedFromWindow(view: View) {}
     }
 
+    /**
+     * A callback to translate from Sidecar classes to local classes.
+     *
+     * If you change the name of this class, you must update the proguard file.
+     */
     internal inner class TranslatingCallback : SidecarCallback {
         @SuppressLint("SyntheticAccessor")
         override fun onDeviceStateChanged(newDeviceState: SidecarDeviceState) {
@@ -397,6 +402,8 @@ internal class SidecarCompat @VisibleForTesting constructor(
      * A class to record the last calculated values from [SidecarInterface] and filter out
      * duplicates. This class uses [SidecarAdapter] to compute equality since the methods
      * [Object.equals] and [Object.hashCode] may not have been overridden.
+     *
+     * If you change the name of this class, you must update the proguard file.
      */
     private class DistinctSidecarElementCallback(
         private val sidecarAdapter: SidecarAdapter,
@@ -455,6 +462,10 @@ internal class SidecarCompat @VisibleForTesting constructor(
                 }
                 null
             }
+
+        internal fun getSidecarCompat(context: Context): SidecarInterface? {
+            return SidecarProvider.getSidecarImpl(context.applicationContext)
+        }
 
         /**
          * A utility method [Activity] to return an optional [IBinder] window token from an

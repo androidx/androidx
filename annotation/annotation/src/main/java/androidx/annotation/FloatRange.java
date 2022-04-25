@@ -30,12 +30,12 @@ import java.lang.annotation.Target;
  * Denotes that the annotated element should be a float or double in the given range
  * <p>
  * Example:
- * <pre><code>
+ * <pre>
  *  &#64;FloatRange(from=0.0,to=1.0)
  *  public float getAlpha() {
  *      ...
  *  }
- * </code></pre>
+ * </pre>
  */
 @Documented
 @Retention(CLASS)

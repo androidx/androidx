@@ -14,24 +14,26 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+
 package androidx.camera.camera2.pipe.integration.compat
 
 import androidx.annotation.GuardedBy
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.integration.config.CameraScope
-import androidx.camera.camera2.pipe.integration.impl.CAMERAX_TAG_BUNDLE
 import androidx.camera.camera2.pipe.integration.impl.Camera2ImplConfig
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCameraRequestControl
 import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
+import androidx.camera.camera2.pipe.integration.impl.containsTag
 import androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.core.CameraControl
 import androidx.camera.core.impl.Config
-import androidx.camera.core.impl.TagBundle
 import androidx.camera.core.impl.annotation.ExecutedBy
 import dagger.Binds
 import dagger.Module
@@ -154,12 +156,7 @@ class Camera2CameraControlCompatImpl @Inject constructor(
         result: FrameInfo
     ) {
         updateSignal?.apply {
-            val repeatingTagValue = requestMetadata.getOrDefault(
-                CAMERAX_TAG_BUNDLE,
-                TagBundle.emptyBundle()
-            ).getTag(TAG_KEY)
-
-            if (repeatingTagValue == hashCode()) {
+            if (requestMetadata.containsTag(TAG_KEY, hashCode())) {
                 // Going to complete the [updateSignal] if the result contains the [TAG_KEY]
                 complete(null)
                 updateSignal = null

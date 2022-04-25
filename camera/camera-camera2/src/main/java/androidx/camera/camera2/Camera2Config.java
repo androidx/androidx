@@ -17,6 +17,7 @@
 package androidx.camera.camera2;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.camera2.internal.Camera2CameraFactory;
 import androidx.camera.camera2.internal.Camera2DeviceSurfaceManager;
@@ -31,6 +32,7 @@ import androidx.camera.core.impl.UseCaseConfigFactory;
 /**
  * Convenience class for generating a pre-populated Camera2 {@link CameraXConfig}.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class Camera2Config {
 
     private Camera2Config() {

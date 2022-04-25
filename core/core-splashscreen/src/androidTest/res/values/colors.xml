@@ -17,4 +17,5 @@
 
 <resources>
   <color name="bg_launcher">#15FFFF</color>
+  <color name="icon_bg">#FFFF00</color>
 </resources>

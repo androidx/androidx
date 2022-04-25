@@ -34,12 +34,14 @@ internal object KaptCompilationTestRunner : CompilationTestRunner {
     }
 
     override fun compile(workingDir: File, params: TestCompilationParameters): CompilationResult {
-        val syntheticJavacProcessor = SyntheticJavacProcessor(params.handlers)
+        val syntheticJavacProcessor = SyntheticJavacProcessor(params.config, params.handlers)
         val args = TestCompilationArguments(
             sources = params.sources,
             classpath = params.classpath,
             kaptProcessors = listOf(syntheticJavacProcessor),
-            processorOptions = params.options
+            processorOptions = params.options,
+            javacArguments = params.javacArguments,
+            kotlincArguments = params.kotlincArguments,
         ).withAtLeastOneKotlinSource()
         val result = compile(
             workingDir = workingDir,

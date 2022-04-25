@@ -21,6 +21,7 @@ import android.os.Build
 import android.os.Looper
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.fakes.FakeAppConfig
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraFactory
@@ -62,12 +63,12 @@ class VideoCaptureTest {
             .setCameraFactoryProvider(cameraFactoryProvider)
             .build()
         val context = ApplicationProvider.getApplicationContext<Context>()
-        CameraX.initialize(context, cameraXConfig).get()
+        CameraXUtil.initialize(context, cameraXConfig).get()
     }
 
     @After
     fun tearDown() {
-        CameraX.shutdown().get()
+        CameraXUtil.shutdown().get()
     }
 
     @Test

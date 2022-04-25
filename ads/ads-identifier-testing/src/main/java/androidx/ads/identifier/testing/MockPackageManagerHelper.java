@@ -64,6 +64,7 @@ public class MockPackageManagerHelper {
     }
 
     /** Mocks the {@link PackageManager#queryIntentServices(Intent, int)}. */
+    @SuppressWarnings("deprecation")
     public void mockQueryGetAdIdServices(@NonNull List<ResolveInfo> resolveInfos) throws Exception {
         boolean supportMatchSystemOnly = Build.VERSION.SDK_INT >= Build.VERSION_CODES.N;
         when(mMockPackageManager.queryIntentServices(hasAction(GET_AD_ID_ACTION),
@@ -85,6 +86,7 @@ public class MockPackageManagerHelper {
     }
 
     /** Mocks the {@link PackageManager#queryIntentActivities(Intent, int)}. */
+    @SuppressWarnings("deprecation")
     public void mockQueryOpenSettingsActivities(@NonNull List<ResolveInfo> resolveInfos) {
         when(mMockPackageManager.queryIntentActivities(hasAction(OPEN_SETTINGS_ACTION), eq(0)))
                 .thenReturn(resolveInfos);

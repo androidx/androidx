@@ -47,6 +47,10 @@ ActionValue: androidx.browser.customtabs.TrustedWebUtils#EXTRA_LAUNCH_AS_TRUSTED
     Inconsistent extra value; expected `androidx.browser.customtabs.extra.LAUNCH_AS_TRUSTED_WEB_ACTIVITY`, was `android.support.customtabs.extra.LAUNCH_AS_TRUSTED_WEB_ACTIVITY`
 
 
+AsyncSuffixFuture: androidx.browser.trusted.TrustedWebActivityServiceConnectionPool#connect(android.net.Uri, java.util.Set<androidx.browser.trusted.Token>, java.util.concurrent.Executor):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+
+
 AutoBoxing: androidx.browser.customtabs.CustomTabColorSchemeParams#navigationBarColor:
     Must avoid boxed primitives (`java.lang.Integer`)
 AutoBoxing: androidx.browser.customtabs.CustomTabColorSchemeParams#navigationBarDividerColor:
@@ -89,6 +93,20 @@ GetterOnBuilder: androidx.browser.trusted.TrustedWebActivityIntentBuilder#getUri
 
 IntentName: androidx.browser.browseractions.BrowserActionsIntent#KEY_ACTION:
     Intent action constant name must be ACTION_FOO: KEY_ACTION
+
+
+InvalidNullabilityOverride: androidx.browser.customtabs.CustomTabsServiceConnection#onServiceConnected(android.content.ComponentName, android.os.IBinder) parameter #0:
+    Invalid nullability on parameter `name` in method `onServiceConnected`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullabilityOverride: androidx.browser.customtabs.CustomTabsServiceConnection#onServiceConnected(android.content.ComponentName, android.os.IBinder) parameter #1:
+    Invalid nullability on parameter `service` in method `onServiceConnected`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullabilityOverride: androidx.browser.customtabs.PostMessageServiceConnection#onServiceConnected(android.content.ComponentName, android.os.IBinder) parameter #0:
+    Invalid nullability on parameter `name` in method `onServiceConnected`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullabilityOverride: androidx.browser.customtabs.PostMessageServiceConnection#onServiceConnected(android.content.ComponentName, android.os.IBinder) parameter #1:
+    Invalid nullability on parameter `service` in method `onServiceConnected`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullabilityOverride: androidx.browser.customtabs.PostMessageServiceConnection#onServiceDisconnected(android.content.ComponentName) parameter #0:
+    Invalid nullability on parameter `name` in method `onServiceDisconnected`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullabilityOverride: androidx.browser.trusted.TrustedWebActivityService#onBind(android.content.Intent):
+    Invalid nullability on method `onBind` return. Overrides of unannotated super method cannot be Nullable.
 
 
 ListenerLast: androidx.browser.customtabs.CustomTabsClient#newSession(androidx.browser.customtabs.CustomTabsCallback, int) parameter #1:

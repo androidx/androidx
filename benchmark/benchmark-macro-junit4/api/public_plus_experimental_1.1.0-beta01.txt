@@ -1,0 +1,21 @@
+// Signature format: 4.0
+package androidx.benchmark.macro.junit4 {
+
+  @RequiresApi(28) @androidx.benchmark.macro.ExperimentalBaselineProfilesApi public final class BaselineProfileRule implements org.junit.rules.TestRule {
+    ctor public BaselineProfileRule();
+    method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description description);
+    method public void collectBaselineProfile(String packageName, optional kotlin.jvm.functions.Function1<? super androidx.benchmark.macro.MacrobenchmarkScope,kotlin.Unit> setupBlock, kotlin.jvm.functions.Function1<? super androidx.benchmark.macro.MacrobenchmarkScope,kotlin.Unit> profileBlock);
+    method public void collectBaselineProfile(String packageName, kotlin.jvm.functions.Function1<? super androidx.benchmark.macro.MacrobenchmarkScope,kotlin.Unit> profileBlock);
+  }
+
+  public final class MacrobenchmarkRule implements org.junit.rules.TestRule {
+    ctor public MacrobenchmarkRule();
+    method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description description);
+    method public void measureRepeated(String packageName, java.util.List<? extends androidx.benchmark.macro.Metric> metrics, optional androidx.benchmark.macro.CompilationMode compilationMode, optional androidx.benchmark.macro.StartupMode? startupMode, @IntRange(from=1) int iterations, optional kotlin.jvm.functions.Function1<? super androidx.benchmark.macro.MacrobenchmarkScope,kotlin.Unit> setupBlock, kotlin.jvm.functions.Function1<? super androidx.benchmark.macro.MacrobenchmarkScope,kotlin.Unit> measureBlock);
+    method public void measureRepeated(String packageName, java.util.List<? extends androidx.benchmark.macro.Metric> metrics, optional androidx.benchmark.macro.CompilationMode compilationMode, optional androidx.benchmark.macro.StartupMode? startupMode, @IntRange(from=1) int iterations, kotlin.jvm.functions.Function1<? super androidx.benchmark.macro.MacrobenchmarkScope,kotlin.Unit> measureBlock);
+    method public void measureRepeated(String packageName, java.util.List<? extends androidx.benchmark.macro.Metric> metrics, optional androidx.benchmark.macro.CompilationMode compilationMode, @IntRange(from=1) int iterations, kotlin.jvm.functions.Function1<? super androidx.benchmark.macro.MacrobenchmarkScope,kotlin.Unit> measureBlock);
+    method public void measureRepeated(String packageName, java.util.List<? extends androidx.benchmark.macro.Metric> metrics, @IntRange(from=1) int iterations, kotlin.jvm.functions.Function1<? super androidx.benchmark.macro.MacrobenchmarkScope,kotlin.Unit> measureBlock);
+  }
+
+}
+

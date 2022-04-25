@@ -664,6 +664,13 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
         mergedTransition = transitionImpl.mergeTransitionsInSequence(mergedTransition,
                 mergedNonOverlappingTransition, sharedElementTransition);
 
+        // If there's no transitions playing together, no non-overlapping transitions,
+        // and no shared element transitions, mergedTransition will be null and
+        // there's nothing else we need to do
+        if (mergedTransition == null) {
+            return startedTransitions;
+        }
+
         // Now set up our completion signal on the completely merged transition set
         for (final TransitionInfo transitionInfo : transitionInfos) {
             if (transitionInfo.isVisibilityUnchanged()) {

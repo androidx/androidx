@@ -19,11 +19,14 @@ package androidx.camera.extensions.impl;
 import android.util.Size;
 import android.view.Surface;
 
+import androidx.annotation.RequiresApi;
+
 /**
  * Processes an input image stream and produces an output image stream.
  *
  * @since 1.0
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface ProcessorImpl {
     /**
      * Updates where the ProcessorImpl should write the output to.

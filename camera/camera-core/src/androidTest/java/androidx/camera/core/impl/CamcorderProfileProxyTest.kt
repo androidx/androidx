@@ -18,6 +18,7 @@ package androidx.camera.core.impl
 
 import android.media.CamcorderProfile
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assume.assumeTrue
@@ -27,6 +28,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 @Suppress("DEPRECATION")
+@SdkSuppress(minSdkVersion = 21)
 public class CamcorderProfileProxyTest {
 
     @Test

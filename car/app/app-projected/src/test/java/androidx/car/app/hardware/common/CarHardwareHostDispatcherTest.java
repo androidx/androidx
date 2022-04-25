@@ -121,7 +121,7 @@ public class CarHardwareHostDispatcherTest {
     @Test
     public void dispatchUnsubscribeCarHardwareResult() throws RemoteException, BundlerException {
         int desiredResultType = ICarHardwareResultTypes.TYPE_SENSOR_ACCELEROMETER;
-        Bundleable bundle = Bundleable.create(new Integer(10));
+        Bundleable bundle = Bundleable.create(10);
         mCarHardwareHostDispatcher.dispatchUnsubscribeCarHardwareResult(desiredResultType, bundle);
         verify(mMockCarHardwareHost).unsubscribeCarHardwareResult(eq(desiredResultType),
                 eq(bundle));

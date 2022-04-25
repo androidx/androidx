@@ -23,13 +23,17 @@ android {
     defaultConfig {
         minSdkVersion 23
     }
+    namespace "androidx.car.app.sample.showcase.common"
 }
 
 dependencies {
     implementation(project(":car:app:app"))
+    implementation("com.squareup.leakcanary:leakcanary-android:2.7")
 
-    api(libs.kotlinStdlib) // Due to :annotation-experimental
-    implementation("androidx.core:core:1.6.0-alpha01")
+    implementation("androidx.core:core:1.7.0")
     implementation(project(":annotation:annotation-experimental"))
+    // There is an implicit compile-only dep due to :annotation-experimental
+    // Build will complain without this manual declaration.
+    compileOnly libs.kotlinStdlib
 }
 

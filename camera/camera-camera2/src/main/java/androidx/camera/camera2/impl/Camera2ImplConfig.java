@@ -23,6 +23,7 @@ import android.hardware.camera2.CaptureRequest;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.camera2.interop.CaptureRequestOptions;
@@ -37,6 +38,7 @@ import androidx.camera.core.impl.OptionsBundle;
  * Internal shared implementation details for camera 2 interop.
  */
 @OptIn(markerClass = ExperimentalCamera2Interop.class)
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class Camera2ImplConfig extends CaptureRequestOptions {
 
     /** @hide */
@@ -76,6 +78,11 @@ public final class Camera2ImplConfig extends CaptureRequestOptions {
     @RestrictTo(Scope.LIBRARY)
     public static final Option<Object> CAPTURE_REQUEST_TAG_OPTION = Option.create(
             "camera2.captureRequest.tag", Object.class);
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY)
+    public static final Option<String> SESSION_PHYSICAL_CAMERA_ID_OPTION = Option.create(
+            "camera2.cameraCaptureSession.physicalCameraId", String.class);
 
     // *********************************************************************************************
 
@@ -187,6 +194,18 @@ public final class Camera2ImplConfig extends CaptureRequestOptions {
     @Nullable
     public Object getCaptureRequestTag(@Nullable Object valueIfMissing) {
         return getConfig().retrieveOption(CAPTURE_REQUEST_TAG_OPTION, valueIfMissing);
+    }
+
+    /**
+     * Returns the physical camera ID.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
+     * configuration.
+     */
+    @Nullable
+    public String getPhysicalCameraId(@Nullable String valueIfMissing) {
+        return getConfig().retrieveOption(SESSION_PHYSICAL_CAMERA_ID_OPTION, valueIfMissing);
     }
 
     /**

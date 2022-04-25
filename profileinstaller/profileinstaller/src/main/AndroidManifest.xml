@@ -15,8 +15,7 @@
   limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="androidx.profileinstaller">
+    xmlns:tools="http://schemas.android.com/tools">
     <application>
         <provider
             android:name="androidx.startup.InitializationProvider"
@@ -34,6 +33,9 @@
             android:permission="android.permission.DUMP">
             <intent-filter>
                 <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
             </intent-filter>
         </receiver>
     </application>

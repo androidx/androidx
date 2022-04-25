@@ -18,19 +18,21 @@ package androidx.camera.video;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.net.Uri;
+import android.provider.MediaStore;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.core.util.Preconditions;
 
 import com.google.auto.value.AutoValue;
 
 /**
- * A class provides a option for storing output to MediaStore.
+ * A class providing options for storing output to MediaStore.
  *
- * <p> The result could be saved to a shared storage. The results will remain on the device after
- * the app is uninstalled.
- *
- * Example:
+ * <p>Example:
  *
  * <pre>{@code
  *
@@ -38,93 +40,211 @@ import com.google.auto.value.AutoValue;
  * contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, "NEW_VIDEO");
  * contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4");
  *
- * MediaStoreOutputOptions options = MediaStoreOutputOptions.builder()
- *         .setContentResolver(contentResolver)
- *         .setCollection(MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
+ * MediaStoreOutputOptions options =
+ *         new MediaStoreOutputOptions.Builder(
+ *             contentResolver, MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
  *         .setContentValues(contentValues)
  *         .build();
  *
  * }</pre>
+ *
+ * <p>The output {@link Uri} can be obtained via {@link OutputResults#getOutputUri()} from
+ * {@link VideoRecordEvent.Finalize#getOutputResults()}.
+ *
+ * <p>For more information about setting collections {@link Uri} and {@link ContentValues}, read
+ * the <a href="https://developer.android.com/training/data-storage/shared/media">
+ *     Access media files from shared storage</a> and
+ * <a href="https://developer.android.com/reference/android/provider/MediaStore">MediaStore</a>
+ * developer guide.
  */
-@AutoValue
-public abstract class MediaStoreOutputOptions extends OutputOptions {
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+public final class MediaStoreOutputOptions extends OutputOptions {
 
-    MediaStoreOutputOptions() {
-        super(OPTIONS_TYPE_MEDIA_STORE);
+    /**
+     * An empty {@link ContentValues}.
+     */
+    @NonNull
+    public static final ContentValues EMPTY_CONTENT_VALUES = new ContentValues();
+
+    private final MediaStoreOutputOptionsInternal mMediaStoreOutputOptionsInternal;
+
+    MediaStoreOutputOptions(
+            @NonNull MediaStoreOutputOptionsInternal mediaStoreOutputOptionsInternal) {
+        Preconditions.checkNotNull(mediaStoreOutputOptionsInternal,
+                "MediaStoreOutputOptionsInternal can't be null.");
+        mMediaStoreOutputOptionsInternal = mediaStoreOutputOptionsInternal;
     }
 
     /**
-     * Returns a builder for this MediaStoreOutputOptions.
+     * Gets the ContentResolver instance.
+     *
+     * @see Builder#Builder(ContentResolver, Uri)
      */
     @NonNull
-    public static Builder builder() {
-        return new AutoValue_MediaStoreOutputOptions.Builder()
-                .setFileSizeLimit(FILE_SIZE_UNLIMITED);
+    public ContentResolver getContentResolver() {
+        return mMediaStoreOutputOptionsInternal.getContentResolver();
     }
 
     /**
-     * Gets the ContentResolver instance in order to convert Uri to a file path.
+     * Gets the URI of the collection to insert into.
+     *
+     * @see Builder#Builder(ContentResolver, Uri)
      */
     @NonNull
-    public abstract ContentResolver getContentResolver();
+    public Uri getCollectionUri() {
+        return mMediaStoreOutputOptionsInternal.getCollectionUri();
+    }
 
     /**
-     * Gets the URL of the table to insert into.
+     * Gets the content values to be included in the created video row.
+     *
+     * @see Builder#setContentValues(ContentValues)
      */
     @NonNull
-    public abstract Uri getCollection();
-
-    /**
-     * Gets the content values to be included in the created file.
-     */
-    @NonNull
-    public abstract ContentValues getContentValues();
+    public ContentValues getContentValues() {
+        return mMediaStoreOutputOptionsInternal.getContentValues();
+    }
 
     /**
      * Gets the limit for the file length in bytes.
+     *
+     * @see Builder#setFileSizeLimit(long)
      */
     @Override
-    public abstract long getFileSizeLimit();
+    public long getFileSizeLimit() {
+        return mMediaStoreOutputOptionsInternal.getFileSizeLimit();
+    }
 
-    /** The builder of the {@link MediaStoreOutputOptions}. */
-    @AutoValue.Builder
-    @SuppressWarnings("StaticFinalBuilder")
-    public abstract static class Builder implements
-            OutputOptions.Builder<MediaStoreOutputOptions, Builder> {
-        Builder() {
+    @Override
+    @NonNull
+    public String toString() {
+        // Don't use Class.getSimpleName(), class name will be changed by proguard obfuscation.
+        return mMediaStoreOutputOptionsInternal.toString().replaceFirst(
+                "MediaStoreOutputOptionsInternal", "MediaStoreOutputOptions");
+    }
+
+    @Override
+    public boolean equals(@Nullable Object o) {
+        if (this == o) {
+            return true;
         }
+        if (!(o instanceof MediaStoreOutputOptions)) {
+            return false;
+        }
+        return mMediaStoreOutputOptionsInternal.equals(
+                ((MediaStoreOutputOptions) o).mMediaStoreOutputOptionsInternal);
+    }
 
-        /** Sets the ContentResolver instance. */
-        @NonNull
-        public abstract Builder setContentResolver(@NonNull ContentResolver contentResolver);
+    @Override
+    public int hashCode() {
+        return mMediaStoreOutputOptionsInternal.hashCode();
+    }
 
-        /** Sets the URL of the table to insert into. */
-        @NonNull
-        public abstract Builder setCollection(@NonNull Uri collectionUri);
-
-        /** Sets the content values to be included in the created file. */
-        @NonNull
-        public abstract Builder setContentValues(@NonNull ContentValues contentValues);
+    /** The builder of the {@link MediaStoreOutputOptions} object. */
+    public static final class Builder implements
+            OutputOptions.Builder<MediaStoreOutputOptions, Builder> {
+        private final MediaStoreOutputOptionsInternal.Builder mInternalBuilder =
+                new AutoValue_MediaStoreOutputOptions_MediaStoreOutputOptionsInternal.Builder()
+                        .setContentValues(EMPTY_CONTENT_VALUES)
+                        .setFileSizeLimit(FILE_SIZE_UNLIMITED);
 
         /**
-         * Sets the limit for the file length in bytes. Zero or negative values are considered
-         * unlimited.
+         * Creates a builder of the {@link MediaStoreOutputOptions} with media store options.
+         *
+         * <p>The ContentResolver can be obtained by app {@link Context#getContentResolver()
+         * context} and is used to access to MediaStore.
+         *
+         * <p>{@link MediaStore} class provides APIs to obtain the collection URI. A collection
+         * URI corresponds to a storage volume on the device shared storage. A common collection
+         * URI used to access the primary external storage is
+         * {@link MediaStore.Video.Media#EXTERNAL_CONTENT_URI}.
+         * {@link MediaStore.Video.Media#getContentUri} can also be used to query different
+         * storage volumes. For more information, read
+         * <a href="https://developer.android.com/training/data-storage/shared/media">
+         *     Access media files from shared storage</a> developer guide.
+         *
+         * <p>When recording a video, a corresponding video row will be created in the input
+         * collection, and the content values set by {@link #setContentValues} will also be
+         * written to this row.
+         *
+         * @param contentResolver the ContentResolver instance.
+         * @param collectionUri the URI of the collection to insert into.
+         */
+        public Builder(@NonNull ContentResolver contentResolver, @NonNull Uri collectionUri) {
+            Preconditions.checkNotNull(contentResolver, "Content resolver can't be null.");
+            Preconditions.checkNotNull(collectionUri, "Collection Uri can't be null.");
+            mInternalBuilder.setContentResolver(contentResolver).setCollectionUri(collectionUri);
+        }
+
+        /**
+         * Sets the content values to be included in the created video row.
+         *
+         * <p>The content values is a set of key/value paris used to store the metadata of a
+         * video item. The keys are defined in {@link MediaStore.MediaColumns} and
+         * {@link MediaStore.Video.VideoColumns}.
+         * When recording a video, a corresponding video row will be created in the input
+         * collection, and this content values will also be written to this row. If a key is not
+         * defined in the MediaStore, the corresponding value will be ignored.
+         *
+         * <p>If not set, defaults to {@link #EMPTY_CONTENT_VALUES}.
+         *
+         * @param contentValues the content values to be inserted.
+         */
+        @NonNull
+        public Builder setContentValues(@NonNull ContentValues contentValues) {
+            Preconditions.checkNotNull(contentValues, "Content values can't be null.");
+            mInternalBuilder.setContentValues(contentValues);
+            return this;
+        }
+
+        /**
+         * Sets the limit for the file length in bytes.
          *
          * <p>When used to
-         * {@link Recorder#prepareRecording(MediaStoreOutputOptions) generate} recording, if the
-         * specified file size limit is reached while the recording is being recorded, the
-         * recording will be finalized with
+         * {@link Recorder#prepareRecording(android.content.Context, MediaStoreOutputOptions)
+         * generate} recording, if the specified file size limit is reached while the recording
+         * is being recorded, the recording will be finalized with
          * {@link VideoRecordEvent.Finalize#ERROR_FILE_SIZE_LIMIT_REACHED}.
          *
          * <p>If not set, defaults to {@link #FILE_SIZE_UNLIMITED}.
          */
         @Override
         @NonNull
-        public abstract Builder setFileSizeLimit(long bytes);
+        public Builder setFileSizeLimit(long fileSizeLimitBytes) {
+            mInternalBuilder.setFileSizeLimit(fileSizeLimitBytes);
+            return this;
+        }
 
         /** Builds the {@link MediaStoreOutputOptions} instance. */
         @Override
         @NonNull
-        public abstract MediaStoreOutputOptions build();
+        public MediaStoreOutputOptions build() {
+            return new MediaStoreOutputOptions(mInternalBuilder.build());
+        }
+    }
+
+    @AutoValue
+    abstract static class MediaStoreOutputOptionsInternal {
+        @NonNull
+        abstract ContentResolver getContentResolver();
+        @NonNull
+        abstract Uri getCollectionUri();
+        @NonNull
+        abstract ContentValues getContentValues();
+        abstract long getFileSizeLimit();
+
+        @AutoValue.Builder
+        abstract static class Builder {
+            @NonNull
+            abstract Builder setContentResolver(@NonNull ContentResolver contentResolver);
+            @NonNull
+            abstract Builder setCollectionUri(@NonNull Uri collectionUri);
+            @NonNull
+            abstract Builder setContentValues(@NonNull ContentValues contentValues);
+            @NonNull
+            abstract Builder setFileSizeLimit(long fileSizeLimitBytes);
+            @NonNull
+            abstract MediaStoreOutputOptionsInternal build();
+        }
     }
 }

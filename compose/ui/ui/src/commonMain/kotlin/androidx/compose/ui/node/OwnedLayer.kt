@@ -19,11 +19,11 @@ package androidx.compose.ui.node
 import androidx.compose.ui.geometry.MutableRect
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.RenderEffect
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TransformOrigin
-import androidx.compose.ui.layout.GraphicLayerInfo
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.LayoutDirection
 /**
  * A layer returned by [Owner.createLayer] to separate drawn content.
  */
-internal interface OwnedLayer : GraphicLayerInfo {
+internal interface OwnedLayer {
 
     /**
      * Applies the new layer properties and causing this layer to be redrawn.
@@ -52,6 +52,8 @@ internal interface OwnedLayer : GraphicLayerInfo {
         shape: Shape,
         clip: Boolean,
         renderEffect: RenderEffect?,
+        ambientShadowColor: Color,
+        spotShadowColor: Color,
         layoutDirection: LayoutDirection,
         density: Density
     )
@@ -112,4 +114,11 @@ internal interface OwnedLayer : GraphicLayerInfo {
      * converting bounds in a parent layer to be in this layer's coordinates.
      */
     fun mapBounds(rect: MutableRect, inverse: Boolean)
+
+    /**
+     * Reuse this layer after it was [destroy]ed, setting the new
+     * [drawBlock] and [invalidateParentLayer] values. The layer will be reinitialized
+     * as new after this call.
+     */
+    fun reuseLayer(drawBlock: (Canvas) -> Unit, invalidateParentLayer: () -> Unit)
 }

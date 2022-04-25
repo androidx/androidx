@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+
 package androidx.camera.camera2.pipe
 
 import android.hardware.camera2.params.OutputConfiguration
@@ -97,8 +99,8 @@ public class CameraStream internal constructor(
 /**
  * This identifies a single surface that is used to tell the camera to produce one or more outputs.
  */
-@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
-public inline class StreamId(public val value: Int) {
+@JvmInline
+public value class StreamId(public val value: Int) {
     override fun toString(): String = "Stream-$value"
 }
 
@@ -205,8 +207,8 @@ public interface OutputStream {
 /**
  * This identifies a single output.
  */
-@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
-public inline class OutputId(public val value: Int) {
+@JvmInline
+public value class OutputId(public val value: Int) {
     override fun toString(): String = "Output-$value"
 }
 
@@ -225,7 +227,7 @@ public interface InputStream {
 /**
  * This identifies a single input.
  */
-@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
-public inline class InputId(public val value: Int) {
+@JvmInline
+public value class InputId(public val value: Int) {
     override fun toString(): String = "Input-$value"
 }

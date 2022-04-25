@@ -100,7 +100,6 @@ class BenchmarkPluginTest {
 
     @Test
     fun applyPluginNonAndroidProject() {
-        val prebuiltsRoot = projectSetup.props.prebuiltsRoot
         projectSetup.buildFile.writeText(
             """
             plugins {
@@ -109,8 +108,7 @@ class BenchmarkPluginTest {
             }
 
             repositories {
-                maven { url "$prebuiltsRoot/androidx/external" }
-                maven { url "$prebuiltsRoot/androidx/internal" }
+                ${projectSetup.defaultRepoLines}
             }
 
             dependencies {

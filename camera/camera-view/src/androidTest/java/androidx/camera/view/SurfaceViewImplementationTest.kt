@@ -28,6 +28,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
@@ -39,12 +40,13 @@ import java.util.concurrent.TimeUnit
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-public class SurfaceViewImplementationTest {
+@SdkSuppress(minSdkVersion = 21)
+class SurfaceViewImplementationTest {
 
-    public companion object {
+    companion object {
         private const val ANY_WIDTH = 640
         private const val ANY_HEIGHT = 480
-        private val ANY_SIZE = Size(ANY_WIDTH, ANY_HEIGHT)
+        private val ANY_SIZE: Size by lazy { Size(ANY_WIDTH, ANY_HEIGHT) }
     }
 
     private lateinit var mParent: FrameLayout
@@ -57,7 +59,7 @@ public class SurfaceViewImplementationTest {
     private lateinit var mActivityScenario: ActivityScenario<FakeActivity>
 
     @Before
-    public fun setUp() {
+    fun setUp() {
         CoreAppTestUtil.prepareDeviceUI(mInstrumentation)
 
         mActivityScenario = ActivityScenario.launch(FakeActivity::class.java)
@@ -70,12 +72,12 @@ public class SurfaceViewImplementationTest {
     }
 
     @After
-    public fun tearDown() {
+    fun tearDown() {
         mSurfaceRequest.deferrableSurface.close()
     }
 
     @Test
-    public fun surfaceProvidedSuccessfully() {
+    fun surfaceProvidedSuccessfully() {
         CoreAppTestUtil.checkKeyguard(mContext)
 
         mInstrumentation.runOnMainSync {
@@ -87,7 +89,7 @@ public class SurfaceViewImplementationTest {
     }
 
     @Test
-    public fun onSurfaceNotInUseListener_isCalledWhenSurfaceIsNotUsedAnyMore() {
+    fun onSurfaceNotInUseListener_isCalledWhenSurfaceIsNotUsedAnyMore() {
         CoreAppTestUtil.checkKeyguard(mContext)
 
         val listenerLatch = CountDownLatch(1)
@@ -105,7 +107,7 @@ public class SurfaceViewImplementationTest {
     }
 
     @Test
-    public fun onSurfaceNotInUseListener_isCalledWhenSurfaceRequestIsCancelled() {
+    fun onSurfaceNotInUseListener_isCalledWhenSurfaceRequestIsCancelled() {
         val listenerLatch = CountDownLatch(1)
         val onSurfaceNotInUseListener = {
             listenerLatch.countDown()
@@ -126,7 +128,7 @@ public class SurfaceViewImplementationTest {
     }
 
     @Test
-    public fun waitForNextFrame_futureCompletesImmediately() {
+    fun waitForNextFrame_futureCompletesImmediately() {
         val future = mImplementation.waitForNextFrame()
         future.get(20, TimeUnit.MILLISECONDS)
     }

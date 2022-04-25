@@ -34,8 +34,9 @@ public class BuildCompatTest {
     @Test
     public void isAtLeastPreReleaseCodename() {
         assertTrue(BuildCompat.isAtLeastPreReleaseCodename("S", "S"));
-        assertTrue(BuildCompat.isAtLeastPreReleaseCodename("S", "T"));
-        assertFalse(BuildCompat.isAtLeastPreReleaseCodename("T", "S"));
+        assertTrue(BuildCompat.isAtLeastPreReleaseCodename("S", "Tiramisu"));
+        assertTrue(BuildCompat.isAtLeastPreReleaseCodename("Tiramisu", "Tiramisu"));
+        assertFalse(BuildCompat.isAtLeastPreReleaseCodename("Tiramisu", "S"));
 
         assertTrue(BuildCompat.isAtLeastPreReleaseCodename("O", "OMR1"));
         assertFalse(BuildCompat.isAtLeastPreReleaseCodename("OMR1", "O"));

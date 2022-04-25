@@ -16,6 +16,7 @@
 package androidx.emoji2.text;
 
 import android.annotation.SuppressLint;
+import android.os.Build;
 import android.text.Editable;
 import android.text.SpanWatcher;
 import android.text.Spannable;
@@ -427,6 +428,19 @@ public final class SpannableBuilder extends SpannableStringBuilder {
                 int nend) {
             if (mBlockCalls.get() > 0 && isEmojiSpan(what)) {
                 return;
+            }
+            // workaround for platform bug fixed in Android P
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+                // b/67926915 start cannot be determined, fallback to reflow from start instead
+                // of causing an exception.
+
+                // emoji2 bug b/216891011
+                if (ostart > oend) {
+                    ostart = 0;
+                }
+                if (nstart > nend) {
+                    nstart = 0;
+                }
             }
             ((SpanWatcher) mObject).onSpanChanged(text, what, ostart, oend, nstart, nend);
         }

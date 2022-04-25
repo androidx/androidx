@@ -104,7 +104,7 @@ internal constructor(
      * Returns the start [Instant] of this [DataPoint], knowing the time at which the system booted.
      *
      * @param bootInstant the [Instant] at which the system booted, this can be computed by
-     * `Instant.ofEpochMilli(System.currentTimeMillis() - SystemClock.elapsedRealtime()) `
+     * `Instant.ofEpochMilli(System.currentTimeMillis() - SystemClock.elapsedRealtime())`
      */
     public fun getStartInstant(bootInstant: Instant): Instant {
         return bootInstant.plus(startDurationFromBoot)

@@ -16,8 +16,6 @@
 
 package androidx.appsearch.cts.app;
 
-import static android.os.Build.VERSION_CODES;
-
 import static androidx.appsearch.app.AppSearchResult.RESULT_INVALID_SCHEMA;
 import static androidx.appsearch.app.AppSearchResult.RESULT_NOT_FOUND;
 import static androidx.appsearch.testutil.AppSearchTestUtils.checkIsBatchResultSuccess;
@@ -38,6 +36,7 @@ import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
 import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig;
 import androidx.appsearch.app.AppSearchSession;
+import androidx.appsearch.app.Features;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.GetSchemaResponse;
@@ -74,6 +73,8 @@ public abstract class AppSearchSessionCtsTestBase {
     static final String DB_NAME_1 = "";
     static final String DB_NAME_2 = "testDb2";
 
+    private final Context mContext = ApplicationProvider.getApplicationContext();
+
     private AppSearchSession mDb1;
     private AppSearchSession mDb2;
 
@@ -83,13 +84,8 @@ public abstract class AppSearchSessionCtsTestBase {
     protected abstract ListenableFuture<AppSearchSession> createSearchSession(
             @NonNull String dbName, @NonNull ExecutorService executor);
 
-    // Returns the Android version that the current instance of AppSearchSession is based on.
-    protected abstract int getAppSearchApiTarget();
-
     @Before
     public void setUp() throws Exception {
-        Context context = ApplicationProvider.getApplicationContext();
-
         mDb1 = createSearchSession(DB_NAME_1).get();
         mDb2 = createSearchSession(DB_NAME_2).get();
 
@@ -589,7 +585,7 @@ public abstract class AppSearchSessionCtsTestBase {
                 new PutDocumentsRequest.Builder().addGenericDocuments(email2).build()).get();
         assertThat(failResult2.isSuccess()).isFalse();
         assertThat(failResult2.getFailures().get("email2").getErrorMessage())
-                .isEqualTo("Schema type config 'androidx.appsearch.test$" + DB_NAME_1
+                .isEqualTo("Schema type config '" + mContext.getPackageName() + "$" + DB_NAME_1
                         + "/builtin:Email' not found");
     }
 
@@ -661,7 +657,7 @@ public abstract class AppSearchSessionCtsTestBase {
                 new PutDocumentsRequest.Builder().addGenericDocuments(email3).build()).get();
         assertThat(failResult2.isSuccess()).isFalse();
         assertThat(failResult2.getFailures().get("email3").getErrorMessage())
-                .isEqualTo("Schema type config 'androidx.appsearch.test$" + DB_NAME_1
+                .isEqualTo("Schema type config '" + mContext.getPackageName() + "$" + DB_NAME_1
                         + "/builtin:Email' not found");
 
         // Make sure email in database 2 still present.
@@ -1906,13 +1902,11 @@ public abstract class AppSearchSessionCtsTestBase {
                 new SearchResult.MatchRange(/*lower=*/26,  /*upper=*/33));
         assertThat(matchInfo.getSnippet()).isEqualTo("is foo.");
 
-        if (getAppSearchApiTarget() <= VERSION_CODES.S) {
-            // Submatch is not support on any backend that targets a platform S or lower.
-            assertThat(matchInfo.getSubmatchRange()).isEqualTo(
-                    new SearchResult.MatchRange(/*lower=*/0,  /*upper=*/0));
-            assertThat(matchInfo.getSubmatch().length()).isEqualTo(0);
+        if (!mDb1.getFeatures().isFeatureSupported(
+                Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH)) {
+            assertThrows(UnsupportedOperationException.class, matchInfo::getSubmatchRange);
+            assertThrows(UnsupportedOperationException.class, matchInfo::getSubmatch);
         } else {
-            // Submatch is enabled on any backend that targets a platform beyond S.
             assertThat(matchInfo.getSubmatchRange()).isEqualTo(
                     new SearchResult.MatchRange(/*lower=*/29,  /*upper=*/31));
             assertThat(matchInfo.getSubmatch()).isEqualTo("fo");
@@ -2009,9 +2003,9 @@ public abstract class AppSearchSessionCtsTestBase {
 
         String japanese =
                 "差し出されたのが今日ランドセルでした普通の子であれば満面の笑みで俺を言うでしょうしかし私は赤いランド"
-                + "セルを見て笑うことができませんでしたどうしたのと心配そうな仕事ガラスながら渋い顔する私書いたこと言"
-                + "うんじゃないのカードとなる声を聞きたい私は目から涙をこぼしながらおじいちゃんの近くにかけおり頭をポ"
-                + "ンポンと叩きピンクが良かったんだもん";
+                        + "セルを見て笑うことができませんでしたどうしたのと心配そうな仕事ガラスながら渋い顔する私書いたこと言"
+                        + "うんじゃないのカードとなる声を聞きたい私は目から涙をこぼしながらおじいちゃんの近くにかけおり頭をポ"
+                        + "ンポンと叩きピンクが良かったんだもん";
         // Index a document
         GenericDocument document =
                 new GenericDocument.Builder<>("namespace", "id", "Generic")
@@ -2040,13 +2034,11 @@ public abstract class AppSearchSessionCtsTestBase {
                 new SearchResult.MatchRange(/*lower=*/44,  /*upper=*/45));
         assertThat(matchInfo.getExactMatch()).isEqualTo("は");
 
-        if (getAppSearchApiTarget() <= VERSION_CODES.S) {
-            // Submatch is not support on any backend that targets a platform S or lower.
-            assertThat(matchInfo.getSubmatchRange()).isEqualTo(
-                    new SearchResult.MatchRange(/*lower=*/0,  /*upper=*/0));
-            assertThat(matchInfo.getSubmatch().length()).isEqualTo(0);
+        if (!mDb1.getFeatures().isFeatureSupported(
+                Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH)) {
+            assertThrows(UnsupportedOperationException.class, matchInfo::getSubmatchRange);
+            assertThrows(UnsupportedOperationException.class, matchInfo::getSubmatch);
         } else {
-            // Submatch is enabled on any backend that targets a platform beyond S.
             assertThat(matchInfo.getSubmatchRange()).isEqualTo(
                     new SearchResult.MatchRange(/*lower=*/44,  /*upper=*/45));
             assertThat(matchInfo.getSubmatch()).isEqualTo("は");
@@ -2197,6 +2189,44 @@ public abstract class AppSearchSessionCtsTestBase {
         assertThat(getResult.isSuccess()).isFalse();
         assertThat(getResult.getFailures().get("id2").getResultCode())
                 .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
+    }
+
+
+    @Test
+    public void testRemoveByQuery_nonExistNamespace() throws Exception {
+        // Schema registration
+        mDb1.setSchema(
+                new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()).get();
+
+        // Index documents
+        AppSearchEmail email1 =
+                new AppSearchEmail.Builder("namespace1", "id1")
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("foo")
+                        .setBody("This is the body of the testPut email")
+                        .build();
+        AppSearchEmail email2 =
+                new AppSearchEmail.Builder("namespace2", "id2")
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("bar")
+                        .setBody("This is the body of the testPut second email")
+                        .build();
+        checkIsBatchResultSuccess(mDb1.put(
+                new PutDocumentsRequest.Builder().addGenericDocuments(email1, email2).build()));
+
+        // Check the presence of the documents
+        assertThat(doGet(mDb1, "namespace1", "id1")).hasSize(1);
+        assertThat(doGet(mDb1, "namespace2", "id2")).hasSize(1);
+
+        // Delete the email by nonExist namespace.
+        mDb1.remove("",
+                new SearchSpec.Builder().setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
+                        .addFilterNamespaces("nonExistNamespace").build()).get();
+        // None of these emails will be deleted.
+        assertThat(doGet(mDb1, "namespace1", "id1")).hasSize(1);
+        assertThat(doGet(mDb1, "namespace2", "id2")).hasSize(1);
     }
 
     @Test

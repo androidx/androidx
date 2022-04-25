@@ -30,6 +30,12 @@ import androidx.test.platform.app.InstrumentationRegistry
 public var argumentSource: Bundle? = null
 
 /**
+ * Allows tests to override profiler
+ */
+@RestrictTo(RestrictTo.Scope.TESTS)
+internal var profilerOverride: Profiler? = null
+
+/**
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -43,7 +49,9 @@ public object Arguments {
     internal val startupMode: Boolean
     internal val dryRunMode: Boolean
     internal val iterations: Int?
+    private val _profiler: Profiler?
     internal val profiler: Profiler?
+        get() = if (profilerOverride != null) profilerOverride else _profiler
     internal val profilerSampleFrequency: Int
     internal val profilerSampleDurationSeconds: Long
 
@@ -59,7 +67,12 @@ public object Arguments {
         val argumentName = "profiling.mode"
         val argumentValue = getBenchmarkArgument(argumentName, "")
         val profiler = Profiler.getByName(argumentValue)
-        if (profiler == null && argumentValue.isNotEmpty()) {
+        if (profiler == null &&
+            argumentValue.isNotEmpty() &&
+            // 'none' is documented as noop (and works better in gradle than
+            // an empty string, if a value must be specified)
+            argumentValue.trim().lowercase() != "none"
+        ) {
             error = "Could not parse $prefix$argumentName=$argumentValue"
             return null
         }
@@ -93,7 +106,7 @@ public object Arguments {
             .filter { it.isNotEmpty() }
             .toSet()
 
-        profiler = arguments.getProfiler(outputEnable)
+        _profiler = arguments.getProfiler(outputEnable)
         profilerSampleFrequency =
             arguments.getBenchmarkArgument("profiling.sampleFrequency")?.ifBlank { null }
             ?.toInt()
@@ -102,11 +115,10 @@ public object Arguments {
             arguments.getBenchmarkArgument("profiling.sampleDurationSeconds")?.ifBlank { null }
             ?.toLong()
             ?: 5
-
-        if (profiler != null) {
+        if (_profiler != null) {
             Log.d(
                 BenchmarkState.TAG,
-                "Profiler ${profiler.javaClass.simpleName}, freq " +
+                "Profiler ${_profiler.javaClass.simpleName}, freq " +
                     "$profilerSampleFrequency, duration $profilerSampleDurationSeconds"
             )
         }

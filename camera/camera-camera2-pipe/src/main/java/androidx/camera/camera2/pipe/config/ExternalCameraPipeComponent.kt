@@ -16,9 +16,11 @@
 
 package androidx.camera.camera2.pipe.config
 
+import androidx.annotation.RequiresApi
 import dagger.Component
 import javax.inject.Singleton
 
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @Singleton
 @Component(
     modules = [

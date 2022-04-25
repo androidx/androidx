@@ -18,6 +18,7 @@ package androidx.camera.core.impl.utils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 
 import java.io.IOException;
@@ -31,6 +32,7 @@ import java.nio.charset.StandardCharsets;
  *
  * This class was pulled from the {@link androidx.exifinterface.media.ExifInterface} class.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class ExifAttribute {
     private static final String TAG = "ExifAttribute";
     public static final long BYTES_OFFSET_UNKNOWN = -1;

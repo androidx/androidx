@@ -17,6 +17,7 @@
 package androidx.fragment.app;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.lifecycle.SavedStateHandleSupport.enableSavedStateHandles;
 
 import android.animation.Animator;
 import android.annotation.SuppressLint;
@@ -74,6 +75,8 @@ import androidx.arch.core.util.Function;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.app.SharedElementCallback;
 import androidx.core.view.LayoutInflaterCompat;
+import androidx.core.view.MenuHost;
+import androidx.core.view.MenuProvider;
 import androidx.fragment.app.strictmode.FragmentStrictMode;
 import androidx.lifecycle.HasDefaultViewModelProviderFactory;
 import androidx.lifecycle.Lifecycle;
@@ -82,12 +85,15 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LifecycleRegistry;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.SavedStateHandleSupport;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStore;
 import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.lifecycle.ViewTreeLifecycleOwner;
 import androidx.lifecycle.ViewTreeViewModelStoreOwner;
+import androidx.lifecycle.viewmodel.CreationExtras;
+import androidx.lifecycle.viewmodel.MutableCreationExtras;
 import androidx.loader.app.LoaderManager;
 import androidx.savedstate.SavedStateRegistry;
 import androidx.savedstate.SavedStateRegistryController;
@@ -309,6 +315,14 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         abstract void onPreAttached();
     }
 
+    private final OnPreAttachedListener mSavedStateAttachListener = new OnPreAttachedListener() {
+        @Override
+        void onPreAttached() {
+            mSavedStateRegistryController.performAttach();
+            enableSavedStateHandles(Fragment.this);
+        }
+    };
+
     /**
      * {@inheritDoc}
      * <p>
@@ -415,13 +429,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         return Math.min(mMaxState.ordinal(), mParentFragment.getMinimumMaxLifecycleState());
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The {@link #getArguments() Fragment's arguments} when this is first called will be used
-     * as the defaults to any {@link androidx.lifecycle.SavedStateHandle} passed to a view model
-     * created using this factory.</p>
-     */
     @NonNull
     @Override
     public ViewModelProvider.Factory getDefaultViewModelProviderFactory() {
@@ -441,7 +448,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             if (application == null && FragmentManager.isLoggingEnabled(Log.DEBUG)) {
                 Log.d(FragmentManager.TAG, "Could not find Application instance from "
                         + "Context " + requireContext().getApplicationContext() + ", you will "
-                        + "not be able to use AndroidViewModel with the default "
+                        + "need CreationExtras to use AndroidViewModel with the default "
                         + "ViewModelProvider.Factory");
             }
             mDefaultFactory = new SavedStateViewModelFactory(
@@ -450,6 +457,44 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
                     getArguments());
         }
         return mDefaultFactory;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The {@link #getArguments() Fragment's arguments} when this is first called will be used
+     * as the defaults to any {@link androidx.lifecycle.SavedStateHandle} passed to a view model
+     * created using this extra.</p>
+     */
+    @NonNull
+    @Override
+    @CallSuper
+    public CreationExtras getDefaultViewModelCreationExtras() {
+        Application application = null;
+        Context appContext = requireContext().getApplicationContext();
+        while (appContext instanceof ContextWrapper) {
+            if (appContext instanceof Application) {
+                application = (Application) appContext;
+                break;
+            }
+            appContext = ((ContextWrapper) appContext).getBaseContext();
+        }
+        if (application == null && FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+            Log.d(FragmentManager.TAG, "Could not find Application instance from "
+                    + "Context " + requireContext().getApplicationContext() + ", you will "
+                    + "not be able to use AndroidViewModel with the default "
+                    + "ViewModelProvider.Factory");
+        }
+        MutableCreationExtras extras = new MutableCreationExtras();
+        if (application != null) {
+            extras.set(ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY, application);
+        }
+        extras.set(SavedStateHandleSupport.SAVED_STATE_REGISTRY_OWNER_KEY, this);
+        extras.set(SavedStateHandleSupport.VIEW_MODEL_STORE_OWNER_KEY, this);
+        if (getArguments() != null) {
+            extras.set(SavedStateHandleSupport.DEFAULT_ARGS_KEY, getArguments());
+        }
+        return extras;
     }
 
     @NonNull
@@ -572,6 +617,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         // The default factory depends on the SavedStateRegistry so it
         // needs to be reset when the SavedStateRegistry is reset
         mDefaultFactory = null;
+        if (!mOnPreAttachedListeners.contains(mSavedStateAttachListener)) {
+            registerOnPreAttachListener(mSavedStateAttachListener);
+        }
     }
 
     /**
@@ -1183,14 +1231,16 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     /**
-     * Return true if the fragment has been hidden.  By default fragments
+     * Return true if the fragment has been hidden. This includes the case if the fragment is
+     * hidden because its parent is hidden. By default fragments
      * are shown.  You can find out about changes to this state with
      * {@link #onHiddenChanged}.  Note that the hidden state is orthogonal
      * to other states -- that is, to be visible to the user, a fragment
      * must be both started and not hidden.
      */
     final public boolean isHidden() {
-        return mHidden;
+        return mHidden || (mFragmentManager != null
+                && mFragmentManager.isParentHidden(mParentFragment));
     }
 
     /** @hide */
@@ -1209,8 +1259,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     /**
      * Called when the hidden state (as returned by {@link #isHidden()} of
-     * the fragment has changed.  Fragments start out not hidden; this will
-     * be called whenever the fragment changes state from that.
+     * the fragment or another fragment in its hierarchy has changed.  Fragments start out not
+     * hidden; this will be called whenever the fragment changes state from that.
      * @param hidden True if the fragment is now hidden, false otherwise.
      */
     @MainThread
@@ -1278,7 +1328,13 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * and related methods.
      *
      * @param hasMenu If true, the fragment has menu items to contribute.
+     *
+     * @deprecated This method is no longer needed when using a {@link MenuProvider} to provide
+     * a {@link Menu} to your activity, which replaces {@link #onCreateOptionsMenu} as the
+     * recommended way to provide a consistent, optionally {@link Lifecycle}-aware, and modular
+     * way to handle menu creation and item selection.
      */
+    @Deprecated
     public void setHasOptionsMenu(boolean hasMenu) {
         if (mHasMenu != hasMenu) {
             mHasMenu = hasMenu;
@@ -1399,7 +1455,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *                    between 0 and 65535 to be considered valid. If given requestCode is
      *                    greater than 65535, an IllegalArgumentException would be thrown.
      *
-     * @deprecated use
+     * @deprecated This method has been deprecated in favor of using the Activity Result API
+     * which brings increased type safety via an {@link ActivityResultContract} and the prebuilt
+     * contracts for common intents available in
+     * {@link androidx.activity.result.contract.ActivityResultContracts}, provides hooks for
+     * testing, and allow receiving results in separate, testable classes independent from your
+     * fragment. Use
      * {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}
      * passing in a {@link StartActivityForResult} object for the {@link ActivityResultContract}.
      */
@@ -1422,7 +1483,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @param options Additional options for how the Activity should be started. See
      * {@link Context#startActivity(Intent, Bundle)} for more details. This value may be null.
      *
-     * @deprecated use
+     * @deprecated This method has been deprecated in favor of using the Activity Result API
+     * which brings increased type safety via an {@link ActivityResultContract} and the prebuilt
+     * contracts for common intents available in
+     * {@link androidx.activity.result.contract.ActivityResultContracts}, provides hooks for
+     * testing, and allow receiving results in separate, testable classes independent from your
+     * fragment. Use
      * {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}
      * passing in a {@link StartActivityForResult} object for the {@link ActivityResultContract}.
      */
@@ -1455,7 +1521,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @param options Additional options for how the Activity should be started. See
      * {@link Context#startActivity(Intent, Bundle)} for more details. This value may be null.
      *
-     * @deprecated use
+     * @deprecated This method has been deprecated in favor of using the Activity Result API
+     * which brings increased type safety via an {@link ActivityResultContract} and the prebuilt
+     * contracts for common intents available in
+     * {@link androidx.activity.result.contract.ActivityResultContracts}, provides hooks for
+     * testing, and allow receiving results in separate, testable classes independent from your
+     * fragment. Use
      * {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}
      * passing in a {@link StartIntentSenderForResult} object for the
      * {@link ActivityResultContract}.
@@ -1490,7 +1561,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @param data An Intent, which can return result data to the caller
      *               (various data can be attached to Intent "extras").
      *
-     * @deprecated use
+     * @deprecated This method has been deprecated in favor of using the Activity Result API
+     * which brings increased type safety via an {@link ActivityResultContract} and the prebuilt
+     * contracts for common intents available in
+     * {@link androidx.activity.result.contract.ActivityResultContracts}, provides hooks for
+     * testing, and allow receiving results in separate, testable classes independent from your
+     * fragment. Use
      * {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}
      * with the appropriate {@link ActivityResultContract} and handling the result in the
      * {@link ActivityResultCallback#onActivityResult(Object) callback}.
@@ -1560,7 +1636,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * @see #onRequestPermissionsResult(int, String[], int[])
      * @see android.content.Context#checkSelfPermission(String)
-     * @deprecated use
+     * @deprecated This method has been deprecated in favor of using the Activity Result API
+     * which brings increased type safety via an {@link ActivityResultContract} and the prebuilt
+     * contracts for common intents available in
+     * {@link androidx.activity.result.contract.ActivityResultContracts}, provides hooks for
+     * testing, and allow receiving results in separate, testable classes independent from your
+     * fragment. Use
      * {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)} passing
      * in a {@link RequestMultiplePermissions} object for the {@link ActivityResultContract} and
      * handling the result in the {@link ActivityResultCallback#onActivityResult(Object) callback}.
@@ -1590,7 +1671,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * @see #requestPermissions(String[], int)
      *
-     * @deprecated use
+     * @deprecated This method has been deprecated in favor of using the Activity Result API
+     * which brings increased type safety via an {@link ActivityResultContract} and the prebuilt
+     * contracts for common intents available in
+     * {@link androidx.activity.result.contract.ActivityResultContracts}, provides hooks for
+     * testing, and allow receiving results in separate, testable classes independent from your
+     * fragment. Use
      * {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)} passing
      * in a {@link RequestMultiplePermissions} object for the {@link ActivityResultContract} and
      * handling the result in the {@link ActivityResultCallback#onActivityResult(Object) callback}.
@@ -1894,6 +1980,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * @param savedInstanceState the savedInstanceState potentially containing fragment info
      */
+    @SuppressWarnings("deprecation")
     void restoreChildFragmentState(@Nullable Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             Parcelable p = savedInstanceState.getParcelable(
@@ -1993,7 +2080,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * a previous saved state, this is the state.
      *
      * @deprecated use {@link #onViewCreated(View, Bundle)} for code touching
-     * the Fragment's view and {@link #onCreate(Bundle)} for other initialization.
+     * the view created by {@link #onCreateView} and {@link #onCreate(Bundle)} for other
+     * initialization.
      * To get a callback specifically when a Fragment activity's
      * {@link Activity#onCreate(Bundle)} is called, register a
      * {@link androidx.lifecycle.LifecycleObserver} on the Activity's
@@ -2214,8 +2302,18 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @see #setHasOptionsMenu
      * @see #onPrepareOptionsMenu
      * @see #onOptionsItemSelected
+     *
+     * @deprecated {@link androidx.activity.ComponentActivity} now implements {@link MenuHost},
+     * an interface that allows any component, including your activity itself, to add menu items
+     * by calling {@link #addMenuProvider(MenuProvider)} without forcing all components through
+     * this single method override. As this provides a consistent, optionally {@link Lifecycle}
+     * -aware, and modular way to handle menu creation and item selection, replace usages of this
+     * method with one or more calls to {@link #addMenuProvider(MenuProvider)} in your Activity's
+     * {@link #onCreate(Bundle)} method, having each provider override
+     * {@link MenuProvider#onCreateMenu(Menu, MenuInflater)} to create their menu items.
      */
     @MainThread
+    @Deprecated
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
     }
 
@@ -2232,8 +2330,18 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * @see #setHasOptionsMenu
      * @see #onCreateOptionsMenu
+     *
+     * @deprecated {@link androidx.activity.ComponentActivity} now implements {@link MenuHost},
+     * an interface that allows any component, including your activity itself, to add menu items
+     * by calling {@link #addMenuProvider(MenuProvider)} without forcing all components through
+     * this single method override. The {@link MenuProvider} interface uses a single
+     * {@link MenuProvider#onCreateMenu(Menu, MenuInflater)} method for managing both the creation
+     * and preparation of menu items. Replace usages of this method with one or more calls to
+     * {@link #addMenuProvider(MenuProvider)} in your Activity's {@link #onCreate(Bundle)} method,
+     * moving any preparation of menu items to {@link MenuProvider#onPrepareMenu(Menu)}.
      */
     @MainThread
+    @Deprecated
     public void onPrepareOptionsMenu(@NonNull Menu menu) {
     }
 
@@ -2243,8 +2351,20 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * the menu needed to be rebuilt, but this fragment's items were not
      * included in the newly built menu (its {@link #onCreateOptionsMenu(Menu, MenuInflater)}
      * was not called).
+     *
+     * @deprecated {@link androidx.activity.ComponentActivity} now implements {@link MenuHost},
+     * an interface that allows any component, including your activity itself, to add menu items
+     * by calling {@link #addMenuProvider(MenuProvider)} without forcing all components through
+     * this single method override. Each {@link MenuProvider} then provides a consistent, optionally
+     * {@link Lifecycle}-aware, and modular way to handle menu item selection for the menu items
+     * created by that provider. Replace usages of this method with one or more calls to
+     * {@link #removeMenuProvider(MenuProvider)} in your Activity's {@link #onCreate(Bundle)}
+     * method, whenever it is necessary to remove the individual {@link MenuProvider}. If a
+     * {@link MenuProvider} was added with Lifecycle-awareness, this removal will happen
+     * automatically.
      */
     @MainThread
+    @Deprecated
     public void onDestroyOptionsMenu() {
     }
 
@@ -2265,9 +2385,20 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *         proceed, true to consume it here.
      *
      * @see #onCreateOptionsMenu
+     *
+     * @deprecated {@link androidx.activity.ComponentActivity} now implements {@link MenuHost},
+     * an interface that allows any component, including your activity itself, to add menu items
+     * by calling {@link #addMenuProvider(MenuProvider)} without forcing all components through
+     * this single method override. Each {@link MenuProvider} then provides a consistent, optionally
+     * {@link Lifecycle}-aware, and modular way to handle menu item selection for the menu items
+     * created by that provider. Replace usages of this method with one or more calls to
+     * {@link #addMenuProvider(MenuProvider)} in your Activity's {@link #onCreate(Bundle)} method,
+     * delegating menu item selection to the individual {@link MenuProvider} that created the menu
+     * items you wish to handle.
      */
     @SuppressWarnings("unused")
     @MainThread
+    @Deprecated
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         return false;
     }
@@ -2278,9 +2409,20 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * @param menu The options menu as last shown or first initialized by
      *             onCreateOptionsMenu().
+     *
+     * @deprecated {@link androidx.activity.ComponentActivity} now implements {@link MenuHost},
+     * an interface that allows any component, including your activity itself, to add menu items
+     * by calling {@link #addMenuProvider(MenuProvider)} without forcing all components through
+     * this single method override. The {@link MenuProvider} interface uses a single
+     * {@link MenuProvider#onCreateMenu(Menu, MenuInflater)} method for managing both the creation
+     * and preparation of menu items. Replace usages of this method with one or more calls to
+     * {@link #addMenuProvider(MenuProvider)} in your Activity's {@link #onCreate(Bundle)} method,
+     * overriding {@link MenuProvider#onMenuClosed(Menu)} to delegate menu closing to the
+     * individual {@link MenuProvider} that created the menu.
      */
     @SuppressWarnings("unused")
     @MainThread
+    @Deprecated
     public void onOptionsMenuClosed(@NonNull Menu menu) {
     }
 

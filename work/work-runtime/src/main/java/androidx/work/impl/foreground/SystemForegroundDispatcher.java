@@ -37,6 +37,7 @@ import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.constraints.WorkConstraintsCallback;
 import androidx.work.impl.constraints.WorkConstraintsTracker;
+import androidx.work.impl.constraints.WorkConstraintsTrackerImpl;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
@@ -108,7 +109,7 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
         mForegroundInfoById = new LinkedHashMap<>();
         mTrackedWorkSpecs = new HashSet<>();
         mWorkSpecById = new HashMap<>();
-        mConstraintsTracker = new WorkConstraintsTracker(mContext, mTaskExecutor, this);
+        mConstraintsTracker = new WorkConstraintsTrackerImpl(mWorkManagerImpl.getTrackers(), this);
         mWorkManagerImpl.getProcessor().addExecutionListener(this);
     }
 
@@ -189,12 +190,9 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
             // thread, so there is a chance that handleStop() fires before onExecuted() is called
             // on the main thread.
             Logger.get().debug(TAG,
-                    String.format("Removing Notification (id: %s, workSpecId: %s ,"
-                                    + "notificationType: %s)",
-                            removedInfo.getNotificationId(),
-                            workSpecId,
-                            removedInfo.getForegroundServiceType())
-            );
+                    "Removing Notification (id: " + removedInfo.getNotificationId() +
+                            ", workSpecId: " + workSpecId +
+                            ", notificationType: " + removedInfo.getForegroundServiceType());
             callback.cancelNotification(removedInfo.getNotificationId());
         }
     }
@@ -206,10 +204,6 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
             return;
         }
         mCallback = callback;
-    }
-
-    WorkManagerImpl getWorkManager() {
-        return mWorkManagerImpl;
     }
 
     void onStartCommand(@NonNull Intent intent) {
@@ -239,10 +233,10 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
 
     @MainThread
     private void handleStartForeground(@NonNull Intent intent) {
-        Logger.get().info(TAG, String.format("Started foreground service %s", intent));
+        Logger.get().info(TAG, "Started foreground service " + intent);
         final String workSpecId = intent.getStringExtra(KEY_WORKSPEC_ID);
         final WorkDatabase database = mWorkManagerImpl.getWorkDatabase();
-        mTaskExecutor.executeOnBackgroundThread(new Runnable() {
+        mTaskExecutor.executeOnTaskThread(new Runnable() {
             @Override
             public void run() {
                 WorkSpec workSpec = database.workSpecDao().getWorkSpec(workSpecId);
@@ -265,9 +259,11 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
         int notificationType = intent.getIntExtra(KEY_FOREGROUND_SERVICE_TYPE, 0);
         String workSpecId = intent.getStringExtra(KEY_WORKSPEC_ID);
         Notification notification = intent.getParcelableExtra(KEY_NOTIFICATION);
+
         Logger.get().debug(TAG,
-                String.format("Notifying with (id: %s, workSpecId: %s, notificationType: %s)",
-                        notificationId, workSpecId, notificationType));
+                "Notifying with (id:" + notificationId
+                        + ", workSpecId: " + workSpecId
+                        + ", notificationType :" + notificationType + ")");
 
         if (notification != null && mCallback != null) {
             // Keep track of this ForegroundInfo
@@ -315,7 +311,7 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
 
     @MainThread
     private void handleCancelWork(@NonNull Intent intent) {
-        Logger.get().info(TAG, String.format("Stopping foreground work for %s", intent));
+        Logger.get().info(TAG, "Stopping foreground work for " + intent);
         String workSpecId = intent.getStringExtra(KEY_WORKSPEC_ID);
         if (workSpecId != null && !TextUtils.isEmpty(workSpecId)) {
             mWorkManagerImpl.cancelWorkById(UUID.fromString(workSpecId));
@@ -332,7 +328,7 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
         if (!workSpecIds.isEmpty()) {
             for (String workSpecId : workSpecIds) {
                 Logger.get().debug(TAG,
-                        String.format("Constraints unmet for WorkSpec %s", workSpecId));
+                        "Constraints unmet for WorkSpec " + workSpecId);
                 mWorkManagerImpl.stopForegroundWork(workSpecId);
             }
         }
@@ -376,7 +372,7 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
         Intent intent = new Intent(context, SystemForegroundService.class);
         intent.setAction(ACTION_CANCEL_WORK);
         // Set data to make it unique for filterEquals()
-        intent.setData(Uri.parse(String.format("workspec://%s", workSpecId)));
+        intent.setData(Uri.parse("workspec://" + workSpecId));
         intent.putExtra(KEY_WORKSPEC_ID, workSpecId);
         return intent;
     }

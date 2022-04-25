@@ -22,6 +22,7 @@ import android.hardware.camera2.CaptureResult
 import android.os.Build
 import android.util.ArrayMap
 import androidx.annotation.GuardedBy
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.Metadata
@@ -32,12 +33,14 @@ import androidx.camera.camera2.pipe.core.Debug
  * that are either expensive to create and access, or that only exist on newer versions of the
  * OS. This allows all fields to be accessed and return reasonable values on all OS versions.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 internal class Camera2CameraMetadata constructor(
     override val camera: CameraId,
     override val isRedacted: Boolean,
     private val characteristics: CameraCharacteristics,
     private val metadataProvider: CameraMetadataProvider,
     private val metadata: Map<Metadata.Key<*>, Any?>,
+    private val cacheBlocklist: Set<CameraCharacteristics.Key<*>>,
 ) : CameraMetadata {
     @GuardedBy("values")
     private val values = ArrayMap<CameraCharacteristics.Key<*>, Any?>()
@@ -50,6 +53,10 @@ internal class Camera2CameraMetadata constructor(
         metadata[key] as T? ?: default
 
     override fun <T> get(key: CameraCharacteristics.Key<T>): T? {
+        if (cacheBlocklist.contains(key)) {
+            return characteristics.get(key)
+        }
+
         // Cache the return value of calls to characteristics as the implementation performs a
         // blocking jni binder call which can be expensive when invoked frequently (see b/144028609
         // for more details).
@@ -154,6 +161,8 @@ internal class Camera2CameraMetadata constructor(
                             .toSet()
                     }
                 } catch (ignored: AssertionError) {
+                    emptySet()
+                } catch (ignored: NullPointerException) {
                     emptySet()
                 }
             }

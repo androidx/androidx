@@ -32,9 +32,10 @@ class SingleNamedColumnRowAdapter(
     val columnName: String,
 ) : RowAdapter(reader.typeMirror()), QueryMappedRowAdapter {
     override val mapping = SingleNamedColumnRowMapping(columnName)
+    lateinit var indexVarName: String
 
-    override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
-        val indexVarName = scope.getTmpVar(
+    override fun onCursorReady(cursorVarName: String, scope: CodeGenScope) {
+        indexVarName = scope.getTmpVar(
             "_columnIndexOf$columnName"
         )
         val indexMethod = "getColumnIndexOrThrow"
@@ -47,6 +48,9 @@ class SingleNamedColumnRowAdapter(
             cursorVarName,
             columnName
         )
+    }
+
+    override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
         reader.readFromCursor(outVarName, cursorVarName, indexVarName, scope)
     }
 

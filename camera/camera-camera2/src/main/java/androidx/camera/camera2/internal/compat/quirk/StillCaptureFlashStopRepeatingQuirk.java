@@ -18,6 +18,7 @@ package androidx.camera.camera2.internal.compat.quirk;
 
 import android.os.Build;
 
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 
 import java.util.Locale;
@@ -26,10 +27,15 @@ import java.util.Locale;
  * Quirk that still capture with flash on/auto requires stopRepeating() being called ahead of
  * capture.
  *
- * <p>On some devices like Samsung SM-A716B, it could lead to CaptureRequest not being completed
- * when taking photos in dark environment with flash on/auto. Calling stopRepeating ahead of
- * still capture and setRepeating again after capture is done can fix the issue. See b/172036589.
+ * <p>QuirkSummary
+ *     Bug Id: 172036589
+ *     Description: On some devices like Samsung SM-A716B, it could lead to CaptureRequest not
+ *                  being completed when taking photos in dark environment with flash on/auto.
+ *                  Calling stopRepeating ahead of still capture and setRepeating again after
+ *                  capture is done can fix the issue.
+ *     Device(s): Samsung SM-A716
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class StillCaptureFlashStopRepeatingQuirk implements Quirk {
     static boolean load() {
         return "SAMSUNG".equals(Build.MANUFACTURER.toUpperCase(Locale.US))

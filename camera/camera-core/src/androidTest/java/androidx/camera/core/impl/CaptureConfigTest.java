@@ -30,6 +30,7 @@ import androidx.camera.core.impl.Config.Option;
 import androidx.camera.testing.DeferrableSurfacesUtil;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 
 import com.google.common.collect.Lists;
 
@@ -42,6 +43,7 @@ import java.util.List;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 21)
 public class CaptureConfigTest {
     private static final Option<Integer> OPTION = Config.Option.create(
             "camerax.test.option_0", Integer.class);
@@ -234,6 +236,36 @@ public class CaptureConfigTest {
 
         assertThat(configuration.getCameraCaptureCallbacks())
                 .containsExactly(callback0, callback1, callback2);
+    }
+
+    @Test
+    public void builderRemoveCameraCaptureCallback_returnsFalseIfNotAdded() {
+        CameraCaptureCallback mockCallback = mock(CameraCaptureCallback.class);
+        CaptureConfig.Builder builder = new CaptureConfig.Builder();
+
+        assertThat(builder.removeCameraCaptureCallback(mockCallback)).isFalse();
+    }
+
+    @Test
+    public void builderRemoveCameraCaptureCallback_removesAddedCallback() {
+        // Arrange.
+        CameraCaptureCallback mockCallback = mock(CameraCaptureCallback.class);
+        CaptureConfig.Builder builder = new CaptureConfig.Builder();
+
+        // Act.
+        builder.addCameraCaptureCallback(mockCallback);
+        CaptureConfig configWithCallback = builder.build();
+
+        // Assert.
+        assertThat(configWithCallback.getCameraCaptureCallbacks()).contains(mockCallback);
+
+        // Act.
+        boolean removedCallback = builder.removeCameraCaptureCallback(mockCallback);
+        CaptureConfig configWithoutCallback = builder.build();
+
+        // Assert.
+        assertThat(removedCallback).isTrue();
+        assertThat(configWithoutCallback.getCameraCaptureCallbacks()).doesNotContain(mockCallback);
     }
 
     @Test(expected = UnsupportedOperationException.class)

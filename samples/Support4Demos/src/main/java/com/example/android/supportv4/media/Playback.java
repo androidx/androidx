@@ -436,6 +436,7 @@ public class Playback implements AudioManager.OnAudioFocusChangeListener,
      * @param releaseMediaPlayer Indicates whether the Media Player should also
      *            be released or not
      */
+    @SuppressWarnings("deprecation")
     private void relaxResources(boolean releaseMediaPlayer) {
         Log.d(TAG, "relaxResources. releaseMediaPlayer=" + releaseMediaPlayer);
 

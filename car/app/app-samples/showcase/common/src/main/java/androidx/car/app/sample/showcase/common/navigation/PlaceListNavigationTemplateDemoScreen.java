@@ -23,7 +23,9 @@ import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.Template;
 import androidx.car.app.navigation.model.PlaceListNavigationTemplate;
+import androidx.car.app.sample.showcase.common.R;
 import androidx.car.app.sample.showcase.common.common.SamplePlaces;
+import androidx.car.app.sample.showcase.common.navigation.routing.RoutingDemoModels;
 
 /** Creates a screen using the {@link PlaceListNavigationTemplate} */
 public final class PlaceListNavigationTemplateDemoScreen extends Screen {
@@ -41,11 +43,13 @@ public final class PlaceListNavigationTemplateDemoScreen extends Screen {
                 .setItemList(mPlaces.getPlaceList())
                 .setTitle("Place List Navigation Template Demo")
                 .setHeaderAction(Action.BACK)
+                .setMapActionStrip(RoutingDemoModels.getMapActionStrip(getCarContext()))
                 .setActionStrip(
                         new ActionStrip.Builder()
                                 .addAction(
                                         new Action.Builder()
-                                                .setTitle("Search")
+                                                .setTitle(getCarContext().getString(
+                                                        R.string.search_action_title))
                                                 .setOnClickListener(() -> {
                                                 })
                                                 .build())

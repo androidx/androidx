@@ -19,12 +19,27 @@ package androidx.paging
 import androidx.paging.LoadState.Error
 import androidx.paging.LoadState.Loading
 import androidx.paging.LoadState.NotLoading
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import java.util.concurrent.CopyOnWriteArrayList
 
 /**
  * Helper to construct [CombinedLoadStates] that accounts for previous state to set the convenience
  * properties correctly.
+ *
+ * This class exposes a [flow] and handles dispatches to tracked [listeners] intended for use
+ * with presenter APIs, which has the nuance of filtering out the initial value and dispatching to
+ * listeners immediately as they get added.
  */
 internal class MutableCombinedLoadStateCollection {
+    /**
+     * Tracks whether this [MutableCombinedLoadStateCollection] has been updated with real state
+     * or has just been instantiated with its initial values.
+     */
+    private var isInitialized: Boolean = false
+    private val listeners = CopyOnWriteArrayList<(CombinedLoadStates) -> Unit>()
+
     private var refresh: LoadState = NotLoading.Incomplete
     private var prepend: LoadState = NotLoading.Incomplete
     private var append: LoadState = NotLoading.Incomplete
@@ -33,21 +48,18 @@ internal class MutableCombinedLoadStateCollection {
     var mediator: LoadStates? = null
         private set
 
-    fun snapshot() = CombinedLoadStates(
-        refresh = refresh,
-        prepend = prepend,
-        append = append,
-        source = source,
-        mediator = mediator,
-    )
+    private val _stateFlow = MutableStateFlow<CombinedLoadStates?>(null)
+    val flow: Flow<CombinedLoadStates> = _stateFlow.filterNotNull()
 
     fun set(sourceLoadStates: LoadStates, remoteLoadStates: LoadStates?) {
+        isInitialized = true
         source = sourceLoadStates
         mediator = remoteLoadStates
-        updateHelperStates()
+        updateHelperStatesAndDispatch()
     }
 
     fun set(type: LoadType, remote: Boolean, state: LoadState): Boolean {
+        isInitialized = true
         val didChange = if (remote) {
             val lastMediator = mediator
             mediator = (mediator ?: LoadStates.IDLE).modifyState(type, state)
@@ -58,7 +70,7 @@ internal class MutableCombinedLoadStateCollection {
             source != lastSource
         }
 
-        updateHelperStates()
+        updateHelperStatesAndDispatch()
         return didChange
     }
 
@@ -66,7 +78,34 @@ internal class MutableCombinedLoadStateCollection {
         return (if (remote) mediator else source)?.get(type)
     }
 
-    private fun updateHelperStates() {
+    /**
+     * When a new listener is added, it will be immediately called with the current [snapshot]
+     * unless no state has been set yet, and thus has no valid state to emit.
+     */
+    fun addListener(listener: (CombinedLoadStates) -> Unit) {
+        // Note: Important to add the listener first before sending off events, in case the
+        // callback triggers removal, which could lead to a leak if the listener is added
+        // afterwards.
+        listeners.add(listener)
+        snapshot()?.also { listener(it) }
+    }
+
+    fun removeListener(listener: (CombinedLoadStates) -> Unit) {
+        listeners.remove(listener)
+    }
+
+    private fun snapshot(): CombinedLoadStates? = when {
+        !isInitialized -> null
+        else -> CombinedLoadStates(
+            refresh = refresh,
+            prepend = prepend,
+            append = append,
+            source = source,
+            mediator = mediator,
+        )
+    }
+
+    private fun updateHelperStatesAndDispatch() {
         refresh = computeHelperState(
             previousState = refresh,
             sourceRefreshState = source.refresh,
@@ -85,6 +124,12 @@ internal class MutableCombinedLoadStateCollection {
             sourceState = source.append,
             remoteState = mediator?.append
         )
+
+        val snapshot = snapshot()
+        if (snapshot != null) {
+            _stateFlow.value = snapshot
+            listeners.forEach { it(snapshot) }
+        }
     }
 
     /**

@@ -1,0 +1,52 @@
+/*
+ * Copyright (C) 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import androidx.build.Publish
+
+plugins {
+    id('AndroidXPlugin')
+    id('com.android.library')
+}
+
+dependencies {
+    implementation project(":appsearch:appsearch")
+    implementation project(':core:core')
+
+    annotationProcessor project(':appsearch:appsearch-compiler')
+
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.multidex)
+    androidTestImplementation(libs.junit)
+}
+
+androidx {
+    name = 'AppSearch Builtin Types'
+    publish = Publish.SNAPSHOT_AND_RELEASE
+    mavenGroup = LibraryGroups.APPSEARCH
+    inceptionYear = '2021'
+    description = 'Contains AppSearch Document classes and builders for a variety of common ' +
+            'objects based on http://schema.org. Data interchange with the system, and other ' +
+            'apps, as well as structured parameters for semantic intents should use these ' +
+            'built-in types as appropriate.'
+}
+
+android {
+    namespace "androidx.appsearch.builtintypes"
+}

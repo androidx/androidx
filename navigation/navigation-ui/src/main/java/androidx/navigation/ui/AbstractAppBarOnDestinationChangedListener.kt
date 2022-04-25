@@ -21,7 +21,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-import androidx.annotation.RestrictTo
 import androidx.annotation.StringRes
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
 import androidx.navigation.FloatingWindow
@@ -35,9 +34,7 @@ import java.util.regex.Pattern
  * The abstract OnDestinationChangedListener for keeping any type of app bar updated.
  * This handles both updating the title and updating the Up Indicator, transitioning between
  * the drawer icon and up arrow as needed.
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 internal abstract class AbstractAppBarOnDestinationChangedListener(
     private val context: Context,
     configuration: AppBarConfiguration
@@ -53,6 +50,7 @@ internal abstract class AbstractAppBarOnDestinationChangedListener(
 
     protected abstract fun setNavigationIcon(icon: Drawable?, @StringRes contentDescription: Int)
 
+    @Suppress("DEPRECATION")
     override fun onDestinationChanged(
         controller: NavController,
         destination: NavDestination,
@@ -79,7 +77,7 @@ internal abstract class AbstractAppBarOnDestinationChangedListener(
                     title.append(arguments[argName].toString())
                 } else {
                     throw IllegalArgumentException(
-                        "Could not find $argName in $arguments to fill label $label"
+                        "Could not find \"$argName\" in $arguments to fill label \"$label\""
                     )
                 }
             }

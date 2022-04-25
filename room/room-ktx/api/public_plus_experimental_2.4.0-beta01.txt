@@ -1,0 +1,20 @@
+// Signature format: 4.0
+package androidx.room {
+
+  public final class CoroutinesRoomKt {
+  }
+
+  public final class RoomDatabaseKt {
+    method public static suspend <R> Object? withTransaction(androidx.room.RoomDatabase, kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super R>,?> block, kotlin.coroutines.Continuation<? super R> p);
+  }
+
+}
+
+package androidx.room.migration {
+
+  public final class MigrationKt {
+    method public static androidx.room.migration.Migration Migration(int startVersion, int endVersion, kotlin.jvm.functions.Function1<? super androidx.sqlite.db.SupportSQLiteDatabase,kotlin.Unit> migrate);
+  }
+
+}
+
