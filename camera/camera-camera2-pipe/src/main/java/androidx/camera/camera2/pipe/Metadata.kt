@@ -240,3 +240,12 @@ public fun CaptureRequest.Builder.writeParameter(key: Any?, value: Any?) {
         this.set(key as CaptureRequest.Key<Any>, value)
     }
 }
+
+/**
+ * Utility function to put all metadata in the current map through an unchecked cast. The unchecked
+ * cast is necessary since CameraGraph.Config uses Map<*, Any?> as the standard type for parameters.
+ */
+fun MutableMap<Any, Any?>.putAllMetadata(metadata: Map<*, Any?>) {
+    @Suppress("UNCHECKED_CAST")
+    this.putAll(metadata as Map<Any, Any?>)
+}
