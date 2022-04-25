@@ -19,8 +19,6 @@ package androidx.datastore.core
 import androidx.datastore.core.handlers.NoOpCorruptionHandler
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import okio.FileSystem
 import okio.Path
 

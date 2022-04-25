@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,6 @@
 
 package androidx.datastore.core
 
-import okio.BufferedSink
-import okio.BufferedSource
-
-// TODO try to clean this up or at least have real classes.
-internal fun BufferedSource.toInputStream() = object : InputStream(this) {}
-internal fun BufferedSink.toOutputStream() = object : OutputStream(this) {}
-public actual abstract class InputStream(
-    delegate: okio.BufferedSource
-) : okio.BufferedSource by delegate
-actual abstract class OutputStream(
-    delegate: okio.BufferedSink
-) : okio.BufferedSink by delegate
-
-actual typealias IOException = okio.IOException
+internal abstract class StorageImpl<T> : Storage<T> {
+    abstract fun delete(): Boolean
+}

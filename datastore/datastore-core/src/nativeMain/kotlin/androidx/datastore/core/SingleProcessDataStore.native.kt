@@ -20,4 +20,4 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 
 // TODO this should be IO, not default.
-internal actual fun ioDispatcher(): CoroutineDispatcher  = Dispatchers.Default
+internal actual fun ioDispatcher(): CoroutineDispatcher = Dispatchers.Default

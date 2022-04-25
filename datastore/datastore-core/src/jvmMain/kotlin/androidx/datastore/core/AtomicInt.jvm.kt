@@ -16,8 +16,8 @@
 
 package androidx.datastore.core
 
-import java.util.concurrent.atomic.AtomicInteger;
-actual internal class AtomicInt {
+import java.util.concurrent.atomic.AtomicInteger
+internal actual class AtomicInt {
     private val delegate: AtomicInteger
     actual constructor(initialValue: Int) {
         delegate = AtomicInteger(initialValue)
@@ -26,4 +26,5 @@ actual internal class AtomicInt {
     actual fun getAndIncrement(): Int = delegate.getAndIncrement()
     actual fun decrementAndGet(): Int = delegate.decrementAndGet()
     actual fun get(): Int = delegate.get()
+    actual fun incrementAndGet(): Int = delegate.incrementAndGet()
 }

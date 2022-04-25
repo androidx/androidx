@@ -50,6 +50,6 @@ expect object DataStoreFactory {
         storage: Storage<T>,
         corruptionHandler: ReplaceFileCorruptionHandler<T>? = null,
         migrations: List<DataMigration<T>> = listOf(),
-        scope: CoroutineScope =  CoroutineScope(ioDispatcher() + SupervisorJob()),
+        scope: CoroutineScope = CoroutineScope(ioDispatcher() + SupervisorJob()),
     ): DataStore<T>
 }

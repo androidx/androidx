@@ -28,7 +28,7 @@ import java.io.OutputStream
 internal class FileStorage<T>(
     val produceFile: () -> File,
     private val serializer: Serializer<T>
-) : Storage<T> {
+) : StorageImpl<T>() {
     private val file: File by lazy {
         val file = produceFile()
 
@@ -140,5 +140,9 @@ internal class FileStorage<T>(
         internal val activeFiles = mutableSetOf<String>()
 
         internal val activeFilesLock = Any()
+    }
+
+    override fun delete(): Boolean {
+        return file.delete()
     }
 }

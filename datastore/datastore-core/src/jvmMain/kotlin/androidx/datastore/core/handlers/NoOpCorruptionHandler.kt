@@ -13,20 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.datastore.core.handlers
 
-package androidx.datastore.core
+import androidx.datastore.core.CorruptionException
+import androidx.datastore.core.CorruptionHandler
 
-import okio.BufferedSink
-import okio.BufferedSource
+/**
+ * Default corruption handler which does nothing but rethrow the exception.
+ */
+internal actual class NoOpCorruptionHandler<T> : CorruptionHandler<T> {
 
-// TODO try to clean this up or at least have real classes.
-internal fun BufferedSource.toInputStream() = object : InputStream(this) {}
-internal fun BufferedSink.toOutputStream() = object : OutputStream(this) {}
-public actual abstract class InputStream(
-    delegate: okio.BufferedSource
-) : okio.BufferedSource by delegate
-actual abstract class OutputStream(
-    delegate: okio.BufferedSink
-) : okio.BufferedSink by delegate
-
-actual typealias IOException = okio.IOException
+    @Throws(CorruptionException::class)
+    override suspend fun handleCorruption(ex: CorruptionException): T {
+        throw ex
+    }
+}

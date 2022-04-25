@@ -36,7 +36,6 @@ class DataStoreFactoryTest {
 
     private val dataStoreScope: TestScope = TestScope(UnconfinedTestDispatcher())
 
-
     @Test
     fun testNewInstance() = dataStoreScope.runTest {
         val store = DataStoreFactory.create(
@@ -59,7 +58,8 @@ class DataStoreFactoryTest {
         val valueToReplace = 123.toByte()
 
         val store = DataStoreFactory.create(
-            storage = testIO.newFileStorage(TestingSerializer(failReadWithCorruptionException = true)),
+            storage = testIO.newFileStorage(
+                TestingSerializer(failReadWithCorruptionException = true)),
             corruptionHandler = ReplaceFileCorruptionHandler<Byte> {
                 valueToReplace
             },
