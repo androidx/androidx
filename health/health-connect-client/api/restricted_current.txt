@@ -289,6 +289,37 @@ package androidx.health.connect.client.records {
     field public static final String WRIST = "wrist";
   }
 
+  public final class CyclingPedalingCadence {
+    ctor public CyclingPedalingCadence(java.time.Instant time, @FloatRange(from=0.0, to=10000.0) double revolutionsPerMinute);
+    method public double getRevolutionsPerMinute();
+    method public java.time.Instant getTime();
+    property public final double revolutionsPerMinute;
+    property public final java.time.Instant time;
+  }
+
+  public final class CyclingPedalingCadenceSeries implements androidx.health.connect.client.records.SeriesRecord<androidx.health.connect.client.records.CyclingPedalingCadence> {
+    ctor public CyclingPedalingCadenceSeries(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, java.util.List<androidx.health.connect.client.records.CyclingPedalingCadence> samples, optional androidx.health.connect.client.metadata.Metadata metadata);
+    method public java.time.Instant getEndTime();
+    method public java.time.ZoneOffset? getEndZoneOffset();
+    method public androidx.health.connect.client.metadata.Metadata getMetadata();
+    method public java.util.List<androidx.health.connect.client.records.CyclingPedalingCadence> getSamples();
+    method public java.time.Instant getStartTime();
+    method public java.time.ZoneOffset? getStartZoneOffset();
+    property public java.time.Instant endTime;
+    property public java.time.ZoneOffset? endZoneOffset;
+    property public androidx.health.connect.client.metadata.Metadata metadata;
+    property public java.util.List<androidx.health.connect.client.records.CyclingPedalingCadence> samples;
+    property public java.time.Instant startTime;
+    property public java.time.ZoneOffset? startZoneOffset;
+    field public static final androidx.health.connect.client.records.CyclingPedalingCadenceSeries.Companion Companion;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> RPM_AVG;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> RPM_MAX;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> RPM_MIN;
+  }
+
+  public static final class CyclingPedalingCadenceSeries.Companion {
+  }
+
   public final class Distance implements androidx.health.connect.client.records.IntervalRecord {
     ctor public Distance(double distanceMeters, java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
     method public double getDistanceMeters();
@@ -332,7 +363,7 @@ package androidx.health.connect.client.records {
   }
 
   public final class HeartRate {
-    ctor public HeartRate(java.time.Instant time, long beatsPerMinute);
+    ctor public HeartRate(java.time.Instant time, @IntRange(from=1L, to=300L) long beatsPerMinute);
     method public long getBeatsPerMinute();
     method public java.time.Instant getTime();
     property public final long beatsPerMinute;
@@ -353,6 +384,13 @@ package androidx.health.connect.client.records {
     property public java.util.List<androidx.health.connect.client.records.HeartRate> samples;
     property public java.time.Instant startTime;
     property public java.time.ZoneOffset? startZoneOffset;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Long> BPM_AVG;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Long> BPM_MAX;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Long> BPM_MIN;
+    field public static final androidx.health.connect.client.records.HeartRateSeries.Companion Companion;
+  }
+
+  public static final class HeartRateSeries.Companion {
   }
 
   public final class Height implements androidx.health.connect.client.records.InstantaneousRecord {
@@ -410,6 +448,37 @@ package androidx.health.connect.client.records {
     field public static final String POSITIVE = "positive";
   }
 
+  public final class Power {
+    ctor public Power(java.time.Instant time, @FloatRange(from=0.0, to=100000.0) double watts);
+    method public java.time.Instant getTime();
+    method public double getWatts();
+    property public final java.time.Instant time;
+    property public final double watts;
+  }
+
+  public final class PowerSeries implements androidx.health.connect.client.records.SeriesRecord<androidx.health.connect.client.records.Power> {
+    ctor public PowerSeries(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, java.util.List<androidx.health.connect.client.records.Power> samples, optional androidx.health.connect.client.metadata.Metadata metadata);
+    method public java.time.Instant getEndTime();
+    method public java.time.ZoneOffset? getEndZoneOffset();
+    method public androidx.health.connect.client.metadata.Metadata getMetadata();
+    method public java.util.List<androidx.health.connect.client.records.Power> getSamples();
+    method public java.time.Instant getStartTime();
+    method public java.time.ZoneOffset? getStartZoneOffset();
+    property public java.time.Instant endTime;
+    property public java.time.ZoneOffset? endZoneOffset;
+    property public androidx.health.connect.client.metadata.Metadata metadata;
+    property public java.util.List<androidx.health.connect.client.records.Power> samples;
+    property public java.time.Instant startTime;
+    property public java.time.ZoneOffset? startZoneOffset;
+    field public static final androidx.health.connect.client.records.PowerSeries.Companion Companion;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> WATTS_AVG;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> WATTS_MAX;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> WATTS_MIN;
+  }
+
+  public static final class PowerSeries.Companion {
+  }
+
   public interface Record {
     method public androidx.health.connect.client.metadata.Metadata getMetadata();
     property public abstract androidx.health.connect.client.metadata.Metadata metadata;
@@ -418,6 +487,37 @@ package androidx.health.connect.client.records {
   @kotlin.PublishedApi internal interface SeriesRecord<T> extends androidx.health.connect.client.records.IntervalRecord {
     method public java.util.List<T> getSamples();
     property public abstract java.util.List<T> samples;
+  }
+
+  public final class Speed {
+    ctor public Speed(java.time.Instant time, @FloatRange(from=0.0, to=1000000.0) double metersPerSecond);
+    method public double getMetersPerSecond();
+    method public java.time.Instant getTime();
+    property public final double metersPerSecond;
+    property public final java.time.Instant time;
+  }
+
+  public final class SpeedSeries implements androidx.health.connect.client.records.SeriesRecord<androidx.health.connect.client.records.Speed> {
+    ctor public SpeedSeries(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, java.util.List<androidx.health.connect.client.records.Speed> samples, optional androidx.health.connect.client.metadata.Metadata metadata);
+    method public java.time.Instant getEndTime();
+    method public java.time.ZoneOffset? getEndZoneOffset();
+    method public androidx.health.connect.client.metadata.Metadata getMetadata();
+    method public java.util.List<androidx.health.connect.client.records.Speed> getSamples();
+    method public java.time.Instant getStartTime();
+    method public java.time.ZoneOffset? getStartZoneOffset();
+    property public java.time.Instant endTime;
+    property public java.time.ZoneOffset? endZoneOffset;
+    property public androidx.health.connect.client.metadata.Metadata metadata;
+    property public java.util.List<androidx.health.connect.client.records.Speed> samples;
+    property public java.time.Instant startTime;
+    property public java.time.ZoneOffset? startZoneOffset;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> AVG;
+    field public static final androidx.health.connect.client.records.SpeedSeries.Companion Companion;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> MAX;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> MIN;
+  }
+
+  public static final class SpeedSeries.Companion {
   }
 
   public final class Steps implements androidx.health.connect.client.records.IntervalRecord {
@@ -434,6 +534,37 @@ package androidx.health.connect.client.records {
     property public androidx.health.connect.client.metadata.Metadata metadata;
     property public java.time.Instant startTime;
     property public java.time.ZoneOffset? startZoneOffset;
+  }
+
+  public final class StepsCadence {
+    ctor public StepsCadence(java.time.Instant time, @FloatRange(from=0.0, to=10000.0) double rate);
+    method public double getRate();
+    method public java.time.Instant getTime();
+    property public final double rate;
+    property public final java.time.Instant time;
+  }
+
+  public final class StepsCadenceSeries implements androidx.health.connect.client.records.SeriesRecord<androidx.health.connect.client.records.StepsCadence> {
+    ctor public StepsCadenceSeries(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, java.util.List<androidx.health.connect.client.records.StepsCadence> samples, optional androidx.health.connect.client.metadata.Metadata metadata);
+    method public java.time.Instant getEndTime();
+    method public java.time.ZoneOffset? getEndZoneOffset();
+    method public androidx.health.connect.client.metadata.Metadata getMetadata();
+    method public java.util.List<androidx.health.connect.client.records.StepsCadence> getSamples();
+    method public java.time.Instant getStartTime();
+    method public java.time.ZoneOffset? getStartZoneOffset();
+    property public java.time.Instant endTime;
+    property public java.time.ZoneOffset? endZoneOffset;
+    property public androidx.health.connect.client.metadata.Metadata metadata;
+    property public java.util.List<androidx.health.connect.client.records.StepsCadence> samples;
+    property public java.time.Instant startTime;
+    property public java.time.ZoneOffset? startZoneOffset;
+    field public static final androidx.health.connect.client.records.StepsCadenceSeries.Companion Companion;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> RATE_AVG;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> RATE_MAX;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> RATE_MIN;
+  }
+
+  public static final class StepsCadenceSeries.Companion {
   }
 
   public final class Weight implements androidx.health.connect.client.records.InstantaneousRecord {
