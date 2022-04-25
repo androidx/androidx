@@ -16,6 +16,7 @@
 
 package androidx.kruth
 
+import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -38,14 +39,15 @@ open class KruthAssertion<T>(
 open class KruthStringAssertion(
     actual: String?
 ) : KruthAssertion<String>(actual) {
-    fun startsWith(prefix:String):Boolean {
-        return actual?.startsWith(prefix) ?:false
+    fun startsWith(prefix:String) {
+        assertTrue(actual?.startsWith(prefix) ?:false)
     }
-    fun endsWith(suffix:String):Boolean {
-        return actual?.endsWith(suffix) ?:false
+    fun endsWith(suffix:String) {
+        assertTrue(actual?.endsWith(suffix) ?:false)
     }
-    fun contains(chars:CharSequence):Boolean {
-        return actual?.contains(chars) ?:false
+    fun contains(chars:CharSequence) {
+        assertTrue(actual is CharSequence)
+        assertContains(actual, chars)
     }
 
 
@@ -54,11 +56,11 @@ open class KruthStringAssertion(
 class KruthBooleanAssertion(
     actual: Boolean?
 ) : KruthAssertion<Boolean>(actual) {
-    fun isTrue():Boolean {
-        return actual is Boolean && actual
+    fun isTrue() {
+        assertTrue(actual is Boolean && actual)
     }
-    fun isFalse():Boolean {
-        return actual is Boolean && !actual
+    fun isFalse() {
+        assertTrue(actual is Boolean && !actual)
     }
 }
 
