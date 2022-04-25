@@ -1136,7 +1136,10 @@ class PageFetcherSnapshotTest {
         advanceUntilIdle()
         assertThat(fetcherState.newEvents()).containsExactly(
             localLoadStateUpdate<Int>(refreshLocal = Loading),
-            createRefresh(50..51)
+            createRefresh(
+                range = 0..1,
+                startState = NotLoading.Complete,
+            )
         )
 
         fetcherState.job.cancel()
@@ -2722,7 +2725,11 @@ class PageFetcherSnapshotTest {
         )
         val fetcher = PageFetcher(
             initialKey = 99,
-            pagingSourceFactory = pagingSourceFactory,
+            pagingSourceFactory = {
+                pagingSourceFactory().also {
+                    it.getRefreshKeyResult = 99
+                }
+            },
             config = config,
             remoteMediator = remoteMediator
         )
@@ -2931,7 +2938,11 @@ class PageFetcherSnapshotTest {
         )
         val pager = PageFetcher(
             initialKey = 50,
-            pagingSourceFactory = pagingSourceFactory,
+            pagingSourceFactory = {
+                pagingSourceFactory().also {
+                    it.getRefreshKeyResult = 30
+                }
+            },
             config = config,
             remoteMediator = remoteMediator
         )
@@ -2956,15 +2967,16 @@ class PageFetcherSnapshotTest {
                 refreshLocal = Loading,
                 refreshRemote = NotLoading.Incomplete,
             ),
+            // getRefreshKey() = null is used over initialKey due to invalidation.
             remoteRefresh(
                 pages = listOf(
                     TransformablePage(
                         originalPageOffset = 0,
-                        data = listOf(50)
+                        data = listOf(30)
                     )
                 ),
-                placeholdersBefore = 50,
-                placeholdersAfter = 49,
+                placeholdersBefore = 30,
+                placeholdersAfter = 69,
             ),
         )
 
@@ -3002,7 +3014,11 @@ class PageFetcherSnapshotTest {
         )
         val pager = PageFetcher(
             initialKey = 50,
-            pagingSourceFactory = pagingSourceFactory,
+            pagingSourceFactory = {
+                pagingSourceFactory().also {
+                    it.getRefreshKeyResult = 30
+                }
+            },
             config = config,
             remoteMediator = remoteMediator
         )
@@ -3034,11 +3050,11 @@ class PageFetcherSnapshotTest {
                 pages = listOf(
                     TransformablePage(
                         originalPageOffset = 0,
-                        data = listOf(50)
+                        data = listOf(30)
                     )
                 ),
-                placeholdersBefore = 50,
-                placeholdersAfter = 49,
+                placeholdersBefore = 30,
+                placeholdersAfter = 69,
             ),
         )
 

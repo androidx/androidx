@@ -1051,18 +1051,17 @@ class PagingDataDifferTest(
 
         // second refresh still loads from initialKey = 50 because anchorPosition/refreshKey is null
         assertThat(pagingSources.size).isEqualTo(2)
-        assertThat(differ.snapshot()).containsExactlyElementsIn(50 until 59)
+        assertThat(differ.snapshot()).containsExactlyElementsIn(0 until 9)
         assertThat(differ.newCombinedLoadStates()).containsExactly(
             localLoadStatesOf(refreshLocal = Loading),
-            localLoadStatesOf()
+            localLoadStatesOf(prependLocal = NotLoading.Complete)
         )
 
         collectLoadStates.cancel()
     }
 
     @Test
-    fun refresh_loadStates_afterEndOfPagination() = runTest {
-            differ, loadDispatcher, _ ->
+    fun refresh_loadStates_afterEndOfPagination() = runTest { differ, loadDispatcher, _ ->
         val loadStateCallbacks = mutableListOf<CombinedLoadStates>()
         differ.addLoadStateListener {
             loadStateCallbacks.add(it)
@@ -1248,10 +1247,11 @@ class PagingDataDifferTest(
 
         // second refresh still loads from initialKey = 50 because anchorPosition/refreshKey is null
         assertThat(pagingSources.size).isEqualTo(2)
-        assertThat(differ.snapshot()).containsExactlyElementsIn(50 until 59)
+        assertThat(differ.snapshot()).containsExactlyElementsIn(0 until 9)
         assertThat(differ.newCombinedLoadStates()).containsExactly(
-            // all local states NotLoading.Incomplete
-            localLoadStatesOf()
+            localLoadStatesOf(
+                prependLocal = NotLoading.Complete,
+            )
         )
 
         collectLoadStates.cancel()
