@@ -35,6 +35,17 @@ kotlin {
     }
 
     sourceSets {
+        commonMain {
+            dependencies {
+                api(libs.kotlinStdlib)
+                api(project(":datastore:datastore-core"))
+            }
+        }
+        commonTest {
+            dependencies {
+                implementation(libs.kotlinTest)
+            }
+        }
         jvmMain {
             dependencies {
                 //todo: get working with kmp
