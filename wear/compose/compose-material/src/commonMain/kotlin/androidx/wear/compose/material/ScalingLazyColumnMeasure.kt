@@ -296,26 +296,29 @@ internal fun calculateScaleAndAlpha(
     val itemHeightPx = (itemBottomPx - itemTopPx).toFloat()
     val viewPortHeightPx = (viewPortEndPx - viewPortStartPx).toFloat()
 
-    val itemEdgeDistanceFromViewPortEdge =
-        min(viewPortEndPx - itemTopPx, itemBottomPx - viewPortStartPx)
-    val itemEdgeAsFractionOfViewPort = itemEdgeDistanceFromViewPortEdge / viewPortHeightPx
-    val heightAsFractionOfViewPort = itemHeightPx / viewPortHeightPx
+    if (viewPortHeightPx > 0) {
+        val itemEdgeDistanceFromViewPortEdge =
+            min(viewPortEndPx - itemTopPx, itemBottomPx - viewPortStartPx)
+        val itemEdgeAsFractionOfViewPort = itemEdgeDistanceFromViewPortEdge / viewPortHeightPx
+        val heightAsFractionOfViewPort = itemHeightPx / viewPortHeightPx
 
-    // Work out the scaling line based on size, this is a value between 0.0..1.0
-    val sizeRatio =
-        inverseLerp(scalingParams.minElementHeight, scalingParams.maxElementHeight,
-            heightAsFractionOfViewPort)
+        // Work out the scaling line based on size, this is a value between 0.0..1.0
+        val sizeRatio =
+            inverseLerp(scalingParams.minElementHeight, scalingParams.maxElementHeight,
+                heightAsFractionOfViewPort)
 
-    val scalingLineAsFractionOfViewPort =
-        lerp(scalingParams.minTransitionArea, scalingParams.maxTransitionArea, sizeRatio)
+        val scalingLineAsFractionOfViewPort =
+            lerp(scalingParams.minTransitionArea, scalingParams.maxTransitionArea, sizeRatio)
 
-    if (itemEdgeAsFractionOfViewPort < scalingLineAsFractionOfViewPort) {
-        // We are scaling
-        val scalingProgressRaw = 1f - itemEdgeAsFractionOfViewPort / scalingLineAsFractionOfViewPort
-        val scalingInterpolated = scalingParams.scaleInterpolator.transform(scalingProgressRaw)
+        if (itemEdgeAsFractionOfViewPort < scalingLineAsFractionOfViewPort) {
+            // We are scaling
+            val scalingProgressRaw = 1f - itemEdgeAsFractionOfViewPort /
+                scalingLineAsFractionOfViewPort
+            val scalingInterpolated = scalingParams.scaleInterpolator.transform(scalingProgressRaw)
 
-        scaleToApply = lerp(1.0f, scalingParams.edgeScale, scalingInterpolated)
-        alphaToApply = lerp(1.0f, scalingParams.edgeAlpha, scalingInterpolated)
+            scaleToApply = lerp(1.0f, scalingParams.edgeScale, scalingInterpolated)
+            alphaToApply = lerp(1.0f, scalingParams.edgeAlpha, scalingInterpolated)
+        }
     }
     return ScaleAndAlpha(scaleToApply, alphaToApply)
 }
