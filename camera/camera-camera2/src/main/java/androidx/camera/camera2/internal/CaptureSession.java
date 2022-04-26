@@ -31,6 +31,7 @@ import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.impl.CameraEventCallbacks;
+import androidx.camera.camera2.internal.compat.params.InputConfigurationCompat;
 import androidx.camera.camera2.internal.compat.params.OutputConfigurationCompat;
 import androidx.camera.camera2.internal.compat.params.SessionConfigurationCompat;
 import androidx.camera.camera2.internal.compat.workaround.StillCaptureFlow;
@@ -322,6 +323,14 @@ final class CaptureSession implements CaptureSessionInterface {
                             mSynchronizedCaptureSessionOpener.createSessionConfigurationCompat(
                                     SessionConfigurationCompat.SESSION_REGULAR, outputConfigList,
                                     callbacks);
+
+                    if (sessionConfig.getTemplateType() == CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG
+                            && sessionConfig.getInputConfiguration() != null) {
+                        sessionConfigCompat.setInputConfiguration(
+                                InputConfigurationCompat.wrap(
+                                        sessionConfig.getInputConfiguration()));
+                    }
+
                     try {
                         CaptureRequest captureRequest =
                                 Camera2CaptureRequestBuilder.buildWithoutTarget(
