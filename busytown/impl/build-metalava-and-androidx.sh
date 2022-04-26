@@ -34,7 +34,7 @@ METALAVA_DIR=$ROOT_DIR/tools/metalava
 gw="$METALAVA_DIR/gradlew -Dorg.gradle.jvmargs=-Xmx24g"
 
 # Use androidx prebuilt since we don't have metalava prebuilts
-export ANDROID_HOME="$WORKING_DIR/../../prebuilts/fullsdk-linux/platforms/android-31/android.jar"
+export ANDROID_HOME="$WORKING_DIR/../../prebuilts/fullsdk-linux/"
 
 function buildMetalava() {
   METALAVA_BUILD_LOG="$OUT_DIR/metalava.log"
