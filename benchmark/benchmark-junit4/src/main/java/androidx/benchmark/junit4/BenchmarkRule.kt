@@ -19,6 +19,7 @@ package androidx.benchmark.junit4
 import android.Manifest
 import android.util.Log
 import androidx.annotation.RestrictTo
+import androidx.benchmark.Arguments
 import androidx.benchmark.BenchmarkState
 import androidx.benchmark.UserspaceTracing
 import androidx.benchmark.perfetto.PerfettoCaptureWrapper
@@ -31,6 +32,7 @@ import androidx.tracing.trace
 import java.io.File
 import java.io.FileNotFoundException
 import org.junit.Assert.assertTrue
+import org.junit.Assume.assumeTrue
 import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
 import org.junit.runner.Description
@@ -186,6 +188,7 @@ public class BenchmarkRule internal constructor(
     private fun applyInternal(base: Statement, description: Description) =
         Statement {
             applied = true
+            assumeTrue(Arguments.RuleType.Microbenchmark in Arguments.enabledRules)
             var invokeMethodName = description.methodName
             Log.d(TAG, "-- Running ${description.className}#$invokeMethodName --")
 

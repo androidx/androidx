@@ -18,12 +18,14 @@ package androidx.benchmark.macro.junit4
 
 import android.Manifest
 import androidx.annotation.IntRange
+import androidx.benchmark.Arguments
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.benchmark.macro.Metric
 import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.macrobenchmarkWithStartupMode
 import androidx.test.rule.GrantPermissionRule
+import org.junit.Assume.assumeTrue
 import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
 import org.junit.runner.Description
@@ -125,6 +127,7 @@ public class MacrobenchmarkRule : TestRule {
 
     private fun applyInternal(base: Statement, description: Description) = object : Statement() {
         override fun evaluate() {
+            assumeTrue(Arguments.RuleType.Macrobenchmark in Arguments.enabledRules)
             currentDescription = description
             base.evaluate()
         }
