@@ -54,6 +54,7 @@ import androidx.wear.watchface.complications.SystemDataSources
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.CountUpTimeReference
 import androidx.wear.watchface.complications.data.EmptyComplicationData
+import androidx.wear.watchface.complications.data.LongTextComplicationData
 import androidx.wear.watchface.complications.data.NoDataComplicationData
 import androidx.wear.watchface.complications.data.PlainComplicationText
 import androidx.wear.watchface.complications.data.ShortTextComplicationData
@@ -4665,6 +4666,55 @@ public class WatchFaceServiceTest {
     }
 
     @Test
+    public fun selectComplicationDataForInstant_timeLineWithPlaceholder() {
+        val placeholderText =
+            androidx.wear.watchface.complications.data.ComplicationText.PLACEHOLDER
+        val timelineEntry =
+            ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
+                .setPlaceholder(
+                    ComplicationData.Builder(ComplicationData.TYPE_LONG_TEXT)
+                        .setLongText(placeholderText.toWireComplicationText())
+                        .build()
+                )
+                .build()
+        timelineEntry.timelineStartEpochSecond = 100
+        timelineEntry.timelineEndEpochSecond = 1000
+
+        val wireLongTextComplication = ComplicationData.Builder(
+            ComplicationType.LONG_TEXT.toWireComplicationType()
+        )
+            .setEndDateTimeMillis(1650988800000)
+            .setDataSource(ComponentName("a", "b"))
+            .setLongText(ComplicationText.plainText("longText"))
+            .setSmallImageStyle(ComplicationData.IMAGE_STYLE_ICON)
+            .setContentDescription(ComplicationText.plainText("test"))
+            .build()
+        wireLongTextComplication.setTimelineEntryCollection(listOf(timelineEntry))
+
+        initEngine(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication),
+            UserStyleSchema(emptyList())
+        )
+
+        watchFaceImpl.onComplicationSlotDataUpdate(
+            LEFT_COMPLICATION_ID,
+            wireLongTextComplication.toApiComplicationData()
+        )
+
+        complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(0))
+        assertThat(getLeftLongTextComplicationDataText()).isEqualTo("longText")
+
+        complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(100))
+        val leftComplication = complicationSlotsManager[
+            LEFT_COMPLICATION_ID
+        ]!!.complicationData.value as NoDataComplicationData
+
+        val placeholder = leftComplication.placeholder as LongTextComplicationData
+        assertThat(placeholder.text.isPlaceholder()).isTrue()
+    }
+
+    @Test
     public fun renderParameters_isScreenshot() {
         initWallpaperInteractiveWatchFaceInstance(
             WatchFaceType.ANALOG,
@@ -4808,6 +4858,17 @@ public class WatchFaceServiceTest {
         val complication = complicationSlotsManager[
             LEFT_COMPLICATION_ID
         ]!!.complicationData.value as ShortTextComplicationData
+
+        return complication.text.getTextAt(
+            ApplicationProvider.getApplicationContext<Context>().resources,
+            Instant.EPOCH
+        )
+    }
+
+    private fun getLeftLongTextComplicationDataText(): CharSequence {
+        val complication = complicationSlotsManager[
+            LEFT_COMPLICATION_ID
+        ]!!.complicationData.value as LongTextComplicationData
 
         return complication.text.getTextAt(
             ApplicationProvider.getApplicationContext<Context>().resources,
