@@ -25,7 +25,6 @@ import androidx.annotation.IdRes
 import androidx.annotation.LayoutRes
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.unit.dp
-import androidx.core.os.BuildCompat
 import androidx.glance.GlanceModifier
 import androidx.glance.findModifier
 import androidx.glance.layout.Alignment
@@ -71,6 +70,17 @@ internal data class ContainerSelector(
 
 internal data class ContainerInfo(@LayoutRes val layoutId: Int)
 
+/**
+ * Box child selector.
+ *
+ * This class is used to select a layout with a particular alignment to be used as a child of
+ * Box.
+ */
+internal data class BoxChildSelector(
+    val type: LayoutType,
+    val horizontalAlignment: Alignment.Horizontal,
+    val verticalAlignment: Alignment.Vertical,
+)
 /** Type of size needed for a layout. */
 internal enum class LayoutSize {
     Wrap,
@@ -234,8 +244,23 @@ internal fun RemoteViews.insertView(
     type: LayoutType,
     modifier: GlanceModifier
 ): InsertedViewInfo {
-    val childLayout = LayoutMap[type]
-        ?: throw IllegalArgumentException("Cannot use `insertView` with a container like $type")
+    val align = modifier.findModifier<AlignmentModifier>()
+    val childLayout =
+        if (Build.VERSION.SDK_INT >= 33 && align != null) {
+            generatedBoxChildren[BoxChildSelector(
+                type,
+                align.alignment.horizontal,
+                align.alignment.vertical,
+            )]?.layoutId
+                ?: throw IllegalArgumentException(
+                    "Cannot find $type with alignment ${align.alignment}"
+                )
+        } else {
+            LayoutMap[type]
+                ?: throw IllegalArgumentException(
+                    "Cannot use `insertView` with a container like $type"
+                )
+        }
     return insertViewInternal(translationContext, childLayout, modifier)
 }
 

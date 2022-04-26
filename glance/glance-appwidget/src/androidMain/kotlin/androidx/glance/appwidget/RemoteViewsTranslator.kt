@@ -228,6 +228,9 @@ private fun RemoteViews.translateEmittableBox(
         element.modifier,
         viewDef
     )
+    element.children.forEach {
+        it.modifier = it.modifier.then(AlignmentModifier(element.contentAlignment))
+    }
     setChildren(
         translationContext,
         viewDef,

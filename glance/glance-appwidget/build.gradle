@@ -122,5 +122,6 @@ androidx {
 LayoutGeneratorTask.registerLayoutGenerator(
         project,
         android,
-        /* layoutDirectory= */ file("src/androidMain/layoutTemplates")
+        /* containerLayoutDirectory= */ file("src/androidMain/layoutTemplates"),
+        /* childLayoutDirectory= */ file("src/androidMain/res/layout")
 )
