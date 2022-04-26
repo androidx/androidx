@@ -815,6 +815,16 @@ public class ContextCompat {
             @Nullable BroadcastReceiver receiver, @NonNull IntentFilter filter,
             @Nullable String broadcastPermission,
             @Nullable Handler scheduler, @RegisterReceiverFlags int flags) {
+        if (((flags & RECEIVER_VISIBLE_TO_INSTANT_APPS) != 0) && ((flags & RECEIVER_NOT_EXPORTED)
+                != 0)) {
+            throw new IllegalArgumentException("Cannot specify both "
+                    + "RECEIVER_VISIBLE_TO_INSTANT_APPS and RECEIVER_NOT_EXPORTED");
+        }
+
+        if ((flags & RECEIVER_VISIBLE_TO_INSTANT_APPS) != 0) {
+            flags |= RECEIVER_EXPORTED;
+        }
+
         if (((flags & RECEIVER_EXPORTED) == 0) && ((flags & RECEIVER_NOT_EXPORTED) == 0)) {
             throw new IllegalArgumentException("One of either RECEIVER_EXPORTED or "
                     + "RECEIVER_NOT_EXPORTED is required");
@@ -834,8 +844,7 @@ public class ContextCompat {
                     scheduler, flags);
         }
         if (((flags & RECEIVER_NOT_EXPORTED) != 0) && (broadcastPermission == null)) {
-            String permission =
-                    context.getPackageName() + DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION_SUFFIX;
+            String permission = obtainAndCheckReceiverPermission(context);
             return context.registerReceiver(receiver, filter, permission, scheduler /* handler */);
         }
         return context.registerReceiver(receiver, filter, broadcastPermission,
@@ -857,6 +866,25 @@ public class ContextCompat {
             return Api23Impl.getSystemServiceName(context, serviceClass);
         }
         return LegacyServiceMapHolder.SERVICES.get(serviceClass);
+    }
+
+    /**
+     * Gets the name of the permission required to unexport receivers on pre Tiramisu versions of
+     * Android, and then asserts that the app registering the receiver also has that permission
+     * so it can receiver its own broadcasts.
+     *
+     * @param obj   Context to check the permission in.
+     * @return The name of the permission
+     */
+    static String obtainAndCheckReceiverPermission(Context obj) {
+        String permission =
+                obj.getPackageName() + DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION_SUFFIX;
+        if (PermissionChecker.checkSelfPermission(obj, permission)
+                != PermissionChecker.PERMISSION_GRANTED) {
+            throw new RuntimeException("Permission " + permission + " is required by your "
+                    + "application to receive broadcasts, please add it to your manifest");
+        }
+        return permission;
     }
 
     /** Nested class provides lazy initialization only when needed. */
@@ -1045,8 +1073,7 @@ public class ContextCompat {
         static Intent registerReceiver(Context obj, @Nullable BroadcastReceiver receiver,
                 IntentFilter filter, String broadcastPermission, Handler scheduler, int flags) {
             if ((flags & RECEIVER_NOT_EXPORTED) != 0 && broadcastPermission == null) {
-                String permission =
-                        obj.getPackageName() + DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION_SUFFIX;
+                String permission = obtainAndCheckReceiverPermission(obj);
                 // receivers that are not exported should also not be visible to instant apps
                 return obj.registerReceiver(receiver, filter, permission, scheduler);
             }
