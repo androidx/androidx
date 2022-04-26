@@ -19,21 +19,29 @@ package androidx.glance.wear.tiles.template
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
-import androidx.glance.background
+import androidx.glance.ImageProvider
 import androidx.glance.layout.Alignment
+import androidx.glance.layout.Box
 import androidx.glance.layout.Column
+import androidx.glance.layout.ContentScale
 import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
 import androidx.glance.layout.fillMaxSize
+import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.width
-import androidx.glance.text.Text
 import androidx.glance.template.SingleEntityTemplateData
 import androidx.glance.template.TemplateImageWithDescription
 import androidx.glance.template.TemplateText
+import androidx.glance.text.Text
+import androidx.glance.text.TextAlign
+import androidx.glance.text.TextStyle
+import androidx.glance.unit.ColorProvider
+import androidx.glance.wear.tiles.R
 
 /**
  * Composable wearable layout for a single entity template. The template describes a wearable
@@ -49,45 +57,51 @@ public fun SingleEntityTemplate(data: SingleEntityTemplateData) {
 
 @Composable
 private fun WearLayout(data: SingleEntityTemplateData) {
-    Column(
-        modifier = GlanceModifier.fillMaxSize()
-            .padding(16.dp)
-            .background(Color(color = 0xFFCCCCCC))
+    Box(
+        modifier = GlanceModifier.fillMaxWidth(),
+        contentAlignment = Alignment.TopCenter
     ) {
-        data.headerIcon?.let { TemplateHeader(it, data.header) }
-        Spacer(modifier = GlanceModifier.height(16.dp))
-        TextSection(textList(data.text1, data.text2))
+        Image(
+            ImageProvider(R.drawable.single_entity_bg),
+            contentDescription = null,
+            modifier = GlanceModifier.fillMaxSize())
+        Column(
+            modifier = GlanceModifier.fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            data.headerIcon?.let { TemplateHeader(it) }
+            Spacer(modifier = GlanceModifier.height(4.dp))
+            TextSection(textList(data.text1, data.text2, data.text3))
+            data.image?.let {
+                Spacer(modifier = GlanceModifier.height(4.dp))
+                Image(
+                    it.image,
+                    contentDescription = it.description,
+                    modifier = GlanceModifier.height(48.dp)
+                        .fillMaxWidth()
+                        .padding(horizontal = 32.dp, vertical = 8.dp),
+                    contentScale = ContentScale.Crop
+                )
+            }
+        }
     }
 }
 
-// TODO: Copied from app widget layouts, wear may have different layout requirements
 @Composable
-private fun TemplateHeader(
-    headerIcon: TemplateImageWithDescription?,
-    header: TemplateText?
-) {
-    if (headerIcon == null && header == null) return
+private fun TemplateHeader(headerIcon: TemplateImageWithDescription?) {
+    if (headerIcon == null) return
 
     Row(
-        modifier = GlanceModifier.background(Color.Transparent),
-        verticalAlignment = Alignment.CenterVertically
+        modifier = GlanceModifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        headerIcon?.let {
+        headerIcon.let {
             Image(
                 provider = it.image,
                 contentDescription = it.description,
                 modifier = GlanceModifier.height(24.dp).width(24.dp)
-            )
-        }
-        header?.let {
-            if (headerIcon != null) {
-                Spacer(modifier = GlanceModifier.width(8.dp))
-            }
-
-            Text(
-                modifier = GlanceModifier.defaultWeight(),
-                text = header.text,
-                maxLines = 1
             )
         }
     }
@@ -97,15 +111,15 @@ private fun TemplateHeader(
 private fun TextSection(textList: List<TemplateText>) {
     if (textList.isEmpty()) return
 
-    Column(modifier = GlanceModifier.background(Color.Transparent)) {
-        textList.forEachIndexed { index, item ->
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        textList.forEach { item ->
             Text(
                 item.text,
-                modifier = GlanceModifier.background(Color.Transparent)
+                style = TextStyle(
+                    color = ColorProvider(Color.White),
+                    fontSize = if (item.type == TemplateText.Type.Title) 24.sp else 16.sp,
+                    textAlign = TextAlign.Center)
             )
-            if (index < textList.size - 1) {
-                Spacer(modifier = GlanceModifier.height(8.dp))
-            }
         }
     }
 }
