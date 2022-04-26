@@ -21,6 +21,7 @@ import androidx.paging.DataSource
 import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.processing.XRawType
 import androidx.room.compiler.processing.isTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
@@ -49,7 +50,7 @@ import androidx.room.solver.binderprovider.LiveDataQueryResultBinderProvider
 import androidx.room.solver.binderprovider.PagingSourceQueryResultBinderProvider
 import androidx.room.solver.binderprovider.RxQueryResultBinderProvider
 import androidx.room.solver.query.parameter.CollectionQueryParameterAdapter
-import androidx.room.solver.query.result.PagingSourceQueryResultBinder
+import androidx.room.solver.query.result.MultiTypedPagingSourceQueryResultBinder
 import androidx.room.solver.shortcut.binderprovider.GuavaListenableFutureDeleteOrUpdateMethodBinderProvider
 import androidx.room.solver.shortcut.binderprovider.GuavaListenableFutureInsertMethodBinderProvider
 import androidx.room.solver.shortcut.binderprovider.RxCallableDeleteOrUpdateMethodBinderProvider
@@ -861,7 +862,7 @@ class TypeAdapterStoreTest {
     }
 
     @Test
-    fun testNewPagingSourceBinder() {
+    fun testPagingSourceBinder() {
         val inputSource =
             Source.java(
                 qName = "foo.bar.MyDao",
@@ -897,7 +898,14 @@ class TypeAdapterStoreTest {
             val parsedDao = parser.process()
             val binder = parsedDao.queryMethods.filterIsInstance<ReadQueryMethod>()
                 .first().queryResultBinder
-            assertThat(binder is PagingSourceQueryResultBinder).isTrue()
+            assertThat(binder is MultiTypedPagingSourceQueryResultBinder).isTrue()
+
+            val pagingSourceXRawType: XRawType? = invocation.context.processingEnv
+                .findType(PagingTypeNames.PAGING_SOURCE)?.rawType
+            val returnedXRawType = parsedDao.queryMethods
+                .filterIsInstance<ReadQueryMethod>().first().returnType.rawType
+            // make sure returned type is the original PagingSource
+            assertThat(returnedXRawType).isEqualTo(pagingSourceXRawType)
         }
     }
 
