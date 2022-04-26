@@ -41,7 +41,10 @@
     <style name="Glance.AppWidget.SwitchThumb" parent=""/>
     <style name="Glance.AppWidget.SwitchTrack" parent=""/>
 
-    <style name="Glance.AppWidget.Text" parent=""/>
+    <!-- Ellipsize text at the end by default for Glance. -->
+    <style name="Glance.AppWidget.Text" parent="">
+        <item name="android:ellipsize">end</item>
+    </style>
     <style name="Glance.AppWidget.LinearProgressIndicator"
            parent="@android:style/Widget.ProgressBar.Horizontal"/>
     <style name="Glance.AppWidget.CircularProgressIndicator" parent=""/>
