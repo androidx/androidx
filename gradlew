@@ -266,8 +266,10 @@ for compact in "--ci" "--strict" "--clean" "--no-ci"; do
      -Pandroidx.validateNoUnrecognizedMessages\
      -Pandroidx.verifyUpToDate\
      --no-watch-fs\
-     --no-daemon\
-     --offline"
+     --no-daemon"
+    if [ "$USE_ANDROIDX_REMOTE_BUILD_CACHE" == "" ]; then
+      expanded="$expanded --offline"
+    fi
   fi
   # if compact is something else then we parsed the argument above but
   # still have to remove it (expanded == "") to avoid confusing Gradle
