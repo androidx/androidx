@@ -127,7 +127,7 @@
   <!-- FinishAppScreen -->
   <string name="finish_app_msg">This will finish the app, and when you return it will pre-seed a permission screen</string>
   <string name="finish_app_title">Finish App Demo</string>
-  <string name="finish_app_demo_title">Pre-seed the Screen backstack on next run Demo</string>
+  <string name="finish_app_demo_title">Pre-seed the Permission Screen on next run Demo</string>
 
   <!-- LoadingDemoScreen -->
   <string name="loading_demo_title">Loading Demo</string>
@@ -164,8 +164,8 @@
   <string name="arrived_address_msg">Google Bellevue Office\n1120 112th Ave NE</string>
 
   <!-- RoutingDemoModels -->
-  <string name="current_step_cue">Roy st 520</string>
-  <string name="next_step_cue">I5 Aurora Ave N</string>
+  <string name="current_step_cue" translatable="false">Roy st 520</string>
+  <string name="next_step_cue" translatable="false">I5 Aurora Ave N</string>
   <string name="travel_est_trip_text">Pick Up Alice</string>
 
   <!-- NotificationDemoScreen -->
@@ -364,7 +364,7 @@
   <string name="image_test_title">Image test</string>
   <string name="image_test_text">Image changes are allowed</string>
   <string name="additional_data_title">Additional Data</string>
-  <string name="additional_data_text">Updates allows on back operations.</string>
+  <string name="additional_data_text">Updates allowed on back operations.</string>
 
   <!-- StartScreen -->
   <string name="misc_templates_demos_title">Misc Templates Demos</string>
