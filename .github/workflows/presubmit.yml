@@ -1,7 +1,17 @@
 name: AndroidX Presubmits
 on:
   push:
+    branches-ignore:
+      # Should just exist on experimental branches, but being specific in case it leaks out.
+      - 'experiments/**'
+      - 'paulseawa/datastore-**'
+      - 'yigit/datastore-**'
   pull_request:
+    branches-ignore:
+      # Should just exist on experimental branches, but being specific in case it leaks out.
+      - 'experiments/**'
+      - 'paulseawa/datastore-**'
+      - 'yigit/datastore-**'
 
 env:
   # Allow precise monitoring of the save/restore of Gradle User Home by `gradle-build-action`
