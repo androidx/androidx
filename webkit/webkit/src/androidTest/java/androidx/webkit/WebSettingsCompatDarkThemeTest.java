@@ -26,6 +26,7 @@ import androidx.core.graphics.ColorUtils;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -44,6 +45,7 @@ public class WebSettingsCompatDarkThemeTest extends
      * Test the algorithmic darkening is disabled by default.
      */
     @Test
+    @Ignore("Disabled due to b/230365968")
     public void testSimplifiedDarkMode_default() throws Throwable {
         WebkitUtils.checkFeature(WebViewFeature.ALGORITHMIC_DARKENING);
 
@@ -55,6 +57,7 @@ public class WebSettingsCompatDarkThemeTest extends
      * Test the algorithmic darkening on web content that doesn't support dark style.
      */
     @Test
+    @Ignore("Disabled due to b/230365968")
     public void testSimplifiedDarkMode_rendersDark() throws Throwable {
         WebkitUtils.checkFeature(WebViewFeature.ALGORITHMIC_DARKENING);
         WebkitUtils.checkFeature(WebViewFeature.OFF_SCREEN_PRERASTER);
@@ -77,6 +80,7 @@ public class WebSettingsCompatDarkThemeTest extends
      * Test the algorithmic darkening on web content that supports dark style.
      */
     @Test
+    @Ignore("Disabled due to b/230365968")
     public void testSimplifiedDarkMode_pageSupportDarkTheme() {
         WebkitUtils.checkFeature(WebViewFeature.ALGORITHMIC_DARKENING);
         WebkitUtils.checkFeature(WebViewFeature.OFF_SCREEN_PRERASTER);
