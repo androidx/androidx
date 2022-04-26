@@ -25,6 +25,10 @@ import java.time.ZoneOffset
 public class Repetitions(
     /** Count. Required field. Valid range: 1-1000000. */
     public val count: Long,
+    /**
+     * Type of activity being repeated. Optional field. Allowed values: [RepetitionActivityType].
+     */
+    @property:RepetitionActivityType public val type: String,
     override val startTime: Instant,
     override val startZoneOffset: ZoneOffset?,
     override val endTime: Instant,
@@ -36,6 +40,7 @@ public class Repetitions(
         if (other !is Repetitions) return false
 
         if (count != other.count) return false
+        if (type != other.type) return false
         if (startTime != other.startTime) return false
         if (startZoneOffset != other.startZoneOffset) return false
         if (endTime != other.endTime) return false
@@ -48,6 +53,7 @@ public class Repetitions(
     override fun hashCode(): Int {
         var result = 0
         result = 31 * result + count.hashCode()
+        result = 31 * result + type.hashCode()
         result = 31 * result + (startZoneOffset?.hashCode() ?: 0)
         result = 31 * result + endTime.hashCode()
         result = 31 * result + (endZoneOffset?.hashCode() ?: 0)

@@ -44,6 +44,13 @@ public object Arguments {
     // public properties are shared by micro + macro benchmarks
     public val suppressedErrors: Set<String>
 
+    val enabledRules: Set<RuleType>
+    enum class RuleType {
+        Microbenchmark,
+        Macrobenchmark,
+        BaselineProfile
+    }
+
     // internal properties are microbenchmark only
     internal val outputEnable: Boolean
     internal val startupMode: Boolean
@@ -104,6 +111,19 @@ public object Arguments {
             .split(',')
             .map { it.trim() }
             .filter { it.isNotEmpty() }
+            .toSet()
+
+        enabledRules = arguments.getBenchmarkArgument(
+            key = "enabledRules",
+            defaultValue = RuleType.values().joinToString(separator = ",") { it.toString() }
+        )
+            .split(',')
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+            .map { arg ->
+                RuleType.values().find { arg.lowercase() == it.toString().lowercase() }
+                    ?: throw IllegalArgumentException("Unable to parse enabledRules arg: $arg")
+            }
             .toSet()
 
         _profiler = arguments.getProfiler(outputEnable)

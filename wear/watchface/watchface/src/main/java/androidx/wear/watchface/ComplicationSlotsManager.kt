@@ -82,7 +82,7 @@ public class ComplicationSlotsManager(
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public lateinit var watchState: WatchState
 
-    private lateinit var watchFaceHostApi: WatchFaceHostApi
+    internal lateinit var watchFaceHostApi: WatchFaceHostApi
     internal lateinit var renderer: Renderer
 
     /** A map of complication IDs to complicationSlots. */
@@ -251,9 +251,9 @@ public class ComplicationSlotsManager(
 
                 complication.dataDirty = false
                 complication.complicationBoundsDirty = false
-                complication.supportedTypesDirty = false
                 complication.defaultDataSourcePolicyDirty = false
                 complication.defaultDataSourceTypeDirty = false
+                complication.accessibilityTraversalIndexDirty = false
             }
 
             complication.enabledDirty = false

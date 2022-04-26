@@ -19,7 +19,6 @@ package androidx.camera.core.impl;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
-import android.hardware.camera2.TotalCaptureResult;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
@@ -87,10 +86,10 @@ public final class CaptureConfig {
     private final TagBundle mTagBundle;
 
     /**
-     * The total capture result for reprocessable capture request.
+     * The camera capture result for reprocessing capture request.
      */
     @Nullable
-    private final TotalCaptureResult mTotalCaptureResult;
+    private final CameraCaptureResult mCameraCaptureResult;
 
     /**
      * Private constructor for a CaptureConfig.
@@ -104,7 +103,7 @@ public final class CaptureConfig {
      *                               must match the
      *                               constants defined by {@link CameraDevice}.
      * @param cameraCaptureCallbacks All camera capture callbacks.
-     * @param totalCaptureResult     The {@link TotalCaptureResult} for reprocessable capture
+     * @param cameraCaptureResult     The {@link CameraCaptureResult} for reprocessing capture
      *                               request.
      */
     CaptureConfig(
@@ -114,14 +113,14 @@ public final class CaptureConfig {
             List<CameraCaptureCallback> cameraCaptureCallbacks,
             boolean useRepeatingSurface,
             @NonNull TagBundle tagBundle,
-            @Nullable TotalCaptureResult totalCaptureResult) {
+            @Nullable CameraCaptureResult cameraCaptureResult) {
         mSurfaces = surfaces;
         mImplementationOptions = implementationOptions;
         mTemplateType = templateType;
         mCameraCaptureCallbacks = Collections.unmodifiableList(cameraCaptureCallbacks);
         mUseRepeatingSurface = useRepeatingSurface;
         mTagBundle = tagBundle;
-        mTotalCaptureResult = totalCaptureResult;
+        mCameraCaptureResult = cameraCaptureResult;
     }
 
     /** Returns an instance of a capture configuration with minimal configurations. */
@@ -131,14 +130,13 @@ public final class CaptureConfig {
     }
 
     /**
-     * Returns an instance of {@link TotalCaptureResult} for reprocessable capture request.
+     * Returns an instance of {@link CameraCaptureResult} for reprocessing capture request.
      *
-     * @return {@link TotalCaptureResult}.
-     * @see CameraDevice#createReprocessCaptureRequest(TotalCaptureResult)
+     * @return {@link CameraCaptureResult}.
      */
     @Nullable
-    public TotalCaptureResult getTotalCaptureResult() {
-        return mTotalCaptureResult;
+    public CameraCaptureResult getCameraCaptureResult() {
+        return mCameraCaptureResult;
     }
 
     /** Get all the surfaces that the request will write data to. */
@@ -201,7 +199,7 @@ public final class CaptureConfig {
         private boolean mUseRepeatingSurface = false;
         private MutableTagBundle mMutableTagBundle = MutableTagBundle.create();
         @Nullable
-        private TotalCaptureResult mTotalCaptureResult;
+        private CameraCaptureResult mCameraCaptureResult;
 
         public Builder() {
         }
@@ -243,12 +241,12 @@ public final class CaptureConfig {
         }
 
         /**
-         * Set the {@link TotalCaptureResult} for reprocessable capture request.
+         * Set the {@link CameraCaptureResult} for reprocessable capture request.
          *
-         * @param totalCaptureResult {@link TotalCaptureResult}.
+         * @param cameraCaptureResult {@link CameraCaptureResult}.
          */
-        public void setTotalCaptureResult(@Nullable TotalCaptureResult totalCaptureResult) {
-            mTotalCaptureResult = totalCaptureResult;
+        public void setCameraCaptureResult(@NonNull CameraCaptureResult cameraCaptureResult) {
+            mCameraCaptureResult = cameraCaptureResult;
         }
 
         public int getTemplateType() {
@@ -394,7 +392,7 @@ public final class CaptureConfig {
                     mCameraCaptureCallbacks,
                     mUseRepeatingSurface,
                     TagBundle.from(mMutableTagBundle),
-                    mTotalCaptureResult);
+                    mCameraCaptureResult);
         }
     }
 }

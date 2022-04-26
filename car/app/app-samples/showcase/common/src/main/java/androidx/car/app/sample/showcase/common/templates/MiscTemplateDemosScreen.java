@@ -26,6 +26,7 @@ import androidx.car.app.model.ItemList;
 import androidx.car.app.model.ListTemplate;
 import androidx.car.app.model.Row;
 import androidx.car.app.model.Template;
+import androidx.car.app.sample.showcase.common.R;
 
 /** An assortment of demos for different templates. */
 public final class MiscTemplateDemosScreen extends Screen {
@@ -44,21 +45,21 @@ public final class MiscTemplateDemosScreen extends Screen {
     public Template onGetTemplate() {
         ItemList.Builder listBuilder = new ItemList.Builder();
         Row[] screenArray = new Row[]{
-                createRow("Pane Template Demo",
+                createRow(getCarContext().getString(R.string.pane_template_demo_title),
                         new PaneTemplateDemoScreen(getCarContext())),
-                createRow("List Template Demo",
+                createRow(getCarContext().getString(R.string.list_template_demo_title),
                         new ListTemplateDemoScreen(getCarContext())),
-                createRow("Place List Template Demo",
+                createRow(getCarContext().getString(R.string.place_list_template_demo_title),
                         new PlaceListTemplateBrowseDemoScreen(getCarContext())),
-                createRow("Search Template Demo",
+                createRow(getCarContext().getString(R.string.search_template_demo_title),
                         new SearchTemplateDemoScreen(getCarContext())),
-                createRow("Message Template Demo",
+                createRow(getCarContext().getString(R.string.msg_template_demo_title),
                         new MessageTemplateDemoScreen(getCarContext())),
-                createRow("Grid Template Demo",
+                createRow(getCarContext().getString(R.string.grid_template_demo_title),
                         new GridTemplateDemoScreen(getCarContext())),
-                createRow("Sign In Template Demo",
+                createRow(getCarContext().getString(R.string.sign_in_template_demo_title),
                         new SignInTemplateDemoScreen(getCarContext())),
-                createRow("Long Message Template Demo",
+                createRow(getCarContext().getString(R.string.long_msg_template_demo_title),
                         new LongMessageTemplateDemoScreen(getCarContext()))
         };
         // If the screenArray size is under the limit, we will show all of them on the first page.
@@ -77,13 +78,13 @@ public final class MiscTemplateDemosScreen extends Screen {
         }
         ListTemplate.Builder builder = new ListTemplate.Builder()
                 .setSingleList(listBuilder.build())
-                .setTitle("Misc Templates Demos")
+                .setTitle(getCarContext().getString(R.string.misc_templates_demos_title))
                 .setHeaderAction(BACK);
         // If the current page does not cover the last item, we will show a More button
         if ((mPage + 1) * mItemLimit < screenArray.length && mPage + 1 < MAX_PAGES) {
             builder.setActionStrip(new ActionStrip.Builder()
                     .addAction(new Action.Builder()
-                            .setTitle("More")
+                            .setTitle(getCarContext().getString(R.string.more_action_title))
                             .setOnClickListener(() -> getScreenManager().push(
                                     new MiscTemplateDemosScreen(getCarContext(), mPage + 1,
                                             mItemLimit)))

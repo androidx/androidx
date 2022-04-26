@@ -59,8 +59,8 @@ private fun parcelAndRead(
 
     @Suppress("UNCHECKED_CAST") // Safe to use in test
     val creator =
-        protoParcelable.javaClass.getField("CREATOR").get(protoParcelable) as
-            Parcelable.Creator<TestProtoParcelable>
+        protoParcelable.javaClass.getField("CREATOR").get(protoParcelable)
+            as Parcelable.Creator<TestProtoParcelable>
     return creator.createFromParcel(parcel)
 }
 

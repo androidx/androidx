@@ -44,6 +44,8 @@
   <string name="commute_action_title">Commute</string>
   <string name="sign_out_action_title">Sign out</string>
   <string name="try_anyway_action_title">Try Anyway</string>
+  <string name="yes_action_title">Yes</string>
+  <string name="no_action_title">No</string>
 
   <!-- Toast Messages -->
   <string name="bug_reported_toast_msg">Bug reported!</string>
@@ -69,6 +71,9 @@
   <string name="grant_location_permission_toast_msg">Grant location Permission to see current location</string>
   <string name="sign_in_with_google_toast_msg">Sign-in with Google starts here</string>
   <string name="changes_selection_to_index_toast_msg_prefix">Changed selection to index</string>
+  <string name="yes_action_toast_msg">Yes button pressed!</string>
+  <string name="no_action_toast_msg">No button pressed!</string>
+  <string name="alert_timeout_toast_msg">Alert is timed out!</string>
 
   <!-- Row text -->
   <string name="first_row_title">Row with a large image and long text long text long text long text long text</string>
@@ -122,7 +127,7 @@
   <!-- FinishAppScreen -->
   <string name="finish_app_msg">This will finish the app, and when you return it will pre-seed a permission screen</string>
   <string name="finish_app_title">Finish App Demo</string>
-  <string name="finish_app_demo_title">Pre-seed the Screen backstack on next run Demo</string>
+  <string name="finish_app_demo_title">Pre-seed the Permission Screen on next run Demo</string>
 
   <!-- LoadingDemoScreen -->
   <string name="loading_demo_title">Loading Demo</string>
@@ -159,8 +164,8 @@
   <string name="arrived_address_msg">Google Bellevue Office\n1120 112th Ave NE</string>
 
   <!-- RoutingDemoModels -->
-  <string name="current_step_cue">Roy st 520</string>
-  <string name="next_step_cue">I5 Aurora Ave N</string>
+  <string name="current_step_cue" translatable="false">Roy st 520</string>
+  <string name="next_step_cue" translatable="false">I5 Aurora Ave N</string>
   <string name="travel_est_trip_text">Pick Up Alice</string>
 
   <!-- NotificationDemoScreen -->
@@ -212,6 +217,8 @@
   <string name="notification_template_demo_title">Notification Template Demo</string>
   <string name="nav_map_template_demo_title">Navigation Template with map only Demo</string>
   <string name="nav_demos_title">Navigation Demos</string>
+  <string name="navigation_alert_title">Still a speed trap?</string>
+  <string name="navigation_alert_subtitle">Reported 10m ago</string>
 
   <!-- CarHardwareRenderer -->
   <string name="no_toll_card_permission">No TollCard Permission.</string>
@@ -284,6 +291,7 @@
   <string name="browse_places_title">Browse Places</string>
 
   <!-- SearchTemplateDemoScreen -->
+  <string name="search_template_demo_title">Search Template Demo</string>
   <string name="search_hint">Search here</string>
 
   <!-- SignInTemplateDemoScreen -->
@@ -307,6 +315,7 @@
   <string name="provider_sign_in_instruction">Use this button to complete your Google sign-in</string>
   <string name="sign_in_complete_text">You are signed in!</string>
   <string name="sign_in_complete_title">Sign in completed</string>
+  <string name="sign_in_template_demo_title">Sign In Template Demo</string>
 
   <!-- ContentProviderIconsDemoScreen -->
   <string name="images_unknown_host_error">Images cannot be displayed for an unknown host</string>
@@ -355,7 +364,7 @@
   <string name="image_test_title">Image test</string>
   <string name="image_test_text">Image changes are allowed</string>
   <string name="additional_data_title">Additional Data</string>
-  <string name="additional_data_text">Updates allows on back operations.</string>
+  <string name="additional_data_text">Updates allowed on back operations.</string>
 
   <!-- StartScreen -->
   <string name="misc_templates_demos_title">Misc Templates Demos</string>

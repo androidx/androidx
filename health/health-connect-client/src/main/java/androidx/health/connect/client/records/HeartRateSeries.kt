@@ -15,14 +15,12 @@
  */
 package androidx.health.connect.client.records
 
-import androidx.annotation.RestrictTo
-import androidx.health.connect.client.aggregate.LongAggregateMetric
+import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
 
 /** Captures the user's heart rate. Each record represents a series of measurements. */
-@RestrictTo(RestrictTo.Scope.LIBRARY) // Will be made public after API reviews
 public class HeartRateSeries(
     override val startTime: Instant,
     override val startZoneOffset: ZoneOffset?,
@@ -63,26 +61,46 @@ public class HeartRateSeries(
     }
 
     internal companion object {
-        /** Metric identifier to retrieve average heart rate from [AggregateDataRow]. */
-        @JvmField
-        internal val BPM_AVG: LongAggregateMetric = LongAggregateMetric("HeartRate", "avg", "bpm")
+        private const val HEART_RATE_TYPE_NAME = "HeartRate"
+        private const val BPM_FIELD_NAME = "bpm"
 
-        /** Metric identifier to retrieve minimum heart rate from [AggregateDataRow]. */
+        /** Metric identifier to retrieve average heart rate from [AggregationResult]. */
         @JvmField
-        internal val BPM_MIN: LongAggregateMetric = LongAggregateMetric("HeartRate", "min", "bpm")
+        internal val BPM_AVG: AggregateMetric<Long> =
+            AggregateMetric.longMetric(
+                HEART_RATE_TYPE_NAME,
+                AggregateMetric.AggregationType.AVERAGE,
+                BPM_FIELD_NAME
+            )
 
-        /** Metric identifier to retrieve maximum heart rate from [AggregateDataRow]. */
+        /** Metric identifier to retrieve minimum heart rate from [AggregationResult]. */
         @JvmField
-        internal val BPM_MAX: LongAggregateMetric = LongAggregateMetric("HeartRate", "max", "bpm")
+        internal val BPM_MIN: AggregateMetric<Long> =
+            AggregateMetric.longMetric(
+                HEART_RATE_TYPE_NAME,
+                AggregateMetric.AggregationType.MINIMUM,
+                BPM_FIELD_NAME
+            )
+
+        /** Metric identifier to retrieve maximum heart rate from [AggregationResult]. */
+        @JvmField
+        internal val BPM_MAX: AggregateMetric<Long> =
+            AggregateMetric.longMetric(
+                HEART_RATE_TYPE_NAME,
+                AggregateMetric.AggregationType.MAXIMUM,
+                BPM_FIELD_NAME
+            )
     }
 }
 
 /**
  * Represents a single measurement of the heart rate.
  *
+ * @param time The point in time when the measurement was taken.
  * @param beatsPerMinute Heart beats per minute. Validation range: 1-300.
+ *
+ * @see HeartRateSeries
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY) // Will be made public after API reviews
 public class HeartRate(
     val time: Instant,
     val beatsPerMinute: Long,

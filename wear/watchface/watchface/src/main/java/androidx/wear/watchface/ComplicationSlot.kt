@@ -605,21 +605,11 @@ public class ComplicationSlot internal constructor(
             enabledDirty = true
         }
 
-    internal var supportedTypesDirty = true
-
     /** The types of complicationSlots the complication supports. Must be non-empty. */
-    public var supportedTypes: List<ComplicationType> = supportedTypes
-        @UiThread
+
+    public val supportedTypes: List<ComplicationType> = supportedTypes
+        @UiThread // TODO(b/229727216): Remove this annotation.
         get
-        @UiThread
-        internal set(value) {
-            if (field == value) {
-                return
-            }
-            require(value.isNotEmpty())
-            field = value
-            supportedTypesDirty = true
-        }
 
     internal var defaultDataSourcePolicyDirty = true
 

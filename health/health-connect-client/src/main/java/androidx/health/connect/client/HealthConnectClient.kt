@@ -20,13 +20,12 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.annotation.RestrictTo
-import androidx.health.connect.client.aggregate.AggregateDataRow
-import androidx.health.connect.client.aggregate.AggregateDataRowGroupByDuration
-import androidx.health.connect.client.aggregate.AggregateDataRowGroupByPeriod
 import androidx.health.connect.client.aggregate.AggregateMetric
+import androidx.health.connect.client.aggregate.AggregationResult
+import androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration
+import androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod
 import androidx.health.connect.client.impl.HealthConnectClientImpl
 import androidx.health.connect.client.metadata.DataOrigin
-import androidx.health.connect.client.permission.Permission
 import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.request.AggregateGroupByDurationRequest
 import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
@@ -44,16 +43,9 @@ import kotlin.reflect.KClass
 
 /** Interface to access health and fitness records. */
 interface HealthConnectClient {
-    /**
-     * Returns a set of [Permission] granted by the user to this app, out of the input [permissions]
-     * set.
-     *
-     * @throws RemoteException For any IPC transportation failures.
-     * @throws IOException For any disk I/O issues.
-     * @throws IllegalStateException If service is not available.
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    suspend fun getGrantedPermissions(permissions: Set<Permission>): Set<Permission>
+
+    /** Access operations related to permissions. */
+    val permissionController: PermissionController
 
     /**
      * Inserts one or more [Record] and returns newly assigned
@@ -102,9 +94,9 @@ interface HealthConnectClient {
     )
 
     /**
-     * Deletes any [Record] points of the given [recordType] in the given [timeRangeFilter]
-     * (automatically filtered to [Record] belonging to the calling application). Deletion of
-     * multiple [Record] is executed in a transaction - if one fails, none is deleted.
+     * Deletes any [Record] of the given [recordType] in the given [timeRangeFilter] (automatically
+     * filtered to [Record] belonging to the calling application). Deletion of multiple [Record] is
+     * executed in a transaction - if one fails, none is deleted.
      *
      * @param recordType Which type of [Record] to delete, such as `Steps::class`
      * @param timeRangeFilter The [TimeRangeFilter] to delete from
@@ -141,7 +133,6 @@ interface HealthConnectClient {
      * @throws IOException For any disk I/O issues.
      * @throws IllegalStateException If service is not available.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     suspend fun <T : Record> readRecords(request: ReadRecordsRequest<T>): ReadRecordsResponse<T>
 
     /**
@@ -151,66 +142,63 @@ interface HealthConnectClient {
      * @param request [AggregateRequest] object specifying [AggregateMetric]s to aggregate and other
      * filters.
      *
-     * @return the [AggregateDataRow] that contains aggregated values.
+     * @return the [AggregationResult] that contains aggregated values.
      * @throws RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
      * @throws IOException For any disk I/O issues.
      * @throws IllegalStateException If service is not available.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    suspend fun aggregate(request: AggregateRequest): AggregateDataRow
+    suspend fun aggregate(request: AggregateRequest): AggregationResult
 
     /**
      * Reads [AggregateMetric]s according to requested read criteria specified in
      * [AggregateGroupByDurationRequest].
      *
-     * This method is similar to [aggregate] but instead of returning one [AggregateDataRow] for the
-     * entire query's time interval, it returns a list of [AggregateDataRowGroupByDuration], with
-     * each row keyed by start and end time. For example: steps for today bucketed by hours.
+     * This method is similar to [aggregate] but instead of returning one [AggregationResult] for
+     * the entire query's time interval, it returns a list of [AggregationResultGroupedByDuration],
+     * with each row keyed by start and end time. For example: steps for today bucketed by hours.
      *
-     * An [AggregateDataRowGroupByDuration] is returned only if there are [Record] points to
-     * aggregate within start and end time of the row.
+     * An [AggregationResultGroupedByDuration] is returned only if there are [Record] to aggregate
+     * within start and end time of the row.
      *
      * @param request [AggregateGroupByDurationRequest] object specifying [AggregateMetric]s to
      * aggregate and other filters.
      *
-     * @return a list of [AggregateDataRowGroupByDuration]s, each contains aggregated values and
+     * @return a list of [AggregationResultGroupedByDuration]s, each contains aggregated values and
      * start/end time of the row. The list is sorted by time in ascending order.
      * @throws RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
      * @throws IOException For any disk I/O issues.
      * @throws IllegalStateException If service is not available.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     suspend fun aggregateGroupByDuration(
         request: AggregateGroupByDurationRequest,
-    ): List<AggregateDataRowGroupByDuration>
+    ): List<AggregationResultGroupedByDuration>
 
     /**
      * Reads [AggregateMetric]s according to requested read criteria specified in
      * [AggregateGroupByPeriodRequest].
      *
-     * This method is similar to [aggregate] but instead of returning one [AggregateDataRow] for the
-     * entire query's time interval, it returns a list of [AggregateDataRowGroupByPeriod], with each
-     * row keyed by start and end time. For example: steps for this month bucketed by day.
+     * This method is similar to [aggregate] but instead of returning one [AggregationResult] for
+     * the entire query's time interval, it returns a list of [AggregationResultGroupedByPeriod],
+     * with each row keyed by start and end time. For example: steps for this month bucketed by day.
      *
-     * An [AggregateDataRowGroupByPeriod] is returned only if there are [Record] points to aggregate
+     * An [AggregationResultGroupedByPeriod] is returned only if there are [Record] to aggregate
      * within start and end time of the row.
      *
      * @param request [AggregateGroupByPeriodRequest] object specifying [AggregateMetric]s to
      * aggregate and other filters.
      *
-     * @return a list of [AggregateDataRowGroupByPeriod]s, each contains aggregated values and
+     * @return a list of [AggregationResultGroupedByPeriod]s, each contains aggregated values and
      * start/end time of the row. The list is sorted by time in ascending order.
      * @throws RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
      * @throws IOException For any disk I/O issues.
      * @throws IllegalStateException If service is not available.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     suspend fun aggregateGroupByPeriod(
         request: AggregateGroupByPeriodRequest,
-    ): List<AggregateDataRowGroupByPeriod>
+    ): List<AggregationResultGroupedByPeriod>
 
     /**
      * Retrieves a changes-token, representing a point in time in the underlying Android Health
@@ -318,7 +306,7 @@ interface HealthConnectClient {
             return HealthConnectClientImpl(HealthDataService.getClient(context, enabledPackage))
         }
 
-        @ChecksSdkIntAtLeast
+        @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.P)
         internal fun isSdkVersionSufficient() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
 
         internal fun isPackageInstalled(

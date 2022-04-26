@@ -22,21 +22,20 @@ import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.os.Looper
-import androidx.health.connect.client.HealthConnectClient
-import androidx.health.connect.client.aggregate.AggregateDataRow
-import androidx.health.connect.client.aggregate.AggregateDataRowGroupByDuration
-import androidx.health.connect.client.aggregate.AggregateDataRowGroupByPeriod
+import androidx.health.connect.client.aggregate.AggregationResult
+import androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration
+import androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod
 import androidx.health.connect.client.changes.DeletionChange
 import androidx.health.connect.client.changes.UpsertionChange
 import androidx.health.connect.client.metadata.DataOrigin
 import androidx.health.connect.client.metadata.Device
 import androidx.health.connect.client.metadata.Metadata
-import androidx.health.connect.client.permission.AccessTypes
 import androidx.health.connect.client.permission.Permission
+import androidx.health.connect.client.permission.Permission.Companion.createReadPermission
 import androidx.health.connect.client.records.ActiveCaloriesBurned
 import androidx.health.connect.client.records.Nutrition
 import androidx.health.connect.client.records.Steps
-import androidx.health.connect.client.records.Steps.Companion.STEPS_COUNT_TOTAL
+import androidx.health.connect.client.records.Steps.Companion.TOTAL
 import androidx.health.connect.client.records.Weight
 import androidx.health.connect.client.request.AggregateGroupByDurationRequest
 import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
@@ -86,8 +85,9 @@ import org.robolectric.Shadows
 private const val PROVIDER_PACKAGE_NAME = "com.google.fake.provider"
 
 private val API_METHOD_LIST =
-    listOf<suspend HealthConnectClient.() -> Unit>(
+    listOf<suspend HealthConnectClientImpl.() -> Unit>(
         { getGrantedPermissions(setOf()) },
+        { revokeAllPermissions() },
         { insertRecords(listOf()) },
         { updateRecords(listOf()) },
         { deleteRecords(ActiveCaloriesBurned::class, listOf(), listOf()) },
@@ -100,7 +100,7 @@ private val API_METHOD_LIST =
                     TimeRangeFilter.between(
                         Instant.ofEpochMilli(1234L),
                         Instant.ofEpochMilli(1235L)
-                    )
+                    ),
                 )
             )
         },
@@ -183,9 +183,7 @@ class HealthConnectClientImplTest {
     @Test
     fun getGrantedPermissions_none() = runTest {
         val deferred = async {
-            healthConnectClient.getGrantedPermissions(
-                setOf(Permission.create<Steps>(AccessTypes.READ))
-            )
+            healthConnectClient.getGrantedPermissions(setOf(createReadPermission(Steps::class)))
         }
 
         advanceUntilIdle()
@@ -206,16 +204,14 @@ class HealthConnectClientImplTest {
             )
         )
         val deferred = async {
-            healthConnectClient.getGrantedPermissions(
-                setOf(Permission.create<Steps>(AccessTypes.READ))
-            )
+            healthConnectClient.getGrantedPermissions(setOf(createReadPermission(Steps::class)))
         }
 
         advanceUntilIdle()
         waitForMainLooperIdle()
 
         val response = deferred.await()
-        assertThat(response).containsExactly(Permission.create<Steps>(AccessTypes.READ))
+        assertThat(response).containsExactly(createReadPermission(Steps::class))
     }
 
     @Test
@@ -396,7 +392,7 @@ class HealthConnectClientImplTest {
                 ReadRecordsRequest(
                     Steps::class,
                     timeRangeFilter = TimeRangeFilter.before(endTime = Instant.ofEpochMilli(7890L)),
-                    limit = 10
+                    pageSize = 10
                 )
             )
         }
@@ -411,7 +407,7 @@ class HealthConnectClientImplTest {
                     .setTimeSpec(TimeProto.TimeSpec.newBuilder().setEndTimeEpochMs(7890L))
                     .setDataType(DataProto.DataType.newBuilder().setName("Steps"))
                     .setAscOrdering(true)
-                    .setLimit(10)
+                    .setPageSize(10)
                     .build()
             )
         assertThat(response.pageToken).isEqualTo("nextPageToken")
@@ -532,17 +528,14 @@ class HealthConnectClientImplTest {
             val startTime = Instant.ofEpochMilli(1234)
             val endTime = Instant.ofEpochMilli(4567)
             healthConnectClient.aggregate(
-                AggregateRequest(
-                    setOf(Steps.STEPS_COUNT_TOTAL),
-                    TimeRangeFilter.between(startTime, endTime)
-                )
+                AggregateRequest(setOf(Steps.TOTAL), TimeRangeFilter.between(startTime, endTime))
             )
         }
 
         advanceUntilIdle()
         waitForMainLooperIdle()
 
-        val response: AggregateDataRow = deferred.await()
+        val response: AggregationResult = deferred.await()
         // This is currently impossible to test for 3p devs, we'll need to override equals()
         assertThat(response.longValues).isEmpty()
         assertThat(response.doubleValues).isEmpty()
@@ -597,7 +590,7 @@ class HealthConnectClientImplTest {
             val endTime = Instant.ofEpochMilli(4567)
             healthConnectClient.aggregateGroupByDuration(
                 AggregateGroupByDurationRequest(
-                    setOf(STEPS_COUNT_TOTAL),
+                    setOf(TOTAL),
                     TimeRangeFilter.between(startTime, endTime),
                     Duration.ofMillis(1000)
                 )
@@ -607,16 +600,16 @@ class HealthConnectClientImplTest {
         advanceUntilIdle()
         waitForMainLooperIdle()
 
-        val response: List<AggregateDataRowGroupByDuration> = deferred.await()
-        assertThat(response[0].data.hasMetric(STEPS_COUNT_TOTAL)).isTrue()
-        assertThat(response[0].data.getMetric(STEPS_COUNT_TOTAL)).isEqualTo(1000)
-        assertThat(response[0].data.dataOrigins).contains(DataOrigin("id"))
+        val response: List<AggregationResultGroupedByDuration> = deferred.await()
+        assertThat(response[0].result.hasMetric(TOTAL)).isTrue()
+        assertThat(response[0].result.getMetric(TOTAL)).isEqualTo(1000)
+        assertThat(response[0].result.dataOrigins).contains(DataOrigin("id"))
         assertThat(response[0].startTime).isEqualTo(Instant.ofEpochMilli(1234))
         assertThat(response[0].endTime).isEqualTo(Instant.ofEpochMilli(2234))
         assertThat(response[0].zoneOffset).isEqualTo(ZoneOffset.ofTotalSeconds(999))
-        assertThat(response[1].data.hasMetric(STEPS_COUNT_TOTAL)).isTrue()
-        assertThat(response[1].data.getMetric(STEPS_COUNT_TOTAL)).isEqualTo(1500)
-        assertThat(response[1].data.dataOrigins).contains(DataOrigin("id2"))
+        assertThat(response[1].result.hasMetric(TOTAL)).isTrue()
+        assertThat(response[1].result.getMetric(TOTAL)).isEqualTo(1500)
+        assertThat(response[1].result.dataOrigins).contains(DataOrigin("id2"))
         assertThat(response[1].startTime).isEqualTo(Instant.ofEpochMilli(2234))
         assertThat(response[1].endTime).isEqualTo(Instant.ofEpochMilli(3234))
         assertThat(response[1].zoneOffset).isEqualTo(ZoneOffset.ofTotalSeconds(999))
@@ -670,7 +663,7 @@ class HealthConnectClientImplTest {
             val endTime = LocalDateTime.parse("2022-02-22T20:22:02")
             healthConnectClient.aggregateGroupByPeriod(
                 AggregateGroupByPeriodRequest(
-                    setOf(STEPS_COUNT_TOTAL),
+                    setOf(TOTAL),
                     TimeRangeFilter.between(startTime, endTime),
                     Period.ofDays(1)
                 )
@@ -680,15 +673,15 @@ class HealthConnectClientImplTest {
         advanceUntilIdle()
         waitForMainLooperIdle()
 
-        val response: List<AggregateDataRowGroupByPeriod> = deferred.await()
-        assertThat(response[0].data.hasMetric(STEPS_COUNT_TOTAL)).isTrue()
-        assertThat(response[0].data.getMetric(STEPS_COUNT_TOTAL)).isEqualTo(1500)
-        assertThat(response[0].data.dataOrigins).contains(DataOrigin("id"))
+        val response: List<AggregationResultGroupedByPeriod> = deferred.await()
+        assertThat(response[0].result.hasMetric(TOTAL)).isTrue()
+        assertThat(response[0].result.getMetric(TOTAL)).isEqualTo(1500)
+        assertThat(response[0].result.dataOrigins).contains(DataOrigin("id"))
         assertThat(response[0].startTime).isEqualTo(LocalDateTime.parse("2022-02-11T20:22:02"))
         assertThat(response[0].endTime).isEqualTo(LocalDateTime.parse("2022-02-12T20:22:02"))
-        assertThat(response[1].data.hasMetric(STEPS_COUNT_TOTAL)).isTrue()
-        assertThat(response[1].data.getMetric(STEPS_COUNT_TOTAL)).isEqualTo(2000)
-        assertThat(response[1].data.dataOrigins).contains(DataOrigin("id"))
+        assertThat(response[1].result.hasMetric(TOTAL)).isTrue()
+        assertThat(response[1].result.getMetric(TOTAL)).isEqualTo(2000)
+        assertThat(response[1].result.dataOrigins).contains(DataOrigin("id"))
         assertThat(response[1].startTime).isEqualTo(LocalDateTime.parse("2022-02-12T20:22:02"))
         assertThat(response[1].endTime).isEqualTo(LocalDateTime.parse("2022-02-13T20:22:02"))
         assertThat(fakeAhpServiceStub.lastAggregateRequest?.proto)

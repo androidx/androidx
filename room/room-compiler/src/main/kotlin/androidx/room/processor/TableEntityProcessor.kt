@@ -123,7 +123,7 @@ class TableEntityProcessor internal constructor(
                     )
                 }
             }
-        val superIndices = loadSuperIndices(element.superType, tableName, inheritSuperIndices)
+        val superIndices = loadSuperIndices(element.superClass, tableName, inheritSuperIndices)
         val indexInputs = entityIndices + fieldIndices + superIndices
         val indices = validateAndCreateIndices(indexInputs, pojo)
 
@@ -387,7 +387,7 @@ class TableEntityProcessor internal constructor(
             }
         } ?: emptyList()
         // checks supers.
-        val mySuper = typeElement.superType
+        val mySuper = typeElement.superClass
         val superPKeys = if (mySuper != null && mySuper.isNotNone()) {
             // my super cannot see my fields so remove them.
             val remainingFields = availableFields.filterNot {
@@ -444,7 +444,7 @@ class TableEntityProcessor internal constructor(
             myPKeys.first()
         } else if (myPKeys.isEmpty()) {
             // i have not declared anything, delegate to super
-            val mySuper = typeElement.superType
+            val mySuper = typeElement.superClass
             if (mySuper != null && mySuper.isNotNone()) {
                 return choosePrimaryKey(candidates, mySuper.typeElement!!)
             }
@@ -567,6 +567,6 @@ class TableEntityProcessor internal constructor(
                     emptyList()
                 }
             } ?: emptyList()
-        return myIndices + loadSuperIndices(parentTypeElement.superType, tableName, inherit)
+        return myIndices + loadSuperIndices(parentTypeElement.superClass, tableName, inherit)
     }
 }

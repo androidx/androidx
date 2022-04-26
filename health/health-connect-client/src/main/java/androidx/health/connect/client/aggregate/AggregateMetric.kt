@@ -15,25 +15,81 @@
  */
 package androidx.health.connect.client.aggregate
 
-import androidx.annotation.RestrictTo
+import java.time.Duration
+import kotlin.reflect.KClass
 
-/** A common interface that all derived or aggregated metrics share. */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-interface AggregateMetric {
-    /** Data type of the metric, for SDK internal use only. */
-    val dataTypeName: String
-    /** Aggregation of the metric, for SDK internal use only. */
-    val aggregationSuffix: String
-    /** Optional field name of the metric, for SDK internal use only */
-    val aggregateFieldName: String?
-}
+/**
+ * Identifier to supported metrics for aggregation.
+ *
+ * @see AggregationResult.hasMetric
+ * @see AggregationResult.getMetric
+ */
+class AggregateMetric<T : Any>
+internal constructor(
+    /**
+     * Return type of aggregation, such as `Long`, `Double`, `Duration` etc. Internal to SDK only.
+     */
+    internal val type: KClass<T>,
+    /**
+     * Data type name of the aggregation, such as `Nutrition`, `Speed` etc. Internal to SDK only.
+     */
+    internal val dataTypeName: String,
+    /** Type of aggregation, such as `total`, `avg` etc. Internal to SDK only. */
+    internal val aggregationType: AggregationType,
+    /**
+     * Field name of the aggregation metric, such as `vitaminC`, `speed` etc. Internal to SDK only.
+     */
+    internal val aggregationField: String?
+) {
+    /** Supported aggregation types. Internal for SDK use only. */
+    internal enum class AggregationType(
+        /** Serialization string for the aggregation type. */
+        val aggregationTypeString: String
+    ) {
+        DURATION("duration"),
+        AVERAGE("avg"),
+        MINIMUM("min"),
+        MAXIMUM("max"),
+        TOTAL("total")
+    }
 
-/** Serve for internal use to look up a metric value from metric value dictionary. */
-internal val AggregateMetric.metricKey: String
-    get() {
-        return if (aggregateFieldName != null) {
-            "${dataTypeName}_${aggregateFieldName}_$aggregationSuffix"
-        } else {
-            "${dataTypeName}_$aggregationSuffix"
+    internal companion object {
+        /** Creates a metric with type [Duration]. Internal for SDK use only. */
+        internal fun durationMetric(dataTypeName: String): AggregateMetric<Duration> {
+            return AggregateMetric(
+                Duration::class,
+                dataTypeName,
+                aggregationType = AggregationType.DURATION,
+                aggregationField = null
+            )
+        }
+
+        /** Creates a metric with type [Double]. Internal for SDK use only. */
+        internal fun doubleMetric(
+            dataTypeName: String,
+            aggregationType: AggregationType,
+            fieldName: String
+        ): AggregateMetric<Double> {
+            return AggregateMetric(Double::class, dataTypeName, aggregationType, fieldName)
+        }
+
+        /** Creates a metric with type [Long]. Internal for SDK use only. */
+        internal fun longMetric(
+            dataTypeName: String,
+            aggregationType: AggregationType,
+            fieldName: String
+        ): AggregateMetric<Long> {
+            return AggregateMetric(Long::class, dataTypeName, aggregationType, fieldName)
         }
     }
+
+    internal val metricKey: String
+        get() {
+            val aggregationTypeString = aggregationType.aggregationTypeString
+            return if (aggregationField == null) {
+                "${dataTypeName}_$aggregationTypeString"
+            } else {
+                "${dataTypeName}_${aggregationField}_$aggregationTypeString"
+            }
+        }
+}

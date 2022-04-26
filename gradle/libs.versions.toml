@@ -2,13 +2,13 @@
 # -----------------------------------------------------------------------------
 # All of the following should be updated in sync.
 # -----------------------------------------------------------------------------
-androidGradlePlugin = "7.3.0-alpha07"
+androidGradlePlugin = "7.3.0-alpha08"
 # NOTE: When updating the lint version we also need to update the `api` version
 # supported by `IssueRegistry`'s.' For e.g. r.android.com/1331903
-androidLint = "30.3.0-alpha07"
+androidLint = "30.3.0-alpha08"
 # Once you have a chosen version of AGP to upgrade to, go to
 # https://developer.android.com/studio/archive and find the matching version of Studio.
-androidStudio = "2021.3.1.7"
+androidStudio = "2021.3.1.8"
 # -----------------------------------------------------------------------------
 
 androidGradlePluginMin = "7.0.4"
@@ -27,17 +27,19 @@ cmake = "3.22.1"
 dagger = "2.40.1"
 dexmaker = "2.25.0"
 espresso = "3.3.0"
-guavaJre = "29.0-jre"
+guavaJre = "31.1-jre"
 hilt = "2.40.1"
 incap = "0.2"
-kotlin = "1.6.20"
-kotlinNative = "1.6.20"
+kotlin = "1.6.21"
+kotlinNative = "1.6.21"
 kotlinCompileTesting = "1.4.1"
-kotlinCoroutines = "1.6.0"
-ksp = "1.6.20-1.0.4"
+kotlinCoroutines = "1.6.1"
+ksp = "1.6.21-1.0.5"
 ktlint = "0.43.0"
 leakcanary = "2.7"
+metalava = "1.0.0-alpha06"
 mockito = "2.25.0"
+protobuf = "3.19.4"
 skiko = "0.7.7"
 sqldelight = "1.3.0"
 wire = "3.6.0"
@@ -98,7 +100,7 @@ gcmNetworkManager = { module = "com.google.android.gms:play-services-gcm", versi
 googleCompileTesting = { module = "com.google.testing.compile:compile-testing", version = "0.18" }
 gson = { module = "com.google.code.gson:gson", version = "2.9.0" }
 guava = { module = "com.google.guava:guava", version.ref = "guavaJre" }
-guavaAndroid = { module = "com.google.guava:guava", version = "29.0-android" }
+guavaAndroid = { module = "com.google.guava:guava", version = "31.1-android" }
 guavaListenableFuture = { module = "com.google.guava:listenablefuture", version = "1.0" }
 gradleIncapHelper = { module = "net.ltgt.gradle.incap:incap", version.ref = "incap" }
 gradleIncapHelperProcessor = { module = "net.ltgt.gradle.incap:incap-processor", version.ref = "incap" }
@@ -135,7 +137,7 @@ kspGradlePluginz = { module = "com.google.devtools.ksp:symbol-processing-gradle-
 leakcanary = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanary" }
 leakcanaryInstrumentation = { module = "com.squareup.leakcanary:leakcanary-android-instrumentation", version.ref = "leakcanary" }
 material = { module = "com.google.android.material:material", version = "1.2.1" }
-metalava = { module = "com.android.tools.metalava:metalava", version = "1.0.0-alpha06" }
+metalava = { module = "com.android.tools.metalava:metalava", version.ref = "metalava" }
 mlkitBarcode = { module = "com.google.mlkit:barcode-scanning", version = "17.0.2" }
 mockitoCore = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 mockitoAndroid = { module = "org.mockito:mockito-android", version.ref = "mockito" }
@@ -147,10 +149,10 @@ playCore = { module = "com.google.android.play:core", version = "1.10.3" }
 playServicesBase = { module = "com.google.android.gms:play-services-base", version = "17.0.0" }
 playServicesBasement = { module = "com.google.android.gms:play-services-basement", version = "17.0.0" }
 playServicesWearable = { module = "com.google.android.gms:play-services-wearable", version = "17.1.0" }
-protobuf = { module = "com.google.protobuf:protobuf-java", version = "3.4.0" }
-protobufCompiler = { module = "com.google.protobuf:protoc", version = "3.19.4" }
+protobuf = { module = "com.google.protobuf:protobuf-java", version.ref = "protobuf" }
+protobufCompiler = { module = "com.google.protobuf:protoc", version.ref = "protobuf" }
 protobufGradlePluginz = { module = "com.google.protobuf:protobuf-gradle-plugin", version = "0.8.18" }
-protobufLite = { module = "com.google.protobuf:protobuf-javalite", version = "3.19.4" }
+protobufLite = { module = "com.google.protobuf:protobuf-javalite", version.ref = "protobuf" }
 reactiveStreams = { module = "org.reactivestreams:reactive-streams", version = "1.0.0" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version = "2.7.2" }
 robolectric = { module = "org.robolectric:robolectric", version = "4.7.3" }

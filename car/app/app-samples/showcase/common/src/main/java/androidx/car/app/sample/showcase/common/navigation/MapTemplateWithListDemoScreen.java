@@ -59,9 +59,10 @@ public class MapTemplateWithListDemoScreen extends Screen {
         listBuilder.addItem(
                 new Row.Builder()
                         .setOnClickListener(
-                                ParkedOnlyOnClickListener.create(() -> onClick("Parked action")))
-                        .setTitle("Parked Only Title")
-                        .addText("More Parked only text.")
+                                ParkedOnlyOnClickListener.create(() -> onClick(
+                                        getCarContext().getString(R.string.parked_toast_msg))))
+                        .setTitle(getCarContext().getString(R.string.parked_only_title))
+                        .addText(getCarContext().getString(R.string.parked_only_text))
                         .build());
         // Some hosts may allow more items in the list than others, so create more.
         if (getCarContext().getCarAppApiLevel() > CarAppApiLevels.LEVEL_1) {
@@ -72,7 +73,7 @@ public class MapTemplateWithListDemoScreen extends Screen {
 
             for (int i = 2; i <= listLimit; ++i) {
                 // For row text, set text variants that fit best in different screen sizes.
-                String secondTextStr = "Second line of text";
+                String secondTextStr = getCarContext().getString(R.string.second_line_text);
                 CarText secondText =
                         new CarText.Builder(
                                 "================= " + secondTextStr + " ================")
@@ -80,12 +81,14 @@ public class MapTemplateWithListDemoScreen extends Screen {
                                         + " ----------------------")
                                 .addVariant(secondTextStr)
                                 .build();
-                final String onClickText = "Clicked row: " + i;
+                final String onClickText = getCarContext().getString(R.string.clicked_row_prefix)
+                        + ": " + i;
                 listBuilder.addItem(
                         new Row.Builder()
                                 .setOnClickListener(() -> onClick(onClickText))
-                                .setTitle("Title " + i)
-                                .addText("First line of text")
+                                .setTitle(
+                                        getCarContext().getString(R.string.title_prefix) + " " + i)
+                                .addText(getCarContext().getString(R.string.first_line_text))
                                 .addText(secondText)
                                 .build());
             }
@@ -105,7 +108,11 @@ public class MapTemplateWithListDemoScreen extends Screen {
                         .setOnClickListener(() -> {
                             CarToast.makeText(
                                             getCarContext(),
-                                            mIsFavorite ? "Not a favorite!" : "Favorite!",
+                                            mIsFavorite
+                                                    ? getCarContext().getString(
+                                                    R.string.not_favorite_toast_msg)
+                                                    : getCarContext().getString(
+                                                            R.string.favorite_toast_msg),
                                             LENGTH_SHORT)
                                     .show();
                             mIsFavorite = !mIsFavorite;
@@ -121,7 +128,7 @@ public class MapTemplateWithListDemoScreen extends Screen {
                                                 R.drawable.ic_close_white_24dp))
                                         .build())
                         .build())
-                .setTitle("Map Template with Pane Demo")
+                .setTitle(getCarContext().getString(R.string.map_template_list_demo_title))
                 .build();
 
 
@@ -135,7 +142,8 @@ public class MapTemplateWithListDemoScreen extends Screen {
                                 .setOnClickListener(
                                         () -> CarToast.makeText(
                                                         getCarContext(),
-                                                        "Bug reported!",
+                                                        getCarContext().getString(
+                                                                R.string.bug_reported_toast_msg),
                                                         CarToast.LENGTH_SHORT)
                                                 .show())
                                 .setIcon(

@@ -16,7 +16,7 @@
 package androidx.health.connect.client.records
 
 import androidx.annotation.RestrictTo
-import androidx.health.connect.client.aggregate.DoubleAggregateMetric
+import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
@@ -79,34 +79,80 @@ public class BloodPressure(
     }
 
     companion object {
-        /** Metric identifier to retrieve average systolic from [AggregateDataRow]. */
-        @JvmField
-        val BLOOD_PRESSURE_SYSTOLIC_AVG: DoubleAggregateMetric =
-            DoubleAggregateMetric("BloodPressure", "avg", "systolic")
+        private const val BLOOD_PRESSURE_NAME = "BloodPressure"
+        private const val SYSTOLIC_FIELD_NAME = "systolic"
+        private const val DIASTOLIC_FIELD_NAME = "diastolic"
 
-        /** Metric identifier to retrieve minimum systolic from [AggregateDataRow]. */
+        /**
+         * Metric identifier to retrieve average systolic from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
         @JvmField
-        val BLOOD_PRESSURE_SYSTOLIC_MIN: DoubleAggregateMetric =
-            DoubleAggregateMetric("BloodPressure", "min", "systolic")
+        val SYSTOLIC_AVG: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                BLOOD_PRESSURE_NAME,
+                AggregateMetric.AggregationType.AVERAGE,
+                SYSTOLIC_FIELD_NAME
+            )
 
-        /** Metric identifier to retrieve maximum systolic from [AggregateDataRow]. */
+        /**
+         * Metric identifier to retrieve minimum systolic from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
         @JvmField
-        val BLOOD_PRESSURE_SYSTOLIC_MAX: DoubleAggregateMetric =
-            DoubleAggregateMetric("BloodPressure", "max", "systolic")
+        val SYSTOLIC_MIN: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                BLOOD_PRESSURE_NAME,
+                AggregateMetric.AggregationType.MINIMUM,
+                SYSTOLIC_FIELD_NAME
+            )
 
-        /** Metric identifier to retrieve average diastolic from [AggregateDataRow]. */
+        /**
+         * Metric identifier to retrieve maximum systolic from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
         @JvmField
-        val BLOOD_PRESSURE_DIASTOLIC_AVG: DoubleAggregateMetric =
-            DoubleAggregateMetric("BloodPressure", "avg", "diastolic")
+        val SYSTOLIC_MAX: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                BLOOD_PRESSURE_NAME,
+                AggregateMetric.AggregationType.MAXIMUM,
+                SYSTOLIC_FIELD_NAME
+            )
 
-        /** Metric identifier to retrieve minimum diastolic from [AggregateDataRow]. */
+        /**
+         * Metric identifier to retrieve average diastolic from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
         @JvmField
-        val BLOOD_PRESSURE_DIASTOLIC_MIN: DoubleAggregateMetric =
-            DoubleAggregateMetric("BloodPressure", "min", "diastolic")
+        val DIASTOLIC_AVG: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                BLOOD_PRESSURE_NAME,
+                AggregateMetric.AggregationType.AVERAGE,
+                DIASTOLIC_FIELD_NAME
+            )
 
-        /** Metric identifier to retrieve maximum diastolic from [AggregateDataRow]. */
+        /**
+         * Metric identifier to retrieve minimum diastolic from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
         @JvmField
-        val BLOOD_PRESSURE_DIASTOLIC_MAX: DoubleAggregateMetric =
-            DoubleAggregateMetric("BloodPressure", "max", "diastolic")
+        val DIASTOLIC_MIN: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                BLOOD_PRESSURE_NAME,
+                AggregateMetric.AggregationType.MINIMUM,
+                DIASTOLIC_FIELD_NAME
+            )
+
+        /**
+         * Metric identifier to retrieve maximum diastolic from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val DIASTOLIC_MAX: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                BLOOD_PRESSURE_NAME,
+                AggregateMetric.AggregationType.MAXIMUM,
+                DIASTOLIC_FIELD_NAME
+            )
     }
 }

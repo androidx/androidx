@@ -44,7 +44,7 @@ dependencies {
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
-    androidTestImplementation("com.google.protobuf:protobuf-java:3.10.0")
+    androidTestImplementation(libs.protobuf)
 
     // I'm not 100% sure why, but androidTestImplementation doesn't appear to use the standard
     // results of a project build. This leads to it not using the shadow configuration from
@@ -93,7 +93,7 @@ tasks.withType(KotlinCompile).configureEach {
 
 protobuf {
     protoc {
-        artifact = "com.google.protobuf:protoc:3.10.0"
+        artifact = libs.protobufCompiler.get()
     }
 
     // Generates the java proto-lite code for the protos in this project. See

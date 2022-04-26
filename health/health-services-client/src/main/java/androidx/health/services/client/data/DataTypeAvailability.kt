@@ -16,18 +16,31 @@
 
 package androidx.health.services.client.data
 
+import androidx.annotation.RestrictTo
 import androidx.health.services.client.proto.DataProto
 import androidx.health.services.client.proto.DataProto.Availability.DataTypeAvailability as DataTypeAvailabilityProto
 import androidx.health.services.client.proto.DataProto.Availability.DataTypeAvailability.DATA_TYPE_AVAILABILITY_UNKNOWN
 
 /** Availability of a [DataType]. */
-public enum class DataTypeAvailability(public override val id: Int) : Availability {
-    UNKNOWN(0),
-    AVAILABLE(1),
-    ACQUIRING(2),
-    UNAVAILABLE(3);
+public class DataTypeAvailability private constructor(
+    public override val id: Int,
+    public val name: String
+) : Availability {
+
+    override fun toString(): String = name
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is DataTypeAvailability) return false
+        if (id != other.id) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int = id
 
     /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public override fun toProto(): DataProto.Availability =
         DataProto.Availability.newBuilder()
             .setDataTypeAvailability(
@@ -36,11 +49,39 @@ public enum class DataTypeAvailability(public override val id: Int) : Availabili
             .build()
 
     public companion object {
-        @JvmStatic
-        public fun fromId(id: Int): DataTypeAvailability? = values().firstOrNull { it.id == id }
+        /**
+         * The availability is unknown, or is represented by a value too new for this library
+         * version to parse.
+         */
+        @JvmField
+        public val UNKNOWN: DataTypeAvailability = DataTypeAvailability(0, "UNKNOWN")
 
-        /** @hide */
-        public fun fromProto(proto: DataTypeAvailabilityProto): DataTypeAvailability =
+        /** The [DataType] is fully initialized and available. */
+        @JvmField
+        public val AVAILABLE: DataTypeAvailability = DataTypeAvailability(1, "AVAILABLE")
+
+        /** The [DataType] is currently acquiring. */
+        @JvmField
+        public val ACQUIRING: DataTypeAvailability = DataTypeAvailability(2, "ACQUIRING")
+
+        /** The [DataType] is unavailable; health services cannot acquire it. */
+        @JvmField
+        public val UNAVAILABLE: DataTypeAvailability = DataTypeAvailability(3, "UNAVAILABLE")
+
+        /** The [DataType] is not available because the device is currently off-body. */
+        @JvmField
+        public val UNAVAILABLE_DEVICE_OFF_BODY: DataTypeAvailability =
+            DataTypeAvailability(4, "UNAVAILABLE_DEVICE_OFF_BODY")
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @JvmField
+        public val VALUES: List<DataTypeAvailability> =
+            listOf(UNKNOWN, AVAILABLE, ACQUIRING, UNAVAILABLE, UNAVAILABLE_DEVICE_OFF_BODY)
+
+        @JvmStatic
+        public fun fromId(id: Int): DataTypeAvailability? = VALUES.firstOrNull { it.id == id }
+
+        internal fun fromProto(proto: DataTypeAvailabilityProto): DataTypeAvailability =
             fromId(proto.number) ?: UNKNOWN
     }
 }

@@ -33,7 +33,6 @@ public class DataTypeCondition(
         DataType(proto.dataType),
         Value(proto.threshold),
         ComparisonType.fromProto(proto.comparisonType)
-            ?: throw IllegalStateException("Invalid ComparisonType: ${proto.comparisonType}")
     )
 
     init {
@@ -72,6 +71,7 @@ public class DataTypeCondition(
             ComparisonType.GREATER_THAN -> comparison > 0
             ComparisonType.LESS_THAN_OR_EQUAL -> comparison <= 0
             ComparisonType.GREATER_THAN_OR_EQUAL -> comparison >= 0
+            else -> false
         }
     }
 

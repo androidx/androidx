@@ -47,7 +47,7 @@ dependencies {
 
     api(project(":room:room-runtime"))
     implementation(project(":room:room-ktx"))
-    api("androidx.paging:paging-common:3.1.0")
+    api("androidx.paging:paging-common:3.1.1")
 
     androidTestImplementation(libs.kotlinCoroutinesTest)
     androidTestImplementation(libs.multidex)

@@ -42,6 +42,7 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.Modifier
 import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.TypeName
 
 internal sealed class KspTypeElement(
     env: KspProcessingEnv,
@@ -83,15 +84,32 @@ internal sealed class KspTypeElement(
         )
     }
 
-    override val superType: XType? by lazy {
-        declaration.superTypes.firstOrNull {
-            val type = it.resolve().declaration as? KSClassDeclaration ?: return@firstOrNull false
-            type.classKind == ClassKind.CLASS
-        }?.let {
-            env.wrap(
-                ksType = it.resolve(),
-                allowPrimitives = false
-            )
+    override val superTypes: List<XType> by lazy {
+        buildList {
+            if (isInterface() && superInterfaces.isEmpty()) {
+                add(env.requireType(TypeName.OBJECT))
+            } else {
+                superClass?.let { add(it) }
+                addAll(superInterfaces)
+            }
+        }
+    }
+
+    override val superClass: XType? by lazy {
+        if (isInterface()) {
+            // interfaces don't have super classes (they do have super types)
+            null
+        } else {
+            declaration.superTypes.firstOrNull {
+                val type =
+                    it.resolve().declaration as? KSClassDeclaration ?: return@firstOrNull false
+                type.classKind == ClassKind.CLASS
+            }?.let {
+                env.wrap(
+                    ksType = it.resolve(),
+                    allowPrimitives = false
+                )
+            }
         }
     }
 

@@ -47,7 +47,7 @@ class HealthDataRequestPermissionsTest {
         val intent =
             requestPermissionContract.createIntent(
                 context,
-                setOf(Permission.create<Steps>(AccessTypes.READ))
+                setOf(Permission.createReadPermission(Steps::class))
             )
 
         assertThat(intent.action).isEqualTo("androidx.health.ACTION_REQUEST_PERMISSIONS")
@@ -60,7 +60,7 @@ class HealthDataRequestPermissionsTest {
         val intent =
             requestPermissionContract.createIntent(
                 context,
-                setOf(Permission.create<Steps>(AccessTypes.READ))
+                setOf(Permission.createReadPermission(Steps::class))
             )
 
         assertThat(intent.action).isEqualTo("androidx.health.ACTION_REQUEST_PERMISSIONS")
@@ -100,7 +100,7 @@ class HealthDataRequestPermissionsTest {
         )
         val result = requestPermissionContract.parseResult(0, intent)
 
-        assertThat(result).containsExactly(Permission.create<Steps>(AccessTypes.READ))
+        assertThat(result).containsExactly(Permission.createReadPermission(Steps::class))
     }
 
     @Test
@@ -109,7 +109,7 @@ class HealthDataRequestPermissionsTest {
         val result =
             requestPermissionContract.getSynchronousResult(
                 context,
-                setOf(Permission.create<Steps>(AccessTypes.READ))
+                setOf(Permission.createReadPermission(Steps::class))
             )
 
         assertThat(result).isNull()

@@ -474,4 +474,114 @@
             column="21"/>
     </issue>
 
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 33; however, the containing class androidx.appsearch.platformstorage.converter.GetSchemaResponseToPlatformConverter is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                    platformResponse.getSchemaTypesNotDisplayedBySystem()) {"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appsearch/platformstorage/converter/GetSchemaResponseToPlatformConverter.java"
+            line="64"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 33; however, the containing class androidx.appsearch.platformstorage.converter.GetSchemaResponseToPlatformConverter is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                    platformResponse.getRequiredPermissionsForSchemaTypeVisibility().entrySet()) {"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appsearch/platformstorage/converter/GetSchemaResponseToPlatformConverter.java"
+            line="71"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 33; however, the containing class androidx.appsearch.platformstorage.converter.GetSchemaResponseToPlatformConverter is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                platformResponse.getSchemaTypesVisibleToPackages();"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appsearch/platformstorage/converter/GetSchemaResponseToPlatformConverter.java"
+            line="91"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 33; however, the containing class androidx.appsearch.platformstorage.GlobalSearchSessionImpl is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            mPlatformSession.getByDocumentId(packageName, databaseName,"
+        errorLine2="                             ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appsearch/platformstorage/GlobalSearchSessionImpl.java"
+            line="95"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 33; however, the containing class androidx.appsearch.platformstorage.GlobalSearchSessionImpl is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            mPlatformSession.getSchema("
+        errorLine2="                             ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appsearch/platformstorage/GlobalSearchSessionImpl.java"
+            line="144"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 33; however, the containing class androidx.appsearch.platformstorage.GlobalSearchSessionImpl is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                    mPlatformSession.registerObserverCallback("
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appsearch/platformstorage/GlobalSearchSessionImpl.java"
+            line="210"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 33; however, the containing class androidx.appsearch.platformstorage.GlobalSearchSessionImpl is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                    mPlatformSession.unregisterObserverCallback(targetPackageName,"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appsearch/platformstorage/GlobalSearchSessionImpl.java"
+            line="249"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 33; however, the containing class androidx.appsearch.platformstorage.converter.SearchResultToPlatformConverter is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                            platformMatchInfo.getSubmatchRange().getStart(),"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appsearch/platformstorage/converter/SearchResultToPlatformConverter.java"
+            line="76"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 33; however, the containing class androidx.appsearch.platformstorage.converter.SearchResultToPlatformConverter is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                            platformMatchInfo.getSubmatchRange().getEnd()));"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appsearch/platformstorage/converter/SearchResultToPlatformConverter.java"
+            line="77"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 33; however, the containing class androidx.appsearch.platformstorage.converter.SetSchemaRequestToPlatformConverter is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                    platformBuilder.addRequiredPermissionsForSchemaTypeVisibility("
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appsearch/platformstorage/converter/SetSchemaRequestToPlatformConverter.java"
+            line="83"
+            column="37"/>
+    </issue>
+
 </issues>

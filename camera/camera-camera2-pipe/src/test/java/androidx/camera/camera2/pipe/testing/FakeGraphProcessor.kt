@@ -20,6 +20,7 @@ import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestProcessor
 import androidx.camera.camera2.pipe.graph.GraphProcessor
 import androidx.camera.camera2.pipe.graph.GraphState3A
+import androidx.camera.camera2.pipe.putAllMetadata
 
 /**
  * Fake implementation of a [GraphProcessor] for tests.
@@ -57,14 +58,14 @@ internal class FakeGraphProcessor(
         _requestQueue.add(requests)
     }
 
-    override suspend fun <T : Any> submit(parameters: Map<T, Any?>): Boolean {
+    override suspend fun submit(parameters: Map<*, Any?>): Boolean {
         if (closed) {
             return false
         }
         val currProcessor = processor
         val currRepeatingRequest = repeatingRequest
         val requiredParameters = mutableMapOf<Any, Any?>()
-        requiredParameters.putAll(parameters)
+        requiredParameters.putAllMetadata(parameters)
         graphState3A.writeTo(requiredParameters)
 
         return when {

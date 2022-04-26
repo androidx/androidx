@@ -25,7 +25,6 @@ import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
@@ -43,8 +42,9 @@ import androidx.compose.ui.unit.dp
  * (text, icon or image).
  *
  * The [ToggleButton] is circular in shape and defaults to size
- * [ToggleButtonDefaults.DefaultToggleButtonSize].
- * Other recommended sizes can be obtained from [ToggleButtonDefaults].
+ * [ToggleButtonDefaults.DefaultToggleButtonSize] or [ToggleButtonDefaults.SmallToggleButtonSize].
+ * Icon content should be of size [ToggleButtonDefaults.DefaultIconSize] or
+ * [ToggleButtonDefaults.SmallIconSize] respectively.
  *
  * The recommended set of checked and unchecked [ToggleButtonColors] can be obtained
  * from [ToggleButtonDefaults.toggleButtonColors], which defaults to
@@ -77,7 +77,7 @@ import androidx.compose.ui.unit.dp
  * @param content The icon, image or text to be drawn inside the toggle button.
  */
 @Composable
-fun ToggleButton(
+public fun ToggleButton(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
@@ -124,7 +124,7 @@ fun ToggleButton(
  * primary-styled for a checked toggle button and surface-styled for unchecked.
  */
 @Stable
-interface ToggleButtonColors {
+public interface ToggleButtonColors {
     /**
      * Represents the background color for this toggle button, depending on [enabled] and [checked].
      *
@@ -132,7 +132,7 @@ interface ToggleButtonColors {
      * @param checked whether the toggle button is checked
      */
     @Composable
-    fun backgroundColor(enabled: Boolean, checked: Boolean): State<Color>
+    public fun backgroundColor(enabled: Boolean, checked: Boolean): State<Color>
 
     /**
      * Represents the content color for this toggle button, depending on [enabled] and [checked].
@@ -141,24 +141,34 @@ interface ToggleButtonColors {
      * @param checked whether the toggle button is checked
      */
     @Composable
-    fun contentColor(enabled: Boolean, checked: Boolean): State<Color>
+    public fun contentColor(enabled: Boolean, checked: Boolean): State<Color>
 }
 
 /**
  * Contains the default values used by [ToggleButton].
  */
-object ToggleButtonDefaults {
+public object ToggleButtonDefaults {
     /**
      * The recommended size for a small [ToggleButton].
      * You can apply this value for the size by overriding Modifier.size directly on [ToggleButton].
      */
-    val SmallToggleButtonSize = 48.dp
+    public val SmallToggleButtonSize = 48.dp
 
     /**
      * The default size applied for the [ToggleButton].
      * Note that you can override it by applying Modifier.size directly on [ToggleButton].
      */
-    val DefaultToggleButtonSize = 52.dp
+    public val DefaultToggleButtonSize = 52.dp
+
+    /**
+     * The size of an icon when used inside a small-sized [ToggleButton].
+     */
+    public val SmallIconSize = 24.dp
+
+    /**
+     * The default size of an icon when used inside a default-sized [ToggleButton].
+     */
+    public val DefaultIconSize = 26.dp
 
     /**
      * Creates a [ToggleButtonColors] that represents the background and content colors
@@ -182,7 +192,7 @@ object ToggleButtonDefaults {
      * and not enabled
      */
     @Composable
-    fun toggleButtonColors(
+    public fun toggleButtonColors(
         checkedBackgroundColor: Color = MaterialTheme.colors.primary,
         checkedContentColor: Color = contentColorFor(checkedBackgroundColor),
         disabledCheckedBackgroundColor: Color =

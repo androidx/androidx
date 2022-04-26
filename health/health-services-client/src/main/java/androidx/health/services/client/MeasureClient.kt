@@ -48,30 +48,51 @@ public interface MeasureClient {
      * [MeasureCapabilities]. The returned future will fail if the request is not supported on a
      * given device.
      *
-     * The callback will continue to be called until the app is killed or [unregisterCallback] is
-     * called.
+     * The callback will continue to be called until the app is killed or [unregisterCallbackAsync]
+     * is called.
      *
      * If the same [callback] is already registered for the given [DataType], this operation is a
      * no-op.
+     *
+     * @param dataType the [DataType] that needs to be measured
+     * @param callback the [MeasureCallback] to receive updates from Health Services
+     */
+    public fun registerCallback(dataType: DataType, callback: MeasureCallback)
+
+    /**
+     * Same as [registerCallback], except the [callback] is called on the given [Executor].
+     *
+     * @param dataType the [DataType] that needs to be measured
+     * @param executor the [Executor] on which [callback] will be invoked
+     * @param callback the [MeasureCallback] to receive updates from Health Services
      */
     public fun registerCallback(
         dataType: DataType,
+        executor: Executor,
+        callback: MeasureCallback
+    )
+
+    /**
+     * Unregisters the given [MeasureCallback] for updates of the given [DataType].
+     *
+     * @param dataType the [DataType] that needs to be unregistered
+     * @param callback the [MeasureCallback] which was used in registration
+     * @return a [ListenableFuture] that completes when the un-registration succeeds in Health
+     * Services. This is a no-op if the callback has already been unregistered.
+     */
+    public fun unregisterCallbackAsync(
+        dataType: DataType,
         callback: MeasureCallback
     ): ListenableFuture<Void>
 
-    /** Same as [registerCallback], except the [callback] is called on the given [Executor]. */
-    public fun registerCallback(
-        dataType: DataType,
-        callback: MeasureCallback,
-        executor: Executor
-    ): ListenableFuture<Void>
-
-    /** Unregisters the given [MeasureCallback] for updates of the given [DataType]. */
-    public fun unregisterCallback(
-        dataType: DataType,
-        callback: MeasureCallback
-    ): ListenableFuture<Void>
-
-    /** Returns the [MeasureCapabilities] of this client for the device. */
+    /**
+     * Returns the [MeasureCapabilities] of this client for the device.
+     *
+     * This can be used to determine what [DataType]s this device supports for live measurement.
+     * Clients should use the capabilities to inform their requests since Health Services will
+     * typically reject requests made for [DataType]s which are not enabled for measurement.
+     *
+     * @return a [ListenableFuture] containing the [MeasureCapabilities] for this device
+     */
     public val capabilities: ListenableFuture<MeasureCapabilities>
 }

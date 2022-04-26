@@ -34,12 +34,39 @@ import androidx.wear.compose.material.Text
 
 @Sampled
 @Composable
+fun ChipWithIconAndLabel() {
+    Chip(
+        onClick = { /* Do something */ },
+        enabled = true,
+        // When we have only primary label we can have up to 2 lines of text
+        label = {
+            Text(
+                text = "Main label can span over 2 lines",
+                maxLines = 2, overflow = TextOverflow.Ellipsis
+            )
+        },
+        icon = {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_airplanemode_active_24px),
+                contentDescription = "airplane",
+                modifier = Modifier.size(ChipDefaults.IconSize)
+                    .wrapContentSize(align = Alignment.Center),
+            )
+        }
+    )
+}
+
+@Sampled
+@Composable
 fun ChipWithIconAndLabels() {
     Chip(
         onClick = { /* Do something */ },
         enabled = true,
-        label = { Text(text = "Main label") },
-        secondaryLabel = { Text(text = "secondary label") },
+        // When we have both label and secondary label present limit both to 1 line of text
+        label = { Text(text = "Main label", maxLines = 1, overflow = TextOverflow.Ellipsis) },
+        secondaryLabel = {
+            Text(text = "secondary label", maxLines = 1, overflow = TextOverflow.Ellipsis)
+        },
         icon = {
             Icon(
                 painter = painterResource(id = R.drawable.ic_airplanemode_active_24px),
@@ -57,6 +84,7 @@ fun CompactChipWithIconAndLabel() {
     CompactChip(
         onClick = { /* Do something */ },
         enabled = true,
+        // CompactChip label should be no more than 1 line of text
         label = {
             Text("Single line label", maxLines = 1, overflow = TextOverflow.Ellipsis)
         },
@@ -76,6 +104,7 @@ fun CompactChipWithLabel() {
     CompactChip(
         onClick = { /* Do something */ },
         enabled = true,
+        // CompactChip label should be no more than 1 line of text
         label = {
             Text(
                 text = "Single line label",

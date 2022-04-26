@@ -16,6 +16,7 @@
 package androidx.health.connect.client.impl.converters.records
 
 import androidx.health.connect.client.records.ActiveCaloriesBurned
+import androidx.health.connect.client.records.ActiveEnergyBurned
 import androidx.health.connect.client.records.ActivityEvent
 import androidx.health.connect.client.records.ActivityLap
 import androidx.health.connect.client.records.ActivitySession
@@ -29,7 +30,7 @@ import androidx.health.connect.client.records.BodyWaterMass
 import androidx.health.connect.client.records.BoneMass
 import androidx.health.connect.client.records.CervicalMucus
 import androidx.health.connect.client.records.CervicalPosition
-import androidx.health.connect.client.records.CyclingPedalingCadence
+import androidx.health.connect.client.records.CyclingPedalingCadenceSeries
 import androidx.health.connect.client.records.Distance
 import androidx.health.connect.client.records.ElevationGained
 import androidx.health.connect.client.records.FloorsClimbed
@@ -51,7 +52,7 @@ import androidx.health.connect.client.records.Menstruation
 import androidx.health.connect.client.records.Nutrition
 import androidx.health.connect.client.records.OvulationTest
 import androidx.health.connect.client.records.OxygenSaturation
-import androidx.health.connect.client.records.Power
+import androidx.health.connect.client.records.PowerSeries
 import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.records.Repetitions
 import androidx.health.connect.client.records.RespiratoryRate
@@ -60,9 +61,9 @@ import androidx.health.connect.client.records.SeriesRecord
 import androidx.health.connect.client.records.SexualActivity
 import androidx.health.connect.client.records.SleepSession
 import androidx.health.connect.client.records.SleepStage
-import androidx.health.connect.client.records.Speed
+import androidx.health.connect.client.records.SpeedSeries
 import androidx.health.connect.client.records.Steps
-import androidx.health.connect.client.records.StepsCadence
+import androidx.health.connect.client.records.StepsCadenceSeries
 import androidx.health.connect.client.records.SwimmingStrokes
 import androidx.health.connect.client.records.TotalCaloriesBurned
 import androidx.health.connect.client.records.TotalEnergyBurned
@@ -148,11 +149,13 @@ fun Record.toProto(): DataProto.DataPoint =
                     firmness?.let { putValues("firmness", enumVal(it)) }
                 }
                 .build()
-        is CyclingPedalingCadence ->
-            instantaneousProto()
-                .setDataType(protoDataType("CyclingPedalingCadence"))
-                .apply { putValues("rpm", doubleVal(revolutionsPerMinute)) }
-                .build()
+        is CyclingPedalingCadenceSeries ->
+            toProto(dataTypeName = "CyclingPedalingCadenceSeries") { sample ->
+                DataProto.SeriesValue.newBuilder()
+                    .putValues("rpm", doubleVal(sample.revolutionsPerMinute))
+                    .setInstantTimeMillis(sample.time.toEpochMilli())
+                    .build()
+            }
         is HeartRateSeries ->
             toProto(dataTypeName = "HeartRateSeries") { sample ->
                 DataProto.SeriesValue.newBuilder()
@@ -235,11 +238,13 @@ fun Record.toProto(): DataProto.DataPoint =
                 .setDataType(protoDataType("OxygenSaturation"))
                 .apply { putValues("percentage", doubleVal(percentage)) }
                 .build()
-        is Power ->
-            instantaneousProto()
-                .setDataType(protoDataType("Power"))
-                .apply { putValues("power", doubleVal(power)) }
-                .build()
+        is PowerSeries ->
+            toProto(dataTypeName = "PowerSeries") { sample ->
+                DataProto.SeriesValue.newBuilder()
+                    .putValues("power", doubleVal(sample.watts))
+                    .setInstantTimeMillis(sample.time.toEpochMilli())
+                    .build()
+            }
         is RespiratoryRate ->
             instantaneousProto()
                 .setDataType(protoDataType("RespiratoryRate"))
@@ -255,16 +260,20 @@ fun Record.toProto(): DataProto.DataPoint =
                 .setDataType(protoDataType("SexualActivity"))
                 .apply { protectionUsed?.let { putValues("protectionUsed", enumVal(it)) } }
                 .build()
-        is Speed ->
-            instantaneousProto()
-                .setDataType(protoDataType("Speed"))
-                .apply { putValues("speed", doubleVal(speedMetersPerSecond)) }
-                .build()
-        is StepsCadence ->
-            instantaneousProto()
-                .setDataType(protoDataType("StepsCadence"))
-                .apply { putValues("rate", doubleVal(rate)) }
-                .build()
+        is SpeedSeries ->
+            toProto(dataTypeName = "SpeedSeries") { sample ->
+                DataProto.SeriesValue.newBuilder()
+                    .putValues("speed", doubleVal(sample.metersPerSecond))
+                    .setInstantTimeMillis(sample.time.toEpochMilli())
+                    .build()
+            }
+        is StepsCadenceSeries ->
+            toProto(dataTypeName = "StepsCadenceSeries") { sample ->
+                DataProto.SeriesValue.newBuilder()
+                    .putValues("rate", doubleVal(sample.rate))
+                    .setInstantTimeMillis(sample.time.toEpochMilli())
+                    .build()
+            }
         is Vo2Max ->
             instantaneousProto()
                 .setDataType(protoDataType("Vo2Max"))
@@ -286,6 +295,11 @@ fun Record.toProto(): DataProto.DataPoint =
         is ActiveCaloriesBurned ->
             intervalProto()
                 .setDataType(protoDataType("ActiveCaloriesBurned"))
+                .apply { putValues("energy", doubleVal(energyKcal)) }
+                .build()
+        is ActiveEnergyBurned ->
+            intervalProto()
+                .setDataType(protoDataType("ActiveEnergyBurned"))
                 .apply { putValues("energy", doubleVal(energyKcal)) }
                 .build()
         is ActivityEvent ->
@@ -468,7 +482,10 @@ fun Record.toProto(): DataProto.DataPoint =
         is Repetitions ->
             intervalProto()
                 .setDataType(protoDataType("Repetitions"))
-                .apply { putValues("count", longVal(count)) }
+                .apply {
+                    putValues("count", longVal(count))
+                    putValues("type", enumVal(type))
+                }
                 .build()
         is SleepSession ->
             intervalProto()

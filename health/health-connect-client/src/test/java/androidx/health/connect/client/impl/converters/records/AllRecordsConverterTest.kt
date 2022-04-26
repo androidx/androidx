@@ -19,6 +19,7 @@ import androidx.health.connect.client.metadata.DataOrigin
 import androidx.health.connect.client.metadata.Device
 import androidx.health.connect.client.metadata.Metadata
 import androidx.health.connect.client.records.ActiveCaloriesBurned
+import androidx.health.connect.client.records.ActiveEnergyBurned
 import androidx.health.connect.client.records.ActivityEvent
 import androidx.health.connect.client.records.ActivityEventTypes
 import androidx.health.connect.client.records.ActivityLap
@@ -38,6 +39,7 @@ import androidx.health.connect.client.records.CervicalMucusAmounts
 import androidx.health.connect.client.records.CervicalMucusTextures
 import androidx.health.connect.client.records.CervicalPosition
 import androidx.health.connect.client.records.CyclingPedalingCadence
+import androidx.health.connect.client.records.CyclingPedalingCadenceSeries
 import androidx.health.connect.client.records.Distance
 import androidx.health.connect.client.records.ElevationGained
 import androidx.health.connect.client.records.FloorsClimbed
@@ -63,6 +65,8 @@ import androidx.health.connect.client.records.OvulationTest
 import androidx.health.connect.client.records.OvulationTestResults
 import androidx.health.connect.client.records.OxygenSaturation
 import androidx.health.connect.client.records.Power
+import androidx.health.connect.client.records.PowerSeries
+import androidx.health.connect.client.records.RepetitionActivityTypes
 import androidx.health.connect.client.records.Repetitions
 import androidx.health.connect.client.records.RespiratoryRate
 import androidx.health.connect.client.records.RestingHeartRate
@@ -71,8 +75,10 @@ import androidx.health.connect.client.records.SleepSession
 import androidx.health.connect.client.records.SleepStage
 import androidx.health.connect.client.records.SleepStageTypes
 import androidx.health.connect.client.records.Speed
+import androidx.health.connect.client.records.SpeedSeries
 import androidx.health.connect.client.records.Steps
 import androidx.health.connect.client.records.StepsCadence
+import androidx.health.connect.client.records.StepsCadenceSeries
 import androidx.health.connect.client.records.SwimmingStrokes
 import androidx.health.connect.client.records.SwimmingTypes
 import androidx.health.connect.client.records.TotalCaloriesBurned
@@ -101,7 +107,7 @@ private val TEST_METADATA =
         uid = "uid",
         clientId = "clientId",
         clientVersion = 10,
-        device = Device(identifier = "identifier", manufacturer = "manufacturer"),
+        device = Device(manufacturer = "manufacturer"),
         lastModifiedTime = END_TIME,
         dataOrigin = DataOrigin(packageName = "appId")
     )
@@ -261,13 +267,25 @@ class AllRecordsConverterTest {
     }
 
     @Test
-    fun testCyclingPedalingCadence() {
+    fun testCyclingPedalingCadenceSeries() {
         val data =
-            CyclingPedalingCadence(
-                revolutionsPerMinute = 1.0,
-                time = START_TIME,
-                zoneOffset = END_ZONE_OFFSET,
-                metadata = TEST_METADATA
+            CyclingPedalingCadenceSeries(
+                startTime = START_TIME,
+                startZoneOffset = START_ZONE_OFFSET,
+                endTime = END_TIME,
+                endZoneOffset = END_ZONE_OFFSET,
+                samples =
+                    listOf(
+                        CyclingPedalingCadence(
+                            time = START_TIME,
+                            revolutionsPerMinute = 1.0,
+                        ),
+                        CyclingPedalingCadence(
+                            time = START_TIME,
+                            revolutionsPerMinute = 2.0,
+                        ),
+                    ),
+                metadata = TEST_METADATA,
             )
 
         assertThat(toRecord(data.toProto())).isEqualTo(data)
@@ -498,13 +516,25 @@ class AllRecordsConverterTest {
     }
 
     @Test
-    fun testPower() {
+    fun testPowerSeries() {
         val data =
-            Power(
-                power = 1.0,
-                time = START_TIME,
-                zoneOffset = END_ZONE_OFFSET,
-                metadata = TEST_METADATA
+            PowerSeries(
+                startTime = START_TIME,
+                startZoneOffset = START_ZONE_OFFSET,
+                endTime = END_TIME,
+                endZoneOffset = END_ZONE_OFFSET,
+                samples =
+                    listOf(
+                        Power(
+                            time = START_TIME,
+                            watts = 1.0,
+                        ),
+                        Power(
+                            time = START_TIME,
+                            watts = 2.0,
+                        ),
+                    ),
+                metadata = TEST_METADATA,
             )
 
         assertThat(toRecord(data.toProto())).isEqualTo(data)
@@ -550,26 +580,50 @@ class AllRecordsConverterTest {
     }
 
     @Test
-    fun testSpeed() {
+    fun testSpeedSeries() {
         val data =
-            Speed(
-                speedMetersPerSecond = 1.0,
-                time = START_TIME,
-                zoneOffset = END_ZONE_OFFSET,
-                metadata = TEST_METADATA
+            SpeedSeries(
+                startTime = START_TIME,
+                startZoneOffset = START_ZONE_OFFSET,
+                endTime = END_TIME,
+                endZoneOffset = END_ZONE_OFFSET,
+                samples =
+                    listOf(
+                        Speed(
+                            time = START_TIME,
+                            metersPerSecond = 1.0,
+                        ),
+                        Speed(
+                            time = START_TIME,
+                            metersPerSecond = 2.0,
+                        ),
+                    ),
+                metadata = TEST_METADATA,
             )
 
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
-    fun testStepsCadence() {
+    fun testStepsCadenceSeries() {
         val data =
-            StepsCadence(
-                rate = 1.0,
-                time = START_TIME,
-                zoneOffset = END_ZONE_OFFSET,
-                metadata = TEST_METADATA
+            StepsCadenceSeries(
+                startTime = START_TIME,
+                startZoneOffset = START_ZONE_OFFSET,
+                endTime = END_TIME,
+                endZoneOffset = END_ZONE_OFFSET,
+                samples =
+                    listOf(
+                        StepsCadence(
+                            time = START_TIME,
+                            rate = 1.0,
+                        ),
+                        StepsCadence(
+                            time = START_TIME,
+                            rate = 2.0,
+                        ),
+                    ),
+                metadata = TEST_METADATA,
             )
 
         assertThat(toRecord(data.toProto())).isEqualTo(data)
@@ -619,6 +673,21 @@ class AllRecordsConverterTest {
     fun testActiveCaloriesBurned() {
         val data =
             ActiveCaloriesBurned(
+                energyKcal = 1.0,
+                startTime = START_TIME,
+                startZoneOffset = START_ZONE_OFFSET,
+                endTime = END_TIME,
+                endZoneOffset = END_ZONE_OFFSET,
+                metadata = TEST_METADATA
+            )
+
+        assertThat(toRecord(data.toProto())).isEqualTo(data)
+    }
+
+    @Test
+    fun testActiveEnergyBurned() {
+        val data =
+            ActiveEnergyBurned(
                 energyKcal = 1.0,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
@@ -800,6 +869,7 @@ class AllRecordsConverterTest {
         val data =
             Repetitions(
                 count = 1,
+                type = RepetitionActivityTypes.JUMPING_JACK,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
                 endTime = END_TIME,

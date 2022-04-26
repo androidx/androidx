@@ -39,6 +39,7 @@ import androidx.wear.compose.material.ToggleChipDefaults
 @Composable
 fun ToggleChipWithIcon() {
     var checked by remember { mutableStateOf(true) }
+    // When we have both label and secondary label present limit both to 1 line of text
     ToggleChip(
         label = {
             Text("SwitchIcon", maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -75,8 +76,11 @@ fun ToggleChipWithIcon() {
 @Composable
 fun SplitToggleChipWithCheckbox() {
     var checked by remember { mutableStateOf(true) }
+    // When we have no secondary label we can have up to 2 lines of text
     SplitToggleChip(
-        label = { Text("Split with CheckboxIcon") },
+        label = {
+            Text("Split with CheckboxIcon", maxLines = 2, overflow = TextOverflow.Ellipsis)
+        },
         checked = checked,
         toggleControl = {
             Icon(

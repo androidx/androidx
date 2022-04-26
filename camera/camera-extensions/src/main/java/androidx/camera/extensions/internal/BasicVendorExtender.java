@@ -123,7 +123,7 @@ public class BasicVendorExtender implements VendorExtender {
     public boolean isExtensionAvailable(@NonNull String cameraId,
             @NonNull Map<String, CameraCharacteristics> characteristicsMap) {
 
-        if (mExtensionDisabledValidator.shouldDisableExtension(cameraId, mMode, false)) {
+        if (mExtensionDisabledValidator.shouldDisableExtension(cameraId, mMode)) {
             return false;
         }
 

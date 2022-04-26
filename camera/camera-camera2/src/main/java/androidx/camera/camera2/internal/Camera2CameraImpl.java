@@ -1280,6 +1280,11 @@ final class Camera2CameraImpl implements CameraInternal {
             // Recreates the Builder to add extra config needed
             CaptureConfig.Builder builder = CaptureConfig.Builder.from(captureConfig);
 
+            if (captureConfig.getTemplateType() == CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG
+                    && captureConfig.getCameraCaptureResult() != null) {
+                builder.setCameraCaptureResult(captureConfig.getCameraCaptureResult());
+            }
+
             if (captureConfig.getSurfaces().isEmpty() && captureConfig.isUseRepeatingSurface()) {
                 // Checks and attaches repeating surface to the request if there's no surface
                 // has been already attached. If there's no valid repeating surface to be

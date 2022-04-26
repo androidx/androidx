@@ -45,8 +45,7 @@ constructor(
         @ErrorCode
         fun safeErrorCode(errorCode: Int): Int {
             return ErrorCode::class
-                .java
-                .declaredFields
+                .java.declaredFields
                 .filter { it.type.isAssignableFrom(Int::class.java) }
                 .map { field: Field ->
                     try {

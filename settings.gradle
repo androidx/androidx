@@ -23,6 +23,7 @@ buildscript {
     dependencies {
         classpath("com.gradle:gradle-enterprise-gradle-plugin:3.9")
         classpath("com.gradle:common-custom-user-data-gradle-plugin:1.6.5")
+        classpath("androidx.build.gradle.gcpbuildcache:gcpbuildcache:1.0.0-alpha02")
     }
 }
 
@@ -59,6 +60,7 @@ getGradle().beforeProject {
 
 apply(plugin: "com.gradle.enterprise")
 apply(plugin: "com.gradle.common-custom-user-data-gradle-plugin")
+apply(plugin: "androidx.build.gradle.gcpbuildcache")
 
 gradleEnterprise {
     server = "https://ge.androidx.dev"
@@ -86,6 +88,11 @@ rootProject.name = "androidx"
 dependencyResolutionManagement {
     versionCatalogs {
         libs {
+            def metalavaOverride = System.getenv("METALAVA_VERSION")
+            if (metalavaOverride != null) {
+                logger.warn("Using custom version ${metalavaOverride} of metalava due to METALAVA_VERSION being set.")
+                version('metalava', metalavaOverride)
+            }
             def skikoOverride = System.getenv("SKIKO_VERSION")
             if (skikoOverride != null) {
                 logger.warn("Using custom version ${skikoOverride} of SKIKO due to SKIKO_VERSION being set.")
@@ -424,6 +431,7 @@ includeProject(":compose:lint:common", [BuildType.COMPOSE, BuildType.MAIN])
 includeProject(":compose:lint:common-test", [BuildType.COMPOSE, BuildType.MAIN])
 includeProject(":compose:material", [BuildType.COMPOSE])
 includeProject(":compose:material3:material3", [BuildType.COMPOSE])
+includeProject(":compose:material3:material3-lint", [BuildType.COMPOSE])
 includeProject(":compose:material3:material3-window-size-class", [BuildType.COMPOSE])
 includeProject(":compose:material3:material3-window-size-class:material3-window-size-class-samples", "compose/material3/material3-window-size-class/samples", [BuildType.COMPOSE])
 includeProject(":compose:material:material", [BuildType.COMPOSE])
@@ -653,6 +661,7 @@ includeProject(":navigation:navigation-fragment-ktx", [BuildType.MAIN, BuildType
 includeProject(":navigation:navigation-integration-tests", "navigation/integration-tests", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":navigation:navigation-integration-tests:testapp", "navigation/integration-tests/testapp", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":navigation:navigation-runtime", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
+includeProject(":navigation:navigation-runtime-lint", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
 includeProject(":navigation:navigation-runtime-ktx", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
 includeProject(":navigation:navigation-runtime-truth", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":navigation:navigation-safe-args-generator", [BuildType.MAIN, BuildType.FLAN])

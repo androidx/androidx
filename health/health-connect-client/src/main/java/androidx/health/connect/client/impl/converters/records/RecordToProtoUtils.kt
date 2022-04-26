@@ -73,7 +73,6 @@ private fun Device.toProto(): DataProto.Device {
     val obj = this
     return DataProto.Device.newBuilder()
         .apply {
-            obj.identifier?.let { setIdentifier(it) }
             obj.manufacturer?.let { setManufacturer(it) }
             obj.model?.let { setModel(it) }
             obj.type?.let { setType(it) }

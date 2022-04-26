@@ -1,3 +1,4 @@
+PLandroidx/wear/compose/material/AutoCenteringParams;->**(**)**
 HSPLandroidx/wear/compose/material/BrushPainter;->**(**)**
 Landroidx/wear/compose/material/ButtonColors;
 HSPLandroidx/wear/compose/material/ButtonDefaults;->**(**)**
@@ -53,7 +54,7 @@ Landroidx/wear/compose/material/R;
 HSPLandroidx/wear/compose/material/RangeDefaults;->**(**)**
 SPLandroidx/wear/compose/material/RangeDefaultsKt**->**(**)**
 SPLandroidx/wear/compose/material/RangeIcons;->**(**)**
-SPLandroidx/wear/compose/material/ResistanceConfig;->**(**)**
+HSPLandroidx/wear/compose/material/ResistanceConfig;->**(**)**
 HSPLandroidx/wear/compose/material/Resources_androidKt**->**(**)**
 HSPLandroidx/wear/compose/material/ScaffoldKt**->**(**)**
 HSPLandroidx/wear/compose/material/ScaleAndAlpha;->**(**)**

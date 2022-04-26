@@ -550,13 +550,21 @@ private class DelegatingComplicationText(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as DelegatingComplicationText
-
-        if (delegate != other.delegate) return false
-
-        return true
+        when (other) {
+            is DelegatingComplicationText -> {
+                return delegate == other.delegate
+            }
+            is PlainComplicationText -> {
+                return other.toWireComplicationText() == delegate
+            }
+            is TimeDifferenceComplicationText -> {
+                return other.toWireComplicationText() == delegate
+            }
+            is TimeFormatComplicationText -> {
+                return other.toWireComplicationText() == delegate
+            }
+        }
+        return false
     }
 
     override fun hashCode(): Int {
