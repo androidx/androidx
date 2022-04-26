@@ -38,6 +38,7 @@ kotlin {
         commonMain {
             dependencies {
                 api(libs.kotlinStdlib)
+                api(libs.kotlinCoroutinesCore)
                 api(project(":datastore:datastore-core"))
             }
         }
@@ -75,4 +76,8 @@ androidx {
     description = "Android Preferences DataStore without the Android Dependencies"
     legacyDisableKotlinStrictApiMode = true
     publishPlatforms = ["jvm"]
+}
+
+dependencies {
+    implementation 'androidx.datastore:datastore-core:1.0.0'
 }

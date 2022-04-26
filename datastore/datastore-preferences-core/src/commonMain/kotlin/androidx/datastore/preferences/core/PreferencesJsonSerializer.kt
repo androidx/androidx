@@ -16,15 +16,23 @@
 
 package androidx.datastore.preferences.core
 
-import kotlinx.coroutines.CoroutineDispatcher
+import androidx.datastore.core.InputStream
+import androidx.datastore.core.OutputStream
+import androidx.datastore.core.Serializer
 
-internal expect fun <K, V> immutableMap(map:Map<K, V>):Map<K, V>
-internal expect fun <T> immutableSet(set:Set<T>):Set<T>
+class PreferencesJsonSerializer  : Serializer<Preferences> {
+    override val defaultValue: Preferences
+        get() {
+            return emptyPreferences()
+        }
 
-internal expect fun ioDispatcher(): CoroutineDispatcher
+    override suspend fun readFrom(input: InputStream): Preferences {
+        TODO("Not yet implemented")
+    }
 
-internal expect class AtomicBoolean {
-    constructor(initialValue: Boolean)
-    fun set(value:Boolean)
-    fun get():Boolean
+    override suspend fun writeTo(t: Preferences, output: OutputStream) {
+        TODO("Not yet implemented")
+    }
+
+
 }
