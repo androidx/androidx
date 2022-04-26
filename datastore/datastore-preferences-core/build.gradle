@@ -19,26 +19,41 @@ import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
-    id("kotlin")
+    id("org.jetbrains.kotlin.multiplatform")
 }
 
-BundleInsideHelper.forInsideJar(
-    project,
-    /* from = */ "com.google.protobuf",
-    /* to =   */ "androidx.datastore.preferences.protobuf"
-)
+//todo: get working with kmp
+//BundleInsideHelper.forInsideJar(
+//        project,
+//        /* from = */ "com.google.protobuf",
+//        /* to =   */ "androidx.datastore.preferences.protobuf"
+//)
 
-dependencies {
-    bundleInside(project(
-            path: ":datastore:datastore-preferences-proto",
-            configuration: "export"
-    ))
-    api(libs.kotlinStdlib)
-    api(project(":datastore:datastore-core"))
+kotlin {
+    jvm {
+        withJava()
+    }
 
-    testImplementation(libs.junit)
-    testImplementation(libs.kotlinCoroutinesTest)
-    testImplementation(libs.kotlinTest)
+    sourceSets {
+        jvmMain {
+            dependencies {
+                //todo: get working with kmp
+//                bundleInside(project(
+//                        path: ":datastore:datastore-preferences-proto",
+//                        configuration: "export"
+//                ))
+                api(libs.kotlinStdlib)
+                api(project(":datastore:datastore-core"))
+            }
+        }
+        jvmTest {
+            dependencies {
+                implementation(libs.junit)
+                implementation(libs.kotlinCoroutinesTest)
+                implementation(libs.kotlinTest)
+            }
+        }
+    }
 }
 
 androidx {
@@ -48,4 +63,5 @@ androidx {
     inceptionYear = "2020"
     description = "Android Preferences DataStore without the Android Dependencies"
     legacyDisableKotlinStrictApiMode = true
+    publishPlatforms = ["jvm"]
 }
