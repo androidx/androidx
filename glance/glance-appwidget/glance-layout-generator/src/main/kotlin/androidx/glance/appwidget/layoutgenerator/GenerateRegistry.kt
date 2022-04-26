@@ -45,6 +45,7 @@ import java.io.File
 internal fun generateRegistry(
     packageName: String,
     layouts: Map<File, List<ContainerProperties>>,
+    boxChildLayouts: Map<File, List<BoxChildProperties>>,
     outputSourceDir: File,
 ) {
     outputSourceDir.mkdirs()
@@ -133,6 +134,16 @@ internal fun generateRegistry(
     file.addFunction(generatedChildrenApi21)
     file.addType(generatedContainerApi31)
 
+    // TODO: only register the box children on T+, since the layouts are in layout-v32
+    val generatedBoxChildren = propertySpec(
+        "generatedBoxChildren",
+        BoxChildrenMap,
+        INTERNAL,
+    ) {
+        initializer(buildBoxChildInitializer(boxChildLayouts))
+    }
+    file.addProperty(generatedBoxChildren)
+
     val generatedComplexLayouts = propertySpec("generatedComplexLayouts", LayoutsMap, INTERNAL) {
         initializer(buildComplexInitializer())
     }
@@ -201,6 +212,24 @@ private fun buildChildrenInitializer(
     }
 }
 
+private fun buildBoxChildInitializer(layouts: Map<File, List<BoxChildProperties>>): CodeBlock =
+    buildCodeBlock {
+        withIndent {
+            addStatement("mapOf(")
+            withIndent {
+                add(
+                    layouts.map {
+                        it.key to createBoxChildFileInitializer(it.key, it.value)
+                    }
+                        .sortedBy { it.first.nameWithoutExtension }
+                        .map { it.second }
+                        .joinToCode("")
+                )
+            }
+            addStatement(")")
+        }
+    }
+
 private fun buildComplexInitializer(): CodeBlock {
     return buildCodeBlock {
         addStatement("mapOf(")
@@ -258,6 +287,26 @@ private fun createFileInitializer(
                 horizontalAlignment = props.horizontalAlignment,
                 verticalAlignment = props.verticalAlignment,
                 numChildren = props.numberChildren,
+            )
+        }
+    }
+
+private fun createBoxChildFileInitializer(
+    layout: File,
+    generated: List<BoxChildProperties>
+): CodeBlock =
+    buildCodeBlock {
+        val viewType = layout.nameWithoutExtension.toLayoutType()
+        generated.forEach { props ->
+            addBoxChild(
+                resourceName = makeBoxChildResourceName(
+                    layout,
+                    props.horizontalAlignment,
+                    props.verticalAlignment
+                ),
+                viewType = viewType,
+                horizontalAlignment = props.horizontalAlignment,
+                verticalAlignment = props.verticalAlignment,
             )
         }
     }
@@ -350,8 +399,24 @@ private fun CodeBlock.Builder.addContainer(
     addStatement(") to %T(layoutId = R.layout.$resourceName),", ContainerInfo)
 }
 
+private fun CodeBlock.Builder.addBoxChild(
+    resourceName: String,
+    viewType: String,
+    horizontalAlignment: HorizontalAlignment,
+    verticalAlignment: VerticalAlignment,
+) {
+    addStatement("%T(", BoxChildSelector)
+    withIndent {
+        addStatement("type = %M,", makeViewType(viewType))
+        addStatement("horizontalAlignment = %M, ", horizontalAlignment.code)
+        addStatement("verticalAlignment = %M, ", verticalAlignment.code)
+    }
+    addStatement(") to %T(layoutId = R.layout.$resourceName),", LayoutInfo)
+}
+
 private val ContainerSelector = ClassName("androidx.glance.appwidget", "ContainerSelector")
 private val SizeSelector = ClassName("androidx.glance.appwidget", "SizeSelector")
+private val BoxChildSelector = ClassName("androidx.glance.appwidget", "BoxChildSelector")
 private val LayoutInfo = ClassName("androidx.glance.appwidget", "LayoutInfo")
 private val ContainerInfo = ClassName("androidx.glance.appwidget", "ContainerInfo")
 private val ContainerMap = Map::class.asTypeName().parameterizedBy(ContainerSelector, ContainerInfo)
@@ -381,6 +446,7 @@ internal val AlignmentBottom = MemberName(VerticalAlignmentType, "Bottom")
 private val LayoutType = ClassName("androidx.glance.appwidget", "LayoutType")
 private val ChildrenMap = Map::class.asTypeName().parameterizedBy(INT, SizeSelectorToIntMap)
 private val ContainerChildrenMap = Map::class.asTypeName().parameterizedBy(LayoutType, ChildrenMap)
+private val BoxChildrenMap = Map::class.asTypeName().parameterizedBy(BoxChildSelector, LayoutInfo)
 
 private fun makeViewType(name: String) =
     MemberName("androidx.glance.appwidget.LayoutType", name)
@@ -441,6 +507,17 @@ internal fun makeChildResourceName(
         verticalAlignment?.resourceName,
         "group",
         pos
+    ).joinToString(separator = "_")
+
+internal fun makeBoxChildResourceName(
+    file: File,
+    horizontalAlignment: HorizontalAlignment?,
+    verticalAlignment: VerticalAlignment?
+) =
+    listOf(
+        file.nameWithoutExtension,
+        horizontalAlignment?.resourceName,
+        verticalAlignment?.resourceName,
     ).joinToString(separator = "_")
 
 internal fun makeIdName(pos: Int, width: ValidSize, height: ValidSize) =
