@@ -1,0 +1,576 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+ Copyright (C) 2021 The Android Open Source Project
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- no translation found for back_caps_action_title (6392829425035919422) -->
+    <skip />
+    <!-- no translation found for home_caps_action_title (4853167242566949502) -->
+    <skip />
+    <!-- no translation found for exit_action_title (9086586388884500731) -->
+    <skip />
+    <!-- no translation found for refresh_action_title (3674260822403151377) -->
+    <skip />
+    <!-- no translation found for close_action_title (2661907510124308560) -->
+    <skip />
+    <!-- no translation found for grant_access_action_title (4033140828804350723) -->
+    <skip />
+    <!-- no translation found for enable_location_action_title (8181862247222797044) -->
+    <skip />
+    <!-- no translation found for cancel_action_title (1149738685397349236) -->
+    <skip />
+    <!-- no translation found for stop_action_title (1187619482795416314) -->
+    <skip />
+    <!-- no translation found for more_action_title (1039516575011403837) -->
+    <skip />
+    <!-- no translation found for call_action_title (6218977436905001611) -->
+    <skip />
+    <!-- no translation found for primary_action_title (7042003552215710683) -->
+    <skip />
+    <!-- no translation found for options_action_title (1168121856107932984) -->
+    <skip />
+    <!-- no translation found for search_action_title (3483459674263446335) -->
+    <skip />
+    <!-- no translation found for checked_action_title (906023941445896399) -->
+    <skip />
+    <!-- no translation found for unchecked_action_title (802503415474307811) -->
+    <skip />
+    <!-- no translation found for on_action_title (4129601573763429611) -->
+    <skip />
+    <!-- no translation found for off_action_title (8669201170189204848) -->
+    <skip />
+    <!-- no translation found for settings_action_title (8616900063253887861) -->
+    <skip />
+    <!-- no translation found for accept_action_title (6172053420803596132) -->
+    <skip />
+    <!-- no translation found for reject_action_title (6730366705938402668) -->
+    <skip />
+    <!-- no translation found for ok_action_title (7128494973966098611) -->
+    <skip />
+    <!-- no translation found for throw_action_title (7163710562670220163) -->
+    <skip />
+    <!-- no translation found for commute_action_title (2585755255290185096) -->
+    <skip />
+    <!-- no translation found for sign_out_action_title (1653943000866713010) -->
+    <skip />
+    <!-- no translation found for try_anyway_action_title (7384500054249311718) -->
+    <skip />
+    <!-- no translation found for bug_reported_toast_msg (2487119172744644317) -->
+    <skip />
+    <!-- no translation found for zoomed_in_toast_msg (8915301497303842649) -->
+    <skip />
+    <!-- no translation found for zoomed_out_toast_msg (6260981223227212493) -->
+    <skip />
+    <!-- no translation found for triggered_toast_msg (3396166539208366382) -->
+    <skip />
+    <!-- no translation found for primary_toast_msg (7153771322662005447) -->
+    <skip />
+    <!-- no translation found for search_toast_msg (7826530065407699347) -->
+    <skip />
+    <!-- no translation found for options_toast_msg (2146223786877557730) -->
+    <skip />
+    <!-- no translation found for favorite_toast_msg (522064494016370117) -->
+    <skip />
+    <!-- no translation found for not_favorite_toast_msg (6831181108681007428) -->
+    <skip />
+    <!-- no translation found for nav_requested_toast_msg (6696525973145493908) -->
+    <skip />
+    <!-- no translation found for selected_route_toast_msg (3149189677200086656) -->
+    <skip />
+    <!-- no translation found for visible_routes_toast_msg (7065558153736024203) -->
+    <skip />
+    <!-- no translation found for second_item_toast_msg (7210054709419608215) -->
+    <skip />
+    <!-- no translation found for third_item_checked_toast_msg (3022450599567347361) -->
+    <skip />
+    <!-- no translation found for fifth_item_checked_toast_msg (1627599668504718594) -->
+    <skip />
+    <!-- no translation found for sixth_item_toast_msg (6117028866385793707) -->
+    <skip />
+    <!-- no translation found for settings_toast_msg (7697794473002342727) -->
+    <skip />
+    <!-- no translation found for parked_toast_msg (2532422265890824446) -->
+    <skip />
+    <!-- no translation found for more_toast_msg (5938288138225509885) -->
+    <skip />
+    <!-- no translation found for commute_toast_msg (4112684360647638688) -->
+    <skip />
+    <!-- no translation found for grant_location_permission_toast_msg (268046297444808010) -->
+    <skip />
+    <!-- no translation found for sign_in_with_google_toast_msg (5720947549233124775) -->
+    <skip />
+    <!-- no translation found for changes_selection_to_index_toast_msg_prefix (957766225794389167) -->
+    <skip />
+    <!-- no translation found for first_row_title (219428344573165351) -->
+    <skip />
+    <!-- no translation found for first_row_text (3887390298628338716) -->
+    <skip />
+    <!-- no translation found for other_row_title_prefix (4702355788835253197) -->
+    <skip />
+    <!-- no translation found for other_row_text (7510279447493169945) -->
+    <skip />
+    <!-- no translation found for navigate (2713090390373996139) -->
+    <skip />
+    <!-- no translation found for dial (3145707439707628311) -->
+    <skip />
+    <!-- no translation found for address (9010635942573581302) -->
+    <skip />
+    <!-- no translation found for phone (2504766809811627577) -->
+    <skip />
+    <!-- no translation found for fail_start_nav (6921321606009212189) -->
+    <skip />
+    <!-- no translation found for fail_start_dialer (1471602619507306261) -->
+    <skip />
+    <!-- no translation found for car_hardware_demo_title (3679106197233262689) -->
+    <skip />
+    <!-- no translation found for car_hardware_info (1244783247616395012) -->
+    <skip />
+    <!-- no translation found for model_info (494224423025683030) -->
+    <skip />
+    <!-- no translation found for no_model_permission (5333629877014978947) -->
+    <skip />
+    <!-- no translation found for manufacturer_unavailable (4978995415869838056) -->
+    <skip />
+    <!-- no translation found for model_unavailable (4075463010215406573) -->
+    <skip />
+    <!-- no translation found for year_unavailable (994338773299644607) -->
+    <skip />
+    <!-- no translation found for energy_profile (81415433590192158) -->
+    <skip />
+    <!-- no translation found for no_energy_profile_permission (4662285713731308888) -->
+    <skip />
+    <!-- no translation found for fuel_types (6811375173343218212) -->
+    <skip />
+    <!-- no translation found for unavailable (3636401138255192934) -->
+    <skip />
+    <!-- no translation found for ev_connector_types (735458637011996125) -->
+    <skip />
+    <!-- no translation found for example_title (530257630320010494) -->
+    <skip />
+    <!-- no translation found for example_1_text (8456567953748293512) -->
+    <skip />
+    <!-- no translation found for example_2_text (718820705318661440) -->
+    <skip />
+    <!-- no translation found for example_3_text (977269832109695627) -->
+    <skip />
+    <!-- no translation found for example_4_text (2043547015979437373) -->
+    <skip />
+    <!-- no translation found for example_5_text (4387859825054561488) -->
+    <skip />
+    <!-- no translation found for example_6_text (7991523168517599600) -->
+    <skip />
+    <!-- no translation found for color_demo (1822427636476178993) -->
+    <skip />
+    <!-- no translation found for list_limit (3023536401535417286) -->
+    <skip />
+    <!-- no translation found for grid_limit (1350116012893549206) -->
+    <skip />
+    <!-- no translation found for pane_limit (981518409516855230) -->
+    <skip />
+    <!-- no translation found for place_list_limit (6785181191763056582) -->
+    <skip />
+    <!-- no translation found for route_list_limit (505793441615134116) -->
+    <skip />
+    <!-- no translation found for content_limits (5726880972110281095) -->
+    <skip />
+    <!-- no translation found for content_limits_demo_title (3207211638386727610) -->
+    <skip />
+    <!-- no translation found for finish_app_msg (8354334557053141891) -->
+    <skip />
+    <!-- no translation found for finish_app_title (9013328479438745074) -->
+    <skip />
+    <!-- no translation found for finish_app_demo_title (1190976061270691419) -->
+    <skip />
+    <!-- no translation found for loading_demo_title (1086529475809143517) -->
+    <skip />
+    <!-- no translation found for loading_demo_row_title (8933049915126088142) -->
+    <skip />
+    <!-- no translation found for pop_to_root (2078277386355064198) -->
+    <skip />
+    <!-- no translation found for pop_to_marker (5007078308762725207) -->
+    <skip />
+    <!-- no translation found for push_stack (2433062141810168976) -->
+    <skip />
+    <!-- no translation found for pop_to_prefix (4288884615669751608) -->
+    <skip />
+    <!-- no translation found for pop_to_title (3924696281273379455) -->
+    <skip />
+    <!-- no translation found for package_not_found_error_msg (7525619456883627939) -->
+    <skip />
+    <!-- no translation found for permissions_granted_msg (2348556088141992714) -->
+    <skip />
+    <!-- no translation found for needs_access_msg_prefix (2204136858798832382) -->
+    <skip />
+    <!-- no translation found for phone_screen_permission_msg (3599815596923367256) -->
+    <skip />
+    <!-- no translation found for enable_location_permission_on_device_msg (472752487966156897) -->
+    <skip />
+    <!-- no translation found for enable_location_permission_on_phone_msg (5082615523959139121) -->
+    <skip />
+    <!-- no translation found for required_permissions_title (5351791879153568211) -->
+    <skip />
+    <!-- no translation found for request_permissions_title (7456426341142412300) -->
+    <skip />
+    <!-- no translation found for cancel_reservation_title (1374986823057959608) -->
+    <skip />
+    <!-- no translation found for reservation_cancelled_msg (6334213670275547875) -->
+    <skip />
+    <!-- no translation found for result_demo_title (3900525190662148290) -->
+    <skip />
+    <!-- no translation found for not_started_for_result_msg (7498800528148447270) -->
+    <skip />
+    <!-- no translation found for started_for_result_msg (4225260243713833974) -->
+    <skip />
+    <!-- no translation found for arrived_exclamation_msg (9132265698563096988) -->
+    <skip />
+    <!-- no translation found for arrived_address_msg (858838027855534700) -->
+    <skip />
+    <!-- no translation found for current_step_cue (2742662984538730379) -->
+    <skip />
+    <!-- no translation found for next_step_cue (381579039472178611) -->
+    <skip />
+    <!-- no translation found for travel_est_trip_text (5134365408383171144) -->
+    <skip />
+    <!-- no translation found for send_notification_title (4731688444696028193) -->
+    <skip />
+    <!-- no translation found for start_notifications_title (8699668027543530460) -->
+    <skip />
+    <!-- no translation found for stop_notifications_title (3703892710275206239) -->
+    <skip />
+    <!-- no translation found for notification_title (5507590705935298176) -->
+    <skip />
+    <!-- no translation found for importance_title (9034862997821839831) -->
+    <skip />
+    <!-- no translation found for category_title (4783851267093259949) -->
+    <skip />
+    <!-- no translation found for ongoing_title (4957996003270280496) -->
+    <skip />
+    <!-- no translation found for notification_demo (1819496937832036387) -->
+    <skip />
+    <!-- no translation found for misc_demo_title (7399959062407349380) -->
+    <skip />
+    <!-- no translation found for navigating_demo_title (7454579665387386476) -->
+    <skip />
+    <!-- no translation found for arrived_demo_title (6708013121387053838) -->
+    <skip />
+    <!-- no translation found for junction_image_demo_title (3302979708776502314) -->
+    <skip />
+    <!-- no translation found for nav_template_demos_title (8215835368932160866) -->
+    <skip />
+    <!-- no translation found for map_template_pane_demo_title (4849450903277412004) -->
+    <skip />
+    <!-- no translation found for map_template_list_demo_title (1473810899303903185) -->
+    <skip />
+    <!-- no translation found for start_notification_title (2208831088632818681) -->
+    <skip />
+    <!-- no translation found for stop_notification_title (3709643750540881176) -->
+    <skip />
+    <!-- no translation found for nav_notification_demo_title (4448683262984308442) -->
+    <skip />
+    <!-- no translation found for go_straight (2301747728609198718) -->
+    <skip />
+    <!-- no translation found for turn_right (4710562732720109969) -->
+    <skip />
+    <!-- no translation found for take_520 (3804796387195842741) -->
+    <skip />
+    <!-- no translation found for gas_station (1203313937444666161) -->
+    <skip />
+    <!-- no translation found for short_route (4831864276538141265) -->
+    <skip />
+    <!-- no translation found for less_busy (310625272281710983) -->
+    <skip />
+    <!-- no translation found for hov_friendly (6956152104754594971) -->
+    <skip />
+    <!-- no translation found for long_route (4737969235741057506) -->
+    <skip />
+    <!-- no translation found for continue_start_nav (6231797535084469163) -->
+    <skip />
+    <!-- no translation found for continue_route (5172258139245088080) -->
+    <skip />
+    <!-- no translation found for routes_title (7799772149932075357) -->
+    <skip />
+    <!-- no translation found for place_list_nav_template_demo_title (8019588508812955290) -->
+    <skip />
+    <!-- no translation found for route_preview_template_demo_title (7878704357953167555) -->
+    <skip />
+    <!-- no translation found for notification_template_demo_title (5076051497316030274) -->
+    <skip />
+    <!-- no translation found for nav_map_template_demo_title (344985380763975398) -->
+    <skip />
+    <!-- no translation found for nav_demos_title (72781206086461004) -->
+    <skip />
+    <!-- no translation found for no_toll_card_permission (6789073114449712090) -->
+    <skip />
+    <!-- no translation found for no_energy_level_permission (1684773185095107825) -->
+    <skip />
+    <!-- no translation found for no_speed_permission (5812532480922675390) -->
+    <skip />
+    <!-- no translation found for no_mileage_permission (4074779840599589847) -->
+    <skip />
+    <!-- no translation found for no_ev_status_permission (933075402821938973) -->
+    <skip />
+    <!-- no translation found for no_accelerometer_permission (896914448469117234) -->
+    <skip />
+    <!-- no translation found for no_gyroscope_permission (665293140266771569) -->
+    <skip />
+    <!-- no translation found for no_compass_permission (5162304489577567125) -->
+    <skip />
+    <!-- no translation found for no_car_hardware_location (3505517472938045093) -->
+    <skip />
+    <!-- no translation found for fetch_toll_info (6864627977128179834) -->
+    <skip />
+    <!-- no translation found for fetch_energy_level (1773415471137542832) -->
+    <skip />
+    <!-- no translation found for fetch_speed (7333830984597189627) -->
+    <skip />
+    <!-- no translation found for fetch_mileage (7490131687788025123) -->
+    <skip />
+    <!-- no translation found for fetch_ev_status (2798910410830567052) -->
+    <skip />
+    <!-- no translation found for fetch_accelerometer (697750041126810911) -->
+    <skip />
+    <!-- no translation found for fetch_gyroscope (7153155318827188539) -->
+    <skip />
+    <!-- no translation found for fetch_compass (7316188117590056717) -->
+    <skip />
+    <!-- no translation found for fetch_location (5015066922035852615) -->
+    <skip />
+    <!-- no translation found for toll_card_state (4430544885695162226) -->
+    <skip />
+    <!-- no translation found for low_energy (3462774027012877028) -->
+    <skip />
+    <!-- no translation found for range (8744960568263400641) -->
+    <skip />
+    <!-- no translation found for fuel (4253578650127250651) -->
+    <skip />
+    <!-- no translation found for battery (2183623637331546820) -->
+    <skip />
+    <!-- no translation found for display_speed (9161318805331348165) -->
+    <skip />
+    <!-- no translation found for raw_speed (7295910214088983967) -->
+    <skip />
+    <!-- no translation found for unit (7697521583928135171) -->
+    <skip />
+    <!-- no translation found for odometer (3925174645651546591) -->
+    <skip />
+    <!-- no translation found for ev_connected (2277845607662494696) -->
+    <skip />
+    <!-- no translation found for ev_open (4916704450914519643) -->
+    <skip />
+    <!-- no translation found for accelerometer (2084026313768299185) -->
+    <skip />
+    <!-- no translation found for gyroscope (3428075828014504651) -->
+    <skip />
+    <!-- no translation found for compass (7037367764762441245) -->
+    <skip />
+    <!-- no translation found for car_hardware_location (5826128477363068617) -->
+    <skip />
+    <!-- no translation found for non_actionable (8999757911111188784) -->
+    <skip />
+    <!-- no translation found for second_item (5245792503030812493) -->
+    <skip />
+    <!-- no translation found for third_item (334088179008716411) -->
+    <skip />
+    <!-- no translation found for fourth_item (1153409687260543158) -->
+    <skip />
+    <!-- no translation found for fifth_item (295284272719956932) -->
+    <skip />
+    <!-- no translation found for sixth_item (3880321601391343607) -->
+    <skip />
+    <!-- no translation found for grid_template_demo_title (6159115661928982245) -->
+    <skip />
+    <!-- no translation found for parked_only_title (3190603222397552672) -->
+    <skip />
+    <!-- no translation found for parked_only_text (8720610556452272916) -->
+    <skip />
+    <!-- no translation found for clicked_row_prefix (9068303427922069941) -->
+    <skip />
+    <!-- no translation found for first_line_text (6648055806656590336) -->
+    <skip />
+    <!-- no translation found for second_line_text (38664490158836864) -->
+    <skip />
+    <!-- no translation found for title_prefix (3991742709199357049) -->
+    <skip />
+    <!-- no translation found for list_template_demo_title (1740208242737246151) -->
+    <skip />
+    <!-- no translation found for long_msg_template_demo_title (1793748562161438131) -->
+    <skip />
+    <!-- no translation found for long_msg_template_text (418743506180774764) -->
+    <skip />
+    <!-- no translation found for long_msg_template_not_supported_text (3641559637317672505) -->
+    <skip />
+    <!-- no translation found for long_msg_template_not_supported_title (8600719470226274925) -->
+    <skip />
+    <!-- no translation found for msg_template_demo_title (3895210951340409473) -->
+    <skip />
+    <!-- no translation found for msg_template_demo_text (2275291617716161409) -->
+    <skip />
+    <!-- no translation found for pane_template_demo_title (7804292600060341608) -->
+    <skip />
+    <!-- no translation found for place_list_template_demo_title (2054022985455460469) -->
+    <skip />
+    <!-- no translation found for browse_places_title (7246005909846715898) -->
+    <skip />
+    <string name="search_template_demo_title" msgid="1770474418958318114">"खोज टेम्प्लेटको डेमो"</string>
+    <!-- no translation found for search_hint (978495498991026792) -->
+    <skip />
+    <!-- no translation found for additional_text (8410289578276941586) -->
+    <skip />
+    <!-- no translation found for google_sign_in (6556259799319701727) -->
+    <skip />
+    <!-- no translation found for use_pin (7850893299484337431) -->
+    <skip />
+    <!-- no translation found for qr_code (5487041647280777397) -->
+    <skip />
+    <!-- no translation found for sign_in_template_not_supported_text (7184733753948837646) -->
+    <skip />
+    <!-- no translation found for sign_in_template_not_supported_title (4892883228898541764) -->
+    <skip />
+    <!-- no translation found for email_hint (7205549445477319606) -->
+    <skip />
+    <!-- no translation found for sign_in_title (4551967308262681703) -->
+    <skip />
+    <!-- no translation found for sign_in_instructions (9044850228284294762) -->
+    <skip />
+    <!-- no translation found for invalid_email_error_msg (5261362663718987167) -->
+    <skip />
+    <!-- no translation found for invalid_length_error_msg (8238905276326976425) -->
+    <skip />
+    <!-- no translation found for invalid_password_error_msg (1090359893902674610) -->
+    <skip />
+    <!-- no translation found for password_hint (2869107073860012864) -->
+    <skip />
+    <!-- no translation found for password_sign_in_instruction_prefix (9105788349198243508) -->
+    <skip />
+    <!-- no translation found for pin_sign_in_instruction (2288691296234360441) -->
+    <skip />
+    <!-- no translation found for qr_code_sign_in_title (8137070561006464518) -->
+    <skip />
+    <!-- no translation found for sign_in_with_google_title (8043752000786977249) -->
+    <skip />
+    <!-- no translation found for provider_sign_in_instruction (7586815688292506743) -->
+    <skip />
+    <!-- no translation found for sign_in_complete_text (8423984266325680606) -->
+    <skip />
+    <!-- no translation found for sign_in_complete_title (8919868148773983428) -->
+    <skip />
+    <string name="sign_in_template_demo_title" msgid="6052035424941410249">"साइन इन टेम्प्लेटको डेमो"</string>
+    <!-- no translation found for images_unknown_host_error (3180661817432720076) -->
+    <skip />
+    <!-- no translation found for icon_title_prefix (8487026131229541244) -->
+    <skip />
+    <!-- no translation found for content_provider_icons_demo_title (5708602618664311097) -->
+    <skip />
+    <!-- no translation found for icons_demo_title (4082976685262307357) -->
+    <skip />
+    <!-- no translation found for app_icon_title (7534936683349723423) -->
+    <skip />
+    <!-- no translation found for vector_no_tint_title (874591632279039146) -->
+    <skip />
+    <!-- no translation found for vector_with_tint_title (1022346419829696827) -->
+    <skip />
+    <!-- no translation found for vector_with_app_theme_attr_title (4890094482708376219) -->
+    <skip />
+    <!-- no translation found for png_res_title (7437083018336747544) -->
+    <skip />
+    <!-- no translation found for png_bitmap_title (120790220238335267) -->
+    <skip />
+    <!-- no translation found for just_row_title (965700021568970725) -->
+    <skip />
+    <!-- no translation found for title_with_app_icon_row_title (6294250714820740520) -->
+    <skip />
+    <!-- no translation found for title_with_res_id_image_row_title (3813134904602875778) -->
+    <skip />
+    <!-- no translation found for title_with_svg_image_row_title (6109092343637263755) -->
+    <skip />
+    <!-- no translation found for colored_secondary_row_title (5173288934252528929) -->
+    <skip />
+    <!-- no translation found for title_with_secondary_lines_row_title (7769408881272549837) -->
+    <skip />
+    <!-- no translation found for title_with_secondary_lines_row_text_1 (8945114692653524102) -->
+    <skip />
+    <!-- no translation found for title_with_secondary_lines_row_text_2 (1017734603405251531) -->
+    <skip />
+    <!-- no translation found for rows_demo_title (3198566660454251007) -->
+    <skip />
+    <!-- no translation found for text_icons_demo_title (8732943920672143201) -->
+    <skip />
+    <!-- no translation found for row_text_icons_demo_title (135167694047524905) -->
+    <skip />
+    <!-- no translation found for selectable_lists_demo_title (5492658731113129386) -->
+    <skip />
+    <!-- no translation found for option_1_title (7221252541651471199) -->
+    <skip />
+    <!-- no translation found for option_2_title (1905146448697963818) -->
+    <skip />
+    <!-- no translation found for option_3_title (6319268250436119258) -->
+    <skip />
+    <!-- no translation found for some_additional_text (4009872495806318260) -->
+    <skip />
+    <!-- no translation found for sample_additional_list (5085372891301576306) -->
+    <skip />
+    <!-- no translation found for task_restriction_demo_title (2212084350718766941) -->
+    <skip />
+    <!-- no translation found for task_limit_reached_msg (6038763366777119364) -->
+    <skip />
+    <!-- no translation found for task_step_of_title (2791717962535723839) -->
+    <skip />
+    <!-- no translation found for task_step_of_text (4646729781462227219) -->
+    <skip />
+    <!-- no translation found for toggle_test_title (924485265152862631) -->
+    <skip />
+    <!-- no translation found for toggle_test_text (8107217216013312857) -->
+    <skip />
+    <!-- no translation found for image_test_title (8273863429801477547) -->
+    <skip />
+    <!-- no translation found for image_test_text (6264812093895530445) -->
+    <skip />
+    <!-- no translation found for additional_data_title (3546689652240300617) -->
+    <skip />
+    <!-- no translation found for additional_data_text (5834065880156294730) -->
+    <skip />
+    <!-- no translation found for misc_templates_demos_title (6077169010255928114) -->
+    <skip />
+    <!-- no translation found for showcase_demos_title (1542092687878113304) -->
+    <skip />
+    <!-- no translation found for location_1_title (8811091210405812841) -->
+    <skip />
+    <!-- no translation found for location_1_description (4801052291684791371) -->
+    <skip />
+    <!-- no translation found for location_2_title (7852752167090941096) -->
+    <skip />
+    <!-- no translation found for location_2_description (3331356135359047166) -->
+    <skip />
+    <!-- no translation found for location_3_title (169499850136279697) -->
+    <skip />
+    <!-- no translation found for location_3_description (3982142774088944850) -->
+    <skip />
+    <!-- no translation found for location_4_title (8258300653873954927) -->
+    <skip />
+    <!-- no translation found for location_4_description (6560365445044381911) -->
+    <skip />
+    <!-- no translation found for location_6_title (6221666052536309889) -->
+    <skip />
+    <!-- no translation found for location_7_title (3384783200675804248) -->
+    <skip />
+    <!-- no translation found for location_8_title (733139775013673611) -->
+    <skip />
+    <!-- no translation found for location_9_title (2549666598000022389) -->
+    <skip />
+    <!-- no translation found for location_description_text_label (2779911545316756419) -->
+    <skip />
+</resources>
