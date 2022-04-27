@@ -24,6 +24,7 @@ import android.util.Log;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.arch.core.util.Function;
 import androidx.room.util.SneakyThrow;
@@ -40,8 +41,12 @@ import java.util.concurrent.TimeUnit;
  * SupportSqliteDatabase.
  *
  * It is important to ensure that the ref count is incremented when using a returned database.
+ *
+ * @hide
  */
-final class AutoCloser {
+// TODO: (b/218894771) Make internal once RoomDatabase is converted to Kotlin.
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+public final class AutoCloser {
 
     @Nullable
     private SupportSQLiteOpenHelper mDelegateOpenHelper = null;
@@ -305,7 +310,7 @@ final class AutoCloser {
      *
      * @param onAutoClose the callback to run
      */
-    public void setAutoCloseCallback(Runnable onAutoClose) {
+    public void setAutoCloseCallback(@NonNull Runnable onAutoClose) {
         mOnAutoCloseCallback = onAutoClose;
     }
 }

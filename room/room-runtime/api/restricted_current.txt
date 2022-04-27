@@ -57,28 +57,38 @@ package androidx.room {
   }
 
   public class InvalidationTracker {
-    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public InvalidationTracker(androidx.room.RoomDatabase!, java.lang.String!...);
-    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public InvalidationTracker(androidx.room.RoomDatabase!, java.util.Map<java.lang.String!,java.lang.String!>!, java.util.Map<java.lang.String!,java.util.Set<java.lang.String!>!>!, java.lang.String!...);
-    method @WorkerThread public void addObserver(androidx.room.InvalidationTracker.Observer);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void addWeakObserver(androidx.room.InvalidationTracker.Observer!);
-    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public <T> androidx.lifecycle.LiveData<T!>! createLiveData(String![]!, java.util.concurrent.Callable<T!>!);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public <T> androidx.lifecycle.LiveData<T!>! createLiveData(String![]!, boolean, java.util.concurrent.Callable<T!>!);
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public InvalidationTracker(androidx.room.RoomDatabase database, java.util.Map<java.lang.String,java.lang.String> shadowTablesMap, java.util.Map<java.lang.String,java.util.Set<java.lang.String>> viewTables, java.lang.String... tableNames);
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public InvalidationTracker(androidx.room.RoomDatabase database, java.lang.String... tableNames);
+    method @WorkerThread public void addObserver(androidx.room.InvalidationTracker.Observer observer);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void addWeakObserver(androidx.room.InvalidationTracker.Observer observer);
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public <T> androidx.lifecycle.LiveData<T> createLiveData(String![] tableNames, java.util.concurrent.Callable<T> computeFunction);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public <T> androidx.lifecycle.LiveData<T> createLiveData(String![] tableNames, boolean inTransaction, java.util.concurrent.Callable<T> computeFunction);
     method public void refreshVersionsAsync();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @WorkerThread public void refreshVersionsSync();
-    method @WorkerThread public void removeObserver(androidx.room.InvalidationTracker.Observer);
+    method @WorkerThread public void removeObserver(androidx.room.InvalidationTracker.Observer observer);
+    field public static final androidx.room.InvalidationTracker.Companion Companion;
+  }
+
+  public static final class InvalidationTracker.Companion {
   }
 
   public abstract static class InvalidationTracker.Observer {
-    ctor protected InvalidationTracker.Observer(String, java.lang.String!...);
-    ctor public InvalidationTracker.Observer(String![]);
-    method public abstract void onInvalidated(java.util.Set<java.lang.String!>);
+    ctor public InvalidationTracker.Observer(String![] tables);
+    ctor protected InvalidationTracker.Observer(String firstTable, java.lang.String... rest);
+    method public abstract void onInvalidated(java.util.Set<java.lang.String> tables);
   }
 
   public class Room {
     ctor @Deprecated public Room();
-    method public static <T extends androidx.room.RoomDatabase> androidx.room.RoomDatabase.Builder<T!> databaseBuilder(android.content.Context, Class<T!>, String);
-    method public static <T extends androidx.room.RoomDatabase> androidx.room.RoomDatabase.Builder<T!> inMemoryDatabaseBuilder(android.content.Context, Class<T!>);
+    method public static final <T extends androidx.room.RoomDatabase> androidx.room.RoomDatabase.Builder<T> databaseBuilder(android.content.Context context, Class<T> klass, String? name);
+    method public static final <T extends androidx.room.RoomDatabase> androidx.room.RoomDatabase.Builder<T> inMemoryDatabaseBuilder(android.content.Context context, Class<T> klass);
+    field public static final androidx.room.Room.Companion Companion;
     field public static final String MASTER_TABLE_NAME = "room_master_table";
+  }
+
+  public static final class Room.Companion {
+    method public <T extends androidx.room.RoomDatabase> androidx.room.RoomDatabase.Builder<T> databaseBuilder(android.content.Context context, Class<T> klass, String? name);
+    method public <T extends androidx.room.RoomDatabase> androidx.room.RoomDatabase.Builder<T> inMemoryDatabaseBuilder(android.content.Context context, Class<T> klass);
   }
 
   public abstract class RoomDatabase {

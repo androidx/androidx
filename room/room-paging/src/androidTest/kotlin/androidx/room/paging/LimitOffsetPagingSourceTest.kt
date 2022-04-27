@@ -27,7 +27,6 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.RoomSQLiteQuery
 import androidx.room.awaitPendingRefresh
-import androidx.room.refreshRunnable
 import androidx.room.util.getColumnIndexOrThrow
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
