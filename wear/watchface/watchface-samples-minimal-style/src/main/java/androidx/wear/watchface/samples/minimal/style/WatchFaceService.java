@@ -43,7 +43,7 @@ public class WatchFaceService extends ListenableWatchFaceService {
             @NonNull CurrentUserStyleRepository currentUserStyleRepository) {
         Renderer renderer =
                 new WatchFaceRenderer(
-                        surfaceHolder, currentUserStyleRepository, watchState);
+                        surfaceHolder, currentUserStyleRepository, watchState, getResources());
         WatchFace watchFace = new WatchFace(WatchFaceType.DIGITAL, renderer);
         return Futures.immediateFuture(watchFace);
     }

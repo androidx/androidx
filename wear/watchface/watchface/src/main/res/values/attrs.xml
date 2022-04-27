@@ -19,8 +19,11 @@
     UserStyleFlavors nodes. -->
     <declare-styleable name="XmlWatchFace" />
 
+    <!-- A StyleOption or UserStyleFlavor id. Required. -->
+    <attr name="id" format="reference|string" />
+
     <!-- A slotId is required. -->
-    <attr name="slotId" format="integer" />
+    <attr name="slotId" format="reference|integer" />
 
     <!-- Optional. First of two non-system data source ComponentNames to be tried in turn. -->
     <attr name="primaryDataSource" format="string" />
@@ -143,10 +146,10 @@
 
     <!-- Defines style option to the appropriate setting. -->
     <declare-styleable name="StyleOption">
-        <!-- And id of UserStyleSetting. -->
+        <!-- An id of UserStyleSetting. -->
         <attr name="id"/>
-        <!-- Boolean/Double/Long value or string id of an option. -->
-        <attr name="value" format="string"/>
+        <!-- Boolean/Double/Long/String value or reference to a string. -->
+        <attr name="value" format="string|reference"/>
     </declare-styleable>
 
     <declare-styleable name="ComplicationPolicy">

@@ -33,7 +33,7 @@
             app:displayName="One complication"
             app:id="one">
             <ComplicationSlotOverlay
-                app:complicationSlotId="1"
+                app:complicationSlotId="@integer/complication_slot_id1"
                 app:enabled="false" />
             <ComplicationSlotOverlay
                 app:complicationSlotId="2"

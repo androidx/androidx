@@ -23,18 +23,18 @@
     app:description="@string/colors_style_setting_description"
     app:displayName="@string/colors_style_setting"
     app:affectedWatchFaceLayers="BASE|COMPLICATIONS|COMPLICATIONS_OVERLAY"
-    app:id="ColorStyle">
+    app:id="@string/list_setting_common_id">
     <OnWatchEditorData android:icon="@drawable/color_style_icon_wf"/>
     <ListOption
         android:icon="@drawable/red_icon"
         app:displayName="@string/red_style_name"
-        app:id="red">
+        app:id="@string/list_setting_common_option_red_id">
         <OnWatchEditorData android:icon="@drawable/red_icon_wf"/>
     </ListOption>
     <ListOption
         android:icon="@drawable/green_icon"
         app:displayName="@string/green_style_name"
-        app:id="green">
+        app:id="@string/list_setting_common_option_green_id">
         <OnWatchEditorData android:icon="@drawable/green_icon_wf"/>
     </ListOption>
 </ListUserStyleSetting>
