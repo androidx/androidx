@@ -13,36 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.room
 
-package androidx.room;
-
-import androidx.annotation.NonNull;
-import androidx.sqlite.db.SupportSQLiteOpenHelper;
+import androidx.sqlite.db.SupportSQLiteOpenHelper
 
 /**
  * Factory class for AutoClosingRoomOpenHelper
  */
-final class AutoClosingRoomOpenHelperFactory implements SupportSQLiteOpenHelper.Factory {
-    @NonNull
-    private final SupportSQLiteOpenHelper.Factory mDelegate;
-
-    @NonNull
-    private final AutoCloser mAutoCloser;
-
-    AutoClosingRoomOpenHelperFactory(
-            @NonNull SupportSQLiteOpenHelper.Factory factory,
-            @NonNull AutoCloser autoCloser) {
-        mDelegate = factory;
-        mAutoCloser = autoCloser;
-    }
-
+internal class AutoClosingRoomOpenHelperFactory(
+    private val delegate: SupportSQLiteOpenHelper.Factory,
+    private val autoCloser: AutoCloser
+) : SupportSQLiteOpenHelper.Factory {
     /**
      * @return AutoClosingRoomOpenHelper instances.
      */
-    @Override
-    @NonNull
-    public AutoClosingRoomOpenHelper create(
-            @NonNull SupportSQLiteOpenHelper.Configuration configuration) {
-        return new AutoClosingRoomOpenHelper(mDelegate.create(configuration), mAutoCloser);
+    override fun create(
+        configuration: SupportSQLiteOpenHelper.Configuration
+    ): AutoClosingRoomOpenHelper {
+        return AutoClosingRoomOpenHelper(delegate.create(configuration), autoCloser)
     }
 }

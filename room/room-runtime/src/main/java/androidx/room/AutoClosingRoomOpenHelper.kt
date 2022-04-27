@@ -13,481 +13,414 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.room
 
-package androidx.room;
-
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.database.CharArrayBuffer;
-import android.database.ContentObserver;
-import android.database.Cursor;
-import android.database.DataSetObserver;
-import android.database.SQLException;
-import android.database.sqlite.SQLiteTransactionListener;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.CancellationSignal;
-import android.util.Pair;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
-import androidx.arch.core.util.Function;
-import androidx.room.util.SneakyThrow;
-import androidx.sqlite.db.SupportSQLiteCompat;
-import androidx.sqlite.db.SupportSQLiteDatabase;
-import androidx.sqlite.db.SupportSQLiteOpenHelper;
-import androidx.sqlite.db.SupportSQLiteQuery;
-import androidx.sqlite.db.SupportSQLiteStatement;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import android.content.ContentResolver
+import android.content.ContentValues
+import android.database.Cursor
+import android.database.SQLException
+import android.database.sqlite.SQLiteTransactionListener
+import android.net.Uri
+import android.os.Build
+import android.os.Bundle
+import android.os.CancellationSignal
+import android.util.Pair
+import androidx.annotation.RequiresApi
+import androidx.room.util.SneakyThrow
+import androidx.sqlite.db.SupportSQLiteCompat
+import androidx.sqlite.db.SupportSQLiteDatabase
+import androidx.sqlite.db.SupportSQLiteOpenHelper
+import androidx.sqlite.db.SupportSQLiteQuery
+import androidx.sqlite.db.SupportSQLiteStatement
+import java.io.IOException
+import java.util.Locale
 
 /**
- * A SupportSQLiteOpenHelper that has autoclose enabled for database connections.
+ * A SupportSQLiteOpenHelper that has auto close enabled for database connections.
  */
-final class AutoClosingRoomOpenHelper implements SupportSQLiteOpenHelper, DelegatingOpenHelper {
-    @NonNull
-    private final SupportSQLiteOpenHelper mDelegateOpenHelper;
+internal class AutoClosingRoomOpenHelper(
+    private val delegateOpenHelper: SupportSQLiteOpenHelper,
+    @JvmField
+    internal val autoCloser: AutoCloser
+) : SupportSQLiteOpenHelper by delegateOpenHelper, DelegatingOpenHelper {
+    private val autoClosingDb: AutoClosingSupportSQLiteDatabase
 
-    @NonNull
-    private final AutoClosingSupportSQLiteDatabase mAutoClosingDb;
-
-    @NonNull
-    private final AutoCloser mAutoCloser;
-
-    AutoClosingRoomOpenHelper(@NonNull SupportSQLiteOpenHelper supportSQLiteOpenHelper,
-            @NonNull AutoCloser autoCloser) {
-        mDelegateOpenHelper = supportSQLiteOpenHelper;
-        mAutoCloser = autoCloser;
-        autoCloser.init(mDelegateOpenHelper);
-        mAutoClosingDb = new AutoClosingSupportSQLiteDatabase(mAutoCloser);
+    init {
+        autoCloser.init(delegateOpenHelper)
+        autoClosingDb = AutoClosingSupportSQLiteDatabase(
+            autoCloser
+        )
     }
 
-    @Nullable
-    @Override
-    public String getDatabaseName() {
-        return mDelegateOpenHelper.getDatabaseName();
-    }
-
-    @Override
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-    public void setWriteAheadLoggingEnabled(boolean enabled) {
-        mDelegateOpenHelper.setWriteAheadLoggingEnabled(enabled);
-    }
-
-    @NonNull
     @RequiresApi(api = Build.VERSION_CODES.N)
-    @Override
-    public SupportSQLiteDatabase getWritableDatabase() {
+    override fun getWritableDatabase(): SupportSQLiteDatabase {
         // Note we don't differentiate between writable db and readable db
         // We try to open the db so the open callbacks run
-        mAutoClosingDb.pokeOpen();
-        return mAutoClosingDb;
+        autoClosingDb.pokeOpen()
+        return autoClosingDb
     }
 
-    @NonNull
     @RequiresApi(api = Build.VERSION_CODES.N)
-    @Override
-    public SupportSQLiteDatabase getReadableDatabase() {
+    override fun getReadableDatabase(): SupportSQLiteDatabase {
         // Note we don't differentiate between writable db and readable db
         // We try to open the db so the open callbacks run
-        mAutoClosingDb.pokeOpen();
-        return mAutoClosingDb;
+        autoClosingDb.pokeOpen()
+        return autoClosingDb
     }
 
-    @Override
-    public void close() {
+    override fun close() {
         try {
-            mAutoClosingDb.close();
-        } catch (IOException e) {
-            SneakyThrow.reThrow(e);
+            autoClosingDb.close()
+        } catch (e: IOException) {
+            SneakyThrow.reThrow(e)
         }
     }
 
-    /**
-     * package protected to pass it to invalidation tracker...
-     */
-    @NonNull
-    AutoCloser getAutoCloser() {
-        return this.mAutoCloser;
-    }
-
-    @NonNull
-    SupportSQLiteDatabase getAutoClosingDb() {
-        return this.mAutoClosingDb;
-    }
-
-    @Override
-    @NonNull
-    public SupportSQLiteOpenHelper getDelegate() {
-        return mDelegateOpenHelper;
+    override fun getDelegate(): SupportSQLiteOpenHelper {
+        return delegateOpenHelper
     }
 
     /**
      * SupportSQLiteDatabase that also keeps refcounts and autocloses the database
      */
-    static final class AutoClosingSupportSQLiteDatabase implements SupportSQLiteDatabase {
-        @NonNull
-        private final AutoCloser mAutoCloser;
-
-        AutoClosingSupportSQLiteDatabase(@NonNull AutoCloser autoCloser) {
-            mAutoCloser = autoCloser;
+    internal class AutoClosingSupportSQLiteDatabase(
+        private val autoCloser: AutoCloser
+    ) : SupportSQLiteDatabase {
+        fun pokeOpen() {
+            autoCloser.executeRefCountingFunction<Any?> { null }
         }
 
-        void pokeOpen() {
-            mAutoCloser.executeRefCountingFunction(db -> null);
+        override fun compileStatement(sql: String): SupportSQLiteStatement {
+            return AutoClosingSupportSqliteStatement(sql, autoCloser)
         }
 
-        @Override
-        public SupportSQLiteStatement compileStatement(String sql) {
-            return new AutoClosingSupportSqliteStatement(sql, mAutoCloser);
-        }
-
-        @Override
-        public void beginTransaction() {
+        override fun beginTransaction() {
             // We assume that after every successful beginTransaction() call there *must* be a
             // endTransaction() call.
-            SupportSQLiteDatabase db = mAutoCloser.incrementCountAndEnsureDbIsOpen();
+            val db = autoCloser.incrementCountAndEnsureDbIsOpen()
             try {
-                db.beginTransaction();
-            } catch (Throwable t) {
+                db.beginTransaction()
+            } catch (t: Throwable) {
                 // Note: we only want to decrement the ref count if the beginTransaction call
                 // fails since there won't be a corresponding endTransaction call.
-                mAutoCloser.decrementCountAndScheduleClose();
-                throw t;
+                autoCloser.decrementCountAndScheduleClose()
+                throw t
             }
         }
 
-        @Override
-        public void beginTransactionNonExclusive() {
+        override fun beginTransactionNonExclusive() {
             // We assume that after every successful beginTransaction() call there *must* be a
             // endTransaction() call.
-            SupportSQLiteDatabase db = mAutoCloser.incrementCountAndEnsureDbIsOpen();
+            val db = autoCloser.incrementCountAndEnsureDbIsOpen()
             try {
-                db.beginTransactionNonExclusive();
-            } catch (Throwable t) {
+                db.beginTransactionNonExclusive()
+            } catch (t: Throwable) {
                 // Note: we only want to decrement the ref count if the beginTransaction call
                 // fails since there won't be a corresponding endTransaction call.
-                mAutoCloser.decrementCountAndScheduleClose();
-                throw t;
+                autoCloser.decrementCountAndScheduleClose()
+                throw t
             }
         }
 
-        @Override
-        public void beginTransactionWithListener(SQLiteTransactionListener transactionListener) {
+        override fun beginTransactionWithListener(transactionListener: SQLiteTransactionListener) {
             // We assume that after every successful beginTransaction() call there *must* be a
             // endTransaction() call.
-            SupportSQLiteDatabase db = mAutoCloser.incrementCountAndEnsureDbIsOpen();
+            val db = autoCloser.incrementCountAndEnsureDbIsOpen()
             try {
-                db.beginTransactionWithListener(transactionListener);
-            } catch (Throwable t) {
+                db.beginTransactionWithListener(transactionListener)
+            } catch (t: Throwable) {
                 // Note: we only want to decrement the ref count if the beginTransaction call
                 // fails since there won't be a corresponding endTransaction call.
-                mAutoCloser.decrementCountAndScheduleClose();
-                throw t;
+                autoCloser.decrementCountAndScheduleClose()
+                throw t
             }
         }
 
-        @Override
-        public void beginTransactionWithListenerNonExclusive(
-                SQLiteTransactionListener transactionListener) {
+        override fun beginTransactionWithListenerNonExclusive(
+            transactionListener: SQLiteTransactionListener
+        ) {
             // We assume that after every successful beginTransaction() call there *will* always
             // be a corresponding endTransaction() call. Without a corresponding
             // endTransactionCall we will never close the db.
-            SupportSQLiteDatabase db = mAutoCloser.incrementCountAndEnsureDbIsOpen();
+            val db = autoCloser.incrementCountAndEnsureDbIsOpen()
             try {
-                db.beginTransactionWithListenerNonExclusive(transactionListener);
-            } catch (Throwable t) {
+                db.beginTransactionWithListenerNonExclusive(transactionListener)
+            } catch (t: Throwable) {
                 // Note: we only want to decrement the ref count if the beginTransaction call
                 // fails since there won't be a corresponding endTransaction call.
-                mAutoCloser.decrementCountAndScheduleClose();
-                throw t;
+                autoCloser.decrementCountAndScheduleClose()
+                throw t
             }
         }
 
-        @Override
-        public void endTransaction() {
-            if (mAutoCloser.getDelegateDatabase() == null) {
-                // This should never happen.
-                throw new IllegalStateException("End transaction called but delegateDb is null");
+        override fun endTransaction() {
+            checkNotNull(autoCloser.delegateDatabase) {
+                "End transaction called but delegateDb is null"
             }
-
             try {
-                mAutoCloser.getDelegateDatabase().endTransaction();
+                autoCloser.delegateDatabase!!.endTransaction()
             } finally {
-                mAutoCloser.decrementCountAndScheduleClose();
+                autoCloser.decrementCountAndScheduleClose()
             }
         }
 
-        @Override
-        public void setTransactionSuccessful() {
-            SupportSQLiteDatabase delegate = mAutoCloser.getDelegateDatabase();
+        override fun setTransactionSuccessful() {
+            autoCloser.delegateDatabase?.setTransactionSuccessful() ?: error(
+                "setTransactionSuccessful called but delegateDb is null"
+            )
+        }
 
-            if (delegate == null) {
-                // This should never happen.
-                throw new IllegalStateException("setTransactionSuccessful called but delegateDb "
-                        + "is null");
+        override fun inTransaction(): Boolean {
+            return if (autoCloser.delegateDatabase == null) {
+                false
+            } else {
+                autoCloser.executeRefCountingFunction(SupportSQLiteDatabase::inTransaction)
             }
-
-            delegate.setTransactionSuccessful();
         }
 
-        @Override
-        public boolean inTransaction() {
-            if (mAutoCloser.getDelegateDatabase() == null) {
-                return false;
+        override fun isDbLockedByCurrentThread(): Boolean {
+            return if (autoCloser.delegateDatabase == null) {
+                false
+            } else {
+                autoCloser.executeRefCountingFunction(
+                    SupportSQLiteDatabase::isDbLockedByCurrentThread
+                )
             }
-            return mAutoCloser.executeRefCountingFunction(SupportSQLiteDatabase::inTransaction);
         }
 
-        @Override
-        public boolean isDbLockedByCurrentThread() {
-            if (mAutoCloser.getDelegateDatabase() == null) {
-                return false;
+        override fun yieldIfContendedSafely(): Boolean {
+            return autoCloser.executeRefCountingFunction(
+                    SupportSQLiteDatabase::yieldIfContendedSafely
+            )
+        }
+
+        override fun yieldIfContendedSafely(sleepAfterYieldDelay: Long): Boolean {
+            return autoCloser.executeRefCountingFunction(
+                SupportSQLiteDatabase::yieldIfContendedSafely
+            )
+        }
+
+        override fun getVersion(): Int {
+            return autoCloser.executeRefCountingFunction(
+                SupportSQLiteDatabase::getVersion
+            )
+        }
+
+        override fun setVersion(version: Int) {
+            autoCloser.executeRefCountingFunction<Any?> { db: SupportSQLiteDatabase ->
+                db.version = version
+                null
             }
-
-            return mAutoCloser.executeRefCountingFunction(
-                    SupportSQLiteDatabase::isDbLockedByCurrentThread);
         }
 
-        @Override
-        public boolean yieldIfContendedSafely() {
-            return mAutoCloser.executeRefCountingFunction(
-                    SupportSQLiteDatabase::yieldIfContendedSafely);
+        override fun getMaximumSize(): Long {
+            return autoCloser.executeRefCountingFunction(
+                SupportSQLiteDatabase::getMaximumSize
+            )
         }
 
-        @Override
-        public boolean yieldIfContendedSafely(long sleepAfterYieldDelay) {
-            return mAutoCloser.executeRefCountingFunction(
-                    SupportSQLiteDatabase::yieldIfContendedSafely);
-
-        }
-
-        @Override
-        public int getVersion() {
-            return mAutoCloser.executeRefCountingFunction(SupportSQLiteDatabase::getVersion);
-        }
-
-        @Override
-        public void setVersion(int version) {
-            mAutoCloser.executeRefCountingFunction(db -> {
-                db.setVersion(version);
-                return null;
-            });
-        }
-
-        @Override
-        public long getMaximumSize() {
-            return mAutoCloser.executeRefCountingFunction(SupportSQLiteDatabase::getMaximumSize);
-        }
-
-        @Override
-        public long setMaximumSize(long numBytes) {
-            return mAutoCloser.executeRefCountingFunction(db -> db.setMaximumSize(numBytes));
-        }
-
-        @Override
-        public long getPageSize() {
-            return mAutoCloser.executeRefCountingFunction(SupportSQLiteDatabase::getPageSize);
-        }
-
-        @Override
-        public void setPageSize(long numBytes) {
-            mAutoCloser.executeRefCountingFunction(db -> {
-                db.setPageSize(numBytes);
-                return null;
-            });
-        }
-
-        @Override
-        public Cursor query(String query) {
-            Cursor result;
-            try {
-                SupportSQLiteDatabase db = mAutoCloser.incrementCountAndEnsureDbIsOpen();
-                result = db.query(query);
-            } catch (Throwable throwable) {
-                mAutoCloser.decrementCountAndScheduleClose();
-                throw throwable;
+        override fun setMaximumSize(numBytes: Long): Long {
+            return autoCloser.executeRefCountingFunction {
+                    db: SupportSQLiteDatabase -> db.setMaximumSize(numBytes)
             }
-
-            return new KeepAliveCursor(result, mAutoCloser);
         }
 
-        @Override
-        public Cursor query(String query, Object[] bindArgs) {
-            Cursor result;
-            try {
-                SupportSQLiteDatabase db = mAutoCloser.incrementCountAndEnsureDbIsOpen();
-                result = db.query(query, bindArgs);
-            } catch (Throwable throwable) {
-                mAutoCloser.decrementCountAndScheduleClose();
-                throw throwable;
-            }
-
-            return new KeepAliveCursor(result, mAutoCloser);
+        override fun getPageSize(): Long {
+            return autoCloser.executeRefCountingFunction(SupportSQLiteDatabase::getPageSize)
         }
 
-        @Override
-        public Cursor query(SupportSQLiteQuery query) {
-
-            Cursor result;
-            try {
-                SupportSQLiteDatabase db = mAutoCloser.incrementCountAndEnsureDbIsOpen();
-                result = db.query(query);
-            } catch (Throwable throwable) {
-                mAutoCloser.decrementCountAndScheduleClose();
-                throw throwable;
+        override fun setPageSize(numBytes: Long) {
+            autoCloser.executeRefCountingFunction<Any?> { db: SupportSQLiteDatabase ->
+                db.pageSize = numBytes
+                null
             }
+        }
 
-            return new KeepAliveCursor(result, mAutoCloser);
+        override fun query(query: String): Cursor {
+            val result = try {
+                autoCloser.incrementCountAndEnsureDbIsOpen().query(query)
+            } catch (throwable: Throwable) {
+                autoCloser.decrementCountAndScheduleClose()
+                throw throwable
+            }
+            return KeepAliveCursor(result, autoCloser)
+        }
+
+        override fun query(query: String, bindArgs: Array<Any>): Cursor {
+            val result = try {
+                autoCloser.incrementCountAndEnsureDbIsOpen().query(query, bindArgs)
+            } catch (throwable: Throwable) {
+                autoCloser.decrementCountAndScheduleClose()
+                throw throwable
+            }
+            return KeepAliveCursor(result, autoCloser)
+        }
+
+        override fun query(query: SupportSQLiteQuery): Cursor {
+            val result = try {
+                autoCloser.incrementCountAndEnsureDbIsOpen().query(query)
+            } catch (throwable: Throwable) {
+                autoCloser.decrementCountAndScheduleClose()
+                throw throwable
+            }
+            return KeepAliveCursor(result, autoCloser)
         }
 
         @RequiresApi(api = Build.VERSION_CODES.N)
-        @Override
-        public Cursor query(SupportSQLiteQuery query, CancellationSignal cancellationSignal) {
-            Cursor result;
-            try {
-                SupportSQLiteDatabase db = mAutoCloser.incrementCountAndEnsureDbIsOpen();
-                result = db.query(query, cancellationSignal);
-            } catch (Throwable throwable) {
-                mAutoCloser.decrementCountAndScheduleClose();
-                throw throwable;
+        override fun query(
+            query: SupportSQLiteQuery,
+            cancellationSignal: CancellationSignal
+        ): Cursor {
+            val result = try {
+                autoCloser.incrementCountAndEnsureDbIsOpen().query(query, cancellationSignal)
+            } catch (throwable: Throwable) {
+                autoCloser.decrementCountAndScheduleClose()
+                throw throwable
             }
-
-            return new KeepAliveCursor(result, mAutoCloser);
+            return KeepAliveCursor(result, autoCloser)
         }
 
-        @Override
-        public long insert(String table, int conflictAlgorithm, ContentValues values)
-                throws SQLException {
-            return mAutoCloser.executeRefCountingFunction(db -> db.insert(table, conflictAlgorithm,
-                    values));
+        @Throws(SQLException::class)
+        override fun insert(table: String, conflictAlgorithm: Int, values: ContentValues): Long {
+            return autoCloser.executeRefCountingFunction { db: SupportSQLiteDatabase ->
+                db.insert(
+                    table, conflictAlgorithm,
+                    values
+                )
+            }
         }
 
-        @Override
-        public int delete(String table, String whereClause, Object[] whereArgs) {
-            return mAutoCloser.executeRefCountingFunction(
-                    db -> db.delete(table, whereClause, whereArgs));
+        override fun delete(table: String, whereClause: String, whereArgs: Array<Any>): Int {
+            return autoCloser.executeRefCountingFunction { db: SupportSQLiteDatabase ->
+                db.delete(
+                    table,
+                    whereClause,
+                    whereArgs
+                )
+            }
         }
 
-        @Override
-        public int update(String table, int conflictAlgorithm, ContentValues values,
-                String whereClause, Object[] whereArgs) {
-            return mAutoCloser.executeRefCountingFunction(db -> db.update(table, conflictAlgorithm,
-                    values, whereClause, whereArgs));
+        override fun update(
+            table: String,
+            conflictAlgorithm: Int,
+            values: ContentValues,
+            whereClause: String,
+            whereArgs: Array<Any>
+        ): Int {
+            return autoCloser.executeRefCountingFunction { db: SupportSQLiteDatabase ->
+                db.update(
+                    table, conflictAlgorithm,
+                    values, whereClause, whereArgs
+                )
+            }
         }
 
-        @Override
-        public void execSQL(String sql) throws SQLException {
-            mAutoCloser.executeRefCountingFunction(db -> {
-                db.execSQL(sql);
-                return null;
-            });
+        @Throws(SQLException::class)
+        override fun execSQL(sql: String) {
+            autoCloser.executeRefCountingFunction<Any?> { db: SupportSQLiteDatabase ->
+                db.execSQL(sql)
+                null
+            }
         }
 
-        @Override
-        public void execSQL(String sql, Object[] bindArgs) throws SQLException {
-            mAutoCloser.executeRefCountingFunction(db -> {
-                db.execSQL(sql, bindArgs);
-                return null;
-            });
+        @Throws(SQLException::class)
+        override fun execSQL(sql: String, bindArgs: Array<Any>) {
+            autoCloser.executeRefCountingFunction<Any?> { db: SupportSQLiteDatabase ->
+                db.execSQL(sql, bindArgs)
+                null
+            }
         }
 
-        @Override
-        public boolean isReadOnly() {
-            return mAutoCloser.executeRefCountingFunction(SupportSQLiteDatabase::isReadOnly);
+        override fun isReadOnly(): Boolean {
+            return autoCloser.executeRefCountingFunction { obj: SupportSQLiteDatabase ->
+                obj.isReadOnly
+            }
         }
 
-        @Override
-        public boolean isOpen() {
+        override fun isOpen(): Boolean {
             // Get the db without incrementing the reference cause we don't want to open
             // the db for an isOpen call.
-            SupportSQLiteDatabase localDelegate = mAutoCloser.getDelegateDatabase();
+            val localDelegate = autoCloser.delegateDatabase ?: return false
+            return localDelegate.isOpen
+        }
 
-            if (localDelegate == null) {
-                return false;
+        override fun needUpgrade(newVersion: Int): Boolean {
+            return autoCloser.executeRefCountingFunction { db: SupportSQLiteDatabase ->
+                db.needUpgrade(
+                    newVersion
+                )
             }
-            return localDelegate.isOpen();
         }
 
-        @Override
-        public boolean needUpgrade(int newVersion) {
-            return mAutoCloser.executeRefCountingFunction(db -> db.needUpgrade(newVersion));
+        override fun getPath(): String {
+            return autoCloser.executeRefCountingFunction { obj: SupportSQLiteDatabase ->
+                obj.path
+            }
         }
 
-        @Override
-        public String getPath() {
-            return mAutoCloser.executeRefCountingFunction(SupportSQLiteDatabase::getPath);
+        override fun setLocale(locale: Locale) {
+            autoCloser.executeRefCountingFunction<Any?> { db: SupportSQLiteDatabase ->
+                db.setLocale(locale)
+                null
+            }
         }
 
-        @Override
-        public void setLocale(Locale locale) {
-            mAutoCloser.executeRefCountingFunction(db -> {
-                db.setLocale(locale);
-                return null;
-            });
-        }
-
-        @Override
-        public void setMaxSqlCacheSize(int cacheSize) {
-            mAutoCloser.executeRefCountingFunction(db -> {
-                db.setMaxSqlCacheSize(cacheSize);
-                return null;
-            });
+        override fun setMaxSqlCacheSize(cacheSize: Int) {
+            autoCloser.executeRefCountingFunction<Any?> { db: SupportSQLiteDatabase ->
+                db.setMaxSqlCacheSize(cacheSize)
+                null
+            }
         }
 
         @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-        @Override
-        public void setForeignKeyConstraintsEnabled(boolean enable) {
-            mAutoCloser.executeRefCountingFunction(db -> {
+        override fun setForeignKeyConstraintsEnabled(enable: Boolean) {
+            autoCloser.executeRefCountingFunction<Any?> { db: SupportSQLiteDatabase ->
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    db.setForeignKeyConstraintsEnabled(enable);
+                    db.setForeignKeyConstraintsEnabled(enable)
                 }
-                return null;
-            });
+                null
+            }
         }
 
-        @Override
-        public boolean enableWriteAheadLogging() {
-            throw new UnsupportedOperationException("Enable/disable write ahead logging on the "
-                    + "OpenHelper instead of on the database directly.");
+        override fun enableWriteAheadLogging(): Boolean {
+            throw UnsupportedOperationException(
+                "Enable/disable write ahead logging on the " +
+                    "OpenHelper instead of on the database directly."
+            )
         }
 
-        @Override
-        public void disableWriteAheadLogging() {
-            throw new UnsupportedOperationException("Enable/disable write ahead logging on the "
-                    + "OpenHelper instead of on the database directly.");
+        override fun disableWriteAheadLogging() {
+            throw UnsupportedOperationException(
+                "Enable/disable write ahead logging on the " +
+                    "OpenHelper instead of on the database directly."
+            )
         }
 
         @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-        @Override
-        public boolean isWriteAheadLoggingEnabled() {
-            return mAutoCloser.executeRefCountingFunction(db -> {
+        override fun isWriteAheadLoggingEnabled(): Boolean {
+            return autoCloser.executeRefCountingFunction { db: SupportSQLiteDatabase ->
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    return db.isWriteAheadLoggingEnabled();
+                    return@executeRefCountingFunction db.isWriteAheadLoggingEnabled
                 }
-                return false;
-            });
+                false
+            }
         }
 
-        @Override
-        public List<Pair<String, String>> getAttachedDbs() {
-            return mAutoCloser.executeRefCountingFunction(SupportSQLiteDatabase::getAttachedDbs);
+        override fun getAttachedDbs(): List<Pair<String, String>> {
+            return autoCloser.executeRefCountingFunction {
+                    obj: SupportSQLiteDatabase -> obj.attachedDbs
+            }
         }
 
-        @Override
-        public boolean isDatabaseIntegrityOk() {
-            return mAutoCloser.executeRefCountingFunction(
-                    SupportSQLiteDatabase::isDatabaseIntegrityOk);
+        override fun isDatabaseIntegrityOk(): Boolean {
+            return autoCloser.executeRefCountingFunction {
+                    obj: SupportSQLiteDatabase -> obj.isDatabaseIntegrityOk
+            }
         }
 
-        @Override
-        public void close() throws IOException {
-            mAutoCloser.closeDatabaseIfOpen();
+        @Throws(IOException::class)
+        override fun close() {
+            autoCloser.closeDatabaseIfOpen()
         }
     }
 
@@ -496,245 +429,37 @@ final class AutoClosingRoomOpenHelper implements SupportSQLiteOpenHelper, Delega
      * reference count until the cursor is closed. The underlying database will not close until
      * this cursor is closed.
      */
-    private static final class KeepAliveCursor implements Cursor {
-        private final Cursor mDelegate;
-        private final AutoCloser mAutoCloser;
-
-        KeepAliveCursor(Cursor delegate, AutoCloser autoCloser) {
-            mDelegate = delegate;
-            mAutoCloser = autoCloser;
-        }
-
+    private class KeepAliveCursor(
+        private val delegate: Cursor,
+        private val autoCloser: AutoCloser
+    ) : Cursor by delegate {
         // close is the only important/changed method here:
-        @Override
-        public void close() {
-            mDelegate.close();
-            mAutoCloser.decrementCountAndScheduleClose();
-        }
-
-        @Override
-        public boolean isClosed() {
-            return mDelegate.isClosed();
-        }
-
-
-        @Override
-        public int getCount() {
-            return mDelegate.getCount();
-        }
-
-        @Override
-        public int getPosition() {
-            return mDelegate.getPosition();
-        }
-
-        @Override
-        public boolean move(int offset) {
-            return mDelegate.move(offset);
-        }
-
-        @Override
-        public boolean moveToPosition(int position) {
-            return mDelegate.moveToPosition(position);
-        }
-
-        @Override
-        public boolean moveToFirst() {
-            return mDelegate.moveToFirst();
-        }
-
-        @Override
-        public boolean moveToLast() {
-            return mDelegate.moveToLast();
-        }
-
-        @Override
-        public boolean moveToNext() {
-            return mDelegate.moveToNext();
-        }
-
-        @Override
-        public boolean moveToPrevious() {
-            return mDelegate.moveToPrevious();
-        }
-
-        @Override
-        public boolean isFirst() {
-            return mDelegate.isFirst();
-        }
-
-        @Override
-        public boolean isLast() {
-            return mDelegate.isLast();
-        }
-
-        @Override
-        public boolean isBeforeFirst() {
-            return mDelegate.isBeforeFirst();
-        }
-
-        @Override
-        public boolean isAfterLast() {
-            return mDelegate.isAfterLast();
-        }
-
-        @Override
-        public int getColumnIndex(String columnName) {
-            return mDelegate.getColumnIndex(columnName);
-        }
-
-        @Override
-        public int getColumnIndexOrThrow(String columnName) throws IllegalArgumentException {
-            return mDelegate.getColumnIndexOrThrow(columnName);
-        }
-
-        @Override
-        public String getColumnName(int columnIndex) {
-            return mDelegate.getColumnName(columnIndex);
-        }
-
-        @Override
-        public String[] getColumnNames() {
-            return mDelegate.getColumnNames();
-        }
-
-        @Override
-        public int getColumnCount() {
-            return mDelegate.getColumnCount();
-        }
-
-        @Override
-        public byte[] getBlob(int columnIndex) {
-            return mDelegate.getBlob(columnIndex);
-        }
-
-        @Override
-        public String getString(int columnIndex) {
-            return mDelegate.getString(columnIndex);
-        }
-
-        @Override
-        public void copyStringToBuffer(int columnIndex, CharArrayBuffer buffer) {
-            mDelegate.copyStringToBuffer(columnIndex, buffer);
-        }
-
-        @Override
-        public short getShort(int columnIndex) {
-            return mDelegate.getShort(columnIndex);
-        }
-
-        @Override
-        public int getInt(int columnIndex) {
-            return mDelegate.getInt(columnIndex);
-        }
-
-        @Override
-        public long getLong(int columnIndex) {
-            return mDelegate.getLong(columnIndex);
-        }
-
-        @Override
-        public float getFloat(int columnIndex) {
-            return mDelegate.getFloat(columnIndex);
-        }
-
-        @Override
-        public double getDouble(int columnIndex) {
-            return mDelegate.getDouble(columnIndex);
-        }
-
-        @Override
-        public int getType(int columnIndex) {
-            return mDelegate.getType(columnIndex);
-        }
-
-        @Override
-        public boolean isNull(int columnIndex) {
-            return mDelegate.isNull(columnIndex);
-        }
-
-        /**
-         * @deprecated see Cursor.deactivate
-         */
-        @Override
-        @Deprecated
-        public void deactivate() {
-            mDelegate.deactivate();
-        }
-
-        /**
-         * @deprecated see Cursor.requery
-         */
-        @Override
-        @Deprecated
-        public boolean requery() {
-            return mDelegate.requery();
-        }
-
-        @Override
-        public void registerContentObserver(ContentObserver observer) {
-            mDelegate.registerContentObserver(observer);
-        }
-
-        @Override
-        public void unregisterContentObserver(ContentObserver observer) {
-            mDelegate.unregisterContentObserver(observer);
-        }
-
-        @Override
-        public void registerDataSetObserver(DataSetObserver observer) {
-            mDelegate.registerDataSetObserver(observer);
-        }
-
-        @Override
-        public void unregisterDataSetObserver(DataSetObserver observer) {
-            mDelegate.unregisterDataSetObserver(observer);
-        }
-
-        @Override
-        public void setNotificationUri(ContentResolver cr, Uri uri) {
-            mDelegate.setNotificationUri(cr, uri);
+        override fun close() {
+            delegate.close()
+            autoCloser.decrementCountAndScheduleClose()
         }
 
         @RequiresApi(api = Build.VERSION_CODES.Q)
-        @Override
-        public void setNotificationUris(@NonNull ContentResolver cr,
-                @NonNull List<Uri> uris) {
-            SupportSQLiteCompat.Api29Impl.setNotificationUris(mDelegate, cr, uris);
+        override fun setNotificationUris(
+            cr: ContentResolver,
+            uris: List<Uri>
+        ) {
+            SupportSQLiteCompat.Api29Impl.setNotificationUris(delegate, cr, uris)
         }
 
         @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-        @Override
-        public Uri getNotificationUri() {
-            return SupportSQLiteCompat.Api19Impl.getNotificationUri(mDelegate);
+        override fun getNotificationUri(): Uri {
+            return SupportSQLiteCompat.Api19Impl.getNotificationUri(delegate)
         }
 
         @RequiresApi(api = Build.VERSION_CODES.Q)
-        @Nullable
-        @Override
-        public List<Uri> getNotificationUris() {
-            return SupportSQLiteCompat.Api29Impl.getNotificationUris(mDelegate);
-        }
-
-        @Override
-        public boolean getWantsAllOnMoveCalls() {
-            return mDelegate.getWantsAllOnMoveCalls();
+        override fun getNotificationUris(): List<Uri> {
+            return SupportSQLiteCompat.Api29Impl.getNotificationUris(delegate)
         }
 
         @RequiresApi(api = Build.VERSION_CODES.M)
-        @Override
-        public void setExtras(Bundle extras) {
-            SupportSQLiteCompat.Api23Impl.setExtras(mDelegate, extras);
-        }
-
-        @Override
-        public Bundle getExtras() {
-            return mDelegate.getExtras();
-        }
-
-        @Override
-        public Bundle respond(Bundle extras) {
-            return mDelegate.respond(extras);
+        override fun setExtras(extras: Bundle) {
+            SupportSQLiteCompat.Api23Impl.setExtras(delegate, extras)
         }
     }
 
@@ -748,122 +473,117 @@ final class AutoClosingRoomOpenHelper implements SupportSQLiteOpenHelper, Delega
      *
      * Each of the methods here need to get
      */
-    //TODO(rohitsat) cache the prepared statement... I'm not sure what the performance implications
+    // TODO(rohitsat) cache the prepared statement... I'm not sure what the performance implications
     // are for the way it's done here, but caching the prepared statement would definitely be more
     // complicated since we need to invalidate any of the PreparedStatements that were created
     // with this db
-    private static class AutoClosingSupportSqliteStatement implements SupportSQLiteStatement {
-        private final String mSql;
-        private final ArrayList<Object> mBinds = new ArrayList<>();
-        private final AutoCloser mAutoCloser;
-
-        AutoClosingSupportSqliteStatement(
-                String sql, AutoCloser autoCloser) {
-            mSql = sql;
-            mAutoCloser = autoCloser;
+    private class AutoClosingSupportSqliteStatement(
+        private val sql: String,
+        private val autoCloser: AutoCloser
+    ) : SupportSQLiteStatement {
+        private val binds = ArrayList<Any?>()
+        private fun <T> executeSqliteStatementWithRefCount(
+            block: (SupportSQLiteStatement) -> T
+        ): T {
+            return autoCloser.executeRefCountingFunction { db: SupportSQLiteDatabase ->
+                val statement: SupportSQLiteStatement = db.compileStatement(sql)
+                doBinds(statement)
+                block(statement)
+            }
         }
 
-        private <T> T executeSqliteStatementWithRefCount(Function<SupportSQLiteStatement, T> func) {
-            return mAutoCloser.executeRefCountingFunction(
-                    db -> {
-                        SupportSQLiteStatement statement = db.compileStatement(mSql);
-                        doBinds(statement);
-                        return func.apply(statement);
-                    }
-            );
-        }
-
-        private void doBinds(SupportSQLiteStatement supportSQLiteStatement) {
+        private fun doBinds(supportSQLiteStatement: SupportSQLiteStatement) {
             // Replay the binds
-            for (int i = 0; i < mBinds.size(); i++) {
-                int bindIndex = i + 1; // Bind indices are 1 based so we start at 1 not 0
-                Object bind = mBinds.get(i);
-                if (bind == null) {
-                    supportSQLiteStatement.bindNull(bindIndex);
-                } else if (bind instanceof Long) {
-                    supportSQLiteStatement.bindLong(bindIndex, (Long) bind);
-                } else if (bind instanceof Double) {
-                    supportSQLiteStatement.bindDouble(bindIndex, (Double) bind);
-                } else if (bind instanceof String) {
-                    supportSQLiteStatement.bindString(bindIndex, (String) bind);
-                } else if (bind instanceof byte[]) {
-                    supportSQLiteStatement.bindBlob(bindIndex, (byte[]) bind);
+            binds.forEachIndexed { i, _ ->
+                val bindIndex = i + 1 // Bind indices are 1 based so we start at 1 not 0
+                when (val bind = binds[i]) {
+                    null -> {
+                        supportSQLiteStatement.bindNull(bindIndex)
+                    }
+                    is Long -> {
+                        supportSQLiteStatement.bindLong(bindIndex, bind)
+                    }
+                    is Double -> {
+                        supportSQLiteStatement.bindDouble(bindIndex, bind)
+                    }
+                    is String -> {
+                        supportSQLiteStatement.bindString(bindIndex, bind)
+                    }
+                    is ByteArray -> {
+                        supportSQLiteStatement.bindBlob(bindIndex, bind)
+                    }
                 }
             }
         }
 
-        private void saveBinds(int bindIndex, Object value) {
-            int index = bindIndex - 1;
-            if (index >= mBinds.size()) {
+        private fun saveBinds(bindIndex: Int, value: Any?) {
+            val index = bindIndex - 1
+            if (index >= binds.size) {
                 // Add null entries to the list until we have the desired # of indices
-                for (int i = mBinds.size(); i <= index; i++) {
-                    mBinds.add(null);
+                for (i in binds.size..index) {
+                    binds.add(null)
                 }
             }
-            mBinds.set(index, value);
+            binds[index] = value
         }
 
-        @Override
-        public void close() throws IOException {
+        @Throws(IOException::class)
+        override fun close() {
             // Nothing to do here since we re-compile the statement each time.
         }
 
-        @Override
-        public void execute() {
-            executeSqliteStatementWithRefCount(statement -> {
-                statement.execute();
-                return null;
-            });
+        override fun execute() {
+            executeSqliteStatementWithRefCount<Any?> { statement: SupportSQLiteStatement ->
+                statement.execute()
+                null
+            }
         }
 
-        @Override
-        public int executeUpdateDelete() {
-            return executeSqliteStatementWithRefCount(SupportSQLiteStatement::executeUpdateDelete);
+        override fun executeUpdateDelete(): Int {
+            return executeSqliteStatementWithRefCount { obj: SupportSQLiteStatement ->
+                obj.executeUpdateDelete() }
         }
 
-        @Override
-        public long executeInsert() {
-            return executeSqliteStatementWithRefCount(SupportSQLiteStatement::executeInsert);
+        override fun executeInsert(): Long {
+            return executeSqliteStatementWithRefCount { obj: SupportSQLiteStatement ->
+                obj.executeInsert()
+            }
         }
 
-        @Override
-        public long simpleQueryForLong() {
-            return executeSqliteStatementWithRefCount(SupportSQLiteStatement::simpleQueryForLong);
+        override fun simpleQueryForLong(): Long {
+            return executeSqliteStatementWithRefCount { obj: SupportSQLiteStatement ->
+                obj.simpleQueryForLong()
+            }
         }
 
-        @Override
-        public String simpleQueryForString() {
-            return executeSqliteStatementWithRefCount(SupportSQLiteStatement::simpleQueryForString);
+        override fun simpleQueryForString(): String {
+            return executeSqliteStatementWithRefCount { obj: SupportSQLiteStatement ->
+                obj.simpleQueryForString()
+            }
         }
 
-        @Override
-        public void bindNull(int index) {
-            saveBinds(index, null);
+        override fun bindNull(index: Int) {
+            saveBinds(index, null)
         }
 
-        @Override
-        public void bindLong(int index, long value) {
-            saveBinds(index, value);
+        override fun bindLong(index: Int, value: Long) {
+            saveBinds(index, value)
         }
 
-        @Override
-        public void bindDouble(int index, double value) {
-            saveBinds(index, value);
+        override fun bindDouble(index: Int, value: Double) {
+            saveBinds(index, value)
         }
 
-        @Override
-        public void bindString(int index, String value) {
-            saveBinds(index, value);
+        override fun bindString(index: Int, value: String) {
+            saveBinds(index, value)
         }
 
-        @Override
-        public void bindBlob(int index, byte[] value) {
-            saveBinds(index, value);
+        override fun bindBlob(index: Int, value: ByteArray) {
+            saveBinds(index, value)
         }
 
-        @Override
-        public void clearBindings() {
-            mBinds.clear();
+        override fun clearBindings() {
+            binds.clear()
         }
     }
 }

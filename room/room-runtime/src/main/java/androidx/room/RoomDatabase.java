@@ -249,7 +249,7 @@ public abstract class RoomDatabase {
                 unwrapOpenHelper(AutoClosingRoomOpenHelper.class, mOpenHelper);
 
         if (autoClosingRoomOpenHelper != null) {
-            mAutoCloser = autoClosingRoomOpenHelper.getAutoCloser();
+            mAutoCloser = autoClosingRoomOpenHelper.autoCloser;
             mInvalidationTracker.setAutoCloser(mAutoCloser);
         }
 

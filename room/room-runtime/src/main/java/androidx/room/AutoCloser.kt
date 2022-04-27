@@ -13,27 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.room
 
-package androidx.room;
-
-import android.os.Handler;
-import android.os.Looper;
-import android.os.SystemClock;
-import android.util.Log;
-
-import androidx.annotation.GuardedBy;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.VisibleForTesting;
-import androidx.arch.core.util.Function;
-import androidx.room.util.SneakyThrow;
-import androidx.sqlite.db.SupportSQLiteDatabase;
-import androidx.sqlite.db.SupportSQLiteOpenHelper;
-
-import java.io.IOException;
-import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
+import android.os.Handler
+import android.os.Looper
+import android.os.SystemClock
+import androidx.annotation.GuardedBy
+import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
+import androidx.room.util.SneakyThrow
+import androidx.sqlite.db.SupportSQLiteDatabase
+import androidx.sqlite.db.SupportSQLiteOpenHelper
+import java.io.IOException
+import java.util.concurrent.Executor
+import java.util.concurrent.TimeUnit
 
 /**
  * AutoCloser is responsible for automatically opening (using
@@ -42,111 +35,77 @@ import java.util.concurrent.TimeUnit;
  *
  * It is important to ensure that the ref count is incremented when using a returned database.
  *
+ * @param autoCloseTimeoutAmount time for auto close timer
+ * @param autoCloseTimeUnit      time unit for autoCloseTimeoutAmount
+ * @param autoCloseExecutor      the executor on which the auto close operation will happen
+ *
  * @hide
  */
 // TODO: (b/218894771) Make internal once RoomDatabase is converted to Kotlin.
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public final class AutoCloser {
+class AutoCloser(
+    autoCloseTimeoutAmount: Long,
+    autoCloseTimeUnit: TimeUnit,
+    autoCloseExecutor: Executor
+) {
+    lateinit var delegateOpenHelper: SupportSQLiteOpenHelper
+    private val handler = Handler(Looper.getMainLooper())
 
-    @Nullable
-    private SupportSQLiteOpenHelper mDelegateOpenHelper = null;
+    internal var onAutoCloseCallback: Runnable? = null
 
-    @NonNull
-    private final Handler mHandler = new Handler(Looper.getMainLooper());
+    private val lock = Any()
 
-    // Package private for access from mAutoCloser
-    @Nullable
-    Runnable mOnAutoCloseCallback = null;
+    private var autoCloseTimeoutInMs: Long = autoCloseTimeUnit.toMillis(autoCloseTimeoutAmount)
 
-    // Package private for access from mAutoCloser
-    @NonNull
-    final Object mLock = new Object();
+    private val executor: Executor = autoCloseExecutor
 
-    // Package private for access from mAutoCloser
-    final long mAutoCloseTimeoutInMs;
+    @GuardedBy("lock")
+    internal var refCount = 0
 
-    // Package private for access from mExecuteAutoCloser
-    @NonNull
-    final Executor mExecutor;
-
-    // Package private for access from mAutoCloser
-    @GuardedBy("mLock")
-    int mRefCount = 0;
-
-    // Package private for access from mAutoCloser
-    @GuardedBy("mLock")
-    long mLastDecrementRefCountTimeStamp = SystemClock.uptimeMillis();
+    @GuardedBy("lock")
+    internal var lastDecrementRefCountTimeStamp = SystemClock.uptimeMillis()
 
     // The unwrapped SupportSqliteDatabase
-    // Package private for access from mAutoCloser
-    @GuardedBy("mLock")
-    @Nullable
-    SupportSQLiteDatabase mDelegateDatabase;
+    @GuardedBy("lock")
+    internal var delegateDatabase: SupportSQLiteDatabase? = null
 
-    private boolean mManuallyClosed = false;
+    private var manuallyClosed = false
 
-    private final Runnable mExecuteAutoCloser = new Runnable() {
-        @Override
-        public void run() {
-            mExecutor.execute(mAutoCloser);
-        }
-    };
+    private val executeAutoCloser = Runnable { executor.execute(autoCloser) }
 
-    // Package private for access from mExecuteAutoCloser
-    @NonNull
-    final Runnable mAutoCloser = new Runnable() {
-        @Override
-        public void run() {
-            synchronized (mLock) {
-                if (SystemClock.uptimeMillis() - mLastDecrementRefCountTimeStamp
-                        < mAutoCloseTimeoutInMs) {
-                    // An increment + decrement beat us to closing the db. We
-                    // will not close the database, and there should be at least
-                    // one more auto-close scheduled.
-                    return;
-                }
+    private val autoCloser = Runnable {
+        synchronized(lock) {
+            if (SystemClock.uptimeMillis() - lastDecrementRefCountTimeStamp
+                < autoCloseTimeoutInMs
+            ) {
+                // An increment + decrement beat us to closing the db. We
+                // will not close the database, and there should be at least
+                // one more auto-close scheduled.
+                return@Runnable
+            }
+            if (refCount != 0) {
+                // An increment beat us to closing the db. We don't close the
+                // db, and another closer will be scheduled once the ref
+                // count is decremented.
+                return@Runnable
+            }
+            onAutoCloseCallback?.run() ?: error(
+                "onAutoCloseCallback is null but it should" +
+                    " have been set before use. Please file a bug " +
+                    "against Room at: $autoCloseBug"
+            )
 
-                if (mRefCount != 0) {
-                    // An increment beat us to closing the db. We don't close the
-                    // db, and another closer will be scheduled once the ref
-                    // count is decremented.
-                    return;
-                }
-
-                if (mOnAutoCloseCallback != null) {
-                    mOnAutoCloseCallback.run();
-                } else {
-                    throw new IllegalStateException("mOnAutoCloseCallback is null but it should"
-                            + " have been set before use. Please file a bug "
-                            + "against Room at: https://issuetracker.google"
-                            + ".com/issues/new?component=413107&template=1096568");
-                }
-
-                if (mDelegateDatabase != null && mDelegateDatabase.isOpen()) {
+            delegateDatabase?.let {
+                if (it.isOpen) {
                     try {
-                        mDelegateDatabase.close();
-                    } catch (IOException e) {
-                        SneakyThrow.reThrow(e);
+                        it.close()
+                    } catch (e: IOException) {
+                        SneakyThrow.reThrow(e)
                     }
-                    mDelegateDatabase = null;
                 }
             }
+            delegateDatabase = null
         }
-    };
-
-
-    /**
-     * Construct an AutoCloser.
-     *
-     * @param autoCloseTimeoutAmount time for auto close timer
-     * @param autoCloseTimeUnit      time unit for autoCloseTimeoutAmount
-     * @param autoCloseExecutor      the executor on which the auto close operation will happen
-     */
-    AutoCloser(long autoCloseTimeoutAmount,
-            @NonNull TimeUnit autoCloseTimeUnit,
-            @NonNull Executor autoCloseExecutor) {
-        mAutoCloseTimeoutInMs = autoCloseTimeUnit.toMillis(autoCloseTimeoutAmount);
-        mExecutor = autoCloseExecutor;
     }
 
     /**
@@ -154,16 +113,10 @@ public final class AutoCloser {
      * delegateOpenHelper after construction.
      *
      * @param delegateOpenHelper the open helper that is used to create
-     *                           new SupportSqliteDatabases
+     * new SupportSqliteDatabases
      */
-    public void init(@NonNull SupportSQLiteOpenHelper delegateOpenHelper) {
-        if (mDelegateOpenHelper != null) {
-            Log.e(Room.LOG_TAG, "AutoCloser initialized multiple times. Please file a bug against"
-                    + " room at: https://issuetracker.google"
-                    + ".com/issues/new?component=413107&template=1096568");
-            return;
-        }
-        this.mDelegateOpenHelper = delegateOpenHelper;
+    fun init(delegateOpenHelper: SupportSQLiteOpenHelper) {
+        this.delegateOpenHelper = delegateOpenHelper
     }
 
     /**
@@ -172,19 +125,16 @@ public final class AutoCloser {
      * references in use for the db once function completes, an auto close operation will be
      * scheduled.
      */
-    @Nullable
-    public <V> V executeRefCountingFunction(@NonNull Function<SupportSQLiteDatabase, V> function) {
+    fun <V> executeRefCountingFunction(block: (SupportSQLiteDatabase) -> V): V =
         try {
-            SupportSQLiteDatabase db = incrementCountAndEnsureDbIsOpen();
-            return function.apply(db);
+            block(incrementCountAndEnsureDbIsOpen())
         } finally {
-            decrementCountAndScheduleClose();
+            decrementCountAndScheduleClose()
         }
-    }
 
     /**
-     * Confirms that autoCloser is no longer running and confirms that mDelegateDatabase is set
-     * and open. mDelegateDatabase will not be auto closed until
+     * Confirms that autoCloser is no longer running and confirms that delegateDatabase is set
+     * and open. delegateDatabase will not be auto closed until
      * decrementRefCountAndScheduleClose is called. decrementRefCountAndScheduleClose must be
      * called once for each call to incrementCountAndEnsureDbIsOpen.
      *
@@ -192,36 +142,22 @@ public final class AutoCloser {
      *
      * @return the *unwrapped* SupportSQLiteDatabase.
      */
-    @NonNull
-    public SupportSQLiteDatabase incrementCountAndEnsureDbIsOpen() {
-        //TODO(rohitsat): avoid synchronized(mLock) when possible. We should be able to avoid it
+    fun incrementCountAndEnsureDbIsOpen(): SupportSQLiteDatabase {
+        // TODO(rohitsat): avoid synchronized(lock) when possible. We should be able to avoid it
         // when refCount is not hitting zero or if there is no auto close scheduled if we use
         // Atomics.
-        synchronized (mLock) {
+        synchronized(lock) {
+
             // If there is a scheduled autoclose operation, we should remove it from the handler.
-            mHandler.removeCallbacks(mExecuteAutoCloser);
-
-            mRefCount++;
-
-            if (mManuallyClosed) {
-                throw new IllegalStateException("Attempting to open already closed database.");
+            handler.removeCallbacks(executeAutoCloser)
+            refCount++
+            check(!manuallyClosed) { "Attempting to open already closed database." }
+            delegateDatabase?.let {
+                if (it.isOpen) {
+                    return it
+                }
             }
-
-            if (mDelegateDatabase != null && mDelegateDatabase.isOpen()) {
-                return mDelegateDatabase;
-            }
-
-            // Get the database while holding `mLock` so no other threads try to create it or
-            // destroy it.
-            if (mDelegateOpenHelper != null) {
-                mDelegateDatabase = mDelegateOpenHelper.getWritableDatabase();
-            } else {
-                throw new IllegalStateException("AutoCloser has not been initialized. Please file "
-                        + "a bug against Room at: "
-                        + "https://issuetracker.google.com/issues/new?component=413107&template=1096568");
-            }
-
-            return mDelegateDatabase;
+            return delegateOpenHelper.writableDatabase.also { delegateDatabase = it }
         }
     }
 
@@ -229,39 +165,23 @@ public final class AutoCloser {
      * Decrements the ref count and schedules a close if there are no other references to the db.
      * This must only be called after a corresponding incrementCountAndEnsureDbIsOpen call.
      */
-    public void decrementCountAndScheduleClose() {
-        //TODO(rohitsat): avoid synchronized(mLock) when possible
-        synchronized (mLock) {
-            if (mRefCount <= 0) {
-                throw new IllegalStateException("ref count is 0 or lower but we're supposed to "
-                        + "decrement");
+    fun decrementCountAndScheduleClose() {
+        // TODO(rohitsat): avoid synchronized(lock) when possible
+        synchronized(lock) {
+            check(refCount > 0) {
+                "ref count is 0 or lower but we're supposed to decrement"
             }
-
             // decrement refCount
-            mRefCount--;
+            refCount--
 
             // if refcount is zero, schedule close operation
-            if (mRefCount == 0) {
-                if (mDelegateDatabase == null) {
+            if (refCount == 0) {
+                if (delegateDatabase == null) {
                     // No db to close, this can happen due to exceptions when creating db...
-                    return;
+                    return
                 }
-                mHandler.postDelayed(mExecuteAutoCloser, mAutoCloseTimeoutInMs);
+                handler.postDelayed(executeAutoCloser, autoCloseTimeoutInMs)
             }
-        }
-    }
-
-    /**
-     * Returns the underlying database. This does not ensure that the database is open; the
-     * caller is responsible for ensuring that the database is open and the ref count is non-zero.
-     *
-     * This is primarily meant for use cases where we don't want to open the database (isOpen) or
-     * we know that the database is already open (KeepAliveCursor).
-     */
-    @Nullable // Since the db might be closed
-    public SupportSQLiteDatabase getDelegateDatabase() {
-        synchronized (mLock) {
-            return mDelegateDatabase;
         }
     }
 
@@ -270,14 +190,12 @@ public final class AutoCloser {
      *
      * @throws IOException if an exception is encountered when closing the underlying db.
      */
-    public void closeDatabaseIfOpen() throws IOException {
-        synchronized (mLock) {
-            mManuallyClosed = true;
-
-            if (mDelegateDatabase != null) {
-                mDelegateDatabase.close();
-            }
-            mDelegateDatabase = null;
+    @Throws(IOException::class)
+    fun closeDatabaseIfOpen() {
+        synchronized(lock) {
+            manuallyClosed = true
+            delegateDatabase?.close()
+            delegateDatabase = null
         }
     }
 
@@ -288,21 +206,19 @@ public final class AutoCloser {
      *
      * @return a boolean indicating whether the auto closer is still active
      */
-    public boolean isActive() {
-        return !mManuallyClosed;
-    }
+    val isActive: Boolean
+        get() = !manuallyClosed
 
     /**
      * Returns the current ref count for this auto closer. This is only visible for testing.
      *
      * @return current ref count
      */
-    @VisibleForTesting
-    public int getRefCountForTest() {
-        synchronized (mLock) {
-            return mRefCount;
+    @get:VisibleForTesting
+    internal val refCountForTest: Int
+        get() {
+            synchronized(lock) { return refCount }
         }
-    }
 
     /**
      * Sets a callback that will be run every time the database is auto-closed. This callback
@@ -310,7 +226,12 @@ public final class AutoCloser {
      *
      * @param onAutoClose the callback to run
      */
-    public void setAutoCloseCallback(@NonNull Runnable onAutoClose) {
-        mOnAutoCloseCallback = onAutoClose;
+    fun setAutoCloseCallback(onAutoClose: Runnable) {
+        onAutoCloseCallback = onAutoClose
+    }
+
+    companion object {
+        const val autoCloseBug = "https://issuetracker.google.com/issues/new?component=" +
+            "413107&template=1096568"
     }
 }
