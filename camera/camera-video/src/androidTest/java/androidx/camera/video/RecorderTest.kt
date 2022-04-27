@@ -59,7 +59,6 @@ import androidx.camera.video.internal.encoder.InvalidConfigException
 import androidx.core.util.Consumer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
@@ -456,7 +455,6 @@ class RecorderTest {
         file.delete()
     }
 
-    @FlakyTest(bugId = 229247066)
     @Test
     fun canReceiveRecordingStats() {
         clearInvocations(videoRecordEventListener)

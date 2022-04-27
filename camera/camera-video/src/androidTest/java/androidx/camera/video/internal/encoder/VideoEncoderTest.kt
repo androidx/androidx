@@ -63,7 +63,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.atLeastOnce
+import org.mockito.Mockito.atLeast
 import org.mockito.Mockito.clearInvocations
 import org.mockito.Mockito.doAnswer
 import org.mockito.Mockito.inOrder
@@ -243,29 +243,23 @@ class VideoEncoderTest {
 
     @Test
     fun pauseResumeVideoEncoder_getChronologicalData() {
-        val dataList = ArrayList<EncodedData>()
+        val inOrder = inOrder(videoEncoderCallback)
 
         videoEncoder.start()
-        verify(videoEncoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
+        inOrder.verify(videoEncoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
 
         videoEncoder.pause()
-        verify(videoEncoderCallback, timeout(5000L)).onEncodePaused()
-
-        // Save all values before clear invocations
-        val startCaptor = ArgumentCaptor.forClass(EncodedData::class.java)
-        verify(videoEncoderCallback, atLeastOnce()).onEncodedData(startCaptor.capture())
-        dataList.addAll(startCaptor.allValues)
-        clearInvocations(videoEncoderCallback)
+        inOrder.verify(videoEncoderCallback, timeout(5000L)).onEncodePaused()
 
         videoEncoder.start()
-        val resumeCaptor = ArgumentCaptor.forClass(EncodedData::class.java)
+        inOrder.verify(videoEncoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
+
+        val captor = ArgumentCaptor.forClass(EncodedData::class.java)
         verify(
             videoEncoderCallback,
-            timeout(15000L).atLeast(5)
-        ).onEncodedData(resumeCaptor.capture())
-        dataList.addAll(resumeCaptor.allValues)
-
-        verifyDataInChronologicalOrder(dataList)
+            atLeast(/*start*/5 + /*resume*/5)
+        ).onEncodedData(captor.capture())
+        verifyDataInChronologicalOrder(captor.allValues)
     }
 
     @Test
