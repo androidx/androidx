@@ -44,7 +44,7 @@ import kotlin.math.ceil
  * @suppress
  */
 @InternalPlatformTextApi
-class LineHeightBehaviorSpan(
+class LineHeightStyleSpan(
     val lineHeight: Float,
     private val startIndex: Int,
     private val endIndex: Int,

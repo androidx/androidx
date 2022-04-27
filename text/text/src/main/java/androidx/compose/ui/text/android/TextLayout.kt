@@ -52,7 +52,7 @@ import androidx.compose.ui.text.android.LayoutCompat.TEXT_DIRECTION_RTL
 import androidx.compose.ui.text.android.LayoutCompat.TextDirection
 import androidx.compose.ui.text.android.LayoutCompat.TextLayoutAlignment
 import androidx.compose.ui.text.android.style.BaselineShiftSpan
-import androidx.compose.ui.text.android.style.LineHeightBehaviorSpan
+import androidx.compose.ui.text.android.style.LineHeightStyleSpan
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.max
@@ -689,11 +689,11 @@ private fun TextLayout.getLineHeightPaddings(): Pair<Int, Int> {
 }
 
 @OptIn(InternalPlatformTextApi::class)
-private fun TextLayout.getLineHeightSpans(): Array<LineHeightBehaviorSpan> {
+private fun TextLayout.getLineHeightSpans(): Array<LineHeightStyleSpan> {
     if (text !is Spanned) return emptyArray()
-    val lineHeightBehaviorSpans = (text as Spanned).getSpans(
-        0, text.length, LineHeightBehaviorSpan::class.java
+    val lineHeightStyleSpans = (text as Spanned).getSpans(
+        0, text.length, LineHeightStyleSpan::class.java
     )
-    if (lineHeightBehaviorSpans.isEmpty()) return emptyArray()
-    return lineHeightBehaviorSpans
+    if (lineHeightStyleSpans.isEmpty()) return emptyArray()
+    return lineHeightStyleSpans
 }

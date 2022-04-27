@@ -24,7 +24,7 @@ import android.text.Spanned
 import android.text.StaticLayout
 import android.text.TextPaint
 import androidx.compose.ui.text.android.style.BaselineShiftSpan
-import androidx.compose.ui.text.android.style.LineHeightBehaviorSpan
+import androidx.compose.ui.text.android.style.LineHeightStyleSpan
 import androidx.compose.ui.text.font.test.R
 import androidx.core.content.res.ResourcesCompat
 import androidx.test.filters.SmallTest
@@ -423,7 +423,7 @@ class TextLayoutTest {
         val textPaint = createTextPaint(fontSize)
         val spannable = SpannableString(text)
         spannable.setSpan(
-            LineHeightBehaviorSpan(
+            LineHeightStyleSpan(
                 lineHeight = lineHeight,
                 startIndex = 0,
                 endIndex = text.length,
