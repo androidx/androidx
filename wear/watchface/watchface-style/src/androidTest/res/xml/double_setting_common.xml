@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright 2020 The Android Open Source Project
+  Copyright 2022 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -15,7 +15,13 @@
   limitations under the License.
   -->
 
-<resources>
-    <bool name="watch_face_instance_service_enabled">false</bool>
-    <integer name="watch_face_xml_version">1</integer>
-</resources>
+<DoubleRangeUserStyleSetting
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:affectedWatchFaceLayers="BASE|COMPLICATIONS"
+    app:description="Double range description"
+    app:displayName="Double range"
+    app:id="DoubleRange"
+    app:defaultDouble="2.5"
+    app:maxDouble="10.5"
+    app:minDouble="-1.5"/>

@@ -236,4 +236,88 @@ class UserStyleSchemaInflateTest {
 
         parser.close()
     }
+
+    @Test
+    public fun test_inflate_schema_with_parent() {
+        val parser1 = context.resources.getXml(R.xml.schema_with_parent_1)
+        val parser2 = context.resources.getXml(R.xml.schema_with_parent_2)
+
+        parser1.moveToStart("UserStyleSchema")
+        parser2.moveToStart("UserStyleSchema")
+
+        val schema1 = UserStyleSchema.inflate(context.resources, parser1)
+        val schema2 = UserStyleSchema.inflate(context.resources, parser2)
+
+        assertThat(schema1.userStyleSettings.size).isEqualTo(6)
+        assertThat(schema2.userStyleSettings.size).isEqualTo(2)
+
+        // List
+        val simpleListWithParent1 = schema1.userStyleSettings[0]
+            as UserStyleSetting.ListUserStyleSetting
+        val simpleListWithParent2 = schema2.userStyleSettings[0]
+            as UserStyleSetting.ListUserStyleSetting
+
+        assertThat(simpleListWithParent1).isEqualTo(simpleListWithParent2)
+
+        val listParser = context.resources.getXml(R.xml.list_setting_common)
+        listParser.moveToStart("ListUserStyleSetting")
+
+        val simpleListSetting = UserStyleSetting.ListUserStyleSetting.inflate(
+            context.resources, listParser, emptyMap()
+        )
+
+        assertThat(simpleListWithParent1).isEqualTo(simpleListSetting)
+
+        // Check override
+        val listSetting1 = schema1.userStyleSettings[1] as UserStyleSetting.ListUserStyleSetting
+        val listSetting2 = schema1.userStyleSettings[2] as UserStyleSetting.ListUserStyleSetting
+        val listSetting3 = schema1.userStyleSettings[3] as UserStyleSetting.ListUserStyleSetting
+
+        assertThat(listSetting1.id.value).isEqualTo("list_id0")
+        assertThat(listSetting1.displayName).isEqualTo("id0")
+        assertThat(listSetting2.id.value).isEqualTo("list_id1")
+        assertThat(listSetting2.description).isEqualTo("id1")
+        assertThat(listSetting3.id.value).isEqualTo("list_id2")
+        assertThat(listSetting3.affectedWatchFaceLayers).containsExactly(WatchFaceLayer.BASE)
+
+        assertThat(listSetting1.description).isEqualTo(simpleListSetting.description)
+        assertThat(listSetting1.icon!!.resId).isEqualTo(simpleListSetting.icon!!.resId)
+        assertThat(listSetting1.defaultOptionIndex).isEqualTo(simpleListSetting.defaultOptionIndex)
+
+        // Double
+        val simpleDoubleWithParent1 = schema1.userStyleSettings[4]
+            as UserStyleSetting.DoubleRangeUserStyleSetting
+        val simpleDoubleWithParent2 = schema2.userStyleSettings[1]
+            as UserStyleSetting.DoubleRangeUserStyleSetting
+
+        assertThat(simpleDoubleWithParent1).isEqualTo(simpleDoubleWithParent2)
+
+        val doubleParser = context.resources.getXml(R.xml.double_setting_common)
+        doubleParser.moveToStart("DoubleRangeUserStyleSetting")
+
+        val simpleDoubleSetting = UserStyleSetting.DoubleRangeUserStyleSetting.inflate(
+            context.resources, doubleParser
+        )
+
+        assertThat(simpleDoubleWithParent1).isEqualTo(simpleDoubleSetting)
+
+        // Check override
+        val doubleSetting1 = schema1.userStyleSettings[5]
+            as UserStyleSetting.DoubleRangeUserStyleSetting
+
+        assertThat(doubleSetting1.id.value).isEqualTo("double_id0")
+        assertThat(doubleSetting1.defaultValue).isEqualTo(0.0)
+        assertThat(doubleSetting1.maximumValue).isEqualTo(0.0)
+        assertThat(doubleSetting1.minimumValue).isEqualTo(-1.0)
+
+        assertThat(doubleSetting1.displayName).isEqualTo(simpleDoubleSetting.displayName)
+        assertThat(doubleSetting1.affectedWatchFaceLayers).isEqualTo(
+            simpleDoubleSetting.affectedWatchFaceLayers
+        )
+
+        doubleParser.close()
+        listParser.close()
+        parser1.close()
+        parser2.close()
+    }
 }

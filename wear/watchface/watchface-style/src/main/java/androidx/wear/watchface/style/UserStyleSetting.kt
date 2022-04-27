@@ -157,29 +157,6 @@ public sealed class UserStyleSetting private constructor(
                 )
                 return WatchFaceEditorData(icon)
             }
-
-            fun inflateSingleOnWatchEditorData(
-                resources: Resources,
-                parser: XmlResourceParser
-            ): WatchFaceEditorData? {
-                var watchFaceEditorData: WatchFaceEditorData? = null
-                var type = 0
-                val outerDepth = parser.depth
-                do {
-                    if (type == XmlPullParser.START_TAG) {
-                        if (watchFaceEditorData == null && parser.name == "OnWatchEditorData") {
-                            watchFaceEditorData = inflate(resources, parser)
-                        } else {
-                            throw IllegalArgumentException(
-                                "Unexpected node ${parser.name} at line ${parser.lineNumber}"
-                            )
-                        }
-                    }
-                    type = parser.next()
-                } while (type != XmlPullParser.END_DOCUMENT && parser.depth > outerDepth)
-
-                return watchFaceEditorData
-            }
         }
     }
 
@@ -309,14 +286,17 @@ public sealed class UserStyleSetting private constructor(
         internal fun createDisplayText(
             resources: Resources,
             parser: XmlResourceParser,
-            attributeId: String
+            attributeId: String,
+            defaultValue: DisplayText? = null
         ): DisplayText {
             val displayNameId = parser.getAttributeResourceValue(NAMESPACE_APP, attributeId, -1)
             return if (displayNameId != -1) {
                 DisplayText.ResourceDisplayText(resources, displayNameId)
-            } else {
+            } else if (parser.hasValue(attributeId) || defaultValue == null) {
                 DisplayText.CharSequenceDisplayText(
                     parser.getAttributeValue(NAMESPACE_APP, attributeId) ?: "")
+            } else {
+                defaultValue
             }
         }
 
@@ -330,6 +310,127 @@ public sealed class UserStyleSetting private constructor(
             } else {
                 null
             }
+        }
+
+        /**
+         * Creates appropriate UserStyleSetting base on parent="@xml/..." resource reference.
+         */
+        internal fun <T> createParent(
+            resources: Resources,
+            parser: XmlResourceParser,
+            parentNodeName: String,
+            inflateSetting: (resources: Resources, parser: XmlResourceParser) -> T
+        ): T? {
+            val parentRef = parser.getAttributeResourceValue(NAMESPACE_APP, "parent", 0)
+            return if (0 != parentRef) {
+                val parentParser = resources.getXml(parentRef)
+                parentParser.moveToStart(parentNodeName)
+                inflateSetting(resources, parentParser)
+            } else {
+                null
+            }
+        }
+
+        internal class Params(
+            val id: Id,
+            val displayName: DisplayText,
+            val description: DisplayText,
+            val icon: Icon?,
+            val watchFaceEditorData: WatchFaceEditorData?,
+            val options: List<Option>,
+            val defaultOptionIndex: Int?,
+            val affectedWatchFaceLayers: Collection<WatchFaceLayer>
+        )
+
+        /**
+         * Parses base UserStyleSettings params. If a parent is specified, inherits its attributes
+         * unless they are explicitly specified.
+         */
+        internal fun createBaseWithParent(
+            resources: Resources,
+            parser: XmlResourceParser,
+            parent: UserStyleSetting?,
+            inflateDefault: Boolean,
+            optionInflater:
+                Pair<String, ((resources: Resources, parser: XmlResourceParser) -> Option)>? = null
+        ): Params {
+            val settingType = "UserStyleSetting"
+            val id = getAttributeChecked(
+                parser, "id", String::toString, parent?.id?.value, settingType
+            )
+            val displayName = createDisplayText(
+                resources,
+                parser,
+                "displayName",
+                parent?.displayNameInternal
+            )
+            val description = createDisplayText(
+                resources,
+                parser,
+                "description",
+                parent?.descriptionInternal
+            )
+            val icon = createIcon(
+                resources,
+                parser
+            ) ?: parent?.icon
+
+            val defaultOptionIndex = if (inflateDefault) {
+                getAttributeChecked(
+                    parser,
+                    "defaultOptionIndex",
+                    String::toInt,
+                    parent?.defaultOptionIndex ?: 0,
+                    settingType
+                )
+            } else null
+
+            val affectsWatchFaceLayers =
+                getAttributeChecked(
+                    parser,
+                    "affectedWatchFaceLayers",
+                    { value -> affectsWatchFaceLayersFlagsToSet(Integer.decode(value)) },
+                    parent?.affectedWatchFaceLayers ?: WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                    settingType
+                )
+
+            var watchFaceEditorData: WatchFaceEditorData? = null
+            val options = ArrayList<Option>()
+            var type = 0
+            val outerDepth = parser.depth
+            do {
+                if (type == XmlPullParser.START_TAG) {
+                    if (parser.name == "OnWatchEditorData") {
+                        if (watchFaceEditorData == null) {
+                            watchFaceEditorData =
+                                WatchFaceEditorData.inflate(resources, parser)
+                        } else {
+                            throw IllegalArgumentException(
+                                "Unexpected node OnWatchEditorData at line " +
+                                    parser.lineNumber
+                            )
+                        }
+                    } else if (optionInflater != null && optionInflater.first == parser.name) {
+                        options.add(optionInflater.second(resources, parser))
+                    } else {
+                        throw IllegalArgumentException(
+                            "Unexpected node ${parser.name} at line ${parser.lineNumber}"
+                        )
+                    }
+                }
+                type = parser.next()
+            } while (type != XmlPullParser.END_DOCUMENT && parser.depth > outerDepth)
+
+            return Params(
+                Id(id),
+                displayName,
+                description,
+                icon,
+                watchFaceEditorData ?: parent?.watchFaceEditorData,
+                if (parent == null || options.isNotEmpty()) options else parent.options,
+                defaultOptionIndex,
+                affectsWatchFaceLayers
+            )
         }
     }
 
@@ -699,48 +800,29 @@ public sealed class UserStyleSetting private constructor(
         internal companion object {
             @SuppressLint("ResourceType")
             fun inflate(resources: Resources, parser: XmlResourceParser): BooleanUserStyleSetting {
-                val id = parser.getAttributeValue(NAMESPACE_APP, "id")
-                require(id != null) { "BooleanUserStyleSetting must have an id" }
-                val displayName = createDisplayText(
-                    resources,
+                val settingType = "BooleanUserStyleSetting"
+                val parent =
+                    createParent(resources, parser, settingType, ::inflate)
+                val defaultValue = getAttributeChecked(
                     parser,
-                    "displayName"
-                )
-                val description = createDisplayText(
-                    resources,
-                    parser,
-                    "description"
-                )
-                val icon = createIcon(
-                    resources,
-                    parser
-                )
-                require(parser.hasValue("defaultBoolean")) {
-                    "defaultBoolean is required for BooleanUserStyleSetting"
-                }
-                val defaultValue = parser.getAttributeBooleanValue(
-                    NAMESPACE_APP,
                     "defaultBoolean",
-                    true
+                    String::toBoolean,
+                    parent?.getDefaultValue(),
+                    settingType
                 )
-                val affectsWatchFaceLayers = affectsWatchFaceLayersFlagsToSet(
-                    parser.getAttributeIntValue(
-                        NAMESPACE_APP,
-                        "affectedWatchFaceLayers",
-                        0b111 // first 3 bits set
-                    )
+                val params = createBaseWithParent(
+                    resources,
+                    parser,
+                    parent,
+                    inflateDefault = false
                 )
-
-                val watchFaceEditorData =
-                    WatchFaceEditorData.inflateSingleOnWatchEditorData(resources, parser)
-
                 return BooleanUserStyleSetting(
-                    Id(id),
-                    displayName,
-                    description,
-                    icon,
-                    watchFaceEditorData,
-                    affectsWatchFaceLayers,
+                    params.id,
+                    params.displayName,
+                    params.description,
+                    params.icon,
+                    params.watchFaceEditorData,
+                    params.affectedWatchFaceLayers,
                     defaultValue
                 )
             }
@@ -1135,79 +1217,29 @@ public sealed class UserStyleSetting private constructor(
 
         internal companion object {
             @SuppressLint("ResourceType")
+            @Suppress("UNCHECKED_CAST")
             fun inflate(
                 resources: Resources,
                 parser: XmlResourceParser
             ): ComplicationSlotsUserStyleSetting {
-                val id = parser.getAttributeValue(NAMESPACE_APP, "id")
-                require(id != null) { "ComplicationSlotsUserStyleSetting must have an id" }
-                val displayName = createDisplayText(
+                val params = createBaseWithParent(
                     resources,
                     parser,
-                    "displayName"
+                    createParent(
+                        resources, parser, "ComplicationSlotsUserStyleSetting", ::inflate
+                    ),
+                    inflateDefault = true,
+                    optionInflater = "ComplicationSlotsOption" to ComplicationSlotsOption::inflate
                 )
-                val description = createDisplayText(
-                    resources,
-                    parser,
-                    "description"
-                )
-                val icon = createIcon(
-                    resources,
-                    parser
-                )
-                val defaultOptionIndex = parser.getAttributeIntValue(
-                    NAMESPACE_APP,
-                    "defaultOptionIndex",
-                    0
-                )
-                val affectsWatchFaceLayers = affectsWatchFaceLayersFlagsToSet(
-                    parser.getAttributeIntValue(
-                        NAMESPACE_APP,
-                        "affectedWatchFaceLayers",
-                        0b111 // first 3 bits set
-                    )
-                )
-
-                var watchFaceEditorData: WatchFaceEditorData? = null
-                val options = ArrayList<ComplicationSlotsOption>()
-                var type = 0
-                val outerDepth = parser.depth
-                do {
-                    if (type == XmlPullParser.START_TAG) {
-                        when (parser.name) {
-                            "ComplicationSlotsOption" -> options.add(
-                                ComplicationSlotsOption.inflate(resources, parser)
-                            )
-
-                            "OnWatchEditorData" -> {
-                                if (watchFaceEditorData == null) {
-                                    watchFaceEditorData =
-                                        WatchFaceEditorData.inflate(resources, parser)
-                                } else {
-                                    throw IllegalArgumentException(
-                                        "Unexpected node OnWatchEditorData at line " +
-                                            parser.lineNumber
-                                    )
-                                }
-                            }
-
-                            else -> throw IllegalArgumentException(
-                                "Unexpected node ${parser.name} at line ${parser.lineNumber}"
-                            )
-                        }
-                    }
-                    type = parser.next()
-                } while (type != XmlPullParser.END_DOCUMENT && parser.depth > outerDepth)
-
                 return ComplicationSlotsUserStyleSetting(
-                    Id(id),
-                    displayName,
-                    description,
-                    icon,
-                    watchFaceEditorData,
-                    options,
-                    affectsWatchFaceLayers,
-                    defaultOptionIndex
+                    params.id,
+                    params.displayName,
+                    params.description,
+                    params.icon,
+                    params.watchFaceEditorData,
+                    params.options as List<ComplicationSlotsOption>,
+                    params.affectedWatchFaceLayers,
+                    params.defaultOptionIndex!!
                 )
             }
         }
@@ -1470,56 +1502,34 @@ public sealed class UserStyleSetting private constructor(
                 resources: Resources,
                 parser: XmlResourceParser
             ): DoubleRangeUserStyleSetting {
-                val id = parser.getAttributeValue(NAMESPACE_APP, "id")
-                require(id != null) { "DoubleRangeUserStyleSetting must have an id" }
-                val displayName = createDisplayText(
+                val settingType = "DoubleRangeUserStyleSetting"
+                val parent =
+                    createParent(resources, parser, settingType, ::inflate)
+                val maxDouble = getAttributeChecked(
+                    parser, "maxDouble", String::toDouble, parent?.maximumValue, settingType
+                )
+                val minDouble = getAttributeChecked(
+                    parser, "minDouble", String::toDouble, parent?.minimumValue, settingType
+                )
+                val defaultDouble = getAttributeChecked(
+                    parser, "defaultDouble", String::toDouble, parent?.defaultValue, settingType
+                )
+                val params = createBaseWithParent(
                     resources,
                     parser,
-                    "displayName"
+                    parent,
+                    inflateDefault = false
                 )
-                val description = createDisplayText(
-                    resources,
-                    parser,
-                    "description"
-                )
-                val icon = createIcon(
-                    resources,
-                    parser
-                )
-                require(parser.hasValue("maxDouble")) {
-                    "maxInteger is required for DoubleRangeUserStyleSetting"
-                }
-                require(parser.hasValue("minDouble")) {
-                    "minInteger is required for DoubleRangeUserStyleSetting"
-                }
-                require(parser.hasValue("defaultDouble")) {
-                    "defaultInteger is required for DoubleRangeUserStyleSetting"
-                }
-                val maxDouble = parser.getAttributeValue(NAMESPACE_APP, "maxDouble")!!.toDouble()
-                val minDouble = parser.getAttributeValue(NAMESPACE_APP, "minDouble")!!.toDouble()
-                val defaultDouble = parser.getAttributeValue(
-                    NAMESPACE_APP,
-                    "defaultDouble")!!.toDouble()
-                val affectsWatchFaceLayers = affectsWatchFaceLayersFlagsToSet(
-                    parser.getAttributeIntValue(
-                        NAMESPACE_APP,
-                        "affectedWatchFaceLayers",
-                        0b111 // first 3 bits set
-                    )
-                )
-                val watchFaceEditorData =
-                    WatchFaceEditorData.inflateSingleOnWatchEditorData(resources, parser)
-
                 return DoubleRangeUserStyleSetting(
-                    Id(id),
-                    displayName,
-                    description,
-                    icon,
-                    watchFaceEditorData,
-                    minDouble.toDouble(),
-                    maxDouble.toDouble(),
-                    affectsWatchFaceLayers,
-                    defaultDouble.toDouble()
+                    params.id,
+                    params.displayName,
+                    params.description,
+                    params.icon,
+                    params.watchFaceEditorData,
+                    minDouble,
+                    maxDouble,
+                    params.affectedWatchFaceLayers,
+                    defaultDouble
                 )
             }
         }
@@ -1875,77 +1885,47 @@ public sealed class UserStyleSetting private constructor(
             )
 
         internal companion object {
+            private fun <T> bindIdToSetting(
+                function: (
+                    resources: Resources,
+                    parser: XmlResourceParser,
+                    idToSetting: Map<String, UserStyleSetting>
+                ) -> T,
+                idToSetting: Map<String, UserStyleSetting>
+            ): (resources: Resources, parser: XmlResourceParser) -> T {
+                return { resources: Resources, parser: XmlResourceParser ->
+                    function(resources, parser, idToSetting)
+                }
+            }
+
             @SuppressLint("ResourceType")
+            @Suppress("UNCHECKED_CAST")
             fun inflate(
                 resources: Resources,
                 parser: XmlResourceParser,
                 idToSetting: Map<String, UserStyleSetting>
             ): ListUserStyleSetting {
-                val id = parser.getAttributeValue(NAMESPACE_APP, "id")
-                require(id != null) { "ListUserStyleSetting must have an id" }
-                val displayName = createDisplayText(
+                val params = createBaseWithParent(
                     resources,
                     parser,
-                    "displayName"
+                    createParent(
+                        resources,
+                        parser,
+                        "ListUserStyleSetting",
+                        bindIdToSetting(::inflate, idToSetting)
+                    ),
+                    inflateDefault = true,
+                    "ListOption" to bindIdToSetting(ListOption::inflate, idToSetting)
                 )
-                val description = createDisplayText(
-                    resources,
-                    parser,
-                    "description"
-                )
-                val icon = createIcon(
-                    resources,
-                    parser
-                )
-                val defaultOptionIndex =
-                    parser.getAttributeIntValue(NAMESPACE_APP, "defaultOptionIndex", 0)
-                val affectsWatchFaceLayers = affectsWatchFaceLayersFlagsToSet(
-                    parser.getAttributeIntValue(
-                        NAMESPACE_APP,
-                        "affectedWatchFaceLayers",
-                        0b111 // first 3 bits set
-                    )
-                )
-
-                var watchFaceEditorData: WatchFaceEditorData? = null
-                val options = ArrayList<ListOption>()
-                var type = 0
-                val outerDepth = parser.depth
-                do {
-                    if (type == XmlPullParser.START_TAG) {
-                        when (parser.name) {
-                            "ListOption" ->
-                                options.add(ListOption.inflate(resources, parser, idToSetting))
-
-                            "OnWatchEditorData" -> {
-                                if (watchFaceEditorData == null) {
-                                    watchFaceEditorData =
-                                        WatchFaceEditorData.inflate(resources, parser)
-                                } else {
-                                    throw IllegalArgumentException(
-                                        "Unexpected node OnWatchEditorData at line " +
-                                            parser.lineNumber
-                                    )
-                                }
-                            }
-
-                            else -> throw IllegalArgumentException(
-                                "Unexpected node ${parser.name} at line ${parser.lineNumber}"
-                            )
-                        }
-                    }
-                    type = parser.next()
-                } while (type != XmlPullParser.END_DOCUMENT && parser.depth > outerDepth)
-
                 return ListUserStyleSetting(
-                    Id(id),
-                    displayName,
-                    description,
-                    icon,
-                    watchFaceEditorData,
-                    options,
-                    affectsWatchFaceLayers,
-                    defaultOptionIndex
+                    params.id,
+                    params.displayName,
+                    params.description,
+                    params.icon,
+                    params.watchFaceEditorData,
+                    params.options as List<ListOption>,
+                    params.affectedWatchFaceLayers,
+                    params.defaultOptionIndex!!
                 )
             }
         }
@@ -2229,56 +2209,33 @@ public sealed class UserStyleSetting private constructor(
                 resources: Resources,
                 parser: XmlResourceParser
             ): LongRangeUserStyleSetting {
-                val id = parser.getAttributeValue(NAMESPACE_APP, "id")
-                require(id != null) { "LongRangeUserStyleSetting must have an id" }
-                val displayName = createDisplayText(
+                val settingType = "LongRangeUserStyleSetting"
+                val parent =
+                    createParent(resources, parser, settingType, ::inflate)
+                val maxInteger = getAttributeChecked(
+                    parser, "maxLong", String::toLong, parent?.maximumValue, settingType
+                )
+                val minInteger = getAttributeChecked(
+                    parser, "minLong", String::toLong, parent?.minimumValue, settingType
+                )
+                val defaultInteger = getAttributeChecked(
+                    parser, "defaultLong", String::toLong, parent?.defaultValue, settingType
+                )
+                val params = createBaseWithParent(
                     resources,
                     parser,
-                    "displayName"
+                    parent,
+                    inflateDefault = false
                 )
-                val description = createDisplayText(
-                    resources,
-                    parser,
-                   "description"
-                )
-                val icon = createIcon(
-                    resources,
-                    parser
-                )
-                require(parser.hasValue("maxLong")) {
-                    "maxLong is required for LongRangeUserStyleSetting"
-                }
-                require(parser.hasValue("minLong")) {
-                    "minLong is required for LongRangeUserStyleSetting"
-                }
-                require(parser.hasValue("defaultLong")) {
-                    "defaultLong is required for LongRangeUserStyleSetting"
-                }
-                val maxInteger =
-                    parser.getAttributeValue(NAMESPACE_APP, "maxLong")!!.toLong()
-                val minInteger =
-                    parser.getAttributeValue(NAMESPACE_APP, "minLong")!!.toLong()
-                val defaultInteger =
-                    parser.getAttributeValue(NAMESPACE_APP, "defaultLong")!!.toLong()
-                val affectsWatchFaceLayers = affectsWatchFaceLayersFlagsToSet(
-                    parser.getAttributeIntValue(
-                        NAMESPACE_APP,
-                        "affectedWatchFaceLayers",
-                        0b111 // first 3 bits set
-                    )
-                )
-                val watchFaceEditorData =
-                    WatchFaceEditorData.inflateSingleOnWatchEditorData(resources, parser)
-
                 return LongRangeUserStyleSetting(
-                    Id(id),
-                    displayName,
-                    description,
-                    icon,
-                    watchFaceEditorData,
+                    params.id,
+                    params.displayName,
+                    params.description,
+                    params.icon,
+                    params.watchFaceEditorData,
                     minInteger,
                     maxInteger,
-                    affectsWatchFaceLayers,
+                    params.affectedWatchFaceLayers,
                     defaultInteger
                 )
             }
@@ -2692,5 +2649,37 @@ private fun getWireSizeAndDimensionsFromStream(
         return WireSizeAndDimensions(wireSize, options.outWidth, options.outHeight)
     } finally {
         stream.close()
+    }
+}
+
+/**
+ * Gets the attribute specified by name. If there is no such attribute, applies defaultValue.
+ * Throws exception if calculated result is null.
+ */
+private fun <T> getAttributeChecked(
+    parser: XmlResourceParser,
+    name: String,
+    converter: (String) -> T,
+    defaultValue: T?,
+    settingType: String
+): T {
+    return if (parser.hasValue(name)) {
+        converter(parser.getAttributeValue(NAMESPACE_APP, name)!!)
+    } else {
+        defaultValue ?: throw IllegalArgumentException(
+            "$name is required for $settingType")
+    }
+}
+
+/** @hide */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+fun XmlPullParser.moveToStart(expectedNode: String) {
+    var type: Int
+    do {
+        type = next()
+    } while (type != XmlPullParser.END_DOCUMENT && type != XmlPullParser.START_TAG)
+
+    require(name == expectedNode) {
+        "Expected a $expectedNode node but is $name"
     }
 }

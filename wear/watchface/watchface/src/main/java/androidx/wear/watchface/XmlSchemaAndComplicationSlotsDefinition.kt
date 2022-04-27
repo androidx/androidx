@@ -29,6 +29,7 @@ import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.hasValue
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
+import androidx.wear.watchface.style.moveToStart
 import org.xmlpull.v1.XmlPullParser
 import kotlin.jvm.Throws
 
@@ -46,21 +47,13 @@ public class XmlSchemaAndComplicationSlotsDefinition(
             resources: Resources,
             parser: XmlResourceParser
         ): XmlSchemaAndComplicationSlotsDefinition {
-            // Parse next until start tag is found
-            var type: Int
-            do {
-                type = parser.next()
-            } while (type != XmlPullParser.END_DOCUMENT && type != XmlPullParser.START_TAG)
-
-            require(parser.name == "XmlWatchFace") {
-                "Expected a XmlWatchFace node"
-            }
+            parser.moveToStart("XmlWatchFace")
 
             var schema: UserStyleSchema? = null
             var flavors: UserStyleFlavors? = null
             val outerDepth = parser.depth
 
-            type = parser.next()
+            var type = parser.next()
 
             // Parse the XmlWatchFace declaration.
             val complicationSlots = ArrayList<ComplicationSlotStaticData>()
