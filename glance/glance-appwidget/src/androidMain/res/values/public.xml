@@ -1,5 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-  Copyright 2021 The Android Open Source Project
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2022 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -14,12 +15,9 @@
   limitations under the License.
   -->
 
-<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
-    android:minWidth="100dp"
-    android:minHeight="100dp"
-    android:initialLayout="@layout/glance_default_loading_layout"
-    android:minResizeHeight="40dp"
-    android:minResizeWidth="40dp"
-    android:previewImage="@drawable/compose"
-    android:resizeMode="horizontal|vertical"
-    android:widgetCategory="home_screen" />
+<resources>
+    <!-- A generic loading layout that can be used for the initial_layout in an app widget. -->
+    <public name="glance_default_loading_layout" type="layout" />
+    <!-- Value that indicates if Glance Appwidgets are available on this platform. -->
+    <public name="glance_appwidget_available" type="bool" />
+</resources>
