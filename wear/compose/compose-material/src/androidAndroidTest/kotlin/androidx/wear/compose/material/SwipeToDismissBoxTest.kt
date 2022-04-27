@@ -283,10 +283,20 @@ class SwipeToDismissBoxTest {
     }
 
     @Test
-    fun edgeswipe_non_edge_swiped_right_not_dismissed() {
+    fun edgeswipe_non_edge_swiped_right_with_offset_not_dismissed() {
         verifyEdgeSwipeWithNestedScroll(
             gesture = { swipeRight(200f, 400f) },
-            expectedToDismiss = false
+            expectedToDismiss = false,
+            initialScrollState = 200
+        )
+    }
+
+    @Test
+    fun edgeswipe_non_edge_swiped_right_without_offset_not_dismissed() {
+        verifyEdgeSwipeWithNestedScroll(
+            gesture = { swipeRight(200f, 400f) },
+            expectedToDismiss = false,
+            initialScrollState = 0
         )
     }
 
@@ -375,12 +385,13 @@ class SwipeToDismissBoxTest {
 
     private fun verifyEdgeSwipeWithNestedScroll(
         gesture: TouchInjectionScope.() -> Unit,
-        expectedToDismiss: Boolean
+        expectedToDismiss: Boolean,
+        initialScrollState: Int = 200
     ) {
         var dismissed = false
         rule.setContentWithTheme {
             val state = rememberSwipeToDismissBoxState()
-            val horizontalScrollState = rememberScrollState(200)
+            val horizontalScrollState = rememberScrollState(initialScrollState)
 
             LaunchedEffect(state.currentValue) {
                 dismissed =
