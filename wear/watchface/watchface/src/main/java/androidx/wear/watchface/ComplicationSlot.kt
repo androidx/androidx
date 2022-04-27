@@ -684,7 +684,7 @@ public class ComplicationSlot internal constructor(
      * [complicationData] is selected.
      */
     private var timelineComplicationData: ComplicationData = NoDataComplicationData()
-    private var timelineEntries: List<ComplicationData>? = null
+    private var timelineEntries: List<WireComplicationData>? = null
 
     /**
      * Sets the current [ComplicationData] and if it's a timeline, the correct override for
@@ -697,7 +697,7 @@ public class ComplicationSlot internal constructor(
     ) {
         timelineComplicationData = complicationData
         timelineEntries = complicationData.asWireComplicationData().timelineEntries?.map {
-            it.toApiComplicationData()
+            it
         }
         selectComplicationDataForInstant(instant, loadDrawablesAsynchronous, true)
     }
@@ -717,15 +717,14 @@ public class ComplicationSlot internal constructor(
 
         // Select the shortest valid timeline entry.
         timelineEntries?.let {
-            for (entry in it) {
-                val wireEntry = entry.asWireComplicationData()
+            for (wireEntry in it) {
                 val start = wireEntry.timelineStartEpochSecond
                 val end = wireEntry.timelineEndEpochSecond
                 if (start != null && end != null && time >= start && time < end) {
                     val duration = end - start
                     if (duration < previousShortest) {
                         previousShortest = duration
-                        best = entry
+                        best = wireEntry.toApiComplicationData()
                     }
                 }
             }
@@ -888,6 +887,7 @@ public class ComplicationSlot internal constructor(
         )
         writer.println("defaultDataSourcePolicy.systemDataSourceFallbackDefaultType=" +
             defaultDataSourcePolicy.systemDataSourceFallbackDefaultType)
+        writer.println("timelineComplicationData=$timelineComplicationData")
         writer.println("data=${renderer.getData()}")
         val bounds = complicationSlotBounds.perComplicationTypeBounds.map {
             "${it.key} -> ${it.value}"
