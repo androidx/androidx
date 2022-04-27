@@ -97,10 +97,6 @@ public interface ComplicationText {
         @JvmField
         public val EMPTY: ComplicationText = PlainComplicationText.Builder("").build()
 
-        /** @hide */
-        @JvmField
-        public val PLACEHOLDER_STRING = "__placeholder__"
-
         /**
          * For use when the real data isn't available yet, this [ComplicationText] should be
          * rendered as a placeholder. It is suggested that it should be rendered with a light grey
@@ -111,7 +107,7 @@ public interface ComplicationText {
          */
         @JvmField
         public val PLACEHOLDER: ComplicationText =
-            PlainComplicationText.Builder(PLACEHOLDER_STRING).build()
+            PlainComplicationText.Builder(WireComplicationData.PLACEHOLDER_STRING).build()
     }
 }
 

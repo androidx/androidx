@@ -927,7 +927,12 @@ public class RangedValueComplicationData internal constructor(
     }
 
     override fun toString(): String {
-        return "RangedValueComplicationData(value=$value, min=$min, max=$max, " +
+        val valueString = if (WireComplicationData.shouldRedact()) {
+            "REDACTED"
+        } else {
+            value.toString()
+        }
+        return "RangedValueComplicationData(value=$valueString, min=$min, max=$max, " +
             "monochromaticImage=$monochromaticImage, title=$title, text=$text, " +
             "contentDescription=$contentDescription), " +
             "tapActionLostDueToSerialization=$tapActionLostDueToSerialization, " +

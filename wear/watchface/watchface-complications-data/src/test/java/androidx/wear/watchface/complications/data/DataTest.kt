@@ -22,22 +22,30 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.Icon
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
-import org.junit.Test
-import org.junit.runner.RunWith
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.time.Instant
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.shadows.ShadowLog
 
 @RunWith(SharedRobolectricTestRunner::class)
 public class AsWireComplicationDataTest {
     val resources = ApplicationProvider.getApplicationContext<Context>().resources
     val dataSourceA = ComponentName("com.pkg_a", "com.a")
     val dataSourceB = ComponentName("com.pkg_a", "com.a")
+
+    @Before
+    fun setup() {
+        ShadowLog.setLoggable("ComplicationData", Log.DEBUG)
+    }
 
     @Test
     public fun noDataComplicationData() {
@@ -1248,8 +1256,8 @@ public class FromWireComplicationDataTest {
     @OptIn(ComplicationExperimental::class)
     public fun noDataComplicationData_list() {
         val wireShortText = WireComplicationDataBuilder(WireComplicationData.TYPE_SHORT_TEXT)
-        .setShortText(WireComplicationText.plainText("text"))
-        .build()
+            .setShortText(WireComplicationText.plainText("text"))
+            .build()
 
         val wireRangedValue = WireComplicationDataBuilder(WireComplicationData.TYPE_RANGED_VALUE)
             .setRangedValue(95f)
@@ -1910,6 +1918,114 @@ public class ValidTimeRangeTest {
                     )
                     .build()
             )
+    }
+}
+
+@RunWith(SharedRobolectricTestRunner::class)
+public class RedactionTest {
+    @Before
+    fun setup() {
+        ShadowLog.setLoggable("ComplicationData", Log.INFO)
+    }
+
+    @Test
+    fun shouldRedact() {
+        ShadowLog.setLoggable("ComplicationData", Log.DEBUG)
+        assertThat(WireComplicationData.shouldRedact()).isFalse()
+
+        ShadowLog.setLoggable("ComplicationData", Log.INFO)
+        assertThat(WireComplicationData.shouldRedact()).isTrue()
+    }
+
+    @Test
+    fun shortText() {
+        val data = ShortTextComplicationData.Builder(
+            "text".complicationText,
+            "content description".complicationText
+        )
+            .setTitle("title".complicationText)
+            .build()
+
+        assertThat(data.toString()).isEqualTo(
+            "ShortTextComplicationData(text=ComplicationText{mSurroundingText=REDACTED, " +
+                "mTimeDependentText=null}, title=ComplicationText{mSurroundingText=REDACTED, " +
+                "mTimeDependentText=null}, monochromaticImage=null, contentDescription=" +
+                "ComplicationText{mSurroundingText=REDACTED, mTimeDependentText=null}, " +
+                "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=" +
+                "TimeRange(REDACTED), dataSource=null)"
+        )
+        assertThat(data.asWireComplicationData().toString()).isEqualTo(
+            "ComplicationData{mType=3, mFields=REDACTED}"
+        )
+    }
+
+    @Test
+    fun longText() {
+        val data = LongTextComplicationData.Builder(
+            "text".complicationText,
+            "content description".complicationText
+        )
+            .setTitle("title".complicationText)
+            .build()
+
+        assertThat(data.toString()).isEqualTo("LongTextComplicationData(text=" +
+            "ComplicationText{mSurroundingText=REDACTED, mTimeDependentText=null}, title=" +
+            "ComplicationText{mSurroundingText=REDACTED, mTimeDependentText=null}, " +
+            "monochromaticImage=null, smallImage=null, contentDescription=ComplicationText" +
+            "{mSurroundingText=REDACTED, mTimeDependentText=null}), " +
+            "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=TimeRange" +
+            "(REDACTED), dataSource=null)"
+        )
+        assertThat(data.asWireComplicationData().toString()).isEqualTo(
+            "ComplicationData{mType=4, mFields=REDACTED}"
+        )
+    }
+
+    @Test
+    fun rangedValue() {
+        val data = RangedValueComplicationData.Builder(
+            50f,
+            0f,
+            100f,
+            "content description".complicationText
+        )
+            .setText("text".complicationText)
+            .setTitle("title".complicationText)
+            .build()
+
+        assertThat(data.toString()).isEqualTo("RangedValueComplicationData(value=REDACTED, " +
+            "min=0.0, max=100.0, monochromaticImage=null, title=ComplicationText{mSurroundingText" +
+            "=REDACTED, mTimeDependentText=null}, text=ComplicationText{mSurroundingText=REDACTED" +
+            ", mTimeDependentText=null}, contentDescription=ComplicationText{mSurroundingText=" +
+            "REDACTED, mTimeDependentText=null}), tapActionLostDueToSerialization=false, " +
+            "tapAction=null, validTimeRange=TimeRange(REDACTED), dataSource=null)"
+        )
+        assertThat(data.asWireComplicationData().toString()).isEqualTo(
+            "ComplicationData{mType=5, mFields=REDACTED}"
+        )
+    }
+
+    @Test
+    fun placeholder() {
+        val data = NoDataComplicationData(
+            LongTextComplicationData.Builder(
+                ComplicationText.PLACEHOLDER,
+                ComplicationText.EMPTY
+            ).build()
+        )
+
+        assertThat(data.toString()).isEqualTo(
+            "NoDataComplicationData(placeholder=LongTextComplicationData(text=" +
+                "ComplicationText{mSurroundingText=__placeholder__, mTimeDependentText=null}, " +
+                "title=null, monochromaticImage=null, smallImage=null, contentDescription=" +
+                "ComplicationText{mSurroundingText=REDACTED, mTimeDependentText=null}), " +
+                "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=" +
+                "TimeRange(REDACTED), dataSource=null), tapActionLostDueToSerialization=false, " +
+                "tapAction=null, validTimeRange=TimeRange(REDACTED))"
+        )
+        assertThat(data.asWireComplicationData().toString()).isEqualTo(
+            "ComplicationData{mType=10, mFields=REDACTED}"
+        )
     }
 }
 

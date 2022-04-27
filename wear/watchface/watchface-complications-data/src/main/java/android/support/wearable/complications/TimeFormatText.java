@@ -60,6 +60,9 @@ public final class TimeFormatText implements TimeDependentText {
     @NonNull
     @Override
     public String toString() {
+        if (ComplicationData.shouldRedact()) {
+            return "TimeFormatText{Redacted}";
+        }
         return "TimeFormatText{mDateFormat=" + mDateFormat
                 + ", mStyle=" + mStyle + ", mTimeZone=" + mTimeZone + ", mDate=" + mDate
                 + ", mTimePrecision=" + mTimePrecision + '}';
