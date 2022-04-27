@@ -16,17 +16,14 @@
 
 package androidx.datastore.preferences.core
 
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 import java.lang.UnsupportedOperationException
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.test.Test
 
-@RunWith(JUnit4::class)
 class PreferencesTest {
 
     @Test

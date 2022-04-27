@@ -20,6 +20,7 @@ import androidx.build.Publish
 plugins {
     id("AndroidXPlugin")
     id("org.jetbrains.kotlin.multiplatform")
+    alias(libs.plugins.kotlinSerialization)
 }
 
 //todo: get working with kmp
@@ -40,11 +41,16 @@ kotlin {
                 api(libs.kotlinStdlib)
                 api(libs.kotlinCoroutinesCore)
                 api(project(":datastore:datastore-core"))
+                api(project(":datastore:datastore-core-okio"))
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.1.0")
             }
         }
         commonTest {
             dependencies {
-                implementation(libs.kotlinTest)
+                implementation(libs.kotlinTestCommon)
+                implementation(libs.kotlinTestAnnotationsCommon)
+                implementation(libs.kotlinCoroutinesTest)
+                implementation(project(":datastore:datastore-core-okio"))
             }
         }
         jvmMain {
@@ -55,7 +61,7 @@ kotlin {
 //                        configuration: "export"
 //                ))
                 api(libs.kotlinStdlib)
-                api(project(":datastore:datastore-core"))
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.1.0")
             }
         }
         jvmTest {
@@ -63,6 +69,7 @@ kotlin {
                 implementation(libs.junit)
                 implementation(libs.kotlinCoroutinesTest)
                 implementation(libs.kotlinTest)
+                implementation(project(":datastore:datastore-core"))
             }
         }
     }
