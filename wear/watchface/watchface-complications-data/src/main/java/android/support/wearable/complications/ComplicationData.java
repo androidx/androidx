@@ -434,7 +434,7 @@ public final class ComplicationData implements Parcelable, Serializable {
 
     @RequiresApi(api = Build.VERSION_CODES.P)
     private static class SerializedForm implements Serializable {
-        private static final int VERSION_NUMBER = 7;
+        private static final int VERSION_NUMBER = 8;
 
         @NonNull
         ComplicationData mComplicationData;
@@ -549,6 +549,7 @@ public final class ComplicationData implements Parcelable, Serializable {
             oos.writeLong(start);
             long end = mComplicationData.mFields.getLong(FIELD_TIMELINE_END_TIME, -1);
             oos.writeLong(end);
+            oos.writeInt(mComplicationData.mFields.getInt(FIELD_TIMELINE_ENTRY_TYPE));
 
             List<ComplicationData> listEntries = mComplicationData.getListEntries();
             int listEntriesLength = (listEntries != null) ? listEntries.size() : 0;
@@ -697,6 +698,10 @@ public final class ComplicationData implements Parcelable, Serializable {
             long end = ois.readLong();
             if (end != -1) {
                 fields.putLong(FIELD_TIMELINE_END_TIME, end);
+            }
+            int timelineEntryType = ois.readInt();
+            if (timelineEntryType != 0) {
+                fields.putInt(FIELD_TIMELINE_ENTRY_TYPE, timelineEntryType);
             }
 
             int listEntriesLength = ois.readInt();
