@@ -284,12 +284,13 @@ public class EncoderImpl implements Encoder {
      */
     @Override
     public void start() {
+        final long startTriggerTimeUs = generatePresentationTimeUs();
         mEncoderExecutor.execute(() -> {
             switch (mState) {
                 case CONFIGURED:
                     mLastDataStopTimestamp = null;
 
-                    final long startTimeUs = generatePresentationTimeUs();
+                    final long startTimeUs = startTriggerTimeUs;
                     Logger.d(mTag, "Start on " + DebugUtils.readableUs(startTimeUs));
                     try {
                         if (mIsFlushedAfterEndOfStream) {
@@ -320,7 +321,7 @@ public class EncoderImpl implements Encoder {
                             pauseRange != null && pauseRange.getUpper() == NO_LIMIT_LONG,
                             "There should be a \"pause\" before \"resume\"");
                     final long pauseTimeUs = pauseRange.getLower();
-                    final long resumeTimeUs = generatePresentationTimeUs();
+                    final long resumeTimeUs = startTriggerTimeUs;
                     mActivePauseResumeTimeRanges.addLast(Range.create(pauseTimeUs, resumeTimeUs));
                     // Do not update total paused duration here since current output buffer may
                     // still before the pause range.
@@ -397,6 +398,7 @@ public class EncoderImpl implements Encoder {
      */
     @Override
     public void stop(long expectedStopTimeUs) {
+        final long stopTriggerTimeUs = generatePresentationTimeUs();
         mEncoderExecutor.execute(() -> {
             switch (mState) {
                 case CONFIGURED:
@@ -414,7 +416,7 @@ public class EncoderImpl implements Encoder {
                     }
                     long stopTimeUs;
                     if (expectedStopTimeUs == TIMESTAMP_ANY) {
-                        stopTimeUs = generatePresentationTimeUs();
+                        stopTimeUs = stopTriggerTimeUs;
                     } else if (expectedStopTimeUs < startTimeUs) {
                         // If the recording is stopped immediately after started, it's possible
                         // that the expected stop time is less than the start time because the
@@ -422,7 +424,7 @@ public class EncoderImpl implements Encoder {
                         // this case so that the recording can be stopped correctly.
                         Logger.w(mTag, "The expected stop time is less than the start time. Use "
                                 + "current time as stop time.");
-                        stopTimeUs = generatePresentationTimeUs();
+                        stopTimeUs = stopTriggerTimeUs;
                     } else {
                         stopTimeUs = expectedStopTimeUs;
                     }
@@ -499,6 +501,7 @@ public class EncoderImpl implements Encoder {
      */
     @Override
     public void pause() {
+        final long pauseTriggerTimeUs = generatePresentationTimeUs();
         mEncoderExecutor.execute(() -> {
             switch (mState) {
                 case CONFIGURED:
@@ -513,7 +516,7 @@ public class EncoderImpl implements Encoder {
                     break;
                 case STARTED:
                     // Create and insert a pause/resume range.
-                    final long pauseTimeUs = generatePresentationTimeUs();
+                    final long pauseTimeUs = pauseTriggerTimeUs;
                     Logger.d(mTag, "Pause on " + DebugUtils.readableUs(pauseTimeUs));
                     mActivePauseResumeTimeRanges.addLast(Range.create(pauseTimeUs, NO_LIMIT_LONG));
                     setState(PAUSED);
@@ -834,6 +837,18 @@ public class EncoderImpl implements Encoder {
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @ExecutedBy("mEncoderExecutor")
+    long getAdjustedTimeUs(@NonNull MediaCodec.BufferInfo bufferInfo) {
+        long adjustedTimeUs;
+        if (mTotalPausedDurationUs > 0L) {
+            adjustedTimeUs = bufferInfo.presentationTimeUs - mTotalPausedDurationUs;
+        } else {
+            adjustedTimeUs = bufferInfo.presentationTimeUs;
+        }
+        return adjustedTimeUs;
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @ExecutedBy("mEncoderExecutor")
     boolean isInPauseRange(long timeUs) {
         for (Range<Long> range : mActivePauseResumeTimeRanges) {
             if (range.contains(timeUs)) {
@@ -940,6 +955,7 @@ public class EncoderImpl implements Encoder {
          */
         private long mLastSentPresentationTimeUs = 0L;
         private boolean mIsOutputBufferInPauseState = false;
+        private boolean mIsKeyFrameRequired = false;
 
         MediaCodecCallback() {
             if (mIsVideoEncoder
@@ -1014,14 +1030,18 @@ public class EncoderImpl implements Encoder {
                             if (!mHasFirstData) {
                                 mHasFirstData = true;
                             }
-                            if (mTotalPausedDurationUs > 0) {
-                                bufferInfo.presentationTimeUs -= mTotalPausedDurationUs;
+                            long adjustedTimeUs = getAdjustedTimeUs(bufferInfo);
+                            if (bufferInfo.presentationTimeUs != adjustedTimeUs) {
+                                // If adjusted time <= last sent time, the buffer should have been
+                                // detected and dropped in checkBufferInfo().
+                                Preconditions.checkState(
+                                        adjustedTimeUs > mLastSentPresentationTimeUs);
+                                bufferInfo.presentationTimeUs = adjustedTimeUs;
                                 if (DEBUG) {
-                                    Logger.d(mTag, "Reduce bufferInfo.presentationTimeUs to "
-                                            + DebugUtils.readableUs(bufferInfo.presentationTimeUs));
+                                    Logger.d(mTag, "Adjust bufferInfo.presentationTimeUs to "
+                                            + DebugUtils.readableUs(adjustedTimeUs));
                                 }
                             }
-
                             mLastSentPresentationTimeUs = bufferInfo.presentationTimeUs;
                             try {
                                 EncodedDataImpl encodedData = new EncodedDataImpl(mediaCodec, index,
@@ -1153,10 +1173,26 @@ public class EncoderImpl implements Encoder {
                 return true;
             }
 
-            if (!mHasFirstData && mIsVideoEncoder && !isKeyFrame(bufferInfo)) {
-                Logger.d(mTag, "Drop buffer by first video frame is not key frame.");
-                requestKeyFrameToMediaCodec();
+            // We should check if the adjusted time is valid. see b/189114207.
+            if (getAdjustedTimeUs(bufferInfo) <= mLastSentPresentationTimeUs) {
+                Logger.d(mTag, "Drop buffer by adjusted time is less than the last sent time.");
+                if (mIsVideoEncoder && isKeyFrame(bufferInfo)) {
+                    mIsKeyFrameRequired = true;
+                }
                 return true;
+            }
+
+            if (!mHasFirstData && !mIsKeyFrameRequired && mIsVideoEncoder) {
+                mIsKeyFrameRequired = true;
+            }
+
+            if (mIsKeyFrameRequired) {
+                if (!isKeyFrame(bufferInfo)) {
+                    Logger.d(mTag, "Drop buffer by not a key frame.");
+                    requestKeyFrameToMediaCodec();
+                    return true;
+                }
+                mIsKeyFrameRequired = false;
             }
 
             return false;
@@ -1213,23 +1249,10 @@ public class EncoderImpl implements Encoder {
                 }
             } else if (mIsOutputBufferInPauseState && !isInPauseRange) {
                 // From pause to resume
+                Logger.d(mTag, "Switch to resume state");
+                mIsOutputBufferInPauseState = false;
                 if (mIsVideoEncoder && !isKeyFrame(bufferInfo)) {
-                    // If a video frame is not a key frame, do not switch to resume state.
-                    // This is because a key frame is required to be the first encoded data
-                    // after resume, otherwise output video will have "shattered" transitioning
-                    // effect.
-                    Logger.d(mTag, "Not a key frame, don't switch to resume state.");
-                    requestKeyFrameToMediaCodec();
-                } else {
-                    // It should check if the adjusted time is valid before switch to resume.
-                    // It may get invalid adjusted time, see b/189114207.
-                    long adjustedTimeUs = bufferInfo.presentationTimeUs - mTotalPausedDurationUs;
-                    if (adjustedTimeUs > mLastSentPresentationTimeUs) {
-                        Logger.d(mTag, "Switch to resume state");
-                        mIsOutputBufferInPauseState = false;
-                    } else {
-                        Logger.d(mTag, "Adjusted time by pause duration is invalid.");
-                    }
+                    mIsKeyFrameRequired = true;
                 }
             }
 
