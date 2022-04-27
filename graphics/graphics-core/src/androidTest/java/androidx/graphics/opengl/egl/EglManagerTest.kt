@@ -19,6 +19,7 @@ package androidx.graphics.opengl.egl
 import android.graphics.Color
 import android.graphics.PixelFormat
 import android.graphics.SurfaceTexture
+import android.hardware.HardwareBuffer
 import android.media.ImageReader
 import android.opengl.EGL14
 import android.opengl.EGLSurface
@@ -372,6 +373,85 @@ class EglManagerTest {
             release()
         }
         return canRender
+    }
+
+    @Test
+    fun testEglGetNativeClientBufferANDROIDSupported() {
+        testEglManager {
+            val khrImageBaseSupported =
+                isExtensionSupported(EglKhrImageBase)
+            val androidImageNativeBufferSupported =
+                isExtensionSupported(EglAndroidImageNativeBuffer)
+            // According to EGL spec both these extensions are required in order to support
+            // eglGetNativeClientBufferAndroid
+            if (khrImageBaseSupported && androidImageNativeBufferSupported) {
+                assertTrue(EGLUtilsBindings.nSupportsEglGetNativeClientBufferAndroid())
+            }
+        }
+    }
+
+    @Test
+    fun testEglCreateAndDestroyImageKHRSupported() {
+        testEglManager {
+            if (isExtensionSupported(EglKhrImageBase)) {
+                assertTrue(EGLUtilsBindings.nSupportsEglCreateImageKHR())
+                assertTrue(EGLUtilsBindings.nSupportsEglDestroyImageKHR())
+            }
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun testEglCreateAndDestroyImageKHR() {
+        testEglManager {
+            if (isExtensionSupported(EglKhrImageBase)) {
+                val display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY)
+                val hardwareBuffer = HardwareBuffer.create(
+                    10,
+                    10,
+                    PixelFormat.RGBA_8888,
+                    1,
+                    HardwareBuffer.USAGE_GPU_COLOR_OUTPUT
+                )
+                val image = EGLUtils.eglCreateImageFromHardwareBuffer(display, hardwareBuffer)
+                assertNotNull(image)
+                assertTrue(EGLUtils.eglDestroyImageKHR(display, image!!))
+            }
+        }
+    }
+
+    @Test
+    fun testGlImageTargetTexture2DOESSupported() {
+        testEglManager {
+            // According to EGL spec *EITHER* EGL_KHR_image_base or EGL_KHR_image
+            // indicate that the eglImageTargetTexture2DOES method is supported on this device
+            if (isExtensionSupported(EglKhrImageBase) || isExtensionSupported(EglKhrImage)) {
+                assertTrue(EGLUtilsBindings.nSupportsGlImageTargetTexture2DOES())
+            }
+        }
+    }
+
+    @Test
+    fun testEglCreateAndDestroySyncKHRSupported() {
+        testEglManager {
+            if (isExtensionSupported(EglKhrFenceSync)) {
+                assertTrue(EGLUtilsBindings.nSupportsEglCreateSyncKHR())
+                assertTrue(EGLUtilsBindings.nSupportsEglDestroySyncKHR())
+            }
+        }
+    }
+
+    @Test
+    fun testEglCreateAndDestroySyncKHR() {
+        testEglManager {
+            if (isExtensionSupported(EglKhrFenceSync)) {
+                val display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY)
+                val sync = EGLUtils.eglCreateSyncKHR(display,
+                    EGLUtils.EGL_SYNC_NATIVE_FENCE_ANDROID, null)
+                assertNotNull(sync)
+                assertTrue(EGLUtils.eglDestroySyncKHR(display, sync!!))
+            }
+        }
     }
 
     /**

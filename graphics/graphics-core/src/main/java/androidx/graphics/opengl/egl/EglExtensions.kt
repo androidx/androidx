@@ -147,6 +147,36 @@ const val EglKhrWaitSync = "EGL_KHR_wait_sync"
 const val EglAndroidNativeFenceSync = "EGL_ANDROID_native_fence_sync"
 
 /**
+ * Enables using an Android window buffer (struct ANativeWindowBuffer) as an EGLImage source
+ *
+ * See: https://www.khronos.org/registry/EGL/extensions/ANDROID/EGL_ANDROID_image_native_buffer.txt
+ */
+const val EglAndroidImageNativeBuffer = "EGL_ANDROID_image_native_buffer"
+
+/**
+ * Extension for supporting a new EGL resource type that is suitable for
+ * sharing 2D arrays of image data between client APIs, the EGLImage.
+ * Although the intended purpose is sharing 2D image data, the
+ * underlying interface makes no assumptions about the format or
+ * purpose of the resource being shared, leaving those decisions to
+ * the application and associated client APIs.
+ *
+ * See:
+ * https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_image_base.txt
+ */
+const val EglKhrImageBase = "EGL_KHR_image_base"
+
+/**
+ * Extension that defines a new EGL resource type that is suitable for
+ * sharing 2D arrays of image data between client APIs, the EGLImage,
+ * and allows creating EGLImages from EGL native pixmaps.
+ *
+ * See:
+ * https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_image.txt
+ */
+const val EglKhrImage = "EGL_KHR_image"
+
+/**
  * Class determining the types of OpenGL extensions supported by the given
  * EGL spec.
  */
