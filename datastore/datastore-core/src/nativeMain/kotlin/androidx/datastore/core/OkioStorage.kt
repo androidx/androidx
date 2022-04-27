@@ -23,7 +23,7 @@ import okio.FileNotFoundException
 import okio.FileSystem
 import okio.Path
 
-internal class OkioStorage<T>(
+class OkioStorage<T>(
     private val fileSystem: FileSystem,
     private val producePath: () -> Path,
     private val serializer: Serializer<T>

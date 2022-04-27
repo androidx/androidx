@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import androidx.build.LibraryType
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
@@ -36,55 +37,37 @@ kotlin {
         commonMain {
             dependencies {
                 api(libs.kotlinStdlib)
-                api(libs.kotlinCoroutinesCore)
-            }
-        }
-        commonTest {
-            dependencies {
-                implementation(libs.kotlinTestCommon)
-                implementation(libs.kotlinTestAnnotationsCommon)
-                implementation(libs.kotlinCoroutinesTest)
-                implementation(project(":datastore:datastore-core-okio"))
-                implementation(project(":datastore:datastore-internal-test-utils"))
-            }
-        }
-
-        nativeMain {
-            dependsOn(commonMain)
-            dependencies {
+                api(libs.kotlinTestCommon)
+                api(libs.kotlinTestAnnotationsCommon)
+//                api(libs.kotlinCoroutinesCore)
+//                implementation(libs.kotlinCoroutinesTest)
                 api("com.squareup.okio:okio:3.0.0")
-                implementation("org.jetbrains.kotlinx:atomicfu:0.17.2")
+                api(project(":datastore:datastore-core"))
+
             }
         }
+        commonTest
 
         jvmMain {
+            dependsOn(commonMain)
             dependencies {
-                api(libs.kotlinStdlib)
-                api(libs.kotlinCoroutinesCore)
-                api("androidx.annotation:annotation:1.1.0")
+                implementation(libs.kotlinTest)
+                implementation(libs.kotlinTestAnnotationsCommon)
             }
         }
-
         jvmTest {
             dependsOn(commonTest)
             dependencies {
-                implementation(libs.junit)
-                implementation(libs.kotlinTestJunit)
-                implementation(libs.truth)
-                implementation(project(":internal-testutils-truth"))
+                implementation(libs.kotlinTest)
+                implementation(libs.kotlinTestAnnotationsCommon)
             }
-        }
 
+        }
+        nativeMain {
+            dependsOn(commonMain)
+        }
         nativeTest {
             dependsOn(commonTest)
-            dependencies {
-
-            }
-        }
-    }
-    targets.withType(KotlinNativeTarget).configureEach {
-        binaries.all {
-            binaryOptions["memoryModel"] = "experimental"
         }
     }
     targets.forEach {target ->
@@ -97,16 +80,20 @@ kotlin {
             }
         }
     }
+    targets.withType(KotlinNativeTarget).configureEach {
+        binaries.all {
+            binaryOptions["memoryModel"] = "experimental"
+        }
+    }
 }
 
 androidx {
-    name = "Android DataStore Core"
-    publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.DATASTORE
-    inceptionYear = "2020"
-    description = "Android DataStore Core - contains the underlying store used by each serialization method"
+    name = "Android DataStore Internal Test Utils"
+    type = LibraryType.INTERNAL_TEST_LIBRARY
+    publish = Publish.NONE
+    inceptionYear = "2022"
+    description = "Internal test utils for datastore."
     legacyDisableKotlinStrictApiMode = true
-    publishPlatforms = ["jvm"]
 }
 
 // Allow usage of Kotlin's @OptIn.

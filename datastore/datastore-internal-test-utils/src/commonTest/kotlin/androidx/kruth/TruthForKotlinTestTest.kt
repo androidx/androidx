@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.datastore.core
+package androidx.kruth
 
-expect class TestIO(dirName: String = "datastore-test-dir") {
-    internal fun <T> newFileStorage(
-        serializer: Serializer<T>,
-        prefix: String = "temp-file"
-    ): StorageImpl<T>
+import kotlin.test.Test
 
-    var onProduceFileCallback: () -> Unit
+class TruthForKotlinTestTest {
 
-    fun cleanup()
+    @Test
+    public fun test() {
+        assertThat(true).isTrue()
+    }
 }

@@ -16,6 +16,13 @@
 
 package androidx.datastore.core
 
-abstract class StorageImpl<T> : Storage<T> {
-    abstract fun delete(): Boolean
+expect class TestIO(dirName: String = "datastore-test-dir") {
+    fun <T> newFileStorage(
+        serializer: Serializer<T>,
+        prefix: String = "temp-file"
+    ): StorageImpl<T>
+
+    var onProduceFileCallback: () -> Unit
+
+    fun cleanup()
 }

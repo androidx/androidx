@@ -24,7 +24,7 @@ actual class TestIO actual constructor(dirName: String) {
     ).also {
         it.toFile().deleteOnExit()
     }
-    internal actual fun <T> newFileStorage(serializer: Serializer<T>, prefix: String):
+    actual fun <T> newFileStorage(serializer: Serializer<T>, prefix: String):
         StorageImpl<T> {
         return FileStorage(
             produceFile = {
