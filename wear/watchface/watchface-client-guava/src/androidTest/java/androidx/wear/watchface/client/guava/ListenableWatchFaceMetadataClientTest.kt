@@ -22,9 +22,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.res.XmlResourceParser
-import android.os.Handler
 import android.os.IBinder
-import android.os.Looper
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -36,6 +34,7 @@ import com.google.common.truth.Truth
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.MainScope
 
 private const val TIMEOUT_MS = 500L
 
@@ -47,7 +46,7 @@ public class WatchFaceControlTestService : Service() {
     private val realService = object : WatchFaceControlService() {
         @SuppressLint("NewApi")
         override fun createServiceStub(): IWatchFaceInstanceServiceStub =
-            IWatchFaceInstanceServiceStub(this, Handler(Looper.getMainLooper()))
+            IWatchFaceInstanceServiceStub(this, MainScope())
 
         init {
             setContext(ApplicationProvider.getApplicationContext<Context>())
