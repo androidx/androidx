@@ -51,6 +51,7 @@ kotlin {
                 implementation(libs.kotlinTestAnnotationsCommon)
                 implementation(libs.kotlinCoroutinesTest)
                 implementation(project(":datastore:datastore-core-okio"))
+                implementation(project(":datastore:datastore-internal-test-utils"))
             }
         }
         jvmMain {
@@ -60,6 +61,8 @@ kotlin {
 //                        path: ":datastore:datastore-preferences-proto",
 //                        configuration: "export"
 //                ))
+                api(libs.kotlinStdlib)
+                api(libs.kotlinCoroutinesCore)
                 api(libs.kotlinStdlib)
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.1.0")
             }

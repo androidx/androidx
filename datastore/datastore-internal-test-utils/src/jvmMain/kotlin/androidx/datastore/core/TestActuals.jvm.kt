@@ -16,6 +16,8 @@
 
 package androidx.datastore.core
 
+import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.nio.file.Files
 
 actual class TestIO actual constructor(dirName: String) {
@@ -41,7 +43,27 @@ actual class TestIO actual constructor(dirName: String) {
 
     actual var onProduceFileCallback: () -> Unit = {}
 
+
+
     actual fun cleanup() {
         tmpDir.toFile().deleteRecursively()
+    }
+
+    actual fun outputStream(filename: String): OutputStream {
+        val file = Files.createTempFile(
+            tmpDir,
+            filename, // prefix
+            "" // suffix
+        ).toFile()
+        return FileOutputStream(file)
+    }
+
+    actual fun inputStream(filename: String): InputStream {
+        val file = Files.createTempFile(
+            tmpDir,
+            filename, // prefix
+            "" // suffix
+        ).toFile()
+        return FileInputStream(file)
     }
 }

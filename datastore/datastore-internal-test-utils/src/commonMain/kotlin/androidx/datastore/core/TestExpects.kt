@@ -24,5 +24,9 @@ expect class TestIO(dirName: String = "datastore-test-dir") {
 
     var onProduceFileCallback: () -> Unit
 
+    fun outputStream(filename:String):OutputStream
+
+    fun inputStream(filename:String):InputStream
+
     fun cleanup()
 }

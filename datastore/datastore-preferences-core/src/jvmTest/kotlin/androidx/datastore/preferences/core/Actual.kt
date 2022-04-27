@@ -19,5 +19,6 @@ package androidx.datastore.preferences.core
 import androidx.datastore.core.Serializer
 
 actual fun getSerializer(): Serializer<Preferences> {
+    //todo return PreferencesSerializer here once we fix the protobuf import stuff.
     return PreferencesJsonSerializer
 }

@@ -17,7 +17,9 @@
 package androidx.datastore.core
 
 import kotlin.random.Random
+import okio.BufferedSink
 import okio.FileSystem
+import okio.Path.Companion.toPath
 
 actual class TestIO actual constructor(dirName: String) {
     // TODO could use fake filesysyem but we actually rather test with real filesystem
@@ -49,5 +51,19 @@ actual class TestIO actual constructor(dirName: String) {
 
     actual fun cleanup() {
         fileSystem.deleteRecursively(tmpDir)
+    }
+
+    actual fun outputStream(filename: String): OutputStream {
+        return fileSystem.sink(
+            file = filename.toPath(),
+            mustCreate = false
+        ).buffer().toOutputStream()
+    }
+
+    actual fun inputStream(filename: String): InputStream {
+        return fileSystem.source(
+            file = filename.toPath(),
+            mustCreate = false
+        ).buffer().toInputStream()
     }
 }
