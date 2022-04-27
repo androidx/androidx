@@ -18,6 +18,7 @@ package androidx.wear.compose.material.dialog
 
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
@@ -78,62 +79,28 @@ public fun Dialog(
     properties: DialogProperties = DialogProperties(),
     content: @Composable () -> Unit,
 ) {
-    var transitionState by remember {
-        mutableStateOf(MutableTransitionState(DialogStage.Intro))
+    // Transitions for background and 'dialog content' alpha.
+    var alphaTransitionState by remember {
+        mutableStateOf(MutableTransitionState(AlphaStage.IntroFadeOut))
     }
-    val transition = updateTransition(transitionState)
-    if (showDialog || transitionState.targetState != DialogStage.Intro) {
+    val alphaTransition = updateTransition(alphaTransitionState)
+
+    // Transitions for dialog content scaling.
+    var scaleTransitionState by remember {
+        mutableStateOf(MutableTransitionState(ScaleStage.Intro))
+    }
+    val scaleTransition = updateTransition(scaleTransitionState)
+
+    if (showDialog ||
+        alphaTransitionState.targetState != AlphaStage.IntroFadeOut ||
+        scaleTransitionState.targetState != ScaleStage.Intro) {
         Dialog(
             onDismissRequest = onDismissRequest,
             properties = properties,
         ) {
-            val backgroundAlpha by transition.animateFloat(
-                transitionSpec = {
-                    if (transitionState.targetState != DialogStage.Outro)
-                        tween(durationMillis = RAPID, easing = STANDARD_OUT)
-                    else
-                        tween(durationMillis = QUICK, delayMillis = RAPID, easing = STANDARD_IN)
-                },
-                label = "background-alpha"
-            ) { stage ->
-                when (stage) {
-                    DialogStage.Intro -> 1.0f
-                    DialogStage.Display -> 0.1f
-                    DialogStage.Outro -> 1.0f
-                }
-            }
-
-            val alpha by transition.animateFloat(
-                transitionSpec = {
-                    if (transitionState.targetState != DialogStage.Outro)
-                        tween(durationMillis = QUICK, delayMillis = RAPID, easing = STANDARD_IN)
-                    else
-                        tween(durationMillis = RAPID, easing = STANDARD_OUT)
-                },
-                label = "alpha"
-            ) { stage ->
-                when (stage) {
-                    DialogStage.Intro -> 0.1f
-                    DialogStage.Display -> 1.0f
-                    DialogStage.Outro -> 0.1f
-                }
-            }
-
-            val scale by transition.animateFloat(
-                transitionSpec = {
-                    if (transitionState.targetState != DialogStage.Outro)
-                        tween(durationMillis = CASUAL, easing = STANDARD_IN)
-                    else
-                        tween(durationMillis = CASUAL, easing = STANDARD_OUT)
-                },
-                label = "scale"
-            ) { stage ->
-                when (stage) {
-                    DialogStage.Intro -> 1.25f
-                    DialogStage.Display -> 1.0f
-                    DialogStage.Outro -> 1.25f
-                }
-            }
+            val backgroundAlpha by animateBackgroundAlpha(alphaTransition, alphaTransitionState)
+            val alpha by animateDialogAlpha(alphaTransition, alphaTransitionState)
+            val scale by animateDialogScale(scaleTransition, scaleTransitionState)
 
             Scaffold(
                 vignette = { Vignette(vignettePosition = VignettePosition.TopAndBottom) },
@@ -150,7 +117,8 @@ public fun Dialog(
                     onDismissed = {
                         onDismissRequest()
                         // Reset state for the next time this dialog is shown.
-                        transitionState = MutableTransitionState(DialogStage.Intro)
+                        alphaTransitionState = MutableTransitionState(AlphaStage.IntroFadeOut)
+                        scaleTransitionState = MutableTransitionState(ScaleStage.Intro)
                     }
                 ) { isBackground ->
                     Box(
@@ -161,32 +129,117 @@ public fun Dialog(
                 }
             }
 
-            // Trigger initial intro animation when dialog is displayed.
             SideEffect {
-                if (transitionState.currentState == DialogStage.Intro) {
-                    transitionState.targetState = DialogStage.Display
+                // Trigger initial Intro animation
+                if (alphaTransitionState.currentState == AlphaStage.IntroFadeOut) {
+                    // a) Fade out previous screen contents b) Scale down dialog contents.
+                    alphaTransitionState.targetState = AlphaStage.IntroFadeIn
+                    scaleTransitionState.targetState = ScaleStage.Display
+                } else if (alphaTransitionState.currentState == AlphaStage.IntroFadeIn) {
+                    // Now conclude the Intro animation by fading in the dialog contents.
+                    alphaTransitionState.targetState = AlphaStage.Display
                 }
             }
 
-            // Trigger leaving the Dialog when the caller updates showDialog to false.
+            // Trigger Outro animation when the caller updates showDialog to false.
             LaunchedEffect(showDialog) {
                 if (!showDialog) {
-                    transitionState.targetState = DialogStage.Outro
+                    // a) Fade out dialog contents b) Scale up dialog contents.
+                    alphaTransitionState.targetState = AlphaStage.OutroFadeOut
+                    scaleTransitionState.targetState = ScaleStage.Outro
                 }
             }
 
-            // After the outro animation, request to leave the dialog and reset stage to Intro.
-            LaunchedEffect(transitionState.currentState) {
-                if (transitionState.currentState == DialogStage.Outro) {
+            LaunchedEffect(alphaTransitionState.currentState) {
+                if (alphaTransitionState.currentState == AlphaStage.OutroFadeOut) {
+                    // Conclude the Outro animation by fading in the background contents.
+                    alphaTransitionState.targetState = AlphaStage.OutroFadeIn
+                } else if (alphaTransitionState.currentState == AlphaStage.OutroFadeIn) {
+                    // After the outro animation, leave the dialog & reset alpha/scale transitions.
                     onDismissRequest()
-                    transitionState = MutableTransitionState(DialogStage.Intro)
+                    alphaTransitionState = MutableTransitionState(AlphaStage.IntroFadeOut)
+                    scaleTransitionState = MutableTransitionState(ScaleStage.Intro)
                 }
             }
         }
     }
 }
 
-private enum class DialogStage {
+@Composable
+private fun animateBackgroundAlpha(
+    alphaTransition: Transition<AlphaStage>,
+    alphaTransitionState: MutableTransitionState<AlphaStage>
+) = alphaTransition.animateFloat(
+    transitionSpec = {
+        if (alphaTransitionState.currentState == AlphaStage.IntroFadeOut)
+            tween(durationMillis = RAPID, easing = STANDARD_OUT)
+        else if (alphaTransitionState.targetState == AlphaStage.OutroFadeIn)
+            tween(durationMillis = QUICK, easing = STANDARD_IN)
+        else
+            tween(durationMillis = 0)
+    },
+    label = "background-alpha"
+) { stage ->
+    when (stage) {
+        AlphaStage.IntroFadeOut -> 0.0f
+        AlphaStage.IntroFadeIn -> 0.9f
+        AlphaStage.Display -> 1.0f
+        AlphaStage.OutroFadeOut -> 0.9f
+        AlphaStage.OutroFadeIn -> 0.0f
+    }
+}
+
+@Composable
+private fun animateDialogAlpha(
+    alphaTransition: Transition<AlphaStage>,
+    alphaTransitionState: MutableTransitionState<AlphaStage>
+) = alphaTransition.animateFloat(
+    transitionSpec = {
+        if (alphaTransitionState.currentState == AlphaStage.IntroFadeIn)
+            tween(durationMillis = QUICK, easing = STANDARD_IN)
+        else if (alphaTransitionState.targetState == AlphaStage.OutroFadeOut)
+            tween(durationMillis = RAPID, easing = STANDARD_OUT)
+        else
+            tween(durationMillis = 0)
+    },
+    label = "alpha"
+) { stage ->
+    when (stage) {
+        AlphaStage.IntroFadeOut -> 0.0f
+        AlphaStage.IntroFadeIn -> 0.1f
+        AlphaStage.Display -> 1.0f
+        AlphaStage.OutroFadeOut -> 0.1f
+        AlphaStage.OutroFadeIn -> 0.0f
+    }
+}
+
+@Composable
+private fun animateDialogScale(
+    scaleTransition: Transition<ScaleStage>,
+    scaleTransitionState: MutableTransitionState<ScaleStage>
+) = scaleTransition.animateFloat(
+    transitionSpec = {
+        if (scaleTransitionState.currentState == ScaleStage.Intro)
+            tween(durationMillis = CASUAL, easing = STANDARD_IN)
+        else
+            tween(durationMillis = CASUAL, easing = STANDARD_OUT)
+    },
+    label = "scale"
+) { stage ->
+    when (stage) {
+        ScaleStage.Intro -> 1.25f
+        ScaleStage.Display -> 1.0f
+        ScaleStage.Outro -> 1.25f
+    }
+}
+
+// Alpha transition stages - Intro and Outro are split into FadeIn/FadeOut stages.
+private enum class AlphaStage {
+    IntroFadeOut, IntroFadeIn, Display, OutroFadeOut, OutroFadeIn;
+}
+
+// Scale transition stages - scaling is applied as single Intro/Outro animations.
+private enum class ScaleStage {
     Intro, Display, Outro;
 }
 
