@@ -22,6 +22,7 @@ import android.os.IBinder
 import android.util.Log
 import androidx.health.services.client.impl.IPassiveListenerService
 import androidx.health.services.client.impl.event.PassiveListenerEvent
+import androidx.health.services.client.impl.response.HealthEventResponse
 import androidx.health.services.client.impl.response.PassiveMonitoringGoalResponse
 import androidx.health.services.client.impl.response.PassiveMonitoringUpdateResponse
 import androidx.health.services.client.proto.EventsProto.PassiveListenerEvent.EventCase.EVENT_NOT_SET
@@ -37,10 +38,9 @@ import androidx.health.services.client.proto.EventsProto.PassiveListenerEvent.Ev
  * Health Services will bind to the [PassiveListenerService] to deliver passive monitoring updates
  * such as data or goal updates. Clients should extend this service and override those methods of
  * the [PassiveListenerCallback] that they care about. They can then pass in their service to
- * [PassiveMonitoringClient.registerPassiveListenerServiceAsync] to receive data updates.
+ * [PassiveMonitoringClient.setPassiveListenerServiceAsync] to receive data updates.
  */
-// TODO(b/227475943): open up visibility
-internal abstract class PassiveListenerService : PassiveListenerCallback, Service() {
+public abstract class PassiveListenerService : PassiveListenerCallback, Service() {
 
     private var wrapper: IPassiveListenerServiceWrapper? = null
 
@@ -58,13 +58,13 @@ internal abstract class PassiveListenerService : PassiveListenerCallback, Servic
                 PASSIVE_UPDATE_RESPONSE -> {
                     val response = PassiveMonitoringUpdateResponse(proto.passiveUpdateResponse)
                     if (!response.passiveMonitoringUpdate.dataPoints.isEmpty()) {
-                        this@PassiveListenerService.onNewDataPoints(
+                        this@PassiveListenerService.onNewDataPointsReceived(
                             response.passiveMonitoringUpdate.dataPoints
                         )
                     }
                     for (userActivityInfo in
                         response.passiveMonitoringUpdate.userActivityInfoUpdates) {
-                        this@PassiveListenerService.onUserActivityInfo(userActivityInfo)
+                        this@PassiveListenerService.onUserActivityInfoReceived(userActivityInfo)
                     }
                 }
                 PASSIVE_GOAL_RESPONSE -> {
@@ -72,7 +72,8 @@ internal abstract class PassiveListenerService : PassiveListenerCallback, Servic
                     this@PassiveListenerService.onGoalCompleted(response.passiveGoal)
                 }
                 HEALTH_EVENT_RESPONSE -> {
-                    // TODO(b/227475943): fill in when health events are added.
+                    val response = HealthEventResponse(proto.healthEventResponse)
+                    this@PassiveListenerService.onHealthEventReceived(response.healthEvent)
                 }
                 PERMISSION_LOST_RESPONSE -> {
                     this@PassiveListenerService.onPermissionLost()

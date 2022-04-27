@@ -16,36 +16,32 @@
 
 package androidx.health.services.client.impl
 
-import android.content.BroadcastReceiver
 import android.content.Context
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.core.content.ContextCompat
 import androidx.health.services.client.PassiveListenerCallback
 import androidx.health.services.client.PassiveListenerService
-import androidx.health.services.client.PassiveMonitoringCallback
 import androidx.health.services.client.PassiveMonitoringClient
-import androidx.health.services.client.data.PassiveGoal
 import androidx.health.services.client.data.PassiveListenerConfig
 import androidx.health.services.client.data.PassiveMonitoringCapabilities
-import androidx.health.services.client.data.PassiveMonitoringConfig
 import androidx.health.services.client.impl.IpcConstants.PASSIVE_API_BIND_ACTION
 import androidx.health.services.client.impl.IpcConstants.SERVICE_PACKAGE_NAME
 import androidx.health.services.client.impl.PassiveListenerCallbackStub.PassiveListenerCallbackCache
-import androidx.health.services.client.impl.PassiveMonitoringCallbackStub.PassiveMonitoringCallbackCache
 import androidx.health.services.client.impl.internal.HsConnectionManager
 import androidx.health.services.client.impl.internal.StatusCallback
 import androidx.health.services.client.impl.ipc.Client
 import androidx.health.services.client.impl.ipc.ClientConfiguration
 import androidx.health.services.client.impl.ipc.internal.ConnectionManager
-import androidx.health.services.client.impl.request.BackgroundRegistrationRequest
 import androidx.health.services.client.impl.request.CapabilitiesRequest
 import androidx.health.services.client.impl.request.FlushRequest
-import androidx.health.services.client.impl.request.PassiveGoalRequest
 import androidx.health.services.client.impl.request.PassiveListenerCallbackRegistrationRequest
 import androidx.health.services.client.impl.request.PassiveListenerServiceRegistrationRequest
+import com.google.common.util.concurrent.FutureCallback
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
+import com.google.common.util.concurrent.SettableFuture
+import java.util.concurrent.Executor
 
 /**
  * [PassiveMonitoringClient] implementation that is backed by Health Services.
@@ -69,89 +65,14 @@ public class ServiceBackedPassiveMonitoringClient(
 
     private val packageName = applicationContext.packageName
 
-    override fun registerDataCallbackAsync(
-        configuration: PassiveMonitoringConfig
-    ): ListenableFuture<Void> {
-        val callbackStub = PassiveMonitoringCallbackCache.INSTANCE.remove(packageName)
-        // If the client had a previous callback registered, make sure it's cleared.
-        if (callbackStub != null) {
-            return unregisterListener(callbackStub.listenerKey) { service, resultFuture ->
-                service.registerDataCallback(
-                    BackgroundRegistrationRequest(configuration),
-                    null,
-                    StatusCallback(resultFuture)
-                )
-            }
-        }
-
-        return execute { service, resultFuture ->
-            service.registerDataCallback(
-                BackgroundRegistrationRequest(configuration),
-                null,
-                StatusCallback(resultFuture)
-            )
-        }
-    }
-
-    override fun registerDataCallbackAsync(
-        configuration: PassiveMonitoringConfig,
-        callback: PassiveMonitoringCallback
-    ): ListenableFuture<Void> {
-        val callbackStub =
-            PassiveMonitoringCallbackCache.INSTANCE.getOrCreate(packageName, callback)
-        return registerListener(callbackStub.listenerKey) { service, resultFuture ->
-            service.registerDataCallback(
-                BackgroundRegistrationRequest(configuration),
-                callbackStub,
-                StatusCallback(resultFuture)
-            )
-        }
-    }
-
-    override fun unregisterDataCallbackAsync(): ListenableFuture<Void> {
-        val callbackStub = PassiveMonitoringCallbackCache.INSTANCE.remove(packageName)
-        if (callbackStub != null) {
-            return unregisterListener(callbackStub.listenerKey) { service, resultFuture ->
-                service.unregisterDataCallback(packageName, StatusCallback(resultFuture))
-            }
-        }
-        return execute { service, resultFuture ->
-            service.unregisterDataCallback(packageName, StatusCallback(resultFuture))
-        }
-    }
-
-    override fun <T : BroadcastReceiver> registerPassiveGoalCallbackAsync(
-        passiveGoal: PassiveGoal,
-        broadcastReceiver: Class<T>,
-    ): ListenableFuture<Void> {
-        val request = PassiveGoalRequest(packageName, broadcastReceiver.getName(), passiveGoal)
-        return execute { service, resultFuture ->
-            service.registerPassiveGoalCallback(request, StatusCallback(resultFuture))
-        }
-    }
-
-    override fun unregisterPassiveGoalCallbackAsync(
-        passiveGoal: PassiveGoal
-    ): ListenableFuture<Void> {
-        val request = PassiveGoalRequest(packageName, /*unused*/ "", passiveGoal)
-        return execute { service, resultFuture ->
-            service.unregisterPassiveGoalCallback(request, StatusCallback(resultFuture))
-        }
-    }
-
-    // TODO(b/227475943): make public and add override after adding this back to the interface.
-    internal fun registerPassiveListenerServiceAsync(
-        passiveListenerService: Class<out PassiveListenerService>,
-        passiveListenerConfig: PassiveListenerConfig
+    override fun setPassiveListenerServiceAsync(
+        service: Class<out PassiveListenerService>,
+        config: PassiveListenerConfig
     ): ListenableFuture<Void> {
         return executeWithVersionCheck(
-            { service, resultFuture ->
-                service.registerPassiveListenerService(
-                    PassiveListenerServiceRegistrationRequest(
-                        packageName,
-                        passiveListenerService.getName(),
-                        passiveListenerConfig
-                    ),
+            { remoteService, resultFuture ->
+                remoteService.registerPassiveListenerService(
+                    PassiveListenerServiceRegistrationRequest(packageName, service.name, config),
                     StatusCallback(resultFuture)
                 )
             },
@@ -159,24 +80,48 @@ public class ServiceBackedPassiveMonitoringClient(
         )
     }
 
-    // TODO(b/227475943): make public and add override after adding this back to the interface.
-    internal fun registerPassiveListenerCallbackAsync(
-        passiveListenerCallback: PassiveListenerCallback,
-        passiveListenerConfig: PassiveListenerConfig
-    ): ListenableFuture<Void> {
-        val callbackStub =
-            PassiveListenerCallbackCache.INSTANCE.getOrCreate(packageName, passiveListenerCallback)
-        return registerListener(callbackStub.listenerKey) { service, resultFuture ->
-            service.registerPassiveListenerCallback(
-                PassiveListenerCallbackRegistrationRequest(packageName, passiveListenerConfig),
-                callbackStub,
-                StatusCallback(resultFuture)
-            )
-        }
+    override fun setPassiveListenerCallback(
+        config: PassiveListenerConfig,
+        callback: PassiveListenerCallback
+    ) {
+        setPassiveListenerCallback(
+            config,
+            ContextCompat.getMainExecutor(applicationContext),
+            callback
+        )
     }
 
-    // TODO(b/227475943): make public and add override after adding this back to the interface.
-    internal fun unregisterPassiveListenerServiceAsync(): ListenableFuture<Void> {
+    override fun setPassiveListenerCallback(
+        config: PassiveListenerConfig,
+        executor: Executor,
+        callback: PassiveListenerCallback
+    ) {
+        val callbackStub =
+            PassiveListenerCallbackCache.INSTANCE.getOrCreate(packageName, executor, callback)
+        val future =
+            registerListener(callbackStub.listenerKey) { service, result: SettableFuture<Void?> ->
+                service.registerPassiveListenerCallback(
+                    PassiveListenerCallbackRegistrationRequest(packageName, config),
+                    callbackStub,
+                    StatusCallback(result)
+                )
+            }
+        Futures.addCallback(
+            future,
+            object : FutureCallback<Void?> {
+                override fun onSuccess(result: Void?) {
+                    callback.onRegistered()
+                }
+
+                override fun onFailure(t: Throwable) {
+                    callback.onRegistrationFailed(t)
+                }
+            },
+            executor
+        )
+    }
+
+    override fun clearPassiveListenerServiceAsync(): ListenableFuture<Void> {
         return executeWithVersionCheck(
             { service, resultFuture ->
                 service.unregisterPassiveListenerService(packageName, StatusCallback(resultFuture))
@@ -185,8 +130,7 @@ public class ServiceBackedPassiveMonitoringClient(
         )
     }
 
-    // TODO(b/227475943): make public and add override after adding this back to the interface.
-    internal fun unregisterPassiveListenerCallbackAsync(): ListenableFuture<Void> {
+    override fun clearPassiveListenerCallbackAsync(): ListenableFuture<Void> {
         val callbackStub = PassiveListenerCallbackCache.INSTANCE.remove(packageName)
         if (callbackStub != null) {
             return unregisterListener(callbackStub.listenerKey) { service, resultFuture ->

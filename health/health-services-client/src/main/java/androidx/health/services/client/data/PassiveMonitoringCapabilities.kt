@@ -37,6 +37,9 @@ public class PassiveMonitoringCapabilities(
     /** Set of supported [DataType]s for goal callbacks on this device. */
     public val supportedDataTypesPassiveGoals: Set<DataType>,
 
+    /** Set of supported [HealthEvent.Type]s on this device. */
+    public val supportedHealthEventTypes: Set<HealthEvent.Type>,
+
     /** Set of supported [UserActivityState]s on this device. */
     public val supportedUserActivityStates: Set<UserActivityState>,
 ) : ProtoParcelable<PassiveMonitoringCapabilitiesProto>() {
@@ -45,6 +48,7 @@ public class PassiveMonitoringCapabilities(
     ) : this(
         proto.supportedDataTypesPassiveMonitoringList.map { DataType(it) }.toSet(),
         proto.supportedDataTypesPassiveGoalsList.map { DataType(it) }.toSet(),
+        proto.supportedHealthEventTypesList.mapNotNull { HealthEvent.Type.fromProto(it) }.toSet(),
         proto.supportedUserActivityStatesList.mapNotNull { UserActivityState.fromProto(it) }.toSet()
     )
 
@@ -55,6 +59,7 @@ public class PassiveMonitoringCapabilities(
                 supportedDataTypesPassiveMonitoring.map { it.proto }
             )
             .addAllSupportedDataTypesPassiveGoals(supportedDataTypesPassiveGoals.map { it.proto })
+            .addAllSupportedHealthEventTypes(supportedHealthEventTypes.map { it.toProto() })
             .addAllSupportedUserActivityStates(supportedUserActivityStates.map { it.toProto() })
             .build()
     }
@@ -63,6 +68,7 @@ public class PassiveMonitoringCapabilities(
         "PassiveMonitoringCapabilities(" +
             "supportedDataTypesPassiveMonitoring=$supportedDataTypesPassiveMonitoring, " +
             "supportedDataTypesPassiveGoals=$supportedDataTypesPassiveGoals, " +
+            "supportedHealthEventTypes=$supportedHealthEventTypes, " +
             "supportedUserActivityStates=$supportedUserActivityStates)"
 
     public companion object {

@@ -39,7 +39,7 @@ interface IVersionApiService {
      * Version of the SDK as a whole. Should be incremented on each release,
      * regardless of whether the API surface has changed.
      */
-    const int CANONICAL_SDK_VERSION = 22;
+    const int CANONICAL_SDK_VERSION = 25;
 
     /**
      * Returns the version of _this_ AIDL interface.

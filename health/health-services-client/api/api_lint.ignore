@@ -7,17 +7,19 @@ AutoBoxing: androidx.health.services.client.data.LocationAccuracy#getVerticalPos
 
 ExecutorRegistration: androidx.health.services.client.ExerciseClient#clearUpdateCallbackAsync(androidx.health.services.client.ExerciseUpdateCallback):
     Registration methods should have overload that accepts delivery Executor: `clearUpdateCallbackAsync`
-ExecutorRegistration: androidx.health.services.client.PassiveMonitoringClient#registerDataCallbackAsync(androidx.health.services.client.data.PassiveMonitoringConfig, androidx.health.services.client.PassiveMonitoringCallback):
-    Registration methods should have overload that accepts delivery Executor: `registerDataCallbackAsync`
 
 
+InvalidNullabilityOverride: androidx.health.services.client.PassiveListenerService#onBind(android.content.Intent):
+    Invalid nullability on method `onBind` return. Overrides of unannotated super method cannot be Nullable.
+InvalidNullabilityOverride: androidx.health.services.client.PassiveListenerService#onBind(android.content.Intent) parameter #0:
+    Invalid nullability on parameter `intent` in method `onBind`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.health.services.client.VersionApiService#onBind(android.content.Intent):
     Invalid nullability on method `onBind` return. Overrides of unannotated super method cannot be Nullable.
 InvalidNullabilityOverride: androidx.health.services.client.data.ProtoParcelable#writeToParcel(android.os.Parcel, int) parameter #0:
     Invalid nullability on parameter `dest` in method `writeToParcel`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 
 
-PairedRegistration: androidx.health.services.client.MeasureClient#registerCallback(androidx.health.services.client.data.DataType, androidx.health.services.client.MeasureCallback):
-    Found registerCallback but not unregisterCallback in androidx.health.services.client.MeasureClient
-PairedRegistration: androidx.health.services.client.MeasureClient#registerCallback(androidx.health.services.client.data.DataType, java.util.concurrent.Executor, androidx.health.services.client.MeasureCallback):
-    Found registerCallback but not unregisterCallback in androidx.health.services.client.MeasureClient
+PairedRegistration: androidx.health.services.client.MeasureClient#registerMeasureCallback(androidx.health.services.client.data.DataType, androidx.health.services.client.MeasureCallback):
+    Found registerMeasureCallback but not unregisterMeasureCallback in androidx.health.services.client.MeasureClient
+PairedRegistration: androidx.health.services.client.MeasureClient#registerMeasureCallback(androidx.health.services.client.data.DataType, java.util.concurrent.Executor, androidx.health.services.client.MeasureCallback):
+    Found registerMeasureCallback but not unregisterMeasureCallback in androidx.health.services.client.MeasureClient

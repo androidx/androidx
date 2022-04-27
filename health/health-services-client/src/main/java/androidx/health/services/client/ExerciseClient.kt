@@ -80,8 +80,8 @@ public interface ExerciseClient {
      * the lack of callback.
      *
      * Clients should only request [ExerciseType]s, [DataType]s, goals, and auto-pause enabled that
-     * matches the [ExerciseCapabilities] returned by [capabilities] since Health Services will
-     * reject requests asking for unsupported configurations.
+     * matches the [ExerciseCapabilities] returned by [getCapabilitiesAsync] since Health Services
+     * will reject requests asking for unsupported configurations.
      *
      * @param configuration the [ExerciseConfig] describing this exercise
      * @return a [ListenableFuture] that completes once the exercise has been started or fails due
@@ -249,16 +249,14 @@ public interface ExerciseClient {
      * returned [ListenableFuture] fails if the exercise is not active, and will be a no-op if
      * [exerciseGoal] has not been added in the past.
      */
-    public fun removeGoalFromActiveExerciseAsync(
-        exerciseGoal: ExerciseGoal
-    ): ListenableFuture<Void>
+    public fun removeGoalFromActiveExerciseAsync(exerciseGoal: ExerciseGoal): ListenableFuture<Void>
 
     /**
      * Enables or disables auto pause/resume for the current exercise.
      *
      * @param enabled a boolean to indicate if should be enabled or disabled
-     * @return a [ListenableFuture] that completes once the override has completed. This
-     * returned [ListenableFuture] fails if an exercise is not active for this app.
+     * @return a [ListenableFuture] that completes once the override has completed. This returned
+     * [ListenableFuture] fails if an exercise is not active for this app.
      */
     public fun overrideAutoPauseAndResumeForActiveExerciseAsync(
         enabled: Boolean

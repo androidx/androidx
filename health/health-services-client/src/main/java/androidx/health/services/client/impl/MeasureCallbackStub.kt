@@ -78,8 +78,8 @@ private constructor(callbackKey: MeasureCallbackKey, private val callback: Measu
         @Synchronized
         public fun getOrCreate(
             dataType: DataType,
-            measureCallback: MeasureCallback,
-            executor: Executor
+            executor: Executor,
+            measureCallback: MeasureCallback
         ): MeasureCallbackStub {
             val callbackKey = MeasureCallbackKey(dataType, measureCallback)
 
