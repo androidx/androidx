@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ import androidx.room.ext.AndroidTypeNames
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.L
 import androidx.room.ext.N
-import androidx.room.ext.RoomPagingTypeNames
 import androidx.room.solver.CodeGenScope
+import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
@@ -31,17 +31,21 @@ import com.squareup.javapoet.TypeSpec
 import javax.lang.model.element.Modifier
 
 /**
- * This Binder uses room/room-paging artifact and binds queries directly to native Paging3
- * PagingSource through `LimitOffsetPagingSource`. Used solely by Paging3.
+ * This Binder binds queries directly to native Paging3
+ * PagingSource (i.e. [LimitOffsetPagingSource]) or its subclasses such as
+ * [LimitOffsetListenableFuturePagingSource]. Used solely by Paging3.
  */
-class PagingSourceQueryResultBinder(
+class MultiTypedPagingSourceQueryResultBinder(
     private val listAdapter: ListQueryResultAdapter?,
     private val tableNames: Set<String>,
+    className: ClassName
 ) : QueryResultBinder(listAdapter) {
+
     private val itemTypeName: TypeName =
         listAdapter?.rowAdapters?.firstOrNull()?.out?.typeName ?: TypeName.OBJECT
-    private val limitOffsetPagingSourceTypeNam: ParameterizedTypeName = ParameterizedTypeName.get(
-        RoomPagingTypeNames.LIMIT_OFFSET_PAGING_SOURCE, itemTypeName
+
+    private val pagingSourceTypeName: ParameterizedTypeName = ParameterizedTypeName.get(
+        className, itemTypeName
     )
 
     override fun convertAndReturn(
@@ -53,16 +57,16 @@ class PagingSourceQueryResultBinder(
     ) {
         scope.builder().apply {
             val tableNamesList = tableNames.joinToString(", ") { "\"$it\"" }
-            val limitOffsetPagingSourceSpec = TypeSpec.anonymousClassBuilder(
+            val pagingSourceSpec = TypeSpec.anonymousClassBuilder(
                 "$L, $N, $L",
                 roomSQLiteQueryVar,
                 dbField,
                 tableNamesList
             ).apply {
-                addSuperinterface(limitOffsetPagingSourceTypeNam)
+                addSuperinterface(pagingSourceTypeName)
                 addMethod(createConvertRowsMethod(scope))
             }.build()
-            addStatement("return $L", limitOffsetPagingSourceSpec)
+            addStatement("return $L", pagingSourceSpec)
         }
     }
 
