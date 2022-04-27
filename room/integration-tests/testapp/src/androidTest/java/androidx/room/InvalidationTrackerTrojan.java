@@ -21,7 +21,7 @@ package androidx.room;
  */
 public class InvalidationTrackerTrojan {
     public static int countObservers(InvalidationTracker tracker) {
-        return tracker.mObserverMap.size();
+        return tracker.observerMap.size();
     }
 
     private InvalidationTrackerTrojan() {

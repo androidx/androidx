@@ -36,8 +36,6 @@ import androidx.room.RawQuery
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.awaitPendingRefresh
-import androidx.room.pendingRefresh
-import androidx.room.refreshRunnable
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteQuery
 import androidx.test.core.app.ApplicationProvider
@@ -467,7 +465,7 @@ class PagingSourceTest {
                     toIndex = 20 + CONFIG.initialLoadSize
                 )
             )
-            assertThat(db.invalidationTracker.pendingRefresh).isFalse()
+            assertThat(db.invalidationTracker.pendingRefresh.get()).isFalse()
             // now do some changes in the database but don't let change notifications go through
             // to the data source. it should not crash :)
             queryExecutor.filterFunction = { runnable ->
@@ -521,7 +519,7 @@ class PagingSourceTest {
             // Runs the original invalidationTracker.refreshRunnable.
             // Note that the second initial load's call to mRefreshRunnable resets the flag to
             // false, so this mRefreshRunnable will not detect changes in the table anymore.
-            assertThat(db.invalidationTracker.pendingRefresh).isFalse()
+            assertThat(db.invalidationTracker.pendingRefresh.get()).isFalse()
             queryExecutor.executeAll()
 
             itemStore.awaitInitialLoad()
@@ -556,7 +554,7 @@ class PagingSourceTest {
         val blockingObserver = object : InvalidationTracker.Observer("PagingEntity") {
             // make sure observer blocks the time longer than the timeout of waiting for
             // paging source invalidation, so that we can assert new generation failure later
-            override fun onInvalidated(tables: MutableSet<String>) {
+            override fun onInvalidated(tables: Set<String>) {
                 Thread.sleep(3_500)
             }
         }
@@ -576,7 +574,7 @@ class PagingSourceTest {
                 // should load starting from initial Key = 20
                 initialItems
             )
-            assertThat(db.invalidationTracker.pendingRefresh).isFalse()
+            assertThat(db.invalidationTracker.pendingRefresh.get()).isFalse()
 
             db.dao.deleteItems(
                 items.subList(0, 60).map { it.id }
@@ -643,7 +641,7 @@ class PagingSourceTest {
                     toIndex = CONFIG.initialLoadSize
                 )
             )
-            assertThat(db.invalidationTracker.pendingRefresh).isFalse()
+            assertThat(db.invalidationTracker.pendingRefresh.get()).isFalse()
             // now do some changes in the database but don't let change notifications go through
             // to the data source. it should not crash :)
             queryExecutor.filterFunction = { runnable ->
@@ -696,7 +694,7 @@ class PagingSourceTest {
             // Runs the original invalidationTracker.refreshRunnable.
             // Note that the second initial load's call to mRefreshRunnable resets the flag to
             // false, so this mRefreshRunnable will not detect changes in the table anymore.
-            assertThat(db.invalidationTracker.pendingRefresh).isFalse()
+            assertThat(db.invalidationTracker.pendingRefresh.get()).isFalse()
             queryExecutor.executeAll()
 
             itemStore.awaitInitialLoad()
