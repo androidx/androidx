@@ -38,6 +38,7 @@ class TestPagingSource(
     var errorNextLoad = false
     var nextLoadResult: LoadResult<Int, Int>? = null
 
+    var getRefreshKeyResult: Int? = null
     val getRefreshKeyCalls = mutableListOf<PagingState<Int, Int>>()
     val loadedPages = mutableListOf<LoadResult.Page<Int, Int>>()
 
@@ -94,7 +95,7 @@ class TestPagingSource(
 
     override fun getRefreshKey(state: PagingState<Int, Int>): Int? {
         getRefreshKeyCalls.add(state)
-        return state.anchorPosition
+        return getRefreshKeyResult ?: state.anchorPosition
     }
 
     companion object {
