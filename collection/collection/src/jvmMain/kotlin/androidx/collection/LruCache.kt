@@ -20,18 +20,17 @@ import androidx.annotation.IntRange
 import kotlin.Long.Companion.MAX_VALUE
 
 /**
- * Static library version of `android.util.LruCache`. Used to write apps
- * that run on API levels prior to 12. When running on API level 12 or above,
- * this implementation is still used; it does not try to switch to the
- * framework's implementation. See the framework SDK documentation for a class
- * overview.
+ * Static library version of `android.util.LruCache`. Used to write apps that run on API levels
+ * prior to 12. When running on API level 12 or above, this implementation is still used; it does
+ * not try to switch to the framework's implementation. See the framework SDK documentation for a
+ * class overview.
+ *
+ * @constructor Creates a new [LruCache]
+ * @param maxSize for caches that do not override [sizeOf], this is the maximum number of entries in
+ * the cache. For all other caches, this is the maximum sum of the sizes of the entries in this
+ * cache.
  */
 public open class LruCache<K : Any, V : Any>
-/**
- * @param maxSize for caches that do not override [sizeOf], this is
- *     the maximum number of entries in the cache. For all other caches,
- *     this is the maximum sum of the sizes of the entries in this cache.
- */
 public constructor(@IntRange(from = 1, to = MAX_VALUE) private var maxSize: Int) {
 
     init {

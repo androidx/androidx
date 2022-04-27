@@ -44,20 +44,17 @@ private const val CONCURRENT_MODIFICATION_EXCEPTIONS = true
 private const val BASE_SIZE = 4
 
 /**
- * Base implementation of [ArrayMap] that doesn't include any standard Java
- * container API interoperability. These features are generally heavier-weight ways
+ * Base implementation of [ArrayMap][androidx.collection.ArrayMap] that doesn't include any standard
+ * Java container API interoperability. These features are generally heavier-weight ways
  * to interact with the container, so discouraged, but they can be useful to make it
  * easier to use as a drop-in replacement for HashMap. If you don't need them, this
  * class can be preferable since it doesn't bring in any of the implementation of those
  * APIs, allowing that code to be stripped by ProGuard.
+ *
+ * @constructor Create a new [SimpleArrayMap] with a given initial capacity. The default capacity of
+ * an array map is 0, and will grow once items are added to it.
  */
-public open class SimpleArrayMap<K, V>
-
-/**
- * Create a new [SimpleArrayMap] with a given initial capacity. The default capacity of an array
- * map is 0, and will grow once items are added to it.
- */
-@JvmOverloads public constructor(capacity: Int = 0) {
+public open class SimpleArrayMap<K, V> @JvmOverloads public constructor(capacity: Int = 0) {
     private var hashes: IntArray = when (capacity) {
         0 -> EMPTY_INTS
         else -> IntArray(capacity)
