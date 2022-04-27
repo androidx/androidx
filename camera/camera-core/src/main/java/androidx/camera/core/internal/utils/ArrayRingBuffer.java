@@ -63,4 +63,9 @@ public class ArrayRingBuffer<T> implements RingBuffer<T> {
     public int getMaxCapacity() {
         return mRingBufferCapacity;
     }
+
+    @Override
+    public boolean isEmpty() {
+        return mBuffer.isEmpty();
+    }
 }
