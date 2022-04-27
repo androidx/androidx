@@ -1139,6 +1139,9 @@ public class CameraXActivity extends AppCompatActivity {
             new GestureDetector.SimpleOnGestureListener() {
                 @Override
                 public boolean onSingleTapUp(MotionEvent e) {
+                    if (mCamera == null) {
+                        return false;
+                    }
                     // Since we are showing full camera preview we will be using
                     // DisplayOrientedMeteringPointFactory to map the view's (x, y) to a
                     // metering point.
