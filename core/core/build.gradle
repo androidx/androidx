@@ -7,6 +7,11 @@ plugins {
 }
 
 dependencies {
+    // Atomic group
+    constraints {
+        implementation(project(":core:core-ktx"))
+    }
+
     api("androidx.annotation:annotation:1.2.0")
     api("androidx.annotation:annotation-experimental:1.1.0")
     api("androidx.lifecycle:lifecycle-runtime:2.3.1")
