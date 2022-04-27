@@ -31,11 +31,11 @@ import androidx.lifecycle.Lifecycle.State
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.swipeLeft
-import androidx.test.espresso.action.ViewActions.swipeRight
+import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
@@ -103,18 +103,19 @@ class ViewPagerActivityTest(private val lensFacing: Int) {
         }
     }
 
-    // The test makes sure the TextureView surface texture keeps the same after swipe out/in.
+    // The test makes sure the TextureView surface texture keeps the same after switch.
     @Test
-    fun testPreviewViewUpdateAfterSwipeOutIn() {
+    fun testPreviewViewUpdateAfterSwitch() {
         launchActivity(lensFacing).use { scenario ->
             // At first, check Preview in stream state
             assertStreamState(scenario, PreviewView.StreamState.STREAMING)
 
-            // swipe out CameraFragment and then swipe in to check Preview update
-            onView(withId(R.id.viewPager)).perform(swipeLeft())
+            // Switch from CameraFragment to BlankFragment, and then switch back to check Preview
+            // update
+            onView(withText(ViewPagerActivity.BLANK_FRAGMENT_TAB_TITLE)).perform(click())
             onView(withId(R.id.blank_textview)).check(matches(isDisplayed()))
 
-            onView(withId(R.id.viewPager)).perform(swipeRight())
+            onView(withText(ViewPagerActivity.CAMERA_FRAGMENT_TAB_TITLE)).perform(click())
             onView(withId(R.id.preview_textureview)).check(matches(isDisplayed()))
             // Check if the surface texture of TextureView continues getting updates after
             // detaching from window and then attaching to window.
@@ -123,25 +124,26 @@ class ViewPagerActivityTest(private val lensFacing: Int) {
     }
 
     @Test
-    fun testPreviewViewUpdateAfterSwipeOutAndStop_ResumeAndSwipeIn() {
+    fun testPreviewViewUpdateAfterSwitchOutAndStop_ResumeAndSwitchBack() {
         launchActivity(lensFacing).use { scenario ->
             // At first, check Preview in stream state
             assertStreamState(scenario, PreviewView.StreamState.STREAMING)
 
-            // swipe out CameraFragment and then Stop and Resume ViewPagerActivity
-            onView(withId(R.id.viewPager)).perform(swipeLeft())
+            // Switch from CameraFragment to BlankFragment, and then Stop and Resume
+            // ViewPagerActivity
+            onView(withText(ViewPagerActivity.BLANK_FRAGMENT_TAB_TITLE)).perform(click())
             onView(withId(R.id.blank_textview)).check(matches(isDisplayed()))
 
             scenario.moveToState(State.CREATED)
             scenario.moveToState(State.RESUMED)
             mDevice.waitForIdle(ACTION_IDLE_TIMEOUT)
 
-            // After resume, swipe in CameraFragment to check Preview in stream state
-            onView(withId(R.id.viewPager)).perform(swipeRight())
+            // After resume, switch back to CameraFragment, to check Preview in stream state
+            onView(withText(ViewPagerActivity.CAMERA_FRAGMENT_TAB_TITLE)).perform(click())
             onView(withId(R.id.preview_textureview)).check(matches(isDisplayed()))
             assertStreamState(scenario, PreviewView.StreamState.STREAMING)
 
-            // The test covers pause/resume and ViewPager2 swipe out/in behaviors. Hence, need to
+            // The test covers pause/resume and ViewPager switch behaviors. Hence, need to
             // check if the surface texture of TextureView continues getting updates, or not.
             assertSurfaceTextureFramesUpdate(scenario)
         }
