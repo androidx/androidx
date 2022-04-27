@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.camera2.internal.util;
+package androidx.camera.core.internal.utils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;

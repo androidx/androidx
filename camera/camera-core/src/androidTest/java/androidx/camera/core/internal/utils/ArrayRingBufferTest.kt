@@ -13,18 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.camera.camera2.internal.util
 
-import androidx.camera.camera2.internal.util.RingBuffer.OnRemoveCallback
+package androidx.camera.core.internal.utils
+
 import androidx.testutils.assertThrows
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.mockito.Mockito.any
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.times
-import org.mockito.Mockito.verify
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito
 
 @RunWith(JUnit4::class)
 class ArrayRingBufferTest {
@@ -32,40 +30,42 @@ class ArrayRingBufferTest {
     @Test
     fun testEnqueue() {
         val testBuffer: RingBuffer<Int> =
-            androidx.camera.camera2.internal.util.ArrayRingBuffer(3)
+            ArrayRingBuffer(3)
         testBuffer.enqueue(1)
         testBuffer.enqueue(2)
         testBuffer.enqueue(3)
         testBuffer.enqueue(4)
-        assertThat(testBuffer.dequeue()).isEqualTo(2)
+        Truth.assertThat(testBuffer.dequeue()).isEqualTo(2)
     }
 
     @Test
     fun testDequeue_correctValueIsDequeued() {
         @Suppress("UNCHECKED_CAST")
-        val mockCallback: OnRemoveCallback<Int> = mock(
-            OnRemoveCallback::class.java) as OnRemoveCallback<Int>
+        val mockCallback: RingBuffer.OnRemoveCallback<Int> = Mockito.mock(
+            RingBuffer.OnRemoveCallback::class.java
+        ) as RingBuffer.OnRemoveCallback<Int>
 
         val testBuffer: RingBuffer<Int> =
-            androidx.camera.camera2.internal.util.ArrayRingBuffer(
+            ArrayRingBuffer(
                 3,
                 mockCallback
             )
         testBuffer.enqueue(1)
         testBuffer.enqueue(2)
         testBuffer.enqueue(3)
-        assertThat(testBuffer.dequeue()).isEqualTo(1)
-        verify(mockCallback, times(0)).onRemove(any())
+        Truth.assertThat(testBuffer.dequeue()).isEqualTo(1)
+        Mockito.verify(mockCallback, Mockito.times(0)).onRemove(any())
     }
 
     @Test
     fun testDequeue_OnRemoveCallbackCalledOnlyWhenDiscardingItemsDueToCapacity() {
         @Suppress("UNCHECKED_CAST")
-        val mockCallback: OnRemoveCallback<Int> = mock(
-            OnRemoveCallback::class.java) as OnRemoveCallback<Int>
+        val mockCallback: RingBuffer.OnRemoveCallback<Int> = Mockito.mock(
+            RingBuffer.OnRemoveCallback::class.java
+        ) as RingBuffer.OnRemoveCallback<Int>
 
         val testBuffer: RingBuffer<Int> =
-            androidx.camera.camera2.internal.util.ArrayRingBuffer(
+            ArrayRingBuffer(
                 3,
                 mockCallback
             )
@@ -73,15 +73,15 @@ class ArrayRingBufferTest {
         testBuffer.enqueue(2)
         testBuffer.enqueue(3)
         testBuffer.enqueue(4)
-        verify(mockCallback).onRemove(1)
-        assertThat(testBuffer.dequeue()).isEqualTo(2)
-        verify(mockCallback, times(1)).onRemove(any())
+        Mockito.verify(mockCallback).onRemove(1)
+        Truth.assertThat(testBuffer.dequeue()).isEqualTo(2)
+        Mockito.verify(mockCallback, Mockito.times(1)).onRemove(any())
     }
 
     @Test()
     fun testDequeue_exceptionThrownWhenBufferEmpty() {
         val testBuffer: RingBuffer<Int> =
-            androidx.camera.camera2.internal.util.ArrayRingBuffer(5)
+            ArrayRingBuffer(5)
         assertThrows(NoSuchElementException::class.java, testBuffer::dequeue)
     }
 }
