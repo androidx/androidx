@@ -25,6 +25,7 @@
         <flag name="COMPLICATIONS" value="0x2"/>
         <flag name="COMPLICATIONS_OVERLAY" value="0x4"/>
     </attr>
+    <attr name="parent" format="reference"/>
 
     <!-- A UserStyleSchema has 0 or more StyleSetting child nodes. -->
     <declare-styleable name="UserStyleSchema" />
@@ -52,6 +53,9 @@
         <attr name="affectedWatchFaceLayers" />
         <!-- The default value, if not specified this defaults to 'true'. -->
         <attr name="defaultBoolean" format="boolean" />
+        <!-- Reference (XML) to a setting to base this setting on.
+        All attributes will be inherited from the parent unless specified. -->
+        <attr name="parent"/>
     </declare-styleable>
 
     <!-- A ListUserStyleSetting node should contain 1 or more child ComplicationSlotsOption nodes.
@@ -71,6 +75,9 @@
         <!-- The index of the default child ComplicationSlotsOption. If not specified, then 0 will
          be used. -->
         <attr name="defaultOptionIndex" />
+        <!-- Reference (XML) to a setting to base this setting on.
+        All attributes will be inherited from the parent unless specified. -->
+        <attr name="parent"/>
     </declare-styleable>
 
     <!-- A DoubleRangeUserStyleSetting node may only contain an optional OnWatchEditorData child
@@ -93,6 +100,9 @@
         <attr name="defaultDouble" format="string" />
         <!-- maxDouble is required. -->
         <attr name="maxDouble" format="string" />
+        <!-- Reference (XML) to a setting to base this setting on.
+        All attributes will be inherited from the parent unless specified. -->
+        <attr name="parent"/>
     </declare-styleable>
 
     <!-- A ListUserStyleSetting node should contain 1 or more child ComplicationSlotsOption nodes
@@ -111,6 +121,9 @@
         <attr name="affectedWatchFaceLayers" />
         <!-- The index of the default child ListOption. If not specified, then 0 will be used. -->
         <attr name="defaultOptionIndex" />
+        <!-- Reference (XML) to a setting to base this setting on.
+         All attributes will be inherited from the parent unless specified. -->
+        <attr name="parent"/>
     </declare-styleable>
 
     <!-- A LongRangeUserStyleSetting node may only contain an optional OnWatchEditorData child
@@ -133,6 +146,9 @@
         <attr name="defaultLong" format="string" />
         <!-- maxInteger is required. -->
         <attr name="maxLong" format="string" />
+        <!-- Reference (XML) to a setting to base this setting on.
+        All attributes will be inherited from the parent unless specified. -->
+        <attr name="parent"/>
     </declare-styleable>
 
     <!-- A ComplicationSlotOverlay node may have a single ComplicationSlotBounds child node without
