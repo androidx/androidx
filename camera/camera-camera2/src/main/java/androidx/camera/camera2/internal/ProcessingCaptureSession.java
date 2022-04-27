@@ -18,6 +18,7 @@ package androidx.camera.camera2.internal;
 
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.CaptureResult;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
@@ -54,6 +55,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
@@ -403,6 +405,12 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
                     @Override
                     public void onCaptureSequenceAborted(int captureSequenceId) {
                     }
+
+                    @Override
+                    public void onCaptureCompleted(long timestamp, int captureSequenceId,
+                            @NonNull Map<CaptureResult.Key, Object> result) {
+
+                    }
                 });
                 break;
             case ON_CAPTURE_SESSION_ENDED:
@@ -611,6 +619,12 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
 
         @Override
         public void onCaptureSequenceAborted(int captureSequenceId) {
+        }
+
+        @Override
+        public void onCaptureCompleted(long timestamp, int captureSequenceId,
+                @NonNull Map<CaptureResult.Key, Object> result) {
+
         }
     }
 }
