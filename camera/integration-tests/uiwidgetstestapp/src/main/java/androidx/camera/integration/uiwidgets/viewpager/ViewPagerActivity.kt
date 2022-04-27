@@ -22,6 +22,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import androidx.annotation.VisibleForTesting
 import androidx.camera.integration.uiwidgets.databinding.ActivityViewpagerBinding
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -43,6 +44,12 @@ class ViewPagerActivity : BaseActivity() {
         )
         private const val TAG = " ViewPagerActivity"
         private const val REQUEST_CODE_PERMISSIONS = 8
+
+        @VisibleForTesting
+        const val CAMERA_FRAGMENT_TAB_TITLE = "CAMERA_VIEW"
+
+        @VisibleForTesting
+        const val BLANK_FRAGMENT_TAB_TITLE = "BLANK_VIEW"
     }
 
     private lateinit var binding: ActivityViewpagerBinding
@@ -76,6 +83,7 @@ class ViewPagerActivity : BaseActivity() {
     private fun setupAdapter() {
         Log.d(TAG, "Setup ViewPagerAdapter. ")
         binding.viewPager.adapter = ViewPagerAdapter(supportFragmentManager)
+        binding.tabLayout.setupWithViewPager(binding.viewPager)
     }
 
     override fun onRequestPermissionsResult(
@@ -115,6 +123,12 @@ class ViewPagerActivity : BaseActivity() {
         override fun getItem(position: Int): Fragment = when (position) {
             0 -> CameraFragment.newInstance()
             1 -> TextViewFragment.newInstance()
+            else -> throw IllegalArgumentException()
+        }
+
+        override fun getPageTitle(position: Int) = when (position) {
+            0 -> CAMERA_FRAGMENT_TAB_TITLE
+            1 -> BLANK_FRAGMENT_TAB_TITLE
             else -> throw IllegalArgumentException()
         }
     }
