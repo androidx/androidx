@@ -25,6 +25,8 @@ else
   PRESUBMIT=false
 fi
 
+export USE_ANDROIDX_REMOTE_BUILD_CACHE=gcp
+
 # hash the files in the out dir in case we want to confirm which files changed during the build
 function hashOutDir() {
   hashFile=out.hashes
