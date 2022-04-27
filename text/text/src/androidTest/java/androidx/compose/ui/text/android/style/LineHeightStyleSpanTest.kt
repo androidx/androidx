@@ -34,7 +34,7 @@ private const val MultiLineEndIndex = 3
 @OptIn(InternalPlatformTextApi::class)
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-class LineHeightBehaviorSpanTest {
+class LineHeightStyleSpanTest {
 
     @Test
     fun negative_line_height_does_not_chage_the_values() {
@@ -827,7 +827,7 @@ class LineHeightBehaviorSpanTest {
         trimFirstLineTop: Boolean,
         trimLastLineBottom: Boolean,
         newLineHeight: Int
-    ): LineHeightBehaviorSpan = LineHeightBehaviorSpan(
+    ): LineHeightStyleSpan = LineHeightStyleSpan(
         lineHeight = newLineHeight.toFloat(),
         startIndex = SingleLineStartIndex,
         endIndex = SingleLineEndIndex,
@@ -844,7 +844,7 @@ class LineHeightBehaviorSpanTest {
         trimFirstLineTop: Boolean,
         trimLastLineBottom: Boolean,
         fontMetrics: FontMetricsInt
-    ): LineHeightBehaviorSpan = createMultiLineSpan(
+    ): LineHeightStyleSpan = createMultiLineSpan(
         topPercentage = topPercentage,
         trimFirstLineTop = trimFirstLineTop,
         trimLastLineBottom = trimLastLineBottom,
@@ -859,7 +859,7 @@ class LineHeightBehaviorSpanTest {
         trimFirstLineTop: Boolean,
         trimLastLineBottom: Boolean,
         newLineHeight: Int
-    ): LineHeightBehaviorSpan = LineHeightBehaviorSpan(
+    ): LineHeightStyleSpan = LineHeightStyleSpan(
         lineHeight = newLineHeight.toFloat(),
         startIndex = MultiLineStartIndex,
         endIndex = MultiLineEndIndex,
@@ -915,7 +915,7 @@ private fun FontMetricsInt(
  * updated values.
  */
 @OptIn(InternalPlatformTextApi::class)
-private fun LineHeightBehaviorSpan.runFirstLine(fontMetrics: FontMetricsInt): FontMetricsInt {
+private fun LineHeightStyleSpan.runFirstLine(fontMetrics: FontMetricsInt): FontMetricsInt {
     return this.runMultiLine(0, fontMetrics)
 }
 
@@ -924,7 +924,7 @@ private fun LineHeightBehaviorSpan.runFirstLine(fontMetrics: FontMetricsInt): Fo
  * updated values.
  */
 @OptIn(InternalPlatformTextApi::class)
-private fun LineHeightBehaviorSpan.runSecondLine(fontMetrics: FontMetricsInt): FontMetricsInt {
+private fun LineHeightStyleSpan.runSecondLine(fontMetrics: FontMetricsInt): FontMetricsInt {
     return this.runMultiLine(1, fontMetrics)
 }
 
@@ -933,7 +933,7 @@ private fun LineHeightBehaviorSpan.runSecondLine(fontMetrics: FontMetricsInt): F
  * updated values.
  */
 @OptIn(InternalPlatformTextApi::class)
-private fun LineHeightBehaviorSpan.runLastLine(fontMetrics: FontMetricsInt): FontMetricsInt {
+private fun LineHeightStyleSpan.runLastLine(fontMetrics: FontMetricsInt): FontMetricsInt {
     return this.runMultiLine(2, fontMetrics)
 }
 
@@ -942,7 +942,7 @@ private fun LineHeightBehaviorSpan.runLastLine(fontMetrics: FontMetricsInt): Fon
  * updated values.
  */
 @OptIn(InternalPlatformTextApi::class)
-private fun LineHeightBehaviorSpan.runMultiLine(
+private fun LineHeightStyleSpan.runMultiLine(
     line: Int,
     fontMetrics: FontMetricsInt
 ): FontMetricsInt {
@@ -962,7 +962,7 @@ private fun LineHeightBehaviorSpan.runMultiLine(
  * used.
  */
 @OptIn(InternalPlatformTextApi::class)
-private fun LineHeightBehaviorSpan.chooseHeight(
+private fun LineHeightStyleSpan.chooseHeight(
     start: Int,
     end: Int,
     fontMetricsInt: FontMetricsInt
