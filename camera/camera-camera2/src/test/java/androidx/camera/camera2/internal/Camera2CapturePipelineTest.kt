@@ -42,6 +42,9 @@ import androidx.camera.core.ImageCapture.FLASH_MODE_OFF
 import androidx.camera.core.ImageCapture.FLASH_MODE_ON
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.impl.CameraCaptureFailure
+import androidx.camera.core.impl.CameraCaptureMetaData.AeState
+import androidx.camera.core.impl.CameraCaptureMetaData.AfState
+import androidx.camera.core.impl.CameraCaptureMetaData.AwbState
 import androidx.camera.core.impl.CameraCaptureResult
 import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CaptureConfig
@@ -567,9 +570,13 @@ class Camera2CapturePipelineTest {
         ))
 
         val captureResult = FakeCameraCaptureResult()
+        captureResult.afState = AfState.LOCKED_FOCUSED
+        captureResult.aeState = AeState.CONVERGED
+        captureResult.awbState = AwbState.CONVERGED
         val imageProxy = FakeImageProxy(CameraCaptureResultImageInfo(captureResult))
         imageProxy.image = mock(Image::class.java)
-        zslControl.mImageRingBuffer.add(imageProxy)
+
+        zslControl.mImageRingBuffer.enqueue(imageProxy)
         zslControl.mReprocessingImageWriter = mock(ImageWriter::class.java)
 
         cameraControl.mZslControl = zslControl
@@ -616,7 +623,7 @@ class Camera2CapturePipelineTest {
         val captureResult = FakeCameraCaptureResult()
         val imageProxy = FakeImageProxy(CameraCaptureResultImageInfo(captureResult))
         imageProxy.image = mock(Image::class.java)
-        zslControl.mImageRingBuffer.add(imageProxy)
+        zslControl.mImageRingBuffer.enqueue(imageProxy)
         zslControl.mReprocessingImageWriter = mock(ImageWriter::class.java)
 
         cameraControl.mZslControl = zslControl
