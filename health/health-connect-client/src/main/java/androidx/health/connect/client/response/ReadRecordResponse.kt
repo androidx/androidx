@@ -15,13 +15,11 @@
  */
 package androidx.health.connect.client.response
 
-import androidx.annotation.RestrictTo
 import androidx.health.connect.client.records.Record
 
 /**
  * Response to record read.
  *
- * @see [HealthConnectClient.readRecord]
+ * @see [androidx.health.connect.client.HealthConnectClient.readRecord]
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 class ReadRecordResponse<T : Record> internal constructor(val record: T)

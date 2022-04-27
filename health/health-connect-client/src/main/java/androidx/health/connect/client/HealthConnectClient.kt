@@ -18,6 +18,7 @@ package androidx.health.connect.client
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.RemoteException
 import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.annotation.RestrictTo
 import androidx.health.connect.client.aggregate.AggregateMetric
@@ -38,6 +39,7 @@ import androidx.health.connect.client.response.ReadRecordResponse
 import androidx.health.connect.client.response.ReadRecordsResponse
 import androidx.health.connect.client.time.TimeRangeFilter
 import androidx.health.platform.client.HealthDataService
+import java.io.IOException
 import java.lang.IllegalStateException
 import kotlin.reflect.KClass
 
@@ -49,7 +51,7 @@ interface HealthConnectClient {
 
     /**
      * Inserts one or more [Record] and returns newly assigned
-     * [androidx.health.data.client.metadata.Metadata.uid] generated. Insertion of multiple
+     * [androidx.health.connect.client.metadata.Metadata.uid] generated. Insertion of multiple
      * [records] is executed in a transaction - if one fails, none is inserted.
      *
      * @param records List of records to insert
@@ -66,12 +68,13 @@ interface HealthConnectClient {
      * [records] is executed in a transaction - if one fails, none is inserted.
      *
      * @param records List of records to update
-     * @throws RemoteException For any IPC transportation failures.
+     * @throws RemoteException For any IPC transportation failures. Update with invalid identifiers
+     * will result in IPC failure.
      * @throws SecurityException For requests with unpermitted access.
      * @throws IOException For any disk I/O issues.
      * @throws IllegalStateException If service is not available.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY) suspend fun updateRecords(records: List<Record>)
+    suspend fun updateRecords(records: List<Record>)
 
     /**
      * Deletes one or more [Record] by their identifiers. Deletion of multiple [Record] is executed
@@ -108,17 +111,17 @@ interface HealthConnectClient {
     suspend fun deleteRecords(recordType: KClass<out Record>, timeRangeFilter: TimeRangeFilter)
 
     /**
-     * Reads one [Record] point determined by its data type and UID.
+     * Reads one [Record] point with its [recordType] and [uid].
      *
      * @param recordType Which type of [Record] to read, such as `Steps::class`
      * @param uid Uid of [Record] to read
      * @return The [Record] data point.
-     * @throws RemoteException For any IPC transportation failures.
+     * @throws RemoteException For any IPC transportation failures. Update with invalid identifiers
+     * will result in IPC failure.
      * @throws SecurityException For requests with unpermitted access.
      * @throws IOException For any disk I/O issues.
      * @throws IllegalStateException If service is not available.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     suspend fun <T : Record> readRecord(recordType: KClass<T>, uid: String): ReadRecordResponse<T>
 
     /**
@@ -137,7 +140,7 @@ interface HealthConnectClient {
 
     /**
      * Reads [AggregateMetric]s according to requested read criteria: [Record]s from
-     * [dataOriginFilter] and within [timeRangeFilter].
+     * [AggregateRequest.dataOriginFilter] and within [AggregateRequest.timeRangeFilter].
      *
      * @param request [AggregateRequest] object specifying [AggregateMetric]s to aggregate and other
      * filters.
@@ -260,8 +263,8 @@ interface HealthConnectClient {
         internal const val DEFAULT_PROVIDER_PACKAGE_NAME = "com.google.android.apps.healthdata"
 
         /**
-         * Determines whether an implementation of [HealthDataClient] is available on this device at
-         * the moment.
+         * Determines whether an implementation of [HealthConnectClient] is available on this device
+         * at the moment.
          *
          * @param packageNames optional package provider to choose implementation from
          * @return whether the api is available
@@ -279,11 +282,11 @@ interface HealthConnectClient {
         }
 
         /**
-         * Retrieves an IPC-backed [HealthDataClient] instance binding to an available
+         * Retrieves an IPC-backed [HealthConnectClient] instance binding to an available
          * implementation.
          *
          * @param packageNames optional package provider to choose implementation from
-         * @return instance of [HealthDataClient] ready for issuing requests
+         * @return instance of [HealthConnectClient] ready for issuing requests
          * @throws UnsupportedOperationException if service not available due to SDK version too low
          * @throws IllegalStateException if service not available due to not installed
          *

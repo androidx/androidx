@@ -18,7 +18,7 @@ package androidx.health.connect.client.response
 /**
  * Response to record insertion.
  *
- * @see [HealthConnectClient.insertRecord]
+ * @see [androidx.health.connect.client.HealthConnectClient.insertRecords]
  */
 public class InsertRecordsResponse
 internal constructor(
