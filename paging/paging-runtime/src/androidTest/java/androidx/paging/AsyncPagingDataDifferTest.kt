@@ -29,6 +29,10 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.MainDispatcherRule
 import com.google.common.truth.Truth.assertThat
+import kotlin.coroutines.ContinuationInterceptor
+import kotlin.coroutines.CoroutineContext
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -41,14 +45,10 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import kotlin.coroutines.ContinuationInterceptor
-import kotlin.coroutines.CoroutineContext
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
-import kotlinx.coroutines.withContext
 
 sealed class ListUpdateEvent {
     data class Changed(val position: Int, val count: Int, val payload: Any?) : ListUpdateEvent()
@@ -438,14 +438,15 @@ class AsyncPagingDataDifferTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = 21) // b/189492631
     @Test
     fun submitData_doesNotCancelCollectionsCoroutine() = testScope.runTest {
         lateinit var source1: TestPagingSource
         lateinit var source2: TestPagingSource
         val pager = Pager(
             config = PagingConfig(
-                pageSize = 5, enablePlaceholders = false, prefetchDistance = 1,
+                pageSize = 5,
+                enablePlaceholders = false,
+                prefetchDistance = 1,
                 initialLoadSize = 17
             ),
             initialKey = 50
@@ -456,7 +457,9 @@ class AsyncPagingDataDifferTest {
         }
         val pager2 = Pager(
             config = PagingConfig(
-                pageSize = 7, enablePlaceholders = false, prefetchDistance = 1,
+                pageSize = 7,
+                enablePlaceholders = false,
+                prefetchDistance = 1,
                 initialLoadSize = 19
             ),
             initialKey = 50
@@ -465,26 +468,34 @@ class AsyncPagingDataDifferTest {
                 source2 = it
             }
         }
+
+        // Connect pager1
         val job1 = launch {
             pager.flow.collectLatest(differ::submitData)
         }
         advanceUntilIdle()
         assertEquals(17, differ.itemCount)
+
+        // Connect pager2, which should override pager1
         val job2 = launch {
             pager2.flow.collectLatest(differ::submitData)
         }
         advanceUntilIdle()
+        // This prepends an extra page due to transformedAnchorPosition re-sending an Access at the
+        // first position, we therefore load 19 + 7 items.
         assertEquals(26, differ.itemCount)
 
         // now if pager1 gets an invalidation, it overrides pager2
         source1.invalidate()
         advanceUntilIdle()
-        assertEquals(22, differ.itemCount)
+        // Only loads the initial page, since getRefreshKey returns 0, so there is no more prepend
+        assertEquals(17, differ.itemCount)
 
         // now if we refresh via differ, it should go into source 1
         differ.refresh()
         advanceUntilIdle()
-        assertEquals(22, differ.itemCount)
+        // Only loads the initial page, since getRefreshKey returns 0, so there is no more prepend
+        assertEquals(17, differ.itemCount)
 
         // now manual set data that'll clear both
         differ.submitData(PagingData.empty())
@@ -494,6 +505,7 @@ class AsyncPagingDataDifferTest {
         // if source2 has new value, we reconnect to that
         source2.invalidate()
         advanceUntilIdle()
+        // Only loads the initial page, since getRefreshKey returns 0, so there is no more prepend
         assertEquals(19, differ.itemCount)
 
         job1.cancelAndJoin()

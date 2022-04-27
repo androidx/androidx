@@ -20,11 +20,16 @@ import androidx.paging.LoadState.Loading
 import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.REFRESH
+import androidx.paging.PagingSource.LoadParams
 import androidx.paging.PagingSource.LoadResult
 import androidx.paging.PagingSource.LoadResult.Page
 import androidx.paging.RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
 import androidx.paging.RemoteMediator.InitializeAction.SKIP_INITIAL_REFRESH
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertNotEquals
+import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -42,17 +47,13 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runBlockingTest
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import kotlin.test.assertNotEquals
-import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalPagingApi::class)
 @RunWith(JUnit4::class)
@@ -210,6 +211,7 @@ class PageFetcherTest {
                     // make this initial load return LoadResult.Invalid to see if new paging
                     // source is generated
                     if (pagingSources.size == 0) it.nextLoadResult = LoadResult.Invalid()
+                    it.getRefreshKeyResult = 30
                     pagingSources.add(it)
                 }
             },
@@ -231,11 +233,11 @@ class PageFetcherTest {
         )
         // previous load() returning LoadResult.Invalid should trigger a new paging source
         // retrying with the same load params, this should return a refresh starting
-        // from key = 50
+        // from getRefreshKey() = 30
         assertTrue(!pagingSources[1].invalid)
         assertThat(fetcherState.pageEventLists[1]).containsExactly(
             localLoadStateUpdate<Int>(refreshLocal = Loading),
-            createRefresh(50..51)
+            createRefresh(30..31)
         )
 
         assertThat(pagingSources[0]).isNotEqualTo(pagingSources[1])
@@ -760,7 +762,9 @@ class PageFetcherTest {
         }
         val pageFetcher = PageFetcher(
             pagingSourceFactory = suspend {
-                TestPagingSource(loadDelay = 1000)
+                TestPagingSource(loadDelay = 1000).also {
+                    it.getRefreshKeyResult = 30
+                }
             },
             initialKey = 50,
             config = config,
@@ -861,7 +865,9 @@ class PageFetcherTest {
         }
         val pageFetcher = PageFetcher(
             pagingSourceFactory = suspend {
-                TestPagingSource(loadDelay = 1000)
+                TestPagingSource(loadDelay = 1000).also {
+                    it.getRefreshKeyResult = 30
+                }
             },
             initialKey = 50,
             config = config,
@@ -947,6 +953,45 @@ class PageFetcherTest {
     }
 
     @Test
+    fun invalidate_prioritizesGetRefreshKeyReturningNull() = testScope.runTest {
+        val loadRequests = mutableListOf<LoadParams<Int>>()
+        val pageFetcher = PageFetcher(
+            config = PagingConfig(pageSize = 1),
+            initialKey = 0,
+            pagingSourceFactory = {
+                object : PagingSource<Int, Int>() {
+                    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Int> {
+                        loadRequests.add(params)
+                        return LoadResult.Error(Exception("ignored"))
+                    }
+
+                    override fun getRefreshKey(state: PagingState<Int, Int>): Int? {
+                        // Should prioritize `null` returned here on invalidation.
+                        return null
+                    }
+                }
+            }
+        )
+
+        val job = launch {
+            pageFetcher.flow.collectLatest {
+                it.flow.collect { }
+            }
+        }
+
+        advanceUntilIdle()
+        assertThat(loadRequests).hasSize(1)
+        assertThat(loadRequests[0].key).isEqualTo(0)
+
+        pageFetcher.refresh()
+        advanceUntilIdle()
+        assertThat(loadRequests).hasSize(2)
+        assertThat(loadRequests[1].key).isEqualTo(null)
+
+        job.cancel()
+    }
+
+    @Test
     fun invalidateBeforeAccessPreservesPagingState() = testScope.runTest {
         withContext(coroutineContext) {
             val config = PagingConfig(
@@ -967,7 +1012,7 @@ class PageFetcherTest {
             )
 
             lateinit var pagingData: PagingData<Int>
-            val job = launch() {
+            val job = launch {
                 pageFetcher.flow.collectLatest {
                     pagingData = it
                     it.flow.collect { }
