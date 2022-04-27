@@ -196,9 +196,11 @@ class PickerTest {
         val itemsToScroll = 4
 
         rule.onNodeWithTag(TEST_TAG).performTouchInput {
+            // Start at bottom - 2 to allow for 1.dp padding around the Picker
+            // (which was added to prevent jitter around the start of the gradient).
             swipeWithVelocity(
-                start = Offset(centerX, bottom),
-                end = Offset(centerX, bottom -
+                start = Offset(centerX, bottom - 2),
+                end = Offset(centerX, bottom - 2 -
                     (itemSizePx + separationPx * separationSign) * itemsToScroll),
                 endVelocity = NOT_A_FLING_SPEED
             )
