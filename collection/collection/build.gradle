@@ -59,13 +59,18 @@ kotlin {
         }
 
         if (enableNative) {
-            nativeMain
+            nativeMain {
+                dependsOn commonMain
+            }
 
             configure([linuxX64Main, macosX64Main, macosArm64Main]) {
                 dependsOn nativeMain
             }
 
-            nativeTest
+            nativeTest {
+                dependsOn commonTest
+            }
+
             configure([linuxX64Test, macosX64Test, macosArm64Test]) {
                 dependsOn nativeTest
             }
