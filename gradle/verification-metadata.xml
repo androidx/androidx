@@ -1253,7 +1253,7 @@
       <!-- Unsigned, b/227204920 -->
       <component group="" name="kotlin-native-prebuilt-linux-x86_64" version="1.6.21">
         <artifact name="kotlin-native-prebuilt-linux-x86_64-1.6.21.tar.gz">
-          <sha256 value="c0c65840f440bb0f29fbb1ec5b0099cc72fa8522357e0e175fd9bbd21dfe864b" origin="Hand-built using sha256sum kotlin-native-prebuilt-linux-x86_64-1.6.21.tar.gz"/>
+          <sha256 value="803226b45a60ceac9eacc6b554d38d50d174b860abce2daf772ec4c8529399ba" origin="Hand-built using sha256sum kotlin-native-prebuilt-linux-x86_64-1.6.21.tar.gz"/>
         </artifact>
       </component>
    </components>
