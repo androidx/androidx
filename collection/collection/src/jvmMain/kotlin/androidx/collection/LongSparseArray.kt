@@ -355,40 +355,43 @@ internal inline fun <E> LongSparseArray<E>.commonGc() {
 }
 
 internal inline fun <E> LongSparseArray<E>.commonPut(key: Long, value: E) {
-    var i = binarySearch(keys, size, key)
-    if (i >= 0) {
-        values[i] = value
+    var index = binarySearch(keys, size, key)
+    if (index >= 0) {
+        values[index] = value
     } else {
-        i = i.inv()
-        if (i < size && values[i] === DELETED) {
-            keys[i] = key
-            values[i] = value
+        index = index.inv()
+        if (index < size && values[index] === DELETED) {
+            keys[index] = key
+            values[index] = value
             return
         }
         if (garbage && size >= keys.size) {
             commonGc()
 
             // Search again because indices may have changed.
-            i = binarySearch(keys, size, key).inv()
+            index = binarySearch(keys, size, key).inv()
         }
         if (size >= keys.size) {
-            val n = idealLongArraySize(size + 1)
-            val nkeys = LongArray(n)
-            val nvalues = arrayOfNulls<Any>(n)
-
-            // Log.e("SparseArray", "grow " + mKeys.length + " to " + n);
-            System.arraycopy(keys, 0, nkeys, 0, keys.size)
-            System.arraycopy(values, 0, nvalues, 0, values.size)
-            keys = nkeys
-            values = nvalues
+            val newSize = idealLongArraySize(size + 1)
+            keys = keys.copyOf(newSize)
+            values = values.copyOf(newSize)
         }
-        if (size - i != 0) {
-            // Log.e("SparseArray", "move " + (mSize - i));
-            System.arraycopy(keys, i, keys, i + 1, size - i)
-            System.arraycopy(values, i, values, i + 1, size - i)
+        if (size - index != 0) {
+            keys.copyInto(
+                keys,
+                destinationOffset = index + 1,
+                startIndex = index,
+                endIndex = size
+            )
+            values.copyInto(
+                values,
+                destinationOffset = index + 1,
+                startIndex = index,
+                endIndex = size
+            )
         }
-        keys[i] = key
-        values[i] = value
+        keys[index] = key
+        values[index] = value
         size++
     }
 }
@@ -498,15 +501,9 @@ internal inline fun <E> LongSparseArray<E>.commonAppend(key: Long, value: E) {
     }
     val pos = size
     if (pos >= keys.size) {
-        val n = idealLongArraySize(pos + 1)
-        val nkeys = LongArray(n)
-        val nvalues = arrayOfNulls<Any>(n)
-
-        // Log.e("SparseArray", "grow " + mKeys.length + " to " + n);
-        System.arraycopy(keys, 0, nkeys, 0, keys.size)
-        System.arraycopy(values, 0, nvalues, 0, values.size)
-        keys = nkeys
-        values = nvalues
+        val newSize = idealLongArraySize(pos + 1)
+        keys = keys.copyOf(newSize)
+        values = values.copyOf(newSize)
     }
     keys[pos] = key
     values[pos] = value
