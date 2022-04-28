@@ -161,7 +161,7 @@
 
   <!-- ArrivedDemoScreen -->
   <string name="arrived_exclamation_msg">Arrived!</string>
-  <string name="arrived_address_msg">Google Bellevue Office\n1120 112th Ave NE</string>
+  <string name="arrived_address_msg" translatable="false">Google Bellevue Office\n1120 112th Ave NE</string>
 
   <!-- RoutingDemoModels -->
   <string name="current_step_cue" translatable="false">Roy st 520</string>
@@ -275,7 +275,7 @@
 
   <!-- LongMessageTemplateDemoScreen -->
   <string name="long_msg_template_demo_title">Long Message Template Demo</string>
-  <string name="long_msg_template_text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. \nAliquam laoreet ac metus eu commodo. Sed a congue diam, sed dictum lectus. Nam nec\ntristique dolor, quis sodales arcu. Etiam at metus eu nulla auctor varius. \nInteger dolor lorem, placerat sit amet lacus in, imperdiet semper dui. Vestibulum \nante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; \nQuisque gravida fermentum egestas.\n\n\n\nUt ut sodales mi. Aenean porta vel ipsum sed lacinia. Morbi odio ipsum, hendrerit \neu est et, sollicitudin finibus diam. Nunc sit amet felis elit. Orci varius \nnatoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Sed \nvestibulum, tellus a rutrum auctor, diam arcu vestibulum purus, nec mollis ligula \nnisi in nisi. Donec sem tortor, pharetra sed fermentum sit amet, ullamcorper nec \nsapien. Aliquam risus arcu, porttitor eu dui nec, vulputate tempus libero. \nCurabitur sit amet tristique orci. Suspendisse et odio tempus, tempus turpis quis,\n euismod est.\n\n\n\nVestibulum mauris ante, luctus viverra nisi eget, blandit facilisis nulla. \nPhasellus ex lorem, semper in vestibulum nec, aliquet vel elit. Aliquam vitae \nligula nec enim dictum lobortis. Sed varius turpis quis nisi tempus varius. Sed \nnon sollicitudin magna, at mattis tortor. Curabitur quis ligula eget lorem mattis \ntincidunt et in sapien. Curabitur a elit nisi. Aliquam ex arcu, hendrerit eget \nturpis vitae, bibendum vulputate nibh. Fusce vitae ex aliquet, tristique magna eu,\n vulputate dui. Aenean tempor viverra tortor non pharetra. Pellentesque convallis \nnec risus a auctor. Praesent non sem non eros tincidunt ullamcorper efficitur non \nlacus.\n\n\n\nSuspendisse accumsan ultricies egestas. Aenean leo ligula, congue ac erat eu, \nlobortis ultricies lorem. Nulla finibus, arcu sed tincidunt lobortis, magna justo \nrutrum ligula, et mattis felis turpis vel ex. Morbi ac auctor ex, at bibendum sem.\n Vestibulum a tortor iaculis, viverra felis vitae, lobortis est. Duis sit amet \ncondimentum sem. Ut molestie, dolor pretium imperdiet maximus, enim orci porta \nquam, id gravida enim nunc vitae lacus. Pellentesque habitant morbi tristique \nsenectus et netus et malesuada fames ac turpis egestas. Nullam vel justo eu risus \nlobortis dignissim sit amet ullamcorper nulla. Donec finibus cursus purus \nporttitor pellentesque.\n\n\n\nDonec at vehicula ante. Suspendisse rutrum nisl quis metus faucibus lacinia. \nVestibulum eros sapien, eleifend nec accumsan a, interdum sed nisi. Aenean posuere\n ultrices lorem non pharetra. Nulla non porta ligula. Maecenas at elit diam. \nNullam gravida augue et semper eleifend. Fusce venenatis ac arcu et luctus. Mauris\n ultricies urna non dui interdum, vel hendrerit est aliquam. Fusce id dictum leo, \nfringilla egestas ipsum.</string>
+  <string name="long_msg_template_text" translatable="false">Lorem ipsum dolor sit amet, consectetur adipiscing elit. \nAliquam laoreet ac metus eu commodo. Sed a congue diam, sed dictum lectus. Nam nec\ntristique dolor, quis sodales arcu. Etiam at metus eu nulla auctor varius. \nInteger dolor lorem, placerat sit amet lacus in, imperdiet semper dui. Vestibulum \nante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; \nQuisque gravida fermentum egestas.\n\n\n\nUt ut sodales mi. Aenean porta vel ipsum sed lacinia. Morbi odio ipsum, hendrerit \neu est et, sollicitudin finibus diam. Nunc sit amet felis elit. Orci varius \nnatoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Sed \nvestibulum, tellus a rutrum auctor, diam arcu vestibulum purus, nec mollis ligula \nnisi in nisi. Donec sem tortor, pharetra sed fermentum sit amet, ullamcorper nec \nsapien. Aliquam risus arcu, porttitor eu dui nec, vulputate tempus libero. \nCurabitur sit amet tristique orci. Suspendisse et odio tempus, tempus turpis quis,\n euismod est.\n\n\n\nVestibulum mauris ante, luctus viverra nisi eget, blandit facilisis nulla. \nPhasellus ex lorem, semper in vestibulum nec, aliquet vel elit. Aliquam vitae \nligula nec enim dictum lobortis. Sed varius turpis quis nisi tempus varius. Sed \nnon sollicitudin magna, at mattis tortor. Curabitur quis ligula eget lorem mattis \ntincidunt et in sapien. Curabitur a elit nisi. Aliquam ex arcu, hendrerit eget \nturpis vitae, bibendum vulputate nibh. Fusce vitae ex aliquet, tristique magna eu,\n vulputate dui. Aenean tempor viverra tortor non pharetra. Pellentesque convallis \nnec risus a auctor. Praesent non sem non eros tincidunt ullamcorper efficitur non \nlacus.\n\n\n\nSuspendisse accumsan ultricies egestas. Aenean leo ligula, congue ac erat eu, \nlobortis ultricies lorem. Nulla finibus, arcu sed tincidunt lobortis, magna justo \nrutrum ligula, et mattis felis turpis vel ex. Morbi ac auctor ex, at bibendum sem.\n Vestibulum a tortor iaculis, viverra felis vitae, lobortis est. Duis sit amet \ncondimentum sem. Ut molestie, dolor pretium imperdiet maximus, enim orci porta \nquam, id gravida enim nunc vitae lacus. Pellentesque habitant morbi tristique \nsenectus et netus et malesuada fames ac turpis egestas. Nullam vel justo eu risus \nlobortis dignissim sit amet ullamcorper nulla. Donec finibus cursus purus \nporttitor pellentesque.\n\n\n\nDonec at vehicula ante. Suspendisse rutrum nisl quis metus faucibus lacinia. \nVestibulum eros sapien, eleifend nec accumsan a, interdum sed nisi. Aenean posuere\n ultrices lorem non pharetra. Nulla non porta ligula. Maecenas at elit diam. \nNullam gravida augue et semper eleifend. Fusce venenatis ac arcu et luctus. Mauris\n ultricies urna non dui interdum, vel hendrerit est aliquam. Fusce id dictum leo, \nfringilla egestas ipsum.</string>
   <string name="long_msg_template_not_supported_text">Your host doesn\'t support Long Message template</string>
   <string name="long_msg_template_not_supported_title">Incompatible host</string>
 
@@ -371,31 +371,31 @@
   <string name="showcase_demos_title">Showcase Demos</string>
 
   <!-- Location Strings -->
-  <string name="location_1_title">Google Kirkland</string>
+  <string name="location_1_title"> translatable="false"Google Kirkland</string>
   <string name="location_1_address" translatable="false">747 6th St South, Kirkland, WA 98033</string>
   <string name="location_1_description">Tinted resource vector</string>
   <string name="location_1_phone" translatable="false">+14257395600</string>
-  <string name="location_2_title">Google Bellevue</string>
+  <string name="location_2_title" translatable="false">Google Bellevue</string>
   <string name="location_2_address" translatable="false">1120 112th Ave NE, Bellevue, WA 98004</string>
   <string name="location_2_description">Image resource bitmap</string>
   <string name="location_2_phone" translatable="false">+14252301301</string>
-  <string name="location_3_title">Google South Lake Union</string>
+  <string name="location_3_title" translatable="false">Google South Lake Union</string>
   <string name="location_3_address" translatable="false">1021 Valley St, Seattle, WA 98109</string>
   <string name="location_3_description">Colored text marker</string>
   <string name="location_3_phone" translatable="false">+12065311800</string>
-  <string name="location_4_title">Google Seattle</string>
+  <string name="location_4_title" translatable="false">Google Seattle</string>
   <string name="location_4_address" translatable="false">601 N 34th St, Seattle, WA 98103</string>
   <string name="location_4_description">Image bitmap</string>
   <string name="location_4_phone" translatable="false">+12068761800</string>
   <string name="location_5_address" translatable="false">1600 Amphitheatre Pkwy, Mountain View, CA 94043</string>
   <string name="location_5_phone" translatable="false">+16502530000</string>
-  <string name="location_6_title">Google Bothell</string>
+  <string name="location_6_title" translatable="false">Google Bothell</string>
   <string name="location_6_address" translatable="false">11831 North Creek Pkwy, Bothell, WA 98011</string>
-  <string name="location_7_title">Seward Park</string>
+  <string name="location_7_title" translatable="false">Seward Park</string>
   <string name="location_7_address" translatable="false">5900 Lake Washington Blvd S, Seattle, WA 98118</string>
-  <string name="location_8_title">Luther Burbank Park</string>
+  <string name="location_8_title" translatable="false">Luther Burbank Park</string>
   <string name="location_8_address" translatable="false">2040 84th Ave SE, Mercer Island, WA 98040</string>
-  <string name="location_9_title">Heritage Park</string>
+  <string name="location_9_title" translatable="false">Heritage Park</string>
   <string name="location_9_address" translatable="false">111 Waverly Way, Kirkland, WA 98033</string>
   <string name="location_description_text_label">Text label</string>
   <string name="location_phone_not_available" translatable="false">n/a</string>
