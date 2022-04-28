@@ -18,8 +18,13 @@ package androidx.datastore.core
 
 import kotlin.random.Random
 import okio.BufferedSink
+import okio.BufferedSource
 import okio.FileSystem
 import okio.Path.Companion.toPath
+import okio.buffer
+
+internal fun BufferedSource.toInputStream() = object : InputStream(this) {}
+internal fun BufferedSink.toOutputStream() = object : OutputStream(this) {}
 
 actual class TestIO actual constructor(dirName: String) {
     // TODO could use fake filesysyem but we actually rather test with real filesystem
@@ -73,10 +78,7 @@ actual class TestIO actual constructor(dirName: String) {
     }
 
     actual fun inputStream(testFile: TestFile): InputStream {
-        return fileSystem.source(
-            file = testFile,
-            mustCreate = false
-        ).buffer().toInputStream()
+        return fileSystem.source(testFile).buffer().toInputStream()
     }
 }
 

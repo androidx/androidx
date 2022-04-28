@@ -18,6 +18,8 @@
 
 package androidx.datastore.preferences.core
 
+import kotlin.jvm.JvmName
+
 /**
  * Get a new empty Preferences.
  *

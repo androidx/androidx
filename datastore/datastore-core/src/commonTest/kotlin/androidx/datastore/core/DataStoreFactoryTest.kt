@@ -42,9 +42,6 @@ class DataStoreFactoryTest {
             storage = testIO.newFileStorage(TestingSerializer()),
             scope = dataStoreScope
         )
-
-        val x = immutableMap(mutableMapOf(Pair("A", "B")))
-
         val expectedByte = 123.toByte()
 
         assertThat(

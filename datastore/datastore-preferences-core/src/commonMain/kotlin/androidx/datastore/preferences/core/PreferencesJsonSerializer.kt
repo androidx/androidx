@@ -19,10 +19,10 @@ package androidx.datastore.preferences.core
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.InputStream
 import androidx.datastore.core.OutputStream
+import androidx.datastore.core.IOException
 import androidx.datastore.core.Serializer
 import androidx.datastore.core.okio.asBufferedSink
 import androidx.datastore.core.okio.asBufferedSource
-import java.io.IOException
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import okio.use
@@ -125,7 +125,6 @@ internal data class Value(
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (javaClass != other?.javaClass) return false
 
         other as Value
 

@@ -16,7 +16,6 @@
 
 package androidx.datastore.preferences.core
 
-import java.lang.UnsupportedOperationException
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotEquals

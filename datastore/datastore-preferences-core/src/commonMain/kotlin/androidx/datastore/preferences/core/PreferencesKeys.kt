@@ -18,6 +18,8 @@
 
 package androidx.datastore.preferences.core
 
+import kotlin.jvm.JvmName
+
 /**
  * Get a key for an Int preference. You should not have multiple keys with the same name (for use
  * with the same Preferences). Using overlapping keys with different types can result in

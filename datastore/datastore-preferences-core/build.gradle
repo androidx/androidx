@@ -16,6 +16,8 @@
 
 import androidx.build.BundleInsideHelper
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 plugins {
     id("AndroidXPlugin")
@@ -28,7 +30,10 @@ kotlin {
     jvm {
         withJava()
     }
-
+    macosX64()
+//    linuxArm64()
+    macosArm64()
+    mingwX64()
 
     BundleInsideHelper.forInsideJarKmp(
             project,
@@ -42,7 +47,7 @@ kotlin {
                 api(libs.kotlinCoroutinesCore)
                 api(project(":datastore:datastore-core"))
                 api(project(":datastore:datastore-core-okio"))
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.1.0")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0")
             }
         }
         commonTest {
@@ -60,7 +65,7 @@ kotlin {
                 api(libs.kotlinStdlib)
                 api(libs.kotlinCoroutinesCore)
                 api(libs.kotlinStdlib)
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.1.0")
+//                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.1.0")
             }
         }
         jvmTest {
@@ -72,15 +77,39 @@ kotlin {
                 implementation(project(":datastore:datastore-core"))
             }
         }
+        nativeMain {
+            dependsOn(commonMain)
+        }
+        nativeTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(project(":datastore:datastore-core"))
+            }
+        }
+    }
+    targets.withType(KotlinNativeTarget).configureEach {
+        binaries.all {
+            binaryOptions["memoryModel"] = "experimental"
+        }
+    }
+    targets.forEach {target ->
+        if (target.platformType == KotlinPlatformType.native) {
+            target.compilations["main"].defaultSourceSet {
+                dependsOn(sourceSets["nativeMain"])
+            }
+            target.compilations["test"].defaultSourceSet {
+                dependsOn(sourceSets["nativeTest"])
+            }
+        }
     }
 }
-
-dependencies {
-    bundleInside(project(
-            path: ":datastore:datastore-preferences-proto",
-            configuration: "export"
-    ))
-}
+//
+//dependencies {
+//    bundleInside(project(
+//            path: ":datastore:datastore-preferences-proto",
+//            configuration: "export"
+//    ))
+//}
 
 androidx {
     name = "Android Preferences DataStore Core"
