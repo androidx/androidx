@@ -93,6 +93,9 @@ package androidx.collection {
     property public final int last;
   }
 
+  public final class CloneSuper_jvmKt {
+  }
+
   public class LongSparseArray<E> implements java.lang.Cloneable {
     ctor public LongSparseArray(optional int initialCapacity);
     ctor public LongSparseArray();
@@ -158,6 +161,11 @@ package androidx.collection {
 
   public final class LruCacheKt {
     method public static inline <K, V> androidx.collection.LruCache<K,V> lruCache(int maxSize, optional kotlin.jvm.functions.Function2<? super K,? super V,java.lang.Integer> sizeOf, optional kotlin.jvm.functions.Function1<? super K,? extends V> create, optional kotlin.jvm.functions.Function4<? super java.lang.Boolean,? super K,? super V,? super V,kotlin.Unit> onEntryRemoved);
+  }
+
+  public final class MyCloneable implements java.lang.Cloneable {
+    ctor public MyCloneable();
+    method public androidx.collection.MyCloneable clone();
   }
 
   public class SimpleArrayMap<K, V> {
