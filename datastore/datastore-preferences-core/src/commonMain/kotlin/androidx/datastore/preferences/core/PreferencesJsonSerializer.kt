@@ -36,7 +36,11 @@ object PreferencesJsonSerializer  : Serializer<Preferences> {
     override suspend fun readFrom(input: InputStream): Preferences {
         val buf = input.asBufferedSource()
         val prefMap: PreferencesMap = try {
-            Json.decodeFromString<PreferencesMap>(buf.readUtf8())
+            val jsonString = buf.readUtf8()
+            if (jsonString.isBlank()) {
+                return defaultValue
+            }
+            Json.decodeFromString<PreferencesMap>(jsonString)
         } catch (e: SerializationException) {
             throw CorruptionException("Unable to parse preferences json.", e)
         }

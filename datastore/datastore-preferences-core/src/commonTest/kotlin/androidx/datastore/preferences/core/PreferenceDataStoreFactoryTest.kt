@@ -17,46 +17,55 @@
 package androidx.datastore.preferences.core
 
 import androidx.datastore.core.DataMigration
+import androidx.datastore.core.TestIO
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
+import androidx.datastore.core.okio.asBufferedSink
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TemporaryFolder
-import java.io.File
-import java.lang.IllegalStateException
+import kotlin.test.Test
+import kotlin.test.BeforeTest
+//import org.junit.Before
+//import org.junit.Rule
+//import org.junit.Test
+//import org.junit.rules.TemporaryFolder
+//import java.io.File
+//import java.lang.IllegalStateException
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import okio.use
 
 @ObsoleteCoroutinesApi
 @kotlinx.coroutines.ExperimentalCoroutinesApi
 @FlowPreview
 class PreferenceDataStoreFactoryTest {
-    @get:Rule
-    val tmp = TemporaryFolder()
 
-    private lateinit var testFile: File
+//    private lateinit var testFile: TestFile
+    private lateinit var testIO: TestIO
+    private lateinit var testScope: TestScope
     private lateinit var dataStoreScope: TestScope
+    private val preferencesSerializer = getSerializer()
 
     val stringKey = stringPreferencesKey("key")
     val booleanKey = booleanPreferencesKey("key")
 
-    @Before
+    @BeforeTest
     fun setUp() {
-        testFile = tmp.newFile("test_file." + PreferencesSerializer.fileExtension)
+        testIO = TestIO()
+//        testFile = testIO.createTempFile("test_file")
         dataStoreScope = TestScope(UnconfinedTestDispatcher())
+        testScope = TestScope(UnconfinedTestDispatcher())
     }
 
     @Test
-    fun testNewInstance() = runTest {
+    fun testNewInstance() = testScope.runTest {
         val store = PreferenceDataStoreFactory.create(
+            storage = testIO.newFileStorage(preferencesSerializer),
             scope = dataStoreScope
-        ) { testFile }
+        )
 
         val expectedPreferences =
             preferencesOf(stringKey to "value")
@@ -71,8 +80,11 @@ class PreferenceDataStoreFactoryTest {
     }
 
     @Test
-    fun testCorruptionHandlerInstalled() = runTest {
-        testFile.writeBytes(byteArrayOf(0x00, 0x00, 0x00, 0x03)) // Protos can not start with 0x00.
+    fun testCorruptionHandlerInstalled() = testScope.runTest {
+        val testFile = testIO.createTempFile("test")
+        testIO.outputStream(testFile).asBufferedSink().use {
+            it.write(byteArrayOf(0x00, 0x00, 0x00, 0x03)) // Protos can not start with 0x00.
+        }
 
         val valueToReplace = preferencesOf(booleanKey to true)
 
@@ -80,13 +92,14 @@ class PreferenceDataStoreFactoryTest {
             corruptionHandler = ReplaceFileCorruptionHandler<Preferences> {
                 valueToReplace
             },
+            storage = testIO.newFileStorage(preferencesSerializer, testFile),
             scope = dataStoreScope
-        ) { testFile }
+        )
         assertEquals(valueToReplace, store.data.first())
     }
 
     @Test
-    fun testMigrationsInstalled() = runTest {
+    fun testMigrationsInstalled() = testScope.runTest {
 
         val expectedPreferences = preferencesOf(
             stringKey to "value",
@@ -112,17 +125,20 @@ class PreferenceDataStoreFactoryTest {
         }
 
         val store = PreferenceDataStoreFactory.create(
+            storage = testIO.newFileStorage(preferencesSerializer),
             migrations = listOf(migrateTo5, migratePlus1),
             scope = dataStoreScope
-        ) { testFile }
+        )
 
         assertEquals(expectedPreferences, store.data.first())
     }
 
     @Test
-    fun testCantMutateInternalState() = runTest {
+    fun testCantMutateInternalState() = testScope.runTest {
         val store =
-            PreferenceDataStoreFactory.create(scope = dataStoreScope) { testFile }
+            PreferenceDataStoreFactory.create(
+                storage = testIO.newFileStorage(preferencesSerializer),
+                scope = dataStoreScope)
 
         var mutableReference: MutablePreferences? = null
         store.edit {

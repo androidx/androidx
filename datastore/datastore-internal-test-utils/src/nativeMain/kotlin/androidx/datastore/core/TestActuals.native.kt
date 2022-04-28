@@ -47,6 +47,13 @@ actual class TestIO actual constructor(dirName: String) {
         return storage
     }
 
+    actual fun <T> newFileStorage(
+        serializer: Serializer<T>,
+        testFile: TestFile
+    ): StorageImpl<T> {
+        return OkioStorage(fileSystem, {testFile}, serializer)
+    }
+
     actual var onProduceFileCallback: () -> Unit = {}
 
     actual fun cleanup() {

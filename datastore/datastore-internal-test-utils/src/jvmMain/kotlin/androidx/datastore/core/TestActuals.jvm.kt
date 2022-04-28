@@ -27,6 +27,7 @@ actual class TestIO actual constructor(dirName: String) {
     ).also {
         it.toFile().deleteOnExit()
     }
+
     actual fun <T> newFileStorage(serializer: Serializer<T>, prefix: String):
         StorageImpl<T> {
         return FileStorage(
@@ -40,10 +41,15 @@ actual class TestIO actual constructor(dirName: String) {
             },
             serializer = serializer
         )
+
     }
 
-    actual var onProduceFileCallback: () -> Unit = {}
+    actual fun <T> newFileStorage(serializer: Serializer<T>, testFile: TestFile): StorageImpl<T> {
+        return FileStorage({ testFile }, serializer)
+    }
 
+
+    actual var onProduceFileCallback: () -> Unit = {}
 
 
     actual fun cleanup() {

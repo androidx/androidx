@@ -22,6 +22,11 @@ expect class TestIO(dirName: String = "datastore-test-dir") {
         prefix: String = "temp-file"
     ): StorageImpl<T>
 
+    fun <T> newFileStorage(
+        serializer: Serializer<T>,
+        testFile: TestFile,
+    ): StorageImpl<T>
+
     var onProduceFileCallback: () -> Unit
 
     fun createTempFile(filename:String):TestFile

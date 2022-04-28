@@ -57,3 +57,19 @@ expect object PreferenceDataStoreFactory {
         scope: CoroutineScope = CoroutineScope(ioDispatcher() + SupervisorJob()),
     ): DataStore<Preferences>
 }
+
+internal class PreferenceDataStore(private val delegate: DataStore<Preferences>) :
+    DataStore<Preferences> by delegate {
+    override suspend fun updateData(transform: suspend (t: Preferences) -> Preferences):
+        Preferences {
+        return delegate.updateData {
+            val transformed = transform(it)
+            // Freeze the preferences since any future mutations will break DataStore. If a user
+            // tunnels the value out of DataStore and mutates it, this could be problematic.
+            // This is a safe cast, since MutablePreferences is the only implementation of
+            // Preferences.
+            (transformed as MutablePreferences).freeze()
+            transformed
+        }
+    }
+}
