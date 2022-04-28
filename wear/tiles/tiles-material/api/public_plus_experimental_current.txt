@@ -246,6 +246,11 @@ package androidx.wear.tiles.material.layouts {
   }
 
   public class PrimaryLayout implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getContent();
+    method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getPrimaryChipContent();
+    method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getPrimaryLabelTextContent();
+    method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getSecondaryLabelTextContent();
+    method @Dimension(unit=androidx.annotation.Dimension.DP) public float getVerticalSpacerHeight();
   }
 
   public static final class PrimaryLayout.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
