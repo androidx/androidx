@@ -115,8 +115,8 @@ public fun CurvedLayout(
 
     Layout(
         modifier = modifier.drawWithContent {
-            drawContent()
             with(curvedRowChild) { draw() }
+            drawContent()
         },
 
         content = {
@@ -170,7 +170,13 @@ internal class CurvedLayoutDirection(
     internal val angular: CurvedDirection.Angular,
     internal val layoutDirection: LayoutDirection
 ) {
+    // Check if the angular direction is clockwise, taking layoutDirection into account
     fun clockwise(): Boolean = angular.resolveClockwise(layoutDirection)
+
+    // Check if the angular direction is clockwise, ignoring layoutDirection
+    fun absoluteClockwise(): Boolean =
+        angular == CurvedDirection.Angular.Normal ||
+        angular == CurvedDirection.Angular.Clockwise
 
     fun outsideIn(): Boolean = radial == CurvedDirection.Radial.OutsideIn
 
