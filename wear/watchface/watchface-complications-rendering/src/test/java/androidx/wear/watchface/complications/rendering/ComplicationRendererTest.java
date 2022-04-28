@@ -86,8 +86,7 @@ public class ComplicationRendererTest {
     private static final androidx.wear.watchface.complications.data.ComplicationText EMPTY_TEXT =
             androidx.wear.watchface.complications.data.ComplicationText.EMPTY;
     private static final ComplicationText PLACEHOLDER_COMPLICATION_TEXT =
-            ComplicationText.plainText(
-                    androidx.wear.watchface.complications.data.ComplicationText.PLACEHOLDER_STRING);
+            ComplicationText.plainText(ComplicationData.PLACEHOLDER_STRING);
 
     private ComplicationRenderer mComplicationRenderer;
     private Rect mComplicationBounds;

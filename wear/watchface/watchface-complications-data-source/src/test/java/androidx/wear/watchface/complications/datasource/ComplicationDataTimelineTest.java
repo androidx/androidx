@@ -18,6 +18,8 @@ package androidx.wear.watchface.complications.datasource;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.util.Log;
+
 import androidx.wear.watchface.complications.data.ComplicationData;
 import androidx.wear.watchface.complications.data.ComplicationText;
 import androidx.wear.watchface.complications.data.ComplicationType;
@@ -29,9 +31,11 @@ import androidx.wear.watchface.complications.data.ShortTextComplicationData;
 
 import com.google.common.collect.ImmutableList;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.annotation.internal.DoNotInstrument;
+import org.robolectric.shadows.ShadowLog;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -101,6 +105,11 @@ public class ComplicationDataTimelineTest {
                                             ComplicationText.EMPTY).build()
                             )
                     ));
+
+    @Before
+    public void setup() {
+        ShadowLog.setLoggable("ComplicationData", Log.DEBUG);
+    }
 
     @Test
     public void timeEntryEquality() {
