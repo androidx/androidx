@@ -197,16 +197,26 @@ public class PickerState constructor(
         get() = _numberOfOptions
         set(newNumberOfOptions) {
             verifyNumberOfOptions(newNumberOfOptions)
-            optionsOffset = ((selectedOption.coerceAtMost(newNumberOfOptions - 1) -
-                scalingLazyListState.centerItemIndex % newNumberOfOptions) + newNumberOfOptions) %
-                    newNumberOfOptions
+            // We need to maintain the mapping between the currently selected item and the
+            // currently selected option.
+            optionsOffset = positiveModule(
+                selectedOption.coerceAtMost(newNumberOfOptions - 1) -
+                    scalingLazyListState.centerItemIndex,
+                newNumberOfOptions
+            )
             _numberOfOptions = newNumberOfOptions
         }
 
     internal fun numberOfItems() = if (!repeatItems) numberOfOptions else LARGE_NUMBER_OF_ITEMS
 
     // The difference between the option we want to select for the current numberOfOptions
-    // and the selection with the previous numberOfOptions.
+    // and the selection with the initial numberOfOptions.
+    // Note that if repeatItems is tru (the default), we have a large number of items, and a smaller
+    // number of options, so many items map to the same options. This variable is part of that
+    // mapping since we need to adjust it when the number of options change.
+    // The mapping is that given an item index, subtracting optionsOffset and doing modulo the
+    // current number of options gives the option index:
+    // itemIndex - optionsOffset =(mod numberOfOptions) optionIndex
     internal var optionsOffset = 0
 
     internal val scalingLazyListState = run {
@@ -219,7 +229,7 @@ public class PickerState constructor(
     }
 
     /**
-     * Index of the item selected (i.e., at the center)
+     * Index of the option selected (i.e., at the center)
      */
     public val selectedOption: Int
         get() = (scalingLazyListState.centerItemIndex + optionsOffset) % numberOfOptions
@@ -238,8 +248,12 @@ public class PickerState constructor(
             if (!repeatItems) {
                 index
             } else {
-                val centerOffset = numberOfOptions * (LARGE_NUMBER_OF_ITEMS / (numberOfOptions * 2))
-                centerOffset + index - optionsOffset
+                // Pick the itemIndex closest to the current one, that it's congruent modulo
+                // numberOfOptions with index - optionOffset.
+                // This is to try to work around http://b/230582961
+                val minTargetIndex = scalingLazyListState.centerItemIndex - numberOfOptions / 2
+                minTargetIndex + positiveModule(index - minTargetIndex, numberOfOptions) -
+                    optionsOffset
             }
         scalingLazyListState.scrollToItem(itemIndex, 0)
     }
@@ -285,7 +299,7 @@ public class PickerState constructor(
         require(numberOfOptions > 0) { "The picker should have at least one item." }
         require(numberOfOptions < LARGE_NUMBER_OF_ITEMS / 3) {
             // Set an upper limit to ensure there are at least 3 repeats of all the options
-            "The picker should have at most ${LARGE_NUMBER_OF_ITEMS / 3} items"
+            "The picker should have less than ${LARGE_NUMBER_OF_ITEMS / 3} items"
         }
     }
 }
@@ -355,6 +369,8 @@ public interface PickerScope {
      */
     public val selectedOption: Int
 }
+
+private fun positiveModule(n: Int, mod: Int) = ((n % mod) + mod) % mod
 
 @Stable
 private class PickerScopeImpl(
