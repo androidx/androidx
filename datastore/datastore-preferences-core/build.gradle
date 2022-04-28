@@ -31,7 +31,7 @@ kotlin {
         withJava()
     }
     macosX64()
-//    linuxArm64()
+    linuxArm64()
     macosArm64()
     mingwX64()
 
@@ -65,7 +65,6 @@ kotlin {
                 api(libs.kotlinStdlib)
                 api(libs.kotlinCoroutinesCore)
                 api(libs.kotlinStdlib)
-//                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.1.0")
             }
         }
         jvmTest {
@@ -103,13 +102,13 @@ kotlin {
         }
     }
 }
-//
-//dependencies {
-//    bundleInside(project(
-//            path: ":datastore:datastore-preferences-proto",
-//            configuration: "export"
-//    ))
-//}
+
+dependencies {
+    bundleInside(project(
+            path: ":datastore:datastore-preferences-proto",
+            configuration: "export"
+    ))
+}
 
 androidx {
     name = "Android Preferences DataStore Core"

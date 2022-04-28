@@ -30,7 +30,7 @@ kotlin {
         withJava()
     }
     macosX64()
-//    linuxArm64()
+    linuxArm64()
     macosArm64()
     mingwX64()
     sourceSets {
@@ -39,8 +39,6 @@ kotlin {
                 api(libs.kotlinStdlib)
                 api(libs.kotlinTestCommon)
                 api(libs.kotlinTestAnnotationsCommon)
-//                api(libs.kotlinCoroutinesCore)
-//                implementation(libs.kotlinCoroutinesTest)
                 api("com.squareup.okio:okio:3.0.0")
                 api(project(":datastore:datastore-core"))
 
