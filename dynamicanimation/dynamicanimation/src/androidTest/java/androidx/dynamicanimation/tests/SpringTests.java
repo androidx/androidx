@@ -53,6 +53,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Before;
@@ -875,7 +876,7 @@ public class SpringTests {
     }
 
     @Test
-    @RequiresApi(api = 33)
+    @SdkSuppress(minSdkVersion = 33)
     public void testDurationScaleChangeListener() throws InterruptedException {
         final SpringAnimation anim = new SpringAnimation(mView1, DynamicAnimation.Y, 0f);
         final CountDownLatch registerUnregisterLatch = new CountDownLatch(2);
