@@ -17,26 +17,26 @@ package androidx.health.connect.client.records
 
 import androidx.annotation.StringDef
 
-/** The user's body position when a health measurement is taken. */
-public object BodyPositions {
-    const val STANDING_UP = "standing_up"
-    const val SITTING_DOWN = "sitting_down"
-    const val LYING_DOWN = "lying_down"
-    const val RECLINING = "reclining"
+/** Temporal relationship of measurement time to a meal. */
+public object RelationToMeal {
+    const val GENERAL = "general"
+    const val FASTING = "fasting"
+    const val BEFORE_MEAL = "before_meal"
+    const val AFTER_MEAL = "after_meal"
 }
 
 /**
- * The user's body position when a health measurement is taken.
+ * Temporal relationship of measurement time to a meal.
  * @suppress
  */
 @Retention(AnnotationRetention.SOURCE)
 @StringDef(
     value =
         [
-            BodyPositions.STANDING_UP,
-            BodyPositions.SITTING_DOWN,
-            BodyPositions.LYING_DOWN,
-            BodyPositions.RECLINING,
+            RelationToMeal.GENERAL,
+            RelationToMeal.FASTING,
+            RelationToMeal.BEFORE_MEAL,
+            RelationToMeal.AFTER_MEAL,
         ]
 )
-annotation class BodyPosition
+annotation class RelationToMeals

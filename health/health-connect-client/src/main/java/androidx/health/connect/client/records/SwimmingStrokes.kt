@@ -16,23 +16,26 @@
 package androidx.health.connect.client.records
 
 import androidx.annotation.RestrictTo
+import androidx.annotation.StringDef
 import androidx.health.connect.client.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
 
 /** Captures the number of swimming strokes. Type of swimming stroke must be provided. */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class SwimmingStrokes(
     /** Count of strokes. Optional field. Valid range: 1-1000000. */
     public val count: Long = 0,
     /** Swimming style. Required field. Allowed values: [SwimmingType]. */
-    @property:SwimmingType public val type: String,
+    @property:SwimmingTypes public val type: String,
     override val startTime: Instant,
     override val startZoneOffset: ZoneOffset?,
     override val endTime: Instant,
     override val endZoneOffset: ZoneOffset?,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : IntervalRecord {
+    init {
+        requireNonNegative(value = count, name = "count")
+    }
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is SwimmingStrokes) return false
@@ -58,4 +61,32 @@ public class SwimmingStrokes(
         result = 31 * result + metadata.hashCode()
         return result
     }
+
+    /** List of Swimming styles. */
+    public object SwimmingType {
+        const val FREESTYLE = "freestyle"
+        const val BACKSTROKE = "backstroke"
+        const val BREASTSTROKE = "breaststroke"
+        const val BUTTERFLY = "butterfly"
+        const val MIXED = "mixed"
+        const val OTHER = "other"
+    }
+    /**
+     * Swimming styles.
+     * @suppress
+     */
+    @Retention(AnnotationRetention.SOURCE)
+    @StringDef(
+        value =
+            [
+                SwimmingType.FREESTYLE,
+                SwimmingType.BACKSTROKE,
+                SwimmingType.BREASTSTROKE,
+                SwimmingType.BUTTERFLY,
+                SwimmingType.MIXED,
+                SwimmingType.OTHER,
+            ]
+    )
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    annotation class SwimmingTypes
 }

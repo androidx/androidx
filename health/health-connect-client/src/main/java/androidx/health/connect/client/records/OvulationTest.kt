@@ -16,18 +16,18 @@
 package androidx.health.connect.client.records
 
 import androidx.annotation.RestrictTo
+import androidx.annotation.StringDef
 import androidx.health.connect.client.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
 
 /** Each record represents the binary result of an ovulation test (positive or negative). */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class OvulationTest(
     /**
      * The result of a user's ovulation test, which shows if they're ovulating or not. Required
-     * field. Allowed values: [OvulationTestResult].
+     * field. Allowed values: [Results].
      */
-    @property:OvulationTestResult public val result: String,
+    @property:Results public val result: String,
     override val time: Instant,
     override val zoneOffset: ZoneOffset?,
     override val metadata: Metadata = Metadata.EMPTY,
@@ -52,4 +52,25 @@ public class OvulationTest(
         result = 31 * result + metadata.hashCode()
         return result
     }
+
+    /** The result of a user's ovulation test, which shows if they're ovulating or not. */
+    object Result {
+        const val NEGATIVE = "negative"
+        const val POSITIVE = "positive"
+    }
+
+    /**
+     * The result of a user's ovulation test, which shows if they're ovulating or not.
+     * @suppress
+     */
+    @Retention(AnnotationRetention.SOURCE)
+    @StringDef(
+        value =
+            [
+                Result.NEGATIVE,
+                Result.POSITIVE,
+            ]
+    )
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    annotation class Results
 }

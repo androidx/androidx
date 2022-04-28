@@ -181,6 +181,44 @@ package androidx.health.connect.client.records {
   public static final class ActiveCaloriesBurned.Companion {
   }
 
+  public final class ActivityEvent implements androidx.health.connect.client.records.Record {
+    ctor public ActivityEvent(String eventType, java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
+    method public java.time.Instant getEndTime();
+    method public java.time.ZoneOffset? getEndZoneOffset();
+    method public String getEventType();
+    method public androidx.health.connect.client.metadata.Metadata getMetadata();
+    method public java.time.Instant getStartTime();
+    method public java.time.ZoneOffset? getStartZoneOffset();
+    property public java.time.Instant endTime;
+    property public java.time.ZoneOffset? endZoneOffset;
+    property public final String eventType;
+    property public androidx.health.connect.client.metadata.Metadata metadata;
+    property public java.time.Instant startTime;
+    property public java.time.ZoneOffset? startZoneOffset;
+  }
+
+  public static final class ActivityEvent.EventType {
+    field public static final androidx.health.connect.client.records.ActivityEvent.EventType INSTANCE;
+    field public static final String PAUSE = "pause";
+    field public static final String REST = "rest";
+  }
+
+  public final class ActivityLap implements androidx.health.connect.client.records.Record {
+    ctor public ActivityLap(optional double lengthMeters, java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
+    method public java.time.Instant getEndTime();
+    method public java.time.ZoneOffset? getEndZoneOffset();
+    method public double getLengthMeters();
+    method public androidx.health.connect.client.metadata.Metadata getMetadata();
+    method public java.time.Instant getStartTime();
+    method public java.time.ZoneOffset? getStartZoneOffset();
+    property public java.time.Instant endTime;
+    property public java.time.ZoneOffset? endZoneOffset;
+    property public final double lengthMeters;
+    property public androidx.health.connect.client.metadata.Metadata metadata;
+    property public java.time.Instant startTime;
+    property public java.time.ZoneOffset? startZoneOffset;
+  }
+
   public final class ActivitySession implements androidx.health.connect.client.records.Record {
     ctor public ActivitySession(String activityType, optional String? title, optional String? notes, java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
     method public String getActivityType();
@@ -203,10 +241,7 @@ package androidx.health.connect.client.records {
     field public static final androidx.health.connect.client.records.ActivitySession.Companion Companion;
   }
 
-  public static final class ActivitySession.Companion {
-  }
-
-  public final class ActivityTypes {
+  public static final class ActivitySession.ActivityType {
     field public static final String BACK_EXTENSION = "back_extension";
     field public static final String BADMINTON = "badminton";
     field public static final String BARBELL_SHOULDER_PRESS = "barbell_shoulder_press";
@@ -246,7 +281,7 @@ package androidx.health.connect.client.records {
     field public static final String HIKING = "hiking";
     field public static final String ICE_HOCKEY = "ice_hockey";
     field public static final String ICE_SKATING = "ice_skating";
-    field public static final androidx.health.connect.client.records.ActivityTypes INSTANCE;
+    field public static final androidx.health.connect.client.records.ActivitySession.ActivityType INSTANCE;
     field public static final String JUMPING_JACK = "jumping_jack";
     field public static final String JUMP_ROPE = "jump_rope";
     field public static final String LAT_PULL_DOWN = "lat_pull_down";
@@ -289,8 +324,26 @@ package androidx.health.connect.client.records {
     field public static final String WALKING = "walking";
     field public static final String WATER_POLO = "water_polo";
     field public static final String WEIGHTLIFTING = "weightlifting";
+    field public static final String WHEELCHAIR = "wheelchair";
     field public static final String WORKOUT = "workout";
     field public static final String YOGA = "yoga";
+  }
+
+  public static final class ActivitySession.Companion {
+  }
+
+  public final class BasalBodyTemperature implements androidx.health.connect.client.records.Record {
+    ctor public BasalBodyTemperature(double temperatureDegreesCelsius, optional String? measurementLocation, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
+    method public String? getMeasurementLocation();
+    method public androidx.health.connect.client.metadata.Metadata getMetadata();
+    method public double getTemperatureDegreesCelsius();
+    method public java.time.Instant getTime();
+    method public java.time.ZoneOffset? getZoneOffset();
+    property public final String? measurementLocation;
+    property public androidx.health.connect.client.metadata.Metadata metadata;
+    property public final double temperatureDegreesCelsius;
+    property public java.time.Instant time;
+    property public java.time.ZoneOffset? zoneOffset;
   }
 
   public final class BasalMetabolicRate implements androidx.health.connect.client.records.Record {
@@ -310,16 +363,84 @@ package androidx.health.connect.client.records {
   public static final class BasalMetabolicRate.Companion {
   }
 
-  public final class BloodPressureMeasurementLocations {
-    field public static final androidx.health.connect.client.records.BloodPressureMeasurementLocations INSTANCE;
+  public final class BloodGlucose implements androidx.health.connect.client.records.Record {
+    ctor public BloodGlucose(double levelMillimolesPerLiter, optional String? specimenSource, optional String? mealType, optional String? relationToMeal, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
+    method public double getLevelMillimolesPerLiter();
+    method public String? getMealType();
+    method public androidx.health.connect.client.metadata.Metadata getMetadata();
+    method public String? getRelationToMeal();
+    method public String? getSpecimenSource();
+    method public java.time.Instant getTime();
+    method public java.time.ZoneOffset? getZoneOffset();
+    property public final double levelMillimolesPerLiter;
+    property public final String? mealType;
+    property public androidx.health.connect.client.metadata.Metadata metadata;
+    property public final String? relationToMeal;
+    property public final String? specimenSource;
+    property public java.time.Instant time;
+    property public java.time.ZoneOffset? zoneOffset;
+  }
+
+  public static final class BloodGlucose.SpecimenSource {
+    field public static final String CAPILLARY_BLOOD = "capillary_blood";
+    field public static final androidx.health.connect.client.records.BloodGlucose.SpecimenSource INSTANCE;
+    field public static final String INTERSTITIAL_FLUID = "interstitial_fluid";
+    field public static final String PLASMA = "plasma";
+    field public static final String SERUM = "serum";
+    field public static final String TEARS = "tears";
+    field public static final String WHOLE_BLOOD = "whole_blood";
+  }
+
+  public final class BloodPressure implements androidx.health.connect.client.records.Record {
+    ctor public BloodPressure(double systolicMillimetersOfMercury, double diastolicMillimetersOfMercury, optional String? bodyPosition, optional String? measurementLocation, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
+    method public String? getBodyPosition();
+    method public double getDiastolicMillimetersOfMercury();
+    method public String? getMeasurementLocation();
+    method public androidx.health.connect.client.metadata.Metadata getMetadata();
+    method public double getSystolicMillimetersOfMercury();
+    method public java.time.Instant getTime();
+    method public java.time.ZoneOffset? getZoneOffset();
+    property public final String? bodyPosition;
+    property public final double diastolicMillimetersOfMercury;
+    property public final String? measurementLocation;
+    property public androidx.health.connect.client.metadata.Metadata metadata;
+    property public final double systolicMillimetersOfMercury;
+    property public java.time.Instant time;
+    property public java.time.ZoneOffset? zoneOffset;
+    field public static final androidx.health.connect.client.records.BloodPressure.Companion Companion;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> DIASTOLIC_AVG;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> DIASTOLIC_MAX;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> DIASTOLIC_MIN;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> SYSTOLIC_AVG;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> SYSTOLIC_MAX;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> SYSTOLIC_MIN;
+  }
+
+  public static final class BloodPressure.Companion {
+  }
+
+  public static final class BloodPressure.MeasurementLocation {
+    field public static final androidx.health.connect.client.records.BloodPressure.MeasurementLocation INSTANCE;
     field public static final String LEFT_UPPER_ARM = "left_upper_arm";
     field public static final String LEFT_WRIST = "left_wrist";
     field public static final String RIGHT_UPPER_ARM = "right_upper_arm";
     field public static final String RIGHT_WRIST = "right_wrist";
   }
 
-  public final class BodyPositions {
-    field public static final androidx.health.connect.client.records.BodyPositions INSTANCE;
+  public final class BodyFat implements androidx.health.connect.client.records.Record {
+    ctor public BodyFat(int percentage, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
+    method public androidx.health.connect.client.metadata.Metadata getMetadata();
+    method public int getPercentage();
+    method public java.time.Instant getTime();
+    method public java.time.ZoneOffset? getZoneOffset();
+    property public androidx.health.connect.client.metadata.Metadata metadata;
+    property public final int percentage;
+    property public java.time.Instant time;
+    property public java.time.ZoneOffset? zoneOffset;
+  }
+
+  public final class BodyPosition {
+    field public static final androidx.health.connect.client.records.BodyPosition INSTANCE;
     field public static final String LYING_DOWN = "lying_down";
     field public static final String RECLINING = "reclining";
     field public static final String SITTING_DOWN = "sitting_down";
@@ -340,18 +461,60 @@ package androidx.health.connect.client.records {
     property public java.time.ZoneOffset? zoneOffset;
   }
 
-  public final class BodyTemperatureMeasurementLocations {
+  public final class BodyTemperatureMeasurementLocation {
     field public static final String ARMPIT = "armpit";
     field public static final String EAR = "ear";
     field public static final String FINGER = "finger";
     field public static final String FOREHEAD = "forehead";
-    field public static final androidx.health.connect.client.records.BodyTemperatureMeasurementLocations INSTANCE;
+    field public static final androidx.health.connect.client.records.BodyTemperatureMeasurementLocation INSTANCE;
     field public static final String MOUTH = "mouth";
     field public static final String RECTUM = "rectum";
     field public static final String TEMPORAL_ARTERY = "temporal_artery";
     field public static final String TOE = "toe";
     field public static final String VAGINA = "vagina";
     field public static final String WRIST = "wrist";
+  }
+
+  public final class BoneMass implements androidx.health.connect.client.records.Record {
+    ctor public BoneMass(double massKg, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
+    method public double getMassKg();
+    method public androidx.health.connect.client.metadata.Metadata getMetadata();
+    method public java.time.Instant getTime();
+    method public java.time.ZoneOffset? getZoneOffset();
+    property public final double massKg;
+    property public androidx.health.connect.client.metadata.Metadata metadata;
+    property public java.time.Instant time;
+    property public java.time.ZoneOffset? zoneOffset;
+  }
+
+  public final class CervicalMucus implements androidx.health.connect.client.records.Record {
+    ctor public CervicalMucus(optional String? texture, optional String? amount, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
+    method public String? getAmount();
+    method public androidx.health.connect.client.metadata.Metadata getMetadata();
+    method public String? getTexture();
+    method public java.time.Instant getTime();
+    method public java.time.ZoneOffset? getZoneOffset();
+    property public final String? amount;
+    property public androidx.health.connect.client.metadata.Metadata metadata;
+    property public final String? texture;
+    property public java.time.Instant time;
+    property public java.time.ZoneOffset? zoneOffset;
+  }
+
+  public static final class CervicalMucus.Amount {
+    field public static final String HEAVY = "heavy";
+    field public static final androidx.health.connect.client.records.CervicalMucus.Amount INSTANCE;
+    field public static final String LIGHT = "light";
+    field public static final String MEDIUM = "medium";
+  }
+
+  public static final class CervicalMucus.Texture {
+    field public static final String CLEAR = "clear";
+    field public static final String CREAMY = "creamy";
+    field public static final String DRY = "dry";
+    field public static final androidx.health.connect.client.records.CervicalMucus.Texture INSTANCE;
+    field public static final String STICKY = "sticky";
+    field public static final String WATERY = "watery";
   }
 
   public final class CyclingPedalingCadence {
@@ -425,6 +588,27 @@ package androidx.health.connect.client.records {
   }
 
   public static final class ElevationGained.Companion {
+  }
+
+  public final class FloorsClimbed implements androidx.health.connect.client.records.Record {
+    ctor public FloorsClimbed(double floors, java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
+    method public java.time.Instant getEndTime();
+    method public java.time.ZoneOffset? getEndZoneOffset();
+    method public double getFloors();
+    method public androidx.health.connect.client.metadata.Metadata getMetadata();
+    method public java.time.Instant getStartTime();
+    method public java.time.ZoneOffset? getStartZoneOffset();
+    property public java.time.Instant endTime;
+    property public java.time.ZoneOffset? endZoneOffset;
+    property public final double floors;
+    property public androidx.health.connect.client.metadata.Metadata metadata;
+    property public java.time.Instant startTime;
+    property public java.time.ZoneOffset? startZoneOffset;
+    field public static final androidx.health.connect.client.records.FloorsClimbed.Companion Companion;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> FLOORS_CLIMBED_TOTAL;
+  }
+
+  public static final class FloorsClimbed.Companion {
   }
 
   public final class HeartRate {
@@ -509,6 +693,47 @@ package androidx.health.connect.client.records {
   }
 
   public static final class Hydration.Companion {
+  }
+
+  public final class LeanBodyMass implements androidx.health.connect.client.records.Record {
+    ctor public LeanBodyMass(double massKg, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
+    method public double getMassKg();
+    method public androidx.health.connect.client.metadata.Metadata getMetadata();
+    method public java.time.Instant getTime();
+    method public java.time.ZoneOffset? getZoneOffset();
+    property public final double massKg;
+    property public androidx.health.connect.client.metadata.Metadata metadata;
+    property public java.time.Instant time;
+    property public java.time.ZoneOffset? zoneOffset;
+  }
+
+  public final class MealType {
+    field public static final String BREAKFAST = "breakfast";
+    field public static final String DINNER = "dinner";
+    field public static final androidx.health.connect.client.records.MealType INSTANCE;
+    field public static final String LUNCH = "lunch";
+    field public static final String SNACK = "snack";
+    field public static final String UNKNOWN = "unknown";
+  }
+
+  public final class Menstruation implements androidx.health.connect.client.records.Record {
+    ctor public Menstruation(optional String? flow, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
+    method public String? getFlow();
+    method public androidx.health.connect.client.metadata.Metadata getMetadata();
+    method public java.time.Instant getTime();
+    method public java.time.ZoneOffset? getZoneOffset();
+    property public final String? flow;
+    property public androidx.health.connect.client.metadata.Metadata metadata;
+    property public java.time.Instant time;
+    property public java.time.ZoneOffset? zoneOffset;
+  }
+
+  public static final class Menstruation.Flow {
+    field public static final String HEAVY = "heavy";
+    field public static final androidx.health.connect.client.records.Menstruation.Flow INSTANCE;
+    field public static final String LIGHT = "light";
+    field public static final String MEDIUM = "medium";
+    field public static final String SPOTTING = "spotting";
   }
 
   public final class Nutrition implements androidx.health.connect.client.records.Record {
@@ -659,10 +884,34 @@ package androidx.health.connect.client.records {
   public static final class Nutrition.Companion {
   }
 
-  public final class OvulationTestResults {
-    field public static final androidx.health.connect.client.records.OvulationTestResults INSTANCE;
+  public final class OvulationTest implements androidx.health.connect.client.records.Record {
+    ctor public OvulationTest(String result, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
+    method public androidx.health.connect.client.metadata.Metadata getMetadata();
+    method public String getResult();
+    method public java.time.Instant getTime();
+    method public java.time.ZoneOffset? getZoneOffset();
+    property public androidx.health.connect.client.metadata.Metadata metadata;
+    property public final String result;
+    property public java.time.Instant time;
+    property public java.time.ZoneOffset? zoneOffset;
+  }
+
+  public static final class OvulationTest.Result {
+    field public static final androidx.health.connect.client.records.OvulationTest.Result INSTANCE;
     field public static final String NEGATIVE = "negative";
     field public static final String POSITIVE = "positive";
+  }
+
+  public final class OxygenSaturation implements androidx.health.connect.client.records.Record {
+    ctor public OxygenSaturation(int percentage, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
+    method public androidx.health.connect.client.metadata.Metadata getMetadata();
+    method public int getPercentage();
+    method public java.time.Instant getTime();
+    method public java.time.ZoneOffset? getZoneOffset();
+    property public androidx.health.connect.client.metadata.Metadata metadata;
+    property public final int percentage;
+    property public java.time.Instant time;
+    property public java.time.ZoneOffset? zoneOffset;
   }
 
   public final class Power {
@@ -701,6 +950,78 @@ package androidx.health.connect.client.records {
     property public abstract androidx.health.connect.client.metadata.Metadata metadata;
   }
 
+  public final class RelationToMeal {
+    field public static final String AFTER_MEAL = "after_meal";
+    field public static final String BEFORE_MEAL = "before_meal";
+    field public static final String FASTING = "fasting";
+    field public static final String GENERAL = "general";
+    field public static final androidx.health.connect.client.records.RelationToMeal INSTANCE;
+  }
+
+  public final class Repetitions implements androidx.health.connect.client.records.Record {
+    ctor public Repetitions(long count, String type, java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
+    method public long getCount();
+    method public java.time.Instant getEndTime();
+    method public java.time.ZoneOffset? getEndZoneOffset();
+    method public androidx.health.connect.client.metadata.Metadata getMetadata();
+    method public java.time.Instant getStartTime();
+    method public java.time.ZoneOffset? getStartZoneOffset();
+    method public String getType();
+    property public final long count;
+    property public java.time.Instant endTime;
+    property public java.time.ZoneOffset? endZoneOffset;
+    property public androidx.health.connect.client.metadata.Metadata metadata;
+    property public java.time.Instant startTime;
+    property public java.time.ZoneOffset? startZoneOffset;
+    property public final String type;
+  }
+
+  public static final class Repetitions.ActivityType {
+    field public static final String ARM_CURL = "arm_curl";
+    field public static final String BACK_EXTENSION = "back_extension";
+    field public static final String BALL_SLAM = "ball_slam";
+    field public static final String BENCH_PRESS = "bench_press";
+    field public static final String BURPEE = "burpee";
+    field public static final String CRUNCH = "crunch";
+    field public static final String DEADLIFT = "deadlift";
+    field public static final String DOUBLE_ARM_TRICEPS_EXTENSION = "double_arm_triceps_extension";
+    field public static final String DUMBBELL_ROW = "dumbbell_row";
+    field public static final String FRONT_RAISE = "front_raise";
+    field public static final String HIP_THRUST = "hip_thrust";
+    field public static final String HULA_HOOP = "hula_hoop";
+    field public static final androidx.health.connect.client.records.Repetitions.ActivityType INSTANCE;
+    field public static final String JUMPING_JACK = "jumping_jack";
+    field public static final String JUMP_ROPE = "jump_rope";
+    field public static final String KETTLEBELL_SWING = "kettlebell_swing";
+    field public static final String LATERAL_RAISE = "lateral_raise";
+    field public static final String LAT_PULL_DOWN = "lat_pull_down";
+    field public static final String LEG_CURL = "leg_curl";
+    field public static final String LEG_EXTENSION = "leg_extension";
+    field public static final String LEG_PRESS = "leg_press";
+    field public static final String LEG_RAISE = "leg_raise";
+    field public static final String LUNGE = "lunge";
+    field public static final String MOUNTAIN_CLIMBER = "mountain_climber";
+    field public static final String PLANK = "plank";
+    field public static final String PULL_UP = "pull_up";
+    field public static final String PUNCH = "punch";
+    field public static final String SHOULDER_PRESS = "shoulder_press";
+    field public static final String SINGLE_ARM_TRICEPS_EXTENSION = "single_arm_triceps_extension";
+    field public static final String SIT_UP = "sit_up";
+    field public static final String SQUAT = "squat";
+  }
+
+  public final class RespiratoryRate implements androidx.health.connect.client.records.Record {
+    ctor public RespiratoryRate(double rate, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
+    method public androidx.health.connect.client.metadata.Metadata getMetadata();
+    method public double getRate();
+    method public java.time.Instant getTime();
+    method public java.time.ZoneOffset? getZoneOffset();
+    property public androidx.health.connect.client.metadata.Metadata metadata;
+    property public final double rate;
+    property public java.time.Instant time;
+    property public java.time.ZoneOffset? zoneOffset;
+  }
+
   public final class RestingHeartRate implements androidx.health.connect.client.records.Record {
     ctor public RestingHeartRate(long beatsPerMinute, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
     method public long getBeatsPerMinute();
@@ -718,6 +1039,24 @@ package androidx.health.connect.client.records {
   }
 
   public static final class RestingHeartRate.Companion {
+  }
+
+  public final class SexualActivity implements androidx.health.connect.client.records.Record {
+    ctor public SexualActivity(optional String? protectionUsed, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
+    method public androidx.health.connect.client.metadata.Metadata getMetadata();
+    method public String? getProtectionUsed();
+    method public java.time.Instant getTime();
+    method public java.time.ZoneOffset? getZoneOffset();
+    property public androidx.health.connect.client.metadata.Metadata metadata;
+    property public final String? protectionUsed;
+    property public java.time.Instant time;
+    property public java.time.ZoneOffset? zoneOffset;
+  }
+
+  public static final class SexualActivity.Protection {
+    field public static final androidx.health.connect.client.records.SexualActivity.Protection INSTANCE;
+    field public static final String PROTECTED = "protected";
+    field public static final String UNPROTECTED = "unprotected";
   }
 
   public final class SleepSession implements androidx.health.connect.client.records.Record {
@@ -741,6 +1080,33 @@ package androidx.health.connect.client.records {
   }
 
   public static final class SleepSession.Companion {
+  }
+
+  public final class SleepStage implements androidx.health.connect.client.records.Record {
+    ctor public SleepStage(String stage, java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
+    method public java.time.Instant getEndTime();
+    method public java.time.ZoneOffset? getEndZoneOffset();
+    method public androidx.health.connect.client.metadata.Metadata getMetadata();
+    method public String getStage();
+    method public java.time.Instant getStartTime();
+    method public java.time.ZoneOffset? getStartZoneOffset();
+    property public java.time.Instant endTime;
+    property public java.time.ZoneOffset? endZoneOffset;
+    property public androidx.health.connect.client.metadata.Metadata metadata;
+    property public final String stage;
+    property public java.time.Instant startTime;
+    property public java.time.ZoneOffset? startZoneOffset;
+  }
+
+  public static final class SleepStage.StageType {
+    field public static final String AWAKE = "awake";
+    field public static final String DEEP = "deep";
+    field public static final androidx.health.connect.client.records.SleepStage.StageType INSTANCE;
+    field public static final String LIGHT = "light";
+    field public static final String OUT_OF_BED = "out_of_bed";
+    field public static final String REM = "rem";
+    field public static final String SLEEPING = "sleeping";
+    field public static final String UNKNOWN = "unknown";
   }
 
   public final class Speed {
@@ -826,6 +1192,34 @@ package androidx.health.connect.client.records {
   public static final class StepsCadenceSeries.Companion {
   }
 
+  public final class SwimmingStrokes implements androidx.health.connect.client.records.Record {
+    ctor public SwimmingStrokes(optional long count, String type, java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
+    method public long getCount();
+    method public java.time.Instant getEndTime();
+    method public java.time.ZoneOffset? getEndZoneOffset();
+    method public androidx.health.connect.client.metadata.Metadata getMetadata();
+    method public java.time.Instant getStartTime();
+    method public java.time.ZoneOffset? getStartZoneOffset();
+    method public String getType();
+    property public final long count;
+    property public java.time.Instant endTime;
+    property public java.time.ZoneOffset? endZoneOffset;
+    property public androidx.health.connect.client.metadata.Metadata metadata;
+    property public java.time.Instant startTime;
+    property public java.time.ZoneOffset? startZoneOffset;
+    property public final String type;
+  }
+
+  public static final class SwimmingStrokes.SwimmingType {
+    field public static final String BACKSTROKE = "backstroke";
+    field public static final String BREASTSTROKE = "breaststroke";
+    field public static final String BUTTERFLY = "butterfly";
+    field public static final String FREESTYLE = "freestyle";
+    field public static final androidx.health.connect.client.records.SwimmingStrokes.SwimmingType INSTANCE;
+    field public static final String MIXED = "mixed";
+    field public static final String OTHER = "other";
+  }
+
   public final class TotalCaloriesBurned implements androidx.health.connect.client.records.Record {
     ctor public TotalCaloriesBurned(double energyKcal, java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
     method public java.time.Instant getEndTime();
@@ -845,6 +1239,42 @@ package androidx.health.connect.client.records {
   }
 
   public static final class TotalCaloriesBurned.Companion {
+  }
+
+  public final class Vo2Max implements androidx.health.connect.client.records.Record {
+    ctor public Vo2Max(double vo2MillilitersPerMinuteKilogram, optional String? measurementMethod, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
+    method public String? getMeasurementMethod();
+    method public androidx.health.connect.client.metadata.Metadata getMetadata();
+    method public java.time.Instant getTime();
+    method public double getVo2MillilitersPerMinuteKilogram();
+    method public java.time.ZoneOffset? getZoneOffset();
+    property public final String? measurementMethod;
+    property public androidx.health.connect.client.metadata.Metadata metadata;
+    property public java.time.Instant time;
+    property public final double vo2MillilitersPerMinuteKilogram;
+    property public java.time.ZoneOffset? zoneOffset;
+  }
+
+  public static final class Vo2Max.MeasurementMethod {
+    field public static final String COOPER_TEST = "cooper_test";
+    field public static final String HEART_RATE_RATIO = "heart_rate_ratio";
+    field public static final androidx.health.connect.client.records.Vo2Max.MeasurementMethod INSTANCE;
+    field public static final String METABOLIC_CART = "metabolic_cart";
+    field public static final String MULTISTAGE_FITNESS_TEST = "multistage_fitness_test";
+    field public static final String OTHER = "other";
+    field public static final String ROCKPORT_FITNESS_TEST = "rockport_fitness_test";
+  }
+
+  public final class WaistCircumference implements androidx.health.connect.client.records.Record {
+    ctor public WaistCircumference(double circumferenceMeters, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
+    method public double getCircumferenceMeters();
+    method public androidx.health.connect.client.metadata.Metadata getMetadata();
+    method public java.time.Instant getTime();
+    method public java.time.ZoneOffset? getZoneOffset();
+    property public final double circumferenceMeters;
+    property public androidx.health.connect.client.metadata.Metadata metadata;
+    property public java.time.Instant time;
+    property public java.time.ZoneOffset? zoneOffset;
   }
 
   public final class Weight implements androidx.health.connect.client.records.Record {

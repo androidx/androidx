@@ -112,7 +112,7 @@ fun Record.toProto(): DataProto.DataPoint =
         is BodyFat ->
             instantaneousProto()
                 .setDataType(protoDataType("BodyFat"))
-                .apply { putValues("percentage", doubleVal(percentage)) }
+                .apply { putValues("percentage", doubleVal(percentage.toDouble())) }
                 .build()
         is BodyTemperature ->
             instantaneousProto()
@@ -236,7 +236,7 @@ fun Record.toProto(): DataProto.DataPoint =
         is OxygenSaturation ->
             instantaneousProto()
                 .setDataType(protoDataType("OxygenSaturation"))
-                .apply { putValues("percentage", doubleVal(percentage)) }
+                .apply { putValues("percentage", doubleVal(percentage.toDouble())) }
                 .build()
         is PowerSeries ->
             toProto(dataTypeName = "PowerSeries") { sample ->

@@ -15,13 +15,11 @@
  */
 package androidx.health.connect.client.records
 
-import androidx.annotation.RestrictTo
 import androidx.health.connect.client.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
 
 /** Captures the user's bone mass. Each record represents a single instantaneous measurement. */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class BoneMass(
     /** Mass in kilograms. Required field. Valid range: 0-1000. */
     public val massKg: Double,
@@ -29,6 +27,10 @@ public class BoneMass(
     override val zoneOffset: ZoneOffset?,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : InstantaneousRecord {
+    init {
+        requireNonNegative(value = massKg, name = "massKg")
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is BoneMass) return false

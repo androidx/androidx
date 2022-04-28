@@ -33,6 +33,9 @@ public class TotalCaloriesBurned(
     override val endZoneOffset: ZoneOffset?,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : IntervalRecord {
+    init {
+        requireNonNegative(value = energyKcal, name = "energyKcal")
+    }
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is TotalCaloriesBurned) return false

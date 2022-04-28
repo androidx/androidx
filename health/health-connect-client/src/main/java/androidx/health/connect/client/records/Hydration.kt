@@ -30,6 +30,11 @@ public class Hydration(
     override val endZoneOffset: ZoneOffset?,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : IntervalRecord {
+
+    init {
+        requireNonNegative(value = volumeLiters, name = "volumeLiters")
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Hydration) return false

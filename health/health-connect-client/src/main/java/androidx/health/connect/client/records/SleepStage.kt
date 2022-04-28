@@ -16,15 +16,15 @@
 package androidx.health.connect.client.records
 
 import androidx.annotation.RestrictTo
+import androidx.annotation.StringDef
 import androidx.health.connect.client.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
 
 /** Captures the sleep stage the user entered during a sleep session. */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class SleepStage(
-    /** Type of sleep stage. Required field. Allowed values: [SleepStageType]. */
-    @property:SleepStageType public val stage: String,
+    /** Type of sleep stage. Required field. Allowed values: [StageType]. */
+    @property:StageTypes public val stage: String,
     override val startTime: Instant,
     override val startZoneOffset: ZoneOffset?,
     override val endTime: Instant,
@@ -54,4 +54,35 @@ public class SleepStage(
         result = 31 * result + metadata.hashCode()
         return result
     }
+
+    /** Type of sleep stage. */
+    public object StageType {
+        const val UNKNOWN = "unknown"
+        const val AWAKE = "awake"
+        const val SLEEPING = "sleeping"
+        const val OUT_OF_BED = "out_of_bed"
+        const val LIGHT = "light"
+        const val DEEP = "deep"
+        const val REM = "rem"
+    }
+
+    /**
+     * Type of sleep stage.
+     * @suppress
+     */
+    @Retention(AnnotationRetention.SOURCE)
+    @StringDef(
+        value =
+            [
+                StageType.UNKNOWN,
+                StageType.AWAKE,
+                StageType.SLEEPING,
+                StageType.OUT_OF_BED,
+                StageType.LIGHT,
+                StageType.DEEP,
+                StageType.REM,
+            ]
+    )
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    annotation class StageTypes
 }

@@ -119,7 +119,7 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                 )
             "BodyFat" ->
                 BodyFat(
-                    percentage = getDouble("percentage"),
+                    percentage = getDouble("percentage").toInt(),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
@@ -293,7 +293,7 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                 )
             "OxygenSaturation" ->
                 OxygenSaturation(
-                    percentage = getDouble("percentage"),
+                    percentage = getDouble("percentage").toInt(),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata

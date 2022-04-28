@@ -27,6 +27,10 @@ public class HipCircumference(
     override val zoneOffset: ZoneOffset?,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : InstantaneousRecord {
+    init {
+        requireNonNegative(value = circumferenceMeters, name = "circumferenceMeters")
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is HipCircumference) return false

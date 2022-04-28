@@ -15,35 +15,28 @@
  */
 package androidx.health.connect.client.records
 
-import androidx.annotation.RestrictTo
 import androidx.annotation.StringDef
 
-/** Swimming styles. */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-public object SwimmingTypes {
-    const val FREESTYLE = "freestyle"
-    const val BACKSTROKE = "backstroke"
-    const val BREASTSTROKE = "breaststroke"
-    const val BUTTERFLY = "butterfly"
-    const val MIXED = "mixed"
-    const val OTHER = "other"
+/** The user's body position when a health measurement is taken. */
+public object BodyPosition {
+    const val STANDING_UP = "standing_up"
+    const val SITTING_DOWN = "sitting_down"
+    const val LYING_DOWN = "lying_down"
+    const val RECLINING = "reclining"
 }
 
 /**
- * Swimming styles.
+ * The user's body position when a health measurement is taken.
  * @suppress
  */
 @Retention(AnnotationRetention.SOURCE)
 @StringDef(
     value =
         [
-            SwimmingTypes.FREESTYLE,
-            SwimmingTypes.BACKSTROKE,
-            SwimmingTypes.BREASTSTROKE,
-            SwimmingTypes.BUTTERFLY,
-            SwimmingTypes.MIXED,
-            SwimmingTypes.OTHER,
+            BodyPosition.STANDING_UP,
+            BodyPosition.SITTING_DOWN,
+            BodyPosition.LYING_DOWN,
+            BodyPosition.RECLINING,
         ]
 )
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-annotation class SwimmingType
+annotation class BodyPositions
