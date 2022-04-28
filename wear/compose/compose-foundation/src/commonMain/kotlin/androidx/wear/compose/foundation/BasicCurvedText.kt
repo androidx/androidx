@@ -49,7 +49,7 @@ public fun CurvedScope.basicCurvedText(
     style: @Composable () -> CurvedTextStyle = { CurvedTextStyle() }
 ) = add(CurvedTextChild(
     text,
-    curvedLayoutDirection.copy(overrideAngular = angularDirection).clockwise(),
+    curvedLayoutDirection.copy(overrideAngular = angularDirection).absoluteClockwise(),
     style,
     overflow
 ), modifier)
