@@ -171,8 +171,9 @@ public fun ToggleChip(
                                 enabled = enabled,
                                 checked = checked
                             ).value.alpha,
-                        content = appIcon
-                    )
+                    ) {
+                        appIcon()
+                    }
                 }
                 Spacer(modifier = Modifier.size(ToggleChipDefaults.IconSpacing))
             }
@@ -385,8 +386,9 @@ public fun SplitToggleChip(
                             enabled = enabled,
                             checked = checked
                         ).value.alpha,
-                    content = toggleControl
-                )
+                ) {
+                    toggleControl()
+                }
             }
         }
     }
@@ -407,8 +409,9 @@ private fun RowScope.Labels(
                 LocalTextStyle provides MaterialTheme.typography.button,
                 LocalContentAlpha provides
                     contentColor.alpha,
-                content = label
-            )
+            ) {
+                label()
+            }
         }
         if (secondaryLabel != null) {
             Row {
@@ -416,8 +419,9 @@ private fun RowScope.Labels(
                     LocalContentColor provides secondaryContentColor,
                     LocalTextStyle provides MaterialTheme.typography.caption2,
                     LocalContentAlpha provides secondaryContentColor.alpha,
-                    content = secondaryLabel
-                )
+                ) {
+                    secondaryLabel()
+                }
             }
         }
     }

@@ -124,9 +124,6 @@ package androidx.wear.compose.material {
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public static long contentColorFor(long backgroundColor);
   }
 
-  public final class CompositionLocalKt {
-  }
-
   public final class ContentAlpha {
     method @androidx.compose.runtime.Composable public float getDisabled();
     method @androidx.compose.runtime.Composable public float getHigh();
