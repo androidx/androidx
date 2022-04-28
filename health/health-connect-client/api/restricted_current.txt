@@ -160,6 +160,52 @@ package androidx.health.connect.client.permission {
 
 package androidx.health.connect.client.records {
 
+  public final class ActiveCaloriesBurned implements androidx.health.connect.client.records.IntervalRecord {
+    ctor public ActiveCaloriesBurned(double energyKcal, java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
+    method public java.time.Instant getEndTime();
+    method public java.time.ZoneOffset? getEndZoneOffset();
+    method public double getEnergyKcal();
+    method public androidx.health.connect.client.metadata.Metadata getMetadata();
+    method public java.time.Instant getStartTime();
+    method public java.time.ZoneOffset? getStartZoneOffset();
+    property public java.time.Instant endTime;
+    property public java.time.ZoneOffset? endZoneOffset;
+    property public final double energyKcal;
+    property public androidx.health.connect.client.metadata.Metadata metadata;
+    property public java.time.Instant startTime;
+    property public java.time.ZoneOffset? startZoneOffset;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> ACTIVE_CALORIES_TOTAL;
+    field public static final androidx.health.connect.client.records.ActiveCaloriesBurned.Companion Companion;
+  }
+
+  public static final class ActiveCaloriesBurned.Companion {
+  }
+
+  public final class ActivitySession implements androidx.health.connect.client.records.IntervalRecord {
+    ctor public ActivitySession(String activityType, optional String? title, optional String? notes, java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
+    method public String getActivityType();
+    method public java.time.Instant getEndTime();
+    method public java.time.ZoneOffset? getEndZoneOffset();
+    method public androidx.health.connect.client.metadata.Metadata getMetadata();
+    method public String? getNotes();
+    method public java.time.Instant getStartTime();
+    method public java.time.ZoneOffset? getStartZoneOffset();
+    method public String? getTitle();
+    property public final String activityType;
+    property public java.time.Instant endTime;
+    property public java.time.ZoneOffset? endZoneOffset;
+    property public androidx.health.connect.client.metadata.Metadata metadata;
+    property public final String? notes;
+    property public java.time.Instant startTime;
+    property public java.time.ZoneOffset? startZoneOffset;
+    property public final String? title;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.time.Duration> ACTIVE_TIME_TOTAL;
+    field public static final androidx.health.connect.client.records.ActivitySession.Companion Companion;
+  }
+
+  public static final class ActivitySession.Companion {
+  }
+
   public final class ActivityTypes {
     field public static final String BACK_EXTENSION = "back_extension";
     field public static final String BADMINTON = "badminton";
@@ -245,6 +291,23 @@ package androidx.health.connect.client.records {
     field public static final String WEIGHTLIFTING = "weightlifting";
     field public static final String WORKOUT = "workout";
     field public static final String YOGA = "yoga";
+  }
+
+  public final class BasalMetabolicRate implements androidx.health.connect.client.records.InstantaneousRecord {
+    ctor public BasalMetabolicRate(double kcalPerDay, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
+    method public double getKcalPerDay();
+    method public androidx.health.connect.client.metadata.Metadata getMetadata();
+    method public java.time.Instant getTime();
+    method public java.time.ZoneOffset? getZoneOffset();
+    property public final double kcalPerDay;
+    property public androidx.health.connect.client.metadata.Metadata metadata;
+    property public java.time.Instant time;
+    property public java.time.ZoneOffset? zoneOffset;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> BASAL_CALORIES_TOTAL;
+    field public static final androidx.health.connect.client.records.BasalMetabolicRate.Companion Companion;
+  }
+
+  public static final class BasalMetabolicRate.Companion {
   }
 
   public final class BloodPressureMeasurementLocations {
@@ -337,7 +400,7 @@ package androidx.health.connect.client.records {
     property public java.time.Instant startTime;
     property public java.time.ZoneOffset? startZoneOffset;
     field public static final androidx.health.connect.client.records.Distance.Companion Companion;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> DISTANCE_TOTAL;
   }
 
   public static final class Distance.Companion {
@@ -358,7 +421,7 @@ package androidx.health.connect.client.records {
     property public java.time.Instant startTime;
     property public java.time.ZoneOffset? startZoneOffset;
     field public static final androidx.health.connect.client.records.ElevationGained.Companion Companion;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> ELEVATION_GAINED_TOTAL;
   }
 
   public static final class ElevationGained.Companion {
@@ -390,6 +453,7 @@ package androidx.health.connect.client.records {
     field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Long> BPM_MAX;
     field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Long> BPM_MIN;
     field public static final androidx.health.connect.client.records.HeartRateSeries.Companion Companion;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Long> MEASUREMENTS_COUNT;
   }
 
   public static final class HeartRateSeries.Companion {
@@ -405,10 +469,10 @@ package androidx.health.connect.client.records {
     property public androidx.health.connect.client.metadata.Metadata metadata;
     property public java.time.Instant time;
     property public java.time.ZoneOffset? zoneOffset;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> AVG;
     field public static final androidx.health.connect.client.records.Height.Companion Companion;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> MAX;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> MIN;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> HEIGHT_AVG;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> HEIGHT_MAX;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> HEIGHT_MIN;
   }
 
   public static final class Height.Companion {
@@ -424,6 +488,27 @@ package androidx.health.connect.client.records {
     property public androidx.health.connect.client.metadata.Metadata metadata;
     property public java.time.Instant time;
     property public java.time.ZoneOffset? zoneOffset;
+  }
+
+  public final class Hydration implements androidx.health.connect.client.records.IntervalRecord {
+    ctor public Hydration(double volumeLiters, java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
+    method public java.time.Instant getEndTime();
+    method public java.time.ZoneOffset? getEndZoneOffset();
+    method public androidx.health.connect.client.metadata.Metadata getMetadata();
+    method public java.time.Instant getStartTime();
+    method public java.time.ZoneOffset? getStartZoneOffset();
+    method public double getVolumeLiters();
+    property public java.time.Instant endTime;
+    property public java.time.ZoneOffset? endZoneOffset;
+    property public androidx.health.connect.client.metadata.Metadata metadata;
+    property public java.time.Instant startTime;
+    property public java.time.ZoneOffset? startZoneOffset;
+    property public final double volumeLiters;
+    field public static final androidx.health.connect.client.records.Hydration.Companion Companion;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> VOLUME_TOTAL;
+  }
+
+  public static final class Hydration.Companion {
   }
 
   @kotlin.PublishedApi internal interface InstantaneousRecord extends androidx.health.connect.client.records.Record {
@@ -442,6 +527,154 @@ package androidx.health.connect.client.records {
     property public abstract java.time.ZoneOffset? endZoneOffset;
     property public abstract java.time.Instant startTime;
     property public abstract java.time.ZoneOffset? startZoneOffset;
+  }
+
+  public final class Nutrition implements androidx.health.connect.client.records.IntervalRecord {
+    ctor public Nutrition(optional double biotinGrams, optional double caffeineGrams, optional double calciumGrams, optional double kcal, optional double kcalFromFat, optional double chlorideGrams, optional double cholesterolGrams, optional double chromiumGrams, optional double copperGrams, optional double dietaryFiberGrams, optional double folateGrams, optional double folicAcidGrams, optional double iodineGrams, optional double ironGrams, optional double magnesiumGrams, optional double manganeseGrams, optional double molybdenumGrams, optional double monounsaturatedFatGrams, optional double niacinGrams, optional double pantothenicAcidGrams, optional double phosphorusGrams, optional double polyunsaturatedFatGrams, optional double potassiumGrams, optional double proteinGrams, optional double riboflavinGrams, optional double saturatedFatGrams, optional double seleniumGrams, optional double sodiumGrams, optional double sugarGrams, optional double thiaminGrams, optional double totalCarbohydrateGrams, optional double totalFatGrams, optional double transFatGrams, optional double unsaturatedFatGrams, optional double vitaminAGrams, optional double vitaminB12Grams, optional double vitaminB6Grams, optional double vitaminCGrams, optional double vitaminDGrams, optional double vitaminEGrams, optional double vitaminKGrams, optional double zincGrams, optional String? name, optional String? mealType, java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
+    method public double getBiotinGrams();
+    method public double getCaffeineGrams();
+    method public double getCalciumGrams();
+    method public double getChlorideGrams();
+    method public double getCholesterolGrams();
+    method public double getChromiumGrams();
+    method public double getCopperGrams();
+    method public double getDietaryFiberGrams();
+    method public java.time.Instant getEndTime();
+    method public java.time.ZoneOffset? getEndZoneOffset();
+    method public double getFolateGrams();
+    method public double getFolicAcidGrams();
+    method public double getIodineGrams();
+    method public double getIronGrams();
+    method public double getKcal();
+    method public double getKcalFromFat();
+    method public double getMagnesiumGrams();
+    method public double getManganeseGrams();
+    method public String? getMealType();
+    method public androidx.health.connect.client.metadata.Metadata getMetadata();
+    method public double getMolybdenumGrams();
+    method public double getMonounsaturatedFatGrams();
+    method public String? getName();
+    method public double getNiacinGrams();
+    method public double getPantothenicAcidGrams();
+    method public double getPhosphorusGrams();
+    method public double getPolyunsaturatedFatGrams();
+    method public double getPotassiumGrams();
+    method public double getProteinGrams();
+    method public double getRiboflavinGrams();
+    method public double getSaturatedFatGrams();
+    method public double getSeleniumGrams();
+    method public double getSodiumGrams();
+    method public java.time.Instant getStartTime();
+    method public java.time.ZoneOffset? getStartZoneOffset();
+    method public double getSugarGrams();
+    method public double getThiaminGrams();
+    method public double getTotalCarbohydrateGrams();
+    method public double getTotalFatGrams();
+    method public double getTransFatGrams();
+    method public double getUnsaturatedFatGrams();
+    method public double getVitaminAGrams();
+    method public double getVitaminB12Grams();
+    method public double getVitaminB6Grams();
+    method public double getVitaminCGrams();
+    method public double getVitaminDGrams();
+    method public double getVitaminEGrams();
+    method public double getVitaminKGrams();
+    method public double getZincGrams();
+    property public final double biotinGrams;
+    property public final double caffeineGrams;
+    property public final double calciumGrams;
+    property public final double chlorideGrams;
+    property public final double cholesterolGrams;
+    property public final double chromiumGrams;
+    property public final double copperGrams;
+    property public final double dietaryFiberGrams;
+    property public java.time.Instant endTime;
+    property public java.time.ZoneOffset? endZoneOffset;
+    property public final double folateGrams;
+    property public final double folicAcidGrams;
+    property public final double iodineGrams;
+    property public final double ironGrams;
+    property public final double kcal;
+    property public final double kcalFromFat;
+    property public final double magnesiumGrams;
+    property public final double manganeseGrams;
+    property public final String? mealType;
+    property public androidx.health.connect.client.metadata.Metadata metadata;
+    property public final double molybdenumGrams;
+    property public final double monounsaturatedFatGrams;
+    property public final String? name;
+    property public final double niacinGrams;
+    property public final double pantothenicAcidGrams;
+    property public final double phosphorusGrams;
+    property public final double polyunsaturatedFatGrams;
+    property public final double potassiumGrams;
+    property public final double proteinGrams;
+    property public final double riboflavinGrams;
+    property public final double saturatedFatGrams;
+    property public final double seleniumGrams;
+    property public final double sodiumGrams;
+    property public java.time.Instant startTime;
+    property public java.time.ZoneOffset? startZoneOffset;
+    property public final double sugarGrams;
+    property public final double thiaminGrams;
+    property public final double totalCarbohydrateGrams;
+    property public final double totalFatGrams;
+    property public final double transFatGrams;
+    property public final double unsaturatedFatGrams;
+    property public final double vitaminAGrams;
+    property public final double vitaminB12Grams;
+    property public final double vitaminB6Grams;
+    property public final double vitaminCGrams;
+    property public final double vitaminDGrams;
+    property public final double vitaminEGrams;
+    property public final double vitaminKGrams;
+    property public final double zincGrams;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> BIOTIN_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> CAFFEINE_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> CALCIUM_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> CALORIES_FROM_FAT_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> CALORIES_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> CHLORIDE_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> CHOLESTEROL_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> CHROMIUM_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> COPPER_TOTAL;
+    field public static final androidx.health.connect.client.records.Nutrition.Companion Companion;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> DIETARY_FIBER_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> FOLATE_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> FOLIC_ACID_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> IODINE_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> IRON_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> MAGNESIUM_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> MANGANESE_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> MOLYBDENUM_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> MONOUNSATURATED_FAT_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> NIACIN_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> PANTOTHENIC_ACID_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> PHOSPHORUS_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> POLYUNSATURATED_FAT_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> POTASSIUM_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> PROTEIN_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> RIBOFLAVIN_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> SATURATED_FAT_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> SELENIUM_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> SODIUM_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> SUGAR_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> THIAMIN_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> TOTAL_CARBOHYDRATE_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> TOTAL_FAT_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> TRANS_FAT_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> UNSATURATED_FAT_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> VITAMIN_A_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> VITAMIN_B12_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> VITAMIN_B6_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> VITAMIN_C_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> VITAMIN_D_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> VITAMIN_E_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> VITAMIN_K_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> ZINC_TOTAL;
+  }
+
+  public static final class Nutrition.Companion {
   }
 
   public final class OvulationTestResults {
@@ -486,9 +719,51 @@ package androidx.health.connect.client.records {
     property public abstract androidx.health.connect.client.metadata.Metadata metadata;
   }
 
+  public final class RestingHeartRate implements androidx.health.connect.client.records.InstantaneousRecord {
+    ctor public RestingHeartRate(long beatsPerMinute, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
+    method public long getBeatsPerMinute();
+    method public androidx.health.connect.client.metadata.Metadata getMetadata();
+    method public java.time.Instant getTime();
+    method public java.time.ZoneOffset? getZoneOffset();
+    property public final long beatsPerMinute;
+    property public androidx.health.connect.client.metadata.Metadata metadata;
+    property public java.time.Instant time;
+    property public java.time.ZoneOffset? zoneOffset;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Long> BPM_AVG;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Long> BPM_MAX;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Long> BPM_MIN;
+    field public static final androidx.health.connect.client.records.RestingHeartRate.Companion Companion;
+  }
+
+  public static final class RestingHeartRate.Companion {
+  }
+
   @kotlin.PublishedApi internal interface SeriesRecord<T> extends androidx.health.connect.client.records.IntervalRecord {
     method public java.util.List<T> getSamples();
     property public abstract java.util.List<T> samples;
+  }
+
+  public final class SleepSession implements androidx.health.connect.client.records.IntervalRecord {
+    ctor public SleepSession(optional String? title, optional String? notes, java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
+    method public java.time.Instant getEndTime();
+    method public java.time.ZoneOffset? getEndZoneOffset();
+    method public androidx.health.connect.client.metadata.Metadata getMetadata();
+    method public String? getNotes();
+    method public java.time.Instant getStartTime();
+    method public java.time.ZoneOffset? getStartZoneOffset();
+    method public String? getTitle();
+    property public java.time.Instant endTime;
+    property public java.time.ZoneOffset? endZoneOffset;
+    property public androidx.health.connect.client.metadata.Metadata metadata;
+    property public final String? notes;
+    property public java.time.Instant startTime;
+    property public java.time.ZoneOffset? startZoneOffset;
+    property public final String? title;
+    field public static final androidx.health.connect.client.records.SleepSession.Companion Companion;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.time.Duration> SLEEP_DURATION_TOTAL;
+  }
+
+  public static final class SleepSession.Companion {
   }
 
   public final class Speed {
@@ -513,10 +788,10 @@ package androidx.health.connect.client.records {
     property public java.util.List<androidx.health.connect.client.records.Speed> samples;
     property public java.time.Instant startTime;
     property public java.time.ZoneOffset? startZoneOffset;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> AVG;
     field public static final androidx.health.connect.client.records.SpeedSeries.Companion Companion;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> MAX;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> MIN;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> SPEED_AVG;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> SPEED_MAX;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> SPEED_MIN;
   }
 
   public static final class SpeedSeries.Companion {
@@ -536,6 +811,11 @@ package androidx.health.connect.client.records {
     property public androidx.health.connect.client.metadata.Metadata metadata;
     property public java.time.Instant startTime;
     property public java.time.ZoneOffset? startZoneOffset;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Long> COUNT_TOTAL;
+    field public static final androidx.health.connect.client.records.Steps.Companion Companion;
+  }
+
+  public static final class Steps.Companion {
   }
 
   public final class StepsCadence {
@@ -569,6 +849,27 @@ package androidx.health.connect.client.records {
   public static final class StepsCadenceSeries.Companion {
   }
 
+  public final class TotalCaloriesBurned implements androidx.health.connect.client.records.IntervalRecord {
+    ctor public TotalCaloriesBurned(double energyKcal, java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
+    method public java.time.Instant getEndTime();
+    method public java.time.ZoneOffset? getEndZoneOffset();
+    method public double getEnergyKcal();
+    method public androidx.health.connect.client.metadata.Metadata getMetadata();
+    method public java.time.Instant getStartTime();
+    method public java.time.ZoneOffset? getStartZoneOffset();
+    property public java.time.Instant endTime;
+    property public java.time.ZoneOffset? endZoneOffset;
+    property public final double energyKcal;
+    property public androidx.health.connect.client.metadata.Metadata metadata;
+    property public java.time.Instant startTime;
+    property public java.time.ZoneOffset? startZoneOffset;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> CALORIES_TOTAL;
+    field public static final androidx.health.connect.client.records.TotalCaloriesBurned.Companion Companion;
+  }
+
+  public static final class TotalCaloriesBurned.Companion {
+  }
+
   public final class Weight implements androidx.health.connect.client.records.InstantaneousRecord {
     ctor public Weight(double weightKg, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
     method public androidx.health.connect.client.metadata.Metadata getMetadata();
@@ -579,6 +880,34 @@ package androidx.health.connect.client.records {
     property public java.time.Instant time;
     property public final double weightKg;
     property public java.time.ZoneOffset? zoneOffset;
+    field public static final androidx.health.connect.client.records.Weight.Companion Companion;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> WEIGHT_AVG;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> WEIGHT_MAX;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> WEIGHT_MIN;
+  }
+
+  public static final class Weight.Companion {
+  }
+
+  public final class WheelchairPushes implements androidx.health.connect.client.records.IntervalRecord {
+    ctor public WheelchairPushes(long count, java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
+    method public long getCount();
+    method public java.time.Instant getEndTime();
+    method public java.time.ZoneOffset? getEndZoneOffset();
+    method public androidx.health.connect.client.metadata.Metadata getMetadata();
+    method public java.time.Instant getStartTime();
+    method public java.time.ZoneOffset? getStartZoneOffset();
+    property public final long count;
+    property public java.time.Instant endTime;
+    property public java.time.ZoneOffset? endZoneOffset;
+    property public androidx.health.connect.client.metadata.Metadata metadata;
+    property public java.time.Instant startTime;
+    property public java.time.ZoneOffset? startZoneOffset;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Long> COUNT_TOTAL;
+    field public static final androidx.health.connect.client.records.WheelchairPushes.Companion Companion;
+  }
+
+  public static final class WheelchairPushes.Companion {
   }
 
 }

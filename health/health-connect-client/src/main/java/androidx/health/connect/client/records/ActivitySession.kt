@@ -15,8 +15,9 @@
  */
 package androidx.health.connect.client.records
 
-import androidx.annotation.RestrictTo
+import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.metadata.Metadata
+import java.time.Duration
 import java.time.Instant
 import java.time.ZoneOffset
 
@@ -32,7 +33,6 @@ import java.time.ZoneOffset
  * Each record needs a start time and end time. Data points don't need to be back-to-back or
  * directly after each other, there can be gaps in between.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ActivitySession(
     /**
      * Type of activity (e.g. walking, swimming). Required field. Allowed values: [ActivityType].
@@ -74,5 +74,22 @@ public class ActivitySession(
         result = 31 * result + (endZoneOffset?.hashCode() ?: 0)
         result = 31 * result + metadata.hashCode()
         return result
+    }
+
+    companion object {
+        /**
+         * Metric identifier to retrieve the total active time from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val ACTIVE_TIME_TOTAL: AggregateMetric<Duration> =
+            AggregateMetric(
+                Duration::class,
+                "ActiveTime",
+                AggregateMetric.AggregationType.TOTAL,
+                "time"
+            )
+        // Active time requires computing total time from ActivityEvent/Session and is not a
+        // straightforward Duration aggregation.
     }
 }

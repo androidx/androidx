@@ -56,11 +56,11 @@ public class ElevationGained(
 
     companion object {
         /**
-         * Metric identifier to retrieve total elevation gained from
+         * Metric identifier to retrieve the total elevation gained from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val TOTAL: AggregateMetric<Double> =
+        val ELEVATION_GAINED_TOTAL: AggregateMetric<Double> =
             AggregateMetric.doubleMetric(
                 "ElevationGained",
                 AggregateMetric.AggregationType.TOTAL,

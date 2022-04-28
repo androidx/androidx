@@ -73,7 +73,7 @@ public class SpeedSeries(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val AVG: AggregateMetric<Double> =
+        val SPEED_AVG: AggregateMetric<Double> =
             AggregateMetric.doubleMetric(
                 SPEED_TYPE_NAME,
                 AggregateMetric.AggregationType.AVERAGE,
@@ -85,7 +85,7 @@ public class SpeedSeries(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val MIN: AggregateMetric<Double> =
+        val SPEED_MIN: AggregateMetric<Double> =
             AggregateMetric.doubleMetric(
                 SPEED_TYPE_NAME,
                 AggregateMetric.AggregationType.MINIMUM,
@@ -97,7 +97,7 @@ public class SpeedSeries(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val MAX: AggregateMetric<Double> =
+        val SPEED_MAX: AggregateMetric<Double> =
             AggregateMetric.doubleMetric(
                 SPEED_TYPE_NAME,
                 AggregateMetric.AggregationType.MAXIMUM,

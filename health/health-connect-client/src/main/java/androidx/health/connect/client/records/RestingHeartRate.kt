@@ -15,7 +15,7 @@
  */
 package androidx.health.connect.client.records
 
-import androidx.annotation.RestrictTo
+import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
@@ -24,7 +24,6 @@ import java.time.ZoneOffset
  * Captures the user's resting heart rate. Each record represents a single instantaneous
  * measurement.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class RestingHeartRate(
     /** Heart beats per minute. Required field. Validation range: 1-300. */
     public val beatsPerMinute: Long,
@@ -51,5 +50,43 @@ public class RestingHeartRate(
         result = 31 * result + (zoneOffset?.hashCode() ?: 0)
         result = 31 * result + metadata.hashCode()
         return result
+    }
+
+    companion object {
+        private const val REST_HEART_RATE_TYPE_NAME = "RestingHeartRate"
+        private const val BPM_FIELD_NAME = "bpm"
+
+        /**
+         * Metric identifier to retrieve the average resting heart rate from [AggregationResult].
+         */
+        @JvmField
+        val BPM_AVG: AggregateMetric<Long> =
+            AggregateMetric.longMetric(
+                REST_HEART_RATE_TYPE_NAME,
+                AggregateMetric.AggregationType.AVERAGE,
+                BPM_FIELD_NAME
+            )
+
+        /**
+         * Metric identifier to retrieve the minimum resting heart rate from [AggregationResult].
+         */
+        @JvmField
+        val BPM_MIN: AggregateMetric<Long> =
+            AggregateMetric.longMetric(
+                REST_HEART_RATE_TYPE_NAME,
+                AggregateMetric.AggregationType.MINIMUM,
+                BPM_FIELD_NAME
+            )
+
+        /**
+         * Metric identifier to retrieve the maximum resting heart rate from [AggregationResult].
+         */
+        @JvmField
+        val BPM_MAX: AggregateMetric<Long> =
+            AggregateMetric.longMetric(
+                REST_HEART_RATE_TYPE_NAME,
+                AggregateMetric.AggregationType.MAXIMUM,
+                BPM_FIELD_NAME
+            )
     }
 }
