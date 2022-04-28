@@ -253,7 +253,7 @@ public class MacrobenchmarkScope(
      * held in memory, such as during [cold startup](androidx.benchmark.macro.StartupMode.COLD).
      *
      * @Throws IllegalStateException if dropping the cache fails on a API 31+ or rooted device,
-     * where it is expecte to work.
+     * where it is expected to work.
      */
     public fun dropKernelPageCache() {
         if (Build.VERSION.SDK_INT >= 31) {

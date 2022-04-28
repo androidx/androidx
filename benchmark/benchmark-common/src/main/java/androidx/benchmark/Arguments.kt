@@ -51,6 +51,8 @@ public object Arguments {
         BaselineProfile
     }
 
+    val enableCompilation: Boolean
+
     // internal properties are microbenchmark only
     internal val outputEnable: Boolean
     internal val startupMode: Boolean
@@ -125,6 +127,9 @@ public object Arguments {
                     ?: throw IllegalArgumentException("Unable to parse enabledRules arg: $arg")
             }
             .toSet()
+
+        enableCompilation =
+            arguments.getBenchmarkArgument("compilation.enabled")?.toBoolean() ?: true
 
         _profiler = arguments.getProfiler(outputEnable)
         profilerSampleFrequency =
