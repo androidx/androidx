@@ -25,7 +25,7 @@ import android.os.IBinder
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.work.impl.WorkManagerImpl
-import androidx.work.impl.utils.SerialExecutor
+import androidx.work.impl.utils.SerialExecutorImpl
 import androidx.work.impl.utils.futures.SettableFuture
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import org.junit.Assert.assertNotNull
@@ -65,7 +65,7 @@ public class ListenableWorkerImplClientTest {
         }
 
         val taskExecutor = mock(TaskExecutor::class.java)
-        `when`(taskExecutor.serialTaskExecutor).thenReturn(SerialExecutor(mExecutor))
+        `when`(taskExecutor.serialTaskExecutor).thenReturn(SerialExecutorImpl(mExecutor))
         `when`(mWorkManager.workTaskExecutor).thenReturn(taskExecutor)
         mClient = ListenableWorkerImplClient(mContext, mExecutor)
     }

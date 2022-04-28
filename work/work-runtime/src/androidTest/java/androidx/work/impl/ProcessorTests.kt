@@ -26,7 +26,7 @@ import androidx.work.ListenableWorker
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
-import androidx.work.impl.utils.SerialExecutor
+import androidx.work.impl.utils.SerialExecutorImpl
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import androidx.work.worker.StopLatchWorker
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -55,7 +55,7 @@ class ProcessorTests : DatabaseTest() {
     lateinit var processor: Processor
     lateinit var defaultExecutor: ExecutorService
     lateinit var backgroundExecutor: ExecutorService
-    lateinit var serialExecutor: SerialExecutor
+    lateinit var serialExecutor: SerialExecutorImpl
 
     @Before
     fun setUp() {
@@ -64,7 +64,7 @@ class ProcessorTests : DatabaseTest() {
         // second worker will execute on the second thread
         defaultExecutor = Executors.newFixedThreadPool(2)
         backgroundExecutor = Executors.newSingleThreadExecutor()
-        serialExecutor = SerialExecutor(backgroundExecutor)
+        serialExecutor = SerialExecutorImpl(backgroundExecutor)
         val taskExecutor = object : TaskExecutor {
             val mainExecutor = Executor { runnable ->
                 runnable.run()
@@ -74,7 +74,7 @@ class ProcessorTests : DatabaseTest() {
                 return mainExecutor
             }
 
-            override fun getSerialTaskExecutor(): SerialExecutor {
+            override fun getSerialTaskExecutor(): SerialExecutorImpl {
                 return serialExecutor
             }
         }
