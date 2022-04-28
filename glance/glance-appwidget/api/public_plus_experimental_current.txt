@@ -292,6 +292,38 @@ package androidx.glance.appwidget.state {
 
 }
 
+package androidx.glance.appwidget.template {
+
+  public final class FreeformTemplateLayoutsKt {
+    method @androidx.compose.runtime.Composable public static void FreeformTemplate(androidx.glance.template.FreeformTemplateData data);
+  }
+
+  public final class GalleryTemplateLayoutsKt {
+    method @androidx.compose.runtime.Composable public static void GalleryTemplate(androidx.glance.template.GalleryTemplateData data);
+  }
+
+  public final class GlanceAppWidgetTemplatesKt {
+  }
+
+  public abstract class GlanceTemplateAppWidget extends androidx.glance.appwidget.GlanceAppWidget {
+    ctor public GlanceTemplateAppWidget();
+    method @androidx.compose.runtime.Composable public final void Content();
+    method @androidx.compose.runtime.Composable public abstract void TemplateContent();
+    method public androidx.glance.appwidget.SizeMode.Exact getSizeMode();
+    property public androidx.glance.appwidget.SizeMode.Exact sizeMode;
+    property public androidx.glance.state.GlanceStateDefinition<?>? stateDefinition;
+  }
+
+  public final class ListTemplateLayoutsKt {
+    method @androidx.compose.runtime.Composable public static void ListTemplate(androidx.glance.template.ListTemplateData data);
+  }
+
+  public final class SingleEntityTemplateLayoutsKt {
+    method @androidx.compose.runtime.Composable public static void SingleEntityTemplate(androidx.glance.template.SingleEntityTemplateData data);
+  }
+
+}
+
 package androidx.glance.appwidget.translators {
 
   public final class CheckBoxTranslatorKt {
