@@ -19,6 +19,7 @@ package androidx.wear.tiles.material.layouts;
 import static androidx.wear.tiles.DimensionBuilders.dp;
 
 import androidx.wear.tiles.DimensionBuilders.DpProp;
+import androidx.wear.tiles.material.ButtonDefaults;
 
 /** Contains the default values used by layout templates for Tiles. */
 public class LayoutDefaults {
@@ -84,4 +85,29 @@ public class LayoutDefaults {
 
     /** The recommended space between the main content and additional labels in layouts. */
     public static final DpProp DEFAULT_VERTICAL_SPACER_HEIGHT = dp(8);
+
+    /** The maximum number of button that can be added to the {@link MultiButtonLayout}. */
+    public static final int MULTI_BUTTON_MAX_NUMBER = 7;
+
+    /**
+     * The default size of button in case when there are 3 or more buttons in the {@link
+     * MultiButtonLayout}.
+     */
+    static final DpProp MULTI_BUTTON_3_PLUS_SIZE = ButtonDefaults.DEFAULT_BUTTON_SIZE;
+
+    /** The default size of button in case when there 2 buttons in the {@link MultiButtonLayout}. */
+    static final DpProp MULTI_BUTTON_2_SIZE = ButtonDefaults.LARGE_BUTTON_SIZE;
+
+    /**
+     * The default size of button in case when there is 1 button in the {@link MultiButtonLayout}.
+     */
+    static final DpProp MULTI_BUTTON_1_SIZE = ButtonDefaults.EXTRA_LARGE_BUTTON_SIZE;
+
+    /** The default width for vertical spacer between buttons in the {@link MultiButtonLayout}. */
+    static final DpProp MULTI_BUTTON_SPACER_WIDTH = dp(8);
+
+    /**
+     * The default height for horizontal spacer between buttons in the {@link MultiButtonLayout}.
+     */
+    static final DpProp MULTI_BUTTON_SPACER_HEIGHT = dp(4);
 }
