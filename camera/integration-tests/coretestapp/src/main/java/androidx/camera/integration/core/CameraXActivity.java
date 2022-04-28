@@ -190,6 +190,7 @@ public class CameraXActivity extends AppCompatActivity {
     private ToggleButton mCaptureQualityToggle;
     private Button mPlusEV;
     private Button mDecEV;
+    private ToggleButton mZslToggle;
     private TextView mZoomRatioLabel;
     private SeekBar mZoomSeekBar;
     private Button mZoomIn2XToggle;
@@ -344,8 +345,12 @@ public class CameraXActivity extends AppCompatActivity {
 
     @ImageCapture.CaptureMode
     int getCaptureMode() {
-        return mCaptureQualityToggle.isChecked() ? ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY :
-                ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY;
+        if (mZslToggle.isChecked()) {
+            return ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG;
+        } else {
+            return mCaptureQualityToggle.isChecked() ? ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY :
+                    ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY;
+        }
     }
 
     private boolean isFlashAvailable() {
@@ -710,6 +715,7 @@ public class CameraXActivity extends AppCompatActivity {
             getSupportActionBar().hide();
         }
         mCaptureQualityToggle.setVisibility(View.GONE);
+        mZslToggle.setVisibility(View.GONE);
         mPlusEV.setVisibility(View.GONE);
         mDecEV.setVisibility(View.GONE);
         mZoomSeekBar.setVisibility(View.GONE);
@@ -737,6 +743,7 @@ public class CameraXActivity extends AppCompatActivity {
         mRecordUi.setEnabled(mVideoToggle.isChecked());
         mTakePicture.setEnabled(mPhotoToggle.isChecked());
         mCaptureQualityToggle.setEnabled(mPhotoToggle.isChecked());
+        mZslToggle.setEnabled(mPhotoToggle.isChecked());
         mCameraDirectionButton.setEnabled(getCameraInfo() != null);
         mTorchButton.setEnabled(isFlashAvailable());
         // Flash button
@@ -773,6 +780,7 @@ public class CameraXActivity extends AppCompatActivity {
         setUpEVButton();
         setUpZoomButton();
         mCaptureQualityToggle.setOnCheckedChangeListener(mOnCheckedChangeListener);
+        mZslToggle.setOnCheckedChangeListener(mOnCheckedChangeListener);
     }
 
     @Override
@@ -800,6 +808,7 @@ public class CameraXActivity extends AppCompatActivity {
         mCaptureQualityToggle = findViewById(R.id.capture_quality);
         mPlusEV = findViewById(R.id.plus_ev_toggle);
         mDecEV = findViewById(R.id.dec_ev_toggle);
+        mZslToggle = findViewById(R.id.zsl_toggle);
         mZoomSeekBar = findViewById(R.id.seekBar);
         mZoomRatioLabel = findViewById(R.id.zoomRatio);
         mZoomIn2XToggle = findViewById(R.id.zoom_in_2x_toggle);
