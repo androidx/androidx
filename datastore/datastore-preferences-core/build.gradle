@@ -23,18 +23,18 @@ plugins {
     alias(libs.plugins.kotlinSerialization)
 }
 
-//todo: get working with kmp
-//BundleInsideHelper.forInsideJar(
-//        project,
-//        /* from = */ "com.google.protobuf",
-//        /* to =   */ "androidx.datastore.preferences.protobuf"
-//)
 
 kotlin {
     jvm {
         withJava()
     }
 
+
+    BundleInsideHelper.forInsideJarKmp(
+            project,
+            /* from = */ "com.google.protobuf",
+            /* to =   */ "androidx.datastore.preferences.protobuf"
+    )
     sourceSets {
         commonMain {
             dependencies {
@@ -55,12 +55,8 @@ kotlin {
             }
         }
         jvmMain {
+            dependsOn(commonMain)
             dependencies {
-                //todo: get working with kmp
-//                bundleInside(project(
-//                        path: ":datastore:datastore-preferences-proto",
-//                        configuration: "export"
-//                ))
                 api(libs.kotlinStdlib)
                 api(libs.kotlinCoroutinesCore)
                 api(libs.kotlinStdlib)
@@ -68,6 +64,7 @@ kotlin {
             }
         }
         jvmTest {
+            dependsOn(commonTest)
             dependencies {
                 implementation(libs.junit)
                 implementation(libs.kotlinCoroutinesTest)
@@ -76,6 +73,13 @@ kotlin {
             }
         }
     }
+}
+
+dependencies {
+    bundleInside(project(
+            path: ":datastore:datastore-preferences-proto",
+            configuration: "export"
+    ))
 }
 
 androidx {
