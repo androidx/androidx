@@ -69,6 +69,7 @@ import java.util.List;
 public final class ComplicationData implements Parcelable, Serializable {
 
     private static final String TAG = "ComplicationData";
+    public static final String PLACEHOLDER_STRING = "__placeholder__";
 
     /** @hide */
     @IntDef({
@@ -1506,6 +1507,9 @@ public final class ComplicationData implements Parcelable, Serializable {
     @NonNull
     @Override
     public String toString() {
+        if (shouldRedact()) {
+            return "ComplicationData{" + "mType=" + mType + ", mFields=REDACTED}";
+        }
         return "ComplicationData{" + "mType=" + mType + ", mFields=" + mFields + '}';
     }
 
@@ -2040,5 +2044,26 @@ public final class ComplicationData implements Parcelable, Serializable {
                 throw new IllegalArgumentException("Unexpected object type: " + obj.getClass());
             }
         }
+    }
+
+    /** Returns whether or not we should redact complication data in toString(). */
+    public static boolean shouldRedact() {
+        return !Log.isLoggable(TAG, Log.DEBUG);
+    }
+
+    @NonNull
+    static String maybeRedact(@Nullable CharSequence unredacted) {
+        if (unredacted == null) {
+            return "(null)";
+        }
+        return maybeRedact(unredacted.toString());
+    }
+
+    @NonNull
+    static String maybeRedact(@NonNull String unredacted) {
+        if (!shouldRedact() || unredacted.equals(PLACEHOLDER_STRING)) {
+            return unredacted;
+        }
+        return "REDACTED";
     }
 }

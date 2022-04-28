@@ -1095,17 +1095,17 @@ public class ComplicationDataTest {
 
     @Test
     public fun timelineEntryCollectionWithPlaceholder() {
-        val placeholderString =
-            androidx.wear.watchface.complications.data.ComplicationText.PLACEHOLDER_STRING
         val data =
             ComplicationData.Builder(ComplicationData.TYPE_LONG_TEXT)
-                .setLongText(ComplicationText.plainText(placeholderString))
+                .setLongText(ComplicationText.plainText(ComplicationData.PLACEHOLDER_STRING))
                 .build()
         val timelineEntry =
             ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
                 .setPlaceholder(
                     ComplicationData.Builder(ComplicationData.TYPE_LONG_TEXT)
-                        .setLongText(ComplicationText.plainText(placeholderString))
+                        .setLongText(
+                            ComplicationText.plainText(ComplicationData.PLACEHOLDER_STRING)
+                        )
                             .build()
                 )
                 .build()

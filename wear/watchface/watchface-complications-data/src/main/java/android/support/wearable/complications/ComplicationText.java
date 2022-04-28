@@ -95,7 +95,8 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
     @NonNull
     @Override
     public String toString() {
-        return "ComplicationText{" + "mSurroundingText=" + mSurroundingText
+        return "ComplicationText{" + "mSurroundingText="
+                + ComplicationData.maybeRedact(mSurroundingText)
                 + ", mTimeDependentText=" + mTimeDependentText + '}';
     }
 
@@ -464,8 +465,7 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
         if (mSurroundingText == null) {
             return false;
         }
-        return mSurroundingText.toString().equals(
-                androidx.wear.watchface.complications.data.ComplicationText.PLACEHOLDER_STRING);
+        return mSurroundingText.toString().equals(ComplicationData.PLACEHOLDER_STRING);
     }
 
     /**
