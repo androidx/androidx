@@ -137,8 +137,7 @@ package androidx.wear.tiles.material {
     ctor public ProgressIndicatorColors(@ColorInt int, @ColorInt int);
     method public androidx.wear.tiles.ColorBuilders.ColorProp getIndicatorColor();
     method public androidx.wear.tiles.ColorBuilders.ColorProp getTrackColor();
-    method public static androidx.wear.tiles.material.ProgressIndicatorColors primaryProgressIndicatorColors(androidx.wear.tiles.material.Colors);
-    method public static androidx.wear.tiles.material.ProgressIndicatorColors secondaryProgressIndicatorColors(androidx.wear.tiles.material.Colors);
+    method public static androidx.wear.tiles.material.ProgressIndicatorColors progressIndicatorColors(androidx.wear.tiles.material.Colors);
   }
 
   public class ProgressIndicatorDefaults {
@@ -214,9 +213,24 @@ package androidx.wear.tiles.material.layouts {
 
   public class LayoutDefaults {
     field public static final androidx.wear.tiles.DimensionBuilders.DpProp DEFAULT_VERTICAL_SPACER_HEIGHT;
+    field public static final int MULTI_BUTTON_MAX_NUMBER = 7; // 0x7
     field public static final androidx.wear.tiles.DimensionBuilders.DpProp MULTI_SLOT_LAYOUT_HORIZONTAL_SPACER_WIDTH;
     field public static final float PROGRESS_INDICATOR_LAYOUT_PADDING_ABOVE_MAIN_CONTENT_DP = 6.0f;
     field public static final float PROGRESS_INDICATOR_LAYOUT_PADDING_BELOW_MAIN_CONTENT_DP = 8.0f;
+  }
+
+  public class MultiButtonLayout implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method public java.util.List<androidx.wear.tiles.LayoutElementBuilders.LayoutElement!> getButtonContents();
+    method public int getFiveButtonDistribution();
+    field public static final int FIVE_BUTTON_DISTRIBUTION_BOTTOM_HEAVY = 2; // 0x2
+    field public static final int FIVE_BUTTON_DISTRIBUTION_TOP_HEAVY = 1; // 0x1
+  }
+
+  public static final class MultiButtonLayout.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
+    ctor public MultiButtonLayout.Builder();
+    method public androidx.wear.tiles.material.layouts.MultiButtonLayout.Builder addButtonContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method public androidx.wear.tiles.material.layouts.MultiButtonLayout build();
+    method public androidx.wear.tiles.material.layouts.MultiButtonLayout.Builder setFiveButtonDistribution(int);
   }
 
   public class MultiSlotLayout implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {

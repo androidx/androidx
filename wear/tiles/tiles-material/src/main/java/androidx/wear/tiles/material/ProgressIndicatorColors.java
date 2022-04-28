@@ -60,21 +60,13 @@ public class ProgressIndicatorColors {
     }
 
     /**
-     * Returns a {@link ProgressIndicatorColors} object, using the current Primary colors from the
-     * given {@link Colors}.
+     * Returns a {@link ProgressIndicatorColors} object, using the current Primary color for
+     * indicator color and the current Surface color for the track color from the given {@link
+     * Colors}.
      */
     @NonNull
-    public static ProgressIndicatorColors primaryProgressIndicatorColors(@NonNull Colors colors) {
-        return new ProgressIndicatorColors(colors.getPrimary(), colors.getOnPrimary());
-    }
-
-    /**
-     * Returns a {@link ProgressIndicatorColors} object, using the current Surface colors from the
-     * given {@link Colors}.
-     */
-    @NonNull
-    public static ProgressIndicatorColors secondaryProgressIndicatorColors(@NonNull Colors colors) {
-        return new ProgressIndicatorColors(colors.getSurface(), colors.getOnSurface());
+    public static ProgressIndicatorColors progressIndicatorColors(@NonNull Colors colors) {
+        return new ProgressIndicatorColors(colors.getPrimary(), colors.getSurface());
     }
 
     /** The indicator color to be used for a progress indicator Tiles component. */
