@@ -53,17 +53,24 @@ actual class TestIO actual constructor(dirName: String) {
         fileSystem.deleteRecursively(tmpDir)
     }
 
-    actual fun outputStream(filename: String): OutputStream {
+
+    actual fun createTempFile(filename: String): TestFile {
+        return filename.toPath()
+    }
+
+    actual fun outputStream(testFile: TestFile): OutputStream {
         return fileSystem.sink(
-            file = filename.toPath(),
+            file = testFile,
             mustCreate = false
         ).buffer().toOutputStream()
     }
 
-    actual fun inputStream(filename: String): InputStream {
+    actual fun inputStream(testFile: TestFile): InputStream {
         return fileSystem.source(
-            file = filename.toPath(),
+            file = testFile,
             mustCreate = false
         ).buffer().toInputStream()
     }
 }
+
+actual typealias TestFile = okio.Path

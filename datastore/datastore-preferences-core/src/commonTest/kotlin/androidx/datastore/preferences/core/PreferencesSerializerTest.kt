@@ -19,6 +19,7 @@ package androidx.datastore.preferences.core
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.OutputStream
 import androidx.datastore.core.InputStream
+import androidx.datastore.core.TestFile
 import androidx.datastore.core.TestIO
 import androidx.datastore.core.okio.asBufferedSink
 import androidx.datastore.core.okio.asBufferedSource
@@ -38,6 +39,7 @@ import okio.use
 @kotlinx.coroutines.FlowPreview
 class PreferencesSerializerTest {
 
+    private lateinit var testFile: TestFile
     private lateinit var testIO: TestIO
     private lateinit var testScope: TestScope
     private val preferencesSerializer = getSerializer()
@@ -45,6 +47,7 @@ class PreferencesSerializerTest {
     @BeforeTest
     fun setUp() {
         testIO = TestIO()
+        testFile = testIO.createTempFile("test")
         testScope = TestScope(UnconfinedTestDispatcher())
     }
 
@@ -56,11 +59,11 @@ class PreferencesSerializerTest {
             stringKey to "string1"
         )
 
-        testIO.outputStream("test").use {
+        testIO.outputStream(testFile).use {
             preferencesSerializer.writeTo(prefs, it)
         }
 
-        val readPrefs = testIO.inputStream("test").use {
+        val readPrefs = testIO.inputStream(testFile).use {
             preferencesSerializer.readFrom(it)
         }
 
@@ -76,11 +79,11 @@ class PreferencesSerializerTest {
             stringSetKey to setOf("string1", "string2", "string3")
         )
 
-        testIO.outputStream("test").use {
+        testIO.outputStream(testFile).use {
             preferencesSerializer.writeTo(prefs, it)
         }
 
-        val readPrefs = testIO.inputStream("test").use {
+        val readPrefs = testIO.inputStream(testFile).use {
             preferencesSerializer.readFrom(it)
         }
 
@@ -95,11 +98,11 @@ class PreferencesSerializerTest {
             longKey to (1L shr 50)
         )
 
-        testIO.outputStream("test").use {
+        testIO.outputStream(testFile).use {
             preferencesSerializer.writeTo(prefs, it)
         }
 
-        val readPrefs = testIO.inputStream("test").use {
+        val readPrefs = testIO.inputStream(testFile).use {
             preferencesSerializer.readFrom(it)
         }
 
@@ -114,11 +117,11 @@ class PreferencesSerializerTest {
             intKey to 3
         )
 
-        testIO.outputStream("test").use {
+        testIO.outputStream(testFile).use {
             preferencesSerializer.writeTo(prefs, it)
         }
 
-        val readPrefs = testIO.inputStream("test").use {
+        val readPrefs = testIO.inputStream(testFile).use {
             preferencesSerializer.readFrom(it)
         }
 
@@ -132,12 +135,11 @@ class PreferencesSerializerTest {
         val prefs = preferencesOf(
             booleanKey to true
         )
-
-        testIO.outputStream("test").use {
+        testIO.outputStream(testFile).use {
             preferencesSerializer.writeTo(prefs, it)
         }
 
-        val readPrefs = testIO.inputStream("test").use {
+        val readPrefs = testIO.inputStream(testFile).use {
             preferencesSerializer.readFrom(it)
         }
 
@@ -152,11 +154,11 @@ class PreferencesSerializerTest {
             floatKey to 3.0f
         )
 
-        testIO.outputStream("test").use {
+        testIO.outputStream(testFile).use {
             preferencesSerializer.writeTo(prefs, it)
         }
 
-        val readPrefs = testIO.inputStream("test").use {
+        val readPrefs = testIO.inputStream(testFile).use {
             preferencesSerializer.readFrom(it)
         }
 
@@ -173,11 +175,12 @@ class PreferencesSerializerTest {
             minDouble to Double.MIN_VALUE
         )
 
-        testIO.outputStream("test").use {
+
+        testIO.outputStream(testFile).use {
             preferencesSerializer.writeTo(prefs, it)
         }
 
-        val readPrefs = testIO.inputStream("test").use {
+        val readPrefs = testIO.inputStream(testFile).use {
             preferencesSerializer.readFrom(it)
         }
 
@@ -186,13 +189,13 @@ class PreferencesSerializerTest {
 
     @Test
     fun testThrowsCorruptionException() = testScope.runTest {
-        // Not a valid proto - protos cannot start with a 0 byte.
-        testIO.outputStream("test").use {
-            it.asBufferedSink().write(byteArrayOf(0, 1, 2, 3, 4))
+        // Not a valid proto or json - protos cannot start with a 0 byte. Also invalid JSON.
+        testIO.outputStream(testFile).asBufferedSink().use {
+            it.write(byteArrayOf(0, 1, 2, 3, 4))
         }
 
         assertFailsWith<CorruptionException> {
-            testIO.inputStream("test").use {
+            testIO.inputStream(testFile).use {
                 preferencesSerializer.readFrom(it)
             }
         }
@@ -206,11 +209,11 @@ class PreferencesSerializerTest {
             byteArrayKey to byteArrayOf(1, 2, 3, 4)
         )
 
-        testIO.outputStream("test").use {
+        testIO.outputStream(testFile).use {
             preferencesSerializer.writeTo(prefs, it)
         }
 
-        val readPrefs = testIO.inputStream("test").use {
+        val readPrefs = testIO.inputStream(testFile).use {
             preferencesSerializer.readFrom(it)
         }
 

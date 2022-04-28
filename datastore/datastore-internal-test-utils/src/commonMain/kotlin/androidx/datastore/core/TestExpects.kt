@@ -24,9 +24,15 @@ expect class TestIO(dirName: String = "datastore-test-dir") {
 
     var onProduceFileCallback: () -> Unit
 
-    fun outputStream(filename:String):OutputStream
+    fun createTempFile(filename:String):TestFile
 
-    fun inputStream(filename:String):InputStream
+    fun outputStream(testFile:TestFile):OutputStream
+
+    fun inputStream(testFile:TestFile):InputStream
 
     fun cleanup()
+}
+
+expect class TestFile {
+
 }

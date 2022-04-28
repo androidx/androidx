@@ -16,6 +16,7 @@
 
 package androidx.datastore.preferences.core
 
+import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.InputStream
 import androidx.datastore.core.OutputStream
 import androidx.datastore.core.Serializer
@@ -24,6 +25,7 @@ import androidx.datastore.core.okio.asBufferedSource
 import java.io.IOException
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
+import okio.use
 
 object PreferencesJsonSerializer  : Serializer<Preferences> {
     override val defaultValue: Preferences
@@ -33,7 +35,11 @@ object PreferencesJsonSerializer  : Serializer<Preferences> {
 
     override suspend fun readFrom(input: InputStream): Preferences {
         val buf = input.asBufferedSource()
-        val prefMap:PreferencesMap = Json.decodeFromString<PreferencesMap>(buf.readUtf8())
+        val prefMap: PreferencesMap = try {
+            Json.decodeFromString<PreferencesMap>(buf.readUtf8())
+        } catch (e: SerializationException) {
+            throw CorruptionException("Unable to parse preferences json.", e)
+        }
         val prefs = mutablePreferencesOf()
         prefMap.preferences.forEach { (name, value) ->
             addPrefToMap(name, value, prefs)
@@ -72,7 +78,9 @@ object PreferencesJsonSerializer  : Serializer<Preferences> {
         }
 
         val string = Json.encodeToString(PreferencesMap(prefs))
-        output.asBufferedSink().writeUtf8(string)
+        output.asBufferedSink().use {
+            it.writeUtf8(string)
+        }
     }
 
     private fun toValue(value: Any): Value {

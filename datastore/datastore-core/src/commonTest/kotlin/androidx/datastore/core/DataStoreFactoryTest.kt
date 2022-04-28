@@ -43,6 +43,8 @@ class DataStoreFactoryTest {
             scope = dataStoreScope
         )
 
+        val x = immutableMap(mutableMapOf(Pair("A", "B")))
+
         val expectedByte = 123.toByte()
 
         assertThat(

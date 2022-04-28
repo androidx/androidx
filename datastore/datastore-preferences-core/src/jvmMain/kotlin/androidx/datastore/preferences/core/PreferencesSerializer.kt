@@ -22,7 +22,9 @@ import androidx.datastore.preferences.PreferencesProto.Value
 import androidx.datastore.preferences.PreferencesProto.StringSet
 import androidx.datastore.core.Serializer
 import androidx.datastore.preferences.PreferencesMapCompat
+import androidx.datastore.preferences.PreferencesProto
 import androidx.datastore.preferences.protobuf.ByteString
+import androidx.datastore.preferences.protobuf.InvalidProtocolBufferException
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
@@ -44,8 +46,11 @@ internal object PreferencesSerializer : Serializer<Preferences> {
 
     @Throws(IOException::class, CorruptionException::class)
     override suspend fun readFrom(input: InputStream): Preferences {
-        val preferencesProto = PreferencesMapCompat.readFrom(input)
-
+        val preferencesProto = try {
+            PreferenceMap.parseFrom(input)
+        } catch (ipbe: InvalidProtocolBufferException) {
+            throw CorruptionException("Unable to parse preferences proto.", ipbe)
+        }
         val mutablePreferences = mutablePreferencesOf()
 
         preferencesProto.preferencesMap.forEach { (name, value) ->
