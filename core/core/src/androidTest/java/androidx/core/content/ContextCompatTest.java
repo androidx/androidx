@@ -148,6 +148,7 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.core.test.R;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -468,9 +469,6 @@ public class ContextCompatTest extends BaseInstrumentationTestCase<ThemedYellowA
     public void testRegisterReceiver_noExportStateFlagThrowsException() {
         assertThrows(IllegalArgumentException.class, () -> ContextCompat.registerReceiver(mContext,
                 mTestReceiver, mTestFilter, 0));
-
-        assertThrows(IllegalArgumentException.class, () -> ContextCompat.registerReceiver(mContext,
-                mTestReceiver, mTestFilter, Context.RECEIVER_VISIBLE_TO_INSTANT_APPS));
     }
 
     @Test
@@ -512,6 +510,16 @@ public class ContextCompatTest extends BaseInstrumentationTestCase<ThemedYellowA
         verify(spyContext).registerReceiver(eq(mTestReceiver), eq(mTestFilter), eq(null), any(),
                 eq(0));
 
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 32)
+    public void testRegisterReceiverPermissionNotGrantedApi26() {
+        InstrumentationRegistry
+                .getInstrumentation().getUiAutomation().adoptShellPermissionIdentity();
+        assertThrows(RuntimeException.class,
+                () -> ContextCompat.registerReceiver(mContext,
+                        mTestReceiver, mTestFilter, ContextCompat.RECEIVER_NOT_EXPORTED));
     }
 
     @Test
