@@ -43,7 +43,7 @@ public fun CurvedScope.curvedComposable(
     radialAlignment: CurvedAlignment.Radial = CurvedAlignment.Radial.Center,
     content: @Composable BoxScope.() -> Unit
 ) = add(CurvedComposableChild(
-    curvedLayoutDirection.clockwise(),
+    curvedLayoutDirection.absoluteClockwise(),
     radialAlignment,
     content
 ), modifier)
