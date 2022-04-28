@@ -57,8 +57,14 @@ class RangingParameters(
     companion object {
 
         /**
-         * Pre-defined unicast STATIC STS DS-TWR ranging, deferred mode, ranging
-         * interval 240 ms.
+         * Pre-defined unicast STATIC STS DS-TWR ranging.
+         *
+         * deferred mode,
+         * ranging interval = 240 ms,
+         * slot duration = 2400 RSTU,
+         * slots per ranging round = 6
+         *
+         * All other MAC parameters use FiRa/UCI default values.
          *
          * <p> Typical use case: device tracking tags
          */
@@ -66,8 +72,14 @@ class RangingParameters(
         internal val UWB_CONFIG_ID_1 = 1
 
         /**
-         * Pre-defined one-to-many STATIC STS DS-TWR ranging, deferred mode, ranging
-         * interval 200 ms.
+         * Pre-defined one-to-many STATIC STS DS-TWR ranging
+         *
+         * deferred mode,
+         * ranging interval = 200 ms,
+         * slot duration = 2400 RSTU,
+         * slots per ranging round = 20
+         *
+         * All other MAC parameters use FiRa/UCI default values.
          *
          * <p> Typical use case: smart phone interacts with many smart devices
          */
