@@ -130,6 +130,18 @@
         <!-- Optional. A reference to a string resource containing the name of the ComplicationSlot,
         to be used by a screen reader. -->
         <attr name="screenReaderName" format="reference" />
+
+        <!-- Optional for edge complications. The staring angle of the bounding arc in degrees (0
+        degrees = 12 o'clock position), used for hit detection. -->
+        <attr name="startArcAngle" format="float" />
+
+        <!-- Optional for edge complications. The total angle of the bounding arc in degrees,
+        used for hit detection. -->
+        <attr name="totalArcAngle" format="float" />
+
+        <!-- Optional for edge complications. The thickness of the arc as a fraction of
+        min(boundingRect.width, boundingRect.height). -->
+        <attr name="arcThickness" format="float" />
     </declare-styleable>
 
     <!-- A UserStyleFlavors element may have UserStyleFlavor child nodes. -->

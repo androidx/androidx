@@ -25,6 +25,7 @@ import androidx.annotation.RestrictTo
 import androidx.wear.watchface.complications.ComplicationSlotBounds
 import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
 import androidx.wear.watchface.complications.NAMESPACE_APP
+import androidx.wear.watchface.complications.data.ComplicationExperimental
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.hasValue
 import androidx.wear.watchface.style.CurrentUserStyleRepository
@@ -34,7 +35,7 @@ import org.xmlpull.v1.XmlPullParser
 import kotlin.jvm.Throws
 
 /** @hide */
-@OptIn(WatchFaceFlavorsExperimental::class)
+@OptIn(WatchFaceFlavorsExperimental::class, ComplicationExperimental::class)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class XmlSchemaAndComplicationSlotsDefinition(
     val schema: UserStyleSchema?,
@@ -98,7 +99,8 @@ public class XmlSchemaAndComplicationSlotsDefinition(
         val initiallyEnabled: Boolean,
         val fixedComplicationDataSource: Boolean,
         val nameResourceId: Int?,
-        val screenReaderNameResourceId: Int?
+        val screenReaderNameResourceId: Int?,
+        val boundingArc: BoundingArc?
     ) {
         companion object {
             fun inflateDefaultComplicationDataSourcePolicy(
@@ -280,12 +282,20 @@ public class XmlSchemaAndComplicationSlotsDefinition(
                     } else {
                         null
                     }
+                val boundingArc = if (parser.hasValue("startArcAngle")) {
+                    BoundingArc(
+                        parser.getAttributeFloatValue(NAMESPACE_APP, "startArcAngle", 0f),
+                        parser.getAttributeFloatValue(NAMESPACE_APP, "totalArcAngle", 0f),
+                        parser.getAttributeFloatValue(NAMESPACE_APP, "arcThickness", 0f)
+                    )
+                } else {
+                    null
+                }
                 val bounds = ComplicationSlotBounds.inflate(parser)
                 require(bounds != null) {
                     "ComplicationSlot must have either one ComplicationSlotBounds child node or " +
                         "one per ComplicationType."
                 }
-
                 return ComplicationSlotStaticData(
                     slotId,
                     accessibilityTraversalIndex,
@@ -296,7 +306,8 @@ public class XmlSchemaAndComplicationSlotsDefinition(
                     initiallyEnabled,
                     fixedComplicationDataSource,
                     nameResourceId,
-                    screenReaderNameResourceId
+                    screenReaderNameResourceId,
+                    boundingArc
                 )
             }
         }
@@ -339,7 +350,8 @@ public class XmlSchemaAndComplicationSlotsDefinition(
                         )
                     },
                     it.nameResourceId,
-                    it.screenReaderNameResourceId
+                    it.screenReaderNameResourceId,
+                    it.boundingArc
                 )
             },
             currentUserStyleRepository
