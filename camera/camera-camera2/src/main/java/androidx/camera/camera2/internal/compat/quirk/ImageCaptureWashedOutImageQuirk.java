@@ -42,9 +42,6 @@ import java.util.Locale;
 public class ImageCaptureWashedOutImageQuirk implements UseTorchAsFlashQuirk {
 
     @VisibleForTesting
-    public static final String BUILD_BRAND = "SAMSUNG";
-
-    @VisibleForTesting
     // List of devices with the issue. See b/181966663.
     public static final List<String> BUILD_MODELS = Arrays.asList(
             // Galaxy S7
@@ -69,8 +66,7 @@ public class ImageCaptureWashedOutImageQuirk implements UseTorchAsFlashQuirk {
     );
 
     static boolean load(@NonNull CameraCharacteristicsCompat cameraCharacteristics) {
-        return BUILD_BRAND.equals(Build.BRAND.toUpperCase(Locale.US))
-                && BUILD_MODELS.contains(Build.MODEL.toUpperCase(Locale.US))
+        return BUILD_MODELS.contains(Build.MODEL.toUpperCase(Locale.US))
                 && cameraCharacteristics.get(CameraCharacteristics.LENS_FACING) == LENS_FACING_BACK;
     }
 }
