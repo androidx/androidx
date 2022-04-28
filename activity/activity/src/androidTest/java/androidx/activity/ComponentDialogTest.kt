@@ -28,6 +28,7 @@ import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@Suppress("DEPRECATION")
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class ComponentDialogTest {

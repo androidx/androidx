@@ -147,6 +147,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
 
     private final OnBackPressedDispatcher mOnBackPressedDispatcher =
             new OnBackPressedDispatcher(new Runnable() {
+                @SuppressWarnings("deprecation")
                 @Override
                 public void run() {
                     // Calling onBackPressed() on an Activity with its state saved can cause an
@@ -648,6 +649,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
      *
      * @see #getOnBackPressedDispatcher()
      */
+    @SuppressWarnings("deprecation")
     @Override
     @MainThread
     public void onBackPressed() {

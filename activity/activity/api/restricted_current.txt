@@ -21,6 +21,7 @@ package androidx.activity {
     method public androidx.lifecycle.ViewModelStore getViewModelStore();
     method public void invalidateMenu();
     method @Deprecated @CallSuper protected void onActivityResult(int, int, android.content.Intent?);
+    method @MainThread public void onBackPressed();
     method @CallSuper public void onMultiWindowModeChanged(boolean);
     method @CallSuper public void onPictureInPictureModeChanged(boolean);
     method @Deprecated @CallSuper public void onRequestPermissionsResult(int, String![], int[]);
@@ -47,6 +48,7 @@ package androidx.activity {
     ctor public ComponentDialog(android.content.Context context);
     method public final androidx.lifecycle.Lifecycle getLifecycle();
     method public final androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
+    method @CallSuper public void onBackPressed();
   }
 
   public abstract class OnBackPressedCallback {
