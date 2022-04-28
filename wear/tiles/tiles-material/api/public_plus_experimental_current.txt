@@ -75,7 +75,7 @@ package androidx.wear.tiles.material {
     ctor public ChipColors(androidx.wear.tiles.ColorBuilders.ColorProp, androidx.wear.tiles.ColorBuilders.ColorProp);
     method public androidx.wear.tiles.ColorBuilders.ColorProp getBackgroundColor();
     method public androidx.wear.tiles.ColorBuilders.ColorProp getContentColor();
-    method public androidx.wear.tiles.ColorBuilders.ColorProp getIconTintColor();
+    method public androidx.wear.tiles.ColorBuilders.ColorProp getIconColor();
     method public androidx.wear.tiles.ColorBuilders.ColorProp getSecondaryContentColor();
     method public static androidx.wear.tiles.material.ChipColors primaryChipColors(androidx.wear.tiles.material.Colors);
     method public static androidx.wear.tiles.material.ChipColors secondaryChipColors(androidx.wear.tiles.material.Colors);

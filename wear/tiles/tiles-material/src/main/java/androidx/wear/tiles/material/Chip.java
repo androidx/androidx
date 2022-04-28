@@ -270,8 +270,8 @@ public class Chip implements LayoutElement {
          * Sets the colors for the {@link Chip}. If set, {@link ChipColors#getBackgroundColor()}
          * will be used for the background of the button, {@link ChipColors#getContentColor()} for
          * main text, {@link ChipColors#getSecondaryContentColor()} for label text and {@link
-         * ChipColors#getIconTintColor()} will be used as tint color for the icon itself. If not
-         * set, {@link ChipDefaults#PRIMARY_COLORS} will be used.
+         * ChipColors#getIconColor()} will be used as color for the icon itself. If not set, {@link
+         * ChipDefaults#PRIMARY_COLORS} will be used.
          */
         @NonNull
         public Builder setChipColors(@NonNull ChipColors chipColors) {
@@ -399,7 +399,7 @@ public class Chip implements LayoutElement {
                                         .setHeight(ICON_SIZE)
                                         .setColorFilter(
                                                 new ColorFilter.Builder()
-                                                        .setTint(mChipColors.getIconTintColor())
+                                                        .setTint(mChipColors.getIconColor())
                                                         .build())
                                         .build())
                         .addContent(
