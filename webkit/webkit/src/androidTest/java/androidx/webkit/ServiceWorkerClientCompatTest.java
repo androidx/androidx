@@ -16,8 +16,10 @@
 
 package androidx.webkit;
 
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.junit.Assert.assertEquals;
 
+import android.os.Build;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
@@ -26,8 +28,10 @@ import android.webkit.WebView;
 import androidx.annotation.NonNull;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,7 +43,14 @@ import java.util.concurrent.Callable;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
 public class ServiceWorkerClientCompatTest {
+
+    // This test relies on
+    // https://chromiumdash.appspot.com/commit/48da90e0c6296add4c10f241551f0538fd3f968e
+    // being available.
+    private static final WebViewVersion MINIMUM_WEBVIEW_VERSION =
+            new WebViewVersion("102.0.4997.0");
 
     // The BASE_URL does not matter since the tests will intercept the load, but it should be https
     // for the Service Worker registration to succeed.
@@ -124,6 +135,10 @@ public class ServiceWorkerClientCompatTest {
 
     @Before
     public void setUp() throws Exception {
+        Assume.assumeThat("Installed webview version does not support setting a null "
+                        + "ServiceWorkerClient",
+                WebViewVersion.getInstalledWebViewVersionFromPackage(),
+                greaterThanOrEqualTo(MINIMUM_WEBVIEW_VERSION));
         mOnUiThread = new WebViewOnUiThread();
         mOnUiThread.getSettings().setJavaScriptEnabled(true);
 
