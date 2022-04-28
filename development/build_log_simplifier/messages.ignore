@@ -364,6 +364,12 @@ w\: \$SUPPORT\/viewpager[0-9]+\/viewpager[0-9]+\/src\/androidTest\/java\/android
 w\: \$SUPPORT\/viewpager[0-9]+\/viewpager[0-9]+\/src\/androidTest\/java\/androidx\/viewpager[0-9]+\/widget\/OnApplyWindowInsetsListenerTest\.kt\: \([0-9]+\, [0-9]+\)\: \'consumeDisplayCutout\(\)\: WindowInsetsCompat\' is deprecated\. Deprecated in Java
 # > Task :docs-public:dokkaKotlinDocs
 No documentation for .*
+Found an unresolved type in androidx\.compose\.ui\.test\.junit[0-9]+\.AndroidComposeTestRule\$waitForIdle\(\) \(AndroidComposeTestRule\.android\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.ui\.test\.junit[0-9]+\.AndroidComposeTestRule\$awaitIdle\(\) \(AndroidComposeTestRule\.android\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.ui\.test\.junit[0-9]+\.AndroidComposeTestRule\$waitUntil\(kotlin\.Long, kotlin\.Function[0-9]+\(\(kotlin\.Boolean\)\)\) \(AndroidComposeTestRule\.android\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.ui\.test\.junit[0-9]+\.AndroidComposeTestRule\$registerIdlingResource\(androidx\.compose\.ui\.test\.IdlingResource\) \(AndroidComposeTestRule\.android\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.ui\.test\.junit[0-9]+\.AndroidComposeTestRule\$unregisterIdlingResource\(androidx\.compose\.ui\.test\.IdlingResource\) \(AndroidComposeTestRule\.android\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.ui\.test\.junit[0-9]+\.AndroidComposeTestRule\$setContent\(kotlin\.Function[0-9]+\(\(kotlin\.Unit\)\)\) \(AndroidComposeTestRule\.android\.kt:[0-9]+\)
 Found an unresolved type in androidx\.compose\.runtime\.snapshots\.SnapshotStateList\$add\(androidx\.compose\.runtime\.snapshots\.SnapshotStateList\.T\) \(SnapshotStateList\.kt:[0-9]+\)
 Found an unresolved type in androidx\.compose\.runtime\.snapshots\.SnapshotStateList\$addAll\(kotlin\.collections\.Collection\(\(androidx\.compose\.runtime\.snapshots\.SnapshotStateList\.T\)\)\) \(SnapshotStateList\.kt:[0-9]+\)
 Found an unresolved type in androidx\.compose\.runtime\.snapshots\.SnapshotStateList\$remove\(androidx\.compose\.runtime\.snapshots\.SnapshotStateList\.T\) \(SnapshotStateList\.kt:[0-9]+\)
