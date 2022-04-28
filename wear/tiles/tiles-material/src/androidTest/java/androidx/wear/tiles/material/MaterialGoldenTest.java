@@ -38,7 +38,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RunWith(Parameterized.class)
@@ -88,7 +88,7 @@ public class MaterialGoldenTest {
                         .setScreenShape(DeviceParametersBuilders.SCREEN_SHAPE_RECT)
                         .build();
 
-        HashMap<LayoutElement, String> testCases =
+        Map<LayoutElement, String> testCases =
                 generateTestCases(context, deviceParameters, "");
 
         return testCases.entrySet()
