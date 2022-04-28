@@ -45,8 +45,6 @@ import java.util.Locale;
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ImageCaptureWithFlashUnderexposureQuirk implements UseTorchAsFlashQuirk {
 
-    public static final String BUILD_BRAND = "SAMSUNG";
-
     // List of devices with the issue. See b/228800282.
     public static final List<String> BUILD_MODELS = Arrays.asList(
             "sm-a260f",  // Samsung Galaxy A2 Core
@@ -58,8 +56,7 @@ public class ImageCaptureWithFlashUnderexposureQuirk implements UseTorchAsFlashQ
     );
 
     static boolean load(@NonNull CameraCharacteristicsCompat cameraCharacteristics) {
-        return BUILD_BRAND.equals(Build.BRAND.toUpperCase(Locale.US))
-                && BUILD_MODELS.contains(Build.MODEL.toLowerCase(Locale.US))
+        return BUILD_MODELS.contains(Build.MODEL.toLowerCase(Locale.US))
                 && cameraCharacteristics.get(CameraCharacteristics.LENS_FACING) == LENS_FACING_BACK;
     }
 }
