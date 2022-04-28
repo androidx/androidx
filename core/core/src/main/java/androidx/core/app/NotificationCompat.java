@@ -3509,7 +3509,8 @@ public class NotificationCompat {
          * conversation title to a non-null value will make {@link #isGroupConversation()} return
          * {@code true} and passing {@code null} will make it return {@code false}. This behavior
          * can be overridden by calling {@link #setGroupConversation(boolean)} regardless of SDK
-         * version. In {@code P} and above, this method does not affect group conversation settings.
+         * version. In {@link Build.VERSION_CODES#P} and above, this method does not affect group
+         * conversation settings.
          *
          * @param conversationTitle Title displayed for this conversation
          * @return this object for method chaining
@@ -3613,7 +3614,7 @@ public class NotificationCompat {
         }
 
         /**
-         * Gets the list of {@code Message} objects that represent the notification
+         * Gets the list of {@code Message} objects that represent the notification.
          */
         public @NonNull List<Message> getMessages() {
             return mMessages;
@@ -3627,10 +3628,17 @@ public class NotificationCompat {
         }
 
         /**
-         * Sets whether this conversation notification represents a group.
+         * Sets whether this conversation notification represents a group. An app should set
+         * isGroupConversation {@code true} to mark that the conversation involves multiple people.
+         *
+         * <p>Group conversation notifications may display additional group-related context not
+         * present in non-group notifications.
+         *
          * @param isGroupConversation {@code true} if the conversation represents a group,
          * {@code false} otherwise.
          * @return this object for method chaining
+         *
+         * @see #isGroupConversation()
          */
         public @NonNull MessagingStyle setGroupConversation(boolean isGroupConversation) {
             mIsGroupConversation = isGroupConversation;
@@ -3646,9 +3654,9 @@ public class NotificationCompat {
          * was not called, this method becomes dependent on whether or not the conversation title is
          * set; returning {@code true} if the conversation title is a non-null value, or
          * {@code false} otherwise. This is to maintain backwards compatibility. Regardless, {@link
-         * #setGroupConversation(boolean)} has precedence over this legacy behavior. From {@code P}
-         * forward, {@link #setConversationTitle(CharSequence)} has no affect on group conversation
-         * status.
+         * #setGroupConversation(boolean)} has precedence over this legacy behavior. From
+         * {@link Build.VERSION_CODES#P} forward, {@link #setConversationTitle(CharSequence)} has
+         * no affect on group conversation status.
          *
          * @see #setConversationTitle(CharSequence)
          */
