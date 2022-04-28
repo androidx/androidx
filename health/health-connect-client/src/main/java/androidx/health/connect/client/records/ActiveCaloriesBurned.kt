@@ -15,7 +15,7 @@
  */
 package androidx.health.connect.client.records
 
-import androidx.annotation.RestrictTo
+import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
@@ -25,7 +25,6 @@ import java.time.ZoneOffset
  * metabolic rate (BMR). Each record represents the total kilocalories burned over a time interval,
  * so both the start and end times should be set.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ActiveCaloriesBurned(
     /** Energy in kilocalories. Required field. Valid range: 0-1000000. */
     public val energyKcal: Double,
@@ -57,5 +56,22 @@ public class ActiveCaloriesBurned(
         result = 31 * result + (endZoneOffset?.hashCode() ?: 0)
         result = 31 * result + metadata.hashCode()
         return result
+    }
+
+    companion object {
+        private const val TYPE_NAME = "ActiveCaloriesBurned"
+        private const val ENERGY_FIELD_NAME = "energy"
+
+        /**
+         * Metric identifier to retrieve total active calories burned from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val ACTIVE_CALORIES_TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                TYPE_NAME,
+                AggregateMetric.AggregationType.TOTAL,
+                ENERGY_FIELD_NAME
+            )
     }
 }

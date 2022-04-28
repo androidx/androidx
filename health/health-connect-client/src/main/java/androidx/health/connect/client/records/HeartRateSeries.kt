@@ -64,7 +64,7 @@ public class HeartRateSeries(
         private const val HEART_RATE_TYPE_NAME = "HeartRate"
         private const val BPM_FIELD_NAME = "bpm"
 
-        /** Metric identifier to retrieve average heart rate from [AggregationResult]. */
+        /** Metric identifier to retrieve the average heart rate from [AggregationResult]. */
         @JvmField
         val BPM_AVG: AggregateMetric<Long> =
             AggregateMetric.longMetric(
@@ -73,7 +73,7 @@ public class HeartRateSeries(
                 BPM_FIELD_NAME
             )
 
-        /** Metric identifier to retrieve minimum heart rate from [AggregationResult]. */
+        /** Metric identifier to retrieve the minimum heart rate from [AggregationResult]. */
         @JvmField
         val BPM_MIN: AggregateMetric<Long> =
             AggregateMetric.longMetric(
@@ -82,7 +82,7 @@ public class HeartRateSeries(
                 BPM_FIELD_NAME
             )
 
-        /** Metric identifier to retrieve maximum heart rate from [AggregationResult]. */
+        /** Metric identifier to retrieve the maximum heart rate from [AggregationResult]. */
         @JvmField
         val BPM_MAX: AggregateMetric<Long> =
             AggregateMetric.longMetric(
@@ -90,6 +90,14 @@ public class HeartRateSeries(
                 AggregateMetric.AggregationType.MAXIMUM,
                 BPM_FIELD_NAME
             )
+
+        /**
+         * Metric identifier to retrieve the number of heart rate measurements from
+         * [AggregationResult].
+         */
+        @JvmField
+        val MEASUREMENTS_COUNT: AggregateMetric<Long> =
+            AggregateMetric.countMetric(HEART_RATE_TYPE_NAME)
     }
 }
 

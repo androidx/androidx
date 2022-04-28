@@ -15,7 +15,7 @@
  */
 package androidx.health.connect.client.records
 
-import androidx.annotation.RestrictTo
+import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
@@ -25,7 +25,6 @@ import java.time.ZoneOffset
  * once so records shouldn't have overlapping time. The start time of each record should represent
  * the start of the interval in which pushes were made.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class WheelchairPushes(
     /** Count. Required field. Valid range: 1-1000000. */
     public val count: Long,
@@ -57,5 +56,19 @@ public class WheelchairPushes(
         result = 31 * result + (endZoneOffset?.hashCode() ?: 0)
         result = 31 * result + metadata.hashCode()
         return result
+    }
+
+    companion object {
+        /**
+         * Metric identifier to retrieve the total wheelchair push count from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val COUNT_TOTAL: AggregateMetric<Long> =
+            AggregateMetric.longMetric(
+                "WheelchairPushes",
+                AggregateMetric.AggregationType.TOTAL,
+                "count"
+            )
     }
 }

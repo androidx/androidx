@@ -15,7 +15,7 @@
  */
 package androidx.health.connect.client.records
 
-import androidx.annotation.RestrictTo
+import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
@@ -24,7 +24,6 @@ import java.time.ZoneOffset
  * Captures the BMR of a user, in kilocalories. Each record represents the number of kilocalories a
  * user would burn if at rest all day, based on their height and weight.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class BasalMetabolicRate(
     /** Basal metabolic rate, in kilocalories. Required field. Valid range: 0-10000. */
     public val kcalPerDay: Double,
@@ -51,5 +50,22 @@ public class BasalMetabolicRate(
         result = 31 * result + (zoneOffset?.hashCode() ?: 0)
         result = 31 * result + metadata.hashCode()
         return result
+    }
+
+    companion object {
+        private const val BASAL_CALORIES_TYPE_NAME = "BasalCaloriesBurned"
+        private const val ENERGY_FIELD_NAME = "energy"
+
+        /**
+         * Metric identifier to retrieve the total basal calories burned from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val BASAL_CALORIES_TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                BASAL_CALORIES_TYPE_NAME,
+                AggregateMetric.AggregationType.TOTAL,
+                ENERGY_FIELD_NAME
+            )
     }
 }

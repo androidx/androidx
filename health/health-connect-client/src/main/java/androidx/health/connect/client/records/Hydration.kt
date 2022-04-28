@@ -15,13 +15,12 @@
  */
 package androidx.health.connect.client.records
 
-import androidx.annotation.RestrictTo
+import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
 
 /** Captures how much water a user drank in a single drink. */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class Hydration(
     /** Volume of water in liters. Required field. Valid range: 0-100. */
     public val volumeLiters: Double,
@@ -53,5 +52,19 @@ public class Hydration(
         result = 31 * result + (endZoneOffset?.hashCode() ?: 0)
         result = 31 * result + metadata.hashCode()
         return result
+    }
+
+    companion object {
+        /**
+         * Metric identifier to retrieve total hydration from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val VOLUME_TOTAL: AggregateMetric<Double> =
+            AggregateMetric.doubleMetric(
+                "Hydration",
+                AggregateMetric.AggregationType.TOTAL,
+                "volume"
+            )
     }
 }

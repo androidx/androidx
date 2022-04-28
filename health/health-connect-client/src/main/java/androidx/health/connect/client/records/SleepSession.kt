@@ -15,8 +15,9 @@
  */
 package androidx.health.connect.client.records
 
-import androidx.annotation.RestrictTo
+import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.metadata.Metadata
+import java.time.Duration
 import java.time.Instant
 import java.time.ZoneOffset
 
@@ -28,7 +29,6 @@ import java.time.ZoneOffset
  * included. The timestamp represents the end of the sleep stage. Time intervals don't need to be
  * continuous but shouldn't overlap
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class SleepSession(
     /** Title of the session. Optional field. */
     public val title: String? = null,
@@ -64,5 +64,15 @@ public class SleepSession(
         result = 31 * result + (endZoneOffset?.hashCode() ?: 0)
         result = 31 * result + metadata.hashCode()
         return result
+    }
+
+    companion object {
+        /**
+         * Metric identifier to retrieve the total sleep session duration from
+         * [androidx.health.connect.client.aggregate.AggregationResult].
+         */
+        @JvmField
+        val SLEEP_DURATION_TOTAL: AggregateMetric<Duration> =
+            AggregateMetric.durationMetric("SleepSession")
     }
 }

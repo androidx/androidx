@@ -15,8 +15,9 @@
  */
 package androidx.health.connect.client.impl.converters.aggregate
 
-import androidx.health.connect.client.aggregate.AggregateMetric
+import androidx.health.connect.client.records.ActivitySession
 import androidx.health.connect.client.records.Distance
+import androidx.health.connect.client.records.HeartRateSeries
 import androidx.health.connect.client.records.Steps
 import androidx.health.platform.client.proto.RequestProto
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -28,7 +29,7 @@ import org.junit.runner.RunWith
 class AggregateMetricConverterTest {
     @Test
     fun aggregateMetric_toProto() {
-        assertThat(Steps.TOTAL.toProto())
+        assertThat(Steps.COUNT_TOTAL.toProto())
             .isEqualTo(
                 RequestProto.AggregateMetricSpec.newBuilder()
                     .setDataTypeName("Steps")
@@ -36,7 +37,7 @@ class AggregateMetricConverterTest {
                     .setFieldName("count")
                     .build()
             )
-        assertThat(Distance.TOTAL.toProto())
+        assertThat(Distance.DISTANCE_TOTAL.toProto())
             .isEqualTo(
                 RequestProto.AggregateMetricSpec.newBuilder()
                     .setDataTypeName("Distance")
@@ -44,12 +45,19 @@ class AggregateMetricConverterTest {
                     .setFieldName("distance")
                     .build()
             )
-        // TODO(b/227996244): Use active time when the metric is created
-        assertThat(AggregateMetric.durationMetric("ActiveTime").toProto())
+        assertThat(ActivitySession.ACTIVE_TIME_TOTAL.toProto())
             .isEqualTo(
                 RequestProto.AggregateMetricSpec.newBuilder()
                     .setDataTypeName("ActiveTime")
-                    .setAggregationType("duration")
+                    .setAggregationType("total")
+                    .setFieldName("time")
+                    .build()
+            )
+        assertThat(HeartRateSeries.MEASUREMENTS_COUNT.toProto())
+            .isEqualTo(
+                RequestProto.AggregateMetricSpec.newBuilder()
+                    .setDataTypeName("HeartRate")
+                    .setAggregationType("count")
                     .build()
             )
     }

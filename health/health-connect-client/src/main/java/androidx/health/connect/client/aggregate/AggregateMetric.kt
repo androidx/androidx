@@ -50,11 +50,15 @@ internal constructor(
         AVERAGE("avg"),
         MINIMUM("min"),
         MAXIMUM("max"),
-        TOTAL("total")
+        TOTAL("total"),
+        COUNT("count"),
     }
 
     internal companion object {
-        /** Creates a metric with type [Duration]. Internal for SDK use only. */
+        /**
+         * Creates a metric with type [Duration] that sum up duration of intervals. Internal for SDK
+         * use only.
+         */
         internal fun durationMetric(dataTypeName: String): AggregateMetric<Duration> {
             return AggregateMetric(
                 Duration::class,
@@ -80,6 +84,18 @@ internal constructor(
             fieldName: String
         ): AggregateMetric<Long> {
             return AggregateMetric(Long::class, dataTypeName, aggregationType, fieldName)
+        }
+
+        /**
+         * Creates a [AggregateMetric] returning sample or record counts. Internal for SDK use only.
+         */
+        internal fun countMetric(dataTypeName: String): AggregateMetric<Long> {
+            return AggregateMetric(
+                Long::class,
+                dataTypeName,
+                AggregationType.COUNT,
+                aggregationField = null
+            )
         }
     }
 

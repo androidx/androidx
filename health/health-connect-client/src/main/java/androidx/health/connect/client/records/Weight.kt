@@ -49,16 +49,16 @@ public class Weight(
         return result
     }
 
-    internal companion object {
+    companion object {
         private const val WEIGHT_NAME = "Weight"
         private const val WEIGHT_FIELD = "weight"
 
         /**
-         * Metric identifier to retrieve average weight from
+         * Metric identifier to retrieve the average weight from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        internal val AVG: AggregateMetric<Double> =
+        val WEIGHT_AVG: AggregateMetric<Double> =
             AggregateMetric.doubleMetric(
                 WEIGHT_NAME,
                 AggregateMetric.AggregationType.AVERAGE,
@@ -66,11 +66,11 @@ public class Weight(
             )
 
         /**
-         * Metric identifier to retrieve minimum weight from
+         * Metric identifier to retrieve the minimum weight from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        internal val MIN: AggregateMetric<Double> =
+        val WEIGHT_MIN: AggregateMetric<Double> =
             AggregateMetric.doubleMetric(
                 WEIGHT_NAME,
                 AggregateMetric.AggregationType.MINIMUM,
@@ -78,11 +78,11 @@ public class Weight(
             )
 
         /**
-         * Metric identifier to retrieve maximum weight from
+         * Metric identifier to retrieve the maximum weight from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        internal val MAX: AggregateMetric<Double> =
+        val WEIGHT_MAX: AggregateMetric<Double> =
             AggregateMetric.doubleMetric(
                 WEIGHT_NAME,
                 AggregateMetric.AggregationType.MAXIMUM,

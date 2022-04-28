@@ -30,12 +30,11 @@ import androidx.health.connect.client.changes.UpsertionChange
 import androidx.health.connect.client.metadata.DataOrigin
 import androidx.health.connect.client.metadata.Device
 import androidx.health.connect.client.metadata.Metadata
-import androidx.health.connect.client.permission.Permission
 import androidx.health.connect.client.permission.Permission.Companion.createReadPermission
 import androidx.health.connect.client.records.ActiveCaloriesBurned
 import androidx.health.connect.client.records.Nutrition
 import androidx.health.connect.client.records.Steps
-import androidx.health.connect.client.records.Steps.Companion.TOTAL
+import androidx.health.connect.client.records.Steps.Companion.COUNT_TOTAL
 import androidx.health.connect.client.records.Weight
 import androidx.health.connect.client.request.AggregateGroupByDurationRequest
 import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
@@ -528,7 +527,10 @@ class HealthConnectClientImplTest {
             val startTime = Instant.ofEpochMilli(1234)
             val endTime = Instant.ofEpochMilli(4567)
             healthConnectClient.aggregate(
-                AggregateRequest(setOf(Steps.TOTAL), TimeRangeFilter.between(startTime, endTime))
+                AggregateRequest(
+                    setOf(Steps.COUNT_TOTAL),
+                    TimeRangeFilter.between(startTime, endTime)
+                )
             )
         }
 
@@ -590,7 +592,7 @@ class HealthConnectClientImplTest {
             val endTime = Instant.ofEpochMilli(4567)
             healthConnectClient.aggregateGroupByDuration(
                 AggregateGroupByDurationRequest(
-                    setOf(TOTAL),
+                    setOf(COUNT_TOTAL),
                     TimeRangeFilter.between(startTime, endTime),
                     Duration.ofMillis(1000)
                 )
@@ -601,14 +603,14 @@ class HealthConnectClientImplTest {
         waitForMainLooperIdle()
 
         val response: List<AggregationResultGroupedByDuration> = deferred.await()
-        assertThat(response[0].result.hasMetric(TOTAL)).isTrue()
-        assertThat(response[0].result.getMetric(TOTAL)).isEqualTo(1000)
+        assertThat(response[0].result.hasMetric(COUNT_TOTAL)).isTrue()
+        assertThat(response[0].result.getMetric(COUNT_TOTAL)).isEqualTo(1000)
         assertThat(response[0].result.dataOrigins).contains(DataOrigin("id"))
         assertThat(response[0].startTime).isEqualTo(Instant.ofEpochMilli(1234))
         assertThat(response[0].endTime).isEqualTo(Instant.ofEpochMilli(2234))
         assertThat(response[0].zoneOffset).isEqualTo(ZoneOffset.ofTotalSeconds(999))
-        assertThat(response[1].result.hasMetric(TOTAL)).isTrue()
-        assertThat(response[1].result.getMetric(TOTAL)).isEqualTo(1500)
+        assertThat(response[1].result.hasMetric(COUNT_TOTAL)).isTrue()
+        assertThat(response[1].result.getMetric(COUNT_TOTAL)).isEqualTo(1500)
         assertThat(response[1].result.dataOrigins).contains(DataOrigin("id2"))
         assertThat(response[1].startTime).isEqualTo(Instant.ofEpochMilli(2234))
         assertThat(response[1].endTime).isEqualTo(Instant.ofEpochMilli(3234))
@@ -663,7 +665,7 @@ class HealthConnectClientImplTest {
             val endTime = LocalDateTime.parse("2022-02-22T20:22:02")
             healthConnectClient.aggregateGroupByPeriod(
                 AggregateGroupByPeriodRequest(
-                    setOf(TOTAL),
+                    setOf(COUNT_TOTAL),
                     TimeRangeFilter.between(startTime, endTime),
                     Period.ofDays(1)
                 )
@@ -674,13 +676,13 @@ class HealthConnectClientImplTest {
         waitForMainLooperIdle()
 
         val response: List<AggregationResultGroupedByPeriod> = deferred.await()
-        assertThat(response[0].result.hasMetric(TOTAL)).isTrue()
-        assertThat(response[0].result.getMetric(TOTAL)).isEqualTo(1500)
+        assertThat(response[0].result.hasMetric(COUNT_TOTAL)).isTrue()
+        assertThat(response[0].result.getMetric(COUNT_TOTAL)).isEqualTo(1500)
         assertThat(response[0].result.dataOrigins).contains(DataOrigin("id"))
         assertThat(response[0].startTime).isEqualTo(LocalDateTime.parse("2022-02-11T20:22:02"))
         assertThat(response[0].endTime).isEqualTo(LocalDateTime.parse("2022-02-12T20:22:02"))
-        assertThat(response[1].result.hasMetric(TOTAL)).isTrue()
-        assertThat(response[1].result.getMetric(TOTAL)).isEqualTo(2000)
+        assertThat(response[1].result.hasMetric(COUNT_TOTAL)).isTrue()
+        assertThat(response[1].result.getMetric(COUNT_TOTAL)).isEqualTo(2000)
         assertThat(response[1].result.dataOrigins).contains(DataOrigin("id"))
         assertThat(response[1].startTime).isEqualTo(LocalDateTime.parse("2022-02-12T20:22:02"))
         assertThat(response[1].endTime).isEqualTo(LocalDateTime.parse("2022-02-13T20:22:02"))
