@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
@@ -114,8 +115,9 @@ public fun Button(
             LocalContentColor provides contentColor,
             LocalContentAlpha provides contentColor.alpha,
             LocalTextStyle provides MaterialTheme.typography.button,
-            content = content
-        )
+        ) {
+            content()
+        }
     }
 }
 
@@ -188,8 +190,9 @@ public fun CompactButton(
             LocalContentColor provides contentColor,
             LocalContentAlpha provides contentColor.alpha,
             LocalTextStyle provides MaterialTheme.typography.button,
-            content = content
-        )
+        ) {
+            content()
+        }
     }
 }
 
