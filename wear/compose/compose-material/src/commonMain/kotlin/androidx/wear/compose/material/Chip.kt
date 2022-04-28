@@ -236,8 +236,9 @@ public fun Chip(
                         LocalTextStyle provides MaterialTheme.typography.button,
                         LocalContentAlpha provides
                             colors.contentColor(enabled = enabled).value.alpha,
-                        content = label
-                    )
+                    ) {
+                        label()
+                    }
                 }
                 if (secondaryLabel != null) {
                     Row {
@@ -246,8 +247,9 @@ public fun Chip(
                             LocalTextStyle provides MaterialTheme.typography.caption2,
                             LocalContentAlpha provides
                                 colors.secondaryContentColor(enabled = enabled).value.alpha,
-                            content = secondaryLabel
-                        )
+                        ) {
+                            secondaryLabel()
+                        }
                     }
                 }
             }
@@ -338,8 +340,9 @@ public fun CompactChip(
             label = {
                 CompositionLocalProvider(
                     LocalTextStyle provides MaterialTheme.typography.caption1,
-                    content = label
-                )
+                ) {
+                    label()
+                }
             },
             onClick = onClick,
             modifier = modifier.height(ChipDefaults.CompactChipHeight),

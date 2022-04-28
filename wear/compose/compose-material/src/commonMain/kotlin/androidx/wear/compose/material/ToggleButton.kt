@@ -25,6 +25,7 @@ import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
@@ -112,8 +113,9 @@ public fun ToggleButton(
             LocalContentColor provides contentColor,
             LocalContentAlpha provides contentColor.alpha,
             LocalTextStyle provides MaterialTheme.typography.button,
-            content = content
-        )
+        ) {
+            content()
+        }
     }
 }
 

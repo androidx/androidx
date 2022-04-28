@@ -124,8 +124,9 @@ public fun Stepper(
         ) {
             CompositionLocalProvider(
                 LocalContentColor provides contentColor,
-                content = content
-            )
+            ) {
+                content()
+            }
         }
         FullScreenButton(
             onClick = { updateValue(-1) },

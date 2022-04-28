@@ -33,6 +33,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -132,8 +133,9 @@ public fun Card(
         CompositionLocalProvider(
             LocalContentColor provides contentColor,
             LocalTextStyle provides MaterialTheme.typography.button,
-            content = content
-        )
+        ) {
+            content()
+        }
     }
 }
 
@@ -225,29 +227,33 @@ public fun AppCard(
                     }
                     CompositionLocalProvider(
                         LocalContentColor provides appColor,
-                        content = appName
-                    )
+                    ) {
+                        appName()
+                    }
                 }
                 Spacer(modifier = Modifier.weight(1.0f))
                 CompositionLocalProvider(
                     LocalContentColor provides timeColor,
                     LocalTextStyle provides MaterialTheme.typography.caption1,
-                    content = time
-                )
+                ) {
+                    time()
+                }
             }
             Spacer(modifier = Modifier.height(4.dp))
             Row {
                 CompositionLocalProvider(
                     LocalContentColor provides titleColor,
                     LocalTextStyle provides MaterialTheme.typography.title3,
-                    content = title
-                )
+                ) {
+                    title()
+                }
             }
             CompositionLocalProvider(
                 LocalContentColor provides contentColor,
                 LocalTextStyle provides MaterialTheme.typography.body1,
-                content = content
-            )
+            ) {
+                content()
+            }
         }
     }
 }
@@ -328,23 +334,26 @@ public fun TitleCard(
                 CompositionLocalProvider(
                     LocalContentColor provides titleColor,
                     LocalTextStyle provides MaterialTheme.typography.title3,
-                    content = title
-                )
+                ) {
+                    title()
+                }
                 if (time != null) {
                     Spacer(modifier = Modifier.weight(1.0f))
                     CompositionLocalProvider(
                         LocalContentColor provides timeColor,
                         LocalTextStyle provides MaterialTheme.typography.caption1,
-                        content = time
-                    )
+                    ) {
+                        time()
+                    }
                 }
             }
             Spacer(modifier = Modifier.height(2.dp))
             CompositionLocalProvider(
                 LocalContentColor provides contentColor,
                 LocalTextStyle provides MaterialTheme.typography.body1,
-                content = content
-            )
+            ) {
+                content()
+            }
         }
     }
 }
