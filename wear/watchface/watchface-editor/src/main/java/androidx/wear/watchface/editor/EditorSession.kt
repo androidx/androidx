@@ -56,6 +56,7 @@ import androidx.wear.watchface.client.HeadlessWatchFaceClient
 import androidx.wear.watchface.client.WatchFaceId
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.ComplicationSlotBoundsType
+import androidx.wear.watchface.complications.data.ComplicationExperimental
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.editor.data.EditorStateWireFormat
 import androidx.wear.watchface.sanitizeWatchFaceId
@@ -73,7 +74,6 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -790,6 +790,7 @@ internal class OnWatchFaceEditorSessionImpl(
 
     override val watchFaceId = WatchFaceId(sanitizeWatchFaceId(watchFaceIdInternal.id))
 
+    @OptIn(ComplicationExperimental::class)
     override fun fetchComplicationSlotsState(): Map<Int, ComplicationSlotState> {
         return editorDelegate.complicationSlotsManager.complicationSlots.mapValues {
             requireNotClosed()
@@ -810,7 +811,8 @@ internal class OnWatchFaceEditorSessionImpl(
                 it.value.fixedComplicationDataSource,
                 it.value.configExtras,
                 it.value.nameResourceId,
-                it.value.screenReaderNameResourceId
+                it.value.screenReaderNameResourceId,
+                it.value.boundingArc
             )
         }
     }
