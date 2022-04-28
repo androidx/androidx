@@ -32,7 +32,7 @@ import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
 import androidx.work.impl.foreground.ForegroundProcessor
-import androidx.work.impl.utils.SerialExecutor
+import androidx.work.impl.utils.SerialExecutorImpl
 import androidx.work.impl.utils.futures.SettableFuture
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import com.google.common.truth.Truth.assertThat
@@ -195,9 +195,9 @@ class ManualExecutor : Executor {
 class ManualTaskExecutor : TaskExecutor {
     val mainExecutor = ManualExecutor()
     val serialTaskExecutor = ManualExecutor()
-    private val serialBackgroundExecutor = SerialExecutor(serialTaskExecutor)
+    private val serialBackgroundExecutor = SerialExecutorImpl(serialTaskExecutor)
 
     override fun getMainThreadExecutor() = mainExecutor
 
-    override fun getSerialTaskExecutor(): SerialExecutor = serialBackgroundExecutor
+    override fun getSerialTaskExecutor(): SerialExecutorImpl = serialBackgroundExecutor
 }

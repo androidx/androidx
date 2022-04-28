@@ -61,8 +61,9 @@ import androidx.work.impl.constraints.trackers.ConstraintTracker;
 import androidx.work.impl.constraints.trackers.Trackers;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
-import androidx.work.impl.utils.SerialExecutor;
+import androidx.work.impl.utils.SerialExecutorImpl;
 import androidx.work.impl.utils.SynchronousExecutor;
+import androidx.work.impl.utils.taskexecutor.SerialExecutor;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 import androidx.work.worker.RetryWorker;
 import androidx.work.worker.SleepTestWorker;
@@ -140,7 +141,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
 
             @Override
             public SerialExecutor getSerialTaskExecutor() {
-                return new SerialExecutor(new SynchronousExecutor());
+                return new SerialExecutorImpl(new SynchronousExecutor());
             }
         };
         mBatteryChargingTracker = new FakeConstraintTracker(mContext, instantTaskExecutor);

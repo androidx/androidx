@@ -19,6 +19,7 @@ package androidx.work.impl.utils;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
+import androidx.work.impl.utils.taskexecutor.SerialExecutor;
 
 import java.util.ArrayDeque;
 import java.util.concurrent.Executor;
@@ -27,7 +28,7 @@ import java.util.concurrent.Executor;
  * A {@link Executor} which delegates to another {@link Executor} but ensures that tasks are
  * executed serially, like a single threaded executor.
  */
-public class SerialExecutor implements Executor {
+public class SerialExecutorImpl implements SerialExecutor {
     private final ArrayDeque<Task> mTasks;
     private final Executor mExecutor;
 
@@ -36,7 +37,7 @@ public class SerialExecutor implements Executor {
 
     final Object mLock;
 
-    public SerialExecutor(@NonNull Executor executor) {
+    public SerialExecutorImpl(@NonNull Executor executor) {
         mExecutor = executor;
         mTasks = new ArrayDeque<>();
         mLock = new Object();
@@ -63,6 +64,7 @@ public class SerialExecutor implements Executor {
     /**
      * @return {@code true} if there are tasks to execute in the queue.
      */
+    @Override
     public boolean hasPendingTasks() {
         synchronized (mLock) {
             return !mTasks.isEmpty();
@@ -76,14 +78,14 @@ public class SerialExecutor implements Executor {
     }
 
     /**
-     * A {@link Runnable} which tells the {@link SerialExecutor} to schedule the next command
+     * A {@link Runnable} which tells the {@link SerialExecutorImpl} to schedule the next command
      * after completion.
      */
     static class Task implements Runnable {
-        final SerialExecutor mSerialExecutor;
+        final SerialExecutorImpl mSerialExecutor;
         final Runnable mRunnable;
 
-        Task(@NonNull SerialExecutor serialExecutor, @NonNull Runnable runnable) {
+        Task(@NonNull SerialExecutorImpl serialExecutor, @NonNull Runnable runnable) {
             mSerialExecutor = serialExecutor;
             mRunnable = runnable;
         }
