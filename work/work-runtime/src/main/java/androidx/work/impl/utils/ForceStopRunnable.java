@@ -85,11 +85,13 @@ public class ForceStopRunnable implements Runnable {
 
     private final Context mContext;
     private final WorkManagerImpl mWorkManager;
+    private final PreferenceUtils mPreferenceUtils;
     private int mRetryCount;
 
     public ForceStopRunnable(@NonNull Context context, @NonNull WorkManagerImpl workManager) {
         mContext = context.getApplicationContext();
         mWorkManager = workManager;
+        mPreferenceUtils = workManager.getPreferenceUtils();
         mRetryCount = 0;
     }
 
@@ -182,9 +184,11 @@ public class ForceStopRunnable implements Runnable {
                         );
 
                 if (exitInfoList != null && !exitInfoList.isEmpty()) {
+                    long timestamp = mPreferenceUtils.getLastForceStopEventMillis();
                     for (int i = 0; i < exitInfoList.size(); i++) {
                         ApplicationExitInfo info = exitInfoList.get(i);
-                        if (info.getReason() == REASON_USER_REQUESTED) {
+                        if (info.getReason() == REASON_USER_REQUESTED
+                                && info.getTimestamp() >= timestamp) {
                             return true;
                         }
                     }
@@ -220,6 +224,8 @@ public class ForceStopRunnable implements Runnable {
         } else if (isForceStopped()) {
             Logger.get().debug(TAG, "Application was force-stopped, rescheduling.");
             mWorkManager.rescheduleEligibleWork();
+            // Update the last known force-stop event timestamp.
+            mPreferenceUtils.setLastForceStopEventMillis(System.currentTimeMillis());
         } else if (needsScheduling) {
             Logger.get().debug(TAG, "Found unfinished work, scheduling it.");
             Schedulers.schedule(
@@ -281,7 +287,7 @@ public class ForceStopRunnable implements Runnable {
      * @return {@code true} If we need to reschedule Workers.
      */
     @VisibleForTesting
-    boolean shouldRescheduleWorkers() {
+    public boolean shouldRescheduleWorkers() {
         return mWorkManager.getPreferenceUtils().getNeedsReschedule();
     }
 
