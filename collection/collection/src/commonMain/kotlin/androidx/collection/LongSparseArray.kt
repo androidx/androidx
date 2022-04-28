@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-@file:Suppress("NOTHING_TO_INLINE")
-
 package androidx.collection
 
-import androidx.collection.internal.EMPTY_LONGS
-import androidx.collection.internal.EMPTY_OBJECTS
 import androidx.collection.internal.binarySearch
 import androidx.collection.internal.idealLongArraySize
 import kotlin.DeprecationLevel.HIDDEN
+import kotlin.jvm.JvmField
+import kotlin.jvm.JvmOverloads
+import kotlin.jvm.JvmSynthetic
 
 private val DELETED = Any()
 
@@ -54,76 +53,60 @@ private val DELETED = Any()
  * capacity of 0, the sparse array will be initialized with a light-weight representation not
  * requiring any additional array allocations.
  */
-public open class LongSparseArray<E>
-@JvmOverloads public constructor(initialCapacity: Int = 10) : Cloneable {
+public expect open class LongSparseArray<E>
+@JvmOverloads public constructor(initialCapacity: Int = 10) {
     @JvmSynthetic // Hide from Java callers.
     @JvmField
-    internal var garbage = false
+    internal var garbage: Boolean
+
     @JvmSynthetic // Hide from Java callers.
     @JvmField
     internal var keys: LongArray
+
     @JvmSynthetic // Hide from Java callers.
     @JvmField
     internal var values: Array<Any?>
+
     @JvmSynthetic // Hide from Java callers.
     @JvmField
-    internal var size = 0
-
-    init {
-        if (initialCapacity == 0) {
-            keys = EMPTY_LONGS
-            values = EMPTY_OBJECTS
-        } else {
-            val idealCapacity = idealLongArraySize(initialCapacity)
-            keys = LongArray(idealCapacity)
-            values = arrayOfNulls(idealCapacity)
-        }
-    }
-
-    public override fun clone(): LongSparseArray<E> {
-        @Suppress("UNCHECKED_CAST")
-        val clone: LongSparseArray<E> = super.clone() as LongSparseArray<E>
-        clone.keys = keys.clone()
-        clone.values = values.clone()
-        return clone
-    }
+    internal var size: Int
 
     /**
      * Gets the value mapped from the specified [key], or `null` if no such mapping has been made.
      */
-    public open operator fun get(key: Long): E? = commonGet(key)
+    public open operator fun get(key: Long): E?
 
     /**
      * Gets the value mapped from the specified [key], or [defaultValue] if no such mapping has been
      * made.
      */
     @Suppress("KotlinOperator") // Avoid confusion with matrix access syntax.
-    public open fun get(key: Long, defaultValue: E): E = commonGet(key, defaultValue)
+    public open fun get(key: Long, defaultValue: E): E
 
     /**
      * Removes the mapping from the specified [key], if there was any.
      */
     @Deprecated("Alias for `remove(key)`.", ReplaceWith("remove(key)"))
-    public open fun delete(key: Long): Unit = commonRemove(key)
+    public open fun delete(key: Long): Unit
 
     /**
      * Removes the mapping from the specified [key], if there was any.
      */
-    public open fun remove(key: Long): Unit = commonRemove(key)
+    public open fun remove(key: Long): Unit
 
     /**
      * Remove an existing key from the array map only if it is currently mapped to [value].
      *
      * @param key The key of the mapping to remove.
      * @param value The value expected to be mapped to the key.
-     * @return Returns true if the mapping was removed.
+     * @return Returns `true` if the mapping was removed.
      */
-    public open fun remove(key: Long, value: E): Boolean = commonRemove(key, value)
+    public open fun remove(key: Long, value: E): Boolean
 
     /**
-     * Removes the mapping at the specified index.
+     * Removes the mapping at the specified [index].
      */
-    public open fun removeAt(index: Int): Unit = commonRemoveAt(index)
+    public open fun removeAt(index: Int): Unit
 
     /**
      * Replace the mapping for [key] only if it is already mapped to a value.
@@ -132,7 +115,7 @@ public open class LongSparseArray<E>
      * @param value The value to store for the given key.
      * @return Returns the previous mapped value or `null`.
      */
-    public open fun replace(key: Long, value: E): E? = commonReplace(key, value)
+    public open fun replace(key: Long, value: E): E?
 
     /**
      * Replace the mapping for [key] only if it is already mapped to a value.
@@ -142,20 +125,19 @@ public open class LongSparseArray<E>
      * @param newValue The value to store for the given key.
      * @return Returns `true` if the value was replaced.
      */
-    public open fun replace(key: Long, oldValue: E, newValue: E): Boolean =
-        commonReplace(key, oldValue, newValue)
+    public open fun replace(key: Long, oldValue: E, newValue: E): Boolean
 
     /**
      * Adds a mapping from the specified key to the specified value, replacing the previous mapping
      * from the specified key if there was one.
      */
-    public open fun put(key: Long, value: E): Unit = commonPut(key, value)
+    public open fun put(key: Long, value: E): Unit
 
     /**
      * Copies all of the mappings from [other] to this map. The effect of this call is equivalent to
      * that of calling [put] on this map once for each mapping from key to value in [other].
      */
-    public open fun putAll(other: LongSparseArray<out E>): Unit = commonPutAll(other)
+    public open fun putAll(other: LongSparseArray<out E>): Unit
 
     /**
      * Add a new value to the array map only if the key does not already have a value or it is
@@ -166,19 +148,19 @@ public open class LongSparseArray<E>
      * @return Returns the value that was stored for the given key, or `null` if there was no such
      * key.
      */
-    public open fun putIfAbsent(key: Long, value: E): E? = commonPutIfAbsent(key, value)
+    public open fun putIfAbsent(key: Long, value: E): E?
 
     /**
      * Returns the number of key-value mappings that this [LongSparseArray] currently stores.
      */
-    public open fun size(): Int = commonSize()
+    public open fun size(): Int
 
     /**
      * Return `true` if [size] is 0.
      *
      * @return `true` if [size] is 0.
      */
-    public open fun isEmpty(): Boolean = commonIsEmpty()
+    public open fun isEmpty(): Boolean
 
     /**
      * Given an index in the range `0...size()-1`, returns the key from the `index`th key-value
@@ -190,7 +172,7 @@ public open class LongSparseArray<E>
      *
      * @throws IllegalArgumentException if [index] is not in the range `0...size()-1`
      */
-    public open fun keyAt(index: Int): Long = commonKeyAt(index)
+    public open fun keyAt(index: Int): Long
 
     /**
      * Given an index in the range `0...size()-1`, returns the value from the `index`th key-value
@@ -202,7 +184,7 @@ public open class LongSparseArray<E>
      *
      * @throws IllegalArgumentException if [index] is not in the range `0...size()-1`
      */
-    public open fun valueAt(index: Int): E = commonValueAt(index)
+    public open fun valueAt(index: Int): E
 
     /**
      * Given an index in the range `0...size()-1`, sets a new value for the `index`th key-value
@@ -210,14 +192,14 @@ public open class LongSparseArray<E>
      *
      * @throws IllegalArgumentException if [index] is not in the range `0...size()-1`
      */
-    public open fun setValueAt(index: Int, value: E): Unit = commonSetValueAt(index, value)
+    public open fun setValueAt(index: Int, value: E): Unit
 
     /**
      * Returns the index for which [keyAt] would return the
      * specified key, or a negative number if the specified
      * key is not mapped.
      */
-    public open fun indexOfKey(key: Long): Int = commonIndexOfKey(key)
+    public open fun indexOfKey(key: Long): Int
 
     /**
      * Returns an index for which [valueAt] would return the specified key, or a negative number if
@@ -226,24 +208,24 @@ public open class LongSparseArray<E>
      * Beware that this is a linear search, unlike lookups by key, and that multiple keys can map to
      * the same value and this will find only one of them.
      */
-    public open fun indexOfValue(value: E): Int = commonIndexOfValue(value)
+    public open fun indexOfValue(value: E): Int
 
     /** Returns `true` if the specified [key] is mapped. */
-    public open fun containsKey(key: Long): Boolean = commonContainsKey(key)
+    public open fun containsKey(key: Long): Boolean
 
     /** Returns `true` if the specified [value] is mapped from any key. */
-    public open fun containsValue(value: E): Boolean = commonContainsValue(value)
+    public open fun containsValue(value: E): Boolean
 
     /**
      * Removes all key-value mappings from this [LongSparseArray].
      */
-    public open fun clear(): Unit = commonClear()
+    public open fun clear(): Unit
 
     /**
      * Puts a key/value pair into the array, optimizing for the case where the key is greater than
      * all existing keys in the array.
      */
-    public open fun append(key: Long, value: E): Unit = commonAppend(key, value)
+    public open fun append(key: Long, value: E): Unit
 
     /**
      * Returns a string representation of the object.
@@ -251,20 +233,22 @@ public open class LongSparseArray<E>
      * This implementation composes a string by iterating over its mappings. If this map contains
      * itself as a value, the string "(this Map)" will appear in its place.
      */
-    override fun toString(): String = commonToString()
+    override fun toString(): String
 }
 
-// commonized functions
-// TODO: delete these once https://youtrack.jetbrains.com/issue/KT-20427
-//  is fixed.
+// TODO(KT-20427): Move these into the expect once support is added for default implementations.
+
+@Suppress("NOTHING_TO_INLINE")
 internal inline fun <E> LongSparseArray<E>.commonGet(key: Long): E? {
     return commonGetInternal(key, null)
 }
 
+@Suppress("NOTHING_TO_INLINE")
 internal inline fun <E> LongSparseArray<E>.commonGet(key: Long, defaultValue: E): E {
     return commonGetInternal(key, defaultValue)
 }
 
+@Suppress("NOTHING_TO_INLINE")
 internal inline fun <T : E?, E> LongSparseArray<E>.commonGetInternal(
     key: Long,
     defaultValue: T
@@ -278,6 +262,7 @@ internal inline fun <T : E?, E> LongSparseArray<E>.commonGetInternal(
     }
 }
 
+@Suppress("NOTHING_TO_INLINE")
 internal inline fun <E> LongSparseArray<E>.commonRemove(key: Long) {
     val i = binarySearch(keys, size, key)
     if (i >= 0) {
@@ -288,6 +273,7 @@ internal inline fun <E> LongSparseArray<E>.commonRemove(key: Long) {
     }
 }
 
+@Suppress("NOTHING_TO_INLINE")
 internal inline fun <E> LongSparseArray<E>.commonRemove(key: Long, value: E): Boolean {
     val index = indexOfKey(key)
     if (index >= 0) {
@@ -300,6 +286,7 @@ internal inline fun <E> LongSparseArray<E>.commonRemove(key: Long, value: E): Bo
     return false
 }
 
+@Suppress("NOTHING_TO_INLINE")
 internal inline fun <E> LongSparseArray<E>.commonRemoveAt(index: Int) {
     if (values[index] !== DELETED) {
         values[index] = DELETED
@@ -307,6 +294,7 @@ internal inline fun <E> LongSparseArray<E>.commonRemoveAt(index: Int) {
     }
 }
 
+@Suppress("NOTHING_TO_INLINE")
 internal inline fun <E> LongSparseArray<E>.commonReplace(key: Long, value: E): E? {
     val index = indexOfKey(key)
     if (index >= 0) {
@@ -318,6 +306,7 @@ internal inline fun <E> LongSparseArray<E>.commonReplace(key: Long, value: E): E
     return null
 }
 
+@Suppress("NOTHING_TO_INLINE")
 internal inline fun <E> LongSparseArray<E>.commonReplace(
     key: Long,
     oldValue: E,
@@ -334,6 +323,7 @@ internal inline fun <E> LongSparseArray<E>.commonReplace(
     return false
 }
 
+@Suppress("NOTHING_TO_INLINE")
 internal inline fun <E> LongSparseArray<E>.commonGc() {
     val n = size
     var newSize = 0
@@ -354,6 +344,7 @@ internal inline fun <E> LongSparseArray<E>.commonGc() {
     size = newSize
 }
 
+@Suppress("NOTHING_TO_INLINE")
 internal inline fun <E> LongSparseArray<E>.commonPut(key: Long, value: E) {
     var index = binarySearch(keys, size, key)
     if (index >= 0) {
@@ -396,6 +387,7 @@ internal inline fun <E> LongSparseArray<E>.commonPut(key: Long, value: E) {
     }
 }
 
+@Suppress("NOTHING_TO_INLINE")
 internal inline fun <E> LongSparseArray<E>.commonPutAll(other: LongSparseArray<out E>) {
     val size = other.size()
     repeat(size) { i ->
@@ -403,6 +395,7 @@ internal inline fun <E> LongSparseArray<E>.commonPutAll(other: LongSparseArray<o
     }
 }
 
+@Suppress("NOTHING_TO_INLINE")
 internal inline fun <E> LongSparseArray<E>.commonPutIfAbsent(key: Long, value: E): E? {
     val mapValue = get(key)
     if (mapValue == null) {
@@ -411,6 +404,7 @@ internal inline fun <E> LongSparseArray<E>.commonPutIfAbsent(key: Long, value: E
     return mapValue
 }
 
+@Suppress("NOTHING_TO_INLINE")
 internal inline fun <E> LongSparseArray<E>.commonSize(): Int {
     if (garbage) {
         commonGc()
@@ -418,7 +412,10 @@ internal inline fun <E> LongSparseArray<E>.commonSize(): Int {
     return size
 }
 
+@Suppress("NOTHING_TO_INLINE")
 internal inline fun <E> LongSparseArray<E>.commonIsEmpty(): Boolean = size() == 0
+
+@Suppress("NOTHING_TO_INLINE")
 internal inline fun <E> LongSparseArray<E>.commonKeyAt(index: Int): Long {
     require(index in 0 until size) {
         "Expected index to be within 0..size()-1, but was $index"
@@ -430,6 +427,7 @@ internal inline fun <E> LongSparseArray<E>.commonKeyAt(index: Int): Long {
     return keys[index]
 }
 
+@Suppress("NOTHING_TO_INLINE")
 internal inline fun <E> LongSparseArray<E>.commonValueAt(index: Int): E {
     require(index in 0 until size) {
         "Expected index to be within 0..size()-1, but was $index"
@@ -443,6 +441,7 @@ internal inline fun <E> LongSparseArray<E>.commonValueAt(index: Int): E {
     return values[index] as E
 }
 
+@Suppress("NOTHING_TO_INLINE")
 internal inline fun <E> LongSparseArray<E>.commonSetValueAt(index: Int, value: E) {
     require(index in 0 until size) {
         "Expected index to be within 0..size()-1, but was $index"
@@ -454,6 +453,7 @@ internal inline fun <E> LongSparseArray<E>.commonSetValueAt(index: Int, value: E
     values[index] = value
 }
 
+@Suppress("NOTHING_TO_INLINE")
 internal inline fun <E> LongSparseArray<E>.commonIndexOfKey(key: Long): Int {
     if (garbage) {
         commonGc()
@@ -461,6 +461,7 @@ internal inline fun <E> LongSparseArray<E>.commonIndexOfKey(key: Long): Int {
     return binarySearch(keys, size, key)
 }
 
+@Suppress("NOTHING_TO_INLINE")
 internal inline fun <E> LongSparseArray<E>.commonIndexOfValue(value: E): Int {
     if (garbage) {
         commonGc()
@@ -473,14 +474,17 @@ internal inline fun <E> LongSparseArray<E>.commonIndexOfValue(value: E): Int {
     return -1
 }
 
+@Suppress("NOTHING_TO_INLINE")
 internal inline fun <E> LongSparseArray<E>.commonContainsKey(key: Long): Boolean {
     return indexOfKey(key) >= 0
 }
 
+@Suppress("NOTHING_TO_INLINE")
 internal inline fun <E> LongSparseArray<E>.commonContainsValue(value: E): Boolean {
     return indexOfValue(value) >= 0
 }
 
+@Suppress("NOTHING_TO_INLINE")
 internal inline fun <E> LongSparseArray<E>.commonClear() {
     val n = size
     val values = values
@@ -491,6 +495,7 @@ internal inline fun <E> LongSparseArray<E>.commonClear() {
     garbage = false
 }
 
+@Suppress("NOTHING_TO_INLINE")
 internal inline fun <E> LongSparseArray<E>.commonAppend(key: Long, value: E) {
     if (size != 0 && key <= keys[size - 1]) {
         put(key, value)
@@ -510,6 +515,7 @@ internal inline fun <E> LongSparseArray<E>.commonAppend(key: Long, value: E) {
     size = pos + 1
 }
 
+@Suppress("NOTHING_TO_INLINE")
 internal inline fun <E> LongSparseArray<E>.commonToString(): String {
     if (size() <= 0) {
         return "{}"
@@ -534,9 +540,8 @@ internal inline fun <E> LongSparseArray<E>.commonToString(): String {
     }
 }
 
-// commonized functions end
-
 /** Returns the number of key/value pairs in the collection. */
+@Suppress("NOTHING_TO_INLINE")
 public inline val <T> LongSparseArray<T>.size: Int get() = size()
 
 /** Returns true if the collection contains [key]. */
@@ -561,6 +566,7 @@ public inline fun <T> LongSparseArray<T>.getOrDefault(key: Long, defaultValue: T
     get(key, defaultValue)
 
 /** Return the value corresponding to [key], or from [defaultValue] when not present. */
+@Suppress("NOTHING_TO_INLINE")
 public inline fun <T> LongSparseArray<T>.getOrElse(key: Long, defaultValue: () -> T): T =
     get(key) ?: defaultValue()
 
@@ -577,6 +583,7 @@ public inline fun <T> LongSparseArray<T>.isNotEmpty(): Boolean = !isEmpty()
 public fun <T> LongSparseArray<T>.remove(key: Long, value: T): Boolean = remove(key, value)
 
 /** Performs the given [action] for each key/value entry. */
+@Suppress("NOTHING_TO_INLINE")
 public inline fun <T> LongSparseArray<T>.forEach(action: (key: Long, value: T) -> Unit) {
     for (index in 0 until size()) {
         action(keyAt(index), valueAt(index))
