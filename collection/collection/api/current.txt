@@ -241,5 +241,8 @@ package androidx.collection.internal {
   public final class ContainerHelpersKt {
   }
 
+  public final class LockExtKt {
+  }
+
 }
 

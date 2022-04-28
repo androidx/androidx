@@ -16,7 +16,10 @@
 
 package androidx.collection
 
-import androidx.annotation.IntRange
+import androidx.collection.internal.IntRangeKmp
+import androidx.collection.internal.Lock
+import androidx.collection.internal.LruHashMap
+import androidx.collection.internal.synchronized
 import kotlin.Long.Companion.MAX_VALUE
 
 /**
@@ -31,13 +34,14 @@ import kotlin.Long.Companion.MAX_VALUE
  * cache.
  */
 public open class LruCache<K : Any, V : Any>
-public constructor(@IntRange(from = 1, to = MAX_VALUE) private var maxSize: Int) {
+public constructor(@IntRangeKmp(from = 1, to = MAX_VALUE) private var maxSize: Int) {
 
     init {
         require(maxSize > 0) { "maxSize <= 0" }
     }
 
-    private val map: LinkedHashMap<K, V> = LinkedHashMap(0, 0.75f, true)
+    private val map = LruHashMap<K, V>(0, 0.75f)
+    private val lock = Lock()
 
     /**
      * Size of this cache in units. Not necessarily the number of elements.
@@ -55,10 +59,10 @@ public constructor(@IntRange(from = 1, to = MAX_VALUE) private var maxSize: Int)
      *
      * @param maxSize The new maximum size.
      */
-    public open fun resize(@IntRange(from = 1, to = MAX_VALUE) maxSize: Int) {
+    public open fun resize(@IntRangeKmp(from = 1, to = MAX_VALUE) maxSize: Int) {
         require(maxSize > 0) { "maxSize <= 0" }
 
-        synchronized(this) {
+        lock.synchronized {
             this.maxSize = maxSize
         }
         trimToSize(maxSize)
@@ -71,7 +75,7 @@ public constructor(@IntRange(from = 1, to = MAX_VALUE) private var maxSize: Int)
      */
     public operator fun get(key: K): V? {
         var mapValue: V?
-        synchronized(this) {
+        lock.synchronized {
             mapValue = map[key]
             if (mapValue != null) {
                 hitCount++
@@ -88,7 +92,7 @@ public constructor(@IntRange(from = 1, to = MAX_VALUE) private var maxSize: Int)
          */
         val createdValue = create(key) ?: return null
 
-        synchronized(this) {
+        lock.synchronized {
             createCount++
             mapValue = map.put(key, createdValue)
             if (mapValue != null) {
@@ -115,7 +119,7 @@ public constructor(@IntRange(from = 1, to = MAX_VALUE) private var maxSize: Int)
      */
     public fun put(key: K, value: V): V? {
         val previous: V?
-        synchronized(this) {
+        lock.synchronized {
             putCount++
             size += safeSizeOf(key, value)
             previous = map.put(key, value)
@@ -144,12 +148,12 @@ public constructor(@IntRange(from = 1, to = MAX_VALUE) private var maxSize: Int)
             var key: K
             var value: V
 
-            synchronized(this) {
-                check(!(size < 0 || (map.isEmpty() && size != 0))) {
-                    ("${this::class.java.name} .sizeOf() is reporting inconsistent results!")
+            lock.synchronized {
+                check(!(size < 0 || (map.isEmpty && size != 0))) {
+                    ("LruCache.sizeOf() is reporting inconsistent results!")
                 }
 
-                if (size <= maxSize || map.isEmpty()) {
+                if (size <= maxSize || map.isEmpty) {
                     return
                 }
 
@@ -173,7 +177,7 @@ public constructor(@IntRange(from = 1, to = MAX_VALUE) private var maxSize: Int)
      */
     public fun remove(key: K): V? {
         val previous: V?
-        synchronized(this) {
+        lock.synchronized {
             previous = map.remove(key)
             if (previous != null) {
                 size -= safeSizeOf(key, previous)
@@ -248,50 +252,57 @@ public constructor(@IntRange(from = 1, to = MAX_VALUE) private var maxSize: Int)
      * of entries in the cache. For all other caches, this returns the sum of
      * the sizes of the entries in this cache.
      */
-    public fun size(): Int = synchronized(this) { size }
+    public fun size(): Int = lock.synchronized { size }
 
     /**
      * For caches that do not override [sizeOf], this returns the maximum
      * number of entries in the cache. For all other caches, this returns the
      * maximum sum of the sizes of the entries in this cache.
      */
-    public fun maxSize(): Int = synchronized(this) { maxSize }
+    public fun maxSize(): Int = lock.synchronized { maxSize }
 
     /**
      * Returns the number of times [get] returned a value that was
      * already present in the cache.
      */
-    public fun hitCount(): Int = synchronized(this) { hitCount }
+    public fun hitCount(): Int = lock.synchronized { hitCount }
 
     /**
      * Returns the number of times [get] returned null or required a new
      * value to be created.
      */
-    public fun missCount(): Int = synchronized(this) { missCount }
+    public fun missCount(): Int = lock.synchronized { missCount }
 
     /**
      * Returns the number of times [create] returned a value.
      */
-    public fun createCount(): Int = synchronized(this) { createCount }
+    public fun createCount(): Int = lock.synchronized { createCount }
 
     /**
      * Returns the number of times [put] was called.
      */
-    public fun putCount(): Int = synchronized(this) { putCount }
+    public fun putCount(): Int = lock.synchronized { putCount }
 
     /**
      * Returns the number of values that have been evicted.
      */
-    public fun evictionCount(): Int = synchronized(this) { evictionCount }
+    public fun evictionCount(): Int = lock.synchronized { evictionCount }
 
     /**
      * Returns a copy of the current contents of the cache, ordered from least
      * recently accessed to most recently accessed.
      */
-    public fun snapshot(): Map<K, V> = synchronized(this) { LinkedHashMap(map) }
+    public fun snapshot(): Map<K, V> =
+        lock.synchronized {
+            buildMap {
+                map.entries.forEach { (key, value) ->
+                    put(key, value)
+                }
+            }
+        }
 
     override fun toString(): String {
-        synchronized(this) {
+        lock.synchronized {
             val accesses = hitCount + missCount
             val hitPercent = if (accesses != 0) {
                 100 * hitCount / accesses

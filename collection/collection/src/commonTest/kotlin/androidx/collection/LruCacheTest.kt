@@ -21,6 +21,11 @@ import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 internal class LruCacheTest {
 
@@ -330,7 +335,7 @@ internal class LruCacheTest {
      */
     @Test
     fun testCreateWithConcurrentPut() {
-        val log = java.util.ArrayList<String>()
+        val log = ArrayList<String>()
         val cache =
             object : LruCache<String, String>(3) {
                 override fun create(key: String): String {
@@ -382,6 +387,88 @@ internal class LruCacheTest {
             }
         assertEquals(2, cache["a"])
         assertContentEquals(listOf("a=1>2"), log)
+    }
+
+    @Test
+    fun testAbleToUpdateFromAnotherThreadWithBlockedEntryRemoved() {
+        val cache =
+            object : LruCache<String, String>(3) {
+                override fun entryRemoved(
+                    evicted: Boolean,
+                    key: String,
+                    oldValue: String,
+                    newValue: String?
+                ) {
+                    if (key in setOf("a", "b", "c", "d")) {
+                        runBlocking(Dispatchers.Default) {
+                            put("x", "X")
+                        }
+                    }
+                }
+            }
+
+        cache.put("a", "A")
+        cache.put("a", "A2") // replaced
+        cache.put("b", "B")
+        cache.put("c", "C")
+        cache.put("d", "D") // single eviction
+        cache.remove("a") // removed
+        cache.evictAll() // multiple eviction
+    }
+
+    /** Makes sure that LruCache operations are correctly synchronized to guarantee consistency.  */
+    @OptIn(DelicateCoroutinesApi::class) // Using GlobalScope in tests
+    @Test
+    fun consistentMultithreadedAccess() {
+        var nonNullValues = 0
+        var nullValues = 0
+        var valuesPut = 0
+        var conflicts = 0
+        var removed = 0
+
+        val rounds = 10000
+        val key = "key"
+        val value = 42
+        val cache =
+            object : LruCache<String, Int>(1) {
+                override fun create(key: String): Int = value
+            }
+
+        val t0 =
+            GlobalScope.launch(Dispatchers.Default) {
+                repeat(rounds) {
+                    if (cache[key] != null) {
+                        nonNullValues++
+                    } else {
+                        nullValues++
+                    }
+                }
+            }
+
+        val t1 =
+            GlobalScope.launch(Dispatchers.Default) {
+                repeat(rounds) { i ->
+                    if (i % 2 == 0) {
+                        if (cache.put(key, value) != null) {
+                            conflicts++
+                        } else {
+                            valuesPut++
+                        }
+                    } else {
+                        cache.remove(key)
+                        removed++
+                    }
+                }
+            }
+
+        runBlocking {
+            t0.join()
+            t1.join()
+        }
+
+        assertEquals(rounds, nonNullValues)
+        assertEquals(0, nullValues)
+        assertEquals(rounds, valuesPut + conflicts + removed)
     }
 
     private fun newCreatingCache(): LruCache<String, String> =
