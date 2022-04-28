@@ -16,6 +16,8 @@
 
 package androidx.camera.core.impl;
 
+import static androidx.camera.core.impl.SessionConfig.OutputConfig.SURFACE_GROUP_ID_NONE;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Mockito.mock;
@@ -24,6 +26,9 @@ import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraDevice;
 import android.view.Surface;
 
+import androidx.camera.core.ImageCapture;
+import androidx.camera.core.Preview;
+import androidx.camera.core.VideoCapture;
 import androidx.camera.core.impl.Config.Option;
 import androidx.camera.testing.DeferrableSurfacesUtil;
 import androidx.camera.testing.fakes.FakeMultiValueSet;
@@ -38,6 +43,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Arrays;
 import java.util.List;
 
 @MediumTest
@@ -82,9 +88,41 @@ public class SessionConfigTest {
         SessionConfig sessionConfig = builder.build();
 
         List<DeferrableSurface> surfaces = sessionConfig.getSurfaces();
+        List<SessionConfig.OutputConfig> outputConfigs = sessionConfig.getOutputConfigs();
 
         assertThat(surfaces).hasSize(1);
         assertThat(surfaces).contains(mMockSurface0);
+        assertThat(outputConfigs).hasSize(1);
+        assertThat(outputConfigs.get(0).getSurface()).isEqualTo(mMockSurface0);
+        assertThat(outputConfigs.get(0).getSharedSurfaces()).isEmpty();
+        assertThat(outputConfigs.get(0).getPhysicalCameraId()).isNull();
+        assertThat(outputConfigs.get(0).getSurfaceGroupId()).isEqualTo(SURFACE_GROUP_ID_NONE);
+    }
+
+    @Test
+    public void builderAddOutputConfig() {
+        SessionConfig.Builder builder = new SessionConfig.Builder();
+        DeferrableSurface sharedSurface1 = new ImmediateSurface(mock(Surface.class));
+        DeferrableSurface sharedSurface2 = new ImmediateSurface(mock(Surface.class));
+        SessionConfig.OutputConfig outputConfig = SessionConfig.OutputConfig.builder(mMockSurface0)
+                .setSurfaceGroupId(1)
+                .setSharedSurfaces(Arrays.asList(sharedSurface1, sharedSurface2))
+                .setPhysicalCameraId("4")
+                .build();
+
+        builder.addOutputConfig(outputConfig);
+        SessionConfig sessionConfig = builder.build();
+
+        List<DeferrableSurface> surfaces = sessionConfig.getSurfaces();
+        List<SessionConfig.OutputConfig> outputConfigs = sessionConfig.getOutputConfigs();
+
+        assertThat(surfaces).containsExactly(mMockSurface0, sharedSurface1, sharedSurface2);
+        assertThat(outputConfigs).hasSize(1);
+        assertThat(outputConfigs.get(0).getSurface()).isEqualTo(mMockSurface0);
+        assertThat(outputConfigs.get(0).getSharedSurfaces())
+                .containsExactly(sharedSurface1, sharedSurface2);
+        assertThat(outputConfigs.get(0).getSurfaceGroupId()).isEqualTo(1);
+        assertThat(outputConfigs.get(0).getPhysicalCameraId()).isEqualTo("4");
     }
 
     @Test
@@ -95,11 +133,13 @@ public class SessionConfigTest {
         SessionConfig sessionConfig = builder.build();
 
         List<DeferrableSurface> surfaces = sessionConfig.getSurfaces();
+        List<SessionConfig.OutputConfig> outputConfigs = sessionConfig.getOutputConfigs();
         List<DeferrableSurface> repeatingSurfaces =
                 sessionConfig.getRepeatingCaptureConfig().getSurfaces();
 
-        assertThat(surfaces).hasSize(1);
-        assertThat(surfaces).contains(mMockSurface0);
+        assertThat(surfaces).containsExactly(mMockSurface0);
+        assertThat(outputConfigs).hasSize(1);
+        assertThat(outputConfigs.get(0).getSurface()).isEqualTo(mMockSurface0);
         assertThat(repeatingSurfaces).isEmpty();
         assertThat(repeatingSurfaces).doesNotContain(mMockSurface0);
     }
@@ -125,11 +165,13 @@ public class SessionConfigTest {
         SessionConfig.Builder builder = new SessionConfig.Builder();
 
         builder.addSurface(mMockSurface0);
+        builder.addSurface(mMockSurface1);
         builder.removeSurface(mMockSurface0);
         SessionConfig sessionConfig = builder.build();
 
-        List<Surface> surfaces = DeferrableSurfacesUtil.surfaceList(sessionConfig.getSurfaces());
-        assertThat(surfaces).isEmpty();
+        assertThat(sessionConfig.getSurfaces()).containsExactly(mMockSurface1);
+        assertThat(sessionConfig.getOutputConfigs()).hasSize(1);
+        assertThat(sessionConfig.getOutputConfigs().get(0).getSurface()).isEqualTo(mMockSurface1);
     }
 
     @Test
@@ -140,8 +182,8 @@ public class SessionConfigTest {
         builder.clearSurfaces();
         SessionConfig sessionConfig = builder.build();
 
-        List<Surface> surfaces = DeferrableSurfacesUtil.surfaceList(sessionConfig.getSurfaces());
-        assertThat(surfaces.size()).isEqualTo(0);
+        assertThat(sessionConfig.getSurfaces()).isEmpty();
+        assertThat(sessionConfig.getOutputConfigs()).isEmpty();
     }
 
     @Test
@@ -311,21 +353,59 @@ public class SessionConfigTest {
         assertThat(sessionConfig.getTemplateType()).isEqualTo(CameraDevice.TEMPLATE_PREVIEW);
     }
 
+    private DeferrableSurface createSurface(Class<?> containerClass) {
+        DeferrableSurface deferrableSurface = new ImmediateSurface(mock(Surface.class));
+        deferrableSurface.setContainerClass(containerClass);
+        return deferrableSurface;
+    }
+
     @Test
     public void combineTwoSessionsSurfaces() {
+        DeferrableSurface previewSurface = createSurface(Preview.class);
+        DeferrableSurface videoSurface = createSurface(VideoCapture.class);
+        DeferrableSurface imageCaptureSurface = createSurface(ImageCapture.class);
+
         SessionConfig.Builder builder0 = new SessionConfig.Builder();
-        builder0.addSurface(mMockSurface0);
+        builder0.addSurface(videoSurface);
         builder0.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
-        MutableOptionsBundle options0 = MutableOptionsBundle.create();
-        options0.insertOption(OPTION, 1);
-        builder0.addImplementationOptions(options0);
 
         SessionConfig.Builder builder1 = new SessionConfig.Builder();
-        builder1.addSurface(mMockSurface1);
+        builder1.addSurface(previewSurface);
         builder1.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
-        MutableOptionsBundle options1 = MutableOptionsBundle.create();
-        options1.insertOption(OPTION_1, "test");
-        builder1.addImplementationOptions(options1);
+
+        SessionConfig.Builder builder2 = new SessionConfig.Builder();
+        builder2.addSurface(imageCaptureSurface);
+        builder2.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
+
+        SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
+        validatingBuilder.add(builder0.build());
+        validatingBuilder.add(builder1.build());
+        validatingBuilder.add(builder2.build());
+
+        SessionConfig sessionConfig = validatingBuilder.build();
+
+        List<DeferrableSurface> surfaces = sessionConfig.getSurfaces();
+        // Ensures the surfaces are all added and sorted correctly.
+        assertThat(surfaces)
+                .containsExactly(previewSurface, imageCaptureSurface, videoSurface).inOrder();
+    }
+
+    @Test
+    public void combineTwoSessionsOutputConfigs() {
+        DeferrableSurface nonRepeatingSurface = mock(DeferrableSurface.class);
+
+        SessionConfig.Builder builder0 = new SessionConfig.Builder();
+        SessionConfig.OutputConfig outputConfig0 =
+                SessionConfig.OutputConfig.builder(mMockSurface0).build();
+        builder0.addOutputConfig(outputConfig0);
+        builder0.addNonRepeatingSurface(nonRepeatingSurface);
+        builder0.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
+
+        SessionConfig.Builder builder1 = new SessionConfig.Builder();
+        SessionConfig.OutputConfig outputConfig1 =
+                SessionConfig.OutputConfig.builder(mMockSurface1).build();
+        builder1.addOutputConfig(outputConfig1);
+        builder1.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
 
         SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
         validatingBuilder.add(builder0.build());
@@ -334,7 +414,15 @@ public class SessionConfigTest {
         SessionConfig sessionConfig = validatingBuilder.build();
 
         List<DeferrableSurface> surfaces = sessionConfig.getSurfaces();
-        assertThat(surfaces).containsExactly(mMockSurface0, mMockSurface1);
+        assertThat(surfaces).containsExactly(mMockSurface0, mMockSurface1, nonRepeatingSurface);
+        assertThat(sessionConfig.getOutputConfigs()).hasSize(3);
+        assertThat(sessionConfig.getOutputConfigs().get(0)).isEqualTo(outputConfig0);
+        assertThat(sessionConfig.getOutputConfigs().get(1).getSurface())
+                .isEqualTo(nonRepeatingSurface);
+        assertThat(sessionConfig.getOutputConfigs().get(2)).isEqualTo(outputConfig1);
+        // Should not contain the nonRepeatingSurface.
+        assertThat(sessionConfig.getRepeatingCaptureConfig().getSurfaces())
+                .containsExactly(mMockSurface0, mMockSurface1);
     }
 
     @Test
