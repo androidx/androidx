@@ -55,6 +55,7 @@ import androidx.wear.tiles.ModifiersBuilders.Clickable;
 import androidx.wear.tiles.ModifiersBuilders.Corner;
 import androidx.wear.tiles.ModifiersBuilders.Modifiers;
 import androidx.wear.tiles.ModifiersBuilders.Padding;
+import androidx.wear.tiles.ModifiersBuilders.Semantics;
 import androidx.wear.tiles.material.Typography.TypographyName;
 import androidx.wear.tiles.proto.LayoutElementProto;
 
@@ -539,11 +540,13 @@ public class Chip implements LayoutElement {
     }
 
     /** Returns content description of this Chip. */
-    @NonNull
+    @Nullable
     public CharSequence getContentDescription() {
-        return checkNotNull(
-                checkNotNull(checkNotNull(mElement.getModifiers()).getSemantics())
-                        .getContentDescription());
+        Semantics semantics = checkNotNull(mElement.getModifiers()).getSemantics();
+        if (semantics == null) {
+            return null;
+        }
+        return semantics.getContentDescription();
     }
 
     /** Returns content of this Chip. */
