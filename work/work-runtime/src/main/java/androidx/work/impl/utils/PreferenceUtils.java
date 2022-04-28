@@ -51,6 +51,7 @@ public class PreferenceUtils {
     public static final String PREFERENCES_FILE_NAME = "androidx.work.util.preferences";
     public static final String KEY_LAST_CANCEL_ALL_TIME_MS = "last_cancel_all_time_ms";
     public static final String KEY_RESCHEDULE_NEEDED = "reschedule_needed";
+    private static final String KEY_LAST_FORCE_STOP_MS = "last_force_stop_ms";
 
     private final WorkDatabase mWorkDatabase;
 
@@ -110,6 +111,28 @@ public class PreferenceUtils {
     public void setNeedsReschedule(boolean needsReschedule) {
         Preference preference = new Preference(KEY_RESCHEDULE_NEEDED, needsReschedule);
         mWorkDatabase.preferenceDao().insertPreference(preference);
+    }
+
+    /**
+     * Updates the key which indicates the last force-stop timestamp handled by
+     * {@link androidx.work.WorkManager}.
+     */
+    public void setLastForceStopEventMillis(long lastForceStopTimeMillis) {
+        Preference preference = new Preference(KEY_LAST_FORCE_STOP_MS, lastForceStopTimeMillis);
+        mWorkDatabase.preferenceDao().insertPreference(preference);
+    }
+
+    /**
+     * Gets the timestamp for the last known force-stop event that
+     * {@link androidx.work.WorkManager} is aware of.
+     */
+    public long getLastForceStopEventMillis() {
+        Long timestamp = mWorkDatabase.preferenceDao().getLongValue(KEY_LAST_FORCE_STOP_MS);
+        if (timestamp != null) {
+            return timestamp;
+        } else {
+            return 0;
+        }
     }
 
     /**
