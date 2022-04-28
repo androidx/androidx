@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
@@ -111,9 +112,9 @@ public fun Picker(
     } else {
         forceScrollWhenReadOnly = true
         ScalingLazyColumn(
-            modifier = modifier.drawWithContent {
-                drawContent()
-                if (gradientRatio > 0.0f) {
+            modifier = if (gradientRatio > 0.0f) {
+                modifier.drawWithContent {
+                    drawContent()
                     // Apply a fade-out gradient on the top and bottom.
                     drawRect(Brush.linearGradient(
                         colors = listOf(gradientColor, Color.Transparent),
@@ -126,6 +127,10 @@ public fun Picker(
                         end = Offset(size.width / 2, size.height)
                     ))
                 }
+                // b/223386180 - prevent artefacts left on screen when scaling gradient by padding.
+                .padding(vertical = 1.dp)
+            } else {
+                modifier
             },
             state = state.scalingLazyListState,
             content = {
