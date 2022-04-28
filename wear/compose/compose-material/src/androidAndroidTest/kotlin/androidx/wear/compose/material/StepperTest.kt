@@ -23,9 +23,11 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.test.assertContentDescriptionContains
+import androidx.compose.ui.test.assertHasNoClickAction
 import androidx.compose.ui.test.assertRangeInfoEquals
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.click
@@ -34,7 +36,9 @@ import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onChild
 import androidx.compose.ui.test.onChildAt
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onParent
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.dp
@@ -196,7 +200,8 @@ public class StepperTest {
 
     @Test
     public fun reaches_min_clicking_bottom() {
-        val state = mutableStateOf(1f)
+        // Start one step above the minimum.
+        val state = mutableStateOf(2f)
         val range = 1f..4f
 
         rule.initDefaultStepper(state, range, 2)
@@ -211,7 +216,8 @@ public class StepperTest {
 
     @Test
     public fun reaches_max_clicking_top() {
-        val state = mutableStateOf(4f)
+        // Start one step below the maximum.
+        val state = mutableStateOf(3f)
         val range = 1f..4f
 
         rule.initDefaultStepper(state, range, 2)
@@ -223,6 +229,34 @@ public class StepperTest {
             Truth.assertThat(state.value).isWithin(0.001f).of(4f)
         }
     }
+
+    @Test
+    public fun disables_decrease_when_minimum_value_reached() {
+        val state = mutableStateOf(1f)
+        val range = 1f..4f
+
+        rule.initDefaultStepper(state, range, 2)
+
+        rule.onNodeWithContentDescription(DECREASE).onParent().assertHasNoClickAction()
+    }
+
+    @Test
+    public fun disables_increase_when_maximum_value_reached() {
+        val state = mutableStateOf(4f)
+        val range = 1f..4f
+
+        rule.initDefaultStepper(state, range, 2)
+
+        rule.onNodeWithContentDescription(INCREASE).onParent().assertHasNoClickAction()
+    }
+
+    @Test
+    public fun colors_decrease_icon_with_disabled_alpha() =
+        verifyDisabledColors(increase = false, value = 1f)
+
+    @Test
+    public fun colors_increase_icon_with_disabled_alpha() =
+        verifyDisabledColors(increase = true, value = 4f)
 
     @Test
     public fun sets_custom_decrease_icon() {
@@ -354,6 +388,42 @@ public class StepperTest {
             .onChildAt(1)
             .onChild()
             .assertContentDescriptionContains(testContentDescription)
+    }
+
+    private fun verifyDisabledColors(increase: Boolean, value: Float) {
+        val state = mutableStateOf(value)
+        var expectedIconColor = Color.Transparent
+        var actualIconColor = Color.Transparent
+        var expectedAlpha = 0f
+        var actualAlpha = 0f
+
+        rule.setContentWithTheme {
+            expectedIconColor = MaterialTheme.colors.primary.copy(alpha = ContentAlpha.disabled)
+            expectedAlpha = expectedIconColor.alpha
+            Stepper(
+                value = state.value,
+                onValueChange = { state.value = it },
+                valueRange = 1f..4f,
+                steps = 2,
+                iconColor = MaterialTheme.colors.primary,
+                increaseIcon = {
+                    if (increase) {
+                        actualIconColor = LocalContentColor.current
+                        actualAlpha = LocalContentAlpha.current
+                    }
+                },
+                decreaseIcon = {
+                    if (!increase) {
+                        actualIconColor = LocalContentColor.current
+                        actualAlpha = LocalContentAlpha.current
+                    }
+                },
+                modifier = Modifier.testTag(TEST_TAG)
+            ) {}
+        }
+
+        assertEquals(expectedIconColor, actualIconColor)
+        assertEquals(expectedAlpha, actualAlpha)
     }
 
     private val BorderVerticalMargin = 22.dp
@@ -493,8 +563,8 @@ private fun ComposeContentTestRule.initDefaultStepper(
             onValueChange = { state.value = it },
             valueRange = valueRange,
             steps = steps,
-            increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
-            decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
+            increaseIcon = { Icon(StepperDefaults.Increase, INCREASE) },
+            decreaseIcon = { Icon(StepperDefaults.Decrease, DECREASE) },
             modifier = Modifier.testTag(TEST_TAG)
         ) {}
     }
@@ -536,3 +606,6 @@ private fun ComposeContentTestRule.initDefaultStepper(
         ) {}
     }
 }
+
+private val INCREASE = "increase"
+private val DECREASE = "decrease"
