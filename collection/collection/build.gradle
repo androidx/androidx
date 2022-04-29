@@ -75,6 +75,12 @@ kotlin {
             configure([linuxX64Test, macosX64Test, macosArm64Test]) {
                 dependsOn nativeTest
             }
+            macMain {
+                dependsOn(nativeMain)
+            }
+            configure([macosArm64Main, macosX64Main]) {
+                dependsOn macMain
+            }
         }
 
         jvmMain {
