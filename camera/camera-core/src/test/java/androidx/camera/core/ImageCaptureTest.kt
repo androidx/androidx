@@ -160,6 +160,37 @@ public class ImageCaptureTest {
     }
 
     @Test
+    public fun takePictureToImageWithoutBinding_receiveOnError() {
+        // Arrange.
+        val imageCapture = createImageCapture()
+        val onImageCapturedCallback = mock(ImageCapture.OnImageCapturedCallback::class.java)
+
+        // Act.
+        imageCapture.takePicture(executor, onImageCapturedCallback)
+        shadowOf(getMainLooper()).idle()
+        flushHandler(callbackHandler)
+
+        // Assert.
+        verify(onImageCapturedCallback).onError(any())
+    }
+
+    @Test
+    public fun takePictureToFileWithoutBinding_receiveOnError() {
+        // Arrange.
+        val imageCapture = createImageCapture()
+        val options = ImageCapture.OutputFileOptions.Builder(File("fake_path")).build()
+        val onImageSavedCallback = mock(ImageCapture.OnImageSavedCallback::class.java)
+
+        // Act.
+        imageCapture.takePicture(options, executor, onImageSavedCallback)
+        shadowOf(getMainLooper()).idle()
+        flushHandler(callbackHandler)
+
+        // Assert.
+        verify(onImageSavedCallback).onError(any())
+    }
+
+    @Test
     public fun captureImageWithViewPort_isSet() {
         // Arrange
         val imageCapture = bindImageCapture(
@@ -417,18 +448,7 @@ public class ImageCaptureTest {
 
     private fun bindImageCapture(captureMode: Int, viewPort: ViewPort?): ImageCapture {
         // Arrange.
-        val sessionOptionUnpacker =
-            { _: UseCaseConfig<*>?, _: SessionConfig.Builder? -> }
-        val imageCapture = ImageCapture.Builder()
-            // Set non jpg format so it doesn't trigger the exif code path.
-            .setBufferFormat(ImageFormat.YUV_420_888)
-            .setTargetRotation(Surface.ROTATION_0)
-            .setCaptureMode(captureMode)
-            .setFlashMode(ImageCapture.FLASH_MODE_OFF)
-            .setCaptureOptionUnpacker { _: UseCaseConfig<*>?, _: CaptureConfig.Builder? -> }
-            .setImageReaderProxyProvider(getImageReaderProxyProvider())
-            .setSessionOptionUnpacker(sessionOptionUnpacker)
-            .build()
+        val imageCapture = createImageCapture(captureMode)
 
         cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(
             ApplicationProvider
@@ -440,6 +460,18 @@ public class ImageCaptureTest {
         cameraUseCaseAdapter.addUseCases(Collections.singleton<UseCase>(imageCapture))
         return imageCapture
     }
+
+    private fun createImageCapture(captureMode: Int = ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY) =
+        ImageCapture.Builder()
+            // Set non jpg format so it doesn't trigger the exif code path.
+            .setBufferFormat(ImageFormat.YUV_420_888)
+            .setTargetRotation(Surface.ROTATION_0)
+            .setCaptureMode(captureMode)
+            .setFlashMode(ImageCapture.FLASH_MODE_OFF)
+            .setCaptureOptionUnpacker { _: UseCaseConfig<*>?, _: CaptureConfig.Builder? -> }
+            .setImageReaderProxyProvider(getImageReaderProxyProvider())
+            .setSessionOptionUnpacker { _: UseCaseConfig<*>?, _: SessionConfig.Builder? -> }
+            .build()
 
     private fun getImageReaderProxyProvider(): ImageReaderProxyProvider {
         return ImageReaderProxyProvider { width, height, imageFormat, queueDepth, usage ->
