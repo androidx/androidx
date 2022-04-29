@@ -5,10 +5,10 @@ echo "Starting $0 at $(date)"
 
 androidxArguments="$*"
 
-WORKING_DIR="$(pwd)"
 SCRIPTS_DIR="$(cd $(dirname $0)/.. && pwd)"
 cd "$SCRIPTS_DIR/../../.."
 echo "Script running from $(pwd)"
+ANDROIDX_DIR="$(pwd)"
 
 # Resolve JDK folders for host OS
 STUDIO_JDK="linux"
@@ -33,13 +33,22 @@ export GRADLE_USER_HOME="$DIST_DIR/gradle"
 mkdir -p "$GRADLE_USER_HOME"
 
 if [ "$STUDIO_DIR" == "" ]; then
-  STUDIO_DIR="$WORKING_DIR"
+  STUDIO_DIR="$ANDROIDX_DIR"
 else
   STUDIO_DIR="$(cd $STUDIO_DIR && pwd)"
 fi
 
 TOOLS_DIR=$STUDIO_DIR/tools
 gw="$TOOLS_DIR/gradlew -Dorg.gradle.jvmargs=-Xmx24g"
+
+plat="linux"
+case "`uname`" in
+  Darwin* )
+    plat="darwin"
+    ;;
+esac
+
+export ANDROID_HOME="$ANDROIDX_DIR/prebuilts/fullsdk-$plat"
 
 function buildStudio() {
   STUDIO_BUILD_LOG="$OUT_DIR/studio.log"
