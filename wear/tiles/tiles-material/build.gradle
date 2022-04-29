@@ -39,6 +39,16 @@ dependencies {
     androidTestRuntimeOnly(project(path: ":wear:tiles:tiles-proto", configuration: "shadow"))
     androidTestImplementation("com.google.protobuf:protobuf-java:3.10.0")
 
+    testImplementation(libs.junit)
+    testImplementation(libs.mockitoCore)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.testExtJunit)
+    testImplementation(libs.testExtTruth)
+    testImplementation(libs.testCore)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.testRules)
+    testImplementation(libs.truth)
+
     annotationProcessor(libs.nullaway)
 }
 
